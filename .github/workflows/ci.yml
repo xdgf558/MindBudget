@@ -62,7 +62,6 @@ jobs:
             "${device_type_id}" \
             "${runtime_id}")"
           xcrun simctl boot "${simulator_id}"
-          xcrun simctl bootstatus "${simulator_id}" -b
           echo "MINDBUDGET_TEST_DESTINATION=platform=iOS Simulator,id=${simulator_id}" >> "${GITHUB_ENV}"
 
       - name: Build and test
