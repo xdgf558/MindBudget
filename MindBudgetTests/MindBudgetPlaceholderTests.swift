@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import MindBudget
 
-struct MindBudgetPlaceholderTests {
+struct MindBudgetLocalizationTests {
     @Test
     func appBundleLoadsLocalizedBootstrapCopy() {
         let key = "bootstrap.status.ready"

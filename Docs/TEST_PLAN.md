@@ -5,6 +5,8 @@
 - Unit tests use Swift Testing (`import Testing`, `@Test`, and `#expect`).
 - UI tests use XCUITest.
 - The full automated suite must pass on a simulator without Apple Intelligence.
+- Phase 0 smoke coverage launches the app with forced English and Simplified Chinese
+  locales and asserts rendered labels, not only accessibility identifiers.
 - Every rule/date test injects `now`, `Calendar`, and `TimeZone`; production-clock
   lookups such as `Date()` and `Calendar.current` are forbidden inside testable engines.
 
@@ -22,7 +24,8 @@ Cover minor-unit round trips, USD/JPY exponents, bankers rounding, currency-safe
 addition, ratio scaling, canonical App Intents decimal transport, and exact
 non-floating-point results. CI also statically rejects `Double`/`Float` in money
 paths outside `AppIntents/IntentMoneyTransport.swift`. The repository enforces
-this with `Scripts/check-no-floating-point-money.sh` in GitHub Actions.
+this across the complete `MindBudget/` source tree with
+`Scripts/check-no-floating-point-money.sh` in GitHub Actions.
 
 ### WishItemStateMachineTests
 
@@ -122,17 +125,18 @@ suggested entities.
 
 ## Phase 0 acceptance
 
-The app target must build, and both placeholder tests must pass on the recorded
-simulator destination. The unit smoke test verifies that the hosted app bundle
-resolves localized bootstrap copy; the UI smoke test fixes English locale and
-verifies both the accessibility identifier and rendered label. These tests are
-replaced by phase-specific coverage as implementation begins; tests are never
-disabled to make a phase pass.
+The app target must build, and all smoke tests must pass on the recorded simulator
+destination. The unit test verifies that the hosted app bundle resolves localized
+bootstrap copy. UI tests force English and Simplified Chinese locales and verify both
+the accessibility identifier and rendered label. These tests are replaced by
+phase-specific coverage as implementation begins; tests are never disabled to make
+a phase pass.
 
 ## Continuous integration
 
-GitHub Actions runs the floating-point source check, asserts deployment target
-17.0, and executes build plus tests on an installed iOS simulator. GitHub-hosted
-macOS images currently do not include an iOS 17 runtime, so this is a deployment
-compatibility check rather than an iOS 17 runtime claim. Release smoke testing on
-a real iOS 17 device or simulator remains required.
+GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app
+target's deployment target is 17.0, dynamically create a compatible iOS 26 simulator,
+and execute build plus tests. GitHub-hosted macOS images currently do not include an
+iOS 17 runtime, so this is a deployment compatibility check rather than an iOS 17
+runtime claim. Release smoke testing on a real iOS 17 device or simulator remains
+required.

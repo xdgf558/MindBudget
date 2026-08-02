@@ -50,8 +50,9 @@ app's private data are forbidden in V1.
 - `SpendingInsight` stores localization keys and payload, not rendered text.
 - User preferences use `@AppStorage`, not a singleton `@Model`.
 - Reminder throttling records scope, threshold crossings, and deferred notification times.
-- Capability FeatureFlags do not represent user opt-in. L1/L2 access additionally
-  requires API/runtime availability and an explicit user setting that defaults off.
+- FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
+  Phase 7/8 must expose centralized gates combining scope, API/runtime availability,
+  and an explicit user setting that defaults off; call sites cannot read raw flags.
 - V1 targets iPhone only. iPad support requires a later explicit product decision.
 - The public repository is review-visible but proprietary; no open-source rights are granted.
 
@@ -61,17 +62,18 @@ app's private data are forbidden in V1.
 - Minimum deployment target: iOS 17.0
 - Swift language mode: Swift 6 with complete strict concurrency checking
 - Phase 0 validation destination: `platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5`
-- GitHub Actions uses Xcode 16.4 and an installed iOS 18.5 simulator while separately
-  asserting the iOS 17.0 deployment target. Real iOS 17 runtime testing remains manual
-  until a reliable hosted or self-hosted runtime is available.
+- GitHub Actions requires Xcode 26.6+ on macOS 26, dynamically creates a simulator
+  from the newest compatible iOS 26 runtime, and separately asserts the app target's
+  iOS 17.0 deployment setting. Real iOS 17 runtime testing remains manual until a
+  reliable hosted or self-hosted runtime is available.
 
 ## Current state
 
 Phase 0 is complete. The repository now contains a compilable SwiftUI app shell,
 shared scheme, feature flags, localization/privacy resources, unit and UI test
 targets, the recommended directory skeleton, and all persistent memory files.
-The Phase 0 validation build passed and both placeholder tests passed on the
-recorded iOS 26.5 simulator. PR review remediation subsequently added CI, meaningful
-localization smoke tests, asset/config scaffolding, iPhone-only scope, and proprietary
-repository terms; the full local build and two updated tests also pass. No Phase 1
-model or business feature is implemented.
+The Phase 0 validation build passed on the recorded iOS 26.5 simulator. PR review
+remediation subsequently added CI, meaningful localization smoke tests, asset/config
+scaffolding, iPhone-only scope, and proprietary repository terms. The full local build,
+one unit localization test, and English and Simplified Chinese UI tests pass. No
+Phase 1 model or business feature is implemented.

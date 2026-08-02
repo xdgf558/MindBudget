@@ -12,28 +12,55 @@ permissions:
 jobs:
   validate:
     name: Build and test
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 30
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Verify Xcode toolchain
+        run: |
+          xcodebuild -version
+          xcode_version="$(xcodebuild -version | awk '/^Xcode / { print $2 }')"
+          python3 -c 'import sys; version = tuple(map(int, sys.argv[1].split("."))); assert version[0] == 26 and version >= (26, 6), f"Expected Xcode 26.6+, got {sys.argv[1]}"' "${xcode_version}"
 
       - name: Reject floating-point money paths
         run: Scripts/check-no-floating-point-money.sh
 
       - name: Verify iOS 17 deployment target
         run: |
-          settings="$(xcodebuild -project MindBudget.xcodeproj -scheme MindBudget -showBuildSettings)"
-          grep -q 'IPHONEOS_DEPLOYMENT_TARGET = 17.0' <<< "${settings}"
+          settings="$(xcodebuild -project MindBudget.xcodeproj -target MindBudget -configuration Debug -showBuildSettings)"
+          deployment_target="$(awk -F ' = ' '/^[[:space:]]*IPHONEOS_DEPLOYMENT_TARGET = / { print $2; exit }' <<< "${settings}")"
+          test "${deployment_target}" = '17.0'
 
-      - name: Create iOS 18.5 test simulator
+      - name: Create test simulator
         run: |
+          xcode_major="$(xcodebuild -version | awk '/^Xcode / { split($2, parts, "."); print parts[1] }')"
+          runtime_id="$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          required_major = int(sys.argv[1])
+          runtimes = [runtime for runtime in json.load(sys.stdin)["runtimes"] if runtime.get("isAvailable") and runtime["identifier"].startswith("com.apple.CoreSimulator.SimRuntime.iOS-") and int(runtime.get("version", "0").split(".")[0]) == required_major]
+          if not runtimes:
+              raise SystemExit(f"No available iOS {required_major} simulator runtime")
+          version = lambda runtime: tuple(map(int, runtime.get("version", "0").split(".")))
+          print(max(runtimes, key=version)["identifier"])
+          ' "${xcode_major}")"
+          device_type_id="$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          device_types = json.load(sys.stdin)["devicetypes"]
+          by_name = {device["name"]: device["identifier"] for device in device_types}
+          preferred = ("iPhone 17 Pro", "iPhone 17", "iPhone 16 Pro", "iPhone 16")
+          selected = next((by_name[name] for name in preferred if name in by_name), None)
+          if selected is None:
+              selected = next((device["identifier"] for device in device_types if device["name"].startswith("iPhone")), None)
+          if selected is None:
+              raise SystemExit("No iPhone simulator device type")
+          print(selected)
+          ')"
           simulator_id="$(xcrun simctl create \
             'MindBudget CI' \
-            'com.apple.CoreSimulator.SimDeviceType.iPhone-16' \
-            'com.apple.CoreSimulator.SimRuntime.iOS-18-5')"
+            "${device_type_id}" \
+            "${runtime_id}")"
           xcrun simctl boot "${simulator_id}"
           xcrun simctl bootstatus "${simulator_id}" -b
           echo "MINDBUDGET_TEST_DESTINATION=platform=iOS Simulator,id=${simulator_id}" >> "${GITHUB_ENV}"

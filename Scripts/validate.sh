@@ -7,8 +7,23 @@ DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 1
 
 cd "${PROJECT_ROOT}"
 
-xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "${DESTINATION}" build
+build_settings="$(
+  xcodebuild -project MindBudget.xcodeproj -target MindBudget \
+    -configuration Debug -showBuildSettings
+)"
+bundle_identifier="$(
+  awk -F ' = ' '/^[[:space:]]*PRODUCT_BUNDLE_IDENTIFIER = / { print $2; exit }' \
+    <<< "${build_settings}"
+)"
+
+if [[ ! "${bundle_identifier}" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]]; then
+  echo "Invalid PRODUCT_BUNDLE_IDENTIFIER: ${bundle_identifier:-<empty>}" >&2
+  echo "Set a non-empty MINDBUDGET_BUNDLE_ID_PREFIX in Config/Local.xcconfig." >&2
+  exit 1
+fi
 
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "${DESTINATION}" test
+  -destination "${DESTINATION}" build-for-testing
+
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  -destination "${DESTINATION}" test-without-building

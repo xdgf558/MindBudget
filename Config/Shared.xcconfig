@@ -1,4 +1,6 @@
-// Public default. Forks and local signing setups may override this in Local.xcconfig.
+// This file is attached at the project configuration level. Future target-specific
+// xcconfig files must preserve the inherited, non-empty bundle identifier prefix.
+// Forks and local signing setups may override the public default in Local.xcconfig.
 MINDBUDGET_BUNDLE_ID_PREFIX = com.xdgf558
 
 #include? "Local.xcconfig"

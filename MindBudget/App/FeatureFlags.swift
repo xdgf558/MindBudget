@@ -1,8 +1,8 @@
 enum FeatureFlags {
-    // Capability gates only. `true` means the implementation may be considered;
-    // it never means the feature is enabled for the user by default.
-    // Effective access still requires API availability, runtime capability, and
-    // an explicit user setting. Unsupported paths must use their documented fallback.
+    // Product-scope gates only. `true` means V1 permits the capability to be
+    // implemented; it does not claim the implementation exists or enable it for a user.
+    // Feature call sites must use a centralized gate that also requires API/OS
+    // availability, runtime capability, and an explicit default-off user setting.
     static let enableFoundationModels = true
     static let enableSiriIntegration = true
     static let enableSpotlightIndexing = true

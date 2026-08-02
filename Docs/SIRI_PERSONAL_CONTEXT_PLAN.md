@@ -4,7 +4,8 @@
 
 Expose MindBudget's own actions and data to Siri, Spotlight, Shortcuts, and Apple
 Intelligence without reading another app's private data.
-Capability FeatureFlags do not opt the user in. Siri and Spotlight user settings
+Product-scope FeatureFlags neither prove an implementation exists nor opt the user in.
+Centralized gates must also enforce availability; Siri and Spotlight user settings
 remain independent and default to off.
 
 ## Allowed
