@@ -7,7 +7,7 @@ A phase may only be marked Done after both `xcodebuild build` and `xcodebuild te
 Status: Done
 
 ## Phase 1 — Money, enums, SwiftData models, DataActor
-Status: Todo
+Status: Done
 
 ## Phase 2 — Budget engine and cycle math
 Status: Todo

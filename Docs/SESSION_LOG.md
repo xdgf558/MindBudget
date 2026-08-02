@@ -48,6 +48,37 @@ Known issues: Current GitHub-hosted macOS images do not include an iOS 17 runtim
 
 Next suggested task: Review and merge PR #2, then begin Phase 1 on a new branch.
 
+## 2026-08-03 — Session 4 — Phase 1 data models and local persistence
+
+Goal: Implement the complete V1 data schema, exact money representation, actor-safe
+local storage, settings persistence, deterministic sample data, and Phase 1 tests.
+
+Files changed: all files under `MindBudget/Models`, Phase 1 files under
+`MindBudget/Data` and `MindBudget/Services`, app environment/container setup, unit
+tests, the Xcode project, validation script, and project memory documents.
+
+What was completed: Added `SchemaV1` and its migration plan; nine SwiftData models;
+typed enums and Sendable projections; exact minor-unit Money with a bundled currency
+exponent table; `DataActor` CRUD/invariant boundaries; restart-safe `DataController`;
+validated `SettingsStore`, bucket overrides, quiet hours, and rule configuration;
+four sample scenarios; wishlist state enforcement; cascade and weak-link behavior;
+and reminder scope/risk/response persistence. Category thresholds use exact basis
+points. The macOS Bash 3.2 empty-array failure in local validation was also fixed.
+
+What was NOT completed: Budget-cycle generation and all budget/impact calculations
+remain Phase 2. No Phase 3 UI was started.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 21 Swift Testing tests and 2 UI tests, 0 failures
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation. Hosted CI for the Phase 1 branch has not run until changes are
+published.
+
+Next suggested task: Review and merge the Phase 1 pull request, then begin Phase 2
+with pure budget-cycle and budget-engine types that consume the new projections.
+
 ## 2026-08-02 — Session 3 — Phase 0 final review hardening
 
 Goal: Close the final PR review gaps and align hosted validation with the declared

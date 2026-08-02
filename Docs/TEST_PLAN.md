@@ -132,6 +132,16 @@ the accessibility identifier and rendered label. These tests are replaced by
 phase-specific coverage as implementation begins; tests are never disabled to make
 a phase pass.
 
+## Phase 1 acceptance
+
+Phase 1 tests cover exact minor-unit conversion and bankers rounding, supported
+currency exponents, category defaults, wishlist transition legality, cross-midnight
+quiet hours, privacy-sensitive setting defaults, validated configuration fallback,
+four deterministic sample scenarios, durable store reopening, SwiftData cascade
+deletion, weak expense-link cleanup, and reminder-event scope/risk/response
+projections. All database mutations run through `DataActor`; test assertions receive
+only Sendable value projections.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

@@ -143,3 +143,32 @@ testing remains a release-validation responsibility until an appropriate runner 
 available.
 
 Files affected: `.github/workflows/ci.yml`, validation scripts, and project memory.
+
+---
+
+## 2026-08-03 — Persist ratios as basis points and isolate SwiftData behind DataActor
+
+Context: The authoritative model sketches used binary floating-point fields for
+category warning thresholds even though the repository-wide financial-source guard
+forbids those types. Swift 6 also makes returning SwiftData models or `ModelContext`
+from an actor unsafe.
+
+Decision: Persist category warning thresholds as integer basis points, where 10,000
+means 100 percent. Keep rule ratios in `Decimal`, and use basis points or `Decimal`
+for future engine projections until a presentation-only conversion is explicitly
+needed. Route all model writes through `DataActor` and return only immutable,
+`Sendable` projections. Begin the V1 currency table with the currencies exposed by
+`Money.supportedCurrencyCodes`; Phase 3 onboarding must use that table rather than
+accept an unknown locale currency.
+
+Alternatives considered: Weakening the source guard for threshold fields, storing
+binary floating-point ratios, exposing `@Model` instances across actors, or silently
+assuming two fractional digits for unknown currencies.
+
+Consequences: Threshold boundaries are exact and directly compatible with reminder
+event risk history. Phase 2 engines receive safe value types. A schema change from
+`warningThresholdBasisPoints` requires a new versioned schema and migration rather
+than editing `SchemaV1` after release.
+
+Files affected: `MindBudget/Models`, `MindBudget/Data`, rule/settings services, tests,
+and this file.

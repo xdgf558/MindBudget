@@ -11,6 +11,15 @@
 Keep display names synchronized with section 12.2 of the authoritative specification.
 Store localization keys rather than rendered labels in persisted data.
 
+| Raw value | Simplified Chinese | English | Never use |
+|---|---|---|---|
+| `imageBoost` | 想让状态更好 | Wanted to feel put-together | 虚荣 / vain |
+| `socialPressure` | 社交场合 | Social occasion | 随大流 / peer pressure |
+| `impulse` | 临时起意 | Spur of the moment | 冲动 / 剁手 |
+| `stressed` | 压力大的时候 | Under pressure | 焦虑症 / anxious |
+| `anxious` | 担心的时候 | Feeling worried | 焦虑症 / anxiety disorder |
+| `lonely` | 一个人的时候 | On my own | 孤独症 / 抑郁 |
+
 ## Banned phrases
 
 The future `Resources/BannedPhrases.json` contains Chinese and English phrases.

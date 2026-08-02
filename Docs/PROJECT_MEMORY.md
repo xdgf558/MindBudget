@@ -44,6 +44,8 @@ app's private data are forbidden in V1.
 ## Key decisions already made
 
 - Money is stored as `Int64` minor units; only the isolated App Intents transport adapter may receive `Double`.
+- Persisted percentage thresholds use integer basis points; pure calculations keep
+  ratios in `Decimal` until a presentation-only conversion is explicitly required.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
@@ -69,12 +71,12 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phase 0 is complete. The repository now contains a compilable SwiftUI app shell,
-shared scheme, feature flags, localization/privacy resources, unit and UI test
-targets, the recommended directory skeleton, and all persistent memory files.
-The Phase 0 validation build passed on the recorded iOS 26.5 simulator. PR review
-remediation subsequently added CI, meaningful localization smoke tests, asset/config
-scaffolding, iPhone-only scope, and proprietary repository terms. The full local build,
-one unit localization test, and English and Simplified Chinese UI tests pass. No
-Phase 1 model or business feature is implemented. The final hosted Xcode 26.6 run
-also passes the complete Phase 0 acceptance suite.
+Phases 0 and 1 are complete. The app now opens a versioned persistent SwiftData
+store containing all nine V1 model types. `Money`, domain enums, wishlist transition
+rules, reminder projections, settings/configuration codecs, and four deterministic
+sample scenarios are implemented. All model writes are isolated inside `DataActor`;
+callers receive only Sendable value projections. Local validation passes 21 Swift
+Testing tests and 2 localized UI tests on the recorded iOS 26.5 simulator, including
+store reopening, relationship deletion behavior, exact rounding, invalid state
+transitions, configuration fallback, and the repository-wide floating-point guard.
+Phase 2 budget calculations have not started.

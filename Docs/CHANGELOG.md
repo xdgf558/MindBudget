@@ -11,6 +11,13 @@
 - GitHub Actions validation and reusable local validation scripts.
 - Proprietary public-repository license notice.
 - English and Simplified Chinese rendered-localization smoke coverage.
+- Versioned SwiftData schema with expense, budget, wishlist, insight, merchant,
+  reflection, cooling-off, category-budget, and reminder-event models.
+- Exact minor-unit `Money`, typed domain enums, and Sendable data projections.
+- Actor-isolated local persistence, validated settings/configuration codecs, and
+  deterministic new-user, three-month, end-of-cycle, and overspent sample data.
+- State-machine enforcement for wishlist transitions and persistence tests for
+  restart durability, cascade deletion, and weak purchase links.
 
 ### Changed
 
@@ -22,12 +29,16 @@
   the checkout action to its reviewed commit.
 - Replaced duplicate build/test work with build-for-testing/test-without-building.
 - Added one hosted-only retry for a confirmed cold-simulator UI launch timeout.
+- Replaced persisted fractional thresholds with integer basis points so financial
+  state remains free of binary floating-point values.
 
 ### Fixed
 
 - Expanded the floating-point money guard to the complete app source tree while
   retaining the single documented App Intents transport exception.
 - Made iOS deployment and bundle identifier validation target-specific and strict.
+- Made local validation compatible with macOS Bash 3.2 when hosted-only test retry
+  arguments are disabled.
 
 ### Privacy
 

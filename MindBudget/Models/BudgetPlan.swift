@@ -1,0 +1,45 @@
+import Foundation
+import SwiftData
+
+@Model
+final class BudgetPlan {
+    @Attribute(.unique) var id: UUID
+    var cycleStart: Date
+    var cycleEnd: Date
+    var currencyCode: String
+    var monthlyIncomeMinorUnits: Int64
+    var totalBudgetMinorUnits: Int64
+    var fixedExpensesMinorUnits: Int64
+    var savingGoalMinorUnits: Int64
+    var createdAt: Date
+    var updatedAt: Date
+
+    @Relationship(deleteRule: .cascade, inverse: \CategoryBudget.plan)
+    var categoryBudgets: [CategoryBudget]
+
+    init(
+        id: UUID,
+        cycleStart: Date,
+        cycleEnd: Date,
+        currencyCode: String,
+        monthlyIncomeMinorUnits: Int64,
+        totalBudgetMinorUnits: Int64,
+        fixedExpensesMinorUnits: Int64,
+        savingGoalMinorUnits: Int64,
+        createdAt: Date,
+        updatedAt: Date,
+        categoryBudgets: [CategoryBudget]
+    ) {
+        self.id = id
+        self.cycleStart = cycleStart
+        self.cycleEnd = cycleEnd
+        self.currencyCode = currencyCode
+        self.monthlyIncomeMinorUnits = monthlyIncomeMinorUnits
+        self.totalBudgetMinorUnits = totalBudgetMinorUnits
+        self.fixedExpensesMinorUnits = fixedExpensesMinorUnits
+        self.savingGoalMinorUnits = savingGoalMinorUnits
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.categoryBudgets = categoryBudgets
+    }
+}
