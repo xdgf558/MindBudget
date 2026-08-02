@@ -1,0 +1,23 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "bootstrap.status.ready" : {
+      "comment" : "Temporary Phase 0 launch screen text.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MindBudget is ready"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MindBudget 已就绪"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
