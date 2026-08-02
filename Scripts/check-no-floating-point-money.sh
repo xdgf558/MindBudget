@@ -13,7 +13,10 @@ SEARCH_PATHS=(
   MindBudget/Features
 )
 
-violations="$(rg --line-number --glob '*.swift' '\b(Double|Float)\b' "${SEARCH_PATHS[@]}" || true)"
+violations="$(
+  find "${SEARCH_PATHS[@]}" -type f -name '*.swift' \
+    -exec grep -nEH '(^|[^[:alnum:]_])(Double|Float)([^[:alnum:]_]|$)' {} + || true
+)"
 
 if [[ -n "${violations}" ]]; then
   echo "Floating-point types are forbidden in deterministic money paths:"
