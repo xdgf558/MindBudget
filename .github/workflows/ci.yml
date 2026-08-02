@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Build and test
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      MINDBUDGET_TEST_DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Reject floating-point money paths
+        run: Scripts/check-no-floating-point-money.sh
+
+      - name: Verify iOS 17 deployment target
+        run: |
+          settings="$(xcodebuild -project MindBudget.xcodeproj -scheme MindBudget -showBuildSettings)"
+          grep -q 'IPHONEOS_DEPLOYMENT_TARGET = 17.0' <<< "${settings}"
+
+      - name: Build and test
+        run: Scripts/validate.sh

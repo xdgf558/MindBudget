@@ -4,8 +4,11 @@ final class MindBudgetPlaceholderUITests: XCTestCase {
     @MainActor
     func testAppLaunches() {
         let app = XCUIApplication()
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["bootstrap.status.ready"].waitForExistence(timeout: 5))
+        let statusText = app.staticTexts["bootstrap.status.ready"]
+        XCTAssertTrue(statusText.waitForExistence(timeout: 5))
+        XCTAssertEqual(statusText.label, "MindBudget is ready")
     }
 }

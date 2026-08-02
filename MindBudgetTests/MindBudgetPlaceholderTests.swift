@@ -1,10 +1,19 @@
+import Foundation
 import Testing
 @testable import MindBudget
 
 struct MindBudgetPlaceholderTests {
     @Test
-    func bootstrapConfigurationLoads() {
-        #expect(FeatureFlags.enableReceiptImport == false)
-        #expect(FeatureFlags.enableCSVImport == false)
+    func appBundleLoadsLocalizedBootstrapCopy() {
+        let key = "bootstrap.status.ready"
+        let localizedValue = Bundle.main.localizedString(
+            forKey: key,
+            value: nil,
+            table: nil
+        )
+
+        #expect(Bundle.main.bundleURL.pathExtension == "app")
+        #expect(localizedValue != key)
+        #expect(localizedValue.isEmpty == false)
     }
 }

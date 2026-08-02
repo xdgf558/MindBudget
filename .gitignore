@@ -9,10 +9,10 @@ xcuserdata/
 # Swift Package Manager
 .build/
 .swiftpm/
-Package.resolved
 
 # macOS
 .DS_Store
 
 # Local configuration
 *.local.xcconfig
+Config/Local.xcconfig

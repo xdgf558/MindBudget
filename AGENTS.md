@@ -23,12 +23,11 @@ and `Docs/COPY_GUIDELINES.md`.
 Both commands must pass before a phase may be marked Done.
 
 ```bash
-export MINDBUDGET_TEST_DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
-xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "$MINDBUDGET_TEST_DESTINATION" build
-xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "$MINDBUDGET_TEST_DESTINATION" test
+Scripts/check-no-floating-point-money.sh
+Scripts/validate.sh
 ```
+
+Override `MINDBUDGET_TEST_DESTINATION` when the default simulator is unavailable.
 
 ## After each session, update
 

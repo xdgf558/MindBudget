@@ -21,7 +21,8 @@ provide new-user, three-month-history, end-of-cycle, overspent, and no-budget sc
 Cover minor-unit round trips, USD/JPY exponents, bankers rounding, currency-safe
 addition, ratio scaling, canonical App Intents decimal transport, and exact
 non-floating-point results. CI also statically rejects `Double`/`Float` in money
-paths outside `AppIntents/IntentMoneyTransport.swift`.
+paths outside `AppIntents/IntentMoneyTransport.swift`. The repository enforces
+this with `Scripts/check-no-floating-point-money.sh` in GitHub Actions.
 
 ### WishItemStateMachineTests
 
@@ -122,5 +123,16 @@ suggested entities.
 ## Phase 0 acceptance
 
 The app target must build, and both placeholder tests must pass on the recorded
-simulator destination. Placeholder tests are replaced by phase-specific tests as
-implementation begins; tests are never disabled to make a phase pass.
+simulator destination. The unit smoke test verifies that the hosted app bundle
+resolves localized bootstrap copy; the UI smoke test fixes English locale and
+verifies both the accessibility identifier and rendered label. These tests are
+replaced by phase-specific coverage as implementation begins; tests are never
+disabled to make a phase pass.
+
+## Continuous integration
+
+GitHub Actions runs the floating-point source check, asserts deployment target
+17.0, and executes build plus tests on an installed iOS simulator. GitHub-hosted
+macOS images currently do not include an iOS 17 runtime, so this is a deployment
+compatibility check rather than an iOS 17 runtime claim. Release smoke testing on
+a real iOS 17 device or simulator remains required.

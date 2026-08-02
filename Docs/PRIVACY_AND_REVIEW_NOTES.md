@@ -35,6 +35,8 @@ AI enhancement is planned to be off by default. When enabled, it receives only
 redacted aggregate facts and runs through Apple's on-device Foundation Models.
 Raw notes, transaction rows, merchant lists, and raw Ask questions never enter
 the model context. Deterministic Swift code computes all financial conclusions.
+`FeatureFlags.enableFoundationModels` is a capability build gate, not the user's
+preference; the future user setting defaults to off and remains mandatory.
 
 ## Siri and Spotlight disclosure
 
@@ -42,6 +44,8 @@ Siri integration and Spotlight indexing are off by default and independently
 controlled by the user. Settings must explain what is indexed. Disabling indexing
 or deleting data removes the app-owned index. Exact amounts, notes, and merchant
 names are excluded by default from display representations and index content.
+The corresponding FeatureFlags only permit compiled capabilities and never bypass
+the independent, default-off user settings.
 
 ## Emotion-tag review explanation
 

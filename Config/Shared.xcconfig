@@ -1,0 +1,4 @@
+// Public default. Forks and local signing setups may override this in Local.xcconfig.
+MINDBUDGET_BUNDLE_ID_PREFIX = com.xdgf558
+
+#include? "Local.xcconfig"
