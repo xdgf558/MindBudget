@@ -4,6 +4,11 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
+TEST_ARGUMENTS=()
+
+if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
+  TEST_ARGUMENTS=(-retry-tests-on-failure -test-iterations 2)
+fi
 
 cd "${PROJECT_ROOT}"
 
@@ -26,4 +31,4 @@ xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   -destination "${DESTINATION}" build-for-testing
 
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "${DESTINATION}" test-without-building
+  -destination "${DESTINATION}" "${TEST_ARGUMENTS[@]}" test-without-building

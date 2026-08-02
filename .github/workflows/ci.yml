@@ -14,6 +14,10 @@ jobs:
     name: Build and test
     runs-on: macos-26
     timeout-minutes: 30
+    env:
+      # A newly migrated hosted simulator can time out on its first UI launch.
+      # Retry once without weakening any localization assertion.
+      MINDBUDGET_RETRY_TESTS_ON_FAILURE: "1"
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

@@ -139,4 +139,5 @@ target's deployment target is 17.0, dynamically create a compatible iOS 26 simul
 and execute build plus tests. GitHub-hosted macOS images currently do not include an
 iOS 17 runtime, so this is a deployment compatibility check rather than an iOS 17
 runtime claim. Release smoke testing on a real iOS 17 device or simulator remains
-required.
+required. Hosted CI permits one retry for a transient first-launch timeout on a newly
+migrated simulator; assertion failures must fail both attempts and remain blocking.

@@ -21,6 +21,7 @@
 - Aligned hosted CI with Xcode 26.6+, made simulator selection dynamic, and pinned
   the checkout action to its reviewed commit.
 - Replaced duplicate build/test work with build-for-testing/test-without-building.
+- Added one hosted-only retry for a confirmed cold-simulator UI launch timeout.
 
 ### Fixed
 
