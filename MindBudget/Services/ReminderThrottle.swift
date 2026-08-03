@@ -17,6 +17,7 @@ struct ThrottleDecision: Equatable, Sendable {
         case userDisabledReminders
         case duplicateWithinCooldown
         case notificationsNotAuthorized
+        case invalidRequest
     }
 
     let shouldShowNow: Bool
@@ -24,6 +25,31 @@ struct ThrottleDecision: Equatable, Sendable {
     let scheduledFor: Date?
     let deferredUntil: Date?
     let suppressionReason: SuppressionReason?
+}
+
+struct ReminderThrottlePolicy: Equatable, Sendable {
+    let scopedCooldownHours: Int
+    let consecutiveNegativeResponseCount: Int
+    let negativeResponseWindowDays: Int
+
+    static let approved = ReminderThrottlePolicy(
+        scopedCooldownHours: 24,
+        consecutiveNegativeResponseCount: 3,
+        negativeResponseWindowDays: 14
+    )
+
+    init(
+        scopedCooldownHours: Int,
+        consecutiveNegativeResponseCount: Int,
+        negativeResponseWindowDays: Int
+    ) {
+        precondition(scopedCooldownHours > 0)
+        precondition(consecutiveNegativeResponseCount > 0)
+        precondition(negativeResponseWindowDays > 0)
+        self.scopedCooldownHours = scopedCooldownHours
+        self.consecutiveNegativeResponseCount = consecutiveNegativeResponseCount
+        self.negativeResponseWindowDays = negativeResponseWindowDays
+    }
 }
 
 protocol ReminderThrottling: Sendable {
@@ -37,6 +63,19 @@ protocol ReminderThrottling: Sendable {
 }
 
 struct ReminderThrottle: ReminderThrottling, Sendable {
+    private let policy: ReminderThrottlePolicy
+    private let dayInterval: @Sendable (Calendar, Date) -> DateInterval?
+
+    init(
+        policy: ReminderThrottlePolicy = .approved,
+        dayInterval: @escaping @Sendable (Calendar, Date) -> DateInterval? = {
+            calendar, date in calendar.dateInterval(of: .day, for: date)
+        }
+    ) {
+        self.policy = policy
+        self.dayInterval = dayInterval
+    }
+
     func decide(
         for request: ReminderRequest,
         history: [ReminderEventSummary],
@@ -52,7 +91,7 @@ struct ReminderThrottle: ReminderThrottling, Sendable {
         }
 
         guard request.kind == .coolingOffDue || request.draft != nil else {
-            return suppressed(.userDisabledReminders)
+            return suppressed(.invalidRequest)
         }
 
         var channel = baseChannel(for: request)
@@ -65,7 +104,11 @@ struct ReminderThrottle: ReminderThrottling, Sendable {
             let scopedHistory = history
                 .filter { $0.scopeKey == draft.throttleMetadata.scopeKey }
                 .sorted { $0.shownAt > $1.shownAt }
-            let cooldownStart = calendar.date(byAdding: .hour, value: -24, to: now) ?? now
+            let cooldownStart = calendar.date(
+                byAdding: .hour,
+                value: -policy.scopedCooldownHours,
+                to: now
+            ) ?? .distantPast
             if let recent = scopedHistory.first(where: {
                 cooldownStart <= $0.shownAt && $0.shownAt <= now
             }), !isCategoryRecrossingException(draft: draft, recent: recent) {
@@ -73,9 +116,15 @@ struct ReminderThrottle: ReminderThrottling, Sendable {
             }
 
             let responded = scopedHistory.filter { $0.response != nil }
-            let recentResponses = Array(responded.prefix(3))
-            let responseWindowStart = calendar.date(byAdding: .day, value: -14, to: now) ?? now
-            if recentResponses.count == 3,
+            let recentResponses = Array(
+                responded.prefix(policy.consecutiveNegativeResponseCount)
+            )
+            let responseWindowStart = calendar.date(
+                byAdding: .day,
+                value: -policy.negativeResponseWindowDays,
+                to: now
+            ) ?? .distantPast
+            if recentResponses.count == policy.consecutiveNegativeResponseCount,
                recentResponses.allSatisfy({
                     $0.response == .ignored || $0.response == .dismissed
                }),
@@ -86,14 +135,17 @@ struct ReminderThrottle: ReminderThrottling, Sendable {
             }
 
             if channel == .sheet || channel == .notification {
-                let day = calendar.dateInterval(of: .day, for: now)
-                let interruptionCount = history.filter { event in
-                    event.isInterrupting
-                        && (event.channel == .sheet || event.channel == .notification)
-                        && day?.contains(event.shownAt) == true
-                }.count
-                if interruptionCount >= preferences.maxDailyInterruptions {
-                    channel = channel == .sheet ? .inline : .card
+                if let day = dayInterval(calendar, now) {
+                    let interruptionCount = history.filter { event in
+                        event.isInterrupting
+                            && (event.channel == .sheet || event.channel == .notification)
+                            && day.contains(event.shownAt)
+                    }.count
+                    if interruptionCount >= preferences.maxDailyInterruptions {
+                        channel = downgradedNoninterruptingChannel(channel)
+                    }
+                } else {
+                    channel = downgradedNoninterruptingChannel(channel)
                 }
             }
         }

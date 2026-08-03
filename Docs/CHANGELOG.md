@@ -64,6 +64,12 @@
 - Added one hosted-only retry for a confirmed cold-simulator UI launch timeout.
 - Replaced persisted fractional thresholds with integer basis points so financial
   state remains free of binary floating-point values.
+- Made expense saving independent from best-effort reminder event creation and response
+  logging, so an advisory-history failure cannot discard user-entered financial data.
+- Centralized late-night/safe-buffer and throttle policy constants, separated the image
+  analysis floor from the large-purchase floor, and made missing day bounds fail closed.
+- Rejected overflowing historical aggregate builds instead of silently omitting a cycle and
+  biasing the image-related baseline.
 - Replaced the purchasing-power-sensitive one-million-major-unit cap with a
   currency-neutral minor-unit safety limit.
 - Defined future cycle-start changes as independently confirmed transition and first-

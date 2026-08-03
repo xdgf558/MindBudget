@@ -355,7 +355,7 @@ struct Phase5FeatureTests {
     @Test
     func safeToProceedIncludesTheExactBufferBoundary() throws {
         let context = try makeContext()
-        let configuration = configuration(
+        let baseConfiguration = configuration(
             largePurchaseFloor: 100_000,
             largePurchaseRatio: 1
         )
@@ -365,12 +365,130 @@ struct Phase5FeatureTests {
             snapshot: context.snapshot,
             categoryBudgets: [],
             historicalCycles: [],
-            config: configuration,
+            config: baseConfiguration,
+            now: context.now,
+            calendar: calendar
+        )
+        let stricterBuffer = detector.evaluatePotentialPurchase(
+            candidate: candidate(amount: 75_000),
+            expenses: [],
+            snapshot: context.snapshot,
+            categoryBudgets: [],
+            historicalCycles: [],
+            config: configuration(
+                largePurchaseFloor: 100_000,
+                largePurchaseRatio: 1,
+                safeBufferBasisPoints: 6_000
+            ),
             now: context.now,
             calendar: calendar
         )
 
         #expect(drafts.contains { $0.type == .safeToProceed })
+        #expect(!stricterBuffer.contains { $0.type == .safeToProceed })
+    }
+
+    @Test
+    func lateNightWindowAndMinimumCountComeFromConfiguration() throws {
+        let context = try makeContext(nowHour: 23)
+        let recentLateExpenses = [
+            expense(
+                amount: 1_000,
+                at: try shifted(context.now, hours: -1),
+                localHour: 23
+            ),
+            expense(
+                amount: 1_000,
+                at: try shifted(context.now, days: -1),
+                localHour: 23
+            ),
+            expense(
+                amount: 1_000,
+                at: try shifted(context.now, days: -5),
+                localHour: 23
+            )
+        ]
+        let configuration = configuration(
+            largePurchaseFloor: 100_000,
+            largePurchaseRatio: 1,
+            lateRatio: Decimal(string: "0.01")!,
+            lateWindowDays: 2,
+            lateMinimumCount: 4
+        )
+        let drafts = detector.evaluatePotentialPurchase(
+            candidate: candidate(amount: 1_500),
+            expenses: recentLateExpenses,
+            snapshot: context.snapshot,
+            categoryBudgets: [],
+            historicalCycles: [],
+            config: configuration,
+            now: context.now,
+            calendar: calendar
+        )
+
+        #expect(!drafts.contains { $0.type == .lateNightSpending })
+    }
+
+    @Test
+    func imagePatternMinimumIsIndependentFromTheLargePurchaseFloor() throws {
+        let context = try makeContext()
+        let configuration = configuration(
+            largePurchaseFloor: 50_000,
+            largePurchaseRatio: 1,
+            imageMultiplier: 2,
+            imageMinimumAmount: 1_000,
+            baselineMonths: 1,
+            minimumBaseline: 1
+        )
+        let history = CycleAggregate(
+            periodStart: try shifted(context.start, days: -31),
+            periodEnd: context.start,
+            currencyCode: "USD",
+            totalMinorUnits: 500,
+            imageRelatedMinorUnits: 500
+        )
+        let drafts = detector.evaluatePotentialPurchase(
+            candidate: candidate(amount: 1_001, reason: .imageUpgrade),
+            expenses: [],
+            snapshot: context.snapshot,
+            categoryBudgets: [],
+            historicalCycles: [history],
+            config: configuration,
+            now: context.now,
+            calendar: calendar
+        )
+
+        #expect(drafts.contains { $0.type == .imageRelatedIncrease })
+        #expect(!drafts.contains { $0.type == .highSinglePurchase })
+    }
+
+    @Test
+    func cycleAggregateOverflowRejectsTheWholeBuildInsteadOfSkippingACycle() throws {
+        let start = try date(2025, 12, 1)
+        let end = try date(2026, 1, 1)
+        let plan = BudgetPlanSummary(
+            id: UUID(),
+            cycleStart: start,
+            cycleEnd: end,
+            currencyCode: "USD",
+            monthlyIncomeMinorUnits: 0,
+            totalBudgetMinorUnits: 0,
+            fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0,
+            categoryBudgets: []
+        )
+        let expenses = [
+            expense(amount: Int64.max, at: try shifted(start, hours: 1)),
+            expense(amount: 1, at: try shifted(start, hours: 2))
+        ]
+
+        #expect(throws: CycleAggregateBuildError.self) {
+            try CycleAggregateBuilder().build(
+                plans: [plan],
+                expenses: expenses,
+                before: end
+            )
+        }
     }
 
     @Test
@@ -650,6 +768,46 @@ struct Phase5FeatureTests {
     }
 
     @Test
+    func unavailableDayBoundaryFailsClosedToANoninterruptingChannel() throws {
+        let context = try makeContext()
+        let draft = insightDraft(type: .highSinglePurchase, snapshot: context.snapshot)
+        let decision = ReminderThrottle(dayInterval: { _, _ in nil }).decide(
+            for: ReminderRequest(
+                kind: .behavioralInsight,
+                draft: draft,
+                requestedChannel: nil,
+                requestedDeliveryDate: nil
+            ),
+            history: [],
+            preferences: preferences(maxDaily: 2),
+            now: context.now,
+            calendar: calendar
+        )
+
+        #expect(decision.shouldShowNow)
+        #expect(decision.channel == .inline)
+    }
+
+    @Test
+    func missingBehavioralDraftIsReportedAsAnInvalidRequest() throws {
+        let context = try makeContext()
+        let decision = ReminderThrottle().decide(
+            for: ReminderRequest(
+                kind: .behavioralInsight,
+                draft: nil,
+                requestedChannel: nil,
+                requestedDeliveryDate: nil
+            ),
+            history: [],
+            preferences: preferences(),
+            now: context.now,
+            calendar: calendar
+        )
+
+        #expect(decision.suppressionReason == .invalidRequest)
+    }
+
+    @Test
     func informationalInsightUsesACard() throws {
         let context = try makeContext()
         let draft = insightDraft(type: .safeToProceed, snapshot: context.snapshot, severity: .info)
@@ -810,24 +968,73 @@ struct Phase5FeatureTests {
     }
 
     @Test @MainActor
+    func reminderEventCreationFailureDoesNotBlockExpenseSaving() async throws {
+        let context = try makeContext()
+        let actor = try await configuredActor(for: context)
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: context.now,
+            reminderEventWriter: reminderWriter(failCreate: true)
+        )
+        viewModel.amountText = "300"
+        await loadContext(for: viewModel, actor: actor, context: context)
+
+        let result = await submit(viewModel, actor: actor, context: context)
+        let expenses = try await actor.fetchExpenseSummaries()
+        let events = try await actor.fetchReminderEventSummaries()
+
+        if case .saved = result {
+            // Expected: advisory history is best effort, while the expense is authoritative.
+        } else {
+            Issue.record("Reminder history failure must fall back to saving the expense")
+        }
+        #expect(expenses.count == 1)
+        #expect(events.isEmpty)
+        #expect(viewModel.error == nil)
+    }
+
+    @Test @MainActor
+    func reminderResponseFailureDoesNotBlockContinuePurchase() async throws {
+        let context = try makeContext()
+        let actor = try await configuredActor(for: context)
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: context.now,
+            reminderEventWriter: reminderWriter(failUpdate: true)
+        )
+        viewModel.amountText = "300"
+        await loadContext(for: viewModel, actor: actor, context: context)
+
+        let result = await submit(viewModel, actor: actor, context: context)
+        guard case let .reminder(presentation) = result else {
+            Issue.record("Expected a reminder before continuing the purchase")
+            return
+        }
+        let saved = await viewModel.continueAfterReminder(
+            eventID: presentation.id,
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: context.now,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 1,
+            calendar: calendar
+        )
+        let expenses = try await actor.fetchExpenseSummaries()
+        let events = try await actor.fetchReminderEventSummaries()
+
+        #expect(saved)
+        #expect(expenses.count == 1)
+        #expect(events.count == 1)
+        #expect(events.first?.response == nil)
+        #expect(viewModel.error == nil)
+    }
+
+    @Test @MainActor
     func fiveSequentialLargeExpenseSubmissionsPresentOnlyOneSheet() async throws {
         let context = try makeContext()
-        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
-        _ = try await actor.createBudgetPlan(
-            BudgetPlanDraft(
-                id: UUID(),
-                cycleStart: context.snapshot.cycle.start,
-                cycleEnd: context.snapshot.cycle.end,
-                currencyCode: "USD",
-                monthlyIncomeMinorUnits: 400_000,
-                totalBudgetMinorUnits: 300_000,
-                fixedExpensesMinorUnits: 100_000,
-                savingGoalMinorUnits: 50_000,
-                createdAt: context.now,
-                updatedAt: context.now,
-                categoryBudgets: []
-            )
-        )
+        let actor = try await configuredActor(for: context)
 
         var reminderCount = 0
         var savedCount = 0
@@ -870,6 +1077,80 @@ struct Phase5FeatureTests {
         #expect(savedCount == 4)
         #expect(events.count == 1)
         #expect(insights.contains { $0.type == .highSinglePurchase })
+    }
+
+    @MainActor
+    private func configuredActor(for context: Context) async throws -> DataActor {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.createBudgetPlan(
+            BudgetPlanDraft(
+                id: UUID(),
+                cycleStart: context.snapshot.cycle.start,
+                cycleEnd: context.snapshot.cycle.end,
+                currencyCode: "USD",
+                monthlyIncomeMinorUnits: 400_000,
+                totalBudgetMinorUnits: 300_000,
+                fixedExpensesMinorUnits: 100_000,
+                savingGoalMinorUnits: 50_000,
+                createdAt: context.now,
+                updatedAt: context.now,
+                categoryBudgets: []
+            )
+        )
+        return actor
+    }
+
+    @MainActor
+    private func loadContext(
+        for viewModel: ExpenseFormViewModel,
+        actor: DataActor,
+        context: Context
+    ) async {
+        await viewModel.loadContext(
+            dataActor: actor,
+            currencyCode: "USD",
+            cycleStartDay: 1,
+            calendar: calendar,
+            referenceDate: context.now,
+            locale: Locale(identifier: "en_US"),
+            ruleConfiguration: context.config,
+            preferences: preferences()
+        )
+    }
+
+    @MainActor
+    private func submit(
+        _ viewModel: ExpenseFormViewModel,
+        actor: DataActor,
+        context: Context
+    ) async -> ExpenseSubmitResult {
+        await viewModel.submit(
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: context.now,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 1,
+            calendar: calendar
+        )
+    }
+
+    private func reminderWriter(
+        failCreate: Bool = false,
+        failUpdate: Bool = false
+    ) -> ReminderEventWriter {
+        let live = ReminderEventWriter.live
+        return ReminderEventWriter(
+            create: { actor, draft in
+                if failCreate { throw ForcedReminderWriterError.failure }
+                return try await live.create(actor, draft)
+            },
+            updateResponse: { actor, id, response, date in
+                if failUpdate { throw ForcedReminderWriterError.failure }
+                return try await live.updateResponse(actor, id, response, date)
+            }
+        )
     }
 
     private func makeContext(
@@ -1038,12 +1319,16 @@ struct Phase5FeatureTests {
         lateStart: Int = 22,
         lateEnd: Int = 5,
         lateRatio: Decimal = Decimal(string: "0.05")!,
+        lateWindowDays: Int = 30,
+        lateMinimumCount: Int = 3,
         stressCount: Int = 3,
         impulseHours: Int = 72,
         impulseCount: Int = 3,
         imageMultiplier: Decimal = Decimal(string: "1.4")!,
+        imageMinimumAmount: Int64? = nil,
         baselineMonths: Int = 3,
-        minimumBaseline: Int = 2
+        minimumBaseline: Int = 2,
+        safeBufferBasisPoints: Int = 5_000
     ) -> RuleConfiguration {
         RuleConfiguration(
             largePurchaseFloor: Money(
@@ -1054,14 +1339,21 @@ struct Phase5FeatureTests {
             lateNightStartHour: lateStart,
             lateNightEndHour: lateEnd,
             lateNightMinimumRatio: lateRatio,
+            lateNightWindowDays: lateWindowDays,
+            lateNightMinimumCount: lateMinimumCount,
             stressWindowDays: 7,
             stressMinimumCount: stressCount,
             impulseWindowHours: impulseHours,
             impulseMinimumCount: impulseCount,
             imageIncreaseMultiplier: imageMultiplier,
+            imageRelatedMinimumAmount: Money(
+                minorUnits: imageMinimumAmount ?? largePurchaseFloor,
+                currencyCode: "USD"
+            ),
             imageBaselineMonths: baselineMonths,
             minimumBaselineMonthsRequired: minimumBaseline,
-            categoryWarningThresholdBasisPoints: 8_000
+            categoryWarningThresholdBasisPoints: 8_000,
+            safeProceedBufferBasisPoints: safeBufferBasisPoints
         )
     }
 
@@ -1096,5 +1388,9 @@ struct Phase5FeatureTests {
                 body: "This wording is intentionally far too long and judgmental for the selected reminder tone!"
             )
         }
+    }
+
+    private enum ForcedReminderWriterError: Error {
+        case failure
     }
 }

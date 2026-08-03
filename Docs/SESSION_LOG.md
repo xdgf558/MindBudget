@@ -497,3 +497,50 @@ the build and all test suites had already succeeded.
 
 Next suggested task: Commit the Phase 5 branch, then push and open a pull request when the
 user requests review.
+
+## 2026-08-03 — Session 15 — Phase 5 PR review remediation
+
+Goal: Resolve PR #7 review findings without changing the approved reminder actions or
+pulling notification delivery and model generation into Phase 5.
+
+Files changed: manual-expense reminder integration, rule configuration, detector and cycle
+aggregate builder, reminder throttle policy, Insights aggregate call site, Phase 5/settings
+tests, decisions, test plan, project memory, changelog, and this session log.
+
+What was completed: Made reminder event creation and response updates best effort so neither
+can reject an otherwise valid expense. Failed sheet-event creation now skips the advisory
+surface and follows the normal save path; failed Continue Purchase response logging still
+saves the expense. A live/injected writer boundary proves both failure modes. Daily cap
+calculation now downgrades when the calendar cannot produce a day interval, and malformed
+behavioral requests report `invalidRequest` rather than user opt-out. Late-night window and
+count, safe-proceed buffer basis points, and the image-analysis minimum now belong to
+validated rule configuration. Cooldown and negative-response constants are centralized in
+`ReminderThrottlePolicy`. The image floor is independent from the large-purchase floor, the
+unsafe decimal-zero fallback was removed, and aggregate overflow rejects the full build
+instead of silently replacing a missing recent cycle with older history. Review confirmed
+that the sheet already prevents swipe dismissal: Close retains the expense form, Wishlist
+uses a seeded form and returns on cancellation, and Continue Purchase is the only expense-
+saving action.
+
+What was NOT completed: Notification scheduling remains Phase 6 and real Foundation Models
+wording remains Phase 7. No action was written to GitHub review threads because PR #7 has no
+conversation comments, submitted reviews, or inline threads; the supplied external review
+is represented by code, tests, and decision records.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 129 Swift Testing tests and 5 UI tests, 0 failures. Phase 5 alone passes
+34 tests, including reminder create/update failures, unavailable day bounds, invalid
+requests, configurable safe/late thresholds, independent image floor, and aggregate
+overflow rejection.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. Xcode emitted the known post-test
+diagnostic warning because its unqualified diagnostic collector could not locate `simctl`;
+the build and all test suites had already succeeded.
+
+Next suggested task: Commit and push this remediation to PR #7, then wait for another review
+and CI before merging.

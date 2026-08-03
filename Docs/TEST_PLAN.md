@@ -205,12 +205,17 @@ warning applies. Identical inputs must produce identical ordered drafts.
 Throttle tests cover disabled presentation with retained analysis, scoped 24-hour duplicate
 suppression, the category first-crossing exception, three consecutive dismiss/ignore
 responses whose newest response is inside 14 days, acted-response reset, minimal/info
-downgrades, daily interruption caps, notification
-authorization, and calendar-derived quiet-hour deferral. Reminder tests require two to four
+downgrades, daily interruption caps, conservative downgrade when a daily calendar interval
+is unavailable, invalid-request diagnostics, notification authorization, and calendar-derived
+quiet-hour deferral. Reminder tests require two to four
 actions, always retain Continue Purchase, select the highest-severity match, obey tone length
 limits, and fall back to local templates when optional enhanced wording is structurally
-invalid. Persistence tests prove deduplicated typed payloads, dismissal preservation, and
-response updates on actual reminder events. The UI suite opens Insights after onboarding and
+invalid. Configuration tests prove late-night window/count and safe-buffer ownership, keep
+the image-analysis minimum independent from the large-purchase floor, and reject an entire
+historical aggregate build on overflow instead of skipping a cycle. Persistence tests prove
+deduplicated typed payloads, dismissal preservation, response updates on actual reminder
+events, and that failed reminder creation/response logging cannot block expense saving. The
+UI suite opens Insights after onboarding and
 asserts the local summary, honest empty state, and fixed disclaimer. Notification delivery,
 Foundation Models wording, VoiceOver/AX5, and iOS 17 runtime checks remain owned by later or
 release-manual phases.

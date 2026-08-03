@@ -47,6 +47,29 @@ enum ExpenseSubmitResult: Sendable {
     case failed
 }
 
+struct ReminderEventWriter: Sendable {
+    let create: @Sendable (DataActor, ReminderEventDraft) async throws -> ReminderEventSummary
+    let updateResponse: @Sendable (
+        DataActor,
+        UUID,
+        ReminderResponse,
+        Date
+    ) async throws -> ReminderEventSummary
+
+    static let live = ReminderEventWriter(
+        create: { dataActor, draft in
+            try await dataActor.createReminderEvent(draft)
+        },
+        updateResponse: { dataActor, id, response, date in
+            try await dataActor.updateReminderEventResponse(
+                id: id,
+                response: response,
+                at: date
+            )
+        }
+    )
+}
+
 @MainActor
 final class ExpenseFormViewModel: ObservableObject {
     @Published var amountText = ""
@@ -68,6 +91,7 @@ final class ExpenseFormViewModel: ObservableObject {
 
     let existingExpense: ExpenseDetail?
     let wishlistSeed: WishlistExpenseSeed?
+    private let reminderEventWriter: ReminderEventWriter
     private var configuredSnapshot: ConfiguredBudgetSnapshot?
     private var budgetSnapshot: BudgetSnapshot?
     private var categoryBudgets: [CategoryBudgetSummary] = []
@@ -93,10 +117,12 @@ final class ExpenseFormViewModel: ObservableObject {
     init(
         existingExpense: ExpenseDetail?,
         wishlistSeed: WishlistExpenseSeed? = nil,
-        now: Date = Date()
+        now: Date = Date(),
+        reminderEventWriter: ReminderEventWriter = .live
     ) {
         self.existingExpense = existingExpense
         self.wishlistSeed = wishlistSeed
+        self.reminderEventWriter = reminderEventWriter
         let summary = existingExpense?.summary
         category = summary?.category ?? wishlistSeed?.category ?? .food
         spentAt = summary?.spentAt ?? now
@@ -186,7 +212,7 @@ final class ExpenseFormViewModel: ObservableObject {
                     cycle: interval,
                     currencyCode: currencyCode
                 )
-                historicalCycles = CycleAggregateBuilder().build(
+                historicalCycles = try CycleAggregateBuilder().build(
                     plans: plans,
                     expenses: self.expenses,
                     before: interval.start
@@ -227,7 +253,7 @@ final class ExpenseFormViewModel: ObservableObject {
             configuredSnapshot = configured
             budgetSnapshot = snapshot
             categoryBudgets = plan.categoryBudgets
-            historicalCycles = CycleAggregateBuilder().build(
+            historicalCycles = try CycleAggregateBuilder().build(
                 plans: plans,
                 expenses: self.expenses,
                 before: configured.cycle.start
@@ -360,27 +386,27 @@ final class ExpenseFormViewModel: ObservableObject {
                 locale: locale
             ), let primary = sheetDrafts.first {
                 let eventID = UUID()
-                do {
-                    _ = try await dataActor.createReminderEvent(
-                        ReminderEventDraft(
-                            id: eventID,
-                            insightType: primary.type,
-                            scopeKey: primary.throttleMetadata.scopeKey,
-                            channel: .sheet,
-                            shownAt: now,
-                            categoryRiskBasisPoints: primary.throttleMetadata
-                                .categoryRiskBasisPoints,
-                            isInterrupting: true,
-                            response: nil,
-                            respondedAt: nil
-                        )
+                // Advisory history is best effort. If it cannot be recorded, skip the
+                // sheet and continue to the authoritative expense save below.
+                if let event = try? await reminderEventWriter.create(
+                    dataActor,
+                    ReminderEventDraft(
+                        id: eventID,
+                        insightType: primary.type,
+                        scopeKey: primary.throttleMetadata.scopeKey,
+                        channel: .sheet,
+                        shownAt: now,
+                        categoryRiskBasisPoints: primary.throttleMetadata
+                            .categoryRiskBasisPoints,
+                        isInterrupting: true,
+                        response: nil,
+                        respondedAt: nil
                     )
+                ) {
+                    reminderHistory.insert(event, at: 0)
                     return .reminder(
                         ExpenseReminderPresentation(id: eventID, message: message)
                     )
-                } catch {
-                    self.error = formError(from: error)
-                    return .failed
                 }
             }
         }
@@ -411,16 +437,13 @@ final class ExpenseFormViewModel: ObservableObject {
         cycleStartDay: Int,
         calendar: Calendar
     ) async -> Bool {
-        do {
-            _ = try await dataActor.updateReminderEventResponse(
-                id: eventID,
-                response: .acted,
-                at: now
-            )
-        } catch {
-            self.error = formError(from: error)
-            return false
-        }
+        // A response-log failure must not veto the user's financial record.
+        _ = try? await reminderEventWriter.updateResponse(
+            dataActor,
+            eventID,
+            .acted,
+            now
+        )
         let saved = await save(
             dataActor: dataActor,
             currencyCode: currencyCode,
@@ -443,10 +466,11 @@ final class ExpenseFormViewModel: ObservableObject {
         dataActor: DataActor,
         at date: Date
     ) async {
-        _ = try? await dataActor.updateReminderEventResponse(
-            id: eventID,
-            response: response,
-            at: date
+        _ = try? await reminderEventWriter.updateResponse(
+            dataActor,
+            eventID,
+            response,
+            date
         )
     }
 
@@ -469,7 +493,7 @@ final class ExpenseFormViewModel: ObservableObject {
             response: nil,
             respondedAt: nil
         )
-        if let summary = try? await dataActor.createReminderEvent(event) {
+        if let summary = try? await reminderEventWriter.create(dataActor, event) {
             reminderHistory.insert(summary, at: 0)
         }
     }

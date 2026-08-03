@@ -72,7 +72,7 @@ final class InsightsViewModel: ObservableObject {
                 snapshot = .unconfigured(cycle: cycle, currencyCode: currencyCode)
                 categoryBudgets = []
             }
-            let historicalCycles = CycleAggregateBuilder().build(
+            let historicalCycles = try CycleAggregateBuilder().build(
                 plans: plans,
                 expenses: expenses,
                 before: snapshot.cycle.start

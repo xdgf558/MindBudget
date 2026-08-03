@@ -123,4 +123,7 @@ most, keeps Continue Purchase primary, and supports Wishlist as a calm alternati
 Insights tab now shows local seven-day/current-cycle summaries, category/emotion/trend
 charts, generated pattern cards, dismissal, and a fixed informational disclaimer. Template
 copy is the mandatory local path; Phase 5 includes no notification scheduling and no real AI
-model call.
+model call. Expense persistence remains authoritative over best-effort reminder history:
+logging failures skip the advisory surface but never reject a valid expense. Rule and
+throttle thresholds are named at their owning layer, unavailable daily calendar bounds
+downgrade interruptions, and overflowing historical aggregates produce no biased baseline.

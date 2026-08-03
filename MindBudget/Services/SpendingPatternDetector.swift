@@ -119,13 +119,16 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                                 * config.lateNightMinimumRatio
                 })
                 .max(by: { $0.spentAt < $1.spentAt }) {
-                let windowStart = calendar.date(byAdding: .day, value: -30, to: latest.spentAt)
-                    ?? latest.spentAt
+                let windowStart = calendar.date(
+                    byAdding: .day,
+                    value: -config.lateNightWindowDays,
+                    to: latest.spentAt
+                ) ?? latest.spentAt
                 let count = expenses.filter {
                     windowStart <= $0.spentAt && $0.spentAt <= latest.spentAt
                         && isLateNight($0, config: config, calendar: calendar)
                 }.count
-                if count >= 3 {
+                if count >= config.lateNightMinimumCount {
                     drafts.append(
                         draft(
                             type: .lateNightSpending,
@@ -224,13 +227,17 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
            configured.freeBudget.minorUnits > 0,
            Decimal(candidate.amount.minorUnits)
                 >= Decimal(configured.freeBudget.minorUnits) * config.lateNightMinimumRatio {
-            let windowStart = calendar.date(byAdding: .day, value: -30, to: now) ?? now
+            let windowStart = calendar.date(
+                byAdding: .day,
+                value: -config.lateNightWindowDays,
+                to: now
+            ) ?? now
             let existingCount = expenses.filter {
                 windowStart <= $0.spentAt && $0.spentAt <= now
                     && isLateNight($0, config: config, calendar: calendar)
             }.count
             let count = existingCount + 1
-            if count >= 3 {
+            if count >= config.lateNightMinimumCount {
                 drafts.append(
                     draft(
                         type: .lateNightSpending,
@@ -271,7 +278,9 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
         ]
         if drafts.allSatisfy({ !warningTypes.contains($0.type) }) {
             let requiredBuffer = Decimal(configured.safeDailySpend.minorUnits)
-                * Decimal(configured.daysRemaining) * decimal("0.5")
+                * Decimal(configured.daysRemaining)
+                * Decimal(config.safeProceedBufferBasisPoints)
+                / Decimal(10_000)
             if Decimal(impact.remainingFreeAfter.minorUnits) >= requiredBuffer {
                 drafts.append(
                     draft(
@@ -360,7 +369,7 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             let (currentTotal, overflow) = currentStored.addingReportingOverflow(candidateAmount)
             let baselineAverage = Decimal(historicalTotal) / Decimal(baseline.count)
             if !overflow,
-               currentTotal >= config.largePurchaseFloor.minorUnits,
+               currentTotal >= config.imageRelatedMinimumAmount.minorUnits,
                Decimal(currentTotal) > baselineAverage * config.imageIncreaseMultiplier {
                 let changeBasisPoints = baselineAverage > 0
                     ? decimalToBasisPoints(Decimal(currentTotal) / baselineAverage)
@@ -537,9 +546,10 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             .filter { seen.insert($0.dedupeKey).inserted }
     }
 
-    private func decimal(_ value: String) -> Decimal {
-        Decimal(string: value, locale: Locale(identifier: "en_US_POSIX")) ?? .zero
-    }
+}
+
+enum CycleAggregateBuildError: Error, Equatable, Sendable {
+    case amountOverflow(periodStart: Date)
 }
 
 struct CycleAggregateBuilder: Sendable {
@@ -547,11 +557,11 @@ struct CycleAggregateBuilder: Sendable {
         plans: [BudgetPlanSummary],
         expenses: [ExpenseSummary],
         before date: Date
-    ) -> [CycleAggregate] {
-        plans
+    ) throws -> [CycleAggregate] {
+        try plans
             .filter { $0.cycleEnd <= date }
             .sorted { $0.cycleStart < $1.cycleStart }
-            .compactMap { plan in
+            .map { plan in
                 let cycleExpenses = expenses.filter {
                     plan.cycleStart <= $0.spentAt && $0.spentAt < plan.cycleEnd
                         && $0.amount.currencyCode == plan.currencyCode
@@ -564,7 +574,11 @@ struct CycleAggregateBuilder: Sendable {
                                     || $0.purchaseReason == .imageUpgrade
                             }
                             .map(\.amount.minorUnits)
-                      ) else { return nil }
+                      ) else {
+                    throw CycleAggregateBuildError.amountOverflow(
+                        periodStart: plan.cycleStart
+                    )
+                }
                 return CycleAggregate(
                     periodStart: plan.cycleStart,
                     periodEnd: plan.cycleEnd,

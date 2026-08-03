@@ -505,3 +505,40 @@ enhance wording only behind the existing template and validation fallback.
 Files affected: Phase 5 detector/throttle/reminder services, insight and reminder
 projections/persistence, expense and Insights UI, settings, localization, tests, and agent
 memory.
+
+---
+
+## 2026-08-03 — Keep expense persistence authoritative over advisory history
+
+Context: PR #7 review found that a failed `ReminderEvent` insert, or a failed response
+update after Continue Purchase, prevented the user's expense from being saved. The same
+review identified fail-open calendar handling, scattered intervention constants, a shared
+large-purchase/image-analysis floor, and silent historical-cycle omission on overflow.
+
+Decision: Expense persistence is authoritative; reminder history is best effort. If a
+sheet event cannot be recorded, the form skips that sheet and continues through the normal
+expense save path. If a response update fails, Continue Purchase still attempts the expense
+save, whose result alone controls the user-visible outcome. `ReminderEventWriter` is an
+injected boundary so both failures remain executable tests rather than theoretical catches.
+
+Rule thresholds stay deterministic but are named at their owning layer. Late-night window
+and count, safe-proceed buffer basis points, and a separate image-related minimum amount
+belong to validated `RuleConfiguration`. Scoped cooldown hours, negative-response count,
+and response-window days belong to `ReminderThrottlePolicy`; they are specification
+constants, not user preferences. An invalid behavioral request has its own diagnostic
+reason. If the calendar cannot produce a daily interval, an interrupting channel is
+downgraded instead of treating the daily count as zero. A cycle aggregate overflow rejects
+the aggregate build instead of silently substituting older cycles into the image baseline.
+
+Alternatives considered: Treating reminder persistence as part of an atomic expense write,
+showing an untracked sheet after event failure, reporting invalid requests as user-disabled,
+defaulting failed decimal parsing to zero, sharing one amount floor between unrelated rules,
+and dropping only the overflowing cycle.
+
+Consequences: A coaching subsystem failure cannot lose user-entered financial data, while
+frequency decisions remain conservative when calendar evidence is unavailable. Product
+threshold changes are reviewable and validated in one place per domain. Historical image
+analysis prefers no result over a biased result.
+
+Files affected: `AddExpenseView`, rule configuration, detector/aggregate builder, reminder
+throttle, Phase 5 tests, and project memory.
