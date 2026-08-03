@@ -43,23 +43,36 @@ struct CategoryBudgetSummary: Hashable, Sendable {
     let warningThresholdBasisPoints: Int
 }
 
-struct WishItemSummary: Hashable, Sendable {
+struct WishItemSummary: Hashable, Identifiable, Sendable {
     let id: UUID
     let name: String
     let estimatedPrice: Money?
     let category: ExpenseCategory
+    let createdAt: Date
+    let updatedAt: Date
+    let coolingOffHours: Int
     let status: WishItemStatus
     let targetReviewDate: Date?
     let purchasedExpenseId: UUID?
 }
 
-struct CoolingOffPlanSummary: Hashable, Sendable {
+struct WishItemDetail: Hashable, Sendable {
+    let summary: WishItemSummary
+    let reason: PurchaseReason?
+    let emotionTag: EmotionTag?
+    let sourceContextLabel: String?
+    let notes: String?
+    let coolingOffPlans: [CoolingOffPlanSummary]
+}
+
+struct CoolingOffPlanSummary: Hashable, Identifiable, Sendable {
     let id: UUID
     let wishItemId: UUID?
     let startedAt: Date
     let reviewAt: Date
     let durationHours: Int
     let status: CoolingOffStatus
+    let completedAt: Date?
     let outcome: CoolingOffOutcome?
 }
 

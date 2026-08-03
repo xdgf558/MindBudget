@@ -6,7 +6,7 @@ final class DashboardViewModel: ObservableObject {
     enum State {
         case loading
         case unconfigured
-        case configured(ConfiguredBudgetSnapshot, [ExpenseSummary])
+        case configured(ConfiguredBudgetSnapshot, [ExpenseSummary], [WishItemSummary])
         case transitionRequired(BudgetPlanTransitionRequirement)
         case firstRegularRequired(BudgetPlanFirstRegularRequirement)
         case failed
@@ -37,7 +37,11 @@ final class DashboardViewModel: ObservableObject {
             case .unconfigured:
                 state = .unconfigured
             case let .covered(plan):
-                let expenses = try await dataActor.fetchExpenseSummaries()
+                _ = try await dataActor.refreshExpiredCoolingOffPlans(at: now)
+                async let fetchedExpenses = dataActor.fetchExpenseSummaries()
+                async let fetchedWishItems = dataActor.fetchWishItemSummaries()
+                let expenses = try await fetchedExpenses
+                let wishItems = try await fetchedWishItems
                 let snapshot = try BudgetEngine().snapshot(
                     cycle: DateInterval(start: plan.cycleStart, end: plan.cycleEnd),
                     currencyCode: plan.currencyCode,
@@ -50,7 +54,7 @@ final class DashboardViewModel: ObservableObject {
                     state = .unconfigured
                     return
                 }
-                state = .configured(configured, expenses)
+                state = .configured(configured, expenses, wishItems)
             case let .transitionPlanRequired(requirement):
                 state = .transitionRequired(requirement)
             case let .firstRegularPlanRequired(requirement):
@@ -88,8 +92,12 @@ struct DashboardView: View {
                     ) {
                         presentedSetup = .initial
                     }
-                case let .configured(snapshot, expenses):
-                    configuredContent(snapshot: snapshot, expenses: expenses)
+                case let .configured(snapshot, expenses, wishItems):
+                    configuredContent(
+                        snapshot: snapshot,
+                        expenses: expenses,
+                        wishItems: wishItems
+                    )
                 case let .transitionRequired(requirement):
                     budgetConfirmationState(
                         titleKey: "budget.transition.title",
@@ -170,12 +178,29 @@ struct DashboardView: View {
     @ViewBuilder
     private func configuredContent(
         snapshot: ConfiguredBudgetSnapshot,
-        expenses: [ExpenseSummary]
+        expenses: [ExpenseSummary],
+        wishItems: [WishItemSummary]
     ) -> some View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 TodaySpendableCard(snapshot: snapshot)
                 BudgetSummaryCard(snapshot: snapshot)
+
+                let pendingWishItems = wishItems.filter {
+                    $0.status == .coolingOff || $0.status == .readyToReview
+                }
+                if !pendingWishItems.isEmpty {
+                    Button {
+                        session.selectedTab = .wishlist
+                    } label: {
+                        PendingWishlistCard(
+                            items: Array(pendingWishItems.prefix(2)),
+                            calendar: calendar
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("dashboard.coolingOff")
+                }
 
                 Button {
                     session.presentExpenseEntry()
@@ -238,6 +263,39 @@ struct DashboardView: View {
             case let .firstRegular(requirement): "regular-\(requirement.interval.start.timeIntervalSinceReferenceDate)"
             }
         }
+    }
+}
+
+private struct PendingWishlistCard: View {
+    let items: [WishItemSummary]
+    let calendar: Calendar
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("dashboard.coolingOff.title", systemImage: "hourglass")
+                    .font(.headline)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            ForEach(items) { item in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.name).fontWeight(.semibold)
+                    if item.status == .readyToReview {
+                        Text("wishlist.cooling.ready")
+                            .foregroundStyle(.secondary)
+                    } else if let reviewAt = item.targetReviewDate {
+                        CoolingOffCountdownLabel(reviewAt: reviewAt, calendar: calendar)
+                    }
+                }
+                .font(.subheadline)
+            }
+        }
+        .budgetCard()
+        .contentShape(Rectangle())
     }
 }
 

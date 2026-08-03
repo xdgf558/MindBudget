@@ -372,3 +372,43 @@ compile-time-narrower privacy input surface.
 
 Files affected: `DataActor`, expense projections and Phase 3 views, app environment,
 localized copy, Phase 3/data/date tests, privacy acceptance criteria, and project memory.
+
+---
+
+## 2026-08-03 — Treat cooling-off as an atomic local state machine
+
+Context: Phase 4 needed to represent repeated cooling-off periods, expiry, purchase/skip
+decisions, and optional expense conversion without allowing `WishItem` and
+`CoolingOffPlan` to disagree. A 24-hour duration crossing daylight-saving time also must
+mean 24 elapsed hours, while raw wishlist notes must not widen later AI inputs. System
+notifications belong to Phase 6 and cannot be implied by a Phase 4 countdown.
+
+Decision: `DataActor` owns atomic APIs for starting, expiring, deciding, archiving, and
+converting wishlist items. An item may have at most one scheduled/active plan. Starting
+from ready-to-review records the prior outcome as `extended` and creates a new plan in the
+same transaction. Expiry completes the plan at its fixed `reviewAt` and moves the item to
+ready-to-review without inventing an outcome; a later decision does not rewrite that
+completion time. Purchase and skip complete any current plan with a neutral outcome.
+Archiving cancels an active plan. Converting to an expense atomically creates one planned
+`wishlistConversion` expense, moves the item to purchased, and stores only the existing
+weak expense identifier. Cooling durations and remaining values are calculated as elapsed
+calendar hours, never as fixed seconds. Phase 4 starts only a local countdown and states
+plainly that no notification has been scheduled. Raw wishlist notes exist only in the
+targeted `WishItemDetail` projection, which is forbidden at future redactor/generator
+entry points.
+
+Alternatives considered: Letting views coordinate separate item/plan writes, allowing
+multiple active plans, deriving state without persistence refresh, treating a 24-hour plan
+as the next local wall-clock day, marking expiry as `noResponse`, celebrating skipped
+items, creating the expense and weak link in separate saves, and exposing notes through
+the list summary.
+
+Consequences: Dashboard and wishlist lifecycle loads may persist only factual expiry
+transitions; ordinary countdown rendering remains read-only. Phase 6 can schedule and
+cancel notification identifiers around the same actor-owned plan lifecycle without
+changing its semantics. Phase 5 consumes neutral outcome counts and deterministic budget
+impact rather than prices of skipped items. Future system integrations must call these
+atomic APIs instead of recreating the state machine.
+
+Files affected: wishlist/cooling projections, `DataActor`, Phase 4 views and countdown
+service, localization/copy/privacy contracts, and Phase 4 tests.

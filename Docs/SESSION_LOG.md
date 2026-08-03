@@ -358,3 +358,49 @@ AX5 inspection remain deferred to release preparation. The simulator may emit it
 post-test diagnostic warning after all suites have already succeeded.
 
 Next suggested task: Wait for PR #5 CI, continue review, and merge only after approval.
+
+## 2026-08-03 — Session 12 — Phase 4 emotion context, wishlist, and cooling-off
+
+Goal: Deliver optional purchase-context tagging, a complete local wishlist, and a
+DST-safe cooling-off lifecycle while keeping Phase 5 reminder rules and Phase 6 local
+notifications out of scope.
+
+Files changed: expense and wishlist projections/data transfers, `DataActor` lifecycle
+writes, elapsed-hour countdown service, add-expense/Dashboard/shared/wishlist SwiftUI
+features, English/Simplified Chinese strings, unit/UI tests, project wiring, and the
+project memory, decisions, privacy, copy, test, task, and changelog documents.
+
+What was completed: Added optional emotion and purchase-reason context to manual expenses
+with neutral, approved bilingual labels and no diagnosis or judgment. Replaced the
+Wishlist placeholder with add/edit/detail/list/history flows, optional price and private
+notes, deterministic current-budget impact, direct seeding from a potential expense, and
+an atomic planned-expense conversion. Cooling-off supports 24-hour, 72-hour, and custom
+elapsed-hour periods, one active period per wish, automatic ready-for-review progression,
+repeat rounds, explicit purchase/skip/archive decisions, and history that never invents
+an outcome. Dashboard surfaces pending cooling/review items. Raw wish notes remain behind
+the targeted `WishItemDetail` boundary, and the AI contract forbids that projection from
+entering future redaction or generation APIs.
+
+What was NOT completed: Phase 5 rule evaluation, throttled interventions, and generated
+insights remain untouched. Phase 6 owns notification permission and local notification
+scheduling; the Phase 4 UI explicitly states that its countdown is local and schedules no
+notification. Phase 7+ Siri, Spotlight, and AI integrations remain out of scope.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 91 Swift Testing tests and 4 UI tests, 0 failures. New coverage
+includes optional context persistence, note projection boundaries, expense-to-wishlist
+seeding, DST countdown behavior, atomic lifecycle and rollback invariants, deterministic
+budget impact, approved bilingual copy, Dashboard pending items, and onboarding →
+Wishlist → cooling-off end-to-end interaction.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. The simulator emitted the known
+post-test diagnostic warning because its unqualified `xcrun` could not locate `simctl`;
+the build and every test suite had already completed successfully.
+
+Next suggested task: Commit the Phase 4 branch, then push and open a pull request when the
+user requests review.

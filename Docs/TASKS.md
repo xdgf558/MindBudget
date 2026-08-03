@@ -16,7 +16,7 @@ Status: Done
 Status: Done
 
 ## Phase 4 — Emotion tags, wishlist, cooling-off
-Status: Todo
+Status: Done
 
 ## Phase 5 — Rule engine, reminder throttle, template reminders, insights
 Status: Todo

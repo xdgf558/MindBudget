@@ -53,6 +53,44 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testWishlistAndCoolingOffFlow() {
+        let app = launchApp(language: "en", locale: "en_US")
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        dismissDecimalKeyboard(in: app)
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.tabBars.buttons["Wishlist"].tap()
+        XCTAssertTrue(element("wishlist.empty", in: app).waitForExistence(timeout: 5))
+        app.buttons["wishlist.add"].tap()
+
+        XCTAssertTrue(app.textFields["wishlist.name"].waitForExistence(timeout: 5))
+        app.textFields["wishlist.name"].typeText("Headphones")
+        app.buttons["wishlist.save"].tap()
+
+        XCTAssertTrue(app.staticTexts["Headphones"].waitForExistence(timeout: 5))
+        app.staticTexts["Headphones"].tap()
+        XCTAssertTrue(app.buttons["wishlist.startCooling"].waitForExistence(timeout: 5))
+        app.buttons["wishlist.startCooling"].tap()
+        XCTAssertTrue(app.buttons["wishlist.cooling.start"].waitForExistence(timeout: 5))
+        app.buttons["wishlist.cooling.start"].tap()
+
+        XCTAssertTrue(
+            element("wishlist.cooling.countdown", in: app).waitForExistence(timeout: 5)
+        )
+    }
+
+    @MainActor
     private func assertOnboardingCopy(
         language: String,
         locale: String,

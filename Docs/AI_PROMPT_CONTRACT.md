@@ -13,9 +13,9 @@
    characters and truncate it to at most 40 characters.
 8. The raw in-app Ask question is used only by the local classifier and is never
    persisted, logged, or sent to a model.
-9. Redactor and generator APIs never accept `ExpenseDetail` or another projection that
-   contains a raw note; they accept only explicit aggregate inputs needed by the
-   allow-listed contexts below.
+9. Redactor and generator APIs never accept `ExpenseDetail`, `WishItemDetail`, or another
+   projection that contains a raw note; they accept only explicit aggregate inputs needed
+   by the allow-listed contexts below.
 
 ## Redacted advice context
 
