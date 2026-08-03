@@ -11,6 +11,7 @@ final class CoolingOffPlan {
     var notificationIdentifier: String?
     var completedAt: Date?
     var outcomeRaw: String?
+    var outcomeRecordedAt: Date?
     var wishItem: WishItem?
 
     init(
@@ -22,6 +23,7 @@ final class CoolingOffPlan {
         notificationIdentifier: String?,
         completedAt: Date?,
         outcomeRaw: String?,
+        outcomeRecordedAt: Date?,
         wishItem: WishItem?
     ) {
         self.id = id
@@ -32,6 +34,7 @@ final class CoolingOffPlan {
         self.notificationIdentifier = notificationIdentifier
         self.completedAt = completedAt
         self.outcomeRaw = outcomeRaw
+        self.outcomeRecordedAt = outcomeRecordedAt
         self.wishItem = wishItem
     }
 

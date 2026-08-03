@@ -81,7 +81,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 3 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 4 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -97,6 +97,20 @@ and merchant suggestions, and searchable/filterable expense list, detail, edit, 
 flows. Interactive date previews project budget coverage without writes; only Dashboard
 lifecycle work and expense save may persist automatic cycle coverage. General expense
 summaries exclude raw notes, while targeted details and actor-contained note search support
-the UI without widening later AI inputs. The UI-test reset hook is Debug-only. Empty/error
-states and English/Simplified Chinese accessibility coverage are active; Insights and
-Wishlist remain honest placeholders until their owning phases.
+the UI without widening later AI inputs. Optional purchase-reason and emotion fields stay
+collapsed by default and use situation-based, non-diagnostic labels. Wishlist items now
+have localized create, edit, detail, archive, delete, purchase, skip, and reactivate flows;
+current expense input can move into the wishlist without creating an expense. Cooling-off
+periods support 24-hour, 72-hour, and custom elapsed-hour durations, one active plan per
+item, lifecycle expiry refresh, DST-safe countdowns, and another round after review. A
+wishlist purchase can atomically create a planned expense with `wishlistConversion` source
+and its weak link. Cooling completion and later outcome recording use separate timestamps;
+outcome timestamps are retained only for deterministic analysis and never for generated
+context. Dashboard and wishlist details show pending reviews and deterministic budget
+impact. Expense summaries intentionally carry aggregate-safe emotion/reason enums, while
+wishlist summaries omit them and targeted `WishItemDetail` supplies them only for local
+detail flows. Raw wishlist notes stay confined to that targeted projection. Phase 4 action
+errors retain recoverable meanings, and countdown preview/save share one fixed instant while
+formatting follows the SwiftUI environment locale. The UI-test reset hook is Debug-only.
+Empty/error states and English/Simplified Chinese accessibility coverage are active;
+Insights remains an honest placeholder until Phase 5.

@@ -317,12 +317,61 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try wishItemSummary($0) }
     }
 
+    func fetchWishItemDetail(id: UUID) throws -> WishItemDetail? {
+        guard let wishItem = try fetchWishItem(id: id) else { return nil }
+        return try wishItemDetail(wishItem)
+    }
+
+    func updateWishItem(id: UUID, with update: WishItemUpdate) throws -> WishItemDetail {
+        try commit {
+            guard id == update.id else { throw DataValidationError.identityMismatch }
+            guard let wishItem = try fetchWishItem(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            try validateWishItemUpdate(update)
+            try validateAccountingCurrency(update.currencyCode)
+
+            wishItem.name = update.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            wishItem.estimatedPriceMinorUnits = update.estimatedPrice?.minorUnits
+            wishItem.currencyCode = update.currencyCode
+            wishItem.categoryRaw = update.category.rawValue
+            wishItem.reasonRaw = update.reason?.rawValue
+            wishItem.emotionTagRaw = update.emotionTag?.rawValue
+            wishItem.sourceContextLabel = update.sourceContextLabel
+            wishItem.updatedAt = update.updatedAt
+            wishItem.coolingOffHours = update.coolingOffHours
+            wishItem.notes = update.notes
+            return try wishItemDetail(wishItem)
+        }
+    }
+
     func transitionWishItem(id: UUID, to status: WishItemStatus, at date: Date) throws -> WishItemSummary {
         try commit {
             guard let wishItem = try fetchWishItem(id: id) else {
                 throw DataValidationError.modelNotFound
             }
             try wishItem.transition(to: status, at: date)
+            switch status {
+            case .purchased:
+                try completeLatestCoolingOffPlan(
+                    for: wishItem,
+                    outcome: .purchased,
+                    outcomeRecordedAt: date
+                )
+                wishItem.targetReviewDate = nil
+            case .skipped:
+                try completeLatestCoolingOffPlan(
+                    for: wishItem,
+                    outcome: .skipped,
+                    outcomeRecordedAt: date
+                )
+                wishItem.targetReviewDate = nil
+            case .archived:
+                try cancelActiveCoolingOffPlan(for: wishItem, at: date)
+                wishItem.targetReviewDate = nil
+            case .active, .coolingOff, .readyToReview:
+                break
+            }
             return try wishItemSummary(wishItem)
         }
     }
@@ -343,6 +392,12 @@ actor DataActor {
             if currentStatus != .purchased {
                 try wishItem.transition(to: .purchased, at: date)
             }
+            try completeLatestCoolingOffPlan(
+                for: wishItem,
+                outcome: .purchased,
+                outcomeRecordedAt: date
+            )
+            wishItem.targetReviewDate = nil
             wishItem.purchasedExpenseId = expenseId
             return try wishItemSummary(wishItem)
         }
@@ -354,6 +409,171 @@ actor DataActor {
                 throw DataValidationError.modelNotFound
             }
             modelContext.delete(wishItem)
+        }
+    }
+
+    func startCoolingOff(
+        wishItemId: UUID,
+        durationHours: Int,
+        startedAt: Date,
+        calendar: Calendar
+    ) throws -> WishItemDetail {
+        try commit {
+            guard durationHours > 0,
+                  let reviewAt = calendar.date(
+                    byAdding: .hour,
+                    value: durationHours,
+                    to: startedAt
+                  ),
+                  reviewAt > startedAt,
+                  let wishItem = try fetchWishItem(id: wishItemId) else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+            guard try activeCoolingOffPlan(for: wishItem) == nil else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+
+            let currentStatus = try wishItemStatus(wishItem)
+            switch currentStatus {
+            case .active:
+                break
+            case .readyToReview:
+                try completeLatestCoolingOffPlan(
+                    for: wishItem,
+                    outcome: .extended,
+                    outcomeRecordedAt: startedAt
+                )
+                try wishItem.transition(to: .active, at: startedAt)
+            case .coolingOff, .purchased, .skipped, .archived:
+                throw WishItemTransitionError.invalidTransition(
+                    from: currentStatus,
+                    to: .coolingOff
+                )
+            }
+
+            try wishItem.transition(to: .coolingOff, at: startedAt)
+            wishItem.targetReviewDate = reviewAt
+            _ = try insertCoolingOffPlan(
+                CoolingOffPlanDraft(
+                    id: UUID(),
+                    wishItemId: wishItem.id,
+                    startedAt: startedAt,
+                    reviewAt: reviewAt,
+                    durationHours: durationHours,
+                    status: .active,
+                    notificationIdentifier: nil,
+                    completedAt: nil,
+                    outcome: nil,
+                    outcomeRecordedAt: nil
+                )
+            )
+            return try wishItemDetail(wishItem)
+        }
+    }
+
+    @discardableResult
+    func refreshExpiredCoolingOffPlans(at date: Date) throws -> Int {
+        let descriptor = FetchDescriptor<CoolingOffPlan>(
+            predicate: #Predicate { plan in
+                plan.reviewAt <= date
+            }
+        )
+        let candidates = try modelContext.fetch(descriptor).filter { plan in
+            let status = try persistedEnum(
+                CoolingOffStatus.self,
+                rawValue: plan.statusRaw,
+                entity: "CoolingOffPlan",
+                id: plan.id,
+                field: "statusRaw"
+            )
+            return status == .active || status == .scheduled
+        }
+        guard !candidates.isEmpty else { return 0 }
+
+        return try commit {
+            for plan in candidates {
+                plan.statusRaw = CoolingOffStatus.completed.rawValue
+                plan.completedAt = plan.reviewAt
+                plan.outcomeRecordedAt = nil
+                if let wishItem = plan.wishItem,
+                   try wishItemStatus(wishItem) == .coolingOff {
+                    try wishItem.transition(to: .readyToReview, at: plan.reviewAt)
+                }
+            }
+            return candidates.count
+        }
+    }
+
+    func decideWishItem(
+        id: UUID,
+        outcome: CoolingOffOutcome,
+        at date: Date
+    ) throws -> WishItemDetail {
+        try commit {
+            guard outcome == .purchased || outcome == .skipped else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+            guard let wishItem = try fetchWishItem(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            let targetStatus: WishItemStatus = outcome == .purchased ? .purchased : .skipped
+            let currentStatus = try wishItemStatus(wishItem)
+            if currentStatus != targetStatus {
+                try wishItem.transition(to: targetStatus, at: date)
+            }
+            try completeLatestCoolingOffPlan(
+                for: wishItem,
+                outcome: outcome,
+                outcomeRecordedAt: date
+            )
+            wishItem.targetReviewDate = nil
+            return try wishItemDetail(wishItem)
+        }
+    }
+
+    func archiveWishItem(id: UUID, at date: Date) throws -> WishItemDetail {
+        try commit {
+            guard let wishItem = try fetchWishItem(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            let currentStatus = try wishItemStatus(wishItem)
+            if currentStatus != .archived {
+                try wishItem.transition(to: .archived, at: date)
+            }
+            try cancelActiveCoolingOffPlan(for: wishItem, at: date)
+            wishItem.targetReviewDate = nil
+            return try wishItemDetail(wishItem)
+        }
+    }
+
+    func convertWishItemToExpense(
+        wishItemId: UUID,
+        expense draft: ExpenseDraft,
+        at date: Date
+    ) throws -> ExpenseSummary {
+        try commit {
+            guard draft.source == .wishlistConversion, draft.isPlanned,
+                  let wishItem = try fetchWishItem(id: wishItemId) else {
+                throw DataValidationError.invalidWishItem
+            }
+            let currentStatus = try wishItemStatus(wishItem)
+            guard currentStatus != .purchased else {
+                throw WishItemTransitionError.invalidTransition(
+                    from: currentStatus,
+                    to: .purchased
+                )
+            }
+
+            let expense = try insertExpense(draft)
+            try wishItem.transition(to: .purchased, at: date)
+            wishItem.purchasedExpenseId = expense.id
+            wishItem.targetReviewDate = nil
+            try completeLatestCoolingOffPlan(
+                for: wishItem,
+                outcome: .purchased,
+                outcomeRecordedAt: date
+            )
+            return try expenseSummary(expense)
         }
     }
 
@@ -588,6 +808,25 @@ actor DataActor {
         guard let wishItem = try fetchWishItem(id: draft.wishItemId) else {
             throw DataValidationError.modelNotFound
         }
+        switch draft.status {
+        case .scheduled, .active:
+            guard draft.completedAt == nil, draft.outcome == nil,
+                  draft.outcomeRecordedAt == nil,
+                  try wishItemStatus(wishItem) == .coolingOff,
+                  try activeCoolingOffPlan(for: wishItem) == nil else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+        case .completed:
+            guard draft.completedAt != nil,
+                  (draft.outcome == nil) == (draft.outcomeRecordedAt == nil) else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+        case .cancelled:
+            guard draft.completedAt != nil, draft.outcome == nil,
+                  draft.outcomeRecordedAt == nil else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+        }
 
         let plan = CoolingOffPlan(
             id: draft.id,
@@ -598,6 +837,7 @@ actor DataActor {
             notificationIdentifier: draft.notificationIdentifier,
             completedAt: draft.completedAt,
             outcomeRaw: draft.outcome?.rawValue,
+            outcomeRecordedAt: draft.outcomeRecordedAt,
             wishItem: wishItem
         )
         wishItem.coolingOffPlans.append(plan)
@@ -656,6 +896,79 @@ actor DataActor {
                 throw DataValidationError.invalidAmount
             }
         }
+    }
+
+    private func validateWishItemUpdate(_ update: WishItemUpdate) throws {
+        guard !update.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              update.coolingOffHours > 0,
+              Money.isSupported(update.currencyCode) else {
+            throw DataValidationError.invalidWishItem
+        }
+        if let estimatedPrice = update.estimatedPrice {
+            guard estimatedPrice.currencyCode == update.currencyCode,
+                  estimatedPrice.minorUnits > 0,
+                  estimatedPrice.minorUnits <= Money.maximumMinorUnits(for: update.currencyCode) else {
+                throw DataValidationError.invalidAmount
+            }
+        }
+    }
+
+    private func wishItemStatus(_ wishItem: WishItem) throws -> WishItemStatus {
+        try persistedEnum(
+            WishItemStatus.self,
+            rawValue: wishItem.statusRaw,
+            entity: "WishItem",
+            id: wishItem.id,
+            field: "statusRaw"
+        )
+    }
+
+    private func activeCoolingOffPlan(for wishItem: WishItem) throws -> CoolingOffPlan? {
+        try wishItem.coolingOffPlans.first { plan in
+            let status = try persistedEnum(
+                CoolingOffStatus.self,
+                rawValue: plan.statusRaw,
+                entity: "CoolingOffPlan",
+                id: plan.id,
+                field: "statusRaw"
+            )
+            return status == .active || status == .scheduled
+        }
+    }
+
+    private func completeLatestCoolingOffPlan(
+        for wishItem: WishItem,
+        outcome: CoolingOffOutcome,
+        outcomeRecordedAt: Date
+    ) throws {
+        guard let plan = wishItem.coolingOffPlans.max(by: { $0.startedAt < $1.startedAt }) else {
+            return
+        }
+        let status = try persistedEnum(
+            CoolingOffStatus.self,
+            rawValue: plan.statusRaw,
+            entity: "CoolingOffPlan",
+            id: plan.id,
+            field: "statusRaw"
+        )
+        guard status == .active || status == .scheduled ||
+                (status == .completed && plan.outcomeRaw == nil) else {
+            return
+        }
+        plan.statusRaw = CoolingOffStatus.completed.rawValue
+        if plan.completedAt == nil {
+            plan.completedAt = outcomeRecordedAt
+        }
+        plan.outcomeRaw = outcome.rawValue
+        plan.outcomeRecordedAt = outcomeRecordedAt
+    }
+
+    private func cancelActiveCoolingOffPlan(for wishItem: WishItem, at date: Date) throws {
+        guard let plan = try activeCoolingOffPlan(for: wishItem) else { return }
+        plan.statusRaw = CoolingOffStatus.cancelled.rawValue
+        plan.completedAt = date
+        plan.outcomeRaw = nil
+        plan.outcomeRecordedAt = nil
     }
 
     private func validateNoBudgetOverlap(start: Date, end: Date) throws {
@@ -961,6 +1274,9 @@ actor DataActor {
                 id: wishItem.id,
                 field: "categoryRaw"
             ),
+            createdAt: wishItem.createdAt,
+            updatedAt: wishItem.updatedAt,
+            coolingOffHours: wishItem.coolingOffHours,
             status: try persistedEnum(
                 WishItemStatus.self,
                 rawValue: wishItem.statusRaw,
@@ -970,6 +1286,31 @@ actor DataActor {
             ),
             targetReviewDate: wishItem.targetReviewDate,
             purchasedExpenseId: wishItem.purchasedExpenseId
+        )
+    }
+
+    private func wishItemDetail(_ wishItem: WishItem) throws -> WishItemDetail {
+        WishItemDetail(
+            summary: try wishItemSummary(wishItem),
+            reason: try persistedEnumIfPresent(
+                PurchaseReason.self,
+                rawValue: wishItem.reasonRaw,
+                entity: "WishItem",
+                id: wishItem.id,
+                field: "reasonRaw"
+            ),
+            emotionTag: try persistedEnumIfPresent(
+                EmotionTag.self,
+                rawValue: wishItem.emotionTagRaw,
+                entity: "WishItem",
+                id: wishItem.id,
+                field: "emotionTagRaw"
+            ),
+            sourceContextLabel: wishItem.sourceContextLabel,
+            notes: wishItem.notes,
+            coolingOffPlans: try wishItem.coolingOffPlans
+                .map { try coolingOffPlanSummary($0) }
+                .sorted { $0.startedAt > $1.startedAt }
         )
     }
 
@@ -987,13 +1328,15 @@ actor DataActor {
                 id: plan.id,
                 field: "statusRaw"
             ),
+            completedAt: plan.completedAt,
             outcome: try persistedEnumIfPresent(
                 CoolingOffOutcome.self,
                 rawValue: plan.outcomeRaw,
                 entity: "CoolingOffPlan",
                 id: plan.id,
                 field: "outcomeRaw"
-            )
+            ),
+            outcomeRecordedAt: plan.outcomeRecordedAt
         )
     }
 

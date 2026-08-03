@@ -227,6 +227,34 @@ struct EmptyStateView: View {
     }
 }
 
+struct EmotionTagPicker: View {
+    @Binding var selection: EmotionTag?
+
+    var body: some View {
+        Picker("expense.emotion", selection: $selection) {
+            Text("common.none").tag(EmotionTag?.none)
+            ForEach(EmotionTag.allCases) { tag in
+                Text(LocalizedStringKey(tag.localizedNameKey)).tag(Optional(tag))
+            }
+        }
+        .accessibilityIdentifier("expense.emotion")
+    }
+}
+
+struct PurchaseReasonPicker: View {
+    @Binding var selection: PurchaseReason?
+
+    var body: some View {
+        Picker("expense.reason", selection: $selection) {
+            Text("common.none").tag(PurchaseReason?.none)
+            ForEach(PurchaseReason.allCases) { reason in
+                Text(LocalizedStringKey(reason.localizedNameKey)).tag(Optional(reason))
+            }
+        }
+        .accessibilityIdentifier("expense.reason")
+    }
+}
+
 struct ErrorStateView: View {
     let messageKey: LocalizedStringKey
     let retry: () -> Void

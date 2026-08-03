@@ -81,6 +81,20 @@ struct WishItemDraft: Sendable {
     let purchasedExpenseId: UUID?
 }
 
+struct WishItemUpdate: Sendable {
+    let id: UUID
+    let name: String
+    let estimatedPrice: Money?
+    let currencyCode: String
+    let category: ExpenseCategory
+    let reason: PurchaseReason?
+    let emotionTag: EmotionTag?
+    let sourceContextLabel: String?
+    let updatedAt: Date
+    let coolingOffHours: Int
+    let notes: String?
+}
+
 struct CoolingOffPlanDraft: Sendable {
     let id: UUID
     let wishItemId: UUID
@@ -91,6 +105,7 @@ struct CoolingOffPlanDraft: Sendable {
     let notificationIdentifier: String?
     let completedAt: Date?
     let outcome: CoolingOffOutcome?
+    let outcomeRecordedAt: Date?
 }
 
 struct ReminderEventDraft: Sendable {

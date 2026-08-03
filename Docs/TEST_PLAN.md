@@ -177,6 +177,23 @@ onboarding copy and run an English end-to-end path through budget setup, Dashboa
 quick expense entry, and the expense list. Edit/delete and VoiceOver/AX5 remain mandatory
 manual smoke checks before release in addition to actor-level automated coverage.
 
+## Phase 4 acceptance
+
+Phase 4 tests cover optional emotion/reason persistence, exact English and Simplified
+Chinese labels for the sensitive emotion tags, optional wishlist prices, targeted
+raw-note details, validated wishlist edits, one-active-plan enforcement, expiry to
+ready-to-review, another cooling-off round, neutral purchased/skipped outcomes, archive
+cancellation, and cascade-safe deletion. Countdown tests use injected calendars and prove
+that a 24-hour duration remains 24 elapsed hours across both DST transitions without
+assuming a fixed-length calendar day. Tests also prove completion time survives a later
+outcome, outcome and `outcomeRecordedAt` remain an atomic pair, requested English/Chinese
+countdown locales are honored, and recoverable action errors remain typed. Wishlist
+conversion tests atomically create one planned `wishlistConversion` expense and weak link,
+and prove rollback on invalid input.
+Budget-preview and Dashboard-projection tests use only deterministic engine facts. The UI
+suite runs an English onboarding → wishlist → cooling-off path; physical-device VoiceOver,
+AX5, and iOS 17 checks remain release-manual requirements.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

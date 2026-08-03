@@ -25,6 +25,13 @@ Store localization keys rather than rendered labels in persisted data.
 The future `Resources/BannedPhrases.json` contains Chinese and English phrases.
 `AdviceSafetyValidator` checks generated text, not fixed UI labels.
 
+## Wishlist decisions
+
+Purchased, skipped, extended, and archived are neutral records of the user's choice.
+Neither purchasing nor skipping receives praise, blame, a score, an animation, or an
+invented "saved" amount. Cooling-off completion means it is time to review, not that one
+outcome is preferred.
+
 ## Tone variants
 
 - `soft`: at most 80 characters, includes context, may ask one question.

@@ -33,6 +33,14 @@
   destructive deletion flows.
 - Phase 3 unit coverage plus English, Simplified Chinese, and end-to-end onboarding/manual-
   expense UI tests.
+- Collapsed optional purchase-reason and emotion pickers with approved non-diagnostic copy.
+- Wishlist create, edit, detail, archive, delete, reactivate, purchased, and skipped flows,
+  including a direct alternative from manual expense entry.
+- Local 24-hour, 72-hour, and custom cooling-off countdowns with pending Dashboard cards,
+  DST coverage, review transitions, and repeat rounds.
+- Deterministic wishlist budget-impact previews and atomic wishlist-to-expense conversion.
+- Phase 4 actor, localization, budget-preview, DST, rollback, and end-to-end wishlist UI
+  coverage.
 
 ### Changed
 
@@ -61,6 +69,10 @@
   every expense-form budget state explicitly.
 - Replaced raw-note-bearing expense summaries with targeted detail reads and actor-contained
   note search.
+- Kept wishlist notes out of common summaries and exposed them only through targeted local
+  detail reads.
+- Separated cooling-period completion from later outcome-recording time and documented the
+  intentional expense/wishlist projection asymmetry used by future aggregate analysis.
 
 ### Fixed
 
@@ -88,6 +100,8 @@
   errors for currency mismatch, corrupt data, excessive future dates, and extra precision.
 - Cached locale grouping rules instead of constructing a number formatter for every grouped
   amount keystroke, and refreshed edited details with one targeted actor fetch.
+- Preserved typed wishlist action failures, fixed cooling-off preview and persistence to one
+  start instant, and made countdown copy follow the active SwiftUI locale.
 
 ### Privacy
 
@@ -95,3 +109,7 @@
 - Declared the required-reason UserDefaults API category for app settings.
 - Kept raw expense notes out of common engine/list projections and reserved `ExpenseDetail`
   for explicitly requested local detail/edit flows.
+- Kept raw wishlist notes out of common projections and reserved `WishItemDetail` for one
+  explicitly requested local detail/edit flow.
+- Kept raw cooling-off timestamps out of future generated contexts; only deterministic
+  aggregate outcome counts may cross that boundary.

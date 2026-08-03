@@ -97,7 +97,7 @@ private struct MainTabView: View {
                 .tabItem { Label("tab.insights", systemImage: "chart.xyaxis.line") }
                 .tag(AppTab.insights)
 
-            WishlistView()
+            WishlistView(session: session)
                 .tabItem { Label("tab.wishlist", systemImage: "heart.text.square") }
                 .tag(AppTab.wishlist)
 

@@ -96,11 +96,15 @@ enum EmotionTag: String, Codable, CaseIterable, Sendable, StringIdentified {
     case neutral, stressed, tired, bored, lonely
     case excited, celebrating, anxious
     case socialPressure, imageBoost, impulse
+
+    var localizedNameKey: String { "emotion.\(rawValue)" }
 }
 
 enum PurchaseReason: String, Codable, CaseIterable, Sendable, StringIdentified {
     case need, planned, reward, stressRelief, socialEvent
     case imageUpgrade, curiosity, convenience, impulse, other
+
+    var localizedNameKey: String { "purchaseReason.\(rawValue)" }
 }
 
 enum PaymentMethod: String, Codable, CaseIterable, Sendable, StringIdentified {
@@ -152,6 +156,8 @@ enum ReminderTone: String, Codable, CaseIterable, Sendable, StringIdentified {
 
 enum WishItemStatus: String, Codable, CaseIterable, Sendable, StringIdentified {
     case active, coolingOff, readyToReview, purchased, skipped, archived
+
+    var localizedNameKey: String { "wishlist.status.\(rawValue)" }
 }
 
 enum CoolingOffStatus: String, Codable, CaseIterable, Sendable, StringIdentified {

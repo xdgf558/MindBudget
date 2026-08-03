@@ -122,7 +122,8 @@ enum SampleDataFactory {
             status: .active,
             notificationIdentifier: nil,
             completedAt: nil,
-            outcome: nil
+            outcome: nil,
+            outcomeRecordedAt: nil
         )
 
         return SampleDataBundle(

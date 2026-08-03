@@ -27,6 +27,15 @@ enum ExpenseBudgetContext: Equatable, Sendable {
     case unavailable
 }
 
+struct WishlistExpenseSeed: Sendable {
+    let wishItemId: UUID
+    let name: String
+    let estimatedPrice: Money?
+    let category: ExpenseCategory
+    let emotionTag: EmotionTag?
+    let purchaseReason: PurchaseReason?
+}
+
 @MainActor
 final class ExpenseFormViewModel: ObservableObject {
     @Published var amountText = ""
@@ -35,6 +44,8 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published var merchantName = ""
     @Published var note = ""
     @Published var isPlanned: Bool
+    @Published var emotionTag: EmotionTag?
+    @Published var purchaseReason: PurchaseReason?
     @Published private(set) var inlineImpact: InlineBudgetImpact?
     @Published private(set) var budgetContext: ExpenseBudgetContext = .loading
     @Published private(set) var showsReasonablenessWarning = false
@@ -44,28 +55,40 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published private(set) var merchantSuggestions: [String] = []
 
     let existingExpense: ExpenseDetail?
+    let wishlistSeed: WishlistExpenseSeed?
     private var configuredSnapshot: ConfiguredBudgetSnapshot?
     private var categoryBudgets: [CategoryBudgetSummary] = []
     private var dismissedWarningForMinorUnits: Int64?
     private var didPrepareInput = false
     private var latestContextRequestID = UUID()
 
-    init(existingExpense: ExpenseDetail?, now: Date = Date()) {
+    init(
+        existingExpense: ExpenseDetail?,
+        wishlistSeed: WishlistExpenseSeed? = nil,
+        now: Date = Date()
+    ) {
         self.existingExpense = existingExpense
+        self.wishlistSeed = wishlistSeed
         let summary = existingExpense?.summary
-        category = summary?.category ?? .food
+        category = summary?.category ?? wishlistSeed?.category ?? .food
         spentAt = summary?.spentAt ?? now
         merchantName = summary?.merchantName ?? ""
         note = existingExpense?.note ?? ""
-        isPlanned = summary?.isPlanned ?? false
+        isPlanned = summary?.isPlanned ?? (wishlistSeed != nil)
+        emotionTag = summary?.emotionTag ?? wishlistSeed?.emotionTag
+        purchaseReason = summary?.purchaseReason ?? wishlistSeed?.purchaseReason
     }
 
     func prepareInput(locale: Locale) {
-        guard !didPrepareInput, let existingExpense else { return }
-        amountText = MoneyInputParser().inputText(
-            for: existingExpense.summary.amount,
-            locale: locale
-        )
+        guard !didPrepareInput else { return }
+        if let existingExpense {
+            amountText = MoneyInputParser().inputText(
+                for: existingExpense.summary.amount,
+                locale: locale
+            )
+        } else if let estimatedPrice = wishlistSeed?.estimatedPrice {
+            amountText = MoneyInputParser().inputText(for: estimatedPrice, locale: locale)
+        }
         didPrepareInput = true
     }
 
@@ -233,11 +256,11 @@ final class ExpenseFormViewModel: ObservableObject {
             createdAt: existingSummary?.createdAt ?? now,
             updatedAt: now,
             paymentMethod: existingSummary?.paymentMethod,
-            emotionTag: existingSummary?.emotionTag,
-            purchaseReason: existingSummary?.purchaseReason,
-            isPlanned: isPlanned,
+            emotionTag: emotionTag,
+            purchaseReason: purchaseReason,
+            isPlanned: wishlistSeed == nil ? isPlanned : true,
             isRecurring: existingSummary?.isRecurring ?? false,
-            source: existingSummary?.source ?? .manual,
+            source: existingSummary?.source ?? (wishlistSeed == nil ? .manual : .wishlistConversion),
             allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false
         )
         do {
@@ -250,7 +273,13 @@ final class ExpenseFormViewModel: ObservableObject {
             // Recording remains available without inventing a budget. Pending transition
             // states are surfaced explicitly, while Dashboard owns budget confirmation.
             budgetContext = context(for: coverage)
-            if let existingSummary {
+            if let wishlistSeed {
+                _ = try await dataActor.convertWishItemToExpense(
+                    wishItemId: wishlistSeed.wishItemId,
+                    expense: draft,
+                    at: now
+                )
+            } else if let existingSummary {
                 _ = try await dataActor.updateExpense(id: existingSummary.id, with: draft)
             } else {
                 _ = try await dataActor.createExpense(draft)
@@ -311,6 +340,7 @@ struct AddExpenseView: View {
     let dataActor: DataActor
     let accountingCurrencyCode: String
     let existingExpense: ExpenseDetail?
+    let wishlistSeed: WishlistExpenseSeed?
     let completed: () -> Void
 
     @EnvironmentObject private var settings: SettingsStore
@@ -319,24 +349,36 @@ struct AddExpenseView: View {
     @Environment(\.calendar) private var calendar
     @StateObject private var viewModel: ExpenseFormViewModel
     @FocusState private var amountFocused: Bool
+    @State private var showsContextFields = false
+    @State private var presentsWishlistConversion = false
 
     init(
         dataActor: DataActor,
         accountingCurrencyCode: String,
         existingExpense: ExpenseDetail?,
+        wishlistSeed: WishlistExpenseSeed? = nil,
         completed: @escaping () -> Void
     ) {
         self.dataActor = dataActor
         self.accountingCurrencyCode = accountingCurrencyCode
         self.existingExpense = existingExpense
+        self.wishlistSeed = wishlistSeed
         self.completed = completed
         _viewModel = StateObject(
-            wrappedValue: ExpenseFormViewModel(existingExpense: existingExpense)
+            wrappedValue: ExpenseFormViewModel(
+                existingExpense: existingExpense,
+                wishlistSeed: wishlistSeed
+            )
         )
     }
 
     var body: some View {
         Form {
+            if let wishlistSeed {
+                Section("wishlist.item") {
+                    Text(wishlistSeed.name)
+                }
+            }
             Section {
                 HStack(alignment: .firstTextBaseline) {
                     Text(accountingCurrencyCode)
@@ -434,6 +476,29 @@ struct AddExpenseView: View {
                     .lineLimit(2...5)
                     .accessibilityIdentifier("expense.note")
                 Toggle("expense.planned", isOn: $viewModel.isPlanned)
+                    .disabled(wishlistSeed != nil)
+            }
+
+            Section {
+                DisclosureGroup("expense.context", isExpanded: $showsContextFields) {
+                    PurchaseReasonPicker(selection: $viewModel.purchaseReason)
+                    EmotionTagPicker(selection: $viewModel.emotionTag)
+                    Text("expense.emotion.disclaimer")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if existingExpense == nil, wishlistSeed == nil {
+                Section {
+                    Button("expense.addToWishlist") {
+                        amountFocused = false
+                        presentsWishlistConversion = true
+                    }
+                    .accessibilityIdentifier("expense.addToWishlist")
+                } footer: {
+                    Text("expense.addToWishlist.help")
+                }
             }
 
             if let error = viewModel.error {
@@ -492,6 +557,25 @@ struct AddExpenseView: View {
         }
         .onChange(of: viewModel.amountText) { _, _ in recalculate() }
         .onChange(of: viewModel.category) { _, _ in recalculate() }
+        .sheet(isPresented: $presentsWishlistConversion) {
+            NavigationStack {
+                AddWishItemView(
+                    dataActor: dataActor,
+                    accountingCurrencyCode: accountingCurrencyCode,
+                    existingItem: nil,
+                    seed: WishItemFormSeed(
+                        name: viewModel.merchantName,
+                        estimatedPriceText: viewModel.amountText,
+                        category: viewModel.category,
+                        reason: viewModel.purchaseReason,
+                        emotionTag: viewModel.emotionTag
+                    )
+                ) {
+                    presentsWishlistConversion = false
+                    completed()
+                }
+            }
+        }
     }
 
     @ViewBuilder
