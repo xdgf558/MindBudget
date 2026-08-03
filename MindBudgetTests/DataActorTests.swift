@@ -52,7 +52,8 @@ struct DataActorTests {
                 status: .active,
                 notificationIdentifier: nil,
                 completedAt: nil,
-                outcome: nil
+                outcome: nil,
+                outcomeRecordedAt: nil
             )
         )
 
@@ -61,6 +62,37 @@ struct DataActorTests {
 
         #expect(counts.wishItems == 0)
         #expect(counts.coolingOffPlans == 0)
+    }
+
+    @Test
+    func completedCoolingOffOutcomeAndRecordedTimeMustAppearTogether() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let wish = makeWish(status: .skipped)
+        _ = try await actor.createWishItem(wish)
+
+        for (outcome, outcomeRecordedAt) in [
+            (CoolingOffOutcome.skipped, nil),
+            (nil, fixedDate.addingTimeInterval(90_000))
+        ] {
+            await #expect(throws: DataValidationError.invalidCoolingOffPlan) {
+                _ = try await actor.createCoolingOffPlan(
+                    CoolingOffPlanDraft(
+                        id: UUID(),
+                        wishItemId: wish.id,
+                        startedAt: fixedDate,
+                        reviewAt: fixedDate.addingTimeInterval(86_400),
+                        durationHours: 24,
+                        status: .completed,
+                        notificationIdentifier: nil,
+                        completedAt: fixedDate.addingTimeInterval(86_400),
+                        outcome: outcome,
+                        outcomeRecordedAt: outcomeRecordedAt
+                    )
+                )
+            }
+        }
+
+        #expect(try await actor.fetchCoolingOffPlanSummaries().isEmpty)
     }
 
     @Test
@@ -495,7 +527,8 @@ struct DataActorTests {
                     status: .active,
                     notificationIdentifier: nil,
                     completedAt: nil,
-                    outcome: nil
+                    outcome: nil,
+                    outcomeRecordedAt: nil
                 )
             ]
         )

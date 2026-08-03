@@ -35,3 +35,45 @@ struct CoolingOffCountdown: Equatable, Sendable {
         )
     }
 }
+
+enum CoolingOffCountdownText {
+    static func string(for countdown: CoolingOffCountdown, locale: Locale) -> String {
+        if countdown.isComplete {
+            return localizedString("wishlist.cooling.ready", locale: locale)
+        }
+        if countdown.days > 0 {
+            return String(
+                format: localizedString("wishlist.cooling.remaining.days", locale: locale),
+                locale: locale,
+                countdown.days,
+                countdown.hours
+            )
+        }
+        if countdown.hours > 0 {
+            return String(
+                format: localizedString("wishlist.cooling.remaining.hours", locale: locale),
+                locale: locale,
+                countdown.hours,
+                countdown.minutes
+            )
+        }
+        return String(
+            format: localizedString("wishlist.cooling.remaining.minutes", locale: locale),
+            locale: locale,
+            countdown.minutes
+        )
+    }
+
+    private static func localizedString(_ key: String, locale: Locale) -> String {
+        let localizations = Bundle.main.localizations.filter { $0 != "Base" }
+        guard let localization = Bundle.preferredLocalizations(
+            from: localizations,
+            forPreferences: [locale.identifier]
+        ).first,
+        let path = Bundle.main.path(forResource: localization, ofType: "lproj"),
+        let localizedBundle = Bundle(path: path) else {
+            return Bundle.main.localizedString(forKey: key, value: nil, table: nil)
+        }
+        return localizedBundle.localizedString(forKey: key, value: nil, table: nil)
+    }
+}

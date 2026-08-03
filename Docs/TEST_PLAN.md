@@ -185,8 +185,11 @@ raw-note details, validated wishlist edits, one-active-plan enforcement, expiry 
 ready-to-review, another cooling-off round, neutral purchased/skipped outcomes, archive
 cancellation, and cascade-safe deletion. Countdown tests use injected calendars and prove
 that a 24-hour duration remains 24 elapsed hours across both DST transitions without
-assuming a fixed-length calendar day. Wishlist conversion tests atomically create one
-planned `wishlistConversion` expense and weak link, and prove rollback on invalid input.
+assuming a fixed-length calendar day. Tests also prove completion time survives a later
+outcome, outcome and `outcomeRecordedAt` remain an atomic pair, requested English/Chinese
+countdown locales are honored, and recoverable action errors remain typed. Wishlist
+conversion tests atomically create one planned `wishlistConversion` expense and weak link,
+and prove rollback on invalid input.
 Budget-preview and Dashboard-projection tests use only deterministic engine facts. The UI
 suite runs an English onboarding → wishlist → cooling-off path; physical-device VoiceOver,
 AX5, and iOS 17 checks remain release-manual requirements.

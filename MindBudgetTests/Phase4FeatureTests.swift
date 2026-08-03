@@ -124,6 +124,53 @@ struct Phase4FeatureTests {
     }
 
     @Test
+    func coolingOffCountdownTextUsesTheRequestedLocale() {
+        let countdown = CoolingOffCountdown(
+            days: 1,
+            hours: 2,
+            minutes: 3,
+            isComplete: false
+        )
+
+        #expect(
+            CoolingOffCountdownText.string(
+                for: countdown,
+                locale: Locale(identifier: "en")
+            ) == "1d 2h remaining"
+        )
+        #expect(
+            CoolingOffCountdownText.string(
+                for: countdown,
+                locale: Locale(identifier: "zh-Hans")
+            ) == "还剩 1 天 2 小时"
+        )
+    }
+
+    @Test
+    func phaseFourActionErrorsPreserveRecoverableMeaning() {
+        let corruptData = PersistedModelError.invalidRawValue(
+            entity: "WishItem",
+            id: UUID(),
+            field: "statusRaw",
+            rawValue: "future-value"
+        )
+        let transition = WishItemTransitionError.invalidTransition(
+            from: .purchased,
+            to: .coolingOff
+        )
+
+        #expect(
+            CoolingOffStartError.mapped(from: DataValidationError.invalidCoolingOffPlan)
+                == .stateChanged
+        )
+        #expect(CoolingOffStartError.mapped(from: corruptData) == .invalidStoredData)
+        #expect(CoolingOffStartError.mapped(from: DataValidationError.invalidAmount) == .persistence)
+        #expect(WishlistActionError.mapped(from: transition) == .stateChanged)
+        #expect(WishlistActionError.mapped(from: corruptData) == .invalidStoredData)
+        #expect(WishlistActionError.mapped(from: DataValidationError.invalidAmount) == .persistence)
+    }
+
+    @Test
     func coolingOffLifecycleIsAtomicAndSupportsAnotherRound() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let wish = makeWish()
@@ -155,6 +202,7 @@ struct Phase4FeatureTests {
         #expect(ready.summary.status == .readyToReview)
         #expect(ready.coolingOffPlans.first?.status == .completed)
         #expect(ready.coolingOffPlans.first?.outcome == nil)
+        #expect(ready.coolingOffPlans.first?.outcomeRecordedAt == nil)
 
         let secondRound = try await actor.startCoolingOff(
             wishItemId: wish.id,
@@ -170,6 +218,40 @@ struct Phase4FeatureTests {
             secondRound.coolingOffPlans.first { $0.outcome == .extended }?.completedAt
                 == reviewAt
         )
+        #expect(
+            secondRound.coolingOffPlans.first { $0.outcome == .extended }?.outcomeRecordedAt
+                == reviewAt
+        )
+    }
+
+    @Test
+    func outcomeTimeDoesNotOverwriteCoolingOffCompletionTime() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let wish = makeWish()
+        _ = try await actor.createWishItem(wish)
+        let cooling = try await actor.startCoolingOff(
+            wishItemId: wish.id,
+            durationHours: 24,
+            startedAt: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
+        )
+        let reviewAt = try #require(cooling.summary.targetReviewDate)
+        _ = try await actor.refreshExpiredCoolingOffPlans(at: reviewAt)
+        let outcomeRecordedAt = try #require(
+            TestFixtures.utcCalendar.date(byAdding: .day, value: 3, to: reviewAt)
+        )
+
+        let decided = try await actor.decideWishItem(
+            id: wish.id,
+            outcome: .skipped,
+            at: outcomeRecordedAt
+        )
+        let plan = try #require(decided.coolingOffPlans.first)
+
+        #expect(plan.status == .completed)
+        #expect(plan.outcome == .skipped)
+        #expect(plan.completedAt == reviewAt)
+        #expect(plan.outcomeRecordedAt == outcomeRecordedAt)
     }
 
     @Test

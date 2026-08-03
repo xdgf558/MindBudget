@@ -20,6 +20,8 @@ Status: Done
 
 ## Phase 5 — Rule engine, reminder throttle, template reminders, insights
 Status: Todo
+- Attribute cooling-off outcomes with `outcomeRecordedAt` only through deterministic code;
+  preserve `completedAt` as the actual cooling-period end.
 
 ## Phase 6 — Notifications, CSV export, privacy controls
 Status: Todo
@@ -28,6 +30,8 @@ Status: Todo
 Status: Todo
 - Keep `ExpenseDetail` and every raw note outside redactor/model input APIs. Privacy tests
   must prove only allow-listed aggregate contexts can reach a generator.
+- Keep raw cooling-off completion/outcome timestamps outside model contexts; expose only
+  deterministic aggregate outcome counts.
 
 ## Phase 8A — App Intents, App Entities, Spotlight (iOS 17+)
 Status: Todo

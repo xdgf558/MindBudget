@@ -356,14 +356,14 @@ actor DataActor {
                 try completeLatestCoolingOffPlan(
                     for: wishItem,
                     outcome: .purchased,
-                    completedAt: date
+                    outcomeRecordedAt: date
                 )
                 wishItem.targetReviewDate = nil
             case .skipped:
                 try completeLatestCoolingOffPlan(
                     for: wishItem,
                     outcome: .skipped,
-                    completedAt: date
+                    outcomeRecordedAt: date
                 )
                 wishItem.targetReviewDate = nil
             case .archived:
@@ -395,7 +395,7 @@ actor DataActor {
             try completeLatestCoolingOffPlan(
                 for: wishItem,
                 outcome: .purchased,
-                completedAt: date
+                outcomeRecordedAt: date
             )
             wishItem.targetReviewDate = nil
             wishItem.purchasedExpenseId = expenseId
@@ -441,7 +441,7 @@ actor DataActor {
                 try completeLatestCoolingOffPlan(
                     for: wishItem,
                     outcome: .extended,
-                    completedAt: startedAt
+                    outcomeRecordedAt: startedAt
                 )
                 try wishItem.transition(to: .active, at: startedAt)
             case .coolingOff, .purchased, .skipped, .archived:
@@ -463,7 +463,8 @@ actor DataActor {
                     status: .active,
                     notificationIdentifier: nil,
                     completedAt: nil,
-                    outcome: nil
+                    outcome: nil,
+                    outcomeRecordedAt: nil
                 )
             )
             return try wishItemDetail(wishItem)
@@ -493,6 +494,7 @@ actor DataActor {
             for plan in candidates {
                 plan.statusRaw = CoolingOffStatus.completed.rawValue
                 plan.completedAt = plan.reviewAt
+                plan.outcomeRecordedAt = nil
                 if let wishItem = plan.wishItem,
                    try wishItemStatus(wishItem) == .coolingOff {
                     try wishItem.transition(to: .readyToReview, at: plan.reviewAt)
@@ -522,7 +524,7 @@ actor DataActor {
             try completeLatestCoolingOffPlan(
                 for: wishItem,
                 outcome: outcome,
-                completedAt: date
+                outcomeRecordedAt: date
             )
             wishItem.targetReviewDate = nil
             return try wishItemDetail(wishItem)
@@ -569,7 +571,7 @@ actor DataActor {
             try completeLatestCoolingOffPlan(
                 for: wishItem,
                 outcome: .purchased,
-                completedAt: date
+                outcomeRecordedAt: date
             )
             return try expenseSummary(expense)
         }
@@ -809,16 +811,19 @@ actor DataActor {
         switch draft.status {
         case .scheduled, .active:
             guard draft.completedAt == nil, draft.outcome == nil,
+                  draft.outcomeRecordedAt == nil,
                   try wishItemStatus(wishItem) == .coolingOff,
                   try activeCoolingOffPlan(for: wishItem) == nil else {
                 throw DataValidationError.invalidCoolingOffPlan
             }
         case .completed:
-            guard draft.completedAt != nil else {
+            guard draft.completedAt != nil,
+                  (draft.outcome == nil) == (draft.outcomeRecordedAt == nil) else {
                 throw DataValidationError.invalidCoolingOffPlan
             }
         case .cancelled:
-            guard draft.completedAt != nil, draft.outcome == nil else {
+            guard draft.completedAt != nil, draft.outcome == nil,
+                  draft.outcomeRecordedAt == nil else {
                 throw DataValidationError.invalidCoolingOffPlan
             }
         }
@@ -832,6 +837,7 @@ actor DataActor {
             notificationIdentifier: draft.notificationIdentifier,
             completedAt: draft.completedAt,
             outcomeRaw: draft.outcome?.rawValue,
+            outcomeRecordedAt: draft.outcomeRecordedAt,
             wishItem: wishItem
         )
         wishItem.coolingOffPlans.append(plan)
@@ -933,7 +939,7 @@ actor DataActor {
     private func completeLatestCoolingOffPlan(
         for wishItem: WishItem,
         outcome: CoolingOffOutcome,
-        completedAt: Date
+        outcomeRecordedAt: Date
     ) throws {
         guard let plan = wishItem.coolingOffPlans.max(by: { $0.startedAt < $1.startedAt }) else {
             return
@@ -951,9 +957,10 @@ actor DataActor {
         }
         plan.statusRaw = CoolingOffStatus.completed.rawValue
         if plan.completedAt == nil {
-            plan.completedAt = completedAt
+            plan.completedAt = outcomeRecordedAt
         }
         plan.outcomeRaw = outcome.rawValue
+        plan.outcomeRecordedAt = outcomeRecordedAt
     }
 
     private func cancelActiveCoolingOffPlan(for wishItem: WishItem, at date: Date) throws {
@@ -961,6 +968,7 @@ actor DataActor {
         plan.statusRaw = CoolingOffStatus.cancelled.rawValue
         plan.completedAt = date
         plan.outcomeRaw = nil
+        plan.outcomeRecordedAt = nil
     }
 
     private func validateNoBudgetOverlap(start: Date, end: Date) throws {
@@ -1327,7 +1335,8 @@ actor DataActor {
                 entity: "CoolingOffPlan",
                 id: plan.id,
                 field: "outcomeRaw"
-            )
+            ),
+            outcomeRecordedAt: plan.outcomeRecordedAt
         )
     }
 

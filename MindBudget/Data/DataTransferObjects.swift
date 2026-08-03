@@ -105,6 +105,7 @@ struct CoolingOffPlanDraft: Sendable {
     let notificationIdentifier: String?
     let completedAt: Date?
     let outcome: CoolingOffOutcome?
+    let outcomeRecordedAt: Date?
 }
 
 struct ReminderEventDraft: Sendable {

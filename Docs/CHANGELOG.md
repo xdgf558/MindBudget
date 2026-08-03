@@ -71,6 +71,8 @@
   note search.
 - Kept wishlist notes out of common summaries and exposed them only through targeted local
   detail reads.
+- Separated cooling-period completion from later outcome-recording time and documented the
+  intentional expense/wishlist projection asymmetry used by future aggregate analysis.
 
 ### Fixed
 
@@ -98,6 +100,8 @@
   errors for currency mismatch, corrupt data, excessive future dates, and extra precision.
 - Cached locale grouping rules instead of constructing a number formatter for every grouped
   amount keystroke, and refreshed edited details with one targeted actor fetch.
+- Preserved typed wishlist action failures, fixed cooling-off preview and persistence to one
+  start instant, and made countdown copy follow the active SwiftUI locale.
 
 ### Privacy
 
@@ -107,3 +111,5 @@
   for explicitly requested local detail/edit flows.
 - Kept raw wishlist notes out of common projections and reserved `WishItemDetail` for one
   explicitly requested local detail/edit flow.
+- Kept raw cooling-off timestamps out of future generated contexts; only deterministic
+  aggregate outcome counts may cross that boundary.

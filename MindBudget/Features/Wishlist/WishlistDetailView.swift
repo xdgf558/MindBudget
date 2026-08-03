@@ -8,12 +8,37 @@ struct WishlistBudgetImpact: Equatable, Sendable {
     let willExceedFreeBudget: Bool
 }
 
+enum WishlistActionError: Error, Equatable, Sendable {
+    case stateChanged
+    case invalidStoredData
+    case persistence
+
+    static func mapped(from error: Error) -> WishlistActionError {
+        if error is WishItemTransitionError {
+            return .stateChanged
+        }
+        if let validationError = error as? DataValidationError {
+            switch validationError {
+            case .invalidWishItem, .invalidCoolingOffPlan, .identityMismatch, .modelNotFound:
+                return .stateChanged
+            default:
+                return .persistence
+            }
+        }
+        if error is PersistedModelError {
+            return .invalidStoredData
+        }
+        return .persistence
+    }
+}
+
 @MainActor
 final class WishlistDetailViewModel: ObservableObject {
     @Published private(set) var detail: WishItemDetail?
     @Published private(set) var budgetImpact: WishlistBudgetImpact?
     @Published private(set) var failed = false
     @Published private(set) var isWorking = false
+    @Published private(set) var actionError: WishlistActionError?
 
     func load(
         id: UUID,
@@ -40,25 +65,9 @@ final class WishlistDetailViewModel: ObservableObject {
                 now: now
             )
             failed = false
+            actionError = nil
         } catch {
             failed = true
-        }
-    }
-
-    func startCoolingOff(
-        id: UUID,
-        hours: Int,
-        dataActor: DataActor,
-        calendar: Calendar,
-        now: Date = Date()
-    ) async -> Bool {
-        await perform {
-            try await dataActor.startCoolingOff(
-                wishItemId: id,
-                durationHours: hours,
-                startedAt: now,
-                calendar: calendar
-            )
         }
     }
 
@@ -94,12 +103,21 @@ final class WishlistDetailViewModel: ObservableObject {
         defer { isWorking = false }
         do {
             detail = try await operation()
+            actionError = nil
             failed = false
             return true
         } catch {
-            failed = true
+            actionError = WishlistActionError.mapped(from: error)
             return false
         }
+    }
+
+    func reportActionError(_ error: Error) {
+        actionError = WishlistActionError.mapped(from: error)
+    }
+
+    func clearActionError() {
+        actionError = nil
     }
 
     private func impact(
@@ -259,12 +277,31 @@ struct WishlistDetailView: View {
                         session.dataDidChange()
                         dismiss()
                     } catch {
-                        await reload()
+                        viewModel.reportActionError(error)
                     }
                 }
             }
         } message: {
             Text("wishlist.delete.message")
+        }
+        .alert(
+            "wishlist.action.error.title",
+            isPresented: Binding(
+                get: { viewModel.actionError != nil },
+                set: { isPresented in
+                    if !isPresented { viewModel.clearActionError() }
+                }
+            )
+        ) {
+            Button("common.retry") {
+                viewModel.clearActionError()
+                Task { await reload() }
+            }
+            Button("common.done", role: .cancel) { viewModel.clearActionError() }
+        } message: {
+            if let actionError = viewModel.actionError {
+                Text(actionErrorKey(actionError))
+            }
         }
     }
 
@@ -434,6 +471,14 @@ struct WishlistDetailView: View {
         if impact.willExceedTotalBudget { return "wishlist.impact.exceedsTotal" }
         if impact.willExceedFreeBudget { return "wishlist.impact.exceedsFree" }
         return "wishlist.impact.remaining"
+    }
+
+    private func actionErrorKey(_ error: WishlistActionError) -> LocalizedStringKey {
+        switch error {
+        case .stateChanged: "wishlist.action.error.stateChanged"
+        case .invalidStoredData: "wishlist.action.error.invalidStoredData"
+        case .persistence: "wishlist.action.error.persistence"
+        }
     }
 
     private func reload() async {

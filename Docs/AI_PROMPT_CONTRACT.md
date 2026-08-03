@@ -16,6 +16,9 @@
 9. Redactor and generator APIs never accept `ExpenseDetail`, `WishItemDetail`, or another
    projection that contains a raw note; they accept only explicit aggregate inputs needed
    by the allow-listed contexts below.
+10. Raw cooling-off timestamps, including `completedAt` and `outcomeRecordedAt`, never enter
+    a model context. Deterministic code may attribute outcomes to intervals, then expose only
+    the allow-listed aggregate counts below.
 
 ## Redacted advice context
 
@@ -107,4 +110,5 @@ Automated tests use configurable mock generators, never the real model. Timeout,
 guardrail, validation, and availability failures must return template output.
 Malicious samples containing invented numbers, banned phrases, invalid actions,
 or missing continue options must fail validation. Tests must prove raw Ask text,
-notes, merchant lists, and transaction rows never reach a model context.
+notes, merchant lists, transaction rows, and raw cooling-off timestamps never reach a model
+context.

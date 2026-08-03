@@ -1,6 +1,30 @@
 import Foundation
 import SwiftUI
 
+enum CoolingOffStartError: Error, Equatable, Sendable {
+    case stateChanged
+    case invalidStoredData
+    case persistence
+
+    static func mapped(from error: Error) -> CoolingOffStartError {
+        if error is WishItemTransitionError {
+            return .stateChanged
+        }
+        if let validationError = error as? DataValidationError {
+            switch validationError {
+            case .invalidCoolingOffPlan, .invalidWishItem, .modelNotFound:
+                return .stateChanged
+            default:
+                return .persistence
+            }
+        }
+        if error is PersistedModelError {
+            return .invalidStoredData
+        }
+        return .persistence
+    }
+}
+
 struct CoolingOffView: View {
     private enum DurationChoice: String, CaseIterable, Identifiable {
         case hours24, hours72, custom
@@ -15,17 +39,20 @@ struct CoolingOffView: View {
     @Environment(\.calendar) private var calendar
     @State private var choice: DurationChoice = .hours24
     @State private var customHoursText = "48"
-    @State private var error = false
+    @State private var startedAt: Date
+    @State private var error: CoolingOffStartError?
     @State private var isStarting = false
 
     init(
         dataActor: DataActor,
         wishItem: WishItemSummary,
+        startedAt: Date = Date(),
         completed: @escaping () -> Void
     ) {
         self.dataActor = dataActor
         self.wishItem = wishItem
         self.completed = completed
+        _startedAt = State(initialValue: startedAt)
         switch wishItem.coolingOffHours {
         case 24:
             _choice = State(initialValue: .hours24)
@@ -61,9 +88,9 @@ struct CoolingOffView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            if error {
+            if let error {
                 Section {
-                    Label("wishlist.cooling.error", systemImage: "info.circle")
+                    Label(errorKey(error), systemImage: "info.circle")
                         .foregroundStyle(.orange)
                 }
             }
@@ -96,7 +123,7 @@ struct CoolingOffView: View {
 
     private var reviewAt: Date? {
         guard let durationHours else { return nil }
-        return calendar.date(byAdding: .hour, value: durationHours, to: Date())
+        return calendar.date(byAdding: .hour, value: durationHours, to: startedAt)
     }
 
     private func start() async {
@@ -107,19 +134,30 @@ struct CoolingOffView: View {
             _ = try await dataActor.startCoolingOff(
                 wishItemId: wishItem.id,
                 durationHours: durationHours,
-                startedAt: Date(),
+                startedAt: startedAt,
                 calendar: calendar
             )
-            error = false
+            error = nil
             completed()
         } catch {
-            self.error = true
+            self.error = CoolingOffStartError.mapped(from: error)
+        }
+    }
+
+    private func errorKey(_ error: CoolingOffStartError) -> LocalizedStringKey {
+        switch error {
+        case .stateChanged: "wishlist.cooling.error.stateChanged"
+        case .invalidStoredData: "wishlist.cooling.error.invalidStoredData"
+        case .persistence: "wishlist.cooling.error.persistence"
         }
     }
 }
+
 struct CoolingOffCountdownLabel: View {
     let reviewAt: Date
     let calendar: Calendar
+
+    @Environment(\.locale) private var locale
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
@@ -128,32 +166,11 @@ struct CoolingOffCountdownLabel: View {
                 until: reviewAt,
                 calendar: calendar
             )
-            Label(countdownText(countdown), systemImage: "hourglass")
+            Label(
+                CoolingOffCountdownText.string(for: countdown, locale: locale),
+                systemImage: "hourglass"
+            )
                 .foregroundStyle(.tint)
         }
-    }
-
-    private func countdownText(_ countdown: CoolingOffCountdown) -> String {
-        if countdown.isComplete {
-            return NSLocalizedString("wishlist.cooling.ready", comment: "")
-        }
-        if countdown.days > 0 {
-            return String.localizedStringWithFormat(
-                NSLocalizedString("wishlist.cooling.remaining.days", comment: ""),
-                countdown.days,
-                countdown.hours
-            )
-        }
-        if countdown.hours > 0 {
-            return String.localizedStringWithFormat(
-                NSLocalizedString("wishlist.cooling.remaining.hours", comment: ""),
-                countdown.hours,
-                countdown.minutes
-            )
-        }
-        return String.localizedStringWithFormat(
-            NSLocalizedString("wishlist.cooling.remaining.minutes", comment: ""),
-            countdown.minutes
-        )
     }
 }

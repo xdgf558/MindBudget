@@ -2993,6 +2993,70 @@
         }
       }
     },
+    "wishlist.action.error.invalidStoredData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some stored information could not be read. Refresh before trying again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "部分已存信息暂时无法读取，请刷新后再试。"
+          }
+        }
+      }
+    },
+    "wishlist.action.error.persistence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change could not be saved. Refresh and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这次更改未能保存，请刷新后重试。"
+          }
+        }
+      }
+    },
+    "wishlist.action.error.stateChanged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This item changed since the screen opened. Refresh to see its current status."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个愿望的状态已经变化，请刷新查看当前状态。"
+          }
+        }
+      }
+    },
+    "wishlist.action.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t update this item"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法更新"
+          }
+        }
+      }
+    },
     "wishlist.action.skipped": {
       "localizations": {
         "en": {
@@ -3089,18 +3153,50 @@
         }
       }
     },
-    "wishlist.cooling.error": {
+    "wishlist.cooling.error.invalidStoredData": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The cooling-off period could not be started. Try again."
+            "value": "Some stored information could not be read. Close this sheet and refresh the item."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂时无法开始冷静期，请重试。"
+            "value": "部分已存信息暂时无法读取，请关闭此页并刷新愿望。"
+          }
+        }
+      }
+    },
+    "wishlist.cooling.error.persistence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The cooling-off period could not be saved. Try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "冷静期未能保存，请重试。"
+          }
+        }
+      }
+    },
+    "wishlist.cooling.error.stateChanged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This item changed or already has an active cooling-off period. Close this sheet and review its current status."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个愿望的状态已经变化，或已有进行中的冷静期。请关闭此页查看当前状态。"
           }
         }
       }

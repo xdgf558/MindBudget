@@ -412,3 +412,44 @@ atomic APIs instead of recreating the state machine.
 
 Files affected: wishlist/cooling projections, `DataActor`, Phase 4 views and countdown
 service, localization/copy/privacy contracts, and Phase 4 tests.
+
+---
+
+## 2026-08-03 — Separate cooling completion from outcome recording
+
+Context: A Phase 4 review found that expiry correctly stored `completedAt = reviewAt`, but
+a later purchase/skip/extend decision had no separate timestamp. Reusing `completedAt` for
+the later decision would erase how long the completed cooling period actually lasted;
+leaving the decision time unstored would discard a potentially useful deterministic Phase
+5 signal while Schema V1 can still accept the field without a migration. The review also
+found that wishlist action failures were flattened, countdown preview time could drift, and
+countdown copy ignored an injected SwiftUI locale.
+
+Decision: `CoolingOffPlan.completedAt` remains the actual time the period completed or was
+cancelled. Optional `outcomeRecordedAt` stores when a non-nil outcome was recorded, and the
+write boundary requires outcome and timestamp to be present or absent together. Expiry
+stores neither an outcome nor an outcome timestamp; a later decision preserves the earlier
+completion time. Phase 5 may use the timestamp only for deterministic interval attribution
+or delay calculations. It must not enter generative context. Phase 4 action surfaces retain
+recoverable state-changed, corrupt-data, and persistence meanings. A cooling-off sheet fixes
+one start instant for both preview and save, and countdown rendering formats through the
+active environment locale.
+
+Expense and wishlist projections remain intentionally asymmetric. `ExpenseSummary` carries
+emotion and purchase-reason enums because Phase 5 aggregates those fields across expenses;
+`WishItemSummary` omits them because list and budget-impact consumers do not need them, and
+one explicitly requested `WishItemDetail` supplies them locally. Neither targeted detail
+type is a permitted redactor or generator input.
+
+Alternatives considered: Overwriting `completedAt` when the user decides, omitting the
+decision signal from V1, calling the field `decidedAt` despite the neutral `noResponse`
+outcome, flattening all action errors into one Boolean, taking a new `Date()` on every
+render/save, and resolving countdown strings directly from the process bundle language.
+
+Consequences: Phase 5 can distinguish cooling duration from later outcome timing without a
+Schema V2 migration or invented inference. Persisted outcome state cannot represent only
+one half of the outcome/time pair. Previewed and stored review times match, locale overrides
+remain coherent, and future privacy work has a documented narrow projection boundary.
+
+Files affected: Schema V1 cooling-off model and projections, `DataActor`, Phase 4 action and
+countdown UI, localization, privacy/test contracts, and Phase 4 tests.

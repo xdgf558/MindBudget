@@ -74,6 +74,7 @@ struct CoolingOffPlanSummary: Hashable, Identifiable, Sendable {
     let status: CoolingOffStatus
     let completedAt: Date?
     let outcome: CoolingOffOutcome?
+    let outcomeRecordedAt: Date?
 }
 
 struct SpendingInsightSummary: Hashable, Sendable {
