@@ -203,3 +203,39 @@ release preparation.
 
 Next suggested task: Commit and push the Phase 2 branch, open it for review, then begin
 Phase 3 only after merge.
+
+## 2026-08-03 — Session 8 — Phase 2 review remediation
+
+Goal: Address PR #4 review findings before Phase 3 creates consumers of the budget
+snapshot, impact, cycle-transition, and formatting contracts.
+
+Files changed: budget/cycle/formatting services, `DataActor` coverage projections,
+Phase 2 tests, AI prompt contract, project decisions/memory/test plan/changelog, and the
+authoritative development document.
+
+What was completed: Replaced the Boolean-plus-Optional snapshot with a two-state enum and
+a nonoptional configured payload; restricted impact calculation to configured snapshots;
+rejected reference dates outside `[cycleStart, cycleEnd)`; made free-budget ratio and
+days-consumed metrics exist only for discretionary spending with positive denominators;
+and migrated currency output from per-call `NumberFormatter` construction to stateless
+`Decimal.FormatStyle.Currency` with explicit exponent precision. Future start-day changes
+now return a transition-budget confirmation requirement instead of silently copying a
+full monthly budget, while normal lazy generation is preflighted in memory, capped at 120
+plans, and remains atomic. Generated typed drafts no longer repeat persistence fetches for
+each prospective plan.
+
+What was NOT completed: Phase 3 still needs to build the transition-budget confirmation
+UI and switch on configured/unconfigured snapshots. No historical-summary API was added;
+Phase 5 must use cycle aggregates rather than current-cycle safe-daily calculations.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 65 Swift Testing tests and 2 localized UI tests, 0 failures
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation.
+
+Next suggested task: Push the remediation commit to PR #4, wait for CI, review, and merge
+before beginning Phase 3.

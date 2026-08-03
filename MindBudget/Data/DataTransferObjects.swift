@@ -46,7 +46,14 @@ struct BudgetPlanDraft: Sendable {
 enum BudgetPlanCoverage: Equatable, Sendable {
     case unconfigured
     case covered(BudgetPlanSummary)
+    case transitionPlanRequired(BudgetPlanTransitionRequirement)
     case historicalPlanRequired
+}
+
+struct BudgetPlanTransitionRequirement: Equatable, Sendable {
+    let interval: DateInterval
+    let previousPlan: BudgetPlanSummary
+    let futureCycleStartDay: Int
 }
 
 struct WishItemDraft: Sendable {

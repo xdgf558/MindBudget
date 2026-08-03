@@ -38,8 +38,10 @@
   state remains free of binary floating-point values.
 - Replaced the purchasing-power-sensitive one-million-major-unit cap with a
   currency-neutral minor-unit safety limit.
-- Defined future cycle-start changes as a contiguous transition cycle followed by the
-  new cadence, without rewriting an existing plan.
+- Defined future cycle-start changes as a user-confirmed transition interval followed by
+  the new cadence, without rewriting history or silently copying a full monthly budget.
+- Replaced parallel optional snapshot metrics with configured/unconfigured states and
+  limited free-budget ratios to discretionary spending with a positive baseline.
 
 ### Fixed
 
@@ -53,6 +55,8 @@
 - Reused one `DataActor` per controller, made sample replacement rollback-safe, and
   maintained merchant aggregates from expense creates and deletes.
 - Replaced the local-store startup crash with a retryable, localized recovery screen.
+- Rejected current-budget snapshots outside their half-open cycle and capped atomic lazy
+  plan generation at 120 periods.
 
 ### Privacy
 

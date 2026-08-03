@@ -23,7 +23,7 @@ struct RedactedAdviceContext: Codable, Sendable {
     let purchaseAmountFormatted: String
     let purchaseCategoryKey: String
     let remainingFreeAfterFormatted: String
-    let freeBudgetImpactPercent: Int
+    let freeBudgetImpactPercent: Int?
     let daysOfBudgetConsumed: Int?
     let categoryBudgetUsedPercent: Int?
     let recentStressPurchaseCount7d: Int

@@ -15,19 +15,21 @@ struct BudgetEngineTests {
             expense(amount: 90_000, category: .shopping, bucket: .discretionary, at: context.end)
         ]
 
-        let snapshot = try engine.snapshot(
-            cycle: context.cycle,
-            currencyCode: "USD",
-            expenses: expenses,
-            plan: context.plan,
-            now: context.day20,
-            calendar: context.calendar
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: expenses,
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
         )
 
-        #expect(snapshot.spentTotal?.minorUnits == 140_000)
-        #expect(snapshot.fixedSpent?.minorUnits == 80_000)
-        #expect(snapshot.discretionarySpent?.minorUnits == 40_000)
-        #expect(snapshot.savedSoFar?.minorUnits == 20_000)
+        #expect(snapshot.spentTotal.minorUnits == 140_000)
+        #expect(snapshot.fixedSpent.minorUnits == 80_000)
+        #expect(snapshot.discretionarySpent.minorUnits == 40_000)
+        #expect(snapshot.savedSoFar.minorUnits == 20_000)
         #expect(snapshot.spentByCategory[.shopping] == nil)
     }
 
@@ -36,35 +38,37 @@ struct BudgetEngineTests {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
 
-        #expect(snapshot.freeBudget?.minorUnits == 150_000)
-        #expect(snapshot.remainingFree?.minorUnits == 110_000)
-        #expect(snapshot.pendingFixed?.minorUnits == 20_000)
-        #expect(snapshot.pendingSaving?.minorUnits == 30_000)
-        #expect(snapshot.remainingTotal?.minorUnits == 160_000)
-        #expect(snapshot.availableRightNow?.minorUnits == 110_000)
+        #expect(snapshot.freeBudget.minorUnits == 150_000)
+        #expect(snapshot.remainingFree.minorUnits == 110_000)
+        #expect(snapshot.pendingFixed.minorUnits == 20_000)
+        #expect(snapshot.pendingSaving.minorUnits == 30_000)
+        #expect(snapshot.remainingTotal.minorUnits == 160_000)
+        #expect(snapshot.availableRightNow.minorUnits == 110_000)
         #expect(snapshot.daysRemaining == 12)
-        #expect(snapshot.safeDailySpend?.minorUnits == 9_166)
+        #expect(snapshot.safeDailySpend.minorUnits == 9_166)
     }
 
     @Test
     func fixedPaymentReducesItsPendingReservationWithoutDoubleCounting() throws {
         let context = try makeContext()
-        let withoutFixedPayment = try engine.snapshot(
-            cycle: context.cycle,
-            currencyCode: "USD",
-            expenses: [
-                expense(amount: 40_000, category: .food, bucket: .discretionary, at: context.day20),
-                expense(amount: 20_000, category: .other, bucket: .savings, at: context.day20)
-            ],
-            plan: context.plan,
-            now: context.day20,
-            calendar: context.calendar
+        let withoutFixedPayment = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [
+                    expense(amount: 40_000, category: .food, bucket: .discretionary, at: context.day20),
+                    expense(amount: 20_000, category: .other, bucket: .savings, at: context.day20)
+                ],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
         )
         let withFixedPayment = try configuredSnapshot(context: context)
 
         #expect(withoutFixedPayment.availableRightNow == withFixedPayment.availableRightNow)
-        #expect(withoutFixedPayment.pendingFixed?.minorUnits == 100_000)
-        #expect(withFixedPayment.pendingFixed?.minorUnits == 20_000)
+        #expect(withoutFixedPayment.pendingFixed.minorUnits == 100_000)
+        #expect(withFixedPayment.pendingFixed.minorUnits == 20_000)
     }
 
     @Test
@@ -74,21 +78,23 @@ struct BudgetEngineTests {
             fixedForecast: 80_000,
             savingGoal: 50_000
         )
-        let snapshot = try engine.snapshot(
-            cycle: context.cycle,
-            currencyCode: "USD",
-            expenses: [
-                expense(amount: 10_000, category: .food, bucket: .discretionary, at: context.day20)
-            ],
-            plan: context.plan,
-            now: context.day20,
-            calendar: context.calendar
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [
+                    expense(amount: 10_000, category: .food, bucket: .discretionary, at: context.day20)
+                ],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
         )
 
-        #expect(snapshot.freeBudget?.minorUnits == 0)
-        #expect(snapshot.remainingFree?.minorUnits == -10_000)
-        #expect(snapshot.availableRightNow?.minorUnits == -20_000)
-        #expect(snapshot.safeDailySpend?.minorUnits == 0)
+        #expect(snapshot.freeBudget.minorUnits == 0)
+        #expect(snapshot.remainingFree.minorUnits == -10_000)
+        #expect(snapshot.availableRightNow.minorUnits == -20_000)
+        #expect(snapshot.safeDailySpend.minorUnits == 0)
     }
 
     @Test
@@ -103,44 +109,70 @@ struct BudgetEngineTests {
             calendar: context.calendar
         )
 
-        #expect(!snapshot.isConfigured)
-        #expect(snapshot.currencyCode == "CNY")
-        #expect(snapshot.totalBudget == nil)
-        #expect(snapshot.spentTotal == nil)
-        #expect(snapshot.availableRightNow == nil)
-        #expect(snapshot.safeDailySpend == nil)
-        #expect(snapshot.daysRemaining == nil)
+        guard case let .unconfigured(cycle, currencyCode) = snapshot else {
+            Issue.record("Expected an unconfigured snapshot")
+            return
+        }
+        #expect(cycle == context.cycle)
+        #expect(currencyCode == "CNY")
     }
 
     @Test
     func daysRemainingNeverReachesZero() throws {
         let context = try makeContext()
-        let snapshot = try engine.snapshot(
-            cycle: context.cycle,
-            currencyCode: "USD",
-            expenses: [],
-            plan: context.plan,
-            now: context.end,
-            calendar: context.calendar
+        let finalMinute = try #require(
+            context.calendar.date(byAdding: .minute, value: -1, to: context.end)
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: finalMinute,
+                calendar: context.calendar
+            )
         )
 
         #expect(snapshot.daysRemaining == 1)
-        #expect(snapshot.safeDailySpend?.minorUnits == 150_000)
+        #expect(snapshot.safeDailySpend.minorUnits == 150_000)
+    }
+
+    @Test
+    func referenceDateMustRemainInsideTheHalfOpenCycle() throws {
+        let context = try makeContext()
+        let beforeStart = try #require(
+            context.calendar.date(byAdding: .minute, value: -1, to: context.start)
+        )
+        let afterEnd = try #require(
+            context.calendar.date(byAdding: .minute, value: 1, to: context.end)
+        )
+
+        for invalidDate in [beforeStart, context.end, afterEnd] {
+            #expect(throws: BudgetEngineError.referenceDateOutsideCycle) {
+                _ = try engine.snapshot(
+                    cycle: context.cycle,
+                    currencyCode: "USD",
+                    expenses: [],
+                    plan: context.plan,
+                    now: invalidDate,
+                    calendar: context.calendar
+                )
+            }
+        }
     }
 
     @Test
     func discretionaryImpactCanExceedFreeBudget() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
-        let result = try engine.impact(
+        let impact = try engine.impact(
             of: money(120_000),
             category: .food,
             bucket: .discretionary,
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
-        let impact = try #require(result)
-
         #expect(impact.remainingFreeAfter.minorUnits == -10_000)
         #expect(impact.remainingTotalAfter.minorUnits == 40_000)
         #expect(impact.willExceedFreeBudget)
@@ -152,15 +184,13 @@ struct BudgetEngineTests {
     func purchaseImpactWithinBudgetReportsExactRatios() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
-        let result = try engine.impact(
+        let impact = try engine.impact(
             of: money(18_332),
             category: .food,
             bucket: .discretionary,
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
-        let impact = try #require(result)
-
         #expect(impact.remainingTotalAfter.minorUnits == 141_668)
         #expect(impact.remainingFreeAfter.minorUnits == 91_668)
         #expect(!impact.willExceedTotalBudget)
@@ -173,17 +203,16 @@ struct BudgetEngineTests {
     func fixedImpactDoesNotReduceRemainingFree() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
-        let result = try engine.impact(
+        let impact = try engine.impact(
             of: money(75_000),
             category: .rent,
             bucket: .fixed,
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
-        let impact = try #require(result)
-
         #expect(impact.remainingFreeAfter == snapshot.remainingFree)
-        #expect(impact.impactRatioOfFreeBudget == Decimal(string: "0.5"))
+        #expect(impact.impactRatioOfFreeBudget == nil)
+        #expect(impact.daysOfBudgetConsumed == nil)
     }
 
     @Test
@@ -198,15 +227,13 @@ struct BudgetEngineTests {
         ]
 
         for (purchaseAmount, expectedLevel) in cases {
-            let result = try engine.impact(
+            let impact = try engine.impact(
                 of: money(purchaseAmount),
                 category: .food,
                 bucket: .discretionary,
                 snapshot: snapshot,
                 categoryBudgets: context.plan.categoryBudgets
             )
-            let impact = try #require(result)
-
             #expect(impact.categoryRisk?.level == expectedLevel)
             #expect(impact.categoryRisk?.spent.minorUnits == 40_000)
             #expect(impact.categoryRisk?.projectedAfterPurchase.minorUnits == 40_000 + purchaseAmount)
@@ -214,19 +241,33 @@ struct BudgetEngineTests {
     }
 
     @Test
-    func impactReturnsNilForUnconfiguredSnapshot() throws {
-        let context = try makeContext()
-        let snapshot = BudgetSnapshot.unconfigured(currencyCode: "USD", cycle: context.cycle)
+    func zeroFreeBudgetHasNoRatioBaseline() throws {
+        let context = try makeContext(
+            totalBudget: 120_000,
+            fixedForecast: 80_000,
+            savingGoal: 50_000
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
 
         let impact = try engine.impact(
-            of: money(10_000),
-            category: .food,
+            of: money(300),
+            category: .coffee,
             bucket: .discretionary,
             snapshot: snapshot,
             categoryBudgets: []
         )
 
-        #expect(impact == nil)
+        #expect(impact.impactRatioOfFreeBudget == nil)
+        #expect(impact.daysOfBudgetConsumed == nil)
     }
 
     @Test
@@ -273,19 +314,28 @@ struct BudgetEngineTests {
         }
     }
 
-    private func configuredSnapshot(context: Context) throws -> BudgetSnapshot {
-        try engine.snapshot(
-            cycle: context.cycle,
-            currencyCode: "USD",
-            expenses: [
-                expense(amount: 80_000, category: .rent, bucket: .fixed, at: context.day20),
-                expense(amount: 40_000, category: .food, bucket: .discretionary, at: context.day20),
-                expense(amount: 20_000, category: .other, bucket: .savings, at: context.day20)
-            ],
-            plan: context.plan,
-            now: context.day20,
-            calendar: context.calendar
+    private func configuredSnapshot(context: Context) throws -> ConfiguredBudgetSnapshot {
+        try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [
+                    expense(amount: 80_000, category: .rent, bucket: .fixed, at: context.day20),
+                    expense(amount: 40_000, category: .food, bucket: .discretionary, at: context.day20),
+                    expense(amount: 20_000, category: .other, bucket: .savings, at: context.day20)
+                ],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
         )
+    }
+
+    private func requireConfigured(_ snapshot: BudgetSnapshot) throws -> ConfiguredBudgetSnapshot {
+        guard case let .configured(configured) = snapshot else {
+            throw TestError.expectedConfiguredSnapshot
+        }
+        return configured
     }
 
     private func makeContext(
@@ -365,5 +415,9 @@ struct BudgetEngineTests {
         let day20: Date
         let cycle: DateInterval
         let plan: BudgetPlanSummary
+    }
+
+    private enum TestError: Error {
+        case expectedConfiguredSnapshot
     }
 }

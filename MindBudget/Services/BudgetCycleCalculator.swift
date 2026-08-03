@@ -6,6 +6,16 @@ enum BudgetCycleError: Error, Equatable, Sendable {
     case dateCalculationFailed
     case invalidTimeZone(String)
     case overlappingPlans
+    case generationLimitExceeded(limit: Int)
+}
+
+enum BudgetPlanGenerationPolicy {
+    static let maximumAutomaticPlans = 120
+}
+
+struct BudgetCycleAdvance: Equatable, Sendable {
+    let interval: DateInterval
+    let requiresBudgetConfirmation: Bool
 }
 
 struct BudgetCycleCalculator: Sendable {
@@ -45,11 +55,11 @@ struct BudgetCycleCalculator: Sendable {
         return try makeInterval(start: boundaryThisMonth, end: end)
     }
 
-    func nextInterval(
+    func nextCycle(
         after existing: DateInterval,
         startDay: Int,
         calendar: Calendar
-    ) throws -> DateInterval {
+    ) throws -> BudgetCycleAdvance {
         guard existing.start < existing.end else {
             throw BudgetCycleError.invalidInterval
         }
@@ -61,7 +71,10 @@ struct BudgetCycleCalculator: Sendable {
         guard canonical.end > existing.end else {
             throw BudgetCycleError.dateCalculationFailed
         }
-        return try makeInterval(start: existing.end, end: canonical.end)
+        return BudgetCycleAdvance(
+            interval: try makeInterval(start: existing.end, end: canonical.end),
+            requiresBudgetConfirmation: canonical.start != existing.end
+        )
     }
 
     func validateNonOverlapping(_ plans: [BudgetPlanSummary]) throws {
@@ -190,6 +203,27 @@ struct BudgetPlanFactory: Sendable {
             createdAt: timestamp,
             updatedAt: timestamp,
             categoryBudgets: categoryBudgets
+        )
+    }
+
+    func summary(from draft: BudgetPlanDraft) -> BudgetPlanSummary {
+        BudgetPlanSummary(
+            id: draft.id,
+            cycleStart: draft.cycleStart,
+            cycleEnd: draft.cycleEnd,
+            currencyCode: draft.currencyCode,
+            monthlyIncomeMinorUnits: draft.monthlyIncomeMinorUnits,
+            totalBudgetMinorUnits: draft.totalBudgetMinorUnits,
+            fixedExpensesMinorUnits: draft.fixedExpensesMinorUnits,
+            savingGoalMinorUnits: draft.savingGoalMinorUnits,
+            categoryBudgets: draft.categoryBudgets.map { category in
+                CategoryBudgetSummary(
+                    id: category.id,
+                    category: category.category,
+                    limitMinorUnits: category.limitMinorUnits,
+                    warningThresholdBasisPoints: category.warningThresholdBasisPoints
+                )
+            }
         )
     }
 }

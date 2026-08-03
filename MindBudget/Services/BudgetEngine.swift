@@ -2,6 +2,7 @@ import Foundation
 
 enum BudgetEngineError: Error, Equatable, Sendable {
     case invalidCycle
+    case referenceDateOutsideCycle
     case invalidPlan
     case planCycleMismatch
     case invalidPurchaseAmount
@@ -25,54 +26,46 @@ struct CategoryBudgetRisk: Hashable, Sendable {
     let level: Level
 }
 
-struct BudgetSnapshot: Sendable, Equatable {
-    let isConfigured: Bool
-    let cycleStart: Date
-    let cycleEnd: Date
+struct ConfiguredBudgetSnapshot: Sendable, Equatable {
+    let cycle: DateInterval
     let currencyCode: String
 
-    let totalBudget: Money?
-    let fixedForecast: Money?
-    let savingGoal: Money?
-    let freeBudget: Money?
+    let totalBudget: Money
+    let fixedForecast: Money
+    let savingGoal: Money
+    let freeBudget: Money
 
-    let spentTotal: Money?
-    let fixedSpent: Money?
-    let discretionarySpent: Money?
-    let savedSoFar: Money?
+    let spentTotal: Money
+    let fixedSpent: Money
+    let discretionarySpent: Money
+    let savedSoFar: Money
     let spentByCategory: [ExpenseCategory: Money]
 
-    let remainingTotal: Money?
-    let remainingFree: Money?
-    let pendingFixed: Money?
-    let pendingSaving: Money?
-    let availableRightNow: Money?
-    let safeDailySpend: Money?
-    let daysRemaining: Int?
+    let remainingTotal: Money
+    let remainingFree: Money
+    let pendingFixed: Money
+    let pendingSaving: Money
+    let availableRightNow: Money
+    let safeDailySpend: Money
+    let daysRemaining: Int
+}
 
-    static func unconfigured(currencyCode: String, cycle: DateInterval) -> BudgetSnapshot {
-        BudgetSnapshot(
-            isConfigured: false,
-            cycleStart: cycle.start,
-            cycleEnd: cycle.end,
-            currencyCode: currencyCode,
-            totalBudget: nil,
-            fixedForecast: nil,
-            savingGoal: nil,
-            freeBudget: nil,
-            spentTotal: nil,
-            fixedSpent: nil,
-            discretionarySpent: nil,
-            savedSoFar: nil,
-            spentByCategory: [:],
-            remainingTotal: nil,
-            remainingFree: nil,
-            pendingFixed: nil,
-            pendingSaving: nil,
-            availableRightNow: nil,
-            safeDailySpend: nil,
-            daysRemaining: nil
-        )
+enum BudgetSnapshot: Sendable, Equatable {
+    case unconfigured(cycle: DateInterval, currencyCode: String)
+    case configured(ConfiguredBudgetSnapshot)
+
+    var cycle: DateInterval {
+        switch self {
+        case let .unconfigured(cycle, _): cycle
+        case let .configured(snapshot): snapshot.cycle
+        }
+    }
+
+    var currencyCode: String {
+        switch self {
+        case let .unconfigured(_, currencyCode): currencyCode
+        case let .configured(snapshot): snapshot.currencyCode
+        }
     }
 }
 
@@ -83,7 +76,7 @@ struct BudgetImpact: Sendable, Equatable {
     let remainingFreeAfter: Money
     let willExceedTotalBudget: Bool
     let willExceedFreeBudget: Bool
-    let impactRatioOfFreeBudget: Decimal
+    let impactRatioOfFreeBudget: Decimal?
     let daysOfBudgetConsumed: Decimal?
     let categoryRisk: CategoryBudgetRisk?
 }
@@ -102,9 +95,9 @@ protocol BudgetCalculating: Sendable {
         of amount: Money,
         category: ExpenseCategory,
         bucket: BudgetBucket,
-        snapshot: BudgetSnapshot,
+        snapshot: ConfiguredBudgetSnapshot,
         categoryBudgets: [CategoryBudgetSummary]
-    ) throws -> BudgetImpact?
+    ) throws -> BudgetImpact
 }
 
 struct BudgetEngine: BudgetCalculating, Sendable {
@@ -119,11 +112,14 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         guard cycle.start < cycle.end else {
             throw BudgetEngineError.invalidCycle
         }
+        guard cycle.start <= now, now < cycle.end else {
+            throw BudgetEngineError.referenceDateOutsideCycle
+        }
         guard Money.isSupported(currencyCode) else {
             throw BudgetEngineError.invalidPlan
         }
         guard let plan else {
-            return .unconfigured(currencyCode: currencyCode, cycle: cycle)
+            return .unconfigured(cycle: cycle, currencyCode: currencyCode)
         }
         try requireCurrency(plan.currencyCode, matches: currencyCode)
         guard plan.cycleStart == cycle.start, plan.cycleEnd == cycle.end else {
@@ -181,27 +177,27 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         ).day ?? 1
         let daysRemaining = max(1, calendarDays)
         let safeDailySpend = max(0, remainingFree) / Int64(daysRemaining)
-        return BudgetSnapshot(
-            isConfigured: true,
-            cycleStart: cycle.start,
-            cycleEnd: cycle.end,
-            currencyCode: currencyCode,
-            totalBudget: money(totalBudget, currencyCode),
-            fixedForecast: money(fixedForecast, currencyCode),
-            savingGoal: money(savingGoal, currencyCode),
-            freeBudget: money(freeBudget, currencyCode),
-            spentTotal: money(spentTotal, currencyCode),
-            fixedSpent: money(fixedSpent, currencyCode),
-            discretionarySpent: money(discretionarySpent, currencyCode),
-            savedSoFar: money(savedSoFar, currencyCode),
-            spentByCategory: spentByCategory.mapValues { money($0, currencyCode) },
-            remainingTotal: money(remainingTotal, currencyCode),
-            remainingFree: money(remainingFree, currencyCode),
-            pendingFixed: money(pendingFixed, currencyCode),
-            pendingSaving: money(pendingSaving, currencyCode),
-            availableRightNow: money(availableRightNow, currencyCode),
-            safeDailySpend: money(safeDailySpend, currencyCode),
-            daysRemaining: daysRemaining
+        return .configured(
+            ConfiguredBudgetSnapshot(
+                cycle: cycle,
+                currencyCode: currencyCode,
+                totalBudget: money(totalBudget, currencyCode),
+                fixedForecast: money(fixedForecast, currencyCode),
+                savingGoal: money(savingGoal, currencyCode),
+                freeBudget: money(freeBudget, currencyCode),
+                spentTotal: money(spentTotal, currencyCode),
+                fixedSpent: money(fixedSpent, currencyCode),
+                discretionarySpent: money(discretionarySpent, currencyCode),
+                savedSoFar: money(savedSoFar, currencyCode),
+                spentByCategory: spentByCategory.mapValues { money($0, currencyCode) },
+                remainingTotal: money(remainingTotal, currencyCode),
+                remainingFree: money(remainingFree, currencyCode),
+                pendingFixed: money(pendingFixed, currencyCode),
+                pendingSaving: money(pendingSaving, currencyCode),
+                availableRightNow: money(availableRightNow, currencyCode),
+                safeDailySpend: money(safeDailySpend, currencyCode),
+                daysRemaining: daysRemaining
+            )
         )
     }
 
@@ -209,35 +205,29 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         of amount: Money,
         category: ExpenseCategory,
         bucket: BudgetBucket,
-        snapshot: BudgetSnapshot,
+        snapshot: ConfiguredBudgetSnapshot,
         categoryBudgets: [CategoryBudgetSummary]
-    ) throws -> BudgetImpact? {
-        guard snapshot.isConfigured else { return nil }
+    ) throws -> BudgetImpact {
         guard amount.minorUnits > 0 else {
             throw BudgetEngineError.invalidPurchaseAmount
         }
         try requireCurrency(amount.currencyCode, matches: snapshot.currencyCode)
-        guard let remainingTotal = snapshot.remainingTotal,
-              let remainingFree = snapshot.remainingFree,
-              let freeBudget = snapshot.freeBudget,
-              let safeDailySpend = snapshot.safeDailySpend else {
-            throw BudgetEngineError.invalidPlan
-        }
 
         let remainingTotalAfter = try checkedSubtract(
-            remainingTotal.minorUnits,
+            snapshot.remainingTotal.minorUnits,
             amount.minorUnits
         )
         let freeReduction = bucket == .discretionary ? amount.minorUnits : 0
         let remainingFreeAfter = try checkedSubtract(
-            remainingFree.minorUnits,
+            snapshot.remainingFree.minorUnits,
             freeReduction
         )
-        let impactRatio = freeBudget.minorUnits > 0
-            ? decimalRatio(amount.minorUnits, freeBudget.minorUnits)
-            : Decimal(1)
-        let daysConsumed = safeDailySpend.minorUnits > 0
-            ? decimalRatio(amount.minorUnits, safeDailySpend.minorUnits)
+        let isDiscretionary = bucket == .discretionary
+        let impactRatio = isDiscretionary && snapshot.freeBudget.minorUnits > 0
+            ? decimalRatio(amount.minorUnits, snapshot.freeBudget.minorUnits)
+            : nil
+        let daysConsumed = isDiscretionary && snapshot.safeDailySpend.minorUnits > 0
+            ? decimalRatio(amount.minorUnits, snapshot.safeDailySpend.minorUnits)
             : nil
         let categoryRisk = try categoryRisk(
             for: category,
@@ -262,7 +252,7 @@ struct BudgetEngine: BudgetCalculating, Sendable {
     private func categoryRisk(
         for category: ExpenseCategory,
         amount: Money,
-        snapshot: BudgetSnapshot,
+        snapshot: ConfiguredBudgetSnapshot,
         categoryBudgets: [CategoryBudgetSummary]
     ) throws -> CategoryBudgetRisk? {
         guard let budget = categoryBudgets.first(where: { $0.category == category }) else {

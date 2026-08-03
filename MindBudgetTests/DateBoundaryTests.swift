@@ -168,7 +168,7 @@ struct DateBoundaryTests {
     }
 
     @Test
-    func futureStartDayCreatesTransitionWithoutMutatingHistory() async throws {
+    func futureStartDayRequiresConfirmedTransitionWithoutMutatingHistory() async throws {
         let calendar = TestFixtures.utcCalendar
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let originalStart = date(2026, 1, 1, calendar: calendar)
@@ -180,21 +180,53 @@ struct DateBoundaryTests {
         )
         _ = try await actor.createBudgetPlan(initial)
 
-        _ = try await actor.ensurePlanCovering(
+        let transitionResult = try await actor.ensurePlanCovering(
             date: date(2026, 2, 20, calendar: calendar),
             futureCycleStartDay: 15,
             calendar: calendar,
             timestamp: date(2026, 2, 20, calendar: calendar)
         )
-        let plans = try await actor.fetchBudgetPlanSummaries()
+        var plans = try await actor.fetchBudgetPlanSummaries()
 
-        #expect(plans.count == 3)
+        guard case let .transitionPlanRequired(requirement) = transitionResult else {
+            Issue.record("Expected an explicit transition-plan requirement")
+            return
+        }
+        #expect(plans.count == 1)
         #expect(plans[0].cycleStart == originalStart)
         #expect(plans[0].cycleEnd == originalEnd)
+        #expect(requirement.interval.start == originalEnd)
+        #expect(requirement.interval.end == date(2026, 2, 15, calendar: calendar))
+        #expect(requirement.previousPlan.id == plans[0].id)
+        #expect(requirement.futureCycleStartDay == 15)
+
+        let confirmedTransition = plan(
+            start: requirement.interval.start,
+            end: requirement.interval.end,
+            timestamp: date(2026, 2, 1, calendar: calendar),
+            totalBudget: 210_000
+        )
+        _ = try await actor.createBudgetPlan(confirmedTransition)
+        let coveredResult = try await actor.ensurePlanCovering(
+            date: date(2026, 2, 20, calendar: calendar),
+            futureCycleStartDay: 15,
+            calendar: calendar,
+            timestamp: date(2026, 2, 20, calendar: calendar)
+        )
+        plans = try await actor.fetchBudgetPlanSummaries()
+
+        guard case let .covered(covered) = coveredResult else {
+            Issue.record("Expected coverage after confirming the transition budget")
+            return
+        }
+        #expect(plans.count == 3)
         #expect(plans[1].cycleStart == originalEnd)
         #expect(plans[1].cycleEnd == date(2026, 2, 15, calendar: calendar))
         #expect(plans[2].cycleStart == date(2026, 2, 15, calendar: calendar))
         #expect(plans[2].cycleEnd == date(2026, 3, 15, calendar: calendar))
+        #expect(plans[1].totalBudgetMinorUnits == 210_000)
+        #expect(plans[2].totalBudgetMinorUnits == 210_000)
+        #expect(covered.id == plans[2].id)
     }
 
     @Test
@@ -225,6 +257,36 @@ struct DateBoundaryTests {
             timestamp: target
         )
         #expect(historical == .historicalPlanRequired)
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+    }
+
+    @Test
+    func lazyRollForwardRejectsMoreThanTheAutomaticLimitAtomically() async throws {
+        let calendar = TestFixtures.utcCalendar
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let initial = plan(
+            start: date(2026, 1, 1, calendar: calendar),
+            end: date(2026, 2, 1, calendar: calendar),
+            timestamp: date(2026, 1, 1, calendar: calendar)
+        )
+        _ = try await actor.createBudgetPlan(initial)
+
+        do {
+            _ = try await actor.ensurePlanCovering(
+                date: date(2099, 1, 1, calendar: calendar),
+                futureCycleStartDay: 1,
+                calendar: calendar,
+                timestamp: date(2026, 1, 1, calendar: calendar)
+            )
+            Issue.record("Expected automatic generation to stop at its safety limit")
+        } catch let error as BudgetCycleError {
+            #expect(
+                error == .generationLimitExceeded(
+                    limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
+                )
+            )
+        }
+
         #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
     }
 
@@ -291,14 +353,19 @@ struct DateBoundaryTests {
         }
     }
 
-    private func plan(start: Date, end: Date, timestamp: Date) -> BudgetPlanDraft {
+    private func plan(
+        start: Date,
+        end: Date,
+        timestamp: Date,
+        totalBudget: Int64 = 300_000
+    ) -> BudgetPlanDraft {
         BudgetPlanDraft(
             id: UUID(),
             cycleStart: start,
             cycleEnd: end,
             currencyCode: "USD",
             monthlyIncomeMinorUnits: 400_000,
-            totalBudgetMinorUnits: 300_000,
+            totalBudgetMinorUnits: totalBudget,
             fixedExpensesMinorUnits: 100_000,
             savingGoalMinorUnits: 50_000,
             createdAt: timestamp,

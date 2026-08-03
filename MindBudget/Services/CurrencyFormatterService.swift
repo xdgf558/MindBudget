@@ -1,29 +1,15 @@
 import Foundation
 
-enum CurrencyFormattingError: Error, Equatable, Sendable {
-    case formattingFailed(currencyCode: String)
-}
-
 protocol CurrencyFormatting: Sendable {
-    func string(from money: Money, locale: Locale) throws -> String
+    func string(from money: Money, locale: Locale) -> String
 }
 
 struct CurrencyFormatterService: CurrencyFormatting, Sendable {
-    func string(from money: Money, locale: Locale) throws -> String {
-        let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.numberStyle = .currency
-        formatter.currencyCode = money.currencyCode
-        formatter.minimumFractionDigits = money.exponent
-        formatter.maximumFractionDigits = money.exponent
-        formatter.roundingMode = .halfEven
-        formatter.usesGroupingSeparator = true
-
-        guard let result = formatter.string(
-            from: NSDecimalNumber(decimal: money.decimal)
-        ) else {
-            throw CurrencyFormattingError.formattingFailed(currencyCode: money.currencyCode)
-        }
-        return result
+    func string(from money: Money, locale: Locale) -> String {
+        money.decimal.formatted(
+            .currency(code: money.currencyCode)
+                .precision(.fractionLength(money.exponent))
+                .locale(locale)
+        )
     }
 }

@@ -36,15 +36,16 @@ weak expense identifier and preserves the purchased status.
 
 Cover cycle totals, discretionary filtering, free budget, pending-fixed double-count
 prevention, available-now and safe-daily values, negative remaining budget, purchase
-impact by bucket, category risk boundaries, no-plan behavior, and nonzero days remaining.
+impact by bucket, undefined ratio baselines, category risk boundaries, no-plan behavior,
+reference-date rejection outside the half-open cycle, and nonzero days remaining.
 
 ### DateBoundaryTests
 
 Cover natural/custom cycles, day 31 clamping, leap day, 23/25-hour DST days,
 recorded-time-zone late-night rules, contiguous lazy plan creation, immutable historical
-settings, transition cycles, plan-identity isolation, and overlap rejection. Cooling-off
-countdowns across DST are added with the Phase 4 state machine rather than inferred in
-the Phase 2 cycle service.
+settings, user-confirmed transition budgets, the 120-plan atomic generation limit, plan-
+identity isolation, and overlap rejection. Cooling-off countdowns across DST are added
+with the Phase 4 state machine rather than inferred in the Phase 2 cycle service.
 
 ### SpendingPatternDetectorTests
 
@@ -154,10 +155,10 @@ Phase 2 tests cover half-open cycle totals, every authoritative reservation form
 overcommitted and unconfigured plans, exact purchase-impact ratios, all category-risk
 levels, currency mismatches, checked overflow, natural and custom cycles, day-31 and leap-
 year clamping, 23/25-hour DST days, recorded local hours, contiguous lazy plan generation,
-future-setting transition cycles, immutable history, plan overlap/identity rejection,
-and currency formatting for fractional and zero-exponent currencies. Budget engines
-receive only Sendable projections; all calendars, time zones, and reference dates are
-explicit inputs.
+future-setting transition confirmation, atomic generation limits, immutable history,
+plan overlap/identity rejection, and currency formatting for zero-, two-, and three-digit
+exponents without fixed ICU symbols. Budget engines receive only Sendable projections;
+all calendars, time zones, and reference dates are explicit inputs.
 
 ## Continuous integration
 

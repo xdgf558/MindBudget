@@ -98,24 +98,48 @@ actor DataActor {
                 return .historicalPlanRequired
             }
 
+            var generatedDrafts: [BudgetPlanDraft] = []
             while !(previous.cycleStart <= date && date < previous.cycleEnd) {
+                guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
+                    throw BudgetCycleError.generationLimitExceeded(
+                        limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
+                    )
+                }
                 let currentInterval = DateInterval(
                     start: previous.cycleStart,
                     end: previous.cycleEnd
                 )
-                let nextInterval = try calculator.nextInterval(
+                let advance = try calculator.nextCycle(
                     after: currentInterval,
                     startDay: futureCycleStartDay,
                     calendar: calendar
                 )
+                if advance.requiresBudgetConfirmation {
+                    return .transitionPlanRequired(
+                        BudgetPlanTransitionRequirement(
+                            interval: advance.interval,
+                            previousPlan: previous,
+                            futureCycleStartDay: futureCycleStartDay
+                        )
+                    )
+                }
                 let draft = try factory.makePlan(
                     copying: previous,
-                    interval: nextInterval,
+                    interval: advance.interval,
                     planID: UUID(),
                     categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
                     timestamp: timestamp
                 )
-                previous = try budgetPlanSummary(insertBudgetPlan(draft))
+                generatedDrafts.append(draft)
+                previous = factory.summary(from: draft)
+            }
+
+            try validateAccountingCurrency(previous.currencyCode)
+            for draft in generatedDrafts {
+                try validateBudgetPlan(draft)
+            }
+            for draft in generatedDrafts {
+                _ = materializeBudgetPlan(draft)
             }
 
             return .covered(previous)
@@ -338,6 +362,10 @@ actor DataActor {
         try validateAccountingCurrency(draft.currencyCode)
         try validateNoBudgetOverlap(start: draft.cycleStart, end: draft.cycleEnd)
 
+        return materializeBudgetPlan(draft)
+    }
+
+    private func materializeBudgetPlan(_ draft: BudgetPlanDraft) -> BudgetPlan {
         let plan = BudgetPlan(
             id: draft.id,
             cycleStart: draft.cycleStart,

@@ -50,8 +50,9 @@ app's private data are forbidden in V1.
   ratios in `Decimal` until a presentation-only conversion is explicitly required.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
-- Existing cycle boundaries are immutable. A changed future start day creates one
-  contiguous transition cycle when needed, then resumes the new monthly cadence.
+- Existing cycle boundaries are immutable. A changed future start day that requires a
+  shorter transition returns an explicit confirmation state; the user chooses that
+  interval's budget before persistence, then automatic generation resumes the new cadence.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
@@ -81,11 +82,11 @@ app's private data are forbidden in V1.
 
 Phases 0 through 2 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
-The pure `BudgetEngine` now calculates configured and unconfigured snapshots, fixed and
-saving reservations, safe daily spend, purchase impact, and category risk using checked
-`Int64` and `Decimal` arithmetic. Calendar-injected cycle calculation covers custom start
-days, month-end clamping, leap years, DST, immutable historical boundaries, and contiguous
-lazy future-plan generation. Currency formatting respects each supported currency's
-minor-unit exponent. Local validation covers these contracts, persistence, corruption
-handling, settings, and English/Simplified Chinese rendering on the recorded iOS 26.5
-simulator. Phase 3 UI and manual expense flows have not started.
+The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
+nonoptional, validates that current-budget reference dates remain inside the half-open
+cycle, and calculates reservations, safe daily spend, purchase impact, and category risk
+using checked `Int64` and `Decimal` arithmetic. Free-budget ratios exist only for
+discretionary spending with a real positive baseline. Calendar-injected cycle calculation
+covers custom start days, month-end clamping, leap years, DST, immutable history, explicit
+transition-budget confirmation, and atomic lazy generation capped at 120 plans. Stateless
+currency formatting respects each supported exponent. Phase 3 UI has not started.

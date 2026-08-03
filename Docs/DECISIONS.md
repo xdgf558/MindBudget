@@ -240,31 +240,38 @@ Phase 8A acceptance criteria.
 ## 2026-08-03 — Keep budget calculation value-based and make future cycle changes contiguous
 
 Context: The Phase 2 service sketch mixed a non-Sendable SwiftData `BudgetPlan` with a
-pure `Sendable` engine, declared nonoptional snapshot amounts despite requiring every
-budget-dependent value to be absent when no plan exists, and used binary floating-point
-ratio outputs despite the exact-money policy. Changing a cycle start day also needed a
-deterministic boundary between immutable history and the new cadence.
+pure `Sendable` engine. An initial implementation represented configuration as one Boolean
+plus parallel optional metrics, accepted reference dates outside the current cycle, and
+gave undefined or non-discretionary free-budget ratios a numeric value. Changing a cycle
+start day also needed a safe boundary between immutable history and the new cadence;
+silently copying a full monthly budget into a one-day transition could overstate what is
+safe to spend.
 
-Decision: `BudgetEngine` accepts `ExpenseSummary` and optional `BudgetPlanSummary` values,
-an explicit accounting currency, reference date, and calendar. Configured calculations
-use checked `Int64`; ratios remain `Decimal`; invalid cycles, currency mismatches, and
-overflow throw typed errors. An unconfigured snapshot preserves cycle/currency identity
-while every budget-dependent numeric field, including days remaining, is `nil`. Category
-spend is included in the snapshot so purchase risk is computed without persistence access.
-For lazy roll-forward, each new plan starts exactly at the previous immutable end. If a
-new start day does not match that end, the first generated plan is a shorter transition
-cycle ending at the next canonical boundary; later plans follow the new cadence.
+Decision: `BudgetSnapshot` is a two-state enum: `.unconfigured` carries only cycle/currency
+identity, while `.configured(ConfiguredBudgetSnapshot)` carries nonoptional metrics.
+`BudgetEngine` accepts only Sendable summaries plus an explicit accounting currency,
+reference date, and calendar; the reference date must lie in `[cycleStart, cycleEnd)`.
+Configured calculations use checked `Int64`, and ratios remain `Decimal`. Free-budget
+ratio and days-consumed metrics are optional and exist only for discretionary spending
+with a positive denominator. `impact` accepts only a configured snapshot. For lazy roll-
+forward, every automatic plan begins exactly at the prior immutable end, but at most 120
+plans may be generated in one atomic call. A shorter transition caused by a changed start
+day is not auto-prorated or given a copied monthly budget: `DataActor` returns
+`.transitionPlanRequired`, and the user confirms the interval's amounts before it is saved.
 
 Alternatives considered: Passing `@Model` instances into the engine, representing no
-budget as zero, returning `Double` ratios, silently wrapping arithmetic, moving category
-risk queries into the engine, recomputing historical boundaries, or allowing gaps between
-the old and new cycle cadence.
+budget as zero, returning `Double` ratios, silently wrapping arithmetic, treating an
+undefined ratio as 100%, moving category risk queries into persistence, recomputing
+historical boundaries, auto-prorating nonuniform bills, copying a full budget into a short
+transition, or allowing gaps between the old and new cadence.
 
-Consequences: The engine remains actor-independent, deterministic, and honest about
-missing configuration. Phase 3 must unwrap configured metrics and render an explicit
-setup state. DataActor owns projection and atomic lazy-plan insertion; callers supply the
-current future start-day setting and calendar. Presentation code formats `Decimal`
-directly rather than reintroducing floating-point money paths.
+Consequences: Illegal configured/optional combinations cannot compile. Phase 3 switches
+once on the snapshot state, renders setup for `.unconfigured`, and must present a budget-
+confirmation flow for `.transitionPlanRequired`. Historical summaries use their own
+aggregate path instead of calling current-cycle safe-daily calculations with today's date.
+An excessive clock jump returns a typed generation-limit error without partial inserts.
+Presentation code formats `Decimal` directly rather than reintroducing floating-point
+money paths.
 
 Files affected: budget/cycle/formatting services, `DataActor`, Phase 2 tests, project
 memory, and the authoritative development contract.
