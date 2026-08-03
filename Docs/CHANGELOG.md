@@ -23,6 +23,16 @@
 - Calendar-injected budget cycles with month-end/DST handling, contiguous lazy future-
   plan generation, and immutable historical boundaries.
 - Locale-aware currency formatting for supported fractional and zero-exponent currencies.
+- Localized onboarding and budget setup with accounting-currency confirmation, custom
+  cycle start day, and explicit transition/first-regular budget confirmation.
+- Five-tab iPhone shell, value-driven Dashboard cards, reusable money/empty/error views,
+  and honest Insights/Wishlist placeholders.
+- Ten-second manual expense entry with selected-date inline impact, category recency,
+  merchant suggestions, soft amount reasonableness checks, and keyboard completion.
+- Searchable and filterable expense history with detail, edit, swipe delete, and confirmed
+  destructive deletion flows.
+- Phase 3 unit coverage plus English, Simplified Chinese, and end-to-end onboarding/manual-
+  expense UI tests.
 
 ### Changed
 
@@ -43,6 +53,10 @@
   budget into the other.
 - Replaced parallel optional snapshot metrics with configured/unconfigured states and
   limited free-budget ratios to discretionary spending with a positive baseline.
+- Expanded expense projections and actor APIs so edit screens preserve metadata and
+  rebuild merchant aggregates atomically.
+- Replaced the bootstrap screen with a projection-based app session that refreshes after
+  successful writes and foreground activation without allowing view-layer SwiftData writes.
 
 ### Fixed
 
@@ -60,6 +74,10 @@
 - Replaced the local-store startup crash with a retryable, localized recovery screen.
 - Rejected current-budget snapshots outside their half-open cycle and capped atomic lazy
   plan generation at 120 periods.
+- Rejected malformed localized grouping and fractional minor units instead of silently
+  reinterpreting or rounding manually entered amounts.
+- Made transition and first-regular budget confirmation a single atomic persistence
+  operation, with an explicit recovery path if only a transition plan exists.
 
 ### Privacy
 

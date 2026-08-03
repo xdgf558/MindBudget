@@ -5,8 +5,9 @@
 - Unit tests use Swift Testing (`import Testing`, `@Test`, and `#expect`).
 - UI tests use XCUITest.
 - The full automated suite must pass on a simulator without Apple Intelligence.
-- Phase 0 smoke coverage launches the app with forced English and Simplified Chinese
-  locales and asserts rendered labels, not only accessibility identifiers.
+- UI smoke coverage launches the current onboarding flow with forced English and
+  Simplified Chinese locales and asserts rendered labels, not only accessibility
+  identifiers.
 - Every rule/date test injects `now`, `Calendar`, and `TimeZone`; production-clock
   lookups such as `Date()` and `Calendar.current` are forbidden inside testable engines.
 
@@ -132,11 +133,10 @@ suggested entities.
 ## Phase 0 acceptance
 
 The app target must build, and all smoke tests must pass on the recorded simulator
-destination. The unit test verifies that the hosted app bundle resolves localized
-bootstrap copy. UI tests force English and Simplified Chinese locales and verify both
-the accessibility identifier and rendered label. These tests are replaced by
-phase-specific coverage as implementation begins; tests are never disabled to make
-a phase pass.
+destination. The initial bootstrap localization checks were replaced by Phase 3
+onboarding localization and end-to-end coverage. Phase-specific tests replace obsolete
+smoke assertions as implementation advances; tests are never disabled to make a phase
+pass.
 
 ## Phase 1 acceptance
 
@@ -160,6 +160,17 @@ future-setting transition confirmation, atomic generation limits, immutable hist
 plan overlap/identity rejection, and currency formatting for zero-, two-, and three-digit
 exponents without fixed ICU symbols. Budget engines receive only Sendable projections;
 all calendars, time zones, and reference dates are explicit inputs.
+
+## Phase 3 acceptance
+
+Phase 3 tests cover locale digits and grouping, exact minor-unit precision, zero and
+negative entry rejection, independent budget-draft amounts, selected-expense-date impact,
+the dismissible reasonableness warning, manual create/edit metadata, merchant aggregate
+rebuilds, atomic transition/first-regular persistence, and rollback when either transition
+draft is invalid. UI tests force English and Simplified Chinese onboarding copy and run an
+English end-to-end path through budget setup, Dashboard refresh, quick expense entry, and
+the expense list. Edit/delete and VoiceOver/AX5 remain mandatory manual smoke checks before
+release in addition to actor-level automated coverage.
 
 ## Continuous integration
 

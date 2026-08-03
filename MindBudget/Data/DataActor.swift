@@ -15,6 +15,8 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidCoolingOffPlan
     case invalidReminderEvent
     case merchantAggregateOverflow
+    case identityMismatch
+    case invalidBudgetTransition
     case modelNotFound
 }
 
@@ -23,6 +25,45 @@ actor DataActor {
     func createExpense(_ draft: ExpenseDraft) throws -> ExpenseSummary {
         try commit {
             let expense = try insertExpense(draft)
+            return try expenseSummary(expense)
+        }
+    }
+
+    func updateExpense(id: UUID, with draft: ExpenseDraft) throws -> ExpenseSummary {
+        try commit {
+            guard id == draft.id else { throw DataValidationError.identityMismatch }
+            guard let expense = try fetchExpense(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            try validateExpense(draft)
+            try validateAccountingCurrency(draft.amount.currencyCode)
+
+            let previousNormalizedName = expense.normalizedMerchantName
+            let nextNormalizedName = draft.merchantName.flatMap(normalizedMerchantName)
+            expense.amountMinorUnits = draft.amount.minorUnits
+            expense.currencyCode = draft.amount.currencyCode
+            expense.categoryRaw = draft.category.rawValue
+            expense.bucketRaw = draft.bucket.rawValue
+            expense.merchantName = draft.merchantName
+            expense.normalizedMerchantName = nextNormalizedName
+            expense.note = draft.note
+            expense.spentAt = draft.spentAt
+            expense.spentTimeZoneIdentifier = draft.spentTimeZoneIdentifier
+            expense.updatedAt = draft.updatedAt
+            expense.paymentMethodRaw = draft.paymentMethod?.rawValue
+            expense.emotionTagRaw = draft.emotionTag?.rawValue
+            expense.purchaseReasonRaw = draft.purchaseReason?.rawValue
+            expense.isPlanned = draft.isPlanned
+            expense.isRecurring = draft.isRecurring
+            expense.sourceRaw = draft.source.rawValue
+            expense.allowMerchantIndexing = draft.allowMerchantIndexing
+
+            if let previousNormalizedName, previousNormalizedName != nextNormalizedName {
+                try rebuildMerchant(normalizedName: previousNormalizedName)
+            }
+            if let nextNormalizedName {
+                try rebuildMerchant(normalizedName: nextNormalizedName)
+            }
             return try expenseSummary(expense)
         }
     }
@@ -59,6 +100,37 @@ actor DataActor {
         try commit {
             let plan = try insertBudgetPlan(draft)
             return try budgetPlanSummary(plan)
+        }
+    }
+
+    func createBudgetPlanTransition(
+        transition: BudgetPlanDraft,
+        firstRegular: BudgetPlanDraft
+    ) throws -> [BudgetPlanSummary] {
+        try commit {
+            guard transition.cycleEnd == firstRegular.cycleStart,
+                  transition.currencyCode == firstRegular.currencyCode else {
+                throw DataValidationError.invalidBudgetTransition
+            }
+            try validateBudgetPlan(transition)
+            try validateBudgetPlan(firstRegular)
+            try validateAccountingCurrency(transition.currencyCode)
+
+            let descriptor = FetchDescriptor<BudgetPlan>(
+                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+            )
+            let existing = try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
+            guard existing.last?.cycleEnd == transition.cycleStart else {
+                throw DataValidationError.invalidBudgetTransition
+            }
+
+            let factory = BudgetPlanFactory()
+            let candidates = [factory.summary(from: transition), factory.summary(from: firstRegular)]
+            try BudgetCycleCalculator().validateNonOverlapping(existing + candidates)
+            try validateNewBudgetIdentities(candidates, against: existing)
+
+            let plans = [materializeBudgetPlan(transition), materializeBudgetPlan(firstRegular)]
+            return try plans.map { try budgetPlanSummary($0) }
         }
     }
 
@@ -530,6 +602,22 @@ actor DataActor {
         }
     }
 
+    private func validateNewBudgetIdentities(
+        _ candidates: [BudgetPlanSummary],
+        against existing: [BudgetPlanSummary]
+    ) throws {
+        let existingIDs = Set(existing.flatMap { plan in
+            [plan.id] + plan.categoryBudgets.map(\.id)
+        })
+        let candidateIDs = candidates.flatMap { plan in
+            [plan.id] + plan.categoryBudgets.map(\.id)
+        }
+        guard Set(candidateIDs).count == candidateIDs.count,
+              existingIDs.isDisjoint(with: candidateIDs) else {
+            throw DataValidationError.identityMismatch
+        }
+    }
+
     private func validateAccountingCurrency(_ currencyCode: String) throws {
         guard Money.isSupported(currencyCode) else {
             throw DataValidationError.unsupportedCurrency(currencyCode)
@@ -679,13 +767,6 @@ actor DataActor {
     }
 
     private func expenseSummary(_ expense: Expense) throws -> ExpenseSummary {
-        _ = try persistedEnumIfPresent(
-            PaymentMethod.self,
-            rawValue: expense.paymentMethodRaw,
-            entity: "Expense",
-            id: expense.id,
-            field: "paymentMethodRaw"
-        )
         return ExpenseSummary(
             id: expense.id,
             amount: try persistedMoney(
@@ -709,8 +790,18 @@ actor DataActor {
                 field: "bucketRaw"
             ),
             merchantName: expense.merchantName,
+            note: expense.note,
             spentAt: expense.spentAt,
             spentTimeZoneIdentifier: expense.spentTimeZoneIdentifier,
+            createdAt: expense.createdAt,
+            updatedAt: expense.updatedAt,
+            paymentMethod: try persistedEnumIfPresent(
+                PaymentMethod.self,
+                rawValue: expense.paymentMethodRaw,
+                entity: "Expense",
+                id: expense.id,
+                field: "paymentMethodRaw"
+            ),
             emotionTag: try persistedEnumIfPresent(
                 EmotionTag.self,
                 rawValue: expense.emotionTagRaw,
@@ -725,13 +816,16 @@ actor DataActor {
                 id: expense.id,
                 field: "purchaseReasonRaw"
             ),
+            isPlanned: expense.isPlanned,
+            isRecurring: expense.isRecurring,
             source: try persistedEnum(
                 ExpenseSource.self,
                 rawValue: expense.sourceRaw,
                 entity: "Expense",
                 id: expense.id,
                 field: "sourceRaw"
-            )
+            ),
+            allowMerchantIndexing: expense.allowMerchantIndexing
         )
     }
 

@@ -81,7 +81,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 2 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 3 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -90,5 +90,9 @@ using checked `Int64` and `Decimal` arithmetic. Free-budget ratios exist only fo
 discretionary spending with a real positive baseline. Calendar-injected cycle calculation
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit
 transition and first-regular-budget confirmation, and atomic lazy generation capped at 120
-plans. Stateless currency formatting respects each supported exponent. Phase 3 UI has not
-started.
+plans. Stateless currency formatting respects each supported exponent. The iPhone UI now
+provides localized onboarding and budget setup, a value-projection Dashboard, the five-tab
+shell, exact locale-aware manual expense entry with selected-date impact, recent-category
+and merchant suggestions, and searchable/filterable expense list, detail, edit, and delete
+flows. Empty/error states and English/Simplified Chinese accessibility coverage are active;
+Insights and Wishlist remain honest placeholders until their owning phases.

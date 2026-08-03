@@ -301,6 +301,103 @@ struct DataActorTests {
     }
 
     @Test
+    func updatingExpensePersistsEditableFieldsAndRebuildsMerchantAggregates() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let original = makeExpense(merchantName: "Cafe")
+        _ = try await actor.createExpense(original)
+        let updatedAt = fixedDate.addingTimeInterval(120)
+        let update = ExpenseDraft(
+            id: original.id,
+            amount: Money(minorUnits: 4_500, currencyCode: "USD"),
+            category: .transport,
+            bucket: .discretionary,
+            merchantName: " Metro ",
+            note: "Ride home",
+            spentAt: fixedDate.addingTimeInterval(60),
+            spentTimeZoneIdentifier: "Asia/Singapore",
+            createdAt: original.createdAt,
+            updatedAt: updatedAt,
+            paymentMethod: .cash,
+            emotionTag: nil,
+            purchaseReason: nil,
+            isPlanned: true,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: true
+        )
+
+        let result = try await actor.updateExpense(id: original.id, with: update)
+        let merchants = try await actor.fetchMerchantSummaries()
+
+        #expect(result.amount.minorUnits == 4_500)
+        #expect(result.category == .transport)
+        #expect(result.merchantName == " Metro ")
+        #expect(result.note == "Ride home")
+        #expect(result.updatedAt == updatedAt)
+        #expect(result.paymentMethod == .cash)
+        #expect(result.isPlanned)
+        #expect(result.allowMerchantIndexing)
+        #expect(merchants.count == 1)
+        #expect(merchants.first?.normalizedName == "metro")
+        #expect(merchants.first?.totalMinorUnitsAllTime == 4_500)
+    }
+
+    @Test
+    func budgetTransitionAndFirstRegularPlanCommitAtomically() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        let regularEnd = transitionEnd.addingTimeInterval(86_400 * 30)
+        _ = try await actor.createBudgetPlan(
+            makeBudgetPlan(start: fixedDate, end: precedingEnd, totalBudgetMinorUnits: 120_000)
+        )
+        let transition = makeBudgetPlan(
+            start: precedingEnd,
+            end: transitionEnd,
+            totalBudgetMinorUnits: 21_000
+        )
+        let firstRegular = makeBudgetPlan(
+            start: transitionEnd,
+            end: regularEnd,
+            totalBudgetMinorUnits: 210_000
+        )
+
+        let inserted = try await actor.createBudgetPlanTransition(
+            transition: transition,
+            firstRegular: firstRegular
+        )
+        let plans = try await actor.fetchBudgetPlanSummaries()
+
+        #expect(inserted.map(\.totalBudgetMinorUnits) == [21_000, 210_000])
+        #expect(plans.count == 3)
+        #expect(plans[1].id == transition.id)
+        #expect(plans[2].id == firstRegular.id)
+    }
+
+    @Test
+    func invalidBudgetTransitionDoesNotPartiallyInsertItsFirstPlan() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        _ = try await actor.createBudgetPlan(
+            makeBudgetPlan(start: fixedDate, end: precedingEnd)
+        )
+        let transition = makeBudgetPlan(start: precedingEnd, end: transitionEnd)
+        let disconnectedRegular = makeBudgetPlan(
+            start: transitionEnd.addingTimeInterval(60),
+            end: transitionEnd.addingTimeInterval(86_400 * 30)
+        )
+
+        await #expect(throws: DataValidationError.invalidBudgetTransition) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: transition,
+                firstRegular: disconnectedRegular
+            )
+        }
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+    }
+
+    @Test
     func sampleReplacementRollsBackWhenAnyInsertFails() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let original = makeExpense()
@@ -384,14 +481,19 @@ struct DataActorTests {
         )
     }
 
-    private func makeBudgetPlan(start: Date, end: Date, currencyCode: String = "USD") -> BudgetPlanDraft {
+    private func makeBudgetPlan(
+        start: Date,
+        end: Date,
+        currencyCode: String = "USD",
+        totalBudgetMinorUnits: Int64 = 120_000
+    ) -> BudgetPlanDraft {
         BudgetPlanDraft(
             id: UUID(),
             cycleStart: start,
             cycleEnd: end,
             currencyCode: currencyCode,
             monthlyIncomeMinorUnits: 100_000,
-            totalBudgetMinorUnits: 120_000,
+            totalBudgetMinorUnits: totalBudgetMinorUnits,
             fixedExpensesMinorUnits: 80_000,
             savingGoalMinorUnits: 50_000,
             createdAt: fixedDate,

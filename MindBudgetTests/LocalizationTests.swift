@@ -4,8 +4,8 @@ import Testing
 
 struct LocalizationTests {
     @Test
-    func appBundleLoadsLocalizedBootstrapCopy() {
-        let key = "bootstrap.status.ready"
+    func appBundleLoadsLocalizedPhaseThreeCopy() {
+        let key = "onboarding.title"
         let localizedValue = Bundle.main.localizedString(
             forKey: key,
             value: nil,

@@ -286,3 +286,40 @@ directly rather than reintroducing floating-point money paths.
 
 Files affected: budget/cycle/formatting services, `DataActor`, Phase 2 tests, project
 memory, and the authoritative development contract.
+
+---
+
+## 2026-08-03 — Drive Phase 3 UI from value projections and exact localized input
+
+Context: Phase 3 needed responsive SwiftUI screens without moving SwiftData models or
+write authority onto the main actor. Manual amount text could contain locale-specific
+digits and separators, and a user-selected expense date could belong to a different
+budget cycle from today. The shortened transition and first regular cycle also had to be
+confirmed without allowing a partial save or accidental amount propagation.
+
+Decision: `AppSession` owns the controller's shared `DataActor`; feature view models read
+Sendable summaries and signal a revision only after successful actor writes. Dashboard
+and list projections reload on that revision and when the app becomes active, covering
+both in-app edits and later external integrations without exposing `@Model` instances to
+views. Manual amounts accept validated locale digits and grouping but must map exactly to
+the accounting currency's minor-unit exponent; extra precision and malformed grouping are
+rejected rather than rounded or reinterpreted. Expense impact and cycle coverage use the
+selected `spentAt` date, and save rechecks coverage. Transition and first-regular drafts
+commit together through one `DataActor` transaction; recovery of a lone transition keeps
+the regular-period fields blank and requires explicit confirmation.
+
+Alternatives considered: Letting views write through `ModelContext`, using binary
+floating-point text parsing, silently rounding fractional minor units, calculating every
+expense against today's cycle, polling the store, saving transition plans one at a time,
+and copying a reduced short-period amount into the regular cycle.
+
+Consequences: All Phase 3 mutations preserve the actor boundary and merchant aggregates.
+The UI refresh contract is explicit and testable, while later App Intents can become
+visible on foreground activation. Pasted amounts that do not follow the active locale's
+grouping are rejected with a friendly field error instead of being saved as a different
+number. A historical date with no plan may still be recorded, but no budget impact is
+invented. Future phases must continue to notify the app session after in-process writes
+and keep system-integration writes behind `DataActor`.
+
+Files affected: app routing/session state, Phase 3 feature views and view models,
+`DataActor`, localized resources, and Phase 3 unit/UI tests.

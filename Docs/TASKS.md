@@ -13,9 +13,7 @@ Status: Done
 Status: Done
 
 ## Phase 3 — Onboarding, dashboard, manual expense tracking
-Status: Todo
-- Add a dismissible, locale-aware amount-reasonableness warning. The currency-neutral
-  storage-safety boundary remains the only hard amount limit.
+Status: Done
 
 ## Phase 4 — Emotion tags, wishlist, cooling-off
 Status: Todo
