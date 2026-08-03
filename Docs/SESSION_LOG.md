@@ -239,3 +239,35 @@ release preparation.
 
 Next suggested task: Push the remediation commit to PR #4, wait for CI, review, and merge
 before beginning Phase 3.
+
+## 2026-08-03 — Session 9 — Phase 2 transition-budget propagation fix
+
+Goal: Close the final PR #4 finding that a reduced, user-confirmed transition budget
+could silently become the recurring amount for complete cycles on the new cadence.
+
+Files changed: budget-cycle calculation, `DataActor` coverage projections, date-boundary
+tests, project decision/memory/test/changelog documents, and the authoritative development
+contract.
+
+What was completed: Replaced the transition Boolean with an explicit confirmation reason
+that distinguishes the shortened transition from its first complete successor. A
+transition requirement now exposes both intervals so Phase 3 can collect two independent
+budgets in one flow. If only the transition plan is saved, `DataActor` returns
+`.firstRegularPlanRequired` and writes nothing automatically. Automatic roll-forward
+resumes only after the first complete plan is explicitly saved. Regression coverage uses
+300,000 for the original and recurring complete cycles and 210,000 for the transition,
+then proves later complete cycles inherit only 300,000.
+
+What was NOT completed: Phase 3 still needs to implement the combined confirmation UI.
+No GitHub review thread was replied to or resolved.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 66 Swift Testing tests and 2 localized UI tests, 0 failures
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation.
+
+Next suggested task: Push the fix to PR #4, wait for CI, review, and merge before Phase 3.

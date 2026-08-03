@@ -114,14 +114,34 @@ actor DataActor {
                     startDay: futureCycleStartDay,
                     calendar: calendar
                 )
-                if advance.requiresBudgetConfirmation {
+                switch advance.confirmationReason {
+                case .transition:
+                    let firstRegularAdvance = try calculator.nextCycle(
+                        after: advance.interval,
+                        startDay: futureCycleStartDay,
+                        calendar: calendar
+                    )
+                    guard firstRegularAdvance.confirmationReason
+                            == .firstRegularCycleAfterTransition else {
+                        throw BudgetCycleError.dateCalculationFailed
+                    }
                     return .transitionPlanRequired(
                         BudgetPlanTransitionRequirement(
                             interval: advance.interval,
-                            previousPlan: previous,
+                            firstRegularInterval: firstRegularAdvance.interval,
+                            precedingPlan: previous,
                             futureCycleStartDay: futureCycleStartDay
                         )
                     )
+                case .firstRegularCycleAfterTransition:
+                    return .firstRegularPlanRequired(
+                        BudgetPlanFirstRegularRequirement(
+                            interval: advance.interval,
+                            futureCycleStartDay: futureCycleStartDay
+                        )
+                    )
+                case nil:
+                    break
                 }
                 let draft = try factory.makePlan(
                     copying: previous,

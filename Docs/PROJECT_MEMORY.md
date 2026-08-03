@@ -51,8 +51,9 @@ app's private data are forbidden in V1.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
 - Existing cycle boundaries are immutable. A changed future start day that requires a
-  shorter transition returns an explicit confirmation state; the user chooses that
-  interval's budget before persistence, then automatic generation resumes the new cadence.
+  shorter transition returns an explicit confirmation state. The shortened interval and
+  the first complete interval on the new cadence have independent user-confirmed budgets;
+  automatic copying resumes only after the complete interval is saved.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
@@ -88,5 +89,6 @@ cycle, and calculates reservations, safe daily spend, purchase impact, and categ
 using checked `Int64` and `Decimal` arithmetic. Free-budget ratios exist only for
 discretionary spending with a real positive baseline. Calendar-injected cycle calculation
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit
-transition-budget confirmation, and atomic lazy generation capped at 120 plans. Stateless
-currency formatting respects each supported exponent. Phase 3 UI has not started.
+transition and first-regular-budget confirmation, and atomic lazy generation capped at 120
+plans. Stateless currency formatting respects each supported exponent. Phase 3 UI has not
+started.

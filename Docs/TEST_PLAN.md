@@ -43,9 +43,10 @@ reference-date rejection outside the half-open cycle, and nonzero days remaining
 
 Cover natural/custom cycles, day 31 clamping, leap day, 23/25-hour DST days,
 recorded-time-zone late-night rules, contiguous lazy plan creation, immutable historical
-settings, user-confirmed transition budgets, the 120-plan atomic generation limit, plan-
-identity isolation, and overlap rejection. Cooling-off countdowns across DST are added
-with the Phase 4 state machine rather than inferred in the Phase 2 cycle service.
+settings, independent confirmation for shortened transition and first complete-cycle
+budgets, non-propagation of reduced transition amounts, the 120-plan atomic generation
+limit, plan-identity isolation, and overlap rejection. Cooling-off countdowns across DST
+are added with the Phase 4 state machine rather than inferred in the Phase 2 cycle service.
 
 ### SpendingPatternDetectorTests
 

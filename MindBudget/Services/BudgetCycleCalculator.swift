@@ -15,7 +15,12 @@ enum BudgetPlanGenerationPolicy {
 
 struct BudgetCycleAdvance: Equatable, Sendable {
     let interval: DateInterval
-    let requiresBudgetConfirmation: Bool
+    let confirmationReason: BudgetCycleConfirmationReason?
+}
+
+enum BudgetCycleConfirmationReason: Equatable, Sendable {
+    case transition
+    case firstRegularCycleAfterTransition
 }
 
 struct BudgetCycleCalculator: Sendable {
@@ -71,9 +76,22 @@ struct BudgetCycleCalculator: Sendable {
         guard canonical.end > existing.end else {
             throw BudgetCycleError.dateCalculationFailed
         }
+        let existingCanonical = try interval(
+            containing: existing.start,
+            startDay: startDay,
+            calendar: calendar
+        )
+        let confirmationReason: BudgetCycleConfirmationReason?
+        if canonical.start != existing.end {
+            confirmationReason = .transition
+        } else if existingCanonical != existing {
+            confirmationReason = .firstRegularCycleAfterTransition
+        } else {
+            confirmationReason = nil
+        }
         return BudgetCycleAdvance(
             interval: try makeInterval(start: existing.end, end: canonical.end),
-            requiresBudgetConfirmation: canonical.start != existing.end
+            confirmationReason: confirmationReason
         )
     }
 

@@ -245,7 +245,9 @@ plus parallel optional metrics, accepted reference dates outside the current cyc
 gave undefined or non-discretionary free-budget ratios a numeric value. Changing a cycle
 start day also needed a safe boundary between immutable history and the new cadence;
 silently copying a full monthly budget into a one-day transition could overstate what is
-safe to spend.
+safe to spend. A later review found the inverse propagation risk: once a user confirmed a
+reduced transition budget, treating that short plan as the next copy source silently
+understated every following complete cycle.
 
 Decision: `BudgetSnapshot` is a two-state enum: `.unconfigured` carries only cycle/currency
 identity, while `.configured(ConfiguredBudgetSnapshot)` carries nonoptional metrics.
@@ -257,21 +259,30 @@ with a positive denominator. `impact` accepts only a configured snapshot. For la
 forward, every automatic plan begins exactly at the prior immutable end, but at most 120
 plans may be generated in one atomic call. A shorter transition caused by a changed start
 day is not auto-prorated or given a copied monthly budget: `DataActor` returns
-`.transitionPlanRequired`, and the user confirms the interval's amounts before it is saved.
+`.transitionPlanRequired`, including both the shortened interval and the first complete
+interval on the new cadence. Those intervals have independent user-confirmed budgets. If
+only the transition is saved, the next coverage request returns
+`.firstRegularPlanRequired` instead of copying the transition amounts. Automatic copying
+resumes only from the confirmed first complete plan.
 
 Alternatives considered: Passing `@Model` instances into the engine, representing no
 budget as zero, returning `Double` ratios, silently wrapping arithmetic, treating an
 undefined ratio as 100%, moving category risk queries into persistence, recomputing
 historical boundaries, auto-prorating nonuniform bills, copying a full budget into a short
-transition, or allowing gaps between the old and new cadence.
+transition, allowing gaps between the old and new cadence, propagating the reduced
+transition budget, silently choosing an older
+"canonical" plan whose cadence or amounts may no longer express user intent, and inventing
+a prorated recurring baseline.
 
 Consequences: Illegal configured/optional combinations cannot compile. Phase 3 switches
 once on the snapshot state, renders setup for `.unconfigured`, and must present a budget-
-confirmation flow for `.transitionPlanRequired`. Historical summaries use their own
-aggregate path instead of calling current-cycle safe-daily calculations with today's date.
-An excessive clock jump returns a typed generation-limit error without partial inserts.
-Presentation code formats `Decimal` directly rather than reintroducing floating-point
-money paths.
+confirmation flow for `.transitionPlanRequired` that collects separate transition and
+first-regular values. `.firstRegularPlanRequired` is a persistence-safe fallback when the
+transition was saved alone. A crash or interrupted flow cannot make the reduced amount a
+recurring default. Historical summaries use their own aggregate path instead of calling
+current-cycle safe-daily calculations with today's date. An excessive clock jump returns a
+typed generation-limit error without partial inserts. Presentation code formats `Decimal`
+directly rather than reintroducing floating-point money paths.
 
 Files affected: budget/cycle/formatting services, `DataActor`, Phase 2 tests, project
 memory, and the authoritative development contract.

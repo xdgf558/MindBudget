@@ -47,12 +47,19 @@ enum BudgetPlanCoverage: Equatable, Sendable {
     case unconfigured
     case covered(BudgetPlanSummary)
     case transitionPlanRequired(BudgetPlanTransitionRequirement)
+    case firstRegularPlanRequired(BudgetPlanFirstRegularRequirement)
     case historicalPlanRequired
 }
 
 struct BudgetPlanTransitionRequirement: Equatable, Sendable {
     let interval: DateInterval
-    let previousPlan: BudgetPlanSummary
+    let firstRegularInterval: DateInterval
+    let precedingPlan: BudgetPlanSummary
+    let futureCycleStartDay: Int
+}
+
+struct BudgetPlanFirstRegularRequirement: Equatable, Sendable {
+    let interval: DateInterval
     let futureCycleStartDay: Int
 }
 

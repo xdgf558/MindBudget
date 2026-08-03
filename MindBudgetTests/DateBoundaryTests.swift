@@ -133,6 +133,42 @@ struct DateBoundaryTests {
     }
 
     @Test
+    func cycleAdvanceRequiresBothTransitionAndFirstRegularConfirmation() throws {
+        let calendar = TestFixtures.utcCalendar
+        let original = DateInterval(
+            start: date(2026, 1, 1, calendar: calendar),
+            end: date(2026, 2, 1, calendar: calendar)
+        )
+
+        let transition = try calculator.nextCycle(
+            after: original,
+            startDay: 15,
+            calendar: calendar
+        )
+        #expect(transition.confirmationReason == .transition)
+        #expect(transition.interval.start == original.end)
+        #expect(transition.interval.end == date(2026, 2, 15, calendar: calendar))
+
+        let firstRegular = try calculator.nextCycle(
+            after: transition.interval,
+            startDay: 15,
+            calendar: calendar
+        )
+        #expect(firstRegular.confirmationReason == .firstRegularCycleAfterTransition)
+        #expect(firstRegular.interval.start == date(2026, 2, 15, calendar: calendar))
+        #expect(firstRegular.interval.end == date(2026, 3, 15, calendar: calendar))
+
+        let following = try calculator.nextCycle(
+            after: firstRegular.interval,
+            startDay: 15,
+            calendar: calendar
+        )
+        #expect(following.confirmationReason == nil)
+        #expect(following.interval.start == date(2026, 3, 15, calendar: calendar))
+        #expect(following.interval.end == date(2026, 4, 15, calendar: calendar))
+    }
+
+    @Test
     func lazyRollForwardCreatesContiguousCopiedPlans() async throws {
         let calendar = TestFixtures.utcCalendar
         let controller = try DataController(isStoredInMemoryOnly: true)
@@ -168,7 +204,7 @@ struct DateBoundaryTests {
     }
 
     @Test
-    func futureStartDayRequiresConfirmedTransitionWithoutMutatingHistory() async throws {
+    func transitionBudgetNeverPropagatesIntoTheFirstRegularCycle() async throws {
         let calendar = TestFixtures.utcCalendar
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let originalStart = date(2026, 1, 1, calendar: calendar)
@@ -197,7 +233,9 @@ struct DateBoundaryTests {
         #expect(plans[0].cycleEnd == originalEnd)
         #expect(requirement.interval.start == originalEnd)
         #expect(requirement.interval.end == date(2026, 2, 15, calendar: calendar))
-        #expect(requirement.previousPlan.id == plans[0].id)
+        #expect(requirement.firstRegularInterval.start == requirement.interval.end)
+        #expect(requirement.firstRegularInterval.end == date(2026, 3, 15, calendar: calendar))
+        #expect(requirement.precedingPlan.id == plans[0].id)
         #expect(requirement.futureCycleStartDay == 15)
 
         let confirmedTransition = plan(
@@ -207,7 +245,7 @@ struct DateBoundaryTests {
             totalBudget: 210_000
         )
         _ = try await actor.createBudgetPlan(confirmedTransition)
-        let coveredResult = try await actor.ensurePlanCovering(
+        let firstRegularResult = try await actor.ensurePlanCovering(
             date: date(2026, 2, 20, calendar: calendar),
             futureCycleStartDay: 15,
             calendar: calendar,
@@ -215,18 +253,40 @@ struct DateBoundaryTests {
         )
         plans = try await actor.fetchBudgetPlanSummaries()
 
-        guard case let .covered(covered) = coveredResult else {
-            Issue.record("Expected coverage after confirming the transition budget")
+        guard case let .firstRegularPlanRequired(firstRegularRequirement) = firstRegularResult else {
+            Issue.record("Expected the first regular cycle to require its own budget")
             return
         }
-        #expect(plans.count == 3)
+        #expect(plans.count == 2)
         #expect(plans[1].cycleStart == originalEnd)
         #expect(plans[1].cycleEnd == date(2026, 2, 15, calendar: calendar))
-        #expect(plans[2].cycleStart == date(2026, 2, 15, calendar: calendar))
-        #expect(plans[2].cycleEnd == date(2026, 3, 15, calendar: calendar))
         #expect(plans[1].totalBudgetMinorUnits == 210_000)
-        #expect(plans[2].totalBudgetMinorUnits == 210_000)
-        #expect(covered.id == plans[2].id)
+        #expect(firstRegularRequirement.interval == requirement.firstRegularInterval)
+        #expect(firstRegularRequirement.futureCycleStartDay == 15)
+
+        let confirmedFirstRegular = plan(
+            start: firstRegularRequirement.interval.start,
+            end: firstRegularRequirement.interval.end,
+            timestamp: date(2026, 2, 15, calendar: calendar),
+            totalBudget: 300_000
+        )
+        _ = try await actor.createBudgetPlan(confirmedFirstRegular)
+        let coveredResult = try await actor.ensurePlanCovering(
+            date: date(2026, 4, 20, calendar: calendar),
+            futureCycleStartDay: 15,
+            calendar: calendar,
+            timestamp: date(2026, 4, 20, calendar: calendar)
+        )
+        plans = try await actor.fetchBudgetPlanSummaries()
+
+        guard case let .covered(covered) = coveredResult else {
+            Issue.record("Expected automatic coverage after both budgets were confirmed")
+            return
+        }
+        #expect(plans.count == 5)
+        #expect(plans.map(\.totalBudgetMinorUnits) == [300_000, 210_000, 300_000, 300_000, 300_000])
+        #expect(covered.cycleStart == date(2026, 4, 15, calendar: calendar))
+        #expect(covered.id == plans[4].id)
     }
 
     @Test
