@@ -12,8 +12,8 @@
 
 ## Fixtures
 
-`TestFixtures.swift` will define a fixed instant at 2026-07-24 00:00 UTC and
-Gregorian calendars for UTC, Asia/Shanghai, and America/Los_Angeles. It will also
+`TestFixtures.swift` defines a fixed instant at 2026-07-24 00:00 UTC and
+Gregorian calendars for UTC, Asia/Shanghai, and America/Los_Angeles. It also
 provide new-user, three-month-history, end-of-cycle, overspent, and no-budget scenarios.
 
 ## Required automated suites
@@ -36,13 +36,17 @@ weak expense identifier and preserves the purchased status.
 
 Cover cycle totals, discretionary filtering, free budget, pending-fixed double-count
 prevention, available-now and safe-daily values, negative remaining budget, purchase
-impact by bucket, category risk boundaries, no-plan behavior, and nonzero days remaining.
+impact by bucket, undefined ratio baselines, category risk boundaries, no-plan behavior,
+reference-date rejection outside the half-open cycle, and nonzero days remaining.
 
 ### DateBoundaryTests
 
 Cover natural/custom cycles, day 31 clamping, leap day, 23/25-hour DST days,
-recorded-time-zone late-night rules, cooling-off across DST, contiguous lazy plan
-creation, immutable historical settings, and overlap rejection.
+recorded-time-zone late-night rules, contiguous lazy plan creation, immutable historical
+settings, independent confirmation for shortened transition and first complete-cycle
+budgets, non-propagation of reduced transition amounts, the 120-plan atomic generation
+limit, plan-identity isolation, and overlap rejection. Cooling-off countdowns across DST
+are added with the Phase 4 state machine rather than inferred in the Phase 2 cycle service.
 
 ### SpendingPatternDetectorTests
 
@@ -145,6 +149,17 @@ replacement rollback, SwiftData cascade deletion, weak expense-link cleanup, mer
 aggregate maintenance, persisted currency/enum corruption errors, and reminder-event
 scope/risk/response projections. Each `DataController` owns one `DataActor`; app test
 assertions receive only Sendable value projections.
+
+## Phase 2 acceptance
+
+Phase 2 tests cover half-open cycle totals, every authoritative reservation formula,
+overcommitted and unconfigured plans, exact purchase-impact ratios, all category-risk
+levels, currency mismatches, checked overflow, natural and custom cycles, day-31 and leap-
+year clamping, 23/25-hour DST days, recorded local hours, contiguous lazy plan generation,
+future-setting transition confirmation, atomic generation limits, immutable history,
+plan overlap/identity rejection, and currency formatting for zero-, two-, and three-digit
+exponents without fixed ICU symbols. Budget engines receive only Sendable projections;
+all calendars, time zones, and reference dates are explicit inputs.
 
 ## Continuous integration
 

@@ -18,6 +18,11 @@
   deterministic new-user, three-month, end-of-cycle, and overspent sample data.
 - State-machine enforcement for wishlist transitions and persistence tests for
   restart durability, cascade deletion, and weak purchase links.
+- Pure budget snapshot and purchase-impact calculations with checked minor-unit
+  arithmetic, category risk, and explicit unconfigured behavior.
+- Calendar-injected budget cycles with month-end/DST handling, contiguous lazy future-
+  plan generation, and immutable historical boundaries.
+- Locale-aware currency formatting for supported fractional and zero-exponent currencies.
 
 ### Changed
 
@@ -33,9 +38,16 @@
   state remains free of binary floating-point values.
 - Replaced the purchasing-power-sensitive one-million-major-unit cap with a
   currency-neutral minor-unit safety limit.
+- Defined future cycle-start changes as independently confirmed transition and first-
+  regular intervals, without rewriting history or silently copying either interval's
+  budget into the other.
+- Replaced parallel optional snapshot metrics with configured/unconfigured states and
+  limited free-budget ratios to discretionary spending with a positive baseline.
 
 ### Fixed
 
+- Prevented a reduced transition-cycle budget from becoming the recurring amount for
+  subsequent complete cycles.
 - Expanded the floating-point money guard to the complete app source tree while
   retaining the single documented App Intents transport exception.
 - Made iOS deployment and bundle identifier validation target-specific and strict.
@@ -46,6 +58,8 @@
 - Reused one `DataActor` per controller, made sample replacement rollback-safe, and
   maintained merchant aggregates from expense creates and deletes.
 - Replaced the local-store startup crash with a retryable, localized recovery screen.
+- Rejected current-budget snapshots outside their half-open cycle and capped atomic lazy
+  plan generation at 120 periods.
 
 ### Privacy
 

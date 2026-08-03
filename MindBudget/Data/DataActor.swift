@@ -67,6 +67,105 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
     }
 
+    func ensurePlanCovering(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar,
+        timestamp: Date
+    ) throws -> BudgetPlanCoverage {
+        try commit {
+            let descriptor = FetchDescriptor<BudgetPlan>(
+                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+            )
+            let storedPlans = try modelContext.fetch(descriptor)
+            guard !storedPlans.isEmpty else { return .unconfigured }
+
+            let calculator = BudgetCycleCalculator()
+            let factory = BudgetPlanFactory()
+            let existing = try storedPlans.map { try budgetPlanSummary($0) }
+            try calculator.validateNonOverlapping(existing)
+
+            if let covered = existing.first(where: {
+                $0.cycleStart <= date && date < $0.cycleEnd
+            }) {
+                return .covered(covered)
+            }
+
+            guard let first = existing.first, var previous = existing.last else {
+                return .unconfigured
+            }
+            guard date >= first.cycleStart, date >= previous.cycleEnd else {
+                return .historicalPlanRequired
+            }
+
+            var generatedDrafts: [BudgetPlanDraft] = []
+            while !(previous.cycleStart <= date && date < previous.cycleEnd) {
+                guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
+                    throw BudgetCycleError.generationLimitExceeded(
+                        limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
+                    )
+                }
+                let currentInterval = DateInterval(
+                    start: previous.cycleStart,
+                    end: previous.cycleEnd
+                )
+                let advance = try calculator.nextCycle(
+                    after: currentInterval,
+                    startDay: futureCycleStartDay,
+                    calendar: calendar
+                )
+                switch advance.confirmationReason {
+                case .transition:
+                    let firstRegularAdvance = try calculator.nextCycle(
+                        after: advance.interval,
+                        startDay: futureCycleStartDay,
+                        calendar: calendar
+                    )
+                    guard firstRegularAdvance.confirmationReason
+                            == .firstRegularCycleAfterTransition else {
+                        throw BudgetCycleError.dateCalculationFailed
+                    }
+                    return .transitionPlanRequired(
+                        BudgetPlanTransitionRequirement(
+                            interval: advance.interval,
+                            firstRegularInterval: firstRegularAdvance.interval,
+                            precedingPlan: previous,
+                            futureCycleStartDay: futureCycleStartDay
+                        )
+                    )
+                case .firstRegularCycleAfterTransition:
+                    return .firstRegularPlanRequired(
+                        BudgetPlanFirstRegularRequirement(
+                            interval: advance.interval,
+                            futureCycleStartDay: futureCycleStartDay
+                        )
+                    )
+                case nil:
+                    break
+                }
+                let draft = try factory.makePlan(
+                    copying: previous,
+                    interval: advance.interval,
+                    planID: UUID(),
+                    categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
+                    timestamp: timestamp
+                )
+                generatedDrafts.append(draft)
+                previous = factory.summary(from: draft)
+            }
+
+            try validateAccountingCurrency(previous.currencyCode)
+            for draft in generatedDrafts {
+                try validateBudgetPlan(draft)
+            }
+            for draft in generatedDrafts {
+                _ = materializeBudgetPlan(draft)
+            }
+
+            return .covered(previous)
+        }
+    }
+
     func createWishItem(_ draft: WishItemDraft) throws -> WishItemSummary {
         try commit {
             let wishItem = try insertWishItem(draft)
@@ -283,6 +382,10 @@ actor DataActor {
         try validateAccountingCurrency(draft.currencyCode)
         try validateNoBudgetOverlap(start: draft.cycleStart, end: draft.cycleEnd)
 
+        return materializeBudgetPlan(draft)
+    }
+
+    private func materializeBudgetPlan(_ draft: BudgetPlanDraft) -> BudgetPlan {
         let plan = BudgetPlan(
             id: draft.id,
             cycleStart: draft.cycleStart,

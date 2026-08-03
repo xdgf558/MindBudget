@@ -10,7 +10,7 @@ Status: Done
 Status: Done
 
 ## Phase 2 — Budget engine and cycle math
-Status: Todo
+Status: Done
 
 ## Phase 3 — Onboarding, dashboard, manual expense tracking
 Status: Todo
