@@ -138,3 +138,33 @@ Known issues: A real App Icon and real iOS 17 runtime validation remain deferred
 release preparation.
 
 Next suggested task: Review and merge PR #3, then begin Phase 2.
+
+## 2026-08-03 — Session 6 — Phase 1 schema closeout
+
+Goal: Resolve the final Phase 1 review around merchant normalization, local aggregate
+semantics, Spotlight consent, and the proposed budget-plan cross-field invariant.
+
+Files changed: `Expense`, `DataActor`, persistence tests, Phase 1 decision/privacy/test
+documents, the task backlog, and the authoritative development document.
+
+What was completed: Added optional `Expense.normalizedMerchantName` to `SchemaV1`,
+generated it atomically at the write boundary, and replaced the in-memory all-expense
+filter with a SwiftData predicate. Documented that local `Merchant` rows aggregate all
+matching expenses while future merchant-name indexing separately requires the global
+Spotlight gate, the merchant-name opt-in, and an eligible matching expense. Added a
+regression test proving the normalized key survives store reopening and a contract test
+proving overcommitted budget plans remain valid Phase 2 input. Phase 3 now tracks the
+dismissible amount-reasonableness warning as a soft UI concern.
+
+What was NOT completed: The Phase 8A indexing service and its centralized capability
+gate do not exist yet. No hard `fixedExpenses + savingGoal <= totalBudget` validation
+was added because the authoritative formula deliberately supports overcommitted plans.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 33 Swift Testing tests and 2 localized UI tests, 0 failures
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation.
+
+Next suggested task: Push this closeout to PR #3, review CI, merge, then begin Phase 2.

@@ -49,6 +49,10 @@ or deleting data removes the app-owned index. Exact amounts, notes, and merchant
 names are excluded by default from display representations and index content.
 The corresponding FeatureFlags only permit planned product capabilities and never
 bypass centralized availability checks or the independent default-off user settings.
+Local merchant aggregates include all expenses and remain private inside SwiftData;
+they do not imply indexing consent. A merchant name is eligible for Spotlight only
+after the global merchant-name opt-in and at least one matching expense's explicit
+`allowMerchantIndexing` value are both true.
 
 ## Emotion-tag review explanation
 

@@ -51,9 +51,13 @@ app's private data are forbidden in V1.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
+- Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
+  preserving negative availability for an honest UI state.
 - `SpendingInsight` stores localization keys and payload, not rendered text.
 - User preferences use `@AppStorage`, not a singleton `@Model`.
 - Reminder throttling records scope, threshold crossings, and deferred notification times.
+- Merchant rows aggregate all local expenses. Merchant-name Spotlight indexing also
+  requires the global merchant-name opt-in and at least one eligible matching expense.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
   Phase 7/8 must expose centralized gates combining scope, API/runtime availability,
   and an explicit user setting that defaults off; call sites cannot read raw flags.

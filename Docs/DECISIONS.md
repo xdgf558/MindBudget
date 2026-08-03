@@ -204,3 +204,33 @@ only to verify corruption handling.
 
 Files affected: `MindBudget/Models/Money.swift`, model projections, `DataActor`,
 `DataController`, tests, and the authoritative money contract.
+
+---
+
+## 2026-08-03 — Persist merchant normalization and keep local aggregates independent of indexing consent
+
+Context: Rebuilding one derived `Merchant` fetched every expense and normalized raw
+names in memory. The per-expense `allowMerchantIndexing` field and the global
+`indexMerchantNames` preference also lacked an explicit relationship to the local
+merchant aggregate, risking either incomplete local insights or accidental system
+index disclosure in Phase 8A.
+
+Decision: Persist `Expense.normalizedMerchantName` in `SchemaV1` and set it atomically
+with `merchantName` at the `DataActor` write boundary. Use the persisted key in
+merchant rebuild predicates. `Merchant` always aggregates every matching local
+expense, regardless of `allowMerchantIndexing`; local analytics must not change when
+system-integration consent changes. Phase 8A may index a merchant name only through a
+centralized Spotlight gate and when `indexMerchantNames` is enabled and at least one
+expense with the same normalized key has `allowMerchantIndexing == true`.
+
+Alternatives considered: Re-normalizing every fetched expense, excluding opted-out
+expenses from local merchant totals, or storing a second indexing-eligibility field on
+`Merchant` before the indexing service exists.
+
+Consequences: Merchant rebuilds no longer materialize unrelated expenses. The
+normalization algorithm is now a persistence contract; changing it after release
+requires a schema migration or explicit derived-data rebuild. Phase 8A must query
+eligible expenses rather than treating the existence of a `Merchant` row as consent.
+
+Files affected: `Expense`, `DataActor`, merchant persistence tests, privacy plans, and
+Phase 8A acceptance criteria.

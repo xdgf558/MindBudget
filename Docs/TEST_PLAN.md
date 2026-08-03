@@ -83,7 +83,9 @@ formatting, and round-trip parsing.
 ### SpotlightIndexingServiceTests
 
 Cover indexing/deletion, clearing the domain when disabled, amount buckets rather
-than exact amounts, excluded notes, merchant opt-in, and nonblocking index failures.
+than exact amounts, excluded notes, and nonblocking index failures. Merchant-name
+tests must prove that local aggregates remain complete while indexing still requires
+the centralized Spotlight gate, `indexMerchantNames`, and an eligible matching expense.
 
 ### AppIntentSmokeTests
 

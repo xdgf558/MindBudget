@@ -9,6 +9,8 @@ final class Expense {
     var categoryRaw: String
     var bucketRaw: String
     var merchantName: String?
+    /// Stable derived key used for local aggregation and privacy-eligible lookups.
+    var normalizedMerchantName: String?
     var note: String?
     var spentAt: Date
     var spentTimeZoneIdentifier: String
@@ -29,6 +31,7 @@ final class Expense {
         categoryRaw: String,
         bucketRaw: String,
         merchantName: String?,
+        normalizedMerchantName: String?,
         note: String?,
         spentAt: Date,
         spentTimeZoneIdentifier: String,
@@ -48,6 +51,7 @@ final class Expense {
         self.categoryRaw = categoryRaw
         self.bucketRaw = bucketRaw
         self.merchantName = merchantName
+        self.normalizedMerchantName = normalizedMerchantName
         self.note = note
         self.spentAt = spentAt
         self.spentTimeZoneIdentifier = spentTimeZoneIdentifier

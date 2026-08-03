@@ -14,6 +14,8 @@ Status: Todo
 
 ## Phase 3 — Onboarding, dashboard, manual expense tracking
 Status: Todo
+- Add a dismissible, locale-aware amount-reasonableness warning. The currency-neutral
+  storage-safety boundary remains the only hard amount limit.
 
 ## Phase 4 — Emotion tags, wishlist, cooling-off
 Status: Todo
@@ -29,6 +31,8 @@ Status: Todo
 
 ## Phase 8A — App Intents, App Entities, Spotlight (iOS 17+)
 Status: Todo
+- Gate merchant-name indexing on the centralized Spotlight capability, the global
+  merchant-name opt-in, and at least one eligible expense with the same normalized key.
 
 ## Phase 8B — IndexedEntity and onscreen awareness (iOS 26+)
 Status: Todo

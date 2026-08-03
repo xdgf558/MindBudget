@@ -47,7 +47,7 @@ actor DataActor {
                 wishItem.purchasedExpenseId = nil
             }
 
-            let normalizedMerchantName = expense.merchantName.flatMap(normalizedMerchantName)
+            let normalizedMerchantName = expense.normalizedMerchantName
             modelContext.delete(expense)
             if let normalizedMerchantName {
                 try rebuildMerchant(normalizedName: normalizedMerchantName, excludingExpenseID: id)
@@ -247,6 +247,7 @@ actor DataActor {
     private func insertExpense(_ draft: ExpenseDraft) throws -> Expense {
         try validateExpense(draft)
         try validateAccountingCurrency(draft.amount.currencyCode)
+        let normalizedName = draft.merchantName.flatMap(normalizedMerchantName)
 
         let expense = Expense(
             id: draft.id,
@@ -255,6 +256,7 @@ actor DataActor {
             categoryRaw: draft.category.rawValue,
             bucketRaw: draft.bucket.rawValue,
             merchantName: draft.merchantName,
+            normalizedMerchantName: normalizedName,
             note: draft.note,
             spentAt: draft.spentAt,
             spentTimeZoneIdentifier: draft.spentTimeZoneIdentifier,
@@ -270,7 +272,7 @@ actor DataActor {
         )
         modelContext.insert(expense)
 
-        if let normalizedName = draft.merchantName.flatMap(normalizedMerchantName) {
+        if let normalizedName {
             try rebuildMerchant(normalizedName: normalizedName, including: expense)
         }
         return expense
@@ -378,6 +380,8 @@ actor DataActor {
         guard draft.cycleStart < draft.cycleEnd else {
             throw DataValidationError.invalidBudgetCycle
         }
+        // Overcommitted plans remain valid input. Phase 2 derives a zero free budget
+        // and preserves negative availability instead of rejecting the user's plan.
         guard draft.monthlyIncomeMinorUnits >= 0,
               draft.totalBudgetMinorUnits >= 0,
               draft.fixedExpensesMinorUnits >= 0,
@@ -479,10 +483,22 @@ actor DataActor {
         including pendingExpense: Expense? = nil,
         excludingExpenseID: UUID? = nil
     ) throws {
-        var expenses = try modelContext.fetch(FetchDescriptor<Expense>()).filter { expense in
-            expense.id != excludingExpenseID
-                && expense.merchantName.flatMap(normalizedMerchantName) == normalizedName
+        let expensesDescriptor: FetchDescriptor<Expense>
+        if let excludingExpenseID {
+            expensesDescriptor = FetchDescriptor(
+                predicate: #Predicate { expense in
+                    expense.normalizedMerchantName == normalizedName
+                        && expense.id != excludingExpenseID
+                }
+            )
+        } else {
+            expensesDescriptor = FetchDescriptor(
+                predicate: #Predicate { expense in
+                    expense.normalizedMerchantName == normalizedName
+                }
+            )
         }
+        var expenses = try modelContext.fetch(expensesDescriptor)
         if let pendingExpense,
            pendingExpense.id != excludingExpenseID,
            !expenses.contains(where: { $0.id == pendingExpense.id }) {

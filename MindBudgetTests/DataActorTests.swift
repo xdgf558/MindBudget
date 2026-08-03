@@ -28,9 +28,11 @@ struct DataActorTests {
         do {
             let controller = try DataController(storeURL: storeURL)
             let summaries = try await controller.makeDataActor().fetchExpenseSummaries()
+            let inspector = ExpenseStorageInspector(modelContainer: controller.container)
             #expect(summaries.count == 1)
             #expect(summaries.first?.id == expense.id)
             #expect(summaries.first?.amount.minorUnits == expense.amount.minorUnits)
+            #expect(try await inspector.normalizedMerchantName(id: expense.id) == "cafe")
         }
     }
 
@@ -169,6 +171,19 @@ struct DataActorTests {
     }
 
     @Test
+    func overcommittedBudgetPlanRemainsValidEngineInput() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let draft = makeBudgetPlan(
+            start: fixedDate,
+            end: fixedDate.addingTimeInterval(86_400 * 30)
+        )
+
+        let plan = try await actor.createBudgetPlan(draft)
+
+        #expect(plan.fixedExpensesMinorUnits + plan.savingGoalMinorUnits > plan.totalBudgetMinorUnits)
+    }
+
+    @Test
     func expenseAmountBoundaryAcceptsMaximumAndRejectsOutsideRange() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let maximum = Money.maximumMinorUnits(for: "VND")
@@ -246,7 +261,7 @@ struct DataActorTests {
     }
 
     @Test
-    func merchantAggregateTracksNormalizedCreatesAndDeletes() async throws {
+    func merchantAggregateTracksAllExpensesRegardlessOfIndexingConsent() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let firstID = UUID()
         let secondID = UUID()
@@ -263,7 +278,8 @@ struct DataActorTests {
                 id: secondID,
                 amountMinorUnits: 250,
                 merchantName: "CAFE",
-                spentAt: fixedDate.addingTimeInterval(60)
+                spentAt: fixedDate.addingTimeInterval(60),
+                allowMerchantIndexing: true
             )
         )
 
@@ -324,7 +340,8 @@ struct DataActorTests {
         amountMinorUnits: Int64 = 1_234,
         currencyCode: String = "USD",
         merchantName: String? = "Cafe",
-        spentAt: Date? = nil
+        spentAt: Date? = nil,
+        allowMerchantIndexing: Bool = false
     ) -> ExpenseDraft {
         ExpenseDraft(
             id: id,
@@ -343,7 +360,7 @@ struct DataActorTests {
             isPlanned: false,
             isRecurring: false,
             source: .manual,
-            allowMerchantIndexing: false
+            allowMerchantIndexing: allowMerchantIndexing
         )
     }
 
@@ -395,6 +412,7 @@ private actor CorruptedDataSeeder {
                 categoryRaw: ExpenseCategory.food.rawValue,
                 bucketRaw: BudgetBucket.discretionary.rawValue,
                 merchantName: nil,
+                normalizedMerchantName: nil,
                 note: nil,
                 spentAt: TestFixtures.now,
                 spentTimeZoneIdentifier: "UTC",
@@ -434,5 +452,18 @@ private actor CorruptedDataSeeder {
             )
         )
         try modelContext.save()
+    }
+}
+
+@ModelActor
+private actor ExpenseStorageInspector {
+    func normalizedMerchantName(id: UUID) throws -> String? {
+        var descriptor = FetchDescriptor<Expense>(
+            predicate: #Predicate { expense in
+                expense.id == id
+            }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first?.normalizedMerchantName
     }
 }
