@@ -17,6 +17,57 @@
           }
         }
       }
+    },
+    "storage.recovery.message" : {
+      "comment" : "Explains that a failed local store is preserved and can be retried.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your local data has not been deleted. Retry after freeing storage or restarting the device."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的本地数据尚未被删除。请在释放存储空间或重启设备后重试。"
+          }
+        }
+      }
+    },
+    "storage.recovery.retry" : {
+      "comment" : "Button that retries opening the local store.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "storage.recovery.title" : {
+      "comment" : "Title shown when the local SwiftData store cannot be opened.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MindBudget couldn't open your data"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MindBudget 无法打开你的数据"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

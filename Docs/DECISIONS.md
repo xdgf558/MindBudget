@@ -143,3 +143,94 @@ testing remains a release-validation responsibility until an appropriate runner 
 available.
 
 Files affected: `.github/workflows/ci.yml`, validation scripts, and project memory.
+
+---
+
+## 2026-08-03 — Persist ratios as basis points and isolate SwiftData behind DataActor
+
+Context: The authoritative model sketches used binary floating-point fields for
+category warning thresholds even though the repository-wide financial-source guard
+forbids those types. Swift 6 also makes returning SwiftData models or `ModelContext`
+from an actor unsafe.
+
+Decision: Persist category warning thresholds as integer basis points, where 10,000
+means 100 percent. Keep rule ratios in `Decimal`, and use basis points or `Decimal`
+for future engine projections until a presentation-only conversion is explicitly
+needed. Route all model writes through `DataActor` and return only immutable,
+`Sendable` projections. Begin the V1 currency table with the currencies exposed by
+`Money.supportedCurrencyCodes`; Phase 3 onboarding must use that table rather than
+accept an unknown locale currency.
+
+Alternatives considered: Weakening the source guard for threshold fields, storing
+binary floating-point ratios, exposing `@Model` instances across actors, or silently
+assuming two fractional digits for unknown currencies.
+
+Consequences: Threshold boundaries are exact and directly compatible with reminder
+event risk history. Phase 2 engines receive safe value types. A schema change from
+`warningThresholdBasisPoints` requires a new versioned schema and migration rather
+than editing `SchemaV1` after release.
+
+Files affected: `MindBudget/Models`, `MindBudget/Data`, rule/settings services, tests,
+and this file.
+
+---
+
+## 2026-08-03 — Use a currency-neutral entry limit and reject corrupt projections
+
+Context: A limit of one million major units gave low-value currencies such as KRW,
+VND, and IDR far less usable purchasing range than USD. Persisted raw currency and
+enum strings could also trigger a process precondition or silently become a valid-
+looking fallback state. Creating more than one `DataActor` weakened read-before-write
+invariants across contexts.
+
+Decision: Treat `Money.maximumMinorUnits(for:)` as a currency-neutral storage-safety
+limit of `Int64.max / 1_000_000`, leaving headroom for one million maximum-sized
+aggregate additions. Keep input reasonableness as a UI warning rather than a currency-
+dependent hard rejection. Validate every persisted currency and projected enum raw
+value, returning `PersistedModelError` instead of crashing or inventing a fallback.
+Each `DataController` owns one shared `DataActor`. Sample replacement uses one save
+and rolls back all pending changes on failure. Merchant aggregates are derived from
+expense writes and deletes as required by the model contract.
+
+Alternatives considered: Per-currency purchasing-power limits, exchange-rate-driven
+limits, optional projections that discard invalid values, `.unknown` business states,
+and creating a new actor for each caller.
+
+Consequences: Low-value currencies retain practical input range without exchange-rate
+maintenance. Corrupt or future-version data remains visible as a recoverable error and
+cannot re-enter reminder or state-machine logic under a false default. All app writes
+must continue through the controller-owned actor; tests may use a separate seeder actor
+only to verify corruption handling.
+
+Files affected: `MindBudget/Models/Money.swift`, model projections, `DataActor`,
+`DataController`, tests, and the authoritative money contract.
+
+---
+
+## 2026-08-03 — Persist merchant normalization and keep local aggregates independent of indexing consent
+
+Context: Rebuilding one derived `Merchant` fetched every expense and normalized raw
+names in memory. The per-expense `allowMerchantIndexing` field and the global
+`indexMerchantNames` preference also lacked an explicit relationship to the local
+merchant aggregate, risking either incomplete local insights or accidental system
+index disclosure in Phase 8A.
+
+Decision: Persist `Expense.normalizedMerchantName` in `SchemaV1` and set it atomically
+with `merchantName` at the `DataActor` write boundary. Use the persisted key in
+merchant rebuild predicates. `Merchant` always aggregates every matching local
+expense, regardless of `allowMerchantIndexing`; local analytics must not change when
+system-integration consent changes. Phase 8A may index a merchant name only through a
+centralized Spotlight gate and when `indexMerchantNames` is enabled and at least one
+expense with the same normalized key has `allowMerchantIndexing == true`.
+
+Alternatives considered: Re-normalizing every fetched expense, excluding opted-out
+expenses from local merchant totals, or storing a second indexing-eligibility field on
+`Merchant` before the indexing service exists.
+
+Consequences: Merchant rebuilds no longer materialize unrelated expenses. The
+normalization algorithm is now a persistence contract; changing it after release
+requires a schema migration or explicit derived-data rebuild. Phase 8A must query
+eligible expenses rather than treating the existence of a `Merchant` row as consent.
+
+Files affected: `Expense`, `DataActor`, merchant persistence tests, privacy plans, and
+Phase 8A acceptance criteria.

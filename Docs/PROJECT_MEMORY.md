@@ -44,12 +44,20 @@ app's private data are forbidden in V1.
 ## Key decisions already made
 
 - Money is stored as `Int64` minor units; only the isolated App Intents transport adapter may receive `Double`.
+- The per-entry hard limit is currency-neutral (`Int64.max / 1_000_000` minor units);
+  UI reasonableness warnings must not encode exchange-rate assumptions.
+- Persisted percentage thresholds use integer basis points; pure calculations keep
+  ratios in `Decimal` until a presentation-only conversion is explicitly required.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
+- Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
+  preserving negative availability for an honest UI state.
 - `SpendingInsight` stores localization keys and payload, not rendered text.
 - User preferences use `@AppStorage`, not a singleton `@Model`.
 - Reminder throttling records scope, threshold crossings, and deferred notification times.
+- Merchant rows aggregate all local expenses. Merchant-name Spotlight indexing also
+  requires the global merchant-name opt-in and at least one eligible matching expense.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
   Phase 7/8 must expose centralized gates combining scope, API/runtime availability,
   and an explicit user setting that defaults off; call sites cannot read raw flags.
@@ -69,12 +77,13 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phase 0 is complete. The repository now contains a compilable SwiftUI app shell,
-shared scheme, feature flags, localization/privacy resources, unit and UI test
-targets, the recommended directory skeleton, and all persistent memory files.
-The Phase 0 validation build passed on the recorded iOS 26.5 simulator. PR review
-remediation subsequently added CI, meaningful localization smoke tests, asset/config
-scaffolding, iPhone-only scope, and proprietary repository terms. The full local build,
-one unit localization test, and English and Simplified Chinese UI tests pass. No
-Phase 1 model or business feature is implemented. The final hosted Xcode 26.6 run
-also passes the complete Phase 0 acceptance suite.
+Phases 0 and 1 are complete. The app now opens a versioned persistent SwiftData
+store containing all nine V1 model types. `Money`, domain enums, wishlist transition
+rules, reminder projections, settings/configuration codecs, and four deterministic
+sample scenarios are implemented. Each controller owns one `DataActor`; all app model
+writes use it and callers receive only Sendable value projections. Persisted currency
+and enum corruption is surfaced without a crash or semantic fallback, sample replacement
+rolls back on failure, and merchant aggregates follow expense creates/deletes. Store-open
+failure presents a retryable recovery view without deleting data. Local validation
+covers these contracts plus localization on the recorded iOS 26.5 simulator. Phase 2
+budget calculations have not started.

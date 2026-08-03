@@ -83,7 +83,9 @@ formatting, and round-trip parsing.
 ### SpotlightIndexingServiceTests
 
 Cover indexing/deletion, clearing the domain when disabled, amount buckets rather
-than exact amounts, excluded notes, merchant opt-in, and nonblocking index failures.
+than exact amounts, excluded notes, and nonblocking index failures. Merchant-name
+tests must prove that local aggregates remain complete while indexing still requires
+the centralized Spotlight gate, `indexMerchantNames`, and an eligible matching expense.
 
 ### AppIntentSmokeTests
 
@@ -131,6 +133,18 @@ bootstrap copy. UI tests force English and Simplified Chinese locales and verify
 the accessibility identifier and rendered label. These tests are replaced by
 phase-specific coverage as implementation begins; tests are never disabled to make
 a phase pass.
+
+## Phase 1 acceptance
+
+Phase 1 tests cover exact minor-unit conversion and bankers rounding, supported
+currency exponents, the currency-neutral entry boundary, accounting-currency locking,
+budget-cycle overlap rejection, category defaults, wishlist transition legality,
+cross-midnight quiet hours, privacy-sensitive setting defaults, validated configuration
+fallback, four deterministic sample scenarios, durable store reopening, atomic sample
+replacement rollback, SwiftData cascade deletion, weak expense-link cleanup, merchant
+aggregate maintenance, persisted currency/enum corruption errors, and reminder-event
+scope/risk/response projections. Each `DataController` owns one `DataActor`; app test
+assertions receive only Sendable value projections.
 
 ## Continuous integration
 

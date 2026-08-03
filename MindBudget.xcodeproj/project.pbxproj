@@ -13,10 +13,36 @@
 		A10000000000000000000004 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* FeatureFlags.swift */; };
 		A10000000000000000000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* Localizable.xcstrings */; };
 		A10000000000000000000006 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* PrivacyInfo.xcprivacy */; };
-		A10000000000000000000007 /* MindBudgetPlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* MindBudgetPlaceholderTests.swift */; };
+		A10000000000000000000007 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* LocalizationTests.swift */; };
 		A10000000000000000000009 /* MindBudgetPlaceholderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* MindBudgetPlaceholderUITests.swift */; };
 		A1000000000000000000000A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* XCTest.framework */; };
 		A1000000000000000000000B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* Assets.xcassets */; };
+		A1000000000000000000000C /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* Money.swift */; };
+		A1000000000000000000000D /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* Enums.swift */; };
+		A1000000000000000000000E /* WishItemStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* WishItemStateMachine.swift */; };
+		A1000000000000000000000F /* Projections.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* Projections.swift */; };
+		A10000000000000000000010 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* Expense.swift */; };
+		A10000000000000000000011 /* BudgetPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* BudgetPlan.swift */; };
+		A10000000000000000000012 /* CategoryBudget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* CategoryBudget.swift */; };
+		A10000000000000000000013 /* WishItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* WishItem.swift */; };
+		A10000000000000000000014 /* CoolingOffPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* CoolingOffPlan.swift */; };
+		A10000000000000000000015 /* SpendingInsight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* SpendingInsight.swift */; };
+		A10000000000000000000016 /* ReflectionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* ReflectionLog.swift */; };
+		A10000000000000000000017 /* Merchant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* Merchant.swift */; };
+		A10000000000000000000018 /* ReminderEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* ReminderEvent.swift */; };
+		A10000000000000000000019 /* SchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* SchemaV1.swift */; };
+		A1000000000000000000001A /* MigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* MigrationPlan.swift */; };
+		A1000000000000000000001B /* RuleConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* RuleConfiguration.swift */; };
+		A1000000000000000000001C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* SettingsStore.swift */; };
+		A1000000000000000000001D /* DataTransferObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* DataTransferObjects.swift */; };
+		A1000000000000000000001E /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* DataController.swift */; };
+		A1000000000000000000001F /* DataActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* DataActor.swift */; };
+		A10000000000000000000020 /* SampleDataFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* SampleDataFactory.swift */; };
+		A10000000000000000000021 /* MoneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000024 /* MoneyTests.swift */; };
+		A10000000000000000000022 /* ModelContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000025 /* ModelContractTests.swift */; };
+		A10000000000000000000023 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000026 /* SettingsStoreTests.swift */; };
+		A10000000000000000000024 /* DataActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000027 /* DataActorTests.swift */; };
+		A10000000000000000000025 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000028 /* TestFixtures.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,7 +69,7 @@
 		B10000000000000000000004 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		B10000000000000000000005 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B10000000000000000000006 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		B10000000000000000000007 /* MindBudgetPlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindBudgetPlaceholderTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
 		B10000000000000000000008 /* MindBudgetPlaceholderUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindBudgetPlaceholderUITests.swift; sourceTree = "<group>"; };
 		B10000000000000000000009 /* MindBudget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MindBudget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1000000000000000000000A /* MindBudgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MindBudgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +77,32 @@
 		B1000000000000000000000C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		B1000000000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000000000000000000000E /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
+		B1000000000000000000000F /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* WishItemStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemStateMachine.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* Projections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Projections.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* BudgetPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetPlan.swift; sourceTree = "<group>"; };
+		B10000000000000000000015 /* CategoryBudget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryBudget.swift; sourceTree = "<group>"; };
+		B10000000000000000000016 /* WishItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItem.swift; sourceTree = "<group>"; };
+		B10000000000000000000017 /* CoolingOffPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolingOffPlan.swift; sourceTree = "<group>"; };
+		B10000000000000000000018 /* SpendingInsight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendingInsight.swift; sourceTree = "<group>"; };
+		B10000000000000000000019 /* ReflectionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionLog.swift; sourceTree = "<group>"; };
+		B1000000000000000000001A /* Merchant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Merchant.swift; sourceTree = "<group>"; };
+		B1000000000000000000001B /* ReminderEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderEvent.swift; sourceTree = "<group>"; };
+		B1000000000000000000001C /* SchemaV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV1.swift; sourceTree = "<group>"; };
+		B1000000000000000000001D /* MigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPlan.swift; sourceTree = "<group>"; };
+		B1000000000000000000001E /* RuleConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleConfiguration.swift; sourceTree = "<group>"; };
+		B1000000000000000000001F /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		B10000000000000000000020 /* DataTransferObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferObjects.swift; sourceTree = "<group>"; };
+		B10000000000000000000021 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		B10000000000000000000022 /* DataActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataActor.swift; sourceTree = "<group>"; };
+		B10000000000000000000023 /* SampleDataFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleDataFactory.swift; sourceTree = "<group>"; };
+		B10000000000000000000024 /* MoneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000025 /* ModelContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContractTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000026 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000027 /* DataActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataActorTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000028 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,17 +138,17 @@
 			path = MindBudget;
 			sourceTree = "<group>";
 		};
-		C10000000000000000000002 /* MindBudgetTests */ = {isa = PBXGroup; children = (B10000000000000000000007 /* MindBudgetPlaceholderTests.swift */,); path = MindBudgetTests; sourceTree = "<group>"; };
+		C10000000000000000000002 /* MindBudgetTests */ = {isa = PBXGroup; children = (B10000000000000000000028 /* TestFixtures.swift */, B10000000000000000000007 /* LocalizationTests.swift */, B10000000000000000000024 /* MoneyTests.swift */, B10000000000000000000025 /* ModelContractTests.swift */, B10000000000000000000026 /* SettingsStoreTests.swift */, B10000000000000000000027 /* DataActorTests.swift */,); path = MindBudgetTests; sourceTree = "<group>"; };
 		C10000000000000000000003 /* MindBudgetUITests */ = {isa = PBXGroup; children = (B10000000000000000000008 /* MindBudgetPlaceholderUITests.swift */,); path = MindBudgetUITests; sourceTree = "<group>"; };
 		C10000000000000000000004 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000009 /* MindBudget.app */, B1000000000000000000000A /* MindBudgetTests.xctest */, B1000000000000000000000B /* MindBudgetUITests.xctest */,); name = Products; sourceTree = "<group>"; };
 		C10000000000000000000005 /* App */ = {isa = PBXGroup; children = (B10000000000000000000001 /* MindBudgetApp.swift */, B10000000000000000000002 /* AppRouter.swift */, B10000000000000000000003 /* AppEnvironment.swift */, B10000000000000000000004 /* FeatureFlags.swift */,); path = App; sourceTree = "<group>"; };
-		C10000000000000000000006 /* Models */ = {isa = PBXGroup; children = (C1000000000000000000000C /* Schema */,); path = Models; sourceTree = "<group>"; };
-		C10000000000000000000007 /* Data */ = {isa = PBXGroup; children = (); path = Data; sourceTree = "<group>"; };
-		C10000000000000000000008 /* Services */ = {isa = PBXGroup; children = (); path = Services; sourceTree = "<group>"; };
+		C10000000000000000000006 /* Models */ = {isa = PBXGroup; children = (C1000000000000000000000C /* Schema */, B1000000000000000000000F /* Money.swift */, B10000000000000000000010 /* Enums.swift */, B10000000000000000000011 /* WishItemStateMachine.swift */, B10000000000000000000012 /* Projections.swift */, B10000000000000000000013 /* Expense.swift */, B10000000000000000000014 /* BudgetPlan.swift */, B10000000000000000000015 /* CategoryBudget.swift */, B10000000000000000000016 /* WishItem.swift */, B10000000000000000000017 /* CoolingOffPlan.swift */, B10000000000000000000018 /* SpendingInsight.swift */, B10000000000000000000019 /* ReflectionLog.swift */, B1000000000000000000001A /* Merchant.swift */, B1000000000000000000001B /* ReminderEvent.swift */,); path = Models; sourceTree = "<group>"; };
+		C10000000000000000000007 /* Data */ = {isa = PBXGroup; children = (B10000000000000000000020 /* DataTransferObjects.swift */, B10000000000000000000021 /* DataController.swift */, B10000000000000000000022 /* DataActor.swift */, B10000000000000000000023 /* SampleDataFactory.swift */,); path = Data; sourceTree = "<group>"; };
+		C10000000000000000000008 /* Services */ = {isa = PBXGroup; children = (B1000000000000000000001E /* RuleConfiguration.swift */, B1000000000000000000001F /* SettingsStore.swift */,); path = Services; sourceTree = "<group>"; };
 		C10000000000000000000009 /* Features */ = {isa = PBXGroup; children = (C1000000000000000000000D /* Onboarding */, C1000000000000000000000E /* Dashboard */, C1000000000000000000000F /* AddExpense */, C10000000000000000000010 /* ExpenseList */, C10000000000000000000011 /* Insights */, C10000000000000000000012 /* Wishlist */, C10000000000000000000013 /* AskMindBudget */, C10000000000000000000014 /* Settings */, C10000000000000000000015 /* Shared */,); path = Features; sourceTree = "<group>"; };
 		C1000000000000000000000A /* AppIntents */ = {isa = PBXGroup; children = (C10000000000000000000016 /* Entities */, C10000000000000000000017 /* Intents */,); path = AppIntents; sourceTree = "<group>"; };
 		C1000000000000000000000B /* Resources */ = {isa = PBXGroup; children = (B1000000000000000000000D /* Assets.xcassets */, B10000000000000000000005 /* Localizable.xcstrings */, B10000000000000000000006 /* PrivacyInfo.xcprivacy */,); path = Resources; sourceTree = "<group>"; };
-		C1000000000000000000000C /* Schema */ = {isa = PBXGroup; children = (); path = Schema; sourceTree = "<group>"; };
+		C1000000000000000000000C /* Schema */ = {isa = PBXGroup; children = (B1000000000000000000001C /* SchemaV1.swift */, B1000000000000000000001D /* MigrationPlan.swift */,); path = Schema; sourceTree = "<group>"; };
 		C1000000000000000000000D /* Onboarding */ = {isa = PBXGroup; children = (); path = Onboarding; sourceTree = "<group>"; };
 		C1000000000000000000000E /* Dashboard */ = {isa = PBXGroup; children = (); path = Dashboard; sourceTree = "<group>"; };
 		C1000000000000000000000F /* AddExpense */ = {isa = PBXGroup; children = (); path = AddExpense; sourceTree = "<group>"; };
@@ -180,8 +232,8 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F10000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* MindBudgetApp.swift in Sources */, A10000000000000000000002 /* AppRouter.swift in Sources */, A10000000000000000000003 /* AppEnvironment.swift in Sources */, A10000000000000000000004 /* FeatureFlags.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
-		F10000000000000000000004 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000007 /* MindBudgetPlaceholderTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* MindBudgetApp.swift in Sources */, A10000000000000000000002 /* AppRouter.swift in Sources */, A10000000000000000000003 /* AppEnvironment.swift in Sources */, A10000000000000000000004 /* FeatureFlags.swift in Sources */, A1000000000000000000000C /* Money.swift in Sources */, A1000000000000000000000D /* Enums.swift in Sources */, A1000000000000000000000E /* WishItemStateMachine.swift in Sources */, A1000000000000000000000F /* Projections.swift in Sources */, A10000000000000000000010 /* Expense.swift in Sources */, A10000000000000000000011 /* BudgetPlan.swift in Sources */, A10000000000000000000012 /* CategoryBudget.swift in Sources */, A10000000000000000000013 /* WishItem.swift in Sources */, A10000000000000000000014 /* CoolingOffPlan.swift in Sources */, A10000000000000000000015 /* SpendingInsight.swift in Sources */, A10000000000000000000016 /* ReflectionLog.swift in Sources */, A10000000000000000000017 /* Merchant.swift in Sources */, A10000000000000000000018 /* ReminderEvent.swift in Sources */, A10000000000000000000019 /* SchemaV1.swift in Sources */, A1000000000000000000001A /* MigrationPlan.swift in Sources */, A1000000000000000000001B /* RuleConfiguration.swift in Sources */, A1000000000000000000001C /* SettingsStore.swift in Sources */, A1000000000000000000001D /* DataTransferObjects.swift in Sources */, A1000000000000000000001E /* DataController.swift in Sources */, A1000000000000000000001F /* DataActor.swift in Sources */, A10000000000000000000020 /* SampleDataFactory.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000004 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000025 /* TestFixtures.swift in Sources */, A10000000000000000000007 /* LocalizationTests.swift in Sources */, A10000000000000000000021 /* MoneyTests.swift in Sources */, A10000000000000000000022 /* ModelContractTests.swift in Sources */, A10000000000000000000023 /* SettingsStoreTests.swift in Sources */, A10000000000000000000024 /* DataActorTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 		F10000000000000000000007 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000009 /* MindBudgetPlaceholderUITests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 

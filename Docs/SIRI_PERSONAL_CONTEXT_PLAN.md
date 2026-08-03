@@ -8,6 +8,15 @@ Product-scope FeatureFlags neither prove an implementation exists nor opt the us
 Centralized gates must also enforce availability; Siri and Spotlight user settings
 remain independent and default to off.
 
+## Merchant-name privacy contract
+
+The local `Merchant` table always aggregates every matching expense so local insights
+remain complete and independent of system-integration consent. Its existence is never
+permission to expose a merchant name. Phase 8A may add a merchant name to Spotlight
+only when the centralized Spotlight gate is enabled, `indexMerchantNames` is enabled,
+and at least one expense with the same persisted normalized merchant key has
+`allowMerchantIndexing == true`.
+
 ## Allowed
 
 1. App Intents for MindBudget actions.

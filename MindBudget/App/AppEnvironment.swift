@@ -2,7 +2,13 @@ import Foundation
 
 @MainActor
 struct AppEnvironment {
-    static let live = AppEnvironment()
+    let dataController: DataController
+    let settingsStore: SettingsStore
 
-    private init() {}
+    static func live() throws -> AppEnvironment {
+        AppEnvironment(
+            dataController: try DataController(),
+            settingsStore: SettingsStore()
+        )
+    }
 }
