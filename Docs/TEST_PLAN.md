@@ -5,8 +5,9 @@
 - Unit tests use Swift Testing (`import Testing`, `@Test`, and `#expect`).
 - UI tests use XCUITest.
 - The full automated suite must pass on a simulator without Apple Intelligence.
-- Phase 0 smoke coverage launches the app with forced English and Simplified Chinese
-  locales and asserts rendered labels, not only accessibility identifiers.
+- UI smoke coverage launches the current onboarding flow with forced English and
+  Simplified Chinese locales and asserts rendered labels, not only accessibility
+  identifiers.
 - Every rule/date test injects `now`, `Calendar`, and `TimeZone`; production-clock
   lookups such as `Date()` and `Calendar.current` are forbidden inside testable engines.
 
@@ -77,7 +78,8 @@ buy, fabricated numbers, and invalid action counts. Accept valid localized numbe
 
 Prove notes never enter any context, merchant lists and transaction rows are absent,
 amounts are formatted strings, Siri strings are sanitized, context fields are
-allow-listed, and raw Ask questions never reach model input.
+allow-listed, and raw Ask questions never reach model input. Redactor/generator entry
+points must not accept `ExpenseDetail` or another raw-note-bearing projection.
 
 ### CSVExporterTests
 
@@ -132,11 +134,10 @@ suggested entities.
 ## Phase 0 acceptance
 
 The app target must build, and all smoke tests must pass on the recorded simulator
-destination. The unit test verifies that the hosted app bundle resolves localized
-bootstrap copy. UI tests force English and Simplified Chinese locales and verify both
-the accessibility identifier and rendered label. These tests are replaced by
-phase-specific coverage as implementation begins; tests are never disabled to make
-a phase pass.
+destination. The initial bootstrap localization checks were replaced by Phase 3
+onboarding localization and end-to-end coverage. Phase-specific tests replace obsolete
+smoke assertions as implementation advances; tests are never disabled to make a phase
+pass.
 
 ## Phase 1 acceptance
 
@@ -160,6 +161,21 @@ future-setting transition confirmation, atomic generation limits, immutable hist
 plan overlap/identity rejection, and currency formatting for zero-, two-, and three-digit
 exponents without fixed ICU symbols. Budget engines receive only Sendable projections;
 all calendars, time zones, and reference dates are explicit inputs.
+
+## Phase 3 acceptance
+
+Phase 3 tests cover locale digits and grouping, exact minor-unit precision, zero and
+negative entry rejection, independent budget-draft amounts, selected-expense-date impact,
+the dismissible reasonableness warning, explicit pending-transition context, manual create/
+edit metadata, merchant aggregate rebuilds, atomic transition/first-regular persistence,
+currency and identity rejection, and rollback when either transition draft is invalid.
+Coverage-preview tests prove future date selection creates no stored plans. Projection
+tests prove raw notes are available only through targeted detail and actor-contained search
+boundaries. Error tests preserve accounting-currency mismatch, and precision tests distinguish
+excess fraction digits from malformed input. UI tests force English and Simplified Chinese
+onboarding copy and run an English end-to-end path through budget setup, Dashboard refresh,
+quick expense entry, and the expense list. Edit/delete and VoiceOver/AX5 remain mandatory
+manual smoke checks before release in addition to actor-level automated coverage.
 
 ## Continuous integration
 

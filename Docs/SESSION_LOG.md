@@ -271,3 +271,90 @@ Known issues: A real App Icon and real iOS 17 runtime validation remain deferred
 release preparation.
 
 Next suggested task: Push the fix to PR #4, wait for CI, review, and merge before Phase 3.
+
+## 2026-08-03 — Session 10 — Phase 3 core UI and manual expense tracking
+
+Goal: Deliver the complete Phase 3 iPhone flow from first launch through budget setup,
+Dashboard understanding, manual expense creation, and expense history management without
+starting Phase 4 emotion/wishlist behavior or Phase 5 insights.
+
+Files changed: app routing/environment, Phase 3 onboarding/Dashboard/add/list/detail/
+settings/shared views and view models, expense projections and `DataActor` write APIs,
+English/Simplified Chinese strings, unit/UI tests, project wiring, and project memory.
+
+What was completed: Replaced the bootstrap screen with the five-tab app shell, localized
+onboarding, accounting-currency and cycle-day setup, configured/unconfigured Dashboard
+cards, neutral overspend presentation, keyboard-accessible quick expense entry, inline
+selected-date budget impact, recent categories, merchant suggestions, planned flag, and a
+dismissible amount reasonableness check. Added searchable/filterable expense history,
+detail, edit, swipe/delete confirmation, error/empty states, and honest placeholders for
+future Insights and Wishlist phases. Expense updates now preserve the full projection and
+rebuild merchant aggregates through `DataActor`. Transition and first-regular budgets save
+atomically with independent values. Locale parsing validates localized digits/grouping and
+rejects silent minor-unit rounding. App state refreshes after successful writes and when
+returning to the foreground.
+
+What was NOT completed: Emotion/reason fields and wishlist alternatives remain Phase 4;
+reminder sheets and generated insights remain Phase 5; export, destructive all-data reset,
+and advanced settings remain Phase 6+. No App Intents, Spotlight, or AI work was pulled
+forward. Real-device VoiceOver/AX5 and iOS 17 runtime smoke checks remain release-manual
+items, although Phase 3 controls expose localized accessibility labels and scalable money
+text.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 75 Swift Testing tests and 3 UI tests, 0 failures. UI coverage includes
+forced English and Simplified Chinese rendering plus onboarding → budget setup → Dashboard
+→ quick expense → expense list.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. The simulator emitted a harmless
+post-test diagnostic warning because its unqualified `xcrun` could not locate `simctl`;
+the build and all test suites completed successfully before that diagnostic collection.
+
+Next suggested task: Push the Phase 3 branch, open a pull request, and review CI before
+beginning Phase 4.
+
+## 2026-08-03 — Session 11 — Phase 3 PR review remediation
+
+Goal: Resolve PR #5 findings around DatePicker-driven persistence, raw-note projection
+scope, Release test hooks, truthful budget context, typed save errors, input precision,
+and targeted detail loading without starting Phase 4.
+
+Files changed: app environment, expense/data projections, `DataActor`, add/list/detail
+views and view models, localized strings, date/data/Phase 3 tests, decisions, task privacy
+acceptance, AI prompt contract, project memory, test plan, changelog, and this session log.
+
+What was completed: Added a read-only coverage projection that can preview copied future
+plans without saving and changed the date picker to a cancellable debounced read. The
+mutating coverage path now saves only when drafts actually need insertion and remains the
+explicit pre-save/Dashboard lifecycle entry. Expense forms distinguish configured,
+unconfigured, historical, transition, first-regular, and unavailable budget contexts;
+pending budget confirmation does not block factual expense capture or invent an impact.
+Raw notes were removed from `ExpenseSummary`, placed behind targeted `ExpenseDetail`
+fetches, and searched inside `DataActor` with only matching IDs returned. The UI-test reset
+hook is Debug-only and a Release binary scan proves its launch argument is absent. Save
+errors preserve accounting-currency mismatch, corrupt data, and generation-limit meaning;
+extra fraction digits have a dedicated message; grouping rules are cached per locale; edit
+refresh fetches one detail. Transition tests now also cover currency and identity conflicts.
+
+What was NOT completed: No Phase 4 fields or behavior were added. No fixed pre-budget
+amount heuristic was invented because an unconfigured user has no currency-neutral personal
+baseline; the configured dismissible check remains relative to the confirmed period budget.
+PR #5 contains no GitHub review thread to reply to or resolve, so the externally supplied
+review remains represented by code, tests, and decision records only.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; Release simulator build and
+binary test-hook scan also pass
+
+Test result: pass — 80 Swift Testing tests and 3 UI tests, 0 failures
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. The simulator may emit its known
+post-test diagnostic warning after all suites have already succeeded.
+
+Next suggested task: Wait for PR #5 CI, continue review, and merge only after approval.

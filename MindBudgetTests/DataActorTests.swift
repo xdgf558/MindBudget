@@ -301,6 +301,182 @@ struct DataActorTests {
     }
 
     @Test
+    func updatingExpensePersistsEditableFieldsAndRebuildsMerchantAggregates() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let original = makeExpense(merchantName: "Cafe")
+        _ = try await actor.createExpense(original)
+        let updatedAt = fixedDate.addingTimeInterval(120)
+        let update = ExpenseDraft(
+            id: original.id,
+            amount: Money(minorUnits: 4_500, currencyCode: "USD"),
+            category: .transport,
+            bucket: .discretionary,
+            merchantName: " Metro ",
+            note: "Ride home",
+            spentAt: fixedDate.addingTimeInterval(60),
+            spentTimeZoneIdentifier: "Asia/Singapore",
+            createdAt: original.createdAt,
+            updatedAt: updatedAt,
+            paymentMethod: .cash,
+            emotionTag: nil,
+            purchaseReason: nil,
+            isPlanned: true,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: true
+        )
+
+        let result = try await actor.updateExpense(id: original.id, with: update)
+        let detail = try #require(try await actor.fetchExpenseDetail(id: original.id))
+        let merchants = try await actor.fetchMerchantSummaries()
+
+        #expect(result.amount.minorUnits == 4_500)
+        #expect(result.category == .transport)
+        #expect(result.merchantName == " Metro ")
+        #expect(detail.note == "Ride home")
+        #expect(detail.summary == result)
+        #expect(result.updatedAt == updatedAt)
+        #expect(result.paymentMethod == .cash)
+        #expect(result.isPlanned)
+        #expect(result.allowMerchantIndexing)
+        #expect(merchants.count == 1)
+        #expect(merchants.first?.normalizedName == "metro")
+        #expect(merchants.first?.totalMinorUnitsAllTime == 4_500)
+    }
+
+    @Test
+    func rawExpenseNoteStaysBehindTheDetailAndActorSearchBoundary() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let draft = ExpenseDraft(
+            id: UUID(),
+            amount: Money(minorUnits: 1_234, currencyCode: "USD"),
+            category: .coffee,
+            bucket: .discretionary,
+            merchantName: "Corner Cafe",
+            note: "Private train reminder",
+            spentAt: fixedDate,
+            spentTimeZoneIdentifier: "UTC",
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
+            paymentMethod: nil,
+            emotionTag: nil,
+            purchaseReason: nil,
+            isPlanned: false,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: false
+        )
+        _ = try await actor.createExpense(draft)
+
+        let summaries = try await actor.fetchExpenseSummaries()
+        let detail = try #require(try await actor.fetchExpenseDetail(id: draft.id))
+        let matchingIDs = try await actor.fetchExpenseIDsWithNotes(matching: "train")
+        let nonmatchingIDs = try await actor.fetchExpenseIDsWithNotes(matching: "flight")
+
+        #expect(summaries.map(\.id) == [draft.id])
+        #expect(detail.summary == summaries.first)
+        #expect(detail.note == "Private train reminder")
+        #expect(matchingIDs == Set([draft.id]))
+        #expect(nonmatchingIDs.isEmpty)
+    }
+
+    @Test
+    func budgetTransitionAndFirstRegularPlanCommitAtomically() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        let regularEnd = transitionEnd.addingTimeInterval(86_400 * 30)
+        _ = try await actor.createBudgetPlan(
+            makeBudgetPlan(start: fixedDate, end: precedingEnd, totalBudgetMinorUnits: 120_000)
+        )
+        let transition = makeBudgetPlan(
+            start: precedingEnd,
+            end: transitionEnd,
+            totalBudgetMinorUnits: 21_000
+        )
+        let firstRegular = makeBudgetPlan(
+            start: transitionEnd,
+            end: regularEnd,
+            totalBudgetMinorUnits: 210_000
+        )
+
+        let inserted = try await actor.createBudgetPlanTransition(
+            transition: transition,
+            firstRegular: firstRegular
+        )
+        let plans = try await actor.fetchBudgetPlanSummaries()
+
+        #expect(inserted.map(\.totalBudgetMinorUnits) == [21_000, 210_000])
+        #expect(plans.count == 3)
+        #expect(plans[1].id == transition.id)
+        #expect(plans[2].id == firstRegular.id)
+    }
+
+    @Test
+    func invalidBudgetTransitionDoesNotPartiallyInsertItsFirstPlan() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        _ = try await actor.createBudgetPlan(
+            makeBudgetPlan(start: fixedDate, end: precedingEnd)
+        )
+        let transition = makeBudgetPlan(start: precedingEnd, end: transitionEnd)
+        let disconnectedRegular = makeBudgetPlan(
+            start: transitionEnd.addingTimeInterval(60),
+            end: transitionEnd.addingTimeInterval(86_400 * 30)
+        )
+
+        await #expect(throws: DataValidationError.invalidBudgetTransition) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: transition,
+                firstRegular: disconnectedRegular
+            )
+        }
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+    }
+
+    @Test
+    func budgetTransitionRejectsCurrencyAndIdentityConflictsAtomically() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        let regularEnd = transitionEnd.addingTimeInterval(86_400 * 30)
+        let preceding = makeBudgetPlan(start: fixedDate, end: precedingEnd)
+        _ = try await actor.createBudgetPlan(preceding)
+
+        await #expect(
+            throws: DataValidationError.accountingCurrencyMismatch(
+                expected: "USD",
+                actual: "CNY"
+            )
+        ) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: makeBudgetPlan(
+                    start: precedingEnd,
+                    end: transitionEnd,
+                    currencyCode: "CNY"
+                ),
+                firstRegular: makeBudgetPlan(
+                    start: transitionEnd,
+                    end: regularEnd,
+                    currencyCode: "CNY"
+                )
+            )
+        }
+        await #expect(throws: DataValidationError.identityMismatch) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: makeBudgetPlan(
+                    id: preceding.id,
+                    start: precedingEnd,
+                    end: transitionEnd
+                ),
+                firstRegular: makeBudgetPlan(start: transitionEnd, end: regularEnd)
+            )
+        }
+        #expect(try await actor.fetchBudgetPlanSummaries().map(\.id) == [preceding.id])
+    }
+
+    @Test
     func sampleReplacementRollsBackWhenAnyInsertFails() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let original = makeExpense()
@@ -384,14 +560,20 @@ struct DataActorTests {
         )
     }
 
-    private func makeBudgetPlan(start: Date, end: Date, currencyCode: String = "USD") -> BudgetPlanDraft {
+    private func makeBudgetPlan(
+        id: UUID = UUID(),
+        start: Date,
+        end: Date,
+        currencyCode: String = "USD",
+        totalBudgetMinorUnits: Int64 = 120_000
+    ) -> BudgetPlanDraft {
         BudgetPlanDraft(
-            id: UUID(),
+            id: id,
             cycleStart: start,
             cycleEnd: end,
             currencyCode: currencyCode,
             monthlyIncomeMinorUnits: 100_000,
-            totalBudgetMinorUnits: 120_000,
+            totalBudgetMinorUnits: totalBudgetMinorUnits,
             fixedExpensesMinorUnits: 80_000,
             savingGoalMinorUnits: 50_000,
             createdAt: fixedDate,

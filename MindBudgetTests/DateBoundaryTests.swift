@@ -204,6 +204,33 @@ struct DateBoundaryTests {
     }
 
     @Test
+    func previewingFutureCoverageNeverPersistsGeneratedPlans() async throws {
+        let calendar = TestFixtures.utcCalendar
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let initial = plan(
+            start: date(2026, 1, 1, calendar: calendar),
+            end: date(2026, 2, 1, calendar: calendar),
+            timestamp: date(2026, 1, 1, calendar: calendar)
+        )
+        _ = try await actor.createBudgetPlan(initial)
+
+        let preview = try await actor.previewPlanCoverage(
+            date: date(2026, 4, 20, calendar: calendar),
+            futureCycleStartDay: 1,
+            calendar: calendar
+        )
+        let plansAfterPreview = try await actor.fetchBudgetPlanSummaries()
+
+        guard case let .covered(projectedPlan) = preview else {
+            Issue.record("Expected a projected future plan")
+            return
+        }
+        #expect(projectedPlan.cycleStart == date(2026, 4, 1, calendar: calendar))
+        #expect(projectedPlan.cycleEnd == date(2026, 5, 1, calendar: calendar))
+        #expect(plansAfterPreview.map(\.id) == [initial.id])
+    }
+
+    @Test
     func transitionBudgetNeverPropagatesIntoTheFirstRegularCycle() async throws {
         let calendar = TestFixtures.utcCalendar
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()

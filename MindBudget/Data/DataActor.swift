@@ -15,7 +15,14 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidCoolingOffPlan
     case invalidReminderEvent
     case merchantAggregateOverflow
+    case identityMismatch
+    case invalidBudgetTransition
     case modelNotFound
+}
+
+private struct BudgetPlanCoverageResolution {
+    let coverage: BudgetPlanCoverage
+    let generatedDrafts: [BudgetPlanDraft]
 }
 
 @ModelActor
@@ -27,9 +34,66 @@ actor DataActor {
         }
     }
 
+    func updateExpense(id: UUID, with draft: ExpenseDraft) throws -> ExpenseSummary {
+        try commit {
+            guard id == draft.id else { throw DataValidationError.identityMismatch }
+            guard let expense = try fetchExpense(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            try validateExpense(draft)
+            try validateAccountingCurrency(draft.amount.currencyCode)
+
+            let previousNormalizedName = expense.normalizedMerchantName
+            let nextNormalizedName = draft.merchantName.flatMap(normalizedMerchantName)
+            expense.amountMinorUnits = draft.amount.minorUnits
+            expense.currencyCode = draft.amount.currencyCode
+            expense.categoryRaw = draft.category.rawValue
+            expense.bucketRaw = draft.bucket.rawValue
+            expense.merchantName = draft.merchantName
+            expense.normalizedMerchantName = nextNormalizedName
+            expense.note = draft.note
+            expense.spentAt = draft.spentAt
+            expense.spentTimeZoneIdentifier = draft.spentTimeZoneIdentifier
+            expense.updatedAt = draft.updatedAt
+            expense.paymentMethodRaw = draft.paymentMethod?.rawValue
+            expense.emotionTagRaw = draft.emotionTag?.rawValue
+            expense.purchaseReasonRaw = draft.purchaseReason?.rawValue
+            expense.isPlanned = draft.isPlanned
+            expense.isRecurring = draft.isRecurring
+            expense.sourceRaw = draft.source.rawValue
+            expense.allowMerchantIndexing = draft.allowMerchantIndexing
+
+            if let previousNormalizedName, previousNormalizedName != nextNormalizedName {
+                try rebuildMerchant(normalizedName: previousNormalizedName)
+            }
+            if let nextNormalizedName {
+                try rebuildMerchant(normalizedName: nextNormalizedName)
+            }
+            return try expenseSummary(expense)
+        }
+    }
+
     func fetchExpenseSummaries() throws -> [ExpenseSummary] {
         let descriptor = FetchDescriptor<Expense>(sortBy: [SortDescriptor(\Expense.spentAt, order: .reverse)])
         return try modelContext.fetch(descriptor).map { try expenseSummary($0) }
+    }
+
+    func fetchExpenseDetail(id: UUID) throws -> ExpenseDetail? {
+        guard let expense = try fetchExpense(id: id) else { return nil }
+        return try expenseDetail(expense)
+    }
+
+    func fetchExpenseIDsWithNotes(matching searchText: String) throws -> Set<UUID> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        let expenses = try modelContext.fetch(FetchDescriptor<Expense>())
+        return Set(
+            expenses.compactMap { expense in
+                expense.note?.localizedCaseInsensitiveContains(query) == true
+                    ? expense.id
+                    : nil
+            }
+        )
     }
 
     func deleteExpense(id: UUID) throws {
@@ -62,9 +126,53 @@ actor DataActor {
         }
     }
 
+    func createBudgetPlanTransition(
+        transition: BudgetPlanDraft,
+        firstRegular: BudgetPlanDraft
+    ) throws -> [BudgetPlanSummary] {
+        try commit {
+            guard transition.cycleEnd == firstRegular.cycleStart,
+                  transition.currencyCode == firstRegular.currencyCode else {
+                throw DataValidationError.invalidBudgetTransition
+            }
+            try validateBudgetPlan(transition)
+            try validateBudgetPlan(firstRegular)
+            try validateAccountingCurrency(transition.currencyCode)
+
+            let descriptor = FetchDescriptor<BudgetPlan>(
+                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+            )
+            let existing = try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
+            guard existing.last?.cycleEnd == transition.cycleStart else {
+                throw DataValidationError.invalidBudgetTransition
+            }
+
+            let factory = BudgetPlanFactory()
+            let candidates = [factory.summary(from: transition), factory.summary(from: firstRegular)]
+            try BudgetCycleCalculator().validateNonOverlapping(existing + candidates)
+            try validateNewBudgetIdentities(candidates, against: existing)
+
+            let plans = [materializeBudgetPlan(transition), materializeBudgetPlan(firstRegular)]
+            return try plans.map { try budgetPlanSummary($0) }
+        }
+    }
+
     func fetchBudgetPlanSummaries() throws -> [BudgetPlanSummary] {
         let descriptor = FetchDescriptor<BudgetPlan>(sortBy: [SortDescriptor(\BudgetPlan.cycleStart)])
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
+    }
+
+    func previewPlanCoverage(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar
+    ) throws -> BudgetPlanCoverage {
+        try resolvePlanCoverage(
+            date: date,
+            futureCycleStartDay: futureCycleStartDay,
+            calendar: calendar,
+            timestamp: .distantPast
+        ).coverage
     }
 
     func ensurePlanCovering(
@@ -73,97 +181,128 @@ actor DataActor {
         calendar: Calendar,
         timestamp: Date
     ) throws -> BudgetPlanCoverage {
-        try commit {
-            let descriptor = FetchDescriptor<BudgetPlan>(
-                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+        let resolution = try resolvePlanCoverage(
+            date: date,
+            futureCycleStartDay: futureCycleStartDay,
+            calendar: calendar,
+            timestamp: timestamp
+        )
+        guard !resolution.generatedDrafts.isEmpty else {
+            return resolution.coverage
+        }
+        return try commit {
+            for draft in resolution.generatedDrafts {
+                _ = materializeBudgetPlan(draft)
+            }
+            return resolution.coverage
+        }
+    }
+
+    private func resolvePlanCoverage(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar,
+        timestamp: Date
+    ) throws -> BudgetPlanCoverageResolution {
+        let descriptor = FetchDescriptor<BudgetPlan>(
+            sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+        )
+        let storedPlans = try modelContext.fetch(descriptor)
+        guard !storedPlans.isEmpty else {
+            return BudgetPlanCoverageResolution(coverage: .unconfigured, generatedDrafts: [])
+        }
+
+        let calculator = BudgetCycleCalculator()
+        let factory = BudgetPlanFactory()
+        let existing = try storedPlans.map { try budgetPlanSummary($0) }
+        try calculator.validateNonOverlapping(existing)
+
+        if let covered = existing.first(where: {
+            $0.cycleStart <= date && date < $0.cycleEnd
+        }) {
+            return BudgetPlanCoverageResolution(coverage: .covered(covered), generatedDrafts: [])
+        }
+
+        guard let first = existing.first, var previous = existing.last else {
+            return BudgetPlanCoverageResolution(coverage: .unconfigured, generatedDrafts: [])
+        }
+        guard date >= first.cycleStart, date >= previous.cycleEnd else {
+            return BudgetPlanCoverageResolution(
+                coverage: .historicalPlanRequired,
+                generatedDrafts: []
             )
-            let storedPlans = try modelContext.fetch(descriptor)
-            guard !storedPlans.isEmpty else { return .unconfigured }
+        }
 
-            let calculator = BudgetCycleCalculator()
-            let factory = BudgetPlanFactory()
-            let existing = try storedPlans.map { try budgetPlanSummary($0) }
-            try calculator.validateNonOverlapping(existing)
-
-            if let covered = existing.first(where: {
-                $0.cycleStart <= date && date < $0.cycleEnd
-            }) {
-                return .covered(covered)
-            }
-
-            guard let first = existing.first, var previous = existing.last else {
-                return .unconfigured
-            }
-            guard date >= first.cycleStart, date >= previous.cycleEnd else {
-                return .historicalPlanRequired
-            }
-
-            var generatedDrafts: [BudgetPlanDraft] = []
-            while !(previous.cycleStart <= date && date < previous.cycleEnd) {
-                guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
-                    throw BudgetCycleError.generationLimitExceeded(
-                        limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
-                    )
-                }
-                let currentInterval = DateInterval(
-                    start: previous.cycleStart,
-                    end: previous.cycleEnd
+        var generatedDrafts: [BudgetPlanDraft] = []
+        while !(previous.cycleStart <= date && date < previous.cycleEnd) {
+            guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
+                throw BudgetCycleError.generationLimitExceeded(
+                    limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
                 )
-                let advance = try calculator.nextCycle(
-                    after: currentInterval,
+            }
+            let currentInterval = DateInterval(
+                start: previous.cycleStart,
+                end: previous.cycleEnd
+            )
+            let advance = try calculator.nextCycle(
+                after: currentInterval,
+                startDay: futureCycleStartDay,
+                calendar: calendar
+            )
+            switch advance.confirmationReason {
+            case .transition:
+                let firstRegularAdvance = try calculator.nextCycle(
+                    after: advance.interval,
                     startDay: futureCycleStartDay,
                     calendar: calendar
                 )
-                switch advance.confirmationReason {
-                case .transition:
-                    let firstRegularAdvance = try calculator.nextCycle(
-                        after: advance.interval,
-                        startDay: futureCycleStartDay,
-                        calendar: calendar
-                    )
-                    guard firstRegularAdvance.confirmationReason
-                            == .firstRegularCycleAfterTransition else {
-                        throw BudgetCycleError.dateCalculationFailed
-                    }
-                    return .transitionPlanRequired(
+                guard firstRegularAdvance.confirmationReason
+                        == .firstRegularCycleAfterTransition else {
+                    throw BudgetCycleError.dateCalculationFailed
+                }
+                return BudgetPlanCoverageResolution(
+                    coverage: .transitionPlanRequired(
                         BudgetPlanTransitionRequirement(
                             interval: advance.interval,
                             firstRegularInterval: firstRegularAdvance.interval,
                             precedingPlan: previous,
                             futureCycleStartDay: futureCycleStartDay
                         )
-                    )
-                case .firstRegularCycleAfterTransition:
-                    return .firstRegularPlanRequired(
+                    ),
+                    generatedDrafts: []
+                )
+            case .firstRegularCycleAfterTransition:
+                return BudgetPlanCoverageResolution(
+                    coverage: .firstRegularPlanRequired(
                         BudgetPlanFirstRegularRequirement(
                             interval: advance.interval,
                             futureCycleStartDay: futureCycleStartDay
                         )
-                    )
-                case nil:
-                    break
-                }
-                let draft = try factory.makePlan(
-                    copying: previous,
-                    interval: advance.interval,
-                    planID: UUID(),
-                    categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
-                    timestamp: timestamp
+                    ),
+                    generatedDrafts: []
                 )
-                generatedDrafts.append(draft)
-                previous = factory.summary(from: draft)
+            case nil:
+                break
             }
-
-            try validateAccountingCurrency(previous.currencyCode)
-            for draft in generatedDrafts {
-                try validateBudgetPlan(draft)
-            }
-            for draft in generatedDrafts {
-                _ = materializeBudgetPlan(draft)
-            }
-
-            return .covered(previous)
+            let draft = try factory.makePlan(
+                copying: previous,
+                interval: advance.interval,
+                planID: UUID(),
+                categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
+                timestamp: timestamp
+            )
+            generatedDrafts.append(draft)
+            previous = factory.summary(from: draft)
         }
+
+        try validateAccountingCurrency(previous.currencyCode)
+        for draft in generatedDrafts {
+            try validateBudgetPlan(draft)
+        }
+        return BudgetPlanCoverageResolution(
+            coverage: .covered(previous),
+            generatedDrafts: generatedDrafts
+        )
     }
 
     func createWishItem(_ draft: WishItemDraft) throws -> WishItemSummary {
@@ -530,6 +669,22 @@ actor DataActor {
         }
     }
 
+    private func validateNewBudgetIdentities(
+        _ candidates: [BudgetPlanSummary],
+        against existing: [BudgetPlanSummary]
+    ) throws {
+        let existingIDs = Set(existing.flatMap { plan in
+            [plan.id] + plan.categoryBudgets.map(\.id)
+        })
+        let candidateIDs = candidates.flatMap { plan in
+            [plan.id] + plan.categoryBudgets.map(\.id)
+        }
+        guard Set(candidateIDs).count == candidateIDs.count,
+              existingIDs.isDisjoint(with: candidateIDs) else {
+            throw DataValidationError.identityMismatch
+        }
+    }
+
     private func validateAccountingCurrency(_ currencyCode: String) throws {
         guard Money.isSupported(currencyCode) else {
             throw DataValidationError.unsupportedCurrency(currencyCode)
@@ -679,13 +834,6 @@ actor DataActor {
     }
 
     private func expenseSummary(_ expense: Expense) throws -> ExpenseSummary {
-        _ = try persistedEnumIfPresent(
-            PaymentMethod.self,
-            rawValue: expense.paymentMethodRaw,
-            entity: "Expense",
-            id: expense.id,
-            field: "paymentMethodRaw"
-        )
         return ExpenseSummary(
             id: expense.id,
             amount: try persistedMoney(
@@ -711,6 +859,15 @@ actor DataActor {
             merchantName: expense.merchantName,
             spentAt: expense.spentAt,
             spentTimeZoneIdentifier: expense.spentTimeZoneIdentifier,
+            createdAt: expense.createdAt,
+            updatedAt: expense.updatedAt,
+            paymentMethod: try persistedEnumIfPresent(
+                PaymentMethod.self,
+                rawValue: expense.paymentMethodRaw,
+                entity: "Expense",
+                id: expense.id,
+                field: "paymentMethodRaw"
+            ),
             emotionTag: try persistedEnumIfPresent(
                 EmotionTag.self,
                 rawValue: expense.emotionTagRaw,
@@ -725,14 +882,21 @@ actor DataActor {
                 id: expense.id,
                 field: "purchaseReasonRaw"
             ),
+            isPlanned: expense.isPlanned,
+            isRecurring: expense.isRecurring,
             source: try persistedEnum(
                 ExpenseSource.self,
                 rawValue: expense.sourceRaw,
                 entity: "Expense",
                 id: expense.id,
                 field: "sourceRaw"
-            )
+            ),
+            allowMerchantIndexing: expense.allowMerchantIndexing
         )
+    }
+
+    private func expenseDetail(_ expense: Expense) throws -> ExpenseDetail {
+        ExpenseDetail(summary: try expenseSummary(expense), note: expense.note)
     }
 
     private func budgetPlanSummary(_ plan: BudgetPlan) throws -> BudgetPlanSummary {

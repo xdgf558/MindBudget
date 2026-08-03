@@ -398,9 +398,15 @@ struct BudgetEngineTests {
             merchantName: nil,
             spentAt: date,
             spentTimeZoneIdentifier: "UTC",
+            createdAt: date,
+            updatedAt: date,
+            paymentMethod: nil,
             emotionTag: nil,
             purchaseReason: nil,
-            source: .manual
+            isPlanned: false,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: false
         )
     }
 

@@ -286,3 +286,89 @@ directly rather than reintroducing floating-point money paths.
 
 Files affected: budget/cycle/formatting services, `DataActor`, Phase 2 tests, project
 memory, and the authoritative development contract.
+
+---
+
+## 2026-08-03 — Drive Phase 3 UI from value projections and exact localized input
+
+Context: Phase 3 needed responsive SwiftUI screens without moving SwiftData models or
+write authority onto the main actor. Manual amount text could contain locale-specific
+digits and separators, and a user-selected expense date could belong to a different
+budget cycle from today. The shortened transition and first regular cycle also had to be
+confirmed without allowing a partial save or accidental amount propagation.
+
+Decision: `AppSession` owns the controller's shared `DataActor`; feature view models read
+Sendable summaries and signal a revision only after successful actor writes. Dashboard
+and list projections reload on that revision and when the app becomes active, covering
+both in-app edits and later external integrations without exposing `@Model` instances to
+views. Manual amounts accept validated locale digits and grouping but must map exactly to
+the accounting currency's minor-unit exponent; extra precision and malformed grouping are
+rejected rather than rounded or reinterpreted. Expense impact and cycle coverage use the
+selected `spentAt` date, and save rechecks coverage. Transition and first-regular drafts
+commit together through one `DataActor` transaction; recovery of a lone transition keeps
+the regular-period fields blank and requires explicit confirmation.
+
+Alternatives considered: Letting views write through `ModelContext`, using binary
+floating-point text parsing, silently rounding fractional minor units, calculating every
+expense against today's cycle, polling the store, saving transition plans one at a time,
+and copying a reduced short-period amount into the regular cycle.
+
+Consequences: All Phase 3 mutations preserve the actor boundary and merchant aggregates.
+The UI refresh contract is explicit and testable, while later App Intents can become
+visible on foreground activation. Pasted amounts that do not follow the active locale's
+grouping are rejected with a friendly field error instead of being saved as a different
+number. A historical date with no plan may still be recorded, but no budget impact is
+invented. Future phases must continue to notify the app session after in-process writes
+and keep system-integration writes behind `DataActor`.
+
+Files affected: app routing/session state, Phase 3 feature views and view models,
+`DataActor`, localized resources, and Phase 3 unit/UI tests.
+
+---
+
+## 2026-08-03 — Keep expense preview read-only and raw notes out of general projections
+
+Context: A Phase 3 review found that changing the expense date called the mutating
+`ensurePlanCovering`, so a DatePicker gesture could persist future budget plans even when
+the form was cancelled. The same review found that adding raw notes to the general
+`ExpenseSummary` projection weakened the Phase 7 privacy boundary, and that the UI-test
+reset launch argument remained compiled into Release. The expense form also collapsed
+unconfigured, historical, transition, and load-failure states into one misleading label.
+
+Decision: `previewPlanCoverage` computes the same coverage or projected copied plan without
+materializing drafts or saving the model context. Interactive date previews use only that
+API and are debounced by a cancellable view task. `ensurePlanCovering` remains the explicit
+write path used by Dashboard lifecycle work and immediately before expense persistence; it
+does not call `save()` when no plan needs insertion. Expense recording remains available
+when no plan exists or a transition/first-regular budget awaits confirmation, but the form
+shows a truthful typed context and never invents an impact value. Raw notes are absent from
+`ExpenseSummary`; only `ExpenseDetail` exposes one requested note, while note search runs
+inside `DataActor` and returns matching expense IDs. Phase 7 redaction must accept only
+allow-listed aggregate inputs and must never accept `ExpenseDetail`. The UI-test reset hook
+is compiled only under `#if DEBUG`.
+
+Amount reasonableness remains relative to a user-confirmed period budget: the dismissible
+check appears only when an entry exceeds that entire budget. An unconfigured store has no
+currency-neutral personal baseline, so it receives no invented purchasing-power threshold;
+sign, precision, locale syntax, and the storage-safety boundary are still validated. Extra
+fraction digits now receive their own field error, and locale grouping rules are cached per
+locale instead of constructing a formatter for every grouped keystroke. Accounting-currency
+mismatch, corrupt persisted data, and excessive future-plan generation retain typed UI
+errors. Swipe deletion remains immediate as the standard list gesture, while the explicit
+detail-screen delete keeps a confirmation dialog.
+
+Alternatives considered: Allowing preview requests to persist and relying on request IDs,
+passing raw notes through every summary and trusting future callers, inventing a fixed soft
+amount threshold for every currency, blocking expense capture until every budget transition
+is confirmed, shipping the test reset hook in Release, and flattening every actor error into
+one save-failed message.
+
+Consequences: Cancelling or scrubbing the expense date cannot change stored budgets. Budget
+generation stays explicit and atomic, while future-date impact can still use an in-memory
+copied projection. Engine and list consumers cannot accidentally receive raw notes through
+their common summary type. Detail/edit and note search perform targeted actor reads. Pending
+budget states remain visible without preventing factual expense capture, and Phase 7 has a
+compile-time-narrower privacy input surface.
+
+Files affected: `DataActor`, expense projections and Phase 3 views, app environment,
+localized copy, Phase 3/data/date tests, privacy acceptance criteria, and project memory.

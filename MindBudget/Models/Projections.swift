@@ -8,9 +8,20 @@ struct ExpenseSummary: Hashable, Sendable {
     let merchantName: String?
     let spentAt: Date
     let spentTimeZoneIdentifier: String
+    let createdAt: Date
+    let updatedAt: Date
+    let paymentMethod: PaymentMethod?
     let emotionTag: EmotionTag?
     let purchaseReason: PurchaseReason?
+    let isPlanned: Bool
+    let isRecurring: Bool
     let source: ExpenseSource
+    let allowMerchantIndexing: Bool
+}
+
+struct ExpenseDetail: Hashable, Sendable {
+    let summary: ExpenseSummary
+    let note: String?
 }
 
 struct BudgetPlanSummary: Hashable, Sendable {
