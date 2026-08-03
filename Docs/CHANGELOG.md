@@ -18,6 +18,11 @@
   deterministic new-user, three-month, end-of-cycle, and overspent sample data.
 - State-machine enforcement for wishlist transitions and persistence tests for
   restart durability, cascade deletion, and weak purchase links.
+- Pure budget snapshot and purchase-impact calculations with checked minor-unit
+  arithmetic, category risk, and explicit unconfigured behavior.
+- Calendar-injected budget cycles with month-end/DST handling, contiguous lazy future-
+  plan generation, and immutable historical boundaries.
+- Locale-aware currency formatting for supported fractional and zero-exponent currencies.
 
 ### Changed
 
@@ -33,6 +38,8 @@
   state remains free of binary floating-point values.
 - Replaced the purchasing-power-sensitive one-million-major-unit cap with a
   currency-neutral minor-unit safety limit.
+- Defined future cycle-start changes as a contiguous transition cycle followed by the
+  new cadence, without rewriting an existing plan.
 
 ### Fixed
 

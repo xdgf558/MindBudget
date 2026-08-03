@@ -50,6 +50,8 @@ app's private data are forbidden in V1.
   ratios in `Decimal` until a presentation-only conversion is explicitly required.
 - A populated V1 store has one locked accounting currency.
 - A budget cycle is `[cycleStart, cycleEnd)` and may differ from a calendar month.
+- Existing cycle boundaries are immutable. A changed future start day creates one
+  contiguous transition cycle when needed, then resumes the new monthly cadence.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
@@ -77,13 +79,13 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 and 1 are complete. The app now opens a versioned persistent SwiftData
-store containing all nine V1 model types. `Money`, domain enums, wishlist transition
-rules, reminder projections, settings/configuration codecs, and four deterministic
-sample scenarios are implemented. Each controller owns one `DataActor`; all app model
-writes use it and callers receive only Sendable value projections. Persisted currency
-and enum corruption is surfaced without a crash or semantic fallback, sample replacement
-rolls back on failure, and merchant aggregates follow expense creates/deletes. Store-open
-failure presents a retryable recovery view without deleting data. Local validation
-covers these contracts plus localization on the recorded iOS 26.5 simulator. Phase 2
-budget calculations have not started.
+Phases 0 through 2 are complete. The app opens a versioned persistent SwiftData store
+containing all nine V1 model types, with actor-isolated writes and Sendable projections.
+The pure `BudgetEngine` now calculates configured and unconfigured snapshots, fixed and
+saving reservations, safe daily spend, purchase impact, and category risk using checked
+`Int64` and `Decimal` arithmetic. Calendar-injected cycle calculation covers custom start
+days, month-end clamping, leap years, DST, immutable historical boundaries, and contiguous
+lazy future-plan generation. Currency formatting respects each supported currency's
+minor-unit exponent. Local validation covers these contracts, persistence, corruption
+handling, settings, and English/Simplified Chinese rendering on the recorded iOS 26.5
+simulator. Phase 3 UI and manual expense flows have not started.

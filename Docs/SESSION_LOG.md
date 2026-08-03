@@ -168,3 +168,38 @@ Known issues: A real App Icon and real iOS 17 runtime validation remain deferred
 release preparation.
 
 Next suggested task: Push this closeout to PR #3, review CI, merge, then begin Phase 2.
+
+## 2026-08-03 — Session 7 — Phase 2 budget engine and cycle math
+
+Goal: Implement the deterministic budget calculation layer, calendar-safe cycle
+boundaries, lazy future-plan generation, and currency formatting without starting
+Phase 3 UI work.
+
+Files changed: budget/cycle/formatting services, Sendable data projections, `DataActor`,
+Phase 2 tests and project wiring, decision/task/test/memory/changelog documents, and the
+authoritative development contract.
+
+What was completed: Added configured and unconfigured budget snapshots, authoritative
+fixed/saving reservation formulas, safe daily spend, purchase impact, category risk,
+checked overflow and currency validation using only `Int64`/`Decimal`. Added natural and
+custom budget cycles, day-31 clamping, recorded-time-zone hour extraction, immutable
+history, contiguous transition cycles after future setting changes, overlap/identity
+guards, and atomic lazy plan creation through `DataActor`. Added locale-aware formatting
+for fractional and zero-exponent currencies and reconciled the service contract with
+Sendable summaries and optional unconfigured metrics.
+
+What was NOT completed: Phase 3 onboarding, Dashboard, expense-entry UI, and presentation
+formatting are intentionally untouched. Cooling-off countdown behavior remains Phase 4;
+Phase 2 covers the underlying DST-safe calendar boundaries only.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 62 Swift Testing tests and 2 localized UI tests, 0 failures
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation.
+
+Next suggested task: Commit and push the Phase 2 branch, open it for review, then begin
+Phase 3 only after merge.

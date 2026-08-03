@@ -234,3 +234,37 @@ eligible expenses rather than treating the existence of a `Merchant` row as cons
 
 Files affected: `Expense`, `DataActor`, merchant persistence tests, privacy plans, and
 Phase 8A acceptance criteria.
+
+---
+
+## 2026-08-03 — Keep budget calculation value-based and make future cycle changes contiguous
+
+Context: The Phase 2 service sketch mixed a non-Sendable SwiftData `BudgetPlan` with a
+pure `Sendable` engine, declared nonoptional snapshot amounts despite requiring every
+budget-dependent value to be absent when no plan exists, and used binary floating-point
+ratio outputs despite the exact-money policy. Changing a cycle start day also needed a
+deterministic boundary between immutable history and the new cadence.
+
+Decision: `BudgetEngine` accepts `ExpenseSummary` and optional `BudgetPlanSummary` values,
+an explicit accounting currency, reference date, and calendar. Configured calculations
+use checked `Int64`; ratios remain `Decimal`; invalid cycles, currency mismatches, and
+overflow throw typed errors. An unconfigured snapshot preserves cycle/currency identity
+while every budget-dependent numeric field, including days remaining, is `nil`. Category
+spend is included in the snapshot so purchase risk is computed without persistence access.
+For lazy roll-forward, each new plan starts exactly at the previous immutable end. If a
+new start day does not match that end, the first generated plan is a shorter transition
+cycle ending at the next canonical boundary; later plans follow the new cadence.
+
+Alternatives considered: Passing `@Model` instances into the engine, representing no
+budget as zero, returning `Double` ratios, silently wrapping arithmetic, moving category
+risk queries into the engine, recomputing historical boundaries, or allowing gaps between
+the old and new cycle cadence.
+
+Consequences: The engine remains actor-independent, deterministic, and honest about
+missing configuration. Phase 3 must unwrap configured metrics and render an explicit
+setup state. DataActor owns projection and atomic lazy-plan insertion; callers supply the
+current future start-day setting and calendar. Presentation code formats `Decimal`
+directly rather than reintroducing floating-point money paths.
+
+Files affected: budget/cycle/formatting services, `DataActor`, Phase 2 tests, project
+memory, and the authoritative development contract.

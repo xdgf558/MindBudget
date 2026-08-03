@@ -67,6 +67,61 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
     }
 
+    func ensurePlanCovering(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar,
+        timestamp: Date
+    ) throws -> BudgetPlanCoverage {
+        try commit {
+            let descriptor = FetchDescriptor<BudgetPlan>(
+                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+            )
+            let storedPlans = try modelContext.fetch(descriptor)
+            guard !storedPlans.isEmpty else { return .unconfigured }
+
+            let calculator = BudgetCycleCalculator()
+            let factory = BudgetPlanFactory()
+            let existing = try storedPlans.map { try budgetPlanSummary($0) }
+            try calculator.validateNonOverlapping(existing)
+
+            if let covered = existing.first(where: {
+                $0.cycleStart <= date && date < $0.cycleEnd
+            }) {
+                return .covered(covered)
+            }
+
+            guard let first = existing.first, var previous = existing.last else {
+                return .unconfigured
+            }
+            guard date >= first.cycleStart, date >= previous.cycleEnd else {
+                return .historicalPlanRequired
+            }
+
+            while !(previous.cycleStart <= date && date < previous.cycleEnd) {
+                let currentInterval = DateInterval(
+                    start: previous.cycleStart,
+                    end: previous.cycleEnd
+                )
+                let nextInterval = try calculator.nextInterval(
+                    after: currentInterval,
+                    startDay: futureCycleStartDay,
+                    calendar: calendar
+                )
+                let draft = try factory.makePlan(
+                    copying: previous,
+                    interval: nextInterval,
+                    planID: UUID(),
+                    categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
+                    timestamp: timestamp
+                )
+                previous = try budgetPlanSummary(insertBudgetPlan(draft))
+            }
+
+            return .covered(previous)
+        }
+    }
+
     func createWishItem(_ draft: WishItemDraft) throws -> WishItemSummary {
         try commit {
             let wishItem = try insertWishItem(draft)

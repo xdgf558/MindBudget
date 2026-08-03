@@ -43,6 +43,12 @@ struct BudgetPlanDraft: Sendable {
     let categoryBudgets: [CategoryBudgetDraft]
 }
 
+enum BudgetPlanCoverage: Equatable, Sendable {
+    case unconfigured
+    case covered(BudgetPlanSummary)
+    case historicalPlanRequired
+}
+
 struct WishItemDraft: Sendable {
     let id: UUID
     let name: String
