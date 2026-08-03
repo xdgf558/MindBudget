@@ -77,6 +77,16 @@ struct ReminderEventSummary: Hashable, Sendable {
     let respondedAt: Date?
 }
 
+struct MerchantSummary: Hashable, Sendable {
+    let id: UUID
+    let normalizedName: String
+    let displayName: String
+    let primaryCategory: ExpenseCategory?
+    let visitCount: Int
+    let lastVisitedAt: Date?
+    let totalMinorUnitsAllTime: Int64
+}
+
 struct ModelCounts: Equatable, Sendable {
     let expenses: Int
     let budgetPlans: Int

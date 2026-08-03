@@ -39,7 +39,11 @@ struct PreferencesSnapshot: Equatable, Sendable {
 
 @MainActor
 final class SettingsStore: ObservableObject {
-    @AppStorage var currencyCode: String
+    static let maximumDailyInterruptions = 2
+
+    @AppStorage var currencyCode: String {
+        didSet { reloadRuleConfiguration() }
+    }
     @AppStorage var enableGentleReminders: Bool
     @AppStorage var enableLocalNotifications: Bool
     @AppStorage var enableAIEnhancement: Bool
@@ -50,14 +54,20 @@ final class SettingsStore: ObservableObject {
     @AppStorage var quietHoursStartHour: Int
     @AppStorage var quietHoursEndHour: Int
     @AppStorage var quietHoursEnabled: Bool
-    @AppStorage var maxDailyInterruptions: Int
+    @AppStorage private var storedMaxDailyInterruptions: Int
     @AppStorage var indexMerchantNames: Bool
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
-    @AppStorage var categoryBucketOverridesJSON: Data
-    @AppStorage var ruleConfigurationJSON: Data
+    @AppStorage private(set) var categoryBucketOverridesJSON: Data
+    @AppStorage var ruleConfigurationJSON: Data {
+        didSet { reloadRuleConfiguration() }
+    }
 
     @Published private(set) var configurationDiagnostic: String?
+    private var cachedBucketOverrides: [ExpenseCategory: BudgetBucket]
+    private var cachedRuleConfiguration: RuleConfiguration
+    private var bucketConfigurationDiagnostic: String?
+    private var ruleConfigurationDiagnostic: String?
 
     init(defaults: UserDefaults = .standard) {
         _currencyCode = AppStorage(wrappedValue: "", "currencyCode", store: defaults)
@@ -71,13 +81,19 @@ final class SettingsStore: ObservableObject {
         _quietHoursStartHour = AppStorage(wrappedValue: 21, "quietHoursStartHour", store: defaults)
         _quietHoursEndHour = AppStorage(wrappedValue: 9, "quietHoursEndHour", store: defaults)
         _quietHoursEnabled = AppStorage(wrappedValue: true, "quietHoursEnabled", store: defaults)
-        _maxDailyInterruptions = AppStorage(wrappedValue: 2, "maxDailyInterruptions", store: defaults)
+        _storedMaxDailyInterruptions = AppStorage(wrappedValue: 2, "maxDailyInterruptions", store: defaults)
         _indexMerchantNames = AppStorage(wrappedValue: false, "indexMerchantNames", store: defaults)
         _firstLaunchCompleted = AppStorage(wrappedValue: false, "firstLaunchCompleted", store: defaults)
         _budgetCycleStartDay = AppStorage(wrappedValue: 1, "budgetCycleStartDay", store: defaults)
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)
         _ruleConfigurationJSON = AppStorage(wrappedValue: Data(), "ruleConfigurationJSON", store: defaults)
         configurationDiagnostic = nil
+        cachedBucketOverrides = [:]
+        cachedRuleConfiguration = RuleConfiguration.defaults(currencyCode: "USD")
+        bucketConfigurationDiagnostic = nil
+        ruleConfigurationDiagnostic = nil
+        reloadBucketOverrides()
+        reloadRuleConfiguration()
     }
 
     var reminderTone: ReminderTone {
@@ -92,8 +108,17 @@ final class SettingsStore: ObservableObject {
             quietHours: quietHoursEnabled
                 ? try? QuietHours(startHour: quietHoursStartHour, endHour: quietHoursEndHour)
                 : nil,
-            maxDailyInterruptions: min(max(maxDailyInterruptions, 0), 2)
+            maxDailyInterruptions: maxDailyInterruptions
         )
+    }
+
+    var maxDailyInterruptions: Int {
+        get {
+            min(max(storedMaxDailyInterruptions, 0), Self.maximumDailyInterruptions)
+        }
+        set {
+            storedMaxDailyInterruptions = min(max(newValue, 0), Self.maximumDailyInterruptions)
+        }
     }
 
     func bucket(for category: ExpenseCategory) -> BudgetBucket {
@@ -101,7 +126,16 @@ final class SettingsStore: ObservableObject {
     }
 
     func bucketOverrides() -> [ExpenseCategory: BudgetBucket] {
-        guard !categoryBucketOverridesJSON.isEmpty else { return [:] }
+        cachedBucketOverrides
+    }
+
+    func reloadBucketOverrides() {
+        guard !categoryBucketOverridesJSON.isEmpty else {
+            cachedBucketOverrides = [:]
+            bucketConfigurationDiagnostic = nil
+            refreshConfigurationDiagnostic()
+            return
+        }
 
         do {
             let rawOverrides = try SettingsCodec.decode(
@@ -116,12 +150,13 @@ final class SettingsStore: ObservableObject {
                 guard bucket != category.defaultBucket else { return }
                 result[category] = bucket
             }
-            configurationDiagnostic = nil
-            return overrides
+            cachedBucketOverrides = overrides
+            bucketConfigurationDiagnostic = nil
         } catch {
-            configurationDiagnostic = "categoryBucketOverrides: \(error)"
-            return [:]
+            cachedBucketOverrides = [:]
+            bucketConfigurationDiagnostic = "categoryBucketOverrides: \(error)"
         }
+        refreshConfigurationDiagnostic()
     }
 
     func saveBucketOverrides(_ overrides: [ExpenseCategory: BudgetBucket]) throws {
@@ -131,13 +166,27 @@ final class SettingsStore: ObservableObject {
         }
         let encoded = try SettingsCodec.encode(rawOverrides)
         categoryBucketOverridesJSON = encoded
-        configurationDiagnostic = nil
+        cachedBucketOverrides = overrides.reduce(into: [:]) { result, entry in
+            guard entry.value != entry.key.defaultBucket else { return }
+            result[entry.key] = entry.value
+        }
+        bucketConfigurationDiagnostic = nil
+        refreshConfigurationDiagnostic()
     }
 
     func ruleConfiguration() -> RuleConfiguration {
+        cachedRuleConfiguration
+    }
+
+    func reloadRuleConfiguration() {
         let fallbackCurrency = Money.isSupported(currencyCode) ? currencyCode : "USD"
         let fallback = RuleConfiguration.defaults(currencyCode: fallbackCurrency)
-        guard !ruleConfigurationJSON.isEmpty else { return fallback }
+        guard !ruleConfigurationJSON.isEmpty else {
+            cachedRuleConfiguration = fallback
+            ruleConfigurationDiagnostic = nil
+            refreshConfigurationDiagnostic()
+            return
+        }
 
         do {
             let configuration = try SettingsCodec.decode(
@@ -145,12 +194,13 @@ final class SettingsStore: ObservableObject {
                 from: ruleConfigurationJSON
             )
             try configuration.validate(accountingCurrencyCode: fallbackCurrency)
-            configurationDiagnostic = nil
-            return configuration
+            cachedRuleConfiguration = configuration
+            ruleConfigurationDiagnostic = nil
         } catch {
-            configurationDiagnostic = "ruleConfiguration: \(error)"
-            return fallback
+            cachedRuleConfiguration = fallback
+            ruleConfigurationDiagnostic = "ruleConfiguration: \(error)"
         }
+        refreshConfigurationDiagnostic()
     }
 
     func saveRuleConfiguration(_ configuration: RuleConfiguration) throws {
@@ -160,6 +210,14 @@ final class SettingsStore: ObservableObject {
         try configuration.validate(accountingCurrencyCode: currencyCode)
         let encoded = try SettingsCodec.encode(configuration)
         ruleConfigurationJSON = encoded
-        configurationDiagnostic = nil
+        ruleConfigurationDiagnostic = nil
+        refreshConfigurationDiagnostic()
+    }
+
+    private func refreshConfigurationDiagnostic() {
+        let combined = [bucketConfigurationDiagnostic, ruleConfigurationDiagnostic]
+            .compactMap { $0 }
+            .joined(separator: "; ")
+        configurationDiagnostic = combined.isEmpty ? nil : combined
     }
 }

@@ -91,8 +91,13 @@ struct Money: Hashable, Codable, Sendable, Comparable {
     }
 
     static func maximumMinorUnits(for currencyCode: String) -> Int64 {
-        let scale = NSDecimalNumber(decimal: scale(for: currencyCode)).int64Value
-        return 1_000_000 * scale
+        precondition(isSupported(currencyCode), "Unsupported ISO 4217 currency code")
+
+        // This is a storage-safety limit, not a purchasing-power judgment. Keeping
+        // one million additions of the maximum accepted entry below Int64.max gives
+        // aggregate calculations generous headroom without penalizing low-value
+        // currencies such as KRW, VND, or IDR.
+        return Int64.max / 1_000_000
     }
 
     static func + (lhs: Money, rhs: Money) -> Money {

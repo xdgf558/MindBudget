@@ -27,7 +27,17 @@ struct MoneyTests {
 
         #expect(amount.exponent == 0)
         #expect(amount.minorUnits == 1_234)
-        #expect(Money.maximumMinorUnits(for: "JPY") == 1_000_000)
+    }
+
+    @Test
+    func entryLimitIsCurrencyNeutralAndLeavesAggregationHeadroom() {
+        let expectedLimit = Int64.max / 1_000_000
+
+        #expect(Money.maximumMinorUnits(for: "USD") == expectedLimit)
+        #expect(Money.maximumMinorUnits(for: "JPY") == expectedLimit)
+        #expect(Money.maximumMinorUnits(for: "KRW") == expectedLimit)
+        #expect(Money.maximumMinorUnits(for: "VND") == expectedLimit)
+        #expect(expectedLimit > 1_000_000)
     }
 
     @Test

@@ -6,8 +6,9 @@ import Testing
 struct SettingsStoreTests {
     @Test
     func privacySensitiveSettingsDefaultOff() {
-        let defaults = isolatedDefaults()
-        let store = SettingsStore(defaults: defaults)
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
 
         #expect(store.enableAIEnhancement == false)
         #expect(store.enableSiriIntegration == false)
@@ -19,11 +20,12 @@ struct SettingsStoreTests {
 
     @Test
     func bucketOverridesPersistOnlyDifferencesFromDefaults() throws {
-        let defaults = isolatedDefaults()
-        let store = SettingsStore(defaults: defaults)
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
 
         try store.saveBucketOverrides([.rent: .discretionary, .food: .discretionary])
-        let reloaded = SettingsStore(defaults: defaults)
+        let reloaded = SettingsStore(defaults: fixture.defaults)
 
         #expect(reloaded.bucket(for: .rent) == .discretionary)
         #expect(reloaded.bucket(for: .food) == .discretionary)
@@ -32,8 +34,9 @@ struct SettingsStoreTests {
 
     @Test
     func invalidRuleWriteDoesNotReplaceLastValidConfiguration() throws {
-        let defaults = isolatedDefaults()
-        let store = SettingsStore(defaults: defaults)
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
         store.currencyCode = "USD"
         let valid = RuleConfiguration.defaults(currencyCode: "USD")
         try store.saveRuleConfiguration(valid)
@@ -64,8 +67,9 @@ struct SettingsStoreTests {
 
     @Test
     func corruptedConfigurationFallsBackWithoutDestroyingStoredBytes() {
-        let defaults = isolatedDefaults()
-        let store = SettingsStore(defaults: defaults)
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
         store.currencyCode = "CNY"
         let corrupted = Data("not-json".utf8)
         store.ruleConfigurationJSON = corrupted
@@ -77,8 +81,32 @@ struct SettingsStoreTests {
         #expect(store.configurationDiagnostic != nil)
     }
 
-    private func isolatedDefaults() -> UserDefaults {
+    @Test
+    func dailyInterruptionLimitIsClampedAtTheSettingsBoundary() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+
+        store.maxDailyInterruptions = 99
+        #expect(store.maxDailyInterruptions == SettingsStore.maximumDailyInterruptions)
+        store.maxDailyInterruptions = -1
+        #expect(store.maxDailyInterruptions == 0)
+    }
+
+    private func isolatedDefaults() -> DefaultsFixture {
         let suiteName = "MindBudgetTests.\(UUID().uuidString)"
-        return UserDefaults(suiteName: suiteName)!
+        return DefaultsFixture(
+            suiteName: suiteName,
+            defaults: UserDefaults(suiteName: suiteName)!
+        )
+    }
+
+    private struct DefaultsFixture {
+        let suiteName: String
+        let defaults: UserDefaults
+
+        func cleanup() {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
     }
 }

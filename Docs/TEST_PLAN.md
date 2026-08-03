@@ -135,12 +135,14 @@ a phase pass.
 ## Phase 1 acceptance
 
 Phase 1 tests cover exact minor-unit conversion and bankers rounding, supported
-currency exponents, category defaults, wishlist transition legality, cross-midnight
-quiet hours, privacy-sensitive setting defaults, validated configuration fallback,
-four deterministic sample scenarios, durable store reopening, SwiftData cascade
-deletion, weak expense-link cleanup, and reminder-event scope/risk/response
-projections. All database mutations run through `DataActor`; test assertions receive
-only Sendable value projections.
+currency exponents, the currency-neutral entry boundary, accounting-currency locking,
+budget-cycle overlap rejection, category defaults, wishlist transition legality,
+cross-midnight quiet hours, privacy-sensitive setting defaults, validated configuration
+fallback, four deterministic sample scenarios, durable store reopening, atomic sample
+replacement rollback, SwiftData cascade deletion, weak expense-link cleanup, merchant
+aggregate maintenance, persisted currency/enum corruption errors, and reminder-event
+scope/risk/response projections. Each `DataController` owns one `DataActor`; app test
+assertions receive only Sendable value projections.
 
 ## Continuous integration
 

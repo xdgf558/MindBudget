@@ -1,8 +1,16 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import MindBudget
 
 struct DataActorTests {
+    @Test
+    func dataControllerReusesOneActorInstance() throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+
+        #expect(controller.makeDataActor() === controller.makeDataActor())
+    }
+
     @Test
     func expensePersistsWhenTheContainerIsReopened() async throws {
         let directory = FileManager.default.temporaryDirectory
@@ -133,19 +141,199 @@ struct DataActorTests {
         #expect(result?.response == .acted)
     }
 
+    @Test
+    func accountingCurrencyIsLockedAfterFinancialDataExists() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.createExpense(makeExpense(currencyCode: "USD"))
+
+        await #expect(
+            throws: DataValidationError.accountingCurrencyMismatch(expected: "USD", actual: "CNY")
+        ) {
+            _ = try await actor.createWishItem(makeWish(status: .active, currencyCode: "CNY"))
+        }
+    }
+
+    @Test
+    func overlappingBudgetPlansAreRejected() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let first = makeBudgetPlan(start: fixedDate, end: fixedDate.addingTimeInterval(86_400 * 30))
+        let overlap = makeBudgetPlan(
+            start: fixedDate.addingTimeInterval(86_400 * 15),
+            end: fixedDate.addingTimeInterval(86_400 * 45)
+        )
+        _ = try await actor.createBudgetPlan(first)
+
+        await #expect(throws: DataValidationError.overlappingBudgetPlan) {
+            _ = try await actor.createBudgetPlan(overlap)
+        }
+    }
+
+    @Test
+    func expenseAmountBoundaryAcceptsMaximumAndRejectsOutsideRange() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let maximum = Money.maximumMinorUnits(for: "VND")
+
+        await #expect(throws: DataValidationError.invalidAmount) {
+            _ = try await actor.createExpense(
+                makeExpense(amountMinorUnits: 0, currencyCode: "VND", merchantName: nil)
+            )
+        }
+        await #expect(throws: DataValidationError.invalidAmount) {
+            _ = try await actor.createExpense(
+                makeExpense(amountMinorUnits: maximum + 1, currencyCode: "VND", merchantName: nil)
+            )
+        }
+        let accepted = try await actor.createExpense(
+            makeExpense(amountMinorUnits: maximum, currencyCode: "VND", merchantName: nil)
+        )
+        #expect(accepted.amount.minorUnits == maximum)
+    }
+
+    @Test
+    func corruptedCurrencyThrowsRecoverableProjectionError() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let id = UUID()
+        let seeder = CorruptedDataSeeder(modelContainer: controller.container)
+        try await seeder.insertExpense(id: id, currencyCode: "ZZZ", sourceRaw: ExpenseSource.manual.rawValue)
+
+        await #expect(
+            throws: PersistedModelError.unsupportedCurrency(
+                entity: "Expense",
+                id: id,
+                currencyCode: "ZZZ"
+            )
+        ) {
+            _ = try await controller.makeDataActor().fetchExpenseSummaries()
+        }
+    }
+
+    @Test
+    func corruptedExpenseSourceIsNotSilentlyTreatedAsManual() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let id = UUID()
+        let seeder = CorruptedDataSeeder(modelContainer: controller.container)
+        try await seeder.insertExpense(id: id, currencyCode: "USD", sourceRaw: "futureSource")
+
+        await #expect(
+            throws: PersistedModelError.invalidRawValue(
+                entity: "Expense",
+                id: id,
+                field: "sourceRaw",
+                rawValue: "futureSource"
+            )
+        ) {
+            _ = try await controller.makeDataActor().fetchExpenseSummaries()
+        }
+    }
+
+    @Test
+    func corruptedWishStatusIsNotSilentlyReactivated() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let id = UUID()
+        let seeder = CorruptedDataSeeder(modelContainer: controller.container)
+        try await seeder.insertWishItem(id: id, statusRaw: "futureStatus")
+
+        await #expect(
+            throws: PersistedModelError.invalidRawValue(
+                entity: "WishItem",
+                id: id,
+                field: "statusRaw",
+                rawValue: "futureStatus"
+            )
+        ) {
+            _ = try await controller.makeDataActor().fetchWishItemSummaries()
+        }
+    }
+
+    @Test
+    func merchantAggregateTracksNormalizedCreatesAndDeletes() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let firstID = UUID()
+        let secondID = UUID()
+        _ = try await actor.createExpense(
+            makeExpense(
+                id: firstID,
+                amountMinorUnits: 100,
+                merchantName: " Café! ",
+                spentAt: fixedDate
+            )
+        )
+        _ = try await actor.createExpense(
+            makeExpense(
+                id: secondID,
+                amountMinorUnits: 250,
+                merchantName: "CAFE",
+                spentAt: fixedDate.addingTimeInterval(60)
+            )
+        )
+
+        var merchants = try await actor.fetchMerchantSummaries()
+        var merchant = try #require(merchants.first)
+        #expect(merchant.normalizedName == "cafe")
+        #expect(merchant.visitCount == 2)
+        #expect(merchant.totalMinorUnitsAllTime == 350)
+
+        try await actor.deleteExpense(id: secondID)
+        merchants = try await actor.fetchMerchantSummaries()
+        merchant = try #require(merchants.first)
+        #expect(merchant.visitCount == 1)
+        #expect(merchant.totalMinorUnitsAllTime == 100)
+
+        try await actor.deleteExpense(id: firstID)
+        merchants = try await actor.fetchMerchantSummaries()
+        #expect(merchants.isEmpty)
+    }
+
+    @Test
+    func sampleReplacementRollsBackWhenAnyInsertFails() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let original = makeExpense()
+        _ = try await actor.createExpense(original)
+        let invalidSample = SampleDataBundle(
+            expenses: [],
+            budgetPlans: [],
+            wishItems: [],
+            coolingOffPlans: [
+                CoolingOffPlanDraft(
+                    id: UUID(),
+                    wishItemId: UUID(),
+                    startedAt: fixedDate,
+                    reviewAt: fixedDate.addingTimeInterval(86_400),
+                    durationHours: 24,
+                    status: .active,
+                    notificationIdentifier: nil,
+                    completedAt: nil,
+                    outcome: nil
+                )
+            ]
+        )
+
+        await #expect(throws: DataValidationError.modelNotFound) {
+            try await actor.replaceLocalData(with: invalidSample)
+        }
+        let remaining = try await actor.fetchExpenseSummaries()
+        #expect(remaining.map(\.id) == [original.id])
+    }
+
     private var fixedDate: Date {
         TestFixtures.now
     }
 
-    private func makeExpense() -> ExpenseDraft {
+    private func makeExpense(
+        id: UUID = UUID(),
+        amountMinorUnits: Int64 = 1_234,
+        currencyCode: String = "USD",
+        merchantName: String? = "Cafe",
+        spentAt: Date? = nil
+    ) -> ExpenseDraft {
         ExpenseDraft(
-            id: UUID(),
-            amount: Money(minorUnits: 1_234, currencyCode: "USD"),
+            id: id,
+            amount: Money(minorUnits: amountMinorUnits, currencyCode: currencyCode),
             category: .food,
             bucket: .discretionary,
-            merchantName: "Cafe",
+            merchantName: merchantName,
             note: nil,
-            spentAt: fixedDate,
+            spentAt: spentAt ?? fixedDate,
             spentTimeZoneIdentifier: "UTC",
             createdAt: fixedDate,
             updatedAt: fixedDate,
@@ -159,12 +347,12 @@ struct DataActorTests {
         )
     }
 
-    private func makeWish(status: WishItemStatus) -> WishItemDraft {
+    private func makeWish(status: WishItemStatus, currencyCode: String = "USD") -> WishItemDraft {
         WishItemDraft(
             id: UUID(),
             name: "Headphones",
-            estimatedPrice: Money(minorUnits: 18_000, currencyCode: "USD"),
-            currencyCode: "USD",
+            estimatedPrice: Money(minorUnits: 18_000, currencyCode: currencyCode),
+            currencyCode: currencyCode,
             category: .electronics,
             reason: .convenience,
             emotionTag: nil,
@@ -177,5 +365,74 @@ struct DataActorTests {
             notes: nil,
             purchasedExpenseId: nil
         )
+    }
+
+    private func makeBudgetPlan(start: Date, end: Date, currencyCode: String = "USD") -> BudgetPlanDraft {
+        BudgetPlanDraft(
+            id: UUID(),
+            cycleStart: start,
+            cycleEnd: end,
+            currencyCode: currencyCode,
+            monthlyIncomeMinorUnits: 100_000,
+            totalBudgetMinorUnits: 120_000,
+            fixedExpensesMinorUnits: 80_000,
+            savingGoalMinorUnits: 50_000,
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
+            categoryBudgets: []
+        )
+    }
+}
+
+@ModelActor
+private actor CorruptedDataSeeder {
+    func insertExpense(id: UUID, currencyCode: String, sourceRaw: String) throws {
+        modelContext.insert(
+            Expense(
+                id: id,
+                amountMinorUnits: 100,
+                currencyCode: currencyCode,
+                categoryRaw: ExpenseCategory.food.rawValue,
+                bucketRaw: BudgetBucket.discretionary.rawValue,
+                merchantName: nil,
+                note: nil,
+                spentAt: TestFixtures.now,
+                spentTimeZoneIdentifier: "UTC",
+                createdAt: TestFixtures.now,
+                updatedAt: TestFixtures.now,
+                paymentMethodRaw: nil,
+                emotionTagRaw: nil,
+                purchaseReasonRaw: nil,
+                isPlanned: false,
+                isRecurring: false,
+                sourceRaw: sourceRaw,
+                allowMerchantIndexing: false
+            )
+        )
+        try modelContext.save()
+    }
+
+    func insertWishItem(id: UUID, statusRaw: String) throws {
+        modelContext.insert(
+            WishItem(
+                id: id,
+                name: "Corrupted fixture",
+                estimatedPriceMinorUnits: nil,
+                currencyCode: "USD",
+                categoryRaw: ExpenseCategory.other.rawValue,
+                reasonRaw: nil,
+                emotionTagRaw: nil,
+                sourceContextLabel: nil,
+                createdAt: TestFixtures.now,
+                updatedAt: TestFixtures.now,
+                coolingOffHours: 24,
+                targetReviewDate: nil,
+                statusRaw: statusRaw,
+                notes: nil,
+                purchasedExpenseId: nil,
+                coolingOffPlans: []
+            )
+        )
+        try modelContext.save()
     }
 }

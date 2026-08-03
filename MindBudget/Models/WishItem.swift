@@ -58,23 +58,16 @@ final class WishItem {
         self.coolingOffPlans = coolingOffPlans
     }
 
-    var category: ExpenseCategory {
-        get { ExpenseCategory(rawValue: categoryRaw) ?? .other }
-        set { categoryRaw = newValue.rawValue }
-    }
-
-    var status: WishItemStatus {
-        get { WishItemStatus(rawValue: statusRaw) ?? .active }
-        set { statusRaw = newValue.rawValue }
-    }
-
-    var estimatedPrice: Money? {
-        estimatedPriceMinorUnits.map { Money(minorUnits: $0, currencyCode: currencyCode) }
-    }
-
     func transition(to nextStatus: WishItemStatus, at date: Date) throws {
-        try WishItemStateMachine.validateTransition(from: status, to: nextStatus)
-        status = nextStatus
+        let currentStatus: WishItemStatus = try validatedPersistedEnum(
+            WishItemStatus.self,
+            rawValue: statusRaw,
+            entity: "WishItem",
+            id: id,
+            field: "statusRaw"
+        )
+        try WishItemStateMachine.validateTransition(from: currentStatus, to: nextStatus)
+        statusRaw = nextStatus.rawValue
         updatedAt = date
     }
 }

@@ -35,13 +35,4 @@ final class CoolingOffPlan {
         self.wishItem = wishItem
     }
 
-    var status: CoolingOffStatus {
-        get { CoolingOffStatus(rawValue: statusRaw) ?? .scheduled }
-        set { statusRaw = newValue.rawValue }
-    }
-
-    var outcome: CoolingOffOutcome? {
-        get { outcomeRaw.flatMap(CoolingOffOutcome.init(rawValue:)) }
-        set { outcomeRaw = newValue?.rawValue }
-    }
 }

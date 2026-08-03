@@ -29,8 +29,4 @@ final class CategoryBudget {
         self.plan = plan
     }
 
-    var category: ExpenseCategory {
-        get { ExpenseCategory(rawValue: categoryRaw) ?? .other }
-        set { categoryRaw = newValue.rawValue }
-    }
 }

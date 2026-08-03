@@ -110,3 +110,31 @@ confirmed cold-simulator launch timeout.
 Known issues: GitHub-hosted images still do not provide the required iOS 17 runtime.
 
 Next suggested task: Review and merge PR #2, then begin Phase 1 on a new branch.
+
+## 2026-08-03 — Session 5 — Phase 1 review remediation
+
+Goal: Close the Phase 1 review findings around low-value currencies, corrupt stored
+values, actor consistency, merchant aggregation, startup recovery, and test gaps.
+
+Files changed: money/enums/models, `DataActor`, `DataController`, `SettingsStore`, app
+bootstrap and localizations, Phase 1 tests, and project memory documents.
+
+What was completed: The entry limit is now currency-neutral; persisted currencies and
+enum raw values throw recoverable projection errors; one actor is reused per controller;
+sample replacement uses one save with rollback; accounting checks use bounded fetches;
+merchant aggregates follow normalized expense creation/deletion; settings configuration
+is cached; interruption limits are clamped at the write boundary; and store initialization
+failure presents a localized retry path without deleting user data. Tests now cover the
+reviewed invariants and corruption paths.
+
+What was NOT completed: Full raw-store export and destructive store rebuilding remain
+future recovery features; the current recovery path intentionally supports retry only.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 32 Swift Testing tests and 2 localized UI tests, 0 failures
+
+Known issues: A real App Icon and real iOS 17 runtime validation remain deferred to
+release preparation.
+
+Next suggested task: Review and merge PR #3, then begin Phase 2.

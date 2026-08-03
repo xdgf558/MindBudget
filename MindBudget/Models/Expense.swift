@@ -62,17 +62,4 @@ final class Expense {
         self.allowMerchantIndexing = allowMerchantIndexing
     }
 
-    var category: ExpenseCategory {
-        get { ExpenseCategory(rawValue: categoryRaw) ?? .other }
-        set { categoryRaw = newValue.rawValue }
-    }
-
-    var bucket: BudgetBucket {
-        get { BudgetBucket(rawValue: bucketRaw) ?? category.defaultBucket }
-        set { bucketRaw = newValue.rawValue }
-    }
-
-    var amount: Money {
-        Money(minorUnits: amountMinorUnits, currencyCode: currencyCode)
-    }
 }

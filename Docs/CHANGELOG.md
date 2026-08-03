@@ -31,6 +31,8 @@
 - Added one hosted-only retry for a confirmed cold-simulator UI launch timeout.
 - Replaced persisted fractional thresholds with integer basis points so financial
   state remains free of binary floating-point values.
+- Replaced the purchasing-power-sensitive one-million-major-unit cap with a
+  currency-neutral minor-unit safety limit.
 
 ### Fixed
 
@@ -39,6 +41,11 @@
 - Made iOS deployment and bundle identifier validation target-specific and strict.
 - Made local validation compatible with macOS Bash 3.2 when hosted-only test retry
   arguments are disabled.
+- Prevented corrupt persisted currency and enum values from crashing or silently
+  changing business meaning during projection.
+- Reused one `DataActor` per controller, made sample replacement rollback-safe, and
+  maintained merchant aggregates from expense creates and deletes.
+- Replaced the local-store startup crash with a retryable, localized recovery screen.
 
 ### Privacy
 

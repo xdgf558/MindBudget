@@ -3,6 +3,7 @@ import SwiftData
 
 struct DataController: Sendable {
     let container: ModelContainer
+    let dataActor: DataActor
 
     init(isStoredInMemoryOnly: Bool = false, storeURL: URL? = nil) throws {
         let schema = Schema(versionedSchema: SchemaV1.self)
@@ -36,14 +37,16 @@ struct DataController: Sendable {
             )
         }
 
-        container = try ModelContainer(
+        let container = try ModelContainer(
             for: schema,
             migrationPlan: MindBudgetMigrationPlan.self,
             configurations: [configuration]
         )
+        self.container = container
+        dataActor = DataActor(modelContainer: container)
     }
 
     func makeDataActor() -> DataActor {
-        DataActor(modelContainer: container)
+        dataActor
     }
 }

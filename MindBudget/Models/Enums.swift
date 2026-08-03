@@ -1,5 +1,45 @@
 import Foundation
 
+enum PersistedModelError: Error, Equatable, Sendable {
+    case unsupportedCurrency(entity: String, id: UUID, currencyCode: String)
+    case invalidRawValue(entity: String, id: UUID, field: String, rawValue: String)
+}
+
+func validatedPersistedEnum<Value: RawRepresentable>(
+    _ type: Value.Type,
+    rawValue: String,
+    entity: String,
+    id: UUID,
+    field: String
+) throws -> Value where Value.RawValue == String {
+    guard let value = Value(rawValue: rawValue) else {
+        throw PersistedModelError.invalidRawValue(
+            entity: entity,
+            id: id,
+            field: field,
+            rawValue: rawValue
+        )
+    }
+    return value
+}
+
+func validatedPersistedEnumIfPresent<Value: RawRepresentable>(
+    _ type: Value.Type,
+    rawValue: String?,
+    entity: String,
+    id: UUID,
+    field: String
+) throws -> Value? where Value.RawValue == String {
+    guard let rawValue else { return nil }
+    return try validatedPersistedEnum(
+        type,
+        rawValue: rawValue,
+        entity: entity,
+        id: id,
+        field: field
+    )
+}
+
 protocol StringIdentified: RawRepresentable, Identifiable where RawValue == String {}
 
 extension StringIdentified {

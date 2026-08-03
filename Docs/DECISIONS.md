@@ -172,3 +172,35 @@ than editing `SchemaV1` after release.
 
 Files affected: `MindBudget/Models`, `MindBudget/Data`, rule/settings services, tests,
 and this file.
+
+---
+
+## 2026-08-03 — Use a currency-neutral entry limit and reject corrupt projections
+
+Context: A limit of one million major units gave low-value currencies such as KRW,
+VND, and IDR far less usable purchasing range than USD. Persisted raw currency and
+enum strings could also trigger a process precondition or silently become a valid-
+looking fallback state. Creating more than one `DataActor` weakened read-before-write
+invariants across contexts.
+
+Decision: Treat `Money.maximumMinorUnits(for:)` as a currency-neutral storage-safety
+limit of `Int64.max / 1_000_000`, leaving headroom for one million maximum-sized
+aggregate additions. Keep input reasonableness as a UI warning rather than a currency-
+dependent hard rejection. Validate every persisted currency and projected enum raw
+value, returning `PersistedModelError` instead of crashing or inventing a fallback.
+Each `DataController` owns one shared `DataActor`. Sample replacement uses one save
+and rolls back all pending changes on failure. Merchant aggregates are derived from
+expense writes and deletes as required by the model contract.
+
+Alternatives considered: Per-currency purchasing-power limits, exchange-rate-driven
+limits, optional projections that discard invalid values, `.unknown` business states,
+and creating a new actor for each caller.
+
+Consequences: Low-value currencies retain practical input range without exchange-rate
+maintenance. Corrupt or future-version data remains visible as a recoverable error and
+cannot re-enter reminder or state-machine logic under a false default. All app writes
+must continue through the controller-owned actor; tests may use a separate seeder actor
+only to verify corruption handling.
+
+Files affected: `MindBudget/Models/Money.swift`, model projections, `DataActor`,
+`DataController`, tests, and the authoritative money contract.

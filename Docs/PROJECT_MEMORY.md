@@ -44,6 +44,8 @@ app's private data are forbidden in V1.
 ## Key decisions already made
 
 - Money is stored as `Int64` minor units; only the isolated App Intents transport adapter may receive `Double`.
+- The per-entry hard limit is currency-neutral (`Int64.max / 1_000_000` minor units);
+  UI reasonableness warnings must not encode exchange-rate assumptions.
 - Persisted percentage thresholds use integer basis points; pure calculations keep
   ratios in `Decimal` until a presentation-only conversion is explicitly required.
 - A populated V1 store has one locked accounting currency.
@@ -74,9 +76,10 @@ app's private data are forbidden in V1.
 Phases 0 and 1 are complete. The app now opens a versioned persistent SwiftData
 store containing all nine V1 model types. `Money`, domain enums, wishlist transition
 rules, reminder projections, settings/configuration codecs, and four deterministic
-sample scenarios are implemented. All model writes are isolated inside `DataActor`;
-callers receive only Sendable value projections. Local validation passes 21 Swift
-Testing tests and 2 localized UI tests on the recorded iOS 26.5 simulator, including
-store reopening, relationship deletion behavior, exact rounding, invalid state
-transitions, configuration fallback, and the repository-wide floating-point guard.
-Phase 2 budget calculations have not started.
+sample scenarios are implemented. Each controller owns one `DataActor`; all app model
+writes use it and callers receive only Sendable value projections. Persisted currency
+and enum corruption is surfaced without a crash or semantic fallback, sample replacement
+rolls back on failure, and merchant aggregates follow expense creates/deletes. Store-open
+failure presents a retryable recovery view without deleting data. Local validation
+covers these contracts plus localization on the recorded iOS 26.5 simulator. Phase 2
+budget calculations have not started.

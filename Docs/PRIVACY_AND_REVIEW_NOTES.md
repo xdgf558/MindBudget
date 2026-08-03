@@ -12,8 +12,10 @@ Statements about future features must be revalidated against the shipped binary.
 - Accounts: none in V1.
 - CloudKit: disabled in V1.
 - Third-party SDKs: none.
-- Data protection: rely on iOS Data Protection, initially using
-  `NSFileProtectionCompleteUntilFirstUserAuthentication` after persistence exists.
+- Data protection: deliberately rely on the Core Data persistent-store default,
+  `NSFileProtectionCompleteUntilFirstUserAuthentication`, which applies to stores
+  created by current iOS applications. This includes the SQLite store managed by
+  SwiftData; verify the effective class on a release-signed device before shipping.
 
 ## Data purpose
 
