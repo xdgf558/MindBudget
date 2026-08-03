@@ -36,6 +36,17 @@ struct WishlistExpenseSeed: Sendable {
     let purchaseReason: PurchaseReason?
 }
 
+struct ExpenseReminderPresentation: Identifiable, Sendable {
+    let id: UUID
+    let message: ReminderMessage
+}
+
+enum ExpenseSubmitResult: Sendable {
+    case saved
+    case reminder(ExpenseReminderPresentation)
+    case failed
+}
+
 @MainActor
 final class ExpenseFormViewModel: ObservableObject {
     @Published var amountText = ""
@@ -53,11 +64,28 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published private(set) var isSaving = false
     @Published private(set) var recentCategories: [ExpenseCategory] = []
     @Published private(set) var merchantSuggestions: [String] = []
+    @Published private(set) var inlineInsight: InsightDraft?
 
     let existingExpense: ExpenseDetail?
     let wishlistSeed: WishlistExpenseSeed?
     private var configuredSnapshot: ConfiguredBudgetSnapshot?
+    private var budgetSnapshot: BudgetSnapshot?
     private var categoryBudgets: [CategoryBudgetSummary] = []
+    private var expenses: [ExpenseSummary] = []
+    private var historicalCycles: [CycleAggregate] = []
+    private var reminderHistory: [ReminderEventSummary] = []
+    private var ruleConfiguration = RuleConfiguration.defaults(currencyCode: "USD")
+    private var preferences = PreferencesSnapshot(
+        reminderTone: .soft,
+        gentleRemindersEnabled: true,
+        notificationsEnabled: false,
+        quietHours: nil,
+        maxDailyInterruptions: 2
+    )
+    private var pendingDrafts: [InsightDraft] = []
+    private var pendingCandidate: PurchaseCandidate?
+    private var pendingImpact: BudgetImpact?
+    private var recordedInlineDedupeKeys: Set<String> = []
     private var dismissedWarningForMinorUnits: Int64?
     private var didPrepareInput = false
     private var latestContextRequestID = UUID()
@@ -98,13 +126,23 @@ final class ExpenseFormViewModel: ObservableObject {
         cycleStartDay: Int,
         calendar: Calendar,
         referenceDate: Date,
-        locale: Locale
+        locale: Locale,
+        ruleConfiguration: RuleConfiguration? = nil,
+        preferences: PreferencesSnapshot = PreferencesSnapshot(
+            reminderTone: .soft,
+            gentleRemindersEnabled: true,
+            notificationsEnabled: false,
+            quietHours: nil,
+            maxDailyInterruptions: 2
+        )
     ) async {
         let requestID = UUID()
         latestContextRequestID = requestID
         do {
             async let fetchedExpenses = dataActor.fetchExpenseSummaries()
             async let fetchedMerchants = dataActor.fetchMerchantSummaries()
+            async let fetchedPlans = dataActor.fetchBudgetPlanSummaries()
+            async let fetchedReminderHistory = dataActor.fetchReminderEventSummaries()
             let coverage = try await dataActor.previewPlanCoverage(
                 date: referenceDate,
                 futureCycleStartDay: cycleStartDay,
@@ -112,7 +150,14 @@ final class ExpenseFormViewModel: ObservableObject {
             )
             let expenses = try await fetchedExpenses
             let merchants = try await fetchedMerchants
+            let plans = try await fetchedPlans
+            let reminderHistory = try await fetchedReminderHistory
             guard requestID == latestContextRequestID else { return }
+            self.expenses = expenses.filter { $0.id != existingExpense?.summary.id }
+            self.reminderHistory = reminderHistory
+            self.ruleConfiguration = ruleConfiguration
+                ?? RuleConfiguration.defaults(currencyCode: currencyCode)
+            self.preferences = preferences
             recentCategories = uniqueCategories(
                 expenses
                     .filter { $0.id != existingExpense?.summary.id }
@@ -132,8 +177,27 @@ final class ExpenseFormViewModel: ObservableObject {
             guard case let .covered(plan) = coverage else {
                 configuredSnapshot = nil
                 categoryBudgets = []
+                let interval = try BudgetCycleCalculator().interval(
+                    containing: referenceDate,
+                    startDay: cycleStartDay,
+                    calendar: calendar
+                )
+                budgetSnapshot = .unconfigured(
+                    cycle: interval,
+                    currencyCode: currencyCode
+                )
+                historicalCycles = CycleAggregateBuilder().build(
+                    plans: plans,
+                    expenses: self.expenses,
+                    before: interval.start
+                )
                 budgetContext = context(for: coverage)
-                recalculate(currencyCode: currencyCode, locale: locale)
+                recalculate(
+                    currencyCode: currencyCode,
+                    locale: locale,
+                    bucket: nil,
+                    calendar: calendar
+                )
                 return
             }
             let expensesWithoutEditedRecord = expenses.filter {
@@ -149,25 +213,54 @@ final class ExpenseFormViewModel: ObservableObject {
             )
             guard case let .configured(configured) = snapshot else {
                 configuredSnapshot = nil
+                budgetSnapshot = snapshot
                 categoryBudgets = []
                 budgetContext = .unavailable
-                recalculate(currencyCode: currencyCode, locale: locale)
+                recalculate(
+                    currencyCode: currencyCode,
+                    locale: locale,
+                    bucket: nil,
+                    calendar: calendar
+                )
                 return
             }
             configuredSnapshot = configured
+            budgetSnapshot = snapshot
             categoryBudgets = plan.categoryBudgets
+            historicalCycles = CycleAggregateBuilder().build(
+                plans: plans,
+                expenses: self.expenses,
+                before: configured.cycle.start
+            )
             budgetContext = .configured
-            recalculate(currencyCode: currencyCode, locale: locale)
+            recalculate(
+                currencyCode: currencyCode,
+                locale: locale,
+                bucket: nil,
+                calendar: calendar
+            )
         } catch {
             guard requestID == latestContextRequestID else { return }
             configuredSnapshot = nil
+            budgetSnapshot = nil
             categoryBudgets = []
             budgetContext = .unavailable
-            recalculate(currencyCode: currencyCode, locale: locale)
+            recalculate(
+                currencyCode: currencyCode,
+                locale: locale,
+                bucket: nil,
+                calendar: calendar
+            )
         }
     }
 
-    func recalculate(currencyCode: String, locale: Locale, bucket: BudgetBucket? = nil) {
+    func recalculate(
+        currencyCode: String,
+        locale: Locale,
+        bucket: BudgetBucket? = nil,
+        calendar: Calendar
+    ) {
+        pendingImpact = nil
         guard let amount = try? MoneyInputParser().money(
             from: amountText,
             currencyCode: currencyCode,
@@ -175,10 +268,11 @@ final class ExpenseFormViewModel: ObservableObject {
         ) else {
             inlineImpact = nil
             showsReasonablenessWarning = false
+            clearRulePreview()
             return
         }
+        let selectedBucket = bucket ?? category.defaultBucket
         if let snapshot = configuredSnapshot {
-            let selectedBucket = bucket ?? category.defaultBucket
             if let impact = try? BudgetEngine().impact(
                 of: amount,
                 category: category,
@@ -192,6 +286,7 @@ final class ExpenseFormViewModel: ObservableObject {
                     willExceedTotalBudget: impact.willExceedTotalBudget,
                     willExceedFreeBudget: impact.willExceedFreeBudget
                 )
+                pendingImpact = impact
             }
             showsReasonablenessWarning = snapshot.totalBudget.minorUnits > 0
                 && amount.minorUnits > snapshot.totalBudget.minorUnits
@@ -199,6 +294,183 @@ final class ExpenseFormViewModel: ObservableObject {
         } else {
             inlineImpact = nil
             showsReasonablenessWarning = false
+            pendingImpact = nil
+        }
+        evaluateRulePreview(
+            amount: amount,
+            bucket: selectedBucket,
+            calendar: calendar
+        )
+    }
+
+    func submit(
+        dataActor: DataActor,
+        currencyCode: String,
+        bucket: BudgetBucket,
+        locale: Locale,
+        now: Date,
+        timeZone: TimeZone,
+        cycleStartDay: Int,
+        calendar: Calendar
+    ) async -> ExpenseSubmitResult {
+        guard !isSaving else { return .failed }
+        guard existingExpense == nil, wishlistSeed == nil,
+              let snapshot = budgetSnapshot, let candidate = pendingCandidate else {
+            return await save(
+                dataActor: dataActor,
+                currencyCode: currencyCode,
+                bucket: bucket,
+                locale: locale,
+                now: now,
+                timeZone: timeZone,
+                cycleStartDay: cycleStartDay,
+                calendar: calendar
+            ) ? .saved : .failed
+        }
+
+        isSaving = true
+        defer { isSaving = false }
+        let sheetDrafts = pendingDrafts.filter { draft in
+            let decision = ReminderThrottle().decide(
+                for: ReminderRequest(
+                    kind: .behavioralInsight,
+                    draft: draft,
+                    requestedChannel: nil,
+                    requestedDeliveryDate: nil
+                ),
+                history: reminderHistory,
+                preferences: preferences,
+                now: now,
+                calendar: calendar
+            )
+            return decision.shouldShowNow && decision.channel == .sheet
+        }
+
+        if !sheetDrafts.isEmpty {
+            let context = ReminderEngine().buildContext(
+                candidate: candidate,
+                impact: pendingImpact,
+                snapshot: snapshot,
+                drafts: sheetDrafts,
+                tone: preferences.reminderTone
+            )
+            if let message = await ReminderEngine().generateReminder(
+                context: context,
+                channel: .sheet,
+                locale: locale
+            ), let primary = sheetDrafts.first {
+                let eventID = UUID()
+                do {
+                    _ = try await dataActor.createReminderEvent(
+                        ReminderEventDraft(
+                            id: eventID,
+                            insightType: primary.type,
+                            scopeKey: primary.throttleMetadata.scopeKey,
+                            channel: .sheet,
+                            shownAt: now,
+                            categoryRiskBasisPoints: primary.throttleMetadata
+                                .categoryRiskBasisPoints,
+                            isInterrupting: true,
+                            response: nil,
+                            respondedAt: nil
+                        )
+                    )
+                    return .reminder(
+                        ExpenseReminderPresentation(id: eventID, message: message)
+                    )
+                } catch {
+                    self.error = formError(from: error)
+                    return .failed
+                }
+            }
+        }
+
+        let saved = await save(
+            dataActor: dataActor,
+            currencyCode: currencyCode,
+            bucket: bucket,
+            locale: locale,
+            now: now,
+            timeZone: timeZone,
+            cycleStartDay: cycleStartDay,
+            calendar: calendar
+        )
+        guard saved else { return .failed }
+        await persistPreparedAnalysis(dataActor: dataActor, at: now)
+        return .saved
+    }
+
+    func continueAfterReminder(
+        eventID: UUID,
+        dataActor: DataActor,
+        currencyCode: String,
+        bucket: BudgetBucket,
+        locale: Locale,
+        now: Date,
+        timeZone: TimeZone,
+        cycleStartDay: Int,
+        calendar: Calendar
+    ) async -> Bool {
+        do {
+            _ = try await dataActor.updateReminderEventResponse(
+                id: eventID,
+                response: .acted,
+                at: now
+            )
+        } catch {
+            self.error = formError(from: error)
+            return false
+        }
+        let saved = await save(
+            dataActor: dataActor,
+            currencyCode: currencyCode,
+            bucket: bucket,
+            locale: locale,
+            now: now,
+            timeZone: timeZone,
+            cycleStartDay: cycleStartDay,
+            calendar: calendar
+        )
+        if saved {
+            await persistPreparedAnalysis(dataActor: dataActor, at: now)
+        }
+        return saved
+    }
+
+    func recordReminderResponse(
+        eventID: UUID,
+        response: ReminderResponse,
+        dataActor: DataActor,
+        at date: Date
+    ) async {
+        _ = try? await dataActor.updateReminderEventResponse(
+            id: eventID,
+            response: response,
+            at: date
+        )
+    }
+
+    func recordInlinePresentationIfNeeded(
+        dataActor: DataActor,
+        at date: Date
+    ) async {
+        guard let inlineInsight,
+              recordedInlineDedupeKeys.insert(inlineInsight.dedupeKey).inserted else {
+            return
+        }
+        let event = ReminderEventDraft(
+            id: UUID(),
+            insightType: inlineInsight.type,
+            scopeKey: inlineInsight.throttleMetadata.scopeKey,
+            channel: .inline,
+            shownAt: date,
+            categoryRiskBasisPoints: inlineInsight.throttleMetadata.categoryRiskBasisPoints,
+            isInterrupting: false,
+            response: nil,
+            respondedAt: nil
+        )
+        if let summary = try? await dataActor.createReminderEvent(event) {
+            reminderHistory.insert(summary, at: 0)
         }
     }
 
@@ -297,6 +569,66 @@ final class ExpenseFormViewModel: ObservableObject {
         return categories.filter { seen.insert($0).inserted }.prefix(6).map { $0 }
     }
 
+    private func evaluateRulePreview(
+        amount: Money,
+        bucket: BudgetBucket,
+        calendar: Calendar
+    ) {
+        guard existingExpense == nil, wishlistSeed == nil, let budgetSnapshot else {
+            clearRulePreview()
+            return
+        }
+        let candidate = PurchaseCandidate(
+            name: optionalTrimmed(merchantName),
+            amount: amount,
+            category: category,
+            bucket: bucket,
+            reason: purchaseReason,
+            emotionTag: emotionTag
+        )
+        pendingCandidate = candidate
+        pendingDrafts = SpendingPatternDetector().evaluatePotentialPurchase(
+            candidate: candidate,
+            expenses: expenses,
+            snapshot: budgetSnapshot,
+            categoryBudgets: categoryBudgets,
+            historicalCycles: historicalCycles,
+            config: ruleConfiguration,
+            now: spentAt,
+            calendar: calendar
+        )
+        if let inlineInsight,
+           pendingDrafts.contains(where: { $0.dedupeKey == inlineInsight.dedupeKey }) {
+            return
+        }
+        inlineInsight = pendingDrafts.first { draft in
+            let decision = ReminderThrottle().decide(
+                for: ReminderRequest(
+                    kind: .behavioralInsight,
+                    draft: draft,
+                    requestedChannel: nil,
+                    requestedDeliveryDate: nil
+                ),
+                history: reminderHistory,
+                preferences: preferences,
+                now: spentAt,
+                calendar: calendar
+            )
+            return decision.shouldShowNow && decision.channel == .inline
+        }
+    }
+
+    private func clearRulePreview() {
+        pendingCandidate = nil
+        pendingDrafts = []
+        pendingImpact = nil
+        inlineInsight = nil
+    }
+
+    private func persistPreparedAnalysis(dataActor: DataActor, at date: Date) async {
+        _ = try? await dataActor.upsertSpendingInsights(pendingDrafts, createdAt: date)
+    }
+
     private func optionalTrimmed(_ value: String) -> String? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
@@ -351,6 +683,8 @@ struct AddExpenseView: View {
     @FocusState private var amountFocused: Bool
     @State private var showsContextFields = false
     @State private var presentsWishlistConversion = false
+    @State private var activeReminder: ExpenseReminderPresentation?
+    @State private var opensWishlistAfterReminder = false
 
     init(
         dataActor: DataActor,
@@ -411,6 +745,23 @@ struct AddExpenseView: View {
                     }
                     .accessibilityIdentifier("expense.amount.warning")
                 }
+            }
+
+            if let insight = viewModel.inlineInsight {
+                Section {
+                    let wording = AdviceTemplateGenerator().wording(
+                        for: insight,
+                        tone: settings.reminderTone,
+                        locale: locale
+                    )
+                    Label(wording.title, systemImage: "lightbulb")
+                        .font(.headline)
+                    Text(wording.body)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("expense.insight.header")
+                }
+                .accessibilityIdentifier("expense.inlineInsight")
             }
 
             Section("expense.category") {
@@ -519,7 +870,7 @@ struct AddExpenseView: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("common.save") {
                     Task {
-                        let saved = await viewModel.save(
+                        let result = await viewModel.submit(
                             dataActor: dataActor,
                             currencyCode: accountingCurrencyCode,
                             bucket: settings.bucket(for: viewModel.category),
@@ -529,7 +880,14 @@ struct AddExpenseView: View {
                             cycleStartDay: settings.budgetCycleStartDay,
                             calendar: calendar
                         )
-                        if saved { completed() }
+                        switch result {
+                        case .saved:
+                            completed()
+                        case let .reminder(presentation):
+                            activeReminder = presentation
+                        case .failed:
+                            break
+                        }
                     }
                 }
                 .disabled(viewModel.isSaving)
@@ -557,6 +915,68 @@ struct AddExpenseView: View {
         }
         .onChange(of: viewModel.amountText) { _, _ in recalculate() }
         .onChange(of: viewModel.category) { _, _ in recalculate() }
+        .onChange(of: viewModel.emotionTag) { _, _ in recalculate() }
+        .onChange(of: viewModel.purchaseReason) { _, _ in recalculate() }
+        .task(id: viewModel.inlineInsight?.dedupeKey) {
+            guard viewModel.inlineInsight != nil else { return }
+            await viewModel.recordInlinePresentationIfNeeded(
+                dataActor: dataActor,
+                at: Date()
+            )
+        }
+        .sheet(item: $activeReminder, onDismiss: {
+            if opensWishlistAfterReminder {
+                opensWishlistAfterReminder = false
+                presentsWishlistConversion = true
+            }
+        }) { presentation in
+            ExpenseReminderSheet(
+                presentation: presentation,
+                continuePurchase: {
+                    Task {
+                        let saved = await viewModel.continueAfterReminder(
+                            eventID: presentation.id,
+                            dataActor: dataActor,
+                            currencyCode: accountingCurrencyCode,
+                            bucket: settings.bucket(for: viewModel.category),
+                            locale: locale,
+                            now: Date(),
+                            timeZone: .current,
+                            cycleStartDay: settings.budgetCycleStartDay,
+                            calendar: calendar
+                        )
+                        if saved {
+                            activeReminder = nil
+                            completed()
+                        }
+                    }
+                },
+                addToWishlist: {
+                    Task {
+                        await viewModel.recordReminderResponse(
+                            eventID: presentation.id,
+                            response: .acted,
+                            dataActor: dataActor,
+                            at: Date()
+                        )
+                        opensWishlistAfterReminder = true
+                        activeReminder = nil
+                    }
+                },
+                close: {
+                    Task {
+                        await viewModel.recordReminderResponse(
+                            eventID: presentation.id,
+                            response: .dismissed,
+                            dataActor: dataActor,
+                            at: Date()
+                        )
+                        activeReminder = nil
+                    }
+                }
+            )
+            .interactiveDismissDisabled()
+        }
         .sheet(isPresented: $presentsWishlistConversion) {
             NavigationStack {
                 AddWishItemView(
@@ -624,7 +1044,8 @@ struct AddExpenseView: View {
         viewModel.recalculate(
             currencyCode: accountingCurrencyCode,
             locale: locale,
-            bucket: settings.bucket(for: viewModel.category)
+            bucket: settings.bucket(for: viewModel.category),
+            calendar: calendar
         )
     }
 
@@ -635,7 +1056,9 @@ struct AddExpenseView: View {
             cycleStartDay: settings.budgetCycleStartDay,
             calendar: calendar,
             referenceDate: referenceDate,
-            locale: locale
+            locale: locale,
+            ruleConfiguration: settings.ruleConfiguration(),
+            preferences: settings.preferencesSnapshot
         )
     }
 
@@ -660,6 +1083,57 @@ struct AddExpenseView: View {
         case .invalidStoredData: "expense.error.invalidStoredData"
         case .budgetGenerationLimit: "expense.error.dateTooFar"
         case .persistence: "error.data.save"
+        }
+    }
+}
+
+private struct ExpenseReminderSheet: View {
+    let presentation: ExpenseReminderPresentation
+    let continuePurchase: () -> Void
+    let addToWishlist: () -> Void
+    let close: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Image(systemName: "pause.circle")
+                    .font(.system(size: 42))
+                    .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
+                Text(presentation.message.title)
+                    .font(.title2.bold())
+                Text(presentation.message.body)
+                    .foregroundStyle(.secondary)
+                if !presentation.message.supportingDetails.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("reminder.sheet.alsoNoticed")
+                            .font(.subheadline.weight(.semibold))
+                        ForEach(presentation.message.supportingDetails, id: \.self) { detail in
+                            Label(detail, systemImage: "circle.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                Spacer()
+                Button("reminder.action.continuePurchase", action: continuePurchase)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
+                Button("reminder.action.addToWishlist", action: addToWishlist)
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding()
+            .navigationTitle("reminder.sheet.title")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("common.close", action: close)
+                }
+            }
+            .accessibilityIdentifier("expense.reminder.sheet")
         }
     }
 }

@@ -91,6 +91,32 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testInsightsShowsLocalSummaryAndHonestEmptyState() {
+        let app = launchApp(language: "en", locale: "en_US")
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        dismissDecimalKeyboard(in: app)
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.tabBars.buttons["Insights"].tap()
+
+        XCTAssertTrue(element("insights.view", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Last 7 days"].exists)
+        XCTAssertTrue(element("insights.empty", in: app).exists)
+        XCTAssertTrue(element("insights.disclaimer", in: app).exists)
+    }
+
+    @MainActor
     private func assertOnboardingCopy(
         language: String,
         locale: String,

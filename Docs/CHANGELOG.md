@@ -41,6 +41,16 @@
 - Deterministic wishlist budget-impact previews and atomic wishlist-to-expense conversion.
 - Phase 4 actor, localization, budget-preview, DST, rollback, and end-to-end wishlist UI
   coverage.
+- Deterministic Phase 5 rules for large purchases, late-hour/stress/image/impulse patterns,
+  category risk, cooling-off outcomes, and adequate budget buffers.
+- Setting-aware reminder frequency control with scoped cooldowns, category re-crossing,
+  response adaptation, daily caps, quiet-hour deferral, and actual-presentation event history.
+- Localized soft/direct/minimal template reminders with one highest-priority purchase sheet,
+  Continue Purchase as the primary action, and Wishlist as an alternative.
+- A local Insights dashboard with seven-day and cycle summaries, category/emotion/trend
+  charts, typed dismissible cards, and a fixed informational disclaimer.
+- Phase 5 rule, throttle, reminder fallback, persistence, localization, and Insights UI
+  coverage.
 
 ### Changed
 
@@ -73,6 +83,8 @@
   detail reads.
 - Separated cooling-period completion from later outcome-recording time and documented the
   intentional expense/wishlist projection asymmetry used by future aggregate analysis.
+- Separated factual insight detection from reminder presentation settings and retained
+  dismissed state across deterministic insight upserts.
 
 ### Fixed
 

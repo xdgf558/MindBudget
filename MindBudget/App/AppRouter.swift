@@ -93,7 +93,7 @@ private struct MainTabView: View {
                 .tabItem { Label("tab.add", systemImage: "plus.circle.fill") }
                 .tag(AppTab.add)
 
-            InsightsView()
+            InsightsView(session: session)
                 .tabItem { Label("tab.insights", systemImage: "chart.xyaxis.line") }
                 .tag(AppTab.insights)
 
