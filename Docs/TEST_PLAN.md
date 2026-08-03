@@ -78,7 +78,8 @@ buy, fabricated numbers, and invalid action counts. Accept valid localized numbe
 
 Prove notes never enter any context, merchant lists and transaction rows are absent,
 amounts are formatted strings, Siri strings are sanitized, context fields are
-allow-listed, and raw Ask questions never reach model input.
+allow-listed, and raw Ask questions never reach model input. Redactor/generator entry
+points must not accept `ExpenseDetail` or another raw-note-bearing projection.
 
 ### CSVExporterTests
 
@@ -165,12 +166,16 @@ all calendars, time zones, and reference dates are explicit inputs.
 
 Phase 3 tests cover locale digits and grouping, exact minor-unit precision, zero and
 negative entry rejection, independent budget-draft amounts, selected-expense-date impact,
-the dismissible reasonableness warning, manual create/edit metadata, merchant aggregate
-rebuilds, atomic transition/first-regular persistence, and rollback when either transition
-draft is invalid. UI tests force English and Simplified Chinese onboarding copy and run an
-English end-to-end path through budget setup, Dashboard refresh, quick expense entry, and
-the expense list. Edit/delete and VoiceOver/AX5 remain mandatory manual smoke checks before
-release in addition to actor-level automated coverage.
+the dismissible reasonableness warning, explicit pending-transition context, manual create/
+edit metadata, merchant aggregate rebuilds, atomic transition/first-regular persistence,
+currency and identity rejection, and rollback when either transition draft is invalid.
+Coverage-preview tests prove future date selection creates no stored plans. Projection
+tests prove raw notes are available only through targeted detail and actor-contained search
+boundaries. Error tests preserve accounting-currency mismatch, and precision tests distinguish
+excess fraction digits from malformed input. UI tests force English and Simplified Chinese
+onboarding copy and run an English end-to-end path through budget setup, Dashboard refresh,
+quick expense entry, and the expense list. Edit/delete and VoiceOver/AX5 remain mandatory
+manual smoke checks before release in addition to actor-level automated coverage.
 
 ## Continuous integration
 

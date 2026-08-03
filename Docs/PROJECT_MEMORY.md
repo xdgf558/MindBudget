@@ -94,5 +94,9 @@ plans. Stateless currency formatting respects each supported exponent. The iPhon
 provides localized onboarding and budget setup, a value-projection Dashboard, the five-tab
 shell, exact locale-aware manual expense entry with selected-date impact, recent-category
 and merchant suggestions, and searchable/filterable expense list, detail, edit, and delete
-flows. Empty/error states and English/Simplified Chinese accessibility coverage are active;
-Insights and Wishlist remain honest placeholders until their owning phases.
+flows. Interactive date previews project budget coverage without writes; only Dashboard
+lifecycle work and expense save may persist automatic cycle coverage. General expense
+summaries exclude raw notes, while targeted details and actor-contained note search support
+the UI without widening later AI inputs. The UI-test reset hook is Debug-only. Empty/error
+states and English/Simplified Chinese accessibility coverage are active; Insights and
+Wishlist remain honest placeholders until their owning phases.

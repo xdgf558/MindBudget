@@ -11,7 +11,20 @@ struct InlineBudgetImpact: Equatable, Sendable {
 enum ExpenseFormError: Error, Equatable, Sendable {
     case amount(MoneyInputError)
     case invalidTimeZone
+    case accountingCurrencyMismatch
+    case invalidStoredData
+    case budgetGenerationLimit
     case persistence
+}
+
+enum ExpenseBudgetContext: Equatable, Sendable {
+    case loading
+    case configured
+    case unconfigured
+    case historicalPlanRequired
+    case transitionPlanRequired
+    case firstRegularPlanRequired
+    case unavailable
 }
 
 @MainActor
@@ -23,32 +36,36 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published var note = ""
     @Published var isPlanned: Bool
     @Published private(set) var inlineImpact: InlineBudgetImpact?
-    @Published private(set) var hasConfiguredBudget = false
+    @Published private(set) var budgetContext: ExpenseBudgetContext = .loading
     @Published private(set) var showsReasonablenessWarning = false
     @Published private(set) var error: ExpenseFormError?
     @Published private(set) var isSaving = false
     @Published private(set) var recentCategories: [ExpenseCategory] = []
     @Published private(set) var merchantSuggestions: [String] = []
 
-    let existingExpense: ExpenseSummary?
+    let existingExpense: ExpenseDetail?
     private var configuredSnapshot: ConfiguredBudgetSnapshot?
     private var categoryBudgets: [CategoryBudgetSummary] = []
     private var dismissedWarningForMinorUnits: Int64?
     private var didPrepareInput = false
     private var latestContextRequestID = UUID()
 
-    init(existingExpense: ExpenseSummary?, now: Date = Date()) {
+    init(existingExpense: ExpenseDetail?, now: Date = Date()) {
         self.existingExpense = existingExpense
-        category = existingExpense?.category ?? .food
-        spentAt = existingExpense?.spentAt ?? now
-        merchantName = existingExpense?.merchantName ?? ""
+        let summary = existingExpense?.summary
+        category = summary?.category ?? .food
+        spentAt = summary?.spentAt ?? now
+        merchantName = summary?.merchantName ?? ""
         note = existingExpense?.note ?? ""
-        isPlanned = existingExpense?.isPlanned ?? false
+        isPlanned = summary?.isPlanned ?? false
     }
 
     func prepareInput(locale: Locale) {
         guard !didPrepareInput, let existingExpense else { return }
-        amountText = MoneyInputParser().inputText(for: existingExpense.amount, locale: locale)
+        amountText = MoneyInputParser().inputText(
+            for: existingExpense.summary.amount,
+            locale: locale
+        )
         didPrepareInput = true
     }
 
@@ -58,7 +75,6 @@ final class ExpenseFormViewModel: ObservableObject {
         cycleStartDay: Int,
         calendar: Calendar,
         referenceDate: Date,
-        timestamp: Date,
         locale: Locale
     ) async {
         let requestID = UUID()
@@ -66,18 +82,17 @@ final class ExpenseFormViewModel: ObservableObject {
         do {
             async let fetchedExpenses = dataActor.fetchExpenseSummaries()
             async let fetchedMerchants = dataActor.fetchMerchantSummaries()
-            let coverage = try await dataActor.ensurePlanCovering(
+            let coverage = try await dataActor.previewPlanCoverage(
                 date: referenceDate,
                 futureCycleStartDay: cycleStartDay,
-                calendar: calendar,
-                timestamp: timestamp
+                calendar: calendar
             )
             let expenses = try await fetchedExpenses
             let merchants = try await fetchedMerchants
             guard requestID == latestContextRequestID else { return }
             recentCategories = uniqueCategories(
                 expenses
-                    .filter { $0.id != existingExpense?.id }
+                    .filter { $0.id != existingExpense?.summary.id }
                     .sorted { $0.spentAt > $1.spentAt }
                     .map(\.category)
             )
@@ -94,11 +109,13 @@ final class ExpenseFormViewModel: ObservableObject {
             guard case let .covered(plan) = coverage else {
                 configuredSnapshot = nil
                 categoryBudgets = []
-                hasConfiguredBudget = false
+                budgetContext = context(for: coverage)
                 recalculate(currencyCode: currencyCode, locale: locale)
                 return
             }
-            let expensesWithoutEditedRecord = expenses.filter { $0.id != existingExpense?.id }
+            let expensesWithoutEditedRecord = expenses.filter {
+                $0.id != existingExpense?.summary.id
+            }
             let snapshot = try BudgetEngine().snapshot(
                 cycle: DateInterval(start: plan.cycleStart, end: plan.cycleEnd),
                 currencyCode: plan.currencyCode,
@@ -110,18 +127,20 @@ final class ExpenseFormViewModel: ObservableObject {
             guard case let .configured(configured) = snapshot else {
                 configuredSnapshot = nil
                 categoryBudgets = []
-                hasConfiguredBudget = false
+                budgetContext = .unavailable
+                recalculate(currencyCode: currencyCode, locale: locale)
                 return
             }
             configuredSnapshot = configured
             categoryBudgets = plan.categoryBudgets
-            hasConfiguredBudget = true
+            budgetContext = .configured
             recalculate(currencyCode: currencyCode, locale: locale)
         } catch {
             guard requestID == latestContextRequestID else { return }
             configuredSnapshot = nil
             categoryBudgets = []
-            hasConfiguredBudget = false
+            budgetContext = .unavailable
+            recalculate(currencyCode: currencyCode, locale: locale)
         }
     }
 
@@ -201,8 +220,9 @@ final class ExpenseFormViewModel: ObservableObject {
             return false
         }
 
+        let existingSummary = existingExpense?.summary
         let draft = ExpenseDraft(
-            id: existingExpense?.id ?? UUID(),
+            id: existingSummary?.id ?? UUID(),
             amount: amount,
             category: category,
             bucket: bucket,
@@ -210,32 +230,35 @@ final class ExpenseFormViewModel: ObservableObject {
             note: optionalTrimmed(note),
             spentAt: spentAt,
             spentTimeZoneIdentifier: timeZone.identifier,
-            createdAt: existingExpense?.createdAt ?? now,
+            createdAt: existingSummary?.createdAt ?? now,
             updatedAt: now,
-            paymentMethod: existingExpense?.paymentMethod,
-            emotionTag: existingExpense?.emotionTag,
-            purchaseReason: existingExpense?.purchaseReason,
+            paymentMethod: existingSummary?.paymentMethod,
+            emotionTag: existingSummary?.emotionTag,
+            purchaseReason: existingSummary?.purchaseReason,
             isPlanned: isPlanned,
-            isRecurring: existingExpense?.isRecurring ?? false,
-            source: existingExpense?.source ?? .manual,
-            allowMerchantIndexing: existingExpense?.allowMerchantIndexing ?? false
+            isRecurring: existingSummary?.isRecurring ?? false,
+            source: existingSummary?.source ?? .manual,
+            allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false
         )
         do {
-            _ = try await dataActor.ensurePlanCovering(
+            let coverage = try await dataActor.ensurePlanCovering(
                 date: spentAt,
                 futureCycleStartDay: cycleStartDay,
                 calendar: calendar,
                 timestamp: now
             )
-            if let existingExpense {
-                _ = try await dataActor.updateExpense(id: existingExpense.id, with: draft)
+            // Recording remains available without inventing a budget. Pending transition
+            // states are surfaced explicitly, while Dashboard owns budget confirmation.
+            budgetContext = context(for: coverage)
+            if let existingSummary {
+                _ = try await dataActor.updateExpense(id: existingSummary.id, with: draft)
             } else {
                 _ = try await dataActor.createExpense(draft)
             }
             error = nil
             return true
         } catch {
-            self.error = .persistence
+            self.error = formError(from: error)
             return false
         }
     }
@@ -249,12 +272,45 @@ final class ExpenseFormViewModel: ObservableObject {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
+
+    private func context(for coverage: BudgetPlanCoverage) -> ExpenseBudgetContext {
+        switch coverage {
+        case .unconfigured: .unconfigured
+        case .covered: .configured
+        case .transitionPlanRequired: .transitionPlanRequired
+        case .firstRegularPlanRequired: .firstRegularPlanRequired
+        case .historicalPlanRequired: .historicalPlanRequired
+        }
+    }
+
+    private func formError(from error: Error) -> ExpenseFormError {
+        if let validationError = error as? DataValidationError {
+            switch validationError {
+            case .accountingCurrencyMismatch:
+                return .accountingCurrencyMismatch
+            case .invalidAmount:
+                return .amount(.invalid)
+            case .invalidTimeZone:
+                return .invalidTimeZone
+            default:
+                return .persistence
+            }
+        }
+        if error is PersistedModelError {
+            return .invalidStoredData
+        }
+        if let cycleError = error as? BudgetCycleError,
+           case .generationLimitExceeded = cycleError {
+            return .budgetGenerationLimit
+        }
+        return .persistence
+    }
 }
 
 struct AddExpenseView: View {
     let dataActor: DataActor
     let accountingCurrencyCode: String
-    let existingExpense: ExpenseSummary?
+    let existingExpense: ExpenseDetail?
     let completed: () -> Void
 
     @EnvironmentObject private var settings: SettingsStore
@@ -267,7 +323,7 @@ struct AddExpenseView: View {
     init(
         dataActor: DataActor,
         accountingCurrencyCode: String,
-        existingExpense: ExpenseSummary?,
+        existingExpense: ExpenseDetail?,
         completed: @escaping () -> Void
     ) {
         self.dataActor = dataActor
@@ -421,16 +477,21 @@ struct AddExpenseView: View {
         }
         .task {
             viewModel.prepareInput(locale: locale)
-            await loadContext(referenceDate: viewModel.spentAt)
             if existingExpense == nil {
                 amountFocused = true
             }
         }
+        .task(id: viewModel.spentAt) {
+            do {
+                try await Task.sleep(for: .milliseconds(150))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            await loadContext(referenceDate: viewModel.spentAt)
+        }
         .onChange(of: viewModel.amountText) { _, _ in recalculate() }
         .onChange(of: viewModel.category) { _, _ in recalculate() }
-        .onChange(of: viewModel.spentAt) { _, referenceDate in
-            Task { await loadContext(referenceDate: referenceDate) }
-        }
     }
 
     @ViewBuilder
@@ -450,12 +511,29 @@ struct AddExpenseView: View {
             .font(.subheadline)
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier("expense.impact")
-        } else if !viewModel.hasConfiguredBudget {
-            Text("expense.impact.unconfigured")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("expense.impact.unconfigured")
+        } else {
+            switch viewModel.budgetContext {
+            case .loading, .configured:
+                EmptyView()
+            case .unconfigured:
+                budgetContextMessage("expense.impact.unconfigured")
+            case .historicalPlanRequired:
+                budgetContextMessage("expense.impact.historical")
+            case .transitionPlanRequired:
+                budgetContextMessage("expense.impact.transition")
+            case .firstRegularPlanRequired:
+                budgetContextMessage("expense.impact.firstRegular")
+            case .unavailable:
+                budgetContextMessage("expense.impact.unavailable")
+            }
         }
+    }
+
+    private func budgetContextMessage(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .accessibilityIdentifier("expense.impact.context")
     }
 
     private func recalculate() {
@@ -473,7 +551,6 @@ struct AddExpenseView: View {
             cycleStartDay: settings.budgetCycleStartDay,
             calendar: calendar,
             referenceDate: referenceDate,
-            timestamp: Date(),
             locale: locale
         )
     }
@@ -490,10 +567,14 @@ struct AddExpenseView: View {
             switch inputError {
             case .empty: "expense.error.amount.empty"
             case .invalid: "expense.error.amount.invalid"
+            case .tooManyFractionDigits: "expense.error.amount.precision"
             case .nonPositive, .negative: "expense.error.amount.positive"
             case .amountOutOfRange: "expense.error.amount.range"
             }
         case .invalidTimeZone: "expense.error.timeZone"
+        case .accountingCurrencyMismatch: "expense.error.currencyMismatch"
+        case .invalidStoredData: "expense.error.invalidStoredData"
+        case .budgetGenerationLimit: "expense.error.dateTooFar"
         case .persistence: "error.data.save"
         }
     }

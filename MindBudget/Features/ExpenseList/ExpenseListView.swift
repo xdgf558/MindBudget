@@ -8,7 +8,9 @@ struct ExpenseFilter: Equatable, Sendable {
 @MainActor
 final class ExpenseListViewModel: ObservableObject {
     @Published private(set) var expenses: [ExpenseSummary] = []
+    @Published private(set) var noteMatchingExpenseIDs: Set<UUID> = []
     @Published private(set) var failed = false
+    @Published private(set) var noteSearchFailed = false
     @Published var filter = ExpenseFilter()
     @Published var searchText = ""
 
@@ -24,9 +26,32 @@ final class ExpenseListViewModel: ObservableObject {
             )
             let matchesSearch = needle.isEmpty
                 || expense.merchantName?.localizedCaseInsensitiveContains(needle) == true
-                || expense.note?.localizedCaseInsensitiveContains(needle) == true
+                || noteMatchingExpenseIDs.contains(expense.id)
                 || categoryName.localizedCaseInsensitiveContains(needle)
             return matchesCategory && matchesBucket && matchesSearch
+        }
+    }
+
+    func loadNoteMatches(dataActor: DataActor) async {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            noteMatchingExpenseIDs = []
+            noteSearchFailed = false
+            return
+        }
+        do {
+            let matchingIDs = try await dataActor.fetchExpenseIDsWithNotes(matching: query)
+            guard query == searchText.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                return
+            }
+            noteMatchingExpenseIDs = matchingIDs
+            noteSearchFailed = false
+        } catch {
+            guard query == searchText.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                return
+            }
+            noteMatchingExpenseIDs = []
+            noteSearchFailed = true
         }
     }
 
@@ -43,6 +68,7 @@ final class ExpenseListViewModel: ObservableObject {
         do {
             try await dataActor.deleteExpense(id: expense.id)
             expenses.removeAll { $0.id == expense.id }
+            noteMatchingExpenseIDs.remove(expense.id)
             failed = false
             return true
         } catch {
@@ -59,9 +85,12 @@ struct ExpenseListView: View {
 
     var body: some View {
         Group {
-            if viewModel.failed {
+            if viewModel.failed || viewModel.noteSearchFailed {
                 ErrorStateView(messageKey: "error.data.load") {
-                    Task { await viewModel.load(dataActor: session.dataActor) }
+                    Task {
+                        await viewModel.load(dataActor: session.dataActor)
+                        await viewModel.loadNoteMatches(dataActor: session.dataActor)
+                    }
                 }
             } else if viewModel.filteredExpenses.isEmpty {
                 EmptyStateView(
@@ -118,6 +147,9 @@ struct ExpenseListView: View {
         }
         .task(id: session.revision) {
             await viewModel.load(dataActor: session.dataActor)
+        }
+        .task(id: viewModel.searchText) {
+            await viewModel.loadNoteMatches(dataActor: session.dataActor)
         }
         .accessibilityIdentifier("expenses.list")
     }
@@ -194,9 +226,11 @@ struct ExpenseDetailView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.dismiss) private var dismiss
     @State private var expense: ExpenseSummary
+    @State private var detail: ExpenseDetail?
     @State private var showsEdit = false
     @State private var showsDeleteConfirmation = false
     @State private var deleteFailed = false
+    @State private var detailLoadFailed = false
 
     init(expense: ExpenseSummary, session: AppSession) {
         _expense = State(initialValue: expense)
@@ -231,7 +265,7 @@ struct ExpenseDetailView: View {
                 if let merchantName = expense.merchantName {
                     LabeledContent("expense.merchant") { Text(merchantName) }
                 }
-                if let note = expense.note {
+                if let note = detail?.note {
                     LabeledContent("expense.note") { Text(note) }
                 }
                 LabeledContent("expense.planned") {
@@ -242,6 +276,13 @@ struct ExpenseDetailView: View {
             if deleteFailed {
                 Section {
                     Label("error.data.delete", systemImage: "info.circle")
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            if detailLoadFailed {
+                Section {
+                    Label("error.data.load", systemImage: "info.circle")
                         .foregroundStyle(.orange)
                 }
             }
@@ -257,6 +298,7 @@ struct ExpenseDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("common.edit") { showsEdit = true }
+                    .disabled(detail == nil)
                     .accessibilityIdentifier("expense.edit")
             }
         }
@@ -265,13 +307,14 @@ struct ExpenseDetailView: View {
                 AddExpenseView(
                     dataActor: session.dataActor,
                     accountingCurrencyCode: settings.currencyCode,
-                    existingExpense: expense
+                    existingExpense: detail
                 ) {
                     Task {
-                        if let updated = try? await session.dataActor
-                            .fetchExpenseSummaries()
-                            .first(where: { $0.id == expense.id }) {
-                            expense = updated
+                        if let updated = try? await session.dataActor.fetchExpenseDetail(
+                            id: expense.id
+                        ) {
+                            detail = updated
+                            expense = updated.summary
                         }
                         session.dataDidChange()
                         showsEdit = false
@@ -298,6 +341,14 @@ struct ExpenseDetailView: View {
             Button("common.cancel", role: .cancel) {}
         } message: {
             Text("expense.delete.message")
+        }
+        .task {
+            do {
+                detail = try await session.dataActor.fetchExpenseDetail(id: expense.id)
+                detailLoadFailed = detail == nil
+            } catch {
+                detailLoadFailed = true
+            }
         }
         .accessibilityIdentifier("expense.detail")
     }

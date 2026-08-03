@@ -27,10 +27,17 @@ struct Phase3FeatureTests {
         #expect(dollars.minorUnits == 123_456)
         #expect(euros.minorUnits == 123_456)
         #expect(localizedDigits.minorUnits == 1_234)
-        #expect(throws: MoneyInputError.invalid) {
+        #expect(throws: MoneyInputError.tooManyFractionDigits) {
             try parser.money(
                 from: "12.5",
                 currencyCode: "JPY",
+                locale: Locale(identifier: "en_US")
+            )
+        }
+        #expect(throws: MoneyInputError.tooManyFractionDigits) {
+            try parser.money(
+                from: "12.345",
+                currencyCode: "USD",
                 locale: Locale(identifier: "en_US")
             )
         }
@@ -120,11 +127,10 @@ struct Phase3FeatureTests {
             cycleStartDay: 1,
             calendar: calendar,
             referenceDate: now,
-            timestamp: now,
             locale: Locale(identifier: "en_US")
         )
 
-        #expect(viewModel.hasConfiguredBudget)
+        #expect(viewModel.budgetContext == .configured)
         #expect(viewModel.inlineImpact?.remainingTotalAfter.minorUnits == -20_000)
         #expect(viewModel.inlineImpact?.willExceedTotalBudget == true)
         #expect(viewModel.showsReasonablenessWarning)
@@ -157,12 +163,13 @@ struct Phase3FeatureTests {
             calendar: Calendar(identifier: .gregorian)
         )
         let expense = try #require(try await actor.fetchExpenseSummaries().first)
+        let detail = try #require(try await actor.fetchExpenseDetail(id: expense.id))
 
         #expect(saved)
         #expect(expense.amount.minorUnits == 1_234)
         #expect(expense.category == .coffee)
         #expect(expense.merchantName == "Corner Cafe")
-        #expect(expense.note == "Morning coffee")
+        #expect(detail.note == "Morning coffee")
         #expect(expense.isPlanned)
         #expect(expense.source == .manual)
     }
@@ -190,12 +197,91 @@ struct Phase3FeatureTests {
             cycleStartDay: 1,
             calendar: calendar,
             referenceDate: secondStart.addingTimeInterval(60),
-            timestamp: TestFixtures.now,
             locale: Locale(identifier: "en_US")
         )
 
         #expect(viewModel.inlineImpact?.remainingTotalAfter.minorUnits == -10_000)
         #expect(viewModel.showsReasonablenessWarning)
+    }
+
+    @Test
+    func datePreviewDoesNotPersistPlansAndPendingTransitionStillAllowsRecording() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let calendar = TestFixtures.utcCalendar
+        let currentCycle = try BudgetCycleCalculator().interval(
+            containing: TestFixtures.now,
+            startDay: 1,
+            calendar: calendar
+        )
+        _ = try await actor.createBudgetPlan(
+            budgetPlan(
+                start: currentCycle.start,
+                end: currentCycle.end,
+                totalMinorUnits: 100_000
+            )
+        )
+        let transitionDate = currentCycle.end.addingTimeInterval(86_400 * 10)
+        let viewModel = ExpenseFormViewModel(existingExpense: nil, now: transitionDate)
+        viewModel.amountText = "12.34"
+
+        await viewModel.loadContext(
+            dataActor: actor,
+            currencyCode: "USD",
+            cycleStartDay: 15,
+            calendar: calendar,
+            referenceDate: transitionDate,
+            locale: Locale(identifier: "en_US")
+        )
+
+        #expect(viewModel.budgetContext == .transitionPlanRequired)
+        #expect(viewModel.inlineImpact == nil)
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+
+        let saved = await viewModel.save(
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: transitionDate,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 15,
+            calendar: calendar
+        )
+
+        #expect(saved)
+        #expect(viewModel.budgetContext == .transitionPlanRequired)
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+        #expect(try await actor.fetchExpenseSummaries().count == 1)
+    }
+
+    @Test
+    func expenseSavePreservesAccountingCurrencyMismatchAsActionableError() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let now = TestFixtures.now
+        _ = try await actor.createBudgetPlan(
+            budgetPlan(
+                start: now.addingTimeInterval(-86_400),
+                end: now.addingTimeInterval(86_400),
+                totalMinorUnits: 100_000
+            )
+        )
+        let viewModel = ExpenseFormViewModel(existingExpense: nil, now: now)
+        viewModel.amountText = "12.34"
+
+        let saved = await viewModel.save(
+            dataActor: actor,
+            currencyCode: "CNY",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: now,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 1,
+            calendar: TestFixtures.utcCalendar
+        )
+
+        #expect(saved == false)
+        #expect(viewModel.error == .accountingCurrencyMismatch)
+        #expect(try await actor.fetchExpenseSummaries().isEmpty)
     }
 
     @Test

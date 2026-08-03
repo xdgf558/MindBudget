@@ -4,6 +4,7 @@ import SwiftUI
 enum MoneyInputError: Error, Equatable, Sendable {
     case empty
     case invalid
+    case tooManyFractionDigits
     case nonPositive
     case negative
     case amountOutOfRange
@@ -18,15 +19,27 @@ struct MoneyInputParser: Sendable {
     ) throws -> Money {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw MoneyInputError.empty }
-        guard let decimal = decimal(from: trimmed, locale: locale) else {
+        guard Money.isSupported(currencyCode) else {
+            throw MoneyInputError.amountOutOfRange
+        }
+        guard let normalized = normalizedDecimalLiteral(from: trimmed, locale: locale),
+              let decimal = Decimal(
+                string: normalized,
+                locale: Locale(identifier: "en_US_POSIX")
+              ) else {
             throw MoneyInputError.invalid
+        }
+        let fractionDigitCount = normalized
+            .split(separator: ".", omittingEmptySubsequences: false)
+            .dropFirst()
+            .first?
+            .count ?? 0
+        guard fractionDigitCount <= Money.exponent(for: currencyCode) else {
+            throw MoneyInputError.tooManyFractionDigits
         }
         guard decimal >= 0 else { throw MoneyInputError.negative }
         guard allowsZero || decimal > 0 else { throw MoneyInputError.nonPositive }
 
-        guard Money.isSupported(currencyCode) else {
-            throw MoneyInputError.amountOutOfRange
-        }
         var scaled = decimal * Money.scale(for: currencyCode)
         var integralMinorUnits = Decimal()
         NSDecimalRound(&integralMinorUnits, &scaled, 0, .plain)
@@ -53,16 +66,6 @@ struct MoneyInputParser: Sendable {
                 .grouping(.never)
                 .precision(.fractionLength(0...money.exponent))
                 .locale(locale)
-        )
-    }
-
-    private func decimal(from text: String, locale: Locale) -> Decimal? {
-        guard let normalized = normalizedDecimalLiteral(from: text, locale: locale) else {
-            return nil
-        }
-        return Decimal(
-            string: normalized,
-            locale: Locale(identifier: "en_US_POSIX")
         )
     }
 
@@ -120,13 +123,9 @@ struct MoneyInputParser: Sendable {
         guard groups.count > 1, groups.allSatisfy({ !$0.isEmpty && $0.allSatisfy(isASCIIDigit) }) else {
             return false
         }
-        let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.numberStyle = .decimal
-        let primarySize = max(1, formatter.groupingSize)
-        let secondarySize = formatter.secondaryGroupingSize > 0
-            ? formatter.secondaryGroupingSize
-            : primarySize
+        let rules = MoneyGroupingRulesCache.shared.rules(for: locale)
+        let primarySize = rules.primarySize
+        let secondarySize = rules.secondarySize
         guard groups.last?.count == primarySize else { return false }
         let middleGroups = groups.dropFirst().dropLast()
         guard middleGroups.allSatisfy({ $0.count == secondarySize }) else { return false }
@@ -136,6 +135,45 @@ struct MoneyInputParser: Sendable {
 
     private func isASCIIDigit(_ character: Character) -> Bool {
         character >= "0" && character <= "9"
+    }
+}
+
+private struct MoneyGroupingRules: Sendable {
+    let primarySize: Int
+    let secondarySize: Int
+}
+
+private final class MoneyGroupingRulesCache: @unchecked Sendable {
+    static let shared = MoneyGroupingRulesCache()
+
+    private let lock = NSLock()
+    private var storage: [String: MoneyGroupingRules] = [:]
+
+    func rules(for locale: Locale) -> MoneyGroupingRules {
+        let key = locale.identifier
+        lock.lock()
+        if let cached = storage[key] {
+            lock.unlock()
+            return cached
+        }
+        lock.unlock()
+
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        let primarySize = max(1, formatter.groupingSize)
+        let rules = MoneyGroupingRules(
+            primarySize: primarySize,
+            secondarySize: formatter.secondaryGroupingSize > 0
+                ? formatter.secondaryGroupingSize
+                : primarySize
+        )
+
+        lock.lock()
+        let resolved = storage[key] ?? rules
+        storage[key] = resolved
+        lock.unlock()
+        return resolved
     }
 }
 

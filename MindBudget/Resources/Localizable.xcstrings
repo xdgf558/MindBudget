@@ -1553,6 +1553,22 @@
         }
       }
     },
+    "expense.error.amount.precision": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This currency supports fewer decimal places. Check the amount and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该币种支持的小数位更少，请检查金额后重试。"
+          }
+        }
+      }
+    },
     "expense.error.amount.range": {
       "localizations": {
         "en": {
@@ -1565,6 +1581,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "该金额超出 MindBudget 支持的范围。"
+          }
+        }
+      }
+    },
+    "expense.error.currencyMismatch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This expense uses a different currency from your existing MindBudget data. Use your current accounting currency to continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这笔消费的币种与现有 MindBudget 数据不一致，请使用当前会计币种后重试。"
+          }
+        }
+      }
+    },
+    "expense.error.dateTooFar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This date is too far from your current budget. Choose a nearer date and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该日期距离当前预算过远，请选择较近的日期后重试。"
+          }
+        }
+      }
+    },
+    "expense.error.invalidStoredData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some saved budget data couldn't be read safely. Return to the Dashboard and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "部分已保存的预算数据无法安全读取，请返回首页后重试。"
           }
         }
       }
@@ -1617,6 +1681,38 @@
         }
       }
     },
+    "expense.impact.firstRegular": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your first full budget on the new schedule still needs confirmation. You can record this expense without an impact estimate."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新周期规则下的首个完整预算仍待确认；你可以先记录消费，但暂不显示预算影响。"
+          }
+        }
+      }
+    },
+    "expense.impact.historical": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This date is earlier than your saved budgets. You can record the expense without an impact estimate."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该日期早于已保存的预算；你可以记录消费，但暂不显示预算影响。"
+          }
+        }
+      }
+    },
     "expense.impact.remaining": {
       "localizations": {
         "en": {
@@ -1645,6 +1741,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "该日期没有对应的预算，暂时无法估算这笔消费的影响。"
+          }
+        }
+      }
+    },
+    "expense.impact.transition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your budget schedule change still needs confirmation. You can record this expense without an impact estimate."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预算周期调整仍待确认；你可以先记录消费，但暂不显示预算影响。"
+          }
+        }
+      }
+    },
+    "expense.impact.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MindBudget couldn't load the budget impact for this date."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MindBudget 暂时无法加载该日期的预算影响。"
           }
         }
       }

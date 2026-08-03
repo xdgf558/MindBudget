@@ -26,6 +26,8 @@ Status: Todo
 
 ## Phase 7 — Ask fallback and AI layer
 Status: Todo
+- Keep `ExpenseDetail` and every raw note outside redactor/model input APIs. Privacy tests
+  must prove only allow-listed aggregate contexts can reach a generator.
 
 ## Phase 8A — App Intents, App Entities, Spotlight (iOS 17+)
 Status: Todo

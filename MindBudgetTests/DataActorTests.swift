@@ -327,12 +327,14 @@ struct DataActorTests {
         )
 
         let result = try await actor.updateExpense(id: original.id, with: update)
+        let detail = try #require(try await actor.fetchExpenseDetail(id: original.id))
         let merchants = try await actor.fetchMerchantSummaries()
 
         #expect(result.amount.minorUnits == 4_500)
         #expect(result.category == .transport)
         #expect(result.merchantName == " Metro ")
-        #expect(result.note == "Ride home")
+        #expect(detail.note == "Ride home")
+        #expect(detail.summary == result)
         #expect(result.updatedAt == updatedAt)
         #expect(result.paymentMethod == .cash)
         #expect(result.isPlanned)
@@ -340,6 +342,42 @@ struct DataActorTests {
         #expect(merchants.count == 1)
         #expect(merchants.first?.normalizedName == "metro")
         #expect(merchants.first?.totalMinorUnitsAllTime == 4_500)
+    }
+
+    @Test
+    func rawExpenseNoteStaysBehindTheDetailAndActorSearchBoundary() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let draft = ExpenseDraft(
+            id: UUID(),
+            amount: Money(minorUnits: 1_234, currencyCode: "USD"),
+            category: .coffee,
+            bucket: .discretionary,
+            merchantName: "Corner Cafe",
+            note: "Private train reminder",
+            spentAt: fixedDate,
+            spentTimeZoneIdentifier: "UTC",
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
+            paymentMethod: nil,
+            emotionTag: nil,
+            purchaseReason: nil,
+            isPlanned: false,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: false
+        )
+        _ = try await actor.createExpense(draft)
+
+        let summaries = try await actor.fetchExpenseSummaries()
+        let detail = try #require(try await actor.fetchExpenseDetail(id: draft.id))
+        let matchingIDs = try await actor.fetchExpenseIDsWithNotes(matching: "train")
+        let nonmatchingIDs = try await actor.fetchExpenseIDsWithNotes(matching: "flight")
+
+        #expect(summaries.map(\.id) == [draft.id])
+        #expect(detail.summary == summaries.first)
+        #expect(detail.note == "Private train reminder")
+        #expect(matchingIDs == Set([draft.id]))
+        #expect(nonmatchingIDs.isEmpty)
     }
 
     @Test
@@ -395,6 +433,47 @@ struct DataActorTests {
             )
         }
         #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+    }
+
+    @Test
+    func budgetTransitionRejectsCurrencyAndIdentityConflictsAtomically() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let precedingEnd = fixedDate.addingTimeInterval(86_400 * 30)
+        let transitionEnd = precedingEnd.addingTimeInterval(86_400 * 14)
+        let regularEnd = transitionEnd.addingTimeInterval(86_400 * 30)
+        let preceding = makeBudgetPlan(start: fixedDate, end: precedingEnd)
+        _ = try await actor.createBudgetPlan(preceding)
+
+        await #expect(
+            throws: DataValidationError.accountingCurrencyMismatch(
+                expected: "USD",
+                actual: "CNY"
+            )
+        ) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: makeBudgetPlan(
+                    start: precedingEnd,
+                    end: transitionEnd,
+                    currencyCode: "CNY"
+                ),
+                firstRegular: makeBudgetPlan(
+                    start: transitionEnd,
+                    end: regularEnd,
+                    currencyCode: "CNY"
+                )
+            )
+        }
+        await #expect(throws: DataValidationError.identityMismatch) {
+            _ = try await actor.createBudgetPlanTransition(
+                transition: makeBudgetPlan(
+                    id: preceding.id,
+                    start: precedingEnd,
+                    end: transitionEnd
+                ),
+                firstRegular: makeBudgetPlan(start: transitionEnd, end: regularEnd)
+            )
+        }
+        #expect(try await actor.fetchBudgetPlanSummaries().map(\.id) == [preceding.id])
     }
 
     @Test
@@ -482,13 +561,14 @@ struct DataActorTests {
     }
 
     private func makeBudgetPlan(
+        id: UUID = UUID(),
         start: Date,
         end: Date,
         currencyCode: String = "USD",
         totalBudgetMinorUnits: Int64 = 120_000
     ) -> BudgetPlanDraft {
         BudgetPlanDraft(
-            id: UUID(),
+            id: id,
             cycleStart: start,
             cycleEnd: end,
             currencyCode: currencyCode,

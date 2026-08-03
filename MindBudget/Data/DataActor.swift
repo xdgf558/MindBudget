@@ -20,6 +20,11 @@ enum DataValidationError: Error, Equatable, Sendable {
     case modelNotFound
 }
 
+private struct BudgetPlanCoverageResolution {
+    let coverage: BudgetPlanCoverage
+    let generatedDrafts: [BudgetPlanDraft]
+}
+
 @ModelActor
 actor DataActor {
     func createExpense(_ draft: ExpenseDraft) throws -> ExpenseSummary {
@@ -71,6 +76,24 @@ actor DataActor {
     func fetchExpenseSummaries() throws -> [ExpenseSummary] {
         let descriptor = FetchDescriptor<Expense>(sortBy: [SortDescriptor(\Expense.spentAt, order: .reverse)])
         return try modelContext.fetch(descriptor).map { try expenseSummary($0) }
+    }
+
+    func fetchExpenseDetail(id: UUID) throws -> ExpenseDetail? {
+        guard let expense = try fetchExpense(id: id) else { return nil }
+        return try expenseDetail(expense)
+    }
+
+    func fetchExpenseIDsWithNotes(matching searchText: String) throws -> Set<UUID> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        let expenses = try modelContext.fetch(FetchDescriptor<Expense>())
+        return Set(
+            expenses.compactMap { expense in
+                expense.note?.localizedCaseInsensitiveContains(query) == true
+                    ? expense.id
+                    : nil
+            }
+        )
     }
 
     func deleteExpense(id: UUID) throws {
@@ -139,103 +162,147 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
     }
 
+    func previewPlanCoverage(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar
+    ) throws -> BudgetPlanCoverage {
+        try resolvePlanCoverage(
+            date: date,
+            futureCycleStartDay: futureCycleStartDay,
+            calendar: calendar,
+            timestamp: .distantPast
+        ).coverage
+    }
+
     func ensurePlanCovering(
         date: Date,
         futureCycleStartDay: Int,
         calendar: Calendar,
         timestamp: Date
     ) throws -> BudgetPlanCoverage {
-        try commit {
-            let descriptor = FetchDescriptor<BudgetPlan>(
-                sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+        let resolution = try resolvePlanCoverage(
+            date: date,
+            futureCycleStartDay: futureCycleStartDay,
+            calendar: calendar,
+            timestamp: timestamp
+        )
+        guard !resolution.generatedDrafts.isEmpty else {
+            return resolution.coverage
+        }
+        return try commit {
+            for draft in resolution.generatedDrafts {
+                _ = materializeBudgetPlan(draft)
+            }
+            return resolution.coverage
+        }
+    }
+
+    private func resolvePlanCoverage(
+        date: Date,
+        futureCycleStartDay: Int,
+        calendar: Calendar,
+        timestamp: Date
+    ) throws -> BudgetPlanCoverageResolution {
+        let descriptor = FetchDescriptor<BudgetPlan>(
+            sortBy: [SortDescriptor(\BudgetPlan.cycleStart)]
+        )
+        let storedPlans = try modelContext.fetch(descriptor)
+        guard !storedPlans.isEmpty else {
+            return BudgetPlanCoverageResolution(coverage: .unconfigured, generatedDrafts: [])
+        }
+
+        let calculator = BudgetCycleCalculator()
+        let factory = BudgetPlanFactory()
+        let existing = try storedPlans.map { try budgetPlanSummary($0) }
+        try calculator.validateNonOverlapping(existing)
+
+        if let covered = existing.first(where: {
+            $0.cycleStart <= date && date < $0.cycleEnd
+        }) {
+            return BudgetPlanCoverageResolution(coverage: .covered(covered), generatedDrafts: [])
+        }
+
+        guard let first = existing.first, var previous = existing.last else {
+            return BudgetPlanCoverageResolution(coverage: .unconfigured, generatedDrafts: [])
+        }
+        guard date >= first.cycleStart, date >= previous.cycleEnd else {
+            return BudgetPlanCoverageResolution(
+                coverage: .historicalPlanRequired,
+                generatedDrafts: []
             )
-            let storedPlans = try modelContext.fetch(descriptor)
-            guard !storedPlans.isEmpty else { return .unconfigured }
+        }
 
-            let calculator = BudgetCycleCalculator()
-            let factory = BudgetPlanFactory()
-            let existing = try storedPlans.map { try budgetPlanSummary($0) }
-            try calculator.validateNonOverlapping(existing)
-
-            if let covered = existing.first(where: {
-                $0.cycleStart <= date && date < $0.cycleEnd
-            }) {
-                return .covered(covered)
-            }
-
-            guard let first = existing.first, var previous = existing.last else {
-                return .unconfigured
-            }
-            guard date >= first.cycleStart, date >= previous.cycleEnd else {
-                return .historicalPlanRequired
-            }
-
-            var generatedDrafts: [BudgetPlanDraft] = []
-            while !(previous.cycleStart <= date && date < previous.cycleEnd) {
-                guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
-                    throw BudgetCycleError.generationLimitExceeded(
-                        limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
-                    )
-                }
-                let currentInterval = DateInterval(
-                    start: previous.cycleStart,
-                    end: previous.cycleEnd
+        var generatedDrafts: [BudgetPlanDraft] = []
+        while !(previous.cycleStart <= date && date < previous.cycleEnd) {
+            guard generatedDrafts.count < BudgetPlanGenerationPolicy.maximumAutomaticPlans else {
+                throw BudgetCycleError.generationLimitExceeded(
+                    limit: BudgetPlanGenerationPolicy.maximumAutomaticPlans
                 )
-                let advance = try calculator.nextCycle(
-                    after: currentInterval,
+            }
+            let currentInterval = DateInterval(
+                start: previous.cycleStart,
+                end: previous.cycleEnd
+            )
+            let advance = try calculator.nextCycle(
+                after: currentInterval,
+                startDay: futureCycleStartDay,
+                calendar: calendar
+            )
+            switch advance.confirmationReason {
+            case .transition:
+                let firstRegularAdvance = try calculator.nextCycle(
+                    after: advance.interval,
                     startDay: futureCycleStartDay,
                     calendar: calendar
                 )
-                switch advance.confirmationReason {
-                case .transition:
-                    let firstRegularAdvance = try calculator.nextCycle(
-                        after: advance.interval,
-                        startDay: futureCycleStartDay,
-                        calendar: calendar
-                    )
-                    guard firstRegularAdvance.confirmationReason
-                            == .firstRegularCycleAfterTransition else {
-                        throw BudgetCycleError.dateCalculationFailed
-                    }
-                    return .transitionPlanRequired(
+                guard firstRegularAdvance.confirmationReason
+                        == .firstRegularCycleAfterTransition else {
+                    throw BudgetCycleError.dateCalculationFailed
+                }
+                return BudgetPlanCoverageResolution(
+                    coverage: .transitionPlanRequired(
                         BudgetPlanTransitionRequirement(
                             interval: advance.interval,
                             firstRegularInterval: firstRegularAdvance.interval,
                             precedingPlan: previous,
                             futureCycleStartDay: futureCycleStartDay
                         )
-                    )
-                case .firstRegularCycleAfterTransition:
-                    return .firstRegularPlanRequired(
+                    ),
+                    generatedDrafts: []
+                )
+            case .firstRegularCycleAfterTransition:
+                return BudgetPlanCoverageResolution(
+                    coverage: .firstRegularPlanRequired(
                         BudgetPlanFirstRegularRequirement(
                             interval: advance.interval,
                             futureCycleStartDay: futureCycleStartDay
                         )
-                    )
-                case nil:
-                    break
-                }
-                let draft = try factory.makePlan(
-                    copying: previous,
-                    interval: advance.interval,
-                    planID: UUID(),
-                    categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
-                    timestamp: timestamp
+                    ),
+                    generatedDrafts: []
                 )
-                generatedDrafts.append(draft)
-                previous = factory.summary(from: draft)
+            case nil:
+                break
             }
-
-            try validateAccountingCurrency(previous.currencyCode)
-            for draft in generatedDrafts {
-                try validateBudgetPlan(draft)
-            }
-            for draft in generatedDrafts {
-                _ = materializeBudgetPlan(draft)
-            }
-
-            return .covered(previous)
+            let draft = try factory.makePlan(
+                copying: previous,
+                interval: advance.interval,
+                planID: UUID(),
+                categoryBudgetIDs: previous.categoryBudgets.map { _ in UUID() },
+                timestamp: timestamp
+            )
+            generatedDrafts.append(draft)
+            previous = factory.summary(from: draft)
         }
+
+        try validateAccountingCurrency(previous.currencyCode)
+        for draft in generatedDrafts {
+            try validateBudgetPlan(draft)
+        }
+        return BudgetPlanCoverageResolution(
+            coverage: .covered(previous),
+            generatedDrafts: generatedDrafts
+        )
     }
 
     func createWishItem(_ draft: WishItemDraft) throws -> WishItemSummary {
@@ -790,7 +857,6 @@ actor DataActor {
                 field: "bucketRaw"
             ),
             merchantName: expense.merchantName,
-            note: expense.note,
             spentAt: expense.spentAt,
             spentTimeZoneIdentifier: expense.spentTimeZoneIdentifier,
             createdAt: expense.createdAt,
@@ -827,6 +893,10 @@ actor DataActor {
             ),
             allowMerchantIndexing: expense.allowMerchantIndexing
         )
+    }
+
+    private func expenseDetail(_ expense: Expense) throws -> ExpenseDetail {
+        ExpenseDetail(summary: try expenseSummary(expense), note: expense.note)
     }
 
     private func budgetPlanSummary(_ plan: BudgetPlan) throws -> BudgetPlanSummary {

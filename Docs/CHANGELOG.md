@@ -57,6 +57,10 @@
   rebuild merchant aggregates atomically.
 - Replaced the bootstrap screen with a projection-based app session that refreshes after
   successful writes and foreground activation without allowing view-layer SwiftData writes.
+- Split interactive budget-coverage preview from persistent lazy generation and represented
+  every expense-form budget state explicitly.
+- Replaced raw-note-bearing expense summaries with targeted detail reads and actor-contained
+  note search.
 
 ### Fixed
 
@@ -78,8 +82,16 @@
   reinterpreting or rounding manually entered amounts.
 - Made transition and first-regular budget confirmation a single atomic persistence
   operation, with an explicit recovery path if only a transition plan exists.
+- Prevented DatePicker previews and cancelled expense forms from persisting future budget
+  plans, and skipped no-op model-context saves for already covered dates.
+- Removed the UI-test reset launch path from Release builds and preserved actionable expense
+  errors for currency mismatch, corrupt data, excessive future dates, and extra precision.
+- Cached locale grouping rules instead of constructing a number formatter for every grouped
+  amount keystroke, and refreshed edited details with one targeted actor fetch.
 
 ### Privacy
 
 - Declared no tracking, no tracking domains, and no collected data types.
 - Declared the required-reason UserDefaults API category for app settings.
+- Kept raw expense notes out of common engine/list projections and reserved `ExpenseDetail`
+  for explicitly requested local detail/edit flows.

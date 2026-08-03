@@ -396,7 +396,6 @@ struct BudgetEngineTests {
             category: category,
             bucket: bucket,
             merchantName: nil,
-            note: nil,
             spentAt: date,
             spentTimeZoneIdentifier: "UTC",
             createdAt: date,

@@ -6,7 +6,6 @@ struct ExpenseSummary: Hashable, Sendable {
     let category: ExpenseCategory
     let bucket: BudgetBucket
     let merchantName: String?
-    let note: String?
     let spentAt: Date
     let spentTimeZoneIdentifier: String
     let createdAt: Date
@@ -18,6 +17,11 @@ struct ExpenseSummary: Hashable, Sendable {
     let isRecurring: Bool
     let source: ExpenseSource
     let allowMerchantIndexing: Bool
+}
+
+struct ExpenseDetail: Hashable, Sendable {
+    let summary: ExpenseSummary
+    let note: String?
 }
 
 struct BudgetPlanSummary: Hashable, Sendable {
