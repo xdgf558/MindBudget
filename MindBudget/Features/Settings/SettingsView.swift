@@ -16,6 +16,33 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("settings.reminders.section") {
+                    Toggle(
+                        "settings.reminders.gentle",
+                        isOn: $settings.enableGentleReminders
+                    )
+                    Picker("settings.reminders.tone", selection: $settings.reminderToneRaw) {
+                        ForEach(ReminderTone.allCases, id: \.rawValue) { tone in
+                            Text(LocalizedStringKey("settings.reminders.tone.\(tone.rawValue)"))
+                                .tag(tone.rawValue)
+                        }
+                    }
+                    Stepper(
+                        value: Binding(
+                            get: { settings.maxDailyInterruptions },
+                            set: { settings.maxDailyInterruptions = $0 }
+                        ),
+                        in: 0...SettingsStore.maximumDailyInterruptions
+                    ) {
+                        LabeledContent("settings.reminders.dailyLimit") {
+                            Text(settings.maxDailyInterruptions, format: .number)
+                        }
+                    }
+                    Text("settings.reminders.localOnly")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("settings.privacy.section") {
                     Label("settings.privacy.localOnly", systemImage: "lock.shield")
                     Text("settings.privacy.message")

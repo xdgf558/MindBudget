@@ -48,14 +48,18 @@ struct SettingsStoreTests {
             lateNightStartHour: valid.lateNightStartHour,
             lateNightEndHour: valid.lateNightEndHour,
             lateNightMinimumRatio: valid.lateNightMinimumRatio,
+            lateNightWindowDays: valid.lateNightWindowDays,
+            lateNightMinimumCount: valid.lateNightMinimumCount,
             stressWindowDays: valid.stressWindowDays,
             stressMinimumCount: valid.stressMinimumCount,
             impulseWindowHours: valid.impulseWindowHours,
             impulseMinimumCount: valid.impulseMinimumCount,
             imageIncreaseMultiplier: valid.imageIncreaseMultiplier,
+            imageRelatedMinimumAmount: valid.imageRelatedMinimumAmount,
             imageBaselineMonths: valid.imageBaselineMonths,
             minimumBaselineMonthsRequired: valid.minimumBaselineMonthsRequired,
-            categoryWarningThresholdBasisPoints: 12_000
+            categoryWarningThresholdBasisPoints: 12_000,
+            safeProceedBufferBasisPoints: valid.safeProceedBufferBasisPoints
         )
 
         #expect(throws: ConfigurationValidationError.self) {

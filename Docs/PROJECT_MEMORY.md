@@ -81,7 +81,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 4 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 5 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -112,5 +112,18 @@ wishlist summaries omit them and targeted `WishItemDetail` supplies them only fo
 detail flows. Raw wishlist notes stay confined to that targeted projection. Phase 4 action
 errors retain recoverable meanings, and countdown preview/save share one fixed instant while
 formatting follows the SwiftUI environment locale. The UI-test reset hook is Debug-only.
-Empty/error states and English/Simplified Chinese accessibility coverage are active;
-Insights remains an honest placeholder until Phase 5.
+Empty/error states and English/Simplified Chinese accessibility coverage are active.
+Phase 5 adds a pure deterministic detector for large purchases, late-hour patterns,
+stress-related repetition, image-related increases, impulse clusters, category risk,
+cooling-off outcomes, and adequate budget buffers. Typed localized insights are deduplicated
+and dismissible in SwiftData. Presentation is independently throttled by settings, scoped
+cooldowns, threshold re-crossing, recent responses, and daily caps; only actually shown
+messages create reminder events. Manual expense entry offers one highest-priority sheet at
+most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
+Insights tab now shows local seven-day/current-cycle summaries, category/emotion/trend
+charts, generated pattern cards, dismissal, and a fixed informational disclaimer. Template
+copy is the mandatory local path; Phase 5 includes no notification scheduling and no real AI
+model call. Expense persistence remains authoritative over best-effort reminder history:
+logging failures skip the advisory surface but never reject a valid expense. Rule and
+throttle thresholds are named at their owning layer, unavailable daily calendar bounds
+downgrade interruptions, and overflowing historical aggregates produce no biased baseline.

@@ -77,17 +77,20 @@ struct CoolingOffPlanSummary: Hashable, Identifiable, Sendable {
     let outcomeRecordedAt: Date?
 }
 
-struct SpendingInsightSummary: Hashable, Sendable {
+struct SpendingInsightSummary: Equatable, Identifiable, Sendable {
     let id: UUID
     let dedupeKey: String
     let type: SpendingInsightType
     let severity: InsightSeverity
     let titleKey: String
     let bodyKey: String
-    let payloadJSON: String
+    let payload: [String: InsightValue]
+    let relatedCategory: ExpenseCategory?
+    let relatedEmotionTag: EmotionTag?
     let periodStart: Date
     let periodEnd: Date
     let isDismissed: Bool
+    let dismissedAt: Date?
 }
 
 struct ReminderEventSummary: Hashable, Sendable {

@@ -38,6 +38,11 @@ outcome is preferred.
 - `direct`: at most 40 characters, plain statement.
 - `minimal`: at most 20 characters, numbers only, no advice.
 
+Phase 5 templates are the mandatory offline fallback. A purchase sheet shows one
+highest-severity message and 2–4 actions; Continue Purchase is the primary action, never a
+punitive secondary escape. Informational insights and minimal tone remain noninterrupting.
+Disabling check-ins suppresses presentation only and must not erase factual local insights.
+
 ## Never
 
 - Use exclamation marks in reminders.

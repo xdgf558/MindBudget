@@ -13,6 +13,7 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidWarningThreshold
     case invalidWishItem
     case invalidCoolingOffPlan
+    case invalidSpendingInsight
     case invalidReminderEvent
     case merchantAggregateOverflow
     case identityMismatch
@@ -589,6 +590,95 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try coolingOffPlanSummary($0) }
     }
 
+    func upsertSpendingInsights(
+        _ drafts: [InsightDraft],
+        createdAt: Date
+    ) throws -> [SpendingInsightSummary] {
+        try commit {
+            var summaries: [SpendingInsightSummary] = []
+            var processedKeys: Set<String> = []
+            for draft in drafts where processedKeys.insert(draft.dedupeKey).inserted {
+                guard !draft.dedupeKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      draft.periodStart < draft.periodEnd else {
+                    throw DataValidationError.invalidSpendingInsight
+                }
+                let payloadData = try SettingsCodec.encode(draft.payload)
+                guard let payloadJSON = String(data: payloadData, encoding: .utf8) else {
+                    throw DataValidationError.invalidSpendingInsight
+                }
+                let dedupeKey = draft.dedupeKey
+                let descriptor = FetchDescriptor<SpendingInsight>(
+                    predicate: #Predicate { insight in
+                        insight.dedupeKey == dedupeKey
+                    }
+                )
+                let insight: SpendingInsight
+                if let existing = try modelContext.fetch(descriptor).first {
+                    existing.typeRaw = draft.type.rawValue
+                    existing.severityRaw = draft.severity.rawValue
+                    existing.titleKey = draft.titleKey
+                    existing.bodyKey = draft.bodyKey
+                    existing.payloadJSON = payloadJSON
+                    existing.relatedCategoryRaw = draft.relatedCategory?.rawValue
+                    existing.relatedEmotionTagRaw = draft.relatedEmotionTag?.rawValue
+                    existing.periodStart = draft.periodStart
+                    existing.periodEnd = draft.periodEnd
+                    insight = existing
+                } else {
+                    insight = SpendingInsight(
+                        id: UUID(),
+                        dedupeKey: draft.dedupeKey,
+                        typeRaw: draft.type.rawValue,
+                        severityRaw: draft.severity.rawValue,
+                        titleKey: draft.titleKey,
+                        bodyKey: draft.bodyKey,
+                        payloadJSON: payloadJSON,
+                        relatedCategoryRaw: draft.relatedCategory?.rawValue,
+                        relatedEmotionTagRaw: draft.relatedEmotionTag?.rawValue,
+                        createdAt: createdAt,
+                        periodStart: draft.periodStart,
+                        periodEnd: draft.periodEnd,
+                        isDismissed: false,
+                        dismissedAt: nil
+                    )
+                    modelContext.insert(insight)
+                }
+                summaries.append(try spendingInsightSummary(insight))
+            }
+            return summaries
+        }
+    }
+
+    func fetchSpendingInsightSummaries(
+        includeDismissed: Bool = false
+    ) throws -> [SpendingInsightSummary] {
+        let descriptor: FetchDescriptor<SpendingInsight>
+        if includeDismissed {
+            descriptor = FetchDescriptor(
+                sortBy: [SortDescriptor(\SpendingInsight.createdAt, order: .reverse)]
+            )
+        } else {
+            descriptor = FetchDescriptor(
+                predicate: #Predicate { insight in !insight.isDismissed },
+                sortBy: [SortDescriptor(\SpendingInsight.createdAt, order: .reverse)]
+            )
+        }
+        return try modelContext.fetch(descriptor).map { try spendingInsightSummary($0) }
+    }
+
+    func dismissSpendingInsight(id: UUID, at date: Date) throws {
+        try commit {
+            let descriptor = FetchDescriptor<SpendingInsight>(
+                predicate: #Predicate { insight in insight.id == id }
+            )
+            guard let insight = try modelContext.fetch(descriptor).first else {
+                throw DataValidationError.modelNotFound
+            }
+            insight.isDismissed = true
+            insight.dismissedAt = date
+        }
+    }
+
     func createReminderEvent(_ draft: ReminderEventDraft) throws -> ReminderEventSummary {
         try commit {
             guard !draft.scopeKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -624,6 +714,24 @@ actor DataActor {
     func fetchReminderEventSummaries() throws -> [ReminderEventSummary] {
         let descriptor = FetchDescriptor<ReminderEvent>(sortBy: [SortDescriptor(\ReminderEvent.shownAt, order: .reverse)])
         return try modelContext.fetch(descriptor).map { try reminderEventSummary($0) }
+    }
+
+    func updateReminderEventResponse(
+        id: UUID,
+        response: ReminderResponse,
+        at date: Date
+    ) throws -> ReminderEventSummary {
+        try commit {
+            let descriptor = FetchDescriptor<ReminderEvent>(
+                predicate: #Predicate { event in event.id == id }
+            )
+            guard let event = try modelContext.fetch(descriptor).first else {
+                throw DataValidationError.modelNotFound
+            }
+            event.userResponseRaw = response.rawValue
+            event.respondedAt = date
+            return try reminderEventSummary(event)
+        }
     }
 
     func modelCounts() throws -> ModelCounts {
@@ -1337,6 +1445,62 @@ actor DataActor {
                 field: "outcomeRaw"
             ),
             outcomeRecordedAt: plan.outcomeRecordedAt
+        )
+    }
+
+    private func spendingInsightSummary(
+        _ insight: SpendingInsight
+    ) throws -> SpendingInsightSummary {
+        guard let payloadData = insight.payloadJSON.data(using: .utf8) else {
+            throw DataValidationError.invalidSpendingInsight
+        }
+        let payload: [String: InsightValue]
+        do {
+            payload = try SettingsCodec.decode(
+                [String: InsightValue].self,
+                from: payloadData
+            )
+        } catch {
+            throw DataValidationError.invalidSpendingInsight
+        }
+        return SpendingInsightSummary(
+            id: insight.id,
+            dedupeKey: insight.dedupeKey,
+            type: try persistedEnum(
+                SpendingInsightType.self,
+                rawValue: insight.typeRaw,
+                entity: "SpendingInsight",
+                id: insight.id,
+                field: "typeRaw"
+            ),
+            severity: try persistedEnum(
+                InsightSeverity.self,
+                rawValue: insight.severityRaw,
+                entity: "SpendingInsight",
+                id: insight.id,
+                field: "severityRaw"
+            ),
+            titleKey: insight.titleKey,
+            bodyKey: insight.bodyKey,
+            payload: payload,
+            relatedCategory: try persistedEnumIfPresent(
+                ExpenseCategory.self,
+                rawValue: insight.relatedCategoryRaw,
+                entity: "SpendingInsight",
+                id: insight.id,
+                field: "relatedCategoryRaw"
+            ),
+            relatedEmotionTag: try persistedEnumIfPresent(
+                EmotionTag.self,
+                rawValue: insight.relatedEmotionTagRaw,
+                entity: "SpendingInsight",
+                id: insight.id,
+                field: "relatedEmotionTagRaw"
+            ),
+            periodStart: insight.periodStart,
+            periodEnd: insight.periodEnd,
+            isDismissed: insight.isDismissed,
+            dismissedAt: insight.dismissedAt
         )
     }
 

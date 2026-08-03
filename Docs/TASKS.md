@@ -19,9 +19,13 @@ Status: Done
 Status: Done
 
 ## Phase 5 — Rule engine, reminder throttle, template reminders, insights
-Status: Todo
+Status: Done
 - Attribute cooling-off outcomes with `outcomeRecordedAt` only through deterministic code;
   preserve `completedAt` as the actual cooling-period end.
+- Keep insight detection independent from whether reminders are enabled. Record only actual
+  reminder presentations, and allow at most one interrupting sheet per purchase flow.
+- Keep local template generation mandatory and deterministic. Phase 5 has no notification
+  scheduling and no real Foundation Models call.
 
 ## Phase 6 — Notifications, CSV export, privacy controls
 Status: Todo

@@ -453,3 +453,92 @@ remain coherent, and future privacy work has a documented narrow projection boun
 
 Files affected: Schema V1 cooling-off model and projections, `DataActor`, Phase 4 action and
 countdown UI, localization, privacy/test contracts, and Phase 4 tests.
+
+---
+
+## 2026-08-03 — Keep Phase 5 detection deterministic and presentation separately throttled
+
+Context: Phase 5 needed to find useful spending patterns, show timely purchase check-ins,
+and retain dismissible insights without letting a disabled reminder setting erase factual
+analysis. The same candidate can match several rules, while repeated sheets would undermine
+the product's calm tone. Notifications and real Foundation Models integration belong to
+later phases, but template output and future-enhancement failure still need a stable contract.
+
+Decision: `SpendingPatternDetector` is a pure Sendable service over allow-listed value
+projections, injected dates/calendars, `Int64` money, `Decimal` ratios, and basis-point
+thresholds. It implements the eight approved rule families and never receives raw notes or
+detail projections. Late-hour amount comparison requires a real positive free-budget
+baseline; a zero or overcommitted baseline is undefined rather than treated as 100 percent.
+Image-related increase requires enough complete historical cycles and a positive aggregate
+baseline. Cooling-off success is attributed by `outcomeRecordedAt`, never `completedAt`.
+
+Detection always runs even when check-ins are disabled. Typed insight payloads are encoded
+deterministically and upserted by cycle/category dedupe key; updating a match never clears a
+user's dismissal. Candidate insights are persisted only after the expense is actually saved,
+while the Insights screen may recompute and upsert patterns from already persisted facts.
+`ReminderEvent` records only a card, inline message, sheet, or later notification that was
+actually presented or delivered. The throttle applies user settings, a 24-hour scoped
+cooldown with the category first-crossing exception, recent dismiss/ignore adaptation, daily
+interrupt caps, and quiet-hour deferral in that order. One purchase submission can present
+at most one sheet, selected from the highest-severity match; continuing the purchase remains
+the primary action and can never be removed.
+
+`AdviceTemplateGenerator` is the mandatory local generator. It produces localized soft,
+direct, and minimal variants under the approved length/action rules. The optional wording
+enhancer is only an injected test/future seam in Phase 5: no SDK model is called. Empty,
+oversized, or exclamation-bearing enhanced text falls back to the local template. Phase 6
+owns notification authorization and scheduling, and Phase 7 owns any real on-device model
+gate plus its stronger safety validator.
+
+Alternatives considered: Combining detection and presentation into one setting-dependent
+service, persisting candidate patterns before the user records an expense, logging every
+rule match as a reminder, showing one sheet per match, interpreting zero free budget as a
+100-percent ratio, using cooling completion time as outcome time, and calling a language
+model before the template path was complete.
+
+Consequences: Insights remain available when interruptions are off, frequency history
+reflects real user-visible events, and deterministic tests can reproduce every threshold and
+throttle decision. Dismissed insights stay dismissed for their dedupe period. Phase 6 can
+consume deferred notification decisions without changing rule semantics, while Phase 7 can
+enhance wording only behind the existing template and validation fallback.
+
+Files affected: Phase 5 detector/throttle/reminder services, insight and reminder
+projections/persistence, expense and Insights UI, settings, localization, tests, and agent
+memory.
+
+---
+
+## 2026-08-03 — Keep expense persistence authoritative over advisory history
+
+Context: PR #7 review found that a failed `ReminderEvent` insert, or a failed response
+update after Continue Purchase, prevented the user's expense from being saved. The same
+review identified fail-open calendar handling, scattered intervention constants, a shared
+large-purchase/image-analysis floor, and silent historical-cycle omission on overflow.
+
+Decision: Expense persistence is authoritative; reminder history is best effort. If a
+sheet event cannot be recorded, the form skips that sheet and continues through the normal
+expense save path. If a response update fails, Continue Purchase still attempts the expense
+save, whose result alone controls the user-visible outcome. `ReminderEventWriter` is an
+injected boundary so both failures remain executable tests rather than theoretical catches.
+
+Rule thresholds stay deterministic but are named at their owning layer. Late-night window
+and count, safe-proceed buffer basis points, and a separate image-related minimum amount
+belong to validated `RuleConfiguration`. Scoped cooldown hours, negative-response count,
+and response-window days belong to `ReminderThrottlePolicy`; they are specification
+constants, not user preferences. An invalid behavioral request has its own diagnostic
+reason. If the calendar cannot produce a daily interval, an interrupting channel is
+downgraded instead of treating the daily count as zero. A cycle aggregate overflow rejects
+the aggregate build instead of silently substituting older cycles into the image baseline.
+
+Alternatives considered: Treating reminder persistence as part of an atomic expense write,
+showing an untracked sheet after event failure, reporting invalid requests as user-disabled,
+defaulting failed decimal parsing to zero, sharing one amount floor between unrelated rules,
+and dropping only the overflowing cycle.
+
+Consequences: A coaching subsystem failure cannot lose user-entered financial data, while
+frequency decisions remain conservative when calendar evidence is unavailable. Product
+threshold changes are reviewable and validated in one place per domain. Historical image
+analysis prefers no result over a biased result.
+
+Files affected: `AddExpenseView`, rule configuration, detector/aggregate builder, reminder
+throttle, Phase 5 tests, and project memory.

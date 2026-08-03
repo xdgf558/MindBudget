@@ -11,14 +11,18 @@ struct RuleConfiguration: Codable, Equatable, Sendable {
     let lateNightStartHour: Int
     let lateNightEndHour: Int
     let lateNightMinimumRatio: Decimal
+    let lateNightWindowDays: Int
+    let lateNightMinimumCount: Int
     let stressWindowDays: Int
     let stressMinimumCount: Int
     let impulseWindowHours: Int
     let impulseMinimumCount: Int
     let imageIncreaseMultiplier: Decimal
+    let imageRelatedMinimumAmount: Money
     let imageBaselineMonths: Int
     let minimumBaselineMonthsRequired: Int
     let categoryWarningThresholdBasisPoints: Int
+    let safeProceedBufferBasisPoints: Int
 
     static func defaults(currencyCode: String) -> RuleConfiguration {
         let floorMajorUnits: Decimal
@@ -29,20 +33,25 @@ struct RuleConfiguration: Codable, Equatable, Sendable {
         default: floorMajorUnits = 100
         }
 
+        let floor = Money(decimal: floorMajorUnits, currencyCode: currencyCode)
         return RuleConfiguration(
-            largePurchaseFloor: Money(decimal: floorMajorUnits, currencyCode: currencyCode),
+            largePurchaseFloor: floor,
             largePurchaseFreeBudgetRatio: decimal("0.15"),
             lateNightStartHour: 22,
             lateNightEndHour: 5,
             lateNightMinimumRatio: decimal("0.05"),
+            lateNightWindowDays: 30,
+            lateNightMinimumCount: 3,
             stressWindowDays: 7,
             stressMinimumCount: 3,
             impulseWindowHours: 72,
             impulseMinimumCount: 3,
             imageIncreaseMultiplier: decimal("1.4"),
+            imageRelatedMinimumAmount: floor,
             imageBaselineMonths: 3,
             minimumBaselineMonthsRequired: 2,
-            categoryWarningThresholdBasisPoints: 8_000
+            categoryWarningThresholdBasisPoints: 8_000,
+            safeProceedBufferBasisPoints: 5_000
         )
     }
 
@@ -71,17 +80,26 @@ struct RuleConfiguration: Codable, Equatable, Sendable {
         guard lateNightMinimumRatio > 0, lateNightMinimumRatio <= 1 else {
             throw ConfigurationValidationError.invalidValue("lateNightMinimumRatio")
         }
-        guard stressWindowDays > 0, stressMinimumCount > 0,
+        guard lateNightWindowDays > 0, lateNightMinimumCount > 0,
+              stressWindowDays > 0, stressMinimumCount > 0,
               impulseWindowHours > 0, impulseMinimumCount > 0 else {
             throw ConfigurationValidationError.invalidValue("patternWindows")
         }
         guard imageIncreaseMultiplier >= 1,
+              imageRelatedMinimumAmount.currencyCode == accountingCurrencyCode,
+              imageRelatedMinimumAmount.minorUnits > 0,
+              imageRelatedMinimumAmount.minorUnits <= Money.maximumMinorUnits(
+                for: accountingCurrencyCode
+              ),
               imageBaselineMonths > 0,
               (1...imageBaselineMonths).contains(minimumBaselineMonthsRequired) else {
             throw ConfigurationValidationError.invalidValue("imageBaseline")
         }
         guard (1...10_000).contains(categoryWarningThresholdBasisPoints) else {
             throw ConfigurationValidationError.invalidValue("categoryWarningThresholdBasisPoints")
+        }
+        guard (1...10_000).contains(safeProceedBufferBasisPoints) else {
+            throw ConfigurationValidationError.invalidValue("safeProceedBufferBasisPoints")
         }
     }
 

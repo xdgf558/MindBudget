@@ -449,3 +449,98 @@ the build and all test suites completed successfully before diagnostic collectio
 
 Next suggested task: Commit and push the Phase 4 review fix to PR #6, then wait for review
 and CI before merging.
+
+## 2026-08-03 — Session 14 — Phase 5 rules, check-ins, and insights
+
+Goal: Deliver deterministic spending-pattern detection, independently throttled template
+check-ins, and useful local insights without pulling Phase 6 notifications or Phase 7 model
+generation into scope.
+
+Files changed: deterministic detector/throttle/reminder services, typed insight and reminder
+projections, `DataActor` persistence, manual expense and Insights/settings UI, router and
+project wiring, English/Simplified Chinese strings, Phase 5 unit/integration/UI tests, and
+the task, decision, copy, test, changelog, project-memory, and session documents.
+
+What was completed: Implemented all eight approved rule families with checked minor-unit
+math, exact threshold semantics, deterministic ordering, historical-cycle aggregation, and
+cooling-off attribution through `outcomeRecordedAt`. Detection remains active when gentle
+check-ins are disabled. Typed insights deduplicate by scope, preserve dismissal, and never
+accept raw-note projections. Presentation applies scoped cooldowns, category threshold
+re-crossing, response adaptation, daily caps, authorization, and quiet-hour deferral.
+Manual expense entry shows at most one highest-priority sheet, records only actual
+presentations, keeps Continue Purchase primary, and offers Wishlist as an alternative.
+Localized soft/direct/minimal templates are the mandatory fallback, while the injected
+enhancer seam contains no real AI call. Insights now provides seven-day/current-cycle
+summaries, category/emotion/trend charts, dismissible pattern cards, and an informational
+disclaimer. Settings expose the check-in toggle, tone, and zero-to-two daily interruption
+limit.
+
+What was NOT completed: Phase 6 still owns notification permission requests, delivery, and
+scheduling; Phase 5 only calculates deferral decisions. Phase 7 still owns any real
+Foundation Models enhancement and the allow-listed redaction boundary. No raw expense or
+wishlist note was added to detector, reminder, or insight inputs.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 122 Swift Testing tests and 5 UI tests, 0 failures. Coverage includes
+every rule family and boundary, 100-run determinism, throttle ordering and exceptions,
+template validation/fallback, typed persistence, five sequential large-purchase flows, and
+the Insights local-summary/empty-state/disclaimer UI path.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. Xcode emitted the known post-test
+diagnostic warning because its unqualified diagnostic collector could not locate `simctl`;
+the build and all test suites had already succeeded.
+
+Next suggested task: Commit the Phase 5 branch, then push and open a pull request when the
+user requests review.
+
+## 2026-08-03 — Session 15 — Phase 5 PR review remediation
+
+Goal: Resolve PR #7 review findings without changing the approved reminder actions or
+pulling notification delivery and model generation into Phase 5.
+
+Files changed: manual-expense reminder integration, rule configuration, detector and cycle
+aggregate builder, reminder throttle policy, Insights aggregate call site, Phase 5/settings
+tests, decisions, test plan, project memory, changelog, and this session log.
+
+What was completed: Made reminder event creation and response updates best effort so neither
+can reject an otherwise valid expense. Failed sheet-event creation now skips the advisory
+surface and follows the normal save path; failed Continue Purchase response logging still
+saves the expense. A live/injected writer boundary proves both failure modes. Daily cap
+calculation now downgrades when the calendar cannot produce a day interval, and malformed
+behavioral requests report `invalidRequest` rather than user opt-out. Late-night window and
+count, safe-proceed buffer basis points, and the image-analysis minimum now belong to
+validated rule configuration. Cooldown and negative-response constants are centralized in
+`ReminderThrottlePolicy`. The image floor is independent from the large-purchase floor, the
+unsafe decimal-zero fallback was removed, and aggregate overflow rejects the full build
+instead of silently replacing a missing recent cycle with older history. Review confirmed
+that the sheet already prevents swipe dismissal: Close retains the expense form, Wishlist
+uses a seeded form and returns on cancellation, and Continue Purchase is the only expense-
+saving action.
+
+What was NOT completed: Notification scheduling remains Phase 6 and real Foundation Models
+wording remains Phase 7. No action was written to GitHub review threads because PR #7 has no
+conversation comments, submitted reviews, or inline threads; the supplied external review
+is represented by code, tests, and decision records.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 129 Swift Testing tests and 5 UI tests, 0 failures. Phase 5 alone passes
+34 tests, including reminder create/update failures, unavailable day bounds, invalid
+requests, configurable safe/late thresholds, independent image floor, and aggregate
+overflow rejection.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device VoiceOver/
+AX5 inspection remain deferred to release preparation. Xcode emitted the known post-test
+diagnostic warning because its unqualified diagnostic collector could not locate `simctl`;
+the build and all test suites had already succeeded.
+
+Next suggested task: Commit and push this remediation to PR #7, then wait for another review
+and CI before merging.

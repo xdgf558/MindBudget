@@ -41,6 +41,16 @@
 - Deterministic wishlist budget-impact previews and atomic wishlist-to-expense conversion.
 - Phase 4 actor, localization, budget-preview, DST, rollback, and end-to-end wishlist UI
   coverage.
+- Deterministic Phase 5 rules for large purchases, late-hour/stress/image/impulse patterns,
+  category risk, cooling-off outcomes, and adequate budget buffers.
+- Setting-aware reminder frequency control with scoped cooldowns, category re-crossing,
+  response adaptation, daily caps, quiet-hour deferral, and actual-presentation event history.
+- Localized soft/direct/minimal template reminders with one highest-priority purchase sheet,
+  Continue Purchase as the primary action, and Wishlist as an alternative.
+- A local Insights dashboard with seven-day and cycle summaries, category/emotion/trend
+  charts, typed dismissible cards, and a fixed informational disclaimer.
+- Phase 5 rule, throttle, reminder fallback, persistence, localization, and Insights UI
+  coverage.
 
 ### Changed
 
@@ -54,6 +64,12 @@
 - Added one hosted-only retry for a confirmed cold-simulator UI launch timeout.
 - Replaced persisted fractional thresholds with integer basis points so financial
   state remains free of binary floating-point values.
+- Made expense saving independent from best-effort reminder event creation and response
+  logging, so an advisory-history failure cannot discard user-entered financial data.
+- Centralized late-night/safe-buffer and throttle policy constants, separated the image
+  analysis floor from the large-purchase floor, and made missing day bounds fail closed.
+- Rejected overflowing historical aggregate builds instead of silently omitting a cycle and
+  biasing the image-related baseline.
 - Replaced the purchasing-power-sensitive one-million-major-unit cap with a
   currency-neutral minor-unit safety limit.
 - Defined future cycle-start changes as independently confirmed transition and first-
@@ -73,6 +89,8 @@
   detail reads.
 - Separated cooling-period completion from later outcome-recording time and documented the
   intentional expense/wishlist projection asymmetry used by future aggregate analysis.
+- Separated factual insight detection from reminder presentation settings and retained
+  dismissed state across deterministic insight upserts.
 
 ### Fixed
 
