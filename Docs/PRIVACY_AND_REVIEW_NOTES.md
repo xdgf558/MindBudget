@@ -71,6 +71,17 @@ they do not imply indexing consent. A merchant name is eligible for Spotlight on
 after the global merchant-name opt-in and at least one matching expense's explicit
 `allowMerchantIndexing` value are both true.
 
+Phase 8A implements that disclosure with one app-owned Spotlight domain. Expense search
+content uses a category and budget-relative amount band, never an exact amount; raw expense
+and wishlist notes are not accepted by the index builder. Wishlist item names may appear
+because the user explicitly created them as searchable app data. Merchant names remain
+excluded until both consent layers are true. Turning Spotlight off awaits domain deletion;
+an indexing failure is shown as an integration error and never changes local financial data.
+Siri queries and writes similarly fail closed until the independent Siri setting and every
+capability gate are available. Siri strings are sanitized and truncated, candidate names
+used for impact previews are not stored, and five-second duplicate execution protection
+prevents one spoken/shortcut action from creating repeated expenses.
+
 ## Emotion-tag review explanation
 
 Chinese: 情绪标签只是用户主动选择的消费背景记录，用于回顾自己的消费情境；

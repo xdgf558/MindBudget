@@ -697,3 +697,58 @@ requires release smoke testing because automated suites deliberately use mocks.
 
 Files affected: Phase 7 generation/classification/redaction/validation services, Reminder
 Engine, Ask/Dashboard/Insights/Settings UI, resources, tests, and durable project memory.
+
+---
+
+## 2026-08-04 — Ship custom iOS 17 system integrations behind independent fail-closed gates
+
+Context: Phase 8A must expose MindBudget actions and app-owned data to Siri, Shortcuts, and
+Spotlight without weakening the iOS 17 baseline or leaking exact amounts, raw notes, or
+merchant names. The release-time contract also requires checking the current SDK for a
+suitable official App Schema domain before defining custom integrations. In Xcode 26.6
+(17F109) with the iOS 26.5 SDK, the public `AppIntents.swiftinterface` exposes Assistant
+Schema families for Books, Browser, Camera, Files, Journal, Mail, Photos, Presentation,
+Reader, Spreadsheet, System, Visual Intelligence, Whiteboard, and Word Processor. It exposes
+no personal-finance, budget, expense, or wishlist schema whose semantics fit MindBudget.
+
+Decision: Phase 8A ships all nine approved actions as custom `AppIntent` types and all seven
+approved projections as custom `AppEntity` types, plus six suggested shortcuts. It does not
+mislabel financial data as another schema domain. `SystemIntegrationCapability` is the only
+place that reads the Siri and Spotlight product-scope flags and combines them with conditional
+framework/OS availability, runtime readiness, and each independent default-off setting.
+Queries return no suggestions and services perform no read or write when the Siri conjunction
+is false.
+
+Siri text is treated as untrusted, stripped of control characters, trimmed, and capped at 40
+characters. App Intent `Double` parameters exist only in `IntentMoneyTransport.swift`; the
+adapter rejects nonfinite, nonpositive, unsupported, oversized, or precision-losing values and
+returns exact `Money` minor units before domain logic. Candidate product names used by impact
+checks are ephemeral. Expense writes from Siri/Shortcuts use an actor-isolated five-second
+deduplication transaction keyed by source, exact money, category, bucket, and normalized
+merchant so system retries return the existing expense instead of inserting another row.
+
+Core Spotlight owns one replaceable `mindbudget.local` domain. Its builder accepts only
+summary projections and indexes expense category plus a budget-relative amount band, current
+budget status, wishlist/cooling state, typed insights, and emotion labels. It cannot access raw
+notes and does not emit exact amounts. Merchant display names require the centralized
+Spotlight conjunction, global `indexMerchantNames`, and at least one expense with the same
+persisted normalized key and `allowMerchantIndexing == true`; local merchant aggregation still
+includes every expense. Turning Spotlight off clears the domain once, and index failures return
+a UI-visible result without blocking or rolling back local data. Search identifiers and open
+intents route only to app-owned destinations.
+
+Alternatives considered: Treating a product flag as consent, exposing entities while the Siri
+setting is off, adopting an unrelated Journal or Files schema, letting `Double` enter domain
+services, trusting Siri strings, storing candidate names, relying on UI-only duplicate checks,
+putting exact amounts or notes in Spotlight, using the local Merchant table as implicit consent,
+or making index writes part of the user's SwiftData transaction.
+
+Consequences: The complete iOS 17 app remains local and deterministic, user settings can
+independently disable Siri or Spotlight, system retries do not duplicate expenses, and the
+search index is useful without becoming a second raw ledger. Before each release, the SDK
+schema catalog must be checked again. `IndexedEntity`, onscreen awareness, and notification
+`appEntityIdentifier` remain Phase 8B because they require iOS 26 APIs and separate review.
+
+Files affected: system-integration gates/settings, App Intents, App Entities, shortcuts,
+Spotlight indexing/deep links, `DataActor` deduplication and merchant eligibility, localization,
+Phase 8A tests, privacy/review notes, and durable project memory.

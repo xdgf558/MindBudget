@@ -56,6 +56,42 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section("settings.integrations.section") {
+                    Toggle(
+                        "settings.integrations.siri",
+                        isOn: $settings.enableSiriIntegration
+                    )
+                    Toggle(
+                        "settings.integrations.spotlight",
+                        isOn: $settings.enableSpotlightIndexing
+                    )
+                    if settings.enableSpotlightIndexing {
+                        Toggle(
+                            "settings.integrations.merchants",
+                            isOn: $settings.indexMerchantNames
+                        )
+                        Text("settings.integrations.merchants.detail")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    if session.spotlightResult == .failed {
+                        Label(
+                            "settings.integrations.spotlight.error",
+                            systemImage: "exclamationmark.triangle"
+                        )
+                        .foregroundStyle(.orange)
+                    } else if session.spotlightResult == .unavailable {
+                        Label(
+                            "settings.integrations.spotlight.unavailable",
+                            systemImage: "magnifyingglass"
+                        )
+                        .foregroundStyle(.secondary)
+                    }
+                    Text("settings.integrations.privacy")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("settings.notifications.section") {
                     Toggle(
                         "settings.notifications.enabled",
@@ -184,6 +220,12 @@ struct SettingsView: View {
             .onChange(of: settings.quietHoursEndHour) { _, _ in
                 rescheduleForQuietHoursChange()
             }
+            .onChange(of: settings.enableSpotlightIndexing) { _, _ in
+                reconcileSpotlight()
+            }
+            .onChange(of: settings.indexMerchantNames) { _, _ in
+                reconcileSpotlight()
+            }
         }
     }
 
@@ -254,6 +296,16 @@ struct SettingsView: View {
         guard settings.enableLocalNotifications else { return }
         Task {
             await session.reconcileNotifications(
+                settings: settings,
+                locale: locale,
+                calendar: calendar
+            )
+        }
+    }
+
+    private func reconcileSpotlight() {
+        Task {
+            _ = await session.reconcileSpotlight(
                 settings: settings,
                 locale: locale,
                 calendar: calendar

@@ -54,3 +54,26 @@ Review the current App Schema domains before every release. Prefer an official
 schema over a custom intent only when the current SDK exposes a suitable,
 compilable personal-finance, list, or reminder domain. Record evidence in
 `Docs/DECISIONS.md`.
+
+## Phase 8A implementation
+
+All required intents and entities ship as custom iOS 17 App Intents/App Entities because
+the Xcode 26.6/iOS 26.5 App Schema catalog has no semantically suitable personal-finance,
+budget, expense, or wishlist domain. Recheck that catalog before each release.
+
+`SystemIntegrationCapability` is the single conjunction for the Siri and Spotlight
+product-scope flags, conditional framework/OS availability, runtime readiness, and each
+independent default-off user setting. Queries fail closed and expose no suggested entities
+when Siri is unavailable. Siri-provided strings are stripped of control characters and
+truncated to 40 characters. Candidate names for impact checks are never persisted. App
+Intent monetary parameters enter domain code only after the isolated transport converts
+them to exact `Int64` minor units; repeated identical Siri/Shortcut expense writes inside
+five seconds return the existing record from one actor transaction.
+
+The Core Spotlight index uses one app-owned domain and contains only redacted summaries.
+Expense entries expose category and a budget-relative amount band, not an exact amount;
+notes are structurally unavailable to the index builder. Merchant names require the
+centralized Spotlight gate, global merchant-name consent, and at least one eligible matching
+expense. Disabling Spotlight clears the domain, and indexing failures do not block or roll
+back SwiftData. `IndexedEntity`, onscreen awareness, and notification entity identifiers
+remain Phase 8B work.

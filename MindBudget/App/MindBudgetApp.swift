@@ -13,6 +13,9 @@ private final class AppBootstrap: ObservableObject {
     func retry() {
         do {
             environment = try AppEnvironment.live()
+            if let environment {
+                MindBudgetAppIntentDependencies.register(environment.intentService)
+            }
             failureDescription = nil
         } catch {
             environment = nil
@@ -31,7 +34,9 @@ struct MindBudgetApp: App {
                 AppRouter(
                     dataController: environment.dataController,
                     notificationScheduler: environment.notificationScheduler,
-                    searchIndexCleaner: environment.searchIndexCleaner
+                    searchIndexCleaner: environment.searchIndexCleaner,
+                    spotlightIndexer: environment.spotlightIndexer,
+                    navigationStore: environment.intentService.navigationStore
                 )
                     .modelContainer(environment.dataController.container)
                     .environmentObject(environment.settingsStore)

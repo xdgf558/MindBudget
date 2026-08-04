@@ -70,6 +70,13 @@
   safety validation, short timeouts, and complete template fallback for every AI path.
 - Settings status that explains Apple Intelligence availability while confirming that all
   template features remain usable.
+- Nine localized iOS 17 App Intents, seven privacy-redacted App Entities, and six suggested
+  App Shortcuts for expense capture, budget impact, wishlist/cooling-off, patterns, and
+  app-owned navigation.
+- A centralized default-off Siri/Spotlight capability boundary, exact App Intent amount
+  transport, sanitized external strings, and atomic five-second expense deduplication.
+- One redacted Core Spotlight domain with budget-relative expense bands, independent
+  merchant-name consent, deep links, awaited clearing, and nonblocking failure handling.
 
 ### Changed
 

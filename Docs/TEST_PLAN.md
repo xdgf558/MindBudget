@@ -279,6 +279,27 @@ all return a nonempty template with source metadata. Reminder and cycle-summary 
 tests use injected mock generators only; the real on-device model remains a supported-device
 manual smoke requirement.
 
+## Phase 8A acceptance
+
+Phase 8A tests prove the centralized Siri and Spotlight gates require product scope,
+framework/OS support, runtime availability, and their independent default-off user settings.
+Siri-disabled services expose no entity data and perform no writes. The isolated amount
+adapter preserves exact USD/JPY minor units and rejects negative values or excess precision;
+Siri strings lose control characters and stop at 40 characters. Identical expense requests
+inside five seconds persist once, currency mismatch remains typed and non-persisting, wishlist
+creation uses a 24-hour default with no invented private detail, and candidate names used for
+budget impact remain ephemeral.
+
+Entity/index coverage proves expense displays use budget-relative bands and that exact
+amounts, raw notes, and merchant names are absent by default. Merchant tests prove local
+aggregates include opted-out expenses while system exposure still requires the centralized
+Spotlight gate, global consent, and an eligible normalized expense key. Disabling Spotlight
+deletes the app domain; an injected index failure returns a visible failure result without
+mutating SwiftData. Identifier-routing tests reject foreign items and map recognized app
+results to the intended local destination. App Intents metadata extraction must succeed in
+the build; final Siri phrase resolution and Spotlight behavior remain physical-device release
+smoke tests.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

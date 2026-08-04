@@ -15,6 +15,7 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidCoolingOffPlan
     case invalidSpendingInsight
     case invalidReminderEvent
+    case invalidIntentExpense
     case merchantAggregateOverflow
     case identityMismatch
     case invalidBudgetTransition
@@ -32,6 +33,52 @@ actor DataActor {
         try commit {
             let expense = try insertExpense(draft)
             return try expenseSummary(expense)
+        }
+    }
+
+    func createIntentExpense(
+        _ draft: ExpenseDraft,
+        dedupeSince: Date
+    ) throws -> IntentExpenseWriteResult {
+        try commit {
+            guard draft.source == .siriIntent || draft.source == .shortcut,
+                  dedupeSince <= draft.createdAt else {
+                throw DataValidationError.invalidIntentExpense
+            }
+            try validateExpense(draft)
+            try validateAccountingCurrency(draft.amount.currencyCode)
+            let sourceRaw = draft.source.rawValue
+            let createdAt = draft.createdAt
+            let amountMinorUnits = draft.amount.minorUnits
+            let currencyCode = draft.amount.currencyCode
+            let categoryRaw = draft.category.rawValue
+            let bucketRaw = draft.bucket.rawValue
+            let normalizedName = draft.merchantName.flatMap(normalizedMerchantName)
+            let descriptor = FetchDescriptor<Expense>(
+                predicate: #Predicate { expense in
+                    expense.createdAt >= dedupeSince
+                        && expense.createdAt <= createdAt
+                        && expense.sourceRaw == sourceRaw
+                },
+                sortBy: [SortDescriptor(\Expense.createdAt, order: .reverse)]
+            )
+            if let duplicate = try modelContext.fetch(descriptor).first(where: { expense in
+                expense.amountMinorUnits == amountMinorUnits
+                    && expense.currencyCode == currencyCode
+                    && expense.categoryRaw == categoryRaw
+                    && expense.bucketRaw == bucketRaw
+                    && expense.normalizedMerchantName == normalizedName
+            }) {
+                return IntentExpenseWriteResult(
+                    expense: try expenseSummary(duplicate),
+                    wasDuplicate: true
+                )
+            }
+            let expense = try insertExpense(draft)
+            return IntentExpenseWriteResult(
+                expense: try expenseSummary(expense),
+                wasDuplicate: false
+            )
         }
     }
 
@@ -888,6 +935,17 @@ actor DataActor {
                 totalMinorUnitsAllTime: merchant.totalMinorUnitsAllTime
             )
         }
+    }
+
+    func fetchMerchantIndexingEligibleNormalizedNames() throws -> Set<String> {
+        let descriptor = FetchDescriptor<Expense>(
+            predicate: #Predicate { expense in
+                expense.allowMerchantIndexing
+            }
+        )
+        return Set(
+            try modelContext.fetch(descriptor).compactMap(\.normalizedMerchantName)
+        )
     }
 
     func replaceLocalData(with sample: SampleDataBundle) throws {

@@ -39,7 +39,7 @@ struct PreferencesSnapshot: Equatable, Sendable {
 
 @MainActor
 final class SettingsStore: ObservableObject {
-    static let maximumDailyInterruptions = 2
+    nonisolated static let maximumDailyInterruptions = 2
 
     @AppStorage var currencyCode: String {
         didSet { reloadRuleConfiguration() }

@@ -769,3 +769,60 @@ Apple-Intelligence-enabled physical-device smoke test. The known post-test Xcode
 collector warning remains non-blocking because all build and test suites completed first.
 
 Next suggested task: Commit and push this remediation to PR #9 for another review pass.
+
+## 2026-08-04 — Session 21 — Phase 8A App Intents, App Entities, and Spotlight
+
+Goal: Complete the iOS 17+ system-integration layer without pulling Phase 8B's iOS 26
+`IndexedEntity` or onscreen-awareness work forward and without weakening the app's local-first
+privacy boundaries.
+
+Files changed: centralized integration capability/preferences; App Intent transport,
+dependencies, actions, entities, queries, and shortcuts; Spotlight document/index service;
+`DataActor` intent deduplication and merchant-eligibility query; app environment, routing,
+Dashboard/Wishlist deep links, and Settings controls; English/Simplified Chinese string
+catalog; Xcode project membership; Phase 8A tests; Siri/privacy/test/decision/task/changelog
+memory; and this session log.
+
+What was completed: Added all nine required App Intents and all seven required App Entities,
+plus six suggested shortcuts. Siri and Spotlight now use independent default-off settings
+through one product-scope + conditional framework/OS + runtime + user-consent boundary.
+Siri-supplied strings are control-character stripped and truncated to 40 characters. The
+only App Intent floating-point parameters live in `IntentMoneyTransport.swift`, which rejects
+invalid or precision-losing values and converts to exact minor units before domain services.
+Expense actions atomically deduplicate identical Siri/Shortcut retries for five seconds;
+wishlist creation uses the documented 24-hour default, and budget-impact candidate names are
+never persisted.
+
+Implemented one app-owned Core Spotlight domain with redacted expense amount bands, current
+budget status, wishlist/cooling-off state, typed insights, and emotion labels. Exact amounts
+and notes are excluded. Merchant names require the centralized Spotlight gate, global opt-in,
+and an eligible expense with the same normalized key, while local aggregation remains complete
+for all expenses. Turning Spotlight off clears the domain; indexing errors surface in Settings
+without changing SwiftData. Spotlight results and open intents route only to app-owned screens.
+The current Xcode 26.6/iOS 26.5 App Schema interface was inspected and has no suitable
+personal-finance, budget, expense, or wishlist domain, so custom schemas were retained and the
+evidence was recorded.
+
+What was NOT completed: `IndexedEntity`, onscreen awareness, and notification
+`appEntityIdentifier` remain Phase 8B. Real Siri phrase resolution, Shortcuts presentation,
+and Core Spotlight indexing still require physical-device release smoke testing. No branch was
+pushed and no pull request was opened because the user has not requested the PR step yet.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; App Intents metadata extraction
+completed during the build.
+
+Test result: pass — 175 Swift Testing tests and 7 UI tests, 0 failures. Phase 8A adds 15
+targeted tests for gates, exact amount transport, sanitization, deduplication, currency errors,
+localized shortcut phrases, ephemeral candidate data, wishlist defaults, entity/index
+redaction, merchant consent, nonblocking index failure, and buffered/live deep-link delivery.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths; the single
+documented transport exception remains isolated, the string catalog is valid JSON, and
+`git diff --check` is clean.
+
+Known issues: Xcode still logs the existing post-test simulator diagnostic-collector warning
+after all suites have passed. App Shortcut phrases and real Spotlight results must be checked
+on a signed physical iPhone before release.
+
+Next suggested task: Commit Phase 8A locally, then push and open a pull request when the user
+requests review.

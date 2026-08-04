@@ -92,7 +92,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 7 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 8A are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -168,4 +168,18 @@ remains authoritative for classification, arithmetic, rules, and allowed actions
 generation, a short timeout, length/action/language/number safety validation, and immediate
 template fallback; generated copy is not persisted. Settings always explains the current
 availability reason and that the complete template experience remains usable without Apple
-Intelligence.
+Intelligence. Phase 8A adds nine localized App Intents, seven redacted App Entities, and six
+suggested App Shortcuts on iOS 17+. Siri and Spotlight are independent default-off settings
+combined with product-scope, import/OS, and runtime gates at one boundary. Siri strings are
+control-character stripped and capped at 40 characters; its amount parameters cross the
+single documented floating-point adapter and become exact minor units before domain code.
+Identical Siri/Shortcut expense requests within five seconds deduplicate atomically. Candidate
+purchase names used for impact checks remain ephemeral. Core Spotlight owns one replaceable
+domain containing category/amount-band expense entries, budget status, wishlist/cooling-off
+state, typed insights, and emotion labels, but no exact amount or raw note. Merchant names
+require both global consent and an eligible expense with the same normalized key; the local
+aggregate remains complete regardless. Disabling Spotlight clears the domain, indexing
+failures never alter SwiftData, and recognized search identifiers deep-link only to app-owned
+destinations. The Xcode 26.6/iOS 26.5 App Schema catalog has no suitable personal-finance,
+budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. `IndexedEntity`,
+onscreen awareness, and notification `appEntityIdentifier` remain Phase 8B work.
