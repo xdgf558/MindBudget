@@ -63,7 +63,9 @@ app's private data are forbidden in V1.
 - Notification reconciliation never prompts implicitly. Cooling-off requests use stable
   plan identifiers, contain no amount or notes, and are replanned through calendar-derived
   quiet hours only after explicit user consent. A corrupt plan is isolated so valid
-  reminders still reconcile, while Settings surfaces the incomplete-data state.
+  reminders still reconcile, while Settings surfaces the incomplete-data state. A later
+  operation failure preserves that last-known warning until a successful reconciliation
+  recomputes it; corrupt rows are never auto-deleted and need a Phase 9 repair action.
 - V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
   exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
 - Delete All is a staged, two-confirmation workflow: notifications, awaited app index

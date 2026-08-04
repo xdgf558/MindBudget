@@ -614,18 +614,23 @@ resets preferences only when all are zero. The verification boundary is injectab
 false postcondition remains testable. Notification candidate projection returns valid
 candidates and invalid plan identifiers separately; valid requests continue, invalid stored
 and pending identifiers are cleared, and Settings displays a localized integrity warning.
-Fetch-level failures still fail the whole operation. Explicit export disclosure, item-name-
-only notification copy without amount/notes, and quiet-hour scheduling were reverified and
-remain unchanged.
+The warning is last-known integrity state: a later operation failure can coexist with it and
+does not clear it; only a successful reconciliation recomputes it. Invalid rows remain stored
+because the app must not silently delete user data. Phase 9 will add an explicit, localized,
+confirmed repair action that reports the affected count. Fetch-level failures still fail the
+whole operation. Explicit export disclosure, item-name-only notification copy without
+amount/notes, and quiet-hour scheduling were reverified and remain unchanged.
 
 Alternatives considered: Trusting absence of an exception, continuing after a failed
-postcondition, aborting all notification work for one corrupt row, or silently skipping the
-row without user-visible evidence.
+postcondition, aborting all notification work for one corrupt row, silently skipping the row
+without user-visible evidence, auto-deleting it, or clearing known integrity state when an
+unrelated scheduling operation fails.
 
 Consequences: Completion now means the database was observed empty, not merely that a delete
 call returned. One corrupt record cannot suppress all valid reminders, and the partial state
 is visible rather than silently normalized. Reconciliation still fails closed when the
-underlying fetch itself cannot be trusted.
+underlying fetch itself cannot be trusted. Until Phase 9 provides repair, the only existing
+whole-store removal path is Delete All; the warning therefore remains intentionally durable.
 
 Files affected: privacy deletion verification, notification projections/reconciliation,
 settings copy, Phase 6 tests, and durable project memory.

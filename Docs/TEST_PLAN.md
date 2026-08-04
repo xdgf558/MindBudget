@@ -239,7 +239,8 @@ Calendar-injected coverage verifies 21:00–09:00 quiet hours move a 22:00 revie
 outcome removes the exact request. Notification copy is bilingual and structurally cannot
 receive a price or note. A corrupt cooling-off row is isolated: valid reminders still
 schedule, the invalid row's stale identifier is cleared, and Settings exposes the integrity
-warning rather than reporting an undifferentiated operation failure.
+warning rather than reporting an undifferentiated operation failure. A later scheduling
+failure may coexist with that last-known integrity warning and must not erase it.
 
 CSV tests cover the exact stable header, header-only empty data, UTF-8 BOM, RFC 4180 commas,
 quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`

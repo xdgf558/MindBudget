@@ -57,3 +57,5 @@ Status: Todo
 
 ## Phase 9 — Polish, tests, accessibility, TestFlight readiness
 Status: Todo
+- Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
+  Show the affected count, require confirmation, and never delete those records implicitly.

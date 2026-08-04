@@ -236,7 +236,7 @@ struct Phase6FeatureTests {
     }
 
     @Test
-    func invalidCoolingRecordDoesNotBlockOtherNotificationReconciliation() async throws {
+    func invalidCoolingRecordIsIsolatedAndWarningSurvivesLaterOperationFailure() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let actor = controller.dataActor
         let validWishID = UUID()
@@ -283,6 +283,17 @@ struct Phase6FeatureTests {
         let pendingIdentifiers = await center.pendingIdentifiers()
         #expect(!pendingIdentifiers.contains(orphanIdentifier))
         #expect(try await seeder.notificationIdentifier(for: orphanPlanID) == nil)
+
+        await center.setAddFailureEnabled(true)
+        let failedReconciliation = await session.reconcileNotifications(
+            settings: settings,
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar,
+            now: TestFixtures.now
+        )
+        #expect(!failedReconciliation)
+        #expect(session.notificationOperationFailed)
+        #expect(session.notificationDataIntegrityWarning)
     }
 
     @Test
@@ -613,6 +624,7 @@ private actor TestLocalNotificationCenter: LocalNotificationCenterClient {
     private var scheduledRequests: [String: LocalNotificationRequest] = [:]
     private var pending: Set<String>
     private var deliveredValues: [DeliveredLocalNotification]
+    private var shouldFailAdd = false
 
     init(
         authorizationState: NotificationAuthorizationState,
@@ -640,6 +652,7 @@ private actor TestLocalNotificationCenter: LocalNotificationCenterClient {
     }
 
     func add(_ request: LocalNotificationRequest) async throws {
+        guard !shouldFailAdd else { throw Phase6TestError.forcedFailure }
         scheduledRequests[request.identifier] = request
         pending.insert(request.identifier)
     }
@@ -675,6 +688,10 @@ private actor TestLocalNotificationCenter: LocalNotificationCenterClient {
 
     func currentAuthorizationState() -> NotificationAuthorizationState {
         state
+    }
+
+    func setAddFailureEnabled(_ isEnabled: Bool) {
+        shouldFailAdd = isEnabled
     }
 }
 

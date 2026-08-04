@@ -134,6 +134,8 @@
   completion, and kept an unverifiable deletion in the failed data stage.
 - Isolated invalid cooling-off records during notification reconciliation so valid requests
   still update, stale identifiers clear, and Settings shows a localized integrity warning.
+- Preserved the last confirmed notification-data integrity warning when a later scheduling
+  operation fails, so operation and stored-data failures can remain visible together.
 - Made CSV UTF-8 conversion total and deletion confirmation follow the active SwiftUI locale.
 
 ### Privacy

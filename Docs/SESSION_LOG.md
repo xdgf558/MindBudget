@@ -636,3 +636,38 @@ known post-test diagnostic warning because its unqualified diagnostic collector 
 locate `simctl`; the build and all test suites had already succeeded.
 
 Next suggested task: Commit and push this remediation to PR #8, then wait for review and CI.
+
+## 2026-08-04 — Session 18 — Preserve notification integrity state and plan explicit repair
+
+Goal: Address the final Phase 6 review observation without auto-deleting an unreachable
+orphan cooling-off record or conflating operation failure with known stored-data corruption.
+
+Files changed: app-session notification state handling, Phase 6 notification tests, Phase 9
+task memory, and the decision, test, changelog, project-memory, and session documents.
+
+What was completed: A failed notification reconciliation now sets the operation-failure
+state without erasing the last successfully observed data-integrity warning. The two states
+can remain true together, and only a later successful reconciliation recomputes the warning.
+The corrupt row remains stored. Phase 9 now owns an explicit localized repair action that
+shows the affected count, requires confirmation, and never deletes records implicitly.
+
+What was NOT completed: The repair action itself is intentionally not implemented during
+Phase 6. Until Phase 9, Delete All remains the only whole-store removal path for an orphaned
+cooling-off record.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 142 Swift Testing tests and 6 UI tests, 0 failures. Phase 6 targeted
+coverage passes 13 tests and now proves a later scheduling failure preserves the known
+integrity warning while also reporting the operation failure.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` compiles successfully; `git diff --check` is clean.
+
+Known issues: The explicit orphan-record repair UI remains scheduled for Phase 9. A real
+App Icon, iOS 17 runtime validation, and physical-device notification, VoiceOver, and AX5
+inspection remain deferred to release preparation. Xcode emitted the known post-test
+diagnostic warning because its unqualified collector could not locate `simctl`; all build
+and test suites had already succeeded.
+
+Next suggested task: Commit and push this final remediation to PR #8 for approval.

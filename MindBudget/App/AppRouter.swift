@@ -138,7 +138,6 @@ final class AppSession: ObservableObject {
             return true
         } catch {
             notificationOperationFailed = true
-            notificationDataIntegrityWarning = false
             return false
         }
     }
