@@ -284,7 +284,10 @@ manual smoke requirement.
 Phase 8A tests prove the centralized Siri and Spotlight gates require product scope,
 framework/OS support, runtime availability, and their independent default-off user settings.
 Siri-disabled services expose no entity data and perform no writes. The isolated amount
-adapter preserves exact USD/JPY minor units and rejects negative values or excess precision;
+adapter preserves exact USD/JPY minor units and distinguishes negative values, excess
+precision, and unsupported currencies; each transport failure and the neutral unexpected-
+failure fallback must have English and Simplified Chinese copy. The explicitly invoked,
+authenticated impact answer may contain its deterministic exact flexible-budget result;
 Siri strings lose control characters and stop at 40 characters. Identical expense requests
 inside five seconds persist once, currency mismatch remains typed and non-persisting, wishlist
 creation uses a 24-hour default with no invented private detail, and candidate names used for

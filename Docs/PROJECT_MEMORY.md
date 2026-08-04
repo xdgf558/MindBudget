@@ -76,6 +76,9 @@ app's private data are forbidden in V1.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
   Phase 7/8 must expose centralized gates combining scope, API/runtime availability,
   and an explicit user setting that defaults off; call sites cannot read raw flags.
+- An authenticated, explicitly invoked Siri budget-impact check may return the exact
+  calculated flexible budget. Unsolicited notifications, entity displays, and Spotlight
+  content never expose exact amounts; Settings warns that the active result may be spoken.
 - V1 targets iPhone only. iPad support requires a later explicit product decision.
 - The public repository is review-visible but proprietary; no open-source rights are granted.
 
@@ -183,3 +186,7 @@ failures never alter SwiftData, and recognized search identifiers deep-link only
 destinations. The Xcode 26.6/iOS 26.5 App Schema catalog has no suitable personal-finance,
 budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. `IndexedEntity`,
 onscreen awareness, and notification `appEntityIdentifier` remain Phase 8B work.
+App Intent money transport keeps invalid values, unsupported precision, unsupported currencies,
+and unexpected execution failures distinct. The authenticated budget-impact intent returns its
+exact calculated flexible-budget result only after explicit invocation, while passive system
+surfaces remain amount-free and Settings discloses the possibility of spoken output.

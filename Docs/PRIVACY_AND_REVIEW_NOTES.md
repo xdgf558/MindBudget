@@ -80,7 +80,10 @@ an indexing failure is shown as an integration error and never changes local fin
 Siri queries and writes similarly fail closed until the independent Siri setting and every
 capability gate are available. Siri strings are sanitized and truncated, candidate names
 used for impact previews are not stored, and five-second duplicate execution protection
-prevents one spoken/shortcut action from creating repeated expenses.
+prevents one spoken/shortcut action from creating repeated expenses. Passive system output
+continues to exclude exact amounts. When the user explicitly invokes the authenticated budget-
+impact intent, its result may speak the exact deterministic flexible-budget value; Settings
+discloses this because authentication does not guarantee a private listening environment.
 
 ## Emotion-tag review explanation
 

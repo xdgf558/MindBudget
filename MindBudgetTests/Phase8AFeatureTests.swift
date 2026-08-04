@@ -89,14 +89,37 @@ struct Phase8AFeatureTests {
     }
 
     @Test
-    func moneyTransportPreservesMinorUnitsAndRejectsUnsupportedPrecision() throws {
+    func moneyTransportPreservesMinorUnitsAndKeepsFailuresTyped() throws {
         #expect(try IntentMoneyTransport.money(from: 12.34, currencyCode: "USD").minorUnits == 1_234)
         #expect(try IntentMoneyTransport.money(from: 123, currencyCode: "JPY").minorUnits == 123)
         #expect(throws: IntentMoneyTransportError.unsupportedPrecision) {
             _ = try IntentMoneyTransport.money(from: 12.345, currencyCode: "USD")
         }
+        #expect(throws: IntentMoneyTransportError.unsupportedCurrency) {
+            _ = try IntentMoneyTransport.money(from: 12.34, currencyCode: "XYZ")
+        }
         #expect(throws: IntentMoneyTransportError.invalidAmount) {
             _ = try IntentMoneyTransport.money(from: -1, currencyCode: "USD")
+        }
+    }
+
+    @Test
+    func intentMoneyFailureCopyIsLocalizedInEnglishAndChinese() throws {
+        let englishPath = try #require(Bundle.main.path(forResource: "en", ofType: "lproj"))
+        let chinesePath = try #require(
+            Bundle.main.path(forResource: "zh-Hans", ofType: "lproj")
+        )
+        let english = try #require(Bundle(path: englishPath))
+        let chinese = try #require(Bundle(path: chinesePath))
+        let keys = [
+            "intent.error.unsupportedPrecision",
+            "intent.error.unsupportedCurrency",
+            "intent.error.temporary",
+        ]
+
+        for key in keys {
+            #expect(english.localizedString(forKey: key, value: nil, table: nil) != key)
+            #expect(chinese.localizedString(forKey: key, value: nil, table: nil) != key)
         }
     }
 

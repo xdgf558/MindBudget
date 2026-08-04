@@ -5,6 +5,14 @@ enum IntentMoneyTransportError: Error, Equatable, Sendable {
     case invalidAmount
     case unsupportedPrecision
     case unsupportedCurrency
+
+    var dialogKey: LocalizedStringResource {
+        switch self {
+        case .invalidAmount: "intent.error.invalidAmount"
+        case .unsupportedPrecision: "intent.error.unsupportedPrecision"
+        case .unsupportedCurrency: "intent.error.unsupportedCurrency"
+        }
+    }
 }
 
 /// The single transport adapter allowed to receive App Intents floating-point
@@ -12,9 +20,11 @@ enum IntentMoneyTransportError: Error, Equatable, Sendable {
 /// a domain service or persistence boundary.
 enum IntentMoneyTransport {
     static func money(from majorUnits: Double, currencyCode: String) throws -> Money {
-        guard majorUnits.isFinite, majorUnits > 0,
-              Money.isSupported(currencyCode) else {
+        guard majorUnits.isFinite, majorUnits > 0 else {
             throw IntentMoneyTransportError.invalidAmount
+        }
+        guard Money.isSupported(currencyCode) else {
+            throw IntentMoneyTransportError.unsupportedCurrency
         }
         guard let decimal = Decimal(
             string: String(majorUnits),
@@ -84,8 +94,10 @@ struct RecordExpenseIntent: AppIntent {
             return .result(dialog: IntentDialog(LocalizedStringResource(stringLiteral: key)))
         } catch let error as IntentExecutionError {
             return .result(dialog: IntentDialog(error.dialogKey))
+        } catch let error as IntentMoneyTransportError {
+            return .result(dialog: IntentDialog(error.dialogKey))
         } catch {
-            return .result(dialog: IntentDialog("intent.error.invalidAmount"))
+            return .result(dialog: IntentDialog("intent.error.temporary"))
         }
     }
 }
@@ -126,8 +138,10 @@ struct AddWishlistItemIntent: AppIntent {
             return .result(dialog: IntentDialog("intent.wishlist.add.success"))
         } catch let error as IntentExecutionError {
             return .result(dialog: IntentDialog(error.dialogKey))
+        } catch let error as IntentMoneyTransportError {
+            return .result(dialog: IntentDialog(error.dialogKey))
         } catch {
-            return .result(dialog: IntentDialog("intent.error.invalidAmount"))
+            return .result(dialog: IntentDialog("intent.error.temporary"))
         }
     }
 }
@@ -183,8 +197,10 @@ struct CheckBudgetImpactIntent: AppIntent {
             return .result(dialog: IntentDialog("\(text)"))
         } catch let error as IntentExecutionError {
             return .result(dialog: IntentDialog(error.dialogKey))
+        } catch let error as IntentMoneyTransportError {
+            return .result(dialog: IntentDialog(error.dialogKey))
         } catch {
-            return .result(dialog: IntentDialog("intent.error.invalidAmount"))
+            return .result(dialog: IntentDialog("intent.error.temporary"))
         }
     }
 }

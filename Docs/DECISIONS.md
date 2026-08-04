@@ -752,3 +752,36 @@ schema catalog must be checked again. `IndexedEntity`, onscreen awareness, and n
 Files affected: system-integration gates/settings, App Intents, App Entities, shortcuts,
 Spotlight indexing/deep links, `DataActor` deduplication and merchant eligibility, localization,
 Phase 8A tests, privacy/review notes, and durable project memory.
+
+---
+
+## 2026-08-04 — Keep App Intent errors truthful and active Siri impact answers exact
+
+Context: Phase 8A review found that the App Intent amount adapter classified an unsupported
+currency as an invalid amount, while three money-taking intents described every unexpected
+failure as an invalid amount. The same review noted that an authenticated budget-impact
+dialog returns an exact flexible-budget value even though passive system surfaces deliberately
+exclude exact amounts. Authentication controls access but does not guarantee that spoken
+output occurs in a private environment.
+
+Decision: Keep invalid/nonpositive amounts, unsupported minor-unit precision, unsupported
+currencies, accounting-currency mismatch, and unexpected execution failures as distinct
+localized outcomes. The transport adapter validates currency support separately, every
+money-taking intent maps typed transport failures explicitly, and an unclassified failure
+uses neutral temporary-failure copy instead of blaming the amount. Preserve the exact value
+in `CheckBudgetImpactIntent` because the authenticated user explicitly requested that
+deterministic calculation. Treat it as a narrow active-query exception: notifications,
+App Entity displays, and Spotlight content remain exact-amount-free, and Settings discloses
+that Siri may speak the exact result.
+
+Alternatives considered: Reporting every failure as an invalid amount, merging unsupported
+currency with accounting-currency mismatch, removing the exact result from the impact action,
+or assuming authentication also proves acoustic privacy.
+
+Consequences: Siri directs the user toward the part of the request that can actually be
+corrected, while persistence and unknown failures no longer make a false claim about their
+amount. The active impact action remains useful, but the spoken-output disclosure is explicit
+and its exception cannot be reused by passive system surfaces without a new reviewed decision.
+
+Files affected: App Intent money transport/actions, localized integration and error copy,
+Phase 8A tests, Siri/privacy plans, changelog, project memory, and this file.

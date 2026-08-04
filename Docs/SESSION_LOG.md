@@ -826,3 +826,44 @@ on a signed physical iPhone before release.
 
 Next suggested task: Commit Phase 8A locally, then push and open a pull request when the user
 requests review.
+
+## 2026-08-04 — Session 22 — Phase 8A typed errors and spoken-result disclosure
+
+Goal: Close PR #10 review findings around unsupported-currency classification, misleading
+money-intent fallback copy, and the undocumented exact-amount boundary for an active Siri
+budget-impact query.
+
+Files changed: App Intent amount transport/actions, bilingual error and integration copy,
+Phase 8A tests, and the Siri, privacy, test, decision, changelog, project-memory, and session
+documents.
+
+What was completed: Split currency support from amount validation so unsupported currency
+reaches its dedicated typed error. All three money-taking intents now map invalid amount,
+unsupported precision, unsupported currency, and accounting-currency mismatch distinctly;
+an unclassified execution failure uses neutral temporary-failure copy rather than claiming
+the amount is invalid. Added English/Simplified Chinese strings and regression coverage for
+the new transport classification and every new key. Preserved the exact deterministic flexible-
+budget result for the authenticated, explicitly invoked impact action, documented it as a
+narrow active-query exception, and added a Settings disclosure that Siri may speak the value.
+Notifications, App Entity displays, and Spotlight remain exact-amount-free. The centralized
+Siri/Spotlight gates, string sanitization, atomic five-second deduplication, and merchant-name
+triple gate were reverified and unchanged.
+
+What was NOT completed: No Phase 8B `IndexedEntity`, onscreen-awareness, or notification
+entity-identifier work was started. Real spoken output and Shortcuts error presentation still
+require a signed physical-iPhone release smoke test.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; App Intents metadata and the string
+catalog compiled successfully.
+
+Test result: pass — 176 Swift Testing tests and 7 UI tests, 0 failures. The Phase 8A suite now
+contains 16 tests and passes independently.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths; JSON parsing
+and `git diff --check` pass.
+
+Known issues: Xcode still emits the existing nonblocking post-test simulator diagnostic-
+collector warning after all suites pass. Physical-device Siri speech/privacy-context validation
+remains release work.
+
+Next suggested task: Commit and push this remediation to PR #10, then wait for review and CI.

@@ -17,6 +17,16 @@ only when the centralized Spotlight gate is enabled, `indexMerchantNames` is ena
 and at least one expense with the same persisted normalized merchant key has
 `allowMerchantIndexing == true`.
 
+## System-output privacy contract
+
+Exact amounts never enter unsolicited notifications, App Entity display representations,
+or Spotlight content. `CheckBudgetImpactIntent` is a deliberate exception only for its
+result dialog: after the user explicitly invokes the action and authentication succeeds,
+it may return the exact deterministic flexible-budget value needed to answer the question.
+Authentication protects access but does not prove the surrounding acoustic environment is
+private, so Settings must disclose that Siri may speak this exact result. No other passive
+system surface may reuse this exception.
+
 ## Allowed
 
 1. App Intents for MindBudget actions.
@@ -68,7 +78,11 @@ when Siri is unavailable. Siri-provided strings are stripped of control characte
 truncated to 40 characters. Candidate names for impact checks are never persisted. App
 Intent monetary parameters enter domain code only after the isolated transport converts
 them to exact `Int64` minor units; repeated identical Siri/Shortcut expense writes inside
-five seconds return the existing record from one actor transaction.
+five seconds return the existing record from one actor transaction. Invalid amounts,
+unsupported precision, unsupported currencies, and unexpected execution failures retain
+separate localized responses rather than being reported as one amount error. The explicitly
+invoked, authenticated budget-impact dialog may return the exact calculated flexible budget;
+Settings discloses that the result may be spoken aloud.
 
 The Core Spotlight index uses one app-owned domain and contains only redacted summaries.
 Expense entries expose category and a budget-relative amount band, not an exact amount;

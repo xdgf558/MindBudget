@@ -120,6 +120,8 @@
 
 ### Fixed
 
+- Preserved distinct App Intent responses for invalid amounts, unsupported decimal precision,
+  unsupported currencies, accounting-currency mismatch, and unexpected execution failures.
 - Prevented a reduced transition-cycle budget from becoming the recurring amount for
   subsequent complete cycles.
 - Expanded the floating-point money guard to the complete app source tree while
@@ -159,6 +161,9 @@
 
 ### Privacy
 
+- Documented and disclosed that only an authenticated, explicitly invoked Siri budget-impact
+  answer may speak its exact calculated flexible budget; notifications, entity displays, and
+  Spotlight content remain exact-amount-free.
 - Declared no tracking, no tracking domains, and no collected data types.
 - Declared the required-reason UserDefaults API category for app settings.
 - Kept raw expense notes out of common engine/list projections and reserved `ExpenseDetail`
