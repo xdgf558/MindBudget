@@ -122,6 +122,35 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testAskReturnsATemplateAnswerWithEnhancementOff() {
+        let app = launchApp(language: "en", locale: "en_US")
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        dismissDecimalKeyboard(in: app)
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.ask"].tap()
+        XCTAssertTrue(app.textFields["ask.question"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["How much is left?"].waitForExistence(timeout: 2))
+        app.buttons["How much is left?"].tap()
+        app.buttons["ask.submit"].tap()
+
+        XCTAssertTrue(element("ask.answer", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Budget remaining"].exists)
+        XCTAssertFalse(app.staticTexts["On-device enhanced"].exists)
+    }
+
+    @MainActor
     func testSettingsShowsExportAndPrivacyControls() {
         let app = launchApp(language: "en", locale: "en_US")
 

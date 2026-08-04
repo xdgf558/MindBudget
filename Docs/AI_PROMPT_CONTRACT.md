@@ -59,21 +59,43 @@ struct RedactedSummaryContext: Codable, Sendable {
 }
 ```
 
-## Redacted Ask context
+## Typed Ask input and redacted context
 
 ```swift
+enum AskAggregateFacts: Sendable {
+    case affordabilityNeedsDetails
+    case affordability(candidateAmount: Money, availableRightNow: Money, isAffordable: Bool)
+    case remainingBudget(remainingFree: Money, safeDailySpend: Money, daysRemaining: Int)
+    case stressPattern(count: Int)
+    case impulsePattern(count: Int)
+    case categoryChange(category: ExpenseCategory, current: Money, previous: Money)
+    case noCategoryChange
+    case alternative
+    case wishlistStatus(coolingCount: Int, activeCount: Int)
+    case outOfScope
+    case unknown
+}
+
 struct RedactedAskContext: Codable, Sendable {
     let localeIdentifier: String
     let currencyCode: String
     let questionIntentKey: AskIntentKey
-    let budgetFactsFormatted: [String: String]
+    private let facts: RedactedAskFacts
     let relevantInsightKeys: [String]
     let allowedActionIdentifiers: [String]
     let tonePreference: String
 }
 ```
 
-An unknown Ask intent never calls a model.
+`AskAggregateInput` accepts this closed per-intent payload plus typed
+`SpendingInsightType`, `SuggestedAction`, and `ReminderTone` values. It has no generic fact
+dictionary and cannot accept a caller-provided template body, merchant name, note, transaction
+row, or arbitrary insight string. `PrivacyRedactor` alone formats `Money`, maps enums to stable
+keys, and constructs the private redacted fact representation. The deterministic fallback body
+is derived from the typed payload after redaction and is not included as a model fact.
+
+`AllowedNumericTokens` derives its allow-list only from the numeric members of the private typed
+facts. An unknown Ask intent never calls a model.
 
 ## System instruction
 

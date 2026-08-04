@@ -61,6 +61,15 @@
   and preference stages; failures stop at and name the incomplete stage.
 - Phase 6 notification, CSV, nine-entity deletion, failure-path, localization, and Settings
   reachability coverage.
+- A local Dashboard Ask surface with seven deterministic English/Simplified Chinese intents,
+  structured affordability details, explicit clarification/refusal paths, and no stored
+  conversation history.
+- Optional on-device Foundation Models wording for Ask, purchase reminders, and cycle
+  summaries behind a centralized default-off capability and availability gate.
+- Allow-listed aggregate redaction, constrained generated outputs, numeric/action/language
+  safety validation, short timeouts, and complete template fallback for every AI path.
+- Settings status that explains Apple Intelligence availability while confirming that all
+  template features remain usable.
 
 ### Changed
 
@@ -137,6 +146,9 @@
 - Preserved the last confirmed notification-data integrity warning when a later scheduling
   operation fails, so operation and stored-data failures can remain visible together.
 - Made CSV UTF-8 conversion total and deletion confirmation follow the active SwiftUI locale.
+- Kept the raw Ask question inside the local classifier, rejected unknown and out-of-scope
+  questions before generation, and prevented failed or unsafe model wording from changing
+  deterministic budget conclusions.
 
 ### Privacy
 
@@ -154,3 +166,7 @@
   container, and disclosed that raw expense notes enter only the user-invoked export.
 - Made full deletion wait for app-owned search-index removal and withhold the success state
   after any incomplete cross-system stage.
+- Structurally excluded raw notes, detail projections, transaction rows, merchant lists,
+  raw cooling-off timestamps, and raw Ask text from every generator API.
+- Replaced the open Ask fact dictionary with exhaustive per-intent typed facts and typed
+  insight identifiers, keeping fallback prose and arbitrary caller strings outside prompts.

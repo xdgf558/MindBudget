@@ -333,6 +333,7 @@ final class ExpenseFormViewModel: ObservableObject {
         dataActor: DataActor,
         currencyCode: String,
         bucket: BudgetBucket,
+        aiEnhancementEnabled: Bool = false,
         locale: Locale,
         now: Date,
         timeZone: TimeZone,
@@ -373,14 +374,17 @@ final class ExpenseFormViewModel: ObservableObject {
         }
 
         if !sheetDrafts.isEmpty {
-            let context = ReminderEngine().buildContext(
+            let reminderEngine = ReminderEngine(
+                aiEnhancementEnabled: aiEnhancementEnabled
+            )
+            let context = reminderEngine.buildContext(
                 candidate: candidate,
                 impact: pendingImpact,
                 snapshot: snapshot,
                 drafts: sheetDrafts,
                 tone: preferences.reminderTone
             )
-            if let message = await ReminderEngine().generateReminder(
+            if let message = await reminderEngine.generateReminder(
                 context: context,
                 channel: .sheet,
                 locale: locale
@@ -898,6 +902,7 @@ struct AddExpenseView: View {
                             dataActor: dataActor,
                             currencyCode: accountingCurrencyCode,
                             bucket: settings.bucket(for: viewModel.category),
+                            aiEnhancementEnabled: settings.enableAIEnhancement,
                             locale: locale,
                             now: Date(),
                             timeZone: .current,

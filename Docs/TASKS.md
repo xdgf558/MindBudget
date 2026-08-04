@@ -41,11 +41,19 @@ Status: Done
   failure, and never report a partial deletion as success.
 
 ## Phase 7 — Ask fallback and AI layer
-Status: Todo
+Status: Done
 - Keep `ExpenseDetail` and every raw note outside redactor/model input APIs. Privacy tests
   must prove only allow-listed aggregate contexts can reach a generator.
 - Keep raw cooling-off completion/outcome timestamps outside model contexts; expose only
   deterministic aggregate outcome counts.
+- Classify the seven supported Ask intents locally and keep unknown/out-of-scope questions
+  on explicit template paths that never call a model.
+- Keep complete template answers authoritative on iOS 17+; make Foundation Models a
+  default-off wording enhancement behind one centralized four-part capability gate.
+- Keep Ask facts in an exhaustive per-intent typed payload; never reopen the redactor boundary
+  with a generic fact dictionary, arbitrary insight strings, or caller-provided template prose.
+- Validate every generated title, body, number, and action against its redacted context;
+  timeout, availability, generation, and validation failures must return templates.
 
 ## Phase 8A — App Intents, App Entities, Spotlight (iOS 17+)
 Status: Todo

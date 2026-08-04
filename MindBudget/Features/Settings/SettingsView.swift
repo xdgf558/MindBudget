@@ -47,6 +47,15 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section("settings.ai.section") {
+                    Toggle("settings.ask.enabled", isOn: $settings.enableAskMindBudget)
+                    Toggle("settings.ai.enhancement", isOn: $settings.enableAIEnhancement)
+                    AIStatusView(userEnabled: settings.enableAIEnhancement)
+                    Text("settings.ai.privacy")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("settings.notifications.section") {
                     Toggle(
                         "settings.notifications.enabled",
