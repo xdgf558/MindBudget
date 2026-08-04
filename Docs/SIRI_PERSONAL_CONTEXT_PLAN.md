@@ -78,16 +78,19 @@ when Siri is unavailable. Siri-provided strings are stripped of control characte
 truncated to 40 characters. Candidate names for impact checks are never persisted. App
 Intent monetary parameters enter domain code only after the isolated transport converts
 them to exact `Int64` minor units; repeated identical Siri/Shortcut expense writes inside
-five seconds return the existing record from one actor transaction. Invalid amounts,
-unsupported precision, unsupported currencies, and unexpected execution failures retain
-separate localized responses rather than being reported as one amount error. The explicitly
-invoked, authenticated budget-impact dialog may return the exact calculated flexible budget;
-Settings discloses that the result may be spoken aloud.
+five seconds return the existing record from one actor transaction. Invalid/nonpositive
+amounts, out-of-range amounts, unsupported precision, unsupported currencies, and unexpected
+execution failures retain separate localized responses rather than being reported as one
+amount error. The explicitly invoked, authenticated budget-impact dialog may return the exact
+calculated flexible budget; Settings presents its spoken-output disclosure separately from
+Spotlight and merchant-indexing privacy copy.
 
 The Core Spotlight index uses one app-owned domain and contains only redacted summaries.
 Expense entries expose category and a budget-relative amount band, not an exact amount;
 notes are structurally unavailable to the index builder. Merchant names require the
 centralized Spotlight gate, global merchant-name consent, and at least one eligible matching
 expense. Disabling Spotlight clears the domain, and indexing failures do not block or roll
-back SwiftData. `IndexedEntity`, onscreen awareness, and notification entity identifiers
-remain Phase 8B work.
+back SwiftData. Automated acceptance runs this conjunction through the production
+`reconcile()` path and proves that a merchant document appears only when the centralized
+capability, global merchant-name setting, and eligible matching expense are all present.
+`IndexedEntity`, onscreen awareness, and notification entity identifiers remain Phase 8B work.

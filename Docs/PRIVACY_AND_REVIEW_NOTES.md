@@ -83,7 +83,9 @@ used for impact previews are not stored, and five-second duplicate execution pro
 prevents one spoken/shortcut action from creating repeated expenses. Passive system output
 continues to exclude exact amounts. When the user explicitly invokes the authenticated budget-
 impact intent, its result may speak the exact deterministic flexible-budget value; Settings
-discloses this because authentication does not guarantee a private listening environment.
+discloses this in a separate scalable paragraph because authentication does not guarantee a
+private listening environment. Spotlight and merchant-indexing privacy remain in their own
+paragraph.
 
 ## Emotion-tag review explanation
 

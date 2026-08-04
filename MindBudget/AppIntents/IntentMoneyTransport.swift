@@ -3,12 +3,14 @@ import Foundation
 
 enum IntentMoneyTransportError: Error, Equatable, Sendable {
     case invalidAmount
+    case amountOutOfRange
     case unsupportedPrecision
     case unsupportedCurrency
 
     var dialogKey: LocalizedStringResource {
         switch self {
         case .invalidAmount: "intent.error.invalidAmount"
+        case .amountOutOfRange: "intent.error.amountOutOfRange"
         case .unsupportedPrecision: "intent.error.unsupportedPrecision"
         case .unsupportedCurrency: "intent.error.unsupportedCurrency"
         }
@@ -37,13 +39,19 @@ enum IntentMoneyTransport {
             money = try Money.validated(decimal: decimal, currencyCode: currencyCode)
         } catch MoneyError.unsupportedCurrency {
             throw IntentMoneyTransportError.unsupportedCurrency
+        } catch MoneyError.amountOutOfRange {
+            throw IntentMoneyTransportError.amountOutOfRange
         } catch {
             throw IntentMoneyTransportError.invalidAmount
         }
-        guard money.minorUnits > 0,
-              money.minorUnits <= Money.maximumMinorUnits(for: currencyCode),
-              money.decimal == decimal else {
+        guard money.decimal == decimal else {
             throw IntentMoneyTransportError.unsupportedPrecision
+        }
+        guard money.minorUnits > 0 else {
+            throw IntentMoneyTransportError.invalidAmount
+        }
+        guard money.minorUnits <= Money.maximumMinorUnits(for: currencyCode) else {
+            throw IntentMoneyTransportError.amountOutOfRange
         }
         return money
     }

@@ -867,3 +867,41 @@ collector warning after all suites pass. Physical-device Siri speech/privacy-con
 remains release work.
 
 Next suggested task: Commit and push this remediation to PR #10, then wait for review and CI.
+
+## 2026-08-05 — Session 23 — Phase 8A final review cleanup and Spotlight gate proof
+
+Goal: Close the remaining PR #10 review observations by making App Intent amount feedback
+semantically exact, keeping integration privacy copy readable at large accessibility sizes, and
+verifying the Spotlight merchant-name conjunction through the real reconciliation path.
+
+Files changed: App Intent money transport, Settings integration copy/layout, English/Simplified
+Chinese string catalog, Phase 8A tests, and the Siri/privacy/test/decision/changelog/project-
+memory documents plus this session log.
+
+What was completed: Shortened the invalid-amount response to describe only nonfinite or
+nonpositive input. Added a distinct typed and localized out-of-range response, and separated
+the storage-safety limit from the exact-decimal-precision check so an oversized exact amount is
+not misreported as a precision error. Split Siri spoken-result disclosure from the Spotlight
+and merchant-consent explanation into separate Settings paragraphs. Added an end-to-end
+Spotlight reconciliation test that independently proves a disabled centralized capability,
+disabled global merchant setting, or absence of an eligible opted-in expense prevents merchant
+documents, and that all three satisfied gates allow the document.
+
+What was NOT completed: No Phase 8B `IndexedEntity`, onscreen-awareness, or notification
+entity-identifier work was started. Real Siri speech, Shortcuts presentation, accessibility at
+AX5, and Core Spotlight results still require release smoke testing on a signed physical iPhone.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; `build-for-testing` completed and
+App Intents metadata plus both string catalogs compiled successfully.
+
+Test result: pass — 177 Swift Testing tests and 7 UI tests, 0 failures. The Phase 8A suite now
+contains 17 tests and also passes independently.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths; the string
+catalog parses as valid JSON and `git diff --check` is clean.
+
+Known issues: Xcode still emits the existing nonblocking post-test simulator diagnostic-
+collector warning after all suites pass. Physical-device Siri, accessibility, and Spotlight
+validation remain release work.
+
+Next suggested task: Commit and push this final cleanup to PR #10 for the next review pass.

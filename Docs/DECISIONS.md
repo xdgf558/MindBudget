@@ -764,15 +764,19 @@ dialog returns an exact flexible-budget value even though passive system surface
 exclude exact amounts. Authentication controls access but does not guarantee that spoken
 output occurs in a private environment.
 
-Decision: Keep invalid/nonpositive amounts, unsupported minor-unit precision, unsupported
-currencies, accounting-currency mismatch, and unexpected execution failures as distinct
-localized outcomes. The transport adapter validates currency support separately, every
-money-taking intent maps typed transport failures explicitly, and an unclassified failure
-uses neutral temporary-failure copy instead of blaming the amount. Preserve the exact value
-in `CheckBudgetImpactIntent` because the authenticated user explicitly requested that
-deterministic calculation. Treat it as a narrow active-query exception: notifications,
-App Entity displays, and Spotlight content remain exact-amount-free, and Settings discloses
-that Siri may speak the exact result.
+Decision: Keep invalid/nonpositive amounts, amounts outside the storage-safety boundary,
+unsupported minor-unit precision, unsupported currencies, accounting-currency mismatch, and
+unexpected execution failures as distinct localized outcomes. The transport adapter validates
+currency support, exact decimal precision, and the maximum amount as separate checks; every
+money-taking intent maps typed transport failures explicitly, and an unclassified failure uses
+neutral temporary-failure copy instead of blaming the amount. Preserve the exact value in
+`CheckBudgetImpactIntent` because the authenticated user explicitly requested that deterministic
+calculation. Treat it as a narrow active-query exception: notifications, App Entity displays,
+and Spotlight content remain exact-amount-free. Settings discloses that Siri may speak the exact
+result in a separate paragraph from Spotlight and merchant privacy so both remain readable at
+large accessibility sizes. The merchant-name conjunction is verified through the production
+`reconcile()` path: centralized capability, global consent, and one eligible expense are all
+required before a merchant document can be emitted.
 
 Alternatives considered: Reporting every failure as an invalid amount, merging unsupported
 currency with accounting-currency mismatch, removing the exact result from the impact action,
@@ -780,8 +784,11 @@ or assuming authentication also proves acoustic privacy.
 
 Consequences: Siri directs the user toward the part of the request that can actually be
 corrected, while persistence and unknown failures no longer make a false claim about their
-amount. The active impact action remains useful, but the spoken-output disclosure is explicit
-and its exception cannot be reused by passive system surfaces without a new reviewed decision.
+amount. Oversized exact values are no longer misreported as a decimal-precision problem. The
+active impact action remains useful, but the spoken-output disclosure is explicit and its
+exception cannot be reused by passive system surfaces without a new reviewed decision. The
+most privacy-sensitive Spotlight rule has executable end-to-end evidence instead of relying
+only on builder-level tests and documentation.
 
 Files affected: App Intent money transport/actions, localized integration and error copy,
 Phase 8A tests, Siri/privacy plans, changelog, project memory, and this file.

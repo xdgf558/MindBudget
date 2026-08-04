@@ -61,6 +61,9 @@ struct SettingsView: View {
                         "settings.integrations.siri",
                         isOn: $settings.enableSiriIntegration
                     )
+                    Text("settings.integrations.siri.privacy")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     Toggle(
                         "settings.integrations.spotlight",
                         isOn: $settings.enableSpotlightIndexing

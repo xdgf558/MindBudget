@@ -80,6 +80,8 @@
 
 ### Changed
 
+- Split Siri spoken-result disclosure from Spotlight/merchant privacy copy so large
+  accessibility sizes do not render four independent claims as one paragraph.
 - Limited V1 device support to iPhone.
 - Moved the bundle identifier prefix into an overridable xcconfig.
 - Replaced constant-only smoke assertions with bundle localization checks.
@@ -121,7 +123,10 @@
 ### Fixed
 
 - Preserved distinct App Intent responses for invalid amounts, unsupported decimal precision,
-  unsupported currencies, accounting-currency mismatch, and unexpected execution failures.
+  out-of-range amounts, unsupported currencies, accounting-currency mismatch, and unexpected
+  execution failures.
+- Added production-path reconciliation coverage for the complete Spotlight merchant-name
+  capability, global-consent, and eligible-expense conjunction.
 - Prevented a reduced transition-cycle budget from becoming the recurring amount for
   subsequent complete cycles.
 - Expanded the floating-point money guard to the complete app source tree while

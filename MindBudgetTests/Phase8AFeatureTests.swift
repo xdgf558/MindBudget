@@ -98,6 +98,9 @@ struct Phase8AFeatureTests {
         #expect(throws: IntentMoneyTransportError.unsupportedCurrency) {
             _ = try IntentMoneyTransport.money(from: 12.34, currencyCode: "XYZ")
         }
+        #expect(throws: IntentMoneyTransportError.amountOutOfRange) {
+            _ = try IntentMoneyTransport.money(from: 100_000_000_000, currencyCode: "USD")
+        }
         #expect(throws: IntentMoneyTransportError.invalidAmount) {
             _ = try IntentMoneyTransport.money(from: -1, currencyCode: "USD")
         }
@@ -112,6 +115,8 @@ struct Phase8AFeatureTests {
         let english = try #require(Bundle(path: englishPath))
         let chinese = try #require(Bundle(path: chinesePath))
         let keys = [
+            "intent.error.invalidAmount",
+            "intent.error.amountOutOfRange",
             "intent.error.unsupportedPrecision",
             "intent.error.unsupportedCurrency",
             "intent.error.temporary",
@@ -295,6 +300,68 @@ struct Phase8AFeatureTests {
     }
 
     @Test
+    func spotlightReconciliationEnforcesTheMerchantTripleGateEndToEnd() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.createExpense(
+            expenseDraft(merchantName: "North Cafe", allowMerchantIndexing: false)
+        )
+
+        let unavailableClient = RecordingSpotlightClient()
+        let unavailableIndexer = SpotlightIndexingService(
+            client: unavailableClient,
+            capability: SystemIntegrationCapability(
+                siriProductEnabled: true,
+                spotlightProductEnabled: false,
+                siriRuntimeAvailable: { true },
+                spotlightRuntimeAvailable: { true }
+            )
+        )
+        let unavailable = await unavailableIndexer.reconcile(
+            dataActor: actor,
+            preferences: preferences(merchantNamesEnabled: true),
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar,
+            locale: Locale(identifier: "en_US")
+        )
+
+        #expect(unavailable == .cleared)
+        #expect(await unavailableClient.replaceCount() == 0)
+        #expect(await unavailableClient.deleteCount() == 1)
+
+        let client = RecordingSpotlightClient()
+        let indexer = SpotlightIndexingService(client: client, capability: availableCapability())
+        _ = await indexer.reconcile(
+            dataActor: actor,
+            preferences: preferences(merchantNamesEnabled: true),
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar,
+            locale: Locale(identifier: "en_US")
+        )
+        #expect(await client.lastDocuments().contains(where: isMerchantDocument) == false)
+
+        _ = try await actor.createExpense(
+            expenseDraft(merchantName: " NORTH  CAFE ", allowMerchantIndexing: true)
+        )
+        _ = await indexer.reconcile(
+            dataActor: actor,
+            preferences: preferences(merchantNamesEnabled: false),
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar,
+            locale: Locale(identifier: "en_US")
+        )
+        #expect(await client.lastDocuments().contains(where: isMerchantDocument) == false)
+
+        _ = await indexer.reconcile(
+            dataActor: actor,
+            preferences: preferences(merchantNamesEnabled: true),
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar,
+            locale: Locale(identifier: "en_US")
+        )
+        #expect(await client.lastDocuments().contains(where: isMerchantDocument))
+    }
+
+    @Test
     func merchantAggregateRemainsCompleteIndependentlyOfIndexingConsent() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         _ = try await actor.createExpense(
@@ -464,6 +531,10 @@ struct Phase8AFeatureTests {
             totalMinorUnitsAllTime: 12_345
         )
     }
+
+    private func isMerchantDocument(_ document: SpotlightDocument) -> Bool {
+        document.identifier.hasPrefix(MindBudgetSearchIdentifier.merchantPrefix)
+    }
 }
 
 private actor FixedIntegrationPreferencesProvider: SystemIntegrationPreferencesProviding {
@@ -500,10 +571,12 @@ private enum RecordingSpotlightError: Error { case replaceFailed }
 
 private actor RecordingSpotlightClient: SpotlightIndexClient {
     private var deletes = 0
+    private var replacements: [[SpotlightDocument]] = []
     private var shouldFailReplace = false
 
     func replace(domainIdentifier: String, with documents: [SpotlightDocument]) async throws {
         if shouldFailReplace { throw RecordingSpotlightError.replaceFailed }
+        replacements.append(documents)
     }
 
     func delete(domainIdentifier: String) async throws {
@@ -515,4 +588,6 @@ private actor RecordingSpotlightClient: SpotlightIndexClient {
     }
 
     func deleteCount() -> Int { deletes }
+    func replaceCount() -> Int { replacements.count }
+    func lastDocuments() -> [SpotlightDocument] { replacements.last ?? [] }
 }

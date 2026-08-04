@@ -186,7 +186,9 @@ failures never alter SwiftData, and recognized search identifiers deep-link only
 destinations. The Xcode 26.6/iOS 26.5 App Schema catalog has no suitable personal-finance,
 budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. `IndexedEntity`,
 onscreen awareness, and notification `appEntityIdentifier` remain Phase 8B work.
-App Intent money transport keeps invalid values, unsupported precision, unsupported currencies,
-and unexpected execution failures distinct. The authenticated budget-impact intent returns its
-exact calculated flexible-budget result only after explicit invocation, while passive system
-surfaces remain amount-free and Settings discloses the possibility of spoken output.
+App Intent money transport keeps invalid values, out-of-range amounts, unsupported precision,
+unsupported currencies, and unexpected execution failures distinct. The authenticated budget-
+impact intent returns its exact calculated flexible-budget result only after explicit invocation,
+while passive system surfaces remain amount-free. Settings presents separate, scalable Siri-
+speech and Spotlight/merchant privacy explanations. A production-path reconciliation test proves
+the merchant-name capability, global-consent, and eligible-expense gates together.

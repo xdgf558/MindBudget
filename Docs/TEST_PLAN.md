@@ -285,9 +285,10 @@ Phase 8A tests prove the centralized Siri and Spotlight gates require product sc
 framework/OS support, runtime availability, and their independent default-off user settings.
 Siri-disabled services expose no entity data and perform no writes. The isolated amount
 adapter preserves exact USD/JPY minor units and distinguishes negative values, excess
-precision, and unsupported currencies; each transport failure and the neutral unexpected-
-failure fallback must have English and Simplified Chinese copy. The explicitly invoked,
-authenticated impact answer may contain its deterministic exact flexible-budget result;
+precision, unsupported currencies, and amounts beyond the storage-safety boundary; each
+transport failure and the neutral unexpected-failure fallback must have English and Simplified
+Chinese copy. The explicitly invoked, authenticated impact answer may contain its deterministic
+exact flexible-budget result;
 Siri strings lose control characters and stop at 40 characters. Identical expense requests
 inside five seconds persist once, currency mismatch remains typed and non-persisting, wishlist
 creation uses a 24-hour default with no invented private detail, and candidate names used for
@@ -298,7 +299,10 @@ amounts, raw notes, and merchant names are absent by default. Merchant tests pro
 aggregates include opted-out expenses while system exposure still requires the centralized
 Spotlight gate, global consent, and an eligible normalized expense key. Disabling Spotlight
 deletes the app domain; an injected index failure returns a visible failure result without
-mutating SwiftData. Identifier-routing tests reject foreign items and map recognized app
+mutating SwiftData. One reconciliation test must exercise the production path and withhold a
+merchant document independently for a disabled centralized capability, disabled global consent,
+and missing eligible expense before proving that all three enabled gates emit it. Identifier-
+routing tests reject foreign items and map recognized app
 results to the intended local destination. App Intents metadata extraction must succeed in
 the build; final Siri phrase resolution and Spotlight behavior remain physical-device release
 smoke tests.
