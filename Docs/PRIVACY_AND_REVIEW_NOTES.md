@@ -39,8 +39,9 @@ Delete All is implemented with a confirmation dialog followed by a localized con
 word. It performs these steps in order: cancel app notifications, delete and await all
 app-owned Spotlight index removal, delete all nine SwiftData entity types, reset app
 preferences while leaving system language untouched, and return to onboarding. Progress
-names the current stage. The flow stops and names the failed stage if any operation fails;
-a partial failure is never reported as complete deletion.
+names the current stage. After deletion, the app re-queries all nine model counts and resets
+preferences only when every count is zero. The flow stops and names the failed stage if any
+operation or verification fails; a partial failure is never reported as complete deletion.
 
 ## AI disclosure
 

@@ -13,6 +13,7 @@ final class AppSession: ObservableObject {
     let dataActor: DataActor
     private let notificationScheduler: any NotificationScheduling
     private let searchIndexCleaner: any SearchIndexDeleting
+    private let privacyDeletionVerifier: any PrivacyDeletionVerifying
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -21,16 +22,19 @@ final class AppSession: ObservableObject {
     @Published private(set) var preparationFailed = false
     @Published private(set) var notificationAuthorizationState: NotificationAuthorizationState = .notDetermined
     @Published private(set) var notificationOperationFailed = false
+    @Published private(set) var notificationDataIntegrityWarning = false
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
 
     init(
         dataActor: DataActor,
         notificationScheduler: any NotificationScheduling = NotificationScheduler(),
-        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner()
+        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner(),
+        privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier()
     ) {
         self.dataActor = dataActor
         self.notificationScheduler = notificationScheduler
         self.searchIndexCleaner = searchIndexCleaner
+        self.privacyDeletionVerifier = privacyDeletionVerifier
     }
 
     func prepare(settings: SettingsStore, force: Bool = false) async {
@@ -108,16 +112,19 @@ final class AppSession: ObservableObject {
         now: Date = Date()
     ) async -> Bool {
         do {
-            let candidates = try await dataActor.fetchCoolingNotificationCandidates()
+            let candidateBatch = try await dataActor.fetchCoolingNotificationCandidates()
             let result = try await notificationScheduler.reconcile(
-                candidates: candidates,
+                candidates: candidateBatch.candidates,
                 preferences: settings.preferencesSnapshot,
                 now: now,
                 calendar: calendar,
                 locale: locale
             )
+            let invalidIdentifierUpdates = candidateBatch.invalidPlanIDs.map {
+                CoolingNotificationIdentifierUpdate(planID: $0, identifier: nil)
+            }
             try await dataActor.updateCoolingNotificationIdentifiers(
-                result.identifierUpdates
+                result.identifierUpdates + invalidIdentifierUpdates
             )
             for delivered in result.deliveredNotifications {
                 _ = try? await dataActor.recordDeliveredCoolingNotification(
@@ -127,9 +134,11 @@ final class AppSession: ObservableObject {
             }
             notificationAuthorizationState = result.authorizationState
             notificationOperationFailed = false
+            notificationDataIntegrityWarning = candidateBatch.containsInvalidData
             return true
         } catch {
             notificationOperationFailed = true
+            notificationDataIntegrityWarning = false
             return false
         }
     }
@@ -155,6 +164,10 @@ final class AppSession: ObservableObject {
         privacyDeletionState = .inProgress(.deletingLocalData)
         do {
             try await dataActor.deleteAllUserData()
+            guard try await privacyDeletionVerifier.isDeletionComplete(in: dataActor) else {
+                privacyDeletionState = .failed(.deletingLocalData)
+                return false
+            }
         } catch {
             privacyDeletionState = .failed(.deletingLocalData)
             return false

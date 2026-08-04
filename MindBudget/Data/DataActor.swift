@@ -621,26 +621,39 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try coolingOffPlanSummary($0) }
     }
 
-    func fetchCoolingNotificationCandidates() throws -> [CoolingNotificationCandidate] {
+    func fetchCoolingNotificationCandidates() throws -> CoolingNotificationCandidateBatch {
         let descriptor = FetchDescriptor<CoolingOffPlan>(
             sortBy: [SortDescriptor(\CoolingOffPlan.reviewAt)]
         )
-        return try modelContext.fetch(descriptor).map { plan in
+        var candidates: [CoolingNotificationCandidate] = []
+        var invalidPlanIDs: [UUID] = []
+        for plan in try modelContext.fetch(descriptor) {
             guard let wishItem = plan.wishItem else {
-                throw DataValidationError.invalidCoolingOffPlan
+                invalidPlanIDs.append(plan.id)
+                continue
             }
-            let summary = try coolingOffPlanSummary(plan)
-            return CoolingNotificationCandidate(
-                planID: summary.id,
-                wishItemID: wishItem.id,
-                itemName: wishItem.name,
-                reviewAt: summary.reviewAt,
-                durationHours: summary.durationHours,
-                status: summary.status,
-                outcome: summary.outcome,
-                notificationIdentifier: summary.notificationIdentifier
-            )
+            do {
+                let summary = try coolingOffPlanSummary(plan)
+                candidates.append(
+                    CoolingNotificationCandidate(
+                        planID: summary.id,
+                        wishItemID: wishItem.id,
+                        itemName: wishItem.name,
+                        reviewAt: summary.reviewAt,
+                        durationHours: summary.durationHours,
+                        status: summary.status,
+                        outcome: summary.outcome,
+                        notificationIdentifier: summary.notificationIdentifier
+                    )
+                )
+            } catch {
+                invalidPlanIDs.append(plan.id)
+            }
         }
+        return CoolingNotificationCandidateBatch(
+            candidates: candidates,
+            invalidPlanIDs: invalidPlanIDs
+        )
     }
 
     func updateCoolingNotificationIdentifiers(

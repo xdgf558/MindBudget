@@ -62,12 +62,13 @@ app's private data are forbidden in V1.
 - Reminder throttling records scope, threshold crossings, and deferred notification times.
 - Notification reconciliation never prompts implicitly. Cooling-off requests use stable
   plan identifiers, contain no amount or notes, and are replanned through calendar-derived
-  quiet hours only after explicit user consent.
+  quiet hours only after explicit user consent. A corrupt plan is isolated so valid
+  reminders still reconcile, while Settings surfaces the incomplete-data state.
 - V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
   exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
 - Delete All is a staged, two-confirmation workflow: notifications, awaited app index
-  clearing, all SwiftData entities, preference reset, then onboarding. Any failed stage
-  stops the sequence and remains visible.
+  clearing, all SwiftData entities, verified all-zero model counts, preference reset, then
+  onboarding. Any failed or unverifiable stage stops the sequence and remains visible.
 - Merchant rows aggregate all local expenses. Merchant-name Spotlight indexing also
   requires the global merchant-name opt-in and at least one eligible matching expense.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
@@ -144,7 +145,10 @@ CSV uses UTF-8 BOM, exact integer-derived amount fields, UTC timestamps, correct
 comma/quote/newline escaping, and formula neutralization; its screen discloses that an
 explicit export includes raw expense notes. Delete All requires two confirmations, displays
 each notification/index/data/preference stage, stops without a success claim on failure,
-and returns to onboarding only after all nine SwiftData types are gone. The existing privacy
+and returns to onboarding only after a post-delete query verifies all nine SwiftData types
+are gone. Notification reconciliation isolates invalid cooling-off records, clears their
+stale identifiers, continues valid requests, and exposes a localized integrity warning.
+The existing privacy
 manifest remains accurate: no tracking, collection, third-party SDKs, or new required-reason
 file API was added. Notification `appEntityIdentifier` remains Phase 8 work behind the future
 centralized Siri gate; Phase 6 does not implement indexing or AI ahead of their phases.

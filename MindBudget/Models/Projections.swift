@@ -127,6 +127,18 @@ struct ModelCounts: Equatable, Sendable {
     let merchants: Int
     let reflectionLogs: Int
 
+    var isEmpty: Bool {
+        expenses == 0
+            && budgetPlans == 0
+            && wishItems == 0
+            && coolingOffPlans == 0
+            && categoryBudgets == 0
+            && spendingInsights == 0
+            && reminderEvents == 0
+            && merchants == 0
+            && reflectionLogs == 0
+    }
+
     init(
         expenses: Int,
         budgetPlans: Int,

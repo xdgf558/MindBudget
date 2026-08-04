@@ -27,6 +27,15 @@ struct CoolingNotificationCandidate: Equatable, Sendable {
     let notificationIdentifier: String?
 }
 
+struct CoolingNotificationCandidateBatch: Equatable, Sendable {
+    let candidates: [CoolingNotificationCandidate]
+    let invalidPlanIDs: [UUID]
+
+    var containsInvalidData: Bool {
+        !invalidPlanIDs.isEmpty
+    }
+}
+
 struct CoolingNotificationIdentifierUpdate: Equatable, Sendable {
     let planID: UUID
     let identifier: String?

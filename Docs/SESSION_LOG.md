@@ -595,3 +595,44 @@ locate `simctl`; the build and all test suites had already succeeded.
 
 Next suggested task: Commit the Phase 6 branch, then push and open a pull request when the
 user requests review.
+
+## 2026-08-04 — Session 17 — Phase 6 privacy and notification review remediation
+
+Goal: Close the Phase 6 privacy review by making deletion completion observable, preventing
+one corrupt cooling-off record from disabling every valid reminder, and removing optional
+fallbacks at the CSV and localized confirmation boundaries.
+
+Files changed: privacy deletion verification, model-count projection, notification candidate
+batching and app-session reconciliation, Settings integrity copy, explicit-locale deletion
+confirmation, total UTF-8 export conversion, Phase 6 tests, localization, and the decision,
+privacy, copy, test, changelog, task, project-memory, and session documents.
+
+What was completed: Delete All now re-queries all nine Schema V1 model counts and withholds
+preference reset/completion unless every count is zero. Notification reconciliation separates
+invalid plan IDs from valid candidates, continues scheduling valid reminders, clears stale
+identifiers for invalid records, and shows a localized Settings warning. CSV body conversion
+uses total UTF-8 bytes, and the destructive confirmation word follows the active SwiftUI
+locale. The existing export disclosure was confirmed to name merchant names and raw notes;
+notification payloads were confirmed to contain the wishlist item name but no amount/note,
+and quiet-hour deferral was confirmed to drive the actual system trigger.
+
+What was NOT completed: Revision-wide notification reconciliation remains a nonblocking
+performance optimization for a later phase; current no-op identifier updates do not open a
+SwiftData transaction. Phase 7/8 scope remains unchanged.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 142 Swift Testing tests and 6 UI tests, 0 failures. Phase 6 targeted
+coverage passes 13 tests, including injected incomplete deletion verification, corrupt-row
+partial notification reconciliation, stale identifier clearing, and explicit-locale
+confirmation copy.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses and compiles successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device notification,
+VoiceOver, and AX5 inspection remain deferred to release preparation. Xcode emitted the
+known post-test diagnostic warning because its unqualified diagnostic collector could not
+locate `simctl`; the build and all test suites had already succeeded.
+
+Next suggested task: Commit and push this remediation to PR #8, then wait for review and CI.

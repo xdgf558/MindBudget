@@ -237,7 +237,9 @@ permission clears pending/stored requests without undoing the local cooling-off 
 Calendar-injected coverage verifies 21:00–09:00 quiet hours move a 22:00 review to the next
 09:00, delivered notifications produce at most one booked reminder-history event, and an
 outcome removes the exact request. Notification copy is bilingual and structurally cannot
-receive a price or note.
+receive a price or note. A corrupt cooling-off row is isolated: valid reminders still
+schedule, the invalid row's stale identifier is cleared, and Settings exposes the integrity
+warning rather than reporting an undifferentiated operation failure.
 
 CSV tests cover the exact stable header, header-only empty data, UTF-8 BOM, RFC 4180 commas,
 quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`
@@ -246,9 +248,11 @@ The settings UI exposes the in-memory ShareLink export and clearly discloses inc
 raw expense notes.
 
 Deletion tests populate all nine Schema V1 entity types, then prove the ordered notification
-and Core Spotlight cleanup precedes complete local deletion and preference reset. A forced
-Spotlight failure leaves SwiftData and onboarding preferences intact, names the failed stage,
-and never reports completion. UI coverage confirms Export and Privacy controls are reachable;
+and Core Spotlight cleanup precedes verified all-zero local deletion and preference reset.
+An injected failed postcondition withholds completion and preserves preferences even after
+the delete call returns. A forced Spotlight failure leaves SwiftData and onboarding
+preferences intact, names the failed stage, and never reports completion. UI coverage
+confirms Export and Privacy controls are reachable;
 manual release smoke testing still opens the shared CSV in both Numbers and Excel, validates
 a real notification, and inspects destructive progress on a physical device.
 

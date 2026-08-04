@@ -62,7 +62,7 @@ struct CSVExporter: Sendable {
 
         let body = lines.joined(separator: "\r\n") + "\r\n"
         var data = Data([0xEF, 0xBB, 0xBF])
-        data.append(body.data(using: .utf8) ?? Data())
+        data.append(Data(body.utf8))
         return CSVExportResult(data: data, rowCount: records.count)
     }
 

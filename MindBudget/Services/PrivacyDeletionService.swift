@@ -19,6 +19,17 @@ protocol SearchIndexDeleting: Sendable {
     func deleteAll() async throws
 }
 
+protocol PrivacyDeletionVerifying: Sendable {
+    func isDeletionComplete(in dataActor: DataActor) async throws -> Bool
+}
+
+struct ModelCountPrivacyDeletionVerifier: PrivacyDeletionVerifying, Sendable {
+    func isDeletionComplete(in dataActor: DataActor) async throws -> Bool {
+        let counts = try await dataActor.modelCounts()
+        return counts.isEmpty
+    }
+}
+
 actor CoreSpotlightIndexCleaner: SearchIndexDeleting {
     private let index = CSSearchableIndex.default()
 

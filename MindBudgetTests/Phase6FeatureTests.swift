@@ -236,6 +236,56 @@ struct Phase6FeatureTests {
     }
 
     @Test
+    func invalidCoolingRecordDoesNotBlockOtherNotificationReconciliation() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.dataActor
+        let validWishID = UUID()
+        _ = try await actor.createWishItem(wishDraft(id: validWishID))
+        _ = try await actor.startCoolingOff(
+            wishItemId: validWishID,
+            durationHours: 24,
+            startedAt: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
+        )
+
+        let orphanPlanID = UUID()
+        let orphanIdentifier = CoolingNotificationIdentifier.requestID(for: orphanPlanID)
+        let seeder = Phase6ModelSeeder(modelContainer: controller.container)
+        try await seeder.insertOrphanCoolingOffPlan(
+            id: orphanPlanID,
+            notificationIdentifier: orphanIdentifier
+        )
+        let batch = try await actor.fetchCoolingNotificationCandidates()
+        #expect(batch.candidates.count == 1)
+        #expect(batch.invalidPlanIDs == [orphanPlanID])
+
+        let center = TestLocalNotificationCenter(
+            authorizationState: .authorized,
+            initialPendingIdentifiers: [orphanIdentifier]
+        )
+        let settings = testSettings()
+        settings.enableLocalNotifications = true
+        let session = AppSession(
+            dataActor: actor,
+            notificationScheduler: NotificationScheduler(center: center),
+            searchIndexCleaner: TestSearchIndexCleaner()
+        )
+
+        #expect(await session.reconcileNotifications(
+            settings: settings,
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar,
+            now: TestFixtures.now
+        ))
+        #expect(session.notificationDataIntegrityWarning)
+        #expect(!session.notificationOperationFailed)
+        #expect(await center.requests().count == 1)
+        let pendingIdentifiers = await center.pendingIdentifiers()
+        #expect(!pendingIdentifiers.contains(orphanIdentifier))
+        #expect(try await seeder.notificationIdentifier(for: orphanPlanID) == nil)
+    }
+
+    @Test
     func deleteAllDataRunsPrivacyStagesThenResetsEveryLocalModelAndPreference() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         try await controller.dataActor.replaceLocalData(
@@ -309,6 +359,7 @@ struct Phase6FeatureTests {
         let counts = try await controller.dataActor.modelCounts()
 
         #expect(await recorder.values() == ["notifications", "searchIndex"])
+        #expect(counts.isEmpty)
         #expect(counts == ModelCounts(
             expenses: 0,
             budgetPlans: 0,
@@ -354,6 +405,50 @@ struct Phase6FeatureTests {
         #expect(settings.currencyCode == "USD")
         #expect(session.privacyDeletionState == .failed(.clearingSearchIndex))
         #expect(await recorder.values() == ["notifications", "searchIndex"])
+    }
+
+    @Test
+    func incompleteDeletionVerificationNeverResetsPreferencesOrReportsSuccess() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        try await controller.dataActor.replaceLocalData(
+            with: TestFixtures.sample(.endOfCycle)
+        )
+        let recorder = DeletionStageRecorder()
+        let settings = testSettings()
+        settings.firstLaunchCompleted = true
+        settings.currencyCode = "USD"
+        settings.enableLocalNotifications = true
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            notificationScheduler: TestDeletionNotificationScheduler(recorder: recorder),
+            searchIndexCleaner: TestSearchIndexCleaner(recorder: recorder),
+            privacyDeletionVerifier: TestPrivacyDeletionVerifier(isComplete: false)
+        )
+
+        #expect(await session.deleteAllData(settings: settings) == false)
+
+        #expect(try await controller.dataActor.modelCounts().isEmpty)
+        #expect(settings.firstLaunchCompleted)
+        #expect(settings.currencyCode == "USD")
+        #expect(settings.enableLocalNotifications)
+        #expect(session.privacyDeletionState == .failed(.deletingLocalData))
+        #expect(await recorder.values() == ["notifications", "searchIndex"])
+    }
+
+    @Test
+    func privacyConfirmationWordUsesTheRequestedLocale() {
+        #expect(
+            LocalizedCatalog.string(
+                "privacy.delete.confirmationWord",
+                locale: Locale(identifier: "en_US")
+            ) == "DELETE"
+        )
+        #expect(
+            LocalizedCatalog.string(
+                "privacy.delete.confirmationWord",
+                locale: Locale(identifier: "zh_CN")
+            ) == "删除"
+        )
     }
 
     private func preferences(notificationsEnabled: Bool) -> PreferencesSnapshot {
@@ -510,6 +605,7 @@ struct Phase6FeatureTests {
 
 private enum Phase6TestError: Error {
     case forcedFailure
+    case invalidDate
 }
 
 private actor TestLocalNotificationCenter: LocalNotificationCenterClient {
@@ -640,6 +736,14 @@ private actor TestSearchIndexCleaner: SearchIndexDeleting {
     }
 }
 
+private struct TestPrivacyDeletionVerifier: PrivacyDeletionVerifying {
+    let isComplete: Bool
+
+    func isDeletionComplete(in dataActor: DataActor) async throws -> Bool {
+        isComplete
+    }
+}
+
 @ModelActor
 private actor Phase6ModelSeeder {
     func insertReflection() throws {
@@ -656,5 +760,40 @@ private actor Phase6ModelSeeder {
             )
         )
         try modelContext.save()
+    }
+
+    func insertOrphanCoolingOffPlan(
+        id: UUID,
+        notificationIdentifier: String
+    ) throws {
+        guard let reviewAt = TestFixtures.utcCalendar.date(
+            byAdding: .hour,
+            value: 24,
+            to: TestFixtures.now
+        ) else {
+            throw Phase6TestError.invalidDate
+        }
+        modelContext.insert(
+            CoolingOffPlan(
+                id: id,
+                startedAt: TestFixtures.now,
+                reviewAt: reviewAt,
+                durationHours: 24,
+                statusRaw: CoolingOffStatus.active.rawValue,
+                notificationIdentifier: notificationIdentifier,
+                completedAt: nil,
+                outcomeRaw: nil,
+                outcomeRecordedAt: nil,
+                wishItem: nil
+            )
+        )
+        try modelContext.save()
+    }
+
+    func notificationIdentifier(for id: UUID) throws -> String? {
+        let descriptor = FetchDescriptor<CoolingOffPlan>(
+            predicate: #Predicate { plan in plan.id == id }
+        )
+        return try modelContext.fetch(descriptor).first?.notificationIdentifier
     }
 }

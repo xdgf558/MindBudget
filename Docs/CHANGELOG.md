@@ -130,6 +130,11 @@
   amount keystroke, and refreshed edited details with one targeted actor fetch.
 - Preserved typed wishlist action failures, fixed cooling-off preview and persistence to one
   start instant, and made countdown copy follow the active SwiftUI locale.
+- Verified all nine model counts are empty before Delete All resets preferences or reports
+  completion, and kept an unverifiable deletion in the failed data stage.
+- Isolated invalid cooling-off records during notification reconciliation so valid requests
+  still update, stale identifiers clear, and Settings shows a localized integrity warning.
+- Made CSV UTF-8 conversion total and deletion confirmation follow the active SwiftUI locale.
 
 ### Privacy
 

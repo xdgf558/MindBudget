@@ -118,6 +118,14 @@ struct SettingsView: View {
                         }
                     }
 
+                    if session.notificationDataIntegrityWarning {
+                        Label(
+                            "settings.notifications.invalidStoredData",
+                            systemImage: "exclamationmark.triangle"
+                        )
+                        .foregroundStyle(.orange)
+                    }
+
                     Text("settings.notifications.privacy")
                         .font(.footnote)
                         .foregroundStyle(.secondary)

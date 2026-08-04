@@ -53,6 +53,7 @@ private struct PrivacyDeletionConfirmationView: View {
 
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
     @State private var confirmationText = ""
 
     var body: some View {
@@ -118,10 +119,9 @@ private struct PrivacyDeletionConfirmationView: View {
     }
 
     private var confirmationWord: String {
-        Bundle.main.localizedString(
-            forKey: "privacy.delete.confirmationWord",
-            value: nil,
-            table: nil
+        LocalizedCatalog.string(
+            "privacy.delete.confirmationWord",
+            locale: locale
         )
     }
 
