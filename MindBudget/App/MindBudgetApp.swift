@@ -28,7 +28,11 @@ struct MindBudgetApp: App {
     var body: some Scene {
         WindowGroup {
             if let environment = bootstrap.environment {
-                AppRouter(dataController: environment.dataController)
+                AppRouter(
+                    dataController: environment.dataController,
+                    notificationScheduler: environment.notificationScheduler,
+                    searchIndexCleaner: environment.searchIndexCleaner
+                )
                     .modelContainer(environment.dataController.container)
                     .environmentObject(environment.settingsStore)
             } else {

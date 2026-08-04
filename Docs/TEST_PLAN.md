@@ -84,7 +84,16 @@ points must not accept `ExpenseDetail` or another raw-note-bearing projection.
 ### CSVExporterTests
 
 Cover header-only empty output, UTF-8 BOM, CSV escaping, integer-minor-unit amount
-formatting, and round-trip parsing.
+formatting, round-trip parsing, zero-exponent currencies, and spreadsheet-formula
+neutralization for user-entered text.
+
+### NotificationSchedulerTests
+
+Cover no implicit authorization request, explicit authorized/denied results, one stable
+identifier per cooling-off plan, replacement after quiet-hour changes, cross-midnight
+deferral, precise removal after an outcome or wish deletion, delivered-event deduplication,
+and cancellation of all app requests. Payload tests prove the scheduler has no amount/note
+input and verify approved English/Simplified Chinese item-name review copy.
 
 ### SpotlightIndexingServiceTests
 
@@ -219,6 +228,29 @@ UI suite opens Insights after onboarding and
 asserts the local summary, honest empty state, and fixed disclaimer. Notification delivery,
 Foundation Models wording, VoiceOver/AX5, and iOS 17 runtime checks remain owned by later or
 release-manual phases.
+
+## Phase 6 acceptance
+
+Phase 6 tests prove reconciliation never requests notification permission implicitly,
+authorized cooling-off plans receive one persisted stable request identifier, and denied
+permission clears pending/stored requests without undoing the local cooling-off period.
+Calendar-injected coverage verifies 21:00–09:00 quiet hours move a 22:00 review to the next
+09:00, delivered notifications produce at most one booked reminder-history event, and an
+outcome removes the exact request. Notification copy is bilingual and structurally cannot
+receive a price or note.
+
+CSV tests cover the exact stable header, header-only empty data, UTF-8 BOM, RFC 4180 commas,
+quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`
+minor units, equal column counts after parsing, and spreadsheet-formula neutralization.
+The settings UI exposes the in-memory ShareLink export and clearly discloses inclusion of
+raw expense notes.
+
+Deletion tests populate all nine Schema V1 entity types, then prove the ordered notification
+and Core Spotlight cleanup precedes complete local deletion and preference reset. A forced
+Spotlight failure leaves SwiftData and onboarding preferences intact, names the failed stage,
+and never reports completion. UI coverage confirms Export and Privacy controls are reachable;
+manual release smoke testing still opens the shared CSV in both Numbers and Excel, validates
+a real notification, and inspects destructive progress on a physical device.
 
 ## Continuous integration
 

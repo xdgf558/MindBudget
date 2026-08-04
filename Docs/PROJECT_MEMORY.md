@@ -60,6 +60,14 @@ app's private data are forbidden in V1.
 - `SpendingInsight` stores localization keys and payload, not rendered text.
 - User preferences use `@AppStorage`, not a singleton `@Model`.
 - Reminder throttling records scope, threshold crossings, and deferred notification times.
+- Notification reconciliation never prompts implicitly. Cooling-off requests use stable
+  plan identifiers, contain no amount or notes, and are replanned through calendar-derived
+  quiet hours only after explicit user consent.
+- V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
+  exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
+- Delete All is a staged, two-confirmation workflow: notifications, awaited app index
+  clearing, all SwiftData entities, preference reset, then onboarding. Any failed stage
+  stops the sequence and remains visible.
 - Merchant rows aggregate all local expenses. Merchant-name Spotlight indexing also
   requires the global merchant-name opt-in and at least one eligible matching expense.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
@@ -81,7 +89,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 5 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 6 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -122,8 +130,21 @@ messages create reminder events. Manual expense entry offers one highest-priorit
 most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
 Insights tab now shows local seven-day/current-cycle summaries, category/emotion/trend
 charts, generated pattern cards, dismissal, and a fixed informational disclaimer. Template
-copy is the mandatory local path; Phase 5 includes no notification scheduling and no real AI
-model call. Expense persistence remains authoritative over best-effort reminder history:
+copy is the mandatory local path; Phase 5 itself performs no notification scheduling or real
+AI model call. Expense persistence remains authoritative over best-effort reminder history:
 logging failures skip the advisory surface but never reject a valid expense. Rule and
 throttle thresholds are named at their owning layer, unavailable daily calendar bounds
 downgrade interruptions, and overflowing historical aggregates produce no biased baseline.
+Phase 6 adds explicit-permission local notifications for cooling-off reviews, one persisted
+stable request identifier per plan, lifecycle reconciliation, delivered-event history, and
+calendar-safe quiet-hour replanning. Notification content names only the wishlist item and
+never accepts an amount or note. Settings now exposes authorization state, a System Settings
+path after denial, quiet hours, an in-memory ShareLink expense CSV, and clear privacy facts.
+CSV uses UTF-8 BOM, exact integer-derived amount fields, UTC timestamps, correct embedded
+comma/quote/newline escaping, and formula neutralization; its screen discloses that an
+explicit export includes raw expense notes. Delete All requires two confirmations, displays
+each notification/index/data/preference stage, stops without a success claim on failure,
+and returns to onboarding only after all nine SwiftData types are gone. The existing privacy
+manifest remains accurate: no tracking, collection, third-party SDKs, or new required-reason
+file API was added. Notification `appEntityIdentifier` remains Phase 8 work behind the future
+centralized Siri gate; Phase 6 does not implement indexing or AI ahead of their phases.

@@ -542,3 +542,59 @@ analysis prefers no result over a biased result.
 
 Files affected: `AddExpenseView`, rule configuration, detector/aggregate builder, reminder
 throttle, Phase 5 tests, and project memory.
+
+---
+
+## 2026-08-04 — Make notification consent explicit, exports ephemeral, and deletion staged
+
+Context: Phase 6 connects three privacy-sensitive boundaries: lock-screen notification
+content, an explicit user export that may include raw notes, and irreversible deletion
+across UserNotifications, Core Spotlight, SwiftData, and app preferences. A cooling-off
+period must remain useful when notification permission is denied, quiet-hour changes must
+replan existing requests, and a cross-system deletion cannot honestly be represented as one
+atomic database transaction. Phase 8 has not yet implemented Spotlight indexing or the
+centralized Siri capability gate required for iOS 26 notification entity identifiers.
+
+Decision: Background reconciliation only reads authorization and never prompts. Permission
+is requested solely when the user selects an at-expiry notification while starting a
+cooling-off period or enables the notification setting. Each plan uses the stable request
+identifier `mindbudget.cooling-off.<plan UUID>` stored on `CoolingOffPlan`; reconciliation
+replaces requests when quiet hours change, removes stale identifiers after outcomes or wish
+deletion, and records an actually delivered booked notification as non-cap-counting history.
+Notification payloads structurally receive an item name, plan/wish identifiers, duration,
+and trigger date only—never price or notes. `appEntityIdentifier` remains Phase 8 work so it
+can use the required centralized Siri scope/availability/runtime/user-setting gate.
+
+V1 CSV export is explicitly the expense ledger, not a claim to serialize every internal
+model. It uses stable machine-readable headers, UTC ISO-8601 timestamps, exact canonical
+major units derived from integer minor units, the raw minor units and currency code, and
+UTF-8 with BOM. An explicit export may include the user's merchant names and raw expense
+notes; formula-like user text receives an apostrophe prefix before RFC 4180 escaping. The
+file is provided from in-memory `Transferable` data through `ShareLink`, so MindBudget does
+not retain a second CSV copy in its container.
+
+Delete All requires a confirmation dialog followed by a localized confirmation word. It
+runs and displays these stages in order: cancel all app notifications, await deletion of
+all app-owned Core Spotlight items, delete all nine SwiftData entity types, reset app
+preferences except system language, and return to onboarding. The sequence stops at the
+first failure and names that stage; only full completion resets onboarding state. The
+delete-only Core Spotlight boundary exists in Phase 6 because deletion promises require it,
+but it does not authorize or implement indexing ahead of Phase 8.
+
+Alternatives considered: Prompting on launch, treating the app toggle as system consent,
+putting amounts or notes on the lock screen, generating random notification identifiers,
+leaving cancelled wish notifications for eventual OS cleanup, persisting temporary export
+files, describing an expense-only CSV as a full database backup, deleting SwiftData before
+index cleanup, continuing after an index failure, and adding the iOS 26 entity identifier
+before the Siri gate exists.
+
+Consequences: A denied notification never blocks or rolls back the local cooling-off state.
+Disabling notifications or completing/deleting a wish converges pending and stored request
+state, including after a restart. Exported raw text leaves the app only through an explicit
+share action and is disclosed before export. A failed deletion can leave an earlier cleanup
+stage completed, but it can never erase later data or claim success; retrying the idempotent
+sequence is safe. Phase 8 must retain the notification identifier prefix and deletion
+boundary when it adds searchable items and Siri notification entities.
+
+Files affected: notification/CSV/privacy services, `DataActor`, app session and settings/
+wishlist UI, localization, privacy manifest review, Phase 6 tests, and project memory.

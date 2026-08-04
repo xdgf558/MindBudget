@@ -51,6 +51,16 @@
   charts, typed dismissible cards, and a fixed informational disclaimer.
 - Phase 5 rule, throttle, reminder fallback, persistence, localization, and Insights UI
   coverage.
+- Explicit-permission cooling-off notifications with one stable plan identifier, local
+  delivery history, precise lifecycle cancellation, and cross-midnight quiet-hour replanning.
+- Local notification settings with authorization status, denial guidance, and localized
+  English/Simplified Chinese lock-screen copy that excludes amounts and notes.
+- An in-memory ShareLink expense CSV with UTF-8 BOM, exact major/minor-unit fields, UTC
+  timestamps, RFC 4180 escaping, raw-note disclosure, and spreadsheet-formula safety.
+- A two-confirmation Delete All flow with visible notification, Core Spotlight, SwiftData,
+  and preference stages; failures stop at and name the incomplete stage.
+- Phase 6 notification, CSV, nine-entity deletion, failure-path, localization, and Settings
+  reachability coverage.
 
 ### Changed
 
@@ -131,3 +141,9 @@
   explicitly requested local detail/edit flow.
 - Kept raw cooling-off timestamps out of future generated contexts; only deterministic
   aggregate outcome counts may cross that boundary.
+- Kept cooling-off amounts and notes structurally outside notification payload inputs, while
+  disclosing that the user-entered wishlist name can appear on the lock screen.
+- Generated explicit expense exports in memory without retaining a second CSV in the app
+  container, and disclosed that raw expense notes enter only the user-invoked export.
+- Made full deletion wait for app-owned search-index removal and withhold the success state
+  after any incomplete cross-system stage.

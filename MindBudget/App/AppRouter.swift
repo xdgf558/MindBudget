@@ -11,15 +11,26 @@ enum AppTab: Hashable {
 @MainActor
 final class AppSession: ObservableObject {
     let dataActor: DataActor
+    private let notificationScheduler: any NotificationScheduling
+    private let searchIndexCleaner: any SearchIndexDeleting
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
     @Published var presentsAddExpense = false
     @Published private(set) var isPrepared = false
     @Published private(set) var preparationFailed = false
+    @Published private(set) var notificationAuthorizationState: NotificationAuthorizationState = .notDetermined
+    @Published private(set) var notificationOperationFailed = false
+    @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
 
-    init(dataActor: DataActor) {
+    init(
+        dataActor: DataActor,
+        notificationScheduler: any NotificationScheduling = NotificationScheduler(),
+        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner()
+    ) {
         self.dataActor = dataActor
+        self.notificationScheduler = notificationScheduler
+        self.searchIndexCleaner = searchIndexCleaner
     }
 
     func prepare(settings: SettingsStore, force: Bool = false) async {
@@ -44,14 +55,143 @@ final class AppSession: ObservableObject {
     func presentExpenseEntry() {
         presentsAddExpense = true
     }
+
+    @discardableResult
+    func requestNotificationAuthorization(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> NotificationAuthorizationState {
+        do {
+            var state = await notificationScheduler.authorizationState()
+            if state == .notDetermined {
+                state = try await notificationScheduler.requestAuthorization()
+            }
+            notificationAuthorizationState = state
+            settings.enableLocalNotifications = state.permitsScheduling
+            notificationOperationFailed = false
+            _ = await reconcileNotifications(
+                settings: settings,
+                locale: locale,
+                calendar: calendar,
+                now: now
+            )
+            return state
+        } catch {
+            settings.enableLocalNotifications = false
+            notificationOperationFailed = true
+            return notificationAuthorizationState
+        }
+    }
+
+    func disableNotifications(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async {
+        settings.enableLocalNotifications = false
+        _ = await reconcileNotifications(
+            settings: settings,
+            locale: locale,
+            calendar: calendar,
+            now: now
+        )
+    }
+
+    @discardableResult
+    func reconcileNotifications(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> Bool {
+        do {
+            let candidates = try await dataActor.fetchCoolingNotificationCandidates()
+            let result = try await notificationScheduler.reconcile(
+                candidates: candidates,
+                preferences: settings.preferencesSnapshot,
+                now: now,
+                calendar: calendar,
+                locale: locale
+            )
+            try await dataActor.updateCoolingNotificationIdentifiers(
+                result.identifierUpdates
+            )
+            for delivered in result.deliveredNotifications {
+                _ = try? await dataActor.recordDeliveredCoolingNotification(
+                    planID: delivered.planID,
+                    deliveredAt: delivered.deliveredAt
+                )
+            }
+            notificationAuthorizationState = result.authorizationState
+            notificationOperationFailed = false
+            return true
+        } catch {
+            notificationOperationFailed = true
+            return false
+        }
+    }
+
+    @discardableResult
+    func deleteAllData(settings: SettingsStore) async -> Bool {
+        privacyDeletionState = .inProgress(.cancellingNotifications)
+        do {
+            try await notificationScheduler.cancelAll()
+        } catch {
+            privacyDeletionState = .failed(.cancellingNotifications)
+            return false
+        }
+
+        privacyDeletionState = .inProgress(.clearingSearchIndex)
+        do {
+            try await searchIndexCleaner.deleteAll()
+        } catch {
+            privacyDeletionState = .failed(.clearingSearchIndex)
+            return false
+        }
+
+        privacyDeletionState = .inProgress(.deletingLocalData)
+        do {
+            try await dataActor.deleteAllUserData()
+        } catch {
+            privacyDeletionState = .failed(.deletingLocalData)
+            return false
+        }
+
+        privacyDeletionState = .inProgress(.resettingPreferences)
+        settings.resetAfterDataDeletion()
+        selectedTab = .dashboard
+        presentsAddExpense = false
+        dataDidChange()
+        privacyDeletionState = .completed
+        return true
+    }
+
+    func clearPrivacyDeletionFailure() {
+        if case .failed = privacyDeletionState {
+            privacyDeletionState = .idle
+        }
+    }
 }
 
 struct AppRouter: View {
     @EnvironmentObject private var settings: SettingsStore
     @StateObject private var session: AppSession
 
-    init(dataController: DataController) {
-        _session = StateObject(wrappedValue: AppSession(dataActor: dataController.dataActor))
+    init(
+        dataController: DataController,
+        notificationScheduler: any NotificationScheduling = NotificationScheduler(),
+        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner()
+    ) {
+        _session = StateObject(
+            wrappedValue: AppSession(
+                dataActor: dataController.dataActor,
+                notificationScheduler: notificationScheduler,
+                searchIndexCleaner: searchIndexCleaner
+            )
+        )
     }
 
     var body: some View {
@@ -81,6 +221,8 @@ private struct MainTabView: View {
     @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.calendar) private var calendar
+    @Environment(\.locale) private var locale
     @State private var lastContentTab: AppTab = .dashboard
 
     var body: some View {
@@ -101,7 +243,7 @@ private struct MainTabView: View {
                 .tabItem { Label("tab.wishlist", systemImage: "heart.text.square") }
                 .tag(AppTab.wishlist)
 
-            SettingsView()
+            SettingsView(session: session)
                 .tabItem { Label("tab.settings", systemImage: "gearshape") }
                 .tag(AppTab.settings)
         }
@@ -117,6 +259,13 @@ private struct MainTabView: View {
             if newPhase == .active {
                 session.dataDidChange()
             }
+        }
+        .task(id: session.revision) {
+            await session.reconcileNotifications(
+                settings: settings,
+                locale: locale,
+                calendar: calendar
+            )
         }
         .sheet(isPresented: $session.presentsAddExpense) {
             NavigationStack {

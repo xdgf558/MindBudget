@@ -4,6 +4,8 @@ import Foundation
 struct AppEnvironment {
     let dataController: DataController
     let settingsStore: SettingsStore
+    let notificationScheduler: any NotificationScheduling
+    let searchIndexCleaner: any SearchIndexDeleting
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -15,13 +17,17 @@ struct AppEnvironment {
             defaults.removePersistentDomain(forName: suiteName)
             return AppEnvironment(
                 dataController: try DataController(isStoredInMemoryOnly: true),
-                settingsStore: SettingsStore(defaults: defaults)
+                settingsStore: SettingsStore(defaults: defaults),
+                notificationScheduler: NotificationScheduler(),
+                searchIndexCleaner: CoreSpotlightIndexCleaner()
             )
         }
         #endif
         return AppEnvironment(
             dataController: try DataController(),
-            settingsStore: SettingsStore()
+            settingsStore: SettingsStore(),
+            notificationScheduler: NotificationScheduler(),
+            searchIndexCleaner: CoreSpotlightIndexCleaner()
         )
     }
 }

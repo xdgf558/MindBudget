@@ -72,6 +72,7 @@ struct CoolingOffPlanSummary: Hashable, Identifiable, Sendable {
     let reviewAt: Date
     let durationHours: Int
     let status: CoolingOffStatus
+    let notificationIdentifier: String?
     let completedAt: Date?
     let outcome: CoolingOffOutcome?
     let outcomeRecordedAt: Date?
@@ -120,4 +121,31 @@ struct ModelCounts: Equatable, Sendable {
     let budgetPlans: Int
     let wishItems: Int
     let coolingOffPlans: Int
+    let categoryBudgets: Int
+    let spendingInsights: Int
+    let reminderEvents: Int
+    let merchants: Int
+    let reflectionLogs: Int
+
+    init(
+        expenses: Int,
+        budgetPlans: Int,
+        wishItems: Int,
+        coolingOffPlans: Int,
+        categoryBudgets: Int = 0,
+        spendingInsights: Int = 0,
+        reminderEvents: Int = 0,
+        merchants: Int = 0,
+        reflectionLogs: Int = 0
+    ) {
+        self.expenses = expenses
+        self.budgetPlans = budgetPlans
+        self.wishItems = wishItems
+        self.coolingOffPlans = coolingOffPlans
+        self.categoryBudgets = categoryBudgets
+        self.spendingInsights = spendingInsights
+        self.reminderEvents = reminderEvents
+        self.merchants = merchants
+        self.reflectionLogs = reflectionLogs
+    }
 }

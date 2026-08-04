@@ -6,7 +6,9 @@ Statements about future features must be revalidated against the shipped binary.
 ## Data handling
 
 - Collected data: none. V1 financial records remain in the app's local container.
-- Data leaving the device: none. Planned Foundation Models enhancement is on-device.
+- Data leaving the device automatically or to the developer: none. A user may explicitly
+  share an expense CSV to a destination they choose. Planned Foundation Models enhancement
+  is on-device.
 - Tracking: none.
 - Third-party sharing: none.
 - Accounts: none in V1.
@@ -25,11 +27,20 @@ profiling, cross-app tracking, resale, or third-party analytics.
 
 ## Export and deletion
 
-V1 will export user data as CSV. The planned delete-all flow requires a second
-confirmation and performs these steps in order: cancel notifications, delete and
-await Spotlight index removal, delete all SwiftData entities, reset harmless app
-preferences as specified, and return to onboarding. A partial failure must never
-be reported as complete deletion.
+V1 exports the user's expense ledger as a UTF-8-with-BOM CSV only after the user opens
+Export CSV and invokes the system share sheet. It includes exact amount/currency fields,
+dates, categories, and the user's optional merchant names and raw expense notes; the
+screen discloses those fields before sharing. Formula-like user text is neutralized and
+CSV punctuation/newlines are escaped. The export is transferred from memory, so the app
+does not retain a second CSV file in its container. It is an expense-ledger export, not a
+full internal-database backup.
+
+Delete All is implemented with a confirmation dialog followed by a localized confirmation
+word. It performs these steps in order: cancel app notifications, delete and await all
+app-owned Spotlight index removal, delete all nine SwiftData entity types, reset app
+preferences while leaving system language untouched, and return to onboarding. Progress
+names the current stage. The flow stops and names the failed stage if any operation fails;
+a partial failure is never reported as complete deletion.
 
 ## AI disclosure
 
@@ -67,6 +78,11 @@ does not label a person based on those tags.
 
 - Notifications are requested only after the user creates a cooling-off reminder
   or explicitly enables reminders, never on first launch.
+- Background reconciliation reads authorization without prompting. Denial preserves the
+  local cooling-off countdown and presents a System Settings link instead of retrying the
+  permission dialog.
+- Cooling-off lock-screen content contains the user-entered wishlist item name and neutral
+  review copy, but never its amount or notes. Quiet hours defer rather than discard it.
 - V1 has no receipt, photo, or document import and requests no photo-library access.
 - Siri and Spotlight integration require explicit opt-in.
 

@@ -84,6 +84,37 @@ actor DataActor {
         return try expenseDetail(expense)
     }
 
+    func fetchExpenseExportRecords() throws -> [ExpenseExportRecord] {
+        let descriptor = FetchDescriptor<Expense>(
+            sortBy: [
+                SortDescriptor(\Expense.spentAt),
+                SortDescriptor(\Expense.createdAt),
+            ]
+        )
+        return try modelContext.fetch(descriptor).map { expense in
+            let summary = try expenseSummary(expense)
+            return ExpenseExportRecord(
+                id: summary.id,
+                amount: summary.amount,
+                category: summary.category,
+                bucket: summary.bucket,
+                merchantName: summary.merchantName,
+                note: expense.note,
+                spentAt: summary.spentAt,
+                spentTimeZoneIdentifier: summary.spentTimeZoneIdentifier,
+                createdAt: summary.createdAt,
+                updatedAt: summary.updatedAt,
+                paymentMethod: summary.paymentMethod,
+                emotionTag: summary.emotionTag,
+                purchaseReason: summary.purchaseReason,
+                isPlanned: summary.isPlanned,
+                isRecurring: summary.isRecurring,
+                source: summary.source,
+                allowMerchantIndexing: summary.allowMerchantIndexing
+            )
+        }
+    }
+
     func fetchExpenseIDsWithNotes(matching searchText: String) throws -> Set<UUID> {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return [] }
@@ -590,6 +621,77 @@ actor DataActor {
         return try modelContext.fetch(descriptor).map { try coolingOffPlanSummary($0) }
     }
 
+    func fetchCoolingNotificationCandidates() throws -> [CoolingNotificationCandidate] {
+        let descriptor = FetchDescriptor<CoolingOffPlan>(
+            sortBy: [SortDescriptor(\CoolingOffPlan.reviewAt)]
+        )
+        return try modelContext.fetch(descriptor).map { plan in
+            guard let wishItem = plan.wishItem else {
+                throw DataValidationError.invalidCoolingOffPlan
+            }
+            let summary = try coolingOffPlanSummary(plan)
+            return CoolingNotificationCandidate(
+                planID: summary.id,
+                wishItemID: wishItem.id,
+                itemName: wishItem.name,
+                reviewAt: summary.reviewAt,
+                durationHours: summary.durationHours,
+                status: summary.status,
+                outcome: summary.outcome,
+                notificationIdentifier: summary.notificationIdentifier
+            )
+        }
+    }
+
+    func updateCoolingNotificationIdentifiers(
+        _ updates: [CoolingNotificationIdentifierUpdate]
+    ) throws {
+        guard !updates.isEmpty else { return }
+        try commit {
+            for update in updates {
+                let planID = update.planID
+                var descriptor = FetchDescriptor<CoolingOffPlan>(
+                    predicate: #Predicate { plan in plan.id == planID }
+                )
+                descriptor.fetchLimit = 1
+                guard let plan = try modelContext.fetch(descriptor).first else { continue }
+                plan.notificationIdentifier = update.identifier
+            }
+        }
+    }
+
+    @discardableResult
+    func recordDeliveredCoolingNotification(
+        planID: UUID,
+        deliveredAt: Date
+    ) throws -> Bool {
+        let scopeKey = CoolingNotificationIdentifier.scopeKey(for: planID)
+        let channelRaw = ReminderChannel.notification.rawValue
+        let descriptor = FetchDescriptor<ReminderEvent>(
+            predicate: #Predicate { event in
+                event.scopeKey == scopeKey && event.channelRaw == channelRaw
+            }
+        )
+        guard try modelContext.fetchCount(descriptor) == 0 else { return false }
+
+        return try commit {
+            modelContext.insert(
+                ReminderEvent(
+                    id: UUID(),
+                    insightTypeRaw: SpendingInsightType.wishlistCoolingOff.rawValue,
+                    scopeKey: scopeKey,
+                    channelRaw: channelRaw,
+                    shownAt: deliveredAt,
+                    categoryRiskBasisPoints: nil,
+                    isInterrupting: false,
+                    userResponseRaw: nil,
+                    respondedAt: nil
+                )
+            )
+            return true
+        }
+    }
+
     func upsertSpendingInsights(
         _ drafts: [InsightDraft],
         createdAt: Date
@@ -739,8 +841,19 @@ actor DataActor {
             expenses: try modelContext.fetchCount(FetchDescriptor<Expense>()),
             budgetPlans: try modelContext.fetchCount(FetchDescriptor<BudgetPlan>()),
             wishItems: try modelContext.fetchCount(FetchDescriptor<WishItem>()),
-            coolingOffPlans: try modelContext.fetchCount(FetchDescriptor<CoolingOffPlan>())
+            coolingOffPlans: try modelContext.fetchCount(FetchDescriptor<CoolingOffPlan>()),
+            categoryBudgets: try modelContext.fetchCount(FetchDescriptor<CategoryBudget>()),
+            spendingInsights: try modelContext.fetchCount(FetchDescriptor<SpendingInsight>()),
+            reminderEvents: try modelContext.fetchCount(FetchDescriptor<ReminderEvent>()),
+            merchants: try modelContext.fetchCount(FetchDescriptor<Merchant>()),
+            reflectionLogs: try modelContext.fetchCount(FetchDescriptor<ReflectionLog>())
         )
+    }
+
+    func deleteAllUserData() throws {
+        try commit {
+            try deleteAllLocalModels()
+        }
     }
 
     func fetchMerchantSummaries() throws -> [MerchantSummary] {
@@ -1436,6 +1549,7 @@ actor DataActor {
                 id: plan.id,
                 field: "statusRaw"
             ),
+            notificationIdentifier: plan.notificationIdentifier,
             completedAt: plan.completedAt,
             outcome: try persistedEnumIfPresent(
                 CoolingOffOutcome.self,

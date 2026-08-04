@@ -214,6 +214,28 @@ final class SettingsStore: ObservableObject {
         refreshConfigurationDiagnostic()
     }
 
+    func resetAfterDataDeletion() {
+        currencyCode = ""
+        enableGentleReminders = true
+        enableLocalNotifications = false
+        enableAIEnhancement = false
+        enableSiriIntegration = false
+        enableSpotlightIndexing = false
+        enableAskMindBudget = true
+        reminderToneRaw = ReminderTone.soft.rawValue
+        quietHoursStartHour = 21
+        quietHoursEndHour = 9
+        quietHoursEnabled = true
+        maxDailyInterruptions = 2
+        indexMerchantNames = false
+        budgetCycleStartDay = 1
+        categoryBucketOverridesJSON = Data()
+        ruleConfigurationJSON = Data()
+        reloadBucketOverrides()
+        reloadRuleConfiguration()
+        firstLaunchCompleted = false
+    }
+
     private func refreshConfigurationDiagnostic() {
         let combined = [bucketConfigurationDiagnostic, ruleConfigurationDiagnostic]
             .compactMap { $0 }
