@@ -166,6 +166,7 @@ struct WishlistDetailView: View {
 
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
+    @Environment(\.locale) private var locale
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = WishlistDetailViewModel()
     @State private var presentsEdit = false
@@ -214,8 +215,10 @@ struct WishlistDetailView: View {
             if let detail = viewModel.detail {
                 NavigationStack {
                     CoolingOffView(
-                        dataActor: session.dataActor,
-                        wishItem: detail.summary
+                        session: session,
+                        wishItem: detail.summary,
+                        wantsNotification: settings.enableLocalNotifications
+                            || session.notificationAuthorizationState == .notDetermined
                     ) {
                         presentsCoolingOff = false
                         session.dataDidChange()
@@ -260,7 +263,7 @@ struct WishlistDetailView: View {
                         outcome: .purchased,
                         dataActor: session.dataActor
                     ) {
-                        session.dataDidChange()
+                        await reconcileAfterWishlistChange()
                     }
                 }
             }
@@ -274,7 +277,7 @@ struct WishlistDetailView: View {
                 Task {
                     do {
                         try await session.dataActor.deleteWishItem(id: wishItemID)
-                        session.dataDidChange()
+                        await reconcileAfterWishlistChange()
                         dismiss()
                     } catch {
                         viewModel.reportActionError(error)
@@ -442,7 +445,7 @@ struct WishlistDetailView: View {
                         outcome: .skipped,
                         dataActor: session.dataActor
                     ) {
-                        session.dataDidChange()
+                        await reconcileAfterWishlistChange()
                     }
                 }
             }
@@ -453,7 +456,7 @@ struct WishlistDetailView: View {
         Button("wishlist.action.archive") {
             Task {
                 if await viewModel.archive(id: wishItemID, dataActor: session.dataActor) {
-                    session.dataDidChange()
+                    await reconcileAfterWishlistChange()
                     dismiss()
                 }
             }
@@ -492,6 +495,15 @@ struct WishlistDetailView: View {
                     ($0, settings.bucket(for: $0))
                 }
             )
+        )
+    }
+
+    private func reconcileAfterWishlistChange() async {
+        session.dataDidChange()
+        await session.reconcileNotifications(
+            settings: settings,
+            locale: locale,
+            calendar: calendar
         )
     }
 }

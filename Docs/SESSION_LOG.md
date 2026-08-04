@@ -544,3 +544,130 @@ the build and all test suites had already succeeded.
 
 Next suggested task: Commit and push this remediation to PR #7, then wait for another review
 and CI before merging.
+
+## 2026-08-04 — Session 16 — Phase 6 notifications, CSV export, and privacy controls
+
+Goal: Add explicit local notification consent and cooling-off delivery, a deliberate
+expense-ledger CSV export, and reliable local-data deletion without pulling Phase 7 AI or
+Phase 8 Siri/Spotlight indexing into scope.
+
+Files changed: notification scheduling and system-center adapters, privacy deletion and
+Spotlight cleanup services, CSV export DTO/encoder and share UI, `DataActor` export,
+notification, and deletion paths, settings/cooling-off/wishlist/router integration,
+bilingual strings, Phase 6 unit/integration and settings UI coverage, Xcode project wiring,
+and the task, decision, privacy, copy, test, changelog, project-memory, and session documents.
+
+What was completed: Notification authorization is requested only after an explicit settings
+or cooling-off action; ordinary reconciliation only reads authorization. Stable per-plan
+identifiers reconcile scheduled, delivered, stored, completed, cancelled, and deleted state,
+while quiet hours defer delivery through the deterministic throttle. Lock-screen content is
+sanitized and excludes amounts and notes. CSV export is an in-memory, expense-only ledger
+with a stable schema, UTF-8 BOM, CRLF/RFC 4180 escaping, exact `Int64` minor-unit formatting,
+raw merchant/note disclosure, and spreadsheet-formula neutralization. Privacy deletion uses
+two confirmations and a visible staged state machine, then strictly cancels notifications,
+clears app-owned Spotlight items, deletes all nine SwiftData model types, and resets app
+preferences; any failed stage stops the sequence without claiming success. The settings UI
+shows authorization state, quiet hours, export, and deletion controls in English and
+Simplified Chinese.
+
+What was NOT completed: Notification-tap routing, App Entities, merchant Spotlight indexing,
+Siri, and onscreen awareness remain Phase 8 work behind their centralized capability gates.
+Phase 7 still owns Ask fallback, allow-listed redaction, and any Foundation Models wording.
+CSV is a human-readable expense ledger, not a full backup/restore format, and export never
+runs automatically.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 139 Swift Testing tests and 6 UI tests, 0 failures. New coverage proves
+authorization is never requested by background reconciliation, notification copy receives
+no money or note data, quiet-hour delivery and exact cancellation, delivered-event
+deduplication, CSV byte/escaping/formula/zero-exponent behavior, all-nine-model deletion,
+ordered preference reset, and failure-stop semantics. The settings UI path verifies the
+export and privacy controls after scrolling the full list.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` compiles successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device notification,
+VoiceOver, and AX5 inspection remain deferred to release preparation. Xcode emitted the
+known post-test diagnostic warning because its unqualified diagnostic collector could not
+locate `simctl`; the build and all test suites had already succeeded.
+
+Next suggested task: Commit the Phase 6 branch, then push and open a pull request when the
+user requests review.
+
+## 2026-08-04 — Session 17 — Phase 6 privacy and notification review remediation
+
+Goal: Close the Phase 6 privacy review by making deletion completion observable, preventing
+one corrupt cooling-off record from disabling every valid reminder, and removing optional
+fallbacks at the CSV and localized confirmation boundaries.
+
+Files changed: privacy deletion verification, model-count projection, notification candidate
+batching and app-session reconciliation, Settings integrity copy, explicit-locale deletion
+confirmation, total UTF-8 export conversion, Phase 6 tests, localization, and the decision,
+privacy, copy, test, changelog, task, project-memory, and session documents.
+
+What was completed: Delete All now re-queries all nine Schema V1 model counts and withholds
+preference reset/completion unless every count is zero. Notification reconciliation separates
+invalid plan IDs from valid candidates, continues scheduling valid reminders, clears stale
+identifiers for invalid records, and shows a localized Settings warning. CSV body conversion
+uses total UTF-8 bytes, and the destructive confirmation word follows the active SwiftUI
+locale. The existing export disclosure was confirmed to name merchant names and raw notes;
+notification payloads were confirmed to contain the wishlist item name but no amount/note,
+and quiet-hour deferral was confirmed to drive the actual system trigger.
+
+What was NOT completed: Revision-wide notification reconciliation remains a nonblocking
+performance optimization for a later phase; current no-op identifier updates do not open a
+SwiftData transaction. Phase 7/8 scope remains unchanged.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 142 Swift Testing tests and 6 UI tests, 0 failures. Phase 6 targeted
+coverage passes 13 tests, including injected incomplete deletion verification, corrupt-row
+partial notification reconciliation, stale identifier clearing, and explicit-locale
+confirmation copy.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses and compiles successfully; `git diff --check` is clean.
+
+Known issues: A real App Icon, iOS 17 runtime validation, and physical-device notification,
+VoiceOver, and AX5 inspection remain deferred to release preparation. Xcode emitted the
+known post-test diagnostic warning because its unqualified diagnostic collector could not
+locate `simctl`; the build and all test suites had already succeeded.
+
+Next suggested task: Commit and push this remediation to PR #8, then wait for review and CI.
+
+## 2026-08-04 — Session 18 — Preserve notification integrity state and plan explicit repair
+
+Goal: Address the final Phase 6 review observation without auto-deleting an unreachable
+orphan cooling-off record or conflating operation failure with known stored-data corruption.
+
+Files changed: app-session notification state handling, Phase 6 notification tests, Phase 9
+task memory, and the decision, test, changelog, project-memory, and session documents.
+
+What was completed: A failed notification reconciliation now sets the operation-failure
+state without erasing the last successfully observed data-integrity warning. The two states
+can remain true together, and only a later successful reconciliation recomputes the warning.
+The corrupt row remains stored. Phase 9 now owns an explicit localized repair action that
+shows the affected count, requires confirmation, and never deletes records implicitly.
+
+What was NOT completed: The repair action itself is intentionally not implemented during
+Phase 6. Until Phase 9, Delete All remains the only whole-store removal path for an orphaned
+cooling-off record.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 142 Swift Testing tests and 6 UI tests, 0 failures. Phase 6 targeted
+coverage passes 13 tests and now proves a later scheduling failure preserves the known
+integrity warning while also reporting the operation failure.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` compiles successfully; `git diff --check` is clean.
+
+Known issues: The explicit orphan-record repair UI remains scheduled for Phase 9. A real
+App Icon, iOS 17 runtime validation, and physical-device notification, VoiceOver, and AX5
+inspection remain deferred to release preparation. Xcode emitted the known post-test
+diagnostic warning because its unqualified collector could not locate `simctl`; all build
+and test suites had already succeeded.
+
+Next suggested task: Commit and push this final remediation to PR #8 for approval.

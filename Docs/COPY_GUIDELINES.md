@@ -43,6 +43,17 @@ highest-severity message and 2–4 actions; Continue Purchase is the primary act
 punitive secondary escape. Informational insights and minimal tone remain noninterrupting.
 Disabling check-ins suppresses presentation only and must not erase factual local insights.
 
+## Lock-screen notifications
+
+Cooling-off notifications are user-booked review cues, not purchase verdicts. The title may
+name the wishlist item and the body may state the elapsed cooling duration, but neither may
+contain an amount or raw note. If permission or scheduling fails, say that the local
+cooling-off period still exists and give an actionable System Settings path when relevant.
+Quiet-hour deferral must be described as a later delivery, never as a lost reminder.
+If one stored cooling-off record cannot be read, state that fact without blame and confirm
+that other valid reminders were still updated; do not collapse partial reconciliation into
+a generic success or failure message.
+
 ## Never
 
 - Use exclamation marks in reminders.

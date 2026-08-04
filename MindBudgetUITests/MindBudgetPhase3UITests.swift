@@ -83,6 +83,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.buttons["wishlist.startCooling"].waitForExistence(timeout: 5))
         app.buttons["wishlist.startCooling"].tap()
         XCTAssertTrue(app.buttons["wishlist.cooling.start"].waitForExistence(timeout: 5))
+        let notificationToggle = app.switches["wishlist.cooling.notification"]
+        if notificationToggle.waitForExistence(timeout: 2),
+           notificationToggle.value as? String == "1" {
+            notificationToggle.tap()
+        }
         app.buttons["wishlist.cooling.start"].tap()
 
         XCTAssertTrue(
@@ -114,6 +119,35 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Last 7 days"].exists)
         XCTAssertTrue(element("insights.empty", in: app).exists)
         XCTAssertTrue(element("insights.disclaimer", in: app).exists)
+    }
+
+    @MainActor
+    func testSettingsShowsExportAndPrivacyControls() {
+        let app = launchApp(language: "en", locale: "en_US")
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        dismissDecimalKeyboard(in: app)
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.tabBars.buttons["Settings"].tap()
+
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        let exportControl = element("settings.export", in: app)
+        for _ in 0..<4 where !exportControl.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(exportControl.waitForExistence(timeout: 2))
+        XCTAssertTrue(element("settings.privacy", in: app).waitForExistence(timeout: 2))
     }
 
     @MainActor

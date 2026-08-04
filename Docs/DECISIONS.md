@@ -542,3 +542,95 @@ analysis prefers no result over a biased result.
 
 Files affected: `AddExpenseView`, rule configuration, detector/aggregate builder, reminder
 throttle, Phase 5 tests, and project memory.
+
+---
+
+## 2026-08-04 — Make notification consent explicit, exports ephemeral, and deletion staged
+
+Context: Phase 6 connects three privacy-sensitive boundaries: lock-screen notification
+content, an explicit user export that may include raw notes, and irreversible deletion
+across UserNotifications, Core Spotlight, SwiftData, and app preferences. A cooling-off
+period must remain useful when notification permission is denied, quiet-hour changes must
+replan existing requests, and a cross-system deletion cannot honestly be represented as one
+atomic database transaction. Phase 8 has not yet implemented Spotlight indexing or the
+centralized Siri capability gate required for iOS 26 notification entity identifiers.
+
+Decision: Background reconciliation only reads authorization and never prompts. Permission
+is requested solely when the user selects an at-expiry notification while starting a
+cooling-off period or enables the notification setting. Each plan uses the stable request
+identifier `mindbudget.cooling-off.<plan UUID>` stored on `CoolingOffPlan`; reconciliation
+replaces requests when quiet hours change, removes stale identifiers after outcomes or wish
+deletion, and records an actually delivered booked notification as non-cap-counting history.
+Notification payloads structurally receive an item name, plan/wish identifiers, duration,
+and trigger date only—never price or notes. `appEntityIdentifier` remains Phase 8 work so it
+can use the required centralized Siri scope/availability/runtime/user-setting gate.
+
+V1 CSV export is explicitly the expense ledger, not a claim to serialize every internal
+model. It uses stable machine-readable headers, UTC ISO-8601 timestamps, exact canonical
+major units derived from integer minor units, the raw minor units and currency code, and
+UTF-8 with BOM. An explicit export may include the user's merchant names and raw expense
+notes; formula-like user text receives an apostrophe prefix before RFC 4180 escaping. The
+file is provided from in-memory `Transferable` data through `ShareLink`, so MindBudget does
+not retain a second CSV copy in its container.
+
+Delete All requires a confirmation dialog followed by a localized confirmation word. It
+runs and displays these stages in order: cancel all app notifications, await deletion of
+all app-owned Core Spotlight items, delete all nine SwiftData entity types, reset app
+preferences except system language, and return to onboarding. The sequence stops at the
+first failure and names that stage; only full completion resets onboarding state. The
+delete-only Core Spotlight boundary exists in Phase 6 because deletion promises require it,
+but it does not authorize or implement indexing ahead of Phase 8.
+
+Alternatives considered: Prompting on launch, treating the app toggle as system consent,
+putting amounts or notes on the lock screen, generating random notification identifiers,
+leaving cancelled wish notifications for eventual OS cleanup, persisting temporary export
+files, describing an expense-only CSV as a full database backup, deleting SwiftData before
+index cleanup, continuing after an index failure, and adding the iOS 26 entity identifier
+before the Siri gate exists.
+
+Consequences: A denied notification never blocks or rolls back the local cooling-off state.
+Disabling notifications or completing/deleting a wish converges pending and stored request
+state, including after a restart. Exported raw text leaves the app only through an explicit
+share action and is disclosed before export. A failed deletion can leave an earlier cleanup
+stage completed, but it can never erase later data or claim success; retrying the idempotent
+sequence is safe. Phase 8 must retain the notification identifier prefix and deletion
+boundary when it adds searchable items and Siri notification entities.
+
+Files affected: notification/CSV/privacy services, `DataActor`, app session and settings/
+wishlist UI, localization, privacy manifest review, Phase 6 tests, and project memory.
+
+---
+
+## 2026-08-04 — Verify destructive postconditions and isolate corrupt notification rows
+
+Context: Phase 6 originally treated a non-throwing SwiftData delete as proof that every
+local model was gone, while one malformed cooling-off relationship aborted reconciliation
+for every otherwise valid notification. Neither behavior matched the promise that partial
+deletion is never reported as complete or the established preference for detecting corrupt
+data without disabling unrelated functionality.
+
+Decision: Delete All re-queries all nine Schema V1 model counts after the delete call and
+resets preferences only when all are zero. The verification boundary is injectable so a
+false postcondition remains testable. Notification candidate projection returns valid
+candidates and invalid plan identifiers separately; valid requests continue, invalid stored
+and pending identifiers are cleared, and Settings displays a localized integrity warning.
+The warning is last-known integrity state: a later operation failure can coexist with it and
+does not clear it; only a successful reconciliation recomputes it. Invalid rows remain stored
+because the app must not silently delete user data. Phase 9 will add an explicit, localized,
+confirmed repair action that reports the affected count. Fetch-level failures still fail the
+whole operation. Explicit export disclosure, item-name-only notification copy without
+amount/notes, and quiet-hour scheduling were reverified and remain unchanged.
+
+Alternatives considered: Trusting absence of an exception, continuing after a failed
+postcondition, aborting all notification work for one corrupt row, silently skipping the row
+without user-visible evidence, auto-deleting it, or clearing known integrity state when an
+unrelated scheduling operation fails.
+
+Consequences: Completion now means the database was observed empty, not merely that a delete
+call returned. One corrupt record cannot suppress all valid reminders, and the partial state
+is visible rather than silently normalized. Reconciliation still fails closed when the
+underlying fetch itself cannot be trusted. Until Phase 9 provides repair, the only existing
+whole-store removal path is Delete All; the warning therefore remains intentionally durable.
+
+Files affected: privacy deletion verification, notification projections/reconciliation,
+settings copy, Phase 6 tests, and durable project memory.

@@ -20,6 +20,26 @@ struct ExpenseDraft: Sendable {
     let allowMerchantIndexing: Bool
 }
 
+struct ExpenseExportRecord: Equatable, Sendable {
+    let id: UUID
+    let amount: Money
+    let category: ExpenseCategory
+    let bucket: BudgetBucket
+    let merchantName: String?
+    let note: String?
+    let spentAt: Date
+    let spentTimeZoneIdentifier: String
+    let createdAt: Date
+    let updatedAt: Date
+    let paymentMethod: PaymentMethod?
+    let emotionTag: EmotionTag?
+    let purchaseReason: PurchaseReason?
+    let isPlanned: Bool
+    let isRecurring: Bool
+    let source: ExpenseSource
+    let allowMerchantIndexing: Bool
+}
+
 struct CategoryBudgetDraft: Sendable {
     let id: UUID
     let category: ExpenseCategory
