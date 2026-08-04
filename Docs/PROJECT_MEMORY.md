@@ -161,8 +161,10 @@ passed to a generator. Reminder wording, Ask answers, and cycle-summary narrativ
 Apple's on-device Foundation Models only through one centralized product-scope + OS/API +
 runtime + default-off user-setting gate. Every generator receives a dedicated allow-listed
 aggregate context, never detail projections, transaction rows, merchant lists, raw notes,
-raw cooling timestamps, or the raw question. Deterministic Swift remains authoritative for
-classification, arithmetic, rules, and allowed actions. Model output uses constrained
+raw cooling timestamps, or the raw question. Ask facts are an exhaustive per-intent payload
+made only from typed money, counts, booleans, and category values; the redactor owns formatting
+and enum-key conversion, while fallback prose remains outside model facts. Deterministic Swift
+remains authoritative for classification, arithmetic, rules, and allowed actions. Model output uses constrained
 generation, a short timeout, length/action/language/number safety validation, and immediate
 template fallback; generated copy is not persisted. Settings always explains the current
 availability reason and that the complete template experience remains usable without Apple

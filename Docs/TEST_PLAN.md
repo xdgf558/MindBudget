@@ -79,7 +79,9 @@ buy, fabricated numbers, and invalid action counts. Accept valid localized numbe
 Prove notes never enter any context, merchant lists and transaction rows are absent,
 amounts are formatted strings, Siri strings are sanitized, context fields are
 allow-listed, and raw Ask questions never reach model input. Redactor/generator entry
-points must not accept `ExpenseDetail` or another raw-note-bearing projection.
+points must not accept `ExpenseDetail` or another raw-note-bearing projection. Ask input
+must use an exhaustive per-intent fact enum rather than a generic string dictionary; tests
+enumerate every case and assert its exact serialized fact-key set.
 
 ### CSVExporterTests
 
@@ -266,7 +268,9 @@ without an explicit amount/category asks for clarification and never invents a v
 
 Privacy coverage records generator input and proves the raw question is absent, aggregate
 contexts expose no raw note, merchant-list, transaction-row, or cooling-timestamp fields,
-and generator APIs accept only dedicated allow-listed value types. Safety tests reject
+and generator APIs accept only dedicated allow-listed value types. Ask facts are a closed
+per-intent payload containing only typed money, counts, booleans, and category values;
+template prose and arbitrary insight strings cannot enter the redactor. Safety tests reject
 fabricated numbers, unknown/duplicate/invalid action sets, missing Continue Purchase,
 oversized copy, shame, diagnosis, financial advice, and purchase prohibitions while accepting
 localized forms of allowed numbers. Capability tests prove user-disabled and build-disabled

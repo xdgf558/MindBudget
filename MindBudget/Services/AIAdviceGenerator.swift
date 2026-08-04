@@ -368,7 +368,7 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
             to: prompt(
                 kind: "answer for intent \(intent.rawValue)",
                 actionRule: intent == .canIAfford
-                    && context.budgetFactsFormatted["requiresDetails"] != "true"
+                    && !context.requiresPurchaseDetails
                     ? "Return two to four allowed actions and include continuePurchase."
                     : "Return zero to four allowed actions.",
                 data: context.promptData

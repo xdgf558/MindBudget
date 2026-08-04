@@ -62,7 +62,7 @@ struct Phase7FeatureTests {
 
         #expect(response.source == .model)
         #expect(!context.promptData.contains("SECRET-RAW-QUESTION"))
-        #expect(context.budgetFactsFormatted.keys.contains("candidateAmount"))
+        #expect(context.promptData.contains("fact.candidateAmount="))
     }
 
     @Test
@@ -98,7 +98,6 @@ struct Phase7FeatureTests {
     @Test
     func validatorRejectsFabricatedNumbersAndUnknownActions() throws {
         let context = askContext(
-            facts: ["remaining": "$1,234.56"],
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let fabricated = GeneratedAnswer(
@@ -192,7 +191,6 @@ struct Phase7FeatureTests {
     @Test
     func compositeFallsBackForUnsafeFailureAndTimeout() async {
         let context = askContext(
-            facts: [:],
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let available = AIEnhancementCapability(
@@ -225,7 +223,11 @@ struct Phase7FeatureTests {
     @Test
     func aggregateContextsContainNoDetailOrRawTimestampFields() {
         let ask = askContext(
-            facts: ["remaining": "$10.00"],
+            facts: .remainingBudget(
+                remainingFree: Money(minorUnits: 1_000, currencyCode: "USD"),
+                safeDailySpend: Money(minorUnits: 100, currencyCode: "USD"),
+                daysRemaining: 10
+            ),
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let summary = PrivacyRedactor().redactSummary(
@@ -252,9 +254,70 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func askFactPayloadsExposeOnlyClosedPerIntentPromptKeys() {
+        let usd = { Money(minorUnits: $0, currencyCode: "USD") }
+        let cases: [(AskAggregateFacts, Set<String>)] = [
+            (.affordabilityNeedsDetails, ["fact.requiresDetails"]),
+            (
+                .affordability(
+                    candidateAmount: usd(2_500),
+                    availableRightNow: usd(10_000),
+                    isAffordable: true
+                ),
+                ["fact.candidateAmount", "fact.availableRightNow", "fact.affordability"]
+            ),
+            (
+                .remainingBudget(
+                    remainingFree: usd(10_000),
+                    safeDailySpend: usd(1_000),
+                    daysRemaining: 10
+                ),
+                ["fact.remainingFree", "fact.safeDailySpend", "fact.daysRemaining"]
+            ),
+            (.stressPattern(count: 2), ["fact.count"]),
+            (.impulsePattern(count: 3), ["fact.count"]),
+            (
+                .categoryChange(category: .food, current: usd(5_000), previous: usd(4_000)),
+                ["fact.categoryKey", "fact.current", "fact.previous"]
+            ),
+            (.noCategoryChange, ["fact.hasCategoryChange"]),
+            (.alternative, []),
+            (
+                .wishlistStatus(coolingCount: 1, activeCount: 2),
+                ["fact.coolingCount", "fact.activeCount"]
+            ),
+            (.outOfScope, []),
+            (.unknown, [])
+        ]
+
+        for (facts, expectedKeys) in cases {
+            let context = PrivacyRedactor().redactAsk(
+                AskAggregateInput(
+                    locale: Locale(identifier: "en_US"),
+                    currencyCode: "USD",
+                    facts: facts,
+                    relevantInsights: [.impulseCluster],
+                    allowedActions: [.reviewRecentSpending],
+                    tone: .soft
+                )
+            )
+            let actualKeys = Set(context.promptData.split(separator: "\n").compactMap { line in
+                guard line.hasPrefix("fact."),
+                      let equals = line.firstIndex(of: "=") else { return nil as String? }
+                return String(line[..<equals])
+            })
+
+            #expect(context.questionIntentKey == facts.intent)
+            #expect(actualKeys == expectedKeys)
+            #expect(!context.promptData.contains("templateBody"))
+            #expect(!context.promptData.localizedCaseInsensitiveContains("merchant"))
+            #expect(!context.promptData.localizedCaseInsensitiveContains("note"))
+        }
+    }
+
+    @Test
     func validatorRejectsLengthShameDiagnosisAdviceAndCommands() {
         let context = askContext(
-            facts: [:],
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let actions = context.allowedActionIdentifiers
@@ -319,7 +382,11 @@ struct Phase7FeatureTests {
     @Test
     func validatorAcceptsLocalizedAllowedNumbers() throws {
         let context = askContext(
-            facts: ["remaining": "US$1,234.56"],
+            facts: .remainingBudget(
+                remainingFree: Money(minorUnits: 123_456, currencyCode: "USD"),
+                safeDailySpend: Money(minorUnits: 10_000, currencyCode: "USD"),
+                daysRemaining: 11
+            ),
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let answer = GeneratedAnswer(
@@ -334,7 +401,11 @@ struct Phase7FeatureTests {
     @Test
     func numericValidationPreservesTheDecimalPointMeaning() {
         let context = askContext(
-            facts: ["remaining": "US$1,234.56"],
+            facts: .remainingBudget(
+                remainingFree: Money(minorUnits: 123_456, currencyCode: "USD"),
+                safeDailySpend: Money(minorUnits: 10_000, currencyCode: "USD"),
+                daysRemaining: 11
+            ),
             actions: [.reviewRecentSpending, .adjustBudget]
         )
         let fabricated = GeneratedAnswer(
@@ -351,7 +422,11 @@ struct Phase7FeatureTests {
     @Test
     func numericValidationPreservesNegativeAmountMeaning() throws {
         let context = askContext(
-            facts: ["remaining": "-US$10.00"],
+            facts: .remainingBudget(
+                remainingFree: Money(minorUnits: -1_000, currencyCode: "USD"),
+                safeDailySpend: Money(minorUnits: 0, currencyCode: "USD"),
+                daysRemaining: 11
+            ),
             actions: [.reviewRecentSpending]
         )
         let positive = GeneratedAnswer(
@@ -375,14 +450,14 @@ struct Phase7FeatureTests {
     func askPurchaseDecisionRequiresContinueButInformationalOutputMayHaveNoAction() throws {
         let purchaseContext = PrivacyRedactor().redactAsk(
             AskAggregateInput(
-                localeIdentifier: "en_US",
+                locale: Locale(identifier: "en_US"),
                 currencyCode: "USD",
-                intent: .canIAfford,
-                budgetFactsFormatted: [
-                    "candidateAmount": "$25.00",
-                    "templateBody": "Review the recorded facts."
-                ],
-                relevantInsightKeys: [],
+                facts: .affordability(
+                    candidateAmount: Money(minorUnits: 2_500, currencyCode: "USD"),
+                    availableRightNow: Money(minorUnits: 10_000, currencyCode: "USD"),
+                    isAffordable: true
+                ),
+                relevantInsights: [],
                 allowedActions: [.addToWishlist, .reviewRecentSpending, .continuePurchase],
                 tone: .soft
             )
@@ -406,7 +481,7 @@ struct Phase7FeatureTests {
         )
         try AdviceSafetyValidator().validate(
             answer: informational,
-            context: askContext(facts: [:], actions: [])
+            context: askContext(facts: .alternative, actions: [])
         )
     }
 
@@ -588,18 +663,19 @@ struct Phase7FeatureTests {
     }
 
     private func askContext(
-        facts: [String: String],
+        facts: AskAggregateFacts = .remainingBudget(
+            remainingFree: Money(minorUnits: 123_456, currencyCode: "USD"),
+            safeDailySpend: Money(minorUnits: 10_000, currencyCode: "USD"),
+            daysRemaining: 11
+        ),
         actions: [SuggestedAction]
     ) -> RedactedAskContext {
         PrivacyRedactor().redactAsk(
             AskAggregateInput(
-                localeIdentifier: "en_US",
+                locale: Locale(identifier: "en_US"),
                 currencyCode: "USD",
-                intent: .remainingBudget,
-                budgetFactsFormatted: facts.merging([
-                    "templateBody": "Review the recorded budget facts."
-                ]) { first, _ in first },
-                relevantInsightKeys: [],
+                facts: facts,
+                relevantInsights: [],
                 allowedActions: actions,
                 tone: .soft
             )

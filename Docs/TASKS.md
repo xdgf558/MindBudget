@@ -50,6 +50,8 @@ Status: Done
   on explicit template paths that never call a model.
 - Keep complete template answers authoritative on iOS 17+; make Foundation Models a
   default-off wording enhancement behind one centralized four-part capability gate.
+- Keep Ask facts in an exhaustive per-intent typed payload; never reopen the redactor boundary
+  with a generic fact dictionary, arbitrary insight strings, or caller-provided template prose.
 - Validate every generated title, body, number, and action against its redacted context;
   timeout, availability, generation, and validation failures must return templates.
 

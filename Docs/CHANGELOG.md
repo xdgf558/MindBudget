@@ -168,3 +168,5 @@
   after any incomplete cross-system stage.
 - Structurally excluded raw notes, detail projections, transaction rows, merchant lists,
   raw cooling-off timestamps, and raw Ask text from every generator API.
+- Replaced the open Ask fact dictionary with exhaustive per-intent typed facts and typed
+  insight identifiers, keeping fallback prose and arbitrary caller strings outside prompts.

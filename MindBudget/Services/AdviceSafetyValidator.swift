@@ -36,7 +36,7 @@ struct AdviceSafetyValidator: Sendable {
     func validate(answer: GeneratedAnswer, context: RedactedAskContext) throws {
         try validateText(title: answer.title, body: answer.body)
         let isPurchaseDecision = context.questionIntentKey == .canIAfford
-            && context.budgetFactsFormatted["requiresDetails"] != "true"
+            && !context.requiresPurchaseDetails
         try validateActions(
             answer.actionIdentifiers,
             allowed: context.allowedActionIdentifiers,

@@ -50,7 +50,9 @@ language, region, and runtime, it receives only redacted aggregate facts and run
 Apple's on-device Foundation Models. If it is disabled or unavailable, the same feature
 returns a complete local template answer.
 Raw notes, transaction rows, merchant lists, and raw Ask questions never enter
-the model context. Deterministic Swift code computes all financial conclusions.
+the model context. Ask facts cross the redactor only through a closed per-intent typed payload;
+there is no generic fact dictionary or caller-provided template body. Deterministic Swift code
+computes all financial conclusions.
 `FeatureFlags.enableFoundationModels` is a product-scope gate, not proof of an
 implementation or the user's preference; the user setting defaults to off and remains
 mandatory through a centralized availability gate. Generated wording is validated and is

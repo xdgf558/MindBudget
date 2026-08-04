@@ -78,11 +78,180 @@ struct RedactedSummaryContext: Codable, Equatable, Sendable {
     }
 }
 
+enum AskAggregateFacts: Equatable, Sendable {
+    case affordabilityNeedsDetails
+    case affordability(candidateAmount: Money, availableRightNow: Money, isAffordable: Bool)
+    case remainingBudget(remainingFree: Money, safeDailySpend: Money, daysRemaining: Int)
+    case stressPattern(count: Int)
+    case impulsePattern(count: Int)
+    case categoryChange(category: ExpenseCategory, current: Money, previous: Money)
+    case noCategoryChange
+    case alternative
+    case wishlistStatus(coolingCount: Int, activeCount: Int)
+    case outOfScope
+    case unknown
+
+    var intent: AskIntentKey {
+        switch self {
+        case .affordabilityNeedsDetails, .affordability: .canIAfford
+        case .remainingBudget: .remainingBudget
+        case .stressPattern: .stressPattern
+        case .impulsePattern: .impulsePattern
+        case .categoryChange, .noCategoryChange: .categoryChange
+        case .alternative: .alternative
+        case .wishlistStatus: .wishlistStatus
+        case .outOfScope: .outOfScope
+        case .unknown: .unknown
+        }
+    }
+}
+
+fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
+    case affordabilityNeedsDetails
+    case affordability(
+        candidateAmountFormatted: String,
+        availableRightNowFormatted: String,
+        isAffordable: Bool
+    )
+    case remainingBudget(
+        remainingFreeFormatted: String,
+        safeDailySpendFormatted: String,
+        daysRemaining: Int
+    )
+    case stressPattern(count: Int)
+    case impulsePattern(count: Int)
+    case categoryChange(
+        category: ExpenseCategory,
+        currentFormatted: String,
+        previousFormatted: String
+    )
+    case noCategoryChange
+    case alternative
+    case wishlistStatus(coolingCount: Int, activeCount: Int)
+    case outOfScope
+    case unknown
+
+    var promptFacts: [String: String] {
+        switch self {
+        case .affordabilityNeedsDetails:
+            ["requiresDetails": "true"]
+        case let .affordability(candidate, available, isAffordable):
+            [
+                "candidateAmount": candidate,
+                "availableRightNow": available,
+                "affordability": isAffordable ? "within" : "outside"
+            ]
+        case let .remainingBudget(remaining, daily, days):
+            [
+                "remainingFree": remaining,
+                "safeDailySpend": daily,
+                "daysRemaining": String(days)
+            ]
+        case let .stressPattern(count), let .impulsePattern(count):
+            ["count": String(count)]
+        case let .categoryChange(category, current, previous):
+            [
+                "categoryKey": category.localizedNameKey,
+                "current": current,
+                "previous": previous
+            ]
+        case .noCategoryChange:
+            ["hasCategoryChange": "false"]
+        case .alternative, .outOfScope, .unknown:
+            [:]
+        case let .wishlistStatus(coolingCount, activeCount):
+            [
+                "coolingCount": String(coolingCount),
+                "activeCount": String(activeCount)
+            ]
+        }
+    }
+
+    var numericValues: [String] {
+        switch self {
+        case .affordabilityNeedsDetails, .noCategoryChange, .alternative, .outOfScope, .unknown:
+            []
+        case let .affordability(candidate, available, _):
+            [candidate, available]
+        case let .remainingBudget(remaining, daily, days):
+            [remaining, daily, String(days)]
+        case let .stressPattern(count), let .impulsePattern(count):
+            [String(count)]
+        case let .categoryChange(_, current, previous):
+            [current, previous]
+        case let .wishlistStatus(coolingCount, activeCount):
+            [String(coolingCount), String(activeCount)]
+        }
+    }
+
+    var requiresPurchaseDetails: Bool {
+        if case .affordabilityNeedsDetails = self { return true }
+        return false
+    }
+
+    func templateBody(locale: Locale) -> String {
+        switch self {
+        case .affordabilityNeedsDetails:
+            LocalizedCatalog.string("ask.answer.canIAfford.clarify", locale: locale)
+        case let .affordability(candidate, available, isAffordable):
+            LocalizedCatalog.format(
+                isAffordable ? "ask.answer.canIAfford.within" : "ask.answer.canIAfford.outside",
+                locale: locale,
+                candidate,
+                available
+            )
+        case let .remainingBudget(remaining, daily, days):
+            LocalizedCatalog.format(
+                "ask.answer.remainingBudget.body",
+                locale: locale,
+                remaining,
+                daily,
+                days
+            )
+        case let .stressPattern(count):
+            LocalizedCatalog.format(
+                count == 0 ? "ask.answer.stress.none" : "ask.answer.stress.body",
+                locale: locale,
+                count
+            )
+        case let .impulsePattern(count):
+            LocalizedCatalog.format(
+                count == 0 ? "ask.answer.impulse.none" : "ask.answer.impulse.body",
+                locale: locale,
+                count
+            )
+        case let .categoryChange(category, current, previous):
+            LocalizedCatalog.format(
+                "ask.answer.categoryChange.body",
+                locale: locale,
+                LocalizedCatalog.string(category.localizedNameKey, locale: locale),
+                current,
+                previous
+            )
+        case .noCategoryChange:
+            LocalizedCatalog.string("ask.answer.categoryChange.none", locale: locale)
+        case .alternative:
+            LocalizedCatalog.string("ask.answer.alternative.body", locale: locale)
+        case let .wishlistStatus(coolingCount, activeCount):
+            LocalizedCatalog.format(
+                "ask.answer.wishlistStatus.body",
+                locale: locale,
+                coolingCount,
+                activeCount
+            )
+        case .outOfScope:
+            LocalizedCatalog.string("ask.answer.outOfScope.body", locale: locale)
+        case .unknown:
+            LocalizedCatalog.string("ask.answer.unknown.body", locale: locale)
+        }
+    }
+}
+
 struct RedactedAskContext: Codable, Equatable, Sendable {
     let localeIdentifier: String
     let currencyCode: String
     let questionIntentKey: AskIntentKey
-    let budgetFactsFormatted: [String: String]
+    fileprivate let facts: RedactedAskFacts
     let relevantInsightKeys: [String]
     let allowedActionIdentifiers: [String]
     let tonePreference: String
@@ -95,21 +264,29 @@ struct RedactedAskContext: Codable, Equatable, Sendable {
                 "intent": questionIntentKey.rawValue,
                 "tone": tonePreference
             ],
-            facts: budgetFactsFormatted,
+            facts: facts.promptFacts,
             insightKeys: relevantInsightKeys,
             actions: allowedActionIdentifiers
         )
     }
+
+    var requiresPurchaseDetails: Bool {
+        facts.requiresPurchaseDetails
+    }
+
+    func templateBody(locale: Locale) -> String {
+        facts.templateBody(locale: locale)
+    }
 }
 
 /// Allow-listed inputs are intentionally aggregate-only. Detail projections, notes,
-/// raw transaction rows, timestamps, and merchant lists cannot be supplied here.
+/// raw transaction rows, timestamps, merchant lists, and arbitrary fact strings cannot
+/// be supplied here.
 struct AskAggregateInput: Equatable, Sendable {
-    let localeIdentifier: String
+    let locale: Locale
     let currencyCode: String
-    let intent: AskIntentKey
-    let budgetFactsFormatted: [String: String]
-    let relevantInsightKeys: [String]
+    let facts: AskAggregateFacts
+    let relevantInsights: [SpendingInsightType]
     let allowedActions: [SuggestedAction]
     let tone: ReminderTone
 }
@@ -145,12 +322,57 @@ struct SummaryAggregateInput: Equatable, Sendable {
 
 struct PrivacyRedactor: Sendable {
     func redactAsk(_ input: AskAggregateInput) -> RedactedAskContext {
-        RedactedAskContext(
-            localeIdentifier: input.localeIdentifier,
+        precondition(Money.isSupported(input.currencyCode), "Unsupported accounting currency")
+        let formatter = CurrencyFormatterService()
+        func formatted(_ money: Money) -> String {
+            precondition(
+                money.currencyCode == input.currencyCode,
+                "Ask fact currency must match the accounting currency"
+            )
+            return formatter.string(from: money, locale: input.locale)
+        }
+        let facts: RedactedAskFacts = switch input.facts {
+        case .affordabilityNeedsDetails:
+            .affordabilityNeedsDetails
+        case let .affordability(candidate, available, isAffordable):
+            .affordability(
+                candidateAmountFormatted: formatted(candidate),
+                availableRightNowFormatted: formatted(available),
+                isAffordable: isAffordable
+            )
+        case let .remainingBudget(remaining, daily, days):
+            .remainingBudget(
+                remainingFreeFormatted: formatted(remaining),
+                safeDailySpendFormatted: formatted(daily),
+                daysRemaining: days
+            )
+        case let .stressPattern(count):
+            .stressPattern(count: count)
+        case let .impulsePattern(count):
+            .impulsePattern(count: count)
+        case let .categoryChange(category, current, previous):
+            .categoryChange(
+                category: category,
+                currentFormatted: formatted(current),
+                previousFormatted: formatted(previous)
+            )
+        case .noCategoryChange:
+            .noCategoryChange
+        case .alternative:
+            .alternative
+        case let .wishlistStatus(coolingCount, activeCount):
+            .wishlistStatus(coolingCount: coolingCount, activeCount: activeCount)
+        case .outOfScope:
+            .outOfScope
+        case .unknown:
+            .unknown
+        }
+        return RedactedAskContext(
+            localeIdentifier: input.locale.identifier,
             currencyCode: input.currencyCode,
-            questionIntentKey: input.intent,
-            budgetFactsFormatted: input.budgetFactsFormatted,
-            relevantInsightKeys: input.relevantInsightKeys,
+            questionIntentKey: input.facts.intent,
+            facts: facts,
+            relevantInsightKeys: unique(input.relevantInsights.map(\.rawValue)),
             allowedActionIdentifiers: unique(input.allowedActions.map(\.rawValue)),
             tonePreference: input.tone.rawValue
         )
@@ -209,7 +431,7 @@ struct AllowedNumericTokens: Equatable, Sendable {
     init(context: RedactedAskContext) {
         localeIdentifier = context.localeIdentifier
         values = Self.tokens(
-            in: context.budgetFactsFormatted.values,
+            in: context.facts.numericValues,
             localeIdentifier: context.localeIdentifier
         )
     }

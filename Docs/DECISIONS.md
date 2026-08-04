@@ -667,7 +667,12 @@ Each task receives a distinct Codable allow-listed aggregate context. Generator 
 accept `ExpenseDetail`, `WishItemDetail`, transaction rows, merchant lists, raw notes, raw
 cooling-off timestamps, or the raw Ask question. Deterministic code precomputes every amount,
 ratio, count, conclusion, severity used by the product, and allowed action identifiers. Model
-output is a wording proposal only. A 2.5-second timeout and `AdviceSafetyValidator` enforce
+output is a wording proposal only. Ask does not expose a generic fact dictionary: its aggregate
+input is an exhaustive per-intent enum containing typed `Money`, `Int`, `Bool`, and
+`ExpenseCategory` values, plus typed insight/action enums. The redactor alone formats those
+values into a private Codable representation. Deterministic fallback prose is derived from the
+typed payload after redaction and never becomes a model fact. A 2.5-second timeout and
+`AdviceSafetyValidator` enforce
 nonempty length limits, two-to-four allow-listed actions, Continue Purchase for purchase
 advice, banned-language categories, and a normalized numeric allow-list derived only from
 the semantic context values. Any unavailable, timed-out, failed, or invalid result returns
@@ -677,12 +682,14 @@ they contain no prompt, fact, generated text, timestamp, or server reporting.
 
 Alternatives considered: Sending the raw question to the on-device model, persisting a chat
 history, making the model classify intent or calculate budget facts, accepting free-form JSON,
-scanning one generic context assembled from projections, treating a product flag as user
+scanning one generic context assembled from projections, retaining a `[String: String]` Ask
+fact map with either comments or key-name validation, treating a product flag as user
 consent, failing closed with no answer when Apple Intelligence is unavailable, and trusting
 generated numbers or actions without post-validation.
 
 Consequences: Ask has the same correct behavior on every supported iPhone, privacy-sensitive
-fields are excluded structurally rather than by caller discipline, and model availability
+fields and future Siri-supplied strings cannot be inserted as new Ask facts without adding and
+reviewing an explicit enum case, and model availability
 changes only phrasing. Tests can inject generators and runtime states without invoking the
 real model. Settings can name the current availability reason while honestly promising that
 templates remain fully functional. A supported physical Apple-Intelligence device still

@@ -63,13 +63,12 @@ struct AskMindBudgetService: Sendable {
         intent: AskIntentKey,
         request: AskMindBudgetRequest
     ) -> AskAggregateInput {
-        let formatter = CurrencyFormatterService()
         let currentExpenses = request.expenses.filter {
             request.snapshot.cycle.start <= $0.spentAt
                 && $0.spentAt < request.snapshot.cycle.end
         }
-        var facts: [String: String] = [:]
-        var insightKeys: [String] = []
+        let facts: AskAggregateFacts
+        var insights: [SpendingInsightType] = []
         var actions: [SuggestedAction] = [.reviewRecentSpending, .adjustBudget]
 
         switch intent {
@@ -77,11 +76,7 @@ struct AskMindBudgetService: Sendable {
             guard let amount = request.purchaseAmount,
                   let category = request.purchaseCategory,
                   let bucket = request.purchaseBucket else {
-                facts["templateBody"] = LocalizedCatalog.string(
-                    "ask.answer.canIAfford.clarify",
-                    locale: request.locale
-                )
-                facts["requiresDetails"] = "true"
+                facts = .affordabilityNeedsDetails
                 actions = [.addToWishlist, .reviewRecentSpending]
                 break
             }
@@ -96,129 +91,68 @@ struct AskMindBudgetService: Sendable {
                 !$0.willExceedTotalBudget && !$0.willExceedFreeBudget
                     && amount.minorUnits <= request.snapshot.availableRightNow.minorUnits
             } ?? false
-            let amountText = formatter.string(from: amount, locale: request.locale)
-            let availableText = formatter.string(
-                from: request.snapshot.availableRightNow,
-                locale: request.locale
-            )
-            facts["candidateAmount"] = amountText
-            facts["availableRightNow"] = availableText
-            facts["affordability"] = affordable ? "within" : "outside"
-            facts["templateBody"] = LocalizedCatalog.format(
-                affordable ? "ask.answer.canIAfford.within" : "ask.answer.canIAfford.outside",
-                locale: request.locale,
-                amountText,
-                availableText
+            facts = .affordability(
+                candidateAmount: amount,
+                availableRightNow: request.snapshot.availableRightNow,
+                isAffordable: affordable
             )
             actions = affordable
                 ? [.reviewRecentSpending, .continuePurchase]
                 : [.addToWishlist, .adjustBudget, .continuePurchase]
         case .remainingBudget:
-            let remaining = formatter.string(
-                from: request.snapshot.remainingFree,
-                locale: request.locale
-            )
-            let daily = formatter.string(
-                from: request.snapshot.safeDailySpend,
-                locale: request.locale
-            )
-            facts["remainingFree"] = remaining
-            facts["safeDailySpend"] = daily
-            facts["daysRemaining"] = String(request.snapshot.daysRemaining)
-            facts["templateBody"] = LocalizedCatalog.format(
-                "ask.answer.remainingBudget.body",
-                locale: request.locale,
-                remaining,
-                daily,
-                request.snapshot.daysRemaining
+            facts = .remainingBudget(
+                remainingFree: request.snapshot.remainingFree,
+                safeDailySpend: request.snapshot.safeDailySpend,
+                daysRemaining: request.snapshot.daysRemaining
             )
         case .stressPattern:
             let count = currentExpenses.filter {
                 $0.emotionTag == .stressed || $0.emotionTag == .anxious
                     || $0.purchaseReason == .stressRelief
             }.count
-            facts["count"] = String(count)
-            facts["templateBody"] = LocalizedCatalog.format(
-                count == 0 ? "ask.answer.stress.none" : "ask.answer.stress.body",
-                locale: request.locale,
-                count
-            )
-            insightKeys = count == 0 ? [] : [SpendingInsightType.repeatedStressSpending.rawValue]
+            facts = .stressPattern(count: count)
+            insights = count == 0 ? [] : [.repeatedStressSpending]
         case .impulsePattern:
             let count = currentExpenses.filter {
                 $0.emotionTag == .impulse || $0.purchaseReason == .impulse
             }.count
-            facts["count"] = String(count)
-            facts["templateBody"] = LocalizedCatalog.format(
-                count == 0 ? "ask.answer.impulse.none" : "ask.answer.impulse.body",
-                locale: request.locale,
-                count
-            )
-            insightKeys = count == 0 ? [] : [SpendingInsightType.impulseCluster.rawValue]
+            facts = .impulsePattern(count: count)
+            insights = count == 0 ? [] : [.impulseCluster]
             actions = [.reviewRecentSpending, .startCoolingOff24h]
         case .categoryChange:
             let change = leadingCategoryChange(request: request)
             if let change {
-                let category = LocalizedCatalog.string(
-                    change.category.localizedNameKey,
-                    locale: request.locale
-                )
-                facts["category"] = category
-                facts["current"] = formatter.string(from: change.current, locale: request.locale)
-                facts["previous"] = formatter.string(from: change.previous, locale: request.locale)
-                facts["templateBody"] = LocalizedCatalog.format(
-                    "ask.answer.categoryChange.body",
-                    locale: request.locale,
-                    category,
-                    facts["current"] ?? "—",
-                    facts["previous"] ?? "—"
+                facts = .categoryChange(
+                    category: change.category,
+                    current: change.current,
+                    previous: change.previous
                 )
             } else {
-                facts["templateBody"] = LocalizedCatalog.string(
-                    "ask.answer.categoryChange.none",
-                    locale: request.locale
-                )
+                facts = .noCategoryChange
             }
         case .alternative:
-            facts["templateBody"] = LocalizedCatalog.string(
-                "ask.answer.alternative.body",
-                locale: request.locale
-            )
+            facts = .alternative
             actions = [.addToWishlist, .startCoolingOff24h, .waitUntilNextCycle]
         case .wishlistStatus:
             let cooling = request.wishItems.filter {
                 $0.status == .coolingOff || $0.status == .readyToReview
             }.count
             let active = request.wishItems.filter { $0.status == .active }.count
-            facts["coolingCount"] = String(cooling)
-            facts["activeCount"] = String(active)
-            facts["templateBody"] = LocalizedCatalog.format(
-                "ask.answer.wishlistStatus.body",
-                locale: request.locale,
-                cooling,
-                active
-            )
+            facts = .wishlistStatus(coolingCount: cooling, activeCount: active)
             actions = [.reviewRecentSpending, .addToWishlist]
         case .outOfScope:
-            facts["templateBody"] = LocalizedCatalog.string(
-                "ask.answer.outOfScope.body",
-                locale: request.locale
-            )
+            facts = .outOfScope
             actions = [.reviewRecentSpending, .adjustBudget]
         case .unknown:
-            facts["templateBody"] = LocalizedCatalog.string(
-                "ask.answer.unknown.body",
-                locale: request.locale
-            )
+            facts = .unknown
             actions = [.reviewRecentSpending, .addToWishlist]
         }
 
         return AskAggregateInput(
-            localeIdentifier: request.locale.identifier,
+            locale: request.locale,
             currencyCode: request.snapshot.currencyCode,
-            intent: intent,
-            budgetFactsFormatted: facts,
-            relevantInsightKeys: insightKeys,
+            facts: facts,
+            relevantInsights: insights,
             allowedActions: actions,
             tone: request.tone
         )
@@ -280,8 +214,7 @@ extension AdviceTemplateGenerator {
         context: RedactedAskContext,
         locale: Locale
     ) -> GeneratedAnswer {
-        let body = context.budgetFactsFormatted["templateBody"]
-            ?? LocalizedCatalog.string("ask.answer.unknown.body", locale: locale)
+        let body = context.templateBody(locale: locale)
         let title = LocalizedCatalog.string(
             "ask.answer.\(intent.rawValue).title",
             locale: locale

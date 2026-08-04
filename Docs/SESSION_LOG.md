@@ -725,3 +725,47 @@ build and test suites had already succeeded.
 
 Next suggested task: Commit Phase 7 locally, then push and open a pull request when review is
 requested.
+
+## 2026-08-04 — Session 20 — Close the Ask fact-dictionary privacy boundary
+
+Goal: Address PR #9 review feedback that the Ask redactor still accepted an open
+`[String: String]` fact map, which could let a future Siri caller place a merchant name,
+note, or unrelated number into an otherwise aggregate-only model context.
+
+Files changed: Ask redaction, aggregation, template, model-action, numeric-validation, and
+Phase 7 test code; AI prompt contract, privacy notes, test plan, project memory, tasks,
+decision record, changelog, and this session log.
+
+What was completed: Replaced the generic Ask fact dictionary with exhaustive
+`AskAggregateFacts` cases for affordability, remaining budget, stress, impulse, category
+change, alternatives, wishlist status, unknown, and out-of-scope states. Aggregate inputs
+now accept typed `Money`, `Int`, `Bool`, `ExpenseCategory`, `SpendingInsightType`,
+`SuggestedAction`, and `ReminderTone` values rather than caller-provided fact keys, insight
+strings, formatted money, or template prose. `PrivacyRedactor` alone validates currency,
+formats money, maps enums to stable keys, and constructs a file-private Codable fact payload.
+The deterministic fallback body is derived from that payload after redaction and is never
+included in model prompt facts. Numeric output validation now derives its allow-list only
+from the typed payload's semantic numeric members.
+
+Added an exhaustive test over every Ask fact case that asserts the exact serialized prompt
+key set, the matching intent, and absence of template-body, merchant, and note fields. The
+previous validator, action, localized-number, raw-question, timeout, fallback, reminder, and
+summary coverage remains active.
+
+What was NOT completed: Phase 8 Siri/App Intents, Spotlight, IndexedEntity, and onscreen
+awareness remain out of scope. No GitHub review thread was resolved or replied to; the user
+provided the review text directly and only requested the implementation fix.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 160 Swift Testing tests and 7 UI tests, 0 failures. Phase 7 targeted
+coverage now passes 18 tests, including the new closed-fact-key contract.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`git diff --check` is clean and the complete validation script succeeded.
+
+Known issues: The real Foundation Models path still needs a supported,
+Apple-Intelligence-enabled physical-device smoke test. The known post-test Xcode diagnostic
+collector warning remains non-blocking because all build and test suites completed first.
+
+Next suggested task: Commit and push this remediation to PR #9 for another review pass.
