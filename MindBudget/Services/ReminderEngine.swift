@@ -26,6 +26,8 @@ struct ReminderMessage: Equatable, Sendable {
         case template
         case model
         case modelValidatedFallback
+        case modelUnavailableFallback
+        case modelTimedOutFallback
     }
 
     let title: String
@@ -68,9 +70,22 @@ protocol ReminderGenerating: Sendable {
 
 struct ReminderEngine: ReminderGenerating, Sendable {
     private let enhancer: (any ReminderWordingEnhancing)?
+    private let aiEnhancementEnabled: Bool
+    private let aiGenerator: any AIAdviceGenerating
+    private let aiRuntimeAvailability: @Sendable () async -> AIAvailability
 
-    init(enhancer: (any ReminderWordingEnhancing)? = nil) {
+    init(
+        enhancer: (any ReminderWordingEnhancing)? = nil,
+        aiEnhancementEnabled: Bool = false,
+        aiGenerator: any AIAdviceGenerating = FoundationModelsAdviceGenerator(),
+        aiRuntimeAvailability: @escaping @Sendable () async -> AIAvailability = {
+            await FoundationModelsAdviceGenerator.runtimeAvailability()
+        }
+    ) {
         self.enhancer = enhancer
+        self.aiEnhancementEnabled = aiEnhancementEnabled
+        self.aiGenerator = aiGenerator
+        self.aiRuntimeAvailability = aiRuntimeAvailability
     }
 
     func buildContext(
@@ -108,6 +123,76 @@ struct ReminderEngine: ReminderGenerating, Sendable {
         let actions = validActions(context.suggestedActions)
         let supportingDetails = context.drafts.dropFirst().prefix(2).map {
             LocalizedCatalog.string($0.titleKey, locale: locale)
+        }
+
+        if enhancer == nil, aiEnhancementEnabled,
+           let candidate = context.candidate {
+            let generatedFallback = GeneratedAdvice(
+                title: template.title,
+                body: template.body,
+                actionIdentifiers: actions.map(\.rawValue),
+                severity: primary.severity
+            )
+            let redacted = PrivacyRedactor().redactAdvice(
+                AdviceAggregateInput(
+                    localeIdentifier: locale.identifier,
+                    currencyCode: candidate.amount.currencyCode,
+                    purchaseCategory: candidate.category,
+                    purchaseAmountFormatted: CurrencyFormatterService().string(
+                        from: candidate.amount,
+                        locale: locale
+                    ),
+                    remainingFreeAfterFormatted: context.impact.map {
+                        CurrencyFormatterService().string(
+                            from: $0.remainingFreeAfter,
+                            locale: locale
+                        )
+                    } ?? "—",
+                    freeBudgetImpactPercent: percent(
+                        context.impact?.impactRatioOfFreeBudget
+                    ),
+                    daysOfBudgetConsumed: percent(
+                        context.impact?.daysOfBudgetConsumed,
+                        multiplier: 1
+                    ),
+                    categoryBudgetUsedPercent: percent(
+                        context.impact?.categoryRisk?.usedRatio
+                    ),
+                    recentStressPurchaseCount7d: insightCount(
+                        .repeatedStressSpending,
+                        drafts: context.drafts
+                    ),
+                    recentImpulsePurchaseCount72h: insightCount(
+                        .impulseCluster,
+                        drafts: context.drafts
+                    ),
+                    allowedActions: actions,
+                    tone: context.tone,
+                    maxTitleLength: 24,
+                    maxBodyLength: bodyLimit(for: context.tone)
+                )
+            )
+            let result = await CompositeAdviceGenerator(
+                model: aiGenerator,
+                capability: AIEnhancementCapability(
+                    userEnabled: true,
+                    runtimeAvailability: aiRuntimeAvailability
+                )
+            ).reminder(fallback: generatedFallback, context: redacted)
+            return message(
+                wording: ReminderWording(
+                    title: result.advice.title,
+                    body: result.advice.body
+                ),
+                supportingDetails: supportingDetails,
+                actions: result.advice.actionIdentifiers.compactMap {
+                    SuggestedAction(rawValue: $0)
+                },
+                primary: primary,
+                channel: channel,
+                source: reminderSource(result.source),
+                tone: context.tone
+            )
         }
 
         guard let enhancer else {
@@ -159,6 +244,30 @@ struct ReminderEngine: ReminderGenerating, Sendable {
                 tone: context.tone
             )
         }
+    }
+
+    private func percent(_ ratio: Decimal?, multiplier: Int = 100) -> Int? {
+        guard let ratio else { return nil }
+        return NSDecimalNumber(decimal: ratio * Decimal(multiplier)).intValue
+    }
+
+    private func reminderSource(_ source: AdviceGenerationSource) -> ReminderMessage.Source {
+        switch source {
+        case .template: .template
+        case .model: .model
+        case .modelValidatedFallback: .modelValidatedFallback
+        case .modelUnavailableFallback: .modelUnavailableFallback
+        case .modelTimedOutFallback: .modelTimedOutFallback
+        }
+    }
+
+    private func insightCount(
+        _ type: SpendingInsightType,
+        drafts: [InsightDraft]
+    ) -> Int {
+        guard let draft = drafts.first(where: { $0.type == type }),
+              case let .integer(value) = draft.payload["count"] else { return 0 }
+        return max(0, value)
     }
 
     private func validActions(_ proposed: [SuggestedAction]) -> [SuggestedAction] {

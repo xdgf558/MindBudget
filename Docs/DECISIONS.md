@@ -634,3 +634,59 @@ whole-store removal path is Delete All; the warning therefore remains intentiona
 
 Files affected: privacy deletion verification, notification projections/reconciliation,
 settings copy, Phase 6 tests, and durable project memory.
+
+---
+
+## 2026-08-04 — Keep Ask deterministic and make Foundation Models a replaceable wording layer
+
+Context: Phase 7 introduces a free-text Ask surface while the iOS 17 product must remain
+complete without Apple Intelligence. The raw question can contain arbitrary private text or
+prompt injection, and Foundation Models is available only on supported iOS 26 devices,
+languages, regions, and user configurations. Reminder, Ask, and cycle-summary output must not
+let a model invent arithmetic, actions, diagnoses, financial advice, or a prohibition on the
+user's purchase. The Phase 0 capability contract also requires scope, API availability,
+runtime readiness, and explicit default-off consent to be combined at one boundary rather
+than reimplemented at each call site.
+
+Decision: `IntentClassifier` handles the seven approved Ask intents locally in English and
+Simplified Chinese. The raw question is never persisted, logged, copied into a redacted
+context, or sent to a generator. Unknown and out-of-scope intents use fixed local responses
+and never call a model; an affordability question without an explicit amount and category
+asks for those facts instead of guessing. Every supported intent has a complete deterministic
+template answer on iOS 17+.
+
+`AIAdviceGenerating` is the only generation seam for reminders, cycle summaries, and Ask.
+`AIEnhancementCapability` centrally combines the Foundation Models product-scope flag, iOS/API
+availability, runtime eligibility/readiness, supported locale, and the user's independently
+stored default-off setting. Call sites provide only the setting and injected runtime seam;
+they never read the raw feature flag. The iOS 26 implementation uses conditional import,
+availability guards, `LanguageModelSession`, the exact system instruction in
+`AI_PROMPT_CONTRACT.md`, and `@Generable` outputs rather than free-form JSON.
+
+Each task receives a distinct Codable allow-listed aggregate context. Generator APIs cannot
+accept `ExpenseDetail`, `WishItemDetail`, transaction rows, merchant lists, raw notes, raw
+cooling-off timestamps, or the raw Ask question. Deterministic code precomputes every amount,
+ratio, count, conclusion, severity used by the product, and allowed action identifiers. Model
+output is a wording proposal only. A 2.5-second timeout and `AdviceSafetyValidator` enforce
+nonempty length limits, two-to-four allow-listed actions, Continue Purchase for purchase
+advice, banned-language categories, and a normalized numeric allow-list derived only from
+the semantic context values. Any unavailable, timed-out, failed, or invalid result returns
+the already-built template with explicit source metadata. Generated wording is never stored.
+DEBUG builds also keep reason-only in-memory fallback counters for Settings diagnostics;
+they contain no prompt, fact, generated text, timestamp, or server reporting.
+
+Alternatives considered: Sending the raw question to the on-device model, persisting a chat
+history, making the model classify intent or calculate budget facts, accepting free-form JSON,
+scanning one generic context assembled from projections, treating a product flag as user
+consent, failing closed with no answer when Apple Intelligence is unavailable, and trusting
+generated numbers or actions without post-validation.
+
+Consequences: Ask has the same correct behavior on every supported iPhone, privacy-sensitive
+fields are excluded structurally rather than by caller discipline, and model availability
+changes only phrasing. Tests can inject generators and runtime states without invoking the
+real model. Settings can name the current availability reason while honestly promising that
+templates remain fully functional. A supported physical Apple-Intelligence device still
+requires release smoke testing because automated suites deliberately use mocks.
+
+Files affected: Phase 7 generation/classification/redaction/validation services, Reminder
+Engine, Ask/Dashboard/Insights/Settings UI, resources, tests, and durable project memory.

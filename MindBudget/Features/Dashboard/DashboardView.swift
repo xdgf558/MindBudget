@@ -75,6 +75,7 @@ struct DashboardView: View {
     @Environment(\.calendar) private var calendar
     @StateObject private var viewModel = DashboardViewModel()
     @State private var presentedSetup: PresentedSetup?
+    @State private var presentsAsk = false
 
     var body: some View {
         NavigationStack {
@@ -173,6 +174,17 @@ struct DashboardView: View {
                 }
             }
         }
+        .sheet(isPresented: $presentsAsk) {
+            if case let .configured(snapshot, expenses, wishItems) = viewModel.state {
+                NavigationStack {
+                    AskMindBudgetView(
+                        snapshot: snapshot,
+                        expenses: expenses,
+                        wishItems: wishItems
+                    )
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -183,6 +195,29 @@ struct DashboardView: View {
     ) -> some View {
         ScrollView {
             LazyVStack(spacing: 16) {
+                if settings.enableAskMindBudget {
+                    Button {
+                        presentsAsk = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "sparkle.magnifyingglass")
+                            Text("ask.dashboard.prompt")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(14)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(.quaternary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("dashboard.ask")
+                }
                 TodaySpendableCard(snapshot: snapshot)
                 BudgetSummaryCard(snapshot: snapshot)
 

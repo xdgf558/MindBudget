@@ -7,8 +7,8 @@ Statements about future features must be revalidated against the shipped binary.
 
 - Collected data: none. V1 financial records remain in the app's local container.
 - Data leaving the device automatically or to the developer: none. A user may explicitly
-  share an expense CSV to a destination they choose. Planned Foundation Models enhancement
-  is on-device.
+  share an expense CSV to a destination they choose. Optional Foundation Models enhancement
+  runs on device.
 - Tracking: none.
 - Third-party sharing: none.
 - Accounts: none in V1.
@@ -45,13 +45,16 @@ operation or verification fails; a partial failure is never reported as complete
 
 ## AI disclosure
 
-AI enhancement is planned to be off by default. When enabled, it receives only
-redacted aggregate facts and runs through Apple's on-device Foundation Models.
+AI enhancement is implemented and off by default. When enabled on a supported device,
+language, region, and runtime, it receives only redacted aggregate facts and runs through
+Apple's on-device Foundation Models. If it is disabled or unavailable, the same feature
+returns a complete local template answer.
 Raw notes, transaction rows, merchant lists, and raw Ask questions never enter
 the model context. Deterministic Swift code computes all financial conclusions.
 `FeatureFlags.enableFoundationModels` is a product-scope gate, not proof of an
-implementation or the user's preference; the future user setting defaults to off
-and remains mandatory through a centralized availability gate.
+implementation or the user's preference; the user setting defaults to off and remains
+mandatory through a centralized availability gate. Generated wording is validated and is
+not persisted as a conversation or profile.
 
 ## Siri and Spotlight disclosure
 

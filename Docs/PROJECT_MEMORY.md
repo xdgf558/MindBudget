@@ -33,7 +33,7 @@ App Intents, and Spotlight.
 
 ## Later scope
 
-Foundation Models wording enhancement, IndexedEntity, and onscreen awareness.
+IndexedEntity and onscreen awareness.
 
 ## Forbidden
 
@@ -92,7 +92,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 6 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 7 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -150,7 +150,20 @@ each notification/index/data/preference stage, stops without a success claim on 
 and returns to onboarding only after a post-delete query verifies all nine SwiftData types
 are gone. Notification reconciliation isolates invalid cooling-off records, clears their
 stale identifiers, continues valid requests, and exposes a localized integrity warning.
-The existing privacy
-manifest remains accurate: no tracking, collection, third-party SDKs, or new required-reason
+The existing privacy manifest remains accurate: no tracking, collection, third-party SDKs,
+or new required-reason
 file API was added. Notification `appEntityIdentifier` remains Phase 8 work behind the future
-centralized Siri gate; Phase 6 does not implement indexing or AI ahead of their phases.
+centralized Siri gate; Phase 6 does not implement indexing ahead of its phase. Phase 7 adds
+the local Ask surface with seven deterministic bilingual intents, complete template answers,
+and explicit clarification or refusal paths for missing, unknown, and out-of-scope questions.
+The raw question exists only in the view and local classifier; it is neither persisted nor
+passed to a generator. Reminder wording, Ask answers, and cycle-summary narratives may use
+Apple's on-device Foundation Models only through one centralized product-scope + OS/API +
+runtime + default-off user-setting gate. Every generator receives a dedicated allow-listed
+aggregate context, never detail projections, transaction rows, merchant lists, raw notes,
+raw cooling timestamps, or the raw question. Deterministic Swift remains authoritative for
+classification, arithmetic, rules, and allowed actions. Model output uses constrained
+generation, a short timeout, length/action/language/number safety validation, and immediate
+template fallback; generated copy is not persisted. Settings always explains the current
+availability reason and that the complete template experience remains usable without Apple
+Intelligence.

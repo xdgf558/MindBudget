@@ -257,6 +257,24 @@ confirms Export and Privacy controls are reachable;
 manual release smoke testing still opens the shared CSV in both Numbers and Excel, validates
 a real notification, and inspects destructive progress on a physical device.
 
+## Phase 7 acceptance
+
+Phase 7 tests classify all seven approved Ask intents in English and Simplified Chinese and
+prove that unknown or out-of-scope questions never invoke a model. With enhancement disabled,
+every supported intent still returns a complete two-to-four-action template; affordability
+without an explicit amount/category asks for clarification and never invents a value.
+
+Privacy coverage records generator input and proves the raw question is absent, aggregate
+contexts expose no raw note, merchant-list, transaction-row, or cooling-timestamp fields,
+and generator APIs accept only dedicated allow-listed value types. Safety tests reject
+fabricated numbers, unknown/duplicate/invalid action sets, missing Continue Purchase,
+oversized copy, shame, diagnosis, financial advice, and purchase prohibitions while accepting
+localized forms of allowed numbers. Capability tests prove user-disabled and build-disabled
+states fail closed before runtime access. Generator failure, validation rejection, and timeout
+all return a nonempty template with source metadata. Reminder and cycle-summary enhancement
+tests use injected mock generators only; the real on-device model remains a supported-device
+manual smoke requirement.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

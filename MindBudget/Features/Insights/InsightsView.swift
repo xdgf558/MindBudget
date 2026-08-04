@@ -26,6 +26,7 @@ struct InsightDashboardSummary: Equatable, Sendable {
 final class InsightsViewModel: ObservableObject {
     @Published private(set) var summary: InsightDashboardSummary?
     @Published private(set) var insights: [SpendingInsightSummary] = []
+    @Published private(set) var cycleNarrative: SourcedSummary?
     @Published private(set) var isLoading = true
     @Published private(set) var failed = false
 
@@ -34,6 +35,9 @@ final class InsightsViewModel: ObservableObject {
         currencyCode: String,
         cycleStartDay: Int,
         configuration: RuleConfiguration,
+        locale: Locale,
+        tone: ReminderTone,
+        enhancementEnabled: Bool,
         now: Date,
         calendar: Calendar
     ) async {
@@ -105,6 +109,15 @@ final class InsightsViewModel: ObservableObject {
                 calendar: calendar
             )
             summary = dashboardSummary
+            cycleNarrative = await CycleSummaryService().generate(
+                snapshot: snapshot,
+                expenses: expenses,
+                coolingOffPlans: coolingPlans,
+                locale: locale,
+                calendar: calendar,
+                tone: tone,
+                enhancementEnabled: enhancementEnabled
+            )
             insights = storedInsights.filter {
                 $0.periodStart == snapshot.cycle.start
                     && $0.periodEnd == snapshot.cycle.end
@@ -249,6 +262,9 @@ struct InsightsView: View {
             LazyVStack(alignment: .leading, spacing: 20) {
                 if let summary = viewModel.summary {
                     summaryCards(summary)
+                    if let narrative = viewModel.cycleNarrative {
+                        cycleNarrativeCard(narrative)
+                    }
                     spendingCharts(summary)
                 }
                 insightCards
@@ -261,6 +277,26 @@ struct InsightsView: View {
         }
         .accessibilityIdentifier("insights.view")
         .refreshable { await load() }
+    }
+
+    private func cycleNarrativeCard(_ narrative: SourcedSummary) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(narrative.summary.title).font(.headline)
+                Spacer()
+                if narrative.source == .model {
+                    Label("ask.answer.enhanced", systemImage: "apple.intelligence")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Text(narrative.summary.body)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityIdentifier("insights.cycleNarrative")
     }
 
     private func summaryCards(_ summary: InsightDashboardSummary) -> some View {
@@ -432,6 +468,9 @@ struct InsightsView: View {
             currencyCode: settings.currencyCode,
             cycleStartDay: settings.budgetCycleStartDay,
             configuration: settings.ruleConfiguration(),
+            locale: locale,
+            tone: settings.reminderTone,
+            enhancementEnabled: settings.enableAIEnhancement,
             now: Date(),
             calendar: calendar
         )

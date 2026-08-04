@@ -671,3 +671,57 @@ diagnostic warning because its unqualified collector could not locate `simctl`; 
 and test suites had already succeeded.
 
 Next suggested task: Commit and push this final remediation to PR #8 for approval.
+
+## 2026-08-04 — Session 19 — Phase 7 deterministic Ask and on-device wording enhancement
+
+Goal: Complete Phase 7 without weakening the iOS 17 experience or allowing raw user text,
+detail projections, model arithmetic, or unconstrained actions across the generation boundary.
+
+Files changed: Ask, generation, redaction, validation, cycle-summary, and classifier services;
+Reminder Engine; Dashboard, Insights, Settings, and expense-entry integration; bilingual string
+catalog and banned-phrase resource; Xcode project membership; Phase 7 unit/UI tests; and the
+decision, task, privacy, test, changelog, project-memory, and session documents.
+
+What was completed: Added deterministic English/Simplified Chinese classification and template
+answers for all seven approved Ask intents, an explicit clarification for affordability without
+amount/category, fixed unknown/out-of-scope responses, a Dashboard search-style entry, and no
+conversation persistence. Added the three-method `AIAdviceGenerating` seam, complete fallback
+output types, a centralized product-scope/API/runtime/default-off-user-setting gate, conditional
+iOS 26 Foundation Models implementation with `LanguageModelSession`, `@Generable` constrained
+outputs, and a constrained severity enum. Ask answers, purchase reminders, and current-cycle
+summaries now share a 2.5-second timeout, explicit source metadata, and immediate templates for
+unavailable, failed, timed-out, guardrail, or validation paths. DEBUG Settings exposes only local
+reason counts for fallback diagnostics.
+
+The three redacted contexts accept explicit aggregate value inputs only. Raw questions remain in
+the local classifier, and raw notes, detail projections, transaction rows, merchant lists, and
+cooling-off timestamps cannot enter a generator API. Summary outcome counts are attributed by
+`outcomeRecordedAt` inside the current cycle, then only the counts cross the boundary. Numeric
+validation preserves decimal meaning and rejects any normalized number absent from semantic
+context values. Output validation also enforces task-specific action counts, allow-listed unique
+actions, Continue Purchase for purchase decisions, length limits, and banned shame, diagnosis,
+financial-advice, and purchase-prohibition language. Generated wording is never persisted.
+
+What was NOT completed: Phase 8 Siri/App Intents, Spotlight, IndexedEntity, and onscreen-awareness
+work was not pulled forward. Real Foundation Models generation was intentionally not invoked in
+automation; supported-device Apple Intelligence validation remains a release smoke test.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5
+
+Test result: pass — 159 Swift Testing tests and 7 UI tests, 0 failures. Phase 7 targeted
+coverage passes 17 tests for all intents, AI-off completeness, raw-question isolation,
+aggregate-only contexts, current-cycle outcome attribution, four-part gates, timeout/failure/
+validation fallback, numeric/action policies, and mock reminder/summary generation. The UI suite
+also opens Dashboard Ask and verifies a template answer with enhancement off.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths;
+`Localizable.xcstrings` parses and compiles successfully; `git diff --check` is clean.
+
+Known issues: The real Foundation Models path still needs a supported, Apple-Intelligence-enabled
+physical-device smoke test. A real App Icon, iOS 17 runtime validation, and physical-device
+VoiceOver/AX5 inspection remain deferred to release preparation. Xcode emitted the known
+post-test diagnostic warning because its unqualified collector could not locate `simctl`; all
+build and test suites had already succeeded.
+
+Next suggested task: Commit Phase 7 locally, then push and open a pull request when review is
+requested.
