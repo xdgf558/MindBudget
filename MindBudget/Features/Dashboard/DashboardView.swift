@@ -130,6 +130,9 @@ struct DashboardView: View {
             }
         }
         .accessibilityIdentifier("dashboard.view")
+        .navigationDestination(isPresented: $session.presentsExpenseList) {
+            ExpenseListView(session: session)
+        }
         .task(id: session.revision) {
             await viewModel.load(
                 dataActor: session.dataActor,

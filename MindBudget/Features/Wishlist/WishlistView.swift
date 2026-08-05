@@ -26,7 +26,7 @@ struct WishlistView: View {
     @State private var presentsAddItem = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $session.wishlistNavigationPath) {
             Group {
                 if viewModel.isLoading {
                     ProgressView().accessibilityLabel("common.loading")
@@ -47,6 +47,9 @@ struct WishlistView: View {
                 } else {
                     wishlistList
                 }
+            }
+            .navigationDestination(for: UUID.self) { itemID in
+                WishlistDetailView(session: session, wishItemID: itemID)
             }
             .navigationTitle("tab.wishlist")
             .toolbar {
@@ -99,9 +102,7 @@ struct WishlistView: View {
     }
 
     private func wishlistLink(_ item: WishItemSummary) -> some View {
-        NavigationLink {
-            WishlistDetailView(session: session, wishItemID: item.id)
-        } label: {
+        NavigationLink(value: item.id) {
             WishlistRow(item: item, calendar: calendar)
         }
     }

@@ -56,7 +56,17 @@ Status: Done
   timeout, availability, generation, and validation failures must return templates.
 
 ## Phase 8A — App Intents, App Entities, Spotlight (iOS 17+)
-Status: Todo
+Status: Done
+- Provide all nine approved App Intents and all seven redacted App Entities behind one
+  centralized, default-off Siri capability gate; keep every action correct without AI.
+- Convert App Intent amount parameters to exact minor units only inside the isolated
+  transport adapter, sanitize Siri text to 40 characters, and deduplicate identical
+  Siri/Shortcut expense writes inside one actor transaction for five seconds.
+- Publish localized App Shortcuts and route open intents and Spotlight results only to
+  app-owned Dashboard, expense, wishlist, item-detail, and Insights destinations.
+- Maintain one redacted app-owned Spotlight domain. Exclude exact amounts and notes,
+  represent expenses with budget-relative bands, clear the domain when disabled, and
+  keep index failures from changing local user data.
 - Gate merchant-name indexing on the centralized Spotlight capability, the global
   merchant-name opt-in, and at least one eligible expense with the same normalized key.
 

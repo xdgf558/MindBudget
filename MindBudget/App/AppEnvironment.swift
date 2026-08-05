@@ -6,6 +6,8 @@ struct AppEnvironment {
     let settingsStore: SettingsStore
     let notificationScheduler: any NotificationScheduling
     let searchIndexCleaner: any SearchIndexDeleting
+    let spotlightIndexer: any SpotlightIndexing
+    let intentService: MindBudgetIntentService
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -15,19 +17,43 @@ struct AppEnvironment {
                 throw CocoaError(.fileReadUnknown)
             }
             defaults.removePersistentDomain(forName: suiteName)
-            return AppEnvironment(
-                dataController: try DataController(isStoredInMemoryOnly: true),
-                settingsStore: SettingsStore(defaults: defaults),
-                notificationScheduler: NotificationScheduler(),
-                searchIndexCleaner: CoreSpotlightIndexCleaner()
+            return try make(
+                defaults: defaults,
+                preferenceSuiteName: suiteName,
+                isStoredInMemoryOnly: true
             )
         }
         #endif
+        return try make(
+            defaults: .standard,
+            preferenceSuiteName: nil,
+            isStoredInMemoryOnly: false
+        )
+    }
+
+    private static func make(
+        defaults: UserDefaults,
+        preferenceSuiteName: String?,
+        isStoredInMemoryOnly: Bool
+    ) throws -> AppEnvironment {
+        let dataController = try DataController(isStoredInMemoryOnly: isStoredInMemoryOnly)
+        let notificationScheduler = NotificationScheduler()
+        let navigationStore = MindBudgetNavigationRequestStore()
+        let intentService = MindBudgetIntentService(
+            dataActor: dataController.dataActor,
+            preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
+                suiteName: preferenceSuiteName
+            ),
+            notificationScheduler: notificationScheduler,
+            navigationStore: navigationStore
+        )
         return AppEnvironment(
-            dataController: try DataController(),
-            settingsStore: SettingsStore(),
-            notificationScheduler: NotificationScheduler(),
-            searchIndexCleaner: CoreSpotlightIndexCleaner()
+            dataController: dataController,
+            settingsStore: SettingsStore(defaults: defaults),
+            notificationScheduler: notificationScheduler,
+            searchIndexCleaner: CoreSpotlightIndexCleaner(),
+            spotlightIndexer: SpotlightIndexingService(),
+            intentService: intentService
         )
     }
 }

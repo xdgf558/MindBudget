@@ -76,6 +76,9 @@ app's private data are forbidden in V1.
 - FeatureFlags are product-scope gates, not proof of implementation or user opt-in.
   Phase 7/8 must expose centralized gates combining scope, API/runtime availability,
   and an explicit user setting that defaults off; call sites cannot read raw flags.
+- An authenticated, explicitly invoked Siri budget-impact check may return the exact
+  calculated flexible budget. Unsolicited notifications, entity displays, and Spotlight
+  content never expose exact amounts; Settings warns that the active result may be spoken.
 - V1 targets iPhone only. iPad support requires a later explicit product decision.
 - The public repository is review-visible but proprietary; no open-source rights are granted.
 
@@ -92,7 +95,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 7 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 8A are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -168,4 +171,24 @@ remains authoritative for classification, arithmetic, rules, and allowed actions
 generation, a short timeout, length/action/language/number safety validation, and immediate
 template fallback; generated copy is not persisted. Settings always explains the current
 availability reason and that the complete template experience remains usable without Apple
-Intelligence.
+Intelligence. Phase 8A adds nine localized App Intents, seven redacted App Entities, and six
+suggested App Shortcuts on iOS 17+. Siri and Spotlight are independent default-off settings
+combined with product-scope, import/OS, and runtime gates at one boundary. Siri strings are
+control-character stripped and capped at 40 characters; its amount parameters cross the
+single documented floating-point adapter and become exact minor units before domain code.
+Identical Siri/Shortcut expense requests within five seconds deduplicate atomically. Candidate
+purchase names used for impact checks remain ephemeral. Core Spotlight owns one replaceable
+domain containing category/amount-band expense entries, budget status, wishlist/cooling-off
+state, typed insights, and emotion labels, but no exact amount or raw note. Merchant names
+require both global consent and an eligible expense with the same normalized key; the local
+aggregate remains complete regardless. Disabling Spotlight clears the domain, indexing
+failures never alter SwiftData, and recognized search identifiers deep-link only to app-owned
+destinations. The Xcode 26.6/iOS 26.5 App Schema catalog has no suitable personal-finance,
+budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. `IndexedEntity`,
+onscreen awareness, and notification `appEntityIdentifier` remain Phase 8B work.
+App Intent money transport keeps invalid values, out-of-range amounts, unsupported precision,
+unsupported currencies, and unexpected execution failures distinct. The authenticated budget-
+impact intent returns its exact calculated flexible-budget result only after explicit invocation,
+while passive system surfaces remain amount-free. Settings presents separate, scalable Siri-
+speech and Spotlight/merchant privacy explanations. A production-path reconciliation test proves
+the merchant-name capability, global-consent, and eligible-expense gates together.

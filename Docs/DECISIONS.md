@@ -697,3 +697,98 @@ requires release smoke testing because automated suites deliberately use mocks.
 
 Files affected: Phase 7 generation/classification/redaction/validation services, Reminder
 Engine, Ask/Dashboard/Insights/Settings UI, resources, tests, and durable project memory.
+
+---
+
+## 2026-08-04 — Ship custom iOS 17 system integrations behind independent fail-closed gates
+
+Context: Phase 8A must expose MindBudget actions and app-owned data to Siri, Shortcuts, and
+Spotlight without weakening the iOS 17 baseline or leaking exact amounts, raw notes, or
+merchant names. The release-time contract also requires checking the current SDK for a
+suitable official App Schema domain before defining custom integrations. In Xcode 26.6
+(17F109) with the iOS 26.5 SDK, the public `AppIntents.swiftinterface` exposes Assistant
+Schema families for Books, Browser, Camera, Files, Journal, Mail, Photos, Presentation,
+Reader, Spreadsheet, System, Visual Intelligence, Whiteboard, and Word Processor. It exposes
+no personal-finance, budget, expense, or wishlist schema whose semantics fit MindBudget.
+
+Decision: Phase 8A ships all nine approved actions as custom `AppIntent` types and all seven
+approved projections as custom `AppEntity` types, plus six suggested shortcuts. It does not
+mislabel financial data as another schema domain. `SystemIntegrationCapability` is the only
+place that reads the Siri and Spotlight product-scope flags and combines them with conditional
+framework/OS availability, runtime readiness, and each independent default-off setting.
+Queries return no suggestions and services perform no read or write when the Siri conjunction
+is false.
+
+Siri text is treated as untrusted, stripped of control characters, trimmed, and capped at 40
+characters. App Intent `Double` parameters exist only in `IntentMoneyTransport.swift`; the
+adapter rejects nonfinite, nonpositive, unsupported, oversized, or precision-losing values and
+returns exact `Money` minor units before domain logic. Candidate product names used by impact
+checks are ephemeral. Expense writes from Siri/Shortcuts use an actor-isolated five-second
+deduplication transaction keyed by source, exact money, category, bucket, and normalized
+merchant so system retries return the existing expense instead of inserting another row.
+
+Core Spotlight owns one replaceable `mindbudget.local` domain. Its builder accepts only
+summary projections and indexes expense category plus a budget-relative amount band, current
+budget status, wishlist/cooling state, typed insights, and emotion labels. It cannot access raw
+notes and does not emit exact amounts. Merchant display names require the centralized
+Spotlight conjunction, global `indexMerchantNames`, and at least one expense with the same
+persisted normalized key and `allowMerchantIndexing == true`; local merchant aggregation still
+includes every expense. Turning Spotlight off clears the domain once, and index failures return
+a UI-visible result without blocking or rolling back local data. Search identifiers and open
+intents route only to app-owned destinations.
+
+Alternatives considered: Treating a product flag as consent, exposing entities while the Siri
+setting is off, adopting an unrelated Journal or Files schema, letting `Double` enter domain
+services, trusting Siri strings, storing candidate names, relying on UI-only duplicate checks,
+putting exact amounts or notes in Spotlight, using the local Merchant table as implicit consent,
+or making index writes part of the user's SwiftData transaction.
+
+Consequences: The complete iOS 17 app remains local and deterministic, user settings can
+independently disable Siri or Spotlight, system retries do not duplicate expenses, and the
+search index is useful without becoming a second raw ledger. Before each release, the SDK
+schema catalog must be checked again. `IndexedEntity`, onscreen awareness, and notification
+`appEntityIdentifier` remain Phase 8B because they require iOS 26 APIs and separate review.
+
+Files affected: system-integration gates/settings, App Intents, App Entities, shortcuts,
+Spotlight indexing/deep links, `DataActor` deduplication and merchant eligibility, localization,
+Phase 8A tests, privacy/review notes, and durable project memory.
+
+---
+
+## 2026-08-04 — Keep App Intent errors truthful and active Siri impact answers exact
+
+Context: Phase 8A review found that the App Intent amount adapter classified an unsupported
+currency as an invalid amount, while three money-taking intents described every unexpected
+failure as an invalid amount. The same review noted that an authenticated budget-impact
+dialog returns an exact flexible-budget value even though passive system surfaces deliberately
+exclude exact amounts. Authentication controls access but does not guarantee that spoken
+output occurs in a private environment.
+
+Decision: Keep invalid/nonpositive amounts, amounts outside the storage-safety boundary,
+unsupported minor-unit precision, unsupported currencies, accounting-currency mismatch, and
+unexpected execution failures as distinct localized outcomes. The transport adapter validates
+currency support, exact decimal precision, and the maximum amount as separate checks; every
+money-taking intent maps typed transport failures explicitly, and an unclassified failure uses
+neutral temporary-failure copy instead of blaming the amount. Preserve the exact value in
+`CheckBudgetImpactIntent` because the authenticated user explicitly requested that deterministic
+calculation. Treat it as a narrow active-query exception: notifications, App Entity displays,
+and Spotlight content remain exact-amount-free. Settings discloses that Siri may speak the exact
+result in a separate paragraph from Spotlight and merchant privacy so both remain readable at
+large accessibility sizes. The merchant-name conjunction is verified through the production
+`reconcile()` path: centralized capability, global consent, and one eligible expense are all
+required before a merchant document can be emitted.
+
+Alternatives considered: Reporting every failure as an invalid amount, merging unsupported
+currency with accounting-currency mismatch, removing the exact result from the impact action,
+or assuming authentication also proves acoustic privacy.
+
+Consequences: Siri directs the user toward the part of the request that can actually be
+corrected, while persistence and unknown failures no longer make a false claim about their
+amount. Oversized exact values are no longer misreported as a decimal-precision problem. The
+active impact action remains useful, but the spoken-output disclosure is explicit and its
+exception cannot be reused by passive system surfaces without a new reviewed decision. The
+most privacy-sensitive Spotlight rule has executable end-to-end evidence instead of relying
+only on builder-level tests and documentation.
+
+Files affected: App Intent money transport/actions, localized integration and error copy,
+Phase 8A tests, Siri/privacy plans, changelog, project memory, and this file.

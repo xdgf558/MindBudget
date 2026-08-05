@@ -70,9 +70,18 @@
   safety validation, short timeouts, and complete template fallback for every AI path.
 - Settings status that explains Apple Intelligence availability while confirming that all
   template features remain usable.
+- Nine localized iOS 17 App Intents, seven privacy-redacted App Entities, and six suggested
+  App Shortcuts for expense capture, budget impact, wishlist/cooling-off, patterns, and
+  app-owned navigation.
+- A centralized default-off Siri/Spotlight capability boundary, exact App Intent amount
+  transport, sanitized external strings, and atomic five-second expense deduplication.
+- One redacted Core Spotlight domain with budget-relative expense bands, independent
+  merchant-name consent, deep links, awaited clearing, and nonblocking failure handling.
 
 ### Changed
 
+- Split Siri spoken-result disclosure from Spotlight/merchant privacy copy so large
+  accessibility sizes do not render four independent claims as one paragraph.
 - Limited V1 device support to iPhone.
 - Moved the bundle identifier prefix into an overridable xcconfig.
 - Replaced constant-only smoke assertions with bundle localization checks.
@@ -113,6 +122,11 @@
 
 ### Fixed
 
+- Preserved distinct App Intent responses for invalid amounts, unsupported decimal precision,
+  out-of-range amounts, unsupported currencies, accounting-currency mismatch, and unexpected
+  execution failures.
+- Added production-path reconciliation coverage for the complete Spotlight merchant-name
+  capability, global-consent, and eligible-expense conjunction.
 - Prevented a reduced transition-cycle budget from becoming the recurring amount for
   subsequent complete cycles.
 - Expanded the floating-point money guard to the complete app source tree while
@@ -152,6 +166,9 @@
 
 ### Privacy
 
+- Documented and disclosed that only an authenticated, explicitly invoked Siri budget-impact
+  answer may speak its exact calculated flexible budget; notifications, entity displays, and
+  Spotlight content remain exact-amount-free.
 - Declared no tracking, no tracking domains, and no collected data types.
 - Declared the required-reason UserDefaults API category for app settings.
 - Kept raw expense notes out of common engine/list projections and reserved `ExpenseDetail`

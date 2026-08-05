@@ -1,0 +1,48 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Add to my ${applicationName} wishlist" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to my ${applicationName} wishlist" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加到${applicationName}心愿单" } }
+      }
+    },
+    "Check a purchase with ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check a purchase with ${applicationName}" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用${applicationName}看看这笔消费" } }
+      }
+    },
+    "Find a recent pattern in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find a recent pattern in ${applicationName}" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用${applicationName}看近期消费模式" } }
+      }
+    },
+    "Open my budget in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open my budget in ${applicationName}" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开${applicationName}预算" } }
+      }
+    },
+    "Record an expense in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record an expense in ${applicationName}" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在${applicationName}记一笔" } }
+      }
+    },
+    "Review emotional spending in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review emotional spending in ${applicationName}" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用${applicationName}回顾情绪消费" } }
+      }
+    },
+    "Use ${applicationName} to record spending" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use ${applicationName} to record spending" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用${applicationName}记录消费" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

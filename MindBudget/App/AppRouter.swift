@@ -1,4 +1,5 @@
 import SwiftUI
+@preconcurrency import CoreSpotlight
 
 enum AppTab: Hashable {
     case dashboard
@@ -13,27 +14,36 @@ final class AppSession: ObservableObject {
     let dataActor: DataActor
     private let notificationScheduler: any NotificationScheduling
     private let searchIndexCleaner: any SearchIndexDeleting
+    private let spotlightIndexer: any SpotlightIndexing
+    private let navigationStore: MindBudgetNavigationRequestStore
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
     @Published var presentsAddExpense = false
+    @Published var presentsExpenseList = false
+    @Published var wishlistNavigationPath: [UUID] = []
     @Published private(set) var isPrepared = false
     @Published private(set) var preparationFailed = false
     @Published private(set) var notificationAuthorizationState: NotificationAuthorizationState = .notDetermined
     @Published private(set) var notificationOperationFailed = false
     @Published private(set) var notificationDataIntegrityWarning = false
+    @Published private(set) var spotlightResult: SpotlightReconciliationResult?
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
 
     init(
         dataActor: DataActor,
         notificationScheduler: any NotificationScheduling = NotificationScheduler(),
         searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner(),
+        spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
+        navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
         privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier()
     ) {
         self.dataActor = dataActor
         self.notificationScheduler = notificationScheduler
         self.searchIndexCleaner = searchIndexCleaner
+        self.spotlightIndexer = spotlightIndexer
+        self.navigationStore = navigationStore
         self.privacyDeletionVerifier = privacyDeletionVerifier
     }
 
@@ -58,6 +68,57 @@ final class AppSession: ObservableObject {
 
     func presentExpenseEntry() {
         presentsAddExpense = true
+    }
+
+    func observeIntentNavigation() async {
+        let requests = await navigationStore.requests()
+        for await request in requests {
+            guard !Task.isCancelled else { return }
+            applyNavigation(request)
+        }
+    }
+
+    func openSearchResult(identifier: String) {
+        guard let request = MindBudgetSearchIdentifier.navigationRequest(for: identifier) else {
+            return
+        }
+        applyNavigation(request)
+    }
+
+    @discardableResult
+    func reconcileSpotlight(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> SpotlightReconciliationResult {
+        let result = await spotlightIndexer.reconcile(
+            dataActor: dataActor,
+            preferences: settings.systemIntegrationPreferencesSnapshot,
+            now: now,
+            calendar: calendar,
+            locale: locale
+        )
+        spotlightResult = result
+        return result
+    }
+
+    private func applyNavigation(_ request: MindBudgetNavigationRequest) {
+        switch request {
+        case .dashboard:
+            selectedTab = .dashboard
+        case .expenses:
+            selectedTab = .dashboard
+            presentsExpenseList = true
+        case .wishlist:
+            selectedTab = .wishlist
+            wishlistNavigationPath = []
+        case let .wishlistItem(id):
+            selectedTab = .wishlist
+            wishlistNavigationPath = [id]
+        case .insights:
+            selectedTab = .insights
+        }
     }
 
     @discardableResult
@@ -176,6 +237,8 @@ final class AppSession: ObservableObject {
         settings.resetAfterDataDeletion()
         selectedTab = .dashboard
         presentsAddExpense = false
+        presentsExpenseList = false
+        wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
         return true
@@ -195,13 +258,17 @@ struct AppRouter: View {
     init(
         dataController: DataController,
         notificationScheduler: any NotificationScheduling = NotificationScheduler(),
-        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner()
+        searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner(),
+        spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
+        navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore()
     ) {
         _session = StateObject(
             wrappedValue: AppSession(
                 dataActor: dataController.dataActor,
                 notificationScheduler: notificationScheduler,
-                searchIndexCleaner: searchIndexCleaner
+                searchIndexCleaner: searchIndexCleaner,
+                spotlightIndexer: spotlightIndexer,
+                navigationStore: navigationStore
             )
         )
     }
@@ -225,6 +292,12 @@ struct AppRouter: View {
         }
         .task {
             await session.prepare(settings: settings)
+            await session.observeIntentNavigation()
+        }
+        .onContinueUserActivity(CSSearchableItemActionType) { activity in
+            guard let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier]
+                    as? String else { return }
+            session.openSearchResult(identifier: identifier)
         }
     }
 }
@@ -273,11 +346,17 @@ private struct MainTabView: View {
             }
         }
         .task(id: session.revision) {
-            await session.reconcileNotifications(
+            async let notifications: Bool = session.reconcileNotifications(
                 settings: settings,
                 locale: locale,
                 calendar: calendar
             )
+            async let spotlight: SpotlightReconciliationResult = session.reconcileSpotlight(
+                settings: settings,
+                locale: locale,
+                calendar: calendar
+            )
+            _ = await (notifications, spotlight)
         }
         .sheet(isPresented: $session.presentsAddExpense) {
             NavigationStack {
