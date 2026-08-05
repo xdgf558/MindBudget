@@ -70,10 +70,21 @@ Status: Done
 - Gate merchant-name indexing on the centralized Spotlight capability, the global
   merchant-name opt-in, and at least one eligible expense with the same normalized key.
 
-## Phase 8B — IndexedEntity and onscreen awareness (iOS 26+)
-Status: Todo
+## Phase 9 — IndexedEntity and onscreen awareness (iOS 26+)
+Status: Done
+- Conform all seven amount-free App Entities to `IndexedEntity` and associate those typed
+  projections with the existing redacted Spotlight documents only on iOS 26+.
+- Route Ask through an intent-scoped `LocalSearchService` whose facts come only from
+  authoritative SwiftData projections; Spotlight remains navigation-only and never supplies
+  a numeric model fact.
+- Publish amount-free `NSUserActivity.appEntityIdentifier` references for Dashboard,
+  expense detail, and wishlist detail behind the centralized default-off Siri conjunction.
+  Keep Wishlist and Insights list selection fail-closed until a public multi-object API ships.
+- Carry a gated wishlist entity reference to the notification SDK boundary. Xcode 26.6 /
+  iOS 26.5 exposes no public notification entity-annotation property, so the adapter remains
+  an explicit no-op stub and the iOS 17+ `userInfo` route remains authoritative.
 
-## Phase 9 — Polish, tests, accessibility, TestFlight readiness
+## Phase 10 — Polish, tests, accessibility, TestFlight readiness
 Status: Todo
 - Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
   Show the affected count, require confirmation, and never delete those records implicitly.

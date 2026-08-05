@@ -130,6 +130,10 @@ struct DashboardView: View {
             }
         }
         .accessibilityIdentifier("dashboard.view")
+        .mindBudgetOnscreenEntity(
+            onscreenBudgetReference,
+            userEnabled: settings.enableSiriIntegration
+        )
         .navigationDestination(isPresented: $session.presentsExpenseList) {
             ExpenseListView(session: session)
         }
@@ -188,6 +192,11 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+
+    private var onscreenBudgetReference: OnscreenEntityReference? {
+        guard case .configured = viewModel.state else { return nil }
+        return .budgetCurrent
     }
 
     @ViewBuilder

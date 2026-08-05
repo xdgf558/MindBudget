@@ -76,6 +76,10 @@ struct WishlistView: View {
             }
         }
         .task(id: session.revision) { await reload() }
+        .mindBudgetOnscreenListSelection(
+            nil,
+            userEnabled: settings.enableSiriIntegration
+        )
     }
 
     private var wishlistList: some View {

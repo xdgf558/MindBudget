@@ -28,23 +28,29 @@ enum SystemIntegrationAvailability: Equatable, Sendable {
 }
 
 /// The only place where product-scope flags are combined with compile-time,
-/// runtime, and user-preference checks for Siri and Spotlight.
+/// runtime, and user-preference checks for Siri, Spotlight, and onscreen awareness.
 struct SystemIntegrationCapability: Sendable {
     private let siriProductEnabled: Bool
     private let spotlightProductEnabled: Bool
+    private let onscreenProductEnabled: Bool
     private let siriRuntimeAvailable: @Sendable () -> Bool
     private let spotlightRuntimeAvailable: @Sendable () -> Bool
+    private let onscreenRuntimeAvailable: @Sendable () -> Bool
 
     init(
         siriProductEnabled: Bool = FeatureFlags.enableSiriIntegration,
         spotlightProductEnabled: Bool = FeatureFlags.enableSpotlightIndexing,
+        onscreenProductEnabled: Bool = FeatureFlags.enableOnscreenAwareness,
         siriRuntimeAvailable: @escaping @Sendable () -> Bool = Self.defaultSiriRuntimeAvailability,
-        spotlightRuntimeAvailable: @escaping @Sendable () -> Bool = Self.defaultSpotlightRuntimeAvailability
+        spotlightRuntimeAvailable: @escaping @Sendable () -> Bool = Self.defaultSpotlightRuntimeAvailability,
+        onscreenRuntimeAvailable: @escaping @Sendable () -> Bool = Self.defaultOnscreenRuntimeAvailability
     ) {
         self.siriProductEnabled = siriProductEnabled
         self.spotlightProductEnabled = spotlightProductEnabled
+        self.onscreenProductEnabled = onscreenProductEnabled
         self.siriRuntimeAvailable = siriRuntimeAvailable
         self.spotlightRuntimeAvailable = spotlightRuntimeAvailable
+        self.onscreenRuntimeAvailable = onscreenRuntimeAvailable
     }
 
     func siriAvailability(userEnabled: Bool) -> SystemIntegrationAvailability {
@@ -71,6 +77,20 @@ struct SystemIntegrationCapability: Sendable {
         return .available
     }
 
+    /// Onscreen awareness intentionally shares the default-off Siri setting. It is an
+    /// iOS 26 product feature even though NSUserActivity gained entity annotation earlier.
+    func onscreenAvailability(userEnabled: Bool) -> SystemIntegrationAvailability {
+        guard onscreenProductEnabled else { return .productDisabled }
+        #if canImport(AppIntents)
+        guard #available(iOS 26.0, *) else { return .buildUnsupported }
+        #else
+        return .buildUnsupported
+        #endif
+        guard userEnabled else { return .userDisabled }
+        guard onscreenRuntimeAvailable() else { return .runtimeUnavailable }
+        return .available
+    }
+
     private static func defaultSiriRuntimeAvailability() -> Bool {
         #if canImport(AppIntents)
         if #available(iOS 17.0, *) { return true }
@@ -83,6 +103,13 @@ struct SystemIntegrationCapability: Sendable {
         if #available(iOS 17.0, *) {
             return CSSearchableIndex.isIndexingAvailable()
         }
+        #endif
+        return false
+    }
+
+    private static func defaultOnscreenRuntimeAvailability() -> Bool {
+        #if canImport(AppIntents)
+        if #available(iOS 26.0, *) { return true }
         #endif
         return false
     }

@@ -720,6 +720,7 @@ private actor TestDeletionNotificationScheduler: NotificationScheduling {
     func reconcile(
         candidates: [CoolingNotificationCandidate],
         preferences: PreferencesSnapshot,
+        contextualEntitiesEnabled: Bool,
         now: Date,
         calendar: Calendar,
         locale: Locale

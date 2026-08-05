@@ -20,14 +20,60 @@ struct AskMindBudgetResponse: Equatable, Sendable {
     let source: AdviceGenerationSource
 }
 
+struct LocalSearchResult: Equatable, Sendable {
+    let expenses: [ExpenseSummary]
+    let wishItems: [WishItemSummary]
+}
+
+/// Selects only the authoritative SwiftData projections needed by a classified intent.
+/// Spotlight may help users navigate to app-owned objects, but it is never a source for
+/// amounts, counts, dates, or any other fact supplied to Foundation Models.
+struct LocalSearchService: Sendable {
+    func retrieve(
+        intent: AskIntentKey,
+        snapshot: ConfiguredBudgetSnapshot,
+        expenses: [ExpenseSummary],
+        wishItems: [WishItemSummary],
+        calendar: Calendar
+    ) -> LocalSearchResult {
+        let relevantExpenses: [ExpenseSummary]
+        switch intent {
+        case .stressPattern, .impulsePattern:
+            relevantExpenses = expenses.filter {
+                snapshot.cycle.start <= $0.spentAt && $0.spentAt < snapshot.cycle.end
+            }
+        case .categoryChange:
+            guard let previousStart = calendar.date(
+                byAdding: .month,
+                value: -1,
+                to: snapshot.cycle.start
+            ) else {
+                return LocalSearchResult(expenses: [], wishItems: [])
+            }
+            relevantExpenses = expenses.filter {
+                previousStart <= $0.spentAt && $0.spentAt < snapshot.cycle.end
+            }
+        default:
+            relevantExpenses = []
+        }
+
+        return LocalSearchResult(
+            expenses: relevantExpenses,
+            wishItems: intent == .wishlistStatus ? wishItems : []
+        )
+    }
+}
+
 struct AskMindBudgetService: Sendable {
     private let classifier: IntentClassifier
+    private let localSearch: LocalSearchService
     private let redactor: PrivacyRedactor
     private let modelFactory: @Sendable (Bool) -> any AIAdviceGenerating
     private let runtimeAvailability: @Sendable () async -> AIAvailability
 
     init(
         classifier: IntentClassifier = IntentClassifier(),
+        localSearch: LocalSearchService = LocalSearchService(),
         redactor: PrivacyRedactor = PrivacyRedactor(),
         modelFactory: @escaping @Sendable (Bool) -> any AIAdviceGenerating = { _ in
             FoundationModelsAdviceGenerator()
@@ -37,6 +83,7 @@ struct AskMindBudgetService: Sendable {
         }
     ) {
         self.classifier = classifier
+        self.localSearch = localSearch
         self.redactor = redactor
         self.modelFactory = modelFactory
         self.runtimeAvailability = runtimeAvailability
@@ -46,7 +93,18 @@ struct AskMindBudgetService: Sendable {
         // The raw question remains a local, ephemeral classifier input and is never
         // included in an aggregate context or sent to a language model.
         let intent = classifier.classify(request.question, locale: request.locale)
-        let input = aggregateInput(intent: intent, request: request)
+        let localResults = localSearch.retrieve(
+            intent: intent,
+            snapshot: request.snapshot,
+            expenses: request.expenses,
+            wishItems: request.wishItems,
+            calendar: request.calendar
+        )
+        let input = aggregateInput(
+            intent: intent,
+            request: request,
+            localResults: localResults
+        )
         let context = redactor.redactAsk(input)
         let capability = AIEnhancementCapability(
             userEnabled: request.enhancementEnabled,
@@ -61,9 +119,10 @@ struct AskMindBudgetService: Sendable {
 
     private func aggregateInput(
         intent: AskIntentKey,
-        request: AskMindBudgetRequest
+        request: AskMindBudgetRequest,
+        localResults: LocalSearchResult
     ) -> AskAggregateInput {
-        let currentExpenses = request.expenses.filter {
+        let currentExpenses = localResults.expenses.filter {
             request.snapshot.cycle.start <= $0.spentAt
                 && $0.spentAt < request.snapshot.cycle.end
         }
@@ -120,7 +179,10 @@ struct AskMindBudgetService: Sendable {
             insights = count == 0 ? [] : [.impulseCluster]
             actions = [.reviewRecentSpending, .startCoolingOff24h]
         case .categoryChange:
-            let change = leadingCategoryChange(request: request)
+            let change = leadingCategoryChange(
+                request: request,
+                expenses: localResults.expenses
+            )
             if let change {
                 facts = .categoryChange(
                     category: change.category,
@@ -134,10 +196,10 @@ struct AskMindBudgetService: Sendable {
             facts = .alternative
             actions = [.addToWishlist, .startCoolingOff24h, .waitUntilNextCycle]
         case .wishlistStatus:
-            let cooling = request.wishItems.filter {
+            let cooling = localResults.wishItems.filter {
                 $0.status == .coolingOff || $0.status == .readyToReview
             }.count
-            let active = request.wishItems.filter { $0.status == .active }.count
+            let active = localResults.wishItems.filter { $0.status == .active }.count
             facts = .wishlistStatus(coolingCount: cooling, activeCount: active)
             actions = [.reviewRecentSpending, .addToWishlist]
         case .outOfScope:
@@ -159,7 +221,8 @@ struct AskMindBudgetService: Sendable {
     }
 
     private func leadingCategoryChange(
-        request: AskMindBudgetRequest
+        request: AskMindBudgetRequest,
+        expenses: [ExpenseSummary]
     ) -> (category: ExpenseCategory, current: Money, previous: Money)? {
         guard let previousStart = request.calendar.date(
             byAdding: .month,
@@ -169,7 +232,7 @@ struct AskMindBudgetService: Sendable {
         let previousEnd = request.snapshot.cycle.start
         var current: [ExpenseCategory: Int64] = [:]
         var previous: [ExpenseCategory: Int64] = [:]
-        for expense in request.expenses {
+        for expense in expenses {
             if request.snapshot.cycle.start <= expense.spentAt
                 && expense.spentAt < request.snapshot.cycle.end {
                 guard let sum = checkedAdd(current[expense.category, default: 0], expense.amount.minorUnits) else {

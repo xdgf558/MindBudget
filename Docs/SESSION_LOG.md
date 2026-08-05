@@ -905,3 +905,53 @@ collector warning after all suites pass. Physical-device Siri, accessibility, an
 validation remain release work.
 
 Next suggested task: Commit and push this final cleanup to PR #10 for the next review pass.
+
+## 2026-08-05 — Session 24 — Phase 9 IndexedEntity and onscreen awareness
+
+Goal: Add the iOS 26 system-context enhancements without weakening the iOS 17 baseline,
+local-only data boundary, amount-free system representations, or default-off consent gates.
+
+Files changed: App Entity declarations, Spotlight document association, centralized system-
+integration capabilities, onscreen `NSUserActivity` publication, notification scheduling,
+Ask local retrieval, Dashboard/expense/wishlist/Insights presentation surfaces, Phase 6/8A/9
+tests, the Xcode project, and the task, decision, Siri, privacy, test, changelog, and project-
+memory documents.
+
+What was completed: Conformed all seven amount-free App Entity projections to
+`IndexedEntity` and associated them with the existing redacted Spotlight documents only on
+iOS 26+. Added a centralized onscreen-awareness conjunction covering product scope,
+conditional framework and OS availability, runtime support, and the default-off Siri user
+setting. Dashboard, expense detail, and wishlist detail now publish typed, amount-free current-
+subject references through `NSUserActivity`; Wishlist and Insights list screens explicitly
+fail closed because the installed public SDK has no multi-object list-selection modifier.
+Notification requests carry a gated wishlist entity reference to an explicit public-SDK
+adapter boundary while retaining the existing iOS 17+ `userInfo` route. Ask now obtains only
+intent-relevant, authoritative SwiftData projections through `LocalSearchService`; Spotlight
+remains navigation-only and cannot supply numeric model facts. Renumbered release polish and
+corrupt-row repair as Phase 10 so the owner's requested iOS 26 enhancement scope is Phase 9.
+
+What was NOT completed: The installed Xcode 26.6/iOS 26.5 SDK exposes no public notification-
+content App Entity annotation and no public multi-object SwiftUI list-selection API, so those
+two adapters deliberately remain fail-closed stubs rather than using private or dynamic APIs.
+Real Siri "this" resolution, Shortcuts/Spotlight behavior, and system-context handoff still
+require signed physical-iPhone smoke testing. Phase 10 polish and corrupt-row repair were not
+started. No commit was created, branch pushed, or pull request opened because review was not
+requested yet.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; the full validation build and App
+Intents metadata extraction completed successfully.
+
+Test result: pass — 183 Swift Testing tests and 7 UI tests, 0 failures. Phase 9 adds six
+targeted tests for the four-part gate, all seven `IndexedEntity` conformances, entity-reference
+mapping, intent-scoped local retrieval, typed redacted Spotlight payloads, and gated
+notification entity references.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths and
+`git diff --check` is clean.
+
+Known issues: Xcode still emits the existing nonblocking simulator diagnostic-collector
+warning after all suites pass. The unavailable public notification/list APIs and physical-
+device system-context validation remain explicit release checks rather than simulated support.
+
+Next suggested task: Review the Phase 9 diff, then commit, push, and open its pull request when
+the user requests that step.

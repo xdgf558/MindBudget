@@ -306,6 +306,10 @@ struct WishlistDetailView: View {
                 Text(actionErrorKey(actionError))
             }
         }
+        .mindBudgetOnscreenEntity(
+            viewModel.detail == nil ? nil : .wishlistItem(wishItemID),
+            userEnabled: settings.enableSiriIntegration
+        )
     }
 
     private func detailList(_ detail: WishItemDetail) -> some View {

@@ -289,3 +289,27 @@ struct EmotionTagEntityQuery: EntityQuery {
         (try? await service.emotionTagEntities()) ?? []
     }
 }
+
+// IndexedEntity's default attribute set is derived from each entity's deliberately
+// redacted display representation. None of these types carries an exact amount or note.
+// Actual Core Spotlight association remains gated to the iOS 26 product layer.
+@available(iOS 18.0, *)
+extension ExpenseEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension BudgetSnapshotEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension WishlistItemEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension CoolingOffPlanEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension MerchantEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension SpendingInsightEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension EmotionTagEntity: IndexedEntity {}

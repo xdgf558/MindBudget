@@ -33,7 +33,8 @@ App Intents, and Spotlight.
 
 ## Later scope
 
-IndexedEntity and onscreen awareness.
+Release polish, accessibility/performance validation, TestFlight readiness, and the explicit
+repair flow for unreadable or orphaned cooling-off rows.
 
 ## Forbidden
 
@@ -65,7 +66,7 @@ app's private data are forbidden in V1.
   quiet hours only after explicit user consent. A corrupt plan is isolated so valid
   reminders still reconcile, while Settings surfaces the incomplete-data state. A later
   operation failure preserves that last-known warning until a successful reconciliation
-  recomputes it; corrupt rows are never auto-deleted and need a Phase 9 repair action.
+  recomputes it; corrupt rows are never auto-deleted and need a Phase 10 repair action.
 - V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
   exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
 - Delete All is a staged, two-confirmation workflow: notifications, awaited app index
@@ -95,7 +96,7 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 8A are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 9 are complete. The app opens a versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
@@ -184,8 +185,18 @@ require both global consent and an eligible expense with the same normalized key
 aggregate remains complete regardless. Disabling Spotlight clears the domain, indexing
 failures never alter SwiftData, and recognized search identifiers deep-link only to app-owned
 destinations. The Xcode 26.6/iOS 26.5 App Schema catalog has no suitable personal-finance,
-budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. `IndexedEntity`,
-onscreen awareness, and notification `appEntityIdentifier` remain Phase 8B work.
+budget, expense, or wishlist domain, so Phase 8A uses custom intents/entities. Phase 9 makes
+all seven redacted entities `IndexedEntity` values and associates them with the existing
+amount-free Spotlight documents only on iOS 26+. Ask now selects intent-relevant facts through
+`LocalSearchService`; those facts remain authoritative SwiftData projections, while Spotlight
+continues to serve navigation rather than model arithmetic. A centralized iOS 26 onscreen gate
+combines product scope, conditional App Intents availability, runtime support, and the default-
+off Siri setting. Dashboard, expense detail, and wishlist detail publish amount-free
+`NSUserActivity.appEntityIdentifier` references; Wishlist and Insights list pages deliberately
+publish no entity without an explicit selection because the installed SDK exposes no public
+multi-object list annotation API. Notification requests carry the same gated wishlist reference
+to the system adapter, but Xcode 26.6 exposes no public UserNotifications entity property, so
+the adapter is an explicit stub and existing iOS 17+ `userInfo` routing remains intact.
 App Intent money transport keeps invalid values, out-of-range amounts, unsupported precision,
 unsupported currencies, and unexpected execution failures distinct. The authenticated budget-
 impact intent returns its exact calculated flexible-budget result only after explicit invocation,
