@@ -1,12 +1,18 @@
 import SwiftUI
 @preconcurrency import CoreSpotlight
 
-enum AppTab: Hashable {
+enum AppTab: Hashable, CaseIterable {
     case dashboard
-    case add
+    case list
     case insights
     case wishlist
-    case settings
+
+    var accessibilityPosition: Int {
+        guard let index = Self.allCases.firstIndex(of: self) else {
+            preconditionFailure("Every app tab must appear in CaseIterable order")
+        }
+        return index + 1
+    }
 }
 
 @MainActor
@@ -22,7 +28,6 @@ final class AppSession: ObservableObject {
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
     @Published var presentsAddExpense = false
-    @Published var presentsExpenseList = false
     @Published var wishlistNavigationPath: [UUID] = []
     @Published private(set) var isPrepared = false
     @Published private(set) var preparationFailed = false
@@ -111,8 +116,7 @@ final class AppSession: ObservableObject {
         case .dashboard:
             selectedTab = .dashboard
         case .expenses:
-            selectedTab = .dashboard
-            presentsExpenseList = true
+            selectedTab = .list
         case .wishlist:
             selectedTab = .wishlist
             wishlistNavigationPath = []
@@ -243,7 +247,6 @@ final class AppSession: ObservableObject {
         settings.resetAfterDataDeletion()
         selectedTab = .dashboard
         presentsAddExpense = false
-        presentsExpenseList = false
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
@@ -314,38 +317,28 @@ private struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
-    @State private var lastContentTab: AppTab = .dashboard
 
     var body: some View {
         TabView(selection: $session.selectedTab) {
             DashboardView(session: session)
-                .tabItem { Label("tab.dashboard", systemImage: "chart.pie") }
                 .tag(AppTab.dashboard)
 
-            Color.clear
-                .tabItem { Label("tab.add", systemImage: "plus.circle.fill") }
-                .tag(AppTab.add)
+            NavigationStack {
+                ExpenseListView(session: session)
+            }
+            .tag(AppTab.list)
 
             InsightsView(session: session)
-                .tabItem { Label("tab.insights", systemImage: "chart.xyaxis.line") }
                 .tag(AppTab.insights)
 
             WishlistView(session: session)
-                .tabItem { Label("tab.wishlist", systemImage: "heart.text.square") }
                 .tag(AppTab.wishlist)
-
-            SettingsView(session: session)
-                .tabItem { Label("tab.settings", systemImage: "gearshape") }
-                .tag(AppTab.settings)
         }
-        .onChange(of: session.selectedTab) { _, selectedTab in
-            if selectedTab == .add {
-                session.selectedTab = lastContentTab
-                session.presentExpenseEntry()
-            } else {
-                lastContentTab = selectedTab
-            }
+        .toolbar(.hidden, for: .tabBar)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            customTabBar
         }
+        .tint(Color.mbAccent)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 session.dataDidChange()
@@ -375,6 +368,118 @@ private struct MainTabView: View {
                     session.presentsAddExpense = false
                 }
             }
+        }
+    }
+
+    private var customTabBar: some View {
+        ZStack(alignment: .top) {
+            HStack(spacing: 0) {
+                tabButton(
+                    .dashboard,
+                    title: "tab.dashboard",
+                    symbol: "circle.dotted",
+                    identifier: "tab.dashboard"
+                )
+                tabButton(
+                    .list,
+                    title: "tab.log",
+                    symbol: "list.bullet",
+                    identifier: "tab.log"
+                )
+                Color.clear
+                    .frame(maxWidth: .infinity, minHeight: 54)
+                    .accessibilityHidden(true)
+                tabButton(
+                    .insights,
+                    title: "tab.insights",
+                    symbol: "chart.bar",
+                    identifier: "tab.insights"
+                )
+                tabButton(
+                    .wishlist,
+                    title: "tab.wishlist",
+                    symbol: "bookmark",
+                    identifier: "tab.wishlist"
+                )
+            }
+            .padding(.top, 18)
+            .padding(.bottom, 6)
+
+            Button {
+                session.presentExpenseEntry()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 23, weight: .semibold))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 56, height: 56)
+                    .background(Color.mbAccent, in: Circle())
+                    .shadow(color: Color.mbAccent.opacity(0.30), radius: 8, y: 5)
+            }
+            .buttonStyle(.plain)
+            .frame(width: 64, height: 64)
+            .accessibilityLabel("expense.quickAdd")
+            .accessibilitySortPriority(3)
+            .accessibilityIdentifier("dashboard.quickAdd")
+        }
+        .background(
+            Color.mbSurface
+                .ignoresSafeArea(edges: .bottom)
+                .allowsHitTesting(false)
+        )
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.mbHairline)
+                .frame(height: 1)
+                .padding(.top, 18)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private func tabButton(
+        _ tab: AppTab,
+        title: LocalizedStringKey,
+        symbol: String,
+        identifier: String
+    ) -> some View {
+        Button {
+            session.selectedTab = tab
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.system(size: 19, weight: session.selectedTab == tab ? .semibold : .regular))
+                Text(title)
+                    .font(.caption2.weight(session.selectedTab == tab ? .semibold : .regular))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(session.selectedTab == tab ? Color.mbAccent : Color.mbInkTertiary)
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
+        .accessibilityValue(
+            "tab.position \(tab.accessibilityPosition) \(AppTab.allCases.count)"
+        )
+        .accessibilityAddTraits(session.selectedTab == tab ? .isSelected : [])
+        .mindBudgetNavigationSortPriority(for: tab)
+        .accessibilityIdentifier(identifier)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func mindBudgetNavigationSortPriority(for tab: AppTab) -> some View {
+        switch tab {
+        case .dashboard:
+            accessibilitySortPriority(5)
+        case .list:
+            accessibilitySortPriority(4)
+        case .insights:
+            accessibilitySortPriority(2)
+        case .wishlist:
+            accessibilitySortPriority(1)
         }
     }
 }

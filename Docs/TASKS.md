@@ -86,6 +86,26 @@ Status: Done
   iOS 26.5 exposes no public notification entity-annotation property, so the adapter remains
   an explicit no-op stub and the iOS 17+ `userInfo` route remains authoritative.
 
+## Design interlude — UI/UX redesign with reserved Pro seams
+Status: Done
+- Rebuild the existing iPhone experience from the owner-provided high-fidelity handoff while
+  preserving the actor, money, privacy, localization, and deterministic-engine boundaries.
+- Replace the fake add/settings tabs with four real content tabs, a separate accessible add
+  action, and Settings presented from Today; update every app-owned deep-link route with tests.
+- Apply the shared warm-paper design system and redesign Today, expense entry and reminder,
+  expense history, Insights, Wishlist/review, Ask, Settings, and budget setup without removing
+  an existing capability or moving raw notes across their targeted projection boundaries.
+- Reserve clear presentation and routing seams for a later Pro phase, but do not ship StoreKit,
+  quotas, locked states, paywall, custom-rule editing, or a visible purchase entry in this
+  interlude. Safety, privacy, and data-control features remain unchanged and available.
+- Validate the finished redesign with the complete static money check, the complete unit suite,
+  and seven end-to-end/localization UI tests before Phase 10 begins.
+- Preserve VoiceOver-selected and position semantics for the custom four-tab control, allow its
+  labels to grow at accessibility sizes, expose both ratios in the Today pace track, and keep the
+  separate center add action fully inside its hit-test layout.
+- Declare the five-element VoiceOver order as Today, Log, Add Expense, Insights, Wishlist, and
+  derive tab positions/totals from the exhaustive `AppTab` order rather than numeric literals.
+
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
 Status: Todo
 - Add an explicit, localized repair action for unreadable or orphaned cooling-off records.

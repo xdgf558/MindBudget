@@ -146,6 +146,23 @@ final class ExpenseFormViewModel: ObservableObject {
         didPrepareInput = true
     }
 
+    func enterKeypad(_ key: String, decimalSeparator: String) {
+        guard amountText.count < 24 else { return }
+        if key == decimalSeparator {
+            guard !amountText.contains(decimalSeparator) else { return }
+            amountText = amountText.isEmpty ? "0\(decimalSeparator)" : amountText + key
+        } else if amountText == "0" {
+            amountText = key
+        } else {
+            amountText += key
+        }
+    }
+
+    func deleteKeypadCharacter() {
+        guard !amountText.isEmpty else { return }
+        amountText.removeLast()
+    }
+
     func loadContext(
         dataActor: DataActor,
         currencyCode: String,
@@ -708,8 +725,9 @@ struct AddExpenseView: View {
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @StateObject private var viewModel: ExpenseFormViewModel
-    @FocusState private var amountFocused: Bool
     @State private var showsContextFields = false
+    @State private var showsAllCategories = false
+    @State private var showsDatePicker = false
     @State private var presentsWishlistConversion = false
     @State private var activeReminder: ExpenseReminderPresentation?
     @State private var opensWishlistAfterReminder = false
@@ -735,203 +753,83 @@ struct AddExpenseView: View {
     }
 
     var body: some View {
-        Form {
-            if let wishlistSeed {
-                Section("wishlist.item") {
-                    Text(wishlistSeed.name)
+        ScrollView {
+            VStack(spacing: 20) {
+                if let wishlistSeed {
+                    Label(wishlistSeed.name, systemImage: "bookmark.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.mbAccentDeep)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .background(Color.mbAccentSoft, in: RoundedRectangle(cornerRadius: 16))
                 }
-            }
-            Section {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(accountingCurrencyCode)
-                        .foregroundStyle(.secondary)
-                    TextField("money.amount.placeholder", text: $viewModel.amountText)
-                        .keyboardType(.decimalPad)
-                        .font(.title2.monospacedDigit())
-                        .focused($amountFocused)
-                        .accessibilityLabel("expense.amount")
-                        .accessibilityIdentifier("expense.amount")
-                }
-                impactView
-            } header: {
-                Text("expense.amount")
-            }
 
-            if viewModel.showsReasonablenessWarning {
-                Section {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label("expense.amount.warning.title", systemImage: "checkmark.circle")
-                            .font(.headline)
-                        Text("expense.amount.warning.message")
-                            .foregroundStyle(.secondary)
-                        Button("expense.amount.warning.continue") {
-                            viewModel.dismissReasonablenessWarning(
-                                currencyCode: accountingCurrencyCode,
-                                locale: locale
-                            )
-                        }
-                    }
-                    .accessibilityIdentifier("expense.amount.warning")
-                }
-            }
+                amountEntry
+                keypad
 
-            if let insight = viewModel.inlineInsight {
-                Section {
-                    let wording = AdviceTemplateGenerator().wording(
-                        for: insight,
-                        tone: settings.reminderTone,
-                        locale: locale
-                    )
-                    Label(wording.title, systemImage: "lightbulb")
-                        .font(.headline)
-                    Text(wording.body)
-                        .foregroundStyle(.secondary)
-                } header: {
-                    Text("expense.insight.header")
+                if viewModel.showsReasonablenessWarning {
+                    reasonablenessWarning
                 }
-                .accessibilityIdentifier("expense.inlineInsight")
-            }
+                if let insight = viewModel.inlineInsight {
+                    inlineInsight(insight)
+                }
 
-            Section("expense.category") {
-                if !viewModel.recentCategories.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            ForEach(viewModel.recentCategories) { category in
-                                Button {
-                                    viewModel.category = category
-                                } label: {
-                                    Label(
-                                        LocalizedStringKey(category.localizedNameKey),
-                                        systemImage: category.symbolName
-                                    )
-                                }
-                                .buttonStyle(.bordered)
-                            }
-                        }
-                    }
-                }
-                Picker("expense.category", selection: $viewModel.category) {
-                    ForEach(ExpenseCategory.allCases) { category in
-                        Label(
-                            LocalizedStringKey(category.localizedNameKey),
-                            systemImage: category.symbolName
-                        )
-                        .tag(category)
-                    }
-                }
-                .accessibilityIdentifier("expense.category")
-            }
+                categoryEntry
+                dateEntry
+                optionalFields
+                contextFields
 
-            Section("expense.date") {
-                DatePicker(
-                    "expense.date",
-                    selection: $viewModel.spentAt,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                HStack {
-                    Button("expense.date.today") { viewModel.spentAt = Date() }
-                    Spacer()
-                    Button("expense.date.yesterday") {
-                        if let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) {
-                            viewModel.spentAt = yesterday
-                        }
-                    }
-                }
-                .buttonStyle(.borderless)
-            }
-
-            Section("expense.optional") {
-                TextField("expense.merchant", text: $viewModel.merchantName)
-                    .textInputAutocapitalization(.words)
-                    .accessibilityIdentifier("expense.merchant")
-                if !viewModel.merchantSuggestions.isEmpty {
-                    Menu("expense.merchant.suggestions") {
-                        ForEach(viewModel.merchantSuggestions, id: \.self) { merchant in
-                            Button(merchant) { viewModel.merchantName = merchant }
-                        }
-                    }
-                }
-                TextField("expense.note", text: $viewModel.note, axis: .vertical)
-                    .lineLimit(2...5)
-                    .accessibilityIdentifier("expense.note")
-                Toggle("expense.planned", isOn: $viewModel.isPlanned)
-                    .disabled(wishlistSeed != nil)
-            }
-
-            Section {
-                DisclosureGroup("expense.context", isExpanded: $showsContextFields) {
-                    PurchaseReasonPicker(selection: $viewModel.purchaseReason)
-                    EmotionTagPicker(selection: $viewModel.emotionTag)
-                    Text("expense.emotion.disclaimer")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            if existingExpense == nil, wishlistSeed == nil {
-                Section {
+                if existingExpense == nil, wishlistSeed == nil {
                     Button("expense.addToWishlist") {
-                        amountFocused = false
                         presentsWishlistConversion = true
                     }
+                    .buttonStyle(MindBudgetSecondaryButtonStyle())
                     .accessibilityIdentifier("expense.addToWishlist")
-                } footer: {
                     Text("expense.addToWishlist.help")
+                        .font(.caption)
+                        .foregroundStyle(Color.mbInkSecondary)
                 }
-            }
 
-            if let error = viewModel.error {
-                Section {
+                if let error = viewModel.error {
                     Label(errorKey(error), systemImage: "info.circle")
-                        .foregroundStyle(.orange)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mbAttentionText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 16))
                         .accessibilityIdentifier("expense.error")
                 }
+
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 36)
+        }
+        .accessibilityIdentifier("expense.form")
+        .mindBudgetScreenBackground()
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button("common.save") {
+                submit()
+            }
+            .buttonStyle(MindBudgetPrimaryButtonStyle())
+            .disabled(viewModel.isSaving)
+            .accessibilityIdentifier("expense.save")
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(Color.mbSurface)
+            .overlay(alignment: .top) {
+                Rectangle().fill(Color.mbHairline).frame(height: 1)
             }
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle(existingExpense == nil ? "expense.add.title" : "expense.edit.title")
         .navigationBarTitleDisplayMode(.inline)
-        .accessibilityIdentifier("expense.form")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("common.cancel") { dismiss() }
             }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("common.save") {
-                    Task {
-                        let result = await viewModel.submit(
-                            dataActor: dataActor,
-                            currencyCode: accountingCurrencyCode,
-                            bucket: settings.bucket(for: viewModel.category),
-                            aiEnhancementEnabled: settings.enableAIEnhancement,
-                            locale: locale,
-                            now: Date(),
-                            timeZone: .current,
-                            cycleStartDay: settings.budgetCycleStartDay,
-                            calendar: calendar
-                        )
-                        switch result {
-                        case .saved:
-                            completed()
-                        case let .reminder(presentation):
-                            activeReminder = presentation
-                        case .failed:
-                            break
-                        }
-                    }
-                }
-                .disabled(viewModel.isSaving)
-                .accessibilityIdentifier("expense.save")
-            }
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("common.done") { amountFocused = false }
-            }
         }
         .task {
             viewModel.prepareInput(locale: locale)
-            if existingExpense == nil {
-                amountFocused = true
-            }
         }
         .task(id: viewModel.spentAt) {
             do {
@@ -953,7 +851,7 @@ struct AddExpenseView: View {
                 at: Date()
             )
         }
-        .sheet(item: $activeReminder, onDismiss: {
+        .fullScreenCover(item: $activeReminder, onDismiss: {
             if opensWishlistAfterReminder {
                 opensWishlistAfterReminder = false
                 presentsWishlistConversion = true
@@ -1006,6 +904,31 @@ struct AddExpenseView: View {
             )
             .interactiveDismissDisabled()
         }
+        .sheet(isPresented: $showsAllCategories) {
+            NavigationStack {
+                categoryPicker
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $showsDatePicker) {
+            NavigationStack {
+                DatePicker(
+                    "expense.date",
+                    selection: $viewModel.spentAt,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .datePickerStyle(.graphical)
+                .padding()
+                .navigationTitle("expense.date")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("common.done") { showsDatePicker = false }
+                    }
+                }
+            }
+            .presentationDetents([.large])
+        }
         .sheet(isPresented: $presentsWishlistConversion) {
             NavigationStack {
                 AddWishItemView(
@@ -1023,6 +946,298 @@ struct AddExpenseView: View {
                     presentsWishlistConversion = false
                     completed()
                 }
+            }
+        }
+    }
+
+    private var amountEntry: some View {
+        VStack(spacing: 12) {
+            Text("expense.amount")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.mbInkSecondary)
+                .textCase(.uppercase)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(accountingCurrencyCode)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(Color.mbInkSecondary)
+                Text(viewModel.amountText.isEmpty ? "0" : viewModel.amountText)
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.mbInk)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.45)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("expense.amount")
+            .accessibilityValue(viewModel.amountText.isEmpty ? "0" : viewModel.amountText)
+            .accessibilityIdentifier("expense.amount")
+            impactView
+        }
+        .padding(.top, 8)
+    }
+
+    private var keypad: some View {
+        let decimalSeparator = locale.decimalSeparator ?? "."
+        let keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", decimalSeparator, "0"]
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+            ForEach(keys, id: \.self) { key in
+                Button {
+                    viewModel.enterKeypad(key, decimalSeparator: decimalSeparator)
+                } label: {
+                    Text(key)
+                        .font(.title2.weight(.semibold))
+                        .monospacedDigit()
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .foregroundStyle(Color.mbInk)
+                        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("expense.keypad.\(key)")
+            }
+            Button {
+                viewModel.deleteKeypadCharacter()
+            } label: {
+                Image(systemName: "delete.left")
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .foregroundStyle(Color.mbInk)
+                    .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("common.delete")
+            .accessibilityIdentifier("expense.keypad.delete")
+        }
+    }
+
+    private var categoryEntry: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("expense.category")
+                    .font(.headline)
+                    .foregroundStyle(Color.mbInk)
+                Spacer()
+                Button("common.all") { showsAllCategories = true }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.mbAccent)
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(quickCategories) { category in
+                        Button {
+                            viewModel.category = category
+                        } label: {
+                            Label(
+                                LocalizedStringKey(category.localizedNameKey),
+                                systemImage: category.symbolName
+                            )
+                            .font(.subheadline.weight(.medium))
+                            .padding(.horizontal, 13)
+                            .frame(minHeight: 42)
+                            .foregroundStyle(viewModel.category == category ? Color.white : Color.mbInkSecondary)
+                            .background(
+                                viewModel.category == category ? Color.mbAccent : Color.mbSurface,
+                                in: Capsule()
+                            )
+                            .overlay {
+                                if viewModel.category != category {
+                                    Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .accessibilityIdentifier("expense.category")
+        }
+    }
+
+    private var quickCategories: [ExpenseCategory] {
+        var seen: Set<ExpenseCategory> = []
+        return ([viewModel.category] + viewModel.recentCategories + [.food, .shopping, .transport])
+            .filter { seen.insert($0).inserted }
+            .prefix(5)
+            .map { $0 }
+    }
+
+    private var categoryPicker: some View {
+        List(ExpenseCategory.allCases) { category in
+            Button {
+                viewModel.category = category
+                showsAllCategories = false
+            } label: {
+                HStack {
+                    Label(
+                        LocalizedStringKey(category.localizedNameKey),
+                        systemImage: category.symbolName
+                    )
+                    Spacer()
+                    if category == viewModel.category {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(Color.mbAccent)
+                    }
+                }
+            }
+            .foregroundStyle(Color.mbInk)
+        }
+        .navigationTitle("expense.category")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("common.cancel") { showsAllCategories = false }
+            }
+        }
+    }
+
+    private var dateEntry: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("expense.date")
+                .font(.headline)
+                .foregroundStyle(Color.mbInk)
+            HStack(spacing: 8) {
+                dateButton("expense.date.today", selected: calendar.isDateInToday(viewModel.spentAt)) {
+                    viewModel.spentAt = Date()
+                }
+                dateButton("expense.date.yesterday", selected: calendar.isDateInYesterday(viewModel.spentAt)) {
+                    if let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) {
+                        viewModel.spentAt = yesterday
+                    }
+                }
+                Button {
+                    showsDatePicker = true
+                } label: {
+                    Image(systemName: "calendar")
+                        .frame(maxWidth: .infinity, minHeight: 42)
+                        .background(Color.mbSurface, in: Capsule())
+                        .overlay { Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1) }
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.mbInkSecondary)
+                .accessibilityLabel("expense.date")
+            }
+            Text(viewModel.spentAt, format: .dateTime.year().month().day().hour().minute())
+                .font(.caption)
+                .foregroundStyle(Color.mbInkSecondary)
+        }
+    }
+
+    private func dateButton(
+        _ key: LocalizedStringKey,
+        selected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(key)
+                .font(.subheadline.weight(.medium))
+                .frame(maxWidth: .infinity, minHeight: 42)
+                .foregroundStyle(selected ? Color.white : Color.mbInkSecondary)
+                .background(selected ? Color.mbAccent : Color.mbSurface, in: Capsule())
+                .overlay {
+                    if !selected { Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1) }
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var optionalFields: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("expense.optional")
+                .font(.headline)
+                .foregroundStyle(Color.mbInk)
+            TextField("expense.merchant", text: $viewModel.merchantName)
+                .textInputAutocapitalization(.words)
+                .accessibilityIdentifier("expense.merchant")
+            if !viewModel.merchantSuggestions.isEmpty {
+                Menu("expense.merchant.suggestions") {
+                    ForEach(viewModel.merchantSuggestions, id: \.self) { merchant in
+                        Button(merchant) { viewModel.merchantName = merchant }
+                    }
+                }
+            }
+            Divider().overlay(Color.mbHairline)
+            TextField("expense.note", text: $viewModel.note, axis: .vertical)
+                .lineLimit(2...5)
+                .accessibilityIdentifier("expense.note")
+            Toggle("expense.planned", isOn: $viewModel.isPlanned)
+                .disabled(wishlistSeed != nil)
+                .tint(Color.mbAccent)
+        }
+        .budgetCard(cornerRadius: 18, contentPadding: 16)
+    }
+
+    private var contextFields: some View {
+        DisclosureGroup("expense.context", isExpanded: $showsContextFields) {
+            VStack(alignment: .leading, spacing: 16) {
+                PurchaseReasonPicker(selection: $viewModel.purchaseReason)
+                EmotionTagPicker(selection: $viewModel.emotionTag)
+                Text("expense.emotion.disclaimer")
+                    .font(.footnote)
+                    .foregroundStyle(Color.mbInkSecondary)
+            }
+            .padding(.top, 14)
+        }
+        .tint(Color.mbAccent)
+        .budgetCard(cornerRadius: 18, contentPadding: 16)
+    }
+
+    private var reasonablenessWarning: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("expense.amount.warning.title", systemImage: "checkmark.circle")
+                .font(.headline)
+            Text("expense.amount.warning.message")
+                .foregroundStyle(Color.mbInkSecondary)
+            Button("expense.amount.warning.continue") {
+                viewModel.dismissReasonablenessWarning(
+                    currencyCode: accountingCurrencyCode,
+                    locale: locale
+                )
+            }
+            .font(.subheadline.weight(.semibold))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 18))
+        .accessibilityIdentifier("expense.amount.warning")
+    }
+
+    private func inlineInsight(_ insight: InsightDraft) -> some View {
+        let wording = AdviceTemplateGenerator().wording(
+            for: insight,
+            tone: settings.reminderTone,
+            locale: locale
+        )
+        return VStack(alignment: .leading, spacing: 8) {
+            Label(wording.title, systemImage: "lightbulb")
+                .font(.headline)
+            Text(wording.body)
+                .foregroundStyle(Color.mbInkSecondary)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.mbAccentSoft, in: RoundedRectangle(cornerRadius: 18))
+        .accessibilityIdentifier("expense.inlineInsight")
+    }
+
+    private func submit() {
+        Task {
+            let result = await viewModel.submit(
+                dataActor: dataActor,
+                currencyCode: accountingCurrencyCode,
+                bucket: settings.bucket(for: viewModel.category),
+                aiEnhancementEnabled: settings.enableAIEnhancement,
+                locale: locale,
+                now: Date(),
+                timeZone: .current,
+                cycleStartDay: settings.budgetCycleStartDay,
+                calendar: calendar
+            )
+            switch result {
+            case .saved:
+                completed()
+            case let .reminder(presentation):
+                activeReminder = presentation
+            case .failed:
+                break
             }
         }
     }
@@ -1123,45 +1338,72 @@ private struct ExpenseReminderSheet: View {
     let close: () -> Void
 
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
-                Image(systemName: "pause.circle")
-                    .font(.system(size: 42))
-                    .foregroundStyle(.orange)
+        ZStack {
+            Color.mbDark.ignoresSafeArea()
+            VStack(spacing: 24) {
+                HStack {
+                    Spacer()
+                    Button(action: close) {
+                        Image(systemName: "xmark")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Color.mbOnDark)
+                            .frame(width: 44, height: 44)
+                            .background(Color.white.opacity(0.09), in: Circle())
+                    }
+                    .accessibilityLabel("common.close")
+                }
+
+                Spacer(minLength: 8)
+                Image(systemName: "pause.fill")
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(Color.mbAttentionOnDark)
+                    .frame(width: 82, height: 82)
+                    .background(Color.mbAttentionOnDark.opacity(0.12), in: Circle())
                     .accessibilityHidden(true)
+                Text("reminder.sheet.title")
+                    .font(.caption.weight(.semibold))
+                    .tracking(1.2)
+                    .textCase(.uppercase)
+                    .foregroundStyle(Color.mbAccentOnDark)
                 Text(presentation.message.title)
-                    .font(.title2.bold())
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.mbOnDark)
                 Text(presentation.message.body)
-                    .foregroundStyle(.secondary)
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.mbOnDark.opacity(0.72))
                 if !presentation.message.supportingDetails.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("reminder.sheet.alsoNoticed")
                             .font(.subheadline.weight(.semibold))
                         ForEach(presentation.message.supportingDetails, id: \.self) { detail in
                             Label(detail, systemImage: "circle.fill")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.mbOnDark.opacity(0.7))
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 18))
                 }
                 Spacer()
-                Button("reminder.action.continuePurchase", action: continuePurchase)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity)
                 Button("reminder.action.addToWishlist", action: addToWishlist)
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity)
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .foregroundStyle(Color.mbDark)
+                    .background(Color.mbAttentionOnDark, in: RoundedRectangle(cornerRadius: 14))
+                Button("reminder.action.continuePurchase", action: continuePurchase)
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .foregroundStyle(Color.mbOnDark)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                    }
             }
-            .padding()
-            .navigationTitle("reminder.sheet.title")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.close", action: close)
-                }
-            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
             .accessibilityIdentifier("expense.reminder.sheet")
         }
     }

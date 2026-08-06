@@ -901,3 +901,63 @@ requirements.
 
 Files affected: App Entities, onscreen activity adapter, Phase 9 tests, privacy/Siri/test plans,
 project memory, changelog, and this file.
+
+---
+
+## 2026-08-06 — Insert a design interlude before release polish
+
+Context: The owner supplied a high-fidelity UI/UX handoff after Phase 9 and explicitly asked
+for the product experience to be rebuilt before Phase 10. The handoff combines two different
+kinds of work: a redesign of every existing V1 surface and a new non-consumable Pro business
+model with quotas, locked states, StoreKit entitlement, and editable reminder rules. Treating
+the whole package as a visual-only patch would hide new product behavior inside presentation
+work, while starting Phase 10 first would polish an interface that is about to be replaced.
+
+Decision: Add one explicit design interlude between Phase 9 and Phase 10. Its first slice
+rebuilds the existing feature set in SwiftUI using the supplied design tokens and information
+architecture while retaining the current `DataActor`, deterministic engines, projection
+privacy boundaries, localized strings, and iOS 17 baseline. The main shell becomes four real
+content tabs; expense entry is an independent accessible action and Settings is presented from
+Today. Existing deep links continue to resolve to app-owned destinations.
+
+The owner subsequently limited this interlude to the existing free product. The code may reserve
+small presentation and routing seams for the handoff's later Pro screens, but StoreKit,
+entitlement, quotas, locked states, paywall, and custom-rule purchase UI remain unimplemented
+and invisible. No prototype switch, hard-coded price, fake entitlement, or disabled feature may
+suggest that commerce already works. When commercialization is separately started, StoreKit
+entitlement must be verified before any paid lock is enforced. Budget safety, purchase reminders,
+cooling-off, CSV export, deletion, and privacy controls remain permanently available. No server,
+account, cloud sync, advertising, or external analytics is introduced.
+
+Moving Settings from a first-level tab to the Today header is an intentional information-
+architecture decision, not a reduction in capability. Today is the app's daily hub, the gear is
+a conventional 44-point labeled control, and Settings still groups export, deletion, AI/Siri/
+Spotlight consent, notification authorization, quiet hours, reminder tone, and interruption limits
+without hiding or gating any row. The tradeoff is lower first-run discoverability than a dedicated
+tab. Automated UI coverage must continue from Today through the gear to both Export and Privacy,
+and Phase 10 must verify the path with VoiceOver and AX5. If signed-device usability shows that
+people cannot find these controls, add a visible Settings affordance in Today rather than restoring
+a fake content tab or moving privacy controls behind commerce.
+
+The handoff specifies only the light appearance outside its intentionally dark reminder and
+paywall surfaces. Shared semantic color assets therefore receive conservative accessible dark
+variants and remain a release-validation item rather than inventing a second unreviewed layout.
+The prototype is a design reference, not a replacement architecture or permission to weaken a
+repository invariant.
+
+Alternatives considered: Starting Phase 10 against the old interface, implementing the HTML as
+a WebView, replacing the existing data/services layer, mixing unverified Pro locks into the
+first visual commit, or renumbering the already agreed Phase 10 release scope.
+
+Consequences: UI changes remain reviewable as one pre-release stage, Phase 10 retains its
+meaning, and no unfinished commerce appears in the shipped interface. The custom navigation
+declares the VoiceOver order Today, Log, Add Expense, Insights, Wishlist rather than relying on
+`ZStack` geometry; tab positions and totals come from the exhaustive `AppTab.allCases` order.
+UI tests must cover the four-tab accessibility semantics, selected-state announcements, adaptive
+tab height, custom amount keypad, and the renamed Today metric while unit tests continue to
+prove the unchanged domain and privacy contracts. The later commercialization phase can reuse
+the reserved seams but must make its own product, entitlement, price, and refund decisions.
+
+Files affected: app routing, shared design components/assets, all existing V1 SwiftUI features,
+localization, UI and feature tests, and durable project memory. StoreKit and Pro files are not
+part of this interlude.

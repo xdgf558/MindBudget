@@ -116,19 +116,21 @@ struct CoolingOffView: View {
                     }
                 }
             }
+            Section {
+                Button("wishlist.cooling.start") {
+                    Task { await start() }
+                }
+                .buttonStyle(MindBudgetPrimaryButtonStyle())
+                .disabled(durationHours == nil || isStarting || hasStartedCoolingOff)
+                .accessibilityIdentifier("wishlist.cooling.start")
+            }
         }
+        .mindBudgetScreenBackground()
         .navigationTitle("wishlist.action.startCooling")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("common.cancel") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("wishlist.cooling.start") {
-                    Task { await start() }
-                }
-                .disabled(durationHours == nil || isStarting || hasStartedCoolingOff)
-                .accessibilityIdentifier("wishlist.cooling.start")
             }
         }
     }

@@ -230,6 +230,7 @@ struct AddWishItemView: View {
                 }
             }
         }
+        .mindBudgetScreenBackground()
         .navigationTitle(existingItem == nil ? "wishlist.add.title" : "wishlist.edit.title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

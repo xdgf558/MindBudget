@@ -5,6 +5,12 @@ import Testing
 @MainActor
 struct Phase3FeatureTests {
     @Test
+    func appTabPositionsFollowTheDeclaredNavigationOrder() {
+        #expect(AppTab.allCases == [.dashboard, .list, .insights, .wishlist])
+        #expect(AppTab.allCases.map(\.accessibilityPosition) == [1, 2, 3, 4])
+    }
+
+    @Test
     func moneyInputParserUsesLocaleAndRejectsSilentRounding() throws {
         let parser = MoneyInputParser()
 

@@ -216,6 +216,92 @@ struct BudgetEngineTests {
     }
 
     @Test
+    func paceUsesOnlyTodaysDiscretionaryEntriesAndExactCycleDays() throws {
+        let context = try makeContext()
+        let previousDay = try #require(
+            context.calendar.date(byAdding: .day, value: -1, to: context.day20)
+        )
+        let expenses = [
+            expense(amount: 20_000, category: .food, bucket: .discretionary, at: previousDay),
+            expense(amount: 12_000, category: .coffee, bucket: .discretionary, at: context.day20),
+            expense(amount: 30_000, category: .rent, bucket: .fixed, at: context.day20)
+        ]
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: expenses,
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+
+        let pace = try engine.pace(
+            snapshot: snapshot,
+            expenses: expenses,
+            now: context.day20,
+            calendar: context.calendar
+        )
+
+        #expect(pace.spentToday.minorUnits == 12_000)
+        #expect(snapshot.safeDailySpend.minorUnits - pace.spentToday.minorUnits == -2_167)
+        #expect(pace.leftToSpendToday.minorUnits == -1_167)
+        #expect(pace.expectedSpentByToday.minorUnits == 96_774)
+        #expect(pace.paceDifference.minorUnits == 64_774)
+        #expect(!pace.isAheadOfPace)
+        #expect(pace.dayNumber == 20)
+        #expect(pace.totalDays == 31)
+    }
+
+    @Test
+    func paceUsesTheCompleteBudgetOnTheLastCycleDay() throws {
+        let context = try makeContext()
+        let lastDay = try #require(
+            context.calendar.date(byAdding: .day, value: -1, to: context.end)
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: lastDay,
+                calendar: context.calendar
+            )
+        )
+
+        let pace = try engine.pace(
+            snapshot: snapshot,
+            expenses: [],
+            now: lastDay,
+            calendar: context.calendar
+        )
+
+        #expect(pace.dayNumber == 31)
+        #expect(pace.totalDays == 31)
+        #expect(pace.expectedSpentByToday.minorUnits == 150_000)
+        #expect(pace.leftToSpendToday.minorUnits == 150_000)
+        #expect(pace.paceDifference.minorUnits == 150_000)
+        #expect(!pace.isAheadOfPace)
+    }
+
+    @Test
+    func paceRejectsAReferenceDateOutsideTheSnapshotCycle() throws {
+        let context = try makeContext()
+        let snapshot = try configuredSnapshot(context: context)
+
+        #expect(throws: BudgetEngineError.referenceDateOutsideCycle) {
+            _ = try engine.pace(
+                snapshot: snapshot,
+                expenses: [],
+                now: context.end,
+                calendar: context.calendar
+            )
+        }
+    }
+
+    @Test
     func categoryRiskUsesProjectedSpend() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)

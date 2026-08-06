@@ -419,7 +419,7 @@ struct Phase4FeatureTests {
             now: now
         )
 
-        guard case let .configured(_, _, wishItems) = viewModel.state else {
+        guard case let .configured(_, _, _, wishItems) = viewModel.state else {
             Issue.record("Expected configured Dashboard state")
             return
         }

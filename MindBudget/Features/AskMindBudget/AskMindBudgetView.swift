@@ -84,8 +84,21 @@ struct AskMindBudgetView: View {
     @StateObject private var viewModel = AskMindBudgetViewModel()
 
     var body: some View {
-        Form {
-            Section("ask.question.section") {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(spacing: 10) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(Color.mbAccent)
+                        .frame(width: 64, height: 64)
+                        .background(Color.mbAccentSoft, in: Circle())
+                    Text("ask.question.section")
+                        .font(.title2.bold())
+                        .foregroundStyle(Color.mbInk)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(alignment: .leading, spacing: 14) {
                 TextField("ask.question.placeholder", text: $viewModel.question, axis: .vertical)
                     .lineLimit(2...4)
                     .textInputAutocapitalization(.sentences)
@@ -98,10 +111,13 @@ struct AskMindBudgetView: View {
                         suggestion("ask.suggestion.wishlist")
                     }
                 }
-            }
+                }
+                .budgetCard(cornerRadius: 20, contentPadding: 18)
 
-            if viewModel.classifiedIntent == .canIAfford {
-                Section("ask.purchase.section") {
+                if viewModel.classifiedIntent == .canIAfford {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("ask.purchase.section")
+                            .font(.headline)
                     TextField("ask.purchase.amount", text: $viewModel.amountText)
                         .keyboardType(.decimalPad)
                     Picker("ask.purchase.category", selection: $viewModel.category) {
@@ -117,11 +133,11 @@ struct AskMindBudgetView: View {
                     }
                     Text("ask.purchase.clarification")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.mbInkSecondary)
+                    }
+                    .budgetCard(cornerRadius: 20, contentPadding: 18)
                 }
-            }
 
-            Section {
                 Button {
                     Task { await submit() }
                 } label: {
@@ -136,12 +152,14 @@ struct AskMindBudgetView: View {
                     viewModel.question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         || viewModel.isAnswering
                 )
+                .buttonStyle(MindBudgetPrimaryButtonStyle())
                 .accessibilityIdentifier("ask.submit")
-            }
 
-            if let response = viewModel.response {
-                Section("ask.answer.section") {
+                if let response = viewModel.response {
                     VStack(alignment: .leading, spacing: 10) {
+                        Text("ask.answer.section")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.mbInkSecondary)
                         HStack {
                             Text(response.answer.title).font(.headline)
                             Spacer()
@@ -161,16 +179,18 @@ struct AskMindBudgetView: View {
                             .font(.subheadline)
                         }
                     }
+                    .budgetCard(cornerRadius: 20, contentPadding: 18)
                     .accessibilityIdentifier("ask.answer")
                 }
-            }
 
-            Section {
-                Text("ask.privacy")
+                Label("ask.privacy", systemImage: "lock.shield")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.mbInkSecondary)
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 32)
         }
+        .mindBudgetScreenBackground()
         .navigationTitle("ask.title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -184,7 +204,9 @@ struct AskMindBudgetView: View {
         Button(LocalizedStringKey(key)) {
             viewModel.useSuggestion(LocalizedCatalog.string(key, locale: locale))
         }
+        .font(.caption.weight(.medium))
         .buttonStyle(.bordered)
+        .tint(Color.mbAccent)
     }
 
     private func submit() async {

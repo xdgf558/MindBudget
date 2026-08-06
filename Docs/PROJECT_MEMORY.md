@@ -34,7 +34,9 @@ App Intents, and Spotlight.
 ## Later scope
 
 Release polish, accessibility/performance validation, TestFlight readiness, and the explicit
-repair flow for unreadable or orphaned cooling-off rows.
+repair flow for unreadable or orphaned cooling-off rows. Commercialization is a separate later
+phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall, trial,
+or visible paid-feature placeholder.
 
 ## Forbidden
 
@@ -96,18 +98,22 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 9 are complete. The app opens a versioned persistent SwiftData store
+Phases 0 through 9 and the pre-Phase-10 UI/UX design interlude are complete. The app opens a
+versioned persistent SwiftData store
 containing all nine V1 model types, with actor-isolated writes and Sendable projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
 cycle, and calculates reservations, safe daily spend, purchase impact, and category risk
-using checked `Int64` and `Decimal` arithmetic. Free-budget ratios exist only for
+using checked `Int64` and `Decimal` arithmetic. It also derives the Today screen's daily-spend
+pace and remaining-today facts without moving financial arithmetic into SwiftUI. Free-budget
+ratios exist only for
 discretionary spending with a real positive baseline. Calendar-injected cycle calculation
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit
 transition and first-regular-budget confirmation, and atomic lazy generation capped at 120
 plans. Stateless currency formatting respects each supported exponent. The iPhone UI now
-provides localized onboarding and budget setup, a value-projection Dashboard, the five-tab
-shell, exact locale-aware manual expense entry with selected-date impact, recent-category
+provides localized onboarding and budget setup, a warm-paper card-based Today experience,
+four real content tabs plus a separate accessible add action, exact locale-aware manual
+expense entry with an app-owned keypad and selected-date impact, recent-category
 and merchant suggestions, and searchable/filterable expense list, detail, edit, and delete
 flows. Interactive date previews project budget coverage without writes; only Dashboard
 lifecycle work and expense save may persist automatic cycle coverage. General expense
@@ -127,7 +133,16 @@ wishlist summaries omit them and targeted `WishItemDetail` supplies them only fo
 detail flows. Raw wishlist notes stay confined to that targeted projection. Phase 4 action
 errors retain recoverable meanings, and countdown preview/save share one fixed instant while
 formatting follows the SwiftUI environment locale. The UI-test reset hook is Debug-only.
-Empty/error states and English/Simplified Chinese accessibility coverage are active.
+Empty/error states and English/Simplified Chinese accessibility coverage are active. Settings
+opens from Today, reminders use a focused full-screen pause surface, and every existing free
+surface shares semantic light/dark color assets. The supplied paid-screen concepts are recorded
+only as future composition seams and render nothing until commercialization is implemented end
+to end in its own phase. The custom navigation owns explicit selected/position semantics,
+an exhaustive tab-derived position count, the declared traversal Today → Log → Add Expense →
+Insights → Wishlist, and adaptive label height, while the Today pace track exposes its spent
+percentage and cycle-day position to assistive technology. Moving Settings behind Today's gear is an
+accepted discoverability tradeoff with automated Export/Privacy reachability and a Phase 10
+signed-device usability check.
 Phase 5 adds a pure deterministic detector for large purchases, late-hour patterns,
 stress-related repetition, image-related increases, impulse clusters, category risk,
 cooling-off outcomes, and adequate budget buffers. Typed localized insights are deduplicated

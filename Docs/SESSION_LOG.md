@@ -1002,3 +1002,122 @@ warning after all suites pass. Signed physical-iPhone validation remains require
 onscreen consumption and the `NSUserActivityTypes` release decision.
 
 Next suggested task: Commit and push this remediation to PR #11 for another review pass.
+
+## 2026-08-06 — Session 26 — Pre-Phase-10 UI/UX redesign
+
+Goal: Rebuild the existing free iPhone experience from the owner's high-fidelity UI/UX handoff
+before Phase 10, while reserving only invisible integration seams for separately implemented
+commercial features.
+
+Files changed: app routing, shared SwiftUI components, semantic asset colors, onboarding,
+Today/Dashboard, manual expense entry and reminders, Log, Insights, Wishlist/cooling-off, Ask,
+Settings, `BudgetEngine`, unit/UI tests, localization, and durable project memory.
+
+What was completed: Replaced the old shell with four real tabs—Today, Log, Insights, and
+Wishlist—a separate accessible center add action, and Settings from Today. Applied the supplied
+warm-paper visual language across all existing free screens. Added deterministic Today pace facts
+to `BudgetEngine`, a locale-aware custom amount keypad, grouped expense history, wrapping context
+chips, and a full-screen purchase-pause surface. Preserved the DataActor boundary, exact minor-unit
+money, localized copy, raw-note projections, reminder safety contract, and all capability/privacy
+gates. Documented later composition seams for Insights, Ask, Settings, and reminder rules, but did
+not implement or expose StoreKit, entitlements, quotas, locked states, paywalls, trials, paid rules,
+or any purchase entry.
+
+What was NOT completed: Phase 10 release polish, signed-device VoiceOver/AX5/dark-mode checks,
+the corrupt cooling-off-row repair action, App Store assets, TestFlight work, and the separate
+commercialization phase were intentionally not started.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App
+Intents metadata extraction completed successfully.
+
+Test result: pass — 186 Swift Testing tests and 7 UI tests, 0 failures. The UI suite covers
+English/Simplified Chinese onboarding, Ask fallback, Insights, manual expense entry through the
+custom keypad and Log, Settings privacy/export reachability, and Wishlist/cooling-off.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths, localization
+JSON is valid, and `git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Signed physical-iPhone visual/accessibility validation remains
+owned by Phase 10.
+
+Next suggested task: Review this redesign diff, then commit, push, and open its pull request when
+the owner requests that step; begin Phase 10 only after merge.
+
+## 2026-08-06 — Session 27 — UI/UX review remediation
+
+Goal: Close the accessibility, information-architecture, identifier, and pace-test findings from
+the first review of PR #12 without expanding the pre-Phase-10 redesign scope.
+
+Files changed: custom app navigation, Today pace presentation, localization, `BudgetEngine`
+tests, Phase 3 UI tests, and the decision, task, test, changelog, UI/UX, project-memory, and
+session documents.
+
+What was completed: Kept Settings behind Today's conventional labeled gear and recorded the
+discoverability tradeoff plus the Phase 10 signed-device check. Restored explicit selected-state
+and localized position announcements on the four custom tab buttons, allowed labels and the bar
+to grow at accessibility text sizes, and placed the center add action fully inside its layout and
+hit-test bounds. A first grouped-accessibility implementation was rejected by the UI test because
+its synthesized container intercepted the Ask tab; the final implementation keeps the public
+button semantics and supplies position values per tab without an overlaying synthetic container.
+The Today pace track now exposes spending progress and cycle-day position to VoiceOver, and the
+daily metric identifier is now `dashboard.today.left` rather than the misleading cycle-wide
+`dashboard.available`. Added an explicit no-double-subtraction assertion plus a final-cycle-day
+pace boundary test. Also corrected the Settings budget-section localization that the original
+redesign had inadvertently changed to Today.
+
+What was NOT completed: Phase 10 release polish and signed-device VoiceOver/AX5 verification were
+not started. No commerce surface, entitlement, StoreKit path, or other paid feature was added.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App Intents
+metadata extraction completed successfully.
+
+Test result: pass — 187 Swift Testing tests and 7 UI tests, 0 failures. The UI suite verifies the
+selected Today/Wishlist states, nonempty pace accessibility value, renamed Today metric, Ask tab
+hit testing, Settings privacy/export reachability, and the existing bilingual feature flows.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths, localization
+JSON is valid, and `git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Phase 10 still owns signed physical-iPhone VoiceOver order,
+position wording, AX5 layout, and center-button edge hit testing.
+
+Next suggested task: Push this review remediation to PR #12 and request a second review; begin
+Phase 10 only after the redesign PR is approved and merged.
+
+## 2026-08-07 — Session 28 — Deterministic navigation accessibility order
+
+Goal: Close the second PR #12 review's nonblocking findings about the center add action's
+VoiceOver position and the literal tab-count accessibility value.
+
+Files changed: `AppRouter`, Phase 3 unit/UI tests, and the decision, task, test, changelog,
+UI/UX, project-memory, and session documents.
+
+What was completed: Made `AppTab` exhaustive through `CaseIterable`, derived each localized
+position and total from its declared order, and removed all four numeric position arguments plus
+the literal total. Declared the complete accessibility sort order with descending priorities:
+Today, Log, Add Expense, Insights, Wishlist. The tab-priority switch is exhaustive, so a new tab
+cannot compile without an explicit traversal decision. Added a unit contract for the declared tab
+order/positions and UI assertions for the English `Tab 1 of 4` and `Tab 4 of 4` values.
+
+What was NOT completed: Simulator automation cannot reproduce a real VoiceOver swipe traversal.
+Phase 10 still owns a signed physical-iPhone check of actual order, focus restoration, and AX5
+layout. No commerce or Phase 10 feature was started.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App Intents
+metadata extraction completed successfully.
+
+Test result: pass — 188 Swift Testing tests and 7 UI tests, 0 failures. The two new UI assertions
+confirm the derived English positions while the existing navigation, Ask, Settings, expense,
+Insights, localization, and Wishlist/cooling-off flows remain green.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths and
+`git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Signed-device VoiceOver traversal remains the authoritative final
+check because `accessibilitySortPriority` itself is not exposed as an XCTest query property.
+
+Next suggested task: Push this final accessibility remediation to PR #12 for approval and merge;
+begin Phase 10 only after the redesign PR lands on `main`.

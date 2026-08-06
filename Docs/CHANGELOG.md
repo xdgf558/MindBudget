@@ -4,6 +4,12 @@
 
 ### Added
 
+- A handoff-driven warm-paper design system with semantic light/dark colors, rounded cards,
+  wrapping context chips, consistent buttons, and redesigned free V1 screens.
+- A deterministic Today pace projection from `BudgetEngine`, including today's discretionary
+  spend, remaining daily allowance, and ahead/on-pace status without view-layer money math.
+- A locale-aware app keypad for manual expense entry and a focused full-screen purchase-pause
+  experience that preserves the existing safe action contract.
 - Phase 0 SwiftUI app shell targeting iOS 17.0 with Swift 6 strict concurrency.
 - Shared build/test scheme, unit-test target, and UI-test target.
 - Feature flags, string catalog, privacy manifest, and persistent agent memory.
@@ -90,6 +96,12 @@
 
 ### Changed
 
+- Replaced the former five-slot tab semantics with four real destinations—Today, Log, Insights,
+  and Wishlist—plus a separate center add action; Settings now opens from Today.
+- Grouped the Log by local calendar day and restyled Today, Insights, Wishlist, Ask, Settings,
+  onboarding, budget setup, and expense flows without changing their data/privacy boundaries.
+- Reserved future commerce composition seams without showing or implementing StoreKit,
+  entitlements, quotas, locks, trial copy, paywalls, paid rules, or a purchase entry.
 - Made onscreen activity withdrawal explicit through a nil SwiftUI activity element when any
   capability or user-consent gate closes, instead of depending on conditional modifier removal.
 - Renamed the former Phase 8B iOS 26 enhancement to Phase 9 per the product owner's sequence;
@@ -136,6 +148,13 @@
 
 ### Fixed
 
+- Declared the custom navigation's VoiceOver traversal as Today, Log, Add Expense, Insights,
+  and Wishlist, and derived each tab's announced position and total from `AppTab.allCases`.
+- Restored selected and position announcements, adaptive large-text layout, and in-bounds hit
+  testing for the custom navigation; exposed Today pace values to VoiceOver and renamed the
+  daily allowance UI identifier so it cannot be confused with cycle-wide availability.
+- Restored the Settings budget-section title while keeping the redesigned first tab labeled
+  Today, and added the final-cycle-day pace boundary test.
 - Preserved distinct App Intent responses for invalid amounts, unsupported decimal precision,
   out-of-range amounts, unsupported currencies, accounting-currency mismatch, and unexpected
   execution failures.
