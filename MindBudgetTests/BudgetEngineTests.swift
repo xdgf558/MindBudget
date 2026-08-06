@@ -245,12 +245,45 @@ struct BudgetEngineTests {
         )
 
         #expect(pace.spentToday.minorUnits == 12_000)
+        #expect(snapshot.safeDailySpend.minorUnits - pace.spentToday.minorUnits == -2_167)
         #expect(pace.leftToSpendToday.minorUnits == -1_167)
         #expect(pace.expectedSpentByToday.minorUnits == 96_774)
         #expect(pace.paceDifference.minorUnits == 64_774)
         #expect(!pace.isAheadOfPace)
         #expect(pace.dayNumber == 20)
         #expect(pace.totalDays == 31)
+    }
+
+    @Test
+    func paceUsesTheCompleteBudgetOnTheLastCycleDay() throws {
+        let context = try makeContext()
+        let lastDay = try #require(
+            context.calendar.date(byAdding: .day, value: -1, to: context.end)
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: lastDay,
+                calendar: context.calendar
+            )
+        )
+
+        let pace = try engine.pace(
+            snapshot: snapshot,
+            expenses: [],
+            now: lastDay,
+            calendar: context.calendar
+        )
+
+        #expect(pace.dayNumber == 31)
+        #expect(pace.totalDays == 31)
+        #expect(pace.expectedSpentByToday.minorUnits == 150_000)
+        #expect(pace.leftToSpendToday.minorUnits == 150_000)
+        #expect(pace.paceDifference.minorUnits == 150_000)
+        #expect(!pace.isAheadOfPace)
     }
 
     @Test

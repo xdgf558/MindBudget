@@ -148,6 +148,11 @@
 
 ### Fixed
 
+- Restored selected and position announcements, adaptive large-text layout, and in-bounds hit
+  testing for the custom navigation; exposed Today pace values to VoiceOver and renamed the
+  daily allowance UI identifier so it cannot be confused with cycle-wide availability.
+- Restored the Settings budget-section title while keeping the redesigned first tab labeled
+  Today, and added the final-cycle-day pace boundary test.
 - Preserved distinct App Intent responses for invalid amounts, unsupported decimal precision,
   out-of-range amounts, unsupported currencies, accounting-currency mismatch, and unexpected
   execution failures.

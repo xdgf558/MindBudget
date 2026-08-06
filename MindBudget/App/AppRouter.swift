@@ -365,9 +365,43 @@ private struct MainTabView: View {
     }
 
     private var customTabBar: some View {
-        HStack(spacing: 0) {
-            tabButton(.dashboard, title: "tab.dashboard", symbol: "circle.dotted", identifier: "tab.dashboard")
-            tabButton(.list, title: "tab.log", symbol: "list.bullet", identifier: "tab.log")
+        ZStack(alignment: .top) {
+            HStack(spacing: 0) {
+                tabButton(
+                    .dashboard,
+                    title: "tab.dashboard",
+                    symbol: "circle.dotted",
+                    identifier: "tab.dashboard",
+                    position: 1
+                )
+                tabButton(
+                    .list,
+                    title: "tab.log",
+                    symbol: "list.bullet",
+                    identifier: "tab.log",
+                    position: 2
+                )
+                Color.clear
+                    .frame(maxWidth: .infinity, minHeight: 54)
+                    .accessibilityHidden(true)
+                tabButton(
+                    .insights,
+                    title: "tab.insights",
+                    symbol: "chart.bar",
+                    identifier: "tab.insights",
+                    position: 3
+                )
+                tabButton(
+                    .wishlist,
+                    title: "tab.wishlist",
+                    symbol: "bookmark",
+                    identifier: "tab.wishlist",
+                    position: 4
+                )
+            }
+            .padding(.top, 18)
+            .padding(.bottom, 6)
+
             Button {
                 session.presentExpenseEntry()
             } label: {
@@ -379,18 +413,21 @@ private struct MainTabView: View {
                     .shadow(color: Color.mbAccent.opacity(0.30), radius: 8, y: 5)
             }
             .buttonStyle(.plain)
-            .frame(maxWidth: .infinity)
-            .offset(y: -18)
+            .frame(width: 64, height: 64)
             .accessibilityLabel("expense.quickAdd")
             .accessibilityIdentifier("dashboard.quickAdd")
-            tabButton(.insights, title: "tab.insights", symbol: "chart.bar", identifier: "tab.insights")
-            tabButton(.wishlist, title: "tab.wishlist", symbol: "bookmark", identifier: "tab.wishlist")
         }
-        .frame(height: 64)
-        .padding(.top, 2)
-        .background(Color.mbSurface.ignoresSafeArea(edges: .bottom))
+        .background(
+            Color.mbSurface
+                .ignoresSafeArea(edges: .bottom)
+                .allowsHitTesting(false)
+        )
         .overlay(alignment: .top) {
-            Rectangle().fill(Color.mbHairline).frame(height: 1)
+            Rectangle()
+                .fill(Color.mbHairline)
+                .frame(height: 1)
+                .padding(.top, 18)
+                .allowsHitTesting(false)
         }
     }
 
@@ -398,7 +435,8 @@ private struct MainTabView: View {
         _ tab: AppTab,
         title: LocalizedStringKey,
         symbol: String,
-        identifier: String
+        identifier: String,
+        position: Int
     ) -> some View {
         Button {
             session.selectedTab = tab
@@ -408,12 +446,18 @@ private struct MainTabView: View {
                     .font(.system(size: 19, weight: session.selectedTab == tab ? .semibold : .regular))
                 Text(title)
                     .font(.caption2.weight(session.selectedTab == tab ? .semibold : .regular))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .foregroundStyle(session.selectedTab == tab ? Color.mbAccent : Color.mbInkTertiary)
             .frame(maxWidth: .infinity, minHeight: 54)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
+        .accessibilityValue("tab.position \(position) 4")
+        .accessibilityAddTraits(session.selectedTab == tab ? .isSelected : [])
         .accessibilityIdentifier(identifier)
     }
 }

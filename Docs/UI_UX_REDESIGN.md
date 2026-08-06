@@ -15,6 +15,10 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   not calculate financial values.
 - Add Expense uses an app-owned, locale-aware keypad. Behavioral reminders use a
   full-screen pause surface with the existing 2–4-action safety contract.
+- The custom navigation announces its selected tab and localized position, grows vertically for
+  accessibility text sizes, and keeps the independent add action inside its hit-test bounds.
+- The Today pace track announces both spending progress and calendar position; visual-only bars
+  are not accepted as the sole representation of those facts.
 
 ## Reserved commerce seams
 
@@ -39,4 +43,4 @@ not be degraded in preparation for a future paid tier.
 The supplied handoff is light-mode-first. Semantic asset colors include conservative dark
 variants so screens remain readable, but Phase 10 must still perform signed-device checks
 for light/dark mode, Dynamic Type through AX5, VoiceOver order, Reduce Motion, narrow
-iPhone widths, and keyboard avoidance.
+iPhone widths, Settings discoverability from Today, and keyboard avoidance.

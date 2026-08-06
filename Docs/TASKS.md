@@ -98,8 +98,11 @@ Status: Done
 - Reserve clear presentation and routing seams for a later Pro phase, but do not ship StoreKit,
   quotas, locked states, paywall, custom-rule editing, or a visible purchase entry in this
   interlude. Safety, privacy, and data-control features remain unchanged and available.
-- Validate the finished redesign with the complete static money check, 186 unit tests, and
-  seven end-to-end/localization UI tests before Phase 10 begins.
+- Validate the finished redesign with the complete static money check, the complete unit suite,
+  and seven end-to-end/localization UI tests before Phase 10 begins.
+- Preserve VoiceOver-selected and position semantics for the custom four-tab control, allow its
+  labels to grow at accessibility sizes, expose both ratios in the Today pace track, and keep the
+  separate center add action fully inside its hit-test layout.
 
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
 Status: Todo

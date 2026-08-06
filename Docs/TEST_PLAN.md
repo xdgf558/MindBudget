@@ -359,6 +359,15 @@ Simplified Chinese onboarding, Ask, expense, Insights, Wishlist/cooling-off, and
 remain covered by the seven UI smoke tests. The built app must contain no visible commerce
 surface or fake entitlement behavior; reserved Pro seams render nothing.
 
+The navigation smoke path must observe Today as selected initially and Wishlist as selected after
+activation. The custom tab group supplies localized position values, supports multiline labels
+without a fixed-height clip, and keeps the center add action inside its layout bounds. The Today
+pace track exposes a nonempty localized accessibility value containing the spent percentage and
+cycle day position. UI identifiers describe the metric they expose; `dashboard.today.left` must
+never reuse the former cycle-wide `dashboard.available` meaning. Engine tests explicitly
+distinguish reconstructed start-of-day allowance from double subtraction and cover the last
+in-cycle day.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

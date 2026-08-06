@@ -1043,3 +1043,45 @@ owned by Phase 10.
 
 Next suggested task: Review this redesign diff, then commit, push, and open its pull request when
 the owner requests that step; begin Phase 10 only after merge.
+
+## 2026-08-06 — Session 27 — UI/UX review remediation
+
+Goal: Close the accessibility, information-architecture, identifier, and pace-test findings from
+the first review of PR #12 without expanding the pre-Phase-10 redesign scope.
+
+Files changed: custom app navigation, Today pace presentation, localization, `BudgetEngine`
+tests, Phase 3 UI tests, and the decision, task, test, changelog, UI/UX, project-memory, and
+session documents.
+
+What was completed: Kept Settings behind Today's conventional labeled gear and recorded the
+discoverability tradeoff plus the Phase 10 signed-device check. Restored explicit selected-state
+and localized position announcements on the four custom tab buttons, allowed labels and the bar
+to grow at accessibility text sizes, and placed the center add action fully inside its layout and
+hit-test bounds. A first grouped-accessibility implementation was rejected by the UI test because
+its synthesized container intercepted the Ask tab; the final implementation keeps the public
+button semantics and supplies position values per tab without an overlaying synthetic container.
+The Today pace track now exposes spending progress and cycle-day position to VoiceOver, and the
+daily metric identifier is now `dashboard.today.left` rather than the misleading cycle-wide
+`dashboard.available`. Added an explicit no-double-subtraction assertion plus a final-cycle-day
+pace boundary test. Also corrected the Settings budget-section localization that the original
+redesign had inadvertently changed to Today.
+
+What was NOT completed: Phase 10 release polish and signed-device VoiceOver/AX5 verification were
+not started. No commerce surface, entitlement, StoreKit path, or other paid feature was added.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App Intents
+metadata extraction completed successfully.
+
+Test result: pass — 187 Swift Testing tests and 7 UI tests, 0 failures. The UI suite verifies the
+selected Today/Wishlist states, nonempty pace accessibility value, renamed Today metric, Ask tab
+hit testing, Settings privacy/export reachability, and the existing bilingual feature flows.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths, localization
+JSON is valid, and `git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Phase 10 still owns signed physical-iPhone VoiceOver order,
+position wording, AX5 layout, and center-button edge hit testing.
+
+Next suggested task: Push this review remediation to PR #12 and request a second review; begin
+Phase 10 only after the redesign PR is approved and merged.

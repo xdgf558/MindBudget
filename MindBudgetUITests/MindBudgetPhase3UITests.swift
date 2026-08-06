@@ -38,7 +38,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
-        XCTAssertTrue(element("dashboard.available", in: app).exists)
+        XCTAssertTrue(element("dashboard.today.left", in: app).exists)
+        XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
+        let paceTrack = element("dashboard.pace.track", in: app)
+        XCTAssertTrue(paceTrack.exists)
+        XCTAssertFalse((paceTrack.value as? String ?? "").isEmpty)
         app.buttons["dashboard.quickAdd"].tap()
 
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
@@ -71,6 +75,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["tab.wishlist"].tap()
+        XCTAssertTrue(app.buttons["tab.wishlist"].isSelected)
+        XCTAssertFalse(app.buttons["tab.dashboard"].isSelected)
         XCTAssertTrue(element("wishlist.empty", in: app).waitForExistence(timeout: 5))
         app.buttons["wishlist.add"].tap()
 

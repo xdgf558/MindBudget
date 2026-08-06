@@ -1191,6 +1191,12 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "比均匀节奏多用了" } }
       }
     },
+    "dashboard.pace.accessibility %lld %lld %lld": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Spent %1$lld%%; day %2$lld of %3$lld" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已花 %1$lld%%；第 %2$lld 天，共 %3$lld 天" } }
+      }
+    },
     "dashboard.pace.day %lld %lld": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Day %1$lld of %2$lld" } },
@@ -2250,13 +2256,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today"
+            "value": "Budget"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "今天"
+            "value": "预算"
           }
         }
       }
@@ -2442,13 +2448,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Budget"
+            "value": "Today"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "预算"
+            "value": "今天"
           }
         }
       }
@@ -2473,6 +2479,12 @@
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Log" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "流水" } }
+      }
+    },
+    "tab.position %lld %lld": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tab %1$lld of %2$lld" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "第 %1$lld 个标签，共 %2$lld 个" } }
       }
     },
     "tab.settings": {

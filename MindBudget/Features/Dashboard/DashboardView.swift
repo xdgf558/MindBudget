@@ -424,7 +424,7 @@ private struct TodayPaceCard: View {
                 .foregroundStyle(Color.mbInkSecondary)
             }
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("dashboard.available")
+            .accessibilityIdentifier("dashboard.today.left")
 
             Divider().overlay(Color.mbHairline)
 
@@ -440,7 +440,9 @@ private struct TodayPaceCard: View {
                 }
                 BudgetPaceTrack(
                     elapsedRatio: pace.elapsedRatio,
-                    spentRatio: pace.spentRatio
+                    spentRatio: pace.spentRatio,
+                    dayNumber: pace.dayNumber,
+                    totalDays: pace.totalDays
                 )
                 HStack(spacing: 5) {
                     Image(systemName: pace.isAheadOfPace ? "arrow.up.right" : "checkmark")
@@ -464,6 +466,8 @@ private struct TodayPaceCard: View {
 private struct BudgetPaceTrack: View {
     let elapsedRatio: Decimal
     let spentRatio: Decimal
+    let dayNumber: Int
+    let totalDays: Int
 
     var body: some View {
         GeometryReader { proxy in
@@ -482,6 +486,14 @@ private struct BudgetPaceTrack: View {
         }
         .frame(height: 10)
         .accessibilityLabel("dashboard.period.progress")
+        .accessibilityValue(
+            "dashboard.pace.accessibility \(spentPercentage) \(dayNumber) \(totalDays)"
+        )
+        .accessibilityIdentifier("dashboard.pace.track")
+    }
+
+    private var spentPercentage: Int {
+        NSDecimalNumber(decimal: min(1, max(0, spentRatio)) * 100).intValue
     }
 
     private func clamped(_ decimal: Decimal) -> CGFloat {

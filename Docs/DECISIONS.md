@@ -929,6 +929,16 @@ entitlement must be verified before any paid lock is enforced. Budget safety, pu
 cooling-off, CSV export, deletion, and privacy controls remain permanently available. No server,
 account, cloud sync, advertising, or external analytics is introduced.
 
+Moving Settings from a first-level tab to the Today header is an intentional information-
+architecture decision, not a reduction in capability. Today is the app's daily hub, the gear is
+a conventional 44-point labeled control, and Settings still groups export, deletion, AI/Siri/
+Spotlight consent, notification authorization, quiet hours, reminder tone, and interruption limits
+without hiding or gating any row. The tradeoff is lower first-run discoverability than a dedicated
+tab. Automated UI coverage must continue from Today through the gear to both Export and Privacy,
+and Phase 10 must verify the path with VoiceOver and AX5. If signed-device usability shows that
+people cannot find these controls, add a visible Settings affordance in Today rather than restoring
+a fake content tab or moving privacy controls behind commerce.
+
 The handoff specifies only the light appearance outside its intentionally dark reminder and
 paywall surfaces. Shared semantic color assets therefore receive conservative accessible dark
 variants and remain a release-validation item rather than inventing a second unreviewed layout.
@@ -941,7 +951,8 @@ first visual commit, or renumbering the already agreed Phase 10 release scope.
 
 Consequences: UI changes remain reviewable as one pre-release stage, Phase 10 retains its
 meaning, and no unfinished commerce appears in the shipped interface. UI tests must be updated
-for the four-tab accessibility semantics and custom amount keypad while unit tests continue to
+for the four-tab accessibility semantics, selected-state announcements, adaptive tab height,
+custom amount keypad, and the renamed Today metric while unit tests continue to
 prove the unchanged domain and privacy contracts. The later commercialization phase can reuse
 the reserved seams but must make its own product, entitlement, price, and refund decisions.
 
