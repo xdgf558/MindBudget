@@ -148,6 +148,8 @@
 
 ### Fixed
 
+- Declared the custom navigation's VoiceOver traversal as Today, Log, Add Expense, Insights,
+  and Wishlist, and derived each tab's announced position and total from `AppTab.allCases`.
 - Restored selected and position announcements, adaptive large-text layout, and in-bounds hit
   testing for the custom navigation; exposed Today pace values to VoiceOver and renamed the
   daily allowance UI identifier so it cannot be confused with cycle-wide availability.

@@ -950,9 +950,11 @@ a WebView, replacing the existing data/services layer, mixing unverified Pro loc
 first visual commit, or renumbering the already agreed Phase 10 release scope.
 
 Consequences: UI changes remain reviewable as one pre-release stage, Phase 10 retains its
-meaning, and no unfinished commerce appears in the shipped interface. UI tests must be updated
-for the four-tab accessibility semantics, selected-state announcements, adaptive tab height,
-custom amount keypad, and the renamed Today metric while unit tests continue to
+meaning, and no unfinished commerce appears in the shipped interface. The custom navigation
+declares the VoiceOver order Today, Log, Add Expense, Insights, Wishlist rather than relying on
+`ZStack` geometry; tab positions and totals come from the exhaustive `AppTab.allCases` order.
+UI tests must cover the four-tab accessibility semantics, selected-state announcements, adaptive
+tab height, custom amount keypad, and the renamed Today metric while unit tests continue to
 prove the unchanged domain and privacy contracts. The later commercialization phase can reuse
 the reserved seams but must make its own product, entitlement, price, and refund decisions.
 

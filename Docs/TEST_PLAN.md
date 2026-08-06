@@ -360,8 +360,11 @@ remain covered by the seven UI smoke tests. The built app must contain no visibl
 surface or fake entitlement behavior; reserved Pro seams render nothing.
 
 The navigation smoke path must observe Today as selected initially and Wishlist as selected after
-activation. The custom tab group supplies localized position values, supports multiline labels
-without a fixed-height clip, and keeps the center add action inside its layout bounds. The Today
+activation, with English values `Tab 1 of 4` and `Tab 4 of 4`. The exhaustive tab declaration
+must remain Today, Log, Insights, Wishlist; the custom navigation explicitly sorts the five
+accessible controls as Today, Log, Add Expense, Insights, Wishlist. The custom tab group supplies
+localized position values from that declaration, supports multiline labels without a fixed-height
+clip, and keeps the center add action inside its layout bounds. The Today
 pace track exposes a nonempty localized accessibility value containing the spent percentage and
 cycle day position. UI identifiers describe the metric they expose; `dashboard.today.left` must
 never reuse the former cycle-wide `dashboard.available` meaning. Engine tests explicitly

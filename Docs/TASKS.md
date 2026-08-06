@@ -103,6 +103,8 @@ Status: Done
 - Preserve VoiceOver-selected and position semantics for the custom four-tab control, allow its
   labels to grow at accessibility sizes, expose both ratios in the Today pace track, and keep the
   separate center add action fully inside its hit-test layout.
+- Declare the five-element VoiceOver order as Today, Log, Add Expense, Insights, Wishlist, and
+  derive tab positions/totals from the exhaustive `AppTab` order rather than numeric literals.
 
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
 Status: Todo

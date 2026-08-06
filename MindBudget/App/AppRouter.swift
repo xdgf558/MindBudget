@@ -1,11 +1,18 @@
 import SwiftUI
 @preconcurrency import CoreSpotlight
 
-enum AppTab: Hashable {
+enum AppTab: Hashable, CaseIterable {
     case dashboard
     case list
     case insights
     case wishlist
+
+    var accessibilityPosition: Int {
+        guard let index = Self.allCases.firstIndex(of: self) else {
+            preconditionFailure("Every app tab must appear in CaseIterable order")
+        }
+        return index + 1
+    }
 }
 
 @MainActor
@@ -371,15 +378,13 @@ private struct MainTabView: View {
                     .dashboard,
                     title: "tab.dashboard",
                     symbol: "circle.dotted",
-                    identifier: "tab.dashboard",
-                    position: 1
+                    identifier: "tab.dashboard"
                 )
                 tabButton(
                     .list,
                     title: "tab.log",
                     symbol: "list.bullet",
-                    identifier: "tab.log",
-                    position: 2
+                    identifier: "tab.log"
                 )
                 Color.clear
                     .frame(maxWidth: .infinity, minHeight: 54)
@@ -388,15 +393,13 @@ private struct MainTabView: View {
                     .insights,
                     title: "tab.insights",
                     symbol: "chart.bar",
-                    identifier: "tab.insights",
-                    position: 3
+                    identifier: "tab.insights"
                 )
                 tabButton(
                     .wishlist,
                     title: "tab.wishlist",
                     symbol: "bookmark",
-                    identifier: "tab.wishlist",
-                    position: 4
+                    identifier: "tab.wishlist"
                 )
             }
             .padding(.top, 18)
@@ -415,6 +418,7 @@ private struct MainTabView: View {
             .buttonStyle(.plain)
             .frame(width: 64, height: 64)
             .accessibilityLabel("expense.quickAdd")
+            .accessibilitySortPriority(3)
             .accessibilityIdentifier("dashboard.quickAdd")
         }
         .background(
@@ -435,8 +439,7 @@ private struct MainTabView: View {
         _ tab: AppTab,
         title: LocalizedStringKey,
         symbol: String,
-        identifier: String,
-        position: Int
+        identifier: String
     ) -> some View {
         Button {
             session.selectedTab = tab
@@ -456,8 +459,27 @@ private struct MainTabView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(title))
-        .accessibilityValue("tab.position \(position) 4")
+        .accessibilityValue(
+            "tab.position \(tab.accessibilityPosition) \(AppTab.allCases.count)"
+        )
         .accessibilityAddTraits(session.selectedTab == tab ? .isSelected : [])
+        .mindBudgetNavigationSortPriority(for: tab)
         .accessibilityIdentifier(identifier)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func mindBudgetNavigationSortPriority(for tab: AppTab) -> some View {
+        switch tab {
+        case .dashboard:
+            accessibilitySortPriority(5)
+        case .list:
+            accessibilitySortPriority(4)
+        case .insights:
+            accessibilitySortPriority(2)
+        case .wishlist:
+            accessibilitySortPriority(1)
+        }
     }
 }

@@ -137,9 +137,10 @@ Empty/error states and English/Simplified Chinese accessibility coverage are act
 opens from Today, reminders use a focused full-screen pause surface, and every existing free
 surface shares semantic light/dark color assets. The supplied paid-screen concepts are recorded
 only as future composition seams and render nothing until commercialization is implemented end
-to end in its own phase. The custom navigation owns explicit selected/position semantics and
-adaptive label height, while the Today pace track exposes its spent percentage and cycle-day
-position to assistive technology. Moving Settings behind Today's conventional labeled gear is an
+to end in its own phase. The custom navigation owns explicit selected/position semantics,
+an exhaustive tab-derived position count, the declared traversal Today → Log → Add Expense →
+Insights → Wishlist, and adaptive label height, while the Today pace track exposes its spent
+percentage and cycle-day position to assistive technology. Moving Settings behind Today's gear is an
 accepted discoverability tradeoff with automated Export/Privacy reachability and a Phase 10
 signed-device usability check.
 Phase 5 adds a pure deterministic detector for large purchases, late-hour patterns,

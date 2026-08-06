@@ -1085,3 +1085,39 @@ position wording, AX5 layout, and center-button edge hit testing.
 
 Next suggested task: Push this review remediation to PR #12 and request a second review; begin
 Phase 10 only after the redesign PR is approved and merged.
+
+## 2026-08-07 — Session 28 — Deterministic navigation accessibility order
+
+Goal: Close the second PR #12 review's nonblocking findings about the center add action's
+VoiceOver position and the literal tab-count accessibility value.
+
+Files changed: `AppRouter`, Phase 3 unit/UI tests, and the decision, task, test, changelog,
+UI/UX, project-memory, and session documents.
+
+What was completed: Made `AppTab` exhaustive through `CaseIterable`, derived each localized
+position and total from its declared order, and removed all four numeric position arguments plus
+the literal total. Declared the complete accessibility sort order with descending priorities:
+Today, Log, Add Expense, Insights, Wishlist. The tab-priority switch is exhaustive, so a new tab
+cannot compile without an explicit traversal decision. Added a unit contract for the declared tab
+order/positions and UI assertions for the English `Tab 1 of 4` and `Tab 4 of 4` values.
+
+What was NOT completed: Simulator automation cannot reproduce a real VoiceOver swipe traversal.
+Phase 10 still owns a signed physical-iPhone check of actual order, focus restoration, and AX5
+layout. No commerce or Phase 10 feature was started.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App Intents
+metadata extraction completed successfully.
+
+Test result: pass — 188 Swift Testing tests and 7 UI tests, 0 failures. The two new UI assertions
+confirm the derived English positions while the existing navigation, Ask, Settings, expense,
+Insights, localization, and Wishlist/cooling-off flows remain green.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths and
+`git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Signed-device VoiceOver traversal remains the authoritative final
+check because `accessibilitySortPriority` itself is not exposed as an XCTest query property.
+
+Next suggested task: Push this final accessibility remediation to PR #12 for approval and merge;
+begin Phase 10 only after the redesign PR lands on `main`.

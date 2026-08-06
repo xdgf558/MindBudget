@@ -15,8 +15,9 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   not calculate financial values.
 - Add Expense uses an app-owned, locale-aware keypad. Behavioral reminders use a
   full-screen pause surface with the existing 2–4-action safety contract.
-- The custom navigation announces its selected tab and localized position, grows vertically for
-  accessibility text sizes, and keeps the independent add action inside its hit-test bounds.
+- The custom navigation announces its selected tab and tab-derived localized position, grows
+  vertically for accessibility text sizes, keeps the independent add action inside its hit-test
+  bounds, and declares the traversal Today → Log → Add Expense → Insights → Wishlist.
 - The Today pace track announces both spending progress and calendar position; visual-only bars
   are not accepted as the sole representation of those facts.
 
