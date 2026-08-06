@@ -42,9 +42,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["dashboard.quickAdd"].tap()
 
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
-        app.textFields["expense.amount"].tap()
-        app.textFields["expense.amount"].typeText("12.34")
-        dismissDecimalKeyboard(in: app)
+        for key in ["1", "2", ".", "3", "4"] {
+            element("expense.keypad.\(key)", in: app).tap()
+        }
         app.buttons["expense.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -70,7 +70,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
-        app.tabBars.buttons["Wishlist"].tap()
+        app.buttons["tab.wishlist"].tap()
         XCTAssertTrue(element("wishlist.empty", in: app).waitForExistence(timeout: 5))
         app.buttons["wishlist.add"].tap()
 
@@ -113,7 +113,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
-        app.tabBars.buttons["Insights"].tap()
+        app.buttons["tab.insights"].tap()
 
         XCTAssertTrue(element("insights.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Last 7 days"].exists)
@@ -168,7 +168,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
-        app.tabBars.buttons["Settings"].tap()
+        app.buttons["dashboard.settings"].tap()
 
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
         let exportControl = element("settings.export", in: app)

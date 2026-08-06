@@ -6,7 +6,12 @@ final class DashboardViewModel: ObservableObject {
     enum State {
         case loading
         case unconfigured
-        case configured(ConfiguredBudgetSnapshot, [ExpenseSummary], [WishItemSummary])
+        case configured(
+            ConfiguredBudgetSnapshot,
+            BudgetPaceSummary,
+            [ExpenseSummary],
+            [WishItemSummary]
+        )
         case transitionRequired(BudgetPlanTransitionRequirement)
         case firstRegularRequired(BudgetPlanFirstRegularRequirement)
         case failed
@@ -54,7 +59,13 @@ final class DashboardViewModel: ObservableObject {
                     state = .unconfigured
                     return
                 }
-                state = .configured(configured, expenses, wishItems)
+                let pace = try BudgetEngine().pace(
+                    snapshot: configured,
+                    expenses: expenses,
+                    now: now,
+                    calendar: calendar
+                )
+                state = .configured(configured, pace, expenses, wishItems)
             case let .transitionPlanRequired(requirement):
                 state = .transitionRequired(requirement)
             case let .firstRegularPlanRequired(requirement):
@@ -76,6 +87,7 @@ struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @State private var presentedSetup: PresentedSetup?
     @State private var presentsAsk = false
+    @State private var presentsSettings = false
 
     var body: some View {
         NavigationStack {
@@ -93,9 +105,10 @@ struct DashboardView: View {
                     ) {
                         presentedSetup = .initial
                     }
-                case let .configured(snapshot, expenses, wishItems):
+                case let .configured(snapshot, pace, expenses, wishItems):
                     configuredContent(
                         snapshot: snapshot,
+                        pace: pace,
                         expenses: expenses,
                         wishItems: wishItems
                     )
@@ -117,26 +130,13 @@ struct DashboardView: View {
                     ErrorStateView(messageKey: "error.data.load", retry: reload)
                 }
             }
-            .navigationTitle("dashboard.title")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        ExpenseListView(session: session)
-                    } label: {
-                        Label("expenses.title", systemImage: "list.bullet")
-                    }
-                    .accessibilityIdentifier("dashboard.expenses")
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
         }
         .accessibilityIdentifier("dashboard.view")
         .mindBudgetOnscreenEntity(
             onscreenBudgetReference,
             userEnabled: settings.enableSiriIntegration
         )
-        .navigationDestination(isPresented: $session.presentsExpenseList) {
-            ExpenseListView(session: session)
-        }
         .task(id: session.revision) {
             await viewModel.load(
                 dataActor: session.dataActor,
@@ -182,7 +182,7 @@ struct DashboardView: View {
             }
         }
         .sheet(isPresented: $presentsAsk) {
-            if case let .configured(snapshot, expenses, wishItems) = viewModel.state {
+            if case let .configured(snapshot, _, expenses, wishItems) = viewModel.state {
                 NavigationStack {
                     AskMindBudgetView(
                         snapshot: snapshot,
@@ -191,6 +191,9 @@ struct DashboardView: View {
                     )
                 }
             }
+        }
+        .sheet(isPresented: $presentsSettings) {
+            SettingsView(session: session)
         }
     }
 
@@ -202,36 +205,46 @@ struct DashboardView: View {
     @ViewBuilder
     private func configuredContent(
         snapshot: ConfiguredBudgetSnapshot,
+        pace: BudgetPaceSummary,
         expenses: [ExpenseSummary],
         wishItems: [WishItemSummary]
     ) -> some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 20) {
+                DashboardHeader {
+                    presentsSettings = true
+                }
+
+                TodayPaceCard(snapshot: snapshot, pace: pace)
+
                 if settings.enableAskMindBudget {
                     Button {
                         presentsAsk = true
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "sparkle.magnifyingglass")
-                            Text("ask.dashboard.prompt")
-                                .foregroundStyle(.secondary)
+                            Image(systemName: "sparkles")
+                                .font(.headline)
+                                .foregroundStyle(Color.mbAccent)
+                                .frame(width: 36, height: 36)
+                                .background(Color.mbAccentSoft, in: Circle())
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("ask.title")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(Color.mbInk)
+                                Text("ask.dashboard.prompt")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mbInkSecondary)
+                            }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
+                                .foregroundStyle(Color.mbInkTertiary)
                         }
-                        .padding(14)
-                        .background(.background, in: RoundedRectangle(cornerRadius: 14))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(.quaternary)
-                        }
+                        .budgetCard(cornerRadius: 18, contentPadding: 14)
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("dashboard.ask")
                 }
-                TodaySpendableCard(snapshot: snapshot)
-                BudgetSummaryCard(snapshot: snapshot)
 
                 let pendingWishItems = wishItems.filter {
                     $0.status == .coolingOff || $0.status == .readyToReview
@@ -249,16 +262,6 @@ struct DashboardView: View {
                     .accessibilityIdentifier("dashboard.coolingOff")
                 }
 
-                Button {
-                    session.presentExpenseEntry()
-                } label: {
-                    Label("expense.quickAdd", systemImage: "plus")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .accessibilityIdentifier("dashboard.quickAdd")
-
                 if expenses.isEmpty {
                     EmptyStateView(
                         symbolName: "square.and.pencil",
@@ -270,11 +273,28 @@ struct DashboardView: View {
                     }
                     .frame(minHeight: 240)
                 } else {
-                    RecentExpensesCard(expenses: Array(expenses.prefix(3)))
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("expenses.recent")
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(Color.mbInk)
+                            Spacer()
+                            Button("common.all") {
+                                session.selectedTab = .list
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.mbAccent)
+                            .accessibilityIdentifier("dashboard.expenses")
+                        }
+                        RecentExpensesCard(expenses: Array(expenses.prefix(3)))
+                    }
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 104)
         }
+        .mindBudgetScreenBackground()
         .refreshable {
             reload()
         }
@@ -346,108 +366,126 @@ private struct PendingWishlistCard: View {
     }
 }
 
-private struct TodaySpendableCard: View {
-    let snapshot: ConfiguredBudgetSnapshot
+private struct DashboardHeader: View {
+    let showSettings: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("dashboard.available.title")
-                    .font(.headline)
-                MoneyText(
-                    money: snapshot.availableRightNow,
-                    font: .system(.largeTitle, design: .rounded).bold(),
-                    weight: .bold
-                )
-                .foregroundStyle(snapshot.availableRightNow.minorUnits < 0 ? .orange : .primary)
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Date(), format: .dateTime.weekday(.wide).month(.wide).day())
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.mbInkSecondary)
+                    .textCase(.uppercase)
+                Text("dashboard.title")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.mbInk)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("dashboard.available")
-            Text(LocalizedStringKey(
-                snapshot.availableRightNow.minorUnits < 0
-                    ? "dashboard.available.negative"
-                    : "dashboard.available.message"
-            ))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            Divider()
-            HStack {
-                Text("dashboard.safeDaily")
-                Spacer()
-                MoneyText(money: snapshot.safeDailySpend, weight: .semibold)
+            Spacer()
+            Button(action: showSettings) {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.mbInk)
+                    .frame(width: 44, height: 44)
+                    .background(Color.mbSurface, in: Circle())
+                    .overlay {
+                        Circle().stroke(Color.mbHairline, lineWidth: 1)
+                    }
             }
-            .accessibilityElement(children: .combine)
+            .buttonStyle(.plain)
+            .accessibilityLabel("tab.settings")
+            .accessibilityIdentifier("dashboard.settings")
         }
-        .budgetCard()
     }
 }
 
-private struct BudgetSummaryCard: View {
+private struct TodayPaceCard: View {
     let snapshot: ConfiguredBudgetSnapshot
+    let pace: BudgetPaceSummary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("dashboard.period.title")
-                .font(.headline)
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline) {
-                    MoneyText(money: snapshot.spentTotal, weight: .semibold)
-                    Text("dashboard.period.of")
-                        .foregroundStyle(.secondary)
-                    MoneyText(money: snapshot.totalBudget)
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("dashboard.today.left")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Color.mbInkSecondary)
+                MoneyText(
+                    money: pace.leftToSpendToday,
+                    font: .system(size: 46, weight: .bold, design: .rounded),
+                    weight: .bold
+                )
+                .foregroundStyle(pace.leftToSpendToday.minorUnits < 0
+                    ? Color.mbAttentionText
+                    : Color.mbInk)
+                HStack(spacing: 5) {
+                    Text("dashboard.today.spent")
+                    MoneyText(money: pace.spentToday, weight: .semibold)
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    MoneyText(money: snapshot.spentTotal, weight: .semibold)
-                    MoneyText(money: snapshot.totalBudget)
-                        .foregroundStyle(.secondary)
-                }
+                .font(.subheadline)
+                .foregroundStyle(Color.mbInkSecondary)
             }
-            ProgressView(value: progress)
-                .tint(.accentColor)
-                .accessibilityLabel("dashboard.period.progress")
-                .accessibilityValue(progressAccessibilityValue)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("dashboard.available")
 
-            if snapshot.remainingFree.minorUnits < 0 {
-                HStack(alignment: .firstTextBaseline) {
-                    Image(systemName: "info.circle")
-                        .accessibilityHidden(true)
-                    Text("dashboard.freeBudget.over")
-                    MoneyText(money: overspentFreeBudget, weight: .semibold)
+            Divider().overlay(Color.mbHairline)
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("dashboard.pace.title")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.mbInk)
+                    Spacer()
+                    Text("dashboard.pace.day \(pace.dayNumber) \(pace.totalDays)")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Color.mbInkSecondary)
                 }
+                BudgetPaceTrack(
+                    elapsedRatio: pace.elapsedRatio,
+                    spentRatio: pace.spentRatio
+                )
+                HStack(spacing: 5) {
+                    Image(systemName: pace.isAheadOfPace ? "arrow.up.right" : "checkmark")
+                        .accessibilityHidden(true)
+                    Text(LocalizedStringKey(
+                        pace.isAheadOfPace
+                            ? "dashboard.pace.ahead"
+                            : "dashboard.pace.within"
+                    ))
+                    MoneyText(money: pace.paceDifference, weight: .semibold)
+                }
+                .font(.caption)
+                .foregroundStyle(pace.isAheadOfPace ? Color.mbAttentionText : Color.mbAccentDeep)
                 .accessibilityElement(children: .combine)
-                .foregroundStyle(.orange)
             }
         }
-        .budgetCard()
+        .budgetCard(cornerRadius: 24, contentPadding: 20)
+    }
+}
+
+private struct BudgetPaceTrack: View {
+    let elapsedRatio: Decimal
+    let spentRatio: Decimal
+
+    var body: some View {
+        GeometryReader { proxy in
+            let elapsed = clamped(elapsedRatio)
+            let spent = clamped(spentRatio)
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.mbTrack)
+                Capsule()
+                    .fill(Color.mbAccent)
+                    .frame(width: proxy.size.width * spent)
+                Rectangle()
+                    .fill(Color.mbAttention)
+                    .frame(width: 2, height: 14)
+                    .offset(x: max(0, proxy.size.width * elapsed - 1))
+            }
+        }
+        .frame(height: 10)
+        .accessibilityLabel("dashboard.period.progress")
     }
 
-    private var progress: CGFloat {
-        guard snapshot.totalBudget.minorUnits > 0 else { return 0 }
-        let ratio = Decimal(max(0, snapshot.spentTotal.minorUnits))
-            / Decimal(snapshot.totalBudget.minorUnits)
-        return min(1, CGFloat(truncating: NSDecimalNumber(decimal: ratio)))
-    }
-
-    private var progressAccessibilityValue: Text {
-        Text("dashboard.period.progress.value \(progressPercent)")
-    }
-
-    private var progressPercent: Int {
-        guard snapshot.totalBudget.minorUnits > 0 else { return 0 }
-        let ratio = Decimal(max(0, snapshot.spentTotal.minorUnits))
-            / Decimal(snapshot.totalBudget.minorUnits)
-        var percent = ratio * 100
-        var rounded = Decimal()
-        NSDecimalRound(&rounded, &percent, 0, .plain)
-        return NSDecimalNumber(decimal: rounded).intValue
-    }
-
-    private var overspentFreeBudget: Money {
-        Money(
-            minorUnits: -snapshot.remainingFree.minorUnits,
-            currencyCode: snapshot.currencyCode
-        )
+    private func clamped(_ decimal: Decimal) -> CGFloat {
+        min(1, max(0, CGFloat(truncating: NSDecimalNumber(decimal: decimal))))
     }
 }
 

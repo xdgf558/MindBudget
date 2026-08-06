@@ -52,6 +52,7 @@ struct WishlistView: View {
                 WishlistDetailView(session: session, wishItemID: itemID)
             }
             .navigationTitle("tab.wishlist")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -75,6 +76,7 @@ struct WishlistView: View {
                 }
             }
         }
+        .mindBudgetScreenBackground()
         .task(id: session.revision) { await reload() }
         .mindBudgetOnscreenListSelection(
             nil,
@@ -101,7 +103,10 @@ struct WishlistView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color.mbCanvas)
+        .safeAreaPadding(.bottom, 84)
         .accessibilityIdentifier("wishlist.list")
     }
 
@@ -109,6 +114,9 @@ struct WishlistView: View {
         NavigationLink(value: item.id) {
             WishlistRow(item: item, calendar: calendar)
         }
+        .listRowInsets(EdgeInsets(top: 5, leading: 20, bottom: 5, trailing: 20))
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
     }
 
     private func reload() async {
@@ -152,7 +160,12 @@ private struct WishlistRow: View {
                     .font(.subheadline.weight(.semibold))
             }
         }
-        .padding(.vertical, 4)
+        .padding(16)
+        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.mbHairline, lineWidth: 1)
+        }
         .accessibilityElement(children: .combine)
     }
 }

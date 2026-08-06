@@ -4,6 +4,7 @@ import UIKit
 struct SettingsView: View {
     @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @State private var isChangingNotifications = false
@@ -205,7 +206,17 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.mbCanvas)
+            .tint(Color.mbAccent)
             .navigationTitle("tab.settings")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("common.done") { dismiss() }
+                }
+            }
             .accessibilityIdentifier("settings.view")
             .task {
                 await session.reconcileNotifications(

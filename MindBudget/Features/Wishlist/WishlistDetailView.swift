@@ -187,6 +187,7 @@ struct WishlistDetailView: View {
                 ProgressView().accessibilityLabel("common.loading")
             }
         }
+        .mindBudgetScreenBackground()
         .navigationTitle(viewModel.detail?.summary.name ?? "tab.wishlist")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -373,6 +374,9 @@ struct WishlistDetailView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(Color.mbCanvas)
         .disabled(viewModel.isWorking)
     }
 

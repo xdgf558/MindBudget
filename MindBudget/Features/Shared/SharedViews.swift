@@ -188,6 +188,7 @@ struct MoneyText: View {
         Text(CurrencyFormatterService().string(from: money, locale: locale))
             .font(font)
             .fontWeight(weight)
+            .fontDesign(.rounded)
             .monospacedDigit()
             .lineLimit(1)
             .minimumScaleFactor(0.6)
@@ -221,7 +222,7 @@ struct EmptyStateView: View {
         } actions: {
             if let actionTitleKey, let action {
                 Button(actionTitleKey, action: action)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(MindBudgetPrimaryButtonStyle())
             }
         }
     }
@@ -231,13 +232,38 @@ struct EmotionTagPicker: View {
     @Binding var selection: EmotionTag?
 
     var body: some View {
-        Picker("expense.emotion", selection: $selection) {
-            Text("common.none").tag(EmotionTag?.none)
+        MindBudgetFlowLayout(spacing: 8) {
+            selectionButton(title: "common.none", value: nil)
             ForEach(EmotionTag.allCases) { tag in
-                Text(LocalizedStringKey(tag.localizedNameKey)).tag(Optional(tag))
+                selectionButton(title: LocalizedStringKey(tag.localizedNameKey), value: tag)
             }
         }
         .accessibilityIdentifier("expense.emotion")
+    }
+
+    private func selectionButton(
+        title: LocalizedStringKey,
+        value: EmotionTag?
+    ) -> some View {
+        Button {
+            selection = value
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(selection == value ? .semibold : .regular))
+                .padding(.horizontal, 12)
+                .frame(minHeight: 40)
+                .background(
+                    selection == value ? Color.mbAccent : Color.mbSurface,
+                    in: Capsule()
+                )
+                .foregroundStyle(selection == value ? Color.white : Color.mbInkSecondary)
+                .overlay {
+                    if selection != value {
+                        Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -245,13 +271,38 @@ struct PurchaseReasonPicker: View {
     @Binding var selection: PurchaseReason?
 
     var body: some View {
-        Picker("expense.reason", selection: $selection) {
-            Text("common.none").tag(PurchaseReason?.none)
+        MindBudgetFlowLayout(spacing: 8) {
+            selectionButton(title: "common.none", value: nil)
             ForEach(PurchaseReason.allCases) { reason in
-                Text(LocalizedStringKey(reason.localizedNameKey)).tag(Optional(reason))
+                selectionButton(title: LocalizedStringKey(reason.localizedNameKey), value: reason)
             }
         }
         .accessibilityIdentifier("expense.reason")
+    }
+
+    private func selectionButton(
+        title: LocalizedStringKey,
+        value: PurchaseReason?
+    ) -> some View {
+        Button {
+            selection = value
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(selection == value ? .semibold : .regular))
+                .padding(.horizontal, 12)
+                .frame(minHeight: 40)
+                .background(
+                    selection == value ? Color.mbAccent : Color.mbSurface,
+                    in: Capsule()
+                )
+                .foregroundStyle(selection == value ? Color.white : Color.mbInkSecondary)
+                .overlay {
+                    if selection != value {
+                        Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -266,16 +317,138 @@ struct ErrorStateView: View {
             Text(messageKey)
         } actions: {
             Button("common.retry", action: retry)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(MindBudgetPrimaryButtonStyle())
         }
         .accessibilityIdentifier("error.state")
     }
 }
 
 extension View {
-    func budgetCard() -> some View {
-        padding(18)
+    func budgetCard(
+        cornerRadius: CGFloat = 20,
+        contentPadding: CGFloat = 18
+    ) -> some View {
+        padding(contentPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .shadow(color: Color.black.opacity(0.05), radius: 3, y: 1)
+    }
+
+    func mindBudgetScreenBackground() -> some View {
+        scrollContentBackground(.hidden)
+            .background(Color.mbCanvas.ignoresSafeArea())
+            .tint(Color.mbAccent)
+    }
+}
+
+extension Color {
+    static let mbCanvas = Color("Canvas")
+    static let mbSurface = Color("Surface")
+    static let mbInk = Color("Ink")
+    static let mbInkSecondary = Color("InkSecondary")
+    static let mbInkTertiary = Color("InkTertiary")
+    static let mbInkQuaternary = Color("InkQuaternary")
+    static let mbHairline = Color("Hairline")
+    static let mbHairlineStrong = Color("HairlineStrong")
+    static let mbTrack = Color("Track")
+    static let mbAccent = Color("AccentColor")
+    static let mbAccentSoft = Color("AccentSoft")
+    static let mbAccentDeep = Color("AccentDeep")
+    static let mbAttention = Color("Attention")
+    static let mbAttentionSoft = Color("AttentionSoft")
+    static let mbAttentionBorder = Color("AttentionBorder")
+    static let mbAttentionText = Color("AttentionText")
+    static let mbDestructive = Color("Destructive")
+    static let mbDark = Color("Dark")
+    static let mbOnDark = Color("OnDark")
+    static let mbAccentOnDark = Color("AccentOnDark")
+    static let mbAttentionOnDark = Color("AttentionOnDark")
+}
+
+struct MindBudgetPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .foregroundStyle(Color.white)
+            .background(
+                Color.mbAccent.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
+                in: RoundedRectangle(cornerRadius: 14)
+            )
+            .contentShape(Rectangle())
+    }
+}
+
+struct MindBudgetSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .foregroundStyle(Color.mbAccent.opacity(isEnabled ? 1 : 0.38))
+            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.mbHairlineStrong, lineWidth: 1)
+            }
+            .opacity(configuration.isPressed ? 0.78 : 1)
+            .contentShape(Rectangle())
+    }
+}
+
+struct MindBudgetFlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > 0, x + size.width > maxWidth {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+        return CGSize(width: proposal.width ?? max(0, x - spacing), height: y + rowHeight)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > bounds.minX, x + size.width > bounds.maxX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            subview.place(
+                at: CGPoint(x: x, y: y),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size)
+            )
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
     }
 }

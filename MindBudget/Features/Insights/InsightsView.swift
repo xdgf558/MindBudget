@@ -253,6 +253,7 @@ struct InsightsView: View {
                 }
             }
             .navigationTitle("tab.insights")
+            .navigationBarTitleDisplayMode(.large)
             .task(id: session.revision) { await load() }
         }
         .mindBudgetOnscreenListSelection(
@@ -277,8 +278,10 @@ struct InsightsView: View {
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("insights.disclaimer")
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.bottom, 104)
         }
+        .mindBudgetScreenBackground()
         .accessibilityIdentifier("insights.view")
         .refreshable { await load() }
     }
@@ -298,8 +301,7 @@ struct InsightsView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .budgetCard(cornerRadius: 20, contentPadding: 18)
         .accessibilityIdentifier("insights.cycleNarrative")
     }
 
@@ -337,8 +339,7 @@ struct InsightsView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .budgetCard(cornerRadius: 18, contentPadding: 16)
     }
 
     @ViewBuilder
@@ -356,7 +357,7 @@ struct InsightsView: View {
                             LocalizedCatalog.string(item.labelKey, locale: locale)
                         )
                     )
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundStyle(Color.mbAccent.gradient)
                 }
                 .frame(height: 180)
                 .chartXAxis(.hidden)
@@ -368,12 +369,12 @@ struct InsightsView: View {
                     x: .value("insights.chart.date", item.date, unit: .day),
                     y: .value("insights.chart.amount", item.amount.minorUnits)
                 )
-                .foregroundStyle(.teal)
+                .foregroundStyle(Color.mbAccent)
                 PointMark(
                     x: .value("insights.chart.date", item.date, unit: .day),
                     y: .value("insights.chart.amount", item.amount.minorUnits)
                 )
-                .foregroundStyle(.teal)
+                .foregroundStyle(Color.mbAccent)
             }
             .frame(height: 170)
             .chartYAxis(.hidden)
@@ -391,7 +392,7 @@ struct InsightsView: View {
                             LocalizedCatalog.string(item.labelKey, locale: locale)
                         )
                     )
-                    .foregroundStyle(.indigo.gradient)
+                    .foregroundStyle(Color.mbAttention.gradient)
                 }
                 .frame(height: 180)
                 .chartXAxis(.hidden)
@@ -407,8 +408,7 @@ struct InsightsView: View {
             Text(title).font(.headline)
             content()
         }
-        .padding()
-        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .budgetCard(cornerRadius: 20, contentPadding: 18)
     }
 
     @ViewBuilder
@@ -445,8 +445,12 @@ struct InsightsView: View {
                     .buttonStyle(.borderless)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(Color.orange.opacity(0.09), in: RoundedRectangle(cornerRadius: 16))
+                .padding(18)
+                .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 20))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.mbAttentionBorder, lineWidth: 1)
+                }
             }
         }
     }

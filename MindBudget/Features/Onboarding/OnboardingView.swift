@@ -159,17 +159,21 @@ struct OnboardingView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
                 Spacer()
-                Image(systemName: "chart.pie.fill")
-                    .font(.system(size: 54))
-                    .foregroundStyle(.tint)
+                Image(systemName: "circle.dotted")
+                    .font(.system(size: 38, weight: .semibold))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 76, height: 76)
+                    .background(Color.mbAccent, in: RoundedRectangle(cornerRadius: 22))
+                    .shadow(color: Color.mbAccent.opacity(0.24), radius: 10, y: 6)
                     .accessibilityHidden(true)
                 Text("onboarding.title")
-                    .font(.largeTitle.bold())
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.mbInk)
                     .accessibilityIdentifier("onboarding.title")
                 Text("onboarding.message")
                     .font(.title3)
-                    .foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 14) {
+                    .foregroundStyle(Color.mbInkSecondary)
+                VStack(alignment: .leading, spacing: 10) {
                     OnboardingBenefit(symbol: "square.and.pencil", key: "onboarding.benefit.record")
                     OnboardingBenefit(symbol: "gauge.with.dots.needle.50percent", key: "onboarding.benefit.understand")
                     OnboardingBenefit(symbol: "lock.shield", key: "onboarding.benefit.private")
@@ -178,12 +182,11 @@ struct OnboardingView: View {
                 Button("onboarding.continue") {
                     showsBudgetSetup = true
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
+                .buttonStyle(MindBudgetPrimaryButtonStyle())
                 .accessibilityIdentifier("onboarding.continue")
             }
             .padding(24)
+            .background(Color.mbCanvas.ignoresSafeArea())
             .navigationDestination(isPresented: $showsBudgetSetup) {
                 BudgetSetupView(
                     dataActor: dataActor,
@@ -218,8 +221,12 @@ private struct OnboardingBenefit: View {
 
     var body: some View {
         Label(key, systemImage: symbol)
-            .font(.body)
+            .font(.body.weight(.medium))
             .symbolRenderingMode(.hierarchical)
+            .foregroundStyle(Color.mbInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -331,9 +338,11 @@ struct BudgetSetupView: View {
                     }
                 }
                 .disabled(viewModel.isSaving)
+                .buttonStyle(MindBudgetPrimaryButtonStyle())
                 .accessibilityIdentifier("budget.save")
             }
         }
+        .mindBudgetScreenBackground()
         .navigationTitle("budget.setup.title")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("budget.setup.view")

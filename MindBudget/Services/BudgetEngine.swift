@@ -81,6 +81,20 @@ struct BudgetImpact: Sendable, Equatable {
     let categoryRisk: CategoryBudgetRisk?
 }
 
+/// A presentation-ready, deterministic summary for the Today screen. The view never
+/// derives money or calendar pace on its own.
+struct BudgetPaceSummary: Sendable, Equatable {
+    let spentToday: Money
+    let leftToSpendToday: Money
+    let expectedSpentByToday: Money
+    let paceDifference: Money
+    let isAheadOfPace: Bool
+    let dayNumber: Int
+    let totalDays: Int
+    let elapsedRatio: Decimal
+    let spentRatio: Decimal
+}
+
 protocol BudgetCalculating: Sendable {
     func snapshot(
         cycle: DateInterval,
@@ -249,6 +263,77 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         )
     }
 
+    func pace(
+        snapshot: ConfiguredBudgetSnapshot,
+        expenses: [ExpenseSummary],
+        now: Date,
+        calendar: Calendar
+    ) throws -> BudgetPaceSummary {
+        guard snapshot.cycle.start <= now, now < snapshot.cycle.end else {
+            throw BudgetEngineError.referenceDateOutsideCycle
+        }
+
+        let startOfToday = calendar.startOfDay(for: now)
+        guard let today = calendar.dateInterval(of: .day, for: now) else {
+            throw BudgetEngineError.invalidCycle
+        }
+        let totalDays = calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: snapshot.cycle.start),
+            to: snapshot.cycle.end
+        ).day ?? 0
+        let elapsedDays = calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: snapshot.cycle.start),
+            to: startOfToday
+        ).day ?? -1
+        guard totalDays > 0, elapsedDays >= 0, elapsedDays < totalDays else {
+            throw BudgetEngineError.invalidCycle
+        }
+
+        var spentToday: Int64 = 0
+        for expense in expenses where today.contains(expense.spentAt) && expense.bucket == .discretionary {
+            try requireCurrency(expense.amount.currencyCode, matches: snapshot.currencyCode)
+            guard expense.amount.minorUnits >= 0 else {
+                throw BudgetEngineError.invalidPlan
+            }
+            spentToday = try checkedAdd(spentToday, expense.amount.minorUnits)
+        }
+
+        // Reconstruct the amount available at the start of today so today's entries do
+        // not get counted twice when the daily allowance is presented.
+        let startOfDayRemaining = try checkedAdd(snapshot.remainingFree.minorUnits, spentToday)
+        let dailyAllowance = max(0, startOfDayRemaining) / Int64(snapshot.daysRemaining)
+        let leftToday = try checkedSubtract(dailyAllowance, spentToday)
+        let dayNumber = elapsedDays + 1
+        let expectedSpent = try proratedMinorUnits(
+            snapshot.freeBudget.minorUnits,
+            numerator: dayNumber,
+            denominator: totalDays
+        )
+        let signedDifference = try checkedSubtract(
+            snapshot.discretionarySpent.minorUnits,
+            expectedSpent
+        )
+        let isAhead = signedDifference > 0
+        let difference = isAhead ? signedDifference : try checkedSubtract(0, signedDifference)
+        let spentRatio = snapshot.freeBudget.minorUnits > 0
+            ? decimalRatio(max(0, snapshot.discretionarySpent.minorUnits), snapshot.freeBudget.minorUnits)
+            : .zero
+
+        return BudgetPaceSummary(
+            spentToday: money(spentToday, snapshot.currencyCode),
+            leftToSpendToday: money(leftToday, snapshot.currencyCode),
+            expectedSpentByToday: money(expectedSpent, snapshot.currencyCode),
+            paceDifference: money(difference, snapshot.currencyCode),
+            isAheadOfPace: isAhead,
+            dayNumber: dayNumber,
+            totalDays: totalDays,
+            elapsedRatio: Decimal(dayNumber) / Decimal(totalDays),
+            spentRatio: spentRatio
+        )
+    }
+
     private func categoryRisk(
         for category: ExpenseCategory,
         amount: Money,
@@ -297,6 +382,21 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         Decimal(numerator) / Decimal(denominator)
     }
 
+    private func proratedMinorUnits(
+        _ value: Int64,
+        numerator: Int,
+        denominator: Int
+    ) throws -> Int64 {
+        guard value >= 0, numerator >= 0, denominator > 0, numerator <= denominator else {
+            throw BudgetEngineError.invalidPlan
+        }
+        let denominator64 = Int64(denominator)
+        let numerator64 = Int64(numerator)
+        let whole = try checkedMultiply(value / denominator64, numerator64)
+        let remainder = try checkedMultiply(value % denominator64, numerator64) / denominator64
+        return try checkedAdd(whole, remainder)
+    }
+
     private func checkedAdd(_ lhs: Int64, _ rhs: Int64) throws -> Int64 {
         let (result, overflow) = lhs.addingReportingOverflow(rhs)
         guard !overflow else { throw BudgetEngineError.arithmeticOverflow }
@@ -305,6 +405,12 @@ struct BudgetEngine: BudgetCalculating, Sendable {
 
     private func checkedSubtract(_ lhs: Int64, _ rhs: Int64) throws -> Int64 {
         let (result, overflow) = lhs.subtractingReportingOverflow(rhs)
+        guard !overflow else { throw BudgetEngineError.arithmeticOverflow }
+        return result
+    }
+
+    private func checkedMultiply(_ lhs: Int64, _ rhs: Int64) throws -> Int64 {
+        let (result, overflow) = lhs.multipliedReportingOverflow(by: rhs)
         guard !overflow else { throw BudgetEngineError.arithmeticOverflow }
         return result
     }

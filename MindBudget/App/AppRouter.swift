@@ -3,10 +3,9 @@ import SwiftUI
 
 enum AppTab: Hashable {
     case dashboard
-    case add
+    case list
     case insights
     case wishlist
-    case settings
 }
 
 @MainActor
@@ -22,7 +21,6 @@ final class AppSession: ObservableObject {
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
     @Published var presentsAddExpense = false
-    @Published var presentsExpenseList = false
     @Published var wishlistNavigationPath: [UUID] = []
     @Published private(set) var isPrepared = false
     @Published private(set) var preparationFailed = false
@@ -111,8 +109,7 @@ final class AppSession: ObservableObject {
         case .dashboard:
             selectedTab = .dashboard
         case .expenses:
-            selectedTab = .dashboard
-            presentsExpenseList = true
+            selectedTab = .list
         case .wishlist:
             selectedTab = .wishlist
             wishlistNavigationPath = []
@@ -243,7 +240,6 @@ final class AppSession: ObservableObject {
         settings.resetAfterDataDeletion()
         selectedTab = .dashboard
         presentsAddExpense = false
-        presentsExpenseList = false
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
@@ -314,38 +310,28 @@ private struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
-    @State private var lastContentTab: AppTab = .dashboard
 
     var body: some View {
         TabView(selection: $session.selectedTab) {
             DashboardView(session: session)
-                .tabItem { Label("tab.dashboard", systemImage: "chart.pie") }
                 .tag(AppTab.dashboard)
 
-            Color.clear
-                .tabItem { Label("tab.add", systemImage: "plus.circle.fill") }
-                .tag(AppTab.add)
+            NavigationStack {
+                ExpenseListView(session: session)
+            }
+            .tag(AppTab.list)
 
             InsightsView(session: session)
-                .tabItem { Label("tab.insights", systemImage: "chart.xyaxis.line") }
                 .tag(AppTab.insights)
 
             WishlistView(session: session)
-                .tabItem { Label("tab.wishlist", systemImage: "heart.text.square") }
                 .tag(AppTab.wishlist)
-
-            SettingsView(session: session)
-                .tabItem { Label("tab.settings", systemImage: "gearshape") }
-                .tag(AppTab.settings)
         }
-        .onChange(of: session.selectedTab) { _, selectedTab in
-            if selectedTab == .add {
-                session.selectedTab = lastContentTab
-                session.presentExpenseEntry()
-            } else {
-                lastContentTab = selectedTab
-            }
+        .toolbar(.hidden, for: .tabBar)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            customTabBar
         }
+        .tint(Color.mbAccent)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 session.dataDidChange()
@@ -376,5 +362,58 @@ private struct MainTabView: View {
                 }
             }
         }
+    }
+
+    private var customTabBar: some View {
+        HStack(spacing: 0) {
+            tabButton(.dashboard, title: "tab.dashboard", symbol: "circle.dotted", identifier: "tab.dashboard")
+            tabButton(.list, title: "tab.log", symbol: "list.bullet", identifier: "tab.log")
+            Button {
+                session.presentExpenseEntry()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 23, weight: .semibold))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 56, height: 56)
+                    .background(Color.mbAccent, in: Circle())
+                    .shadow(color: Color.mbAccent.opacity(0.30), radius: 8, y: 5)
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity)
+            .offset(y: -18)
+            .accessibilityLabel("expense.quickAdd")
+            .accessibilityIdentifier("dashboard.quickAdd")
+            tabButton(.insights, title: "tab.insights", symbol: "chart.bar", identifier: "tab.insights")
+            tabButton(.wishlist, title: "tab.wishlist", symbol: "bookmark", identifier: "tab.wishlist")
+        }
+        .frame(height: 64)
+        .padding(.top, 2)
+        .background(Color.mbSurface.ignoresSafeArea(edges: .bottom))
+        .overlay(alignment: .top) {
+            Rectangle().fill(Color.mbHairline).frame(height: 1)
+        }
+    }
+
+    private func tabButton(
+        _ tab: AppTab,
+        title: LocalizedStringKey,
+        symbol: String,
+        identifier: String
+    ) -> some View {
+        Button {
+            session.selectedTab = tab
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.system(size: 19, weight: session.selectedTab == tab ? .semibold : .regular))
+                Text(title)
+                    .font(.caption2.weight(session.selectedTab == tab ? .semibold : .regular))
+            }
+            .foregroundStyle(session.selectedTab == tab ? Color.mbAccent : Color.mbInkTertiary)
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 }

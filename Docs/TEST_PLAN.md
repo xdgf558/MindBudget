@@ -38,7 +38,8 @@ weak expense identifier and preserves the purchased status.
 Cover cycle totals, discretionary filtering, free budget, pending-fixed double-count
 prevention, available-now and safe-daily values, negative remaining budget, purchase
 impact by bucket, undefined ratio baselines, category risk boundaries, no-plan behavior,
-reference-date rejection outside the half-open cycle, and nonzero days remaining.
+reference-date rejection outside the half-open cycle, nonzero days remaining, and exact
+Today pace facts without view-layer arithmetic.
 
 ### DateBoundaryTests
 
@@ -140,6 +141,10 @@ suggested entities.
 14. Ask about a candidate purchase without amount/category and confirm a fixed clarification.
 15. On a signed iOS 26 device with Siri enabled, open a wishlist detail and verify "remind me
     tomorrow about this" resolves the visible item without speaking its price or note.
+16. Verify the custom navigation exposes only Today, Log, Insights, and Wishlist as tabs,
+    while the center add control opens expense entry and Settings opens from Today.
+17. Confirm there is no visible paid lock, quota, trial, paywall, StoreKit entry, or custom-rule
+    purchase UI before the separate commercialization phase is implemented.
 
 ## Coverage targets
 
@@ -342,6 +347,17 @@ deployment target against the current SDK; real Siri onscreen resolution and any
 or notification API require a signed physical-device release smoke test. That test must also
 confirm same-device entity resolution without `NSUserActivityTypes`; add the exact owned types
 only if the release SDK/device proves the declaration is required.
+
+## UI/UX design interlude acceptance
+
+The redesigned shell must expose four real tab destinations with a separate accessible add
+action, retain every existing free feature, and keep deep links routed to app-owned screens.
+Today pace values must come from deterministic `BudgetEngine` output. Manual entry must preserve
+locale syntax and exact minor-unit conversion through the custom keypad, while the full-screen
+pause surface retains two to four safe actions including Continue Purchase. English and
+Simplified Chinese onboarding, Ask, expense, Insights, Wishlist/cooling-off, and Settings paths
+remain covered by the seven UI smoke tests. The built app must contain no visible commerce
+surface or fake entitlement behavior; reserved Pro seams render nothing.
 
 ## Continuous integration
 

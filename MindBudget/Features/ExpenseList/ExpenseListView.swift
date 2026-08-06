@@ -80,6 +80,7 @@ final class ExpenseListViewModel: ObservableObject {
 
 struct ExpenseListView: View {
     @ObservedObject var session: AppSession
+    @Environment(\.calendar) private var calendar
     @StateObject private var viewModel = ExpenseListViewModel()
     @State private var showsFilters = false
 
@@ -107,27 +108,44 @@ struct ExpenseListView: View {
                 }
             } else {
                 List {
-                    ForEach(viewModel.filteredExpenses, id: \.id) { expense in
-                        NavigationLink {
-                            ExpenseDetailView(expense: expense, session: session)
-                        } label: {
-                            ExpenseRow(expense: expense)
-                        }
-                        .swipeActions {
-                            Button("common.delete", role: .destructive) {
-                                Task {
-                                    if await viewModel.delete(expense, dataActor: session.dataActor) {
-                                        session.dataDidChange()
+                    ForEach(dayGroups) { group in
+                        Section {
+                            ForEach(group.expenses, id: \.id) { expense in
+                                NavigationLink {
+                                    ExpenseDetailView(expense: expense, session: session)
+                                } label: {
+                                    ExpenseRow(expense: expense)
+                                }
+                                .listRowInsets(EdgeInsets(top: 5, leading: 20, bottom: 5, trailing: 20))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .swipeActions {
+                                    Button("common.delete", role: .destructive) {
+                                        Task {
+                                            if await viewModel.delete(expense, dataActor: session.dataActor) {
+                                                session.dataDidChange()
+                                            }
+                                        }
                                     }
                                 }
                             }
+                        } header: {
+                            Text(group.day, format: .dateTime.weekday(.wide).month(.abbreviated).day())
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.mbInkSecondary)
+                                .textCase(nil)
                         }
                     }
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(Color.mbCanvas)
+                .safeAreaPadding(.bottom, 84)
             }
         }
-        .navigationTitle("expenses.title")
+        .mindBudgetScreenBackground()
+        .navigationTitle("tab.log")
+        .navigationBarTitleDisplayMode(.large)
         .searchable(text: $viewModel.searchText, prompt: "expenses.search")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -153,6 +171,21 @@ struct ExpenseListView: View {
         }
         .accessibilityIdentifier("expenses.list")
     }
+
+    private var dayGroups: [ExpenseDayGroup] {
+        let grouped = Dictionary(grouping: viewModel.filteredExpenses) {
+            calendar.startOfDay(for: $0.spentAt)
+        }
+        return grouped
+            .map { ExpenseDayGroup(day: $0.key, expenses: $0.value) }
+            .sorted { $0.day > $1.day }
+    }
+}
+
+private struct ExpenseDayGroup: Identifiable {
+    var id: Date { day }
+    let day: Date
+    let expenses: [ExpenseSummary]
 }
 
 private struct ExpenseRow: View {
@@ -176,7 +209,12 @@ private struct ExpenseRow: View {
             Spacer()
             MoneyText(money: expense.amount, weight: .semibold)
         }
-        .padding(.vertical, 4)
+        .padding(14)
+        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.mbHairline, lineWidth: 1)
+        }
         .accessibilityElement(children: .combine)
     }
 }

@@ -1002,3 +1002,44 @@ warning after all suites pass. Signed physical-iPhone validation remains require
 onscreen consumption and the `NSUserActivityTypes` release decision.
 
 Next suggested task: Commit and push this remediation to PR #11 for another review pass.
+
+## 2026-08-06 — Session 26 — Pre-Phase-10 UI/UX redesign
+
+Goal: Rebuild the existing free iPhone experience from the owner's high-fidelity UI/UX handoff
+before Phase 10, while reserving only invisible integration seams for separately implemented
+commercial features.
+
+Files changed: app routing, shared SwiftUI components, semantic asset colors, onboarding,
+Today/Dashboard, manual expense entry and reminders, Log, Insights, Wishlist/cooling-off, Ask,
+Settings, `BudgetEngine`, unit/UI tests, localization, and durable project memory.
+
+What was completed: Replaced the old shell with four real tabs—Today, Log, Insights, and
+Wishlist—a separate accessible center add action, and Settings from Today. Applied the supplied
+warm-paper visual language across all existing free screens. Added deterministic Today pace facts
+to `BudgetEngine`, a locale-aware custom amount keypad, grouped expense history, wrapping context
+chips, and a full-screen purchase-pause surface. Preserved the DataActor boundary, exact minor-unit
+money, localized copy, raw-note projections, reminder safety contract, and all capability/privacy
+gates. Documented later composition seams for Insights, Ask, Settings, and reminder rules, but did
+not implement or expose StoreKit, entitlements, quotas, locked states, paywalls, trials, paid rules,
+or any purchase entry.
+
+What was NOT completed: Phase 10 release polish, signed-device VoiceOver/AX5/dark-mode checks,
+the corrupt cooling-off-row repair action, App Store assets, TestFlight work, and the separate
+commercialization phase were intentionally not started.
+
+Build result: pass — Xcode 26.6, iPhone 17 simulator, iOS 26.5; build-for-testing and App
+Intents metadata extraction completed successfully.
+
+Test result: pass — 186 Swift Testing tests and 7 UI tests, 0 failures. The UI suite covers
+English/Simplified Chinese onboarding, Ask fallback, Insights, manual expense entry through the
+custom keypad and Log, Settings privacy/export reachability, and Wishlist/cooling-off.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths, localization
+JSON is valid, and `git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Signed physical-iPhone visual/accessibility validation remains
+owned by Phase 10.
+
+Next suggested task: Review this redesign diff, then commit, push, and open its pull request when
+the owner requests that step; begin Phase 10 only after merge.
