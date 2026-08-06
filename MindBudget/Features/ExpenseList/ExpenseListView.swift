@@ -351,5 +351,9 @@ struct ExpenseDetailView: View {
             }
         }
         .accessibilityIdentifier("expense.detail")
+        .mindBudgetOnscreenEntity(
+            .expense(expense.id),
+            userEnabled: settings.enableSiriIntegration
+        )
     }
 }

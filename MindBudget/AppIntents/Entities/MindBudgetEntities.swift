@@ -1,5 +1,7 @@
 import AppIntents
+import CoreTransferable
 import Foundation
+import UniformTypeIdentifiers
 
 enum ExpenseAmountBucket: String, Equatable, Sendable {
     case unavailable
@@ -289,3 +291,93 @@ struct EmotionTagEntityQuery: EntityQuery {
         (try? await service.emotionTagEntities()) ?? []
     }
 }
+
+enum OnscreenTransferEntityKind: String, Codable, Sendable {
+    case expense
+    case budgetSnapshot
+    case wishlistItem
+}
+
+/// The complete payload that an onscreen App Entity may export through
+/// `Transferable`. Identity is sufficient for MindBudget's own intents to resolve
+/// the authoritative entity through its query; no financial or user-authored fields
+/// are duplicated into the transfer representation.
+struct OnscreenTransferReference: Codable, Equatable, Sendable {
+    static let currentVersion = 1
+
+    let version: Int
+    let entityKind: OnscreenTransferEntityKind
+    let identifier: String
+
+    init(entityKind: OnscreenTransferEntityKind, identifier: String) {
+        version = Self.currentVersion
+        self.entityKind = entityKind
+        self.identifier = identifier
+    }
+
+    func encoded() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try encoder.encode(self)
+    }
+}
+
+extension ExpenseEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .expense, identifier: id.uuidString)
+    }
+}
+
+extension BudgetSnapshotEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .budgetSnapshot, identifier: id)
+    }
+}
+
+extension WishlistItemEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .wishlistItem, identifier: id.uuidString)
+    }
+}
+
+// IndexedEntity's default attribute set is derived from each entity's deliberately
+// redacted display representation. None of these types carries an exact amount or note.
+// Actual Core Spotlight association remains gated to the iOS 26 product layer.
+@available(iOS 18.0, *)
+extension ExpenseEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension BudgetSnapshotEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension WishlistItemEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension CoolingOffPlanEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension MerchantEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension SpendingInsightEntity: IndexedEntity {}
+
+@available(iOS 18.0, *)
+extension EmotionTagEntity: IndexedEntity {}

@@ -2,6 +2,10 @@ import Foundation
 @preconcurrency import CoreSpotlight
 import UniformTypeIdentifiers
 
+#if canImport(AppIntents)
+import AppIntents
+#endif
+
 enum MindBudgetSearchDomain {
     static let root = "mindbudget.local"
 }
@@ -46,6 +50,50 @@ struct SpotlightDocument: Equatable, Sendable {
     let title: String
     let contentDescription: String
     let keywords: [String]
+    let appEntity: SpotlightIndexedEntity?
+
+    init(
+        identifier: String,
+        domainIdentifier: String,
+        title: String,
+        contentDescription: String,
+        keywords: [String],
+        appEntity: SpotlightIndexedEntity? = nil
+    ) {
+        self.identifier = identifier
+        self.domainIdentifier = domainIdentifier
+        self.title = title
+        self.contentDescription = contentDescription
+        self.keywords = keywords
+        self.appEntity = appEntity
+    }
+}
+
+/// The only entity payload accepted by the app-owned Spotlight boundary. Associated
+/// values are the amount-free AppEntity projections rather than SwiftData models.
+enum SpotlightIndexedEntity: Equatable, Sendable {
+    case expense(ExpenseEntity)
+    case budget(BudgetSnapshotEntity)
+    case wishlistItem(WishlistItemEntity)
+    case coolingOff(CoolingOffPlanEntity)
+    case merchant(MerchantEntity)
+    case insight(SpendingInsightEntity)
+    case emotion(EmotionTagEntity)
+
+    #if canImport(AppIntents)
+    @available(iOS 26.0, *)
+    func associate(with attributes: CSSearchableItemAttributeSet) {
+        switch self {
+        case let .expense(entity): attributes.associateAppEntity(entity)
+        case let .budget(entity): attributes.associateAppEntity(entity)
+        case let .wishlistItem(entity): attributes.associateAppEntity(entity)
+        case let .coolingOff(entity): attributes.associateAppEntity(entity)
+        case let .merchant(entity): attributes.associateAppEntity(entity)
+        case let .insight(entity): attributes.associateAppEntity(entity)
+        case let .emotion(entity): attributes.associateAppEntity(entity)
+        }
+    }
+    #endif
 }
 
 protocol SpotlightIndexClient: Sendable {
@@ -68,6 +116,11 @@ actor CoreSpotlightIndexClient: SpotlightIndexClient {
             attributes.title = document.title
             attributes.contentDescription = document.contentDescription
             attributes.keywords = document.keywords
+            #if canImport(AppIntents)
+            if #available(iOS 26.0, *), let appEntity = document.appEntity {
+                appEntity.associate(with: attributes)
+            }
+            #endif
             return CSSearchableItem(
                 uniqueIdentifier: document.identifier,
                 domainIdentifier: document.domainIdentifier,
@@ -207,7 +260,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                 domainIdentifier: MindBudgetSearchDomain.root,
                 title: LocalizedCatalog.format("spotlight.expense.title", locale: locale, category),
                 contentDescription: LocalizedCatalog.string(bucket.localizedKey, locale: locale),
-                keywords: [category, LocalizedCatalog.string("spotlight.keyword.expense", locale: locale)]
+                keywords: [category, LocalizedCatalog.string("spotlight.keyword.expense", locale: locale)],
+                appEntity: .expense(ExpenseEntity(summary: expense, plan: plan))
             )
         }
 
@@ -222,13 +276,16 @@ actor SpotlightIndexingService: SpotlightIndexing {
                 calendar: calendar
             )
             let stateKey: String
+            let indexedEntity: SpotlightIndexedEntity?
             if case let .configured(configured) = snapshot {
                 stateKey = configured.remainingTotal.minorUnits < 0
                     || configured.remainingFree.minorUnits < 0
                     ? "entity.budget.status.over"
                     : "entity.budget.status.current"
+                indexedEntity = .budget(BudgetSnapshotEntity(snapshot: configured))
             } else {
                 stateKey = "entity.budget.status.current"
+                indexedEntity = nil
             }
             documents.append(
                 SpotlightDocument(
@@ -236,7 +293,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                     domainIdentifier: MindBudgetSearchDomain.root,
                     title: LocalizedCatalog.string("entity.budget.current", locale: locale),
                     contentDescription: LocalizedCatalog.string(stateKey, locale: locale),
-                    keywords: [LocalizedCatalog.string("spotlight.keyword.budget", locale: locale)]
+                    keywords: [LocalizedCatalog.string("spotlight.keyword.budget", locale: locale)],
+                    appEntity: indexedEntity
                 )
             )
         }
@@ -250,7 +308,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                 keywords: [
                     LocalizedCatalog.string("spotlight.keyword.wishlist", locale: locale),
                     LocalizedCatalog.string(item.category.localizedNameKey, locale: locale),
-                ]
+                ],
+                appEntity: .wishlistItem(WishlistItemEntity(summary: item))
             )
         })
 
@@ -263,7 +322,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                     "entity.cooling.status.\(plan.status.rawValue)",
                     locale: locale
                 ),
-                keywords: [LocalizedCatalog.string("spotlight.keyword.cooling", locale: locale)]
+                keywords: [LocalizedCatalog.string("spotlight.keyword.cooling", locale: locale)],
+                appEntity: .coolingOff(CoolingOffPlanEntity(summary: plan))
             )
         })
 
@@ -277,7 +337,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                     contentDescription: merchant.primaryCategory.map {
                         LocalizedCatalog.string($0.localizedNameKey, locale: locale)
                     } ?? LocalizedCatalog.string("category.other", locale: locale),
-                    keywords: [LocalizedCatalog.string("spotlight.keyword.merchant", locale: locale)]
+                    keywords: [LocalizedCatalog.string("spotlight.keyword.merchant", locale: locale)],
+                    appEntity: .merchant(MerchantEntity(summary: merchant))
                 )
             })
         }
@@ -291,7 +352,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                     "entity.insight.severity.\(insight.severity.rawValue)",
                     locale: locale
                 ),
-                keywords: [LocalizedCatalog.string("spotlight.keyword.insight", locale: locale)]
+                keywords: [LocalizedCatalog.string("spotlight.keyword.insight", locale: locale)],
+                appEntity: .insight(SpendingInsightEntity(summary: insight))
             )
         })
 
@@ -301,7 +363,8 @@ actor SpotlightIndexingService: SpotlightIndexing {
                 domainIdentifier: MindBudgetSearchDomain.root,
                 title: LocalizedCatalog.string(tag.localizedNameKey, locale: locale),
                 contentDescription: LocalizedCatalog.string("entity.emotion.type", locale: locale),
-                keywords: [LocalizedCatalog.string("spotlight.keyword.emotion", locale: locale)]
+                keywords: [LocalizedCatalog.string("spotlight.keyword.emotion", locale: locale)],
+                appEntity: .emotion(EmotionTagEntity(tag: tag))
             )
         })
 

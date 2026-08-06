@@ -616,7 +616,7 @@ candidates and invalid plan identifiers separately; valid requests continue, inv
 and pending identifiers are cleared, and Settings displays a localized integrity warning.
 The warning is last-known integrity state: a later operation failure can coexist with it and
 does not clear it; only a successful reconciliation recomputes it. Invalid rows remain stored
-because the app must not silently delete user data. Phase 9 will add an explicit, localized,
+because the app must not silently delete user data. Phase 10 will add an explicit, localized,
 confirmed repair action that reports the affected count. Fetch-level failures still fail the
 whole operation. Explicit export disclosure, item-name-only notification copy without
 amount/notes, and quiet-hour scheduling were reverified and remain unchanged.
@@ -629,7 +629,7 @@ unrelated scheduling operation fails.
 Consequences: Completion now means the database was observed empty, not merely that a delete
 call returned. One corrupt record cannot suppress all valid reminders, and the partial state
 is visible rather than silently normalized. Reconciliation still fails closed when the
-underlying fetch itself cannot be trusted. Until Phase 9 provides repair, the only existing
+underlying fetch itself cannot be trusted. Until Phase 10 provides repair, the only existing
 whole-store removal path is Delete All; the warning therefore remains intentionally durable.
 
 Files affected: privacy deletion verification, notification projections/reconciliation,
@@ -792,3 +792,112 @@ only on builder-level tests and documentation.
 
 Files affected: App Intent money transport/actions, localized integration and error copy,
 Phase 8A tests, Siri/privacy plans, changelog, project memory, and this file.
+
+---
+
+## 2026-08-05 — Gate iOS 26 context at the entity boundary and stub unavailable public APIs
+
+Context: The product owner names the former Phase 8B scope Phase 9: `IndexedEntity`, local
+retrieval for Foundation Models, and onscreen awareness. The checked-in deployment target must
+remain iOS 17.0 and every L2 capability must degrade without changing L0/L1 behavior. The
+installed release toolchain is Xcode 26.6 (17F109) with the iOS 26.5 SDK. Its public interfaces
+show `IndexedEntity`, `CSSearchableItemAttributeSet.associateAppEntity`, and Core Spotlight
+entity indexing from iOS 18.0; `NSUserActivity.appEntityIdentifier` from iOS 18.2; and no public
+SwiftUI multi-object list-selection annotation or UserNotifications app-entity property. The
+external specification's list modifier and notification property therefore cannot be compiled
+or truthfully claimed with this SDK.
+
+Decision: Keep Phase 9 a product-level iOS 26 enhancement even where an underlying API was
+introduced earlier. `SystemIntegrationCapability` centrally combines the onscreen product
+flag, conditional App Intents import/OS check, runtime seam, and the existing default-off Siri
+setting. Detail screens and the configured Dashboard publish an amount-free
+`NSUserActivity.appEntityIdentifier` only when that conjunction is true. Activities are
+ineligible for independent search, prediction, and Handoff. Wishlist and Insights list pages
+use an explicit-selection adapter and pass no selection in the current iPhone UI, which fails
+closed until a public multi-object API is present rather than registering competing per-row
+activities.
+
+All seven existing, privacy-redacted App Entities conform to `IndexedEntity`. Phase 9 does not
+create a second entity index or change deletion semantics: the existing single app-owned
+Spotlight domain still owns replacement and clearing. Each document carries a typed amount-free
+entity projection, and iOS 26 associates it with the already-reviewed attribute set. Exact
+amounts and notes remain structurally unavailable; merchant associations are created only
+after the existing capability + global opt-in + eligible-expense triple gate.
+
+Ask uses `LocalSearchService` after deterministic intent classification to select only the
+authoritative SwiftData projections relevant to that intent. Spotlight remains a supplemental
+navigation index and is never accepted as a source for amounts, counts, dates, or other facts
+sent to Foundation Models. Notification scheduling carries a typed wishlist reference to the
+SDK adapter only when the same onscreen conjunction is true. Because the installed SDK has no
+public notification annotation property, the adapter is a tested no-op stub; stable `userInfo`
+routing remains the iOS 17+ behavior. Recheck and fill that one adapter when a release SDK
+actually exposes the API. No private or dynamically looked-up API is permitted.
+
+The durable phase numbering follows the owner's current sequence: this iOS 26 enhancement is
+Phase 9, and the former polish/TestFlight Phase 9 becomes Phase 10. The explicit corrupt-row
+repair action moves with that polish scope and is not implemented ahead in this phase.
+
+Alternatives considered: Enabling these APIs on iOS 18 because their framework availability
+allows it, using direct `indexAppEntities` calls and creating separately managed index data,
+registering one user activity per visible list row, inventing notification selectors through
+Objective-C runtime lookup, feeding Spotlight descriptions back into model facts, or silently
+claiming the external draft APIs exist.
+
+Consequences: iOS 17/18 behavior and index deletion remain unchanged, while supported iOS 26
+devices can relate Spotlight documents and three single-subject screens to reviewed App
+Entities. Unsupported list and notification integrations are visible, testable debt rather
+than hidden private-API risk. A signed physical iOS 26 device is still required to verify Siri's
+"this" resolution end to end, and every newer Xcode SDK must be re-inspected before replacing
+either stub.
+
+Files affected: centralized system-integration capability, onscreen activity adapter, App
+Entities, Spotlight and notification adapters, Ask local retrieval, five priority views,
+Phase 9 tests, phase numbering, Siri/privacy/test memory, and this file.
+
+---
+
+## 2026-08-05 — Stop onscreen advertisement explicitly and transfer identity only
+
+Context: Review of the first Phase 9 implementation found that disabling the Siri setting
+removed the SwiftUI `userActivity` modifier conditionally but did not express revocation through
+the modifier's public lifecycle API. Apple's current SwiftUI contract says that
+`userActivity(_:element:_:)` advertises nothing when `element` is nil. Current App Intents
+guidance also calls for a `Transferable` App Entity when `NSUserActivity.appEntityIdentifier`
+provides onscreen context without a suitable Assistant Schema. The finance schema review found
+no applicable schema. The same review asked whether the generated Info.plist needs
+`NSUserActivityTypes` and noted that emotion vocabulary remains indexed.
+
+Decision: On iOS 26, keep the SwiftUI user-activity modifier installed for the lifetime of a
+supported single-subject view and pass the fully gated entity reference as its optional
+`element`. A disabled product/runtime/user gate or missing subject passes nil, which the public
+SwiftUI contract defines as no advertised activity. Continue to make every advertised activity
+ineligible for search, prediction, and Handoff.
+
+Only `ExpenseEntity`, `BudgetSnapshotEntity`, and `WishlistItemEntity`, the three entity types
+actually published by current single-subject screens, conform to `Transferable`. Their JSON
+representation is a closed `OnscreenTransferReference` containing only a version, entity-kind
+key, and stable identifier. It deliberately excludes the wishlist name, dates, category,
+amount band, exact amount, note, and all other financial or user-authored fields. MindBudget's
+entity query remains the only way to resolve that identity into authoritative local data.
+
+Do not add `NSUserActivityTypes` speculatively. The current activities cannot be received for
+continuation because Handoff is explicitly disabled, and the public App Entity association
+documentation does not require that Info.plist key for same-device Siri context. Verify this on
+a signed iOS 26 iPhone; add only the exact owned activity types if that test proves the key is
+required. Continue associating the static emotion-tag vocabulary: those documents are the
+app's fixed navigation lexicon, contain no selected tag, count, transaction, or other user
+state, and expose no more than the product's visible feature vocabulary.
+
+Alternatives considered: Relying on removal of a conditional view modifier, manually retaining
+and invalidating a SwiftUI-owned `NSUserActivity`, exporting the complete App Entity as JSON,
+using a user-visible plain-text transfer, declaring every activity type preemptively, removing
+emotion navigation terms, or adopting a semantically incorrect schema.
+
+Consequences: Gate closure now has a documented framework-level stop condition, and the system
+can satisfy the public `Transferable` requirement without receiving a second copy of financial
+or user-authored context. Same-device onscreen resolution still needs physical-device proof;
+the simulator cannot establish Siri consumption or whether a future SDK changes Info.plist
+requirements.
+
+Files affected: App Entities, onscreen activity adapter, Phase 9 tests, privacy/Siri/test plans,
+project memory, changelog, and this file.

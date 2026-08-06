@@ -77,9 +77,23 @@
   transport, sanitized external strings, and atomic five-second expense deduplication.
 - One redacted Core Spotlight domain with budget-relative expense bands, independent
   merchant-name consent, deep links, awaited clearing, and nonblocking failure handling.
+- iOS 26 typed Spotlight associations for all seven amount-free `IndexedEntity` projections,
+  without creating a second index or changing merchant consent.
+- Default-off onscreen entity context for configured Dashboard, expense detail, and wishlist
+  detail through a centralized Siri/API/runtime gate and non-searchable `NSUserActivity`.
+- Identity-only `Transferable` references for the three onscreen entity types, with no name,
+  date, category, amount band, exact amount, or note in the exported representation.
+- Intent-scoped local retrieval for Ask that selects only authoritative SwiftData projections
+  and never treats Spotlight text as a Foundation Models fact source.
+- A typed, gated cooling-notification entity reference and an explicit public-SDK stub for
+  Xcode 26.6, which has no compile-time notification entity-annotation property.
 
 ### Changed
 
+- Made onscreen activity withdrawal explicit through a nil SwiftUI activity element when any
+  capability or user-consent gate closes, instead of depending on conditional modifier removal.
+- Renamed the former Phase 8B iOS 26 enhancement to Phase 9 per the product owner's sequence;
+  release polish, accessibility, repair, and TestFlight readiness move to Phase 10.
 - Split Siri spoken-result disclosure from Spotlight/merchant privacy copy so large
   accessibility sizes do not render four independent claims as one paragraph.
 - Limited V1 device support to iPhone.

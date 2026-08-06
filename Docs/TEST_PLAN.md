@@ -97,6 +97,17 @@ deferral, precise removal after an outcome or wish deletion, delivered-event ded
 and cancellation of all app requests. Payload tests prove the scheduler has no amount/note
 input and verify approved English/Simplified Chinese item-name review copy.
 
+### Phase9SystemContextTests
+
+Prove the onscreen capability requires product scope, conditional iOS 26/API support,
+runtime availability, and the default-off Siri setting. Compile-time tests require all seven
+redacted App Entities to conform to `IndexedEntity`; Spotlight documents must carry only those
+typed amount-free projections. Entity-identifier tests cover the four supported single-subject
+references. Notification tests prove a wishlist reference reaches the SDK adapter only when
+the centralized conjunction is true and that the current no-public-API stub remains explicit.
+Local-search tests prove each Ask intent receives only relevant authoritative SwiftData
+projections and has no Spotlight numeric-fact input.
+
 ### SpotlightIndexingServiceTests
 
 Cover indexing/deletion, clearing the domain when disabled, amount buckets rather
@@ -127,6 +138,8 @@ suggested entities.
 12. Add five large expenses and confirm at most one interrupting reminder.
 13. Attempt to change a populated store's currency and confirm export/delete guidance.
 14. Ask about a candidate purchase without amount/category and confirm a fixed clarification.
+15. On a signed iOS 26 device with Siri enabled, open a wishlist detail and verify "remind me
+    tomorrow about this" resolves the visible item without speaking its price or note.
 
 ## Coverage targets
 
@@ -306,6 +319,29 @@ routing tests reject foreign items and map recognized app
 results to the intended local destination. App Intents metadata extraction must succeed in
 the build; final Siri phrase resolution and Spotlight behavior remain physical-device release
 smoke tests.
+
+## Phase 9 acceptance
+
+Phase 9 tests prove all seven amount-free entities satisfy `IndexedEntity`, the existing
+Spotlight domain associates typed entities only at the iOS 26 layer, and no new exact amount,
+note, merchant-consent bypass, or separately managed index is introduced. The onscreen gate
+must fail closed for a disabled product flag, missing iOS/API support, unavailable runtime, or
+disabled Siri setting. Dashboard, expense detail, and wishlist detail publish only app-owned
+amount-free entity identifiers; list pages publish nothing without an explicit selection. The
+three single-subject entity types must compile as `Transferable`, and their encoded
+representation must have exactly version, entity-kind, and identifier keys with no name, date,
+category, amount-band, exact-amount, or note field. Gate closure uses a nil activity element,
+whose public SwiftUI contract advertises no activity.
+
+Ask local retrieval must select facts only after deterministic intent classification and only
+from authoritative SwiftData projections. Spotlight stays a navigation supplement and cannot
+provide model numbers. Notification scheduling may carry a typed wishlist reference only
+through the same gate; Xcode 26.6/iOS 26.5's missing public notification annotation remains a
+tested no-op adapter rather than a private selector. Automated build/test covers the iOS 17
+deployment target against the current SDK; real Siri onscreen resolution and any future list
+or notification API require a signed physical-device release smoke test. That test must also
+confirm same-device entity resolution without `NSUserActivityTypes`; add the exact owned types
+only if the release SDK/device proves the declaration is required.
 
 ## Continuous integration
 

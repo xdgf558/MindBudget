@@ -255,6 +255,10 @@ struct InsightsView: View {
             .navigationTitle("tab.insights")
             .task(id: session.revision) { await load() }
         }
+        .mindBudgetOnscreenListSelection(
+            nil,
+            userEnabled: settings.enableSiriIntegration
+        )
     }
 
     private var content: some View {

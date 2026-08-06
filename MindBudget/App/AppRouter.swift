@@ -17,6 +17,7 @@ final class AppSession: ObservableObject {
     private let spotlightIndexer: any SpotlightIndexing
     private let navigationStore: MindBudgetNavigationRequestStore
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
+    private let systemIntegrationCapability: SystemIntegrationCapability
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -37,7 +38,8 @@ final class AppSession: ObservableObject {
         searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner(),
         spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
-        privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier()
+        privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier(),
+        systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability()
     ) {
         self.dataActor = dataActor
         self.notificationScheduler = notificationScheduler
@@ -45,6 +47,7 @@ final class AppSession: ObservableObject {
         self.spotlightIndexer = spotlightIndexer
         self.navigationStore = navigationStore
         self.privacyDeletionVerifier = privacyDeletionVerifier
+        self.systemIntegrationCapability = systemIntegrationCapability
     }
 
     func prepare(settings: SettingsStore, force: Bool = false) async {
@@ -177,6 +180,9 @@ final class AppSession: ObservableObject {
             let result = try await notificationScheduler.reconcile(
                 candidates: candidateBatch.candidates,
                 preferences: settings.preferencesSnapshot,
+                contextualEntitiesEnabled: systemIntegrationCapability
+                    .onscreenAvailability(userEnabled: settings.enableSiriIntegration)
+                    .isAvailable,
                 now: now,
                 calendar: calendar,
                 locale: locale

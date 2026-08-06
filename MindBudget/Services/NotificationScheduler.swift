@@ -72,6 +72,7 @@ struct LocalNotificationRequest: Equatable, Sendable {
     let dateComponents: DateComponents
     let planID: UUID
     let wishItemID: UUID
+    let appEntityReference: OnscreenEntityReference?
 }
 
 struct DeliveredLocalNotification: Equatable, Sendable {
@@ -96,6 +97,7 @@ protocol NotificationScheduling: Sendable {
     func reconcile(
         candidates: [CoolingNotificationCandidate],
         preferences: PreferencesSnapshot,
+        contextualEntitiesEnabled: Bool,
         now: Date,
         calendar: Calendar,
         locale: Locale
@@ -126,6 +128,7 @@ struct NotificationScheduler: NotificationScheduling, Sendable {
     func reconcile(
         candidates: [CoolingNotificationCandidate],
         preferences: PreferencesSnapshot,
+        contextualEntitiesEnabled: Bool = false,
         now: Date,
         calendar: Calendar,
         locale: Locale
@@ -254,7 +257,10 @@ struct NotificationScheduler: NotificationScheduling, Sendable {
                     body: copy.body,
                     dateComponents: components,
                     planID: candidate.planID,
-                    wishItemID: candidate.wishItemID
+                    wishItemID: candidate.wishItemID,
+                    appEntityReference: contextualEntitiesEnabled
+                        ? .wishlistItem(candidate.wishItemID)
+                        : nil
                 )
             )
             keptIdentifiers.insert(stableIdentifier)
@@ -342,6 +348,10 @@ actor SystemLocalNotificationCenter: LocalNotificationCenterClient {
             "coolingOffPlanID": request.planID.uuidString,
             "wishItemID": request.wishItemID.uuidString,
         ]
+        annotateNotificationContentIfSupported(
+            content,
+            with: request.appEntityReference
+        )
         let trigger = UNCalendarNotificationTrigger(
             dateMatching: request.dateComponents,
             repeats: false
@@ -379,6 +389,18 @@ actor SystemLocalNotificationCenter: LocalNotificationCenterClient {
         case .ephemeral: .ephemeral
         @unknown default: .denied
         }
+    }
+
+    private func annotateNotificationContentIfSupported(
+        _ content: UNMutableNotificationContent,
+        with reference: OnscreenEntityReference?
+    ) {
+        guard reference != nil,
+              NotificationEntityAssociationSupport.isAvailableInCurrentSDK else { return }
+        // TODO(iOS SDK): Xcode 26.6 / iOS 26.5 exposes no public UserNotifications
+        // app-entity annotation property. Keep this adapter as a no-op until that API
+        // is present; userInfo routing above remains the iOS 17+ fallback.
+        _ = content
     }
 }
 

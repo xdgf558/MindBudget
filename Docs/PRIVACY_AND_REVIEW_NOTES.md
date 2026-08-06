@@ -87,6 +87,26 @@ discloses this in a separate scalable paragraph because authentication does not 
 private listening environment. Spotlight and merchant-indexing privacy remain in their own
 paragraph.
 
+Phase 9 associates those same redacted documents with amount-free `IndexedEntity` values only
+on iOS 26; it does not create another index or widen the indexed fields. Onscreen awareness is
+also off with Siri by default and publishes only an app-owned entity identifier through an
+`NSUserActivity`; those activities are not separately searchable, predictable, or eligible for
+Handoff. Dashboard, expense detail, and wishlist detail are the supported single-subject
+screens. List pages fail closed without an explicit selected row. The installed Xcode 26.6 /
+iOS 26.5 SDK has no public notification entity-annotation property, so cooling-off
+notifications retain their existing amount-free content and app-local `userInfo` navigation;
+no private runtime workaround is used. Ask still derives every model fact from SwiftData and
+deterministic engines, never from Spotlight text.
+
+Disabling the onscreen gate passes a nil SwiftUI activity element, which stops advertising the
+activity instead of relying on removal of a conditional modifier. The three single-subject
+entities satisfy the public `Transferable` contract with an identity-only JSON reference:
+version, entity kind, and stable identifier. That representation cannot contain a wishlist
+name, date, category, amount band, exact amount, or note. `NSUserActivityTypes` is not declared
+because these activities explicitly prohibit Handoff and are not continuation inputs; verify
+same-device Siri resolution on a signed iOS 26 device before release. Emotion-tag index/entity
+documents remain a fixed app vocabulary and carry no user selection, count, or transaction.
+
 ## Emotion-tag review explanation
 
 Chinese: 情绪标签只是用户主动选择的消费背景记录，用于回顾自己的消费情境；

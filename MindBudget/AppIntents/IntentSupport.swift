@@ -287,6 +287,9 @@ struct MindBudgetIntentService: Sendable {
                 let result = try await notificationScheduler.reconcile(
                     candidates: candidates.candidates,
                     preferences: preferences.notificationPreferences,
+                    contextualEntitiesEnabled: capability
+                        .onscreenAvailability(userEnabled: preferences.siriEnabled)
+                        .isAvailable,
                     now: now,
                     calendar: calendar,
                     locale: locale

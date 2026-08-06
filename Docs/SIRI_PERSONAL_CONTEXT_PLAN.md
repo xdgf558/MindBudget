@@ -93,4 +93,38 @@ expense. Disabling Spotlight clears the domain, and indexing failures do not blo
 back SwiftData. Automated acceptance runs this conjunction through the production
 `reconcile()` path and proves that a merchant document appears only when the centralized
 capability, global merchant-name setting, and eligible matching expense are all present.
-`IndexedEntity`, onscreen awareness, and notification entity identifiers remain Phase 8B work.
+## Phase 9 iOS 26 implementation
+
+All seven custom App Entities conform to `IndexedEntity`. On iOS 26 the existing app-owned
+Spotlight documents associate those typed entities with the already-redacted attribute sets;
+the app does not create a second index. Expense and budget entities remain amount-free, notes
+are not accepted, and merchant entities still require the complete capability/global/eligible-
+expense conjunction.
+
+`SystemIntegrationCapability.onscreenAvailability` is the single onscreen conjunction. It
+requires the product-scope flag, conditional App Intents and iOS 26 availability, runtime
+support, and the default-off Siri setting. Configured Dashboard, expense detail, and wishlist
+detail use `NSUserActivity.appEntityIdentifier`. Their activities are not independently
+eligible for search, prediction, or Handoff. Wishlist and Insights list pages expose only an
+explicit selected entity; the current iPhone lists have no selection and therefore publish
+nothing. Xcode 26.6/iOS 26.5 exposes no public multi-object list annotation API, so per-row
+activities are deliberately not used.
+
+The single-subject modifier uses `userActivity(_:element:_:)`: the optional element is the
+fully gated reference, so disabled consent, unavailable capability, or a missing subject passes
+nil and the framework advertises no activity. `ExpenseEntity`, `BudgetSnapshotEntity`, and
+`WishlistItemEntity` conform to `Transferable` with a closed identity-only payload containing
+version, entity kind, and stable identifier. Authoritative fields are resolved through the
+entity query; the payload itself contains no name, date, category, amount band, exact amount,
+or note. Do not declare `NSUserActivityTypes` unless signed-device validation proves it is
+needed for this same-device, non-Handoff association.
+
+Cooling-off notification requests carry a gated `WishlistItemEntity` reference to the public
+SDK boundary. The installed SDK exposes no public UserNotifications entity-annotation
+property, so that adapter is an explicit no-op stub and the existing stable `userInfo` route
+continues to work on iOS 17+. No runtime/private selector workaround is allowed. Recheck the
+SDK before release and implement the association only when a public compile-time symbol exists.
+
+Ask's `LocalSearchService` selects intent-relevant authoritative SwiftData projections before
+redaction. Spotlight remains navigation-only: no amount, count, date, conclusion, or other
+Foundation Models fact may be reconstructed from a Spotlight attribute or result.
