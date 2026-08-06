@@ -327,7 +327,11 @@ Spotlight domain associates typed entities only at the iOS 26 layer, and no new 
 note, merchant-consent bypass, or separately managed index is introduced. The onscreen gate
 must fail closed for a disabled product flag, missing iOS/API support, unavailable runtime, or
 disabled Siri setting. Dashboard, expense detail, and wishlist detail publish only app-owned
-amount-free entity identifiers; list pages publish nothing without an explicit selection.
+amount-free entity identifiers; list pages publish nothing without an explicit selection. The
+three single-subject entity types must compile as `Transferable`, and their encoded
+representation must have exactly version, entity-kind, and identifier keys with no name, date,
+category, amount-band, exact-amount, or note field. Gate closure uses a nil activity element,
+whose public SwiftUI contract advertises no activity.
 
 Ask local retrieval must select facts only after deterministic intent classification and only
 from authoritative SwiftData projections. Spotlight stays a navigation supplement and cannot
@@ -335,7 +339,9 @@ provide model numbers. Notification scheduling may carry a typed wishlist refere
 through the same gate; Xcode 26.6/iOS 26.5's missing public notification annotation remains a
 tested no-op adapter rather than a private selector. Automated build/test covers the iOS 17
 deployment target against the current SDK; real Siri onscreen resolution and any future list
-or notification API require a signed physical-device release smoke test.
+or notification API require a signed physical-device release smoke test. That test must also
+confirm same-device entity resolution without `NSUserActivityTypes`; add the exact owned types
+only if the release SDK/device proves the declaration is required.
 
 ## Continuous integration
 

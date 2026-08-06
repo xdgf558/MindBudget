@@ -1,4 +1,5 @@
 import AppIntents
+import CoreTransferable
 import Foundation
 import Testing
 @testable import MindBudget
@@ -48,6 +49,44 @@ struct Phase9FeatureTests {
         requireIndexedEntity(MerchantEntity.self)
         requireIndexedEntity(SpendingInsightEntity.self)
         requireIndexedEntity(EmotionTagEntity.self)
+    }
+
+    @Test
+    func onscreenEntitiesExposeOnlyIdentityThroughTransferable() throws {
+        requireTransferable(ExpenseEntity.self)
+        requireTransferable(BudgetSnapshotEntity.self)
+        requireTransferable(WishlistItemEntity.self)
+
+        let expense = ExpenseEntity(summary: expense(at: TestFixtures.now), plan: nil)
+        let budget = BudgetSnapshotEntity(snapshot: configuredSnapshot())
+        let wish = WishlistItemEntity(summary: wishItem())
+        let references = [
+            expense.onscreenTransferReference,
+            budget.onscreenTransferReference,
+            wish.onscreenTransferReference,
+        ]
+
+        #expect(references.map(\.entityKind) == [.expense, .budgetSnapshot, .wishlistItem])
+        #expect(references[0].identifier == expense.id.uuidString)
+        #expect(references[1].identifier == "current")
+        #expect(references[2].identifier == wish.id.uuidString)
+
+        for reference in references {
+            let data = try reference.encoded()
+            let object = try #require(
+                JSONSerialization.jsonObject(with: data) as? [String: Any]
+            )
+            #expect(Set(object.keys) == ["entityKind", "identifier", "version"])
+            #expect(object["version"] as? Int == OnscreenTransferReference.currentVersion)
+        }
+
+        let combinedPayload = try references
+            .map { String(decoding: try $0.encoded(), as: UTF8.self) }
+            .joined(separator: "\n")
+        #expect(combinedPayload.contains("Headphones") == false)
+        #expect(combinedPayload.contains("electronics") == false)
+        #expect(combinedPayload.contains("amount") == false)
+        #expect(combinedPayload.contains("note") == false)
     }
 
     @Test
@@ -197,6 +236,8 @@ struct Phase9FeatureTests {
 
     @available(iOS 18.0, *)
     private func requireIndexedEntity<Entity: IndexedEntity>(_ type: Entity.Type) {}
+
+    private func requireTransferable<Entity: Transferable>(_ type: Entity.Type) {}
 
     private func capability() -> SystemIntegrationCapability {
         SystemIntegrationCapability(

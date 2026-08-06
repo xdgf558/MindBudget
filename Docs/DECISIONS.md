@@ -853,3 +853,51 @@ either stub.
 Files affected: centralized system-integration capability, onscreen activity adapter, App
 Entities, Spotlight and notification adapters, Ask local retrieval, five priority views,
 Phase 9 tests, phase numbering, Siri/privacy/test memory, and this file.
+
+---
+
+## 2026-08-05 — Stop onscreen advertisement explicitly and transfer identity only
+
+Context: Review of the first Phase 9 implementation found that disabling the Siri setting
+removed the SwiftUI `userActivity` modifier conditionally but did not express revocation through
+the modifier's public lifecycle API. Apple's current SwiftUI contract says that
+`userActivity(_:element:_:)` advertises nothing when `element` is nil. Current App Intents
+guidance also calls for a `Transferable` App Entity when `NSUserActivity.appEntityIdentifier`
+provides onscreen context without a suitable Assistant Schema. The finance schema review found
+no applicable schema. The same review asked whether the generated Info.plist needs
+`NSUserActivityTypes` and noted that emotion vocabulary remains indexed.
+
+Decision: On iOS 26, keep the SwiftUI user-activity modifier installed for the lifetime of a
+supported single-subject view and pass the fully gated entity reference as its optional
+`element`. A disabled product/runtime/user gate or missing subject passes nil, which the public
+SwiftUI contract defines as no advertised activity. Continue to make every advertised activity
+ineligible for search, prediction, and Handoff.
+
+Only `ExpenseEntity`, `BudgetSnapshotEntity`, and `WishlistItemEntity`, the three entity types
+actually published by current single-subject screens, conform to `Transferable`. Their JSON
+representation is a closed `OnscreenTransferReference` containing only a version, entity-kind
+key, and stable identifier. It deliberately excludes the wishlist name, dates, category,
+amount band, exact amount, note, and all other financial or user-authored fields. MindBudget's
+entity query remains the only way to resolve that identity into authoritative local data.
+
+Do not add `NSUserActivityTypes` speculatively. The current activities cannot be received for
+continuation because Handoff is explicitly disabled, and the public App Entity association
+documentation does not require that Info.plist key for same-device Siri context. Verify this on
+a signed iOS 26 iPhone; add only the exact owned activity types if that test proves the key is
+required. Continue associating the static emotion-tag vocabulary: those documents are the
+app's fixed navigation lexicon, contain no selected tag, count, transaction, or other user
+state, and expose no more than the product's visible feature vocabulary.
+
+Alternatives considered: Relying on removal of a conditional view modifier, manually retaining
+and invalidating a SwiftUI-owned `NSUserActivity`, exporting the complete App Entity as JSON,
+using a user-visible plain-text transfer, declaring every activity type preemptively, removing
+emotion navigation terms, or adopting a semantically incorrect schema.
+
+Consequences: Gate closure now has a documented framework-level stop condition, and the system
+can satisfy the public `Transferable` requirement without receiving a second copy of financial
+or user-authored context. Same-device onscreen resolution still needs physical-device proof;
+the simulator cannot establish Siri consumption or whether a future SDK changes Info.plist
+requirements.
+
+Files affected: App Entities, onscreen activity adapter, Phase 9 tests, privacy/Siri/test plans,
+project memory, changelog, and this file.

@@ -22,6 +22,11 @@ enum OnscreenEntityReference: Equatable, Sendable {
         }
     }
 
+    static var inactiveActivityType: String {
+        let prefix = Bundle.main.bundleIdentifier ?? "MindBudget"
+        return "\(prefix).onscreen.inactive"
+    }
+
     #if canImport(AppIntents)
     @available(iOS 26.0, *)
     var entityIdentifier: EntityIdentifier {
@@ -87,10 +92,14 @@ private struct MindBudgetOnscreenEntityModifier: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         #if canImport(AppIntents)
-        if #available(iOS 26.0, *),
-           capability.onscreenAvailability(userEnabled: userEnabled).isAvailable,
-           let reference {
-            content.userActivity(reference.activityType) { activity in
+        if #available(iOS 26.0, *) {
+            let advertisedReference = capability
+                .onscreenAvailability(userEnabled: userEnabled)
+                .isAvailable ? reference : nil
+            content.userActivity(
+                reference?.activityType ?? OnscreenEntityReference.inactiveActivityType,
+                element: advertisedReference
+            ) { reference, activity in
                 activity.appEntityIdentifier = reference.entityIdentifier
                 // The activity exists only to describe what is onscreen. It must not
                 // become a second searchable or cross-device data surface.

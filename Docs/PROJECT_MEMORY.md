@@ -192,9 +192,14 @@ amount-free Spotlight documents only on iOS 26+. Ask now selects intent-relevant
 continues to serve navigation rather than model arithmetic. A centralized iOS 26 onscreen gate
 combines product scope, conditional App Intents availability, runtime support, and the default-
 off Siri setting. Dashboard, expense detail, and wishlist detail publish amount-free
-`NSUserActivity.appEntityIdentifier` references; Wishlist and Insights list pages deliberately
-publish no entity without an explicit selection because the installed SDK exposes no public
-multi-object list annotation API. Notification requests carry the same gated wishlist reference
+`NSUserActivity.appEntityIdentifier` references. Gate closure or a missing subject passes a nil
+SwiftUI activity element, which explicitly stops advertisement. Those three entity types are
+`Transferable` through an identity-only version/kind/identifier payload; the representation
+cannot carry names, dates, categories, amount bands, exact amounts, or notes. Wishlist and
+Insights list pages deliberately publish no entity without an explicit selection because the
+installed SDK exposes no public multi-object list annotation API. `NSUserActivityTypes` is not
+declared because Handoff/continuation is disabled; signed-device validation must confirm that
+same-device Siri context does not require it. Notification requests carry the same gated wishlist reference
 to the system adapter, but Xcode 26.6 exposes no public UserNotifications entity property, so
 the adapter is an explicit stub and existing iOS 17+ `userInfo` routing remains intact.
 App Intent money transport keeps invalid values, out-of-range amounts, unsupported precision,

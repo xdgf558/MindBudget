@@ -955,3 +955,50 @@ device system-context validation remain explicit release checks rather than simu
 
 Next suggested task: Review the Phase 9 diff, then commit, push, and open its pull request when
 the user requests that step.
+
+## 2026-08-05 — Session 25 — Phase 9 activity lifecycle and identity-only transfer
+
+Goal: Close PR #11 review findings around onscreen activity withdrawal, the
+`NSUserActivityTypes` declaration question, and the public `Transferable` expectation for
+custom onscreen App Entities without widening MindBudget's system data surface.
+
+Files changed: the onscreen activity adapter, App Entity transfer representations, Phase 9
+tests, and the task, decision, Siri, privacy, test, changelog, project-memory, and session
+documents.
+
+What was completed: Replaced conditional removal of the SwiftUI activity modifier with
+`userActivity(_:element:_:)`; the fully gated entity is the optional element, so disabled
+consent, unavailable capability, or a missing subject passes nil and the public SwiftUI
+contract advertises no activity. `ExpenseEntity`, `BudgetSnapshotEntity`, and
+`WishlistItemEntity` now conform to `Transferable`. Their shared, versioned JSON reference
+contains exactly entity kind, stable identifier, and version. It cannot encode names, dates,
+categories, amount bands, exact amounts, notes, or another financial/user-authored field;
+authoritative resolution remains inside each local entity query. Added compile-time conformance
+and exact-key privacy tests. Kept search, prediction, and Handoff disabled.
+
+Confirmed that the generated app Info.plist contains no `NSUserActivityTypes` declaration and
+retains iOS 17.0 as its minimum OS. The key was not added speculatively because these activities
+are not continuation inputs and the current App Entity association documentation does not
+require it for same-device Siri context. Recorded a signed-device check that must decide this
+before release. Also recorded that indexed emotion entities are a fixed app navigation
+vocabulary and contain no user selection, count, transaction, or other user state.
+
+What was NOT completed: Simulator tests cannot prove real Siri "this" resolution or the
+release-device Info.plist behavior. The missing public multi-object list and notification
+annotation APIs remain the existing explicit Phase 9 stubs. Phase 10 work was not started.
+
+Build result: pass — Xcode 26.6, iPhone 17 Pro, iOS 26.5; build-for-testing and App Intents
+metadata extraction completed successfully.
+
+Test result: pass — 184 Swift Testing tests and 7 UI tests, 0 failures. Phase 9 now contains
+seven targeted tests, including the three `Transferable` conformances and exact identity-only
+payload key set.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths and
+`git diff --check` is clean.
+
+Known issues: Xcode emits the existing nonblocking post-test simulator diagnostic-collector
+warning after all suites pass. Signed physical-iPhone validation remains required for Siri
+onscreen consumption and the `NSUserActivityTypes` release decision.
+
+Next suggested task: Commit and push this remediation to PR #11 for another review pass.

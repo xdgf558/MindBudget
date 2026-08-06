@@ -110,6 +110,15 @@ explicit selected entity; the current iPhone lists have no selection and therefo
 nothing. Xcode 26.6/iOS 26.5 exposes no public multi-object list annotation API, so per-row
 activities are deliberately not used.
 
+The single-subject modifier uses `userActivity(_:element:_:)`: the optional element is the
+fully gated reference, so disabled consent, unavailable capability, or a missing subject passes
+nil and the framework advertises no activity. `ExpenseEntity`, `BudgetSnapshotEntity`, and
+`WishlistItemEntity` conform to `Transferable` with a closed identity-only payload containing
+version, entity kind, and stable identifier. Authoritative fields are resolved through the
+entity query; the payload itself contains no name, date, category, amount band, exact amount,
+or note. Do not declare `NSUserActivityTypes` unless signed-device validation proves it is
+needed for this same-device, non-Handoff association.
+
 Cooling-off notification requests carry a gated `WishlistItemEntity` reference to the public
 SDK boundary. The installed SDK exposes no public UserNotifications entity-annotation
 property, so that adapter is an explicit no-op stub and the existing stable `userInfo` route

@@ -79,6 +79,8 @@ Status: Done
   a numeric model fact.
 - Publish amount-free `NSUserActivity.appEntityIdentifier` references for Dashboard,
   expense detail, and wishlist detail behind the centralized default-off Siri conjunction.
+  Stop publication through a nil SwiftUI activity element whenever that conjunction closes,
+  and export only version/kind/identifier through the three entities' `Transferable` boundary.
   Keep Wishlist and Insights list selection fail-closed until a public multi-object API ships.
 - Carry a gated wishlist entity reference to the notification SDK boundary. Xcode 26.6 /
   iOS 26.5 exposes no public notification entity-annotation property, so the adapter remains

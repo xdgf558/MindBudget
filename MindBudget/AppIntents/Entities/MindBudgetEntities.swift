@@ -1,5 +1,7 @@
 import AppIntents
+import CoreTransferable
 import Foundation
+import UniformTypeIdentifiers
 
 enum ExpenseAmountBucket: String, Equatable, Sendable {
     case unavailable
@@ -287,6 +289,72 @@ struct EmotionTagEntityQuery: EntityQuery {
 
     func suggestedEntities() async throws -> [EmotionTagEntity] {
         (try? await service.emotionTagEntities()) ?? []
+    }
+}
+
+enum OnscreenTransferEntityKind: String, Codable, Sendable {
+    case expense
+    case budgetSnapshot
+    case wishlistItem
+}
+
+/// The complete payload that an onscreen App Entity may export through
+/// `Transferable`. Identity is sufficient for MindBudget's own intents to resolve
+/// the authoritative entity through its query; no financial or user-authored fields
+/// are duplicated into the transfer representation.
+struct OnscreenTransferReference: Codable, Equatable, Sendable {
+    static let currentVersion = 1
+
+    let version: Int
+    let entityKind: OnscreenTransferEntityKind
+    let identifier: String
+
+    init(entityKind: OnscreenTransferEntityKind, identifier: String) {
+        version = Self.currentVersion
+        self.entityKind = entityKind
+        self.identifier = identifier
+    }
+
+    func encoded() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try encoder.encode(self)
+    }
+}
+
+extension ExpenseEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .expense, identifier: id.uuidString)
+    }
+}
+
+extension BudgetSnapshotEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .budgetSnapshot, identifier: id)
+    }
+}
+
+extension WishlistItemEntity: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .json) { entity in
+            try entity.onscreenTransferReference.encoded()
+        }
+    }
+
+    var onscreenTransferReference: OnscreenTransferReference {
+        OnscreenTransferReference(entityKind: .wishlistItem, identifier: id.uuidString)
     }
 }
 

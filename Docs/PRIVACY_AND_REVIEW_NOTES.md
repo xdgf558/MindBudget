@@ -98,6 +98,15 @@ notifications retain their existing amount-free content and app-local `userInfo`
 no private runtime workaround is used. Ask still derives every model fact from SwiftData and
 deterministic engines, never from Spotlight text.
 
+Disabling the onscreen gate passes a nil SwiftUI activity element, which stops advertising the
+activity instead of relying on removal of a conditional modifier. The three single-subject
+entities satisfy the public `Transferable` contract with an identity-only JSON reference:
+version, entity kind, and stable identifier. That representation cannot contain a wishlist
+name, date, category, amount band, exact amount, or note. `NSUserActivityTypes` is not declared
+because these activities explicitly prohibit Handoff and are not continuation inputs; verify
+same-device Siri resolution on a signed iOS 26 device before release. Emotion-tag index/entity
+documents remain a fixed app vocabulary and carry no user selection, count, or transaction.
+
 ## Emotion-tag review explanation
 
 Chinese: 情绪标签只是用户主动选择的消费背景记录，用于回顾自己的消费情境；
