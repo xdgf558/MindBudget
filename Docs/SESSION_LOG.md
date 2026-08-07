@@ -1264,3 +1264,43 @@ coverage gate, and `git diff --check` pass.
 
 Next suggested task: Complete validation, publish this focused icon change for review, then verify
 all three appearances on the signed release iPhone before Archive.
+
+## 2026-08-07 — Session 32 — Release brand lock and China-account preflight
+
+Goal: Begin the new-account signing → physical-device/Archive → TestFlight → internal-testing
+sequence while ensuring the approved icon and complete public brand enter the exact release build.
+
+Files changed: Debug/Release display-name settings, App Store submission draft, release validation
+and checklist, task/project/decision memory, changelog, and this session log.
+
+What was completed: Locked the public brand to `花有数 MindBudget`, kept the technical target and
+bundle suffix stable as `MindBudget`, and set `温和的预算与消费复盘工具` as the Simplified Chinese
+App Store subtitle. Added a static gate requiring the approved display name in both build
+configurations. Re-ran the complete simulator release suite with the approved three-appearance
+icon and brand together. Read-only Xcode preflight found only the legacy Apple Developer account
+and its team; no action was taken with that account.
+
+What was NOT completed: The icon/brand branch has not yet merged to `main`. The owner's new
+China-region Apple Developer account is not signed into Xcode. No valid local code-signing
+identity is currently available, no private `Config/Local.xcconfig` exists, and the effective
+fallback Bundle ID still uses the public repository prefix. The connected physical iPhones were
+unavailable during discovery. No certificate/profile was created or downloaded, no password or
+two-factor code was requested or handled, no Archive was produced, and nothing was uploaded or
+assigned to an internal TestFlight group. The legacy account was identified by the owner after
+the read-only check; its exact local credential must be confirmed before deletion, and Apple/Xcode
+credentials must never be deleted by a broad match.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release and Debug build-for-testing; the
+generated app uses the approved display name and compiles all standard/dark/tinted icon assets.
+
+Test result: pass — 199 Swift Testing tests across 16 suites and 9 UI tests, 0 failures; all
+selected core files remain above the 85% coverage gate.
+
+Static policy result: pass — brand, icon dimensions/opacity/catalog mappings, privacy/version/
+iPhone-only checks, no shared Team ID, floating-point money policy, and `git diff --check` pass.
+
+Next suggested task: Publish and review the icon/brand PR, then merge it before Archive. Sign the
+identified legacy account out and delete only its exact local credential after explicit at-action
+confirmation; when the new account login requests a password or two-factor code, hand control to
+the owner. Then reconnect/unlock the release iPhone, identify the exact private Bundle ID prefix
+under the new team, and obtain explicit confirmation before creating certificates or profiles.

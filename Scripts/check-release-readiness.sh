@@ -32,6 +32,10 @@ grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
   echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2
   exit 1
 }
+[[ "$(grep -o 'INFOPLIST_KEY_CFBundleDisplayName = "花有数 MindBudget"' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use the approved display name in Debug and Release" >&2
+  exit 1
+}
 if grep -q 'DEVELOPMENT_TEAM' "${PROJECT_FILE}"; then
   echo "Do not hardcode an Apple Developer team in the shared project" >&2
   exit 1

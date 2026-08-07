@@ -5,7 +5,8 @@ validated under the owner's current China-region Apple Developer account.
 
 ## Build identity
 
-- Product: MindBudget
+- Product/brand: 花有数 MindBudget
+- Brand line: 温和的预算与消费复盘工具
 - Version: 1.0.0
 - Build: 1 for the first TestFlight upload; increment after every uploaded replacement.
 - Category: Finance
@@ -18,9 +19,9 @@ validated under the owner's current China-region Apple Developer account.
 
 ## Simplified Chinese metadata draft
 
-Name: MindBudget
+Name: 花有数 MindBudget
 
-Subtitle: 更从容地规划每一笔消费
+Subtitle: 温和的预算与消费复盘工具
 
 Description:
 
@@ -48,7 +49,7 @@ Keywords: 预算,记账,消费,心愿单,冷静期,本地,隐私,账本
 
 ## English metadata draft
 
-Name: MindBudget
+Name: 花有数 MindBudget
 
 Subtitle: A calmer way to plan spending
 

@@ -117,6 +117,8 @@ Status: In Progress
 - [x] Add opaque 1024px standard, dark, and tinted App Icon variants, version 1.0.0/build 1
   configuration, static release checks, per-file core-service coverage enforcement, App Store
   metadata drafts, and a release checklist.
+- [x] Apply the approved `花有数 MindBudget` release display name and
+  `温和的预算与消费复盘工具` Simplified Chinese App Store subtitle.
 - [x] Complete the full automated validation after the Phase 10 diff is final, including a
   generic iOS Simulator Release build and the complete unit/UI/coverage suite.
 - [ ] Complete signed physical-iPhone VoiceOver, AX5, dark-mode, iOS 17/iOS 26, Instruments,

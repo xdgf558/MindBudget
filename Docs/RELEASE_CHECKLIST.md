@@ -21,6 +21,8 @@ unchecked item below has been performed against the release commit.
   static release checks.
 - [x] Release configuration remains version 1.0.0, iPhone-only, iOS 17+, and contains no shared
   Apple Team ID.
+- [x] Debug and Release generate the approved `花有数 MindBudget` display name; the Chinese App
+  Store draft uses `温和的预算与消费复盘工具` as its subtitle.
 
 ## Current China-region developer account and signing
 
@@ -46,7 +48,8 @@ unchecked item below has been performed against the release commit.
 - [ ] Inspect light/dark mode, Increase Contrast, Reduce Motion, and both portrait orientations
   supported by the iPhone target.
 - [ ] Inspect the standard, dark, and tinted Home Screen icon appearances on a real supported
-  iPhone; confirm iOS applies the corner mask and no track or marker is clipped.
+  iPhone; confirm iOS applies the corner mask, no track or marker is clipped, and the full
+  `花有数 MindBudget` label is acceptable at the supported Home Screen widths.
 - [ ] Verify touch targets, focus order, dismissal behavior, and no clipped or overlapping text.
 - [ ] Run on a real iOS 17 device and a supported iOS 26 device.
 - [ ] Verify the effective SwiftData file-protection class in the release-signed container.
