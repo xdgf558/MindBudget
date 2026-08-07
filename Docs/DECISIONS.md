@@ -981,11 +981,15 @@ stale integrity warning even if the separate best-effort notification reconcilia
 
 The automated release gate now includes an unsigned generic-simulator Release build, the complete
 unit/UI suite, bilingual catalog and printf compatibility, AX5 and pseudo-long navigation smoke,
-a deterministic 10,000-expense Dashboard first-load ceiling of 500 ms, static asset/privacy/version
-checks, and at least 85% line coverage for each selected deterministic money, budget, rule,
-privacy, formatting, and answer-safety source file. Higher coverage targets remain useful stretch
-goals rather than undocumented blockers. Version 1.0.0/build 1 and the opaque 1024px icon are the
-initial TestFlight identity; every replacement upload increments the build number.
+an always-on deterministic Dashboard projection contract over 10,000 varied current-cycle
+expenses, static asset/privacy/version checks, and at least 85% line coverage for each selected
+deterministic money, budget, rule, privacy, formatting, and answer-safety source file. Higher
+coverage targets remain useful stretch goals rather than undocumented blockers. A separate 500 ms
+wall-clock Dashboard benchmark is a local release-machine signal and runs in local validation by
+default; hosted GitHub Actions explicitly skips only that timing test because shared-runner load
+cannot distinguish a product regression from VM contention. Instruments on the signed release
+iPhone remains the authoritative performance check. Version 1.0.0/build 1 and the opaque 1024px
+icon are the initial TestFlight identity; every replacement upload increments the build number.
 
 Do not commit `DEVELOPMENT_TEAM`. Immediately before Archive, select and verify the owner's latest
 China-region team locally, confirm that the final Bundle ID and App Store Connect app belong to
@@ -997,14 +1001,17 @@ they are evidenced.
 
 Alternatives considered: Silently deleting corrupt rows during reconciliation, deleting every
 corrupt row without a user-confirmed identifier set, treating one aggregate coverage percentage
-as sufficient, recording simulator checks as proof of device behavior, hardcoding the new Team ID,
-or attempting an upload before the owner confirms the final account and App Store Connect record.
+as sufficient, making a 500 ms hosted-runner clock a blocking correctness test, recording simulator
+checks as proof of device behavior, hardcoding the new Team ID, or attempting an upload before the
+owner confirms the final account and App Store Connect record.
 
 Consequences: The repository can reproduce its automated release claims while distinguishing them
 from account- and device-dependent evidence. A repair cannot broaden itself beyond the rows the
 user was shown, notification outages no longer leave a false integrity warning, and neither the
 previous nor current developer account leaks into shared build configuration. TestFlight remains
-blocked on the explicit manual checklist rather than on an ambiguous “tests pass” statement.
+blocked on the explicit manual checklist rather than on an ambiguous “tests pass” statement. CI
+still proves the 10,000-row workload and every deterministic assertion without converting hosted
+CPU noise into a misleading performance failure.
 
 Files affected: cooling-off repair actor/session/Settings flow, localization and tests, release
 scripts and coverage gates, app icon/version metadata, App Store/release/privacy documentation,

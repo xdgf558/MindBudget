@@ -1180,3 +1180,54 @@ Done or describing V1 as TestFlight-ready.
 Next suggested task: Review the Phase 10 diff, then commit, push, and open its pull request when
 the owner requests that step. After merge, perform the signed-device and App Store Connect release
 checklist using the current China-region account.
+
+## 2026-08-07 — Session 30 — Stable Phase 10 performance evidence
+
+Goal: Close the Phase 10 review findings about hosted-runner wall-clock flakiness, the narrow
+10,000-expense fixture, repair-flow discoverability, and the coverage gate's actual enforcement.
+
+Files changed: the Phase 10 release-readiness tests, validation/CI configuration, release and test
+checklists, and the decision, task, and session documents.
+
+What was completed: Split Dashboard performance evidence into an always-on deterministic
+10,000-expense projection contract and a separately named local wall-clock benchmark. The fixture
+now spans the current cycle's dates, every expense category and bucket, varied exact minor-unit
+amounts, and 16 normalized merchants, while the assertions confirm all 10,000 rows and the intended
+merchant distribution reach the Dashboard projection. Hosted CI explicitly skips only the strict
+500 ms clock assertion because shared-runner contention is not a reliable performance oracle; the
+deterministic workload still runs there, while the strict clock signal remains available locally
+and signed-device Instruments remains authoritative for release.
+
+Verified the exact Swift Testing identifier, including its trailing parentheses, so the CI skip is
+effective rather than silently ignored. Confirmed that `Scripts/check-coverage.sh` exits nonzero
+when a selected file is missing or below 85%, that `Scripts/validate.sh` always invokes it after the
+coverage-enabled test run, and that the GitHub Actions workflow invokes `Scripts/validate.sh`.
+Expanded the release usability walk-through to begin from Wishlist, judge whether the existing
+Today → Settings → Notifications repair route is discoverable, and require a neutral Wishlist
+pointer later if signed-device testing shows it is not. The repair itself remains intentionally
+single-sourced and never automatic.
+
+What was NOT completed: No release signing, physical-device accessibility/performance pass,
+Archive, App Store Connect work, or TestFlight upload was performed. Phase 10 remains In Progress
+until the unchecked signed-device and owner-account items in the release checklist are completed.
+
+Build result: pass — Xcode 26.6; generic iOS Simulator Release build plus Debug
+build-for-testing completed successfully.
+
+Test result: pass — 199 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The local
+strict benchmark passed. A separate CI-mode verification ran the deterministic Phase 10 test while
+successfully excluding only the wall-clock benchmark. Xcode emitted the existing nonblocking
+post-test simulator diagnostic-collection warning after all UI suites passed.
+
+Coverage result: pass — Money 91.73%, BudgetEngine 94.24%, BudgetCycleCalculator 95.15%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 90.98%,
+AdviceSafetyValidator 94.50%, PrivacyRedactor 96.91%, CycleSummaryService 96.99%,
+IntentClassifier 97.50%, CSVExporter 90.79%, and CurrencyFormatterService 100%.
+
+Static policy result: pass — no unauthorized `Double`/`Float` in app money paths,
+`Scripts/check-release-readiness.sh` passed, `Scripts/validate.sh` is valid Bash, and
+`git diff --check` is clean.
+
+Next suggested task: Push this remediation to PR #13 for review. After approval and merge, execute
+the remaining signed-iPhone and China-region Apple Developer release checklist before the first
+TestFlight upload.

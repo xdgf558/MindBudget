@@ -32,15 +32,26 @@ xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   -destination "${DESTINATION}" -enableCodeCoverage YES build-for-testing
 
-if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
-  xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-    -destination "${DESTINATION}" -retry-tests-on-failure -test-iterations 2 \
-    -enableCodeCoverage YES -resultBundlePath "${RESULT_BUNDLE}" \
-    test-without-building
-else
-  xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-    -destination "${DESTINATION}" -enableCodeCoverage YES \
-    -resultBundlePath "${RESULT_BUNDLE}" test-without-building
+test_arguments=(
+  -destination "${DESTINATION}"
+  -enableCodeCoverage YES
+  -resultBundlePath "${RESULT_BUNDLE}"
+)
+
+# Hosted runners have nondeterministic neighboring load. They still execute the
+# deterministic 10,000-row Dashboard projection contract; only the strict local
+# 500 ms wall-clock signal is excluded from their correctness gate.
+if [[ "${MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK:-0}" == "1" ]]; then
+  test_arguments+=(
+    "-skip-testing:MindBudgetTests/Phase10ReleaseReadinessTests/localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds()"
+  )
 fi
+
+if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
+  test_arguments+=( -retry-tests-on-failure -test-iterations 2 )
+fi
+
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  "${test_arguments[@]}" test-without-building
 
 Scripts/check-coverage.sh "${RESULT_BUNDLE}"

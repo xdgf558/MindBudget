@@ -111,8 +111,9 @@ Status: In Progress
 - [x] Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
   Show the affected count, require confirmation, revalidate before deletion, and never delete
   those records implicitly.
-- [x] Add bilingual catalog parity/format checks, an AX5 navigation smoke test, and a deterministic
-  Dashboard first-load benchmark with 10,000 expenses and a 500 ms ceiling.
+- [x] Add bilingual catalog parity/format checks, an AX5 navigation smoke test, an always-on
+  deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
+  release-machine first-load signal with a 500 ms ceiling.
 - [x] Add an opaque 1024px App Icon, version 1.0.0/build 1 configuration, static release checks,
   per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
 - [x] Complete the full automated validation after the Phase 10 diff is final, including a

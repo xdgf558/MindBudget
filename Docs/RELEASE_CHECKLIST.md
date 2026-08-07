@@ -10,8 +10,11 @@ unchecked item below has been performed against the release commit.
 - [x] `Scripts/check-no-floating-point-money.sh` passes.
 - [x] `Scripts/validate.sh` passes the Release build, full unit/UI suite, and per-file core
   coverage gate.
-- [x] The 10,000-expense Dashboard first-load benchmark remains below 500 ms on the recorded
-  simulator; repeat with Instruments on the release iPhone.
+- [x] The deterministic 10,000-expense Dashboard projection passes with varied dates, all
+  categories, and optional merchants. The separate local first-load signal remains below 500 ms
+  on the recorded simulator; hosted CI deliberately skips only that noisy clock assertion.
+- [ ] Repeat the Dashboard load, scrolling, and persistence measurement with Instruments on the
+  signed release iPhone; treat that device evidence as authoritative.
 - [x] English and Simplified Chinese catalogs have matching, nonempty, format-compatible keys.
 - [x] AX5 UI smoke keeps onboarding, all four tabs, Add Expense, and Settings reachable.
 - [x] The 1024px opaque App Icon and privacy manifest pass static release checks.
@@ -60,8 +63,11 @@ unchecked item below has been performed against the release commit.
   placeholder type.
 - [ ] Export CSV to Numbers and Excel; confirm raw-note/merchant disclosure and formula safety.
 - [ ] Exercise Delete All and confirm all stages plus the post-delete zero-count verification.
-- [ ] Create an isolated orphan cooling-off fixture, confirm the count is shown, cancel once,
-  then explicitly repair it and verify readable records remain.
+- [ ] Create an isolated orphan cooling-off fixture and begin in Wishlist. Confirm no corrupt row
+  is presented as a valid item, then judge whether Today → Settings gear → Notifications makes
+  the warning discoverable enough from that symptom. Confirm the count, cancel once, explicitly
+  repair it, and verify readable records remain. If the route is not discoverable on device, add
+  a neutral Wishlist pointer without duplicating or automatically triggering the repair action.
 
 ## Store listing and TestFlight
 

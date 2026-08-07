@@ -6,7 +6,31 @@ import Testing
 @MainActor
 struct Phase10ReleaseReadinessTests {
     @Test
-    func dashboardFirstLoadWithTenThousandExpensesStaysInsideBudget() async throws {
+    func dashboardProjectionLoadsTenThousandDiverseCurrentCycleExpenses() async throws {
+        let result = try await loadDashboardFixture()
+
+        #expect(result.expenses.count == 10_000)
+        #expect(result.wishItems.isEmpty)
+        #expect(Set(result.expenses.map(\.category)) == Set(ExpenseCategory.allCases))
+        #expect(Set(result.expenses.map { result.calendar.startOfDay(for: $0.spentAt) }).count > 1)
+        #expect(result.expenses.filter { $0.merchantName != nil }.count == 2_500)
+        #expect(Set(result.expenses.compactMap(\.merchantName)).count == 16)
+    }
+
+    /// A wall-clock ceiling is a local release-machine signal, not a hosted-CI gate.
+    /// GitHub Actions skips only this test and still runs the deterministic 10,000-row
+    /// projection test above; `Scripts/validate.sh` runs both by default everywhere else.
+    @Test
+    func localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds() async throws {
+        let result = try await loadDashboardFixture()
+
+        #expect(
+            result.elapsed < .milliseconds(500),
+            "Dashboard first load took \(result.elapsed); the local release budget is 500 ms"
+        )
+    }
+
+    private func loadDashboardFixture() async throws -> DashboardLoadResult {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let calendar = TestFixtures.utcCalendar
         let now = TestFixtures.now
@@ -15,6 +39,7 @@ struct Phase10ReleaseReadinessTests {
             expenseCount: 10_000,
             interval: interval,
             now: now,
+            calendar: calendar,
             timeZoneIdentifier: calendar.timeZone.identifier
         )
         let viewModel = DashboardViewModel()
@@ -32,15 +57,27 @@ struct Phase10ReleaseReadinessTests {
         let elapsed = start.duration(to: clock.now)
         guard case let .configured(_, _, expenses, wishItems) = viewModel.state else {
             Issue.record("Expected configured Dashboard state")
-            return
+            throw Phase10ReleaseReadinessTestError.unexpectedDashboardState
         }
-        #expect(expenses.count == 10_000)
-        #expect(wishItems.isEmpty)
-        #expect(
-            elapsed < .milliseconds(500),
-            "Dashboard first load took \(elapsed); the release budget is 500 ms"
+        return DashboardLoadResult(
+            expenses: expenses,
+            wishItems: wishItems,
+            calendar: calendar,
+            elapsed: elapsed
         )
     }
+}
+
+private struct DashboardLoadResult {
+    let expenses: [ExpenseSummary]
+    let wishItems: [WishItemSummary]
+    let calendar: Calendar
+    let elapsed: Duration
+}
+
+private enum Phase10ReleaseReadinessTestError: Error {
+    case unexpectedDashboardState
+    case invalidFixtureDate
 }
 
 @ModelActor
@@ -49,6 +86,7 @@ private actor Phase10PerformanceSeeder {
         expenseCount: Int,
         interval: DateInterval,
         now: Date,
+        calendar: Calendar,
         timeZoneIdentifier: String
     ) throws {
         modelContext.autosaveEnabled = false
@@ -67,17 +105,35 @@ private actor Phase10PerformanceSeeder {
                 categoryBudgets: []
             )
         )
-        for _ in 0..<expenseCount {
-            let spentAt = now
+        let elapsedDayCount = max(
+            1,
+            (calendar.dateComponents(
+                [.day],
+                from: interval.start,
+                to: calendar.startOfDay(for: now)
+            ).day ?? 0) + 1
+        )
+        let categories = ExpenseCategory.allCases
+        for index in 0..<expenseCount {
+            guard let spentAt = calendar.date(
+                byAdding: .day,
+                value: index % elapsedDayCount,
+                to: interval.start
+            ) else {
+                throw Phase10ReleaseReadinessTestError.invalidFixtureDate
+            }
+            let category = categories[index % categories.count]
+            let merchantNumber = (index / 4) % 16
+            let merchantName = index.isMultiple(of: 4) ? "Merchant \(merchantNumber)" : nil
             modelContext.insert(
                 Expense(
                     id: UUID(),
-                    amountMinorUnits: 1,
+                    amountMinorUnits: Int64((index % 100) + 1),
                     currencyCode: "USD",
-                    categoryRaw: ExpenseCategory.food.rawValue,
-                    bucketRaw: BudgetBucket.discretionary.rawValue,
-                    merchantName: nil,
-                    normalizedMerchantName: nil,
+                    categoryRaw: category.rawValue,
+                    bucketRaw: category.defaultBucket.rawValue,
+                    merchantName: merchantName,
+                    normalizedMerchantName: merchantName?.lowercased(),
                     note: nil,
                     spentAt: spentAt,
                     spentTimeZoneIdentifier: timeZoneIdentifier,
