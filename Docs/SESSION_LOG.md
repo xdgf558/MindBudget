@@ -1383,6 +1383,10 @@ visual confirmation on the signed iPhone before Archive.
 
 Build result: pass — Xcode 26.6 generic iOS Simulator Release build and Debug build-for-testing.
 
+Signed-device result: pass — the current-team Debug build was rebuilt from commit `bce905b`,
+installed over the existing app on the connected iPhone Air without an uninstall/reset, and
+launched successfully. The owner still owns the final visual interaction confirmation.
+
 Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
 targeted manual-expense onboarding flow also passed independently after the interaction change.
 
