@@ -95,6 +95,18 @@ struct BudgetPaceSummary: Sendable, Equatable {
     let spentRatio: Decimal
 }
 
+struct BudgetAllocationSummary: Sendable, Equatable {
+    enum Status: Sendable, Equatable {
+        case available
+        case zeroBudget
+        case fullyAllocated
+        case overcommitted
+    }
+
+    let flexibleBudget: Money
+    let status: Status
+}
+
 protocol BudgetCalculating: Sendable {
     func snapshot(
         cycle: DateInterval,
@@ -115,6 +127,45 @@ protocol BudgetCalculating: Sendable {
 }
 
 struct BudgetEngine: BudgetCalculating, Sendable {
+    func allocation(
+        totalBudget: Money,
+        fixedForecast: Money,
+        savingGoal: Money
+    ) throws -> BudgetAllocationSummary {
+        try requireCurrency(fixedForecast.currencyCode, matches: totalBudget.currencyCode)
+        try requireCurrency(savingGoal.currencyCode, matches: totalBudget.currencyCode)
+        guard totalBudget.minorUnits >= 0,
+              fixedForecast.minorUnits >= 0,
+              savingGoal.minorUnits >= 0 else {
+            throw BudgetEngineError.invalidPlan
+        }
+
+        let afterFixed = totalBudget.minorUnits > fixedForecast.minorUnits
+            ? totalBudget.minorUnits - fixedForecast.minorUnits
+            : 0
+        let flexible = afterFixed > savingGoal.minorUnits
+            ? afterFixed - savingGoal.minorUnits
+            : 0
+        let status: BudgetAllocationSummary.Status
+        if totalBudget.minorUnits == 0 {
+            status = fixedForecast.minorUnits == 0 && savingGoal.minorUnits == 0
+                ? .zeroBudget
+                : .overcommitted
+        } else if fixedForecast.minorUnits > totalBudget.minorUnits
+                    || savingGoal.minorUnits > afterFixed {
+            status = .overcommitted
+        } else if flexible == 0 {
+            status = .fullyAllocated
+        } else {
+            status = .available
+        }
+
+        return BudgetAllocationSummary(
+            flexibleBudget: money(flexible, totalBudget.currencyCode),
+            status: status
+        )
+    }
+
     func snapshot(
         cycle: DateInterval,
         currencyCode: String,
@@ -175,8 +226,12 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         let totalBudget = plan.totalBudgetMinorUnits
         let fixedForecast = plan.fixedExpensesMinorUnits
         let savingGoal = plan.savingGoalMinorUnits
-        let afterFixed = totalBudget > fixedForecast ? totalBudget - fixedForecast : 0
-        let freeBudget = afterFixed > savingGoal ? afterFixed - savingGoal : 0
+        let allocation = try allocation(
+            totalBudget: money(totalBudget, currencyCode),
+            fixedForecast: money(fixedForecast, currencyCode),
+            savingGoal: money(savingGoal, currencyCode)
+        )
+        let freeBudget = allocation.flexibleBudget.minorUnits
         let remainingFree = try checkedSubtract(freeBudget, discretionarySpent)
         let pendingFixed = fixedForecast > fixedSpent ? fixedForecast - fixedSpent : 0
         let pendingSaving = savingGoal > savedSoFar ? savingGoal - savedSoFar : 0
@@ -300,11 +355,10 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             spentToday = try checkedAdd(spentToday, expense.amount.minorUnits)
         }
 
-        // Reconstruct the amount available at the start of today so today's entries do
-        // not get counted twice when the daily allowance is presented.
-        let startOfDayRemaining = try checkedAdd(snapshot.remainingFree.minorUnits, spentToday)
-        let dailyAllowance = max(0, startOfDayRemaining) / Int64(snapshot.daysRemaining)
-        let leftToday = try checkedSubtract(dailyAllowance, spentToday)
+        // "Available today" is the newly balanced daily amount after every recorded
+        // expense. The snapshot has already reduced the remaining flexible budget
+        // before distributing it across the remaining calendar days.
+        let leftToday = snapshot.safeDailySpend.minorUnits
         let dayNumber = elapsedDays + 1
         let expectedSpent = try proratedMinorUnits(
             snapshot.freeBudget.minorUnits,

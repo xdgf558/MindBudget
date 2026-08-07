@@ -7,8 +7,9 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- TestFlight version: 0.9.0
-- Build: 1 for the first TestFlight upload; increment after every uploaded replacement.
+- Next TestFlight candidate: version 0.9.1, build 2
+- Previous internal candidate: version 0.9.0, build 1
+- Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
@@ -19,6 +20,44 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.1 (2) — Next internal test candidate
+
+What to test:
+
+- Confirm Simplified Chinese consistently shows the product name `花有数`, including Ask,
+  Settings, Siri/App Shortcuts, errors, privacy copy, and exported filenames; English continues
+  to show `MindBudget`.
+- Open Settings > Appearance and Skins, switch among Aurora Glow, Warm Botanical, and Neon Pulse,
+  then relaunch the app and confirm the selected skin persists across Today, Log, Add Expense,
+  Insights, Wishlist, Ask, onboarding, and Settings. Confirm that Aurora visibly includes teal
+  aurora, stars, and lower waves; Warm Botanical includes ivory paper, leaves, and natural shadows;
+  Neon Pulse includes purple/cyan grid and light-trail motifs. None of the backgrounds should
+  contain baked-in text, controls, status bars, or screenshots.
+- Confirm all three initial skins are included without a lock, price, paywall, or PRO message.
+- With larger text and VoiceOver, verify every skin preserves readable contrast, selected-state
+  announcements, touch targets, and the custom bottom-navigation order.
+- Open Settings > About and confirm the installed version is `0.9.1` and its localized update
+  summary describes the three skins, complete background artwork, Chinese product-name update,
+  and cold-launch animation.
+- Force-quit and cold-launch once in Simplified Chinese and once in English. Confirm the selected
+  skin appears behind the short budget-track animation and the name is respectively `花有数` or
+  `MindBudget`. Returning from the background must not replay it. With Reduce Motion enabled, the
+  same brand layer must use a brief fade only, without translation or scale motion.
+- In Simplified Chinese, enable on-device enhancement and ask how much budget remains. Confirm the
+  answer title, body, and both actions remain Chinese; an English model proposal must silently use
+  the complete Chinese template rather than appear as mixed-language output or raw catalog keys.
+- Open Settings > Budget, change the current period's income or spending budget, and save. Confirm
+  the updated Dashboard reflects the value, the period boundaries and accounting currency do not
+  change, and a revised cycle start day is described as a future-period setting.
+- With spending budget CNY 6,000, fixed expenses CNY 3,000, and savings goal CNY 500, confirm the
+  flexible preview is CNY 2,500 and Today shows the recalculated per-day amount. Record an expense
+  and confirm the Today amount rebalances without becoming a double-subtracted negative value.
+- Under Settings > Privacy controls, enable the optional Face ID app lock. Confirm enabling and
+  disabling both require authentication, cancellation stays locked, cold launch and foreground
+  return are covered, device passcode is offered as recovery, and the app-switcher snapshot never
+  shows financial content.
+- Open Settings > About. Confirm only 0.9.1 is expanded and 0.9.0 remains inside collapsed history.
 
 ### 0.9.0 (1) — Internal test candidate
 
@@ -110,7 +149,8 @@ implemented in V1. Use realistic sample data with no real names, notes, merchant
 
 ## App Review notes draft
 
-MindBudget has no login, server, or reviewer credentials. Complete onboarding with any supported
+MindBudget has no account login, server, or reviewer credentials. Its optional local Face ID app
+lock is off by default. Complete onboarding with any supported
 currency, enter a budget, and add a manual expense to reach the main flows. All core behavior is
 available without Apple Intelligence, Siri, notifications, or Spotlight. Those integrations are
 independently off by default and can be enabled in Settings. Apple Intelligence is an optional

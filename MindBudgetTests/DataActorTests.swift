@@ -216,6 +216,87 @@ struct DataActorTests {
     }
 
     @Test
+    func currentBudgetUpdatePreservesIdentityBoundariesAndCategoryBudgets() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let original = BudgetPlanDraft(
+            id: UUID(),
+            cycleStart: fixedDate.addingTimeInterval(-86_400),
+            cycleEnd: fixedDate.addingTimeInterval(86_400 * 29),
+            currencyCode: "USD",
+            monthlyIncomeMinorUnits: 300_000,
+            totalBudgetMinorUnits: 200_000,
+            fixedExpensesMinorUnits: 80_000,
+            savingGoalMinorUnits: 20_000,
+            createdAt: fixedDate.addingTimeInterval(-86_400),
+            updatedAt: fixedDate.addingTimeInterval(-86_400),
+            categoryBudgets: [
+                CategoryBudgetDraft(
+                    id: UUID(),
+                    category: .food,
+                    limitMinorUnits: 40_000,
+                    warningThresholdBasisPoints: 8_000,
+                    createdAt: fixedDate.addingTimeInterval(-86_400),
+                    updatedAt: fixedDate.addingTimeInterval(-86_400)
+                )
+            ]
+        )
+        _ = try await actor.createBudgetPlan(original)
+        let timestamp = fixedDate.addingTimeInterval(60)
+
+        let updated = try await actor.updateCurrentBudgetPlan(
+            CurrentBudgetPlanUpdate(
+                id: original.id,
+                currencyCode: "USD",
+                monthlyIncomeMinorUnits: 350_000,
+                totalBudgetMinorUnits: 240_000,
+                fixedExpensesMinorUnits: 90_000,
+                savingGoalMinorUnits: 30_000,
+                referenceDate: fixedDate,
+                updatedAt: timestamp
+            )
+        )
+
+        #expect(try await actor.fetchBudgetPlanSummaries().count == 1)
+        #expect(updated.id == original.id)
+        #expect(updated.cycleStart == original.cycleStart)
+        #expect(updated.cycleEnd == original.cycleEnd)
+        #expect(updated.monthlyIncomeMinorUnits == 350_000)
+        #expect(updated.totalBudgetMinorUnits == 240_000)
+        #expect(updated.fixedExpensesMinorUnits == 90_000)
+        #expect(updated.savingGoalMinorUnits == 30_000)
+        #expect(updated.categoryBudgets.map(\.id) == original.categoryBudgets.map(\.id))
+    }
+
+    @Test
+    func historicalBudgetUpdateIsRejectedWithoutChangingStoredAmounts() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let original = makeBudgetPlan(
+            start: fixedDate.addingTimeInterval(-86_400 * 30),
+            end: fixedDate
+        )
+        _ = try await actor.createBudgetPlan(original)
+
+        await #expect(throws: DataValidationError.invalidBudgetCycle) {
+            _ = try await actor.updateCurrentBudgetPlan(
+                CurrentBudgetPlanUpdate(
+                    id: original.id,
+                    currencyCode: original.currencyCode,
+                    monthlyIncomeMinorUnits: 999_999,
+                    totalBudgetMinorUnits: 999_999,
+                    fixedExpensesMinorUnits: 0,
+                    savingGoalMinorUnits: 0,
+                    referenceDate: fixedDate,
+                    updatedAt: fixedDate
+                )
+            )
+        }
+
+        let stored = try #require(try await actor.fetchBudgetPlanSummaries().first)
+        #expect(stored.monthlyIncomeMinorUnits == original.monthlyIncomeMinorUnits)
+        #expect(stored.totalBudgetMinorUnits == original.totalBudgetMinorUnits)
+    }
+
+    @Test
     func expenseAmountBoundaryAcceptsMaximumAndRejectsOutsideRange() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let maximum = Money.maximumMinorUnits(for: "VND")

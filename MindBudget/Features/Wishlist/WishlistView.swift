@@ -19,6 +19,7 @@ final class WishlistViewModel: ObservableObject {
     }
 }
 struct WishlistView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
@@ -105,7 +106,7 @@ struct WishlistView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(Color.mbCanvas)
+        .background(theme.canvas)
         .safeAreaPadding(.bottom, 84)
         .accessibilityIdentifier("wishlist.list")
     }
@@ -130,6 +131,7 @@ private extension WishItemStatus {
 }
 
 private struct WishlistRow: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let item: WishItemSummary
     let calendar: Calendar
 
@@ -161,10 +163,10 @@ private struct WishlistRow: View {
             }
         }
         .padding(16)
-        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.mbHairline, lineWidth: 1)
+                .stroke(theme.hairline, lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
     }

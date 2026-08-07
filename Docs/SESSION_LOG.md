@@ -1586,3 +1586,328 @@ place on the connected iPhone, preserved the app container, and launched success
 
 Next suggested task: Commit and push both signed-device refinements and prerelease identity to
 PR #14 for owner review, then merge before production Archive and TestFlight upload.
+
+## 2026-08-07 — Session 40 — Add three included skins and unify the Chinese product name
+
+Goal: Replace remaining Simplified Chinese references to the English product name with `花有数`
+and add three extensible visual skins based on the owner's supplied aurora, botanical, and neon
+references without prematurely exposing paid-product UI.
+
+Files changed: shared semantic theme and background, Settings/preferences, app routing, all free
+feature surfaces, localization, unit/UI tests, Xcode project membership, changelog, submission
+notes, redesign/test/project/task/decision memory, and this session log.
+
+What was completed: Added Aurora Glow, Warm Botanical, and Neon Pulse as stable persisted
+`AppSkin` values resolved through one environment-injected semantic theme. Added a focused
+Appearance and Skins Settings destination with live previews, selection state, persistence, a
+safe corrupt-value fallback, and Delete All reset behavior. All three initial skins are included;
+no lock, price, paywall, or PRO placeholder is visible before commerce exists. Migrated the app's
+shared backgrounds, cards, controls, feature views, and custom navigation to semantic palette
+roles rather than duplicating screens. Audited the Simplified Chinese string catalogs and replaced
+all user-facing `MindBudget` references with `花有数`; English copy and technical target, bundle,
+store, Spotlight, and Swift identifiers remain unchanged. Added an unreleased TestFlight testing
+record without claiming a build number that has not yet been uploaded.
+
+What was NOT completed: No StoreKit product, entitlement, purchase, restore, paywall, or paid-skin
+behavior was implemented. No production Archive, App Store Connect upload, TestFlight assignment,
+commit, push, or PR was performed. The owner still needs to inspect all three skins on the signed
+iPhone after unlocking it; the pre-existing PR #14 remains unchanged.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build. The signed package reports version 0.9.0 (1), bundle
+identifier `com.xdgf558.MindBudget`, and Team ID `2AM5S7BM2N`.
+
+Test result: pass — 203 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. Coverage
+remains above the required gate for every selected core service. New coverage verifies skin
+defaulting, persistence, corrupt-state fallback without silent rewriting, Delete All reset, all
+three localized names, the Chinese product-name boundary, Settings reachability, and selected
+accessibility state.
+
+Static policy result: pass — floating-point money guard, release-readiness checks, bilingual
+catalog validation, app-icon validation, coverage gate, and `git diff --check` all pass.
+
+Signed-device result: installed, launch deferred by lock state — the Team `2AM5S7BM2N` package was
+installed in place on the connected iPhone without uninstalling or deleting its local container.
+The CoreDevice launch request was denied only because the phone was locked; the owner can unlock
+and open `花有数` directly.
+
+Next suggested task: Complete the owner's signed-iPhone visual and accessibility review of all
+three skins, then commit and publish this focused follow-up branch for review. Increment build 1
+only if it has already been uploaded and a replacement TestFlight binary is required.
+
+## 2026-08-07 — Session 41 — Replace palette-only skins with complete background artwork
+
+Goal: Address the owner's signed-device feedback that the three skins changed colors but did not
+include the distinctive background motifs shown in the supplied visual references.
+
+Files changed: three new portrait image sets in `Assets.xcassets`, the shared theme background and
+skin preview, Settings skin artwork tests, release-readiness policy, brand source documentation,
+TestFlight testing notes, changelog, redesign/test/project/task/decision memory, and this log.
+
+What was completed: Created three purpose-built, text-free portrait backgrounds from the owner's
+references instead of cropping or shipping the reference screenshots. Aurora Glow now includes a
+teal aurora, small stars, and layered lower waves; Warm Botanical includes warm ivory paper,
+upper-right leaves, natural shadows, and a restrained lower sprig; Neon Pulse includes an indigo
+canvas with purple/cyan grid, particles, and light trails. `AppSkin` maps exhaustively to one asset,
+the shared full-screen background renders that asset with a readability scrim, and Settings uses
+the same artwork in each preview. Documented the exact generation prompts and asset contract in
+`Docs/Brand/SkinBackgrounds.md`. Added unit and static release gates for presence, asset-catalog
+membership, opaque portrait dimensions, and exhaustive skin coverage.
+
+What was NOT completed: No StoreKit product, entitlement, purchase, restore, paywall, paid-skin
+lock, production Archive, App Store Connect upload, TestFlight assignment, commit, push, or PR was
+performed. The connected iPhone was locked when the automatic launch was attempted, so the owner
+still needs to open the installed build and complete the final visual/readability comparison.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build all compile the three new image sets successfully.
+
+Test result: pass — the full Swift Testing suite and all 9 UI tests completed with 0 failures. The
+new asset test resolves every `AppSkin` background through the app bundle and enforces an opaque
+portrait canvas of at least 800×1700 pixels. Every selected core service remains above the 85%
+coverage gate.
+
+Static policy result: pass — release readiness validates each theme image's file reference,
+dimensions, opacity, and image-set membership; floating-point money guard and `git diff --check`
+also pass.
+
+Signed-device result: installed, launch deferred by lock state — the build is signed with Team ID
+`2AM5S7BM2N` and was installed in place as `com.xdgf558.MindBudget`, preserving the existing app
+container. The launch request was denied only because the phone was locked.
+
+Next suggested task: Unlock the iPhone, open `花有数`, and compare all three skins through
+Settings > Appearance and Skins; then commit and publish this focused branch for owner review.
+
+## 2026-08-07 — Session 42 — Publish in-app 0.9.1 update notes
+
+Goal: Raise the signed-device prerelease version after the skin/brand update and make its release
+notes visible inside Settings > About.
+
+Files changed: app Debug/Release version settings, About UI, bilingual localization, Settings UI
+coverage, release-readiness validation, changelog, TestFlight/submission and release-checklist
+records, project/task/test/decision memory, and this session log.
+
+What was completed: Raised the marketing version from `0.9.0` to `0.9.1` and the build from `1` to
+`2` in both app configurations. About still reads the installed marketing version from the bundle
+and now adds a bilingual `0.9.1` update section describing the three included skins, complete
+background artwork, improved readability/previews, and unified Simplified Chinese `花有数` name.
+Added matching dated changelog and next-candidate TestFlight notes. Release readiness now rejects a
+project version/build that lacks matching changelog and submission-note sections. UI coverage opens
+About and confirms both the built version and update summary are reachable.
+
+The owner also asked why the app has no opening animation. The current app uses an iOS-generated
+static launch screen and has no post-launch brand overlay; iOS launch screens themselves cannot
+animate. No animation was added because this was a diagnostic question rather than authorization
+to introduce a startup delay. A future implementation should be a short in-app cold-launch layer
+that respects Reduce Motion and never blocks quick expense entry.
+
+What was NOT completed: No startup animation, StoreKit/PRO behavior, production Archive, App Store
+Connect upload, TestFlight assignment, commit, push, or PR was performed. The connected iPhone was
+locked when the automatic launch was attempted, so final device inspection remains manual.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build. The signed package reports `0.9.1 (2)`.
+
+Test result: pass — 204 Swift Testing tests across 16 suites and all 9 UI tests completed with 0
+failures. Core-service coverage remains above the 85% gate. The first UI run exposed only an
+overly exact assertion against the combined VoiceOver label `Version, 0.9.1`; the corrected test
+preserves the useful accessibility label and verifies that it contains the bundle version.
+
+Static policy result: pass — release readiness enforces `0.9.1 (2)` plus matching source-controlled
+release notes; localization catalog JSON, floating-point money guard, and `git diff --check` pass.
+
+Signed-device result: installed, launch deferred by lock state — Team ID `2AM5S7BM2N` signed
+`com.xdgf558.MindBudget`, and `0.9.1 (2)` was installed in place while preserving the existing app
+container. The launch request was denied only because the phone was locked.
+
+Next suggested task: Unlock the iPhone and inspect Settings > About. Decide separately whether the
+next focused change should add a brief Reduce-Motion-aware cold-launch brand animation before this
+branch is committed and published for review.
+
+## 2026-08-07 — Session 43 — Add the localized cold-launch brand transition
+
+Goal: Add the owner's requested short in-app opening animation without attempting to animate the
+system launch screen or delaying fast access to the real app.
+
+Files changed: shared theme presentation, app routing, About UI, bilingual localization, UI
+coverage, release notes/checklist, changelog, and redesign/test/project/task/decision/session
+memory.
+
+What was completed: Added a selected-skin cold-launch overlay with the existing budget-track mark,
+localized `花有数`/`MindBudget` product name, localized subtitle, and a gentle track/marker reveal
+that exits in about 0.9 seconds. It is stored in process-local SwiftUI state, so returning from the
+background does not replay it. Reduce Motion uses opacity only. The visual layer does not intercept
+touches and is hidden from production accessibility, allowing VoiceOver to reach the real prepared
+screen immediately. A Debug-only hold argument makes the otherwise sub-second final frame
+deterministically inspectable by UI tests and is forced off in Release. Settings > About, the
+0.9.1 changelog, and TestFlight notes now disclose the animation.
+
+The first focused UI run exposed SwiftUI accessibility-identifier inheritance from the overlay
+container; declaring a containing accessibility element preserved the distinct product-name and
+subtitle identifiers. A second assertion showed that hiding the real screen during a decorative
+overlay would be the wrong accessibility contract, so the production overlay became nonmodal,
+noninteractive, and accessibility-hidden instead. The focused test and complete suite then passed.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+commit, push, or PR was performed. Signed-iPhone Reduce Motion, VoiceOver, and visual timing still
+require the owner's direct observation.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build all compile. The signed package remains `0.9.1 (2)` with
+Team ID `2AM5S7BM2N` and Bundle ID `com.xdgf558.MindBudget`.
+
+Test result: pass — 204 Swift Testing tests across 16 suites and all 10 UI tests completed with 0
+failures. The new UI path verifies the held Simplified Chinese brand animation and subtitle. Every
+selected core service remains above the 85% coverage gate.
+
+Static policy result: pass — release readiness, bilingual catalog validation, floating-point money
+guard, icon/skin asset checks, JSON parsing, and `git diff --check` all pass.
+
+Signed-device result: installed and launched — the `0.9.1 (2)` package was installed in place on
+the connected iPhone without uninstalling or deleting its local container, then cold-launched
+successfully for immediate owner inspection.
+
+Next suggested task: Inspect the animation once normally and once with Settings > Accessibility >
+Motion > Reduce Motion enabled. If its timing and appearance are approved, commit and publish the
+complete skin/brand/animation branch for review before producing the Archive candidate.
+
+## 2026-08-07 — Session 44 — Keep on-device Ask output in the selected language
+
+Goal: Fix the signed-device regression where a Simplified Chinese Ask question received an English
+on-device answer and displayed literal dynamic action catalog keys.
+
+Files changed: generated-output validation, Ask response UI, Phase 7 and UI tests, bilingual
+release notes, changelog, TestFlight/release guidance, and AI/test/project/decision/task/session
+memory.
+
+What was completed: Added a deterministic writing-system check to `AdviceSafetyValidator` for all
+three generated-output paths. Simplified Chinese proposals must contain Han text; English proposals
+must contain Latin text without Han text. A mismatch now uses the existing
+`modelValidatedFallback` path and returns the already-built localized template, so model language
+drift cannot create a mixed-language answer. Dynamic Ask action identifiers now resolve through
+`LocalizedCatalog` with the active SwiftUI locale instead of interpolation into a
+`LocalizedStringKey`, eliminating visible keys such as `ask.action.reviewRecentSpending`. Added a
+Chinese validator test, a composite-generator English-to-Chinese fallback test, and an end-to-end
+Simplified Chinese UI test that verifies the localized title and both rendered action names.
+Settings > About and the 0.9.1 tester notes now disclose the fix.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+commit, push, or PR was performed. The marketing/build version remains `0.9.1 (2)` because this is
+the same not-yet-uploaded internal candidate.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing both compile.
+
+Test result: pass — 206 Swift Testing tests across 16 suites and all 11 UI tests completed with 0
+failures. The focused Phase 7 suite passed 21 tests, and the focused Chinese Ask UI flow also
+passed independently.
+
+Static and coverage result: pass — floating-point money, release readiness, localization catalog,
+asset, and diff checks pass. Every selected core service remains above 85%; specifically,
+`AdviceSafetyValidator.swift` reached 95.65% line coverage.
+
+Signed-device result: pass — team `2AM5S7BM2N` signed bundle `com.xdgf558.MindBudget` version
+`0.9.1 (2)` was installed in place on the connected iPhone without uninstalling or clearing local
+data, and the app launched successfully.
+
+Next suggested task: On the connected iPhone, repeat the same Simplified Chinese question with
+on-device enhancement enabled and confirm either safe Chinese model wording or the complete Chinese
+template appears, with localized actions in both cases.
+
+## 2026-08-07 — Session 45 — Restore editable current-budget settings
+
+Goal: Fix the regression where Settings > Budget exposed only read-only currency and cycle-start
+information, leaving an already configured user unable to revise the current budget amounts.
+
+Files changed: budget transfer objects and actor writes, the shared budget input builder, Settings
+budget UI, bilingual localization, DataActor and UI tests, release notes/checklists, and durable
+project, design, decision, test, task, changelog, and session memory.
+
+What was completed: Added an amount-only `CurrentBudgetPlanUpdate` write path that updates the
+current plan atomically while preserving its identity, half-open cycle boundaries, accounting
+currency, and category-budget identities. The actor revalidates that the referenced plan still
+covers an explicitly supplied reference date at commit time, so a page left open across a cycle
+boundary fails closed instead of mutating history. Settings > Budget now loads current coverage
+without generating plans, displays the locked accounting currency and current cycle, provides
+localized exact-minor-unit fields for monthly income, spending budget, fixed expenses, and savings
+goal, and uses the single Save Budget action to clear focus, validate the complete draft, persist
+the amounts, then apply the chosen future cycle-start day. It shows localized loading, retry,
+success, and typed failure states. The About release notes and 0.9.1 tester guidance disclose the
+restored editing flow.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+commit, push, or PR was performed. Accounting currency and historical plan boundaries remain
+intentionally immutable; changing them still requires the documented export/delete/re-onboard or
+future-cycle transition flows. The marketing/build version remains `0.9.1 (2)` because this is the
+same not-yet-uploaded internal candidate.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and the current-team signed iPhone Debug build all compile.
+
+Test result: pass — 208 Swift Testing tests across 16 suites and all 11 UI tests completed with 0
+failures. New actor coverage verifies amount changes preserve plan/category identity and rejects a
+historical half-open interval atomically. The Settings UI smoke test edits the spending budget,
+uses the sole Save Budget action, and observes the saved confirmation.
+
+Static and coverage result: pass — floating-point money, release readiness, localization catalog,
+asset, JSON, and diff checks pass. Every selected core service remains above the 85% coverage gate.
+
+Signed-device result: installed and launched — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.1 (2)` was installed in place on the connected iPhone without
+uninstalling or clearing its local container, then launched successfully.
+
+Next suggested task: On the connected iPhone, open Settings > Budget, revise one amount, tap Save
+Budget, and confirm Today reflects the new value while the accounting currency and current cycle
+boundaries remain unchanged.
+
+## 2026-08-07 — Session 46 — Rebalance Today's amount and add optional Face ID protection
+
+Goal: Make Today show the concrete amount currently available for the day after a budget is saved,
+and add an optional local Face ID app lock without introducing an account or storing biometric data.
+
+Files changed: BudgetEngine and its tests, app environment/router/settings state, Privacy settings,
+localized Info.plist and app copy, release-readiness checks, UI and settings tests, release notes, and
+durable project/privacy/decision/test/task/changelog/session memory.
+
+What was completed: `BudgetEngine.pace` now presents the engine's deterministic
+`safeDailySpend` value as “Today you can spend”. That value is calculated from the remaining
+flexible budget after fixed expenses and the savings goal, divided conservatively across the
+remaining calendar days, and is rebalanced after saved expenses. It no longer subtracts today's
+expenses a second time. A product-owner example is executable: a CNY 6,000 budget with CNY 3,000
+fixed expenses and a CNY 500 savings goal on day 7 of a 31-day cycle leaves CNY 2,500 flexible and
+shows CNY 100.00 for each of the 25 remaining days. Ask's remaining-budget template also exposes
+the deterministic allocation breakdown instead of presenting an unexplained zero.
+
+Added an optional, default-off local app lock. Enabling or disabling it requires local owner
+authentication; Face ID is required to offer the setting, authentication uses the system device
+owner policy so the device passcode remains a recovery path, and the app never receives or stores
+face data. When protection is enabled, inactive/background transitions lock the app, and an opaque
+lock surface covers all budget content until authentication succeeds. The app target now contains
+a bilingual Face ID purpose string, Privacy settings exposes the control and typed states, deletion
+resets the preference, and release notes mention both the daily rebalance and Face ID protection.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+commit, push, or PR was performed. Face ID behavior, app-switcher privacy, cancellation, passcode
+recovery, and re-entry still require the documented signed-iPhone owner walkthrough because the
+simulator cannot establish the production biometric trust flow. The marketing/build version
+remains `0.9.1 (2)` because this is the same not-yet-uploaded internal candidate.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and the current-team signed physical-iPhone Debug build all compile.
+
+Test result: pass — 216 Swift Testing tests across 16 suites and all 11 UI tests completed with 0
+failures. Focused BudgetEngine and SettingsStore coverage passed 29 tests, including the exact CNY
+6,000 / 3,000 / 500 allocation, settings persistence/reset, unavailable Face ID, and failed
+authentication remaining locked.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual Face ID
+purpose strings, localization catalogs, assets, JSON parsing, and diff checks pass. All selected
+core services remain above the 85% coverage gate.
+
+Signed-device result: installed and launched — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.1 (2)` was installed in place on the connected physical
+iPhone without uninstalling or clearing its local container, then launched successfully.
+
+Next suggested task: On the connected iPhone, confirm the Today amount against the saved budget,
+then enable Settings > Privacy > Require Face ID and manually test background locking,
+cancellation, Face ID unlock, passcode recovery, and the app-switcher snapshot.

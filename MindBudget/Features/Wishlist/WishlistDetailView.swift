@@ -168,6 +168,7 @@ struct WishlistDetailView: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.mindBudgetTheme) private var theme
     @StateObject private var viewModel = WishlistDetailViewModel()
     @State private var presentsEdit = false
     @State private var presentsCoolingOff = false
@@ -376,7 +377,7 @@ struct WishlistDetailView: View {
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
-        .background(Color.mbCanvas)
+        .background(theme.canvas)
         .disabled(viewModel.isWorking)
     }
 

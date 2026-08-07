@@ -50,6 +50,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage var enableSiriIntegration: Bool
     @AppStorage var enableSpotlightIndexing: Bool
     @AppStorage var enableAskMindBudget: Bool
+    @AppStorage var requireFaceID: Bool
     @AppStorage var reminderToneRaw: String
     @AppStorage var quietHoursStartHour: Int
     @AppStorage var quietHoursEndHour: Int
@@ -58,6 +59,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage var indexMerchantNames: Bool
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
+    @AppStorage var appSkinRaw: String
     @AppStorage private(set) var categoryBucketOverridesJSON: Data
     @AppStorage var ruleConfigurationJSON: Data {
         didSet { reloadRuleConfiguration() }
@@ -77,6 +79,7 @@ final class SettingsStore: ObservableObject {
         _enableSiriIntegration = AppStorage(wrappedValue: false, "enableSiriIntegration", store: defaults)
         _enableSpotlightIndexing = AppStorage(wrappedValue: false, "enableSpotlightIndexing", store: defaults)
         _enableAskMindBudget = AppStorage(wrappedValue: true, "enableAskMindBudget", store: defaults)
+        _requireFaceID = AppStorage(wrappedValue: false, "requireFaceID", store: defaults)
         _reminderToneRaw = AppStorage(wrappedValue: ReminderTone.soft.rawValue, "reminderToneRaw", store: defaults)
         _quietHoursStartHour = AppStorage(wrappedValue: 21, "quietHoursStartHour", store: defaults)
         _quietHoursEndHour = AppStorage(wrappedValue: 9, "quietHoursEndHour", store: defaults)
@@ -85,6 +88,11 @@ final class SettingsStore: ObservableObject {
         _indexMerchantNames = AppStorage(wrappedValue: false, "indexMerchantNames", store: defaults)
         _firstLaunchCompleted = AppStorage(wrappedValue: false, "firstLaunchCompleted", store: defaults)
         _budgetCycleStartDay = AppStorage(wrappedValue: 1, "budgetCycleStartDay", store: defaults)
+        _appSkinRaw = AppStorage(
+            wrappedValue: AppSkin.defaultSkin.rawValue,
+            "appSkinRaw",
+            store: defaults
+        )
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)
         _ruleConfigurationJSON = AppStorage(wrappedValue: Data(), "ruleConfigurationJSON", store: defaults)
         configurationDiagnostic = nil
@@ -98,6 +106,10 @@ final class SettingsStore: ObservableObject {
 
     var reminderTone: ReminderTone {
         ReminderTone(rawValue: reminderToneRaw) ?? .soft
+    }
+
+    var appSkin: AppSkin {
+        AppSkin(rawValue: appSkinRaw) ?? .defaultSkin
     }
 
     var preferencesSnapshot: PreferencesSnapshot {
@@ -222,6 +234,7 @@ final class SettingsStore: ObservableObject {
         enableSiriIntegration = false
         enableSpotlightIndexing = false
         enableAskMindBudget = true
+        requireFaceID = false
         reminderToneRaw = ReminderTone.soft.rawValue
         quietHoursStartHour = 21
         quietHoursEndHour = 9
@@ -229,6 +242,7 @@ final class SettingsStore: ObservableObject {
         maxDailyInterruptions = 2
         indexMerchantNames = false
         budgetCycleStartDay = 1
+        appSkinRaw = AppSkin.defaultSkin.rawValue
         categoryBucketOverridesJSON = Data()
         ruleConfigurationJSON = Data()
         reloadBucketOverrides()

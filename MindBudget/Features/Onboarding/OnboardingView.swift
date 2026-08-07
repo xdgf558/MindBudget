@@ -12,6 +12,13 @@ enum BudgetSetupError: Error, Equatable, Sendable {
 struct BudgetPlanDraftBuilder: Sendable {
     private let parser = MoneyInputParser()
 
+    private struct ParsedAmounts {
+        let income: Money
+        let totalBudget: Money
+        let fixedExpenses: Money
+        let savingGoal: Money
+    }
+
     func makeDraft(
         currencyCode: String,
         cycle: DateInterval,
@@ -22,6 +29,69 @@ struct BudgetPlanDraftBuilder: Sendable {
         locale: Locale,
         timestamp: Date
     ) throws -> BudgetPlanDraft {
+        let amounts = try parsedAmounts(
+            currencyCode: currencyCode,
+            monthlyIncomeText: monthlyIncomeText,
+            totalBudgetText: totalBudgetText,
+            fixedExpensesText: fixedExpensesText,
+            savingGoalText: savingGoalText,
+            locale: locale
+        )
+
+        return BudgetPlanDraft(
+            id: UUID(),
+            cycleStart: cycle.start,
+            cycleEnd: cycle.end,
+            currencyCode: currencyCode,
+            monthlyIncomeMinorUnits: amounts.income.minorUnits,
+            totalBudgetMinorUnits: amounts.totalBudget.minorUnits,
+            fixedExpensesMinorUnits: amounts.fixedExpenses.minorUnits,
+            savingGoalMinorUnits: amounts.savingGoal.minorUnits,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            categoryBudgets: []
+        )
+    }
+
+    func makeCurrentUpdate(
+        planID: UUID,
+        currencyCode: String,
+        monthlyIncomeText: String,
+        totalBudgetText: String,
+        fixedExpensesText: String,
+        savingGoalText: String,
+        locale: Locale,
+        referenceDate: Date,
+        timestamp: Date
+    ) throws -> CurrentBudgetPlanUpdate {
+        let amounts = try parsedAmounts(
+            currencyCode: currencyCode,
+            monthlyIncomeText: monthlyIncomeText,
+            totalBudgetText: totalBudgetText,
+            fixedExpensesText: fixedExpensesText,
+            savingGoalText: savingGoalText,
+            locale: locale
+        )
+        return CurrentBudgetPlanUpdate(
+            id: planID,
+            currencyCode: currencyCode,
+            monthlyIncomeMinorUnits: amounts.income.minorUnits,
+            totalBudgetMinorUnits: amounts.totalBudget.minorUnits,
+            fixedExpensesMinorUnits: amounts.fixedExpenses.minorUnits,
+            savingGoalMinorUnits: amounts.savingGoal.minorUnits,
+            referenceDate: referenceDate,
+            updatedAt: timestamp
+        )
+    }
+
+    private func parsedAmounts(
+        currencyCode: String,
+        monthlyIncomeText: String,
+        totalBudgetText: String,
+        fixedExpensesText: String,
+        savingGoalText: String,
+        locale: Locale
+    ) throws -> ParsedAmounts {
         let income: Money
         let totalBudget: Money
         let fixedExpenses: Money
@@ -67,18 +137,11 @@ struct BudgetPlanDraftBuilder: Sendable {
             throw BudgetSetupError.invalidSavingGoal(error)
         }
 
-        return BudgetPlanDraft(
-            id: UUID(),
-            cycleStart: cycle.start,
-            cycleEnd: cycle.end,
-            currencyCode: currencyCode,
-            monthlyIncomeMinorUnits: income.minorUnits,
-            totalBudgetMinorUnits: totalBudget.minorUnits,
-            fixedExpensesMinorUnits: fixedExpenses.minorUnits,
-            savingGoalMinorUnits: savingGoal.minorUnits,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-            categoryBudgets: []
+        return ParsedAmounts(
+            income: income,
+            totalBudget: totalBudget,
+            fixedExpenses: fixedExpenses,
+            savingGoal: savingGoal
         )
     }
 }
@@ -147,6 +210,7 @@ final class BudgetSetupViewModel: ObservableObject {
 }
 
 struct OnboardingView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let dataActor: DataActor
     let didComplete: () -> Void
 
@@ -163,16 +227,16 @@ struct OnboardingView: View {
                     .font(.system(size: 38, weight: .semibold))
                     .foregroundStyle(Color.white)
                     .frame(width: 76, height: 76)
-                    .background(Color.mbAccent, in: RoundedRectangle(cornerRadius: 22))
-                    .shadow(color: Color.mbAccent.opacity(0.24), radius: 10, y: 6)
+                    .background(theme.accentGradient, in: RoundedRectangle(cornerRadius: 22))
+                    .shadow(color: theme.accent.opacity(0.24), radius: 10, y: 6)
                     .accessibilityHidden(true)
                 Text("onboarding.title")
                     .font(.system(size: 38, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.mbInk)
+                    .foregroundStyle(theme.ink)
                     .accessibilityIdentifier("onboarding.title")
                 Text("onboarding.message")
                     .font(.title3)
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
                 VStack(alignment: .leading, spacing: 10) {
                     OnboardingBenefit(symbol: "square.and.pencil", key: "onboarding.benefit.record")
                     OnboardingBenefit(symbol: "gauge.with.dots.needle.50percent", key: "onboarding.benefit.understand")
@@ -186,7 +250,7 @@ struct OnboardingView: View {
                 .accessibilityIdentifier("onboarding.continue")
             }
             .padding(24)
-            .background(Color.mbCanvas.ignoresSafeArea())
+            .background(MindBudgetThemeBackground())
             .navigationDestination(isPresented: $showsBudgetSetup) {
                 BudgetSetupView(
                     dataActor: dataActor,
@@ -216,6 +280,7 @@ struct OnboardingView: View {
 }
 
 private struct OnboardingBenefit: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let symbol: String
     let key: LocalizedStringKey
 
@@ -223,10 +288,10 @@ private struct OnboardingBenefit: View {
         Label(key, systemImage: symbol)
             .font(.body.weight(.medium))
             .symbolRenderingMode(.hierarchical)
-            .foregroundStyle(Color.mbInk)
+            .foregroundStyle(theme.ink)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 16))
+            .background(theme.surface, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -305,6 +370,25 @@ struct BudgetSetupView: View {
                     field: .saving,
                     identifier: "budget.savingGoal"
                 )
+
+                if let allocationPreview {
+                    Divider()
+                    LabeledContent("settings.budget.flexiblePreview") {
+                        MoneyText(
+                            money: allocationPreview.flexibleBudget,
+                            weight: .semibold
+                        )
+                    }
+                    .accessibilityIdentifier("budget.flexiblePreview")
+
+                    if let warningKey = allocationWarningKey(allocationPreview.status) {
+                        Label(warningKey, systemImage: "info.circle")
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("budget.allocationWarning")
+                    }
+                }
             }
 
             if let error = viewModel.error {
@@ -378,6 +462,48 @@ struct BudgetSetupView: View {
         case .invalidFixedExpenses: "budget.error.fixed"
         case .invalidSavingGoal: "budget.error.saving"
         case .persistence: "error.data.save"
+        }
+    }
+
+    private var allocationPreview: BudgetAllocationSummary? {
+        let parser = MoneyInputParser()
+        guard let totalBudget = try? parser.money(
+            from: viewModel.totalBudgetText,
+            currencyCode: viewModel.currencyCode,
+            locale: locale,
+            allowsZero: true
+        ), let fixedExpenses = try? parser.money(
+            from: viewModel.fixedExpensesText,
+            currencyCode: viewModel.currencyCode,
+            locale: locale,
+            allowsZero: true
+        ), let savingGoal = try? parser.money(
+            from: viewModel.savingGoalText,
+            currencyCode: viewModel.currencyCode,
+            locale: locale,
+            allowsZero: true
+        ) else {
+            return nil
+        }
+        return try? BudgetEngine().allocation(
+            totalBudget: totalBudget,
+            fixedForecast: fixedExpenses,
+            savingGoal: savingGoal
+        )
+    }
+
+    private func allocationWarningKey(
+        _ status: BudgetAllocationSummary.Status
+    ) -> LocalizedStringKey? {
+        switch status {
+        case .available:
+            nil
+        case .zeroBudget:
+            "settings.budget.allocation.zeroBudget"
+        case .fullyAllocated:
+            "settings.budget.allocation.fullyAllocated"
+        case .overcommitted:
+            "settings.budget.allocation.overcommitted"
         }
     }
 

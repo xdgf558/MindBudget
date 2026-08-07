@@ -125,12 +125,16 @@ Use `@Generable` constrained types, not free-form JSON. Every generated response
 has `title`, `body`, and `actions`; purchase advice additionally has `severity`.
 Titles are at most 24 characters, bodies at most 120 characters, and every action
 identifier must come from the supplied allow-list.
+For the shipped English and Simplified Chinese interfaces, output language is also validated
+against `localeIdentifier`. A mismatched proposal is rejected and replaced with the already-built
+deterministic template in the requested interface language.
 
 ## Testing contract
 
 Automated tests use configurable mock generators, never the real model. Timeout,
 guardrail, validation, and availability failures must return template output.
 Malicious samples containing invented numbers, banned phrases, invalid actions,
-or missing continue options must fail validation. Tests must prove raw Ask text,
+missing continue options, or output in the wrong interface language must fail validation.
+Tests must prove raw Ask text,
 notes, merchant lists, transaction rows, and raw cooling-off timestamps never reach a model
 context.

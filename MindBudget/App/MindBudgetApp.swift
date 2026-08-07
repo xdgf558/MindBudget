@@ -36,7 +36,9 @@ struct MindBudgetApp: App {
                     notificationScheduler: environment.notificationScheduler,
                     searchIndexCleaner: environment.searchIndexCleaner,
                     spotlightIndexer: environment.spotlightIndexer,
-                    navigationStore: environment.intentService.navigationStore
+                    navigationStore: environment.intentService.navigationStore,
+                    appLockAuthenticator: environment.appLockAuthenticator,
+                    appLockInitiallyEnabled: environment.settingsStore.requireFaceID
                 )
                     .modelContainer(environment.dataController.container)
                     .environmentObject(environment.settingsStore)

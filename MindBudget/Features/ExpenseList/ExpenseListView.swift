@@ -79,6 +79,7 @@ final class ExpenseListViewModel: ObservableObject {
 }
 
 struct ExpenseListView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     @ObservedObject var session: AppSession
     @Environment(\.calendar) private var calendar
     @StateObject private var viewModel = ExpenseListViewModel()
@@ -132,14 +133,14 @@ struct ExpenseListView: View {
                         } header: {
                             Text(group.day, format: .dateTime.weekday(.wide).month(.abbreviated).day())
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(Color.mbInkSecondary)
+                                .foregroundStyle(theme.inkSecondary)
                                 .textCase(nil)
                         }
                     }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-                .background(Color.mbCanvas)
+                .background(theme.canvas)
                 .safeAreaPadding(.bottom, 84)
             }
         }
@@ -189,6 +190,7 @@ private struct ExpenseDayGroup: Identifiable {
 }
 
 private struct ExpenseRow: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let expense: ExpenseSummary
 
     var body: some View {
@@ -210,10 +212,10 @@ private struct ExpenseRow: View {
             MoneyText(money: expense.amount, weight: .semibold)
         }
         .padding(14)
-        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.mbHairline, lineWidth: 1)
+                .stroke(theme.hairline, lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
     }

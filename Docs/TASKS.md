@@ -105,6 +105,11 @@ Status: Done
   separate center add action fully inside its hit-test layout.
 - Declare the five-element VoiceOver order as Today, Log, Add Expense, Insights, Wishlist, and
   derive tab positions/totals from the exhaustive `AppTab` order rather than numeric literals.
+- Add three included, persisted skins from the owner's visual references through one semantic
+  theme environment and distinct source-controlled background artwork; keep future entitlement
+  metadata out of the UI until commerce exists.
+- Use `花有数` throughout Simplified Chinese user-facing copy while preserving `MindBudget` for
+  English and all established technical identifiers.
 
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
 Status: In Progress
@@ -114,12 +119,24 @@ Status: In Progress
 - [x] Add bilingual catalog parity/format checks, an AX5 navigation smoke test, an always-on
   deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
   release-machine first-load signal with a 500 ms ceiling.
-- [x] Add opaque 1024px standard, dark, and tinted App Icon variants, TestFlight version 0.9.0/build 1
-  configuration, static release checks, per-file core-service coverage enforcement, App Store
-  metadata drafts, and a release checklist.
+- [x] Add opaque 1024px standard, dark, and tinted App Icon variants, current TestFlight candidate
+  version 0.9.1/build 2 configuration, localized in-app release notes, static release checks,
+  per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
 - [x] Localize the release display name to `花有数` for Simplified Chinese and `MindBudget` for
   English, without combining them, and use `温和的预算与消费复盘工具` as the Simplified Chinese
   App Store subtitle.
+- [x] Add a sub-second, localized cold-launch brand transition that uses the selected skin, runs
+  only once per process, and falls back to opacity-only presentation under Reduce Motion.
+- [x] Reject on-device wording proposals that do not match the English/Simplified Chinese
+  interface language, fall back to the matching deterministic template, and resolve dynamic Ask
+  action labels explicitly through the active locale.
+- [x] Restore current-period budget editing in the focused Settings page through an atomic
+  amount-only update that preserves plan identity, boundaries, currency, and category budgets.
+- [x] Rebalance the Today amount from the authoritative remaining flexible budget, explain budget
+  reservations in Settings and Ask, and keep older in-app update notes collapsed as history.
+- [x] Add an optional, default-off Face ID app lock under Privacy controls, with authenticated
+  enable/disable, launch and foreground locking, a passcode recovery path, and an opaque privacy
+  cover while locked.
 - [x] Complete the full automated validation after the Phase 10 diff is final, including a
   generic iOS Simulator Release build and the complete unit/UI/coverage suite.
 - [ ] Complete signed physical-iPhone VoiceOver, AX5, dark-mode, iOS 17/iOS 26, Instruments,

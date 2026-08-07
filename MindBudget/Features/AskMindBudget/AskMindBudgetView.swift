@@ -73,6 +73,7 @@ final class AskMindBudgetViewModel: ObservableObject {
 }
 
 struct AskMindBudgetView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let snapshot: ConfiguredBudgetSnapshot
     let expenses: [ExpenseSummary]
     let wishItems: [WishItemSummary]
@@ -89,12 +90,12 @@ struct AskMindBudgetView: View {
                 VStack(spacing: 10) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 28, weight: .semibold))
-                        .foregroundStyle(Color.mbAccent)
+                        .foregroundStyle(theme.accent)
                         .frame(width: 64, height: 64)
-                        .background(Color.mbAccentSoft, in: Circle())
+                        .background(theme.accentSoft, in: Circle())
                     Text("ask.question.section")
                         .font(.title2.bold())
-                        .foregroundStyle(Color.mbInk)
+                        .foregroundStyle(theme.ink)
                 }
                 .frame(maxWidth: .infinity)
 
@@ -133,7 +134,7 @@ struct AskMindBudgetView: View {
                     }
                     Text("ask.purchase.clarification")
                         .font(.footnote)
-                        .foregroundStyle(Color.mbInkSecondary)
+                        .foregroundStyle(theme.inkSecondary)
                     }
                     .budgetCard(cornerRadius: 20, contentPadding: 18)
                 }
@@ -159,7 +160,7 @@ struct AskMindBudgetView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("ask.answer.section")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(Color.mbInkSecondary)
+                            .foregroundStyle(theme.inkSecondary)
                         HStack {
                             Text(response.answer.title).font(.headline)
                             Spacer()
@@ -167,15 +168,25 @@ struct AskMindBudgetView: View {
                                 Label("ask.answer.enhanced", systemImage: "apple.intelligence")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                            } else {
+                                Label("ask.answer.template", systemImage: "function")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         Text(response.answer.body)
                             .textSelection(.enabled)
                         ForEach(response.answer.actionIdentifiers, id: \.self) { action in
-                            Label(
-                                LocalizedStringKey("ask.action.\(action)"),
-                                systemImage: "arrow.right.circle"
-                            )
+                            Label {
+                                Text(
+                                    LocalizedCatalog.string(
+                                        "ask.action.\(action)",
+                                        locale: locale
+                                    )
+                                )
+                            } icon: {
+                                Image(systemName: "arrow.right.circle")
+                            }
                             .font(.subheadline)
                         }
                     }
@@ -185,7 +196,7 @@ struct AskMindBudgetView: View {
 
                 Label("ask.privacy", systemImage: "lock.shield")
                     .font(.footnote)
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 32)
@@ -206,7 +217,7 @@ struct AskMindBudgetView: View {
         }
         .font(.caption.weight(.medium))
         .buttonStyle(.bordered)
-        .tint(Color.mbAccent)
+        .tint(theme.accent)
     }
 
     private func submit() async {

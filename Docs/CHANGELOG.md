@@ -6,7 +6,48 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-_No changes after the 0.9.0 (1) TestFlight candidate yet._
+No additional user-visible changes are staged beyond the `0.9.1 (2)` candidate below.
+
+## 0.9.1 (2) — 2026-08-07 — Internal TestFlight candidate
+
+### Added
+
+- Three included, persistent visual skins—Aurora Glow, Warm Botanical, and Neon Pulse—with a
+  dedicated Appearance and Skins settings page and shared semantic theme tokens across the app.
+- Distinct full-screen artwork for every included skin: Aurora Glow now carries an aurora, stars,
+  and glass-like waves; Warm Botanical carries paper texture, foliage, and natural shadows; Neon
+  Pulse carries purple/cyan light trails, a fading grid, and particles.
+- A localized in-app release-note section under Settings > About, tied to the installed marketing
+  version rather than hardcoded display copy.
+- A brief localized cold-launch brand animation using the selected skin, with a fade-only path
+  when Reduce Motion is enabled.
+- An optional Face ID app lock under Privacy controls. Enabling or disabling it requires owner
+  authentication; once enabled, launch and background return are protected and failed or
+  cancelled authentication never reveals financial content.
+
+### Changed
+
+- Simplified Chinese user-facing copy now consistently names the product `花有数`; English keeps
+  the release name `MindBudget`, while technical identifiers and storage paths remain unchanged.
+- The next internal candidate now identifies itself as version `0.9.1`, build `2`; public release
+  version `1.0.0` remains reserved.
+
+### Fixed
+
+- Kept Ask answers in the selected English or Simplified Chinese interface language by rejecting
+  mismatched on-device wording and using the complete localized template, and replaced visible
+  raw action keys with their localized names.
+- Restored editable current-period budget amounts in Settings. Saving now updates the existing
+  cycle atomically without creating an overlapping plan, while currency stays locked and a new
+  cycle start day applies only after the current period.
+- Rebalanced the Today amount after every entry from the remaining flexible budget and remaining
+  calendar days, instead of subtracting today's entries a second time. Budget settings now show
+  the exact flexible allocation and explain zero, fully allocated, or overcommitted plans.
+- Expanded the remaining-budget Ask template with total remaining, pending fixed/savings
+  reservations, and currently available money, and made the UI label template versus on-device
+  enhanced answers explicitly.
+- Kept only the installed version's update notes expanded in About; older version notes now move
+  automatically into a collapsed history section.
 
 ## 0.9.0 (1) — 2026-08-07 — TestFlight candidate
 

@@ -47,6 +47,59 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func remainingBudgetTemplateExplainsTotalReservationsAndCurrentlyAvailableAmount() async {
+        let response = await service(model: MockAI(mode: .safe)).answer(
+            request(question: "How much is left?", enhancementEnabled: false)
+        )
+        let formatter = CurrencyFormatterService()
+        let locale = Locale(identifier: "en_US")
+
+        #expect(response.source == .modelUnavailableFallback)
+        #expect(response.answer.body.contains(
+            formatter.string(from: snapshot().remainingTotal, locale: locale)
+        ))
+        #expect(response.answer.body.contains(
+            formatter.string(from: snapshot().pendingFixed, locale: locale)
+        ))
+        #expect(response.answer.body.contains(
+            formatter.string(from: snapshot().pendingSaving, locale: locale)
+        ))
+        #expect(response.answer.body.contains(
+            formatter.string(from: snapshot().availableRightNow, locale: locale)
+        ))
+    }
+
+    @Test
+    func overdrawnRemainingBudgetTemplateUsesAPositiveOverageExplanation() {
+        let locale = Locale(identifier: "en_US")
+        let context = PrivacyRedactor().redactAsk(
+            AskAggregateInput(
+                locale: locale,
+                currencyCode: "USD",
+                facts: .remainingBudget(
+                    remainingFree: Money(minorUnits: -26_800, currencyCode: "USD"),
+                    safeDailySpend: Money(minorUnits: 0, currencyCode: "USD"),
+                    daysRemaining: 25
+                ),
+                budgetBreakdown: AskBudgetBreakdown(
+                    remainingTotal: Money(minorUnits: 573_200, currencyCode: "USD"),
+                    availableRightNow: Money(minorUnits: -26_800, currencyCode: "USD"),
+                    pendingFixed: Money(minorUnits: 300_000, currencyCode: "USD"),
+                    pendingSaving: Money(minorUnits: 50_000, currencyCode: "USD")
+                ),
+                relevantInsights: [],
+                allowedActions: [.reviewRecentSpending, .adjustBudget],
+                tone: .soft
+            )
+        )
+        let body = context.templateBody(locale: locale)
+
+        #expect(body.contains("over by"))
+        #expect(body.contains("-$268.00") == false)
+        #expect(body.contains("$268.00"))
+    }
+
+    @Test
     func rawQuestionNeverEntersTheModelContext() async throws {
         let recorder = AIContextRecorder()
         let sensitiveQuestion = "Can I afford SECRET-RAW-QUESTION?"
@@ -120,6 +173,30 @@ struct Phase7FeatureTests {
         #expect(throws: AdviceSafetyViolation.unknownAction) {
             try AdviceSafetyValidator().validate(answer: unknownAction, context: context)
         }
+    }
+
+    @Test
+    func validatorRejectsModelOutputOutsideTheRequestedInterfaceLanguage() throws {
+        let context = askContext(
+            facts: .alternative,
+            locale: Locale(identifier: "zh_CN"),
+            actions: []
+        )
+        let english = GeneratedAnswer(
+            title: "A few alternatives",
+            body: "Review the choices already recorded.",
+            actionIdentifiers: []
+        )
+        let chinese = GeneratedAnswer(
+            title: "几个替代选择",
+            body: "可以回看已记录的选择。",
+            actionIdentifiers: []
+        )
+
+        #expect(throws: AdviceSafetyViolation.unexpectedLanguage) {
+            try AdviceSafetyValidator().validate(answer: english, context: context)
+        }
+        try AdviceSafetyValidator().validate(answer: chinese, context: context)
     }
 
     @Test
@@ -218,6 +295,35 @@ struct Phase7FeatureTests {
         #expect(!unsafe.answer.body.isEmpty)
         #expect(!failed.answer.body.isEmpty)
         #expect(!timedOut.answer.body.isEmpty)
+    }
+
+    @Test
+    func chineseAskFallsBackToChineseTemplateWhenModelAnswersInEnglish() async throws {
+        let locale = Locale(identifier: "zh_CN")
+        let context = askContext(
+            locale: locale,
+            actions: [.reviewRecentSpending, .adjustBudget]
+        )
+        let available = AIEnhancementCapability(
+            userEnabled: true,
+            runtimeAvailability: { .available }
+        )
+
+        let response = await CompositeAdviceGenerator(
+            model: MockAI(mode: .safe),
+            capability: available
+        ).answer(intent: .remainingBudget, context: context, locale: locale)
+
+        #expect(response.source == .modelValidatedFallback)
+        #expect(response.answer.title == "剩余预算")
+        #expect(response.answer.body.contains("灵活预算还剩"))
+        let firstAction = try #require(response.answer.actionIdentifiers.first)
+        #expect(
+            LocalizedCatalog.string(
+                "ask.action.\(firstAction)",
+                locale: locale
+            ) == "回看近期消费"
+        )
     }
 
     @Test
@@ -739,11 +845,12 @@ struct Phase7FeatureTests {
             safeDailySpend: Money(minorUnits: 10_000, currencyCode: "USD"),
             daysRemaining: 11
         ),
+        locale: Locale = Locale(identifier: "en_US"),
         actions: [SuggestedAction]
     ) -> RedactedAskContext {
         PrivacyRedactor().redactAsk(
             AskAggregateInput(
-                locale: Locale(identifier: "en_US"),
+                locale: locale,
                 currencyCode: "USD",
                 facts: facts,
                 relevantInsights: [],

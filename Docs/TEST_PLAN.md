@@ -152,6 +152,11 @@ suggested entities.
 20. Before Archive, select and verify the owner's latest China-region Apple Developer team,
     final Bundle ID, distribution identity, agreements, and intended App Store Connect app.
 
+21. Enable on-device enhancement in Simplified Chinese, ask for the remaining budget, and confirm
+    the title, body, and action labels stay Chinese even if a model proposal drifts to English.
+22. Open Settings > Budget, edit and save the current period amounts, and confirm the Dashboard
+    refreshes without changing the cycle boundaries or creating a second overlapping plan.
+
 ## Coverage gates and stretch targets
 
 The executable release gate is at least 85% line coverage for every deterministic core file
@@ -188,7 +193,9 @@ cross-midnight quiet hours, privacy-sensitive setting defaults, validated config
 fallback, four deterministic sample scenarios, durable store reopening, atomic sample
 replacement rollback, SwiftData cascade deletion, weak expense-link cleanup, merchant
 aggregate maintenance, persisted currency/enum corruption errors, and reminder-event
-scope/risk/response projections. Each `DataController` owns one `DataActor`; app test
+scope/risk/response projections. Current-budget update coverage proves that only the plan
+containing the supplied reference date can change and that identity, half-open boundaries,
+currency, category budgets, and the single-row count remain intact. Each `DataController` owns one `DataActor`; app test
 assertions receive only Sendable value projections.
 
 ## Phase 2 acceptance
@@ -302,8 +309,11 @@ per-intent payload containing only typed money, counts, booleans, and category v
 template prose and arbitrary insight strings cannot enter the redactor. Safety tests reject
 fabricated numbers, unknown/duplicate/invalid action sets, missing Continue Purchase,
 oversized copy, shame, diagnosis, financial advice, and purchase prohibitions while accepting
-localized forms of allowed numbers. Capability tests prove user-disabled and build-disabled
-states fail closed before runtime access. Generator failure, validation rejection, and timeout
+localized forms of allowed numbers. English output requested for a Simplified Chinese context
+must fail validation and return the complete Chinese template; rendered dynamic Ask actions must
+show their localized labels rather than catalog keys. Capability tests prove user-disabled and
+build-disabled states fail closed before runtime access. Generator failure, validation rejection,
+and timeout
 all return a nonempty template with source metadata. Reminder and cycle-summary enhancement
 tests use injected mock generators only; the real on-device model remains a supported-device
 manual smoke requirement.
@@ -367,8 +377,19 @@ Today pace values must come from deterministic `BudgetEngine` output. Manual ent
 locale syntax and exact minor-unit conversion through the custom keypad, while the full-screen
 pause surface retains two to four safe actions including Continue Purchase. English and
 Simplified Chinese onboarding, Ask, expense, Insights, Wishlist/cooling-off, and Settings paths
-remain covered by the seven UI smoke tests. The built app must contain no visible commerce
+remain covered by automated UI smoke tests. The built app must contain no visible commerce
 surface or fake entitlement behavior; reserved Pro seams render nothing.
+
+The Appearance and Skins page exposes exactly the three included `AppSkin` cases, marks the active
+option as selected for assistive technologies, updates the global semantic palette without
+touching financial state, and persists the choice across a store reload. Corrupt or future skin
+raw values fall back to Warm Botanical without destroying the stored raw value. Delete All resets
+the preference to Warm Botanical with the other local preferences. Simplified Chinese catalog
+coverage proves that no user-facing value contains the English product name `MindBudget`.
+Every `AppSkin` must resolve to an opaque portrait artwork asset at least 800 pixels wide and 1700
+pixels tall. The release-readiness script validates all three asset-catalog mappings and dimensions.
+Before TestFlight, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and
+onboarding in all three skins, including AX5 and VoiceOver on a signed iPhone.
 
 The navigation smoke path must observe Today as selected initially and Wishlist as selected after
 activation, with English values `Tab 1 of 4` and `Tab 4 of 4`. The exhaustive tab declaration
@@ -388,7 +409,34 @@ Settings smoke coverage must prove that Today reaches a first-level category dir
 Export and Privacy remain directly discoverable there. The Simplified Chinese path opens the
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
-of the generic Release build used for Archive and TestFlight.
+of the generic Release build used for Archive and TestFlight. About must read the marketing version
+from the built bundle, render `0.9.1` for candidate build 2, and expose the localized update summary.
+The Budget destination must load the existing current plan into enabled amount fields, expose one
+Save Budget action, and confirm a successful update without adding another plan.
+Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
+available flexible amount from a zero budget, a fully reserved budget, and an overcommitted plan.
+For a CNY 6,000 spending budget with CNY 3,000 fixed expenses and a CNY 500 saving goal on day 7
+of a 31-day cycle, Today must expose CNY 100 for 25 remaining days before any expense. After an
+entry, Today uses the newly balanced `safeDailySpend`; it does not subtract that entry twice.
+The release-readiness gate must reject a version/build without matching dated changelog and
+TestFlight-note sections.
+
+The optional app lock defaults off. Enabling and disabling require successful owner
+authentication. When enabled, cold launch, inactive/background transition, and return to active
+must keep the content inaccessible until authentication succeeds; cancellation or failure stays
+locked. Face ID availability is required before first enabling, while device-owner authentication
+provides the system passcode recovery path if biometrics later change. Settings reset after full
+data deletion must turn the preference off. A signed iPhone check must also confirm that the app
+switcher snapshot shows only the opaque lock surface and that the localized Face ID usage purpose
+appears before the first biometric request.
+
+Cold-launch UI coverage uses a Debug-only hold argument to inspect the otherwise sub-second brand
+layer deterministically. It must find the animation, the Simplified Chinese `花有数` name, and the
+localized subtitle. The hold argument must compile to `false` in Release. The production animation
+is decorative, absent from accessibility, and does not intercept input; VoiceOver can reach the
+real prepared screen without waiting for it. Signed-device checks must confirm that a normal cold
+launch finishes promptly, does not replay after foregrounding, and becomes fade-only when Reduce
+Motion is enabled.
 
 ## Phase 10 acceptance
 

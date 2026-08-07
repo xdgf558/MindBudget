@@ -80,6 +80,7 @@ final class DashboardViewModel: ObservableObject {
 }
 
 struct DashboardView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     @ObservedObject var session: AppSession
 
     @EnvironmentObject private var settings: SettingsStore
@@ -225,21 +226,21 @@ struct DashboardView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "sparkles")
                                 .font(.headline)
-                                .foregroundStyle(Color.mbAccent)
+                                .foregroundStyle(theme.accent)
                                 .frame(width: 36, height: 36)
-                                .background(Color.mbAccentSoft, in: Circle())
+                                .background(theme.accentSoft, in: Circle())
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("ask.title")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(Color.mbInk)
+                                    .foregroundStyle(theme.ink)
                                 Text("ask.dashboard.prompt")
                                     .font(.caption)
-                                    .foregroundStyle(Color.mbInkSecondary)
+                                    .foregroundStyle(theme.inkSecondary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(Color.mbInkTertiary)
+                                .foregroundStyle(theme.inkTertiary)
                         }
                         .budgetCard(cornerRadius: 18, contentPadding: 14)
                     }
@@ -279,13 +280,13 @@ struct DashboardView: View {
                         HStack {
                             Text("expenses.recent")
                                 .font(.title3.weight(.semibold))
-                                .foregroundStyle(Color.mbInk)
+                                .foregroundStyle(theme.ink)
                             Spacer()
                             Button("common.all") {
                                 session.selectedTab = .list
                             }
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.mbAccent)
+                            .foregroundStyle(theme.accent)
                             .accessibilityIdentifier("dashboard.expenses")
                         }
                         RecentExpensesCard(expenses: Array(expenses.prefix(3)))
@@ -369,6 +370,7 @@ private struct PendingWishlistCard: View {
 }
 
 private struct DashboardHeader: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let showSettings: () -> Void
 
     var body: some View {
@@ -376,21 +378,21 @@ private struct DashboardHeader: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Date(), format: .dateTime.weekday(.wide).month(.wide).day())
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
                     .textCase(.uppercase)
                 Text("dashboard.title")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.mbInk)
+                    .foregroundStyle(theme.ink)
             }
             Spacer()
             Button(action: showSettings) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.mbInk)
+                    .foregroundStyle(theme.ink)
                     .frame(width: 44, height: 44)
-                    .background(Color.mbSurface, in: Circle())
+                    .background(theme.surface, in: Circle())
                     .overlay {
-                        Circle().stroke(Color.mbHairline, lineWidth: 1)
+                        Circle().stroke(theme.hairline, lineWidth: 1)
                     }
             }
             .buttonStyle(.plain)
@@ -401,6 +403,7 @@ private struct DashboardHeader: View {
 }
 
 private struct TodayPaceCard: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let snapshot: ConfiguredBudgetSnapshot
     let pace: BudgetPaceSummary
 
@@ -409,36 +412,36 @@ private struct TodayPaceCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("dashboard.today.left")
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
                 MoneyText(
                     money: pace.leftToSpendToday,
                     font: .system(size: 46, weight: .bold, design: .rounded),
                     weight: .bold
                 )
                 .foregroundStyle(pace.leftToSpendToday.minorUnits < 0
-                    ? Color.mbAttentionText
-                    : Color.mbInk)
+                    ? theme.attentionText
+                    : theme.ink)
                 HStack(spacing: 5) {
                     Text("dashboard.today.spent")
                     MoneyText(money: pace.spentToday, weight: .semibold)
                 }
                 .font(.subheadline)
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
             }
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier("dashboard.today.left")
 
-            Divider().overlay(Color.mbHairline)
+            Divider().overlay(theme.hairline)
 
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("dashboard.pace.title")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.mbInk)
+                        .foregroundStyle(theme.ink)
                     Spacer()
                     Text("dashboard.pace.day \(pace.dayNumber) \(pace.totalDays)")
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(Color.mbInkSecondary)
+                        .foregroundStyle(theme.inkSecondary)
                 }
                 BudgetPaceTrack(
                     elapsedRatio: pace.elapsedRatio,
@@ -457,7 +460,7 @@ private struct TodayPaceCard: View {
                     MoneyText(money: pace.paceDifference, weight: .semibold)
                 }
                 .font(.caption)
-                .foregroundStyle(pace.isAheadOfPace ? Color.mbAttentionText : Color.mbAccentDeep)
+                .foregroundStyle(pace.isAheadOfPace ? theme.attentionText : theme.accentDeep)
                 .accessibilityElement(children: .combine)
             }
         }
@@ -466,6 +469,7 @@ private struct TodayPaceCard: View {
 }
 
 private struct BudgetPaceTrack: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let elapsedRatio: Decimal
     let spentRatio: Decimal
     let dayNumber: Int
@@ -476,12 +480,12 @@ private struct BudgetPaceTrack: View {
             let elapsed = clamped(elapsedRatio)
             let spent = clamped(spentRatio)
             ZStack(alignment: .leading) {
-                Capsule().fill(Color.mbTrack)
+                Capsule().fill(theme.track)
                 Capsule()
-                    .fill(Color.mbAccent)
+                    .fill(theme.accent)
                     .frame(width: proxy.size.width * spent)
                 Rectangle()
-                    .fill(Color.mbAttention)
+                    .fill(theme.attention)
                     .frame(width: 2, height: 14)
                     .offset(x: max(0, proxy.size.width * elapsed - 1))
             }

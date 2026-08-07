@@ -134,6 +134,13 @@ does not label a person based on those tags.
   review copy, but never its amount or notes. Quiet hours defer rather than discard it.
 - V1 has no receipt, photo, or document import and requests no photo-library access.
 - Siri and Spotlight integration require explicit opt-in.
+- The optional app lock is off by default. It checks Face ID availability before enabling, asks
+  the owner to authenticate before either enabling or disabling, and locks on launch and
+  foreground return. Authentication is performed entirely by `LocalAuthentication`; MindBudget
+  receives only success/failure and never receives or stores face data. Device passcode remains
+  the recovery path so a biometric enrollment change cannot permanently trap the owner outside
+  local records. While locked, an opaque app-owned surface covers financial content, including
+  the app-switcher transition.
 
 ## Privacy manifest baseline
 

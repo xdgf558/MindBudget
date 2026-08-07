@@ -232,6 +232,7 @@ final class InsightsViewModel: ObservableObject {
 }
 
 struct InsightsView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
@@ -357,7 +358,7 @@ struct InsightsView: View {
                             LocalizedCatalog.string(item.labelKey, locale: locale)
                         )
                     )
-                    .foregroundStyle(Color.mbAccent.gradient)
+                    .foregroundStyle(theme.accent.gradient)
                 }
                 .frame(height: 180)
                 .chartXAxis(.hidden)
@@ -369,12 +370,12 @@ struct InsightsView: View {
                     x: .value("insights.chart.date", item.date, unit: .day),
                     y: .value("insights.chart.amount", item.amount.minorUnits)
                 )
-                .foregroundStyle(Color.mbAccent)
+                .foregroundStyle(theme.accent)
                 PointMark(
                     x: .value("insights.chart.date", item.date, unit: .day),
                     y: .value("insights.chart.amount", item.amount.minorUnits)
                 )
-                .foregroundStyle(Color.mbAccent)
+                .foregroundStyle(theme.accent)
             }
             .frame(height: 170)
             .chartYAxis(.hidden)
@@ -392,7 +393,7 @@ struct InsightsView: View {
                             LocalizedCatalog.string(item.labelKey, locale: locale)
                         )
                     )
-                    .foregroundStyle(Color.mbAttention.gradient)
+                    .foregroundStyle(theme.attention.gradient)
                 }
                 .frame(height: 180)
                 .chartXAxis(.hidden)
@@ -446,10 +447,10 @@ struct InsightsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(18)
-                .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 20))
+                .background(theme.attentionSoft, in: RoundedRectangle(cornerRadius: 20))
                 .overlay {
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.mbAttentionBorder, lineWidth: 1)
+                        .stroke(theme.attentionBorder, lineWidth: 1)
                 }
             }
         }

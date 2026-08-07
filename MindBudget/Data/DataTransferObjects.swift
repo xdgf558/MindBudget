@@ -63,6 +63,19 @@ struct BudgetPlanDraft: Sendable {
     let categoryBudgets: [CategoryBudgetDraft]
 }
 
+/// Changes only the editable amount fields of the budget cycle that currently contains
+/// `referenceDate`. Cycle identity, boundaries, currency, and category budgets stay intact.
+struct CurrentBudgetPlanUpdate: Sendable {
+    let id: UUID
+    let currencyCode: String
+    let monthlyIncomeMinorUnits: Int64
+    let totalBudgetMinorUnits: Int64
+    let fixedExpensesMinorUnits: Int64
+    let savingGoalMinorUnits: Int64
+    let referenceDate: Date
+    let updatedAt: Date
+}
+
 enum BudgetPlanCoverage: Equatable, Sendable {
     case unconfigured
     case covered(BudgetPlanSummary)
