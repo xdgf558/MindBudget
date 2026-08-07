@@ -6,6 +6,7 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 PROJECT_FILE="${PROJECT_ROOT}/MindBudget.xcodeproj/project.pbxproj"
 INFO_PLIST_CATALOG="${PROJECT_ROOT}/MindBudget/Resources/InfoPlist.xcstrings"
 ICON_DIRECTORY="${PROJECT_ROOT}/MindBudget/Resources/Assets.xcassets/AppIcon.appiconset"
+ICON_SOURCE_MANIFEST="${PROJECT_ROOT}/Docs/Brand/AppIconSources.sha256"
 ICON_FILENAMES=(
   "AppIcon-1024.png"
   "AppIcon-1024-Dark.png"
@@ -28,6 +29,15 @@ done
 
 grep -q '"value" : "dark"' "${ICON_DIRECTORY}/Contents.json"
 grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
+
+[[ -f "${ICON_SOURCE_MANIFEST}" ]] || {
+  echo "Missing App Icon source/artifact checksum manifest" >&2
+  exit 1
+}
+(
+  cd "${PROJECT_ROOT}"
+  shasum -a 256 -c "Docs/Brand/AppIconSources.sha256"
+)
 
 [[ "$(grep -o 'MARKETING_VERSION = 1.0.0' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
   echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2

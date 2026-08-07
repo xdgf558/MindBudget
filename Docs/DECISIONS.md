@@ -997,7 +997,9 @@ that team, inspect the distribution identity and provisioning profile, and confi
 No archive or upload is represented as complete by this source-only phase. The release checklist's
 signed-device VoiceOver/AX5/dark-mode/iOS 17/iOS 26, Instruments, privacy, system-integration,
 screenshot, archive, and upload items remain hard manual gates; Phase 10 stays In Progress until
-they are evidenced.
+they are evidenced. Account, team, agreement, certificate, profile, and App Store Connect checks
+are therefore reset for every Archive/upload. Dated development observations may be retained as
+historical preflight evidence, but never as durable checked release gates.
 
 Alternatives considered: Silently deleting corrupt rows during reconciliation, deleting every
 corrupt row without a user-confirmed identifier set, treating one aggregate coverage percentage
@@ -1032,7 +1034,9 @@ appearance uses the specified 163° `#38806C → #2F6F5E → #245648` background
 approved near-black, muted-track, mint-segment treatment. The tinted appearance is intentionally
 grayscale so iOS can apply the user's chosen Home Screen tint. Keep one SVG source per appearance
 under `Docs/Brand`, render all three at exactly 1024px, retain square corners in source, and make
-the release script reject a missing, transparent, mis-sized, or unreferenced variant.
+the release script reject a missing, transparent, mis-sized, or unreferenced variant. Document the
+exact SVG-to-PNG mapping and export commands, and checksum all six files as one reviewed source/
+artifact set so editing either side without refreshing the declared contract fails validation.
 
 Alternatives considered: Shipping only the standard image, using the screenshot itself as a
 cropped icon, pre-rounding the corners, or asking iOS to derive dark/tinted appearances from the
@@ -1042,6 +1046,8 @@ Consequences: The mark preserves its intended contrast in all supported Home Scr
 modes without baking screenshot furniture or a duplicate corner mask into the binary. The asset
 catalog and static release gate now treat all three files as one production icon contract. Final
 appearance still requires the signed-device check because the system owns masking and tinting.
+The checksum proves that the reviewed source/artifact pair did not drift; it does not replace the
+visual comparison required after an intentional raster export.
 
 Files affected: App Icon SVG/PNG sources, asset-catalog metadata, release validation, and release
 memory/checklists.

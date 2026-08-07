@@ -27,18 +27,27 @@ unchecked item below has been performed against the release commit.
 
 ## Current China-region developer account and signing
 
-- [x] In Xcode Settings > Accounts, confirm the owner's latest China-region Apple ID is active.
-- [x] In Signing & Capabilities, select the current China-region team locally for the app and test
+- [ ] In Xcode Settings > Accounts, confirm the owner's latest China-region Apple ID is active.
+- [ ] In Signing & Capabilities, select the current China-region team locally for the app and test
   targets. Do not commit `DEVELOPMENT_TEAM` and do not select the previous team.
 - [ ] Confirm the final Bundle ID belongs to that team and exactly matches the App Store Connect
   app record; update the ignored `Config/Local.xcconfig` prefix if needed.
 - [ ] Confirm the distribution certificate and provisioning profile are valid for that team.
-- [x] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
+- [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
 - [ ] Archive Release 1.0.0 with a new build number, validate it in Organizer, and inspect the
   archive's application identifier prefix/team before upload.
 - [ ] Upload through Organizer while logged into the current account, wait for processing, and
   verify the build appears under the intended App Store Connect app before assigning testers.
+
+### Dated development preflight evidence (historical, not a release gate)
+
+On 2026-08-07, the owner's development Mac showed the current China-region account active in
+Xcode, used the current team through ignored local configuration to produce a signed iPhone Debug
+build, and showed the applicable App Store Connect agreements as active. This records what was
+observed during development; it does not satisfy the unchecked Archive-time gates above. Reverify
+all account, team, agreement, certificate, profile, and app-record state on the machine and account
+used for every Archive and upload.
 
 ## Physical iPhone and accessibility
 

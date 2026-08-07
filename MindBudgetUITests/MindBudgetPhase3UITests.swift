@@ -11,12 +11,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    func testSimplifiedChineseOnboardingCopyRenders() {
-        assertOnboardingCopy(
+    func testSimplifiedChineseOnboardingAndBudgetKeyboardRender() {
+        let app = assertOnboardingCopy(
             language: "zh-Hans",
             locale: "zh_CN",
             expectedLabel: "更从容地管理每一笔钱"
         )
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        assertBudgetKeyboardHasNoCompletionToolbar(in: app)
     }
 
     @MainActor
@@ -32,7 +37,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        XCTAssertFalse(app.buttons["Done"].exists)
+        assertBudgetKeyboardHasNoCompletionToolbar(in: app)
         XCTAssertTrue(app.buttons["budget.save"].exists)
         app.buttons["budget.save"].tap()
 
@@ -232,16 +237,28 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    @discardableResult
     private func assertOnboardingCopy(
         language: String,
         locale: String,
         expectedLabel: String
-    ) {
+    ) -> XCUIApplication {
         let app = launchApp(language: language, locale: locale)
         let title = app.staticTexts["onboarding.title"]
 
         XCTAssertTrue(title.waitForExistence(timeout: 5))
         XCTAssertEqual(title.label, expectedLabel)
+        return app
+    }
+
+    @MainActor
+    private func assertBudgetKeyboardHasNoCompletionToolbar(in app: XCUIApplication) {
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 2))
+        XCTAssertEqual(
+            app.toolbars.buttons.count,
+            0,
+            "Budget entry must not expose a second keyboard-level completion action"
+        )
     }
 
     @MainActor

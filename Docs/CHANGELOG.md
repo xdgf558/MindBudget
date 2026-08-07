@@ -13,6 +13,8 @@
 - Production-ready opaque 1024px standard, dark, and tinted App Icon variants using the approved
   budget-track mark, plus version 1.0.0/build 1 configuration, App Store metadata drafts, and a
   release checklist for signing, privacy, accessibility, and TestFlight.
+- A documented App Icon SVG export map and checksum gate that binds each editable source to its
+  reviewed asset-catalog PNG.
 - A handoff-driven warm-paper design system with semantic light/dark colors, rounded cards,
   wrapping context chips, consistent buttons, and redesigned free V1 screens.
 - A deterministic Today pace projection from `BudgetEngine`, including today's discretionary
@@ -105,6 +107,8 @@
 
 ### Changed
 
+- Reset account, team, and agreement checklist items for every Archive/upload while preserving
+  dated development observations as non-authoritative preflight evidence.
 - Removed the redundant budget-setup keyboard Done control; the bottom Save Budget button now
   dismisses input focus and remains the only action that validates and commits the draft.
 - Kept Apple Developer Team selection out of the shared project and documented that Archive and
@@ -161,6 +165,8 @@
 
 ### Fixed
 
+- Made the missing budget keyboard completion-toolbar regression language-neutral and exercised
+  it in both English and Simplified Chinese UI flows.
 - Prevented the custom bottom navigation's transparent center gap from expanding to full-screen
   height while Today loads, and added bottom-position assertions for normal and AX5 layouts.
 - Declared the custom navigation's VoiceOver traversal as Today, Log, Add Expense, Insights,

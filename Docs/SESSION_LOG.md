@@ -1433,3 +1433,46 @@ validation, and `git diff --check` pass.
 
 Next suggested task: Unlock the connected iPhone, launch the installed build, confirm Today and
 the add action remain bottom-anchored, then review and merge PR #14.
+
+## 2026-08-07 — Session 36 — Close PR 14 release-review gaps
+
+Goal: Address the final review observations on PR #14 without hiding its signed-device behavior
+changes behind a brand-only title.
+
+Files changed: Phase 3 UI coverage, App Icon source/export documentation and checksum manifest,
+release validation/checklist, decision memory, changelog, and this session log.
+
+What was completed: Replaced the English-label-specific missing-`Done` assertion with a structural
+check that the visible budget keyboard has no toolbar buttons, and exercised it in both English and
+Simplified Chinese. Reset the account, team, and App Store agreement checklist items to unchecked
+per-Archive gates; retained the 2026-08-07 development observations in a separately labeled,
+non-authoritative historical section. Documented the one-to-one SVG-to-PNG App Icon mapping and
+repeatable librsvg export commands. Added a checksum manifest covering all three SVG sources and
+all three shipping PNGs, and made release validation reject unreviewed drift on either side.
+
+What was NOT completed: No production Archive, Organizer validation, App Store Connect upload, or
+internal TestFlight assignment was performed. The installed signed-device binary did not change in
+this review-only patch, and the owner still needs to confirm the bottom-navigation fix on the
+unlocked iPhone. The account, signing, agreement, certificate/profile, Bundle ID, and app-record
+checks must be repeated against the exact Archive/upload environment rather than inferred from the
+historical development preflight.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release and Debug build-for-testing.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. Both the
+English manual flow and Simplified Chinese smoke flow found the software keyboard and verified a
+zero-button toolbar. The deterministic 10,000-expense projection and local wall-clock signal also
+passed.
+
+Coverage result: pass — Money 91.73%, BudgetEngine 94.24%, BudgetCycleCalculator 95.15%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 90.98%,
+AdviceSafetyValidator 94.50%, PrivacyRedactor 96.91%, CycleSummaryService 96.99%,
+IntentClassifier 97.50%, CSVExporter 90.79%, and CurrencyFormatterService 100%.
+
+Static policy result: pass — all six App Icon source/artifact checksums, dimensions, opacity,
+catalog mappings, release metadata/privacy gates, floating-point money policy, coverage gate, and
+`git diff --check` pass.
+
+Next suggested task: Publish this correction to PR #14 under a title/body that explicitly includes
+approved branding plus the signed-device budget and bottom-navigation fixes, obtain final review,
+then merge before beginning production App ID, Archive, and TestFlight operations.
