@@ -438,7 +438,8 @@ private struct MainTabView: View {
                     identifier: "tab.log"
                 )
                 Color.clear
-                    .frame(maxWidth: .infinity, minHeight: 54)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
                     .accessibilityHidden(true)
                 tabButton(
                     .insights,
@@ -472,18 +473,12 @@ private struct MainTabView: View {
             .accessibilitySortPriority(3)
             .accessibilityIdentifier("dashboard.quickAdd")
         }
+        .fixedSize(horizontal: false, vertical: true)
         .background(
             Color.mbSurface
                 .ignoresSafeArea(edges: .bottom)
                 .allowsHitTesting(false)
         )
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.mbHairline)
-                .frame(height: 1)
-                .padding(.top, 18)
-                .allowsHitTesting(false)
-        }
     }
 
     private func tabButton(

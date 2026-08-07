@@ -1231,3 +1231,358 @@ Static policy result: pass — no unauthorized `Double`/`Float` in app money pat
 Next suggested task: Push this remediation to PR #13 for review. After approval and merge, execute
 the remaining signed-iPhone and China-region Apple Developer release checklist before the first
 TestFlight upload.
+
+## 2026-08-07 — Session 31 — Approved App Icon variants
+
+Goal: Replace the Phase 10 placeholder icon with the owner's approved budget-track design and
+support the system's standard, dark, and tinted Home Screen appearances.
+
+Files changed: standard/dark/tinted SVG sources and 1024px PNG assets, App Icon catalog metadata,
+release validation, task/release memory, changelog, decision log, and this session log.
+
+What was completed: Rebuilt the icon from the supplied numeric specification rather than cropping
+the reference screenshot. The shared geometry is a 644×74 fully rounded track beginning at x 190,
+a 352px completed segment, and a 33×264 rounded marker centered at x 622. Added the specified
+green-gradient standard appearance, the supplied near-black/mint dark appearance, and a grayscale
+tinted appearance. All three raster assets are 1024×1024 RGB PNGs without alpha or pre-rounded
+corners. The asset catalog uses Xcode's luminosity `dark` and `tinted` appearance declarations,
+and the release script now validates every variant plus both appearance mappings.
+
+What was NOT completed: No signing, Archive, App Store Connect, or TestFlight operation was
+performed. The final iOS-applied mask and tint rendering remain items for the signed-device
+release checklist. Phase 10 remains In Progress.
+
+Build result: pass — Xcode 26.6 compiled the standard, dark, and tinted catalog appearances in
+both the generic iOS Simulator Release build and Debug build-for-testing with no asset warnings.
+
+Test result: pass — 199 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+existing nonblocking simulator diagnostic-collection warning appeared only after all suites passed.
+
+Static policy result: pass — all three generated files are 1024×1024 RGB PNGs with no alpha;
+the extended release-readiness script, floating-point money guard, asset-catalog JSON parse,
+coverage gate, and `git diff --check` pass.
+
+Next suggested task: Complete validation, publish this focused icon change for review, then verify
+all three appearances on the signed release iPhone before Archive.
+
+## 2026-08-07 — Session 32 — Release brand lock and China-account preflight
+
+Goal: Begin the new-account signing → physical-device/Archive → TestFlight → internal-testing
+sequence while ensuring the approved icon and complete public brand enter the exact release build.
+
+Files changed: Debug/Release display-name settings, App Store submission draft, release validation
+and checklist, task/project/decision memory, changelog, and this session log.
+
+What was completed: Locked the public brand to `花有数 MindBudget`, kept the technical target and
+bundle suffix stable as `MindBudget`, and set `温和的预算与消费复盘工具` as the Simplified Chinese
+App Store subtitle. Added a static gate requiring the approved display name in both build
+configurations. Re-ran the complete simulator release suite with the approved three-appearance
+icon and brand together. Read-only Xcode preflight found only the legacy Apple Developer account
+and its team; no action was taken with that account.
+
+What was NOT completed: The icon/brand branch has not yet merged to `main`. The owner's new
+China-region Apple Developer account is not signed into Xcode. No valid local code-signing
+identity is currently available, no private `Config/Local.xcconfig` exists, and the effective
+fallback Bundle ID still uses the public repository prefix. The connected physical iPhones were
+unavailable during discovery. No certificate/profile was created or downloaded, no password or
+two-factor code was requested or handled, no Archive was produced, and nothing was uploaded or
+assigned to an internal TestFlight group. The legacy account was identified by the owner after
+the read-only check; its exact local credential must be confirmed before deletion, and Apple/Xcode
+credentials must never be deleted by a broad match.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release and Debug build-for-testing; the
+generated app uses the approved display name and compiles all standard/dark/tinted icon assets.
+
+Test result: pass — 199 Swift Testing tests across 16 suites and 9 UI tests, 0 failures; all
+selected core files remain above the 85% coverage gate.
+
+Static policy result: pass — brand, icon dimensions/opacity/catalog mappings, privacy/version/
+iPhone-only checks, no shared Team ID, floating-point money policy, and `git diff --check` pass.
+
+Next suggested task: Publish and review the icon/brand PR, then merge it before Archive. Sign the
+identified legacy account out and delete only its exact local credential after explicit at-action
+confirmation; when the new account login requests a password or two-factor code, hand control to
+the owner. Then reconnect/unlock the release iPhone, identify the exact private Bundle ID prefix
+under the new team, and obtain explicit confirmation before creating certificates or profiles.
+
+## 2026-08-07 — Session 33 — Localized release name and signed-device preflight
+
+Goal: Continue the current China-region account release sequence, validate the approved icon on a
+signed iOS 26 iPhone, and ensure the Home Screen shows exactly one language-appropriate app name.
+
+Files changed: the generated Info.plist display-name fallback, a dedicated InfoPlist string
+catalog, localization tests, release validation, App Store drafts, release/task/project/decision
+memory, changelog, and this session log.
+
+What was completed: Signed the legacy Apple account out of Xcode and found no exact generic or
+internet-password Keychain item under its email, so no broad credential deletion was attempted.
+The owner manually signed the current China-region account into Xcode. Apple Developer access and
+the active free/paid App Store agreements were verified without recording private account or team
+identifiers in the repository. A private ignored `Config/Local.xcconfig` now selects the current
+team and remains untracked.
+
+After the owner enabled Developer Mode, Xcode registered the connected iOS 26 iPhone, generated an
+Apple Development certificate and team provisioning profile, and produced a successful signed
+Debug build. The app installed and launched on that device with the approved standard/dark/tinted
+icon assets. The owner then clarified that the two names must not be combined: English now shows
+`MindBudget`, Simplified Chinese shows `花有数`, and unsupported languages fall back to
+`MindBudget`. Xcode compiled both `InfoPlist.strings` variants, App Intents training resolved the
+matching localized application name, and the updated signed build was installed on the same
+device. PR #14 was moved from Draft to ready for review after its earlier CI run passed.
+
+What was NOT completed: PR #14 has not merged to `main`, so no production Archive was created.
+The current team still has no explicit production App ID or App Store Connect app record for this
+bundle, and no Apple Distribution identity/profile has been created or validated. The App Store
+Connect app, localized listing, Archive, Organizer validation, upload, build processing, and
+internal tester assignment remain pending. The full signed-device VoiceOver, AX5, appearance,
+system-integration, Instruments, data-protection, and iOS 17 passes remain unchecked. The owner
+still needs to visually confirm that the reinstalled Home Screen label and icon appearance match
+the selected system language and design.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release plus a current-team signed Debug
+build for the connected iOS 26 iPhone; the signed app installed and launched successfully.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 end-to-end/localization UI
+tests, 0 failures. The new test proves the English and Simplified Chinese InfoPlist display names
+remain separate. The existing nonblocking post-test simulator diagnostic warning appeared only
+after every suite passed.
+
+Coverage result: pass — Money 91.73%, BudgetEngine 94.24%, BudgetCycleCalculator 95.15%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 90.98%,
+AdviceSafetyValidator 94.50%, PrivacyRedactor 96.91%, CycleSummaryService 96.99%,
+IntentClassifier 97.50%, CSVExporter 90.79%, and CurrencyFormatterService 100%.
+
+Static policy result: pass — no unauthorized floating-point money paths; the three 1024px opaque
+icon variants, bilingual InfoPlist names, privacy/version/iPhone-only checks, absence of a shared
+Team ID, coverage gate, and `git diff --check` all pass.
+
+Next suggested task: Have the owner confirm the signed-device Home Screen label, review PR #14,
+and merge it to `main`. Then register the explicit App ID and App Store Connect app under the
+current team, create and inspect a production Archive, validate its distribution identity, and
+upload build 1 to the intended internal TestFlight group.
+
+## 2026-08-07 — Session 34 — One explicit budget-save action
+
+Goal: Remove the floating keyboard `Done` control reported on the signed-device budget setup
+screen and make the bottom `Save Budget` button the only persistence action.
+
+Files changed: budget setup, Phase 3 end-to-end UI coverage, redesign/decision memory, changelog,
+and this session log.
+
+What was completed: Removed only the budget setup keyboard toolbar; other contextual Done actions
+remain unchanged. Tapping `Save Budget` now clears the focused amount field before running the
+existing whole-draft validation and persistence flow. Every onboarding UI path now enters the
+three budget values without dismissing the decimal keyboard between fields. The primary flow also
+asserts that no `Done` button exists, then proves the bottom save action still advances to Today.
+The same flow passed under accessibility-extra-large and pseudo-long-text configurations.
+
+What was NOT completed: This focused change does not create a production Archive, App Store
+Connect record, TestFlight upload, or internal tester assignment. PR #14 still requires owner
+review and merge before those release actions. The revised budget setup should receive one final
+visual confirmation on the signed iPhone before Archive.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and Debug build-for-testing.
+
+Signed-device result: pass — the current-team Debug build was rebuilt from commit `bce905b`,
+installed over the existing app on the connected iPhone Air without an uninstall/reset, and
+launched successfully. The owner still owns the final visual interaction confirmation.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+targeted manual-expense onboarding flow also passed independently after the interaction change.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, and the complete
+validation script pass.
+
+Next suggested task: Publish this focused PR update for owner review, visually verify the budget
+setup on the signed iPhone, and merge PR #14 before creating the production App ID and Archive.
+
+## 2026-08-07 — Session 35 — Keep custom navigation bottom-anchored
+
+Goal: Diagnose and repair the signed-iPhone layout in which Today's custom navigation surface
+expanded through most of the screen, moving the add action to the top and the four tabs to the
+middle.
+
+Files changed: app routing/navigation layout, Today state layout, Phase 3 UI geometry coverage,
+redesign/decision memory, changelog, and this session log.
+
+What was completed: Traced the expansion to the transparent center gap accepting an unconstrained
+vertical proposal while Today exposed its compact loading state. The gap now has its intended
+fixed placeholder height, the complete custom bar uses its vertically ideal size, real labels may
+still grow for Dynamic Type, and Today's state container fills the remaining content area. Added
+geometry assertions that require both the selected tab and add action to remain in the bottom
+screen region at standard and AX5 sizes. Rebuilt with the current team's development signing and
+installed the fixed build over the existing app on the connected iPhone Air without uninstalling
+or resetting it.
+
+What was NOT completed: The device locked before the newly installed build could be launched, so
+the owner still needs to unlock it and visually confirm the corrected layout. PR #14 remains
+unmerged; no production Archive, TestFlight upload, or internal tester assignment was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures; the two
+focused layout tests also passed independently.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, complete
+validation, and `git diff --check` pass.
+
+Next suggested task: Unlock the connected iPhone, launch the installed build, confirm Today and
+the add action remain bottom-anchored, then review and merge PR #14.
+
+## 2026-08-07 — Session 36 — Close PR 14 release-review gaps
+
+Goal: Address the final review observations on PR #14 without hiding its signed-device behavior
+changes behind a brand-only title.
+
+Files changed: Phase 3 UI coverage, App Icon source/export documentation and checksum manifest,
+release validation/checklist, decision memory, changelog, and this session log.
+
+What was completed: Replaced the English-label-specific missing-`Done` assertion with a structural
+check that the visible budget keyboard has no toolbar buttons, and exercised it in both English and
+Simplified Chinese. Reset the account, team, and App Store agreement checklist items to unchecked
+per-Archive gates; retained the 2026-08-07 development observations in a separately labeled,
+non-authoritative historical section. Documented the one-to-one SVG-to-PNG App Icon mapping and
+repeatable librsvg export commands. Added a checksum manifest covering all three SVG sources and
+all three shipping PNGs, and made release validation reject unreviewed drift on either side.
+
+What was NOT completed: No production Archive, Organizer validation, App Store Connect upload, or
+internal TestFlight assignment was performed. The installed signed-device binary did not change in
+this review-only patch, and the owner still needs to confirm the bottom-navigation fix on the
+unlocked iPhone. The account, signing, agreement, certificate/profile, Bundle ID, and app-record
+checks must be repeated against the exact Archive/upload environment rather than inferred from the
+historical development preflight.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release and Debug build-for-testing.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. Both the
+English manual flow and Simplified Chinese smoke flow found the software keyboard and verified a
+zero-button toolbar. The deterministic 10,000-expense projection and local wall-clock signal also
+passed.
+
+Coverage result: pass — Money 91.73%, BudgetEngine 94.24%, BudgetCycleCalculator 95.15%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 90.98%,
+AdviceSafetyValidator 94.50%, PrivacyRedactor 96.91%, CycleSummaryService 96.99%,
+IntentClassifier 97.50%, CSVExporter 90.79%, and CurrencyFormatterService 100%.
+
+Static policy result: pass — all six App Icon source/artifact checksums, dimensions, opacity,
+catalog mappings, release metadata/privacy gates, floating-point money policy, coverage gate, and
+`git diff --check` pass.
+
+Next suggested task: Publish this correction to PR #14 under a title/body that explicitly includes
+approved branding plus the signed-device budget and bottom-navigation fixes, obtain final review,
+then merge before beginning production App ID, Archive, and TestFlight operations.
+
+## 2026-08-07 — Session 37 — Restore empty-state action proportions
+
+Goal: Repair the cramped near-square `Add Expense` action observed on Today's signed-iPhone empty
+state and apply the same correction to Wishlist's `Add Item` action.
+
+Files changed: shared empty-state button presentation, Today and Wishlist call sites, Phase 3 UI
+geometry coverage, redesign/test/decision memory, changelog, and this session log.
+
+What was completed: Replaced the full-width form button style inside `ContentUnavailableView` with
+a dedicated compact primary style that preserves a one-line localized label, horizontal padding,
+a 140-point minimum width, and the existing 50-point touch height. Added distinct accessibility
+identifiers for both actions and geometry assertions requiring each control to remain at least
+140 points wide and wider than twice its height. The first full validation exposed that Wishlist's
+outer accessibility identifier replaced the nested button identifier; removed that parent-level
+override and reran the complete suite successfully.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+or merge was performed. The owner still needs to review this update in PR #14 and visually confirm
+the two actions on the signed iPhone before the release Archive.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and Debug
+build-for-testing.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. Both
+Dashboard and Wishlist compact-action geometry assertions passed in the final run.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, and
+`git diff --check` pass.
+
+Next suggested task: Push the focused fix to PR #14, obtain owner review, and merge before the
+production Archive and TestFlight workflow.
+
+## 2026-08-07 — Session 38 — Refine bottom navigation and split Settings
+
+Goal: Remove the unexplained horizontal line across the raised center Add Expense control, replace
+the growing Settings scroll with first- and second-level pages, and prevent dynamic Settings values
+from exposing raw localization keys.
+
+Files changed: custom bottom-navigation presentation, Settings and AI-status views, localization,
+UI tests, redesign/test/project/decision memory, changelog, and this session log.
+
+What was completed: Identified the line as a one-point decorative hairline overlay rather than a
+gesture indicator or functional boundary. Removed that overlay while retaining the semantic
+navigation surface, bottom safe-area coverage, intrinsic layout, hit regions, and declared
+VoiceOver order. Replaced the single long Settings screen with a short root directory and focused
+Budget, Reminders and Notifications, Apple Intelligence, Integrations, Export, Privacy, and About
+destinations. Export and Privacy remain directly reachable from the root. Localized reminder-tone
+and AI status values explicitly through the active locale; the Debug fallback counters remain
+inside `#if DEBUG` and compile out of Release/TestFlight.
+
+What was NOT completed: Archive and TestFlight operations remain pending final PR approval and
+merge. Validation, refreshed signed-device installation, commit, push, and hosted CI results are
+recorded after their actual results below.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug
+build-for-testing, and current-team signed iPhone Debug build. Release compilation excludes the
+`#if DEBUG` fallback diagnostics used during development.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+Simplified Chinese path opens the new Reminders page, reads the tone as `柔和`, and rejects the raw
+catalog key; the English path proves every root destination plus Export and Privacy is reachable.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, the floating-point money guard, String
+Catalog JSON validation, and `git diff --check` pass.
+
+Signed-device result: pass with launch deferred by lock state — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` installed in place on the connected iPhone without deleting app data. The
+CoreDevice launch request was denied only because the phone was locked; the owner can unlock and
+open the installed app directly.
+
+Next suggested task: Commit and push the focused signed-device refinements to PR #14, obtain owner
+review, then merge before the production Archive and TestFlight workflow.
+
+## 2026-08-07 — Session 39 — Adopt a prerelease TestFlight identity
+
+Goal: Make the first internal-test version visibly prerelease and ensure every future uploaded
+build has a durable, tester-facing change record.
+
+Files changed: app marketing version, release-readiness version gate, changelog, TestFlight notes,
+submission/release/task/project/decision memory, and this session log.
+
+What was completed: Changed Debug and Release marketing version from 1.0.0 to 0.9.0 while retaining
+build 1 for the first upload. Reserved 1.0.0 for the first public App Store release. Added a dated
+0.9.0 (1) TestFlight-candidate section to the changelog, a matching “What to Test” record, and a
+release-checklist gate requiring future uploads to synchronize both records. The static gate now
+checks both marketing version 0.9.0 and build 1 in Debug and Release.
+
+What was NOT completed: The versioned binary has not been archived or uploaded. Replacement build
+numbers will be incremented only immediately before their actual upload.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing,
+and current-team signed iPhone Debug build all use version 0.9.0 (1).
+
+Test result: pass — the final versioned run repeated all 200 Swift Testing tests across 16 suites
+and all 9 UI tests with 0 failures; every selected core-service file remains above 85% coverage.
+
+Static policy result: pass — release readiness enforces version 0.9.0/build 1 in both configurations;
+the floating-point money guard and `git diff --check` also pass.
+
+Signed-device result: pass — team `2AM5S7BM2N` signed application identifier
+`2AM5S7BM2N.com.xdgf558.MindBudget`; its Info.plist reports 0.9.0 (1). The package was installed in
+place on the connected iPhone, preserved the app container, and launched successfully.
+
+Next suggested task: Commit and push both signed-device refinements and prerelease identity to
+PR #14 for owner review, then merge before production Archive and TestFlight upload.

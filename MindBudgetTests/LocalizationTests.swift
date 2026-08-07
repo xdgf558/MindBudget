@@ -56,6 +56,27 @@ struct LocalizationTests {
         )
     }
 
+    @Test
+    func appDisplayNameIsLocalizedWithoutCombiningBrands() throws {
+        let english = try localizedBundle(language: "en")
+        let chinese = try localizedBundle(language: "zh-Hans")
+
+        #expect(
+            english.localizedString(
+                forKey: "CFBundleDisplayName",
+                value: nil,
+                table: "InfoPlist"
+            ) == "MindBudget"
+        )
+        #expect(
+            chinese.localizedString(
+                forKey: "CFBundleDisplayName",
+                value: nil,
+                table: "InfoPlist"
+            ) == "花有数"
+        )
+    }
+
     private func localizedStrings(language: String) throws -> [String: String] {
         let bundle = try localizedBundle(language: language)
         let url = try #require(bundle.url(forResource: "Localizable", withExtension: "strings"))

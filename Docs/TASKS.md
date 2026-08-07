@@ -114,8 +114,12 @@ Status: In Progress
 - [x] Add bilingual catalog parity/format checks, an AX5 navigation smoke test, an always-on
   deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
   release-machine first-load signal with a 500 ms ceiling.
-- [x] Add an opaque 1024px App Icon, version 1.0.0/build 1 configuration, static release checks,
-  per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
+- [x] Add opaque 1024px standard, dark, and tinted App Icon variants, TestFlight version 0.9.0/build 1
+  configuration, static release checks, per-file core-service coverage enforcement, App Store
+  metadata drafts, and a release checklist.
+- [x] Localize the release display name to `花有数` for Simplified Chinese and `MindBudget` for
+  English, without combining them, and use `温和的预算与消费复盘工具` as the Simplified Chinese
+  App Store subtitle.
 - [x] Complete the full automated validation after the Phase 10 diff is final, including a
   generic iOS Simulator Release build and the complete unit/UI/coverage suite.
 - [ ] Complete signed physical-iPhone VoiceOver, AX5, dark-mode, iOS 17/iOS 26, Instruments,

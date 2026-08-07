@@ -11,12 +11,33 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    func testSimplifiedChineseOnboardingCopyRenders() {
-        assertOnboardingCopy(
+    func testSimplifiedChineseOnboardingBudgetKeyboardAndSettingsToneRender() {
+        let app = assertOnboardingCopy(
             language: "zh-Hans",
             locale: "zh_CN",
             expectedLabel: "更从容地管理每一笔钱"
         )
+
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        assertBudgetKeyboardHasNoCompletionToolbar(in: app)
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.settings"].tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["settings.reminders"].tap()
+        XCTAssertTrue(element("settings.reminders.view", in: app).waitForExistence(timeout: 5))
+        let tonePicker = element("settings.reminders.tone", in: app)
+        XCTAssertTrue(tonePicker.exists)
+        XCTAssertEqual(tonePicker.value as? String, "柔和")
+        XCTAssertFalse(app.staticTexts["settings.reminders.tone.soft"].exists)
     }
 
     @MainActor
@@ -28,17 +49,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
+        assertBudgetKeyboardHasNoCompletionToolbar(in: app)
+        XCTAssertTrue(app.buttons["budget.save"].exists)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(element("dashboard.today.left", in: app).exists)
+        assertCompactEmptyStateAction(
+            app.buttons["dashboard.empty.addExpense"],
+            named: "Dashboard Add Expense"
+        )
+        assertPrimaryNavigationIsBottomAnchored(in: app)
         XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
         XCTAssertEqual(app.buttons["tab.dashboard"].value as? String, "Tab 1 of 4")
         let paceTrack = element("dashboard.pace.track", in: app)
@@ -65,13 +90,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -79,8 +101,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.wishlist"].isSelected)
         XCTAssertEqual(app.buttons["tab.wishlist"].value as? String, "Tab 4 of 4")
         XCTAssertFalse(app.buttons["tab.dashboard"].isSelected)
-        XCTAssertTrue(element("wishlist.empty", in: app).waitForExistence(timeout: 5))
-        app.buttons["wishlist.add"].tap()
+        let emptyAddButton = app.buttons["wishlist.empty.add"]
+        assertCompactEmptyStateAction(emptyAddButton, named: "Wishlist Add Item")
+        emptyAddButton.tap()
 
         XCTAssertTrue(app.textFields["wishlist.name"].waitForExistence(timeout: 5))
         app.textFields["wishlist.name"].typeText("Headphones")
@@ -111,13 +134,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -137,13 +157,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -166,19 +183,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["dashboard.settings"].tap()
 
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        for identifier in [
+            "settings.budget",
+            "settings.reminders",
+            "settings.ai",
+            "settings.integrations",
+        ] {
+            XCTAssertTrue(element(identifier, in: app).exists)
+        }
         let exportControl = element("settings.export", in: app)
         for _ in 0..<4 where !exportControl.exists {
             app.swipeUp()
@@ -203,6 +225,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         completeBudgetSetup(in: app)
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        assertPrimaryNavigationIsBottomAnchored(in: app)
         for identifier in [
             "tab.dashboard",
             "tab.log",
@@ -243,16 +266,46 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    @discardableResult
     private func assertOnboardingCopy(
         language: String,
         locale: String,
         expectedLabel: String
-    ) {
+    ) -> XCUIApplication {
         let app = launchApp(language: language, locale: locale)
         let title = app.staticTexts["onboarding.title"]
 
         XCTAssertTrue(title.waitForExistence(timeout: 5))
         XCTAssertEqual(title.label, expectedLabel)
+        return app
+    }
+
+    @MainActor
+    private func assertBudgetKeyboardHasNoCompletionToolbar(in app: XCUIApplication) {
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 2))
+        XCTAssertEqual(
+            app.toolbars.buttons.count,
+            0,
+            "Budget entry must not expose a second keyboard-level completion action"
+        )
+    }
+
+    @MainActor
+    private func assertCompactEmptyStateAction(
+        _ button: XCUIElement,
+        named name: String
+    ) {
+        XCTAssertTrue(button.waitForExistence(timeout: 2), "Missing \(name) action")
+        XCTAssertGreaterThanOrEqual(
+            button.frame.width,
+            140,
+            "\(name) action lost its horizontal breathing room"
+        )
+        XCTAssertGreaterThan(
+            button.frame.width,
+            button.frame.height * 2,
+            "\(name) action became a cramped square control"
+        )
     }
 
     @MainActor
@@ -277,23 +330,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
     }
 
     @MainActor
-    private func dismissDecimalKeyboard(in app: XCUIApplication) {
-        let doneButton = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS[c] %@", "Done")
-        ).firstMatch
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 2))
-        doneButton.tap()
+    private func assertPrimaryNavigationIsBottomAnchored(in app: XCUIApplication) {
+        let dashboardTab = app.buttons["tab.dashboard"]
+        let quickAdd = app.buttons["dashboard.quickAdd"]
+        let appFrame = app.frame
+
+        XCTAssertTrue(dashboardTab.exists)
+        XCTAssertTrue(quickAdd.exists)
+        XCTAssertGreaterThan(dashboardTab.frame.midY, appFrame.maxY - 200)
+        XCTAssertGreaterThan(quickAdd.frame.midY, appFrame.maxY - 240)
+        XCTAssertLessThan(quickAdd.frame.midY, dashboardTab.frame.midY)
     }
 
     @MainActor

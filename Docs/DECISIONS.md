@@ -988,8 +988,9 @@ coverage targets remain useful stretch goals rather than undocumented blockers. 
 wall-clock Dashboard benchmark is a local release-machine signal and runs in local validation by
 default; hosted GitHub Actions explicitly skips only that timing test because shared-runner load
 cannot distinguish a product regression from VM contention. Instruments on the signed release
-iPhone remains the authoritative performance check. Version 1.0.0/build 1 and the opaque 1024px
-icon are the initial TestFlight identity; every replacement upload increments the build number.
+iPhone remains the authoritative performance check. The source-only Phase 10 plan initially named
+version 1.0.0/build 1 as the TestFlight identity; the later prerelease-version decision below
+supersedes that marketing-version choice. Every replacement upload still increments the build number.
 
 Do not commit `DEVELOPMENT_TEAM`. Immediately before Archive, select and verify the owner's latest
 China-region team locally, confirm that the final Bundle ID and App Store Connect app belong to
@@ -997,7 +998,9 @@ that team, inspect the distribution identity and provisioning profile, and confi
 No archive or upload is represented as complete by this source-only phase. The release checklist's
 signed-device VoiceOver/AX5/dark-mode/iOS 17/iOS 26, Instruments, privacy, system-integration,
 screenshot, archive, and upload items remain hard manual gates; Phase 10 stays In Progress until
-they are evidenced.
+they are evidenced. Account, team, agreement, certificate, profile, and App Store Connect checks
+are therefore reset for every Archive/upload. Dated development observations may be retained as
+historical preflight evidence, but never as durable checked release gates.
 
 Alternatives considered: Silently deleting corrupt rows during reconciliation, deleting every
 corrupt row without a user-confirmed identifier set, treating one aggregate coverage percentage
@@ -1016,3 +1019,209 @@ CPU noise into a misleading performance failure.
 Files affected: cooling-off repair actor/session/Settings flow, localization and tests, release
 scripts and coverage gates, app icon/version metadata, App Store/release/privacy documentation,
 project memory, changelog, and this file.
+
+---
+
+## 2026-08-07 — Ship the approved budget-track icon as standard, dark, and tinted assets
+
+Context: The Phase 10 placeholder icon proved the release asset pipeline but was not the owner's
+final brand mark. The approved handoff defines a 1024×1024 budget track at x 190...834, centered
+at y 512 with height 74, a 352px completed segment, and a 33×264 marker centered at x 622. It also
+shows dedicated dark and monochrome variants and explicitly delegates corner masking to iOS.
+
+Decision: Replace the placeholder with three opaque universal App Icon resources. The standard
+appearance uses the specified 163° `#38806C → #2F6F5E → #245648` background, translucent
+`#102C25` track, `#F2F0EC` completed segment, and `#E0A95C` marker. The dark appearance uses the
+approved near-black, muted-track, mint-segment treatment. The tinted appearance is intentionally
+grayscale so iOS can apply the user's chosen Home Screen tint. Keep one SVG source per appearance
+under `Docs/Brand`, render all three at exactly 1024px, retain square corners in source, and make
+the release script reject a missing, transparent, mis-sized, or unreferenced variant. Document the
+exact SVG-to-PNG mapping and export commands, and checksum all six files as one reviewed source/
+artifact set so editing either side without refreshing the declared contract fails validation.
+
+Alternatives considered: Shipping only the standard image, using the screenshot itself as a
+cropped icon, pre-rounding the corners, or asking iOS to derive dark/tinted appearances from the
+standard artwork.
+
+Consequences: The mark preserves its intended contrast in all supported Home Screen appearance
+modes without baking screenshot furniture or a duplicate corner mask into the binary. The asset
+catalog and static release gate now treat all three files as one production icon contract. Final
+appearance still requires the signed-device check because the system owns masking and tinting.
+The checksum proves that the reviewed source/artifact pair did not drift; it does not replace the
+visual comparison required after an intentional raster export.
+
+Files affected: App Icon SVG/PNG sources, asset-catalog metadata, release validation, and release
+memory/checklists.
+
+---
+
+## 2026-08-07 — Localize the release name instead of combining both brands
+
+Context: Before the first TestFlight build, the owner selected the Chinese name `花有数`, the
+English name `MindBudget`, and the Chinese descriptor `温和的预算与消费复盘工具`. A signed-device
+check showed that combining both names in one Home Screen label was not the intended result.
+
+Decision: Keep `MindBudget` as the generated Info.plist fallback, localize `CFBundleDisplayName`
+through `InfoPlist.xcstrings` to `MindBudget` for English and `花有数` for Simplified Chinese, and
+use those same names in their matching App Store localizations. Never combine both names in the
+same app-name field. Keep `温和的预算与消费复盘工具` as the Simplified Chinese subtitle, keep the
+icon text-free, and retain `MindBudget` in code, target, scheme, bundle suffix, store filename,
+and internal type names.
+
+Alternatives considered: Combining both names on every device, renaming the Xcode target and
+Swift types, or putting either name inside the App Icon.
+
+Consequences: The user sees one short, language-appropriate name without destabilizing identifiers,
+persistence, or system integrations. The release gate and localization tests must verify both
+InfoPlist translations, and both App Store names remain subject to availability in the current
+China-region account.
+
+Files affected: app display-name build settings and InfoPlist catalog, localization tests, App
+Store draft, release validation/checklist, project memory, and changelog.
+
+---
+
+## 2026-08-07 — Keep one explicit commit action in budget setup
+
+Context: The decimal keyboard toolbar added a floating `Done` action directly above the bottom
+`Save Budget` button. It visually overlapped the primary action on a physical iPhone and made it
+unclear whether finishing text entry also saved the budget.
+
+Decision: Do not attach a keyboard completion toolbar to budget setup. Moving between amount
+fields only edits the in-memory draft. `Save Budget` is the sole action that dismisses input focus,
+validates the complete draft, persists it, and advances to Today.
+
+Alternatives considered: Keeping both actions, making `Done` save immediately, or adding a second
+floating keyboard control with different wording.
+
+Consequences: The screen has one unambiguous persistence action and cannot imply that dismissing
+the keyboard committed financial data. UI coverage must fill all amount fields without the former
+toolbar and prove that the bottom action completes onboarding while the keyboard is active.
+
+Files affected: budget setup, its end-to-end UI tests, the redesign handoff, changelog, and session
+memory.
+
+---
+
+## 2026-08-07 — Give custom bottom navigation an intrinsic vertical size
+
+Context: On a signed iPhone, Today entered its compact loading state while the transparent center
+gap inside the custom navigation still accepted an unconstrained vertical proposal. That gap
+expanded through most of the screen, leaving the add button near the top and centering the four
+tabs inside a full-height surface. Existing UI tests checked presence and hit testing, so the
+geometrically incorrect controls still passed.
+
+Decision: Fix the center gap at its intended 54-point height, ask the complete navigation surface
+to use its vertically ideal content size, and let real tab labels increase that ideal height for
+accessibility text. Make Today's state container fill the remaining content area independently.
+Assert that both a real tab and the add action remain inside the bottom region at standard and AX5
+sizes.
+
+Alternatives considered: Hardcoding the entire tab bar height, switching back to the system tab
+bar, waiting for configured content before showing navigation, or relying on visual review alone.
+
+Consequences: Loading and other compact destination states cannot turn a flexible decoration into
+a full-screen layout participant. Dynamic Type remains content-driven, while automated coverage
+now fails on gross vertical displacement rather than only missing controls.
+
+Files affected: app routing/navigation layout, Today state layout, UI tests, redesign memory,
+changelog, and session log.
+
+---
+
+## 2026-08-07 — Give empty-state actions their own compact primary style
+
+Context: The shared full-width primary button asks for the maximum width offered by its parent.
+Inside `ContentUnavailableView`, the compact action proposal on a signed iPhone instead compressed
+the Today `Add Expense` and Wishlist `Add Item` labels into near-square mint controls. The action
+remained tappable, but its visual hierarchy and localized label spacing no longer matched the rest
+of the redesign.
+
+Decision: Use a dedicated compact primary style for empty-state actions. Keep the label to one
+line with controlled scaling, 22-point horizontal padding, a 140-point minimum width, a 50-point
+minimum height, and the existing accent/pressed/disabled treatment. Give each release-critical
+empty action its own accessibility identifier. Leave the full-width primary style unchanged for
+forms and bottom commit actions.
+
+Alternatives considered: Changing every primary button, hardcoding a separate width for each
+localized label, shortening the approved copy, or relying only on a visual device check.
+
+Consequences: Chinese and English empty-state actions retain horizontal breathing room without
+changing unrelated form buttons. UI coverage now fails if either reviewed action becomes narrower
+than 140 points or no longer remains wider than twice its height.
+
+Files affected: shared presentation components, Today and Wishlist empty states, UI tests,
+redesign/test memory, changelog, and session log.
+
+---
+
+## 2026-08-07 — Let the bottom-navigation surface replace its decorative top rule
+
+Context: Signed-device review showed that the custom bottom navigation's one-point top hairline
+continued through the raised center Add Expense control. The rule was intended to separate content
+from navigation, but the navigation already has its own semantic surface color and the crossing
+line made the central action look visually divided.
+
+Decision: Remove only the decorative top overlay. Keep the navigation background, safe-area
+coverage, intrinsic height, center-action geometry, hit testing, and accessibility order unchanged.
+
+Alternatives considered: Masking the line only beneath the center button, adding a curved notch,
+or retaining the line as a conventional tab-bar separator.
+
+Consequences: The bottom navigation reads as one continuous surface and the primary add action is
+no longer bisected. Content separation remains available through the existing surface contrast.
+
+Files affected: app routing/navigation presentation, redesign memory, changelog, and session log.
+
+---
+
+## 2026-08-07 — Split Settings by durable responsibility
+
+Context: The redesigned Settings screen placed budget, reminders, notifications, Apple
+Intelligence, Siri, Spotlight, export, deletion, and diagnostics in one growing scroll view. The
+signed iPhone review also exposed runtime localization keys in reminder-tone and AI-status values.
+
+Decision: Make the Settings root a short navigation directory. Budget, reminders and notifications,
+Apple Intelligence, integrations, export, privacy, and About each own a focused second-level page.
+Keep Export and Privacy directly reachable from the root because their discoverability is part of
+the release/privacy contract. Keep cooling-notification repair beside notification controls. Render
+dynamic enum and status keys through `LocalizedCatalog` with the active SwiftUI locale. Local
+fallback diagnostics remain guarded by `#if DEBUG` and therefore absent from Archive/TestFlight.
+
+Alternatives considered: Retaining one long screen, creating a destination per individual toggle,
+moving export/deletion under a generic advanced page, or interpolating localization keys directly
+into `Text` and relying on implicit lookup.
+
+Consequences: Settings can grow without making every user traverse unrelated controls, critical
+privacy actions remain easy to find, and runtime values render in the selected language. Navigation
+depth increases by one for ordinary settings, while Export and Privacy keep their prior depth.
+
+Files affected: Settings and AI-status views, localization, UI tests, redesign/test/project memory,
+changelog, and session log.
+
+---
+
+## 2026-08-07 — Reserve 1.0.0 for public launch
+
+Context: The app is entering internal TestFlight rather than a public App Store release. Calling
+that candidate 1.0.0 obscures its prerelease status and leaves no clear repository rule tying each
+uploaded binary to its tester-facing change record.
+
+Decision: Use marketing version 0.9.0 and build 1 for the first internal TestFlight candidate.
+Increment `CURRENT_PROJECT_VERSION` for every replacement upload, even when the marketing version
+remains 0.9.0. Reserve marketing version 1.0.0 for the first public App Store release. Keep an
+Unreleased section in `Docs/CHANGELOG.md`; before every upload, move included changes into a dated
+version/build section and copy a concise tester-facing summary into the TestFlight notes in
+`Docs/APP_STORE_SUBMISSION.md`.
+
+Alternatives considered: Uploading 1.0.0 before public release, using 0.1.0 despite the feature-
+complete state, encoding beta labels in `CFBundleShortVersionString`, or recording changes only in
+commit messages and App Store Connect.
+
+Consequences: Installed and uploaded prerelease builds communicate their status clearly, App Store
+launch retains a clean 1.0.0 identity, and every binary has durable source-controlled release notes.
+The build number—not a mutable suffix—distinguishes replacement uploads accepted by App Store
+Connect.
+
+Files affected: Xcode version settings, release-readiness validation, changelog, submission notes,
+release checklist, project/task/decision/session memory.

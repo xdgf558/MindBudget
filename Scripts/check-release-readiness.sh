@@ -4,22 +4,61 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 PROJECT_FILE="${PROJECT_ROOT}/MindBudget.xcodeproj/project.pbxproj"
+INFO_PLIST_CATALOG="${PROJECT_ROOT}/MindBudget/Resources/InfoPlist.xcstrings"
 ICON_DIRECTORY="${PROJECT_ROOT}/MindBudget/Resources/Assets.xcassets/AppIcon.appiconset"
-ICON_FILE="${ICON_DIRECTORY}/AppIcon-1024.png"
+ICON_SOURCE_MANIFEST="${PROJECT_ROOT}/Docs/Brand/AppIconSources.sha256"
+EXPECTED_MARKETING_VERSION="0.9.0"
+EXPECTED_BUILD_NUMBER="1"
+ICON_FILENAMES=(
+  "AppIcon-1024.png"
+  "AppIcon-1024-Dark.png"
+  "AppIcon-1024-Tinted.png"
+)
 
-[[ -f "${ICON_FILE}" ]] || { echo "Missing 1024px app icon" >&2; exit 1; }
-grep -q '"filename" : "AppIcon-1024.png"' "${ICON_DIRECTORY}/Contents.json" || {
-  echo "AppIcon asset catalog does not reference AppIcon-1024.png" >&2
+for icon_filename in "${ICON_FILENAMES[@]}"; do
+  icon_file="${ICON_DIRECTORY}/${icon_filename}"
+  [[ -f "${icon_file}" ]] || { echo "Missing 1024px app icon: ${icon_filename}" >&2; exit 1; }
+  grep -q "\"filename\" : \"${icon_filename}\"" "${ICON_DIRECTORY}/Contents.json" || {
+    echo "AppIcon asset catalog does not reference ${icon_filename}" >&2
+    exit 1
+  }
+
+  icon_metadata="$(sips -g pixelWidth -g pixelHeight -g hasAlpha "${icon_file}")"
+  grep -q 'pixelWidth: 1024' <<< "${icon_metadata}"
+  grep -q 'pixelHeight: 1024' <<< "${icon_metadata}"
+  grep -q 'hasAlpha: no' <<< "${icon_metadata}"
+done
+
+grep -q '"value" : "dark"' "${ICON_DIRECTORY}/Contents.json"
+grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
+
+[[ -f "${ICON_SOURCE_MANIFEST}" ]] || {
+  echo "Missing App Icon source/artifact checksum manifest" >&2
   exit 1
 }
+(
+  cd "${PROJECT_ROOT}"
+  shasum -a 256 -c "Docs/Brand/AppIconSources.sha256"
+)
 
-icon_metadata="$(sips -g pixelWidth -g pixelHeight -g hasAlpha "${ICON_FILE}")"
-grep -q 'pixelWidth: 1024' <<< "${icon_metadata}"
-grep -q 'pixelHeight: 1024' <<< "${icon_metadata}"
-grep -q 'hasAlpha: no' <<< "${icon_metadata}"
-
-[[ "$(grep -o 'MARKETING_VERSION = 1.0.0' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
-  echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2
+[[ "$(grep -o "MARKETING_VERSION = ${EXPECTED_MARKETING_VERSION}" "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use marketing version ${EXPECTED_MARKETING_VERSION} in Debug and Release" >&2
+  exit 1
+}
+[[ "$(grep -o "CURRENT_PROJECT_VERSION = ${EXPECTED_BUILD_NUMBER}" "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use build number ${EXPECTED_BUILD_NUMBER} in Debug and Release" >&2
+  exit 1
+}
+[[ "$(grep -o 'INFOPLIST_KEY_CFBundleDisplayName = MindBudget' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use the English fallback display name in Debug and Release" >&2
+  exit 1
+}
+[[ "$(plutil -extract strings.CFBundleDisplayName.localizations.en.stringUnit.value raw -o - "${INFO_PLIST_CATALOG}")" == "MindBudget" ]] || {
+  echo "English Home Screen name must be MindBudget" >&2
+  exit 1
+}
+[[ "$(plutil -extract strings.CFBundleDisplayName.localizations.zh-Hans.stringUnit.value raw -o - "${INFO_PLIST_CATALOG}")" == "花有数" ]] || {
+  echo "Simplified Chinese Home Screen name must be 花有数" >&2
   exit 1
 }
 if grep -q 'DEVELOPMENT_TEAM' "${PROJECT_FILE}"; then

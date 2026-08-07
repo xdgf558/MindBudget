@@ -2,14 +2,27 @@
 
 ## Unreleased
 
+Every user-visible change must be added here when it is implemented. Before each TestFlight or
+App Store upload, move the included entries into a dated version/build section and use the same
+summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
+
+_No changes after the 0.9.0 (1) TestFlight candidate yet._
+
+## 0.9.0 (1) — 2026-08-07 — TestFlight candidate
+
 ### Added
 
+- Language-specific release names: `花有数` for Simplified Chinese and `MindBudget` for English,
+  plus the `温和的预算与消费复盘工具` Simplified Chinese App Store subtitle.
 - An explicit, confirmed repair flow for unreadable cooling-off records that shows the affected
   count, revalidates every selected row at deletion time, and leaves readable records untouched.
 - Phase 10 release gates for bilingual catalog parity, AX5 and pseudo-long UI navigation,
   deterministic 10,000-expense Dashboard performance, and per-file core-service coverage.
-- A production-ready opaque 1024px App Icon, version 1.0.0/build 1 configuration, App Store
-  metadata drafts, and a release checklist for signing, privacy, accessibility, and TestFlight.
+- Production-ready opaque 1024px standard, dark, and tinted App Icon variants using the approved
+  budget-track mark, plus TestFlight version 0.9.0/build 1 configuration, App Store metadata drafts, and a
+  release checklist for signing, privacy, accessibility, and TestFlight.
+- A documented App Icon SVG export map and checksum gate that binds each editable source to its
+  reviewed asset-catalog PNG.
 - A handoff-driven warm-paper design system with semantic light/dark colors, rounded cards,
   wrapping context chips, consistent buttons, and redesigned free V1 screens.
 - A deterministic Today pace projection from `BudgetEngine`, including today's discretionary
@@ -102,6 +115,12 @@
 
 ### Changed
 
+- Split Settings into a short first-level directory and focused second-level pages for budget,
+  reminders and notifications, Apple Intelligence, integrations, export, privacy, and About.
+- Reset account, team, and agreement checklist items for every Archive/upload while preserving
+  dated development observations as non-authoritative preflight evidence.
+- Removed the redundant budget-setup keyboard Done control; the bottom Save Budget button now
+  dismisses input focus and remains the only action that validates and commits the draft.
 - Kept Apple Developer Team selection out of the shared project and documented that Archive and
   upload must use the owner's latest China-region account after revalidating the final identity.
 - Replaced the former five-slot tab semantics with four real destinations—Today, Log, Insights,
@@ -156,6 +175,17 @@
 
 ### Fixed
 
+- Localized runtime reminder-tone and Apple Intelligence status values explicitly, so Simplified
+  Chinese Settings no longer exposes catalog keys such as `settings.reminders.tone.soft`.
+- Removed the decorative hairline that crossed behind the raised center Add Expense control in
+  the custom bottom navigation; the navigation surface color still separates it from content.
+- Kept the Today `Add Expense` and Wishlist `Add Item` empty-state actions on one line with
+  stable horizontal breathing room instead of allowing compact container proposals to collapse
+  them into near-square controls.
+- Made the missing budget keyboard completion-toolbar regression language-neutral and exercised
+  it in both English and Simplified Chinese UI flows.
+- Prevented the custom bottom navigation's transparent center gap from expanding to full-screen
+  height while Today loads, and added bottom-position assertions for normal and AX5 layouts.
 - Declared the custom navigation's VoiceOver traversal as Today, Log, Add Expense, Insights,
   and Wishlist, and derived each tab's announced position and total from `AppTab.allCases`.
 - Restored selected and position announcements, adaptive large-text layout, and in-bounds hit

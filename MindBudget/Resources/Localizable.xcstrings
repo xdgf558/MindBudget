@@ -4173,6 +4173,7 @@
     "insights.cards.title": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Patterns to review"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"可以回看的模式"}}}},
     "insights.card.dismiss": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Dismiss"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"暂不显示"}}}},
     "insights.disclaimer": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Calculated on this device from your records. Informational only, not financial advice."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"内容仅根据本机记录计算，仅供参考，不构成财务建议。"}}}},
+    "settings.remindersAndNotifications.title": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Reminders and notifications"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"提醒与通知"}}}},
     "settings.reminders.section": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Gentle reminders"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"温和提醒"}}}},
     "settings.reminders.gentle": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Show spending check-ins"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"显示消费提示"}}}},
     "settings.reminders.tone": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Wording style"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"表达方式"}}}},

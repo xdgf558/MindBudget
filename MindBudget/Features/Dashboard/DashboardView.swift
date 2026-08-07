@@ -130,6 +130,7 @@ struct DashboardView: View {
                     ErrorStateView(messageKey: "error.data.load", retry: reload)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .toolbar(.hidden, for: .navigationBar)
         }
         .accessibilityIdentifier("dashboard.view")
@@ -267,7 +268,8 @@ struct DashboardView: View {
                         symbolName: "square.and.pencil",
                         titleKey: "expenses.empty.title",
                         messageKey: "expenses.empty.message",
-                        actionTitleKey: "expense.quickAdd"
+                        actionTitleKey: "expense.quickAdd",
+                        actionAccessibilityIdentifier: "dashboard.empty.addExpense"
                     ) {
                         session.presentExpenseEntry()
                     }

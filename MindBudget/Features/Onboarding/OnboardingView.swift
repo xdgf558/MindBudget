@@ -317,6 +317,7 @@ struct BudgetSetupView: View {
 
             Section {
                 Button {
+                    focusedField = nil
                     Task {
                         let saved = await viewModel.save(
                             dataActor: dataActor,
@@ -346,12 +347,6 @@ struct BudgetSetupView: View {
         .navigationTitle("budget.setup.title")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("budget.setup.view")
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("common.done") { focusedField = nil }
-            }
-        }
     }
 
     private func amountField(

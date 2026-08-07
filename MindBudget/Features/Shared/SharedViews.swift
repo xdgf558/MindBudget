@@ -212,6 +212,7 @@ struct EmptyStateView: View {
     let titleKey: LocalizedStringKey
     let messageKey: LocalizedStringKey
     var actionTitleKey: LocalizedStringKey?
+    var actionAccessibilityIdentifier = "empty.action"
     var action: (() -> Void)?
 
     var body: some View {
@@ -222,7 +223,8 @@ struct EmptyStateView: View {
         } actions: {
             if let actionTitleKey, let action {
                 Button(actionTitleKey, action: action)
-                    .buttonStyle(MindBudgetPrimaryButtonStyle())
+                    .buttonStyle(MindBudgetCompactPrimaryButtonStyle())
+                    .accessibilityIdentifier(actionAccessibilityIdentifier)
             }
         }
     }
@@ -376,6 +378,25 @@ struct MindBudgetPrimaryButtonStyle: ButtonStyle {
             .background(
                 Color.mbAccent.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
                 in: RoundedRectangle(cornerRadius: 14)
+            )
+            .contentShape(Rectangle())
+    }
+}
+
+struct MindBudgetCompactPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .padding(.horizontal, 22)
+            .frame(minWidth: 140, minHeight: 50)
+            .foregroundStyle(Color.white)
+            .background(
+                Color.mbAccent.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
+                in: RoundedRectangle(cornerRadius: 15)
             )
             .contentShape(Rectangle())
     }

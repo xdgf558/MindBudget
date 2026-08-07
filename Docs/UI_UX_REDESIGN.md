@@ -8,18 +8,26 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
 
 - Four destinations are real tabs: Today, Log, Insights, and Wishlist.
 - The center add control is a separate, accessible action rather than a fake tab.
-- Settings opens from Today.
+- Settings opens from Today into a short category directory. Budget, reminders and notifications,
+  Apple Intelligence, system integrations, export, privacy, and About each open as focused
+  second-level pages so future controls do not extend one unbounded screen.
 - Existing free flows use the shared Canvas/Surface/Ink/Accent/Attention tokens, rounded
   cards, consistent primary and secondary actions, and localized copy.
 - Today receives its money and pace facts from `BudgetEngine`; views format facts but do
   not calculate financial values.
 - Add Expense uses an app-owned, locale-aware keypad. Behavioral reminders use a
   full-screen pause surface with the existing 2–4-action safety contract.
+- Budget setup keeps edited amounts as draft input until the single bottom Save Budget
+  action is selected; it does not add a second keyboard-toolbar completion action.
 - The custom navigation announces its selected tab and tab-derived localized position, grows
   vertically for accessibility text sizes, keeps the independent add action inside its hit-test
-  bounds, and declares the traversal Today → Log → Add Expense → Insights → Wishlist.
+  bounds, remains bottom-anchored during every destination's loading/empty/content state, and
+  declares the traversal Today → Log → Add Expense → Insights → Wishlist. Its surface color owns
+  the content separation; no decorative top rule crosses behind the raised add action.
 - The Today pace track announces both spending progress and calendar position; visual-only bars
   are not accepted as the sole representation of those facts.
+- Empty-state primary actions use a compact one-line treatment with stable horizontal breathing
+  room; they do not inherit the full-width primary style inside `ContentUnavailableView`.
 
 ## Reserved commerce seams
 
