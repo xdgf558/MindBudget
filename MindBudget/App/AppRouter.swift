@@ -15,6 +15,13 @@ enum AppTab: Hashable, CaseIterable {
     }
 }
 
+enum CoolingOffRepairState: Equatable {
+    case idle
+    case repairing
+    case completed(Int)
+    case failed
+}
+
 @MainActor
 final class AppSession: ObservableObject {
     let dataActor: DataActor
@@ -33,9 +40,15 @@ final class AppSession: ObservableObject {
     @Published private(set) var preparationFailed = false
     @Published private(set) var notificationAuthorizationState: NotificationAuthorizationState = .notDetermined
     @Published private(set) var notificationOperationFailed = false
-    @Published private(set) var notificationDataIntegrityWarning = false
+    @Published private(set) var invalidCoolingOffRecordCount = 0
+    @Published private(set) var coolingOffRepairState: CoolingOffRepairState = .idle
     @Published private(set) var spotlightResult: SpotlightReconciliationResult?
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
+    private var invalidCoolingOffPlanIDs: Set<UUID> = []
+
+    var notificationDataIntegrityWarning: Bool {
+        invalidCoolingOffRecordCount > 0
+    }
 
     init(
         dataActor: DataActor,
@@ -205,10 +218,48 @@ final class AppSession: ObservableObject {
             }
             notificationAuthorizationState = result.authorizationState
             notificationOperationFailed = false
-            notificationDataIntegrityWarning = candidateBatch.containsInvalidData
+            invalidCoolingOffPlanIDs = Set(candidateBatch.invalidPlanIDs)
+            invalidCoolingOffRecordCount = invalidCoolingOffPlanIDs.count
             return true
         } catch {
             notificationOperationFailed = true
+            return false
+        }
+    }
+
+    /// Called only after the user confirms the count shown in Settings. The actor
+    /// revalidates every identifier so this cannot remove a record that became readable.
+    @discardableResult
+    func repairInvalidCoolingOffRecords(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> Bool {
+        let identifiedPlanIDs = Array(invalidCoolingOffPlanIDs)
+        guard !identifiedPlanIDs.isEmpty else { return true }
+
+        coolingOffRepairState = .repairing
+        do {
+            let repairedCount = try await dataActor.repairInvalidCoolingOffPlans(
+                identifiedBy: identifiedPlanIDs
+            )
+            // Every cached identifier was either deleted while still invalid or preserved
+            // because it became readable. Do not leave a stale integrity warning visible if
+            // the best-effort notification reconciliation below independently fails.
+            invalidCoolingOffPlanIDs.subtract(identifiedPlanIDs)
+            invalidCoolingOffRecordCount = invalidCoolingOffPlanIDs.count
+            coolingOffRepairState = .completed(repairedCount)
+            _ = await reconcileNotifications(
+                settings: settings,
+                locale: locale,
+                calendar: calendar,
+                now: now
+            )
+            dataDidChange()
+            return true
+        } catch {
+            coolingOffRepairState = .failed
             return false
         }
     }

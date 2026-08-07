@@ -278,6 +278,7 @@ struct Phase6FeatureTests {
             now: TestFixtures.now
         ))
         #expect(session.notificationDataIntegrityWarning)
+        #expect(session.invalidCoolingOffRecordCount == 1)
         #expect(!session.notificationOperationFailed)
         #expect(await center.requests().count == 1)
         let pendingIdentifiers = await center.pendingIdentifiers()
@@ -294,6 +295,62 @@ struct Phase6FeatureTests {
         #expect(!failedReconciliation)
         #expect(session.notificationOperationFailed)
         #expect(session.notificationDataIntegrityWarning)
+    }
+
+    @Test
+    func confirmedCoolingOffRepairDeletesOnlyStillInvalidIdentifiedRecords() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.dataActor
+        let validWishID = UUID()
+        _ = try await actor.createWishItem(wishDraft(id: validWishID))
+        _ = try await actor.startCoolingOff(
+            wishItemId: validWishID,
+            durationHours: 24,
+            startedAt: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
+        )
+
+        let orphanPlanID = UUID()
+        let orphanIdentifier = CoolingNotificationIdentifier.requestID(for: orphanPlanID)
+        let seeder = Phase6ModelSeeder(modelContainer: controller.container)
+        try await seeder.insertOrphanCoolingOffPlan(
+            id: orphanPlanID,
+            notificationIdentifier: orphanIdentifier
+        )
+        let settings = testSettings()
+        settings.enableLocalNotifications = true
+        let center = TestLocalNotificationCenter(authorizationState: .authorized)
+        let session = AppSession(
+            dataActor: actor,
+            notificationScheduler: NotificationScheduler(center: center),
+            searchIndexCleaner: TestSearchIndexCleaner()
+        )
+
+        #expect(await session.reconcileNotifications(
+            settings: settings,
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar,
+            now: TestFixtures.now
+        ))
+        #expect(session.invalidCoolingOffRecordCount == 1)
+        #expect(try await actor.modelCounts().coolingOffPlans == 2)
+
+        // The repair is authoritative even if the independent notification refresh
+        // immediately afterward fails. A deleted row must not leave a stale warning.
+        await center.setAddFailureEnabled(true)
+        #expect(await session.repairInvalidCoolingOffRecords(
+            settings: settings,
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar,
+            now: TestFixtures.now
+        ))
+
+        #expect(session.coolingOffRepairState == .completed(1))
+        #expect(session.invalidCoolingOffRecordCount == 0)
+        #expect(!session.notificationDataIntegrityWarning)
+        #expect(session.notificationOperationFailed)
+        #expect(try await actor.modelCounts().coolingOffPlans == 1)
+        #expect(try await actor.fetchCoolingNotificationCandidates().candidates.count == 1)
     }
 
     @Test

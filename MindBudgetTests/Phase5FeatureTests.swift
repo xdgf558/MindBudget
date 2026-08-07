@@ -325,6 +325,85 @@ struct Phase5FeatureTests {
     }
 
     @Test
+    func storedPatternDetectionProducesEverySupportedRecurringSignal() throws {
+        let reference = try makeContext(nowHour: 23)
+        let expenses = [
+            expense(
+                amount: 30_000,
+                category: .food,
+                at: reference.now,
+                localHour: 23,
+                emotion: .stressed,
+                reason: .impulse
+            ),
+            expense(
+                amount: 30_000,
+                category: .food,
+                at: try shifted(reference.now, days: -1),
+                localHour: 23,
+                emotion: .stressed,
+                reason: .impulse
+            ),
+            expense(
+                amount: 30_000,
+                category: .food,
+                at: try shifted(reference.now, days: -2),
+                localHour: 23,
+                emotion: .stressed,
+                reason: .impulse
+            ),
+            expense(
+                amount: 20_000,
+                category: .electronics,
+                at: try shifted(reference.now, days: -3),
+                reason: .imageUpgrade
+            )
+        ]
+        let context = try makeContext(nowHour: 23, storedExpenses: expenses)
+        let histories = [
+            CycleAggregate(
+                periodStart: try date(2025, 11, 1),
+                periodEnd: try date(2025, 12, 1),
+                currencyCode: "USD",
+                totalMinorUnits: 5_000,
+                imageRelatedMinorUnits: 5_000
+            ),
+            CycleAggregate(
+                periodStart: try date(2025, 12, 1),
+                periodEnd: context.start,
+                currencyCode: "USD",
+                totalMinorUnits: 5_000,
+                imageRelatedMinorUnits: 5_000
+            )
+        ]
+
+        let drafts = detector.detectPatterns(
+            expenses: expenses,
+            snapshot: context.snapshot,
+            categoryBudgets: context.categoryBudgets,
+            historicalCycles: histories,
+            coolingOffOutcomes: [
+                CoolingOffOutcomeSummary(
+                    outcome: .skipped,
+                    outcomeRecordedAt: context.now
+                )
+            ],
+            config: context.config,
+            now: context.now,
+            calendar: calendar
+        )
+        let types = Set(drafts.map(\.type))
+
+        #expect(types.contains(.highSinglePurchase))
+        #expect(types.contains(.lateNightSpending))
+        #expect(types.contains(.categoryBudgetRisk))
+        #expect(types.contains(.repeatedStressSpending))
+        #expect(types.contains(.impulseCluster))
+        #expect(types.contains(.imageRelatedIncrease))
+        #expect(types.contains(.coolingOffSuccess))
+    }
+
+    @Test
     func safeToProceedAppearsOnlyWhenNoWarningRuleMatches() throws {
         let context = try makeContext()
         let safe = detector.evaluatePotentialPurchase(
@@ -919,6 +998,99 @@ struct Phase5FeatureTests {
     }
 
     @Test
+    func everyInsightFamilyHasSafeTemplateAndPresentationCopy() throws {
+        let context = try makeContext()
+        let locale = Locale(identifier: "en_US")
+
+        for type in SpendingInsightType.allCases {
+            let draft = insightDraft(type: type, snapshot: context.snapshot)
+            for tone in ReminderTone.allCases {
+                let wording = AdviceTemplateGenerator().wording(
+                    for: draft,
+                    tone: tone,
+                    locale: locale
+                )
+                #expect(!wording.title.isEmpty)
+                #expect(!wording.body.isEmpty)
+                #expect(!wording.title.contains("!"))
+                #expect(!wording.body.contains("!"))
+            }
+
+            let insight = SpendingInsightSummary(
+                id: UUID(),
+                dedupeKey: draft.dedupeKey,
+                type: type,
+                severity: draft.severity,
+                titleKey: draft.titleKey,
+                bodyKey: draft.bodyKey,
+                payload: draft.payload,
+                relatedCategory: draft.relatedCategory,
+                relatedEmotionTag: draft.relatedEmotionTag,
+                periodStart: draft.periodStart,
+                periodEnd: draft.periodEnd,
+                isDismissed: false,
+                dismissedAt: nil
+            )
+            let wording = InsightPresentationFormatter().wording(
+                for: insight,
+                locale: locale
+            )
+            #expect(!wording.title.isEmpty)
+            #expect(!wording.body.isEmpty)
+        }
+    }
+
+    @Test
+    func reminderActionNormalizationIsUniqueBoundedAndKeepsContinuePurchase() async throws {
+        let context = try makeContext()
+        let draft = insightDraft(type: .highSinglePurchase, snapshot: context.snapshot)
+        let engine = ReminderEngine()
+        let tooMany = ReminderContext(
+            candidate: nil,
+            impact: nil,
+            snapshot: context.snapshot,
+            drafts: [draft],
+            suggestedActions: [
+                .addToWishlist,
+                .addToWishlist,
+                .startCoolingOff24h,
+                .waitUntilNextCycle,
+                .adjustBudget,
+                .reviewRecentSpending
+            ],
+            tone: .soft
+        )
+        let empty = ReminderContext(
+            candidate: nil,
+            impact: nil,
+            snapshot: context.snapshot,
+            drafts: [draft],
+            suggestedActions: [],
+            tone: .soft
+        )
+
+        let bounded = try #require(
+            await engine.generateReminder(
+                context: tooMany,
+                channel: .sheet,
+                locale: Locale(identifier: "en_US")
+            )
+        )
+        let filled = try #require(
+            await engine.generateReminder(
+                context: empty,
+                channel: .sheet,
+                locale: Locale(identifier: "en_US")
+            )
+        )
+
+        #expect(bounded.actions.count == 4)
+        #expect(Set(bounded.actions.map(\.rawValue)).count == bounded.actions.count)
+        #expect(bounded.actions.contains(.continuePurchase))
+        #expect(filled.actions == [.addToWishlist, .continuePurchase])
+    }
+
+    @Test
     func insightUpsertDeduplicatesAndPreservesDismissal() async throws {
         let context = try makeContext()
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
@@ -1259,13 +1431,34 @@ struct Phase5FeatureTests {
         riskBasisPoints: Int? = nil
     ) -> InsightDraft {
         let category = type == .categoryBudgetRisk ? ExpenseCategory.food : nil
+        let payload: [String: InsightValue] = switch type {
+        case .highSinglePurchase:
+            ["amount": .money(Money(minorUnits: 30_000, currencyCode: "USD"))]
+        case .categoryBudgetRisk:
+            [
+                "category": .category(.food),
+                "risk": .basisPoints(riskBasisPoints ?? 8_500)
+            ]
+        case .imageRelatedIncrease:
+            [
+                "current": .money(Money(minorUnits: 30_000, currencyCode: "USD")),
+                "change": .basisPoints(15_000)
+            ]
+        case .safeToProceed:
+            [
+                "remainingFreeAfter": .money(
+                    Money(minorUnits: 90_000, currencyCode: "USD")
+                )
+            ]
+        case .lateNightSpending, .repeatedStressSpending, .impulseCluster,
+             .wishlistCoolingOff, .coolingOffSuccess, .monthlySummary:
+            ["count": .integer(3)]
+        }
         return InsightDraft(
             type: type,
             severity: severity,
             dedupeKey: "\(type.rawValue):test",
-            payload: type == .highSinglePurchase
-                ? ["amount": .money(Money(minorUnits: 30_000, currencyCode: "USD"))]
-                : ["count": .integer(3)],
+            payload: payload,
             throttleMetadata: ReminderThrottleMetadata(
                 scopeKey: category.map { "categoryBudgetRisk:\($0.rawValue)" }
                     ?? "\(type.rawValue):global",

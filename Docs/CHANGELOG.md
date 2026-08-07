@@ -4,6 +4,12 @@
 
 ### Added
 
+- An explicit, confirmed repair flow for unreadable cooling-off records that shows the affected
+  count, revalidates every selected row at deletion time, and leaves readable records untouched.
+- Phase 10 release gates for bilingual catalog parity, AX5 and pseudo-long UI navigation,
+  deterministic 10,000-expense Dashboard performance, and per-file core-service coverage.
+- A production-ready opaque 1024px App Icon, version 1.0.0/build 1 configuration, App Store
+  metadata drafts, and a release checklist for signing, privacy, accessibility, and TestFlight.
 - A handoff-driven warm-paper design system with semantic light/dark colors, rounded cards,
   wrapping context chips, consistent buttons, and redesigned free V1 screens.
 - A deterministic Today pace projection from `BudgetEngine`, including today's discretionary
@@ -96,6 +102,8 @@
 
 ### Changed
 
+- Kept Apple Developer Team selection out of the shared project and documented that Archive and
+  upload must use the owner's latest China-region account after revalidating the final identity.
 - Replaced the former five-slot tab semantics with four real destinations—Today, Log, Insights,
   and Wishlist—plus a separate center add action; Settings now opens from Today.
 - Grouped the Log by local calendar day and restyled Today, Insights, Wishlist, Ask, Settings,

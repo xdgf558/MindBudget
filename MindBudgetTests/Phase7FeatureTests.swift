@@ -243,8 +243,26 @@ struct Phase7FeatureTests {
                 tone: .soft
             )
         )
+        let advice = PrivacyRedactor().redactAdvice(
+            AdviceAggregateInput(
+                localeIdentifier: "en_US",
+                currencyCode: "USD",
+                purchaseCategory: .food,
+                purchaseAmountFormatted: "$25.00",
+                remainingFreeAfterFormatted: "$100.00",
+                freeBudgetImpactPercent: 25,
+                daysOfBudgetConsumed: 2,
+                categoryBudgetUsedPercent: 80,
+                recentStressPurchaseCount7d: 1,
+                recentImpulsePurchaseCount72h: 2,
+                allowedActions: [.addToWishlist, .continuePurchase],
+                tone: .soft,
+                maxTitleLength: 24,
+                maxBodyLength: 80
+            )
+        )
 
-        for prompt in [ask.promptData, summary.promptData] {
+        for prompt in [ask.promptData, advice.promptData, summary.promptData] {
             #expect(!prompt.contains("note"))
             #expect(!prompt.contains("merchant"))
             #expect(!prompt.contains("startedAt"))
@@ -309,6 +327,11 @@ struct Phase7FeatureTests {
 
             #expect(context.questionIntentKey == facts.intent)
             #expect(actualKeys == expectedKeys)
+            #expect(
+                AllowedNumericTokens(context: context).containsEveryNumber(
+                    in: [context.templateBody(locale: Locale(identifier: "en_US"))]
+                )
+            )
             #expect(!context.promptData.contains("templateBody"))
             #expect(!context.promptData.localizedCaseInsensitiveContains("merchant"))
             #expect(!context.promptData.localizedCaseInsensitiveContains("note"))
@@ -523,6 +546,54 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func cycleSummaryAggregatesRankedCategoriesDirectionsAndEmotions() async throws {
+        let recorder = SummaryContextRecorder()
+        let configured = snapshot()
+        let calendar = TestFixtures.utcCalendar
+        let currentDate = try #require(
+            calendar.date(byAdding: .day, value: 1, to: configured.cycle.start)
+        )
+        let previousDate = try #require(
+            calendar.date(byAdding: .month, value: -1, to: currentDate)
+        )
+        let expenses = [
+            summaryExpense(amount: 5_000, category: .food, at: currentDate, emotion: .neutral),
+            summaryExpense(amount: 3_000, category: .coffee, at: currentDate, emotion: .stressed),
+            summaryExpense(amount: 2_000, category: .shopping, at: currentDate),
+            summaryExpense(amount: 4_000, category: .food, at: previousDate),
+            summaryExpense(amount: 5_000, category: .coffee, at: previousDate),
+            summaryExpense(amount: 2_000, category: .shopping, at: previousDate)
+        ]
+
+        let result = await CycleSummaryService(
+            model: MockAI(mode: .capturingSummary(recorder)),
+            runtimeAvailability: { .available }
+        ).generate(
+            snapshot: .configured(configured),
+            expenses: expenses,
+            coolingOffPlans: [],
+            locale: Locale(identifier: "en_US"),
+            calendar: calendar,
+            tone: .soft,
+            enhancementEnabled: true
+        )
+        let context = try #require(await recorder.context)
+
+        #expect(result.source == .model)
+        #expect(context.topCategoryKeys == [
+            ExpenseCategory.food.localizedNameKey,
+            ExpenseCategory.coffee.localizedNameKey,
+            ExpenseCategory.shopping.localizedNameKey
+        ])
+        #expect(context.categoryChangeDirections[ExpenseCategory.food.localizedNameKey] == "up")
+        #expect(context.categoryChangeDirections[ExpenseCategory.coffee.localizedNameKey] == "down")
+        #expect(context.categoryChangeDirections[ExpenseCategory.shopping.localizedNameKey] == "flat")
+        #expect(context.emotionTagCounts[EmotionTag.neutral.rawValue] == 1)
+        #expect(context.emotionTagCounts[EmotionTag.stressed.rawValue] == 1)
+        #expect(AllowedNumericTokens(context: context).containsEveryNumber(in: [result.summary.body]))
+    }
+
+    @Test
     func centralizedCapabilityFailsClosedBeforeRuntimeWhenDisabled() async {
         let probe = GateProbe()
         let userDisabled = await AIEnhancementCapability(
@@ -697,6 +768,32 @@ struct Phase7FeatureTests {
             completedAt: recordedAt,
             outcome: outcome,
             outcomeRecordedAt: recordedAt
+        )
+    }
+
+    private func summaryExpense(
+        amount: Int64,
+        category: ExpenseCategory,
+        at date: Date,
+        emotion: EmotionTag? = nil
+    ) -> ExpenseSummary {
+        ExpenseSummary(
+            id: UUID(),
+            amount: Money(minorUnits: amount, currencyCode: "USD"),
+            category: category,
+            bucket: .discretionary,
+            merchantName: nil,
+            spentAt: date,
+            spentTimeZoneIdentifier: "UTC",
+            createdAt: date,
+            updatedAt: date,
+            paymentMethod: nil,
+            emotionTag: emotion,
+            purchaseReason: nil,
+            isPlanned: false,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: false
         )
     }
 }

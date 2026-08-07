@@ -961,3 +961,51 @@ the reserved seams but must make its own product, entitlement, price, and refund
 Files affected: app routing, shared design components/assets, all existing V1 SwiftUI features,
 localization, UI and feature tests, and durable project memory. StoreKit and Pro files are not
 part of this interlude.
+
+---
+
+## 2026-08-07 — Make Phase 10 release evidence explicit and keep signing local
+
+Context: Phase 10 must turn the V1 implementation into auditable release evidence without
+claiming that simulator automation proves production signing, physical-device accessibility,
+system integrations, data protection, or App Store Connect state. Settings also identified
+unreadable cooling-off rows but offered no recovery short of Delete All. During this phase the
+owner moved release operations to a different China-region Apple Developer account, so any
+committed Team ID could silently select the previous legal entity or break forks and CI.
+
+Decision: Add a localized repair action that shows the exact cached invalid-row count, requires
+explicit destructive confirmation, and passes only those identifiers to `DataActor`. The actor
+revalidates each row inside the commit and deletes it only if it remains invalid; readable rows,
+unidentified rows, and all other user data are preserved. Repair success clears the corresponding
+stale integrity warning even if the separate best-effort notification reconciliation fails.
+
+The automated release gate now includes an unsigned generic-simulator Release build, the complete
+unit/UI suite, bilingual catalog and printf compatibility, AX5 and pseudo-long navigation smoke,
+a deterministic 10,000-expense Dashboard first-load ceiling of 500 ms, static asset/privacy/version
+checks, and at least 85% line coverage for each selected deterministic money, budget, rule,
+privacy, formatting, and answer-safety source file. Higher coverage targets remain useful stretch
+goals rather than undocumented blockers. Version 1.0.0/build 1 and the opaque 1024px icon are the
+initial TestFlight identity; every replacement upload increments the build number.
+
+Do not commit `DEVELOPMENT_TEAM`. Immediately before Archive, select and verify the owner's latest
+China-region team locally, confirm that the final Bundle ID and App Store Connect app belong to
+that team, inspect the distribution identity and provisioning profile, and confirm agreements.
+No archive or upload is represented as complete by this source-only phase. The release checklist's
+signed-device VoiceOver/AX5/dark-mode/iOS 17/iOS 26, Instruments, privacy, system-integration,
+screenshot, archive, and upload items remain hard manual gates; Phase 10 stays In Progress until
+they are evidenced.
+
+Alternatives considered: Silently deleting corrupt rows during reconciliation, deleting every
+corrupt row without a user-confirmed identifier set, treating one aggregate coverage percentage
+as sufficient, recording simulator checks as proof of device behavior, hardcoding the new Team ID,
+or attempting an upload before the owner confirms the final account and App Store Connect record.
+
+Consequences: The repository can reproduce its automated release claims while distinguishing them
+from account- and device-dependent evidence. A repair cannot broaden itself beyond the rows the
+user was shown, notification outages no longer leave a false integrity warning, and neither the
+previous nor current developer account leaks into shared build configuration. TestFlight remains
+blocked on the explicit manual checklist rather than on an ambiguous “tests pass” statement.
+
+Files affected: cooling-off repair actor/session/Settings flow, localization and tests, release
+scripts and coverage gates, app icon/version metadata, App Store/release/privacy documentation,
+project memory, changelog, and this file.

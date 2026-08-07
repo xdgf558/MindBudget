@@ -107,6 +107,17 @@ Status: Done
   derive tab positions/totals from the exhaustive `AppTab` order rather than numeric literals.
 
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
-Status: Todo
-- Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
-  Show the affected count, require confirmation, and never delete those records implicitly.
+Status: In Progress
+- [x] Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
+  Show the affected count, require confirmation, revalidate before deletion, and never delete
+  those records implicitly.
+- [x] Add bilingual catalog parity/format checks, an AX5 navigation smoke test, and a deterministic
+  Dashboard first-load benchmark with 10,000 expenses and a 500 ms ceiling.
+- [x] Add an opaque 1024px App Icon, version 1.0.0/build 1 configuration, static release checks,
+  per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
+- [x] Complete the full automated validation after the Phase 10 diff is final, including a
+  generic iOS Simulator Release build and the complete unit/UI/coverage suite.
+- [ ] Complete signed physical-iPhone VoiceOver, AX5, dark-mode, iOS 17/iOS 26, Instruments,
+  system-integration, data-protection, screenshot, and archive checks in `RELEASE_CHECKLIST.md`.
+- [ ] Archive and upload using the owner's latest China-region Apple Developer team; verify the
+  final Bundle ID, distribution identity, agreements, and App Store Connect app before upload.

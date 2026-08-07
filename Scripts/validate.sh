@@ -4,7 +4,12 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
+VALIDATION_TEMP_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/mindbudget-validation.XXXXXX")"
+RESULT_BUNDLE="${VALIDATION_TEMP_DIRECTORY}/MindBudget.xcresult"
+trap 'rm -rf "${VALIDATION_TEMP_DIRECTORY}"' EXIT
 cd "${PROJECT_ROOT}"
+
+Scripts/check-release-readiness.sh
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \
@@ -22,13 +27,20 @@ if [[ ! "${bundle_identifier}" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]]; then
 fi
 
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "${DESTINATION}" build-for-testing
+  -configuration Release -destination "generic/platform=iOS Simulator" build
+
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  -destination "${DESTINATION}" -enableCodeCoverage YES build-for-testing
 
 if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
   xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
     -destination "${DESTINATION}" -retry-tests-on-failure -test-iterations 2 \
+    -enableCodeCoverage YES -resultBundlePath "${RESULT_BUNDLE}" \
     test-without-building
 else
   xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-    -destination "${DESTINATION}" test-without-building
+    -destination "${DESTINATION}" -enableCodeCoverage YES \
+    -resultBundlePath "${RESULT_BUNDLE}" test-without-building
 fi
+
+Scripts/check-coverage.sh "${RESULT_BUNDLE}"

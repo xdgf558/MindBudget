@@ -145,20 +145,31 @@ suggested entities.
     while the center add control opens expense entry and Settings opens from Today.
 17. Confirm there is no visible paid lock, quota, trial, paywall, StoreKit entry, or custom-rule
     purchase UI before the separate commercialization phase is implemented.
+18. Confirm the localized corrupt-cooling-record count and explicit repair confirmation preserve
+    every readable record and never run automatically.
+19. Run pseudo-localization and long-text inspection across the redesigned screens, then capture
+    the accepted AX5/VoiceOver order on a signed iPhone.
+20. Before Archive, select and verify the owner's latest China-region Apple Developer team,
+    final Bundle ID, distribution identity, agreements, and intended App Store Connect app.
 
-## Coverage targets
+## Coverage gates and stretch targets
 
-| Module | Target |
-|---|---:|
-| BudgetEngine | at least 95% |
-| BudgetCycleCalculator / BudgetPlanFactory | at least 95% |
-| SpendingPatternDetector | at least 95% |
-| ReminderThrottle | at least 95% |
-| AdviceSafetyValidator | at least 95% |
-| PrivacyRedactor | 100% |
-| Money | 100% |
-| Other services | at least 80% |
-| Views | manual smoke coverage |
+The executable release gate is at least 85% line coverage for every deterministic core file
+listed in `Scripts/check-coverage.sh`, matching the product specification. Higher numbers remain
+review targets, not claims that defensive `preconditionFailure` or compiler-generated branches
+can safely be executed.
+
+| Module | Release gate | Stretch target |
+|---|---:|---:|
+| BudgetEngine | at least 85% | at least 95% |
+| BudgetCycleCalculator / BudgetPlanFactory | at least 85% | at least 95% |
+| SpendingPatternDetector | at least 85% | at least 95% |
+| ReminderThrottle | at least 85% | at least 95% |
+| AdviceSafetyValidator | at least 85% | at least 95% |
+| PrivacyRedactor | at least 85% | 100% |
+| Money | at least 85% | 100% |
+| Other selected core services | at least 85% | increase when useful |
+| Views | manual smoke coverage | UI automation where stable |
 
 ## Phase 0 acceptance
 
