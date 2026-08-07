@@ -43,6 +43,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(element("dashboard.today.left", in: app).exists)
+        assertCompactEmptyStateAction(
+            app.buttons["dashboard.empty.addExpense"],
+            named: "Dashboard Add Expense"
+        )
         assertPrimaryNavigationIsBottomAnchored(in: app)
         XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
         XCTAssertEqual(app.buttons["tab.dashboard"].value as? String, "Tab 1 of 4")
@@ -81,8 +85,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.wishlist"].isSelected)
         XCTAssertEqual(app.buttons["tab.wishlist"].value as? String, "Tab 4 of 4")
         XCTAssertFalse(app.buttons["tab.dashboard"].isSelected)
-        XCTAssertTrue(element("wishlist.empty", in: app).waitForExistence(timeout: 5))
-        app.buttons["wishlist.add"].tap()
+        let emptyAddButton = app.buttons["wishlist.empty.add"]
+        assertCompactEmptyStateAction(emptyAddButton, named: "Wishlist Add Item")
+        emptyAddButton.tap()
 
         XCTAssertTrue(app.textFields["wishlist.name"].waitForExistence(timeout: 5))
         app.textFields["wishlist.name"].typeText("Headphones")
@@ -258,6 +263,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
             app.toolbars.buttons.count,
             0,
             "Budget entry must not expose a second keyboard-level completion action"
+        )
+    }
+
+    @MainActor
+    private func assertCompactEmptyStateAction(
+        _ button: XCUIElement,
+        named name: String
+    ) {
+        XCTAssertTrue(button.waitForExistence(timeout: 2), "Missing \(name) action")
+        XCTAssertGreaterThanOrEqual(
+            button.frame.width,
+            140,
+            "\(name) action lost its horizontal breathing room"
+        )
+        XCTAssertGreaterThan(
+            button.frame.width,
+            button.frame.height * 2,
+            "\(name) action became a cramped square control"
         )
     }
 

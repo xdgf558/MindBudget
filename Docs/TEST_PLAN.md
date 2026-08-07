@@ -380,7 +380,9 @@ pace track exposes a nonempty localized accessibility value containing the spent
 cycle day position. UI identifiers describe the metric they expose; `dashboard.today.left` must
 never reuse the former cycle-wide `dashboard.available` meaning. Engine tests explicitly
 distinguish reconstructed start-of-day allowance from double subtraction and cover the last
-in-cycle day.
+in-cycle day. The Today `Add Expense` and Wishlist `Add Item` empty-state actions must each remain
+at least 140 points wide and wider than twice their height, preventing localized labels from
+collapsing into cramped square controls.
 
 ## Phase 10 acceptance
 

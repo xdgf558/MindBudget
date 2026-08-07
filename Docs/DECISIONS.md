@@ -1125,3 +1125,29 @@ now fails on gross vertical displacement rather than only missing controls.
 
 Files affected: app routing/navigation layout, Today state layout, UI tests, redesign memory,
 changelog, and session log.
+
+---
+
+## 2026-08-07 — Give empty-state actions their own compact primary style
+
+Context: The shared full-width primary button asks for the maximum width offered by its parent.
+Inside `ContentUnavailableView`, the compact action proposal on a signed iPhone instead compressed
+the Today `Add Expense` and Wishlist `Add Item` labels into near-square mint controls. The action
+remained tappable, but its visual hierarchy and localized label spacing no longer matched the rest
+of the redesign.
+
+Decision: Use a dedicated compact primary style for empty-state actions. Keep the label to one
+line with controlled scaling, 22-point horizontal padding, a 140-point minimum width, a 50-point
+minimum height, and the existing accent/pressed/disabled treatment. Give each release-critical
+empty action its own accessibility identifier. Leave the full-width primary style unchanged for
+forms and bottom commit actions.
+
+Alternatives considered: Changing every primary button, hardcoding a separate width for each
+localized label, shortening the approved copy, or relying only on a visual device check.
+
+Consequences: Chinese and English empty-state actions retain horizontal breathing room without
+changing unrelated form buttons. UI coverage now fails if either reviewed action becomes narrower
+than 140 points or no longer remains wider than twice its height.
+
+Files affected: shared presentation components, Today and Wishlist empty states, UI tests,
+redesign/test memory, changelog, and session log.

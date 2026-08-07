@@ -268,7 +268,8 @@ struct DashboardView: View {
                         symbolName: "square.and.pencil",
                         titleKey: "expenses.empty.title",
                         messageKey: "expenses.empty.message",
-                        actionTitleKey: "expense.quickAdd"
+                        actionTitleKey: "expense.quickAdd",
+                        actionAccessibilityIdentifier: "dashboard.empty.addExpense"
                     ) {
                         session.presentExpenseEntry()
                     }

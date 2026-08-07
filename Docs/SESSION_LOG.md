@@ -1476,3 +1476,37 @@ catalog mappings, release metadata/privacy gates, floating-point money policy, c
 Next suggested task: Publish this correction to PR #14 under a title/body that explicitly includes
 approved branding plus the signed-device budget and bottom-navigation fixes, obtain final review,
 then merge before beginning production App ID, Archive, and TestFlight operations.
+
+## 2026-08-07 — Session 37 — Restore empty-state action proportions
+
+Goal: Repair the cramped near-square `Add Expense` action observed on Today's signed-iPhone empty
+state and apply the same correction to Wishlist's `Add Item` action.
+
+Files changed: shared empty-state button presentation, Today and Wishlist call sites, Phase 3 UI
+geometry coverage, redesign/test/decision memory, changelog, and this session log.
+
+What was completed: Replaced the full-width form button style inside `ContentUnavailableView` with
+a dedicated compact primary style that preserves a one-line localized label, horizontal padding,
+a 140-point minimum width, and the existing 50-point touch height. Added distinct accessibility
+identifiers for both actions and geometry assertions requiring each control to remain at least
+140 points wide and wider than twice its height. The first full validation exposed that Wishlist's
+outer accessibility identifier replaced the nested button identifier; removed that parent-level
+override and reran the complete suite successfully.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+or merge was performed. The owner still needs to review this update in PR #14 and visually confirm
+the two actions on the signed iPhone before the release Archive.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and Debug
+build-for-testing.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. Both
+Dashboard and Wishlist compact-action geometry assertions passed in the final run.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, and
+`git diff --check` pass.
+
+Next suggested task: Push the focused fix to PR #14, obtain owner review, and merge before the
+production Archive and TestFlight workflow.

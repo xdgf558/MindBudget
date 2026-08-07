@@ -165,6 +165,9 @@
 
 ### Fixed
 
+- Kept the Today `Add Expense` and Wishlist `Add Item` empty-state actions on one line with
+  stable horizontal breathing room instead of allowing compact container proposals to collapse
+  them into near-square controls.
 - Made the missing budget keyboard completion-toolbar regression language-neutral and exercised
   it in both English and Simplified Chinese UI flows.
 - Prevented the custom bottom navigation's transparent center gap from expanding to full-screen

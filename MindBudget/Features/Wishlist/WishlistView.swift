@@ -39,11 +39,11 @@ struct WishlistView: View {
                         symbolName: "heart.text.square",
                         titleKey: "wishlist.empty.title",
                         messageKey: "wishlist.empty.message",
-                        actionTitleKey: "wishlist.add.title"
+                        actionTitleKey: "wishlist.add.title",
+                        actionAccessibilityIdentifier: "wishlist.empty.add"
                     ) {
                         presentsAddItem = true
                     }
-                    .accessibilityIdentifier("wishlist.empty")
                 } else {
                     wishlistList
                 }

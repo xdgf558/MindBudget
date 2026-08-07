@@ -23,6 +23,8 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   declares the traversal Today → Log → Add Expense → Insights → Wishlist.
 - The Today pace track announces both spending progress and calendar position; visual-only bars
   are not accepted as the sole representation of those facts.
+- Empty-state primary actions use a compact one-line treatment with stable horizontal breathing
+  room; they do not inherit the full-width primary style inside `ContentUnavailableView`.
 
 ## Reserved commerce seams
 
