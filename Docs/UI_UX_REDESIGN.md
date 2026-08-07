@@ -19,6 +19,9 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   full-screen pause surface with the existing 2–4-action safety contract.
 - Budget setup keeps edited amounts as draft input until the single bottom Save Budget
   action is selected; it does not add a second keyboard-toolbar completion action.
+- Settings > Budget loads the existing current period into editable amount fields. Its single Save
+  Budget action updates that plan in place; accounting currency remains read-only, and changing the
+  preferred cycle start day is explicitly future-facing rather than rewriting current history.
 - The custom navigation announces its selected tab and tab-derived localized position, grows
   vertically for accessibility text sizes, keeps the independent add action inside its hit-test
   bounds, remains bottom-anchored during every destination's loading/empty/content state, and
@@ -28,6 +31,22 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   are not accepted as the sole representation of those facts.
 - Empty-state primary actions use a compact one-line treatment with stable horizontal breathing
   room; they do not inherit the full-width primary style inside `ContentUnavailableView`.
+- Appearance is a first-level Settings destination with three included skins: Aurora Glow uses a
+  deep teal aurora treatment, Warm Botanical uses warm cream and restrained green, and Neon Pulse
+  uses midnight purple with cyan highlights. A persisted `AppSkin` selects one semantic
+  `MindBudgetTheme`; feature views consume theme roles rather than naming skin-specific colors.
+- Layout, controls, cards, materials, and symbols remain native SwiftUI. Each skin also owns one
+  purpose-built portrait background artwork: aurora/stars/glass waves, paper/foliage/natural
+  shadows, or neon light trails/grid/particles. The supplied UI references are never cropped into
+  shipping screenshots, so no text, amount, control, or status-bar pixel enters the background;
+  localization, Dynamic Type, controls, and accessibility remain native.
+- Simplified Chinese surfaces say `花有数`; English surfaces say `MindBudget`. Xcode targets,
+  bundle identifiers, store filenames, Spotlight domains, and Swift type names retain their
+  established technical identifiers.
+- A cold process launch adds one app-owned brand transition after the static system launch screen:
+  the selected skin, localized product name and subtitle, and budget-track mark appear for less
+  than one second while normal preparation proceeds underneath. It does not replay on foreground
+  return. Reduce Motion replaces progress, marker, and scale motion with a short fade.
 
 ## Reserved commerce seams
 
@@ -42,6 +61,9 @@ existing composition boundaries:
 - Ask: between question input and the answer surface; the template fallback remains
   available independently of any entitlement.
 - Settings: as its own section, not mixed into privacy or system-integration controls.
+- Appearance: future additional skins may gain an entitlement requirement only when a real
+  StoreKit product, restore path, entitlement state, and purchase UX exist end to end. The three
+  currently shipped skins remain included and show no lock, price, PRO badge, or paywall.
 - Reminder rules: as a destination backed by a real rule model, never as a dead row.
 
 Until those capabilities exist end to end, each seam renders nothing. Free behavior must
@@ -49,7 +71,13 @@ not be degraded in preparation for a future paid tier.
 
 ## Visual verification
 
-The supplied handoff is light-mode-first. Semantic asset colors include conservative dark
-variants so screens remain readable, but Phase 10 must still perform signed-device checks
-for light/dark mode, Dynamic Type through AX5, VoiceOver order, Reduce Motion, narrow
-iPhone widths, Settings discoverability from Today, and keyboard avoidance.
+Signed-device verification must cover every skin on Today plus at least one list, form, Settings,
+and Insights surface; selection persistence across relaunch; Dynamic Type through AX5; VoiceOver
+selection announcements; Reduce Motion; narrow iPhone widths; and keyboard avoidance. Warm
+Botanical intentionally presents in a light scheme; Aurora Glow and Neon Pulse intentionally
+present in dark schemes so their contrast is deterministic rather than inherited from an
+unrelated system appearance choice.
+Verify that the theme artwork is visibly present rather than reduced to a flat color, while its
+quiet center and readability scrim keep all text and controls legible.
+Force-quit before launch-animation verification; background and foreground transitions must not
+replay it. Repeat with Reduce Motion enabled and verify that only opacity changes.

@@ -49,6 +49,71 @@ struct BudgetEngineTests {
     }
 
     @Test
+    func allocationExplainsAvailableFullyAllocatedAndOvercommittedPlans() throws {
+        let available = try engine.allocation(
+            totalBudget: money(600_000),
+            fixedForecast: money(300_000),
+            savingGoal: money(50_000)
+        )
+        let fullyAllocated = try engine.allocation(
+            totalBudget: money(350_000),
+            fixedForecast: money(300_000),
+            savingGoal: money(50_000)
+        )
+        let overcommitted = try engine.allocation(
+            totalBudget: money(300_000),
+            fixedForecast: money(300_000),
+            savingGoal: money(50_000)
+        )
+
+        #expect(available.flexibleBudget.minorUnits == 250_000)
+        #expect(available.status == .available)
+        #expect(fullyAllocated.flexibleBudget.minorUnits == 0)
+        #expect(fullyAllocated.status == .fullyAllocated)
+        #expect(overcommitted.flexibleBudget.minorUnits == 0)
+        #expect(overcommitted.status == .overcommitted)
+    }
+
+    @Test
+    func configuredBudgetProducesAConcreteRebalancedAmountForToday() throws {
+        let calendar = TestFixtures.utcCalendar
+        let start = try date(2026, 8, 1, calendar: calendar)
+        let end = try date(2026, 9, 1, calendar: calendar)
+        let now = try date(2026, 8, 7, calendar: calendar)
+        let plan = BudgetPlanSummary(
+            id: UUID(),
+            cycleStart: start,
+            cycleEnd: end,
+            currencyCode: "CNY",
+            monthlyIncomeMinorUnits: 600_000,
+            totalBudgetMinorUnits: 600_000,
+            fixedExpensesMinorUnits: 300_000,
+            savingGoalMinorUnits: 50_000,
+            categoryBudgets: []
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: DateInterval(start: start, end: end),
+                currencyCode: "CNY",
+                expenses: [],
+                plan: plan,
+                now: now,
+                calendar: calendar
+            )
+        )
+        let pace = try engine.pace(
+            snapshot: snapshot,
+            expenses: [],
+            now: now,
+            calendar: calendar
+        )
+
+        #expect(snapshot.freeBudget.minorUnits == 250_000)
+        #expect(snapshot.daysRemaining == 25)
+        #expect(pace.leftToSpendToday.minorUnits == 10_000)
+    }
+
+    @Test
     func fixedPaymentReducesItsPendingReservationWithoutDoubleCounting() throws {
         let context = try makeContext()
         let withoutFixedPayment = try requireConfigured(
@@ -245,8 +310,8 @@ struct BudgetEngineTests {
         )
 
         #expect(pace.spentToday.minorUnits == 12_000)
-        #expect(snapshot.safeDailySpend.minorUnits - pace.spentToday.minorUnits == -2_167)
-        #expect(pace.leftToSpendToday.minorUnits == -1_167)
+        #expect(pace.leftToSpendToday == snapshot.safeDailySpend)
+        #expect(pace.leftToSpendToday.minorUnits == 9_833)
         #expect(pace.expectedSpentByToday.minorUnits == 96_774)
         #expect(pace.paceDifference.minorUnits == 64_774)
         #expect(!pace.isAheadOfPace)

@@ -1201,6 +1201,37 @@ changelog, and session log.
 
 ---
 
+## 2026-08-07 — Treat generated language as an output-safety contract
+
+Context: A signed Simplified Chinese build requested a remaining-budget answer from the on-device
+model. Although the prompt asked for `localeIdentifier`'s language, the model returned an English
+title and body. The existing validator accepted the proposal because length, actions, banned
+phrases, and numbers were valid. The same screen interpolated action identifiers into a
+`LocalizedStringKey`, so SwiftUI rendered the literal catalog keys instead of their Chinese labels.
+
+Decision: Validate the writing system of every generated Ask answer, reminder, and cycle summary
+for the two shipped interface languages. Simplified Chinese proposals must contain Han text;
+English proposals must contain basic Latin text and no Han text. A mismatch is an invalid model
+proposal and follows the existing complete-template fallback path. Resolve dynamic Ask action keys
+explicitly with `LocalizedCatalog` and the active SwiftUI locale instead of relying on interpolated
+localization-key inference.
+
+Alternatives considered: Trusting the prompt alone, displaying the mismatched model output,
+translating it with a second model pass, or using a probabilistic language-classification
+framework. The first already failed on-device, the second produces mixed-language UI, the third
+adds another nondeterministic generation step, and the fourth is unnecessary for the two closed
+shipping languages.
+
+Consequences: On-device wording remains optional; language drift now produces the same complete,
+localized deterministic answer available on iOS 17 instead of leaking through to the UI. The
+check is deliberately narrow to the shipped English and Simplified Chinese locales and is covered
+by validator, composite-fallback, and rendered Chinese action-label tests.
+
+Files affected: generated-output validation, Ask UI, localization/release notes, Phase 7 and UI
+tests, TestFlight guidance, and durable project memory.
+
+---
+
 ## 2026-08-07 — Reserve 1.0.0 for public launch
 
 Context: The app is entering internal TestFlight rather than a public App Store release. Calling
@@ -1225,3 +1256,159 @@ Connect.
 
 Files affected: Xcode version settings, release-readiness validation, changelog, submission notes,
 release checklist, project/task/decision/session memory.
+
+---
+
+## 2026-08-07 — Make skins semantic, persistent, and entitlement-neutral
+
+Context: The owner supplied three visual directions before the first internal TestFlight: deep
+teal aurora glass, warm cream botanical, and midnight purple/cyan neon. Future additional skins
+may become part of a paid tier, but StoreKit products, entitlements, restore, and purchase UX do
+not yet exist. The Simplified Chinese UI also still contained localized references to the English
+product name even though the release display name is `花有数`.
+
+Decision: Model the three current choices as stable `AppSkin` raw values stored in `SettingsStore`.
+Resolve each through one injected `MindBudgetTheme` containing semantic canvas, surface, ink,
+accent, attention, and dark-surface roles. Keep layout, controls, cards, materials, and symbols
+native SwiftUI, while each skin supplies one purpose-built portrait background derived from the
+owner's visual direction. The supplied UI screenshots themselves are never cropped or shipped;
+the standalone backgrounds contain no text, amount, control, status bar, logo, or watermark. All
+three skins are included with no lock or paid messaging. Warm Botanical is the safe default and
+corrupt-value fallback; Delete All resets it with other preferences. Simplified Chinese
+user-facing catalog values use `花有数`, while English and technical identifiers retain
+`MindBudget`.
+
+Alternatives considered: Shipping only palette changes, cropping the supplied screenshots into
+backgrounds, duplicating each screen per skin, tying skins to system light/dark mode, showing
+disabled PRO rows before commerce exists, or renaming the Xcode target, bundle/store paths, and
+Swift types.
+
+Consequences: New skins can be added by extending one closed palette and localized metadata rather
+than forking feature views. A future commerce phase may add entitlement metadata at the skin
+catalog boundary only after end-to-end purchasing exists; the three original skins remain
+included. Theme selection never changes financial data or privacy behavior.
+
+Files affected: shared presentation theme, Settings/preferences, localized copy, feature views,
+tests, redesign/test/project/task memory, changelog, and session log.
+
+---
+
+## 2026-08-07 — Version prerelease milestones visibly and publish their notes in-app
+
+Context: Candidate `0.9.0 (1)` was visible on the signed device before the new skin system,
+complete background artwork, and Chinese product-name cleanup were added. The owner requested that
+the updated build carry a higher visible version and that users be able to read its changes from
+the About screen, not only from repository and TestFlight documents.
+
+Decision: Identify this cohesive prerelease milestone as marketing version `0.9.1`, build `2`.
+Keep `1.0.0` reserved for the first public App Store release. Display the marketing version from
+the bundle and show a concise bilingual update summary in Settings > About. Keep the same summary
+represented in the dated changelog and next-candidate TestFlight notes. Future replacement uploads
+always increment the build number; an owner-approved user-visible prerelease milestone may also
+increment the `0.9.x` patch version.
+
+Alternatives considered: Leaving the visible version at `0.9.0` and changing only the build,
+showing repository prose verbatim inside the app, hardcoding the version in Swift, or using
+`1.0.0` before public release.
+
+Consequences: Testers can distinguish the skin/brand candidate on the device and understand its
+changes without App Store Connect access. Version, build, changelog, TestFlight notes, About copy,
+and release-readiness checks must move together.
+
+Files affected: Xcode version settings, About UI/localization, UI coverage, release checks,
+changelog, submission/release/task/project memory, and session log.
+
+---
+
+## 2026-08-07 — Use a brief app-owned transition for cold-launch branding
+
+Context: iOS owns the launch screen and requires it to remain static. The owner requested a short
+opening animation after seeing the signed-device build, while fast expense entry, accessibility,
+and truthful startup state remain more important than a decorative splash sequence.
+
+Decision: After the first app-rendered frame, show a selected-skin overlay containing the localized
+product name, localized subtitle, and the existing budget-track mark for less than one second.
+Run normal preparation concurrently underneath and present the overlay once per process, so a
+background-to-foreground transition never replays it. During normal motion, gently reveal the
+brand while the filled track and marker advance before fading out. With Reduce Motion enabled,
+remove progress, marker, translation, and scale motion and use opacity only. Hide the animation
+overlay from accessibility and hit testing so assistive technology and fast input can reach the
+real prepared screen immediately. Permit a Debug-only launch argument to hold the final animation
+frame for deterministic UI inspection; Release always ignores it.
+
+Alternatives considered: Attempting to animate the system launch screen, shipping a video or
+third-party animation runtime, delaying preparation until a long splash completes, replaying on
+every foreground activation, or omitting Reduce Motion behavior.
+
+Consequences: A cold launch gains a short branded transition without a new dependency or asset,
+and the content can already be preparing during it. The decorative overlay never owns input or
+accessibility focus. Signed-device release review must verify prompt exit, cold-only behavior,
+both localized names, all skins, and the opacity-only Reduce Motion path.
+
+Files affected: shared theme presentation, app routing, localization, About notes, UI coverage,
+redesign/test/release/project/task/decision/session memory, changelog, and TestFlight notes.
+
+---
+
+## 2026-08-07 — Edit only the current budget plan in place
+
+Context: The focused Settings hierarchy exposed Budget as a second-level page but rendered only
+the accounting currency and preferred cycle start day. A signed-device check therefore looked
+like budget editing had stopped working. Reusing first-time setup would be unsafe because that
+flow creates a new plan and correctly rejects overlap with the already configured current cycle.
+
+Decision: Give Settings its own current-budget edit path. Load the plan that contains an explicit
+reference date, parse the four amount fields with the same exact locale-aware money parser used by
+initial setup, and atomically update that existing plan through `DataActor`. Preserve its ID,
+half-open boundaries, accounting currency, and category-budget rows. Reject a plan that no longer
+contains the save-time reference date, so a page left open across a cycle boundary cannot mutate
+history. Keep accounting currency read-only. Save the preferred cycle start day only after the
+amount update succeeds; it affects future coverage and continues to use the established explicit
+transition/first-regular confirmation flow.
+
+Alternatives considered: Keeping the page as a read-only summary, inserting another plan from the
+onboarding form, deleting and recreating the current plan, allowing arbitrary historical edits,
+or directly binding the cycle start preference before the financial write succeeds.
+
+Consequences: Users can correct the current period without duplicate plans or data loss, while
+historical boundaries and accounting identity remain stable. Future automatic roll-forward copies
+the corrected current amounts when no later plan already exists. A separately confirmed future or
+transition plan is not silently rewritten.
+
+Files affected: budget transfer/update boundaries, DataActor, Settings budget UI, localization,
+unit/UI tests, release notes, and durable project memory.
+
+---
+
+## 2026-08-07 — Rebalance Today from current remaining budget and protect the app with an optional owner lock
+
+Context: Signed-device review showed that the Today card could subtract today's discretionary
+entries after those entries had already reduced `remainingFree`, producing a negative amount that
+did not answer the product question. The same review requested Face ID protection for local
+financial records without adding an account or cloud identity.
+
+Decision: Define the Today amount as `ConfiguredBudgetSnapshot.safeDailySpend`: the exact
+nonnegative remaining flexible budget divided by remaining calendar days after all stored entries
+have already been applied. Keep pace variance separate so overspending remains visible without
+corrupting the actionable daily amount. Surface the deterministic allocation in setup/Settings and
+the reservation breakdown in Ask so a true zero is explained rather than hidden. Add a default-off
+app lock backed only by `LocalAuthentication`. Require enrolled Face ID and successful owner
+authentication to enable it, authenticate again before disabling, and keep an opaque root overlay
+through cold launch and every inactive/background return until authentication succeeds. Use
+`.deviceOwnerAuthentication` at unlock time so iOS can offer device-passcode recovery if biometric
+enrollment changes. Never receive, store, log, export, or model biometric data.
+
+Alternatives considered: Clamping a double-subtracted value to zero, presenting the cycle-wide
+available amount as a daily allowance, inventing a fallback budget, enabling Face ID by default,
+using app-owned PIN storage, providing no passcode recovery, or treating authentication cancel as
+permission to reveal the prior screen.
+
+Consequences: A configured budget yields a concrete, continuously rebalanced daily amount, while
+zero allocations remain truthful and diagnosable. The app lock adds no server or account surface,
+and cancellation fails closed. Signed-device release testing must verify the system permission
+copy, Face ID/passcode behavior, background snapshot cover, localized lock screen, and recovery
+after biometric changes.
+
+Files affected: budget engine and Dashboard tests, Ask/allocation presentation, root app routing,
+privacy settings and persistence, Info.plist/localization, release notes, privacy/test/task/project
+memory, changelog, and session log.

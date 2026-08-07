@@ -17,10 +17,12 @@ unchecked item below has been performed against the release commit.
   signed release iPhone; treat that device evidence as authoritative.
 - [x] English and Simplified Chinese catalogs have matching, nonempty, format-compatible keys.
 - [x] AX5 UI smoke keeps onboarding, all four tabs, Add Expense, and Settings reachable.
+- [x] Settings smoke edits and saves the current budget through the focused second-level page;
+  actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration remains TestFlight version 0.9.0, iPhone-only, iOS 17+, and contains no shared
-  Apple Team ID.
+- [x] Release configuration remains TestFlight candidate version 0.9.1/build 2, iPhone-only,
+  iOS 17+, and contains no shared Apple Team ID.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
   `温和的预算与消费复盘工具` as its subtitle.
@@ -35,7 +37,7 @@ unchecked item below has been performed against the release commit.
 - [ ] Confirm the distribution certificate and provisioning profile are valid for that team.
 - [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
-- [ ] Archive Release 0.9.0 with a new build number, validate it in Organizer, and inspect the
+- [ ] Archive Release 0.9.1 (2), validate it in Organizer, and inspect the
   archive's application identifier prefix/team before upload.
 - [ ] Upload through Organizer while logged into the current account, wait for processing, and
   verify the build appears under the intended App Store Connect app before assigning testers.
@@ -57,6 +59,9 @@ used for every Archive and upload.
   sheets, alerts, repair confirmation, Export, Privacy, and Delete All.
 - [ ] Inspect light/dark mode, Increase Contrast, Reduce Motion, and both portrait orientations
   supported by the iPhone target.
+- [ ] Force-quit and cold-launch in English and Simplified Chinese on the signed iPhone. Confirm
+  the localized name and selected-skin artwork, sub-second exit, no replay after foregrounding,
+  and an opacity-only presentation while Reduce Motion is enabled.
 - [ ] Inspect the standard, dark, and tinted Home Screen icon appearances on a real supported
   iPhone; confirm iOS applies the corner mask, no track or marker is clipped, and the localized
   `花有数` / `MindBudget` label matches the current system language without combining both names.
@@ -73,7 +78,12 @@ used for every Archive and upload.
 - [ ] Verify Siri writes, five-second deduplication, amount precision errors, and authenticated
   budget-impact speech on a real device.
 - [ ] Verify Spotlight indexing and clearing, including the merchant-name triple gate.
-- [ ] Verify Apple Intelligence availability/fallback and output validation on a supported device.
+- [ ] Verify Apple Intelligence availability/fallback and output validation on a supported device;
+  in both English and Simplified Chinese, confirm a wrong-language proposal falls back to a fully
+  localized template and no dynamic action key is rendered literally.
+- [ ] Enable the optional Face ID app lock on the signed release iPhone. Verify authenticated
+  enable/disable, cancel/failure staying locked, device-passcode recovery, cold launch and
+  background return, localized purpose copy, and an amount-free app-switcher snapshot.
 - [ ] Verify same-device Siri “this” resolution. Add only expense, budget, and wishlist-item to
   `NSUserActivityTypes` if the signed test proves declaration is required; never add the inactive
   placeholder type.

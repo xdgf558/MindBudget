@@ -13,6 +13,7 @@ enum AdviceSafetyViolation: Error, Equatable, Sendable {
     case imperativeProhibition
     case fabricatedNumber
     case emptyField
+    case unexpectedLanguage
 }
 
 struct AdviceSafetyValidator: Sendable {
@@ -35,6 +36,11 @@ struct AdviceSafetyValidator: Sendable {
 
     func validate(answer: GeneratedAnswer, context: RedactedAskContext) throws {
         try validateText(title: answer.title, body: answer.body)
+        try validateLanguage(
+            title: answer.title,
+            body: answer.body,
+            localeIdentifier: context.localeIdentifier
+        )
         let isPurchaseDecision = context.questionIntentKey == .canIAfford
             && !context.requiresPurchaseDetails
         try validateActions(
@@ -53,6 +59,11 @@ struct AdviceSafetyValidator: Sendable {
 
     func validate(advice: GeneratedAdvice, context: RedactedAdviceContext) throws {
         try validateText(title: advice.title, body: advice.body)
+        try validateLanguage(
+            title: advice.title,
+            body: advice.body,
+            localeIdentifier: context.localeIdentifier
+        )
         guard advice.title.count <= context.maxTitleLength else {
             throw AdviceSafetyViolation.titleTooLong
         }
@@ -75,6 +86,11 @@ struct AdviceSafetyValidator: Sendable {
 
     func validate(summary: GeneratedSummary, context: RedactedSummaryContext) throws {
         try validateText(title: summary.title, body: summary.body)
+        try validateLanguage(
+            title: summary.title,
+            body: summary.body,
+            localeIdentifier: context.localeIdentifier
+        )
         try validateActions(
             summary.actionIdentifiers,
             allowed: context.allowedActionIdentifiers,
@@ -130,6 +146,52 @@ struct AdviceSafetyValidator: Sendable {
         if requiresContinuePurchase,
            !actions.contains(SuggestedAction.continuePurchase.rawValue) {
             throw AdviceSafetyViolation.missingContinuePurchase
+        }
+    }
+
+    /// The model is a wording layer, so returning copy in a different app language is an
+    /// invalid proposal rather than a reason to expose mixed-language UI. Only the two shipped
+    /// interface languages are checked; an unsupported locale continues through the existing
+    /// capability/fallback path without inventing a language classification rule.
+    private func validateLanguage(
+        title: String,
+        body: String,
+        localeIdentifier: String
+    ) throws {
+        let locale = localeIdentifier.lowercased()
+        let scalars = "\(title) \(body)".unicodeScalars
+        let hanCount = scalars.count(where: Self.isHan)
+
+        if locale.hasPrefix("zh") {
+            guard hanCount >= 2 else {
+                throw AdviceSafetyViolation.unexpectedLanguage
+            }
+        } else if locale.hasPrefix("en") {
+            guard hanCount == 0,
+                  scalars.count(where: Self.isBasicLatinLetter) >= 4 else {
+                throw AdviceSafetyViolation.unexpectedLanguage
+            }
+        }
+    }
+
+    private static func isHan(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x3400...0x4DBF,
+             0x4E00...0x9FFF,
+             0xF900...0xFAFF,
+             0x20000...0x2FA1F:
+            true
+        default:
+            false
+        }
+    }
+
+    private static func isBasicLatinLetter(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x41...0x5A, 0x61...0x7A:
+            true
+        default:
+            false
         }
     }
 

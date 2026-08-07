@@ -2,6 +2,22 @@ import XCTest
 
 final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
+    func testColdLaunchShowsLocalizedBrandAnimation() {
+        let app = launchApp(
+            language: "zh-Hans",
+            locale: "zh_CN",
+            additionalArguments: ["-ui-testing-hold-launch-animation"]
+        )
+
+        XCTAssertTrue(element("launch.animation", in: app).waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["launch.brandName"].label, "花有数")
+        XCTAssertEqual(
+            app.staticTexts["launch.brandSubtitle"].label,
+            "温和的预算与消费复盘工具"
+        )
+    }
+
+    @MainActor
     func testEnglishOnboardingCopyRenders() {
         assertOnboardingCopy(
             language: "en",
@@ -53,6 +69,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
+        XCTAssertTrue(element("budget.flexiblePreview", in: app).exists)
         assertBudgetKeyboardHasNoCompletionToolbar(in: app)
         XCTAssertTrue(app.buttons["budget.save"].exists)
         app.buttons["budget.save"].tap()
@@ -173,6 +190,28 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("ask.answer", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Budget remaining"].exists)
         XCTAssertFalse(app.staticTexts["On-device enhanced"].exists)
+        XCTAssertTrue(app.staticTexts["Local template"].exists)
+    }
+
+    @MainActor
+    func testSimplifiedChineseAskLocalizesAnswerAndDynamicActions() {
+        let app = launchApp(language: "zh-Hans", locale: "zh_CN")
+
+        completeBudgetSetup(in: app)
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.ask"].tap()
+        XCTAssertTrue(app.textFields["ask.question"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["这个周期还剩多少？"].waitForExistence(timeout: 2))
+        app.buttons["这个周期还剩多少？"].tap()
+        app.buttons["ask.submit"].tap()
+
+        XCTAssertTrue(element("ask.answer", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["剩余预算"].exists)
+        XCTAssertTrue(app.staticTexts["本地模板"].exists)
+        XCTAssertTrue(app.staticTexts["回看近期消费"].exists)
+        XCTAssertTrue(app.staticTexts["检查预算设置"].exists)
+        XCTAssertFalse(app.staticTexts["ask.action.reviewRecentSpending"].exists)
+        XCTAssertFalse(app.staticTexts["ask.action.adjustBudget"].exists)
     }
 
     @MainActor
@@ -194,6 +233,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
         for identifier in [
+            "settings.appearance",
             "settings.budget",
             "settings.reminders",
             "settings.ai",
@@ -201,12 +241,67 @@ final class MindBudgetPhase3UITests: XCTestCase {
         ] {
             XCTAssertTrue(element(identifier, in: app).exists)
         }
+
+        element("settings.budget", in: app).tap()
+        XCTAssertTrue(element("settings.budget.view", in: app).waitForExistence(timeout: 2))
+        let totalBudgetField = app.textFields["settings.budget.totalBudget"]
+        XCTAssertTrue(totalBudgetField.waitForExistence(timeout: 2))
+        XCTAssertTrue(totalBudgetField.isEnabled)
+        XCTAssertTrue(element("settings.budget.flexiblePreview", in: app).exists)
+        totalBudgetField.tap()
+        totalBudgetField.typeText("0")
+        let saveBudget = app.buttons["settings.budget.save"]
+        for _ in 0..<4 where !saveBudget.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(saveBudget.isHittable)
+        saveBudget.tap()
+        XCTAssertTrue(element("settings.budget.saved", in: app).waitForExistence(timeout: 2))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
+
+        element("settings.appearance", in: app).tap()
+        XCTAssertTrue(element("settings.appearance.view", in: app).waitForExistence(timeout: 2))
+        for skin in ["auroraGlow", "warmBotanical", "neonPulse"] {
+            XCTAssertTrue(element("settings.appearance.skin.\(skin)", in: app).exists)
+        }
+        let neonSkin = element("settings.appearance.skin.neonPulse", in: app)
+        neonSkin.tap()
+        XCTAssertTrue(neonSkin.isSelected)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
         let exportControl = element("settings.export", in: app)
         for _ in 0..<4 where !exportControl.exists {
             app.swipeUp()
         }
         XCTAssertTrue(exportControl.waitForExistence(timeout: 2))
-        XCTAssertTrue(element("settings.privacy", in: app).waitForExistence(timeout: 2))
+        let privacyControl = element("settings.privacy", in: app)
+        XCTAssertTrue(privacyControl.waitForExistence(timeout: 2))
+        privacyControl.tap()
+        XCTAssertTrue(element("settings.privacy.appLock", in: app).waitForExistence(timeout: 2))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
+
+        let aboutControl = element("settings.about", in: app)
+        for _ in 0..<3 where !aboutControl.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(aboutControl.waitForExistence(timeout: 2))
+        aboutControl.tap()
+        XCTAssertTrue(element("settings.about.view", in: app).waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.1"))
+        XCTAssertTrue(element("settings.releaseNotes", in: app).exists)
+        XCTAssertFalse(element("settings.releaseNotes.history.0.9.0", in: app).exists)
+        let releaseHistory = element("settings.releaseNotes.history", in: app)
+        for _ in 0..<5 where !releaseHistory.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(releaseHistory.isHittable)
+        releaseHistory.tap()
+        XCTAssertTrue(
+            element("settings.releaseNotes.history.0.9.0", in: app)
+                .waitForExistence(timeout: 2)
+        )
     }
 
     @MainActor

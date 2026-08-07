@@ -714,6 +714,7 @@ final class ExpenseFormViewModel: ObservableObject {
 }
 
 struct AddExpenseView: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let dataActor: DataActor
     let accountingCurrencyCode: String
     let existingExpense: ExpenseDetail?
@@ -758,10 +759,10 @@ struct AddExpenseView: View {
                 if let wishlistSeed {
                     Label(wishlistSeed.name, systemImage: "bookmark.fill")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.mbAccentDeep)
+                        .foregroundStyle(theme.accentDeep)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(14)
-                        .background(Color.mbAccentSoft, in: RoundedRectangle(cornerRadius: 16))
+                        .background(theme.accentSoft, in: RoundedRectangle(cornerRadius: 16))
                 }
 
                 amountEntry
@@ -787,16 +788,16 @@ struct AddExpenseView: View {
                     .accessibilityIdentifier("expense.addToWishlist")
                     Text("expense.addToWishlist.help")
                         .font(.caption)
-                        .foregroundStyle(Color.mbInkSecondary)
+                        .foregroundStyle(theme.inkSecondary)
                 }
 
                 if let error = viewModel.error {
                     Label(errorKey(error), systemImage: "info.circle")
                         .font(.subheadline)
-                        .foregroundStyle(Color.mbAttentionText)
+                        .foregroundStyle(theme.attentionText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(14)
-                        .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 16))
+                        .background(theme.attentionSoft, in: RoundedRectangle(cornerRadius: 16))
                         .accessibilityIdentifier("expense.error")
                 }
 
@@ -815,9 +816,9 @@ struct AddExpenseView: View {
             .accessibilityIdentifier("expense.save")
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
-            .background(Color.mbSurface)
+            .background(theme.surface)
             .overlay(alignment: .top) {
-                Rectangle().fill(Color.mbHairline).frame(height: 1)
+                Rectangle().fill(theme.hairline).frame(height: 1)
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -954,16 +955,16 @@ struct AddExpenseView: View {
         VStack(spacing: 12) {
             Text("expense.amount")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
                 .textCase(.uppercase)
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(accountingCurrencyCode)
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
                 Text(viewModel.amountText.isEmpty ? "0" : viewModel.amountText)
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(Color.mbInk)
+                    .foregroundStyle(theme.ink)
                     .lineLimit(1)
                     .minimumScaleFactor(0.45)
             }
@@ -988,8 +989,8 @@ struct AddExpenseView: View {
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()
                         .frame(maxWidth: .infinity, minHeight: 52)
-                        .foregroundStyle(Color.mbInk)
-                        .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(theme.ink)
+                        .background(theme.surface, in: RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("expense.keypad.\(key)")
@@ -1000,8 +1001,8 @@ struct AddExpenseView: View {
                 Image(systemName: "delete.left")
                     .font(.title3.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 52)
-                    .foregroundStyle(Color.mbInk)
-                    .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(theme.ink)
+                    .background(theme.surface, in: RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("common.delete")
@@ -1014,11 +1015,11 @@ struct AddExpenseView: View {
             HStack {
                 Text("expense.category")
                     .font(.headline)
-                    .foregroundStyle(Color.mbInk)
+                    .foregroundStyle(theme.ink)
                 Spacer()
                 Button("common.all") { showsAllCategories = true }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.mbAccent)
+                    .foregroundStyle(theme.accent)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -1033,14 +1034,14 @@ struct AddExpenseView: View {
                             .font(.subheadline.weight(.medium))
                             .padding(.horizontal, 13)
                             .frame(minHeight: 42)
-                            .foregroundStyle(viewModel.category == category ? Color.white : Color.mbInkSecondary)
+                            .foregroundStyle(viewModel.category == category ? Color.white : theme.inkSecondary)
                             .background(
-                                viewModel.category == category ? Color.mbAccent : Color.mbSurface,
+                                viewModel.category == category ? theme.accent : theme.surface,
                                 in: Capsule()
                             )
                             .overlay {
                                 if viewModel.category != category {
-                                    Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                                    Capsule().stroke(theme.hairlineStrong, lineWidth: 1)
                                 }
                             }
                         }
@@ -1074,11 +1075,11 @@ struct AddExpenseView: View {
                     Spacer()
                     if category == viewModel.category {
                         Image(systemName: "checkmark")
-                            .foregroundStyle(Color.mbAccent)
+                            .foregroundStyle(theme.accent)
                     }
                 }
             }
-            .foregroundStyle(Color.mbInk)
+            .foregroundStyle(theme.ink)
         }
         .navigationTitle("expense.category")
         .navigationBarTitleDisplayMode(.inline)
@@ -1093,7 +1094,7 @@ struct AddExpenseView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("expense.date")
                 .font(.headline)
-                .foregroundStyle(Color.mbInk)
+                .foregroundStyle(theme.ink)
             HStack(spacing: 8) {
                 dateButton("expense.date.today", selected: calendar.isDateInToday(viewModel.spentAt)) {
                     viewModel.spentAt = Date()
@@ -1108,16 +1109,16 @@ struct AddExpenseView: View {
                 } label: {
                     Image(systemName: "calendar")
                         .frame(maxWidth: .infinity, minHeight: 42)
-                        .background(Color.mbSurface, in: Capsule())
-                        .overlay { Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1) }
+                        .background(theme.surface, in: Capsule())
+                        .overlay { Capsule().stroke(theme.hairlineStrong, lineWidth: 1) }
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
                 .accessibilityLabel("expense.date")
             }
             Text(viewModel.spentAt, format: .dateTime.year().month().day().hour().minute())
                 .font(.caption)
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
         }
     }
 
@@ -1130,10 +1131,10 @@ struct AddExpenseView: View {
             Text(key)
                 .font(.subheadline.weight(.medium))
                 .frame(maxWidth: .infinity, minHeight: 42)
-                .foregroundStyle(selected ? Color.white : Color.mbInkSecondary)
-                .background(selected ? Color.mbAccent : Color.mbSurface, in: Capsule())
+                .foregroundStyle(selected ? Color.white : theme.inkSecondary)
+                .background(selected ? theme.accent : theme.surface, in: Capsule())
                 .overlay {
-                    if !selected { Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1) }
+                    if !selected { Capsule().stroke(theme.hairlineStrong, lineWidth: 1) }
                 }
         }
         .buttonStyle(.plain)
@@ -1143,7 +1144,7 @@ struct AddExpenseView: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("expense.optional")
                 .font(.headline)
-                .foregroundStyle(Color.mbInk)
+                .foregroundStyle(theme.ink)
             TextField("expense.merchant", text: $viewModel.merchantName)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("expense.merchant")
@@ -1154,13 +1155,13 @@ struct AddExpenseView: View {
                     }
                 }
             }
-            Divider().overlay(Color.mbHairline)
+            Divider().overlay(theme.hairline)
             TextField("expense.note", text: $viewModel.note, axis: .vertical)
                 .lineLimit(2...5)
                 .accessibilityIdentifier("expense.note")
             Toggle("expense.planned", isOn: $viewModel.isPlanned)
                 .disabled(wishlistSeed != nil)
-                .tint(Color.mbAccent)
+                .tint(theme.accent)
         }
         .budgetCard(cornerRadius: 18, contentPadding: 16)
     }
@@ -1172,11 +1173,11 @@ struct AddExpenseView: View {
                 EmotionTagPicker(selection: $viewModel.emotionTag)
                 Text("expense.emotion.disclaimer")
                     .font(.footnote)
-                    .foregroundStyle(Color.mbInkSecondary)
+                    .foregroundStyle(theme.inkSecondary)
             }
             .padding(.top, 14)
         }
-        .tint(Color.mbAccent)
+        .tint(theme.accent)
         .budgetCard(cornerRadius: 18, contentPadding: 16)
     }
 
@@ -1185,7 +1186,7 @@ struct AddExpenseView: View {
             Label("expense.amount.warning.title", systemImage: "checkmark.circle")
                 .font(.headline)
             Text("expense.amount.warning.message")
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
             Button("expense.amount.warning.continue") {
                 viewModel.dismissReasonablenessWarning(
                     currencyCode: accountingCurrencyCode,
@@ -1196,7 +1197,7 @@ struct AddExpenseView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.mbAttentionSoft, in: RoundedRectangle(cornerRadius: 18))
+        .background(theme.attentionSoft, in: RoundedRectangle(cornerRadius: 18))
         .accessibilityIdentifier("expense.amount.warning")
     }
 
@@ -1210,11 +1211,11 @@ struct AddExpenseView: View {
             Label(wording.title, systemImage: "lightbulb")
                 .font(.headline)
             Text(wording.body)
-                .foregroundStyle(Color.mbInkSecondary)
+                .foregroundStyle(theme.inkSecondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.mbAccentSoft, in: RoundedRectangle(cornerRadius: 18))
+        .background(theme.accentSoft, in: RoundedRectangle(cornerRadius: 18))
         .accessibilityIdentifier("expense.inlineInsight")
     }
 
@@ -1332,6 +1333,7 @@ struct AddExpenseView: View {
 }
 
 private struct ExpenseReminderSheet: View {
+    @Environment(\.mindBudgetTheme) private var theme
     let presentation: ExpenseReminderPresentation
     let continuePurchase: () -> Void
     let addToWishlist: () -> Void
@@ -1339,14 +1341,14 @@ private struct ExpenseReminderSheet: View {
 
     var body: some View {
         ZStack {
-            Color.mbDark.ignoresSafeArea()
+            theme.dark.ignoresSafeArea()
             VStack(spacing: 24) {
                 HStack {
                     Spacer()
                     Button(action: close) {
                         Image(systemName: "xmark")
                             .font(.body.weight(.semibold))
-                            .foregroundStyle(Color.mbOnDark)
+                            .foregroundStyle(theme.onDark)
                             .frame(width: 44, height: 44)
                             .background(Color.white.opacity(0.09), in: Circle())
                     }
@@ -1356,23 +1358,23 @@ private struct ExpenseReminderSheet: View {
                 Spacer(minLength: 8)
                 Image(systemName: "pause.fill")
                     .font(.system(size: 34, weight: .semibold))
-                    .foregroundStyle(Color.mbAttentionOnDark)
+                    .foregroundStyle(theme.attentionOnDark)
                     .frame(width: 82, height: 82)
-                    .background(Color.mbAttentionOnDark.opacity(0.12), in: Circle())
+                    .background(theme.attentionOnDark.opacity(0.12), in: Circle())
                     .accessibilityHidden(true)
                 Text("reminder.sheet.title")
                     .font(.caption.weight(.semibold))
                     .tracking(1.2)
                     .textCase(.uppercase)
-                    .foregroundStyle(Color.mbAccentOnDark)
+                    .foregroundStyle(theme.accentOnDark)
                 Text(presentation.message.title)
                     .font(.system(size: 30, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.mbOnDark)
+                    .foregroundStyle(theme.onDark)
                 Text(presentation.message.body)
                     .font(.body)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.mbOnDark.opacity(0.72))
+                    .foregroundStyle(theme.onDark.opacity(0.72))
                 if !presentation.message.supportingDetails.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("reminder.sheet.alsoNoticed")
@@ -1380,7 +1382,7 @@ private struct ExpenseReminderSheet: View {
                         ForEach(presentation.message.supportingDetails, id: \.self) { detail in
                             Label(detail, systemImage: "circle.fill")
                                 .font(.subheadline)
-                                .foregroundStyle(Color.mbOnDark.opacity(0.7))
+                                .foregroundStyle(theme.onDark.opacity(0.7))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1391,12 +1393,12 @@ private struct ExpenseReminderSheet: View {
                 Button("reminder.action.addToWishlist", action: addToWishlist)
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 52)
-                    .foregroundStyle(Color.mbDark)
-                    .background(Color.mbAttentionOnDark, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(theme.dark)
+                    .background(theme.attentionOnDark, in: RoundedRectangle(cornerRadius: 14))
                 Button("reminder.action.continuePurchase", action: continuePurchase)
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 50)
-                    .foregroundStyle(Color.mbOnDark)
+                    .foregroundStyle(theme.onDark)
                     .overlay {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color.white.opacity(0.22), lineWidth: 1)

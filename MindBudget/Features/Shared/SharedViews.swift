@@ -232,6 +232,7 @@ struct EmptyStateView: View {
 
 struct EmotionTagPicker: View {
     @Binding var selection: EmotionTag?
+    @Environment(\.mindBudgetTheme) private var theme
 
     var body: some View {
         MindBudgetFlowLayout(spacing: 8) {
@@ -255,13 +256,13 @@ struct EmotionTagPicker: View {
                 .padding(.horizontal, 12)
                 .frame(minHeight: 40)
                 .background(
-                    selection == value ? Color.mbAccent : Color.mbSurface,
+                    selection == value ? theme.accent : theme.surface,
                     in: Capsule()
                 )
-                .foregroundStyle(selection == value ? Color.white : Color.mbInkSecondary)
+                .foregroundStyle(selection == value ? Color.white : theme.inkSecondary)
                 .overlay {
                     if selection != value {
-                        Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                        Capsule().stroke(theme.hairlineStrong, lineWidth: 1)
                     }
                 }
         }
@@ -271,6 +272,7 @@ struct EmotionTagPicker: View {
 
 struct PurchaseReasonPicker: View {
     @Binding var selection: PurchaseReason?
+    @Environment(\.mindBudgetTheme) private var theme
 
     var body: some View {
         MindBudgetFlowLayout(spacing: 8) {
@@ -294,13 +296,13 @@ struct PurchaseReasonPicker: View {
                 .padding(.horizontal, 12)
                 .frame(minHeight: 40)
                 .background(
-                    selection == value ? Color.mbAccent : Color.mbSurface,
+                    selection == value ? theme.accent : theme.surface,
                     in: Capsule()
                 )
-                .foregroundStyle(selection == value ? Color.white : Color.mbInkSecondary)
+                .foregroundStyle(selection == value ? Color.white : theme.inkSecondary)
                 .overlay {
                     if selection != value {
-                        Capsule().stroke(Color.mbHairlineStrong, lineWidth: 1)
+                        Capsule().stroke(theme.hairlineStrong, lineWidth: 1)
                     }
                 }
         }
@@ -330,45 +332,58 @@ extension View {
         cornerRadius: CGFloat = 20,
         contentPadding: CGFloat = 18
     ) -> some View {
-        padding(contentPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: cornerRadius))
-            .shadow(color: Color.black.opacity(0.05), radius: 3, y: 1)
+        modifier(
+            BudgetCardModifier(
+                cornerRadius: cornerRadius,
+                contentPadding: contentPadding
+            )
+        )
     }
 
     func mindBudgetScreenBackground() -> some View {
-        scrollContentBackground(.hidden)
-            .background(Color.mbCanvas.ignoresSafeArea())
-            .tint(Color.mbAccent)
+        modifier(MindBudgetScreenBackgroundModifier())
     }
 }
 
-extension Color {
-    static let mbCanvas = Color("Canvas")
-    static let mbSurface = Color("Surface")
-    static let mbInk = Color("Ink")
-    static let mbInkSecondary = Color("InkSecondary")
-    static let mbInkTertiary = Color("InkTertiary")
-    static let mbInkQuaternary = Color("InkQuaternary")
-    static let mbHairline = Color("Hairline")
-    static let mbHairlineStrong = Color("HairlineStrong")
-    static let mbTrack = Color("Track")
-    static let mbAccent = Color("AccentColor")
-    static let mbAccentSoft = Color("AccentSoft")
-    static let mbAccentDeep = Color("AccentDeep")
-    static let mbAttention = Color("Attention")
-    static let mbAttentionSoft = Color("AttentionSoft")
-    static let mbAttentionBorder = Color("AttentionBorder")
-    static let mbAttentionText = Color("AttentionText")
-    static let mbDestructive = Color("Destructive")
-    static let mbDark = Color("Dark")
-    static let mbOnDark = Color("OnDark")
-    static let mbAccentOnDark = Color("AccentOnDark")
-    static let mbAttentionOnDark = Color("AttentionOnDark")
+private struct BudgetCardModifier: ViewModifier {
+    let cornerRadius: CGFloat
+    let contentPadding: CGFloat
+    @Environment(\.mindBudgetTheme) private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .padding(contentPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                theme.surface.opacity(theme.skin == .warmBotanical ? 0.98 : 0.88),
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(theme.hairline, lineWidth: 1)
+            }
+            .shadow(
+                color: theme.accent.opacity(theme.skin == .warmBotanical ? 0.07 : 0.14),
+                radius: theme.skin == .warmBotanical ? 6 : 12,
+                y: 3
+            )
+    }
+}
+
+private struct MindBudgetScreenBackgroundModifier: ViewModifier {
+    @Environment(\.mindBudgetTheme) private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .scrollContentBackground(.hidden)
+            .background(MindBudgetThemeBackground())
+            .tint(theme.accent)
+    }
 }
 
 struct MindBudgetPrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.mindBudgetTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -376,7 +391,7 @@ struct MindBudgetPrimaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity, minHeight: 50)
             .foregroundStyle(Color.white)
             .background(
-                Color.mbAccent.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
+                theme.accentGradient.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
                 in: RoundedRectangle(cornerRadius: 14)
             )
             .contentShape(Rectangle())
@@ -385,6 +400,7 @@ struct MindBudgetPrimaryButtonStyle: ButtonStyle {
 
 struct MindBudgetCompactPrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.mindBudgetTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -395,7 +411,7 @@ struct MindBudgetCompactPrimaryButtonStyle: ButtonStyle {
             .frame(minWidth: 140, minHeight: 50)
             .foregroundStyle(Color.white)
             .background(
-                Color.mbAccent.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
+                theme.accentGradient.opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.38),
                 in: RoundedRectangle(cornerRadius: 15)
             )
             .contentShape(Rectangle())
@@ -404,16 +420,17 @@ struct MindBudgetCompactPrimaryButtonStyle: ButtonStyle {
 
 struct MindBudgetSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.mindBudgetTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body.weight(.semibold))
             .frame(maxWidth: .infinity, minHeight: 48)
-            .foregroundStyle(Color.mbAccent.opacity(isEnabled ? 1 : 0.38))
-            .background(Color.mbSurface, in: RoundedRectangle(cornerRadius: 14))
+            .foregroundStyle(theme.accent.opacity(isEnabled ? 1 : 0.38))
+            .background(theme.surface, in: RoundedRectangle(cornerRadius: 14))
             .overlay {
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.mbHairlineStrong, lineWidth: 1)
+                    .stroke(theme.hairlineStrong, lineWidth: 1)
             }
             .opacity(configuration.isPressed ? 0.78 : 1)
             .contentShape(Rectangle())

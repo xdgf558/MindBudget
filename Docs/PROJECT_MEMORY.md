@@ -44,6 +44,9 @@ later phase; the current app contains no StoreKit product, entitlement, quota, l
 trial, or visible paid-feature placeholder.
 The production icon uses the owner-approved budget-track mark with standard green-gradient,
 dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
+Cold process launches add a localized, selected-skin brand transition lasting less than one second
+after the static iOS launch screen. It runs once per process, does not replay after foregrounding,
+and uses opacity only when Reduce Motion is enabled.
 
 ## Forbidden
 
@@ -64,6 +67,9 @@ app's private data are forbidden in V1.
   shorter transition returns an explicit confirmation state. The shortened interval and
   the first complete interval on the new cadence have independent user-confirmed budgets;
   automatic copying resumes only after the complete interval is saved.
+- The Settings budget editor may update amounts only for the cycle containing its explicit
+  reference date. It preserves plan identity, boundaries, currency, and category budgets;
+  historical cycles cannot be edited through that path.
 - Fixed expenses are forecast reservations; pending fixed values prevent double counting.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
@@ -95,9 +101,14 @@ app's private data are forbidden in V1.
 - The shared project never commits an Apple Developer Team ID. Release signing and upload must
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
-- Internal TestFlight starts at marketing version `0.9.0`, build `1`; replacement uploads increment
-  the build number. The first public App Store release reserves `1.0.0`. Every upload must have a
-  matching dated CHANGELOG section and TestFlight/App Store release-note entry.
+- Internal TestFlight started with candidate `0.9.0 (1)`; the current skin and localized-brand
+  candidate is `0.9.1 (2)`. Replacement uploads increment the build number, and owner-approved
+  prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
+  release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
+  TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
+  installed marketing version.
+- The iOS launch screen remains static. The optional brand motion is an app-owned cold-launch
+  overlay, never a video or third-party animation, and its Debug UI-test hold cannot ship in Release.
 
 ## Local development environment
 
@@ -125,7 +136,10 @@ discretionary spending with a real positive baseline. Calendar-injected cycle ca
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit
 transition and first-regular-budget confirmation, and atomic lazy generation capped at 120
 plans. Stateless currency formatting respects each supported exponent. The iPhone UI now
-provides localized onboarding and budget setup, a warm-paper card-based Today experience,
+provides localized onboarding and budget setup, three persisted visual skins
+(Aurora Glow, Warm Botanical, and Neon Pulse) backed by one semantic theme environment and three
+purpose-built, text-free portrait background artworks,
+with a card-based Today experience,
 four real content tabs plus a separate accessible add action, exact locale-aware manual
 expense entry with an app-owned keypad and selected-date impact, recent-category
 and merchant suggestions, and searchable/filterable expense list, detail, edit, and delete
@@ -149,7 +163,9 @@ errors retain recoverable meanings, and countdown preview/save share one fixed i
 formatting follows the SwiftUI environment locale. The UI-test reset hook is Debug-only.
 Empty/error states and English/Simplified Chinese accessibility coverage are active. Settings
 opens from Today as a short first-level directory with responsibility-scoped second-level pages;
-runtime enum/status values are explicitly localized rather than rendered as catalog keys. Reminders
+its Budget destination edits the existing current-period amounts through one Save action while
+keeping currency and historical boundaries locked. Runtime enum/status values are explicitly
+localized rather than rendered as catalog keys. Reminders
 use a focused full-screen pause surface, and every existing free
 surface shares semantic light/dark color assets. The supplied paid-screen concepts are recorded
 only as future composition seams and render nothing until commercialization is implemented end
@@ -204,7 +220,9 @@ made only from typed money, counts, booleans, and category values; the redactor 
 and enum-key conversion, while fallback prose remains outside model facts. Deterministic Swift
 remains authoritative for classification, arithmetic, rules, and allowed actions. Model output uses constrained
 generation, a short timeout, length/action/language/number safety validation, and immediate
-template fallback; generated copy is not persisted. Settings always explains the current
+template fallback; English/Simplified Chinese proposals with the wrong writing system are
+rejected, and dynamic action identifiers are resolved explicitly through the active locale.
+Generated copy is not persisted. Settings always explains the current
 availability reason and that the complete template experience remains usable without Apple
 Intelligence. Phase 8A adds nine localized App Intents, seven redacted App Entities, and six
 suggested App Shortcuts on iOS 17+. Siri and Spotlight are independent default-off settings
@@ -242,3 +260,12 @@ impact intent returns its exact calculated flexible-budget result only after exp
 while passive system surfaces remain amount-free. Settings presents separate, scalable Siri-
 speech and Spotlight/merchant privacy explanations. A production-path reconciliation test proves
 the merchant-name capability, global-consent, and eligible-expense gates together.
+
+The Today card's actionable amount is the deterministic `safeDailySpend`: current remaining
+flexible budget divided across remaining calendar days after stored entries have already been
+applied. Pace variance remains separate. Budget setup and Settings expose the flexible allocation,
+and Ask can explain total remaining, pending fixed/savings reservations, and current availability.
+The optional local app lock is independent from accounts and cloud services. It is default-off,
+requires Face ID availability and owner authentication to enable, authenticates again to disable,
+and covers all app content on launch and foreground return until `LocalAuthentication` succeeds.
+The system passcode is an intentional recovery path; no biometric material enters app storage.

@@ -106,6 +106,13 @@ enum AskAggregateFacts: Equatable, Sendable {
     }
 }
 
+struct AskBudgetBreakdown: Equatable, Sendable {
+    let remainingTotal: Money
+    let availableRightNow: Money
+    let pendingFixed: Money
+    let pendingSaving: Money
+}
+
 fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
     case affordabilityNeedsDetails
     case affordability(
@@ -115,6 +122,15 @@ fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
     )
     case remainingBudget(
         remainingFreeFormatted: String,
+        safeDailySpendFormatted: String,
+        daysRemaining: Int
+    )
+    case remainingBudgetBreakdown(
+        remainingTotalFormatted: String,
+        availableRightNowFormatted: String,
+        availableOverageFormatted: String?,
+        pendingFixedFormatted: String,
+        pendingSavingFormatted: String,
         safeDailySpendFormatted: String,
         daysRemaining: Int
     )
@@ -147,6 +163,24 @@ fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
                 "safeDailySpend": daily,
                 "daysRemaining": String(days)
             ]
+        case let .remainingBudgetBreakdown(
+            total,
+            available,
+            overage,
+            pendingFixed,
+            pendingSaving,
+            daily,
+            days
+        ):
+            [
+                "remainingTotal": total,
+                "availableRightNow": available,
+                "availableOverage": overage ?? "none",
+                "pendingFixed": pendingFixed,
+                "pendingSaving": pendingSaving,
+                "safeDailySpend": daily,
+                "daysRemaining": String(days)
+            ]
         case let .stressPattern(count), let .impulsePattern(count):
             ["count": String(count)]
         case let .categoryChange(category, current, previous):
@@ -175,6 +209,17 @@ fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
             [candidate, available]
         case let .remainingBudget(remaining, daily, days):
             [remaining, daily, String(days)]
+        case let .remainingBudgetBreakdown(
+            total,
+            available,
+            overage,
+            pendingFixed,
+            pendingSaving,
+            daily,
+            days
+        ):
+            [total, available, pendingFixed, pendingSaving, daily, String(days)]
+                + (overage.map { [$0] } ?? [])
         case let .stressPattern(count), let .impulsePattern(count):
             [String(count)]
         case let .categoryChange(_, current, previous):
@@ -208,6 +253,38 @@ fileprivate enum RedactedAskFacts: Codable, Equatable, Sendable {
                 daily,
                 days
             )
+        case let .remainingBudgetBreakdown(
+            total,
+            available,
+            overage,
+            pendingFixed,
+            pendingSaving,
+            daily,
+            days
+        ):
+            if let overage {
+                LocalizedCatalog.format(
+                    "ask.answer.remainingBudget.breakdown.over",
+                    locale: locale,
+                    total,
+                    pendingFixed,
+                    pendingSaving,
+                    overage,
+                    daily,
+                    days
+                )
+            } else {
+                LocalizedCatalog.format(
+                    "ask.answer.remainingBudget.breakdown",
+                    locale: locale,
+                    total,
+                    pendingFixed,
+                    pendingSaving,
+                    available,
+                    daily,
+                    days
+                )
+            }
         case let .stressPattern(count):
             LocalizedCatalog.format(
                 count == 0 ? "ask.answer.stress.none" : "ask.answer.stress.body",
@@ -286,9 +363,28 @@ struct AskAggregateInput: Equatable, Sendable {
     let locale: Locale
     let currencyCode: String
     let facts: AskAggregateFacts
+    let budgetBreakdown: AskBudgetBreakdown?
     let relevantInsights: [SpendingInsightType]
     let allowedActions: [SuggestedAction]
     let tone: ReminderTone
+
+    init(
+        locale: Locale,
+        currencyCode: String,
+        facts: AskAggregateFacts,
+        budgetBreakdown: AskBudgetBreakdown? = nil,
+        relevantInsights: [SpendingInsightType],
+        allowedActions: [SuggestedAction],
+        tone: ReminderTone
+    ) {
+        self.locale = locale
+        self.currencyCode = currencyCode
+        self.facts = facts
+        self.budgetBreakdown = budgetBreakdown
+        self.relevantInsights = relevantInsights
+        self.allowedActions = allowedActions
+        self.tone = tone
+    }
 }
 
 struct AdviceAggregateInput: Equatable, Sendable {
@@ -331,6 +427,35 @@ struct PrivacyRedactor: Sendable {
             )
             return formatter.string(from: money, locale: input.locale)
         }
+        func remainingBudgetFacts(
+            remaining: Money,
+            daily: Money,
+            days: Int
+        ) -> RedactedAskFacts {
+            guard let breakdown = input.budgetBreakdown else {
+                return .remainingBudget(
+                    remainingFreeFormatted: formatted(remaining),
+                    safeDailySpendFormatted: formatted(daily),
+                    daysRemaining: days
+                )
+            }
+            let availableMinorUnits = breakdown.availableRightNow.minorUnits
+            let overage: Money? = availableMinorUnits < 0 && availableMinorUnits != Int64.min
+                ? Money(
+                    minorUnits: -availableMinorUnits,
+                    currencyCode: breakdown.availableRightNow.currencyCode
+                )
+                : nil
+            return .remainingBudgetBreakdown(
+                remainingTotalFormatted: formatted(breakdown.remainingTotal),
+                availableRightNowFormatted: formatted(breakdown.availableRightNow),
+                availableOverageFormatted: overage.map(formatted),
+                pendingFixedFormatted: formatted(breakdown.pendingFixed),
+                pendingSavingFormatted: formatted(breakdown.pendingSaving),
+                safeDailySpendFormatted: formatted(daily),
+                daysRemaining: days
+            )
+        }
         let facts: RedactedAskFacts = switch input.facts {
         case .affordabilityNeedsDetails:
             .affordabilityNeedsDetails
@@ -341,11 +466,7 @@ struct PrivacyRedactor: Sendable {
                 isAffordable: isAffordable
             )
         case let .remainingBudget(remaining, daily, days):
-            .remainingBudget(
-                remainingFreeFormatted: formatted(remaining),
-                safeDailySpendFormatted: formatted(daily),
-                daysRemaining: days
-            )
+            remainingBudgetFacts(remaining: remaining, daily: daily, days: days)
         case let .stressPattern(count):
             .stressPattern(count: count)
         case let .impulsePattern(count):

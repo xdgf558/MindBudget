@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 @preconcurrency import CoreSpotlight
 
@@ -31,6 +32,7 @@ final class AppSession: ObservableObject {
     private let navigationStore: MindBudgetNavigationRequestStore
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
     private let systemIntegrationCapability: SystemIntegrationCapability
+    private let appLockAuthenticator: any AppLockAuthenticating
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -44,6 +46,8 @@ final class AppSession: ObservableObject {
     @Published private(set) var coolingOffRepairState: CoolingOffRepairState = .idle
     @Published private(set) var spotlightResult: SpotlightReconciliationResult?
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
+    @Published private(set) var appLockState: AppLockState
+    @Published private(set) var appLockOperationError: AppLockOperationError?
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
 
     var notificationDataIntegrityWarning: Bool {
@@ -57,7 +61,9 @@ final class AppSession: ObservableObject {
         spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
         privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier(),
-        systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability()
+        systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability(),
+        appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
+        appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
         self.notificationScheduler = notificationScheduler
@@ -66,6 +72,80 @@ final class AppSession: ObservableObject {
         self.navigationStore = navigationStore
         self.privacyDeletionVerifier = privacyDeletionVerifier
         self.systemIntegrationCapability = systemIntegrationCapability
+        self.appLockAuthenticator = appLockAuthenticator
+        appLockState = appLockInitiallyEnabled ? .locked : .unlocked
+    }
+
+    func faceIDAvailability() -> FaceIDAvailability {
+        appLockAuthenticator.faceIDAvailability()
+    }
+
+    func setAppLockProtection(
+        enabled: Bool,
+        settings: SettingsStore,
+        localizedReason: String
+    ) async -> Bool {
+        guard enabled != settings.requireFaceID else { return true }
+        if enabled, appLockAuthenticator.faceIDAvailability() != .available {
+            appLockOperationError = .faceIDUnavailable
+            return false
+        }
+
+        let previousState = appLockState
+        appLockState = .authenticating
+        let authenticated = await appLockAuthenticator.authenticate(
+            localizedReason: localizedReason
+        )
+        guard authenticated else {
+            appLockState = settings.requireFaceID ? .locked : previousState
+            appLockOperationError = .authenticationFailed
+            return false
+        }
+
+        settings.requireFaceID = enabled
+        appLockState = .unlocked
+        appLockOperationError = nil
+        return true
+    }
+
+    func lockAppIfNeeded(settings: SettingsStore) {
+        guard settings.requireFaceID else {
+            appLockState = .unlocked
+            return
+        }
+        appLockState = .locked
+        appLockOperationError = nil
+    }
+
+    func unlockAppIfNeeded(
+        settings: SettingsStore,
+        localizedReason: String
+    ) async {
+        guard settings.requireFaceID else {
+            appLockState = .unlocked
+            appLockOperationError = nil
+            return
+        }
+        guard appLockState == .locked else { return }
+
+        appLockState = .authenticating
+        let authenticated = await appLockAuthenticator.authenticate(
+            localizedReason: localizedReason
+        )
+        if authenticated {
+            appLockState = .unlocked
+            appLockOperationError = nil
+        } else {
+            appLockState = .locked
+            appLockOperationError = .authenticationFailed
+        }
+    }
+
+    func synchronizeAppLock(settings: SettingsStore) {
+        if !settings.requireFaceID {
+            appLockState = .unlocked
+            appLockOperationError = nil
+        }
     }
 
     func prepare(settings: SettingsStore, force: Bool = false) async {
@@ -313,14 +393,19 @@ final class AppSession: ObservableObject {
 
 struct AppRouter: View {
     @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.locale) private var locale
     @StateObject private var session: AppSession
+    @State private var showsLaunchAnimation = true
 
     init(
         dataController: DataController,
         notificationScheduler: any NotificationScheduling = NotificationScheduler(),
         searchIndexCleaner: any SearchIndexDeleting = CoreSpotlightIndexCleaner(),
         spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
-        navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore()
+        navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
+        appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
+        appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
             wrappedValue: AppSession(
@@ -328,37 +413,153 @@ struct AppRouter: View {
                 notificationScheduler: notificationScheduler,
                 searchIndexCleaner: searchIndexCleaner,
                 spotlightIndexer: spotlightIndexer,
-                navigationStore: navigationStore
+                navigationStore: navigationStore,
+                appLockAuthenticator: appLockAuthenticator,
+                appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
     }
 
     var body: some View {
-        Group {
-            if !session.isPrepared {
-                ProgressView()
-                    .accessibilityLabel("common.loading")
-            } else if session.preparationFailed {
-                ErrorStateView(messageKey: "error.data.load") {
-                    Task { await session.prepare(settings: settings, force: true) }
+        ZStack {
+            ZStack {
+                Group {
+                    if !session.isPrepared {
+                        ProgressView()
+                            .accessibilityLabel("common.loading")
+                    } else if session.preparationFailed {
+                        ErrorStateView(messageKey: "error.data.load") {
+                            Task { await session.prepare(settings: settings, force: true) }
+                        }
+                    } else if !settings.firstLaunchCompleted {
+                        OnboardingView(dataActor: session.dataActor) {
+                            session.dataDidChange()
+                        }
+                    } else {
+                        MainTabView(session: session)
+                    }
                 }
-            } else if !settings.firstLaunchCompleted {
-                OnboardingView(dataActor: session.dataActor) {
-                    session.dataDidChange()
+            }
+            .accessibilityHidden(session.appLockState != .unlocked)
+            if showsLaunchAnimation {
+                MindBudgetLaunchAnimation(
+                    holdsForUITesting: holdsLaunchAnimationForUITesting
+                ) {
+                    showsLaunchAnimation = false
                 }
-            } else {
-                MainTabView(session: session)
+                .allowsHitTesting(false)
+                .zIndex(1)
+            }
+            if session.appLockState != .unlocked {
+                AppLockView(
+                    state: session.appLockState,
+                    error: session.appLockOperationError
+                ) {
+                    Task {
+                        await session.unlockAppIfNeeded(
+                            settings: settings,
+                            localizedReason: appLockReason
+                        )
+                    }
+                }
+                .zIndex(2)
             }
         }
+        .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
+        .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
+            await session.unlockAppIfNeeded(
+                settings: settings,
+                localizedReason: appLockReason
+            )
             await session.prepare(settings: settings)
             await session.observeIntentNavigation()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .active:
+                Task {
+                    await session.unlockAppIfNeeded(
+                        settings: settings,
+                        localizedReason: appLockReason
+                    )
+                }
+            case .inactive, .background:
+                session.lockAppIfNeeded(settings: settings)
+            @unknown default:
+                session.lockAppIfNeeded(settings: settings)
+            }
+        }
+        .onChange(of: settings.requireFaceID) { _, _ in
+            session.synchronizeAppLock(settings: settings)
         }
         .onContinueUserActivity(CSSearchableItemActionType) { activity in
             guard let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier]
                     as? String else { return }
             session.openSearchResult(identifier: identifier)
         }
+    }
+
+    private var holdsLaunchAnimationForUITesting: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-ui-testing-hold-launch-animation")
+        #else
+        false
+        #endif
+    }
+
+    private var appLockReason: String {
+        LocalizedCatalog.string("appLock.authentication.reason", locale: locale)
+    }
+}
+
+private struct AppLockView: View {
+    @Environment(\.mindBudgetTheme) private var theme
+    let state: AppLockState
+    let error: AppLockOperationError?
+    let retry: () -> Void
+
+    var body: some View {
+        ZStack {
+            MindBudgetThemeBackground()
+            theme.canvas.opacity(0.72)
+
+            VStack(spacing: 18) {
+                Image(systemName: "faceid")
+                    .font(.system(size: 52, weight: .medium))
+                    .foregroundStyle(theme.accent)
+                    .accessibilityHidden(true)
+                Text("appLock.title")
+                    .font(.title2.bold())
+                    .foregroundStyle(theme.ink)
+                Text("appLock.message")
+                    .font(.subheadline)
+                    .foregroundStyle(theme.inkSecondary)
+                    .multilineTextAlignment(.center)
+
+                if state == .authenticating {
+                    ProgressView()
+                        .tint(theme.accent)
+                        .accessibilityLabel("appLock.authenticating")
+                } else {
+                    Button("appLock.unlock", action: retry)
+                        .buttonStyle(MindBudgetPrimaryButtonStyle())
+                        .accessibilityIdentifier("appLock.unlock")
+                }
+
+                if error == .authenticationFailed {
+                    Text("appLock.error.authenticationFailed")
+                        .font(.footnote)
+                        .foregroundStyle(theme.attentionText)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding(28)
+            .frame(maxWidth: 420)
+        }
+        .ignoresSafeArea()
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("appLock.view")
     }
 }
 
@@ -368,6 +569,7 @@ private struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
+    @Environment(\.mindBudgetTheme) private var theme
 
     var body: some View {
         TabView(selection: $session.selectedTab) {
@@ -389,7 +591,7 @@ private struct MainTabView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             customTabBar
         }
-        .tint(Color.mbAccent)
+        .tint(theme.accent)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 session.dataDidChange()
@@ -464,8 +666,8 @@ private struct MainTabView: View {
                     .font(.system(size: 23, weight: .semibold))
                     .foregroundStyle(Color.white)
                     .frame(width: 56, height: 56)
-                    .background(Color.mbAccent, in: Circle())
-                    .shadow(color: Color.mbAccent.opacity(0.30), radius: 8, y: 5)
+                    .background(theme.accentGradient, in: Circle())
+                    .shadow(color: theme.accent.opacity(0.30), radius: 8, y: 5)
             }
             .buttonStyle(.plain)
             .frame(width: 64, height: 64)
@@ -475,7 +677,8 @@ private struct MainTabView: View {
         }
         .fixedSize(horizontal: false, vertical: true)
         .background(
-            Color.mbSurface
+            theme.surface
+                .opacity(theme.skin == .warmBotanical ? 0.98 : 0.92)
                 .ignoresSafeArea(edges: .bottom)
                 .allowsHitTesting(false)
         )
@@ -499,7 +702,7 @@ private struct MainTabView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(session.selectedTab == tab ? Color.mbAccent : Color.mbInkTertiary)
+            .foregroundStyle(session.selectedTab == tab ? theme.accent : theme.inkTertiary)
             .frame(maxWidth: .infinity, minHeight: 54)
             .contentShape(Rectangle())
         }

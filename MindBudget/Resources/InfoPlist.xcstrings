@@ -18,6 +18,24 @@
           }
         }
       }
+    },
+    "NSFaceIDUsageDescription" : {
+      "comment" : "Explains why Face ID is requested when the owner enables the optional app lock.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Face ID to protect your local budget records."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用面容 ID 保护你保存在本机的预算记录。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

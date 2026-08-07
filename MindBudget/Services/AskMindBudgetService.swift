@@ -214,6 +214,14 @@ struct AskMindBudgetService: Sendable {
             locale: request.locale,
             currencyCode: request.snapshot.currencyCode,
             facts: facts,
+            budgetBreakdown: intent == .remainingBudget
+                ? AskBudgetBreakdown(
+                    remainingTotal: request.snapshot.remainingTotal,
+                    availableRightNow: request.snapshot.availableRightNow,
+                    pendingFixed: request.snapshot.pendingFixed,
+                    pendingSaving: request.snapshot.pendingSaving
+                )
+                : nil,
             relevantInsights: insights,
             allowedActions: actions,
             tone: request.tone

@@ -205,6 +205,44 @@ actor DataActor {
         }
     }
 
+    func updateCurrentBudgetPlan(_ update: CurrentBudgetPlanUpdate) throws -> BudgetPlanSummary {
+        try commit {
+            guard let plan = try fetchBudgetPlan(id: update.id) else {
+                throw DataValidationError.modelNotFound
+            }
+            _ = try budgetPlanSummary(plan)
+            guard plan.cycleStart <= update.referenceDate,
+                  update.referenceDate < plan.cycleEnd else {
+                throw DataValidationError.invalidBudgetCycle
+            }
+            guard plan.currencyCode == update.currencyCode else {
+                throw DataValidationError.accountingCurrencyMismatch(
+                    expected: plan.currencyCode,
+                    actual: update.currencyCode
+                )
+            }
+            try validateAccountingCurrency(update.currencyCode)
+
+            let maximum = Money.maximumMinorUnits(for: update.currencyCode)
+            let amounts = [
+                update.monthlyIncomeMinorUnits,
+                update.totalBudgetMinorUnits,
+                update.fixedExpensesMinorUnits,
+                update.savingGoalMinorUnits,
+            ]
+            guard amounts.allSatisfy({ (0...maximum).contains($0) }) else {
+                throw DataValidationError.invalidBudgetAmount
+            }
+
+            plan.monthlyIncomeMinorUnits = update.monthlyIncomeMinorUnits
+            plan.totalBudgetMinorUnits = update.totalBudgetMinorUnits
+            plan.fixedExpensesMinorUnits = update.fixedExpensesMinorUnits
+            plan.savingGoalMinorUnits = update.savingGoalMinorUnits
+            plan.updatedAt = update.updatedAt
+            return try budgetPlanSummary(plan)
+        }
+    }
+
     func createBudgetPlanTransition(
         transition: BudgetPlanDraft,
         firstRegular: BudgetPlanDraft
@@ -1349,6 +1387,12 @@ actor DataActor {
 
     private func fetchExpense(id: UUID) throws -> Expense? {
         var descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func fetchBudgetPlan(id: UUID) throws -> BudgetPlan? {
+        var descriptor = FetchDescriptor<BudgetPlan>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }

@@ -1,4 +1,67 @@
 import Foundation
+@preconcurrency import LocalAuthentication
+
+enum FaceIDAvailability: Equatable, Sendable {
+    case available
+    case unavailable
+}
+
+enum AppLockState: Equatable, Sendable {
+    case unlocked
+    case locked
+    case authenticating
+}
+
+enum AppLockOperationError: Equatable, Sendable {
+    case faceIDUnavailable
+    case authenticationFailed
+}
+
+protocol AppLockAuthenticating: Sendable {
+    @MainActor
+    func faceIDAvailability() -> FaceIDAvailability
+
+    /// Uses Face ID when enrolled and lets iOS offer the device passcode as the
+    /// recovery path. A biometric change must never permanently lock the owner out.
+    @MainActor
+    func authenticate(localizedReason: String) async -> Bool
+}
+
+struct LocalAppLockAuthenticator: AppLockAuthenticating {
+    @MainActor
+    func faceIDAvailability() -> FaceIDAvailability {
+        let context = LAContext()
+        var error: NSError?
+        guard context.canEvaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            error: &error
+        ), context.biometryType == .faceID else {
+            return .unavailable
+        }
+        return .available
+    }
+
+    @MainActor
+    func authenticate(localizedReason: String) async -> Bool {
+        let context = LAContext()
+        context.localizedCancelTitle = LocalizedCatalog.string(
+            "common.cancel",
+            locale: .current
+        )
+        var error: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            return false
+        }
+        do {
+            return try await context.evaluatePolicy(
+                .deviceOwnerAuthentication,
+                localizedReason: localizedReason
+            )
+        } catch {
+            return false
+        }
+    }
+}
 
 @MainActor
 struct AppEnvironment {
@@ -8,6 +71,7 @@ struct AppEnvironment {
     let searchIndexCleaner: any SearchIndexDeleting
     let spotlightIndexer: any SpotlightIndexing
     let intentService: MindBudgetIntentService
+    let appLockAuthenticator: any AppLockAuthenticating
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -53,7 +117,8 @@ struct AppEnvironment {
             notificationScheduler: notificationScheduler,
             searchIndexCleaner: CoreSpotlightIndexCleaner(),
             spotlightIndexer: SpotlightIndexingService(),
-            intentService: intentService
+            intentService: intentService,
+            appLockAuthenticator: LocalAppLockAuthenticator()
         )
     }
 }

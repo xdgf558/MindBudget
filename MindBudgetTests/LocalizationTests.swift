@@ -75,6 +75,73 @@ struct LocalizationTests {
                 table: "InfoPlist"
             ) == "花有数"
         )
+        #expect(
+            english.localizedString(
+                forKey: "NSFaceIDUsageDescription",
+                value: nil,
+                table: "InfoPlist"
+            ) == "Use Face ID to protect your local budget records."
+        )
+        #expect(
+            chinese.localizedString(
+                forKey: "NSFaceIDUsageDescription",
+                value: nil,
+                table: "InfoPlist"
+            ) == "使用面容 ID 保护你保存在本机的预算记录。"
+        )
+    }
+
+    @Test
+    func simplifiedChineseCopyUsesOnlyTheChineseProductName() throws {
+        let chinese = try localizedStrings(language: "zh-Hans")
+
+        #expect(chinese.values.contains(where: { $0.contains("MindBudget") }) == false)
+        #expect(chinese["ask.title"] == "问花有数")
+        #expect(chinese["settings.ask.enabled"] == "显示“问花有数”")
+    }
+
+    @Test
+    func allThreeSkinNamesAreLocalized() throws {
+        let english = try localizedStrings(language: "en")
+        let chinese = try localizedStrings(language: "zh-Hans")
+
+        for skin in AppSkin.allCases {
+            #expect(english[skin.nameLocalizationKey]?.isEmpty == false)
+            #expect(chinese[skin.nameLocalizationKey]?.isEmpty == false)
+            #expect(english[skin.descriptionLocalizationKey]?.isEmpty == false)
+            #expect(chinese[skin.descriptionLocalizationKey]?.isEmpty == false)
+        }
+    }
+
+    @Test
+    func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.1")
+
+        #expect(presentation.current?.version == "0.9.1")
+        #expect(presentation.current?.items.isEmpty == false)
+        #expect(
+            presentation.current?.items.map(\.localizationKey).contains(
+                "settings.releaseNotes.faceIDLock"
+            ) == true
+        )
+        #expect(presentation.history.map(\.version) == ["0.9.0"])
+
+        let future = ReleaseNotesVersion(
+            version: "0.9.2",
+            items: [
+                ReleaseNoteItem(
+                    systemImage: "sparkles",
+                    localizationKey: "settings.releaseNotes.included"
+                )
+            ]
+        )
+        let nextPresentation = ReleaseNotesCatalog.presentation(
+            installedVersion: "0.9.2",
+            versions: [future] + ReleaseNotesCatalog.versions
+        )
+
+        #expect(nextPresentation.current?.version == "0.9.2")
+        #expect(nextPresentation.history.map(\.version) == ["0.9.1", "0.9.0"])
     }
 
     private func localizedStrings(language: String) throws -> [String: String] {

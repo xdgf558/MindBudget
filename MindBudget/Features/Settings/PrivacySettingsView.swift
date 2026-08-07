@@ -2,12 +2,56 @@ import SwiftUI
 
 struct PrivacySettingsView: View {
     @ObservedObject var session: AppSession
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.locale) private var locale
 
     @State private var presentsFirstConfirmation = false
     @State private var presentsFinalConfirmation = false
+    @State private var faceIDAvailability: FaceIDAvailability = .unavailable
+    @State private var isChangingAppLock = false
 
     var body: some View {
         List {
+            Section {
+                Toggle(
+                    "privacy.appLock.toggle",
+                    isOn: Binding(
+                        get: { settings.requireFaceID },
+                        set: { enabled in
+                            Task { await changeAppLockProtection(enabled: enabled) }
+                        }
+                    )
+                )
+                .disabled(
+                    isChangingAppLock
+                        || (!settings.requireFaceID && faceIDAvailability != .available)
+                )
+                .accessibilityIdentifier("settings.privacy.appLock")
+
+                if isChangingAppLock {
+                    HStack {
+                        ProgressView()
+                        Text("privacy.appLock.authenticating")
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+
+                if let errorKey = appLockErrorKey {
+                    Label(errorKey, systemImage: "exclamationmark.triangle")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                        .accessibilityIdentifier("settings.privacy.appLock.error")
+                }
+            } header: {
+                Text("privacy.appLock.section")
+            } footer: {
+                if faceIDAvailability == .available || settings.requireFaceID {
+                    Text("privacy.appLock.footer")
+                } else {
+                    Text("privacy.appLock.unavailable")
+                }
+            }
+
             Section("privacy.summary.section") {
                 Label("privacy.summary.deviceOnly", systemImage: "iphone")
                 Label("privacy.summary.noTracking", systemImage: "hand.raised")
@@ -27,6 +71,9 @@ struct PrivacySettingsView: View {
             }
         }
         .navigationTitle("privacy.title")
+        .task {
+            faceIDAvailability = session.faceIDAvailability()
+        }
         .confirmationDialog(
             "privacy.delete.first.title",
             isPresented: $presentsFirstConfirmation,
@@ -45,6 +92,33 @@ struct PrivacySettingsView: View {
                 PrivacyDeletionConfirmationView(session: session)
             }
         }
+    }
+
+    private var appLockErrorKey: LocalizedStringKey? {
+        switch session.appLockOperationError {
+        case .faceIDUnavailable:
+            "privacy.appLock.unavailable"
+        case .authenticationFailed:
+            "privacy.appLock.authenticationFailed"
+        case nil:
+            nil
+        }
+    }
+
+    private func changeAppLockProtection(enabled: Bool) async {
+        isChangingAppLock = true
+        defer { isChangingAppLock = false }
+        _ = await session.setAppLockProtection(
+            enabled: enabled,
+            settings: settings,
+            localizedReason: LocalizedCatalog.string(
+                enabled
+                    ? "privacy.appLock.enable.reason"
+                    : "privacy.appLock.disable.reason",
+                locale: locale
+            )
+        )
+        faceIDAvailability = session.faceIDAvailability()
     }
 }
 
