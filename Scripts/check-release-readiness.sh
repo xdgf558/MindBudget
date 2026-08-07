@@ -7,6 +7,8 @@ PROJECT_FILE="${PROJECT_ROOT}/MindBudget.xcodeproj/project.pbxproj"
 INFO_PLIST_CATALOG="${PROJECT_ROOT}/MindBudget/Resources/InfoPlist.xcstrings"
 ICON_DIRECTORY="${PROJECT_ROOT}/MindBudget/Resources/Assets.xcassets/AppIcon.appiconset"
 ICON_SOURCE_MANIFEST="${PROJECT_ROOT}/Docs/Brand/AppIconSources.sha256"
+EXPECTED_MARKETING_VERSION="0.9.0"
+EXPECTED_BUILD_NUMBER="1"
 ICON_FILENAMES=(
   "AppIcon-1024.png"
   "AppIcon-1024-Dark.png"
@@ -39,8 +41,12 @@ grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
   shasum -a 256 -c "Docs/Brand/AppIconSources.sha256"
 )
 
-[[ "$(grep -o 'MARKETING_VERSION = 1.0.0' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
-  echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2
+[[ "$(grep -o "MARKETING_VERSION = ${EXPECTED_MARKETING_VERSION}" "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use marketing version ${EXPECTED_MARKETING_VERSION} in Debug and Release" >&2
+  exit 1
+}
+[[ "$(grep -o "CURRENT_PROJECT_VERSION = ${EXPECTED_BUILD_NUMBER}" "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use build number ${EXPECTED_BUILD_NUMBER} in Debug and Release" >&2
   exit 1
 }
 [[ "$(grep -o 'INFOPLIST_KEY_CFBundleDisplayName = MindBudget' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {

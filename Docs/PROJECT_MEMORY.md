@@ -95,6 +95,9 @@ app's private data are forbidden in V1.
 - The shared project never commits an Apple Developer Team ID. Release signing and upload must
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
+- Internal TestFlight starts at marketing version `0.9.0`, build `1`; replacement uploads increment
+  the build number. The first public App Store release reserves `1.0.0`. Every upload must have a
+  matching dated CHANGELOG section and TestFlight/App Store release-note entry.
 
 ## Local development environment
 
@@ -145,7 +148,9 @@ detail flows. Raw wishlist notes stay confined to that targeted projection. Phas
 errors retain recoverable meanings, and countdown preview/save share one fixed instant while
 formatting follows the SwiftUI environment locale. The UI-test reset hook is Debug-only.
 Empty/error states and English/Simplified Chinese accessibility coverage are active. Settings
-opens from Today, reminders use a focused full-screen pause surface, and every existing free
+opens from Today as a short first-level directory with responsibility-scoped second-level pages;
+runtime enum/status values are explicitly localized rather than rendered as catalog keys. Reminders
+use a focused full-screen pause surface, and every existing free
 surface shares semantic light/dark color assets. The supplied paid-screen concepts are recorded
 only as future composition seams and render nothing until commercialization is implemented end
 to end in its own phase. The custom navigation owns explicit selected/position semantics,

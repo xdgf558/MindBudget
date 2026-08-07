@@ -479,13 +479,6 @@ private struct MainTabView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .allowsHitTesting(false)
         )
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.mbHairline)
-                .frame(height: 1)
-                .padding(.top, 18)
-                .allowsHitTesting(false)
-        }
     }
 
     private func tabButton(

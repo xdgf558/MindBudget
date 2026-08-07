@@ -988,8 +988,9 @@ coverage targets remain useful stretch goals rather than undocumented blockers. 
 wall-clock Dashboard benchmark is a local release-machine signal and runs in local validation by
 default; hosted GitHub Actions explicitly skips only that timing test because shared-runner load
 cannot distinguish a product regression from VM contention. Instruments on the signed release
-iPhone remains the authoritative performance check. Version 1.0.0/build 1 and the opaque 1024px
-icon are the initial TestFlight identity; every replacement upload increments the build number.
+iPhone remains the authoritative performance check. The source-only Phase 10 plan initially named
+version 1.0.0/build 1 as the TestFlight identity; the later prerelease-version decision below
+supersedes that marketing-version choice. Every replacement upload still increments the build number.
 
 Do not commit `DEVELOPMENT_TEAM`. Immediately before Archive, select and verify the owner's latest
 China-region team locally, confirm that the final Bundle ID and App Store Connect app belong to
@@ -1151,3 +1152,76 @@ than 140 points or no longer remains wider than twice its height.
 
 Files affected: shared presentation components, Today and Wishlist empty states, UI tests,
 redesign/test memory, changelog, and session log.
+
+---
+
+## 2026-08-07 — Let the bottom-navigation surface replace its decorative top rule
+
+Context: Signed-device review showed that the custom bottom navigation's one-point top hairline
+continued through the raised center Add Expense control. The rule was intended to separate content
+from navigation, but the navigation already has its own semantic surface color and the crossing
+line made the central action look visually divided.
+
+Decision: Remove only the decorative top overlay. Keep the navigation background, safe-area
+coverage, intrinsic height, center-action geometry, hit testing, and accessibility order unchanged.
+
+Alternatives considered: Masking the line only beneath the center button, adding a curved notch,
+or retaining the line as a conventional tab-bar separator.
+
+Consequences: The bottom navigation reads as one continuous surface and the primary add action is
+no longer bisected. Content separation remains available through the existing surface contrast.
+
+Files affected: app routing/navigation presentation, redesign memory, changelog, and session log.
+
+---
+
+## 2026-08-07 — Split Settings by durable responsibility
+
+Context: The redesigned Settings screen placed budget, reminders, notifications, Apple
+Intelligence, Siri, Spotlight, export, deletion, and diagnostics in one growing scroll view. The
+signed iPhone review also exposed runtime localization keys in reminder-tone and AI-status values.
+
+Decision: Make the Settings root a short navigation directory. Budget, reminders and notifications,
+Apple Intelligence, integrations, export, privacy, and About each own a focused second-level page.
+Keep Export and Privacy directly reachable from the root because their discoverability is part of
+the release/privacy contract. Keep cooling-notification repair beside notification controls. Render
+dynamic enum and status keys through `LocalizedCatalog` with the active SwiftUI locale. Local
+fallback diagnostics remain guarded by `#if DEBUG` and therefore absent from Archive/TestFlight.
+
+Alternatives considered: Retaining one long screen, creating a destination per individual toggle,
+moving export/deletion under a generic advanced page, or interpolating localization keys directly
+into `Text` and relying on implicit lookup.
+
+Consequences: Settings can grow without making every user traverse unrelated controls, critical
+privacy actions remain easy to find, and runtime values render in the selected language. Navigation
+depth increases by one for ordinary settings, while Export and Privacy keep their prior depth.
+
+Files affected: Settings and AI-status views, localization, UI tests, redesign/test/project memory,
+changelog, and session log.
+
+---
+
+## 2026-08-07 — Reserve 1.0.0 for public launch
+
+Context: The app is entering internal TestFlight rather than a public App Store release. Calling
+that candidate 1.0.0 obscures its prerelease status and leaves no clear repository rule tying each
+uploaded binary to its tester-facing change record.
+
+Decision: Use marketing version 0.9.0 and build 1 for the first internal TestFlight candidate.
+Increment `CURRENT_PROJECT_VERSION` for every replacement upload, even when the marketing version
+remains 0.9.0. Reserve marketing version 1.0.0 for the first public App Store release. Keep an
+Unreleased section in `Docs/CHANGELOG.md`; before every upload, move included changes into a dated
+version/build section and copy a concise tester-facing summary into the TestFlight notes in
+`Docs/APP_STORE_SUBMISSION.md`.
+
+Alternatives considered: Uploading 1.0.0 before public release, using 0.1.0 despite the feature-
+complete state, encoding beta labels in `CFBundleShortVersionString`, or recording changes only in
+commit messages and App Store Connect.
+
+Consequences: Installed and uploaded prerelease builds communicate their status clearly, App Store
+launch retains a clean 1.0.0 identity, and every binary has durable source-controlled release notes.
+The build number—not a mutable suffix—distinguishes replacement uploads accepted by App Store
+Connect.
+
+Files affected: Xcode version settings, release-readiness validation, changelog, submission notes,
+release checklist, project/task/decision/session memory.

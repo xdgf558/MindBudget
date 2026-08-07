@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+Every user-visible change must be added here when it is implemented. Before each TestFlight or
+App Store upload, move the included entries into a dated version/build section and use the same
+summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
+
+_No changes after the 0.9.0 (1) TestFlight candidate yet._
+
+## 0.9.0 (1) — 2026-08-07 — TestFlight candidate
+
 ### Added
 
 - Language-specific release names: `花有数` for Simplified Chinese and `MindBudget` for English,
@@ -11,7 +19,7 @@
 - Phase 10 release gates for bilingual catalog parity, AX5 and pseudo-long UI navigation,
   deterministic 10,000-expense Dashboard performance, and per-file core-service coverage.
 - Production-ready opaque 1024px standard, dark, and tinted App Icon variants using the approved
-  budget-track mark, plus version 1.0.0/build 1 configuration, App Store metadata drafts, and a
+  budget-track mark, plus TestFlight version 0.9.0/build 1 configuration, App Store metadata drafts, and a
   release checklist for signing, privacy, accessibility, and TestFlight.
 - A documented App Icon SVG export map and checksum gate that binds each editable source to its
   reviewed asset-catalog PNG.
@@ -107,6 +115,8 @@
 
 ### Changed
 
+- Split Settings into a short first-level directory and focused second-level pages for budget,
+  reminders and notifications, Apple Intelligence, integrations, export, privacy, and About.
 - Reset account, team, and agreement checklist items for every Archive/upload while preserving
   dated development observations as non-authoritative preflight evidence.
 - Removed the redundant budget-setup keyboard Done control; the bottom Save Budget button now
@@ -165,6 +175,10 @@
 
 ### Fixed
 
+- Localized runtime reminder-tone and Apple Intelligence status values explicitly, so Simplified
+  Chinese Settings no longer exposes catalog keys such as `settings.reminders.tone.soft`.
+- Removed the decorative hairline that crossed behind the raised center Add Expense control in
+  the custom bottom navigation; the navigation surface color still separates it from content.
 - Kept the Today `Add Expense` and Wishlist `Add Item` empty-state actions on one line with
   stable horizontal breathing room instead of allowing compact container proposals to collapse
   them into near-square controls.

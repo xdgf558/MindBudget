@@ -11,7 +11,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    func testSimplifiedChineseOnboardingAndBudgetKeyboardRender() {
+    func testSimplifiedChineseOnboardingBudgetKeyboardAndSettingsToneRender() {
         let app = assertOnboardingCopy(
             language: "zh-Hans",
             locale: "zh_CN",
@@ -22,6 +22,22 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         assertBudgetKeyboardHasNoCompletionToolbar(in: app)
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        app.buttons["budget.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.settings"].tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["settings.reminders"].tap()
+        XCTAssertTrue(element("settings.reminders.view", in: app).waitForExistence(timeout: 5))
+        let tonePicker = element("settings.reminders.tone", in: app)
+        XCTAssertTrue(tonePicker.exists)
+        XCTAssertEqual(tonePicker.value as? String, "柔和")
+        XCTAssertFalse(app.staticTexts["settings.reminders.tone.soft"].exists)
     }
 
     @MainActor
@@ -177,6 +193,14 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["dashboard.settings"].tap()
 
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        for identifier in [
+            "settings.budget",
+            "settings.reminders",
+            "settings.ai",
+            "settings.integrations",
+        ] {
+            XCTAssertTrue(element(identifier, in: app).exists)
+        }
         let exportControl = element("settings.export", in: app)
         for _ in 0..<4 where !exportControl.exists {
             app.swipeUp()

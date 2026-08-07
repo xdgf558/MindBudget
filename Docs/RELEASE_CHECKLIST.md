@@ -19,7 +19,7 @@ unchecked item below has been performed against the release commit.
 - [x] AX5 UI smoke keeps onboarding, all four tabs, Add Expense, and Settings reachable.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration remains version 1.0.0, iPhone-only, iOS 17+, and contains no shared
+- [x] Release configuration remains TestFlight version 0.9.0, iPhone-only, iOS 17+, and contains no shared
   Apple Team ID.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
@@ -35,7 +35,7 @@ unchecked item below has been performed against the release commit.
 - [ ] Confirm the distribution certificate and provisioning profile are valid for that team.
 - [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
-- [ ] Archive Release 1.0.0 with a new build number, validate it in Organizer, and inspect the
+- [ ] Archive Release 0.9.0 with a new build number, validate it in Organizer, and inspect the
   archive's application identifier prefix/team before upload.
 - [ ] Upload through Organizer while logged into the current account, wait for processing, and
   verify the build appears under the intended App Store Connect app before assigning testers.
@@ -87,6 +87,9 @@ used for every Archive and upload.
 
 ## Store listing and TestFlight
 
+- [ ] Confirm the upload's marketing version/build has a matching dated section in
+  `Docs/CHANGELOG.md` and matching TestFlight “What to Test” notes in
+  `Docs/APP_STORE_SUBMISSION.md`.
 - [ ] Review `Docs/APP_STORE_SUBMISSION.md` with the product owner and finalize localized name,
   subtitle, description, keywords, support/privacy URLs, and App Review notes.
 - [ ] Capture localized screenshots from the release build using synthetic data only.

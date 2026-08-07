@@ -384,6 +384,12 @@ in-cycle day. The Today `Add Expense` and Wishlist `Add Item` empty-state action
 at least 140 points wide and wider than twice their height, preventing localized labels from
 collapsing into cramped square controls.
 
+Settings smoke coverage must prove that Today reaches a first-level category directory and that
+Export and Privacy remain directly discoverable there. The Simplified Chinese path opens the
+Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
+`settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
+of the generic Release build used for Archive and TestFlight.
+
 ## Phase 10 acceptance
 
 The standard suite always loads a configured Dashboard from 10,000 current-cycle expenses and

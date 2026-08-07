@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AIStatusView: View {
     let userEnabled: Bool
+    @Environment(\.locale) private var locale
     @State private var availability: AIAvailability = .unavailable(.unknown)
     #if DEBUG
     @State private var fallbackCounts: [AIFallbackDiagnosticReason: Int] = [:]
@@ -9,7 +10,11 @@ struct AIStatusView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label(statusKey, systemImage: statusSymbol)
+            Label {
+                Text(verbatim: statusText)
+            } icon: {
+                Image(systemName: statusSymbol)
+            }
                 .foregroundStyle(availability == .available ? .green : .secondary)
             Text("settings.ai.fallback")
                 .font(.footnote)
@@ -20,10 +25,16 @@ struct AIStatusView: View {
                     .font(.caption.weight(.semibold))
                 ForEach(AIFallbackDiagnosticReason.allCases, id: \.rawValue) { reason in
                     if let count = fallbackCounts[reason], count > 0 {
-                        LabeledContent(
-                            LocalizedStringKey("settings.ai.debug.\(reason.rawValue)"),
-                            value: count.formatted()
-                        )
+                        LabeledContent {
+                            Text(count, format: .number)
+                        } label: {
+                            Text(
+                                verbatim: LocalizedCatalog.string(
+                                    "settings.ai.debug.\(reason.rawValue)",
+                                    locale: locale
+                                )
+                            )
+                        }
                         .font(.caption)
                     }
                 }
@@ -40,12 +51,15 @@ struct AIStatusView: View {
         }
     }
 
-    private var statusKey: LocalizedStringKey {
+    private var statusText: String {
         switch availability {
         case .available:
-            "settings.ai.status.available"
+            LocalizedCatalog.string("settings.ai.status.available", locale: locale)
         case let .unavailable(reason):
-            LocalizedStringKey("settings.ai.status.\(reason.rawValue)")
+            LocalizedCatalog.string(
+                "settings.ai.status.\(reason.rawValue)",
+                locale: locale
+            )
         }
     }
 

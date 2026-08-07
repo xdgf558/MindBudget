@@ -1510,3 +1510,79 @@ Static policy result: pass — release-readiness checks, floating-point money gu
 
 Next suggested task: Push the focused fix to PR #14, obtain owner review, and merge before the
 production Archive and TestFlight workflow.
+
+## 2026-08-07 — Session 38 — Refine bottom navigation and split Settings
+
+Goal: Remove the unexplained horizontal line across the raised center Add Expense control, replace
+the growing Settings scroll with first- and second-level pages, and prevent dynamic Settings values
+from exposing raw localization keys.
+
+Files changed: custom bottom-navigation presentation, Settings and AI-status views, localization,
+UI tests, redesign/test/project/decision memory, changelog, and this session log.
+
+What was completed: Identified the line as a one-point decorative hairline overlay rather than a
+gesture indicator or functional boundary. Removed that overlay while retaining the semantic
+navigation surface, bottom safe-area coverage, intrinsic layout, hit regions, and declared
+VoiceOver order. Replaced the single long Settings screen with a short root directory and focused
+Budget, Reminders and Notifications, Apple Intelligence, Integrations, Export, Privacy, and About
+destinations. Export and Privacy remain directly reachable from the root. Localized reminder-tone
+and AI status values explicitly through the active locale; the Debug fallback counters remain
+inside `#if DEBUG` and compile out of Release/TestFlight.
+
+What was NOT completed: Archive and TestFlight operations remain pending final PR approval and
+merge. Validation, refreshed signed-device installation, commit, push, and hosted CI results are
+recorded after their actual results below.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug
+build-for-testing, and current-team signed iPhone Debug build. Release compilation excludes the
+`#if DEBUG` fallback diagnostics used during development.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+Simplified Chinese path opens the new Reminders page, reads the tone as `柔和`, and rejects the raw
+catalog key; the English path proves every root destination plus Export and Privacy is reachable.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, the floating-point money guard, String
+Catalog JSON validation, and `git diff --check` pass.
+
+Signed-device result: pass with launch deferred by lock state — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` installed in place on the connected iPhone without deleting app data. The
+CoreDevice launch request was denied only because the phone was locked; the owner can unlock and
+open the installed app directly.
+
+Next suggested task: Commit and push the focused signed-device refinements to PR #14, obtain owner
+review, then merge before the production Archive and TestFlight workflow.
+
+## 2026-08-07 — Session 39 — Adopt a prerelease TestFlight identity
+
+Goal: Make the first internal-test version visibly prerelease and ensure every future uploaded
+build has a durable, tester-facing change record.
+
+Files changed: app marketing version, release-readiness version gate, changelog, TestFlight notes,
+submission/release/task/project/decision memory, and this session log.
+
+What was completed: Changed Debug and Release marketing version from 1.0.0 to 0.9.0 while retaining
+build 1 for the first upload. Reserved 1.0.0 for the first public App Store release. Added a dated
+0.9.0 (1) TestFlight-candidate section to the changelog, a matching “What to Test” record, and a
+release-checklist gate requiring future uploads to synchronize both records. The static gate now
+checks both marketing version 0.9.0 and build 1 in Debug and Release.
+
+What was NOT completed: The versioned binary has not been archived or uploaded. Replacement build
+numbers will be incremented only immediately before their actual upload.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing,
+and current-team signed iPhone Debug build all use version 0.9.0 (1).
+
+Test result: pass — the final versioned run repeated all 200 Swift Testing tests across 16 suites
+and all 9 UI tests with 0 failures; every selected core-service file remains above 85% coverage.
+
+Static policy result: pass — release readiness enforces version 0.9.0/build 1 in both configurations;
+the floating-point money guard and `git diff --check` also pass.
+
+Signed-device result: pass — team `2AM5S7BM2N` signed application identifier
+`2AM5S7BM2N.com.xdgf558.MindBudget`; its Info.plist reports 0.9.0 (1). The package was installed in
+place on the connected iPhone, preserved the app container, and launched successfully.
+
+Next suggested task: Commit and push both signed-device refinements and prerelease identity to
+PR #14 for owner review, then merge before production Archive and TestFlight upload.

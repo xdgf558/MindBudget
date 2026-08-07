@@ -7,8 +7,9 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Version: 1.0.0
+- TestFlight version: 0.9.0
 - Build: 1 for the first TestFlight upload; increment after every uploaded replacement.
+- Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
 - Minimum OS: iOS 17.0
@@ -16,6 +17,23 @@ validated under the owner's current China-region Apple Developer account.
   China-region team locally immediately before Archive.
 - Bundle ID: confirm the final identifier exists under that same team and matches the App
   Store Connect app record. Do not reuse an identifier owned by the previous account.
+
+## TestFlight build notes
+
+### 0.9.0 (1) — Internal test candidate
+
+What to test:
+
+- Complete onboarding and save a first budget, then record and edit a manual expense.
+- Check the standard, dark, and tinted icon plus the language-specific Home Screen name.
+- Verify Today, Log, Insights, Wishlist, the center Add action, and the compact empty-state actions.
+- Open Settings from Today. Confirm the first-level directory opens focused second-level pages,
+  Simplified Chinese shows `柔和` for reminder tone, and no local Debug diagnostics appear.
+- Exercise a wishlist cooling-off flow, notification controls, CSV export, and the two-step local
+  deletion flow using synthetic data only.
+
+For every replacement upload, increment the build number and copy its user-visible changes from
+`Docs/CHANGELOG.md` into a new dated entry here before assigning internal testers.
 
 ## Simplified Chinese metadata draft
 
