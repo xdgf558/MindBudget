@@ -105,6 +105,8 @@
 
 ### Changed
 
+- Removed the redundant budget-setup keyboard Done control; the bottom Save Budget button now
+  dismisses input focus and remains the only action that validates and commits the draft.
 - Kept Apple Developer Team selection out of the shared project and documented that Archive and
   upload must use the owner's latest China-region account after revalidating the final identity.
 - Replaced the former five-slot tab semantics with four real destinations—Today, Log, Insights,

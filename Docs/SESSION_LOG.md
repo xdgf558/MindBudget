@@ -1360,3 +1360,36 @@ Next suggested task: Have the owner confirm the signed-device Home Screen label,
 and merge it to `main`. Then register the explicit App ID and App Store Connect app under the
 current team, create and inspect a production Archive, validate its distribution identity, and
 upload build 1 to the intended internal TestFlight group.
+
+## 2026-08-07 — Session 34 — One explicit budget-save action
+
+Goal: Remove the floating keyboard `Done` control reported on the signed-device budget setup
+screen and make the bottom `Save Budget` button the only persistence action.
+
+Files changed: budget setup, Phase 3 end-to-end UI coverage, redesign/decision memory, changelog,
+and this session log.
+
+What was completed: Removed only the budget setup keyboard toolbar; other contextual Done actions
+remain unchanged. Tapping `Save Budget` now clears the focused amount field before running the
+existing whole-draft validation and persistence flow. Every onboarding UI path now enters the
+three budget values without dismissing the decimal keyboard between fields. The primary flow also
+asserts that no `Done` button exists, then proves the bottom save action still advances to Today.
+The same flow passed under accessibility-extra-large and pseudo-long-text configurations.
+
+What was NOT completed: This focused change does not create a production Archive, App Store
+Connect record, TestFlight upload, or internal tester assignment. PR #14 still requires owner
+review and merge before those release actions. The revised budget setup should receive one final
+visual confirmation on the signed iPhone before Archive.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and Debug build-for-testing.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+targeted manual-expense onboarding flow also passed independently after the interaction change.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, and the complete
+validation script pass.
+
+Next suggested task: Publish this focused PR update for owner review, visually verify the budget
+setup on the signed iPhone, and merge PR #14 before creating the production App ID and Archive.

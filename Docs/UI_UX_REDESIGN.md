@@ -15,6 +15,8 @@ privacy boundaries, reminder throttling, and system-integration gates remain aut
   not calculate financial values.
 - Add Expense uses an app-owned, locale-aware keypad. Behavioral reminders use a
   full-screen pause surface with the existing 2–4-action safety contract.
+- Budget setup keeps edited amounts as draft input until the single bottom Save Budget
+  action is selected; it does not add a second keyboard-toolbar completion action.
 - The custom navigation announces its selected tab and tab-derived localized position, grows
   vertically for accessibility text sizes, keeps the independent add action inside its hit-test
   bounds, and declares the traversal Today → Log → Add Expense → Insights → Wishlist.

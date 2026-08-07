@@ -1071,3 +1071,25 @@ China-region account.
 
 Files affected: app display-name build settings and InfoPlist catalog, localization tests, App
 Store draft, release validation/checklist, project memory, and changelog.
+
+---
+
+## 2026-08-07 — Keep one explicit commit action in budget setup
+
+Context: The decimal keyboard toolbar added a floating `Done` action directly above the bottom
+`Save Budget` button. It visually overlapped the primary action on a physical iPhone and made it
+unclear whether finishing text entry also saved the budget.
+
+Decision: Do not attach a keyboard completion toolbar to budget setup. Moving between amount
+fields only edits the in-memory draft. `Save Budget` is the sole action that dismisses input focus,
+validates the complete draft, persists it, and advances to Today.
+
+Alternatives considered: Keeping both actions, making `Done` save immediately, or adding a second
+floating keyboard control with different wording.
+
+Consequences: The screen has one unambiguous persistence action and cannot imply that dismissing
+the keyboard committed financial data. UI coverage must fill all amount fields without the former
+toolbar and prove that the bottom action completes onboarding while the keyboard is active.
+
+Files affected: budget setup, its end-to-end UI tests, the redesign handoff, changelog, and session
+memory.

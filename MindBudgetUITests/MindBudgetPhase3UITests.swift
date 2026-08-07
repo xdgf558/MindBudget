@@ -28,13 +28,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
+        XCTAssertFalse(app.buttons["Done"].exists)
+        XCTAssertTrue(app.buttons["budget.save"].exists)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -65,13 +64,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -111,13 +107,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -137,13 +130,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -166,13 +156,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -277,23 +264,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
-        dismissDecimalKeyboard(in: app)
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        dismissDecimalKeyboard(in: app)
         app.buttons["budget.save"].tap()
-    }
-
-    @MainActor
-    private func dismissDecimalKeyboard(in app: XCUIApplication) {
-        let doneButton = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS[c] %@", "Done")
-        ).firstMatch
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 2))
-        doneButton.tap()
     }
 
     @MainActor
