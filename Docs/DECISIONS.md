@@ -1093,3 +1093,29 @@ toolbar and prove that the bottom action completes onboarding while the keyboard
 
 Files affected: budget setup, its end-to-end UI tests, the redesign handoff, changelog, and session
 memory.
+
+---
+
+## 2026-08-07 — Give custom bottom navigation an intrinsic vertical size
+
+Context: On a signed iPhone, Today entered its compact loading state while the transparent center
+gap inside the custom navigation still accepted an unconstrained vertical proposal. That gap
+expanded through most of the screen, leaving the add button near the top and centering the four
+tabs inside a full-height surface. Existing UI tests checked presence and hit testing, so the
+geometrically incorrect controls still passed.
+
+Decision: Fix the center gap at its intended 54-point height, ask the complete navigation surface
+to use its vertically ideal content size, and let real tab labels increase that ideal height for
+accessibility text. Make Today's state container fill the remaining content area independently.
+Assert that both a real tab and the add action remain inside the bottom region at standard and AX5
+sizes.
+
+Alternatives considered: Hardcoding the entire tab bar height, switching back to the system tab
+bar, waiting for configured content before showing navigation, or relying on visual review alone.
+
+Consequences: Loading and other compact destination states cannot turn a flexible decoration into
+a full-screen layout participant. Dynamic Type remains content-driven, while automated coverage
+now fails on gross vertical displacement rather than only missing controls.
+
+Files affected: app routing/navigation layout, Today state layout, UI tests, redesign memory,
+changelog, and session log.

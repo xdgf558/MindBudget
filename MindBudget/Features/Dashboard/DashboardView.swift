@@ -130,6 +130,7 @@ struct DashboardView: View {
                     ErrorStateView(messageKey: "error.data.load", retry: reload)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .toolbar(.hidden, for: .navigationBar)
         }
         .accessibilityIdentifier("dashboard.view")

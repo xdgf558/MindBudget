@@ -38,6 +38,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(element("dashboard.today.left", in: app).exists)
+        assertPrimaryNavigationIsBottomAnchored(in: app)
         XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
         XCTAssertEqual(app.buttons["tab.dashboard"].value as? String, "Tab 1 of 4")
         let paceTrack = element("dashboard.pace.track", in: app)
@@ -190,6 +191,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         completeBudgetSetup(in: app)
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        assertPrimaryNavigationIsBottomAnchored(in: app)
         for identifier in [
             "tab.dashboard",
             "tab.log",
@@ -269,6 +271,19 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
         app.buttons["budget.save"].tap()
+    }
+
+    @MainActor
+    private func assertPrimaryNavigationIsBottomAnchored(in app: XCUIApplication) {
+        let dashboardTab = app.buttons["tab.dashboard"]
+        let quickAdd = app.buttons["dashboard.quickAdd"]
+        let appFrame = app.frame
+
+        XCTAssertTrue(dashboardTab.exists)
+        XCTAssertTrue(quickAdd.exists)
+        XCTAssertGreaterThan(dashboardTab.frame.midY, appFrame.maxY - 200)
+        XCTAssertGreaterThan(quickAdd.frame.midY, appFrame.maxY - 240)
+        XCTAssertLessThan(quickAdd.frame.midY, dashboardTab.frame.midY)
     }
 
     @MainActor

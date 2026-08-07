@@ -1397,3 +1397,39 @@ validation script pass.
 
 Next suggested task: Publish this focused PR update for owner review, visually verify the budget
 setup on the signed iPhone, and merge PR #14 before creating the production App ID and Archive.
+
+## 2026-08-07 — Session 35 — Keep custom navigation bottom-anchored
+
+Goal: Diagnose and repair the signed-iPhone layout in which Today's custom navigation surface
+expanded through most of the screen, moving the add action to the top and the four tabs to the
+middle.
+
+Files changed: app routing/navigation layout, Today state layout, Phase 3 UI geometry coverage,
+redesign/decision memory, changelog, and this session log.
+
+What was completed: Traced the expansion to the transparent center gap accepting an unconstrained
+vertical proposal while Today exposed its compact loading state. The gap now has its intended
+fixed placeholder height, the complete custom bar uses its vertically ideal size, real labels may
+still grow for Dynamic Type, and Today's state container fills the remaining content area. Added
+geometry assertions that require both the selected tab and add action to remain in the bottom
+screen region at standard and AX5 sizes. Rebuilt with the current team's development signing and
+installed the fixed build over the existing app on the connected iPhone Air without uninstalling
+or resetting it.
+
+What was NOT completed: The device locked before the newly installed build could be launched, so
+the owner still needs to unlock it and visually confirm the corrected layout. PR #14 remains
+unmerged; no production Archive, TestFlight upload, or internal tester assignment was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, Debug build-for-testing, and
+current-team signed iPhone Debug build.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 UI tests, 0 failures; the two
+focused layout tests also passed independently.
+
+Coverage result: pass — all selected core-service files remain at or above the 85% gate.
+
+Static policy result: pass — release-readiness checks, floating-point money guard, complete
+validation, and `git diff --check` pass.
+
+Next suggested task: Unlock the connected iPhone, launch the installed build, confirm Today and
+the add action remain bottom-anchored, then review and merge PR #14.

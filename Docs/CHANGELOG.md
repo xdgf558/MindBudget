@@ -161,6 +161,8 @@
 
 ### Fixed
 
+- Prevented the custom bottom navigation's transparent center gap from expanding to full-screen
+  height while Today loads, and added bottom-position assertions for normal and AX5 layouts.
 - Declared the custom navigation's VoiceOver traversal as Today, Log, Add Expense, Insights,
   and Wishlist, and derived each tab's announced position and total from `AppTab.allCases`.
 - Restored selected and position announcements, adaptive large-text layout, and in-bounds hit
