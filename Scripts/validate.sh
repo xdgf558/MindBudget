@@ -4,7 +4,12 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
+VALIDATION_TEMP_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/mindbudget-validation.XXXXXX")"
+RESULT_BUNDLE="${VALIDATION_TEMP_DIRECTORY}/MindBudget.xcresult"
+trap 'rm -rf "${VALIDATION_TEMP_DIRECTORY}"' EXIT
 cd "${PROJECT_ROOT}"
+
+Scripts/check-release-readiness.sh
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \
@@ -22,13 +27,31 @@ if [[ ! "${bundle_identifier}" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]]; then
 fi
 
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -destination "${DESTINATION}" build-for-testing
+  -configuration Release -destination "generic/platform=iOS Simulator" build
+
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  -destination "${DESTINATION}" -enableCodeCoverage YES build-for-testing
+
+test_arguments=(
+  -destination "${DESTINATION}"
+  -enableCodeCoverage YES
+  -resultBundlePath "${RESULT_BUNDLE}"
+)
+
+# Hosted runners have nondeterministic neighboring load. They still execute the
+# deterministic 10,000-row Dashboard projection contract; only the strict local
+# 500 ms wall-clock signal is excluded from their correctness gate.
+if [[ "${MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK:-0}" == "1" ]]; then
+  test_arguments+=(
+    "-skip-testing:MindBudgetTests/Phase10ReleaseReadinessTests/localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds()"
+  )
+fi
 
 if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
-  xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-    -destination "${DESTINATION}" -retry-tests-on-failure -test-iterations 2 \
-    test-without-building
-else
-  xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-    -destination "${DESTINATION}" test-without-building
+  test_arguments+=( -retry-tests-on-failure -test-iterations 2 )
 fi
+
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  "${test_arguments[@]}" test-without-building
+
+Scripts/check-coverage.sh "${RESULT_BUNDLE}"

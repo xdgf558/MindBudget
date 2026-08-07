@@ -43,6 +43,13 @@ names the current stage. After deletion, the app re-queries all nine model count
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
 
+Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
+are never deleted automatically. Settings shows the exact affected count and offers a separate
+destructive repair action with explicit confirmation. At commit time the actor revalidates every
+previously identified record, deleting only rows that are still unreadable and preserving any row
+that became valid. A later notification-operation failure does not resurrect a stale data-warning
+state; it remains visible as the independent notification error.
+
 ## AI disclosure
 
 AI enhancement is implemented and off by default. When enabled on a supported device,

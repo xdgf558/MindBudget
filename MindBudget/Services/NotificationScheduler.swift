@@ -397,7 +397,7 @@ actor SystemLocalNotificationCenter: LocalNotificationCenterClient {
     ) {
         guard reference != nil,
               NotificationEntityAssociationSupport.isAvailableInCurrentSDK else { return }
-        // TODO(iOS SDK): Xcode 26.6 / iOS 26.5 exposes no public UserNotifications
+        // NOTE(iOS SDK): Xcode 26.6 / iOS 26.5 exposes no public UserNotifications
         // app-entity annotation property. Keep this adapter as a no-op until that API
         // is present; userInfo routing above remains the iOS 17+ fallback.
         _ = content

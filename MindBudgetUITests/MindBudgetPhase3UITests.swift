@@ -188,6 +188,61 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable() {
+        let app = launchApp(
+            language: "en",
+            locale: "en_US",
+            additionalArguments: [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+            ]
+        )
+
+        XCTAssertTrue(app.staticTexts["onboarding.title"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["onboarding.continue"].isHittable)
+        completeBudgetSetup(in: app)
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        for identifier in [
+            "tab.dashboard",
+            "tab.log",
+            "dashboard.quickAdd",
+            "tab.insights",
+            "tab.wishlist",
+        ] {
+            let control = app.buttons[identifier]
+            XCTAssertTrue(control.exists, "Missing AX5 navigation control: \(identifier)")
+            XCTAssertTrue(control.isHittable, "Clipped AX5 navigation control: \(identifier)")
+        }
+        XCTAssertTrue(app.buttons["dashboard.settings"].isHittable)
+    }
+
+    @MainActor
+    func testPseudoLongTextKeepsOnboardingAndPrimaryNavigationReachable() {
+        let app = launchApp(
+            language: "en",
+            locale: "en_US",
+            additionalArguments: [
+                "-NSDoubleLocalizedStrings",
+                "YES",
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+            ]
+        )
+        let title = app.staticTexts["onboarding.title"]
+
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        XCTAssertGreaterThan(title.label.count, "A calmer way to manage money".count)
+        XCTAssertTrue(app.buttons["onboarding.continue"].isHittable)
+        completeBudgetSetup(in: app)
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["dashboard.quickAdd"].isHittable)
+        XCTAssertTrue(app.buttons["dashboard.settings"].isHittable)
+        XCTAssertTrue(app.buttons["tab.wishlist"].isHittable)
+    }
+
+    @MainActor
     private func assertOnboardingCopy(
         language: String,
         locale: String,
@@ -201,20 +256,42 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func launchApp(language: String, locale: String) -> XCUIApplication {
+    private func launchApp(
+        language: String,
+        locale: String,
+        additionalArguments: [String] = []
+    ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [
             "-ui-testing-reset",
             "-AppleLanguages", "(\(language))",
             "-AppleLocale", locale,
-        ]
+        ] + additionalArguments
         app.launch()
         return app
     }
 
     @MainActor
+    private func completeBudgetSetup(in app: XCUIApplication) {
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        app.textFields["budget.monthlyIncome"].tap()
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.fixedExpenses"].tap()
+        app.textFields["budget.fixedExpenses"].typeText("1000")
+        dismissDecimalKeyboard(in: app)
+        app.textFields["budget.savingGoal"].tap()
+        app.textFields["budget.savingGoal"].typeText("500")
+        dismissDecimalKeyboard(in: app)
+        app.buttons["budget.save"].tap()
+    }
+
+    @MainActor
     private func dismissDecimalKeyboard(in app: XCUIApplication) {
-        let doneButton = app.buttons["Done"]
+        let doneButton = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Done")
+        ).firstMatch
         XCTAssertTrue(doneButton.waitForExistence(timeout: 2))
         doneButton.tap()
     }

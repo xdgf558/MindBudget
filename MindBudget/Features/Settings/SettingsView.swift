@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @State private var isChangingNotifications = false
+    @State private var presentsCoolingOffRepairConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -169,10 +170,46 @@ struct SettingsView: View {
 
                     if session.notificationDataIntegrityWarning {
                         Label(
-                            "settings.notifications.invalidStoredData",
+                            LocalizedCatalog.format(
+                                "settings.notifications.invalidStoredData.count",
+                                locale: locale,
+                                session.invalidCoolingOffRecordCount
+                            ),
                             systemImage: "exclamationmark.triangle"
                         )
                         .foregroundStyle(.orange)
+                        Button("settings.notifications.repair.action", role: .destructive) {
+                            presentsCoolingOffRepairConfirmation = true
+                        }
+                        .disabled(session.coolingOffRepairState == .repairing)
+                        .accessibilityIdentifier("settings.notifications.repair")
+                    }
+
+                    switch session.coolingOffRepairState {
+                    case .repairing:
+                        HStack {
+                            ProgressView()
+                            Text("settings.notifications.repair.progress")
+                        }
+                        .accessibilityElement(children: .combine)
+                    case let .completed(count):
+                        Label(
+                            LocalizedCatalog.format(
+                                "settings.notifications.repair.completed",
+                                locale: locale,
+                                count
+                            ),
+                            systemImage: "checkmark.circle"
+                        )
+                        .foregroundStyle(Color.mbAccent)
+                    case .failed:
+                        Label(
+                            "settings.notifications.repair.failed",
+                            systemImage: "exclamationmark.triangle"
+                        )
+                        .foregroundStyle(.orange)
+                    case .idle:
+                        EmptyView()
                     }
 
                     Text("settings.notifications.privacy")
@@ -239,6 +276,30 @@ struct SettingsView: View {
             }
             .onChange(of: settings.indexMerchantNames) { _, _ in
                 reconcileSpotlight()
+            }
+            .confirmationDialog(
+                "settings.notifications.repair.confirm.title",
+                isPresented: $presentsCoolingOffRepairConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("settings.notifications.repair.confirm.action", role: .destructive) {
+                    Task {
+                        _ = await session.repairInvalidCoolingOffRecords(
+                            settings: settings,
+                            locale: locale,
+                            calendar: calendar
+                        )
+                    }
+                }
+                Button("common.cancel", role: .cancel) {}
+            } message: {
+                Text(
+                    LocalizedCatalog.format(
+                        "settings.notifications.repair.confirm.message",
+                        locale: locale,
+                        session.invalidCoolingOffRecordCount
+                    )
+                )
             }
         }
     }

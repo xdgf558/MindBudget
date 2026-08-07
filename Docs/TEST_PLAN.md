@@ -145,20 +145,31 @@ suggested entities.
     while the center add control opens expense entry and Settings opens from Today.
 17. Confirm there is no visible paid lock, quota, trial, paywall, StoreKit entry, or custom-rule
     purchase UI before the separate commercialization phase is implemented.
+18. Confirm the localized corrupt-cooling-record count and explicit repair confirmation preserve
+    every readable record and never run automatically.
+19. Run pseudo-localization and long-text inspection across the redesigned screens, then capture
+    the accepted AX5/VoiceOver order on a signed iPhone.
+20. Before Archive, select and verify the owner's latest China-region Apple Developer team,
+    final Bundle ID, distribution identity, agreements, and intended App Store Connect app.
 
-## Coverage targets
+## Coverage gates and stretch targets
 
-| Module | Target |
-|---|---:|
-| BudgetEngine | at least 95% |
-| BudgetCycleCalculator / BudgetPlanFactory | at least 95% |
-| SpendingPatternDetector | at least 95% |
-| ReminderThrottle | at least 95% |
-| AdviceSafetyValidator | at least 95% |
-| PrivacyRedactor | 100% |
-| Money | 100% |
-| Other services | at least 80% |
-| Views | manual smoke coverage |
+The executable release gate is at least 85% line coverage for every deterministic core file
+listed in `Scripts/check-coverage.sh`, matching the product specification. Higher numbers remain
+review targets, not claims that defensive `preconditionFailure` or compiler-generated branches
+can safely be executed.
+
+| Module | Release gate | Stretch target |
+|---|---:|---:|
+| BudgetEngine | at least 85% | at least 95% |
+| BudgetCycleCalculator / BudgetPlanFactory | at least 85% | at least 95% |
+| SpendingPatternDetector | at least 85% | at least 95% |
+| ReminderThrottle | at least 85% | at least 95% |
+| AdviceSafetyValidator | at least 85% | at least 95% |
+| PrivacyRedactor | at least 85% | 100% |
+| Money | at least 85% | 100% |
+| Other selected core services | at least 85% | increase when useful |
+| Views | manual smoke coverage | UI automation where stable |
 
 ## Phase 0 acceptance
 
@@ -371,6 +382,25 @@ never reuse the former cycle-wide `dashboard.available` meaning. Engine tests ex
 distinguish reconstructed start-of-day allowance from double subtraction and cover the last
 in-cycle day.
 
+## Phase 10 acceptance
+
+The standard suite always loads a configured Dashboard from 10,000 current-cycle expenses and
+asserts the complete projection count. Its fixture spans multiple calendar dates, every expense
+category, fixed and discretionary buckets, varied exact minor-unit amounts, and sixteen optional
+merchant names; this is a Dashboard read/projection contract, not a merchant-rebuild benchmark.
+
+The separate 500 ms wall-clock assertion is a local release-machine signal. Local
+`Scripts/validate.sh` runs it by default. Hosted GitHub Actions sets
+`MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1` and skips only that timing test because neighboring VM
+load is not a reliable product-performance oracle; CI still runs the deterministic 10,000-row
+contract, Release build, full remaining suite, and coverage gate. Instruments on the signed
+release iPhone remains authoritative for launch, scrolling, persistence, and memory performance.
+
+`Scripts/check-coverage.sh` must fail nonzero when the result bundle, app target, or any selected
+core file is missing, or when any selected file is below 85%. `Scripts/validate.sh` invokes it
+after coverage-enabled tests, and the CI workflow invokes `validate.sh`, so this is a hosted
+blocking gate rather than a local-only report.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app
@@ -379,4 +409,6 @@ and execute build plus tests. GitHub-hosted macOS images currently do not includ
 iOS 17 runtime, so this is a deployment compatibility check rather than an iOS 17
 runtime claim. Release smoke testing on a real iOS 17 device or simulator remains
 required. Hosted CI permits one retry for a transient first-launch timeout on a newly
-migrated simulator; assertion failures must fail both attempts and remain blocking.
+migrated simulator; assertion failures must fail both attempts and remain blocking. The explicit
+wall-clock benchmark exclusion above is independent from retry behavior and cannot skip another
+correctness, localization, UI, or coverage assertion.

@@ -703,6 +703,24 @@ actor DataActor {
         )
     }
 
+    /// Removes only records that were explicitly identified to the user and are still
+    /// unreadable at commit time. A record that became valid is preserved.
+    func repairInvalidCoolingOffPlans(identifiedBy planIDs: [UUID]) throws -> Int {
+        let identifiedIDs = Set(planIDs)
+        guard !identifiedIDs.isEmpty else { return 0 }
+
+        return try commit {
+            let plans = try modelContext.fetch(FetchDescriptor<CoolingOffPlan>())
+            var repairedCount = 0
+            for plan in plans where identifiedIDs.contains(plan.id) {
+                guard isInvalidCoolingOffPlan(plan) else { continue }
+                modelContext.delete(plan)
+                repairedCount += 1
+            }
+            return repairedCount
+        }
+    }
+
     func updateCoolingNotificationIdentifiers(
         _ updates: [CoolingNotificationIdentifierUpdate]
     ) throws {
@@ -1631,6 +1649,16 @@ actor DataActor {
             ),
             outcomeRecordedAt: plan.outcomeRecordedAt
         )
+    }
+
+    private func isInvalidCoolingOffPlan(_ plan: CoolingOffPlan) -> Bool {
+        guard plan.wishItem != nil else { return true }
+        do {
+            _ = try coolingOffPlanSummary(plan)
+            return false
+        } catch {
+            return true
+        }
     }
 
     private func spendingInsightSummary(

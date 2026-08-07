@@ -31,12 +31,14 @@ buckets, emotion tags, wishlist, cooling-off plans, deterministic insights,
 throttled template reminders, local notifications, CSV export, deterministic Ask,
 App Intents, and Spotlight.
 
-## Later scope
+## Current and later scope
 
-Release polish, accessibility/performance validation, TestFlight readiness, and the explicit
-repair flow for unreadable or orphaned cooling-off rows. Commercialization is a separate later
-phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall, trial,
-or visible paid-feature placeholder.
+Phase 10's source-level release polish, accessibility/performance automation, TestFlight
+documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
+Signed-device, production-signing, Instruments, App Store Connect, screenshot, and upload checks
+remain manual release gates, so the phase is still In Progress. Commercialization is a separate
+later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
+trial, or visible paid-feature placeholder.
 
 ## Forbidden
 
@@ -68,7 +70,8 @@ app's private data are forbidden in V1.
   quiet hours only after explicit user consent. A corrupt plan is isolated so valid
   reminders still reconcile, while Settings surfaces the incomplete-data state. A later
   operation failure preserves that last-known warning until a successful reconciliation
-  recomputes it; corrupt rows are never auto-deleted and need a Phase 10 repair action.
+  recomputes it. Corrupt rows are never auto-deleted; Settings provides a confirmed repair action
+  that passes only the displayed identifiers and revalidates each row before deletion.
 - V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
   exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
 - Delete All is a staged, two-confirmation workflow: notifications, awaited app index
@@ -84,6 +87,9 @@ app's private data are forbidden in V1.
   content never expose exact amounts; Settings warns that the active result may be spoken.
 - V1 targets iPhone only. iPad support requires a later explicit product decision.
 - The public repository is review-visible but proprietary; no open-source rights are granted.
+- The shared project never commits an Apple Developer Team ID. Release signing and upload must
+  use the owner's latest China-region team, with the final Bundle ID, distribution identity,
+  provisioning profile, agreements, and App Store Connect app reverified before every upload.
 
 ## Local development environment
 
@@ -168,7 +174,10 @@ explicit export includes raw expense notes. Delete All requires two confirmation
 each notification/index/data/preference stage, stops without a success claim on failure,
 and returns to onboarding only after a post-delete query verifies all nine SwiftData types
 are gone. Notification reconciliation isolates invalid cooling-off records, clears their
-stale identifiers, continues valid requests, and exposes a localized integrity warning.
+stale identifiers, continues valid requests, and exposes a localized integrity warning with the
+affected count. Settings can explicitly repair only those displayed rows after confirmation;
+`DataActor` revalidates them at commit time, and a separate notification failure cannot revive a
+stale integrity warning.
 The existing privacy manifest remains accurate: no tracking, collection, third-party SDKs,
 or new required-reason
 file API was added. Notification `appEntityIdentifier` remains Phase 8 work behind the future

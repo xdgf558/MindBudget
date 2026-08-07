@@ -66,6 +66,32 @@ struct MoneyTests {
         }
     }
 
+    @Test
+    func validatedFactoriesRejectUnsupportedCurrenciesAndPreserveExactValues() throws {
+        let minorUnits = try Money.validated(minorUnits: 1_234, currencyCode: "USD")
+        let decimalAmount = try Money.validated(
+            decimal: decimal("12.34"),
+            currencyCode: "USD"
+        )
+
+        #expect(minorUnits == decimalAmount)
+        #expect(throws: MoneyError.unsupportedCurrency("ZZZ")) {
+            try Money.validated(minorUnits: 1, currencyCode: "ZZZ")
+        }
+        #expect(throws: MoneyError.unsupportedCurrency("ZZZ")) {
+            try Money.validated(decimal: decimal("1"), currencyCode: "ZZZ")
+        }
+    }
+
+    @Test
+    func comparisonUsesMinorUnitsWithinTheSameCurrency() {
+        let smaller = Money(minorUnits: 99, currencyCode: "CNY")
+        let larger = Money(minorUnits: 100, currencyCode: "CNY")
+
+        #expect(smaller < larger)
+        #expect(!(larger < smaller))
+    }
+
     private func decimal(_ value: String) -> Decimal {
         Decimal(string: value, locale: Locale(identifier: "en_US_POSIX"))!
     }
