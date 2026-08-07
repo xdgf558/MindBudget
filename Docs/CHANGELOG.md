@@ -4,8 +4,8 @@
 
 ### Added
 
-- The approved `花有数 MindBudget` release display name and `温和的预算与消费复盘工具`
-  Simplified Chinese App Store subtitle.
+- Language-specific release names: `花有数` for Simplified Chinese and `MindBudget` for English,
+  plus the `温和的预算与消费复盘工具` Simplified Chinese App Store subtitle.
 - An explicit, confirmed repair flow for unreadable cooling-off records that shows the affected
   count, revalidates every selected row at deletion time, and leaves readable records untouched.
 - Phase 10 release gates for bilingual catalog parity, AX5 and pseudo-long UI navigation,

@@ -1048,25 +1048,26 @@ memory/checklists.
 
 ---
 
-## 2026-08-07 — Use 花有数 MindBudget as the complete release brand
+## 2026-08-07 — Localize the release name instead of combining both brands
 
-Context: Before the first TestFlight build, the owner selected the complete public brand
-`花有数 MindBudget` and the Chinese descriptor `温和的预算与消费复盘工具`. The target/product name
-may remain the stable technical identifier `MindBudget`, but the user-facing release identity
-must no longer rely on that English name alone.
+Context: Before the first TestFlight build, the owner selected the Chinese name `花有数`, the
+English name `MindBudget`, and the Chinese descriptor `温和的预算与消费复盘工具`. A signed-device
+check showed that combining both names in one Home Screen label was not the intended result.
 
-Decision: Set `CFBundleDisplayName` to `花有数 MindBudget` for both Debug and Release, use the same
-name in the Simplified Chinese and English App Store drafts, and use `温和的预算与消费复盘工具` as
-the Simplified Chinese subtitle. Keep the icon text-free and retain `MindBudget` in code, target,
-scheme, bundle suffix, store filename, and internal type names.
+Decision: Keep `MindBudget` as the generated Info.plist fallback, localize `CFBundleDisplayName`
+through `InfoPlist.xcstrings` to `MindBudget` for English and `花有数` for Simplified Chinese, and
+use those same names in their matching App Store localizations. Never combine both names in the
+same app-name field. Keep `温和的预算与消费复盘工具` as the Simplified Chinese subtitle, keep the
+icon text-free, and retain `MindBudget` in code, target, scheme, bundle suffix, store filename,
+and internal type names.
 
-Alternatives considered: Renaming the Xcode target and Swift types, localizing the Home Screen
-name back to English on English devices, or putting the brand text inside the App Icon.
+Alternatives considered: Combining both names on every device, renaming the Xcode target and
+Swift types, or putting either name inside the App Icon.
 
-Consequences: The public brand is consistent without destabilizing identifiers, persistence, or
-system integrations. The mixed-script Home Screen name may truncate on some layouts, so the
-signed-device checklist must inspect it before upload and the App Store name remains subject to
-availability in the current China-region account.
+Consequences: The user sees one short, language-appropriate name without destabilizing identifiers,
+persistence, or system integrations. The release gate and localization tests must verify both
+InfoPlist translations, and both App Store names remain subject to availability in the current
+China-region account.
 
-Files affected: app display-name build settings, App Store draft, release validation/checklist,
-project memory, and changelog.
+Files affected: app display-name build settings and InfoPlist catalog, localization tests, App
+Store draft, release validation/checklist, project memory, and changelog.

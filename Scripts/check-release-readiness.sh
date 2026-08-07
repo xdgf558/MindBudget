@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 PROJECT_FILE="${PROJECT_ROOT}/MindBudget.xcodeproj/project.pbxproj"
+INFO_PLIST_CATALOG="${PROJECT_ROOT}/MindBudget/Resources/InfoPlist.xcstrings"
 ICON_DIRECTORY="${PROJECT_ROOT}/MindBudget/Resources/Assets.xcassets/AppIcon.appiconset"
 ICON_FILENAMES=(
   "AppIcon-1024.png"
@@ -32,8 +33,16 @@ grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
   echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2
   exit 1
 }
-[[ "$(grep -o 'INFOPLIST_KEY_CFBundleDisplayName = "花有数 MindBudget"' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
-  echo "MindBudget app target must use the approved display name in Debug and Release" >&2
+[[ "$(grep -o 'INFOPLIST_KEY_CFBundleDisplayName = MindBudget' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must use the English fallback display name in Debug and Release" >&2
+  exit 1
+}
+[[ "$(plutil -extract strings.CFBundleDisplayName.localizations.en.stringUnit.value raw -o - "${INFO_PLIST_CATALOG}")" == "MindBudget" ]] || {
+  echo "English Home Screen name must be MindBudget" >&2
+  exit 1
+}
+[[ "$(plutil -extract strings.CFBundleDisplayName.localizations.zh-Hans.stringUnit.value raw -o - "${INFO_PLIST_CATALOG}")" == "花有数" ]] || {
+  echo "Simplified Chinese Home Screen name must be 花有数" >&2
   exit 1
 }
 if grep -q 'DEVELOPMENT_TEAM' "${PROJECT_FILE}"; then

@@ -5,7 +5,7 @@ validated under the owner's current China-region Apple Developer account.
 
 ## Build identity
 
-- Product/brand: 花有数 MindBudget
+- Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
 - Version: 1.0.0
 - Build: 1 for the first TestFlight upload; increment after every uploaded replacement.
@@ -19,13 +19,13 @@ validated under the owner's current China-region Apple Developer account.
 
 ## Simplified Chinese metadata draft
 
-Name: 花有数 MindBudget
+Name: 花有数
 
 Subtitle: 温和的预算与消费复盘工具
 
 Description:
 
-MindBudget 是一款以本地隐私为先的个人预算与消费复盘工具。你可以快速记录消费，
+花有数是一款以本地隐私为先的个人预算与消费复盘工具。你可以快速记录消费，
 查看当前预算压力，并通过心愿单和冷静期，在购买前给自己一点思考空间。
 
 所有预算、模式判断和金额计算都由确定性的本地代码完成。应用会帮助你回顾分类、
@@ -49,7 +49,7 @@ Keywords: 预算,记账,消费,心愿单,冷静期,本地,隐私,账本
 
 ## English metadata draft
 
-Name: 花有数 MindBudget
+Name: MindBudget
 
 Subtitle: A calmer way to plan spending
 

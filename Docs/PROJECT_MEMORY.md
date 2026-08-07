@@ -5,8 +5,9 @@
 MindBudget V1 is an iPhone-only, local-first budgeting coach. Its core purpose is to
 help people record spending, understand current budget pressure, notice possible
 spending patterns, and consider calm alternatives before a regretted purchase.
-The release brand and Home Screen display name are `花有数 MindBudget`; the approved Chinese
-brand line is `温和的预算与消费复盘工具`.
+The Home Screen and App Store name are localized by system/store language: `花有数` in Simplified
+Chinese and `MindBudget` in English, never both in the same app name. The approved Chinese brand
+line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 

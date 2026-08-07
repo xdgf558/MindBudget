@@ -1304,3 +1304,59 @@ identified legacy account out and delete only its exact local credential after e
 confirmation; when the new account login requests a password or two-factor code, hand control to
 the owner. Then reconnect/unlock the release iPhone, identify the exact private Bundle ID prefix
 under the new team, and obtain explicit confirmation before creating certificates or profiles.
+
+## 2026-08-07 — Session 33 — Localized release name and signed-device preflight
+
+Goal: Continue the current China-region account release sequence, validate the approved icon on a
+signed iOS 26 iPhone, and ensure the Home Screen shows exactly one language-appropriate app name.
+
+Files changed: the generated Info.plist display-name fallback, a dedicated InfoPlist string
+catalog, localization tests, release validation, App Store drafts, release/task/project/decision
+memory, changelog, and this session log.
+
+What was completed: Signed the legacy Apple account out of Xcode and found no exact generic or
+internet-password Keychain item under its email, so no broad credential deletion was attempted.
+The owner manually signed the current China-region account into Xcode. Apple Developer access and
+the active free/paid App Store agreements were verified without recording private account or team
+identifiers in the repository. A private ignored `Config/Local.xcconfig` now selects the current
+team and remains untracked.
+
+After the owner enabled Developer Mode, Xcode registered the connected iOS 26 iPhone, generated an
+Apple Development certificate and team provisioning profile, and produced a successful signed
+Debug build. The app installed and launched on that device with the approved standard/dark/tinted
+icon assets. The owner then clarified that the two names must not be combined: English now shows
+`MindBudget`, Simplified Chinese shows `花有数`, and unsupported languages fall back to
+`MindBudget`. Xcode compiled both `InfoPlist.strings` variants, App Intents training resolved the
+matching localized application name, and the updated signed build was installed on the same
+device. PR #14 was moved from Draft to ready for review after its earlier CI run passed.
+
+What was NOT completed: PR #14 has not merged to `main`, so no production Archive was created.
+The current team still has no explicit production App ID or App Store Connect app record for this
+bundle, and no Apple Distribution identity/profile has been created or validated. The App Store
+Connect app, localized listing, Archive, Organizer validation, upload, build processing, and
+internal tester assignment remain pending. The full signed-device VoiceOver, AX5, appearance,
+system-integration, Instruments, data-protection, and iOS 17 passes remain unchecked. The owner
+still needs to visually confirm that the reinstalled Home Screen label and icon appearance match
+the selected system language and design.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release plus a current-team signed Debug
+build for the connected iOS 26 iPhone; the signed app installed and launched successfully.
+
+Test result: pass — 200 Swift Testing tests across 16 suites and 9 end-to-end/localization UI
+tests, 0 failures. The new test proves the English and Simplified Chinese InfoPlist display names
+remain separate. The existing nonblocking post-test simulator diagnostic warning appeared only
+after every suite passed.
+
+Coverage result: pass — Money 91.73%, BudgetEngine 94.24%, BudgetCycleCalculator 95.15%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 90.98%,
+AdviceSafetyValidator 94.50%, PrivacyRedactor 96.91%, CycleSummaryService 96.99%,
+IntentClassifier 97.50%, CSVExporter 90.79%, and CurrencyFormatterService 100%.
+
+Static policy result: pass — no unauthorized floating-point money paths; the three 1024px opaque
+icon variants, bilingual InfoPlist names, privacy/version/iPhone-only checks, absence of a shared
+Team ID, coverage gate, and `git diff --check` all pass.
+
+Next suggested task: Have the owner confirm the signed-device Home Screen label, review PR #14,
+and merge it to `main`. Then register the explicit App ID and App Store Connect app under the
+current team, create and inspect a production Archive, validate its distribution identity, and
+upload build 1 to the intended internal TestFlight group.

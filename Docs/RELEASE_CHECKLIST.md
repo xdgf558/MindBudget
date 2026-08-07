@@ -21,18 +21,19 @@ unchecked item below has been performed against the release commit.
   static release checks.
 - [x] Release configuration remains version 1.0.0, iPhone-only, iOS 17+, and contains no shared
   Apple Team ID.
-- [x] Debug and Release generate the approved `花有数 MindBudget` display name; the Chinese App
-  Store draft uses `温和的预算与消费复盘工具` as its subtitle.
+- [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
+  `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
+  `温和的预算与消费复盘工具` as its subtitle.
 
 ## Current China-region developer account and signing
 
-- [ ] In Xcode Settings > Accounts, confirm the owner's latest China-region Apple ID is active.
-- [ ] In Signing & Capabilities, select the current China-region team locally for the app and test
+- [x] In Xcode Settings > Accounts, confirm the owner's latest China-region Apple ID is active.
+- [x] In Signing & Capabilities, select the current China-region team locally for the app and test
   targets. Do not commit `DEVELOPMENT_TEAM` and do not select the previous team.
 - [ ] Confirm the final Bundle ID belongs to that team and exactly matches the App Store Connect
   app record; update the ignored `Config/Local.xcconfig` prefix if needed.
 - [ ] Confirm the distribution certificate and provisioning profile are valid for that team.
-- [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
+- [x] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
 - [ ] Archive Release 1.0.0 with a new build number, validate it in Organizer, and inspect the
   archive's application identifier prefix/team before upload.
@@ -48,8 +49,8 @@ unchecked item below has been performed against the release commit.
 - [ ] Inspect light/dark mode, Increase Contrast, Reduce Motion, and both portrait orientations
   supported by the iPhone target.
 - [ ] Inspect the standard, dark, and tinted Home Screen icon appearances on a real supported
-  iPhone; confirm iOS applies the corner mask, no track or marker is clipped, and the full
-  `花有数 MindBudget` label is acceptable at the supported Home Screen widths.
+  iPhone; confirm iOS applies the corner mask, no track or marker is clipped, and the localized
+  `花有数` / `MindBudget` label matches the current system language without combining both names.
 - [ ] Verify touch targets, focus order, dismissal behavior, and no clipped or overlapping text.
 - [ ] Run on a real iOS 17 device and a supported iOS 26 device.
 - [ ] Verify the effective SwiftData file-protection class in the release-signed container.
