@@ -1016,3 +1016,32 @@ CPU noise into a misleading performance failure.
 Files affected: cooling-off repair actor/session/Settings flow, localization and tests, release
 scripts and coverage gates, app icon/version metadata, App Store/release/privacy documentation,
 project memory, changelog, and this file.
+
+---
+
+## 2026-08-07 — Ship the approved budget-track icon as standard, dark, and tinted assets
+
+Context: The Phase 10 placeholder icon proved the release asset pipeline but was not the owner's
+final brand mark. The approved handoff defines a 1024×1024 budget track at x 190...834, centered
+at y 512 with height 74, a 352px completed segment, and a 33×264 marker centered at x 622. It also
+shows dedicated dark and monochrome variants and explicitly delegates corner masking to iOS.
+
+Decision: Replace the placeholder with three opaque universal App Icon resources. The standard
+appearance uses the specified 163° `#38806C → #2F6F5E → #245648` background, translucent
+`#102C25` track, `#F2F0EC` completed segment, and `#E0A95C` marker. The dark appearance uses the
+approved near-black, muted-track, mint-segment treatment. The tinted appearance is intentionally
+grayscale so iOS can apply the user's chosen Home Screen tint. Keep one SVG source per appearance
+under `Docs/Brand`, render all three at exactly 1024px, retain square corners in source, and make
+the release script reject a missing, transparent, mis-sized, or unreferenced variant.
+
+Alternatives considered: Shipping only the standard image, using the screenshot itself as a
+cropped icon, pre-rounding the corners, or asking iOS to derive dark/tinted appearances from the
+standard artwork.
+
+Consequences: The mark preserves its intended contrast in all supported Home Screen appearance
+modes without baking screenshot furniture or a duplicate corner mask into the binary. The asset
+catalog and static release gate now treat all three files as one production icon contract. Final
+appearance still requires the signed-device check because the system owns masking and tinting.
+
+Files affected: App Icon SVG/PNG sources, asset-catalog metadata, release validation, and release
+memory/checklists.

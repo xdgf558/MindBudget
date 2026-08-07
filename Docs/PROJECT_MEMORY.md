@@ -39,6 +39,8 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
 trial, or visible paid-feature placeholder.
+The production icon uses the owner-approved budget-track mark with standard green-gradient,
+dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 
 ## Forbidden
 

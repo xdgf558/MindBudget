@@ -1231,3 +1231,36 @@ Static policy result: pass — no unauthorized `Double`/`Float` in app money pat
 Next suggested task: Push this remediation to PR #13 for review. After approval and merge, execute
 the remaining signed-iPhone and China-region Apple Developer release checklist before the first
 TestFlight upload.
+
+## 2026-08-07 — Session 31 — Approved App Icon variants
+
+Goal: Replace the Phase 10 placeholder icon with the owner's approved budget-track design and
+support the system's standard, dark, and tinted Home Screen appearances.
+
+Files changed: standard/dark/tinted SVG sources and 1024px PNG assets, App Icon catalog metadata,
+release validation, task/release memory, changelog, decision log, and this session log.
+
+What was completed: Rebuilt the icon from the supplied numeric specification rather than cropping
+the reference screenshot. The shared geometry is a 644×74 fully rounded track beginning at x 190,
+a 352px completed segment, and a 33×264 rounded marker centered at x 622. Added the specified
+green-gradient standard appearance, the supplied near-black/mint dark appearance, and a grayscale
+tinted appearance. All three raster assets are 1024×1024 RGB PNGs without alpha or pre-rounded
+corners. The asset catalog uses Xcode's luminosity `dark` and `tinted` appearance declarations,
+and the release script now validates every variant plus both appearance mappings.
+
+What was NOT completed: No signing, Archive, App Store Connect, or TestFlight operation was
+performed. The final iOS-applied mask and tint rendering remain items for the signed-device
+release checklist. Phase 10 remains In Progress.
+
+Build result: pass — Xcode 26.6 compiled the standard, dark, and tinted catalog appearances in
+both the generic iOS Simulator Release build and Debug build-for-testing with no asset warnings.
+
+Test result: pass — 199 Swift Testing tests across 16 suites and 9 UI tests, 0 failures. The
+existing nonblocking simulator diagnostic-collection warning appeared only after all suites passed.
+
+Static policy result: pass — all three generated files are 1024×1024 RGB PNGs with no alpha;
+the extended release-readiness script, floating-point money guard, asset-catalog JSON parse,
+coverage gate, and `git diff --check` pass.
+
+Next suggested task: Complete validation, publish this focused icon change for review, then verify
+all three appearances on the signed release iPhone before Archive.

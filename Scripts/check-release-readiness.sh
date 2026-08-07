@@ -5,18 +5,28 @@ SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 PROJECT_FILE="${PROJECT_ROOT}/MindBudget.xcodeproj/project.pbxproj"
 ICON_DIRECTORY="${PROJECT_ROOT}/MindBudget/Resources/Assets.xcassets/AppIcon.appiconset"
-ICON_FILE="${ICON_DIRECTORY}/AppIcon-1024.png"
+ICON_FILENAMES=(
+  "AppIcon-1024.png"
+  "AppIcon-1024-Dark.png"
+  "AppIcon-1024-Tinted.png"
+)
 
-[[ -f "${ICON_FILE}" ]] || { echo "Missing 1024px app icon" >&2; exit 1; }
-grep -q '"filename" : "AppIcon-1024.png"' "${ICON_DIRECTORY}/Contents.json" || {
-  echo "AppIcon asset catalog does not reference AppIcon-1024.png" >&2
-  exit 1
-}
+for icon_filename in "${ICON_FILENAMES[@]}"; do
+  icon_file="${ICON_DIRECTORY}/${icon_filename}"
+  [[ -f "${icon_file}" ]] || { echo "Missing 1024px app icon: ${icon_filename}" >&2; exit 1; }
+  grep -q "\"filename\" : \"${icon_filename}\"" "${ICON_DIRECTORY}/Contents.json" || {
+    echo "AppIcon asset catalog does not reference ${icon_filename}" >&2
+    exit 1
+  }
 
-icon_metadata="$(sips -g pixelWidth -g pixelHeight -g hasAlpha "${ICON_FILE}")"
-grep -q 'pixelWidth: 1024' <<< "${icon_metadata}"
-grep -q 'pixelHeight: 1024' <<< "${icon_metadata}"
-grep -q 'hasAlpha: no' <<< "${icon_metadata}"
+  icon_metadata="$(sips -g pixelWidth -g pixelHeight -g hasAlpha "${icon_file}")"
+  grep -q 'pixelWidth: 1024' <<< "${icon_metadata}"
+  grep -q 'pixelHeight: 1024' <<< "${icon_metadata}"
+  grep -q 'hasAlpha: no' <<< "${icon_metadata}"
+done
+
+grep -q '"value" : "dark"' "${ICON_DIRECTORY}/Contents.json"
+grep -q '"value" : "tinted"' "${ICON_DIRECTORY}/Contents.json"
 
 [[ "$(grep -o 'MARKETING_VERSION = 1.0.0' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
   echo "MindBudget app target must use marketing version 1.0.0 in Debug and Release" >&2

@@ -17,7 +17,8 @@ unchecked item below has been performed against the release commit.
   signed release iPhone; treat that device evidence as authoritative.
 - [x] English and Simplified Chinese catalogs have matching, nonempty, format-compatible keys.
 - [x] AX5 UI smoke keeps onboarding, all four tabs, Add Expense, and Settings reachable.
-- [x] The 1024px opaque App Icon and privacy manifest pass static release checks.
+- [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
+  static release checks.
 - [x] Release configuration remains version 1.0.0, iPhone-only, iOS 17+, and contains no shared
   Apple Team ID.
 
@@ -44,6 +45,8 @@ unchecked item below has been performed against the release commit.
   sheets, alerts, repair confirmation, Export, Privacy, and Delete All.
 - [ ] Inspect light/dark mode, Increase Contrast, Reduce Motion, and both portrait orientations
   supported by the iPhone target.
+- [ ] Inspect the standard, dark, and tinted Home Screen icon appearances on a real supported
+  iPhone; confirm iOS applies the corner mask and no track or marker is clipped.
 - [ ] Verify touch targets, focus order, dismissal behavior, and no clipped or overlapping text.
 - [ ] Run on a real iOS 17 device and a supported iOS 26 device.
 - [ ] Verify the effective SwiftData file-protection class in the release-signed container.

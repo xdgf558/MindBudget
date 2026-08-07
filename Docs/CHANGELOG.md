@@ -8,8 +8,9 @@
   count, revalidates every selected row at deletion time, and leaves readable records untouched.
 - Phase 10 release gates for bilingual catalog parity, AX5 and pseudo-long UI navigation,
   deterministic 10,000-expense Dashboard performance, and per-file core-service coverage.
-- A production-ready opaque 1024px App Icon, version 1.0.0/build 1 configuration, App Store
-  metadata drafts, and a release checklist for signing, privacy, accessibility, and TestFlight.
+- Production-ready opaque 1024px standard, dark, and tinted App Icon variants using the approved
+  budget-track mark, plus version 1.0.0/build 1 configuration, App Store metadata drafts, and a
+  release checklist for signing, privacy, accessibility, and TestFlight.
 - A handoff-driven warm-paper design system with semantic light/dark colors, rounded cards,
   wrapping context chips, consistent buttons, and redesigned free V1 screens.
 - A deterministic Today pace projection from `BudgetEngine`, including today's discretionary

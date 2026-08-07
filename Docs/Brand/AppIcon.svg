@@ -1,13 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="background" x1="128" y1="96" x2="896" y2="928" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3B806E"/>
-      <stop offset="1" stop-color="#214F45"/>
+    <!-- CSS-equivalent 163° gradient from the approved icon specification. -->
+    <linearGradient id="background" x1="362" y1="0" x2="662" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38806C"/>
+      <stop offset="0.52" stop-color="#2F6F5E"/>
+      <stop offset="1" stop-color="#245648"/>
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" fill="url(#background)"/>
-  <circle cx="512" cy="512" r="300" fill="none" stroke="#F5F1E8" stroke-width="72"/>
-  <path d="M512 212 A300 300 0 0 1 812 512" fill="none" stroke="#E8B35C" stroke-width="72" stroke-linecap="round"/>
-  <path d="M354 630 V420 L512 570 L670 420 V630" fill="none" stroke="#F5F1E8" stroke-width="72" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="512" cy="745" r="28" fill="#E8B35C"/>
+  <rect x="190" y="475" width="644" height="74" rx="37" fill="#102C25" fill-opacity="0.42"/>
+  <rect x="190" y="475" width="352" height="74" rx="37" fill="#F2F0EC"/>
+  <rect x="605.5" y="380" width="33" height="264" rx="16.5" fill="#E0A95C"/>
 </svg>
