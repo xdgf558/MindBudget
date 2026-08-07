@@ -1911,3 +1911,60 @@ iPhone without uninstalling or clearing its local container, then launched succe
 Next suggested task: On the connected iPhone, confirm the Today amount against the saved budget,
 then enable Settings > Privacy > Require Face ID and manually test background locking,
 cancellation, Face ID unlock, passcode recovery, and the app-switcher snapshot.
+
+## 2026-08-08 — Session 47 — Complete the free tier with income, 30-day insights, and five open wishes
+
+Goal: Finish the remaining free-tier scope by adding an exact per-entry income ledger, replacing the
+short insights window with an in-app rolling 30-calendar-day summary, enforcing at most five open
+wishlist items, and advancing the internal candidate version.
+
+Files changed: SwiftData schema and migration, income model/projections/drafts and actor CRUD,
+combined ledger and add-entry routing, deterministic Insights UI, wishlist policy and typed errors,
+CSV export/privacy deletion, bilingual localization, release metadata and notes, unit/UI tests, and
+durable project/privacy/AI/decision/test/task/changelog/session memory.
+
+What was completed: Added `SchemaV2` and a lightweight V1-to-V2 migration for the new `Income`
+model. Income values use exact `Int64` minor units and support unlimited manual create, read, update,
+delete, search, category, source, note, and received-date workflows. The Log now merges income and
+expense rows without changing the configured budget or spending calculations. CSV export uses one
+stable bilingual-independent schema with a `record_type` discriminator and includes both ledgers;
+full local-data deletion and post-delete verification now cover all ten models. Income notes remain
+behind a detail projection and are explicitly excluded from AI inputs.
+
+Insights now calculates the latest 30 complete calendar positions ending today with the injected
+user calendar and time zone, shows exact daily totals, and restricts category/emotion breakdowns to
+the same half-open range. Wishlist capacity is centralized at five statuses that count as open;
+the actor rejects both a sixth insertion and a terminal-to-open transition atomically, while closed
+items release a slot. The UI shows the localized count and disables the add action at capacity, and
+Siri receives a typed localized limit response. The marketing/build version advanced from
+`0.9.1 (2)` to `0.9.2 (3)`; Settings shows only the latest notes by default and keeps older notes in
+the existing collapsed history.
+
+The first complete UI run found two automation-contract regressions rather than product logic
+failures: the confirmation dialog exposed duplicate identifier nodes, and the old test still looked
+for “Last 7 days”. The chooser query now selects its first matching system-dialog node, the income
+form identifier no longer propagates over its Save button, and the insight assertion now matches the
+30-day product contract. Focused reruns and the final complete suite passed.
+
+What was NOT completed: No signed physical-iPhone install, production Archive, App Store Connect
+upload, or TestFlight assignment was performed. Income remains intentionally separate from budget
+capacity in this candidate; changing that product rule would require a separate decision and engine
+work. App Intents do not yet create income entries, and Ask does not consume raw income rows.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile with version `0.9.2 (3)`.
+
+Test result: pass — 223 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. New tests cover exact income CRUD/note boundaries, V1-to-V2 migration, income-inclusive CSV
+and deletion, the exact 30-calendar-day boundary, sixth-item rejection, slot reuse, and reopening
+protection.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual localization,
+asset/JSON/project parsing, and `git diff --check` pass. Every selected core service remains above
+the 85% coverage gate; CSV export is 87.20%, BudgetEngine is 93.41%, and the remaining selected
+services range from 90.98% to 100%.
+
+Next suggested task: Review and merge the free-tier completion PR, then install `0.9.2 (3)` on the
+signed physical iPhone to walk through income add/edit/delete/search/export, the 30-day empty and
+populated insight states, the fifth/sixth wishlist boundary, Face ID protection, and migration from
+the existing on-device store before producing the Archive candidate.

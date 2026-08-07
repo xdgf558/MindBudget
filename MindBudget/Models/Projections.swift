@@ -24,6 +24,22 @@ struct ExpenseDetail: Hashable, Sendable {
     let note: String?
 }
 
+struct IncomeSummary: Hashable, Identifiable, Sendable {
+    let id: UUID
+    let amount: Money
+    let category: IncomeCategory
+    let sourceName: String?
+    let receivedAt: Date
+    let receivedTimeZoneIdentifier: String
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct IncomeDetail: Hashable, Sendable {
+    let summary: IncomeSummary
+    let note: String?
+}
+
 struct BudgetPlanSummary: Hashable, Sendable {
     let id: UUID
     let cycleStart: Date
@@ -118,6 +134,7 @@ struct MerchantSummary: Hashable, Sendable {
 
 struct ModelCounts: Equatable, Sendable {
     let expenses: Int
+    let incomes: Int
     let budgetPlans: Int
     let wishItems: Int
     let coolingOffPlans: Int
@@ -129,6 +146,7 @@ struct ModelCounts: Equatable, Sendable {
 
     var isEmpty: Bool {
         expenses == 0
+            && incomes == 0
             && budgetPlans == 0
             && wishItems == 0
             && coolingOffPlans == 0
@@ -141,6 +159,7 @@ struct ModelCounts: Equatable, Sendable {
 
     init(
         expenses: Int,
+        incomes: Int = 0,
         budgetPlans: Int,
         wishItems: Int,
         coolingOffPlans: Int,
@@ -151,6 +170,7 @@ struct ModelCounts: Equatable, Sendable {
         reflectionLogs: Int = 0
     ) {
         self.expenses = expenses
+        self.incomes = incomes
         self.budgetPlans = budgetPlans
         self.wishItems = wishItems
         self.coolingOffPlans = coolingOffPlans

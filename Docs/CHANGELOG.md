@@ -6,7 +6,30 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No additional user-visible changes are staged beyond the `0.9.1 (2)` candidate below.
+No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate below.
+
+## 0.9.2 (3) — 2026-08-08 — Internal TestFlight candidate
+
+### Added
+
+- Exact per-entry income history with localized categories, optional source and note, edit,
+  search, filter, delete, and unified expense/income CSV export. Income history remains
+  independent from the budget the user explicitly configured.
+- A true rolling 30-calendar-day Insights view with recent total/count, category and emotion
+  breakdowns, and a 30-point daily trend calculated entirely on device.
+- A free-tier limit of five open wishlist items, enforced atomically for app, Siri, and state
+  transition writes while completed, skipped, and archived history remains available.
+- SwiftData Schema V2 and a lightweight V1-to-V2 migration that adds income records without
+  discarding existing expenses, budgets, wishes, or cooling-off history.
+
+### Changed
+
+- The center Add action now asks whether the user is recording an expense or income, and Log
+  presents both kinds of entries in one chronological ledger.
+- CSV export and Delete All now include income records, with the same exact minor-unit,
+  raw-note disclosure, and spreadsheet-formula protections used for expenses.
+- The next internal candidate identifies itself as version `0.9.2`, build `3`; older in-app
+  release notes remain available only inside the collapsed history section.
 
 ## 0.9.1 (2) — 2026-08-07 — Internal TestFlight candidate
 

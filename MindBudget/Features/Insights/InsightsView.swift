@@ -14,12 +14,104 @@ struct InsightDailyTotal: Identifiable, Equatable, Sendable {
 }
 
 struct InsightDashboardSummary: Equatable, Sendable {
-    let lastSevenDaysTotal: Money
-    let lastSevenDaysCount: Int
+    let lastThirtyDaysTotal: Money
+    let lastThirtyDaysCount: Int
     let currentCycleTotal: Money
     let categoryTotals: [InsightBreakdown]
     let emotionTotals: [InsightBreakdown]
     let dailyTotals: [InsightDailyTotal]
+}
+
+struct InsightSummaryBuilder: Sendable {
+    func build(
+        expenses: [ExpenseSummary],
+        cycle: DateInterval,
+        currencyCode: String,
+        now: Date,
+        calendar: Calendar
+    ) throws -> InsightDashboardSummary {
+        let today = calendar.startOfDay(for: now)
+        guard let firstDay = calendar.date(byAdding: .day, value: -29, to: today),
+              let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) else {
+            throw DataValidationError.invalidBudgetCycle
+        }
+        let recentExpenses = expenses.filter {
+            firstDay <= $0.spentAt && $0.spentAt < tomorrow
+                && $0.amount.currencyCode == currencyCode
+        }
+        let cycleExpenses = expenses.filter {
+            cycle.start <= $0.spentAt && $0.spentAt < cycle.end
+                && $0.amount.currencyCode == currencyCode
+        }
+        let categoryTotals = try Dictionary(grouping: recentExpenses, by: \.category)
+            .map { category, values in
+                InsightBreakdown(
+                    id: category.rawValue,
+                    labelKey: category.localizedNameKey,
+                    amount: Money(
+                        minorUnits: try checkedSum(values.map(\.amount.minorUnits)),
+                        currencyCode: currencyCode
+                    )
+                )
+            }
+            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+        let tagged = recentExpenses.compactMap { expense in
+            expense.emotionTag.map { ($0, expense) }
+        }
+        let emotionTotals = try Dictionary(grouping: tagged, by: { $0.0 })
+            .map { emotion, values in
+                InsightBreakdown(
+                    id: emotion.rawValue,
+                    labelKey: emotion.localizedNameKey,
+                    amount: Money(
+                        minorUnits: try checkedSum(values.map(\.1.amount.minorUnits)),
+                        currencyCode: currencyCode
+                    )
+                )
+            }
+            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+        let groupedDays = Dictionary(grouping: recentExpenses) {
+            calendar.startOfDay(for: $0.spentAt)
+        }
+        let dailyTotals = try (0..<30).map { offset -> InsightDailyTotal in
+            guard let day = calendar.date(byAdding: .day, value: offset, to: firstDay) else {
+                throw DataValidationError.invalidBudgetCycle
+            }
+            return InsightDailyTotal(
+                date: day,
+                amount: Money(
+                    minorUnits: try checkedSum(
+                        groupedDays[day, default: []].map(\.amount.minorUnits)
+                    ),
+                    currencyCode: currencyCode
+                )
+            )
+        }
+        return InsightDashboardSummary(
+            lastThirtyDaysTotal: Money(
+                minorUnits: try checkedSum(recentExpenses.map(\.amount.minorUnits)),
+                currencyCode: currencyCode
+            ),
+            lastThirtyDaysCount: recentExpenses.count,
+            currentCycleTotal: Money(
+                minorUnits: try checkedSum(cycleExpenses.map(\.amount.minorUnits)),
+                currencyCode: currencyCode
+            ),
+            categoryTotals: categoryTotals,
+            emotionTotals: emotionTotals,
+            dailyTotals: dailyTotals
+        )
+    }
+
+    private func checkedSum(_ values: [Int64]) throws -> Int64 {
+        var total: Int64 = 0
+        for value in values {
+            let (next, overflow) = total.addingReportingOverflow(value)
+            guard !overflow else { throw DataValidationError.invalidAmount }
+            total = next
+        }
+        return total
+    }
 }
 
 @MainActor
@@ -101,7 +193,7 @@ final class InsightsViewModel: ObservableObject {
             )
             _ = try await dataActor.upsertSpendingInsights(drafts, createdAt: now)
             let storedInsights = try await dataActor.fetchSpendingInsightSummaries()
-            let dashboardSummary = try makeSummary(
+            let dashboardSummary = try InsightSummaryBuilder().build(
                 expenses: expenses,
                 cycle: snapshot.cycle,
                 currencyCode: snapshot.currencyCode,
@@ -142,93 +234,6 @@ final class InsightsViewModel: ObservableObject {
         }
     }
 
-    private func makeSummary(
-        expenses: [ExpenseSummary],
-        cycle: DateInterval,
-        currencyCode: String,
-        now: Date,
-        calendar: Calendar
-    ) throws -> InsightDashboardSummary {
-        let today = calendar.startOfDay(for: now)
-        let firstDay = calendar.date(byAdding: .day, value: -6, to: today) ?? today
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? now
-        let sevenDayExpenses = expenses.filter {
-            firstDay <= $0.spentAt && $0.spentAt < tomorrow
-                && $0.amount.currencyCode == currencyCode
-        }
-        let cycleExpenses = expenses.filter {
-            cycle.start <= $0.spentAt && $0.spentAt < cycle.end
-                && $0.amount.currencyCode == currencyCode
-        }
-        let categoryTotals = try Dictionary(grouping: cycleExpenses, by: \.category)
-            .map { category, values in
-                InsightBreakdown(
-                    id: category.rawValue,
-                    labelKey: category.localizedNameKey,
-                    amount: Money(
-                        minorUnits: try checkedSum(values.map(\.amount.minorUnits)),
-                        currencyCode: currencyCode
-                    )
-                )
-            }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
-        let tagged = cycleExpenses.compactMap { expense in
-            expense.emotionTag.map { ($0, expense) }
-        }
-        let emotionTotals = try Dictionary(grouping: tagged, by: { $0.0 })
-            .map { emotion, values in
-                InsightBreakdown(
-                    id: emotion.rawValue,
-                    labelKey: emotion.localizedNameKey,
-                    amount: Money(
-                        minorUnits: try checkedSum(values.map(\.1.amount.minorUnits)),
-                        currencyCode: currencyCode
-                    )
-                )
-            }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
-        let groupedDays = Dictionary(grouping: sevenDayExpenses) {
-            calendar.startOfDay(for: $0.spentAt)
-        }
-        let dailyTotals = try (0..<7).compactMap { offset -> InsightDailyTotal? in
-            guard let day = calendar.date(byAdding: .day, value: offset, to: firstDay) else {
-                return nil
-            }
-            return InsightDailyTotal(
-                date: day,
-                amount: Money(
-                    minorUnits: try checkedSum(
-                        groupedDays[day, default: []].map(\.amount.minorUnits)
-                    ),
-                    currencyCode: currencyCode
-                )
-            )
-        }
-        return InsightDashboardSummary(
-            lastSevenDaysTotal: Money(
-                minorUnits: try checkedSum(sevenDayExpenses.map(\.amount.minorUnits)),
-                currencyCode: currencyCode
-            ),
-            lastSevenDaysCount: sevenDayExpenses.count,
-            currentCycleTotal: Money(
-                minorUnits: try checkedSum(cycleExpenses.map(\.amount.minorUnits)),
-                currencyCode: currencyCode
-            ),
-            categoryTotals: categoryTotals,
-            emotionTotals: emotionTotals,
-            dailyTotals: dailyTotals
-        )
-    }
-
-    private func checkedSum(_ values: [Int64]) throws -> Int64 {
-        var total: Int64 = 0
-        for value in values {
-            let (next, overflow) = total.addingReportingOverflow(value)
-            guard !overflow else { throw DataValidationError.invalidAmount }
-            total = next
-        }
-        return total
-    }
 }
 
 struct InsightsView: View {
@@ -309,12 +314,12 @@ struct InsightsView: View {
     private func summaryCards(_ summary: InsightDashboardSummary) -> some View {
         HStack(spacing: 12) {
             summaryCard(
-                title: "insights.summary.sevenDays",
-                amount: summary.lastSevenDaysTotal,
+                title: "insights.summary.thirtyDays",
+                amount: summary.lastThirtyDaysTotal,
                 detail: LocalizedCatalog.format(
                     "insights.summary.records",
                     locale: locale,
-                    summary.lastSevenDaysCount
+                    summary.lastThirtyDaysCount
                 )
             )
             summaryCard(
@@ -364,7 +369,7 @@ struct InsightsView: View {
                 .chartXAxis(.hidden)
             }
         }
-        chartSection(title: "insights.chart.sevenDays") {
+        chartSection(title: "insights.chart.thirtyDays") {
             Chart(summary.dailyTotals) { item in
                 LineMark(
                     x: .value("insights.chart.date", item.date, unit: .day),

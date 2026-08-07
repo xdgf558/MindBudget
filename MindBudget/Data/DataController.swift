@@ -6,7 +6,7 @@ struct DataController: Sendable {
     let dataActor: DataActor
 
     init(isStoredInMemoryOnly: Bool = false, storeURL: URL? = nil) throws {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let configuration: ModelConfiguration
 
         if let storeURL {

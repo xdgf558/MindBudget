@@ -86,9 +86,9 @@ enumerate every case and assert its exact serialized fact-key set.
 
 ### CSVExporterTests
 
-Cover header-only empty output, UTF-8 BOM, CSV escaping, integer-minor-unit amount
-formatting, round-trip parsing, zero-exponent currencies, and spreadsheet-formula
-neutralization for user-entered text.
+Cover header-only empty output, UTF-8 BOM, expense/income record discrimination, CSV escaping,
+integer-minor-unit amount formatting, round-trip parsing, zero-exponent currencies, and
+spreadsheet-formula neutralization for user-entered source, merchant, and note text.
 
 ### NotificationSchedulerTests
 
@@ -280,13 +280,14 @@ schedule, the invalid row's stale identifier is cleared, and Settings exposes th
 warning rather than reporting an undifferentiated operation failure. A later scheduling
 failure may coexist with that last-known integrity warning and must not erase it.
 
-CSV tests cover the exact stable header, header-only empty data, UTF-8 BOM, RFC 4180 commas,
+CSV tests cover the exact stable unified-ledger header, expense/income row types, header-only
+empty data, UTF-8 BOM, RFC 4180 commas,
 quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`
 minor units, equal column counts after parsing, and spreadsheet-formula neutralization.
 The settings UI exposes the in-memory ShareLink export and clearly discloses inclusion of
-raw expense notes.
+raw expense/income notes and optional source or merchant names.
 
-Deletion tests populate all nine Schema V1 entity types, then prove the ordered notification
+Deletion tests populate all ten current Schema V2 entity types, then prove the ordered notification
 and Core Spotlight cleanup precedes verified all-zero local deletion and preference reset.
 An injected failed postcondition withholds completion and preserves preferences even after
 the delete call returns. A forced Spotlight failure leaves SwiftData and onboarding
@@ -410,7 +411,7 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.1` for candidate build 2, and expose the localized update summary.
+from the built bundle, render `0.9.2` for candidate build 3, and expose the localized update summary.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
 Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
@@ -456,6 +457,21 @@ release iPhone remains authoritative for launch, scrolling, persistence, and mem
 core file is missing, or when any selected file is below 85%. `Scripts/validate.sh` invokes it
 after coverage-enabled tests, and the CI workflow invokes `validate.sh`, so this is a hosted
 blocking gate rather than a local-only report.
+
+## Phase 11 acceptance
+
+Schema migration coverage creates a real V1 persistent store, opens it through Schema V2, and
+proves an existing expense remains intact while the new income table begins empty. Income tests
+cover exact minor-unit create/edit/search/export/delete boundaries, keep raw notes out of the
+summary projection, include income in verified Delete All, and prove income writes never rewrite
+the configured monthly-income or spending-budget values. The unified CSV must discriminate
+`expense` and `income` rows and neutralize formula-like source and note text.
+
+Recent Insights tests use an injected calendar and prove the inclusive window is today through
+29 days ago, while an entry 30 days ago is excluded. Exactly 30 daily totals must be returned even
+for zero-spend days. Wishlist tests fill all five open slots, reject a sixth without a partial
+write, preserve an archived item's state when reopening would exceed the limit, and allow a new
+item after a slot closes. The same typed limit error must reach form and Siri presentation paths.
 
 ## Continuous integration
 

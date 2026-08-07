@@ -13,12 +13,14 @@
    characters and truncate it to at most 40 characters.
 8. The raw in-app Ask question is used only by the local classifier and is never
    persisted, logged, or sent to a model.
-9. Redactor and generator APIs never accept `ExpenseDetail`, `WishItemDetail`, or another
+9. Redactor and generator APIs never accept `ExpenseDetail`, `IncomeDetail`, `WishItemDetail`, or another
    projection that contains a raw note; they accept only explicit aggregate inputs needed
    by the allow-listed contexts below.
 10. Raw cooling-off timestamps, including `completedAt` and `outcomeRecordedAt`, never enter
     a model context. Deterministic code may attribute outcomes to intervals, then expose only
     the allow-listed aggregate counts below.
+11. Income rows, sources, and notes are not model facts in V1. Recording income never widens an
+    advice, summary, or Ask context; only the user-configured budget remains authoritative there.
 
 ## Redacted advice context
 

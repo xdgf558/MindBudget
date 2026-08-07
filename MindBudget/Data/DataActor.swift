@@ -12,6 +12,7 @@ enum DataValidationError: Error, Equatable, Sendable {
     case duplicateCategoryBudget(ExpenseCategory)
     case invalidWarningThreshold
     case invalidWishItem
+    case wishlistLimitReached(limit: Int)
     case invalidCoolingOffPlan
     case invalidSpendingInsight
     case invalidReminderEvent
@@ -173,6 +174,90 @@ actor DataActor {
                     : nil
             }
         )
+    }
+
+    func createIncome(_ draft: IncomeDraft) throws -> IncomeSummary {
+        try commit {
+            let income = try insertIncome(draft)
+            return try incomeSummary(income)
+        }
+    }
+
+    func updateIncome(id: UUID, with draft: IncomeDraft) throws -> IncomeSummary {
+        try commit {
+            guard id == draft.id else { throw DataValidationError.identityMismatch }
+            guard let income = try fetchIncome(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            try validateIncome(draft)
+            try validateAccountingCurrency(draft.amount.currencyCode)
+            income.amountMinorUnits = draft.amount.minorUnits
+            income.currencyCode = draft.amount.currencyCode
+            income.categoryRaw = draft.category.rawValue
+            income.sourceName = draft.sourceName
+            income.note = draft.note
+            income.receivedAt = draft.receivedAt
+            income.receivedTimeZoneIdentifier = draft.receivedTimeZoneIdentifier
+            income.updatedAt = draft.updatedAt
+            return try incomeSummary(income)
+        }
+    }
+
+    func fetchIncomeSummaries() throws -> [IncomeSummary] {
+        let descriptor = FetchDescriptor<Income>(
+            sortBy: [SortDescriptor(\Income.receivedAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor).map { try incomeSummary($0) }
+    }
+
+    func fetchIncomeDetail(id: UUID) throws -> IncomeDetail? {
+        guard let income = try fetchIncome(id: id) else { return nil }
+        return try incomeDetail(income)
+    }
+
+    func fetchIncomeExportRecords() throws -> [IncomeExportRecord] {
+        let descriptor = FetchDescriptor<Income>(
+            sortBy: [
+                SortDescriptor(\Income.receivedAt),
+                SortDescriptor(\Income.createdAt),
+            ]
+        )
+        return try modelContext.fetch(descriptor).map { income in
+            let summary = try incomeSummary(income)
+            return IncomeExportRecord(
+                id: summary.id,
+                amount: summary.amount,
+                category: summary.category,
+                sourceName: summary.sourceName,
+                note: income.note,
+                receivedAt: summary.receivedAt,
+                receivedTimeZoneIdentifier: summary.receivedTimeZoneIdentifier,
+                createdAt: summary.createdAt,
+                updatedAt: summary.updatedAt
+            )
+        }
+    }
+
+    func fetchIncomeIDsWithNotes(matching searchText: String) throws -> Set<UUID> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        let incomes = try modelContext.fetch(FetchDescriptor<Income>())
+        return Set(
+            incomes.compactMap { income in
+                income.note?.localizedCaseInsensitiveContains(query) == true
+                    ? income.id
+                    : nil
+            }
+        )
+    }
+
+    func deleteIncome(id: UUID) throws {
+        try commit {
+            guard let income = try fetchIncome(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            modelContext.delete(income)
+        }
     }
 
     func deleteExpense(id: UUID) throws {
@@ -466,6 +551,10 @@ actor DataActor {
         try commit {
             guard let wishItem = try fetchWishItem(id: id) else {
                 throw DataValidationError.modelNotFound
+            }
+            let currentStatus = try wishItemStatus(wishItem)
+            if status.countsTowardOpenLimit && !currentStatus.countsTowardOpenLimit {
+                try validateOpenWishlistCapacity(for: status, excluding: wishItem.id)
             }
             try wishItem.transition(to: status, at: date)
             switch status {
@@ -955,6 +1044,7 @@ actor DataActor {
     func modelCounts() throws -> ModelCounts {
         ModelCounts(
             expenses: try modelContext.fetchCount(FetchDescriptor<Expense>()),
+            incomes: try modelContext.fetchCount(FetchDescriptor<Income>()),
             budgetPlans: try modelContext.fetchCount(FetchDescriptor<BudgetPlan>()),
             wishItems: try modelContext.fetchCount(FetchDescriptor<WishItem>()),
             coolingOffPlans: try modelContext.fetchCount(FetchDescriptor<CoolingOffPlan>()),
@@ -1048,6 +1138,7 @@ actor DataActor {
         for model in try modelContext.fetch(FetchDescriptor<WishItem>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<BudgetPlan>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<Expense>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<Income>()) { modelContext.delete(model) }
     }
 
     private func insertExpense(_ draft: ExpenseDraft) throws -> Expense {
@@ -1082,6 +1173,25 @@ actor DataActor {
             try rebuildMerchant(normalizedName: normalizedName, including: expense)
         }
         return expense
+    }
+
+    private func insertIncome(_ draft: IncomeDraft) throws -> Income {
+        try validateIncome(draft)
+        try validateAccountingCurrency(draft.amount.currencyCode)
+        let income = Income(
+            id: draft.id,
+            amountMinorUnits: draft.amount.minorUnits,
+            currencyCode: draft.amount.currencyCode,
+            categoryRaw: draft.category.rawValue,
+            sourceName: draft.sourceName,
+            note: draft.note,
+            receivedAt: draft.receivedAt,
+            receivedTimeZoneIdentifier: draft.receivedTimeZoneIdentifier,
+            createdAt: draft.createdAt,
+            updatedAt: draft.updatedAt
+        )
+        modelContext.insert(income)
+        return income
     }
 
     private func insertBudgetPlan(_ draft: BudgetPlanDraft) throws -> BudgetPlan {
@@ -1126,6 +1236,7 @@ actor DataActor {
     private func insertWishItem(_ draft: WishItemDraft) throws -> WishItem {
         try validateWishItem(draft)
         try validateAccountingCurrency(draft.currencyCode)
+        try validateOpenWishlistCapacity(for: draft.status)
 
         let wishItem = WishItem(
             id: draft.id,
@@ -1200,6 +1311,35 @@ actor DataActor {
         }
         guard TimeZone(identifier: draft.spentTimeZoneIdentifier) != nil else {
             throw DataValidationError.invalidTimeZone(draft.spentTimeZoneIdentifier)
+        }
+    }
+
+    private func validateIncome(_ draft: IncomeDraft) throws {
+        guard draft.amount.minorUnits > 0,
+              draft.amount.minorUnits <= Money.maximumMinorUnits(for: draft.amount.currencyCode) else {
+            throw DataValidationError.invalidAmount
+        }
+        guard TimeZone(identifier: draft.receivedTimeZoneIdentifier) != nil else {
+            throw DataValidationError.invalidTimeZone(draft.receivedTimeZoneIdentifier)
+        }
+    }
+
+    private func validateOpenWishlistCapacity(
+        for status: WishItemStatus,
+        excluding excludedID: UUID? = nil
+    ) throws {
+        guard status.countsTowardOpenLimit else { return }
+        let items = try modelContext.fetch(FetchDescriptor<WishItem>())
+        var openCount = 0
+        for item in items where item.id != excludedID {
+            if try wishItemStatus(item).countsTowardOpenLimit {
+                openCount += 1
+            }
+        }
+        guard openCount < WishlistPolicy.maximumOpenItems else {
+            throw DataValidationError.wishlistLimitReached(
+                limit: WishlistPolicy.maximumOpenItems
+            )
         }
     }
 
@@ -1361,6 +1501,16 @@ actor DataActor {
                 actual: currencyCode
             )
         }
+        var incomeDescriptor = FetchDescriptor<Income>(
+            predicate: #Predicate { $0.currencyCode != currencyCode }
+        )
+        incomeDescriptor.fetchLimit = 1
+        if let existing = try modelContext.fetch(incomeDescriptor).first {
+            throw DataValidationError.accountingCurrencyMismatch(
+                expected: existing.currencyCode,
+                actual: currencyCode
+            )
+        }
 
         var planDescriptor = FetchDescriptor<BudgetPlan>(
             predicate: #Predicate { $0.currencyCode != currencyCode }
@@ -1387,6 +1537,12 @@ actor DataActor {
 
     private func fetchExpense(id: UUID) throws -> Expense? {
         var descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func fetchIncome(id: UUID) throws -> Income? {
+        var descriptor = FetchDescriptor<Income>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
@@ -1564,6 +1720,34 @@ actor DataActor {
 
     private func expenseDetail(_ expense: Expense) throws -> ExpenseDetail {
         ExpenseDetail(summary: try expenseSummary(expense), note: expense.note)
+    }
+
+    private func incomeSummary(_ income: Income) throws -> IncomeSummary {
+        IncomeSummary(
+            id: income.id,
+            amount: try persistedMoney(
+                minorUnits: income.amountMinorUnits,
+                currencyCode: income.currencyCode,
+                entity: "Income",
+                id: income.id
+            ),
+            category: try persistedEnum(
+                IncomeCategory.self,
+                rawValue: income.categoryRaw,
+                entity: "Income",
+                id: income.id,
+                field: "categoryRaw"
+            ),
+            sourceName: income.sourceName,
+            receivedAt: income.receivedAt,
+            receivedTimeZoneIdentifier: income.receivedTimeZoneIdentifier,
+            createdAt: income.createdAt,
+            updatedAt: income.updatedAt
+        )
+    }
+
+    private func incomeDetail(_ income: Income) throws -> IncomeDetail {
+        IncomeDetail(summary: try incomeSummary(income), note: income.note)
     }
 
     private func budgetPlanSummary(_ plan: BudgetPlan) throws -> BudgetPlanSummary {

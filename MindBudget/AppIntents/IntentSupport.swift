@@ -9,6 +9,7 @@ enum IntentExecutionError: Error, Equatable, Sendable {
     case accountingCurrencyMismatch(expected: String, actual: String)
     case budgetUnavailable
     case itemUnavailable
+    case wishlistLimitReached
     case invalidStoredData
 
     var dialogKey: LocalizedStringResource {
@@ -20,6 +21,7 @@ enum IntentExecutionError: Error, Equatable, Sendable {
         case .accountingCurrencyMismatch: "intent.error.currencyMismatch"
         case .budgetUnavailable: "intent.error.budgetUnavailable"
         case .itemUnavailable: "intent.error.itemUnavailable"
+        case .wishlistLimitReached: "intent.error.wishlistLimitReached"
         case .invalidStoredData: "intent.error.data"
         }
     }
@@ -197,8 +199,9 @@ struct MindBudgetIntentService: Sendable {
                 throw IntentExecutionError.invalidAmount
             }
         }
-        return try await dataActor.createWishItem(
-            WishItemDraft(
+        do {
+            return try await dataActor.createWishItem(
+                WishItemDraft(
                 id: UUID(),
                 name: name,
                 estimatedPrice: estimatedPrice,
@@ -214,8 +217,11 @@ struct MindBudgetIntentService: Sendable {
                 status: .active,
                 notes: nil,
                 purchasedExpenseId: nil
+                )
             )
-        )
+        } catch DataValidationError.wishlistLimitReached {
+            throw IntentExecutionError.wishlistLimitReached
+        }
     }
 
     func checkBudgetImpact(

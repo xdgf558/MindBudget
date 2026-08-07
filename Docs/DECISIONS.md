@@ -1412,3 +1412,38 @@ after biometric changes.
 Files affected: budget engine and Dashboard tests, Ask/allocation presentation, root app routing,
 privacy settings and persistence, Info.plist/localization, release notes, privacy/test/task/project
 memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Complete the free tier with an independent income ledger, rolling insights, and five open wishes
+
+Context: The owner confirmed that the remaining free-tier gaps were per-entry income history, a
+real in-app recent-30-day view, and the stated five-item wishlist limit. Existing configured
+monthly income is a planning input rather than a transaction, while the released V1 store already
+contains user data and must migrate without destructive reset.
+
+Decision: Add `Income` only through Schema V2 and a lightweight V1-to-V2 migration. Store exact
+positive `Int64` minor units, a closed income category, optional source/note, received date/time
+zone, and audit timestamps. Keep income summaries note-free; detail, actor-contained note search,
+and explicit CSV export are the only raw-note boundaries. Income history never changes a budget
+plan automatically. Present expense and income together in one chronological Log and export both
+through a stable `record_type` CSV column. Calculate Insights over the half-open calendar interval
+from the start of 29 days ago through tomorrow. Treat active, cooling-off, and ready-to-review
+wishes as open, and atomically reject a sixth at the DataActor insertion or terminal-to-open
+transition boundary; purchased, skipped, and archived history consumes no slot.
+
+Alternatives considered: Reusing `BudgetPlan.monthlyIncomeMinorUnits` as a ledger, automatically
+raising a budget when income is recorded, adding income fields to `Expense`, computing 30 days as
+30 × 86,400 seconds, hiding old wishes to enforce a total-row cap, or enforcing the five-item
+limit only by disabling the SwiftUI Add button.
+
+Consequences: Income history is exact, searchable, exportable, and independently correct without
+inventing how receipts should alter spending permission. The calendar window is deterministic
+across DST, and every app/Siri write observes the same wishlist policy. Delete All, data counts,
+privacy disclosures, migration tests, CSV tests, in-app release notes, and TestFlight notes must
+include the tenth model. This prerelease milestone is version `0.9.2`, build `3`; `1.0.0` remains
+reserved for the first public App Store release.
+
+Files affected: Schema/migration and income model, DataActor/projections/transfers, Log/Add routing,
+Insights, Wishlist/Siri error mapping, CSV/deletion/privacy UI, localization, tests, version and
+release metadata, and durable project memory.

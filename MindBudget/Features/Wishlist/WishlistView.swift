@@ -7,6 +7,14 @@ final class WishlistViewModel: ObservableObject {
     @Published private(set) var isLoading = true
     @Published private(set) var failed = false
 
+    var openItemCount: Int {
+        items.filter { $0.status.countsTowardOpenLimit }.count
+    }
+
+    var isAtOpenItemLimit: Bool {
+        openItemCount >= WishlistPolicy.maximumOpenItems
+    }
+
     func load(dataActor: DataActor, now: Date = Date()) async {
         do {
             _ = try await dataActor.refreshExpiredCoolingOffPlans(at: now)
@@ -62,6 +70,7 @@ struct WishlistView: View {
                         Label("wishlist.add.title", systemImage: "plus")
                     }
                     .accessibilityIdentifier("wishlist.add")
+                    .disabled(viewModel.isAtOpenItemLimit)
                 }
             }
             .sheet(isPresented: $presentsAddItem) {
@@ -87,6 +96,26 @@ struct WishlistView: View {
 
     private var wishlistList: some View {
         List {
+            Section {
+                HStack(alignment: .firstTextBaseline) {
+                    Label(
+                        viewModel.isAtOpenItemLimit
+                            ? "wishlist.limit.reached"
+                            : "wishlist.limit.available",
+                        systemImage: viewModel.isAtOpenItemLimit
+                            ? "checkmark.circle"
+                            : "bookmark"
+                    )
+                    Spacer()
+                    Text("\(viewModel.openItemCount)/\(WishlistPolicy.maximumOpenItems)")
+                        .monospacedDigit()
+                }
+                .font(.subheadline)
+                .foregroundStyle(
+                    viewModel.isAtOpenItemLimit ? theme.inkSecondary : theme.accentDeep
+                )
+                .accessibilityIdentifier("wishlist.limit.status")
+            }
             let current = viewModel.items.filter { !$0.status.isWishlistHistory }
             let history = viewModel.items.filter(\.status.isWishlistHistory)
             if !current.isEmpty {
