@@ -207,10 +207,30 @@ struct Phase11FreeTierTests {
     }
 
     @Test
-    func invalidCoolingProjectionDoesNotHideRecordedExpenseFacts() async throws {
+    func invalidCoolingProjectionStopsDerivedInsightsWithoutHidingExpenseFacts() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
-        _ = try await controller.dataActor.createBudgetPlan(try budgetPlan())
+        let plan = try budgetPlan()
+        _ = try await controller.dataActor.createBudgetPlan(plan)
         _ = try await controller.dataActor.createExpense(expenseDraft())
+        _ = try await controller.dataActor.upsertSpendingInsights(
+            [
+                InsightDraft(
+                    type: .coolingOffSuccess,
+                    severity: .info,
+                    dedupeKey: "stale-cooling-off-success",
+                    payload: ["count": .integer(1)],
+                    throttleMetadata: ReminderThrottleMetadata(
+                        scopeKey: "coolingOffSuccess:global",
+                        categoryRiskBasisPoints: nil
+                    ),
+                    relatedCategory: nil,
+                    relatedEmotionTag: nil,
+                    periodStart: plan.cycleStart,
+                    periodEnd: plan.cycleEnd
+                )
+            ],
+            createdAt: TestFixtures.now
+        )
         try await Phase11ModelSeeder(modelContainer: controller.container)
             .insertInvalidCoolingOffPlan()
         let viewModel = InsightsViewModel()
@@ -221,6 +241,9 @@ struct Phase11FreeTierTests {
         #expect(viewModel.summary?.lastThirtyDaysCount == 1)
         #expect(viewModel.summary?.currentCycleTotal.minorUnits == 1_250)
         #expect(viewModel.failed)
+        #expect(viewModel.partialDataUnavailable)
+        #expect(viewModel.cycleNarrative == nil)
+        #expect(viewModel.insights.isEmpty)
     }
 
     @Test

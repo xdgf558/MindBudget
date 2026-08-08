@@ -121,6 +121,7 @@ final class InsightsViewModel: ObservableObject {
     @Published private(set) var cycleNarrative: SourcedSummary?
     @Published private(set) var isLoading = true
     @Published private(set) var failed = false
+    @Published private(set) var partialDataUnavailable = false
     private var latestLoadID: UUID?
 
     func load(
@@ -137,6 +138,7 @@ final class InsightsViewModel: ObservableObject {
         let loadID = UUID()
         latestLoadID = loadID
         isLoading = true
+        partialDataUnavailable = false
         do {
             async let expenseRequest = dataActor.fetchExpenseSummaries()
             async let planRequest = dataActor.fetchBudgetPlanSummaries()
@@ -185,6 +187,7 @@ final class InsightsViewModel: ObservableObject {
             cycleNarrative = nil
             insights = []
             failed = false
+            partialDataUnavailable = false
             isLoading = false
 
             let coolingPlans: [CoolingOffPlanSummary]
@@ -192,8 +195,12 @@ final class InsightsViewModel: ObservableObject {
                 coolingPlans = try await dataActor.fetchCoolingOffPlanSummaries()
             } catch {
                 guard isCurrent(loadID) else { return }
-                coolingPlans = []
                 failed = true
+                partialDataUnavailable = true
+                // A failed projection means the outcome facts are unknown, not zero.
+                // Keep the authoritative expense summary, but do not generate wording,
+                // detect patterns, persist derived insights, or reload stale insight rows.
+                return
             }
             guard isCurrent(loadID) else { return }
 
@@ -244,6 +251,7 @@ final class InsightsViewModel: ObservableObject {
                 guard isCurrent(loadID) else { return }
                 insights = []
                 failed = true
+                partialDataUnavailable = true
             }
         } catch {
             guard isCurrent(loadID) else { return }
@@ -251,6 +259,7 @@ final class InsightsViewModel: ObservableObject {
             cycleNarrative = nil
             insights = []
             failed = true
+            partialDataUnavailable = false
             isLoading = false
         }
     }
@@ -321,6 +330,9 @@ struct InsightsView: View {
     private var content: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
+                if viewModel.partialDataUnavailable {
+                    partialDataWarning
+                }
                 if let summary = viewModel.summary {
                     summaryCards(summary)
                     if let narrative = viewModel.cycleNarrative {
@@ -340,6 +352,20 @@ struct InsightsView: View {
         .mindBudgetScreenBackground()
         .accessibilityIdentifier("insights.view")
         .refreshable { await load() }
+    }
+
+    private var partialDataWarning: some View {
+        Label("insights.partialDataUnavailable", systemImage: "exclamationmark.triangle")
+            .font(.footnote)
+            .foregroundStyle(theme.attentionText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(theme.attentionSoft, in: RoundedRectangle(cornerRadius: 18))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(theme.attentionBorder, lineWidth: 1)
+            }
+            .accessibilityIdentifier("insights.partialDataWarning")
     }
 
     private func cycleNarrativeCard(_ narrative: SourcedSummary) -> some View {

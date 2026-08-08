@@ -189,7 +189,10 @@ messages create reminder events. Manual expense entry offers one highest-priorit
 most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
 Insights tab now shows a rolling local 30-calendar-day total/count, category/emotion breakdowns,
 a 30-point daily trend, the current-cycle summary, generated pattern cards, dismissal, and a
-fixed informational disclaimer. Template
+fixed informational disclaimer. Its ledger summary remains authoritative when a supplementary
+cooling-off projection is unreadable, but that partial state is disclosed and all dependent
+narrative, model, pattern-write, and stored-card work stops because unknown outcomes must never be
+represented as zero. Template
 copy is the mandatory local path; Phase 5 itself performs no notification scheduling or real
 AI model call. Expense persistence remains authoritative over best-effort reminder history:
 logging failures skip the advisory surface but never reject a valid expense. Rule and

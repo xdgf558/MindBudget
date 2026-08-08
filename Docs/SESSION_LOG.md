@@ -2100,3 +2100,43 @@ successfully for immediate verification.
 
 Next suggested task: On the connected iPhone, confirm that entering monthly income leaves spending
 budget untouched, then finish review and merge PR #16 before producing the Archive candidate.
+
+## 2026-08-08 — Session 51 — Fail closed on incomplete cooling-off insight data
+
+Goal: Address the PR review finding that an unreadable cooling-off projection was treated as an
+empty result, allowing Insights narrative, model enhancement, pattern persistence, and stale cards
+to continue with outcome counts that were unknown rather than zero.
+
+Files changed: Insights load state and partial-results presentation, Phase 11 regression coverage,
+bilingual current release notes, TestFlight walkthrough notes, AI/test/task/project/decision memory,
+changelog, and session memory.
+
+What was completed: Insights still publishes its validated recent-30-day and current-cycle expense
+facts first. If the cooling-off projection then fails, the load now exposes a localized partial-data
+warning and returns before cycle narrative generation, optional on-device wording enhancement,
+pattern detection/upsert, or stored-card reload. It does not delete or repair the unreadable record;
+the existing explicit Settings repair flow remains the only cleanup path. The regression preloads a
+current-cycle cooling-off-success card, introduces a corrupt cooling-off row, and proves the exact
+expense amount/count remains while the narrative and all stored cards are absent. Durable AI and
+test contracts now state that unreadable cooling outcomes are unknown and must never become zero
+facts in model context.
+
+What was NOT completed: No data was automatically deleted, no production Archive, App Store
+Connect upload, TestFlight assignment, merge, signed-device install, or version/build-number change
+was performed. This remains a correction to the same not-yet-uploaded `0.9.2 (3)` candidate in draft
+PR #16.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile successfully.
+
+Test result: pass — 227 Swift Testing tests and all 11 UI tests completed with 0 failures. The
+focused Phase 11 suite passed all 10 tests, including the stale cooling-success regression.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Next suggested task: Re-review the updated PR #16 and merge it after approval, then install the
+unchanged `0.9.2 (3)` candidate on the signed physical iPhone for final device verification before
+Archive.

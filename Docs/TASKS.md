@@ -157,4 +157,6 @@ Status: Done
 - [x] Keep expense-only category/bucket filters from hiding Income mode while preserving them for
   the user's return to Expenses.
 - [x] Refresh Insights on selection and saved-data revisions, reject stale loads, and keep valid
-  expense summaries visible when a supplementary insight projection fails.
+  expense summaries visible when a supplementary insight projection fails. Treat unreadable
+  cooling-off outcomes as unknown rather than zero, stop dependent narrative/AI/persistence work,
+  and make the partial state visible without showing stale insight cards.

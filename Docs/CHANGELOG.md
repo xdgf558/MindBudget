@@ -42,6 +42,9 @@ No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate b
   insight refreshes fail.
 - Kept monthly income and spending budget independent during initial setup, so editing income no
   longer fills or overwrites the amount the user explicitly plans to spend.
+- Kept authoritative expense summaries visible when cooling-off data is unreadable while
+  withholding cycle narratives, AI enhancement, pattern writes, and stale insight cards that
+  would otherwise treat unknown outcome facts as zero.
 
 ## 0.9.1 (2) — 2026-08-07 — Internal TestFlight candidate
 

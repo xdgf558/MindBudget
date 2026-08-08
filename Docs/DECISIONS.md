@@ -1499,3 +1499,33 @@ untouched before saving a separately confirmed amount.
 
 Files affected: initial budget setup state and UI, Phase 3 unit/UI tests, bilingual current release
 notes, TestFlight walkthrough notes, changelog, decision memory, and session log.
+
+---
+
+## 2026-08-08 — Treat unreadable cooling-off outcomes as unknown in Insights
+
+Context: Insights publishes authoritative expense totals before loading supplementary cooling-off
+outcomes. The first resilience change preserved those totals after a cooling projection failed,
+but continued the derived pipeline with an empty cooling array. That converted unreadable data
+into zero skipped/purchased outcomes, could send those invented zeros to the optional on-device
+model, and allowed an already-persisted cooling-success card to remain visible.
+
+Decision: Keep the validated 30-day and current-cycle expense summary visible, then stop the
+remaining Insights pipeline immediately if cooling-off projections cannot be read completely.
+Do not generate a cycle narrative, call the optional wording enhancement, detect or persist new
+patterns, or reload stored insight cards. Expose a localized partial-data warning. Preserve the
+unreadable records for the existing explicit Settings repair flow rather than deleting them during
+a read.
+
+Alternatives considered: Treating the failed projection as an empty list, continuing only the
+expense-based detector rules, hiding the authoritative expense summary, silently retaining stale
+cards, or automatically deleting unreadable cooling-off records.
+
+Consequences: Missing cooling-off facts are never presented or supplied to a model as zero, and a
+stale cooling-success insight cannot appear beside a partial summary. Users still retain immediate
+access to exact ledger facts and are told why derived content is absent. A later complete reload
+resumes the normal pipeline, while cleanup remains an explicit user-confirmed operation. Regression
+coverage preloads a stale cooling-success row before introducing a corrupt cooling-off projection.
+
+Files affected: Insights state and presentation, Phase 11 regression coverage, AI prompt and test
+contracts, current release/TestFlight notes, changelog, project memory, and session log.

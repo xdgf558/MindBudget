@@ -469,9 +469,12 @@ the configured monthly-income or spending-budget values. The unified CSV must di
 
 Recent Insights tests use an injected calendar and prove the inclusive window is today through
 29 days ago, while an entry 30 days ago is excluded. Exactly 30 daily totals must be returned even
-for zero-spend days. Wishlist tests fill all five open slots, reject a sixth without a partial
-write, preserve an archived item's state when reopening would exceed the limit, and allow a new
-item after a slot closes. The same typed limit error must reach form and Siri presentation paths.
+for zero-spend days. A corrupt cooling-off projection test preloads an old cooling-success card,
+then proves the exact expense total/count remains visible while the partial-data state is exposed,
+the cycle narrative stays absent, and no stored insight card is reloaded. Wishlist tests fill all
+five open slots, reject a sixth without a partial write, preserve an archived item's state when
+reopening would exceed the limit, and allow a new item after a slot closes. The same typed limit
+error must reach form and Siri presentation paths.
 
 ## Continuous integration
 

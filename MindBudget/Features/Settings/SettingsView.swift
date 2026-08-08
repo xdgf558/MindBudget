@@ -969,6 +969,10 @@ enum ReleaseNotesCatalog {
                     systemImage: "slider.horizontal.3",
                     localizationKey: "settings.releaseNotes.independentBudgetInputs"
                 ),
+                ReleaseNoteItem(
+                    systemImage: "exclamationmark.triangle.fill",
+                    localizationKey: "settings.releaseNotes.insightsPartialData"
+                ),
             ]
         ),
         ReleaseNotesVersion(

@@ -40,6 +40,9 @@ What to test:
   exactly 30 daily positions.
 - From another tab, save an expense and then open Insights. Confirm its amount, count, current-cycle
   total, category breakdown, and daily point refresh immediately rather than retaining an old zero.
+- With the unreadable-cooling-record test fixture, confirm Insights still shows the exact expense
+  totals plus a partial-data notice, but shows no cycle narrative or old cooling-success card and
+  does not invoke the optional wording enhancement.
 - Add five open wishlist items. Confirm the sixth is rejected with a clear message in both the app
   and Siri, then archive or finish one and confirm a replacement can be added. Historical
   purchased, skipped, and archived items must not consume an open slot.
