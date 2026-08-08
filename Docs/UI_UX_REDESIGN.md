@@ -1,6 +1,11 @@
 # UI/UX redesign handoff
 
 This interlude applies the owner's `MindBudget UIUX重新设计` handoff before Phase 10.
+
+The Today card uses a start-of-day reference amount: each flexible expense reduces the visible
+amount one for one, while the presentation stops at zero and pairs its red state with localized
+explanatory copy. Expense entry presents all categories in a single horizontally scrollable row
+instead of hiding the long tail behind a separate modal list.
 It changes presentation and navigation only; SwiftData models, calculation rules,
 privacy boundaries, reminder throttling, and system-integration gates remain authoritative.
 

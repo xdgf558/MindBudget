@@ -2164,3 +2164,73 @@ passed 227 Swift Testing tests, all 11 UI tests, the full local validation scrip
 
 Next suggested task: Unlock the iPhone, open 花有数 manually, and continue the PR #16 device
 walkthrough with the preserved local store.
+
+## 2026-08-08 — Session 53 — Anchor Today's allowance and scroll every expense category
+
+Goal: Fix signed-device findings that a newly saved expense barely changed "Left to spend today"
+and that the expense category interaction did not scale cleanly to the complete category set.
+
+Files changed: budget pace engine and tests, Today pace card, expense category selector, Phase 3
+UI regression, bilingual strings, in-app release notes, version/build metadata, TestFlight and
+release-readiness notes, changelog, product/test/decision/task memory, and session memory.
+
+What was completed: `BudgetEngine` now reconstructs the flexible amount available at the start of
+the user's local calendar day, divides that amount across the remaining days, and subtracts every
+discretionary expense recorded today exactly once. The visible Today value clamps at zero while an
+exact positive overage remains available for explanation. Zero/overage presentation uses the
+destructive color together with an icon, localized gentle wording, and a combined VoiceOver value;
+fixed and savings-bucket expenses do not consume this flexible daily reference. Add Expense now
+places all 17 persisted categories in stable order inside one horizontally scrollable selector,
+centers programmatic selections, and exposes a selected accessibility trait. The old recent-category
+shortcut state and separate modal category list were removed. Replacement candidate metadata and
+release notes now identify `0.9.2 (4)`, preserving already-uploaded build 3 as history.
+
+What was NOT completed: No signed physical-iPhone install, Archive, Organizer validation, App Store
+Connect upload, TestFlight tester assignment, commit, push, PR creation, or merge was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded. An initial sandboxed validation attempt could not access DerivedData or
+CoreSimulator; rerunning with the normal local Xcode permissions completed successfully.
+
+Test result: pass — 228 Swift Testing tests across 17 suites and all 11 UI tests completed with zero
+failures. New deterministic coverage proves that a 5,000-minor-unit discretionary expense reduces
+Today's amount by exactly 5,000, and the end-to-end expense flow proves that Dashboard's accessible
+Today value changes after save, can swipe from the first category to the final `Other` category,
+announces selection, persists it, and shows it in Log.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual localization,
+asset/JSON/project parsing, and `git diff --check` pass. Every selected core service remains above
+the 85% gate; coverage ranges from CSV export at 87.20% through CurrencyFormatterService at 100%,
+with BudgetEngine at 93.80%.
+
+Next suggested task: Install the `0.9.2 (4)` branch build on the signed physical iPhone and verify
+one-for-one deduction, zero/overage wording, horizontal category swipe, Dynamic Type, and VoiceOver
+before opening the review PR or producing the replacement TestFlight Archive.
+
+## 2026-08-08 — Session 54 — Install the daily-allowance candidate on the physical iPhone
+
+Goal: Build and install the current `0.9.2 (4)` branch candidate on the connected physical iPhone
+so the owner can verify the anchored Today amount and horizontally scrollable category selector.
+
+Files changed: Session memory only.
+
+What was completed: Xcode 26.6 identified the paired physical “拉沙的iPhone” and built the current
+working tree as a signed Debug iPhoneOS app. The product reports bundle
+`com.xdgf558.MindBudget`, version `0.9.2 (4)`, and team `2AM5S7BM2N`. The app was installed in place;
+no uninstall or container reset was performed, so the existing local budget and ledger data should
+remain available.
+
+What was NOT completed: iOS denied the remote launch because the development profile has not yet
+been explicitly trusted or verified on the device. The owner must keep the phone online and finish
+the Development App trust/verification step in Settings before opening the app. No Archive, App
+Store Connect upload, TestFlight assignment, commit, push, PR creation, merge, or data deletion was
+performed.
+
+Build result: pass — current-team signed physical-iPhone Debug build completed successfully.
+
+Test result: not rerun for this installation-only session. The exact installed working tree had
+already passed 228 Swift Testing tests, all 11 UI tests, the complete validation script, release
+readiness, and the floating-point money policy before installation.
+
+Next suggested task: Complete the device trust/online verification step, open 花有数 manually, and
+test one-for-one Today deduction, zero/overage presentation, and the full horizontal category list.

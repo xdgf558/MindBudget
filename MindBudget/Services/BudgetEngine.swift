@@ -84,8 +84,10 @@ struct BudgetImpact: Sendable, Equatable {
 /// A presentation-ready, deterministic summary for the Today screen. The view never
 /// derives money or calendar pace on its own.
 struct BudgetPaceSummary: Sendable, Equatable {
+    let startingDailyAllowance: Money
     let spentToday: Money
     let leftToSpendToday: Money
+    let exceededDailyAllowanceBy: Money
     let expectedSpentByToday: Money
     let paceDifference: Money
     let isAheadOfPace: Bool
@@ -93,6 +95,14 @@ struct BudgetPaceSummary: Sendable, Equatable {
     let totalDays: Int
     let elapsedRatio: Decimal
     let spentRatio: Decimal
+
+    var hasUsedDailyAllowance: Bool {
+        spentToday.minorUnits > 0 && leftToSpendToday.minorUnits == 0
+    }
+
+    var hasExceededDailyAllowance: Bool {
+        exceededDailyAllowanceBy.minorUnits > 0
+    }
 }
 
 struct BudgetAllocationSummary: Sendable, Equatable {
@@ -355,10 +365,22 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             spentToday = try checkedAdd(spentToday, expense.amount.minorUnits)
         }
 
-        // "Available today" is the newly balanced daily amount after every recorded
-        // expense. The snapshot has already reduced the remaining flexible budget
-        // before distributing it across the remaining calendar days.
-        let leftToday = snapshot.safeDailySpend.minorUnits
+        // Reconstruct the remaining flexible budget at the start of today before
+        // distributing it across the remaining calendar days. Today's entries have
+        // already reduced snapshot.remainingFree, so adding them back here prevents
+        // double subtraction while still making each new entry reduce today's amount
+        // one for one.
+        let startOfDayRemaining = try checkedAdd(
+            snapshot.remainingFree.minorUnits,
+            spentToday
+        )
+        let startingDailyAllowance = max(0, startOfDayRemaining)
+            / Int64(snapshot.daysRemaining)
+        let signedLeftToday = try checkedSubtract(startingDailyAllowance, spentToday)
+        let leftToday = max(0, signedLeftToday)
+        let exceededToday = signedLeftToday < 0
+            ? try checkedSubtract(0, signedLeftToday)
+            : 0
         let dayNumber = elapsedDays + 1
         let expectedSpent = try proratedMinorUnits(
             snapshot.freeBudget.minorUnits,
@@ -376,8 +398,10 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             : .zero
 
         return BudgetPaceSummary(
+            startingDailyAllowance: money(startingDailyAllowance, snapshot.currencyCode),
             spentToday: money(spentToday, snapshot.currencyCode),
             leftToSpendToday: money(leftToday, snapshot.currencyCode),
+            exceededDailyAllowanceBy: money(exceededToday, snapshot.currencyCode),
             expectedSpentByToday: money(expectedSpent, snapshot.currencyCode),
             paceDifference: money(difference, snapshot.currencyCode),
             isAheadOfPace: isAhead,

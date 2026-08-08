@@ -410,26 +410,54 @@ private struct TodayPaceCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("dashboard.today.left")
-                    .font(.subheadline.weight(.medium))
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("dashboard.today.left")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(theme.inkSecondary)
+                    MoneyText(
+                        money: pace.leftToSpendToday,
+                        font: .system(size: 46, weight: .bold, design: .rounded),
+                        weight: .bold
+                    )
+                    .foregroundStyle(pace.hasUsedDailyAllowance
+                        ? theme.destructive
+                        : theme.ink)
+                    HStack(spacing: 5) {
+                        Text("dashboard.today.spent")
+                        MoneyText(money: pace.spentToday, weight: .semibold)
+                    }
+                    .font(.subheadline)
                     .foregroundStyle(theme.inkSecondary)
-                MoneyText(
-                    money: pace.leftToSpendToday,
-                    font: .system(size: 46, weight: .bold, design: .rounded),
-                    weight: .bold
-                )
-                .foregroundStyle(pace.leftToSpendToday.minorUnits < 0
-                    ? theme.attentionText
-                    : theme.ink)
-                HStack(spacing: 5) {
-                    Text("dashboard.today.spent")
-                    MoneyText(money: pace.spentToday, weight: .semibold)
                 }
-                .font(.subheadline)
-                .foregroundStyle(theme.inkSecondary)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("dashboard.today.left")
+
+                if pace.hasUsedDailyAllowance {
+                    Label {
+                        if pace.hasExceededDailyAllowance {
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 4) {
+                                    Text("dashboard.today.exceeded")
+                                    MoneyText(
+                                        money: pace.exceededDailyAllowanceBy,
+                                        weight: .semibold
+                                    )
+                                }
+                                Text("dashboard.today.gentlePause")
+                            }
+                        } else {
+                            Text("dashboard.today.used")
+                        }
+                    } icon: {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .accessibilityHidden(true)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(theme.destructive)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("dashboard.today.notice")
+                }
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("dashboard.today.left")
 
             Divider().overlay(theme.hairline)
 

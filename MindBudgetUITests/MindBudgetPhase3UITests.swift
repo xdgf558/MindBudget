@@ -81,7 +81,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
-        XCTAssertTrue(element("dashboard.today.left", in: app).exists)
+        let dailyAmount = element("dashboard.today.left", in: app)
+        XCTAssertTrue(dailyAmount.exists)
+        let dailyAmountBeforeExpense = dailyAmount.label
         assertCompactEmptyStateAction(
             app.buttons["dashboard.empty.addEntry"],
             named: "Dashboard Add Entry"
@@ -103,9 +105,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
         for key in ["1", "2", ".", "3", "4"] {
             element("expense.keypad.\(key)", in: app).tap()
         }
+        let categoryScroll = element("expense.category.scroll", in: app)
+        for _ in 0..<4 where !categoryScroll.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(categoryScroll.isHittable)
+        let otherCategory = app.buttons["expense.category.other"]
+        for _ in 0..<8 where !otherCategory.isHittable {
+            categoryScroll.swipeLeft()
+        }
+        XCTAssertTrue(otherCategory.isHittable)
+        otherCategory.tap()
+        XCTAssertTrue(otherCategory.isSelected)
         app.buttons["expense.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        let refreshedDailyAmount = element("dashboard.today.left", in: app)
+        let dailyAmountChanged = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label != %@", dailyAmountBeforeExpense),
+            object: refreshedDailyAmount
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [dailyAmountChanged], timeout: 5), .completed)
         app.buttons["dashboard.quickAdd"].tap()
         let addIncome = app.buttons.matching(identifier: "entry.add.income").firstMatch
         XCTAssertTrue(addIncome.waitForExistence(timeout: 2))
@@ -118,7 +138,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["dashboard.expenses"].tap()
-        XCTAssertTrue(app.staticTexts["Dining"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Other"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Salary"].waitForExistence(timeout: 5))
     }
 

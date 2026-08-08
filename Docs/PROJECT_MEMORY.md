@@ -102,8 +102,9 @@ app's private data are forbidden in V1.
 - The shared project never commits an Apple Developer Team ID. Release signing and upload must
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
-- Internal TestFlight started with candidate `0.9.0 (1)`; the current free-tier-completion
-  candidate is `0.9.2 (3)`. Replacement uploads increment the build number, and owner-approved
+- Internal TestFlight started with candidate `0.9.0 (1)`; build `0.9.2 (3)` completed the free
+  tier and was uploaded, while the current replacement candidate is `0.9.2 (4)`. Replacement
+  uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the

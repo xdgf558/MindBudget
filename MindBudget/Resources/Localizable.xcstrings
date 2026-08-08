@@ -1253,10 +1253,28 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "今天还可以花" } }
       }
     },
+    "dashboard.today.exceeded": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Today's reference amount was exceeded by" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "今天已超出参考额度" } }
+      }
+    },
+    "dashboard.today.gentlePause": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pausing here is okay." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "接下来先缓一缓也没关系。" } }
+      }
+    },
     "dashboard.today.spent": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Logged today" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "今天已记" } }
+      }
+    },
+    "dashboard.today.used": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Today's reference amount is used up. Pausing here is okay." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "今天的参考额度已用完，接下来先缓一缓也没关系。" } }
       }
     },
     "dashboard.title": {
@@ -4845,6 +4863,8 @@
     "settings.releaseNotes.wishlistLimit": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The free wishlist supports up to five open items, with the limit enforced consistently in the app and Siri actions."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"免费版愿望清单最多保留 5 条进行中的项目，App 与 Siri 操作会一致执行该上限。"}}}},
     "settings.releaseNotes.independentBudgetInputs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Monthly income and spending budget stay independent during setup, so entering income never fills or overwrites the amount you plan to spend."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"首次设置时，月收入与支出预算保持独立；填写收入不会再自动填入或覆盖计划支出金额。"}}}},
     "settings.releaseNotes.insightsPartialData": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Insights keeps recorded expense totals visible but withholds narratives and pattern cards whenever related cooling-off data cannot be read completely."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"相关冷静期数据无法完整读取时，洞察会继续显示已记录的消费汇总，但不会生成周期叙述或模式卡片。"}}}},
+    "settings.releaseNotes.dailyAllowanceDeduction": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Each flexible expense now reduces today's remaining amount one for one. The value stops at zero and clearly explains when today's reference amount is used or exceeded."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"每笔灵活支出现会按原金额扣减“今天还可以花”；最低显示 0，并明确提示今日参考额度已用完或超出。"}}}},
+    "settings.releaseNotes.scrollableExpenseCategories": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Expense entry now presents every category in one horizontally scrollable selector with an announced selected state."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"支出记账现使用可左右滑动的完整分类选择带，并会读出当前选中状态。"}}}},
     "insights.partialDataUnavailable": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Some derived insights are unavailable because related local processing could not be completed. Your recorded expense summary is still shown."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"部分派生洞察暂时无法显示，因为相关本地处理未能完整完成；已记录的消费汇总仍可查看。"}}}}
   },
   "version": "1.0"

@@ -1529,3 +1529,39 @@ coverage preloads a stale cooling-success row before introducing a corrupt cooli
 
 Files affected: Insights state and presentation, Phase 11 regression coverage, AI prompt and test
 contracts, current release/TestFlight notes, changelog, project memory, and session log.
+
+---
+
+## 2026-08-08 — Anchor today's allowance and expose every expense category in one swipe
+
+Context: Signed-device review showed that a newly recorded expense barely changed "Left to spend
+today." The old presentation reused the post-entry `safeDailySpend`, which redistributed the
+expense across every remaining day instead of making today's card respond to the amount just
+recorded. The expense form also showed only a short category subset and moved the remaining
+categories into a separate modal list.
+
+Decision: Reconstruct the flexible amount available at the start of the local calendar day by
+adding today's already-counted discretionary expenses back to the authoritative remaining amount,
+divide that start-of-day amount by the remaining calendar days, and subtract today's discretionary
+expenses exactly once. Clamp the visible result at zero and retain any exact overage in a separate
+`Money` value for explanation. A used or exceeded amount uses the destructive color only together
+with an icon, localized gentle text, and a combined VoiceOver value. Fixed and savings-bucket
+expenses do not consume this flexible daily reference. Present all persisted expense categories in
+stable enum order within one horizontally scrollable selector, center the selected category, and
+announce its selected accessibility trait.
+
+Alternatives considered: Continuing to display the newly rebalanced `safeDailySpend`, subtracting
+today's expenses directly from that already-reduced value, showing a negative primary amount,
+deriving the correction in SwiftUI, retaining the five-item shortcut row plus a modal full list,
+or paging categories into arbitrary groups.
+
+Consequences: Every new flexible expense changes Today's amount one for one until it reaches zero,
+while exact checked minor-unit arithmetic and calendar-day semantics remain in `BudgetEngine`.
+The UI never displays a negative "can spend" value, but it does not hide an overage: the amount and
+gentle explanation remain available separately. Category selection now requires horizontal
+scrolling for later items, so UI and signed-device accessibility checks must verify swipe reach,
+selection state, dynamic type, and VoiceOver order. Replacement TestFlight build `0.9.2 (4)` carries
+the corrected behavior and synchronized release notes.
+
+Files affected: budget pace engine and tests, Today card, expense category selector and UI test,
+bilingual catalog, release metadata, changelog, test plan, task memory, and session log.

@@ -7,8 +7,8 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next TestFlight candidate: version 0.9.2, build 3
-- Previous internal candidate: version 0.9.1, build 2
+- Next TestFlight candidate: version 0.9.2, build 4
+- Previous uploaded candidate: version 0.9.2, build 3
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
@@ -21,7 +21,22 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.2 (3) — Next internal test candidate
+### 0.9.2 (4) — Replacement internal test candidate
+
+What to test:
+
+- Save several discretionary expenses today and confirm each one reduces “Left to spend today” by
+  the same amount. Confirm fixed and savings entries do not consume the discretionary daily amount.
+- Spend exactly the remaining daily amount and confirm Today displays zero in red with a localized
+  “fully used” explanation. Spend beyond it and confirm the value stays at zero while a separate
+  localized line shows the exact amount above today's reference; no negative amount may appear.
+- Open Add Expense and swipe the category selector from the first category through the final
+  category. Select an offscreen category, confirm it receives the selected appearance and VoiceOver
+  state, save, and confirm the chosen category appears in Today and Log.
+- Repeat the core `0.9.2 (3)` income, 30-day Insights, wishlist-limit, migration, CSV, and Delete All
+  checks below because build 4 replaces that uploaded candidate.
+
+### 0.9.2 (3) — Previous uploaded internal candidate
 
 What to test:
 

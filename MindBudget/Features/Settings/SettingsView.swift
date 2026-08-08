@@ -954,6 +954,14 @@ enum ReleaseNotesCatalog {
             version: "0.9.2",
             items: [
                 ReleaseNoteItem(
+                    systemImage: "gauge.with.dots.needle.50percent",
+                    localizationKey: "settings.releaseNotes.dailyAllowanceDeduction"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "hand.draw.fill",
+                    localizationKey: "settings.releaseNotes.scrollableExpenseCategories"
+                ),
+                ReleaseNoteItem(
                     systemImage: "arrow.up.arrow.down.circle.fill",
                     localizationKey: "settings.releaseNotes.incomeLedger"
                 ),

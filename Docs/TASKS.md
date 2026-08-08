@@ -120,7 +120,7 @@ Status: In Progress
   deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
   release-machine first-load signal with a 500 ms ceiling.
 - [x] Add opaque 1024px standard, dark, and tinted App Icon variants, current TestFlight candidate
-  version 0.9.2/build 3 configuration, localized in-app release notes, static release checks,
+  version 0.9.2/build 4 configuration, localized in-app release notes, static release checks,
   per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
 - [x] Localize the release display name to `花有数` for Simplified Chinese and `MindBudget` for
   English, without combining them, and use `温和的预算与消费复盘工具` as the Simplified Chinese
@@ -134,6 +134,9 @@ Status: In Progress
   amount-only update that preserves plan identity, boundaries, currency, and category budgets.
 - [x] Rebalance the Today amount from the authoritative remaining flexible budget, explain budget
   reservations in Settings and Ask, and keep older in-app update notes collapsed as history.
+- [x] Anchor Today's reference amount at the start of each calendar day so every flexible expense
+  reduces it one for one, clamp the visible value at zero with a localized non-color-only notice,
+  and expose all expense categories in one horizontally scrollable selector.
 - [x] Add an optional, default-off Face ID app lock under Privacy controls, with authenticated
   enable/disable, launch and foreground locking, a passcode recovery path, and an opaque privacy
   cover while locked.
