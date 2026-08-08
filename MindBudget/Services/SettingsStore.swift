@@ -1,6 +1,23 @@
 import Foundation
 import SwiftUI
 
+enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
+    case system
+    case simplifiedChinese = "zh-Hans"
+    case english = "en"
+
+    var id: String { rawValue }
+    var localizedNameKey: String { "settings.language.\(rawValue)" }
+
+    var locale: Locale? {
+        switch self {
+        case .system: nil
+        case .simplifiedChinese: Locale(identifier: "zh-Hans")
+        case .english: Locale(identifier: "en")
+        }
+    }
+}
+
 enum QuietHoursError: Error, Equatable, Sendable {
     case invalidHour
     case identicalBounds
@@ -41,6 +58,8 @@ struct PreferencesSnapshot: Equatable, Sendable {
 final class SettingsStore: ObservableObject {
     nonisolated static let maximumDailyInterruptions = 2
 
+    private let defaults: UserDefaults
+
     @AppStorage var currencyCode: String {
         didSet { reloadRuleConfiguration() }
     }
@@ -60,6 +79,11 @@ final class SettingsStore: ObservableObject {
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
     @AppStorage var appSkinRaw: String
+    @Published var appLanguageRaw: String {
+        didSet {
+            defaults.set(appLanguageRaw, forKey: "appLanguageRaw")
+        }
+    }
     @AppStorage private(set) var categoryBucketOverridesJSON: Data
     @AppStorage var ruleConfigurationJSON: Data {
         didSet { reloadRuleConfiguration() }
@@ -72,6 +96,9 @@ final class SettingsStore: ObservableObject {
     private var ruleConfigurationDiagnostic: String?
 
     init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        appLanguageRaw = defaults.string(forKey: "appLanguageRaw")
+            ?? AppLanguage.system.rawValue
         _currencyCode = AppStorage(wrappedValue: "", "currencyCode", store: defaults)
         _enableGentleReminders = AppStorage(wrappedValue: true, "enableGentleReminders", store: defaults)
         _enableLocalNotifications = AppStorage(wrappedValue: false, "enableLocalNotifications", store: defaults)
@@ -110,6 +137,14 @@ final class SettingsStore: ObservableObject {
 
     var appSkin: AppSkin {
         AppSkin(rawValue: appSkinRaw) ?? .defaultSkin
+    }
+
+    var appLanguage: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .system
+    }
+
+    var selectedLocale: Locale {
+        appLanguage.locale ?? .autoupdatingCurrent
     }
 
     var preferencesSnapshot: PreferencesSnapshot {
@@ -243,6 +278,7 @@ final class SettingsStore: ObservableObject {
         indexMerchantNames = false
         budgetCycleStartDay = 1
         appSkinRaw = AppSkin.defaultSkin.rawValue
+        appLanguageRaw = AppLanguage.system.rawValue
         categoryBucketOverridesJSON = Data()
         ruleConfigurationJSON = Data()
         reloadBucketOverrides()

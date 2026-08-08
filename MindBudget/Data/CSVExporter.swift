@@ -27,6 +27,8 @@ struct CSVExporter: Sendable {
         "allow_merchant_indexing",
         "created_at_utc",
         "updated_at_utc",
+        "income_allocated_to_budget_minor_units",
+        "income_allocated_to_savings_minor_units",
     ]
 
     func export(_ records: [ExpenseExportRecord]) -> CSVExportResult {
@@ -86,6 +88,8 @@ struct CSVExporter: Sendable {
             record.allowMerchantIndexing ? "true" : "false",
             dateFormatter.string(from: record.createdAt),
             dateFormatter.string(from: record.updatedAt),
+            "",
+            "",
         ]
     }
 
@@ -108,12 +112,14 @@ struct CSVExporter: Sendable {
             "",
             "",
             "",
-            "false",
-            "false",
-            "manual",
-            "false",
+            "",
+            "",
+            "",
+            "",
             dateFormatter.string(from: record.createdAt),
             dateFormatter.string(from: record.updatedAt),
+            String(record.allocatedToBudgetMinorUnits),
+            String(record.allocatedToSavingsMinorUnits),
         ]
     }
 

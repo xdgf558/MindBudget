@@ -147,3 +147,16 @@ does not label a person based on those tags.
 `PrivacyInfo.xcprivacy` declares no tracking, no tracking domains, no collected
 data types, and UserDefaults reason `CA92.1`. Add File Timestamp reasons only if
 a shipped implementation actually uses the covered API.
+
+## Phase 12 local planning data
+
+The in-app language selection is a local UserDefaults preference and does not change device
+language or contact a translation service. Income allocation, the total savings goal, recurring
+fixed-expense rules, and generated occurrence identities are local SwiftData records. Recurring
+rule notes remain behind the actor/detail boundary and are never notification, Spotlight, Siri
+entity, or model context. App lifecycle reconciliation uses no background server and makes no
+claim that an entry will be created while the app is not running.
+
+CSV remains an explicit user export and now includes the exact income portions allocated to the
+current spending budget and savings as minor-unit columns. Delete All removes and verifies the new
+allocation, savings-goal, recurring-rule, and occurrence tables before reporting completion.

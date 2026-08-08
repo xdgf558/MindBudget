@@ -142,3 +142,9 @@ notes, merchant lists, transaction rows, and raw cooling-off timestamps never re
 context. If a cooling-off projection cannot be read completely, its outcome counts are unknown:
 the Insights pipeline must not replace them with zero or invoke a model with that incomplete
 context.
+
+Income source names, income notes, allocation rows, savings-goal rows, recurring-rule notes, and
+occurrence rows never enter a model context. Ask may receive only the already-computed effective
+budget facts produced after an owner-confirmed spending allocation; it cannot infer an allocation
+from recorded income. The selected app locale controls deterministic Ask/template output and the
+requested model wording language, with the existing mismatch validator and template fallback.

@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import Testing
 import UIKit
@@ -193,6 +194,44 @@ struct SettingsStoreTests {
 
         store.resetAfterDataDeletion()
         #expect(store.appSkin == .warmBotanical)
+    }
+
+    @Test
+    func appLanguageDefaultsToSystemAndPersistsAnExplicitLocale() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+
+        #expect(store.appLanguage == .system)
+        store.appLanguageRaw = AppLanguage.simplifiedChinese.rawValue
+        let reloaded = SettingsStore(defaults: fixture.defaults)
+        #expect(reloaded.appLanguage == .simplifiedChinese)
+        #expect(reloaded.selectedLocale.identifier.hasPrefix("zh-Hans"))
+
+        reloaded.appLanguageRaw = AppLanguage.english.rawValue
+        #expect(reloaded.selectedLocale.identifier.hasPrefix("en"))
+
+        reloaded.appLanguageRaw = "future-language"
+        #expect(reloaded.appLanguage == .system)
+        #expect(reloaded.appLanguageRaw == "future-language")
+    }
+
+    @Test
+    func changingAppLanguagePublishesAnImmediateRootViewUpdate() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+        var updateCount = 0
+        let observation = store.objectWillChange.sink {
+            updateCount += 1
+        }
+
+        store.appLanguageRaw = AppLanguage.simplifiedChinese.rawValue
+
+        #expect(updateCount == 1)
+        #expect(store.selectedLocale.identifier.hasPrefix("zh-Hans"))
+        #expect(fixture.defaults.string(forKey: "appLanguageRaw") == "zh-Hans")
+        withExtendedLifetime(observation) {}
     }
 
     @Test

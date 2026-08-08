@@ -136,7 +136,7 @@ struct DataActorTests {
 
             switch scenario {
             case .newUser:
-                #expect(counts == ModelCounts(expenses: 0, budgetPlans: 0, wishItems: 0, coolingOffPlans: 0))
+                #expect(counts == .zero)
             case .threeMonthHistory:
                 #expect(counts.expenses == 6)
                 #expect(counts.budgetPlans == 3)

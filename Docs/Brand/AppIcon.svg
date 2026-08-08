@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
-    <!-- CSS-equivalent 163° gradient from the approved icon specification. -->
+    <!-- Green brand gradient behind the enlarged budget-pace mark. -->
     <linearGradient id="background" x1="362" y1="0" x2="662" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#38806C"/>
-      <stop offset="0.52" stop-color="#2F6F5E"/>
-      <stop offset="1" stop-color="#245648"/>
+      <stop offset="0" stop-color="#44907E"/>
+      <stop offset="0.52" stop-color="#397B6C"/>
+      <stop offset="1" stop-color="#2D685A"/>
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" fill="url(#background)"/>
-  <rect x="190" y="475" width="644" height="74" rx="37" fill="#102C25" fill-opacity="0.42"/>
-  <rect x="190" y="475" width="352" height="74" rx="37" fill="#F2F0EC"/>
-  <rect x="605.5" y="380" width="33" height="264" rx="16.5" fill="#E0A95C"/>
+  <rect x="152" y="454" width="720" height="116" rx="58" fill="#102C25" fill-opacity="0.42"/>
+  <rect x="152" y="454" width="396" height="116" rx="58" fill="#F5F3F0"/>
+  <rect x="585" y="340" width="46" height="344" rx="23" fill="#E7B76F"/>
 </svg>

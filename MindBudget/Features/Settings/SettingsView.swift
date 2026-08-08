@@ -30,6 +30,26 @@ struct SettingsView: View {
                     .accessibilityIdentifier("settings.budget")
 
                     NavigationLink {
+                        SavingsGoalSettingsView(session: session)
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "settings.savingsGoal.title",
+                            systemImage: "target"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.savingsGoal")
+
+                    NavigationLink {
+                        RecurringExpensesSettingsView(session: session)
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "settings.recurring.title",
+                            systemImage: "repeat"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.recurring")
+
+                    NavigationLink {
                         ReminderSettingsView(session: session)
                     } label: {
                         SettingsDestinationLabel(
@@ -131,6 +151,21 @@ private struct AppearanceSettingsView: View {
 
     var body: some View {
         List {
+            Section {
+                Picker("settings.language.title", selection: $settings.appLanguageRaw) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(LocalizedStringKey(language.localizedNameKey))
+                            .tag(language.rawValue)
+                    }
+                }
+                .pickerStyle(.navigationLink)
+                .accessibilityIdentifier("settings.language.picker")
+            } header: {
+                Text("settings.language.section")
+            } footer: {
+                Text("settings.language.footer")
+            }
+
             Section {
                 ForEach(AppSkin.allCases, id: \.rawValue) { skin in
                     skinButton(skin)
@@ -258,6 +293,30 @@ private struct BudgetSettingsView: View {
                     }
                     LabeledContent("budget.period.end") {
                         Text(plan.cycleEnd, format: .dateTime.year().month().day())
+                    }
+                    LabeledContent("settings.budget.recordedIncome") {
+                        MoneyText(
+                            money: Money(
+                                minorUnits: plan.recordedIncomeMinorUnits,
+                                currencyCode: plan.currencyCode
+                            )
+                        )
+                    }
+                    LabeledContent("settings.budget.incomeAllocated") {
+                        MoneyText(
+                            money: Money(
+                                minorUnits: plan.allocatedIncomeMinorUnits,
+                                currencyCode: plan.currencyCode
+                            )
+                        )
+                    }
+                    LabeledContent("settings.budget.incomeSaved") {
+                        MoneyText(
+                            money: Money(
+                                minorUnits: plan.allocatedSavingsMinorUnits,
+                                currencyCode: plan.currencyCode
+                            )
+                        )
                     }
                 }
 
@@ -519,7 +578,11 @@ private struct BudgetSettingsView: View {
             return nil
         }
         return try? BudgetEngine().allocation(
-            totalBudget: totalBudget,
+            baseTotalBudget: totalBudget,
+            additionalBudget: Money(
+                minorUnits: plan.allocatedIncomeMinorUnits,
+                currencyCode: plan.currencyCode
+            ),
             fixedForecast: fixedExpenses,
             savingGoal: savingGoal
         )
@@ -545,6 +608,413 @@ private struct BudgetSettingsView: View {
         case total
         case fixed
         case saving
+    }
+}
+
+private struct SavingsGoalSettingsView: View {
+    @ObservedObject var session: AppSession
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.locale) private var locale
+    @State private var goal: SavingsGoalSummary?
+    @State private var targetText = ""
+    @State private var startingBalanceText = ""
+    @State private var isLoading = true
+    @State private var isSaving = false
+    @State private var errorKey: LocalizedStringKey?
+    @State private var showsDeleteConfirmation = false
+
+    var body: some View {
+        List {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+            } else {
+                if let goal {
+                    Section("settings.savingsGoal.progress") {
+                        LabeledContent("settings.savingsGoal.saved") {
+                            MoneyText(money: goal.savedTotal, weight: .semibold)
+                        }
+                        LabeledContent("settings.savingsGoal.remaining") {
+                            MoneyText(money: goal.remaining)
+                        }
+                        LabeledContent("settings.savingsGoal.fromIncome") {
+                            MoneyText(money: goal.incomeAllocatedToSavings)
+                        }
+                        ProgressView(
+                            value: CGFloat(progress(goal)),
+                            total: 10_000
+                        )
+                        .accessibilityValue(progressAccessibility(goal))
+                    }
+                }
+
+                Section {
+                    amountField(
+                        "settings.savingsGoal.target",
+                        text: $targetText,
+                        identifier: "settings.savingsGoal.target"
+                    )
+                    amountField(
+                        "settings.savingsGoal.startingBalance",
+                        text: $startingBalanceText,
+                        identifier: "settings.savingsGoal.startingBalance"
+                    )
+                } header: {
+                    Text("settings.savingsGoal.plan")
+                } footer: {
+                    Text("settings.savingsGoal.footer")
+                }
+
+                if let errorKey {
+                    Label(errorKey, systemImage: "info.circle")
+                        .foregroundStyle(.orange)
+                }
+
+                Section {
+                    Button("common.save") {
+                        Task { await save() }
+                    }
+                    .disabled(isSaving)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("settings.savingsGoal.save")
+
+                    if goal != nil {
+                        Button("settings.savingsGoal.delete", role: .destructive) {
+                            showsDeleteConfirmation = true
+                        }
+                    }
+                }
+            }
+        }
+        .settingsListPresentation()
+        .navigationTitle("settings.savingsGoal.title")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await load() }
+        .confirmationDialog(
+            "settings.savingsGoal.delete.title",
+            isPresented: $showsDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("settings.savingsGoal.delete", role: .destructive) {
+                Task { await deleteGoal() }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("settings.savingsGoal.delete.message")
+        }
+    }
+
+    private func amountField(
+        _ key: LocalizedStringKey,
+        text: Binding<String>,
+        identifier: String
+    ) -> some View {
+        HStack {
+            Text(key)
+            Spacer()
+            TextField("money.amount.placeholder", text: text)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .accessibilityIdentifier(identifier)
+        }
+    }
+
+    private func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            goal = try await session.dataActor.fetchSavingsGoalSummary()
+            let parser = MoneyInputParser()
+            if let goal {
+                targetText = parser.inputText(for: goal.target, locale: locale)
+                startingBalanceText = parser.inputText(for: goal.startingBalance, locale: locale)
+            }
+            errorKey = nil
+        } catch {
+            errorKey = "error.data.load"
+        }
+    }
+
+    private func save() async {
+        isSaving = true
+        defer { isSaving = false }
+        do {
+            let parser = MoneyInputParser()
+            let target = try parser.money(
+                from: targetText,
+                currencyCode: settings.currencyCode,
+                locale: locale
+            )
+            let startingBalance = try nonnegativeMoney(
+                from: startingBalanceText,
+                currencyCode: settings.currencyCode,
+                locale: locale
+            )
+            let now = Date()
+            goal = try await session.dataActor.saveSavingsGoal(
+                SavingsGoalDraft(
+                    id: goal?.id ?? UUID(),
+                    target: target,
+                    startingBalance: startingBalance,
+                    createdAt: goal?.createdAt ?? now,
+                    updatedAt: now
+                )
+            )
+            errorKey = nil
+            session.dataDidChange()
+        } catch {
+            errorKey = "settings.savingsGoal.error"
+        }
+    }
+
+    private func deleteGoal() async {
+        guard let goal else { return }
+        do {
+            try await session.dataActor.deleteSavingsGoal(id: goal.id)
+            self.goal = nil
+            targetText = ""
+            startingBalanceText = ""
+            errorKey = nil
+            session.dataDidChange()
+        } catch {
+            errorKey = "error.data.save"
+        }
+    }
+
+    private func nonnegativeMoney(
+        from text: String,
+        currencyCode: String,
+        locale: Locale
+    ) throws -> Money {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return Money(minorUnits: 0, currencyCode: currencyCode)
+        }
+        return try MoneyInputParser().money(
+            from: text,
+            currencyCode: currencyCode,
+            locale: locale,
+            allowsZero: true
+        )
+    }
+
+    private func progress(_ goal: SavingsGoalSummary) -> Int64 {
+        guard goal.target.minorUnits > 0 else { return 0 }
+        let saved = min(goal.savedTotal.minorUnits, goal.target.minorUnits)
+        let quotient = saved / goal.target.minorUnits
+        let remainder = saved % goal.target.minorUnits
+        return quotient * 10_000 + remainder * 10_000 / goal.target.minorUnits
+    }
+
+    private func progressAccessibility(_ goal: SavingsGoalSummary) -> Text {
+        Text(verbatim: "\(progress(goal) / 100)%")
+    }
+}
+
+private struct RecurringExpensesSettingsView: View {
+    @ObservedObject var session: AppSession
+    @State private var rules: [RecurringFixedExpenseRuleSummary] = []
+    @State private var isLoading = true
+    @State private var errorKey: LocalizedStringKey?
+
+    var body: some View {
+        List {
+            if isLoading {
+                ProgressView().frame(maxWidth: .infinity)
+            } else if rules.isEmpty {
+                ContentUnavailableView(
+                    "settings.recurring.empty.title",
+                    systemImage: "repeat",
+                    description: Text("settings.recurring.empty.message")
+                )
+            } else {
+                ForEach(rules) { rule in
+                    NavigationLink {
+                        RecurringExpenseRuleEditView(session: session, rule: rule) {
+                            Task { await load() }
+                        }
+                    } label: {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Group {
+                                if let merchantName = rule.merchantName {
+                                    Text(verbatim: merchantName)
+                                } else {
+                                    Text(LocalizedStringKey(rule.category.localizedNameKey))
+                                }
+                            }
+                            .font(.body.weight(.semibold))
+                            HStack {
+                                MoneyText(money: rule.amount)
+                                Text(rule.anchorDate, format: .dateTime.day().hour().minute())
+                            }
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+                    .swipeActions {
+                        Button("common.delete", role: .destructive) {
+                            Task { await delete(rule) }
+                        }
+                    }
+                }
+            }
+
+            Section {
+                Text("settings.recurring.footer")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            if session.recurringExpenseReconciliationFailed || errorKey != nil {
+                Section {
+                    Label(
+                        errorKey ?? "settings.recurring.reconcile.error",
+                        systemImage: "exclamationmark.triangle"
+                    )
+                    .foregroundStyle(.orange)
+                }
+            }
+        }
+        .settingsListPresentation()
+        .navigationTitle("settings.recurring.title")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await load() }
+    }
+
+    private func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            rules = try await session.dataActor.fetchRecurringFixedExpenseRuleSummaries()
+            errorKey = nil
+        } catch {
+            errorKey = "error.data.load"
+        }
+    }
+
+    private func delete(_ rule: RecurringFixedExpenseRuleSummary) async {
+        do {
+            try await session.dataActor.deleteRecurringFixedExpenseRule(id: rule.id)
+            rules.removeAll { $0.id == rule.id }
+            session.dataDidChange()
+        } catch {
+            errorKey = "error.data.save"
+        }
+    }
+}
+
+private struct RecurringExpenseRuleEditView: View {
+    @ObservedObject var session: AppSession
+    let rule: RecurringFixedExpenseRuleSummary
+    let completed: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
+    @State private var amountText = ""
+    @State private var category: ExpenseCategory
+    @State private var merchantName: String
+    @State private var note = ""
+    @State private var anchorDate: Date
+    @State private var isActive: Bool
+    @State private var errorKey: LocalizedStringKey?
+
+    init(
+        session: AppSession,
+        rule: RecurringFixedExpenseRuleSummary,
+        completed: @escaping () -> Void
+    ) {
+        self.session = session
+        self.rule = rule
+        self.completed = completed
+        _category = State(initialValue: rule.category)
+        _merchantName = State(initialValue: rule.merchantName ?? "")
+        _anchorDate = State(initialValue: rule.anchorDate)
+        _isActive = State(initialValue: rule.isActive)
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                TextField("expense.amount", text: $amountText)
+                    .keyboardType(.decimalPad)
+                    .accessibilityIdentifier("settings.recurring.amount")
+                Picker("expense.category", selection: $category) {
+                    ForEach(ExpenseCategory.allCases) { category in
+                        Text(LocalizedStringKey(category.localizedNameKey)).tag(category)
+                    }
+                }
+                TextField("expense.merchant", text: $merchantName)
+                TextField("expense.note", text: $note, axis: .vertical)
+                DatePicker(
+                    "settings.recurring.anchor",
+                    selection: $anchorDate,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                Toggle("settings.recurring.active", isOn: $isActive)
+            } header: {
+                Text("settings.recurring.rule")
+            } footer: {
+                Text("settings.recurring.edit.footer")
+            }
+
+            if let errorKey {
+                Label(errorKey, systemImage: "info.circle")
+                    .foregroundStyle(.orange)
+            }
+
+            Button("common.save") { Task { await save() } }
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("settings.recurring.save")
+        }
+        .settingsListPresentation()
+        .navigationTitle("settings.recurring.edit.title")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await load() }
+    }
+
+    private func load() async {
+        amountText = MoneyInputParser().inputText(for: rule.amount, locale: locale)
+        if let detail = try? await session.dataActor.fetchRecurringFixedExpenseRuleDetail(
+            id: rule.id
+        ) {
+            note = detail.note ?? ""
+        }
+    }
+
+    private func save() async {
+        do {
+            let amount = try MoneyInputParser().money(
+                from: amountText,
+                currencyCode: rule.amount.currencyCode,
+                locale: locale
+            )
+            _ = try await session.dataActor.updateRecurringFixedExpenseRule(
+                RecurringFixedExpenseRuleDraft(
+                    id: rule.id,
+                    originExpenseID: rule.originExpenseID,
+                    amount: amount,
+                    category: category,
+                    merchantName: trimmed(merchantName),
+                    note: trimmed(note),
+                    initialOccurrenceAt: rule.initialOccurrenceAt,
+                    anchorDate: anchorDate,
+                    timeZoneIdentifier: rule.timeZoneIdentifier,
+                    calendarIdentifierRaw: rule.calendarIdentifierRaw,
+                    isActive: isActive,
+                    activeSince: rule.activeSince,
+                    createdAt: rule.createdAt,
+                    updatedAt: Date()
+                )
+            )
+            session.dataDidChange()
+            completed()
+            dismiss()
+        } catch {
+            errorKey = "settings.recurring.error"
+        }
+    }
+
+    private func trimmed(_ value: String) -> String? {
+        let result = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : result
     }
 }
 
@@ -950,6 +1420,31 @@ enum ReleaseNotesCatalog {
     /// Keep newest first. When a new installed version is inserted at the front, every earlier
     /// entry automatically moves into the collapsed history section on the About screen.
     static let versions: [ReleaseNotesVersion] = [
+        ReleaseNotesVersion(
+            version: "0.9.4",
+            items: [
+                ReleaseNoteItem(
+                    systemImage: "character.bubble.fill",
+                    localizationKey: "settings.releaseNotes.appLanguage"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "arrow.triangle.branch",
+                    localizationKey: "settings.releaseNotes.incomeAllocation"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "target",
+                    localizationKey: "settings.releaseNotes.globalSavingsGoal"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "repeat",
+                    localizationKey: "settings.releaseNotes.recurringFixedExpenses"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "gauge.with.dots.needle.50percent",
+                    localizationKey: "settings.releaseNotes.paceAppIcon"
+                ),
+            ]
+        ),
         ReleaseNotesVersion(
             version: "0.9.2",
             items: [

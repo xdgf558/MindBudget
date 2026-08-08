@@ -31,17 +31,7 @@ struct MindBudgetApp: App {
     var body: some Scene {
         WindowGroup {
             if let environment = bootstrap.environment {
-                AppRouter(
-                    dataController: environment.dataController,
-                    notificationScheduler: environment.notificationScheduler,
-                    searchIndexCleaner: environment.searchIndexCleaner,
-                    spotlightIndexer: environment.spotlightIndexer,
-                    navigationStore: environment.intentService.navigationStore,
-                    appLockAuthenticator: environment.appLockAuthenticator,
-                    appLockInitiallyEnabled: environment.settingsStore.requireFaceID
-                )
-                    .modelContainer(environment.dataController.container)
-                    .environmentObject(environment.settingsStore)
+                ConfiguredAppView(environment: environment)
             } else {
                 StoreRecoveryView(
                     failureDescription: bootstrap.failureDescription,
@@ -49,6 +39,32 @@ struct MindBudgetApp: App {
                 )
             }
         }
+    }
+}
+
+@MainActor
+private struct ConfiguredAppView: View {
+    let environment: AppEnvironment
+    @ObservedObject private var settings: SettingsStore
+
+    init(environment: AppEnvironment) {
+        self.environment = environment
+        settings = environment.settingsStore
+    }
+
+    var body: some View {
+        AppRouter(
+            dataController: environment.dataController,
+            notificationScheduler: environment.notificationScheduler,
+            searchIndexCleaner: environment.searchIndexCleaner,
+            spotlightIndexer: environment.spotlightIndexer,
+            navigationStore: environment.intentService.navigationStore,
+            appLockAuthenticator: environment.appLockAuthenticator,
+            appLockInitiallyEnabled: settings.requireFaceID
+        )
+        .modelContainer(environment.dataController.container)
+        .environmentObject(settings)
+        .environment(\.locale, settings.selectedLocale)
     }
 }
 
