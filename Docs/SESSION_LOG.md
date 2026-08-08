@@ -2234,3 +2234,28 @@ readiness, and the floating-point money policy before installation.
 
 Next suggested task: Complete the device trust/online verification step, open 花有数 manually, and
 test one-for-one Today deduction, zero/overage presentation, and the full horizontal category list.
+
+## 2026-08-08 — Session 55 — Publish the daily-allowance fix for review
+
+Goal: Pause the requested TestFlight upload and publish the current daily-allowance/category
+interaction candidate as a reviewable pull request before changing its marketing version.
+
+Files changed: Session memory only, in addition to the previously completed candidate diff.
+
+What was completed: Restored the owner's GitHub CLI authorization through the official device
+flow, committed the complete verified `0.9.2 (4)` working tree as `0850d64`, pushed branch
+`codex/daily-allowance-category-scroll`, and opened draft PR #17 against `main`. The PR describes
+the start-of-day allowance root cause, one-for-one deduction, zero/overage presentation, complete
+horizontal category selector, and full validation evidence.
+
+What was NOT completed: The requested `0.9.3` marketing-version promotion, new release notes,
+Archive, Organizer validation, App Store Connect upload, build processing, and TestFlight tester
+assignment were explicitly paused until the owner reviews and approves PR #17.
+
+Validation result: pass — the published commit had already passed 228 Swift Testing tests, all 11
+UI tests, the generic Release build, coverage gates, floating-point money policy, release-readiness
+checks, catalog parsing, and `git diff --check` before publication.
+
+Next suggested task: Review PR #17. After approval and merge, promote the next upload candidate to
+`0.9.3`, synchronize its in-app/changelog/TestFlight notes, validate, Archive under team
+`2AM5S7BM2N`, and upload build 4 to the existing App Store Connect record.
