@@ -1993,12 +1993,12 @@ another tab, re-enters Insights, and asserts the displayed recent total is 12.34
 in-app and TestFlight notes now call out refresh behavior; the candidate version is unchanged
 because it has not yet been uploaded.
 
-What was NOT completed: No signed physical-iPhone install, production Archive, App Store Connect
-upload, TestFlight assignment, merge, or new PR was performed. The existing draft PR remains the
-delivery vehicle for these fixes.
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+merge, or new PR was performed. The existing draft PR remains the delivery vehicle for these fixes.
 
-Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
-build-for-testing compile with version `0.9.2 (3)`.
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and current-team signed physical-iPhone Debug build compile with version
+`0.9.2 (3)`.
 
 Test result: pass — 226 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
 failures. The focused Phase 11 suite passed 10 tests, and the populated-Insights end-to-end UI test
@@ -2008,6 +2008,12 @@ Static and coverage result: pass — release readiness, floating-point money, bi
 localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
 remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
 CurrencyFormatterService at 100%.
+
+Signed-device result: installed, launch deferred by lock state — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+"拉沙的 iPhone" without uninstalling or clearing its existing local container. The subsequent
+remote launch request was correctly denied because the device was locked; the installed app can
+be opened normally after the owner unlocks it.
 
 Next suggested task: Review the updated free-tier PR, merge it after approval, then install
 `0.9.2 (3)` on the signed physical iPhone and repeat the expense-to-Insights flow against the
