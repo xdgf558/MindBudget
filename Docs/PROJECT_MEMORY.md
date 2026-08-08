@@ -29,7 +29,7 @@ It is not a full accounting system, mental-health tool, financial adviser, or so
 
 ## MVP scope
 
-SwiftUI, SwiftData, manual expense tracking, fixed/discretionary/savings budget
+SwiftUI, SwiftData, manual expense and income tracking, fixed/discretionary/savings budget
 buckets, emotion tags, wishlist, cooling-off plans, deterministic insights,
 throttled template reminders, local notifications, CSV export, deterministic Ask,
 App Intents, and Spotlight.
@@ -83,8 +83,9 @@ app's private data are forbidden in V1.
   operation failure preserves that last-known warning until a successful reconciliation
   recomputes it. Corrupt rows are never auto-deleted; Settings provides a confirmed repair action
   that passes only the displayed identifiers and revalidates each row before deletion.
-- V1 CSV is an explicit expense-ledger export from in-memory transfer data, with UTF-8 BOM,
-  exact major/minor units, UTC dates, disclosed raw notes, and spreadsheet-formula safety.
+- V1 CSV is an explicit unified expense/income-ledger export from in-memory transfer data, with
+  UTF-8 BOM, exact major/minor units, UTC dates, disclosed raw notes/source or merchant fields,
+  and spreadsheet-formula safety.
 - Delete All is a staged, two-confirmation workflow: notifications, awaited app index
   clearing, all SwiftData entities, verified all-zero model counts, preference reset, then
   onboarding. Any failed or unverifiable stage stops the sequence and remains visible.
@@ -101,8 +102,8 @@ app's private data are forbidden in V1.
 - The shared project never commits an Apple Developer Team ID. Release signing and upload must
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
-- Internal TestFlight started with candidate `0.9.0 (1)`; the current skin and localized-brand
-  candidate is `0.9.1 (2)`. Replacement uploads increment the build number, and owner-approved
+- Internal TestFlight started with candidate `0.9.0 (1)`; the current free-tier-completion
+  candidate is `0.9.2 (3)`. Replacement uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
@@ -124,8 +125,9 @@ app's private data are forbidden in V1.
 ## Current state
 
 Phases 0 through 9 and the pre-Phase-10 UI/UX design interlude are complete. The app opens a
-versioned persistent SwiftData store
-containing all nine V1 model types, with actor-isolated writes and Sendable projections.
+versioned persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1
+model types through a tested lightweight migration, with actor-isolated writes and Sendable
+projections.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
 cycle, and calculates reservations, safe daily spend, purchase impact, and category risk
@@ -142,14 +144,17 @@ purpose-built, text-free portrait background artworks,
 with a card-based Today experience,
 four real content tabs plus a separate accessible add action, exact locale-aware manual
 expense entry with an app-owned keypad and selected-date impact, recent-category
-and merchant suggestions, and searchable/filterable expense list, detail, edit, and delete
-flows. Interactive date previews project budget coverage without writes; only Dashboard
+and merchant suggestions, plus an exact income-entry path. Log merges expense and income in a
+searchable/filterable chronological ledger with targeted detail, edit, and delete flows. Income
+history never mutates the user's configured budget. Interactive date previews project budget coverage without writes; only Dashboard
 lifecycle work and expense save may persist automatic cycle coverage. General expense
 summaries exclude raw notes, while targeted details and actor-contained note search support
 the UI without widening later AI inputs. Optional purchase-reason and emotion fields stay
 collapsed by default and use situation-based, non-diagnostic labels. Wishlist items now
 have localized create, edit, detail, archive, delete, purchase, skip, and reactivate flows;
-current expense input can move into the wishlist without creating an expense. Cooling-off
+current expense input can move into the wishlist without creating an expense. At most five
+active/cooling-off/ready-to-review items may be open; the actor enforces this for every app and
+Siri write, while purchased/skipped/archived history does not consume a slot. Cooling-off
 periods support 24-hour, 72-hour, and custom elapsed-hour durations, one active plan per
 item, lifecycle expiry refresh, DST-safe countdowns, and another round after review. A
 wishlist purchase can atomically create a planned expense with `wishlistConversion` source
@@ -182,8 +187,12 @@ and dismissible in SwiftData. Presentation is independently throttled by setting
 cooldowns, threshold re-crossing, recent responses, and daily caps; only actually shown
 messages create reminder events. Manual expense entry offers one highest-priority sheet at
 most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
-Insights tab now shows local seven-day/current-cycle summaries, category/emotion/trend
-charts, generated pattern cards, dismissal, and a fixed informational disclaimer. Template
+Insights tab now shows a rolling local 30-calendar-day total/count, category/emotion breakdowns,
+a 30-point daily trend, the current-cycle summary, generated pattern cards, dismissal, and a
+fixed informational disclaimer. Its ledger summary remains authoritative when a supplementary
+cooling-off projection is unreadable, but that partial state is disclosed and all dependent
+narrative, model, pattern-write, and stored-card work stops because unknown outcomes must never be
+represented as zero. Template
 copy is the mandatory local path; Phase 5 itself performs no notification scheduling or real
 AI model call. Expense persistence remains authoritative over best-effort reminder history:
 logging failures skip the advisory surface but never reject a valid expense. Rule and
@@ -193,12 +202,12 @@ Phase 6 adds explicit-permission local notifications for cooling-off reviews, on
 stable request identifier per plan, lifecycle reconciliation, delivered-event history, and
 calendar-safe quiet-hour replanning. Notification content names only the wishlist item and
 never accepts an amount or note. Settings now exposes authorization state, a System Settings
-path after denial, quiet hours, an in-memory ShareLink expense CSV, and clear privacy facts.
+path after denial, quiet hours, an in-memory ShareLink expense/income CSV, and clear privacy facts.
 CSV uses UTF-8 BOM, exact integer-derived amount fields, UTC timestamps, correct embedded
 comma/quote/newline escaping, and formula neutralization; its screen discloses that an
-explicit export includes raw expense notes. Delete All requires two confirmations, displays
+explicit export includes raw expense/income notes and source or merchant names. Delete All requires two confirmations, displays
 each notification/index/data/preference stage, stops without a success claim on failure,
-and returns to onboarding only after a post-delete query verifies all nine SwiftData types
+and returns to onboarding only after a post-delete query verifies all ten SwiftData types
 are gone. Notification reconciliation isolates invalid cooling-off records, clears their
 stale identifiers, continues valid requests, and exposes a localized integrity warning with the
 affected count. Settings can explicitly repair only those displayed rows after confirmation;

@@ -14,6 +14,7 @@ enum WishItemFormError: Error, Equatable, Sendable {
     case amount(MoneyInputError)
     case accountingCurrencyMismatch
     case invalidStoredData
+    case limitReached
     case persistence
 }
 
@@ -129,6 +130,8 @@ final class WishItemFormViewModel: ObservableObject {
             switch validationError {
             case .accountingCurrencyMismatch:
                 error = .accountingCurrencyMismatch
+            case .wishlistLimitReached:
+                error = .limitReached
             default:
                 error = .persistence
             }
@@ -273,6 +276,7 @@ struct AddWishItemView: View {
             }
         case .accountingCurrencyMismatch: "expense.error.currencyMismatch"
         case .invalidStoredData: "expense.error.invalidStoredData"
+        case .limitReached: "wishlist.error.limitReached"
         case .persistence: "error.data.save"
         }
     }

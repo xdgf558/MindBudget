@@ -7,7 +7,7 @@ Statements about future features must be revalidated against the shipped binary.
 
 - Collected data: none. V1 financial records remain in the app's local container.
 - Data leaving the device automatically or to the developer: none. A user may explicitly
-  share an expense CSV to a destination they choose. Optional Foundation Models enhancement
+  share an expense/income CSV to a destination they choose. Optional Foundation Models enhancement
   runs on device.
 - Tracking: none.
 - Third-party sharing: none.
@@ -21,25 +21,25 @@ Statements about future features must be revalidated against the shipped binary.
 
 ## Data purpose
 
-Local expense, budget, wishlist, cooling-off, and reflection data exists only to
+Local expense, income, budget, wishlist, cooling-off, and reflection data exists only to
 provide the budgeting features initiated by the user. It is not used for ads,
 profiling, cross-app tracking, resale, or third-party analytics.
 
 ## Export and deletion
 
-V1 exports the user's expense ledger as a UTF-8-with-BOM CSV only after the user opens
+V1 exports the user's expense and income ledger as a UTF-8-with-BOM CSV only after the user opens
 Export CSV and invokes the system share sheet. It includes exact amount/currency fields,
-dates, categories, and the user's optional merchant names and raw expense notes; the
+dates, categories, and the user's optional source/merchant names and raw notes; the
 screen discloses those fields before sharing. Formula-like user text is neutralized and
 CSV punctuation/newlines are escaped. The export is transferred from memory, so the app
-does not retain a second CSV file in its container. It is an expense-ledger export, not a
+does not retain a second CSV file in its container. It is a ledger export, not a
 full internal-database backup.
 
 Delete All is implemented with a confirmation dialog followed by a localized confirmation
 word. It performs these steps in order: cancel app notifications, delete and await all
-app-owned Spotlight index removal, delete all nine SwiftData entity types, reset app
+app-owned Spotlight index removal, delete all ten SwiftData entity types, reset app
 preferences while leaving system language untouched, and return to onboarding. Progress
-names the current stage. After deletion, the app re-queries all nine model counts and resets
+names the current stage. After deletion, the app re-queries all ten model counts and resets
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
 

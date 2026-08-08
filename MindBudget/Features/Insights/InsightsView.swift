@@ -14,12 +14,104 @@ struct InsightDailyTotal: Identifiable, Equatable, Sendable {
 }
 
 struct InsightDashboardSummary: Equatable, Sendable {
-    let lastSevenDaysTotal: Money
-    let lastSevenDaysCount: Int
+    let lastThirtyDaysTotal: Money
+    let lastThirtyDaysCount: Int
     let currentCycleTotal: Money
     let categoryTotals: [InsightBreakdown]
     let emotionTotals: [InsightBreakdown]
     let dailyTotals: [InsightDailyTotal]
+}
+
+struct InsightSummaryBuilder: Sendable {
+    func build(
+        expenses: [ExpenseSummary],
+        cycle: DateInterval,
+        currencyCode: String,
+        now: Date,
+        calendar: Calendar
+    ) throws -> InsightDashboardSummary {
+        let today = calendar.startOfDay(for: now)
+        guard let firstDay = calendar.date(byAdding: .day, value: -29, to: today),
+              let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) else {
+            throw DataValidationError.invalidBudgetCycle
+        }
+        let recentExpenses = expenses.filter {
+            firstDay <= $0.spentAt && $0.spentAt < tomorrow
+                && $0.amount.currencyCode == currencyCode
+        }
+        let cycleExpenses = expenses.filter {
+            cycle.start <= $0.spentAt && $0.spentAt < cycle.end
+                && $0.amount.currencyCode == currencyCode
+        }
+        let categoryTotals = try Dictionary(grouping: recentExpenses, by: \.category)
+            .map { category, values in
+                InsightBreakdown(
+                    id: category.rawValue,
+                    labelKey: category.localizedNameKey,
+                    amount: Money(
+                        minorUnits: try checkedSum(values.map(\.amount.minorUnits)),
+                        currencyCode: currencyCode
+                    )
+                )
+            }
+            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+        let tagged = recentExpenses.compactMap { expense in
+            expense.emotionTag.map { ($0, expense) }
+        }
+        let emotionTotals = try Dictionary(grouping: tagged, by: { $0.0 })
+            .map { emotion, values in
+                InsightBreakdown(
+                    id: emotion.rawValue,
+                    labelKey: emotion.localizedNameKey,
+                    amount: Money(
+                        minorUnits: try checkedSum(values.map(\.1.amount.minorUnits)),
+                        currencyCode: currencyCode
+                    )
+                )
+            }
+            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+        let groupedDays = Dictionary(grouping: recentExpenses) {
+            calendar.startOfDay(for: $0.spentAt)
+        }
+        let dailyTotals = try (0..<30).map { offset -> InsightDailyTotal in
+            guard let day = calendar.date(byAdding: .day, value: offset, to: firstDay) else {
+                throw DataValidationError.invalidBudgetCycle
+            }
+            return InsightDailyTotal(
+                date: day,
+                amount: Money(
+                    minorUnits: try checkedSum(
+                        groupedDays[day, default: []].map(\.amount.minorUnits)
+                    ),
+                    currencyCode: currencyCode
+                )
+            )
+        }
+        return InsightDashboardSummary(
+            lastThirtyDaysTotal: Money(
+                minorUnits: try checkedSum(recentExpenses.map(\.amount.minorUnits)),
+                currencyCode: currencyCode
+            ),
+            lastThirtyDaysCount: recentExpenses.count,
+            currentCycleTotal: Money(
+                minorUnits: try checkedSum(cycleExpenses.map(\.amount.minorUnits)),
+                currencyCode: currencyCode
+            ),
+            categoryTotals: categoryTotals,
+            emotionTotals: emotionTotals,
+            dailyTotals: dailyTotals
+        )
+    }
+
+    private func checkedSum(_ values: [Int64]) throws -> Int64 {
+        var total: Int64 = 0
+        for value in values {
+            let (next, overflow) = total.addingReportingOverflow(value)
+            guard !overflow else { throw DataValidationError.invalidAmount }
+            total = next
+        }
+        return total
+    }
 }
 
 @MainActor
@@ -29,6 +121,8 @@ final class InsightsViewModel: ObservableObject {
     @Published private(set) var cycleNarrative: SourcedSummary?
     @Published private(set) var isLoading = true
     @Published private(set) var failed = false
+    @Published private(set) var partialDataUnavailable = false
+    private var latestLoadID: UUID?
 
     func load(
         dataActor: DataActor,
@@ -41,14 +135,16 @@ final class InsightsViewModel: ObservableObject {
         now: Date,
         calendar: Calendar
     ) async {
+        let loadID = UUID()
+        latestLoadID = loadID
         isLoading = true
+        partialDataUnavailable = false
         do {
             async let expenseRequest = dataActor.fetchExpenseSummaries()
             async let planRequest = dataActor.fetchBudgetPlanSummaries()
-            async let coolingRequest = dataActor.fetchCoolingOffPlanSummaries()
             let expenses = try await expenseRequest
             let plans = try await planRequest
-            let coolingPlans = try await coolingRequest
+            guard isCurrent(loadID) else { return }
             let currentPlan = plans.first {
                 $0.cycleStart <= now && now < $0.cycleEnd
             }
@@ -76,40 +172,39 @@ final class InsightsViewModel: ObservableObject {
                 snapshot = .unconfigured(cycle: cycle, currencyCode: currencyCode)
                 categoryBudgets = []
             }
-            let historicalCycles = try CycleAggregateBuilder().build(
-                plans: plans,
-                expenses: expenses,
-                before: snapshot.cycle.start
-            )
-            let outcomes = coolingPlans.compactMap { plan -> CoolingOffOutcomeSummary? in
-                guard let outcome = plan.outcome,
-                      let outcomeRecordedAt = plan.outcomeRecordedAt else { return nil }
-                return CoolingOffOutcomeSummary(
-                    outcome: outcome,
-                    outcomeRecordedAt: outcomeRecordedAt
-                )
-            }
-            let drafts = SpendingPatternDetector().detectPatterns(
-                expenses: expenses,
-                snapshot: snapshot,
-                categoryBudgets: categoryBudgets,
-                historicalCycles: historicalCycles,
-                coolingOffOutcomes: outcomes,
-                config: configuration,
-                now: now,
-                calendar: calendar
-            )
-            _ = try await dataActor.upsertSpendingInsights(drafts, createdAt: now)
-            let storedInsights = try await dataActor.fetchSpendingInsightSummaries()
-            let dashboardSummary = try makeSummary(
+            let dashboardSummary = try InsightSummaryBuilder().build(
                 expenses: expenses,
                 cycle: snapshot.cycle,
                 currencyCode: snapshot.currencyCode,
                 now: now,
                 calendar: calendar
             )
+            guard isCurrent(loadID) else { return }
+
+            // Expense facts are authoritative and must remain visible even if an
+            // optional cooling-off projection or derived insight cannot be refreshed.
             summary = dashboardSummary
-            cycleNarrative = await CycleSummaryService().generate(
+            cycleNarrative = nil
+            insights = []
+            failed = false
+            partialDataUnavailable = false
+            isLoading = false
+
+            let coolingPlans: [CoolingOffPlanSummary]
+            do {
+                coolingPlans = try await dataActor.fetchCoolingOffPlanSummaries()
+            } catch {
+                guard isCurrent(loadID) else { return }
+                failed = true
+                partialDataUnavailable = true
+                // A failed projection means the outcome facts are unknown, not zero.
+                // Keep the authoritative expense summary, but do not generate wording,
+                // detect patterns, persist derived insights, or reload stale insight rows.
+                return
+            }
+            guard isCurrent(loadID) else { return }
+
+            let narrative = await CycleSummaryService().generate(
                 snapshot: snapshot,
                 expenses: expenses,
                 coolingOffPlans: coolingPlans,
@@ -118,15 +213,55 @@ final class InsightsViewModel: ObservableObject {
                 tone: tone,
                 enhancementEnabled: enhancementEnabled
             )
-            insights = storedInsights.filter {
-                $0.periodStart == snapshot.cycle.start
-                    && $0.periodEnd == snapshot.cycle.end
+            guard isCurrent(loadID) else { return }
+            cycleNarrative = narrative
+
+            do {
+                let historicalCycles = try CycleAggregateBuilder().build(
+                    plans: plans,
+                    expenses: expenses,
+                    before: snapshot.cycle.start
+                )
+                let outcomes = coolingPlans.compactMap { plan -> CoolingOffOutcomeSummary? in
+                    guard let outcome = plan.outcome,
+                          let outcomeRecordedAt = plan.outcomeRecordedAt else { return nil }
+                    return CoolingOffOutcomeSummary(
+                        outcome: outcome,
+                        outcomeRecordedAt: outcomeRecordedAt
+                    )
+                }
+                let drafts = SpendingPatternDetector().detectPatterns(
+                    expenses: expenses,
+                    snapshot: snapshot,
+                    categoryBudgets: categoryBudgets,
+                    historicalCycles: historicalCycles,
+                    coolingOffOutcomes: outcomes,
+                    config: configuration,
+                    now: now,
+                    calendar: calendar
+                )
+                _ = try await dataActor.upsertSpendingInsights(drafts, createdAt: now)
+                let storedInsights = try await dataActor.fetchSpendingInsightSummaries()
+                guard isCurrent(loadID) else { return }
+                insights = storedInsights.filter {
+                    $0.periodStart == snapshot.cycle.start
+                        && $0.periodEnd == snapshot.cycle.end
+                }
+            } catch {
+                guard isCurrent(loadID) else { return }
+                insights = []
+                failed = true
+                partialDataUnavailable = true
             }
-            failed = false
         } catch {
+            guard isCurrent(loadID) else { return }
+            summary = nil
+            cycleNarrative = nil
+            insights = []
             failed = true
+            partialDataUnavailable = false
+            isLoading = false
         }
-        isLoading = false
     }
 
     func dismiss(
@@ -142,93 +277,14 @@ final class InsightsViewModel: ObservableObject {
         }
     }
 
-    private func makeSummary(
-        expenses: [ExpenseSummary],
-        cycle: DateInterval,
-        currencyCode: String,
-        now: Date,
-        calendar: Calendar
-    ) throws -> InsightDashboardSummary {
-        let today = calendar.startOfDay(for: now)
-        let firstDay = calendar.date(byAdding: .day, value: -6, to: today) ?? today
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? now
-        let sevenDayExpenses = expenses.filter {
-            firstDay <= $0.spentAt && $0.spentAt < tomorrow
-                && $0.amount.currencyCode == currencyCode
-        }
-        let cycleExpenses = expenses.filter {
-            cycle.start <= $0.spentAt && $0.spentAt < cycle.end
-                && $0.amount.currencyCode == currencyCode
-        }
-        let categoryTotals = try Dictionary(grouping: cycleExpenses, by: \.category)
-            .map { category, values in
-                InsightBreakdown(
-                    id: category.rawValue,
-                    labelKey: category.localizedNameKey,
-                    amount: Money(
-                        minorUnits: try checkedSum(values.map(\.amount.minorUnits)),
-                        currencyCode: currencyCode
-                    )
-                )
-            }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
-        let tagged = cycleExpenses.compactMap { expense in
-            expense.emotionTag.map { ($0, expense) }
-        }
-        let emotionTotals = try Dictionary(grouping: tagged, by: { $0.0 })
-            .map { emotion, values in
-                InsightBreakdown(
-                    id: emotion.rawValue,
-                    labelKey: emotion.localizedNameKey,
-                    amount: Money(
-                        minorUnits: try checkedSum(values.map(\.1.amount.minorUnits)),
-                        currencyCode: currencyCode
-                    )
-                )
-            }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
-        let groupedDays = Dictionary(grouping: sevenDayExpenses) {
-            calendar.startOfDay(for: $0.spentAt)
-        }
-        let dailyTotals = try (0..<7).compactMap { offset -> InsightDailyTotal? in
-            guard let day = calendar.date(byAdding: .day, value: offset, to: firstDay) else {
-                return nil
-            }
-            return InsightDailyTotal(
-                date: day,
-                amount: Money(
-                    minorUnits: try checkedSum(
-                        groupedDays[day, default: []].map(\.amount.minorUnits)
-                    ),
-                    currencyCode: currencyCode
-                )
-            )
-        }
-        return InsightDashboardSummary(
-            lastSevenDaysTotal: Money(
-                minorUnits: try checkedSum(sevenDayExpenses.map(\.amount.minorUnits)),
-                currencyCode: currencyCode
-            ),
-            lastSevenDaysCount: sevenDayExpenses.count,
-            currentCycleTotal: Money(
-                minorUnits: try checkedSum(cycleExpenses.map(\.amount.minorUnits)),
-                currencyCode: currencyCode
-            ),
-            categoryTotals: categoryTotals,
-            emotionTotals: emotionTotals,
-            dailyTotals: dailyTotals
-        )
+    private func isCurrent(_ loadID: UUID) -> Bool {
+        latestLoadID == loadID && !Task.isCancelled
     }
+}
 
-    private func checkedSum(_ values: [Int64]) throws -> Int64 {
-        var total: Int64 = 0
-        for value in values {
-            let (next, overflow) = total.addingReportingOverflow(value)
-            guard !overflow else { throw DataValidationError.invalidAmount }
-            total = next
-        }
-        return total
-    }
+private struct InsightsLoadTrigger: Equatable {
+    let revision: Int
+    let isSelected: Bool
 }
 
 struct InsightsView: View {
@@ -255,7 +311,15 @@ struct InsightsView: View {
             }
             .navigationTitle("tab.insights")
             .navigationBarTitleDisplayMode(.large)
-            .task(id: session.revision) { await load() }
+            .task(
+                id: InsightsLoadTrigger(
+                    revision: session.revision,
+                    isSelected: session.selectedTab == .insights
+                )
+            ) {
+                guard session.selectedTab == .insights else { return }
+                await load()
+            }
         }
         .mindBudgetOnscreenListSelection(
             nil,
@@ -266,6 +330,9 @@ struct InsightsView: View {
     private var content: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
+                if viewModel.partialDataUnavailable {
+                    partialDataWarning
+                }
                 if let summary = viewModel.summary {
                     summaryCards(summary)
                     if let narrative = viewModel.cycleNarrative {
@@ -285,6 +352,20 @@ struct InsightsView: View {
         .mindBudgetScreenBackground()
         .accessibilityIdentifier("insights.view")
         .refreshable { await load() }
+    }
+
+    private var partialDataWarning: some View {
+        Label("insights.partialDataUnavailable", systemImage: "exclamationmark.triangle")
+            .font(.footnote)
+            .foregroundStyle(theme.attentionText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(theme.attentionSoft, in: RoundedRectangle(cornerRadius: 18))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(theme.attentionBorder, lineWidth: 1)
+            }
+            .accessibilityIdentifier("insights.partialDataWarning")
     }
 
     private func cycleNarrativeCard(_ narrative: SourcedSummary) -> some View {
@@ -309,17 +390,19 @@ struct InsightsView: View {
     private func summaryCards(_ summary: InsightDashboardSummary) -> some View {
         HStack(spacing: 12) {
             summaryCard(
-                title: "insights.summary.sevenDays",
-                amount: summary.lastSevenDaysTotal,
+                title: "insights.summary.thirtyDays",
+                amount: summary.lastThirtyDaysTotal,
+                amountIdentifier: "insights.summary.thirtyDays.amount",
                 detail: LocalizedCatalog.format(
                     "insights.summary.records",
                     locale: locale,
-                    summary.lastSevenDaysCount
+                    summary.lastThirtyDaysCount
                 )
             )
             summaryCard(
                 title: "insights.summary.currentCycle",
                 amount: summary.currentCycleTotal,
+                amountIdentifier: "insights.summary.currentCycle.amount",
                 detail: LocalizedCatalog.string("insights.summary.recorded", locale: locale)
             )
         }
@@ -328,6 +411,7 @@ struct InsightsView: View {
     private func summaryCard(
         title: LocalizedStringKey,
         amount: Money,
+        amountIdentifier: String,
         detail: String
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -335,6 +419,7 @@ struct InsightsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             MoneyText(money: amount, weight: .semibold)
+                .accessibilityIdentifier(amountIdentifier)
             Text(detail)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -364,7 +449,7 @@ struct InsightsView: View {
                 .chartXAxis(.hidden)
             }
         }
-        chartSection(title: "insights.chart.sevenDays") {
+        chartSection(title: "insights.chart.thirtyDays") {
             Chart(summary.dailyTotals) { item in
                 LineMark(
                     x: .value("insights.chart.date", item.date, unit: .day),

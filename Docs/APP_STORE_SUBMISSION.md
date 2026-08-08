@@ -7,8 +7,8 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next TestFlight candidate: version 0.9.1, build 2
-- Previous internal candidate: version 0.9.0, build 1
+- Next TestFlight candidate: version 0.9.2, build 3
+- Previous internal candidate: version 0.9.1, build 2
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
@@ -21,7 +21,38 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.1 (2) — Next internal test candidate
+### 0.9.2 (3) — Next internal test candidate
+
+What to test:
+
+- Use both the Today empty-state Add entry action and the center Add button; confirm each first
+  asks Expense or Income. Record one of each and confirm Log merges them in
+  chronological order, can filter by All / Expenses / Income, and permits income detail, edit,
+  note search, and deletion without changing the configured budget or Today allowance.
+- While an expense category or budget-bucket filter is active, switch to Income and confirm saved
+  income remains visible; switch back to Expenses and confirm the expense-only filters are kept.
+- On a fresh setup, type a monthly income and confirm the spending-budget field remains untouched;
+  enter the intended spending budget separately, save, and confirm Today uses that amount.
+- Upgrade over an existing 0.9.1 store and confirm its expenses, budget, wishlist, cooling-off
+  history, selected skin, and settings remain intact; the new income ledger should begin empty.
+- Add expenses on today, exactly 29 calendar days ago, and 30 days ago. Confirm Insights includes
+  the first two, excludes the last, and shows a 30-day total, category/emotion breakdowns, and
+  exactly 30 daily positions.
+- From another tab, save an expense and then open Insights. Confirm its amount, count, current-cycle
+  total, category breakdown, and daily point refresh immediately rather than retaining an old zero.
+- With the unreadable-cooling-record test fixture, confirm Insights still shows the exact expense
+  totals plus a partial-data notice, but shows no cycle narrative or old cooling-success card and
+  does not invoke the optional wording enhancement.
+- Add five open wishlist items. Confirm the sixth is rejected with a clear message in both the app
+  and Siri, then archive or finish one and confirm a replacement can be added. Historical
+  purchased, skipped, and archived items must not consume an open slot.
+- Export CSV and confirm both `expense` and `income` rows appear with exact amount and minor-unit
+  columns. Confirm the export disclosure names raw notes/source or merchant fields, and Delete All
+  removes both record types before reporting completion.
+- Open Settings > About and confirm version `0.9.2` is expanded while `0.9.1` and `0.9.0` remain
+  inside collapsed history.
+
+### 0.9.1 (2) — Previous internal test candidate
 
 What to test:
 

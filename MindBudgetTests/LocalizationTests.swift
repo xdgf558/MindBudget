@@ -115,19 +115,19 @@ struct LocalizationTests {
 
     @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
-        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.1")
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.2")
 
-        #expect(presentation.current?.version == "0.9.1")
+        #expect(presentation.current?.version == "0.9.2")
         #expect(presentation.current?.items.isEmpty == false)
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
-                "settings.releaseNotes.faceIDLock"
+                "settings.releaseNotes.incomeLedger"
             ) == true
         )
-        #expect(presentation.history.map(\.version) == ["0.9.0"])
+        #expect(presentation.history.map(\.version) == ["0.9.1", "0.9.0"])
 
         let future = ReleaseNotesVersion(
-            version: "0.9.2",
+            version: "0.9.3",
             items: [
                 ReleaseNoteItem(
                     systemImage: "sparkles",
@@ -136,12 +136,12 @@ struct LocalizationTests {
             ]
         )
         let nextPresentation = ReleaseNotesCatalog.presentation(
-            installedVersion: "0.9.2",
+            installedVersion: "0.9.3",
             versions: [future] + ReleaseNotesCatalog.versions
         )
 
-        #expect(nextPresentation.current?.version == "0.9.2")
-        #expect(nextPresentation.history.map(\.version) == ["0.9.1", "0.9.0"])
+        #expect(nextPresentation.current?.version == "0.9.3")
+        #expect(nextPresentation.history.map(\.version) == ["0.9.2", "0.9.1", "0.9.0"])
     }
 
     private func localizedStrings(language: String) throws -> [String: String] {

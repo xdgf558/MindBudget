@@ -115,6 +115,24 @@ enum ExpenseSource: String, Codable, CaseIterable, Sendable, StringIdentified {
     case manual, csvImport, siriIntent, shortcut, wishlistConversion
 }
 
+enum IncomeCategory: String, Codable, CaseIterable, Sendable, StringIdentified {
+    case salary, bonus, freelance, investment, gift, refund, other
+
+    var localizedNameKey: String { "income.category.\(rawValue)" }
+
+    var symbolName: String {
+        switch self {
+        case .salary: "briefcase"
+        case .bonus: "sparkles"
+        case .freelance: "laptopcomputer"
+        case .investment: "chart.line.uptrend.xyaxis"
+        case .gift: "gift"
+        case .refund: "arrow.uturn.backward.circle"
+        case .other: "ellipsis.circle"
+        }
+    }
+}
+
 enum ReflectionContext: String, Codable, CaseIterable, Sendable, StringIdentified {
     case beforeLargePurchase, afterLargePurchase, coolingOffReview, monthlyReview, manual
 }
@@ -158,6 +176,19 @@ enum WishItemStatus: String, Codable, CaseIterable, Sendable, StringIdentified {
     case active, coolingOff, readyToReview, purchased, skipped, archived
 
     var localizedNameKey: String { "wishlist.status.\(rawValue)" }
+
+    var countsTowardOpenLimit: Bool {
+        switch self {
+        case .active, .coolingOff, .readyToReview:
+            true
+        case .purchased, .skipped, .archived:
+            false
+        }
+    }
+}
+
+enum WishlistPolicy {
+    static let maximumOpenItems = 5
 }
 
 enum CoolingOffStatus: String, Codable, CaseIterable, Sendable, StringIdentified {

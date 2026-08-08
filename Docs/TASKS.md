@@ -34,8 +34,8 @@ Status: Done
 - Schedule only cooling-off review reminders, with stable per-plan identifiers, quiet-hour
   deferral, exact cancellation, documented item-name review copy, and no amount or raw-note
   input; isolate corrupt plans without blocking valid reminders.
-- Export the expense ledger as an ephemeral RFC 4180 CSV with exact minor-unit conversion,
-  raw-note disclosure, UTF-8 BOM, and spreadsheet-formula neutralization.
+- Export the expense/income ledger as an ephemeral RFC 4180 CSV with exact minor-unit conversion,
+  raw-note/source disclosure, UTF-8 BOM, and spreadsheet-formula neutralization.
 - Delete local data through the ordered notification → Spotlight → SwiftData → preferences
   pipeline; verify all model counts are zero before preference reset, stop on the first
   failure, and never report a partial deletion as success.
@@ -120,7 +120,7 @@ Status: In Progress
   deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
   release-machine first-load signal with a 500 ms ceiling.
 - [x] Add opaque 1024px standard, dark, and tinted App Icon variants, current TestFlight candidate
-  version 0.9.1/build 2 configuration, localized in-app release notes, static release checks,
+  version 0.9.2/build 3 configuration, localized in-app release notes, static release checks,
   per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
 - [x] Localize the release display name to `花有数` for Simplified Chinese and `MindBudget` for
   English, without combining them, and use `温和的预算与消费复盘工具` as the Simplified Chinese
@@ -143,3 +143,20 @@ Status: In Progress
   system-integration, data-protection, screenshot, and archive checks in `RELEASE_CHECKLIST.md`.
 - [ ] Archive and upload using the owner's latest China-region Apple Developer team; verify the
   final Bundle ID, distribution identity, agreements, and App Store Connect app before upload.
+
+## Phase 11 — Free-tier feature completion
+Status: Done
+- [x] Add unlimited exact manual income entries through Schema V2, with create/edit/search/delete,
+  targeted note projection, a unified chronological Log, and no automatic budget mutation.
+- [x] Replace the seven-day presentation with deterministic recent-30-calendar-day totals,
+  category/emotion breakdowns, and a 30-point daily trend calculated from local expenses.
+- [x] Enforce at most five open wishlist items atomically at `DataActor` for app, Siri, and reopen
+  paths; completed, skipped, and archived history remains outside the limit.
+- [x] Include income in CSV disclosure/export and verified Delete All, migrate V1 stores without
+  data loss, publish synchronized `0.9.2 (3)` notes, and pass the complete automated gates.
+- [x] Keep expense-only category/bucket filters from hiding Income mode while preserving them for
+  the user's return to Expenses.
+- [x] Refresh Insights on selection and saved-data revisions, reject stale loads, and keep valid
+  expense summaries visible when a supplementary insight projection fails. Treat unreadable
+  cooling-off outcomes as unknown rather than zero, stop dependent narrative/AI/persistence work,
+  and make the partial state visible without showing stale insight cards.

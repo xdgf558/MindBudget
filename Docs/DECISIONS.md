@@ -1412,3 +1412,120 @@ after biometric changes.
 Files affected: budget engine and Dashboard tests, Ask/allocation presentation, root app routing,
 privacy settings and persistence, Info.plist/localization, release notes, privacy/test/task/project
 memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Complete the free tier with an independent income ledger, rolling insights, and five open wishes
+
+Context: The owner confirmed that the remaining free-tier gaps were per-entry income history, a
+real in-app recent-30-day view, and the stated five-item wishlist limit. Existing configured
+monthly income is a planning input rather than a transaction, while the released V1 store already
+contains user data and must migrate without destructive reset.
+
+Decision: Add `Income` only through Schema V2 and a lightweight V1-to-V2 migration. Store exact
+positive `Int64` minor units, a closed income category, optional source/note, received date/time
+zone, and audit timestamps. Keep income summaries note-free; detail, actor-contained note search,
+and explicit CSV export are the only raw-note boundaries. Income history never changes a budget
+plan automatically. Present expense and income together in one chronological Log and export both
+through a stable `record_type` CSV column. Calculate Insights over the half-open calendar interval
+from the start of 29 days ago through tomorrow. Treat active, cooling-off, and ready-to-review
+wishes as open, and atomically reject a sixth at the DataActor insertion or terminal-to-open
+transition boundary; purchased, skipped, and archived history consumes no slot.
+
+Alternatives considered: Reusing `BudgetPlan.monthlyIncomeMinorUnits` as a ledger, automatically
+raising a budget when income is recorded, adding income fields to `Expense`, computing 30 days as
+30 × 86,400 seconds, hiding old wishes to enforce a total-row cap, or enforcing the five-item
+limit only by disabling the SwiftUI Add button.
+
+Consequences: Income history is exact, searchable, exportable, and independently correct without
+inventing how receipts should alter spending permission. The calendar window is deterministic
+across DST, and every app/Siri write observes the same wishlist policy. Delete All, data counts,
+privacy disclosures, migration tests, CSV tests, in-app release notes, and TestFlight notes must
+include the tenth model. This prerelease milestone is version `0.9.2`, build `3`; `1.0.0` remains
+reserved for the first public App Store release.
+
+Files affected: Schema/migration and income model, DataActor/projections/transfers, Log/Add routing,
+Insights, Wishlist/Siri error mapping, CSV/deletion/privacy UI, localization, tests, version and
+release metadata, and durable project memory.
+
+---
+
+## 2026-08-08 — Keep authoritative expense facts independent from supplementary Insights refreshes
+
+Context: Device review found that Insights could retain its initial zero state after an expense
+was saved. The screen previously treated cooling-off projections, derived-pattern persistence, and
+the cycle narrative as prerequisites for publishing already-fetched expense totals. A failure in
+any supplementary step therefore hid valid local ledger facts. A hidden tab also relied only on a
+global revision task rather than explicitly refreshing when the user entered Insights.
+
+Decision: Publish the deterministic 30-day and current-cycle expense summary immediately after the
+expense and budget projections validate. Refresh when Insights becomes selected and whenever the
+session revision changes while it is selected. Give every load a generation identifier so a
+cancelled older request cannot replace newer facts. Cooling-off projections, cycle wording, and
+derived insight upserts remain supplementary: their failure may suppress their own presentation
+but must never erase or replace an authoritative ledger summary.
+
+Alternatives considered: Retrying the entire coupled pipeline, retaining the last zero summary on
+any error, silently ignoring every supplementary error, or refreshing only on app foregrounding.
+
+Consequences: A newly saved expense appears on the next Insights entry even if the tab was hidden,
+and valid totals remain available when an unrelated derived record is unreadable. Core expense or
+budget projection failures still fail closed with the existing data-load error. Tests cover an
+empty-to-populated reload and a corrupt cooling-off projection alongside a valid expense.
+
+Files affected: Insights loading and selection lifecycle, Phase 11 regression tests, localized
+current release notes, TestFlight walkthrough notes, changelog, decision memory, and session log.
+
+---
+
+## 2026-08-08 — Keep initial income and spending-budget inputs independent
+
+Context: Signed-device setup showed that typing monthly income automatically copied the same value
+into spending budget. That convenience predated the explicit allocation UI, but it now presents an
+unconfirmed spending plan as though the user entered it and can silently keep following later
+income edits while the mirrored value remains unchanged.
+
+Decision: Treat monthly income and spending budget as independent fields from the first keystroke.
+Never prefill, mirror, or overwrite spending budget from income. Require the user to enter and save
+the complete planning draft explicitly; keep the existing localized validation and flexible-budget
+preview as the only guidance between the fields.
+
+Alternatives considered: Mirroring only the first income value, offering a suggested budget equal
+to income, or retaining the mirror until the spending-budget field receives focus.
+
+Consequences: Setup no longer invents a spending amount. UI automation must enter both values, and
+the Simplified Chinese setup regression must prove that income entry leaves spending budget
+untouched before saving a separately confirmed amount.
+
+Files affected: initial budget setup state and UI, Phase 3 unit/UI tests, bilingual current release
+notes, TestFlight walkthrough notes, changelog, decision memory, and session log.
+
+---
+
+## 2026-08-08 — Treat unreadable cooling-off outcomes as unknown in Insights
+
+Context: Insights publishes authoritative expense totals before loading supplementary cooling-off
+outcomes. The first resilience change preserved those totals after a cooling projection failed,
+but continued the derived pipeline with an empty cooling array. That converted unreadable data
+into zero skipped/purchased outcomes, could send those invented zeros to the optional on-device
+model, and allowed an already-persisted cooling-success card to remain visible.
+
+Decision: Keep the validated 30-day and current-cycle expense summary visible, then stop the
+remaining Insights pipeline immediately if cooling-off projections cannot be read completely.
+Do not generate a cycle narrative, call the optional wording enhancement, detect or persist new
+patterns, or reload stored insight cards. Expose a localized partial-data warning. Preserve the
+unreadable records for the existing explicit Settings repair flow rather than deleting them during
+a read.
+
+Alternatives considered: Treating the failed projection as an empty list, continuing only the
+expense-based detector rules, hiding the authoritative expense summary, silently retaining stale
+cards, or automatically deleting unreadable cooling-off records.
+
+Consequences: Missing cooling-off facts are never presented or supplied to a model as zero, and a
+stale cooling-success insight cannot appear beside a partial summary. Users still retain immediate
+access to exact ledger facts and are told why derived content is absent. A later complete reload
+resumes the normal pipeline, while cleanup remains an explicit user-confirmed operation. Regression
+coverage preloads a stale cooling-success row before introducing a corrupt cooling-off projection.
+
+Files affected: Insights state and presentation, Phase 11 regression coverage, AI prompt and test
+contracts, current release/TestFlight notes, changelog, project memory, and session log.

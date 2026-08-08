@@ -1911,3 +1911,256 @@ iPhone without uninstalling or clearing its local container, then launched succe
 Next suggested task: On the connected iPhone, confirm the Today amount against the saved budget,
 then enable Settings > Privacy > Require Face ID and manually test background locking,
 cancellation, Face ID unlock, passcode recovery, and the app-switcher snapshot.
+
+## 2026-08-08 — Session 47 — Complete the free tier with income, 30-day insights, and five open wishes
+
+Goal: Finish the remaining free-tier scope by adding an exact per-entry income ledger, replacing the
+short insights window with an in-app rolling 30-calendar-day summary, enforcing at most five open
+wishlist items, and advancing the internal candidate version.
+
+Files changed: SwiftData schema and migration, income model/projections/drafts and actor CRUD,
+combined ledger and add-entry routing, deterministic Insights UI, wishlist policy and typed errors,
+CSV export/privacy deletion, bilingual localization, release metadata and notes, unit/UI tests, and
+durable project/privacy/AI/decision/test/task/changelog/session memory.
+
+What was completed: Added `SchemaV2` and a lightweight V1-to-V2 migration for the new `Income`
+model. Income values use exact `Int64` minor units and support unlimited manual create, read, update,
+delete, search, category, source, note, and received-date workflows. The Log now merges income and
+expense rows without changing the configured budget or spending calculations. CSV export uses one
+stable bilingual-independent schema with a `record_type` discriminator and includes both ledgers;
+full local-data deletion and post-delete verification now cover all ten models. Income notes remain
+behind a detail projection and are explicitly excluded from AI inputs.
+
+Insights now calculates the latest 30 complete calendar positions ending today with the injected
+user calendar and time zone, shows exact daily totals, and restricts category/emotion breakdowns to
+the same half-open range. Wishlist capacity is centralized at five statuses that count as open;
+the actor rejects both a sixth insertion and a terminal-to-open transition atomically, while closed
+items release a slot. The UI shows the localized count and disables the add action at capacity, and
+Siri receives a typed localized limit response. The marketing/build version advanced from
+`0.9.1 (2)` to `0.9.2 (3)`; Settings shows only the latest notes by default and keeps older notes in
+the existing collapsed history.
+
+The first complete UI run found two automation-contract regressions rather than product logic
+failures: the confirmation dialog exposed duplicate identifier nodes, and the old test still looked
+for “Last 7 days”. The chooser query now selects its first matching system-dialog node, the income
+form identifier no longer propagates over its Save button, and the insight assertion now matches the
+30-day product contract. Focused reruns and the final complete suite passed.
+
+What was NOT completed: No signed physical-iPhone install, production Archive, App Store Connect
+upload, or TestFlight assignment was performed. Income remains intentionally separate from budget
+capacity in this candidate; changing that product rule would require a separate decision and engine
+work. App Intents do not yet create income entries, and Ask does not consume raw income rows.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile with version `0.9.2 (3)`.
+
+Test result: pass — 223 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. New tests cover exact income CRUD/note boundaries, V1-to-V2 migration, income-inclusive CSV
+and deletion, the exact 30-calendar-day boundary, sixth-item rejection, slot reuse, and reopening
+protection.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual localization,
+asset/JSON/project parsing, and `git diff --check` pass. Every selected core service remains above
+the 85% coverage gate; CSV export is 87.20%, BudgetEngine is 93.41%, and the remaining selected
+services range from 90.98% to 100%.
+
+Next suggested task: Review and merge the free-tier completion PR, then install `0.9.2 (3)` on the
+signed physical iPhone to walk through income add/edit/delete/search/export, the 30-day empty and
+populated insight states, the fifth/sixth wishlist boundary, Face ID protection, and migration from
+the existing on-device store before producing the Archive candidate.
+
+## 2026-08-08 — Session 48 — Close free-tier review gaps and restore populated Insights
+
+Goal: Resolve the final free-tier PR review issue where Income inherited hidden expense-only
+filters, and fix the device-reported Insights screen retaining zero after a valid expense existed.
+
+Files changed: combined-ledger filtering, Insights loading/selection lifecycle and accessibility
+identifiers, Phase 11 and end-to-end UI regression coverage, bilingual current release notes,
+TestFlight walkthrough notes, task/decision/changelog/session memory.
+
+What was completed: Income mode now ignores preserved expense-only category and budget-bucket
+filters, while All continues to exclude income when those filters are intentionally active and a
+return to Expenses restores the user's selections. Insights now refreshes both on selected-tab
+entry and saved-data revision, attaches a generation identifier to every request, and prevents an
+older cancelled load from replacing newer facts. The deterministic expense summary is published
+before cooling-off projections, narrative generation, or derived-pattern persistence, so a failure
+in those supplementary paths cannot hide valid 30-day, current-cycle, category, or daily totals.
+
+Regression coverage first loads an empty Insights model, saves an expense, reloads, and verifies
+the exact amount/count/cycle/category facts. A corrupt cooling-off projection test proves the same
+expense facts remain visible, and the UI flow now opens empty Insights, records USD 12.34 from
+another tab, re-enters Insights, and asserts the displayed recent total is 12.34. The `0.9.2 (3)`
+in-app and TestFlight notes now call out refresh behavior; the candidate version is unchanged
+because it has not yet been uploaded.
+
+What was NOT completed: No production Archive, App Store Connect upload, TestFlight assignment,
+merge, or new PR was performed. The existing draft PR remains the delivery vehicle for these fixes.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and current-team signed physical-iPhone Debug build compile with version
+`0.9.2 (3)`.
+
+Test result: pass — 226 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. The focused Phase 11 suite passed 10 tests, and the populated-Insights end-to-end UI test
+also passed independently before the complete run.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Signed-device result: installed, launch deferred by lock state — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+"拉沙的 iPhone" without uninstalling or clearing its existing local container. The subsequent
+remote launch request was correctly denied because the device was locked; the installed app can
+be opened normally after the owner unlocks it.
+
+Next suggested task: Review the updated free-tier PR, merge it after approval, then install
+`0.9.2 (3)` on the signed physical iPhone and repeat the expense-to-Insights flow against the
+existing migrated local store before Archive.
+
+## 2026-08-08 — Session 49 — Unify the Today add-entry chooser
+
+Goal: Fix the device-reported inconsistency where the Today empty-state “Add entry” button opened
+the expense form directly while the center Add button correctly asked whether the entry was an
+expense or income.
+
+Files changed: Today empty-state routing and accessibility identifier, end-to-end UI coverage,
+bilingual current release notes, TestFlight walkthrough notes, changelog, and session memory.
+
+What was completed: The Today empty-state action now uses the same centralized add-entry chooser as
+the center Add button and the Log empty state. Its identifier was renamed from the misleading
+`dashboard.empty.addExpense` to `dashboard.empty.addEntry`, and its copy now uses the generic
+`entry.quickAdd` key. The primary onboarding-to-ledger UI flow now taps this exact empty-state
+button, requires both Expense and Income actions to exist, records the expense through it, then
+uses the center Add button for income. The `0.9.2 (3)` in-app notes and TestFlight walkthrough now
+state that every generic Add entry action asks for the record type before opening a form.
+
+What was NOT completed: No merge, production Archive, App Store Connect upload, or TestFlight
+assignment was performed. Explicit “Record expense” actions remain allowed to open the expense
+form directly; only generic “Add entry” actions are required to offer the chooser.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and current-team signed physical-iPhone Debug build compile with version
+`0.9.2 (3)`.
+
+Test result: pass — 226 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. The onboarding/manual-ledger UI flow also passed independently after being changed to
+exercise the Today empty-state chooser directly.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Signed-device result: installed — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+“拉沙的 iPhone” without uninstalling or clearing its existing local container.
+
+Next suggested task: On the connected iPhone, tap the Today empty-state “记一笔” action and confirm
+the “记支出 / 记收入” chooser appears, then finish review and merge PR #16 before producing the
+Archive candidate.
+
+## 2026-08-08 — Session 50 — Keep initial income and spending budget independent
+
+Goal: Fix the device-reported setup behavior where typing a monthly income automatically copied
+the same amount into the spending-budget field.
+
+Files changed: Initial budget-setup state handling, Phase 3 and end-to-end UI regressions,
+bilingual current release notes, TestFlight walkthrough notes, changelog, decision memory, and
+session memory.
+
+What was completed: The initial setup form no longer mirrors monthly income into spending budget
+or overwrites a spending-budget amount the user has already entered. The two values remain
+independent inputs, and saving still validates the complete explicit draft. Regression coverage
+proves both the initially empty spending-budget field and a later user-entered value survive
+monthly-income edits. Every UI setup flow now enters both values explicitly, and the simplified
+Chinese flow verifies that entering income alone does not populate the spending budget. The
+`0.9.2 (3)` in-app notes and TestFlight walkthrough now describe this correction.
+
+What was NOT completed: No merge, production Archive, App Store Connect upload, TestFlight
+assignment, or version/build-number change was performed. This remains a correction to the same
+not-yet-uploaded `0.9.2 (3)` candidate in draft PR #16.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile successfully.
+
+Test result: pass — 227 Swift Testing tests and all 11 UI tests completed with 0 failures. The
+focused Phase 3 regression and simplified-Chinese setup UI flow also passed independently.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Signed-device result: installed and launched — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+“拉沙的 iPhone” without uninstalling or clearing its existing local container, then launched
+successfully for immediate verification.
+
+Next suggested task: On the connected iPhone, confirm that entering monthly income leaves spending
+budget untouched, then finish review and merge PR #16 before producing the Archive candidate.
+
+## 2026-08-08 — Session 51 — Fail closed on incomplete cooling-off insight data
+
+Goal: Address the PR review finding that an unreadable cooling-off projection was treated as an
+empty result, allowing Insights narrative, model enhancement, pattern persistence, and stale cards
+to continue with outcome counts that were unknown rather than zero.
+
+Files changed: Insights load state and partial-results presentation, Phase 11 regression coverage,
+bilingual current release notes, TestFlight walkthrough notes, AI/test/task/project/decision memory,
+changelog, and session memory.
+
+What was completed: Insights still publishes its validated recent-30-day and current-cycle expense
+facts first. If the cooling-off projection then fails, the load now exposes a localized partial-data
+warning and returns before cycle narrative generation, optional on-device wording enhancement,
+pattern detection/upsert, or stored-card reload. It does not delete or repair the unreadable record;
+the existing explicit Settings repair flow remains the only cleanup path. The regression preloads a
+current-cycle cooling-off-success card, introduces a corrupt cooling-off row, and proves the exact
+expense amount/count remains while the narrative and all stored cards are absent. Durable AI and
+test contracts now state that unreadable cooling outcomes are unknown and must never become zero
+facts in model context.
+
+What was NOT completed: No data was automatically deleted, no production Archive, App Store
+Connect upload, TestFlight assignment, merge, signed-device install, or version/build-number change
+was performed. This remains a correction to the same not-yet-uploaded `0.9.2 (3)` candidate in draft
+PR #16.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile successfully.
+
+Test result: pass — 227 Swift Testing tests and all 11 UI tests completed with 0 failures. The
+focused Phase 11 suite passed all 10 tests, including the stale cooling-success regression.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Next suggested task: Re-review the updated PR #16 and merge it after approval, then install the
+unchanged `0.9.2 (3)` candidate on the signed physical iPhone for final device verification before
+Archive.
+
+## 2026-08-08 — Session 52 — Reinstall the reviewed candidate on the physical iPhone
+
+Goal: Rebuild and reinstall the latest PR #16 candidate on the connected physical iPhone for
+continued owner testing without clearing its local data.
+
+Files changed: Session memory only.
+
+What was completed: Commit `5f0dcd5` was built as a signed Debug iPhoneOS app with Xcode 26.6,
+bundle `com.xdgf558.MindBudget`, version `0.9.2 (3)`, and current team `2AM5S7BM2N`. The resulting
+app was installed in place on the connected physical “拉沙的 iPhone”; no uninstall or container
+reset was performed, so the existing local budget and ledger data should remain available.
+
+What was NOT completed: The remote launch request was denied because the iPhone was locked. No
+production Archive, App Store Connect upload, TestFlight assignment, merge, version/build-number
+change, or user-data deletion was performed.
+
+Build result: pass — current-team signed physical-iPhone Debug build completed successfully.
+
+Test result: not rerun for this installation-only session. The installed code commit had already
+passed 227 Swift Testing tests, all 11 UI tests, the full local validation script, and GitHub CI.
+
+Next suggested task: Unlock the iPhone, open 花有数 manually, and continue the PR #16 device
+walkthrough with the preserved local store.

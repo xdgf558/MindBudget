@@ -39,6 +39,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.monthlyIncome"].tap()
         assertBudgetKeyboardHasNoCompletionToolbar(in: app)
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        let totalBudgetField = app.textFields["budget.totalBudget"]
+        XCTAssertNotEqual(totalBudgetField.value as? String, "3000")
+        totalBudgetField.tap()
+        totalBudgetField.typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -65,6 +69,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -77,8 +83,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(element("dashboard.today.left", in: app).exists)
         assertCompactEmptyStateAction(
-            app.buttons["dashboard.empty.addExpense"],
-            named: "Dashboard Add Expense"
+            app.buttons["dashboard.empty.addEntry"],
+            named: "Dashboard Add Entry"
         )
         assertPrimaryNavigationIsBottomAnchored(in: app)
         XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
@@ -86,7 +92,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let paceTrack = element("dashboard.pace.track", in: app)
         XCTAssertTrue(paceTrack.exists)
         XCTAssertFalse((paceTrack.value as? String ?? "").isEmpty)
-        app.buttons["dashboard.quickAdd"].tap()
+        app.buttons["dashboard.empty.addEntry"].tap()
+        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
+        let addIncomeFromEmptyState = app.buttons.matching(identifier: "entry.add.income").firstMatch
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        XCTAssertTrue(addIncomeFromEmptyState.exists)
+        addExpense.tap()
 
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
         for key in ["1", "2", ".", "3", "4"] {
@@ -95,8 +106,20 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["expense.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.quickAdd"].tap()
+        let addIncome = app.buttons.matching(identifier: "entry.add.income").firstMatch
+        XCTAssertTrue(addIncome.waitForExistence(timeout: 2))
+        addIncome.tap()
+        XCTAssertTrue(element("income.form", in: app).waitForExistence(timeout: 5))
+        for key in ["5", "0", "0"] {
+            element("income.keypad.\(key)", in: app).tap()
+        }
+        app.buttons["income.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["dashboard.expenses"].tap()
         XCTAssertTrue(app.staticTexts["Dining"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Salary"].waitForExistence(timeout: 5))
     }
 
     @MainActor
@@ -107,6 +130,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -151,6 +176,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -161,9 +188,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["tab.insights"].tap()
 
         XCTAssertTrue(element("insights.view", in: app).waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Last 7 days"].exists)
+        XCTAssertTrue(app.staticTexts["Last 30 days"].exists)
         XCTAssertTrue(element("insights.empty", in: app).exists)
         XCTAssertTrue(element("insights.disclaimer", in: app).exists)
+
+        app.buttons["tab.dashboard"].tap()
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.quickAdd"].tap()
+        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        addExpense.tap()
+        XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
+        for key in ["1", "2", ".", "3", "4"] {
+            element("expense.keypad.\(key)", in: app).tap()
+        }
+        app.buttons["expense.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["tab.insights"].tap()
+        let recentTotal = element("insights.summary.thirtyDays.amount", in: app)
+        XCTAssertTrue(recentTotal.waitForExistence(timeout: 5))
+        XCTAssertTrue(recentTotal.label.contains("12.34"))
     }
 
     @MainActor
@@ -174,6 +219,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -222,6 +269,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -289,8 +338,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(aboutControl.waitForExistence(timeout: 2))
         aboutControl.tap()
         XCTAssertTrue(element("settings.about.view", in: app).waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.1"))
+        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.2"))
         XCTAssertTrue(element("settings.releaseNotes", in: app).exists)
+        XCTAssertFalse(element("settings.releaseNotes.history.0.9.1", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.0", in: app).exists)
         let releaseHistory = element("settings.releaseNotes.history", in: app)
         for _ in 0..<5 where !releaseHistory.isHittable {
@@ -298,10 +348,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(releaseHistory.isHittable)
         releaseHistory.tap()
-        XCTAssertTrue(
-            element("settings.releaseNotes.history.0.9.0", in: app)
-                .waitForExistence(timeout: 2)
-        )
+        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
+        for _ in 0..<5 where !previousRelease.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(previousRelease.waitForExistence(timeout: 2))
     }
 
     @MainActor
@@ -425,6 +476,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()

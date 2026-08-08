@@ -27,10 +27,11 @@ struct Phase6FeatureTests {
         let rows = try parseCSV(result.data)
 
         #expect(rows.count == 2)
-        #expect(rows[1][3] == "1234.56")
-        #expect(rows[1][4] == "123456")
-        #expect(rows[1][8] == "Cafe, \"East\"")
-        #expect(rows[1][9] == "first line\nsecond line")
+        #expect(rows[1][0] == "expense")
+        #expect(rows[1][4] == "1234.56")
+        #expect(rows[1][5] == "123456")
+        #expect(rows[1][9] == "Cafe, \"East\"")
+        #expect(rows[1][10] == "first line\nsecond line")
         #expect(rows[1].count == CSVExporter.header.count)
     }
 
@@ -43,9 +44,9 @@ struct Phase6FeatureTests {
         )
         let row = try #require(parseCSV(CSVExporter().export([record]).data).last)
 
-        #expect(row[3] == "123456")
-        #expect(row[8].hasPrefix("'="))
-        #expect(row[9].hasPrefix("'  +"))
+        #expect(row[4] == "123456")
+        #expect(row[9].hasPrefix("'="))
+        #expect(row[10].hasPrefix("'  +"))
     }
 
     @Test

@@ -37,6 +37,8 @@ final class AppSession: ObservableObject {
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
     @Published var presentsAddExpense = false
+    @Published var presentsAddIncome = false
+    @Published var presentsEntryChooser = false
     @Published var wishlistNavigationPath: [UUID] = []
     @Published private(set) var isPrepared = false
     @Published private(set) var preparationFailed = false
@@ -169,6 +171,14 @@ final class AppSession: ObservableObject {
 
     func presentExpenseEntry() {
         presentsAddExpense = true
+    }
+
+    func presentIncomeEntry() {
+        presentsAddIncome = true
+    }
+
+    func presentEntryChooser() {
+        presentsEntryChooser = true
     }
 
     func observeIntentNavigation() async {
@@ -378,6 +388,8 @@ final class AppSession: ObservableObject {
         settings.resetAfterDataDeletion()
         selectedTab = .dashboard
         presentsAddExpense = false
+        presentsAddIncome = false
+        presentsEntryChooser = false
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
@@ -622,6 +634,31 @@ private struct MainTabView: View {
                 }
             }
         }
+        .sheet(isPresented: $session.presentsAddIncome) {
+            NavigationStack {
+                AddIncomeView(
+                    dataActor: session.dataActor,
+                    accountingCurrencyCode: settings.currencyCode,
+                    existingIncome: nil
+                ) {
+                    session.dataDidChange()
+                    session.presentsAddIncome = false
+                }
+            }
+        }
+        .confirmationDialog(
+            "entry.type.title",
+            isPresented: $session.presentsEntryChooser,
+            titleVisibility: .visible
+        ) {
+            Button("entry.expense") { session.presentExpenseEntry() }
+                .accessibilityIdentifier("entry.add.expense")
+            Button("entry.income") { session.presentIncomeEntry() }
+                .accessibilityIdentifier("entry.add.income")
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("entry.type.message")
+        }
     }
 
     private var customTabBar: some View {
@@ -660,7 +697,7 @@ private struct MainTabView: View {
             .padding(.bottom, 6)
 
             Button {
-                session.presentExpenseEntry()
+                session.presentEntryChooser()
             } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 23, weight: .semibold))
@@ -671,7 +708,7 @@ private struct MainTabView: View {
             }
             .buttonStyle(.plain)
             .frame(width: 64, height: 64)
-            .accessibilityLabel("expense.quickAdd")
+            .accessibilityLabel("entry.quickAdd")
             .accessibilitySortPriority(3)
             .accessibilityIdentifier("dashboard.quickAdd")
         }

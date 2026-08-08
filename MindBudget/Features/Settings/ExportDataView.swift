@@ -2,7 +2,7 @@ import CoreTransferable
 import SwiftUI
 import UniformTypeIdentifiers
 
-private struct ExpenseCSVFile: Transferable, Sendable {
+private struct LedgerCSVFile: Transferable, Sendable {
     let data: Data
 
     static var transferRepresentation: some TransferRepresentation {
@@ -22,7 +22,7 @@ private struct ExpenseCSVFile: Transferable, Sendable {
 struct ExportDataView: View {
     let dataActor: DataActor
 
-    @State private var exportFile: ExpenseCSVFile?
+    @State private var exportFile: LedgerCSVFile?
     @State private var rowCount = 0
     @State private var isPreparing = true
     @State private var failed = false
@@ -77,9 +77,14 @@ struct ExportDataView: View {
         isPreparing = true
         failed = false
         do {
-            let records = try await dataActor.fetchExpenseExportRecords()
-            let result = CSVExporter().export(records)
-            exportFile = ExpenseCSVFile(data: result.data)
+            async let expenseRequest = dataActor.fetchExpenseExportRecords()
+            async let incomeRequest = dataActor.fetchIncomeExportRecords()
+            let (expenses, incomes) = try await (expenseRequest, incomeRequest)
+            let result = CSVExporter().export(
+                expenses: expenses,
+                incomes: incomes
+            )
+            exportFile = LedgerCSVFile(data: result.data)
             rowCount = result.rowCount
         } catch {
             exportFile = nil

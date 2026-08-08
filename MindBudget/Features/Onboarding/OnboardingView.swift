@@ -157,19 +157,9 @@ final class BudgetSetupViewModel: ObservableObject {
     @Published private(set) var error: BudgetSetupError?
     @Published private(set) var isSaving = false
 
-    private var lastMirroredIncomeText = ""
-
     init(currencyCode: String, cycleStartDay: Int) {
         self.currencyCode = currencyCode
         self.cycleStartDay = cycleStartDay
-    }
-
-    func incomeChanged() {
-        guard totalBudgetText.isEmpty || totalBudgetText == lastMirroredIncomeText else {
-            return
-        }
-        totalBudgetText = monthlyIncomeText
-        lastMirroredIncomeText = monthlyIncomeText
     }
 
     func save(
@@ -349,9 +339,6 @@ struct BudgetSetupView: View {
                     field: .income,
                     identifier: "budget.monthlyIncome"
                 )
-                .onChange(of: viewModel.monthlyIncomeText) { _, _ in
-                    viewModel.incomeChanged()
-                }
                 amountField(
                     "budget.totalBudget",
                     text: $viewModel.totalBudgetText,
