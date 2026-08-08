@@ -39,6 +39,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.monthlyIncome"].tap()
         assertBudgetKeyboardHasNoCompletionToolbar(in: app)
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        let totalBudgetField = app.textFields["budget.totalBudget"]
+        XCTAssertNotEqual(totalBudgetField.value as? String, "3000")
+        totalBudgetField.tap()
+        totalBudgetField.typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -65,6 +69,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -124,6 +130,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -168,6 +176,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -209,6 +219,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -257,6 +269,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()
@@ -334,10 +348,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(releaseHistory.isHittable)
         releaseHistory.tap()
-        XCTAssertTrue(
-            element("settings.releaseNotes.history.0.9.1", in: app)
-                .waitForExistence(timeout: 2)
-        )
+        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
+        for _ in 0..<5 where !previousRelease.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(previousRelease.waitForExistence(timeout: 2))
     }
 
     @MainActor
@@ -461,6 +476,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         app.textFields["budget.monthlyIncome"].tap()
         app.textFields["budget.monthlyIncome"].typeText("3000")
+        app.textFields["budget.totalBudget"].tap()
+        app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.fixedExpenses"].tap()
         app.textFields["budget.fixedExpenses"].typeText("1000")
         app.textFields["budget.savingGoal"].tap()

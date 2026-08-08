@@ -40,6 +40,8 @@ No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate b
 - Refreshed Insights whenever it is opened or a saved entry changes, rejected stale asynchronous
   results, and kept authoritative expense totals visible when optional cooling-off or derived
   insight refreshes fail.
+- Kept monthly income and spending budget independent during initial setup, so editing income no
+  longer fills or overwrites the amount the user explicitly plans to spend.
 
 ## 0.9.1 (2) — 2026-08-07 — Internal TestFlight candidate
 

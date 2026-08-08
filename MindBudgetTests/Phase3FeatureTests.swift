@@ -104,6 +104,18 @@ struct Phase3FeatureTests {
     }
 
     @Test
+    func initialBudgetSetupDoesNotMirrorIncomeIntoSpendingBudget() {
+        let viewModel = BudgetSetupViewModel(currencyCode: "CNY", cycleStartDay: 1)
+
+        viewModel.monthlyIncomeText = "6000"
+        #expect(viewModel.totalBudgetText.isEmpty)
+
+        viewModel.totalBudgetText = "4800"
+        viewModel.monthlyIncomeText = "7000"
+        #expect(viewModel.totalBudgetText == "4800")
+    }
+
+    @Test
     func expenseFormShowsDismissibleContextualWarningAndExactImpact() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let now = TestFixtures.now

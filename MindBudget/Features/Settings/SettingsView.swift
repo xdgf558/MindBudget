@@ -965,6 +965,10 @@ enum ReleaseNotesCatalog {
                     systemImage: "list.number",
                     localizationKey: "settings.releaseNotes.wishlistLimit"
                 ),
+                ReleaseNoteItem(
+                    systemImage: "slider.horizontal.3",
+                    localizationKey: "settings.releaseNotes.independentBudgetInputs"
+                ),
             ]
         ),
         ReleaseNotesVersion(

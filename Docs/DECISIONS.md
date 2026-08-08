@@ -1475,3 +1475,27 @@ empty-to-populated reload and a corrupt cooling-off projection alongside a valid
 
 Files affected: Insights loading and selection lifecycle, Phase 11 regression tests, localized
 current release notes, TestFlight walkthrough notes, changelog, decision memory, and session log.
+
+---
+
+## 2026-08-08 — Keep initial income and spending-budget inputs independent
+
+Context: Signed-device setup showed that typing monthly income automatically copied the same value
+into spending budget. That convenience predated the explicit allocation UI, but it now presents an
+unconfirmed spending plan as though the user entered it and can silently keep following later
+income edits while the mirrored value remains unchanged.
+
+Decision: Treat monthly income and spending budget as independent fields from the first keystroke.
+Never prefill, mirror, or overwrite spending budget from income. Require the user to enter and save
+the complete planning draft explicitly; keep the existing localized validation and flexible-budget
+preview as the only guidance between the fields.
+
+Alternatives considered: Mirroring only the first income value, offering a suggested budget equal
+to income, or retaining the mirror until the spending-budget field receives focus.
+
+Consequences: Setup no longer invents a spending amount. UI automation must enter both values, and
+the Simplified Chinese setup regression must prove that income entry leaves spending budget
+untouched before saving a separately confirmed amount.
+
+Files affected: initial budget setup state and UI, Phase 3 unit/UI tests, bilingual current release
+notes, TestFlight walkthrough notes, changelog, decision memory, and session log.

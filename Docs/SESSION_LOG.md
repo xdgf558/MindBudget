@@ -2060,3 +2060,43 @@ Signed-device result: installed — team `2AM5S7BM2N` signed bundle
 Next suggested task: On the connected iPhone, tap the Today empty-state “记一笔” action and confirm
 the “记支出 / 记收入” chooser appears, then finish review and merge PR #16 before producing the
 Archive candidate.
+
+## 2026-08-08 — Session 50 — Keep initial income and spending budget independent
+
+Goal: Fix the device-reported setup behavior where typing a monthly income automatically copied
+the same amount into the spending-budget field.
+
+Files changed: Initial budget-setup state handling, Phase 3 and end-to-end UI regressions,
+bilingual current release notes, TestFlight walkthrough notes, changelog, decision memory, and
+session memory.
+
+What was completed: The initial setup form no longer mirrors monthly income into spending budget
+or overwrites a spending-budget amount the user has already entered. The two values remain
+independent inputs, and saving still validates the complete explicit draft. Regression coverage
+proves both the initially empty spending-budget field and a later user-entered value survive
+monthly-income edits. Every UI setup flow now enters both values explicitly, and the simplified
+Chinese flow verifies that entering income alone does not populate the spending budget. The
+`0.9.2 (3)` in-app notes and TestFlight walkthrough now describe this correction.
+
+What was NOT completed: No merge, production Archive, App Store Connect upload, TestFlight
+assignment, or version/build-number change was performed. This remains a correction to the same
+not-yet-uploaded `0.9.2 (3)` candidate in draft PR #16.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile successfully.
+
+Test result: pass — 227 Swift Testing tests and all 11 UI tests completed with 0 failures. The
+focused Phase 3 regression and simplified-Chinese setup UI flow also passed independently.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Signed-device result: installed and launched — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+“拉沙的 iPhone” without uninstalling or clearing its existing local container, then launched
+successfully for immediate verification.
+
+Next suggested task: On the connected iPhone, confirm that entering monthly income leaves spending
+budget untouched, then finish review and merge PR #16 before producing the Archive candidate.
