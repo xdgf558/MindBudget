@@ -1438,6 +1438,10 @@ enum ReleaseNotesCatalog {
                     systemImage: "repeat",
                     localizationKey: "settings.releaseNotes.recurringFixedExpenses"
                 ),
+                ReleaseNoteItem(
+                    systemImage: "gauge.with.dots.needle.50percent",
+                    localizationKey: "settings.releaseNotes.paceAppIcon"
+                ),
             ]
         ),
         ReleaseNotesVersion(

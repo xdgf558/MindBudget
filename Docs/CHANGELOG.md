@@ -33,7 +33,13 @@ No additional user-visible changes are staged beyond the `0.9.4 (5)` internal ca
 - Current-cycle budget calculations now include only the exact income amount explicitly allocated
   to spending; income allocated to savings remains separate and continues progress across cycles.
 - CSV export discloses the two exact income-allocation minor-unit fields, and verified Delete All
-  includes every new Schema V3 record.
+  includes every new Schema V3 record. The two allocation columns are appended after the existing
+  unified-ledger columns, so saved spreadsheet/import templates should be updated for the extended
+  header without shifting earlier column positions. Income-only rows leave expense-only fields
+  empty instead of inventing values that do not exist on the income model.
+- Replaced all three App Icon appearances with the owner-approved enlarged budget-pace mark. The
+  standard, dark, and tinted resources remain opaque, square, and free of a pre-rendered corner
+  mask so iOS can apply its own presentation.
 - The next internal candidate identifies itself as version `0.9.4`, build `5`; older in-app update
   notes remain available only inside the collapsed history section.
 

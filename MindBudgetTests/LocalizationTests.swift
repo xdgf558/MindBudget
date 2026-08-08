@@ -191,10 +191,15 @@ struct LocalizationTests {
         let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.4")
 
         #expect(presentation.current?.version == "0.9.4")
-        #expect(presentation.current?.items.isEmpty == false)
+        #expect(presentation.current?.items.count == 5)
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
                 "settings.releaseNotes.appLanguage"
+            ) == true
+        )
+        #expect(
+            presentation.current?.items.map(\.localizationKey).contains(
+                "settings.releaseNotes.paceAppIcon"
             ) == true
         )
         #expect(presentation.history.map(\.version) == ["0.9.2", "0.9.1", "0.9.0"])
@@ -236,6 +241,7 @@ struct LocalizationTests {
             "settings.releaseNotes.incomeAllocation",
             "settings.releaseNotes.globalSavingsGoal",
             "settings.releaseNotes.recurringFixedExpenses",
+            "settings.releaseNotes.paceAppIcon",
         ]
 
         for key in keys {

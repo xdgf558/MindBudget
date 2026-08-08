@@ -1025,19 +1025,21 @@ project memory, changelog, and this file.
 ## 2026-08-07 — Ship the approved budget-track icon as standard, dark, and tinted assets
 
 Context: The Phase 10 placeholder icon proved the release asset pipeline but was not the owner's
-final brand mark. The approved handoff defines a 1024×1024 budget track at x 190...834, centered
-at y 512 with height 74, a 352px completed segment, and a 33×264 marker centered at x 622. It also
-shows dedicated dark and monochrome variants and explicitly delegates corner masking to iOS.
+final brand mark. The approved August 2026 revision enlarges the same pace metaphor for small-size
+recognition: a 720×116 track beginning at x 152, a 396px completed segment, and a 46×344 marker
+beginning at x 585. It provides dedicated standard, dark, and monochrome variants and explicitly
+delegates corner masking to iOS.
 
 Decision: Replace the placeholder with three opaque universal App Icon resources. The standard
-appearance uses the specified 163° `#38806C → #2F6F5E → #245648` background, translucent
-`#102C25` track, `#F2F0EC` completed segment, and `#E0A95C` marker. The dark appearance uses the
-approved near-black, muted-track, mint-segment treatment. The tinted appearance is intentionally
-grayscale so iOS can apply the user's chosen Home Screen tint. Keep one SVG source per appearance
-under `Docs/Brand`, render all three at exactly 1024px, retain square corners in source, and make
-the release script reject a missing, transparent, mis-sized, or unreferenced variant. Document the
-exact SVG-to-PNG mapping and export commands, and checksum all six files as one reviewed source/
-artifact set so editing either side without refreshing the declared contract fails validation.
+appearance uses the supplied green gradient, dark green track, warm-white completed segment, and
+amber marker. The dark appearance uses the supplied near-black, muted-track, mint-segment treatment.
+The tinted appearance is intentionally opaque grayscale with luminance-separated track and mark so
+iOS can apply the user's chosen Home Screen tint without losing the pace distinction. Keep one SVG
+source per appearance under `Docs/Brand`, render all three at exactly 1024px, retain square corners
+in source, and make the release script reject a missing, transparent, mis-sized, or unreferenced
+variant. Document the exact SVG-to-PNG mapping and export commands, and checksum all six files as
+one reviewed source/artifact set so editing either side without refreshing the declared contract
+fails validation.
 
 Alternatives considered: Shipping only the standard image, using the screenshot itself as a
 cropped icon, pre-rounding the corners, or asking iOS to derive dark/tinted appearances from the
@@ -1664,8 +1666,12 @@ choice. The Today and Ask budget facts can reflect extra income only after expli
 Savings progress survives cycle changes without changing cycle arithmetic. Recurring expenses are
 honest about app execution limits, deterministic across DST/month ends, and idempotent after long
 closures. Schema V3 adds `IncomeAllocation`, `SavingsGoal`, `RecurringFixedExpenseRule`, and
-`RecurringExpenseOccurrence`; CSV and verified Delete All include the new records. Candidate
-version is `0.9.4 (5)` and TestFlight remains paused until PR #18 is reviewed.
+`RecurringExpenseOccurrence`; CSV and verified Delete All include the new records. Every persisted
+table is a required argument of the production `ModelCounts` initializer, and its explicit `.zero`
+fixture enumerates the same set, so adding a model without extending deletion verification remains
+a compile-time failure. The unified CSV leaves inapplicable attributes empty and appends the two
+allocation columns after every existing column. Candidate version is `0.9.4 (5)` and TestFlight
+remains paused until PR #18 is reviewed.
 
 Files affected: language settings/root environment and integration reconciliation, Schema V3 and
 migration plan, income/budget/savings/recurring actor paths, forms and Settings hierarchy, CSV and

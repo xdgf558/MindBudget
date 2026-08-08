@@ -236,6 +236,23 @@ struct ModelCounts: Equatable, Sendable {
     let recurringOccurrences: Int
     let incomeAllocations: Int
 
+    static let zero = ModelCounts(
+        expenses: 0,
+        incomes: 0,
+        budgetPlans: 0,
+        wishItems: 0,
+        coolingOffPlans: 0,
+        categoryBudgets: 0,
+        spendingInsights: 0,
+        reminderEvents: 0,
+        merchants: 0,
+        reflectionLogs: 0,
+        savingsGoals: 0,
+        recurringRules: 0,
+        recurringOccurrences: 0,
+        incomeAllocations: 0
+    )
+
     var isEmpty: Bool {
         expenses == 0
             && incomes == 0
@@ -255,19 +272,19 @@ struct ModelCounts: Equatable, Sendable {
 
     init(
         expenses: Int,
-        incomes: Int = 0,
+        incomes: Int,
         budgetPlans: Int,
         wishItems: Int,
         coolingOffPlans: Int,
-        categoryBudgets: Int = 0,
-        spendingInsights: Int = 0,
-        reminderEvents: Int = 0,
-        merchants: Int = 0,
-        reflectionLogs: Int = 0,
-        savingsGoals: Int = 0,
-        recurringRules: Int = 0,
-        recurringOccurrences: Int = 0,
-        incomeAllocations: Int = 0
+        categoryBudgets: Int,
+        spendingInsights: Int,
+        reminderEvents: Int,
+        merchants: Int,
+        reflectionLogs: Int,
+        savingsGoals: Int,
+        recurringRules: Int,
+        recurringOccurrences: Int,
+        incomeAllocations: Int
     ) {
         self.expenses = expenses
         self.incomes = incomes

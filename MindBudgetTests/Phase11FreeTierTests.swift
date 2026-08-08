@@ -273,6 +273,10 @@ struct Phase11FreeTierTests {
         #expect(row[8].isEmpty)
         #expect(row[9].hasPrefix("'="))
         #expect(row[10].hasPrefix("'  +"))
+        #expect(row[14].isEmpty)
+        #expect(row[15].isEmpty)
+        #expect(row[16].isEmpty)
+        #expect(row[17].isEmpty)
         #expect(row[20] == "20000")
         #expect(row[21] == "30000")
     }
@@ -488,6 +492,35 @@ struct Phase11FreeTierTests {
         try await actor.deleteRecurringFixedExpenseRule(id: rule.id)
         #expect(try await actor.fetchRecurringFixedExpenseRuleSummaries().isEmpty)
         #expect(try await actor.fetchExpenseSummaries().count == 4)
+    }
+
+    @Test
+    func recurringDay31ClampsToFebruary29InALeapYearWithoutDuplication() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.shanghaiCalendar
+        let anchor = try date(2028, 1, 31, 9, 30, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(
+                amountMinorUnits: 9_900,
+                category: .rent,
+                at: anchor,
+                createdAt: anchor,
+                isRecurring: true,
+                timeZoneIdentifier: calendar.timeZone.identifier
+            )
+        )
+        let through = try date(2028, 2, 29, 23, 0, calendar: calendar)
+
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 1)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 0)
+        let expenses = try await actor.fetchExpenseSummaries().sorted { $0.spentAt < $1.spentAt }
+        let generated = try #require(expenses.last)
+
+        #expect(expenses.count == 2)
+        #expect(calendar.component(.year, from: generated.spentAt) == 2028)
+        #expect(calendar.component(.month, from: generated.spentAt) == 2)
+        #expect(calendar.component(.day, from: generated.spentAt) == 29)
+        #expect(try await actor.modelCounts().recurringOccurrences == 1)
     }
 
     @Test

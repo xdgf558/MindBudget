@@ -47,8 +47,8 @@ explicit per-income allocation to current-cycle spending and/or savings, a cross
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
 recurring fixed-expense rules. The candidate is version `0.9.4 (5)` and remains unuploaded until
 PR #18 review and the release checklist authorize TestFlight.
-The production icon uses the owner-approved budget-track mark with standard green-gradient,
-dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
+The production icon uses the owner-approved enlarged budget-track mark with standard
+green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
 after the static iOS launch screen. It runs once per process, does not replay after foregrounding,
 and uses opacity only when Reduce Motion is enabled.

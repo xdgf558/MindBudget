@@ -46,9 +46,14 @@ What to test:
 - Upgrade an existing 0.9.2 installation and confirm prior income, expenses, budget, wishes,
   cooling-off records, settings, and skin remain intact. Existing income must show zero allocation
   until the owner explicitly changes it.
-- Export CSV and confirm income rows include exact spending/savings allocation minor-unit columns.
-  Run Delete All and confirm the app reports completion only after allocations, savings goal,
-  recurring rules, occurrences, and all previous models are empty.
+- Export CSV and confirm version 0.9.4 appends exact spending/savings allocation minor-unit columns
+  after the existing unified-ledger columns; update any saved import/formula template for the
+  extended header. Income rows must leave expense-only fields empty. Run Delete All and confirm
+  the app reports completion only after allocations, savings goal, recurring rules, occurrences,
+  and all previous models are observed empty.
+- Check the enlarged budget-pace App Icon on the Home Screen in standard, dark, and tinted
+  appearances. Confirm the filled track and marker stay distinct, no transparent fringe or double
+  corner appears, and the language-specific app name remains unchanged.
 - Open Settings > About and confirm version `0.9.4` is expanded while `0.9.2`, `0.9.1`, and `0.9.0`
   remain inside collapsed history.
 

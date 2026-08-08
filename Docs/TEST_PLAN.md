@@ -280,10 +280,13 @@ schedule, the invalid row's stale identifier is cleared, and Settings exposes th
 warning rather than reporting an undifferentiated operation failure. A later scheduling
 failure may coexist with that last-known integrity warning and must not erase it.
 
-CSV tests cover the exact stable unified-ledger header, expense/income row types, header-only
-empty data, UTF-8 BOM, RFC 4180 commas,
-quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`
-minor units, equal column counts after parsing, and spreadsheet-formula neutralization.
+CSV tests define the exact stable unified-ledger header independently from the exporter and cover
+expense/income row types, header-only empty data, UTF-8 BOM, RFC 4180 commas, quotes and embedded
+newlines, exact two-/zero-exponent amount strings derived from `Int64` minor units, equal column
+counts after parsing, and spreadsheet-formula neutralization. Income rows leave expense-only
+attributes empty rather than manufacturing `false` or `manual` facts. The two Phase 12 allocation
+columns append after every existing column so earlier positions do not move; release notes warn
+saved spreadsheet/import templates about the extended header.
 The settings UI exposes the in-memory ShareLink export and clearly discloses inclusion of
 raw expense/income notes and optional source or merchant names.
 
@@ -511,9 +514,10 @@ existing `BudgetPlan.savingGoalMinorUnits` remains a separate per-cycle reservat
 both allocation values as exact minor units; Delete All verifies the allocation, savings-goal,
 recurring-rule, and occurrence tables are empty before completion.
 
-Monthly recurring tests use injected calendars and time zones. A day-31 rule generates on the
-last valid local day of short months, repeated reconciliation is idempotent, and a generated entry
-remains fixed/planned/recurring without becoming a second rule when edited. Pausing prevents
+Monthly recurring tests use injected calendars and time zones. A day-31 rule generates on
+February 28 or February 29 as appropriate and on April 30, repeated reconciliation is idempotent,
+and a generated entry remains fixed/planned/recurring without becoming a second rule when edited.
+Pausing prevents
 generation, resuming starts after the new confirmation time without backfilling paused months,
 deleting a rule preserves ledger history, and a bounded reconciliation failure rolls back the
 whole batch rather than saving partial occurrences.
