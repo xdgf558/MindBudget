@@ -3,6 +3,7 @@ import SwiftUI
 enum LedgerRecordType: String, CaseIterable, Identifiable, Sendable {
     case all, expense, income
     var id: String { rawValue }
+    var localizedNameKey: String { "ledger.type.\(rawValue)" }
 }
 
 struct ExpenseFilter: Equatable, Sendable {
@@ -374,11 +375,13 @@ struct ExpenseFiltersView: View {
             Section("ledger.filter.type") {
                 Picker("ledger.filter.type", selection: $filter.recordType) {
                     ForEach(LedgerRecordType.allCases) { type in
-                        Text(LocalizedStringKey("ledger.type.\(type.rawValue)"))
+                        Text(LocalizedStringKey(type.localizedNameKey))
+                            .accessibilityIdentifier("expenses.filter.recordType.\(type.rawValue)")
                             .tag(type)
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityIdentifier("expenses.filter.recordType")
             }
             Section("expenses.filter.category") {
                 Picker("expenses.filter.category", selection: $filter.category) {
@@ -394,11 +397,13 @@ struct ExpenseFiltersView: View {
                 Picker("expenses.filter.bucket", selection: $filter.bucket) {
                     Text("common.all").tag(nil as BudgetBucket?)
                     ForEach(BudgetBucket.allCases) { bucket in
-                        Text(LocalizedStringKey("bucket.\(bucket.rawValue)"))
+                        Text(LocalizedStringKey(bucket.localizedNameKey))
+                            .accessibilityIdentifier("expenses.filter.bucket.\(bucket.rawValue)")
                             .tag(bucket as BudgetBucket?)
                     }
                 }
                 .disabled(filter.recordType == .income)
+                .accessibilityIdentifier("expenses.filter.bucket")
             }
             Section {
                 Button("expenses.filter.clear") {
@@ -455,7 +460,7 @@ struct ExpenseDetailView: View {
                     Text(expense.spentAt, format: .dateTime.year().month().day().hour().minute())
                 }
                 LabeledContent("expense.bucket") {
-                    Text(LocalizedStringKey("bucket.\(expense.bucket.rawValue)"))
+                    Text(LocalizedStringKey(expense.bucket.localizedNameKey))
                 }
                 if let merchantName = expense.merchantName {
                     LabeledContent("expense.merchant") { Text(merchantName) }

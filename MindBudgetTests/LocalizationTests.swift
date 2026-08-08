@@ -114,6 +114,58 @@ struct LocalizationTests {
     }
 
     @Test
+    func ledgerFilterRuntimeValuesResolveInsteadOfShowingCatalogKeys() throws {
+        let english = try localizedBundle(language: "en")
+        let chinese = try localizedBundle(language: "zh-Hans")
+        let expectedRecordTypes: [LedgerRecordType: (english: String, chinese: String)] = [
+            .all: ("All", "全部"),
+            .expense: ("Expenses", "支出"),
+            .income: ("Income", "收入"),
+        ]
+        let expectedBuckets: [BudgetBucket: (english: String, chinese: String)] = [
+            .fixed: ("Fixed", "固定"),
+            .discretionary: ("Flexible", "灵活"),
+            .savings: ("Savings", "储蓄"),
+        ]
+
+        for recordType in LedgerRecordType.allCases {
+            let expected = try #require(expectedRecordTypes[recordType])
+            #expect(
+                english.localizedString(
+                    forKey: recordType.localizedNameKey,
+                    value: nil,
+                    table: nil
+                ) == expected.english
+            )
+            #expect(
+                chinese.localizedString(
+                    forKey: recordType.localizedNameKey,
+                    value: nil,
+                    table: nil
+                ) == expected.chinese
+            )
+        }
+
+        for bucket in BudgetBucket.allCases {
+            let expected = try #require(expectedBuckets[bucket])
+            #expect(
+                english.localizedString(
+                    forKey: bucket.localizedNameKey,
+                    value: nil,
+                    table: nil
+                ) == expected.english
+            )
+            #expect(
+                chinese.localizedString(
+                    forKey: bucket.localizedNameKey,
+                    value: nil,
+                    table: nil
+                ) == expected.chinese
+            )
+        }
+    }
+
+    @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
         let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.2")
 

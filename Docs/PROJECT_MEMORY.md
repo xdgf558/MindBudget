@@ -42,6 +42,12 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
 trial, or visible paid-feature placeholder.
+The owner-approved next development phase is intentionally deferred until PR #17 is reviewed. It
+will cover an extensible in-app language choice (system, Simplified Chinese, and English), an
+explicit relationship between multiple recorded incomes and budget planning, a cross-cycle total
+savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
+recurring fixed-expense rules. None of those behaviors is included in the current TestFlight
+candidate.
 The production icon uses the owner-approved budget-track mark with standard green-gradient,
 dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second

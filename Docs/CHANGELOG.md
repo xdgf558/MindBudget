@@ -21,6 +21,8 @@ No additional user-visible changes are staged beyond the `0.9.2 (4)` replacement
 - Anchored each day's reference amount before today's flexible expenses, then subtracts each saved
   expense one for one. The Today value never displays below zero; reaching zero uses a red amount
   plus explicit localized text, and exceeding the reference amount shows the exact overage.
+- Localized the Log filter's record-type and budget-type values in English and Simplified Chinese,
+  replacing internal catalog keys that could otherwise appear in development and TestFlight builds.
 
 ## 0.9.2 (3) — 2026-08-08 — Internal TestFlight candidate
 

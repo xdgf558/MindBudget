@@ -50,6 +50,8 @@ enum BudgetBucket: String, Codable, CaseIterable, Sendable, StringIdentified {
     case fixed
     case discretionary
     case savings
+
+    var localizedNameKey: String { "bucket.\(rawValue)" }
 }
 
 enum ExpenseCategory: String, Codable, CaseIterable, Sendable, StringIdentified {

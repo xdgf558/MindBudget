@@ -962,6 +962,10 @@ enum ReleaseNotesCatalog {
                     localizationKey: "settings.releaseNotes.scrollableExpenseCategories"
                 ),
                 ReleaseNoteItem(
+                    systemImage: "line.3.horizontal.decrease.circle.fill",
+                    localizationKey: "settings.releaseNotes.localizedLedgerFilters"
+                ),
+                ReleaseNoteItem(
                     systemImage: "arrow.up.arrow.down.circle.fill",
                     localizationKey: "settings.releaseNotes.incomeLedger"
                 ),

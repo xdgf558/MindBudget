@@ -61,6 +61,47 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testSimplifiedChineseLedgerFilterValuesRenderWithoutCatalogKeys() {
+        let app = launchApp(language: "zh-Hans", locale: "zh_CN")
+        completeBudgetSetup(in: app)
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["tab.log"].tap()
+        XCTAssertTrue(element("expenses.list", in: app).waitForExistence(timeout: 5))
+        app.buttons["expenses.filter"].tap()
+
+        for (identifier, label) in [
+            ("expenses.filter.recordType.all", "全部"),
+            ("expenses.filter.recordType.expense", "支出"),
+            ("expenses.filter.recordType.income", "收入"),
+        ] {
+            let segment = element(identifier, in: app)
+            XCTAssertTrue(segment.waitForExistence(timeout: 2))
+            XCTAssertEqual(segment.label, label)
+        }
+
+        let bucketPicker = element("expenses.filter.bucket", in: app)
+        XCTAssertTrue(bucketPicker.exists)
+        bucketPicker.tap()
+
+        for (identifier, label) in [
+            ("expenses.filter.bucket.fixed", "固定"),
+            ("expenses.filter.bucket.discretionary", "灵活"),
+            ("expenses.filter.bucket.savings", "储蓄"),
+        ] {
+            let option = element(identifier, in: app)
+            XCTAssertTrue(option.waitForExistence(timeout: 2))
+            XCTAssertEqual(option.label, label)
+        }
+
+        XCTAssertFalse(app.staticTexts.matching(NSPredicate(
+            format: "label BEGINSWITH %@ OR label BEGINSWITH %@",
+            "ledger.type.",
+            "bucket."
+        )).firstMatch.exists)
+    }
+
+    @MainActor
     func testOnboardingAndManualExpenseFlow() {
         let app = launchApp(language: "en", locale: "en_US")
 

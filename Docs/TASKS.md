@@ -163,3 +163,19 @@ Status: Done
   expense summaries visible when a supplementary insight projection fails. Treat unreadable
   cooling-off outcomes as unknown rather than zero, stop dependent narrative/AI/persistence work,
   and make the partial state visible without showing stale insight cards.
+
+## Phase 12 — Language, income allocation, savings goal, and recurring fixed expenses
+Status: Todo
+- [ ] Add a persisted, extensible app-language setting with Follow System, Simplified Chinese, and
+  English choices; make SwiftUI copy, formatters, deterministic Ask/templates, and app-owned
+  notifications consistently follow the selected app locale without changing device language.
+- [ ] Show exact per-entry income in cycle planning without silently increasing spending
+  permission. Define and implement an explicit user-confirmed allocation between current spending
+  budget and savings while preserving the independent income ledger.
+- [ ] Add a cross-cycle total savings goal and progress model that remains distinct from the
+  existing per-cycle savings reservation used by `BudgetEngine`.
+- [ ] Add user-confirmed monthly recurring fixed-expense rules with calendar/time-zone semantics,
+  stable occurrence identities, duplicate prevention, edit/pause/delete controls, and honest
+  reconciliation when the app was not running on the intended date.
+- [ ] Decide and test the required SwiftData Schema V3 migration before adding persisted fields or
+  models, then publish the completed work as PR #18. Do not mix this scope into PR #17.

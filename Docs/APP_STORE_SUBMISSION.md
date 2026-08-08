@@ -33,6 +33,9 @@ What to test:
 - Open Add Expense and swipe the category selector from the first category through the final
   category. Select an offscreen category, confirm it receives the selected appearance and VoiceOver
   state, save, and confirm the chosen category appears in Today and Log.
+- With the app in Simplified Chinese, open Log > Filters and confirm the record types read
+  `全部` / `支出` / `收入` and the budget types read `固定` / `灵活` / `储蓄`; no
+  `ledger.type.*` or `bucket.*` catalog key may appear.
 - Repeat the core `0.9.2 (3)` income, 30-day Insights, wishlist-limit, migration, CSV, and Delete All
   checks below because build 4 replaces that uploaded candidate.
 

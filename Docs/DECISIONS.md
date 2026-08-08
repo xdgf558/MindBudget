@@ -1565,3 +1565,34 @@ the corrected behavior and synchronized release notes.
 
 Files affected: budget pace engine and tests, Today card, expense category selector and UI test,
 bilingual catalog, release metadata, changelog, test plan, task memory, and session log.
+
+---
+
+## 2026-08-08 — Keep the filter correction in PR 17 and defer the next product expansion to PR 18
+
+Context: Signed-device review exposed raw `ledger.type.*` values in the Log filter and raised four
+larger requests: an in-app Chinese/English switch, multiple recorded incomes reflected in planning,
+a cross-cycle total savings goal, and monthly recurring fixed expenses. The existing `0.9.2 (4)`
+PR is already a narrowly reviewed daily-allowance and category-interaction correction, while the
+larger requests affect locale ownership, money semantics, scheduling, and likely SwiftData schema.
+
+Decision: Fix record-type and budget-type localization on PR #17 using stable typed localization
+keys and bilingual runtime coverage. Keep TestFlight upload paused. Record the four larger requests
+as one new Phase 12 to be designed and implemented only after PR #17 review, then publish that work
+as PR #18. Preserve current behavior until then: income entries remain exact history and do not
+silently mutate a budget, and the existing savings amount remains a per-cycle reservation rather
+than being relabeled as a lifetime target.
+
+Alternatives considered: Uploading the raw-key build, folding all four product changes into PR #17,
+automatically increasing spending permission for every income, reusing the per-cycle savings
+reservation as a total goal, or promising exact background creation of monthly expenses while the
+app is suspended.
+
+Consequences: The visible localization defect can be reviewed independently with low migration
+risk. PR #18 must first define an extensible app-locale boundary, explicit income allocation,
+separate savings-goal semantics, recurring-rule deduplication and calendar behavior, and a tested
+Schema V3 migration if persistence changes. No Archive or TestFlight upload resumes from this
+decision alone.
+
+Files affected: Log filter localization, enum localization keys, unit/UI tests, current release
+notes, TestFlight guidance, Phase 12 task scope, project memory, changelog, and session log.

@@ -425,6 +425,9 @@ notice, so red is never the only signal. Fixed and savings-bucket entries do not
 daily flexible amount.
 The expense form must expose every persisted expense category in one horizontally scrollable
 selector, keep deterministic ordering, center the selected item, and announce its selected trait.
+The Simplified Chinese Log filter must render `全部` / `支出` / `收入` for record type and
+`固定` / `灵活` / `储蓄` for budget type. Runtime option types own stable localization keys;
+neither `ledger.type.*` nor `bucket.*` may be visible in Debug, Release, or TestFlight builds.
 The release-readiness gate must reject a version/build without matching dated changelog and
 TestFlight-note sections.
 

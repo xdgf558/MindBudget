@@ -2259,3 +2259,48 @@ checks, catalog parsing, and `git diff --check` before publication.
 Next suggested task: Review PR #17. After approval and merge, promote the next upload candidate to
 `0.9.3`, synchronize its in-app/changelog/TestFlight notes, validate, Archive under team
 `2AM5S7BM2N`, and upload build 4 to the existing App Store Connect record.
+
+## 2026-08-08 — Session 56 — Localize Log filters and reserve PR 18 scope
+
+Goal: Keep TestFlight paused, correct the signed-device raw localization keys inside PR #17, and
+record—but not implement—the owner-approved language/income/savings/recurring-expense work for a
+separate PR #18.
+
+Files changed: Log filter and expense detail presentation, typed budget/record localization keys,
+bilingual release-note catalog, localization and UI tests, current changelog/TestFlight guidance,
+test/product/task/decision memory, and this session log.
+
+What was completed: `LedgerRecordType` and `BudgetBucket` now own stable localization-key
+properties. The Log filter resolves all three record types and all three budget buckets through
+those typed keys, and expense detail uses the same budget-bucket boundary. Simplified Chinese now
+renders `全部` / `支出` / `收入` and `固定` / `灵活` / `储蓄` instead of catalog keys in Debug,
+Release, or TestFlight. Added deterministic bilingual bundle coverage plus an end-to-end Chinese UI
+test that opens the filter, checks every option, and rejects visible `ledger.type.*` / `bucket.*`
+text. Current `0.9.2 (4)` About, changelog, and tester notes disclose the correction.
+
+The requested app-language switch, explicit multiple-income planning relationship, cross-cycle
+total savings goal, and monthly recurring fixed-expense rules are recorded as Phase 12 Todo. The
+scope explicitly requires an extensible locale boundary, user-confirmed money allocation,
+separate savings semantics, calendar-safe deduplication, and a Schema V3 decision before code. No
+part of that larger product expansion was implemented or mixed into PR #17.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, PR #18 implementation, Schema V3 change, merge, or version/build
+promotion was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded.
+
+Test result: pass — 229 Swift Testing tests across 17 suites and all 12 end-to-end/localization UI
+tests completed with zero failures. The first targeted UI launch was refused by a busy simulator;
+after a clean simulator restart, the same test passed, followed by the complete suite without a
+retry-on-failure policy.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual catalog and
+JSON parsing, and `git diff --check` pass. Every selected core service remains above the 85% gate;
+coverage ranges from CSV export at 87.20% through CurrencyFormatterService at 100%, with
+BudgetEngine at 93.80%.
+
+Next suggested task: Review the updated draft PR #17. After approval and merge, begin Phase 12 on a
+new branch and publish its completed, migrated, fully validated implementation as PR #18; do not
+resume TestFlight until the owner explicitly asks after that review.
