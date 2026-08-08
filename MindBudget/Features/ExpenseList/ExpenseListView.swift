@@ -22,6 +22,7 @@ final class ExpenseListViewModel: ObservableObject {
     @Published private(set) var noteSearchFailed = false
     @Published var filter = ExpenseFilter()
     @Published var searchText = ""
+    @Published var searchLocaleIdentifier = Locale.autoupdatingCurrent.identifier
 
     var filteredExpenses: [ExpenseSummary] {
         guard filter.recordType != .income else { return [] }
@@ -29,10 +30,9 @@ final class ExpenseListViewModel: ObservableObject {
             let matchesCategory = filter.category == nil || expense.category == filter.category
             let matchesBucket = filter.bucket == nil || expense.bucket == filter.bucket
             let needle = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            let categoryName = Bundle.main.localizedString(
-                forKey: expense.category.localizedNameKey,
-                value: expense.category.rawValue,
-                table: nil
+            let categoryName = LocalizedCatalog.string(
+                expense.category.localizedNameKey,
+                locale: Locale(identifier: searchLocaleIdentifier)
             )
             let matchesSearch = needle.isEmpty
                 || expense.merchantName?.localizedCaseInsensitiveContains(needle) == true
@@ -50,10 +50,9 @@ final class ExpenseListViewModel: ObservableObject {
         }
         let needle = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return incomes.filter { income in
-            let categoryName = Bundle.main.localizedString(
-                forKey: income.category.localizedNameKey,
-                value: income.category.rawValue,
-                table: nil
+            let categoryName = LocalizedCatalog.string(
+                income.category.localizedNameKey,
+                locale: Locale(identifier: searchLocaleIdentifier)
             )
             return needle.isEmpty
                 || income.sourceName?.localizedCaseInsensitiveContains(needle) == true
@@ -160,6 +159,7 @@ struct ExpenseListView: View {
     @Environment(\.mindBudgetTheme) private var theme
     @ObservedObject var session: AppSession
     @Environment(\.calendar) private var calendar
+    @Environment(\.locale) private var locale
     @StateObject private var viewModel = ExpenseListViewModel()
     @State private var showsFilters = false
 
@@ -231,6 +231,9 @@ struct ExpenseListView: View {
         }
         .task(id: viewModel.searchText) {
             await viewModel.loadNoteMatches(dataActor: session.dataActor)
+        }
+        .onChange(of: locale.identifier, initial: true) { _, identifier in
+            viewModel.searchLocaleIdentifier = identifier
         }
         .accessibilityIdentifier("expenses.list")
     }

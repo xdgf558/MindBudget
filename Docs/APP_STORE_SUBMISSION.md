@@ -7,7 +7,7 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next TestFlight candidate: version 0.9.2, build 4
+- Next TestFlight candidate: version 0.9.4, build 5
 - Previous uploaded candidate: version 0.9.2, build 3
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
@@ -20,6 +20,37 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.4 (5) — Internal test candidate
+
+What to test:
+
+- In Settings > Appearance, switch among Follow System, Simplified Chinese, and English without
+  changing the iPhone language. Confirm visible copy, currency/date formatting, Ask templates,
+  app-owned notifications, Spotlight copy, Log category search, and the CSV filename follow the
+  selected app language. Return to Follow System and confirm normal system-language behavior.
+- Record several incomes and leave allocation empty on one. On others, allocate exact portions to
+  this cycle's spending budget and to savings. Confirm the unallocated income changes no budget,
+  spending allocation changes only the containing cycle's budget, savings allocation changes only
+  total-goal progress, and the form rejects a combined allocation above the income amount.
+- Edit and delete those incomes and confirm the current budget and total savings progress update
+  from the authoritative remaining allocations rather than retaining stale amounts.
+- Create a total savings goal with an existing saved balance. Confirm it continues across budget
+  cycles and remains distinct from the savings amount reserved inside an individual budget cycle.
+- Record an expense with “Repeat monthly as a fixed expense.” Confirm the original entry is saved
+  once, the next monthly entry appears at the same local day/time, a day 29/30/31 rule clamps to the
+  last valid day of a shorter month, and reopening the app never creates a duplicate occurrence.
+- In Settings > Recurring fixed expenses, edit a rule and confirm only future entries use the new
+  values. Pause it across a due month and resume it; confirm paused months are not backfilled.
+  Delete the rule and confirm generated history stays in Log.
+- Upgrade an existing 0.9.2 installation and confirm prior income, expenses, budget, wishes,
+  cooling-off records, settings, and skin remain intact. Existing income must show zero allocation
+  until the owner explicitly changes it.
+- Export CSV and confirm income rows include exact spending/savings allocation minor-unit columns.
+  Run Delete All and confirm the app reports completion only after allocations, savings goal,
+  recurring rules, occurrences, and all previous models are empty.
+- Open Settings > About and confirm version `0.9.4` is expanded while `0.9.2`, `0.9.1`, and `0.9.0`
+  remain inside collapsed history.
 
 ### 0.9.2 (4) — Replacement internal test candidate
 

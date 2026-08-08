@@ -18,6 +18,47 @@ struct ExpenseDraft: Sendable {
     let isRecurring: Bool
     let source: ExpenseSource
     let allowMerchantIndexing: Bool
+    let recurrenceCalendarIdentifier: Calendar.Identifier?
+
+    init(
+        id: UUID,
+        amount: Money,
+        category: ExpenseCategory,
+        bucket: BudgetBucket,
+        merchantName: String?,
+        note: String?,
+        spentAt: Date,
+        spentTimeZoneIdentifier: String,
+        createdAt: Date,
+        updatedAt: Date,
+        paymentMethod: PaymentMethod?,
+        emotionTag: EmotionTag?,
+        purchaseReason: PurchaseReason?,
+        isPlanned: Bool,
+        isRecurring: Bool,
+        source: ExpenseSource,
+        allowMerchantIndexing: Bool,
+        recurrenceCalendarIdentifier: Calendar.Identifier? = nil
+    ) {
+        self.id = id
+        self.amount = amount
+        self.category = category
+        self.bucket = bucket
+        self.merchantName = merchantName
+        self.note = note
+        self.spentAt = spentAt
+        self.spentTimeZoneIdentifier = spentTimeZoneIdentifier
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.paymentMethod = paymentMethod
+        self.emotionTag = emotionTag
+        self.purchaseReason = purchaseReason
+        self.isPlanned = isPlanned
+        self.isRecurring = isRecurring
+        self.source = source
+        self.allowMerchantIndexing = allowMerchantIndexing
+        self.recurrenceCalendarIdentifier = recurrenceCalendarIdentifier
+    }
 }
 
 struct ExpenseExportRecord: Equatable, Sendable {
@@ -46,10 +87,38 @@ struct IncomeDraft: Sendable {
     let category: IncomeCategory
     let sourceName: String?
     let note: String?
+    let allocatedToBudgetMinorUnits: Int64
+    let allocatedToSavingsMinorUnits: Int64
     let receivedAt: Date
     let receivedTimeZoneIdentifier: String
     let createdAt: Date
     let updatedAt: Date
+
+    init(
+        id: UUID,
+        amount: Money,
+        category: IncomeCategory,
+        sourceName: String?,
+        note: String?,
+        allocatedToBudgetMinorUnits: Int64 = 0,
+        allocatedToSavingsMinorUnits: Int64 = 0,
+        receivedAt: Date,
+        receivedTimeZoneIdentifier: String,
+        createdAt: Date,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.amount = amount
+        self.category = category
+        self.sourceName = sourceName
+        self.note = note
+        self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
+        self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
+        self.receivedAt = receivedAt
+        self.receivedTimeZoneIdentifier = receivedTimeZoneIdentifier
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
 }
 
 struct IncomeExportRecord: Equatable, Sendable {
@@ -58,8 +127,60 @@ struct IncomeExportRecord: Equatable, Sendable {
     let category: IncomeCategory
     let sourceName: String?
     let note: String?
+    let allocatedToBudgetMinorUnits: Int64
+    let allocatedToSavingsMinorUnits: Int64
     let receivedAt: Date
     let receivedTimeZoneIdentifier: String
+    let createdAt: Date
+    let updatedAt: Date
+
+    init(
+        id: UUID,
+        amount: Money,
+        category: IncomeCategory,
+        sourceName: String?,
+        note: String?,
+        allocatedToBudgetMinorUnits: Int64 = 0,
+        allocatedToSavingsMinorUnits: Int64 = 0,
+        receivedAt: Date,
+        receivedTimeZoneIdentifier: String,
+        createdAt: Date,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.amount = amount
+        self.category = category
+        self.sourceName = sourceName
+        self.note = note
+        self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
+        self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
+        self.receivedAt = receivedAt
+        self.receivedTimeZoneIdentifier = receivedTimeZoneIdentifier
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+}
+
+struct SavingsGoalDraft: Sendable {
+    let id: UUID
+    let target: Money
+    let startingBalance: Money
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct RecurringFixedExpenseRuleDraft: Sendable {
+    let id: UUID
+    let originExpenseID: UUID
+    let amount: Money
+    let category: ExpenseCategory
+    let merchantName: String?
+    let note: String?
+    let anchorDate: Date
+    let timeZoneIdentifier: String
+    let calendarIdentifierRaw: String
+    let isActive: Bool
+    let activeSince: Date
     let createdAt: Date
     let updatedAt: Date
 }

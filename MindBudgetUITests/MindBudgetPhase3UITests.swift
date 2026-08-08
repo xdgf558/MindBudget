@@ -360,9 +360,13 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let totalBudgetField = app.textFields["settings.budget.totalBudget"]
         XCTAssertTrue(totalBudgetField.waitForExistence(timeout: 2))
         XCTAssertTrue(totalBudgetField.isEnabled)
-        XCTAssertTrue(element("settings.budget.flexiblePreview", in: app).exists)
         totalBudgetField.tap()
         totalBudgetField.typeText("0")
+        let flexiblePreview = element("settings.budget.flexiblePreview", in: app)
+        for _ in 0..<4 where !flexiblePreview.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(flexiblePreview.exists)
         let saveBudget = app.buttons["settings.budget.save"]
         for _ in 0..<4 where !saveBudget.isHittable {
             app.swipeUp()
@@ -402,7 +406,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(aboutControl.waitForExistence(timeout: 2))
         aboutControl.tap()
         XCTAssertTrue(element("settings.about.view", in: app).waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.2"))
+        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.4"))
         XCTAssertTrue(element("settings.releaseNotes", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.1", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.0", in: app).exists)

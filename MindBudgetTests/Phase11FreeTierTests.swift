@@ -254,6 +254,8 @@ struct Phase11FreeTierTests {
             category: .bonus,
             sourceName: "=WEBSERVICE(\"https://example.invalid\")",
             note: "  +1+1",
+            allocatedToBudgetMinorUnits: 20_000,
+            allocatedToSavingsMinorUnits: 30_000,
             receivedAt: TestFixtures.now,
             receivedTimeZoneIdentifier: "UTC",
             createdAt: TestFixtures.now,
@@ -271,6 +273,8 @@ struct Phase11FreeTierTests {
         #expect(row[8].isEmpty)
         #expect(row[9].hasPrefix("'="))
         #expect(row[10].hasPrefix("'  +"))
+        #expect(row[20] == "20000")
+        #expect(row[21] == "30000")
     }
 
     @Test
@@ -282,6 +286,330 @@ struct Phase11FreeTierTests {
         try await actor.deleteAllUserData()
 
         #expect(try await actor.modelCounts().isEmpty)
+    }
+
+    @Test
+    func schemaV2IncomeMigratesToV3WithNoInventedAllocation() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudgetV2Migration-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let storeURL = directory.appendingPathComponent("MindBudget.store")
+        let incomeID = UUID()
+
+        do {
+            let schema = Schema(versionedSchema: SchemaV2.self)
+            let configuration = ModelConfiguration(
+                "MindBudget",
+                schema: schema,
+                url: storeURL,
+                allowsSave: true
+            )
+            let container = try ModelContainer(for: schema, configurations: [configuration])
+            let context = ModelContext(container)
+            context.insert(
+                Income(
+                    id: incomeID,
+                    amountMinorUnits: 88_800,
+                    currencyCode: "USD",
+                    categoryRaw: IncomeCategory.freelance.rawValue,
+                    sourceName: "Existing client",
+                    note: "V2 private note",
+                    receivedAt: TestFixtures.now,
+                    receivedTimeZoneIdentifier: "UTC",
+                    createdAt: TestFixtures.now,
+                    updatedAt: TestFixtures.now
+                )
+            )
+            try context.save()
+        }
+
+        let actor = try DataController(storeURL: storeURL).dataActor
+        let migrated = try #require(try await actor.fetchIncomeSummaries().first)
+
+        #expect(migrated.id == incomeID)
+        #expect(migrated.amount.minorUnits == 88_800)
+        #expect(migrated.allocatedToBudgetMinorUnits == 0)
+        #expect(migrated.allocatedToSavingsMinorUnits == 0)
+        #expect(try await actor.modelCounts().incomeAllocations == 0)
+    }
+
+    @Test
+    func incomeAllocationMustBeExplicitAndCannotExceedTheIncome() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let invalid = incomeDraft(
+            amountMinorUnits: 10_000,
+            allocatedToBudgetMinorUnits: 8_000,
+            allocatedToSavingsMinorUnits: 2_001
+        )
+
+        await #expect(throws: DataValidationError.invalidIncomeAllocation) {
+            _ = try await actor.createIncome(invalid)
+        }
+        #expect(try await actor.fetchIncomeSummaries().isEmpty)
+        #expect(try await actor.modelCounts().incomeAllocations == 0)
+    }
+
+    @Test
+    func onlyTheConfirmedIncomeAllocationChangesTheCurrentBudget() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let plan = try budgetPlan()
+        _ = try await actor.createBudgetPlan(plan)
+        let income = incomeDraft(
+            amountMinorUnits: 100_000,
+            allocatedToBudgetMinorUnits: 25_000,
+            allocatedToSavingsMinorUnits: 30_000
+        )
+        _ = try await actor.createIncome(income)
+
+        var planSummary = try #require(try await actor.fetchBudgetPlanSummaries().first)
+        #expect(planSummary.recordedIncomeMinorUnits == 100_000)
+        #expect(planSummary.allocatedIncomeMinorUnits == 25_000)
+        #expect(planSummary.allocatedSavingsMinorUnits == 30_000)
+        let cycle = DateInterval(start: plan.cycleStart, end: plan.cycleEnd)
+        let snapshot = try BudgetEngine().snapshot(
+            cycle: cycle,
+            currencyCode: "USD",
+            expenses: [],
+            plan: planSummary,
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
+        )
+        guard case let .configured(configured) = snapshot else {
+            Issue.record("Expected a configured snapshot")
+            return
+        }
+        #expect(configured.totalBudget.minorUnits == plan.totalBudgetMinorUnits + 25_000)
+        #expect(configured.freeBudget.minorUnits == 145_000)
+
+        _ = try await actor.updateIncome(
+            id: income.id,
+            with: incomeDraft(
+                id: income.id,
+                amountMinorUnits: 100_000,
+                allocatedToBudgetMinorUnits: 0,
+                allocatedToSavingsMinorUnits: 40_000,
+                createdAt: income.createdAt,
+                updatedAt: income.updatedAt.addingTimeInterval(60)
+            )
+        )
+        planSummary = try #require(try await actor.fetchBudgetPlanSummaries().first)
+        #expect(planSummary.allocatedIncomeMinorUnits == 0)
+        #expect(planSummary.allocatedSavingsMinorUnits == 40_000)
+    }
+
+    @Test
+    func totalSavingsGoalProgressIsCrossCycleAndSeparateFromCycleReservation() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let plan = try budgetPlan()
+        _ = try await actor.createBudgetPlan(plan)
+        _ = try await actor.createIncome(
+            incomeDraft(
+                amountMinorUnits: 80_000,
+                allocatedToBudgetMinorUnits: 10_000,
+                allocatedToSavingsMinorUnits: 25_000
+            )
+        )
+        let draft = SavingsGoalDraft(
+            id: UUID(),
+            target: Money(minorUnits: 500_000, currencyCode: "USD"),
+            startingBalance: Money(minorUnits: 100_000, currencyCode: "USD"),
+            createdAt: TestFixtures.now,
+            updatedAt: TestFixtures.now
+        )
+
+        let goal = try await actor.saveSavingsGoal(draft)
+        let storedPlan = try #require(try await actor.fetchBudgetPlanSummaries().first)
+
+        #expect(goal.savedTotal.minorUnits == 125_000)
+        #expect(goal.remaining.minorUnits == 375_000)
+        #expect(storedPlan.savingGoalMinorUnits == plan.savingGoalMinorUnits)
+        #expect(storedPlan.allocatedSavingsMinorUnits == 25_000)
+    }
+
+    @Test
+    func recurringFixedExpenseClampsShortMonthsAndReconciliationIsIdempotent() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.shanghaiCalendar
+        let anchor = try date(2026, 1, 31, 9, 30, calendar: calendar)
+        let recurring = expenseDraft(
+            amountMinorUnits: 9_900,
+            category: .rent,
+            at: anchor,
+            createdAt: anchor,
+            isRecurring: true,
+            timeZoneIdentifier: calendar.timeZone.identifier
+        )
+        _ = try await actor.createExpense(recurring)
+        let through = try date(2026, 4, 30, 23, 0, calendar: calendar)
+
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 3)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 0)
+        let expenses = try await actor.fetchExpenseSummaries().sorted { $0.spentAt < $1.spentAt }
+        let dates = expenses.map { calendar.dateComponents([.month, .day], from: $0.spentAt) }
+
+        #expect(expenses.count == 4)
+        #expect(dates.map(\.month) == [1, 2, 3, 4])
+        #expect(dates.map(\.day) == [31, 28, 31, 30])
+        #expect(expenses.dropFirst().allSatisfy { $0.bucket == .fixed && $0.isRecurring })
+        #expect(try await actor.modelCounts().recurringOccurrences == 3)
+        #expect(
+            try await actor.fetchRecurringFixedExpenseRuleSummaries().first?
+                .calendarIdentifierRaw == calendar.identifier.mindBudgetPersistedValue
+        )
+
+        let generated = expenses[1]
+        _ = try await actor.updateExpense(
+            id: generated.id,
+            with: ExpenseDraft(
+                id: generated.id,
+                amount: Money(minorUnits: 10_100, currencyCode: "USD"),
+                category: generated.category,
+                bucket: .fixed,
+                merchantName: generated.merchantName,
+                note: nil,
+                spentAt: generated.spentAt,
+                spentTimeZoneIdentifier: generated.spentTimeZoneIdentifier,
+                createdAt: generated.createdAt,
+                updatedAt: through,
+                paymentMethod: generated.paymentMethod,
+                emotionTag: generated.emotionTag,
+                purchaseReason: generated.purchaseReason,
+                isPlanned: generated.isPlanned,
+                isRecurring: true,
+                source: generated.source,
+                allowMerchantIndexing: generated.allowMerchantIndexing
+            )
+        )
+        #expect(try await actor.fetchRecurringFixedExpenseRuleSummaries().count == 1)
+        let rule = try #require(
+            try await actor.fetchRecurringFixedExpenseRuleSummaries().first
+        )
+        try await actor.deleteRecurringFixedExpenseRule(id: rule.id)
+        #expect(try await actor.fetchRecurringFixedExpenseRuleSummaries().isEmpty)
+        #expect(try await actor.fetchExpenseSummaries().count == 4)
+    }
+
+    @Test
+    func pausedRecurringMonthsAreNotBackfilledAfterResume() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let anchor = try date(2026, 1, 15, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(at: anchor, createdAt: anchor, isRecurring: true)
+        )
+        let rule = try #require(
+            try await actor.fetchRecurringFixedExpenseRuleSummaries().first
+        )
+        let februaryEnd = try date(2026, 2, 28, 23, 0, calendar: calendar)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: februaryEnd, calendar: calendar) == 1)
+
+        let pausedAt = try date(2026, 3, 1, 9, 0, calendar: calendar)
+        _ = try await actor.setRecurringFixedExpenseRuleActive(
+            id: rule.id,
+            isActive: false,
+            at: pausedAt
+        )
+        let aprilEnd = try date(2026, 4, 30, 23, 0, calendar: calendar)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: aprilEnd, calendar: calendar) == 0)
+
+        _ = try await actor.setRecurringFixedExpenseRuleActive(
+            id: rule.id,
+            isActive: true,
+            at: aprilEnd
+        )
+        let mayEnd = try date(2026, 5, 31, 23, 0, calendar: calendar)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: mayEnd, calendar: calendar) == 1)
+        let months = try await actor.fetchExpenseSummaries().map {
+            calendar.component(.month, from: $0.spentAt)
+        }.sorted()
+        #expect(months == [1, 2, 5])
+    }
+
+    @Test
+    func recurringGenerationLimitRollsBackTheWholeCatchUpBatch() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let anchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(at: anchor, createdAt: anchor, isRecurring: true)
+        )
+        let farFuture = try date(2036, 3, 1, 8, 0, calendar: calendar)
+
+        await #expect(throws: DataValidationError.recurringGenerationLimit) {
+            _ = try await actor.reconcileRecurringFixedExpenses(
+                through: farFuture,
+                calendar: calendar
+            )
+        }
+        #expect(try await actor.fetchExpenseSummaries().count == 1)
+        #expect(try await actor.modelCounts().recurringOccurrences == 0)
+    }
+
+    @Test
+    func recurringRuleWithAFutureAnchorDoesNotBreakForegroundReconciliation() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let futureAnchor = try date(2027, 1, 15, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(
+                at: futureAnchor,
+                createdAt: TestFixtures.now,
+                isRecurring: true,
+                calendarIdentifier: calendar.identifier
+            )
+        )
+
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: TestFixtures.now,
+                calendar: calendar
+            ) == 0
+        )
+        #expect(try await actor.modelCounts().recurringOccurrences == 0)
+    }
+
+    @Test
+    func resumingAfterMoreThanTheCatchUpLimitStartsFromTheResumeMonth() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let anchor = try date(2026, 1, 15, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(
+                at: anchor,
+                createdAt: anchor,
+                isRecurring: true,
+                calendarIdentifier: calendar.identifier
+            )
+        )
+        let rule = try #require(
+            try await actor.fetchRecurringFixedExpenseRuleSummaries().first
+        )
+        _ = try await actor.setRecurringFixedExpenseRuleActive(
+            id: rule.id,
+            isActive: false,
+            at: anchor
+        )
+        let resumedAt = try date(2040, 1, 20, 8, 0, calendar: calendar)
+        _ = try await actor.setRecurringFixedExpenseRuleActive(
+            id: rule.id,
+            isActive: true,
+            at: resumedAt
+        )
+        let februaryEnd = try date(2040, 2, 29, 23, 0, calendar: calendar)
+
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: februaryEnd,
+                calendar: calendar
+            ) == 1
+        )
+        let generated = try await actor.fetchExpenseSummaries()
+            .filter { $0.id != rule.originExpenseID }
+        let date = try #require(generated.first?.spentAt)
+        #expect(calendar.component(.year, from: date) == 2040)
+        #expect(calendar.component(.month, from: date) == 2)
+        #expect(calendar.component(.day, from: date) == 15)
     }
 
     @Test
@@ -319,6 +647,9 @@ struct Phase11FreeTierTests {
         category: IncomeCategory = .salary,
         sourceName: String? = "Employer",
         note: String? = nil,
+        allocatedToBudgetMinorUnits: Int64 = 0,
+        allocatedToSavingsMinorUnits: Int64 = 0,
+        receivedAt: Date = TestFixtures.now,
         createdAt: Date = TestFixtures.now,
         updatedAt: Date = TestFixtures.now
     ) -> IncomeDraft {
@@ -328,32 +659,64 @@ struct Phase11FreeTierTests {
             category: category,
             sourceName: sourceName,
             note: note,
-            receivedAt: TestFixtures.now,
+            allocatedToBudgetMinorUnits: allocatedToBudgetMinorUnits,
+            allocatedToSavingsMinorUnits: allocatedToSavingsMinorUnits,
+            receivedAt: receivedAt,
             receivedTimeZoneIdentifier: "UTC",
             createdAt: createdAt,
             updatedAt: updatedAt
         )
     }
 
-    private func expenseDraft() -> ExpenseDraft {
+    private func expenseDraft(
+        amountMinorUnits: Int64 = 1_250,
+        category: ExpenseCategory = .food,
+        at date: Date = TestFixtures.now,
+        createdAt: Date = TestFixtures.now,
+        isRecurring: Bool = false,
+        timeZoneIdentifier: String = "UTC",
+        calendarIdentifier: Calendar.Identifier = .gregorian
+    ) -> ExpenseDraft {
         ExpenseDraft(
             id: UUID(),
-            amount: Money(minorUnits: 1_250, currencyCode: "USD"),
-            category: .food,
-            bucket: .discretionary,
+            amount: Money(minorUnits: amountMinorUnits, currencyCode: "USD"),
+            category: category,
+            bucket: isRecurring ? .fixed : .discretionary,
             merchantName: "Cafe",
             note: nil,
-            spentAt: TestFixtures.now,
-            spentTimeZoneIdentifier: "UTC",
-            createdAt: TestFixtures.now,
-            updatedAt: TestFixtures.now,
+            spentAt: date,
+            spentTimeZoneIdentifier: timeZoneIdentifier,
+            createdAt: createdAt,
+            updatedAt: createdAt,
             paymentMethod: nil,
             emotionTag: nil,
             purchaseReason: .need,
             isPlanned: false,
-            isRecurring: false,
+            isRecurring: isRecurring,
             source: .manual,
-            allowMerchantIndexing: false
+            allowMerchantIndexing: false,
+            recurrenceCalendarIdentifier: calendarIdentifier
+        )
+    }
+
+    private func date(
+        _ year: Int,
+        _ month: Int,
+        _ day: Int,
+        _ hour: Int,
+        _ minute: Int,
+        calendar: Calendar
+    ) throws -> Date {
+        try #require(
+            calendar.date(
+                from: DateComponents(
+                    year: year,
+                    month: month,
+                    day: day,
+                    hour: hour,
+                    minute: minute
+                )
+            )
         )
     }
 

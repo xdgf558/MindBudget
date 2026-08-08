@@ -1622,3 +1622,51 @@ and the copy remains accurate for both exhausted and sub-minor-unit-per-day flex
 
 Files affected: budget pace presentation facts and tests, Today card, bilingual copy, release/test
 notes, project memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Make language, income allocation, savings progress, and recurrence explicit V3 facts
+
+Context: After free-tier completion, the owner requested an app-local Chinese/English switch,
+support for multiple incomes in planning, a total savings goal, and monthly fixed-expense
+automation. These requests affect locale ownership, budget permission, cross-cycle state, and
+calendar scheduling. Directly adding allocation fields to the shipped Schema V2 `Income` model
+would also change that schema's fingerprint and put existing TestFlight stores at migration risk.
+
+Decision: Persist one extensible app-language raw value with Follow System, Simplified Chinese, and
+English. Inject its locale at the SwiftUI root and use it for deterministic Ask/templates,
+formatting, app-owned notification and Spotlight reconciliation, localized ledger search, and
+export filenames. Keep Siri's own surface governed by the system/Siri locale.
+
+Recording an income remains a ledger fact and grants no spending permission by itself. Store any
+owner-confirmed spending and savings portions in a new Schema V3 `IncomeAllocation` companion row;
+require both values to be nonnegative and their checked sum not to exceed the income. Only the
+spending portion increases the deterministic budget of the cycle containing that income. Store one
+independent cross-cycle `SavingsGoal` whose progress is its starting balance plus confirmed savings
+allocations; do not repurpose `BudgetPlan.savingGoalMinorUnits`, which remains a cycle reservation.
+
+A monthly fixed-expense rule begins only when the owner confirms the recurring toggle. Its anchor
+uses the recorded local day/time and time-zone identifier, clamping days 29–31 to the last valid
+day of shorter months. Reconciliation runs on prepare and foreground, generates a fixed/planned
+expense and stable year-month occurrence identity atomically, and is bounded to 120 occurrences.
+Edits affect future occurrences; pause/resume advances `activeSince` so paused months are not
+backfilled. Deleting a rule never deletes generated ledger history, and editing a generated entry
+cannot create a second rule.
+
+Alternatives considered: Mutating the budget for every income automatically; treating all income
+as spendable; relabeling the cycle reservation as a lifetime savings target; modifying Schema V2's
+Income fields in place; using timer/background promises for exact due-time insertion; storing
+recurrence as 30-day seconds; silently backfilling months before confirmation or during a pause;
+or deleting generated expenses with their rule.
+
+Consequences: Existing V2 income migrates with an exact zero allocation rather than an invented
+choice. The Today and Ask budget facts can reflect extra income only after explicit allocation.
+Savings progress survives cycle changes without changing cycle arithmetic. Recurring expenses are
+honest about app execution limits, deterministic across DST/month ends, and idempotent after long
+closures. Schema V3 adds `IncomeAllocation`, `SavingsGoal`, `RecurringFixedExpenseRule`, and
+`RecurringExpenseOccurrence`; CSV and verified Delete All include the new records. Candidate
+version is `0.9.4 (5)` and TestFlight remains paused until PR #18 is reviewed.
+
+Files affected: language settings/root environment and integration reconciliation, Schema V3 and
+migration plan, income/budget/savings/recurring actor paths, forms and Settings hierarchy, CSV and
+privacy deletion, bilingual copy, release metadata, tests, task memory, changelog, and session log.

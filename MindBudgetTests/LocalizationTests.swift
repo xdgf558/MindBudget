@@ -188,19 +188,19 @@ struct LocalizationTests {
 
     @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
-        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.2")
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.4")
 
-        #expect(presentation.current?.version == "0.9.2")
+        #expect(presentation.current?.version == "0.9.4")
         #expect(presentation.current?.items.isEmpty == false)
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
-                "settings.releaseNotes.incomeLedger"
+                "settings.releaseNotes.appLanguage"
             ) == true
         )
-        #expect(presentation.history.map(\.version) == ["0.9.1", "0.9.0"])
+        #expect(presentation.history.map(\.version) == ["0.9.2", "0.9.1", "0.9.0"])
 
         let future = ReleaseNotesVersion(
-            version: "0.9.3",
+            version: "0.9.5",
             items: [
                 ReleaseNoteItem(
                     systemImage: "sparkles",
@@ -209,12 +209,41 @@ struct LocalizationTests {
             ]
         )
         let nextPresentation = ReleaseNotesCatalog.presentation(
-            installedVersion: "0.9.3",
+            installedVersion: "0.9.5",
             versions: [future] + ReleaseNotesCatalog.versions
         )
 
-        #expect(nextPresentation.current?.version == "0.9.3")
-        #expect(nextPresentation.history.map(\.version) == ["0.9.2", "0.9.1", "0.9.0"])
+        #expect(nextPresentation.current?.version == "0.9.5")
+        #expect(
+            nextPresentation.history.map(\.version) == ["0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+        )
+    }
+
+    @Test
+    func phaseTwelveLanguageAndPlanningCopyResolvesInBothCatalogs() throws {
+        let english = try localizedStrings(language: "en")
+        let chinese = try localizedStrings(language: "zh-Hans")
+        let keys = [
+            "settings.language.system",
+            "settings.language.zh-Hans",
+            "settings.language.en",
+            "income.allocation.budget",
+            "income.allocation.savings",
+            "settings.savingsGoal.title",
+            "settings.recurring.title",
+            "expense.recurring.monthly",
+            "settings.releaseNotes.appLanguage",
+            "settings.releaseNotes.incomeAllocation",
+            "settings.releaseNotes.globalSavingsGoal",
+            "settings.releaseNotes.recurringFixedExpenses",
+        ]
+
+        for key in keys {
+            #expect(english[key]?.isEmpty == false)
+            #expect(chinese[key]?.isEmpty == false)
+            #expect(english[key] != key)
+            #expect(chinese[key] != key)
+        }
     }
 
     private func localizedStrings(language: String) throws -> [String: String] {

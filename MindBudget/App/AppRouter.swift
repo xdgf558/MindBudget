@@ -50,6 +50,7 @@ final class AppSession: ObservableObject {
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
     @Published private(set) var appLockState: AppLockState
     @Published private(set) var appLockOperationError: AppLockOperationError?
+    @Published private(set) var recurringExpenseReconciliationFailed = false
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
 
     var notificationDataIntegrityWarning: Bool {
@@ -158,11 +159,31 @@ final class AppSession: ObservableObject {
                 settings.currencyCode = existingPlan.currencyCode
                 settings.firstLaunchCompleted = true
             }
+            _ = await reconcileRecurringExpenses()
             preparationFailed = false
         } catch {
             preparationFailed = true
         }
         isPrepared = true
+    }
+
+    @discardableResult
+    func reconcileRecurringExpenses(
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> Int {
+        do {
+            let count = try await dataActor.reconcileRecurringFixedExpenses(
+                through: now,
+                calendar: calendar
+            )
+            recurringExpenseReconciliationFailed = false
+            if count > 0 { dataDidChange() }
+            return count
+        } catch {
+            recurringExpenseReconciliationFailed = true
+            return 0
+        }
     }
 
     func dataDidChange() {
@@ -606,10 +627,13 @@ private struct MainTabView: View {
         .tint(theme.accent)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                session.dataDidChange()
+                Task {
+                    _ = await session.reconcileRecurringExpenses(calendar: calendar)
+                    session.dataDidChange()
+                }
             }
         }
-        .task(id: session.revision) {
+        .task(id: "\(session.revision)|\(locale.identifier)") {
             async let notifications: Bool = session.reconcileNotifications(
                 settings: settings,
                 locale: locale,

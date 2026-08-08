@@ -4,23 +4,19 @@ import UniformTypeIdentifiers
 
 private struct LedgerCSVFile: Transferable, Sendable {
     let data: Data
+    let suggestedFileName: String
 
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(exportedContentType: .commaSeparatedText) { file in
             file.data
         }
-        .suggestedFileName { _ in
-            Bundle.main.localizedString(
-                forKey: "export.filename.value",
-                value: nil,
-                table: nil
-            )
-        }
+        .suggestedFileName { $0.suggestedFileName }
     }
 }
 
 struct ExportDataView: View {
     let dataActor: DataActor
+    @Environment(\.locale) private var locale
 
     @State private var exportFile: LedgerCSVFile?
     @State private var rowCount = 0
@@ -84,7 +80,13 @@ struct ExportDataView: View {
                 expenses: expenses,
                 incomes: incomes
             )
-            exportFile = LedgerCSVFile(data: result.data)
+            exportFile = LedgerCSVFile(
+                data: result.data,
+                suggestedFileName: LocalizedCatalog.string(
+                    "export.filename.value",
+                    locale: locale
+                )
+            )
             rowCount = result.rowCount
         } catch {
             exportFile = nil

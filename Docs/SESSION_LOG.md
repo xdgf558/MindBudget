@@ -2337,3 +2337,47 @@ service remains above the 85% coverage gate.
 
 Next suggested task: Re-review the focused correction on draft PR #17 before any merge or
 TestFlight work.
+
+## 2026-08-08 — Session 58 — Complete Phase 12 and prepare PR 18
+
+Goal: Implement the owner-approved app-language, explicit income-allocation, total savings-goal,
+and monthly recurring fixed-expense scope as a separately migrated and reviewable PR #18, while
+keeping TestFlight paused and promoting the internal candidate to `0.9.4 (5)`.
+
+Files changed: Schema V3 models and migration, DataActor and transfer projections, BudgetEngine,
+income and expense entry flows, Settings and app locale plumbing, CSV export and privacy controls,
+bilingual string catalog, release-note catalog and version metadata, unit/UI/migration tests,
+release scripts and documentation memory.
+
+What was completed: Settings now offers an extensible Follow System / Simplified Chinese / English
+language choice that drives the SwiftUI locale, deterministic Ask/template formatting, localized
+search and export filenames, and triggers app-owned notification/Spotlight reconciliation. Each
+income remains an independent exact ledger row and may optionally allocate owner-entered portions
+to the containing cycle's spending budget and/or the separate total savings goal; recording income
+alone still cannot increase spending permission, and the allocation sum cannot exceed the income.
+The total savings goal stores one cross-cycle target and starting balance, with progress calculated
+from confirmed savings allocations rather than reinterpreting the existing per-cycle reservation.
+User-confirmed monthly fixed-expense rules now preserve their calendar and time zone, clamp short
+months, use stable rule/month occurrence identities, reconcile missed dates idempotently, and
+support edit, pause, resume, and delete while preserving ledger history. Reconciliation is capped
+at 120 generated occurrences and rolls back atomically on overflow. Schema V3 adds only companion
+models, preserving the shipped Schema V2 Income shape; migration tests verify existing income rows
+remain intact with zero invented allocation. CSV disclosure/export and Delete All cover every new
+model. The installed candidate and localized About notes identify version `0.9.4`, build `5`.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, build processing, tester assignment, PR merge, or deferred replacement app-icon
+work was performed.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build and the
+full Debug validation. All 242 Swift Testing tests and all 12 end-to-end/localization UI tests
+passed with zero failures. A first full UI run exposed only an outdated test assumption that a
+newly lower budget preview remained onscreen; the test now scrolls to that existing element, and
+the complete suite passed without retry-on-failure masking.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual catalog JSON,
+and core-service coverage gates pass. Every selected core service remains above 85%, ranging from
+CSV export at 87.60% through CurrencyFormatterService at 100%; BudgetEngine is 93.90%.
+
+Next suggested task: Review draft PR #18. After owner approval and merge, decide whether to replace
+the deferred app-icon assets before explicitly resuming Archive and TestFlight work.

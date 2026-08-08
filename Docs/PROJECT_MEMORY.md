@@ -42,12 +42,11 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
 trial, or visible paid-feature placeholder.
-The owner-approved next development phase is intentionally deferred until PR #17 is reviewed. It
-will cover an extensible in-app language choice (system, Simplified Chinese, and English), an
-explicit relationship between multiple recorded incomes and budget planning, a cross-cycle total
+Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
+explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
-recurring fixed-expense rules. None of those behaviors is included in the current TestFlight
-candidate.
+recurring fixed-expense rules. The candidate is version `0.9.4 (5)` and remains unuploaded until
+PR #18 review and the release checklist authorize TestFlight.
 The production icon uses the owner-approved budget-track mark with standard green-gradient,
 dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -109,12 +108,24 @@ app's private data are forbidden in V1.
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
 - Internal TestFlight started with candidate `0.9.0 (1)`; build `0.9.2 (3)` completed the free
-  tier and was uploaded, while the current replacement candidate is `0.9.2 (4)`. Replacement
+  tier and was uploaded, while the current development candidate is `0.9.4 (5)`. Replacement
   uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
   installed marketing version.
+- App language is an app-owned persisted preference with Follow System, Simplified Chinese, and
+  English choices. It drives SwiftUI, deterministic Ask/templates, formatting, app-owned
+  notifications, Spotlight wording, localized search, and export filenames without changing the
+  iPhone language.
+- Recording income alone never increases spending permission. A V3 companion allocation record
+  stores only owner-confirmed portions for the containing cycle's spending budget and the separate
+  cross-cycle savings goal; their sum cannot exceed the income.
+- The total savings goal is one cross-cycle target plus optional starting balance. It does not
+  replace or reinterpret the per-cycle savings reservation in `BudgetPlan`.
+- Monthly recurring fixed-expense rules begin after explicit confirmation, use the saved calendar
+  day/local time with end-of-month clamping, reconcile each occurrence once by stable identity,
+  skip paused months after resume, and never delete ledger history when a rule is removed.
 - The iOS launch screen remains static. The optional brand motion is an app-owned cold-launch
   overlay, never a video or third-party animation, and its Debug UI-test hold cannot ship in Release.
 
@@ -131,10 +142,12 @@ app's private data are forbidden in V1.
 
 ## Current state
 
-Phases 0 through 9 and the pre-Phase-10 UI/UX design interlude are complete. The app opens a
-versioned persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1
-model types through a tested lightweight migration, with actor-isolated writes and Sendable
-projections.
+Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interlude are complete;
+Phase 10 retains its signed-device and distribution release gates. The app opens a versioned
+persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
+and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
+models through tested lightweight migrations without mutating the shipped V2 income shape. All
+writes remain actor-isolated and cross-boundary projections remain Sendable.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open
 cycle, and calculates reservations, safe daily spend, purchase impact, and category risk

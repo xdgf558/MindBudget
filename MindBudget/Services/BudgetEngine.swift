@@ -144,6 +144,26 @@ protocol BudgetCalculating: Sendable {
 
 struct BudgetEngine: BudgetCalculating, Sendable {
     func allocation(
+        baseTotalBudget: Money,
+        additionalBudget: Money,
+        fixedForecast: Money,
+        savingGoal: Money
+    ) throws -> BudgetAllocationSummary {
+        try requireCurrency(additionalBudget.currencyCode, matches: baseTotalBudget.currencyCode)
+        guard additionalBudget.minorUnits >= 0 else {
+            throw BudgetEngineError.invalidPlan
+        }
+        return try allocation(
+            totalBudget: money(
+                checkedAdd(baseTotalBudget.minorUnits, additionalBudget.minorUnits),
+                baseTotalBudget.currencyCode
+            ),
+            fixedForecast: fixedForecast,
+            savingGoal: savingGoal
+        )
+    }
+
+    func allocation(
         totalBudget: Money,
         fixedForecast: Money,
         savingGoal: Money
@@ -208,6 +228,7 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         }
         guard Money.isSupported(plan.currencyCode),
               plan.totalBudgetMinorUnits >= 0,
+              plan.allocatedIncomeMinorUnits >= 0,
               plan.fixedExpensesMinorUnits >= 0,
               plan.savingGoalMinorUnits >= 0 else {
             throw BudgetEngineError.invalidPlan
@@ -239,7 +260,10 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             }
         }
 
-        let totalBudget = plan.totalBudgetMinorUnits
+        let totalBudget = try checkedAdd(
+            plan.totalBudgetMinorUnits,
+            plan.allocatedIncomeMinorUnits
+        )
         let fixedForecast = plan.fixedExpensesMinorUnits
         let savingGoal = plan.savingGoalMinorUnits
         let allocation = try allocation(

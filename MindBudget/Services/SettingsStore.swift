@@ -1,6 +1,23 @@
 import Foundation
 import SwiftUI
 
+enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
+    case system
+    case simplifiedChinese = "zh-Hans"
+    case english = "en"
+
+    var id: String { rawValue }
+    var localizedNameKey: String { "settings.language.\(rawValue)" }
+
+    var locale: Locale? {
+        switch self {
+        case .system: nil
+        case .simplifiedChinese: Locale(identifier: "zh-Hans")
+        case .english: Locale(identifier: "en")
+        }
+    }
+}
+
 enum QuietHoursError: Error, Equatable, Sendable {
     case invalidHour
     case identicalBounds
@@ -60,6 +77,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
     @AppStorage var appSkinRaw: String
+    @AppStorage var appLanguageRaw: String
     @AppStorage private(set) var categoryBucketOverridesJSON: Data
     @AppStorage var ruleConfigurationJSON: Data {
         didSet { reloadRuleConfiguration() }
@@ -93,6 +111,11 @@ final class SettingsStore: ObservableObject {
             "appSkinRaw",
             store: defaults
         )
+        _appLanguageRaw = AppStorage(
+            wrappedValue: AppLanguage.system.rawValue,
+            "appLanguageRaw",
+            store: defaults
+        )
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)
         _ruleConfigurationJSON = AppStorage(wrappedValue: Data(), "ruleConfigurationJSON", store: defaults)
         configurationDiagnostic = nil
@@ -110,6 +133,14 @@ final class SettingsStore: ObservableObject {
 
     var appSkin: AppSkin {
         AppSkin(rawValue: appSkinRaw) ?? .defaultSkin
+    }
+
+    var appLanguage: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .system
+    }
+
+    var selectedLocale: Locale {
+        appLanguage.locale ?? .autoupdatingCurrent
     }
 
     var preferencesSnapshot: PreferencesSnapshot {
@@ -243,6 +274,7 @@ final class SettingsStore: ObservableObject {
         indexMerchantNames = false
         budgetCycleStartDay = 1
         appSkinRaw = AppSkin.defaultSkin.rawValue
+        appLanguageRaw = AppLanguage.system.rawValue
         categoryBucketOverridesJSON = Data()
         ruleConfigurationJSON = Data()
         reloadBucketOverrides()

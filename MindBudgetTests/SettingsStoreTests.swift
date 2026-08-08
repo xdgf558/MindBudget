@@ -196,6 +196,26 @@ struct SettingsStoreTests {
     }
 
     @Test
+    func appLanguageDefaultsToSystemAndPersistsAnExplicitLocale() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+
+        #expect(store.appLanguage == .system)
+        store.appLanguageRaw = AppLanguage.simplifiedChinese.rawValue
+        let reloaded = SettingsStore(defaults: fixture.defaults)
+        #expect(reloaded.appLanguage == .simplifiedChinese)
+        #expect(reloaded.selectedLocale.identifier.hasPrefix("zh-Hans"))
+
+        reloaded.appLanguageRaw = AppLanguage.english.rawValue
+        #expect(reloaded.selectedLocale.identifier.hasPrefix("en"))
+
+        reloaded.appLanguageRaw = "future-language"
+        #expect(reloaded.appLanguage == .system)
+        #expect(reloaded.appLanguageRaw == "future-language")
+    }
+
+    @Test
     func everySkinShipsItsPortraitBackgroundArtwork() throws {
         for skin in AppSkin.allCases {
             let image = try #require(UIImage(named: skin.backgroundAssetName))
