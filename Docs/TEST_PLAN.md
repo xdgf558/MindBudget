@@ -422,7 +422,9 @@ reconstructs that calendar day's starting flexible amount before division, so ea
 entry reduces the displayed amount one for one without double subtraction. The visible amount
 must clamp at zero; exact overage remains available for a localized icon, text, and VoiceOver
 notice, so red is never the only signal. Fixed and savings-bucket entries do not consume this
-daily flexible amount.
+daily flexible amount. If the cycle cannot provide even one minor unit of daily flexible allowance
+before any spending today, the zero must use the attention color and expose a neutral localized
+explanation rather than appearing without context.
 The expense form must expose every persisted expense category in one horizontally scrollable
 selector, keep deterministic ordering, center the selected item, and announce its selected trait.
 The Simplified Chinese Log filter must render `全部` / `支出` / `收入` for record type and

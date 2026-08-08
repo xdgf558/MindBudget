@@ -419,7 +419,7 @@ private struct TodayPaceCard: View {
                         font: .system(size: 46, weight: .bold, design: .rounded),
                         weight: .bold
                     )
-                    .foregroundStyle(pace.hasUsedDailyAllowance
+                    .foregroundStyle(pace.hasUsedDailyAllowance || pace.hasNoDailyAllowance
                         ? theme.destructive
                         : theme.ink)
                     HStack(spacing: 5) {
@@ -432,9 +432,11 @@ private struct TodayPaceCard: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("dashboard.today.left")
 
-                if pace.hasUsedDailyAllowance {
+                if pace.hasUsedDailyAllowance || pace.hasNoDailyAllowance {
                     Label {
-                        if pace.hasExceededDailyAllowance {
+                        if pace.hasNoDailyAllowance {
+                            Text("dashboard.today.noAllowance")
+                        } else if pace.hasExceededDailyAllowance {
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 4) {
                                     Text("dashboard.today.exceeded")

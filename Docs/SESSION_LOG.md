@@ -2304,3 +2304,36 @@ BudgetEngine at 93.80%.
 Next suggested task: Review the updated draft PR #17. After approval and merge, begin Phase 12 on a
 new branch and publish its completed, migrated, fully validated implementation as PR #18; do not
 resume TestFlight until the owner explicitly asks after that review.
+
+## 2026-08-08 — Session 57 — Explain a zero allowance before today's first expense
+
+Goal: Address PR #17 review feedback that a cycle with no distributable flexible allowance could
+show an unexplained zero before the user recorded any expense that day.
+
+Files changed: budget pace presentation facts and tests, Today card, bilingual catalog and
+localization coverage, Chinese UI regression, current release/TestFlight notes, project/test/
+decision memory, changelog, and this session log.
+
+What was completed: `BudgetPaceSummary` now distinguishes a pre-spend zero daily allowance from an
+allowance used or exceeded by today's expenses. Today renders that zero with the existing attention
+color, icon, and a neutral localized explanation that the current cycle has no distributable daily
+flexible amount. The wording deliberately avoids claiming the whole flexible balance is exhausted,
+because exact integer division can also produce a zero daily amount when a smaller balance remains.
+Engine coverage fixes the zero/zero/no-expense boundary, bilingual bundle coverage fixes the exact
+copy, and the existing Simplified Chinese onboarding path now exercises the fully allocated plan
+and verifies the visible notice.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, PR #18 implementation, Schema V3 change, merge, or version/build
+promotion was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded. The first sandboxed attempt could not access DerivedData or
+CoreSimulator; rerunning the unchanged validation with normal local Xcode permissions passed.
+
+Test result: pass — 231 Swift Testing tests across 17 suites and all 12 end-to-end/localization UI
+tests completed with zero failures. BudgetEngine coverage is 93.87%, and every selected core
+service remains above the 85% coverage gate.
+
+Next suggested task: Re-review the focused correction on draft PR #17 before any merge or
+TestFlight work.

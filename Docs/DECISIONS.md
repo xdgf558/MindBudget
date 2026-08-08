@@ -1596,3 +1596,29 @@ decision alone.
 
 Files affected: Log filter localization, enum localization keys, unit/UI tests, current release
 notes, TestFlight guidance, Phase 12 task scope, project memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Explain a zero daily amount even before same-day spending
+
+Context: PR #17 review found that a cycle with no distributable flexible allowance and no spending
+today produced a bare zero on Today. The existing flags explained only an allowance that had been
+used or exceeded through same-day spending, leaving the most constrained pre-spend state without
+context.
+
+Decision: Derive a separate `hasNoDailyAllowance` presentation fact when the deterministic
+start-of-day allowance is zero and no discretionary expense has been recorded today. Display the
+zero with the existing attention color, icon, and a localized neutral explanation that the cycle
+currently provides no daily flexible amount. Do not claim that all flexible money is gone, because
+an amount smaller than one minor unit per remaining day can also round the integer daily reference
+to zero.
+
+Alternatives considered: Leaving the zero unexplained, reusing the “used today” wording, describing
+the user as over budget, moving the condition into SwiftUI, or restoring a negative primary amount.
+
+Consequences: Available, exactly used, exceeded, and unavailable-before-spending states remain
+distinguishable without changing signed cycle-level budget facts. Color is never the sole signal,
+and the copy remains accurate for both exhausted and sub-minor-unit-per-day flexible balances.
+
+Files affected: budget pace presentation facts and tests, Today card, bilingual copy, release/test
+notes, project memory, changelog, and session log.

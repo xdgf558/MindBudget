@@ -30,6 +30,9 @@ What to test:
 - Spend exactly the remaining daily amount and confirm Today displays zero in red with a localized
   “fully used” explanation. Spend beyond it and confirm the value stays at zero while a separate
   localized line shows the exact amount above today's reference; no negative amount may appear.
+- Configure a cycle whose flexible budget is fully reserved before recording anything today.
+  Confirm Today displays zero in the attention color together with the localized explanation that
+  no daily amount is currently available; the zero must never appear without context.
 - Open Add Expense and swipe the category selector from the first category through the final
   category. Select an offscreen category, confirm it receives the selected appearance and VoiceOver
   state, save, and confirm the chosen category appears in Today and Log.

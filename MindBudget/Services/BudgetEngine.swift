@@ -103,6 +103,12 @@ struct BudgetPaceSummary: Sendable, Equatable {
     var hasExceededDailyAllowance: Bool {
         exceededDailyAllowanceBy.minorUnits > 0
     }
+
+    /// The current cycle cannot provide even one minor unit for today's reference amount.
+    /// This is distinct from using or exceeding an allowance through spending today.
+    var hasNoDailyAllowance: Bool {
+        startingDailyAllowance.minorUnits == 0 && spentToday.minorUnits == 0
+    }
 }
 
 struct BudgetAllocationSummary: Sendable, Equatable {

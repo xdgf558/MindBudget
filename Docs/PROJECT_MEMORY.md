@@ -139,7 +139,9 @@ The pure `BudgetEngine` exposes an unconfigured/configured enum so configured me
 nonoptional, validates that current-budget reference dates remain inside the half-open
 cycle, and calculates reservations, safe daily spend, purchase impact, and category risk
 using checked `Int64` and `Decimal` arithmetic. It also derives the Today screen's daily-spend
-pace and remaining-today facts without moving financial arithmetic into SwiftUI. Free-budget
+pace and remaining-today facts without moving financial arithmetic into SwiftUI. A zero daily
+amount is always explained, including when the cycle has no currently distributable flexible
+allowance before the user records anything that day. Free-budget
 ratios exist only for
 discretionary spending with a real positive baseline. Calendar-injected cycle calculation
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit

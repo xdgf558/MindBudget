@@ -166,6 +166,27 @@ struct LocalizationTests {
     }
 
     @Test
+    func unavailableDailyAllowanceExplanationIsLocalizedWithoutJudgment() throws {
+        let english = try localizedBundle(language: "en")
+        let chinese = try localizedBundle(language: "zh-Hans")
+
+        #expect(
+            english.localizedString(
+                forKey: "dashboard.today.noAllowance",
+                value: nil,
+                table: nil
+            ) == "No daily amount is currently available from this cycle's flexible budget."
+        )
+        #expect(
+            chinese.localizedString(
+                forKey: "dashboard.today.noAllowance",
+                value: nil,
+                table: nil
+            ) == "本周期灵活预算暂无可分配的今日额度。"
+        )
+    }
+
+    @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
         let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.2")
 
