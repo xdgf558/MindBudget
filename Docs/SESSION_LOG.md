@@ -2140,3 +2140,27 @@ CurrencyFormatterService at 100%.
 Next suggested task: Re-review the updated PR #16 and merge it after approval, then install the
 unchanged `0.9.2 (3)` candidate on the signed physical iPhone for final device verification before
 Archive.
+
+## 2026-08-08 — Session 52 — Reinstall the reviewed candidate on the physical iPhone
+
+Goal: Rebuild and reinstall the latest PR #16 candidate on the connected physical iPhone for
+continued owner testing without clearing its local data.
+
+Files changed: Session memory only.
+
+What was completed: Commit `5f0dcd5` was built as a signed Debug iPhoneOS app with Xcode 26.6,
+bundle `com.xdgf558.MindBudget`, version `0.9.2 (3)`, and current team `2AM5S7BM2N`. The resulting
+app was installed in place on the connected physical “拉沙的 iPhone”; no uninstall or container
+reset was performed, so the existing local budget and ledger data should remain available.
+
+What was NOT completed: The remote launch request was denied because the iPhone was locked. No
+production Archive, App Store Connect upload, TestFlight assignment, merge, version/build-number
+change, or user-data deletion was performed.
+
+Build result: pass — current-team signed physical-iPhone Debug build completed successfully.
+
+Test result: not rerun for this installation-only session. The installed code commit had already
+passed 227 Swift Testing tests, all 11 UI tests, the full local validation script, and GitHub CI.
+
+Next suggested task: Unlock the iPhone, open 花有数 manually, and continue the PR #16 device
+walkthrough with the preserved local store.
