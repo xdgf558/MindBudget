@@ -110,7 +110,54 @@ struct BudgetEngineTests {
 
         #expect(snapshot.freeBudget.minorUnits == 250_000)
         #expect(snapshot.daysRemaining == 25)
+        #expect(pace.startingDailyAllowance.minorUnits == 10_000)
         #expect(pace.leftToSpendToday.minorUnits == 10_000)
+        #expect(pace.exceededDailyAllowanceBy.minorUnits == 0)
+        #expect(!pace.hasUsedDailyAllowance)
+        #expect(!pace.hasNoDailyAllowance)
+    }
+
+    @Test
+    func zeroFlexibleBudgetExplainsMissingDailyAllowanceBeforeSpendingToday() throws {
+        let calendar = TestFixtures.utcCalendar
+        let start = try date(2026, 8, 1, calendar: calendar)
+        let end = try date(2026, 9, 1, calendar: calendar)
+        let now = try date(2026, 8, 7, calendar: calendar)
+        let plan = BudgetPlanSummary(
+            id: UUID(),
+            cycleStart: start,
+            cycleEnd: end,
+            currencyCode: "CNY",
+            monthlyIncomeMinorUnits: 600_000,
+            totalBudgetMinorUnits: 250_000,
+            fixedExpensesMinorUnits: 200_000,
+            savingGoalMinorUnits: 50_000,
+            categoryBudgets: []
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: DateInterval(start: start, end: end),
+                currencyCode: "CNY",
+                expenses: [],
+                plan: plan,
+                now: now,
+                calendar: calendar
+            )
+        )
+        let pace = try engine.pace(
+            snapshot: snapshot,
+            expenses: [],
+            now: now,
+            calendar: calendar
+        )
+
+        #expect(snapshot.remainingFree.minorUnits == 0)
+        #expect(pace.startingDailyAllowance.minorUnits == 0)
+        #expect(pace.leftToSpendToday.minorUnits == 0)
+        #expect(pace.exceededDailyAllowanceBy.minorUnits == 0)
+        #expect(pace.hasNoDailyAllowance)
+        #expect(!pace.hasUsedDailyAllowance)
+        #expect(!pace.hasExceededDailyAllowance)
     }
 
     @Test
@@ -310,13 +357,107 @@ struct BudgetEngineTests {
         )
 
         #expect(pace.spentToday.minorUnits == 12_000)
-        #expect(pace.leftToSpendToday == snapshot.safeDailySpend)
-        #expect(pace.leftToSpendToday.minorUnits == 9_833)
+        #expect(pace.startingDailyAllowance.minorUnits == 10_833)
+        #expect(pace.leftToSpendToday.minorUnits == 0)
+        #expect(pace.exceededDailyAllowanceBy.minorUnits == 1_167)
+        #expect(pace.hasUsedDailyAllowance)
+        #expect(pace.hasExceededDailyAllowance)
         #expect(pace.expectedSpentByToday.minorUnits == 96_774)
         #expect(pace.paceDifference.minorUnits == 64_774)
         #expect(!pace.isAheadOfPace)
         #expect(pace.dayNumber == 20)
         #expect(pace.totalDays == 31)
+    }
+
+    @Test
+    func eachDiscretionaryEntryReducesTodaysAmountOneForOne() throws {
+        let context = try makeContext()
+        let previousDay = try #require(
+            context.calendar.date(byAdding: .day, value: -1, to: context.day20)
+        )
+        let priorExpenses = [
+            expense(
+                amount: 20_000,
+                category: .food,
+                bucket: .discretionary,
+                at: previousDay
+            )
+        ]
+        let todaysExpense = expense(
+            amount: 5_000,
+            category: .coffee,
+            bucket: .discretionary,
+            at: context.day20
+        )
+        let exactAllowanceExpense = expense(
+            amount: 10_833,
+            category: .coffee,
+            bucket: .discretionary,
+            at: context.day20
+        )
+
+        let beforeSnapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: priorExpenses,
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+        let afterSnapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: priorExpenses + [todaysExpense],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+        let before = try engine.pace(
+            snapshot: beforeSnapshot,
+            expenses: priorExpenses,
+            now: context.day20,
+            calendar: context.calendar
+        )
+        let after = try engine.pace(
+            snapshot: afterSnapshot,
+            expenses: priorExpenses + [todaysExpense],
+            now: context.day20,
+            calendar: context.calendar
+        )
+        let exactSnapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: priorExpenses + [exactAllowanceExpense],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+        let exact = try engine.pace(
+            snapshot: exactSnapshot,
+            expenses: priorExpenses + [exactAllowanceExpense],
+            now: context.day20,
+            calendar: context.calendar
+        )
+
+        #expect(before.startingDailyAllowance == after.startingDailyAllowance)
+        #expect(before.leftToSpendToday.minorUnits == 10_833)
+        #expect(after.leftToSpendToday.minorUnits == 5_833)
+        #expect(
+            before.leftToSpendToday.minorUnits - after.leftToSpendToday.minorUnits
+                == todaysExpense.amount.minorUnits
+        )
+        #expect(after.exceededDailyAllowanceBy.minorUnits == 0)
+        #expect(exact.startingDailyAllowance.minorUnits == 10_833)
+        #expect(exact.leftToSpendToday.minorUnits == 0)
+        #expect(exact.exceededDailyAllowanceBy.minorUnits == 0)
+        #expect(exact.hasUsedDailyAllowance)
+        #expect(!exact.hasExceededDailyAllowance)
     }
 
     @Test
@@ -346,7 +487,9 @@ struct BudgetEngineTests {
         #expect(pace.dayNumber == 31)
         #expect(pace.totalDays == 31)
         #expect(pace.expectedSpentByToday.minorUnits == 150_000)
+        #expect(pace.startingDailyAllowance.minorUnits == 150_000)
         #expect(pace.leftToSpendToday.minorUnits == 150_000)
+        #expect(pace.exceededDailyAllowanceBy.minorUnits == 0)
         #expect(pace.paceDifference.minorUnits == 150_000)
         #expect(!pace.isAheadOfPace)
     }

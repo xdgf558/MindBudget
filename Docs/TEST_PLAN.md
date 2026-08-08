@@ -411,14 +411,25 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.2` for candidate build 3, and expose the localized update summary.
+from the built bundle, render `0.9.2` for candidate build 4, and expose the localized update summary.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
 Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
 available flexible amount from a zero budget, a fully reserved budget, and an overcommitted plan.
 For a CNY 6,000 spending budget with CNY 3,000 fixed expenses and a CNY 500 saving goal on day 7
-of a 31-day cycle, Today must expose CNY 100 for 25 remaining days before any expense. After an
-entry, Today uses the newly balanced `safeDailySpend`; it does not subtract that entry twice.
+of a 31-day cycle, Today must expose CNY 100 for 25 remaining days before any expense. The engine
+reconstructs that calendar day's starting flexible amount before division, so each discretionary
+entry reduces the displayed amount one for one without double subtraction. The visible amount
+must clamp at zero; exact overage remains available for a localized icon, text, and VoiceOver
+notice, so red is never the only signal. Fixed and savings-bucket entries do not consume this
+daily flexible amount. If the cycle cannot provide even one minor unit of daily flexible allowance
+before any spending today, the zero must use the attention color and expose a neutral localized
+explanation rather than appearing without context.
+The expense form must expose every persisted expense category in one horizontally scrollable
+selector, keep deterministic ordering, center the selected item, and announce its selected trait.
+The Simplified Chinese Log filter must render `全部` / `支出` / `收入` for record type and
+`固定` / `灵活` / `储蓄` for budget type. Runtime option types own stable localization keys;
+neither `ledger.type.*` nor `bucket.*` may be visible in Debug, Release, or TestFlight builds.
 The release-readiness gate must reject a version/build without matching dated changelog and
 TestFlight-note sections.
 

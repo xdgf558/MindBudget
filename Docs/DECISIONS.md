@@ -1529,3 +1529,96 @@ coverage preloads a stale cooling-success row before introducing a corrupt cooli
 
 Files affected: Insights state and presentation, Phase 11 regression coverage, AI prompt and test
 contracts, current release/TestFlight notes, changelog, project memory, and session log.
+
+---
+
+## 2026-08-08 — Anchor today's allowance and expose every expense category in one swipe
+
+Context: Signed-device review showed that a newly recorded expense barely changed "Left to spend
+today." The old presentation reused the post-entry `safeDailySpend`, which redistributed the
+expense across every remaining day instead of making today's card respond to the amount just
+recorded. The expense form also showed only a short category subset and moved the remaining
+categories into a separate modal list.
+
+Decision: Reconstruct the flexible amount available at the start of the local calendar day by
+adding today's already-counted discretionary expenses back to the authoritative remaining amount,
+divide that start-of-day amount by the remaining calendar days, and subtract today's discretionary
+expenses exactly once. Clamp the visible result at zero and retain any exact overage in a separate
+`Money` value for explanation. A used or exceeded amount uses the destructive color only together
+with an icon, localized gentle text, and a combined VoiceOver value. Fixed and savings-bucket
+expenses do not consume this flexible daily reference. Present all persisted expense categories in
+stable enum order within one horizontally scrollable selector, center the selected category, and
+announce its selected accessibility trait.
+
+Alternatives considered: Continuing to display the newly rebalanced `safeDailySpend`, subtracting
+today's expenses directly from that already-reduced value, showing a negative primary amount,
+deriving the correction in SwiftUI, retaining the five-item shortcut row plus a modal full list,
+or paging categories into arbitrary groups.
+
+Consequences: Every new flexible expense changes Today's amount one for one until it reaches zero,
+while exact checked minor-unit arithmetic and calendar-day semantics remain in `BudgetEngine`.
+The UI never displays a negative "can spend" value, but it does not hide an overage: the amount and
+gentle explanation remain available separately. Category selection now requires horizontal
+scrolling for later items, so UI and signed-device accessibility checks must verify swipe reach,
+selection state, dynamic type, and VoiceOver order. Replacement TestFlight build `0.9.2 (4)` carries
+the corrected behavior and synchronized release notes.
+
+Files affected: budget pace engine and tests, Today card, expense category selector and UI test,
+bilingual catalog, release metadata, changelog, test plan, task memory, and session log.
+
+---
+
+## 2026-08-08 — Keep the filter correction in PR 17 and defer the next product expansion to PR 18
+
+Context: Signed-device review exposed raw `ledger.type.*` values in the Log filter and raised four
+larger requests: an in-app Chinese/English switch, multiple recorded incomes reflected in planning,
+a cross-cycle total savings goal, and monthly recurring fixed expenses. The existing `0.9.2 (4)`
+PR is already a narrowly reviewed daily-allowance and category-interaction correction, while the
+larger requests affect locale ownership, money semantics, scheduling, and likely SwiftData schema.
+
+Decision: Fix record-type and budget-type localization on PR #17 using stable typed localization
+keys and bilingual runtime coverage. Keep TestFlight upload paused. Record the four larger requests
+as one new Phase 12 to be designed and implemented only after PR #17 review, then publish that work
+as PR #18. Preserve current behavior until then: income entries remain exact history and do not
+silently mutate a budget, and the existing savings amount remains a per-cycle reservation rather
+than being relabeled as a lifetime target.
+
+Alternatives considered: Uploading the raw-key build, folding all four product changes into PR #17,
+automatically increasing spending permission for every income, reusing the per-cycle savings
+reservation as a total goal, or promising exact background creation of monthly expenses while the
+app is suspended.
+
+Consequences: The visible localization defect can be reviewed independently with low migration
+risk. PR #18 must first define an extensible app-locale boundary, explicit income allocation,
+separate savings-goal semantics, recurring-rule deduplication and calendar behavior, and a tested
+Schema V3 migration if persistence changes. No Archive or TestFlight upload resumes from this
+decision alone.
+
+Files affected: Log filter localization, enum localization keys, unit/UI tests, current release
+notes, TestFlight guidance, Phase 12 task scope, project memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Explain a zero daily amount even before same-day spending
+
+Context: PR #17 review found that a cycle with no distributable flexible allowance and no spending
+today produced a bare zero on Today. The existing flags explained only an allowance that had been
+used or exceeded through same-day spending, leaving the most constrained pre-spend state without
+context.
+
+Decision: Derive a separate `hasNoDailyAllowance` presentation fact when the deterministic
+start-of-day allowance is zero and no discretionary expense has been recorded today. Display the
+zero with the existing attention color, icon, and a localized neutral explanation that the cycle
+currently provides no daily flexible amount. Do not claim that all flexible money is gone, because
+an amount smaller than one minor unit per remaining day can also round the integer daily reference
+to zero.
+
+Alternatives considered: Leaving the zero unexplained, reusing the “used today” wording, describing
+the user as over budget, moving the condition into SwiftUI, or restoring a negative primary amount.
+
+Consequences: Available, exactly used, exceeded, and unavailable-before-spending states remain
+distinguishable without changing signed cycle-level budget facts. Color is never the sole signal,
+and the copy remains accurate for both exhausted and sub-minor-unit-per-day flexible balances.
+
+Files affected: budget pace presentation facts and tests, Today card, bilingual copy, release/test
+notes, project memory, changelog, and session log.

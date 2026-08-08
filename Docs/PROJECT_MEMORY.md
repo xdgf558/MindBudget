@@ -42,6 +42,12 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
 trial, or visible paid-feature placeholder.
+The owner-approved next development phase is intentionally deferred until PR #17 is reviewed. It
+will cover an extensible in-app language choice (system, Simplified Chinese, and English), an
+explicit relationship between multiple recorded incomes and budget planning, a cross-cycle total
+savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
+recurring fixed-expense rules. None of those behaviors is included in the current TestFlight
+candidate.
 The production icon uses the owner-approved budget-track mark with standard green-gradient,
 dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -102,8 +108,9 @@ app's private data are forbidden in V1.
 - The shared project never commits an Apple Developer Team ID. Release signing and upload must
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
-- Internal TestFlight started with candidate `0.9.0 (1)`; the current free-tier-completion
-  candidate is `0.9.2 (3)`. Replacement uploads increment the build number, and owner-approved
+- Internal TestFlight started with candidate `0.9.0 (1)`; build `0.9.2 (3)` completed the free
+  tier and was uploaded, while the current replacement candidate is `0.9.2 (4)`. Replacement
+  uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
@@ -132,7 +139,9 @@ The pure `BudgetEngine` exposes an unconfigured/configured enum so configured me
 nonoptional, validates that current-budget reference dates remain inside the half-open
 cycle, and calculates reservations, safe daily spend, purchase impact, and category risk
 using checked `Int64` and `Decimal` arithmetic. It also derives the Today screen's daily-spend
-pace and remaining-today facts without moving financial arithmetic into SwiftUI. Free-budget
+pace and remaining-today facts without moving financial arithmetic into SwiftUI. A zero daily
+amount is always explained, including when the cycle has no currently distributable flexible
+allowance before the user records anything that day. Free-budget
 ratios exist only for
 discretionary spending with a real positive baseline. Calendar-injected cycle calculation
 covers custom start days, month-end clamping, leap years, DST, immutable history, explicit

@@ -2164,3 +2164,176 @@ passed 227 Swift Testing tests, all 11 UI tests, the full local validation scrip
 
 Next suggested task: Unlock the iPhone, open 花有数 manually, and continue the PR #16 device
 walkthrough with the preserved local store.
+
+## 2026-08-08 — Session 53 — Anchor Today's allowance and scroll every expense category
+
+Goal: Fix signed-device findings that a newly saved expense barely changed "Left to spend today"
+and that the expense category interaction did not scale cleanly to the complete category set.
+
+Files changed: budget pace engine and tests, Today pace card, expense category selector, Phase 3
+UI regression, bilingual strings, in-app release notes, version/build metadata, TestFlight and
+release-readiness notes, changelog, product/test/decision/task memory, and session memory.
+
+What was completed: `BudgetEngine` now reconstructs the flexible amount available at the start of
+the user's local calendar day, divides that amount across the remaining days, and subtracts every
+discretionary expense recorded today exactly once. The visible Today value clamps at zero while an
+exact positive overage remains available for explanation. Zero/overage presentation uses the
+destructive color together with an icon, localized gentle wording, and a combined VoiceOver value;
+fixed and savings-bucket expenses do not consume this flexible daily reference. Add Expense now
+places all 17 persisted categories in stable order inside one horizontally scrollable selector,
+centers programmatic selections, and exposes a selected accessibility trait. The old recent-category
+shortcut state and separate modal category list were removed. Replacement candidate metadata and
+release notes now identify `0.9.2 (4)`, preserving already-uploaded build 3 as history.
+
+What was NOT completed: No signed physical-iPhone install, Archive, Organizer validation, App Store
+Connect upload, TestFlight tester assignment, commit, push, PR creation, or merge was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded. An initial sandboxed validation attempt could not access DerivedData or
+CoreSimulator; rerunning with the normal local Xcode permissions completed successfully.
+
+Test result: pass — 228 Swift Testing tests across 17 suites and all 11 UI tests completed with zero
+failures. New deterministic coverage proves that a 5,000-minor-unit discretionary expense reduces
+Today's amount by exactly 5,000, and the end-to-end expense flow proves that Dashboard's accessible
+Today value changes after save, can swipe from the first category to the final `Other` category,
+announces selection, persists it, and shows it in Log.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual localization,
+asset/JSON/project parsing, and `git diff --check` pass. Every selected core service remains above
+the 85% gate; coverage ranges from CSV export at 87.20% through CurrencyFormatterService at 100%,
+with BudgetEngine at 93.80%.
+
+Next suggested task: Install the `0.9.2 (4)` branch build on the signed physical iPhone and verify
+one-for-one deduction, zero/overage wording, horizontal category swipe, Dynamic Type, and VoiceOver
+before opening the review PR or producing the replacement TestFlight Archive.
+
+## 2026-08-08 — Session 54 — Install the daily-allowance candidate on the physical iPhone
+
+Goal: Build and install the current `0.9.2 (4)` branch candidate on the connected physical iPhone
+so the owner can verify the anchored Today amount and horizontally scrollable category selector.
+
+Files changed: Session memory only.
+
+What was completed: Xcode 26.6 identified the paired physical “拉沙的iPhone” and built the current
+working tree as a signed Debug iPhoneOS app. The product reports bundle
+`com.xdgf558.MindBudget`, version `0.9.2 (4)`, and team `2AM5S7BM2N`. The app was installed in place;
+no uninstall or container reset was performed, so the existing local budget and ledger data should
+remain available.
+
+What was NOT completed: iOS denied the remote launch because the development profile has not yet
+been explicitly trusted or verified on the device. The owner must keep the phone online and finish
+the Development App trust/verification step in Settings before opening the app. No Archive, App
+Store Connect upload, TestFlight assignment, commit, push, PR creation, merge, or data deletion was
+performed.
+
+Build result: pass — current-team signed physical-iPhone Debug build completed successfully.
+
+Test result: not rerun for this installation-only session. The exact installed working tree had
+already passed 228 Swift Testing tests, all 11 UI tests, the complete validation script, release
+readiness, and the floating-point money policy before installation.
+
+Next suggested task: Complete the device trust/online verification step, open 花有数 manually, and
+test one-for-one Today deduction, zero/overage presentation, and the full horizontal category list.
+
+## 2026-08-08 — Session 55 — Publish the daily-allowance fix for review
+
+Goal: Pause the requested TestFlight upload and publish the current daily-allowance/category
+interaction candidate as a reviewable pull request before changing its marketing version.
+
+Files changed: Session memory only, in addition to the previously completed candidate diff.
+
+What was completed: Restored the owner's GitHub CLI authorization through the official device
+flow, committed the complete verified `0.9.2 (4)` working tree as `0850d64`, pushed branch
+`codex/daily-allowance-category-scroll`, and opened draft PR #17 against `main`. The PR describes
+the start-of-day allowance root cause, one-for-one deduction, zero/overage presentation, complete
+horizontal category selector, and full validation evidence.
+
+What was NOT completed: The requested `0.9.3` marketing-version promotion, new release notes,
+Archive, Organizer validation, App Store Connect upload, build processing, and TestFlight tester
+assignment were explicitly paused until the owner reviews and approves PR #17.
+
+Validation result: pass — the published commit had already passed 228 Swift Testing tests, all 11
+UI tests, the generic Release build, coverage gates, floating-point money policy, release-readiness
+checks, catalog parsing, and `git diff --check` before publication.
+
+Next suggested task: Review PR #17. After approval and merge, promote the next upload candidate to
+`0.9.3`, synchronize its in-app/changelog/TestFlight notes, validate, Archive under team
+`2AM5S7BM2N`, and upload build 4 to the existing App Store Connect record.
+
+## 2026-08-08 — Session 56 — Localize Log filters and reserve PR 18 scope
+
+Goal: Keep TestFlight paused, correct the signed-device raw localization keys inside PR #17, and
+record—but not implement—the owner-approved language/income/savings/recurring-expense work for a
+separate PR #18.
+
+Files changed: Log filter and expense detail presentation, typed budget/record localization keys,
+bilingual release-note catalog, localization and UI tests, current changelog/TestFlight guidance,
+test/product/task/decision memory, and this session log.
+
+What was completed: `LedgerRecordType` and `BudgetBucket` now own stable localization-key
+properties. The Log filter resolves all three record types and all three budget buckets through
+those typed keys, and expense detail uses the same budget-bucket boundary. Simplified Chinese now
+renders `全部` / `支出` / `收入` and `固定` / `灵活` / `储蓄` instead of catalog keys in Debug,
+Release, or TestFlight. Added deterministic bilingual bundle coverage plus an end-to-end Chinese UI
+test that opens the filter, checks every option, and rejects visible `ledger.type.*` / `bucket.*`
+text. Current `0.9.2 (4)` About, changelog, and tester notes disclose the correction.
+
+The requested app-language switch, explicit multiple-income planning relationship, cross-cycle
+total savings goal, and monthly recurring fixed-expense rules are recorded as Phase 12 Todo. The
+scope explicitly requires an extensible locale boundary, user-confirmed money allocation,
+separate savings semantics, calendar-safe deduplication, and a Schema V3 decision before code. No
+part of that larger product expansion was implemented or mixed into PR #17.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, PR #18 implementation, Schema V3 change, merge, or version/build
+promotion was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded.
+
+Test result: pass — 229 Swift Testing tests across 17 suites and all 12 end-to-end/localization UI
+tests completed with zero failures. The first targeted UI launch was refused by a busy simulator;
+after a clean simulator restart, the same test passed, followed by the complete suite without a
+retry-on-failure policy.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual catalog and
+JSON parsing, and `git diff --check` pass. Every selected core service remains above the 85% gate;
+coverage ranges from CSV export at 87.20% through CurrencyFormatterService at 100%, with
+BudgetEngine at 93.80%.
+
+Next suggested task: Review the updated draft PR #17. After approval and merge, begin Phase 12 on a
+new branch and publish its completed, migrated, fully validated implementation as PR #18; do not
+resume TestFlight until the owner explicitly asks after that review.
+
+## 2026-08-08 — Session 57 — Explain a zero allowance before today's first expense
+
+Goal: Address PR #17 review feedback that a cycle with no distributable flexible allowance could
+show an unexplained zero before the user recorded any expense that day.
+
+Files changed: budget pace presentation facts and tests, Today card, bilingual catalog and
+localization coverage, Chinese UI regression, current release/TestFlight notes, project/test/
+decision memory, changelog, and this session log.
+
+What was completed: `BudgetPaceSummary` now distinguishes a pre-spend zero daily allowance from an
+allowance used or exceeded by today's expenses. Today renders that zero with the existing attention
+color, icon, and a neutral localized explanation that the current cycle has no distributable daily
+flexible amount. The wording deliberately avoids claiming the whole flexible balance is exhausted,
+because exact integer division can also produce a zero daily amount when a smaller balance remains.
+Engine coverage fixes the zero/zero/no-expense boundary, bilingual bundle coverage fixes the exact
+copy, and the existing Simplified Chinese onboarding path now exercises the fully allocated plan
+and verifies the visible notice.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, PR #18 implementation, Schema V3 change, merge, or version/build
+promotion was performed.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing succeeded. The first sandboxed attempt could not access DerivedData or
+CoreSimulator; rerunning the unchanged validation with normal local Xcode permissions passed.
+
+Test result: pass — 231 Swift Testing tests across 17 suites and all 12 end-to-end/localization UI
+tests completed with zero failures. BudgetEngine coverage is 93.87%, and every selected core
+service remains above the 85% coverage gate.
+
+Next suggested task: Re-review the focused correction on draft PR #17 before any merge or
+TestFlight work.

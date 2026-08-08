@@ -120,7 +120,7 @@ Status: In Progress
   deterministic Dashboard projection contract with 10,000 varied expenses, and a separate local
   release-machine first-load signal with a 500 ms ceiling.
 - [x] Add opaque 1024px standard, dark, and tinted App Icon variants, current TestFlight candidate
-  version 0.9.2/build 3 configuration, localized in-app release notes, static release checks,
+  version 0.9.2/build 4 configuration, localized in-app release notes, static release checks,
   per-file core-service coverage enforcement, App Store metadata drafts, and a release checklist.
 - [x] Localize the release display name to `花有数` for Simplified Chinese and `MindBudget` for
   English, without combining them, and use `温和的预算与消费复盘工具` as the Simplified Chinese
@@ -134,6 +134,9 @@ Status: In Progress
   amount-only update that preserves plan identity, boundaries, currency, and category budgets.
 - [x] Rebalance the Today amount from the authoritative remaining flexible budget, explain budget
   reservations in Settings and Ask, and keep older in-app update notes collapsed as history.
+- [x] Anchor Today's reference amount at the start of each calendar day so every flexible expense
+  reduces it one for one, clamp the visible value at zero with a localized non-color-only notice,
+  and expose all expense categories in one horizontally scrollable selector.
 - [x] Add an optional, default-off Face ID app lock under Privacy controls, with authenticated
   enable/disable, launch and foreground locking, a passcode recovery path, and an opaque privacy
   cover while locked.
@@ -160,3 +163,19 @@ Status: Done
   expense summaries visible when a supplementary insight projection fails. Treat unreadable
   cooling-off outcomes as unknown rather than zero, stop dependent narrative/AI/persistence work,
   and make the partial state visible without showing stale insight cards.
+
+## Phase 12 — Language, income allocation, savings goal, and recurring fixed expenses
+Status: Todo
+- [ ] Add a persisted, extensible app-language setting with Follow System, Simplified Chinese, and
+  English choices; make SwiftUI copy, formatters, deterministic Ask/templates, and app-owned
+  notifications consistently follow the selected app locale without changing device language.
+- [ ] Show exact per-entry income in cycle planning without silently increasing spending
+  permission. Define and implement an explicit user-confirmed allocation between current spending
+  budget and savings while preserving the independent income ledger.
+- [ ] Add a cross-cycle total savings goal and progress model that remains distinct from the
+  existing per-cycle savings reservation used by `BudgetEngine`.
+- [ ] Add user-confirmed monthly recurring fixed-expense rules with calendar/time-zone semantics,
+  stable occurrence identities, duplicate prevention, edit/pause/delete controls, and honest
+  reconciliation when the app was not running on the intended date.
+- [ ] Decide and test the required SwiftData Schema V3 migration before adding persisted fields or
+  models, then publish the completed work as PR #18. Do not mix this scope into PR #17.

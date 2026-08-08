@@ -6,7 +6,24 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate below.
+No additional user-visible changes are staged beyond the `0.9.2 (4)` replacement candidate below.
+
+## 0.9.2 (4) — 2026-08-08 — Replacement internal TestFlight candidate
+
+### Changed
+
+- Replaced the five-item quick category row plus separate list with one horizontally scrollable
+  selector containing all 17 expense categories. Selection remains visible, follows programmatic
+  changes, and exposes the selected trait to VoiceOver.
+
+### Fixed
+
+- Anchored each day's reference amount before today's flexible expenses, then subtracts each saved
+  expense one for one. The Today value never displays below zero; reaching zero uses a red amount
+  plus explicit localized text even when no spending occurred today, and exceeding the reference
+  amount shows the exact overage.
+- Localized the Log filter's record-type and budget-type values in English and Simplified Chinese,
+  replacing internal catalog keys that could otherwise appear in development and TestFlight builds.
 
 ## 0.9.2 (3) — 2026-08-08 — Internal TestFlight candidate
 

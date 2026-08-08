@@ -85,7 +85,6 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published private(set) var showsReasonablenessWarning = false
     @Published private(set) var error: ExpenseFormError?
     @Published private(set) var isSaving = false
-    @Published private(set) var recentCategories: [ExpenseCategory] = []
     @Published private(set) var merchantSuggestions: [String] = []
     @Published private(set) var inlineInsight: InsightDraft?
 
@@ -201,12 +200,6 @@ final class ExpenseFormViewModel: ObservableObject {
             self.ruleConfiguration = ruleConfiguration
                 ?? RuleConfiguration.defaults(currencyCode: currencyCode)
             self.preferences = preferences
-            recentCategories = uniqueCategories(
-                expenses
-                    .filter { $0.id != existingExpense?.summary.id }
-                    .sorted { $0.spentAt > $1.spentAt }
-                    .map(\.category)
-            )
             merchantSuggestions = merchants
                 .sorted { lhs, rhs in
                     if lhs.visitCount == rhs.visitCount {
@@ -609,11 +602,6 @@ final class ExpenseFormViewModel: ObservableObject {
         }
     }
 
-    private func uniqueCategories(_ categories: [ExpenseCategory]) -> [ExpenseCategory] {
-        var seen: Set<ExpenseCategory> = []
-        return categories.filter { seen.insert($0).inserted }.prefix(6).map { $0 }
-    }
-
     private func evaluateRulePreview(
         amount: Money,
         bucket: BudgetBucket,
@@ -727,7 +715,6 @@ struct AddExpenseView: View {
     @Environment(\.calendar) private var calendar
     @StateObject private var viewModel: ExpenseFormViewModel
     @State private var showsContextFields = false
-    @State private var showsAllCategories = false
     @State private var showsDatePicker = false
     @State private var presentsWishlistConversion = false
     @State private var activeReminder: ExpenseReminderPresentation?
@@ -905,12 +892,6 @@ struct AddExpenseView: View {
             )
             .interactiveDismissDisabled()
         }
-        .sheet(isPresented: $showsAllCategories) {
-            NavigationStack {
-                categoryPicker
-            }
-            .presentationDetents([.medium, .large])
-        }
         .sheet(isPresented: $showsDatePicker) {
             NavigationStack {
                 DatePicker(
@@ -1012,81 +993,61 @@ struct AddExpenseView: View {
 
     private var categoryEntry: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("expense.category")
-                    .font(.headline)
-                    .foregroundStyle(theme.ink)
-                Spacer()
-                Button("common.all") { showsAllCategories = true }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(theme.accent)
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(quickCategories) { category in
-                        Button {
-                            viewModel.category = category
-                        } label: {
-                            Label(
-                                LocalizedStringKey(category.localizedNameKey),
-                                systemImage: category.symbolName
-                            )
-                            .font(.subheadline.weight(.medium))
-                            .padding(.horizontal, 13)
-                            .frame(minHeight: 42)
-                            .foregroundStyle(viewModel.category == category ? Color.white : theme.inkSecondary)
-                            .background(
-                                viewModel.category == category ? theme.accent : theme.surface,
-                                in: Capsule()
-                            )
-                            .overlay {
-                                if viewModel.category != category {
-                                    Capsule().stroke(theme.hairlineStrong, lineWidth: 1)
+            Text("expense.category")
+                .font(.headline)
+                .foregroundStyle(theme.ink)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 8) {
+                        ForEach(ExpenseCategory.allCases) { category in
+                            Button {
+                                viewModel.category = category
+                            } label: {
+                                Label(
+                                    LocalizedStringKey(category.localizedNameKey),
+                                    systemImage: category.symbolName
+                                )
+                                .font(.subheadline.weight(.medium))
+                                .padding(.horizontal, 13)
+                                .frame(minHeight: 42)
+                                .foregroundStyle(
+                                    viewModel.category == category
+                                        ? Color.white
+                                        : theme.inkSecondary
+                                )
+                                .background(
+                                    viewModel.category == category ? theme.accent : theme.surface,
+                                    in: Capsule()
+                                )
+                                .overlay {
+                                    if viewModel.category != category {
+                                        Capsule().stroke(theme.hairlineStrong, lineWidth: 1)
+                                    }
                                 }
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(
+                                viewModel.category == category ? .isSelected : []
+                            )
+                            .accessibilityIdentifier("expense.category.\(category.rawValue)")
+                            .id(category)
                         }
-                        .buttonStyle(.plain)
+                    }
+                    .scrollTargetLayout()
+                }
+                .scrollTargetBehavior(.viewAligned)
+                .onChange(of: viewModel.category) { _, category in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo(category, anchor: .center)
                     }
                 }
-            }
-            .accessibilityIdentifier("expense.category")
-        }
-    }
-
-    private var quickCategories: [ExpenseCategory] {
-        var seen: Set<ExpenseCategory> = []
-        return ([viewModel.category] + viewModel.recentCategories + [.food, .shopping, .transport])
-            .filter { seen.insert($0).inserted }
-            .prefix(5)
-            .map { $0 }
-    }
-
-    private var categoryPicker: some View {
-        List(ExpenseCategory.allCases) { category in
-            Button {
-                viewModel.category = category
-                showsAllCategories = false
-            } label: {
-                HStack {
-                    Label(
-                        LocalizedStringKey(category.localizedNameKey),
-                        systemImage: category.symbolName
-                    )
-                    Spacer()
-                    if category == viewModel.category {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(theme.accent)
-                    }
+                .task {
+                    proxy.scrollTo(viewModel.category, anchor: .center)
                 }
             }
-            .foregroundStyle(theme.ink)
-        }
-        .navigationTitle("expense.category")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("common.cancel") { showsAllCategories = false }
-            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("expense.category")
+            .accessibilityIdentifier("expense.category.scroll")
         }
     }
 
