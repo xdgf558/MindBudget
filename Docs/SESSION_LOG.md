@@ -2018,3 +2018,45 @@ be opened normally after the owner unlocks it.
 Next suggested task: Review the updated free-tier PR, merge it after approval, then install
 `0.9.2 (3)` on the signed physical iPhone and repeat the expense-to-Insights flow against the
 existing migrated local store before Archive.
+
+## 2026-08-08 — Session 49 — Unify the Today add-entry chooser
+
+Goal: Fix the device-reported inconsistency where the Today empty-state “Add entry” button opened
+the expense form directly while the center Add button correctly asked whether the entry was an
+expense or income.
+
+Files changed: Today empty-state routing and accessibility identifier, end-to-end UI coverage,
+bilingual current release notes, TestFlight walkthrough notes, changelog, and session memory.
+
+What was completed: The Today empty-state action now uses the same centralized add-entry chooser as
+the center Add button and the Log empty state. Its identifier was renamed from the misleading
+`dashboard.empty.addExpense` to `dashboard.empty.addEntry`, and its copy now uses the generic
+`entry.quickAdd` key. The primary onboarding-to-ledger UI flow now taps this exact empty-state
+button, requires both Expense and Income actions to exist, records the expense through it, then
+uses the center Add button for income. The `0.9.2 (3)` in-app notes and TestFlight walkthrough now
+state that every generic Add entry action asks for the record type before opening a form.
+
+What was NOT completed: No merge, production Archive, App Store Connect upload, or TestFlight
+assignment was performed. Explicit “Record expense” actions remain allowed to open the expense
+form directly; only generic “Add entry” actions are required to offer the chooser.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build, complete Debug
+build-for-testing, and current-team signed physical-iPhone Debug build compile with version
+`0.9.2 (3)`.
+
+Test result: pass — 226 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. The onboarding/manual-ledger UI flow also passed independently after being changed to
+exercise the Today empty-state chooser directly.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Signed-device result: installed — team `2AM5S7BM2N` signed bundle
+`com.xdgf558.MindBudget` version `0.9.2 (3)` was installed in place on the connected physical
+“拉沙的 iPhone” without uninstalling or clearing its existing local container.
+
+Next suggested task: On the connected iPhone, tap the Today empty-state “记一笔” action and confirm
+the “记支出 / 记收入” chooser appears, then finish review and merge PR #16 before producing the
+Archive candidate.

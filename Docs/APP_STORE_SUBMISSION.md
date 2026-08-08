@@ -25,7 +25,8 @@ validated under the owner's current China-region Apple Developer account.
 
 What to test:
 
-- Use the center Add button to record both an expense and an income. Confirm Log merges them in
+- Use both the Today empty-state Add entry action and the center Add button; confirm each first
+  asks Expense or Income. Record one of each and confirm Log merges them in
   chronological order, can filter by All / Expenses / Income, and permits income detail, edit,
   note search, and deletion without changing the configured budget or Today allowance.
 - While an expense category or budget-bucket filter is active, switch to Income and confirm saved

@@ -33,6 +33,8 @@ No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate b
 
 ### Fixed
 
+- Made the Today empty-state “Add entry” action open the same expense-or-income chooser as the
+  center Add button, instead of silently assuming an expense.
 - Kept income rows visible when switching from an expense-only category or budget-bucket filter
   into Income, while preserving those expense filters for a later return to Expenses.
 - Refreshed Insights whenever it is opened or a saved entry changes, rejected stale asynchronous

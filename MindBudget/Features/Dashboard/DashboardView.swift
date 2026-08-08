@@ -269,10 +269,10 @@ struct DashboardView: View {
                         symbolName: "square.and.pencil",
                         titleKey: "expenses.empty.title",
                         messageKey: "expenses.empty.message",
-                        actionTitleKey: "expense.quickAdd",
-                        actionAccessibilityIdentifier: "dashboard.empty.addExpense"
+                        actionTitleKey: "entry.quickAdd",
+                        actionAccessibilityIdentifier: "dashboard.empty.addEntry"
                     ) {
-                        session.presentExpenseEntry()
+                        session.presentEntryChooser()
                     }
                     .frame(minHeight: 240)
                 } else {

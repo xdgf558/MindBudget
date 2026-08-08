@@ -77,8 +77,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(element("dashboard.today.left", in: app).exists)
         assertCompactEmptyStateAction(
-            app.buttons["dashboard.empty.addExpense"],
-            named: "Dashboard Add Expense"
+            app.buttons["dashboard.empty.addEntry"],
+            named: "Dashboard Add Entry"
         )
         assertPrimaryNavigationIsBottomAnchored(in: app)
         XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
@@ -86,9 +86,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let paceTrack = element("dashboard.pace.track", in: app)
         XCTAssertTrue(paceTrack.exists)
         XCTAssertFalse((paceTrack.value as? String ?? "").isEmpty)
-        app.buttons["dashboard.quickAdd"].tap()
+        app.buttons["dashboard.empty.addEntry"].tap()
         let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
+        let addIncomeFromEmptyState = app.buttons.matching(identifier: "entry.add.income").firstMatch
         XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        XCTAssertTrue(addIncomeFromEmptyState.exists)
         addExpense.tap()
 
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
