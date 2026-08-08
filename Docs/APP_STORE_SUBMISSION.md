@@ -28,11 +28,15 @@ What to test:
 - Use the center Add button to record both an expense and an income. Confirm Log merges them in
   chronological order, can filter by All / Expenses / Income, and permits income detail, edit,
   note search, and deletion without changing the configured budget or Today allowance.
+- While an expense category or budget-bucket filter is active, switch to Income and confirm saved
+  income remains visible; switch back to Expenses and confirm the expense-only filters are kept.
 - Upgrade over an existing 0.9.1 store and confirm its expenses, budget, wishlist, cooling-off
   history, selected skin, and settings remain intact; the new income ledger should begin empty.
 - Add expenses on today, exactly 29 calendar days ago, and 30 days ago. Confirm Insights includes
   the first two, excludes the last, and shows a 30-day total, category/emotion breakdowns, and
   exactly 30 daily positions.
+- From another tab, save an expense and then open Insights. Confirm its amount, count, current-cycle
+  total, category breakdown, and daily point refresh immediately rather than retaining an old zero.
 - Add five open wishlist items. Confirm the sixth is rejected with a clear message in both the app
   and Siri, then archive or finish one and confirm a replacement can be added. Historical
   purchased, skipped, and archived items must not consume an open slot.

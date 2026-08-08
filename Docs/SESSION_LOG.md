@@ -1968,3 +1968,47 @@ Next suggested task: Review and merge the free-tier completion PR, then install 
 signed physical iPhone to walk through income add/edit/delete/search/export, the 30-day empty and
 populated insight states, the fifth/sixth wishlist boundary, Face ID protection, and migration from
 the existing on-device store before producing the Archive candidate.
+
+## 2026-08-08 — Session 48 — Close free-tier review gaps and restore populated Insights
+
+Goal: Resolve the final free-tier PR review issue where Income inherited hidden expense-only
+filters, and fix the device-reported Insights screen retaining zero after a valid expense existed.
+
+Files changed: combined-ledger filtering, Insights loading/selection lifecycle and accessibility
+identifiers, Phase 11 and end-to-end UI regression coverage, bilingual current release notes,
+TestFlight walkthrough notes, task/decision/changelog/session memory.
+
+What was completed: Income mode now ignores preserved expense-only category and budget-bucket
+filters, while All continues to exclude income when those filters are intentionally active and a
+return to Expenses restores the user's selections. Insights now refreshes both on selected-tab
+entry and saved-data revision, attaches a generation identifier to every request, and prevents an
+older cancelled load from replacing newer facts. The deterministic expense summary is published
+before cooling-off projections, narrative generation, or derived-pattern persistence, so a failure
+in those supplementary paths cannot hide valid 30-day, current-cycle, category, or daily totals.
+
+Regression coverage first loads an empty Insights model, saves an expense, reloads, and verifies
+the exact amount/count/cycle/category facts. A corrupt cooling-off projection test proves the same
+expense facts remain visible, and the UI flow now opens empty Insights, records USD 12.34 from
+another tab, re-enters Insights, and asserts the displayed recent total is 12.34. The `0.9.2 (3)`
+in-app and TestFlight notes now call out refresh behavior; the candidate version is unchanged
+because it has not yet been uploaded.
+
+What was NOT completed: No signed physical-iPhone install, production Archive, App Store Connect
+upload, TestFlight assignment, merge, or new PR was performed. The existing draft PR remains the
+delivery vehicle for these fixes.
+
+Build result: pass — Xcode 26.6 generic iOS Simulator Release build and complete Debug
+build-for-testing compile with version `0.9.2 (3)`.
+
+Test result: pass — 226 Swift Testing tests across 17 suites and all 11 UI tests completed with 0
+failures. The focused Phase 11 suite passed 10 tests, and the populated-Insights end-to-end UI test
+also passed independently before the complete run.
+
+Static and coverage result: pass — release readiness, floating-point money, bilingual
+localization, asset/JSON/project parsing, and `git diff --check` pass. Every selected core service
+remains above the 85% coverage gate; selected coverage ranges from CSV export at 87.20% through
+CurrencyFormatterService at 100%.
+
+Next suggested task: Review the updated free-tier PR, merge it after approval, then install
+`0.9.2 (3)` on the signed physical iPhone and repeat the expense-to-Insights flow against the
+existing migrated local store before Archive.

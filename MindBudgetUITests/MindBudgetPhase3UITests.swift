@@ -179,6 +179,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Last 30 days"].exists)
         XCTAssertTrue(element("insights.empty", in: app).exists)
         XCTAssertTrue(element("insights.disclaimer", in: app).exists)
+
+        app.buttons["tab.dashboard"].tap()
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.quickAdd"].tap()
+        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        addExpense.tap()
+        XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
+        for key in ["1", "2", ".", "3", "4"] {
+            element("expense.keypad.\(key)", in: app).tap()
+        }
+        app.buttons["expense.save"].tap()
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["tab.insights"].tap()
+        let recentTotal = element("insights.summary.thirtyDays.amount", in: app)
+        XCTAssertTrue(recentTotal.waitForExistence(timeout: 5))
+        XCTAssertTrue(recentTotal.label.contains("12.34"))
     }
 
     @MainActor

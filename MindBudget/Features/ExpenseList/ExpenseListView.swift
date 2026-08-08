@@ -42,9 +42,11 @@ final class ExpenseListViewModel: ObservableObject {
     }
 
     var filteredIncomes: [IncomeSummary] {
-        guard filter.recordType != .expense,
-              filter.category == nil,
-              filter.bucket == nil else { return [] }
+        guard filter.recordType != .expense else { return [] }
+        if filter.recordType == .all,
+           filter.category != nil || filter.bucket != nil {
+            return []
+        }
         let needle = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return incomes.filter { income in
             let categoryName = Bundle.main.localizedString(

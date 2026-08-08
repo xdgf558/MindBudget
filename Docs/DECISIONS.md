@@ -1447,3 +1447,31 @@ reserved for the first public App Store release.
 Files affected: Schema/migration and income model, DataActor/projections/transfers, Log/Add routing,
 Insights, Wishlist/Siri error mapping, CSV/deletion/privacy UI, localization, tests, version and
 release metadata, and durable project memory.
+
+---
+
+## 2026-08-08 — Keep authoritative expense facts independent from supplementary Insights refreshes
+
+Context: Device review found that Insights could retain its initial zero state after an expense
+was saved. The screen previously treated cooling-off projections, derived-pattern persistence, and
+the cycle narrative as prerequisites for publishing already-fetched expense totals. A failure in
+any supplementary step therefore hid valid local ledger facts. A hidden tab also relied only on a
+global revision task rather than explicitly refreshing when the user entered Insights.
+
+Decision: Publish the deterministic 30-day and current-cycle expense summary immediately after the
+expense and budget projections validate. Refresh when Insights becomes selected and whenever the
+session revision changes while it is selected. Give every load a generation identifier so a
+cancelled older request cannot replace newer facts. Cooling-off projections, cycle wording, and
+derived insight upserts remain supplementary: their failure may suppress their own presentation
+but must never erase or replace an authoritative ledger summary.
+
+Alternatives considered: Retrying the entire coupled pipeline, retaining the last zero summary on
+any error, silently ignoring every supplementary error, or refreshing only on app foregrounding.
+
+Consequences: A newly saved expense appears on the next Insights entry even if the tab was hidden,
+and valid totals remain available when an unrelated derived record is unreadable. Core expense or
+budget projection failures still fail closed with the existing data-load error. Tests cover an
+empty-to-populated reload and a corrupt cooling-off projection alongside a valid expense.
+
+Files affected: Insights loading and selection lifecycle, Phase 11 regression tests, localized
+current release notes, TestFlight walkthrough notes, changelog, decision memory, and session log.

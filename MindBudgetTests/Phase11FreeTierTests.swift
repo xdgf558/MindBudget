@@ -187,6 +187,43 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func insightsReloadShowsAnExpenseSavedAfterTheInitialEmptyLoad() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        _ = try await actor.createBudgetPlan(try budgetPlan())
+        let viewModel = InsightsViewModel()
+
+        await loadInsights(viewModel, dataActor: actor)
+        #expect(viewModel.summary?.lastThirtyDaysTotal.minorUnits == 0)
+        #expect(viewModel.summary?.lastThirtyDaysCount == 0)
+
+        _ = try await actor.createExpense(expenseDraft())
+        await loadInsights(viewModel, dataActor: actor)
+
+        #expect(viewModel.summary?.lastThirtyDaysTotal.minorUnits == 1_250)
+        #expect(viewModel.summary?.lastThirtyDaysCount == 1)
+        #expect(viewModel.summary?.currentCycleTotal.minorUnits == 1_250)
+        #expect(viewModel.summary?.categoryTotals.first?.id == ExpenseCategory.food.rawValue)
+        #expect(viewModel.failed == false)
+    }
+
+    @Test
+    func invalidCoolingProjectionDoesNotHideRecordedExpenseFacts() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        _ = try await controller.dataActor.createBudgetPlan(try budgetPlan())
+        _ = try await controller.dataActor.createExpense(expenseDraft())
+        try await Phase11ModelSeeder(modelContainer: controller.container)
+            .insertInvalidCoolingOffPlan()
+        let viewModel = InsightsViewModel()
+
+        await loadInsights(viewModel, dataActor: controller.dataActor)
+
+        #expect(viewModel.summary?.lastThirtyDaysTotal.minorUnits == 1_250)
+        #expect(viewModel.summary?.lastThirtyDaysCount == 1)
+        #expect(viewModel.summary?.currentCycleTotal.minorUnits == 1_250)
+        #expect(viewModel.failed)
+    }
+
+    @Test
     func unifiedCSVExportsIncomeExactlyAndNeutralizesSpreadsheetFormulas() throws {
         let income = IncomeExportRecord(
             id: UUID(),
@@ -224,6 +261,35 @@ struct Phase11FreeTierTests {
         #expect(try await actor.modelCounts().isEmpty)
     }
 
+    @Test
+    func incomeModeIgnoresPreservedExpenseOnlyFilters() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        _ = try await actor.createBudgetPlan(try budgetPlan())
+        _ = try await actor.createExpense(expenseDraft())
+        _ = try await actor.createIncome(incomeDraft())
+        let viewModel = ExpenseListViewModel()
+        await viewModel.load(dataActor: actor)
+
+        viewModel.filter.category = .food
+        viewModel.filter.bucket = .discretionary
+        viewModel.filter.recordType = .expense
+        #expect(viewModel.filteredExpenses.count == 1)
+        #expect(viewModel.filteredIncomes.isEmpty)
+
+        viewModel.filter.recordType = .income
+        #expect(viewModel.filteredExpenses.isEmpty)
+        #expect(viewModel.filteredIncomes.count == 1)
+
+        viewModel.filter.recordType = .all
+        #expect(viewModel.filteredExpenses.count == 1)
+        #expect(viewModel.filteredIncomes.isEmpty)
+
+        viewModel.filter.recordType = .expense
+        #expect(viewModel.filter.category == .food)
+        #expect(viewModel.filter.bucket == .discretionary)
+        #expect(viewModel.filteredExpenses.count == 1)
+    }
+
     private func incomeDraft(
         id: UUID = UUID(),
         amountMinorUnits: Int64 = 250_000,
@@ -246,6 +312,28 @@ struct Phase11FreeTierTests {
         )
     }
 
+    private func expenseDraft() -> ExpenseDraft {
+        ExpenseDraft(
+            id: UUID(),
+            amount: Money(minorUnits: 1_250, currencyCode: "USD"),
+            category: .food,
+            bucket: .discretionary,
+            merchantName: "Cafe",
+            note: nil,
+            spentAt: TestFixtures.now,
+            spentTimeZoneIdentifier: "UTC",
+            createdAt: TestFixtures.now,
+            updatedAt: TestFixtures.now,
+            paymentMethod: nil,
+            emotionTag: nil,
+            purchaseReason: .need,
+            isPlanned: false,
+            isRecurring: false,
+            source: .manual,
+            allowMerchantIndexing: false
+        )
+    }
+
     private func budgetPlan() throws -> BudgetPlanDraft {
         let calendar = TestFixtures.utcCalendar
         return BudgetPlanDraft(
@@ -264,6 +352,23 @@ struct Phase11FreeTierTests {
             createdAt: TestFixtures.now,
             updatedAt: TestFixtures.now,
             categoryBudgets: []
+        )
+    }
+
+    private func loadInsights(
+        _ viewModel: InsightsViewModel,
+        dataActor: DataActor
+    ) async {
+        await viewModel.load(
+            dataActor: dataActor,
+            currencyCode: "USD",
+            cycleStartDay: 1,
+            configuration: RuleConfiguration.defaults(currencyCode: "USD"),
+            locale: Locale(identifier: "en_US"),
+            tone: .soft,
+            enhancementEnabled: false,
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
         )
     }
 
@@ -360,5 +465,33 @@ struct Phase11FreeTierTests {
             index = next
         }
         return rows
+    }
+}
+
+@ModelActor
+private actor Phase11ModelSeeder {
+    func insertInvalidCoolingOffPlan() throws {
+        guard let reviewAt = TestFixtures.utcCalendar.date(
+            byAdding: .hour,
+            value: 24,
+            to: TestFixtures.now
+        ) else {
+            throw DataValidationError.invalidCoolingOffPlan
+        }
+        modelContext.insert(
+            CoolingOffPlan(
+                id: UUID(),
+                startedAt: TestFixtures.now,
+                reviewAt: reviewAt,
+                durationHours: 24,
+                statusRaw: "futureStatus",
+                notificationIdentifier: nil,
+                completedAt: nil,
+                outcomeRaw: nil,
+                outcomeRecordedAt: nil,
+                wishItem: nil
+            )
+        )
+        try modelContext.save()
     }
 }

@@ -31,6 +31,14 @@ No additional user-visible changes are staged beyond the `0.9.2 (3)` candidate b
 - The next internal candidate identifies itself as version `0.9.2`, build `3`; older in-app
   release notes remain available only inside the collapsed history section.
 
+### Fixed
+
+- Kept income rows visible when switching from an expense-only category or budget-bucket filter
+  into Income, while preserving those expense filters for a later return to Expenses.
+- Refreshed Insights whenever it is opened or a saved entry changes, rejected stale asynchronous
+  results, and kept authoritative expense totals visible when optional cooling-off or derived
+  insight refreshes fail.
+
 ## 0.9.1 (2) — 2026-08-07 — Internal TestFlight candidate
 
 ### Added

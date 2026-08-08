@@ -154,3 +154,7 @@ Status: Done
   paths; completed, skipped, and archived history remains outside the limit.
 - [x] Include income in CSV disclosure/export and verified Delete All, migrate V1 stores without
   data loss, publish synchronized `0.9.2 (3)` notes, and pass the complete automated gates.
+- [x] Keep expense-only category/bucket filters from hiding Income mode while preserving them for
+  the user's return to Expenses.
+- [x] Refresh Insights on selection and saved-data revisions, reject stale loads, and keep valid
+  expense summaries visible when a supplementary insight projection fails.

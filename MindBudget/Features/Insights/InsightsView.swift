@@ -121,6 +121,7 @@ final class InsightsViewModel: ObservableObject {
     @Published private(set) var cycleNarrative: SourcedSummary?
     @Published private(set) var isLoading = true
     @Published private(set) var failed = false
+    private var latestLoadID: UUID?
 
     func load(
         dataActor: DataActor,
@@ -133,14 +134,15 @@ final class InsightsViewModel: ObservableObject {
         now: Date,
         calendar: Calendar
     ) async {
+        let loadID = UUID()
+        latestLoadID = loadID
         isLoading = true
         do {
             async let expenseRequest = dataActor.fetchExpenseSummaries()
             async let planRequest = dataActor.fetchBudgetPlanSummaries()
-            async let coolingRequest = dataActor.fetchCoolingOffPlanSummaries()
             let expenses = try await expenseRequest
             let plans = try await planRequest
-            let coolingPlans = try await coolingRequest
+            guard isCurrent(loadID) else { return }
             let currentPlan = plans.first {
                 $0.cycleStart <= now && now < $0.cycleEnd
             }
@@ -168,31 +170,6 @@ final class InsightsViewModel: ObservableObject {
                 snapshot = .unconfigured(cycle: cycle, currencyCode: currencyCode)
                 categoryBudgets = []
             }
-            let historicalCycles = try CycleAggregateBuilder().build(
-                plans: plans,
-                expenses: expenses,
-                before: snapshot.cycle.start
-            )
-            let outcomes = coolingPlans.compactMap { plan -> CoolingOffOutcomeSummary? in
-                guard let outcome = plan.outcome,
-                      let outcomeRecordedAt = plan.outcomeRecordedAt else { return nil }
-                return CoolingOffOutcomeSummary(
-                    outcome: outcome,
-                    outcomeRecordedAt: outcomeRecordedAt
-                )
-            }
-            let drafts = SpendingPatternDetector().detectPatterns(
-                expenses: expenses,
-                snapshot: snapshot,
-                categoryBudgets: categoryBudgets,
-                historicalCycles: historicalCycles,
-                coolingOffOutcomes: outcomes,
-                config: configuration,
-                now: now,
-                calendar: calendar
-            )
-            _ = try await dataActor.upsertSpendingInsights(drafts, createdAt: now)
-            let storedInsights = try await dataActor.fetchSpendingInsightSummaries()
             let dashboardSummary = try InsightSummaryBuilder().build(
                 expenses: expenses,
                 cycle: snapshot.cycle,
@@ -200,8 +177,27 @@ final class InsightsViewModel: ObservableObject {
                 now: now,
                 calendar: calendar
             )
+            guard isCurrent(loadID) else { return }
+
+            // Expense facts are authoritative and must remain visible even if an
+            // optional cooling-off projection or derived insight cannot be refreshed.
             summary = dashboardSummary
-            cycleNarrative = await CycleSummaryService().generate(
+            cycleNarrative = nil
+            insights = []
+            failed = false
+            isLoading = false
+
+            let coolingPlans: [CoolingOffPlanSummary]
+            do {
+                coolingPlans = try await dataActor.fetchCoolingOffPlanSummaries()
+            } catch {
+                guard isCurrent(loadID) else { return }
+                coolingPlans = []
+                failed = true
+            }
+            guard isCurrent(loadID) else { return }
+
+            let narrative = await CycleSummaryService().generate(
                 snapshot: snapshot,
                 expenses: expenses,
                 coolingOffPlans: coolingPlans,
@@ -210,15 +206,53 @@ final class InsightsViewModel: ObservableObject {
                 tone: tone,
                 enhancementEnabled: enhancementEnabled
             )
-            insights = storedInsights.filter {
-                $0.periodStart == snapshot.cycle.start
-                    && $0.periodEnd == snapshot.cycle.end
+            guard isCurrent(loadID) else { return }
+            cycleNarrative = narrative
+
+            do {
+                let historicalCycles = try CycleAggregateBuilder().build(
+                    plans: plans,
+                    expenses: expenses,
+                    before: snapshot.cycle.start
+                )
+                let outcomes = coolingPlans.compactMap { plan -> CoolingOffOutcomeSummary? in
+                    guard let outcome = plan.outcome,
+                          let outcomeRecordedAt = plan.outcomeRecordedAt else { return nil }
+                    return CoolingOffOutcomeSummary(
+                        outcome: outcome,
+                        outcomeRecordedAt: outcomeRecordedAt
+                    )
+                }
+                let drafts = SpendingPatternDetector().detectPatterns(
+                    expenses: expenses,
+                    snapshot: snapshot,
+                    categoryBudgets: categoryBudgets,
+                    historicalCycles: historicalCycles,
+                    coolingOffOutcomes: outcomes,
+                    config: configuration,
+                    now: now,
+                    calendar: calendar
+                )
+                _ = try await dataActor.upsertSpendingInsights(drafts, createdAt: now)
+                let storedInsights = try await dataActor.fetchSpendingInsightSummaries()
+                guard isCurrent(loadID) else { return }
+                insights = storedInsights.filter {
+                    $0.periodStart == snapshot.cycle.start
+                        && $0.periodEnd == snapshot.cycle.end
+                }
+            } catch {
+                guard isCurrent(loadID) else { return }
+                insights = []
+                failed = true
             }
-            failed = false
         } catch {
+            guard isCurrent(loadID) else { return }
+            summary = nil
+            cycleNarrative = nil
+            insights = []
             failed = true
+            isLoading = false
         }
-        isLoading = false
     }
 
     func dismiss(
@@ -234,6 +268,14 @@ final class InsightsViewModel: ObservableObject {
         }
     }
 
+    private func isCurrent(_ loadID: UUID) -> Bool {
+        latestLoadID == loadID && !Task.isCancelled
+    }
+}
+
+private struct InsightsLoadTrigger: Equatable {
+    let revision: Int
+    let isSelected: Bool
 }
 
 struct InsightsView: View {
@@ -260,7 +302,15 @@ struct InsightsView: View {
             }
             .navigationTitle("tab.insights")
             .navigationBarTitleDisplayMode(.large)
-            .task(id: session.revision) { await load() }
+            .task(
+                id: InsightsLoadTrigger(
+                    revision: session.revision,
+                    isSelected: session.selectedTab == .insights
+                )
+            ) {
+                guard session.selectedTab == .insights else { return }
+                await load()
+            }
         }
         .mindBudgetOnscreenListSelection(
             nil,
@@ -316,6 +366,7 @@ struct InsightsView: View {
             summaryCard(
                 title: "insights.summary.thirtyDays",
                 amount: summary.lastThirtyDaysTotal,
+                amountIdentifier: "insights.summary.thirtyDays.amount",
                 detail: LocalizedCatalog.format(
                     "insights.summary.records",
                     locale: locale,
@@ -325,6 +376,7 @@ struct InsightsView: View {
             summaryCard(
                 title: "insights.summary.currentCycle",
                 amount: summary.currentCycleTotal,
+                amountIdentifier: "insights.summary.currentCycle.amount",
                 detail: LocalizedCatalog.string("insights.summary.recorded", locale: locale)
             )
         }
@@ -333,6 +385,7 @@ struct InsightsView: View {
     private func summaryCard(
         title: LocalizedStringKey,
         amount: Money,
+        amountIdentifier: String,
         detail: String
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -340,6 +393,7 @@ struct InsightsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             MoneyText(money: amount, weight: .semibold)
+                .accessibilityIdentifier(amountIdentifier)
             Text(detail)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
