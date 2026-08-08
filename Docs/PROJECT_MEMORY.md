@@ -45,8 +45,11 @@ trial, or visible paid-feature placeholder.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
-recurring fixed-expense rules. The candidate is version `0.9.4 (5)` and remains unuploaded until
-PR #18 review and the release checklist authorize TestFlight.
+recurring fixed-expense rules. Language changes publish immediately without relaunch. A nonzero
+spending allocation targets one already-saved cycle containing the income date, while savings stays
+cross-cycle. Recurring edits retain the immutable source-occurrence month, and the 120-occurrence
+limit applies to the combined atomic reconciliation batch. The candidate is version `0.9.4 (5)`
+and remains unuploaded until PR #18 review and the release checklist authorize TestFlight.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -114,18 +117,22 @@ app's private data are forbidden in V1.
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
   installed marketing version.
-- App language is an app-owned persisted preference with Follow System, Simplified Chinese, and
-  English choices. It drives SwiftUI, deterministic Ask/templates, formatting, app-owned
+- App language is app-owned persisted and published state with Follow System, Simplified Chinese,
+  and English choices. A selection change immediately invalidates the root view and drives SwiftUI,
+  deterministic Ask/templates, formatting, app-owned
   notifications, Spotlight wording, localized search, and export filenames without changing the
   iPhone language.
 - Recording income alone never increases spending permission. A V3 companion allocation record
-  stores only owner-confirmed portions for the containing cycle's spending budget and the separate
-  cross-cycle savings goal; their sum cannot exceed the income.
+  stores only owner-confirmed portions; a nonzero spending portion must identify an existing budget
+  cycle that contains the income date, while savings remains separate and cross-cycle. Their sum
+  cannot exceed the income, and the form cannot invent a missing historical budget cycle.
 - The total savings goal is one cross-cycle target plus optional starting balance. It does not
   replace or reinterpret the per-cycle savings reservation in `BudgetPlan`.
-- Monthly recurring fixed-expense rules begin after explicit confirmation, use the saved calendar
-  day/local time with end-of-month clamping, reconcile each occurrence once by stable identity,
-  skip paused months after resume, and never delete ledger history when a rule is removed.
+- Monthly recurring fixed-expense rules begin after explicit confirmation, keep the source expense's
+  handled month independent from the editable future anchor, use the saved calendar day/local time
+  with end-of-month clamping, reconcile each occurrence once by stable identity, cap the combined
+  atomic batch at 120, skip paused months after resume, and never delete ledger history when a rule
+  is removed.
 - The iOS launch screen remains static. The optional brand motion is an app-owned cold-launch
   overlay, never a video or third-party animation, and its Debug UI-test hold cannot ship in Release.
 

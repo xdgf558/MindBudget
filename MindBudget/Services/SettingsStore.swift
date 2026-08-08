@@ -58,6 +58,8 @@ struct PreferencesSnapshot: Equatable, Sendable {
 final class SettingsStore: ObservableObject {
     nonisolated static let maximumDailyInterruptions = 2
 
+    private let defaults: UserDefaults
+
     @AppStorage var currencyCode: String {
         didSet { reloadRuleConfiguration() }
     }
@@ -77,7 +79,11 @@ final class SettingsStore: ObservableObject {
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
     @AppStorage var appSkinRaw: String
-    @AppStorage var appLanguageRaw: String
+    @Published var appLanguageRaw: String {
+        didSet {
+            defaults.set(appLanguageRaw, forKey: "appLanguageRaw")
+        }
+    }
     @AppStorage private(set) var categoryBucketOverridesJSON: Data
     @AppStorage var ruleConfigurationJSON: Data {
         didSet { reloadRuleConfiguration() }
@@ -90,6 +96,9 @@ final class SettingsStore: ObservableObject {
     private var ruleConfigurationDiagnostic: String?
 
     init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        appLanguageRaw = defaults.string(forKey: "appLanguageRaw")
+            ?? AppLanguage.system.rawValue
         _currencyCode = AppStorage(wrappedValue: "", "currencyCode", store: defaults)
         _enableGentleReminders = AppStorage(wrappedValue: true, "enableGentleReminders", store: defaults)
         _enableLocalNotifications = AppStorage(wrappedValue: false, "enableLocalNotifications", store: defaults)
@@ -109,11 +118,6 @@ final class SettingsStore: ObservableObject {
         _appSkinRaw = AppStorage(
             wrappedValue: AppSkin.defaultSkin.rawValue,
             "appSkinRaw",
-            store: defaults
-        )
-        _appLanguageRaw = AppStorage(
-            wrappedValue: AppLanguage.system.rawValue,
-            "appLanguageRaw",
             store: defaults
         )
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)

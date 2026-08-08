@@ -28,11 +28,14 @@ What to test:
 - In Settings > Appearance, switch among Follow System, Simplified Chinese, and English without
   changing the iPhone language. Confirm visible copy, currency/date formatting, Ask templates,
   app-owned notifications, Spotlight copy, Log category search, and the CSV filename follow the
-  selected app language. Return to Follow System and confirm normal system-language behavior.
+  selected app language immediately without relaunching. Return to Follow System and confirm normal
+  system-language behavior.
 - Record several incomes and leave allocation empty on one. On others, allocate exact portions to
   this cycle's spending budget and to savings. Confirm the unallocated income changes no budget,
   spending allocation changes only the containing cycle's budget, savings allocation changes only
-  total-goal progress, and the form rejects a combined allocation above the income amount.
+  total-goal progress, and the form rejects a combined allocation above the income amount. Change
+  an income to a historical date and confirm the exact containing cycle is shown; when no saved
+  cycle exists, spending allocation is refused rather than silently targeting the current cycle.
 - Edit and delete those incomes and confirm the current budget and total savings progress update
   from the authoritative remaining allocations rather than retaining stale amounts.
 - Create a total savings goal with an existing saved balance. Confirm it continues across budget
@@ -42,7 +45,9 @@ What to test:
   last valid day of a shorter month, and reopening the app never creates a duplicate occurrence.
 - In Settings > Recurring fixed expenses, edit a rule and confirm only future entries use the new
   values. Pause it across a due month and resume it; confirm paused months are not backfilled.
-  Delete the rule and confirm generated history stays in Log.
+  Move a rule's date into the current month before its new due day and confirm that occurrence is
+  still generated. Delete the rule and confirm generated history stays in Log. A combined catch-up
+  above 120 occurrences must fail without saving a partial subset from any rule.
 - Upgrade an existing 0.9.2 installation and confirm prior income, expenses, budget, wishes,
   cooling-off records, settings, and skin remain intact. Existing income must show zero allocation
   until the owner explicitly changes it.

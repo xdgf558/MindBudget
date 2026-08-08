@@ -29,6 +29,7 @@ struct IncomeSummary: Hashable, Identifiable, Sendable {
     let amount: Money
     let category: IncomeCategory
     let sourceName: String?
+    let budgetPlanID: UUID?
     let allocatedToBudgetMinorUnits: Int64
     let allocatedToSavingsMinorUnits: Int64
     let receivedAt: Date
@@ -41,6 +42,7 @@ struct IncomeSummary: Hashable, Identifiable, Sendable {
         amount: Money,
         category: IncomeCategory,
         sourceName: String?,
+        budgetPlanID: UUID? = nil,
         allocatedToBudgetMinorUnits: Int64 = 0,
         allocatedToSavingsMinorUnits: Int64 = 0,
         receivedAt: Date,
@@ -52,6 +54,7 @@ struct IncomeSummary: Hashable, Identifiable, Sendable {
         self.amount = amount
         self.category = category
         self.sourceName = sourceName
+        self.budgetPlanID = budgetPlanID
         self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
         self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
         self.receivedAt = receivedAt
@@ -126,6 +129,7 @@ struct RecurringFixedExpenseRuleSummary: Hashable, Identifiable, Sendable {
     let amount: Money
     let category: ExpenseCategory
     let merchantName: String?
+    let initialOccurrenceAt: Date
     let anchorDate: Date
     let timeZoneIdentifier: String
     let calendarIdentifierRaw: String

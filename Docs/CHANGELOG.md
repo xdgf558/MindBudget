@@ -43,6 +43,14 @@ No additional user-visible changes are staged beyond the `0.9.4 (5)` internal ca
 - The next internal candidate identifies itself as version `0.9.4`, build `5`; older in-app update
   notes remain available only inside the collapsed history section.
 
+### Fixed
+
+- App-language changes now update the current interface immediately without requiring a relaunch.
+- Income allocated to spending now targets the exact saved budget cycle containing its received
+  date. Historical income cannot silently change the current cycle or allocate into a missing one.
+- Editing a monthly recurring rule into a new month no longer skips that month's first occurrence,
+  and the 120-occurrence protection now applies to the combined atomic batch across all rules.
+
 ## 0.9.2 (4) — 2026-08-08 — Replacement internal TestFlight candidate
 
 ### Changed

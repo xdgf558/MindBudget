@@ -45,6 +45,9 @@ final class Income {
 final class IncomeAllocation {
     @Attribute(.unique) var id: UUID
     @Attribute(.unique) var incomeID: UUID
+    /// Explicit target for the spending-budget portion. `nil` is valid only when that
+    /// portion is zero; savings allocation remains independent of a budget cycle.
+    var budgetPlanID: UUID?
     var allocatedToBudgetMinorUnits: Int64
     var allocatedToSavingsMinorUnits: Int64
     var createdAt: Date
@@ -53,6 +56,7 @@ final class IncomeAllocation {
     init(
         id: UUID,
         incomeID: UUID,
+        budgetPlanID: UUID?,
         allocatedToBudgetMinorUnits: Int64,
         allocatedToSavingsMinorUnits: Int64,
         createdAt: Date,
@@ -60,6 +64,7 @@ final class IncomeAllocation {
     ) {
         self.id = id
         self.incomeID = incomeID
+        self.budgetPlanID = budgetPlanID
         self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
         self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
         self.createdAt = createdAt
@@ -106,6 +111,9 @@ final class RecurringFixedExpenseRule {
     var categoryRaw: String
     var merchantName: String?
     var note: String?
+    /// Immutable month already represented by the source expense. Editing `anchorDate`
+    /// changes future execution timing without making this handled month move with it.
+    var initialOccurrenceAt: Date
     var anchorDate: Date
     var timeZoneIdentifier: String
     var calendarIdentifierRaw: String
@@ -123,6 +131,7 @@ final class RecurringFixedExpenseRule {
         categoryRaw: String,
         merchantName: String?,
         note: String?,
+        initialOccurrenceAt: Date,
         anchorDate: Date,
         timeZoneIdentifier: String,
         calendarIdentifierRaw: String,
@@ -138,6 +147,7 @@ final class RecurringFixedExpenseRule {
         self.categoryRaw = categoryRaw
         self.merchantName = merchantName
         self.note = note
+        self.initialOccurrenceAt = initialOccurrenceAt
         self.anchorDate = anchorDate
         self.timeZoneIdentifier = timeZoneIdentifier
         self.calendarIdentifierRaw = calendarIdentifierRaw

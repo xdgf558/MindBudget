@@ -179,3 +179,7 @@ Status: Done
   reconciliation when the app was not running on the intended date.
 - [x] Decide and test the required SwiftData Schema V3 migration before adding persisted fields or
   models, then publish the completed work as PR #18. Do not mix this scope into PR #17.
+- [x] Close PR #18 review gaps: publish language changes immediately without relaunch, bind every
+  nonzero spending allocation to an explicit persisted cycle containing the income date, preserve
+  the source-occurrence month when a recurring rule date is edited, and enforce the 120-occurrence
+  limit across the complete reconciliation batch with atomic rollback.

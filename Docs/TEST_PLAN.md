@@ -498,7 +498,8 @@ notification and Spotlight reconciliation in that locale; deterministic Ask/temp
 and date formatting, Log category search, and the export filename use the same selection. Unknown
 future values fall back to Follow System without destroying their stored raw value, while Delete
 All resets the setting to Follow System. Both catalogs contain every Phase 12 runtime and
-release-note key.
+release-note key. A UI test changes from English to Simplified Chinese without relaunching and
+asserts the current navigation title, picker value, and parent Settings destination update in place.
 
 Schema migration coverage creates a real Schema V2 store containing an income, opens it through
 Schema V3, and proves every V2 fact remains intact while the new allocation is exactly zero. Income
@@ -506,7 +507,9 @@ allocation persists in a V3 companion model so the shipped V2 `Income` schema fi
 frozen. Actor tests reject negative, overflowing, or over-income allocations atomically. Budget
 tests prove only the user-confirmed spending portion increases the containing cycle's deterministic
 budget; savings allocation never increases spending permission, and edit/delete recomputes from
-remaining authoritative entries.
+remaining authoritative entries. A nonzero spending allocation carries the target plan identifier;
+actor tests reject a missing plan, mismatched currency, or income date outside that plan, and the
+form identifies the exact target dates rather than describing every allocation as current-cycle.
 
 The total savings goal stores one target and optional starting balance across cycles. Its progress
 is the checked sum of that starting balance and explicit per-income savings allocations, while the
@@ -520,7 +523,10 @@ and a generated entry remains fixed/planned/recurring without becoming a second 
 Pausing prevents
 generation, resuming starts after the new confirmation time without backfilling paused months,
 deleting a rule preserves ledger history, and a bounded reconciliation failure rolls back the
-whole batch rather than saving partial occurrences.
+whole batch rather than saving partial occurrences. Moving a January rule anchor to a future date
+inside February still generates that February occurrence, because the immutable source month is
+separate from the editable anchor. Multiple rules whose combined pending occurrences exceed 120
+must fail together and leave both ledger and occurrence tables unchanged.
 
 ## Continuous integration
 

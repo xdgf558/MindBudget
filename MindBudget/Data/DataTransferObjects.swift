@@ -87,6 +87,7 @@ struct IncomeDraft: Sendable {
     let category: IncomeCategory
     let sourceName: String?
     let note: String?
+    let budgetPlanID: UUID?
     let allocatedToBudgetMinorUnits: Int64
     let allocatedToSavingsMinorUnits: Int64
     let receivedAt: Date
@@ -100,6 +101,7 @@ struct IncomeDraft: Sendable {
         category: IncomeCategory,
         sourceName: String?,
         note: String?,
+        budgetPlanID: UUID? = nil,
         allocatedToBudgetMinorUnits: Int64 = 0,
         allocatedToSavingsMinorUnits: Int64 = 0,
         receivedAt: Date,
@@ -112,6 +114,7 @@ struct IncomeDraft: Sendable {
         self.category = category
         self.sourceName = sourceName
         self.note = note
+        self.budgetPlanID = budgetPlanID
         self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
         self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
         self.receivedAt = receivedAt
@@ -176,6 +179,7 @@ struct RecurringFixedExpenseRuleDraft: Sendable {
     let category: ExpenseCategory
     let merchantName: String?
     let note: String?
+    let initialOccurrenceAt: Date
     let anchorDate: Date
     let timeZoneIdentifier: String
     let calendarIdentifierRaw: String

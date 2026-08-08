@@ -361,6 +361,7 @@ struct Phase11FreeTierTests {
         _ = try await actor.createBudgetPlan(plan)
         let income = incomeDraft(
             amountMinorUnits: 100_000,
+            budgetPlanID: plan.id,
             allocatedToBudgetMinorUnits: 25_000,
             allocatedToSavingsMinorUnits: 30_000
         )
@@ -410,6 +411,7 @@ struct Phase11FreeTierTests {
         _ = try await actor.createIncome(
             incomeDraft(
                 amountMinorUnits: 80_000,
+                budgetPlanID: plan.id,
                 allocatedToBudgetMinorUnits: 10_000,
                 allocatedToSavingsMinorUnits: 25_000
             )
@@ -429,6 +431,46 @@ struct Phase11FreeTierTests {
         #expect(goal.remaining.minorUnits == 375_000)
         #expect(storedPlan.savingGoalMinorUnits == plan.savingGoalMinorUnits)
         #expect(storedPlan.allocatedSavingsMinorUnits == 25_000)
+    }
+
+    @Test
+    func budgetAllocationRejectsAnIncomeDateOutsideItsExplicitTargetCycle() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let plan = try budgetPlan()
+        _ = try await actor.createBudgetPlan(plan)
+        let historicalDate = try #require(
+            TestFixtures.utcCalendar.date(byAdding: .day, value: -1, to: plan.cycleStart)
+        )
+
+        await #expect(throws: DataValidationError.invalidIncomeAllocation) {
+            _ = try await actor.createIncome(
+                incomeDraft(
+                    budgetPlanID: plan.id,
+                    allocatedToBudgetMinorUnits: 10_000,
+                    receivedAt: historicalDate
+                )
+            )
+        }
+
+        #expect(try await actor.fetchIncomeSummaries().isEmpty)
+        #expect(try await actor.fetchBudgetPlanSummaries().first?.allocatedIncomeMinorUnits == 0)
+    }
+
+    @Test
+    func budgetAllocationRequiresAnExistingExplicitTargetCycle() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+
+        await #expect(throws: DataValidationError.invalidIncomeAllocation) {
+            _ = try await actor.createIncome(
+                incomeDraft(
+                    budgetPlanID: nil,
+                    allocatedToBudgetMinorUnits: 10_000
+                )
+            )
+        }
+
+        #expect(try await actor.fetchIncomeSummaries().isEmpty)
+        #expect(try await actor.modelCounts().incomeAllocations == 0)
     }
 
     @Test
@@ -580,6 +622,72 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func recurringGenerationLimitAppliesAcrossAllRulesInOneBatch() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let firstAnchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
+        let secondAnchor = try date(2026, 1, 2, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(at: firstAnchor, createdAt: firstAnchor, isRecurring: true)
+        )
+        _ = try await actor.createExpense(
+            expenseDraft(at: secondAnchor, createdAt: secondAnchor, isRecurring: true)
+        )
+        let through = try date(2031, 2, 28, 23, 0, calendar: calendar)
+
+        await #expect(throws: DataValidationError.recurringGenerationLimit) {
+            _ = try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            )
+        }
+
+        #expect(try await actor.fetchExpenseSummaries().count == 2)
+        #expect(try await actor.modelCounts().recurringOccurrences == 0)
+    }
+
+    @Test
+    func movingARecurringAnchorIntoANewMonthGeneratesThatMonthsOccurrence() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let januaryAnchor = try date(2026, 1, 15, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(at: januaryAnchor, createdAt: januaryAnchor, isRecurring: true)
+        )
+        let rule = try #require(
+            try await actor.fetchRecurringFixedExpenseRuleSummaries().first
+        )
+        let editedAt = try date(2026, 2, 1, 8, 0, calendar: calendar)
+        let februaryAnchor = try date(2026, 2, 25, 8, 0, calendar: calendar)
+        _ = try await actor.updateRecurringFixedExpenseRule(
+            RecurringFixedExpenseRuleDraft(
+                id: rule.id,
+                originExpenseID: rule.originExpenseID,
+                amount: rule.amount,
+                category: rule.category,
+                merchantName: rule.merchantName,
+                note: nil,
+                initialOccurrenceAt: rule.initialOccurrenceAt,
+                anchorDate: februaryAnchor,
+                timeZoneIdentifier: rule.timeZoneIdentifier,
+                calendarIdentifierRaw: rule.calendarIdentifierRaw,
+                isActive: true,
+                activeSince: rule.activeSince,
+                createdAt: rule.createdAt,
+                updatedAt: editedAt
+            )
+        )
+
+        let through = try date(2026, 2, 26, 8, 0, calendar: calendar)
+        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 1)
+        let generated = try #require(
+            try await actor.fetchExpenseSummaries().first { $0.id != rule.originExpenseID }
+        )
+        #expect(calendar.component(.month, from: generated.spentAt) == 2)
+        #expect(calendar.component(.day, from: generated.spentAt) == 25)
+    }
+
+    @Test
     func recurringRuleWithAFutureAnchorDoesNotBreakForegroundReconciliation() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let calendar = TestFixtures.utcCalendar
@@ -680,6 +788,7 @@ struct Phase11FreeTierTests {
         category: IncomeCategory = .salary,
         sourceName: String? = "Employer",
         note: String? = nil,
+        budgetPlanID: UUID? = nil,
         allocatedToBudgetMinorUnits: Int64 = 0,
         allocatedToSavingsMinorUnits: Int64 = 0,
         receivedAt: Date = TestFixtures.now,
@@ -692,6 +801,7 @@ struct Phase11FreeTierTests {
             category: category,
             sourceName: sourceName,
             note: note,
+            budgetPlanID: budgetPlanID,
             allocatedToBudgetMinorUnits: allocatedToBudgetMinorUnits,
             allocatedToSavingsMinorUnits: allocatedToSavingsMinorUnits,
             receivedAt: receivedAt,

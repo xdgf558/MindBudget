@@ -122,11 +122,19 @@ private struct BudgetPlanCoverageResolution {
     let generatedDrafts: [BudgetPlanDraft]
 }
 
+private struct PendingRecurringOccurrence {
+    let rule: RecurringFixedExpenseRuleSummary
+    let note: String?
+    let scheduledAt: Date
+    let occurrenceKey: String
+}
+
 struct MonthlyRecurringSchedule: Sendable {
     static let maximumGeneratedOccurrences = 120
 
     func dueDates(
         anchorDate: Date,
+        initialOccurrenceAt: Date,
         activatedAt: Date,
         through endDate: Date,
         timeZoneIdentifier: String,
@@ -171,7 +179,7 @@ struct MonthlyRecurringSchedule: Sendable {
         }
 
         var result: [Date] = []
-        var offset = max(1, elapsedMonths)
+        var offset = max(0, elapsedMonths)
         while result.count <= Self.maximumGeneratedOccurrences {
             guard let targetMonth = calendar.date(
                 byAdding: .month,
@@ -191,7 +199,12 @@ struct MonthlyRecurringSchedule: Sendable {
             if scheduledAt > endDate {
                 return result
             }
-            if scheduledAt > activatedAt {
+            let isInitialOccurrenceMonth = calendar.isDate(
+                scheduledAt,
+                equalTo: initialOccurrenceAt,
+                toGranularity: .month
+            )
+            if scheduledAt > activatedAt, !isInitialOccurrenceMonth {
                 result.append(scheduledAt)
                 guard result.count <= Self.maximumGeneratedOccurrences else {
                     throw DataValidationError.recurringGenerationLimit
@@ -623,11 +636,12 @@ actor DataActor {
             )
             let schedule = MonthlyRecurringSchedule()
             var insertedKeys = existingKeys
-            var generatedCount = 0
+            var pending: [PendingRecurringOccurrence] = []
             for rule in rules {
                 let summary = try recurringRuleSummary(rule)
                 let dueDates = try schedule.dueDates(
                     anchorDate: summary.anchorDate,
+                    initialOccurrenceAt: summary.initialOccurrenceAt,
                     activatedAt: summary.activeSince,
                     through: date,
                     timeZoneIdentifier: summary.timeZoneIdentifier,
@@ -643,43 +657,56 @@ actor DataActor {
                         calendar: calendar
                     )
                     guard insertedKeys.insert(key).inserted else { continue }
-                    let expenseID = UUID()
-                    let timestamp = date
-                    _ = try insertExpense(
-                        ExpenseDraft(
-                            id: expenseID,
-                            amount: summary.amount,
-                            category: summary.category,
-                            bucket: .fixed,
-                            merchantName: summary.merchantName,
+                    pending.append(
+                        PendingRecurringOccurrence(
+                            rule: summary,
                             note: rule.note,
-                            spentAt: scheduledAt,
-                            spentTimeZoneIdentifier: summary.timeZoneIdentifier,
-                            createdAt: timestamp,
-                            updatedAt: timestamp,
-                            paymentMethod: nil,
-                            emotionTag: nil,
-                            purchaseReason: .planned,
-                            isPlanned: true,
-                            isRecurring: true,
-                            source: .manual,
-                            allowMerchantIndexing: false
-                        )
-                    )
-                    modelContext.insert(
-                        RecurringExpenseOccurrence(
-                            id: UUID(),
-                            occurrenceKey: key,
-                            ruleID: summary.id,
-                            expenseID: expenseID,
                             scheduledAt: scheduledAt,
-                            createdAt: timestamp
+                            occurrenceKey: key
                         )
                     )
-                    generatedCount += 1
+                    guard pending.count <= MonthlyRecurringSchedule.maximumGeneratedOccurrences else {
+                        throw DataValidationError.recurringGenerationLimit
+                    }
                 }
             }
-            return generatedCount
+
+            for occurrence in pending {
+                let expenseID = UUID()
+                let timestamp = date
+                _ = try insertExpense(
+                    ExpenseDraft(
+                        id: expenseID,
+                        amount: occurrence.rule.amount,
+                        category: occurrence.rule.category,
+                        bucket: .fixed,
+                        merchantName: occurrence.rule.merchantName,
+                        note: occurrence.note,
+                        spentAt: occurrence.scheduledAt,
+                        spentTimeZoneIdentifier: occurrence.rule.timeZoneIdentifier,
+                        createdAt: timestamp,
+                        updatedAt: timestamp,
+                        paymentMethod: nil,
+                        emotionTag: nil,
+                        purchaseReason: .planned,
+                        isPlanned: true,
+                        isRecurring: true,
+                        source: .manual,
+                        allowMerchantIndexing: false
+                    )
+                )
+                modelContext.insert(
+                    RecurringExpenseOccurrence(
+                        id: UUID(),
+                        occurrenceKey: occurrence.occurrenceKey,
+                        ruleID: occurrence.rule.id,
+                        expenseID: expenseID,
+                        scheduledAt: occurrence.scheduledAt,
+                        createdAt: timestamp
+                    )
+                )
+            }
+            return pending.count
         }
     }
 
@@ -789,6 +816,19 @@ actor DataActor {
     func fetchBudgetPlanSummaries() throws -> [BudgetPlanSummary] {
         let descriptor = FetchDescriptor<BudgetPlan>(sortBy: [SortDescriptor(\BudgetPlan.cycleStart)])
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
+    }
+
+    /// Returns only an already-persisted plan. Income entry must not create budget cycles
+    /// merely because the user previews or saves a historical income date.
+    func fetchBudgetPlanCovering(date: Date) throws -> BudgetPlanSummary? {
+        var descriptor = FetchDescriptor<BudgetPlan>(
+            predicate: #Predicate { plan in
+                plan.cycleStart <= date && date < plan.cycleEnd
+            }
+        )
+        descriptor.fetchLimit = 1
+        guard let plan = try modelContext.fetch(descriptor).first else { return nil }
+        return try budgetPlanSummary(plan)
     }
 
     func previewPlanCoverage(
@@ -1758,14 +1798,45 @@ actor DataActor {
         guard TimeZone(identifier: draft.receivedTimeZoneIdentifier) != nil else {
             throw DataValidationError.invalidTimeZone(draft.receivedTimeZoneIdentifier)
         }
-        guard draft.allocatedToBudgetMinorUnits >= 0,
-              draft.allocatedToSavingsMinorUnits >= 0 else {
+        try validateIncomeAllocation(
+            budgetPlanID: draft.budgetPlanID,
+            allocatedToBudgetMinorUnits: draft.allocatedToBudgetMinorUnits,
+            allocatedToSavingsMinorUnits: draft.allocatedToSavingsMinorUnits,
+            incomeAmountMinorUnits: draft.amount.minorUnits,
+            currencyCode: draft.amount.currencyCode,
+            receivedAt: draft.receivedAt
+        )
+    }
+
+    private func validateIncomeAllocation(
+        budgetPlanID: UUID?,
+        allocatedToBudgetMinorUnits: Int64,
+        allocatedToSavingsMinorUnits: Int64,
+        incomeAmountMinorUnits: Int64,
+        currencyCode: String,
+        receivedAt: Date
+    ) throws {
+        guard allocatedToBudgetMinorUnits >= 0,
+              allocatedToSavingsMinorUnits >= 0 else {
             throw DataValidationError.invalidIncomeAllocation
         }
-        let (allocated, overflow) = draft.allocatedToBudgetMinorUnits.addingReportingOverflow(
-            draft.allocatedToSavingsMinorUnits
+        let (allocated, overflow) = allocatedToBudgetMinorUnits.addingReportingOverflow(
+            allocatedToSavingsMinorUnits
         )
-        guard !overflow, allocated <= draft.amount.minorUnits else {
+        guard !overflow, allocated <= incomeAmountMinorUnits else {
+            throw DataValidationError.invalidIncomeAllocation
+        }
+        if allocatedToBudgetMinorUnits == 0 {
+            guard budgetPlanID == nil else {
+                throw DataValidationError.invalidIncomeAllocation
+            }
+            return
+        }
+        guard let budgetPlanID,
+              let plan = try fetchBudgetPlan(id: budgetPlanID),
+              plan.currencyCode == currencyCode,
+              plan.cycleStart <= receivedAt,
+              receivedAt < plan.cycleEnd else {
             throw DataValidationError.invalidIncomeAllocation
         }
     }
@@ -2077,6 +2148,7 @@ actor DataActor {
             return
         }
         if let existing {
+            existing.budgetPlanID = draft.budgetPlanID
             existing.allocatedToBudgetMinorUnits = draft.allocatedToBudgetMinorUnits
             existing.allocatedToSavingsMinorUnits = draft.allocatedToSavingsMinorUnits
             existing.updatedAt = draft.updatedAt
@@ -2086,6 +2158,7 @@ actor DataActor {
             IncomeAllocation(
                 id: UUID(),
                 incomeID: draft.id,
+                budgetPlanID: draft.budgetPlanID,
                 allocatedToBudgetMinorUnits: draft.allocatedToBudgetMinorUnits,
                 allocatedToSavingsMinorUnits: draft.allocatedToSavingsMinorUnits,
                 createdAt: draft.createdAt,
@@ -2122,6 +2195,7 @@ actor DataActor {
             category: expense.category,
             merchantName: expense.merchantName,
             note: expense.note,
+            initialOccurrenceAt: existingRule?.initialOccurrenceAt ?? expense.spentAt,
             anchorDate: expense.spentAt,
             timeZoneIdentifier: expense.spentTimeZoneIdentifier,
             calendarIdentifierRaw: expense.recurrenceCalendarIdentifier?
@@ -2158,6 +2232,7 @@ actor DataActor {
             categoryRaw: draft.category.rawValue,
             merchantName: draft.merchantName,
             note: draft.note,
+            initialOccurrenceAt: draft.initialOccurrenceAt,
             anchorDate: draft.anchorDate,
             timeZoneIdentifier: draft.timeZoneIdentifier,
             calendarIdentifierRaw: draft.calendarIdentifierRaw,
@@ -2358,14 +2433,15 @@ actor DataActor {
     ) throws -> IncomeSummary {
         let allocatedToBudget = allocation?.allocatedToBudgetMinorUnits ?? 0
         let allocatedToSavings = allocation?.allocatedToSavingsMinorUnits ?? 0
-        guard allocatedToBudget >= 0,
-              allocatedToSavings >= 0 else {
-            throw DataValidationError.invalidIncomeAllocation
-        }
-        let (allocated, overflow) = allocatedToBudget.addingReportingOverflow(allocatedToSavings)
-        guard !overflow, allocated <= income.amountMinorUnits else {
-            throw DataValidationError.invalidIncomeAllocation
-        }
+        let budgetPlanID = allocation?.budgetPlanID
+        try validateIncomeAllocation(
+            budgetPlanID: budgetPlanID,
+            allocatedToBudgetMinorUnits: allocatedToBudget,
+            allocatedToSavingsMinorUnits: allocatedToSavings,
+            incomeAmountMinorUnits: income.amountMinorUnits,
+            currencyCode: income.currencyCode,
+            receivedAt: income.receivedAt
+        )
         return IncomeSummary(
             id: income.id,
             amount: try persistedMoney(
@@ -2382,6 +2458,7 @@ actor DataActor {
                 field: "categoryRaw"
             ),
             sourceName: income.sourceName,
+            budgetPlanID: budgetPlanID,
             allocatedToBudgetMinorUnits: allocatedToBudget,
             allocatedToSavingsMinorUnits: allocatedToSavings,
             receivedAt: income.receivedAt,
@@ -2410,17 +2487,29 @@ actor DataActor {
         var recordedIncome: Int64 = 0
         var allocatedIncome: Int64 = 0
         var allocatedSavings: Int64 = 0
+        var observedTargetedIncomeIDs: Set<UUID> = []
         for income in incomes {
             let summary = try incomeSummary(income, allocation: allocations[income.id])
             recordedIncome = try checkedDataAdd(recordedIncome, income.amountMinorUnits)
-            allocatedIncome = try checkedDataAdd(
-                allocatedIncome,
-                summary.allocatedToBudgetMinorUnits
-            )
+            if summary.budgetPlanID == plan.id {
+                allocatedIncome = try checkedDataAdd(
+                    allocatedIncome,
+                    summary.allocatedToBudgetMinorUnits
+                )
+                observedTargetedIncomeIDs.insert(income.id)
+            }
             allocatedSavings = try checkedDataAdd(
                 allocatedSavings,
                 summary.allocatedToSavingsMinorUnits
             )
+        }
+        let persistedTargetedIncomeIDs = Set(
+            allocations.values.compactMap { allocation in
+                allocation.budgetPlanID == plan.id ? allocation.incomeID : nil
+            }
+        )
+        guard observedTargetedIncomeIDs == persistedTargetedIncomeIDs else {
+            throw DataValidationError.invalidIncomeAllocation
         }
         return BudgetPlanSummary(
             id: plan.id,
@@ -2516,6 +2605,7 @@ actor DataActor {
                 field: "categoryRaw"
             ),
             merchantName: rule.merchantName,
+            initialOccurrenceAt: rule.initialOccurrenceAt,
             anchorDate: rule.anchorDate,
             timeZoneIdentifier: rule.timeZoneIdentifier,
             calendarIdentifierRaw: rule.calendarIdentifierRaw,

@@ -2421,3 +2421,42 @@ through CurrencyFormatterService at 100%; BudgetEngine is 93.90%.
 
 Next suggested task: Re-review the updated draft PR #18. Merge only after approval, then explicitly
 decide when to resume Archive and TestFlight work for version `0.9.4 (5)`.
+
+## 2026-08-09 — Session 60 — Close PR 18 review gaps
+
+Goal: Address the four P2 findings from the second PR #18 review without changing the approved
+Phase 12 product scope or resuming TestFlight.
+
+Files changed: app-language persistence and observation, Schema V3 allocation/recurring companion
+fields, DataActor validation and reconciliation, income and recurring-rule forms, bilingual copy,
+unit/UI tests, release/TestFlight documentation, project decisions and memory, changelog, and this
+log.
+
+What was completed: The app-language setting is now explicit persisted `@Published` state, so a
+selection invalidates the root locale immediately and the current screen changes language without
+a relaunch. Every nonzero income-to-spending allocation now stores an explicit target BudgetPlan;
+the actor requires that plan to exist, match the accounting currency, and contain the income date,
+while the form displays its exact cycle and refuses allocation when a historical date has no saved
+plan. Savings allocation remains cross-cycle and independent. Recurring rules now preserve an
+immutable initial-occurrence date separately from the editable future anchor, so moving a January
+rule into February cannot skip February. Reconciliation collects and deduplicates all pending
+occurrences before writing, applies the 120-occurrence limit across the combined batch, and rolls
+back the complete transaction on overflow.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, merge, signing change, or additional product feature was
+performed.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build and full
+Debug validation. All 248 Swift Testing tests across 17 suites and all 13 end-to-end/localization UI
+tests passed with zero failures. The new coverage proves language publication without relaunch,
+explicit dated-plan allocation rejection, edited-anchor month generation, and combined cross-rule
+rollback. The first sandboxed validation could not access DerivedData/CoreSimulator; rerunning the
+unchanged command with normal local Xcode permissions passed.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual catalog JSON,
+App Icon source/artifact checksums, opaque 1024px resources, and `git diff --check` pass. Every
+selected core service remains above 85%, ranging from CSV export at 87.60% through
+CurrencyFormatterService at 100%; BudgetEngine is 93.90%.
+
+Next suggested task: Re-review the correction on draft PR #18 before merge or any TestFlight action.

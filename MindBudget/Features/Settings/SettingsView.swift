@@ -994,6 +994,7 @@ private struct RecurringExpenseRuleEditView: View {
                     category: category,
                     merchantName: trimmed(merchantName),
                     note: trimmed(note),
+                    initialOccurrenceAt: rule.initialOccurrenceAt,
                     anchorDate: anchorDate,
                     timeZoneIdentifier: rule.timeZoneIdentifier,
                     calendarIdentifierRaw: rule.calendarIdentifierRaw,
