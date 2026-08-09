@@ -2950,3 +2950,31 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Review the budget setup and Settings preview on a physical iPhone with an
 existing plan that previously stored a fixed forecast, then decide whether to include this change
 in the next `0.9.5 (6)` TestFlight upload.
+
+## 2026-08-10 — Session 74 — Publish budget simplification as draft PR #21
+
+Goal: Preserve the completed budget-setup work from the shared local checkout, verify it
+independently, and publish a bounded draft pull request for owner review without merging or
+uploading another binary.
+
+What was completed: Created branch `codex/simplify-budget-setup`, committed the implementation and
+tests, pushed the branch, and opened draft PR #21. Release memory was corrected to record that
+`0.9.5 (6)` had already been accepted by App Store Connect transport on 2026-08-09. The current
+budget changes remain Unreleased and the release checklist now requires a new build number before
+any replacement Archive rather than allowing build 6 to be reused.
+
+What was NOT completed: No PR merge, version/build increment, Archive, TestFlight upload, tester
+assignment, signing change, or App Store submission was performed. The product owner still needs
+to review PR #21 and verify the revised budget forms and legacy fixed-forecast behavior on a
+physical iPhone.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation passed all 264 Swift Testing tests across 17 suites and all 13 UI tests with zero
+failures. The strict local 10,000-row Dashboard performance benchmark also passed independently.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual String
+Catalog JSON, App Icon integrity, and `git diff --check` all pass. Every selected core service
+remains above the 85% coverage gate.
+
+Next suggested task: Review draft PR #21. If approved, merge it into `main`, then increment the
+build number before preparing any TestFlight replacement containing these Unreleased changes.
