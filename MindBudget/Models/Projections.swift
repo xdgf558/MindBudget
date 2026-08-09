@@ -121,6 +121,19 @@ struct SavingsGoalSummary: Hashable, Identifiable, Sendable {
     let remaining: Money
     let createdAt: Date
     let updatedAt: Date
+
+    /// Presentation-ready progress derived from the authoritative target and saved total.
+    /// Keeping this with the projection prevents each screen from reimplementing money math.
+    var completionBasisPoints: Int64 {
+        guard target.minorUnits > 0 else { return 0 }
+        let cappedSaved = min(max(0, savedTotal.minorUnits), target.minorUnits)
+        let scaled = cappedSaved.multipliedFullWidth(by: 10_000)
+        return target.minorUnits.dividingFullWidth(scaled).quotient
+    }
+
+    var completionPercent: Int64 {
+        completionBasisPoints / 100
+    }
 }
 
 struct RecurringFixedExpenseRuleSummary: Hashable, Identifiable, Sendable {

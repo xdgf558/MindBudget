@@ -188,24 +188,34 @@ struct LocalizationTests {
 
     @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
-        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.4")
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.5")
 
-        #expect(presentation.current?.version == "0.9.4")
-        #expect(presentation.current?.items.count == 5)
+        #expect(presentation.current?.version == "0.9.5")
+        #expect(presentation.current?.items.count == 4)
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
-                "settings.releaseNotes.appLanguage"
+                "settings.releaseNotes.savingsProgress"
             ) == true
         )
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
-                "settings.releaseNotes.paceAppIcon"
+                "settings.releaseNotes.aiAppLanguage"
             ) == true
         )
-        #expect(presentation.history.map(\.version) == ["0.9.2", "0.9.1", "0.9.0"])
+        #expect(
+            presentation.current?.items.map(\.localizationKey).contains(
+                "settings.releaseNotes.truthfulCycleUsage"
+            ) == true
+        )
+        #expect(
+            presentation.current?.items.map(\.localizationKey).contains(
+                "settings.releaseNotes.askFallbackReasons"
+            ) == true
+        )
+        #expect(presentation.history.map(\.version) == ["0.9.4", "0.9.2", "0.9.1", "0.9.0"])
 
         let future = ReleaseNotesVersion(
-            version: "0.9.5",
+            version: "0.9.6",
             items: [
                 ReleaseNoteItem(
                     systemImage: "sparkles",
@@ -214,13 +224,13 @@ struct LocalizationTests {
             ]
         )
         let nextPresentation = ReleaseNotesCatalog.presentation(
-            installedVersion: "0.9.5",
+            installedVersion: "0.9.6",
             versions: [future] + ReleaseNotesCatalog.versions
         )
 
-        #expect(nextPresentation.current?.version == "0.9.5")
+        #expect(nextPresentation.current?.version == "0.9.6")
         #expect(
-            nextPresentation.history.map(\.version) == ["0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+            nextPresentation.history.map(\.version) == ["0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
         )
     }
 
@@ -246,6 +256,10 @@ struct LocalizationTests {
             "settings.releaseNotes.globalSavingsGoal",
             "settings.releaseNotes.recurringFixedExpenses",
             "settings.releaseNotes.paceAppIcon",
+            "settings.releaseNotes.savingsProgress",
+            "settings.releaseNotes.aiAppLanguage",
+            "settings.releaseNotes.truthfulCycleUsage",
+            "settings.releaseNotes.askFallbackReasons",
         ]
 
         for key in keys {

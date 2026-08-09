@@ -1794,3 +1794,73 @@ validator branch locally without creating a new privacy surface.
 Files affected: advice/summary/Ask redaction and generation, safety diagnostics, Ask and Debug
 settings UI, bilingual copy, Phase 7 tests and contracts, project memory, changelog, decisions,
 and session log.
+
+---
+
+## 2026-08-09 — Present cross-cycle savings separately and bind Foundation Models to app locale
+
+Context: The cross-cycle savings goal existed in Settings, but Insights did not show its progress.
+Physical-device diagnostics also showed the model available while a Simplified Chinese request
+fell back because the generated wording was English. Runtime support had been checked with
+`Locale.current`, and the session carried only a generic locale-language sentence instead of the
+selected app locale's explicit output requirement.
+
+Decision: Derive target, saved, remaining, and integer completion progress from the existing
+`SavingsGoalSummary`. Keep the ratio in basis points on the Sendable projection and let Insights
+render those facts without recalculating money or treating the per-cycle savings reservation as a
+lifetime goal. Read this projection independently so an unavailable goal can show a localized
+module error without hiding valid spending insights.
+
+Pass the active app locale into the centralized Foundation Models capability for Ask, reminders,
+cycle summaries, and Settings status. On supported SDKs, call `supportsLocale` with that locale.
+Every model session names the exact app-locale identifier using Apple's documented wording and
+adds an explicit requirement to answer only in its language. Keep generated-language validation
+and the localized deterministic template fallback unchanged, because instructions reduce drift but
+do not establish trust. Debug fallback counters remain in-memory and cumulative for one process,
+so their heading must not be read as the current availability state.
+
+Alternatives considered: Building savings progress from the current `BudgetPlan` reservation;
+calculating ratios independently in each view; hiding the entire Insights page when the goal read
+fails; checking only the device/process locale; or weakening language validation so more generated
+copy appears.
+
+Consequences: The user can see one honest cross-cycle savings status beside spending insights,
+while cycle budget math remains unchanged. Changing the app language immediately changes both the
+model support check and the requested response language. A model that still answers in the wrong
+language is never shown, and no new user text, raw transaction, or financial detail enters a model
+context.
+
+Files affected: savings projection and Insights/Settings presentation, Foundation Models
+capability/session construction, Ask/reminder/summary locale plumbing, bilingual copy, tests,
+prompt/test contracts, changelog, project memory, tasks, and session log.
+
+---
+
+## 2026-08-09 — Require the app locale at every model capability boundary
+
+Context: Review of the savings/locale update found that runtime support had moved from region-
+oriented process state to the app-selected language, but the unavailable reason still said the
+region was unsupported. The capability initializer and SDK helper also retained
+`Locale.current` defaults, allowing a future caller to compile while silently restoring the exact
+language mismatch this update fixes. Chinese instructions treated every `zh` locale as Simplified,
+and the savings completion projection multiplied by 10,000 without an explicit overflow-safe path.
+
+Decision: Represent unsupported selected language as a dedicated actionable reason. Require
+`targetLocale` in `AIEnhancementCapability` and `locale` in the runtime availability helper with no
+default, and remove the unused generator-level availability property that was the last process-
+locale route. Derive Simplified or Traditional Chinese instructions from the locale script, with
+TW/HK/MO as the region fallback when a script is absent. Compute savings basis points with
+`multipliedFullWidth` and `dividingFullWidth`, retain the actor's zero clamp for over-target
+remaining money, and cap visible completion at 100%.
+
+Alternatives considered: Rewording the old region message to cover both concepts; retaining
+`Locale.current` as a convenience fallback; mapping every Chinese locale to Simplified Chinese;
+or relying only on the current money ceiling to make ordinary multiplication practically safe.
+
+Consequences: A newly added model path cannot omit the app locale without a compile error. Users
+who select an unsupported language receive a relevant recovery suggestion instead of a false
+region diagnosis. Chinese instructions preserve the requested writing system, and savings
+progress remains exact without overflow or negative remaining money at successful completion.
+
+Files affected: Foundation Models capability and protocol surface, bilingual status copy, savings
+projection arithmetic, Phase 7/11 regressions, and durable project memory.

@@ -112,7 +112,7 @@ Status: Done
   English and all established technical identifiers.
 
 ## Phase 10 — Polish, tests, accessibility, TestFlight readiness
-Status: In Progress
+Status: Done
 - [x] Add an explicit, localized repair action for unreadable or orphaned cooling-off records.
   Show the affected count, require confirmation, revalidate before deletion, and never delete
   those records implicitly.
@@ -189,3 +189,20 @@ Status: Done
 - [x] Surface remaining recurring catch-up work in Settings as a non-error progress state, return
   each pending schedule date with its already-computed occurrence key, and fail closed after a
   bounded 1,200-month scan instead of leaving an unbounded foreground loop.
+
+## Post-upload update — Savings progress and app-locale model guidance
+Status: In Progress
+- [x] Add a standalone Insights savings-progress module backed by the cross-cycle savings-goal
+  projection, showing target, saved, remaining, and completion percentage without changing budget
+  arithmetic.
+- [x] Check Foundation Models support against the selected app locale and provide Apple's explicit
+  locale plus required-language instruction on Ask, reminder, and cycle-summary model paths.
+- [x] Close review gaps by separating unsupported app language from unsupported region, requiring
+  every capability caller to provide a locale, preserving Hans/Hant session instructions, and
+  proving overflow-safe savings completion at and beyond the target.
+- [x] Promote the reviewed source candidate to `0.9.5 (6)` with matching localized in-app notes,
+  changelog, tester guidance, and release-readiness checks; do not Archive or upload before approval.
+- [x] Pass the complete static, Release-build, unit/UI, and coverage validation gates.
+- [x] Keep 0.9.4 Archive/upload evidence explicitly historical, leave every 0.9.5 execution gate
+  unchecked, and align all four 0.9.5 user-visible changes across the changelog, TestFlight tester
+  guidance, and localized in-app release notes.

@@ -430,7 +430,8 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.4` for candidate build 5, and expose the localized update summary.
+from the built bundle, render `0.9.5` for candidate build 6, and expose the localized update summary
+while keeping `0.9.4` and earlier notes collapsed as history.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
 Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
@@ -553,6 +554,29 @@ Settings observation tests prove both language and skin changes publish through
 `SettingsStore.objectWillChange`, persist to the configured defaults suite, and can invalidate the
 root locale/theme without an unrelated state change or relaunch. App startup passes the SwiftUI
 environment calendar into the same reconciliation path used on foreground return.
+
+## Post-upload update acceptance
+
+Insights must fetch the cross-cycle `SavingsGoalSummary` independently from spending-pattern
+projections and show its exact target, saved total, remaining amount, and integer completion
+percentage. A goal-reading failure must not hide authoritative expense totals; a missing goal uses
+a localized neutral empty state. Tests use a starting balance plus an explicit income-to-savings
+allocation and prove the module reads the authoritative combined total without changing a
+`BudgetPlan` reservation.
+
+Every Foundation Models attempt must evaluate runtime support with the active app locale supplied
+by Ask, reminder, cycle-summary, or Settings status. Tests capture that locale at the centralized
+capability boundary and verify the system instruction names the exact identifier and explicitly
+requires the matching language. The capability initializer and runtime check have no
+`Locale.current` default, so any new production caller that omits the app locale fails to compile.
+An unsupported selected language must remain a dedicated actionable state rather than a region
+error. Test Simplified Chinese, Traditional Chinese script/region identifiers, and English. The
+existing generated-language validator and template fallback remain mandatory even after the
+stronger instruction.
+
+Savings progress tests must prove that confirmed savings beyond the target render 100% with zero
+remaining rather than a negative amount. The integer completion calculation must also remain exact
+and non-overflowing for values at the `Int64` boundary.
 
 ## Continuous integration
 

@@ -6,8 +6,24 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
+## 0.9.5 (6) — 2026-08-09 — Next internal TestFlight candidate
+
+### Added
+
+- Added a separate Savings Progress module to Insights with the total target, confirmed saved
+  amount, remaining amount, and completion percentage from the cross-cycle savings goal.
+
 ### Fixed
 
+- On-device wording enhancement now checks the exact app-selected locale before generation and
+  explicitly requires that language in every Foundation Models session. Wrong-language output
+  still fails closed to the matching deterministic template, and Debug labels its counters as
+  cumulative for the current app run rather than current availability. An unsupported selected
+  app language now has its own actionable status instead of being mislabeled as a region problem;
+  new capability callers must supply their locale explicitly, and Traditional Chinese locales
+  receive a Traditional Chinese instruction instead of a Simplified Chinese instruction.
+- Savings progress remains exact at the `Int64` boundary, caps completed goals at 100%, and never
+  presents a negative remaining amount when confirmed savings exceed the target.
 - Cycle overview no longer labels a positive but sub-one-percent spend as `0%`, and it now
   distinguishes an unavailable budget baseline from a configured cycle with exactly zero spend.
 - Ask now tells the user whether a complete local answer was used because enhancement was
