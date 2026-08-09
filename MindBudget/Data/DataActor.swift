@@ -110,7 +110,6 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidIncomeAllocation
     case invalidSavingsGoal
     case invalidRecurringExpenseRule
-    case recurringGenerationLimit
     case merchantAggregateOverflow
     case identityMismatch
     case invalidBudgetTransition
@@ -132,22 +131,35 @@ private struct PendingRecurringOccurrence {
 struct MonthlyRecurringSchedule: Sendable {
     static let maximumGeneratedOccurrences = 120
 
-    func dueDates(
+    struct PendingDateBatch: Sendable {
+        let dates: [Date]
+        let hasMore: Bool
+    }
+
+    func pendingDates(
+        ruleID: UUID,
         anchorDate: Date,
         initialOccurrenceAt: Date,
         activatedAt: Date,
         through endDate: Date,
         timeZoneIdentifier: String,
         calendarIdentifierRaw: String,
-        calendar sourceCalendar: Calendar
-    ) throws -> [Date] {
+        calendar sourceCalendar: Calendar,
+        existingOccurrenceKeys: Set<String>,
+        limit: Int = maximumGeneratedOccurrences
+    ) throws -> PendingDateBatch {
+        guard limit > 0 else {
+            return PendingDateBatch(dates: [], hasMore: false)
+        }
         guard let timeZone = TimeZone(identifier: timeZoneIdentifier),
               let identifier = Calendar.Identifier(
                 mindBudgetPersistedValue: calendarIdentifierRaw
               ) else {
             throw DataValidationError.invalidRecurringExpenseRule
         }
-        guard anchorDate <= endDate else { return [] }
+        guard anchorDate <= endDate else {
+            return PendingDateBatch(dates: [], hasMore: false)
+        }
         var calendar = Calendar(identifier: identifier)
         calendar.locale = sourceCalendar.locale
         calendar.timeZone = timeZone
@@ -180,7 +192,7 @@ struct MonthlyRecurringSchedule: Sendable {
 
         var result: [Date] = []
         var offset = max(0, elapsedMonths)
-        while result.count <= Self.maximumGeneratedOccurrences {
+        while true {
             guard let targetMonth = calendar.date(
                 byAdding: .month,
                 value: offset,
@@ -197,7 +209,7 @@ struct MonthlyRecurringSchedule: Sendable {
                 throw DataValidationError.invalidRecurringExpenseRule
             }
             if scheduledAt > endDate {
-                return result
+                return PendingDateBatch(dates: result, hasMore: false)
             }
             let isInitialOccurrenceMonth = calendar.isDate(
                 scheduledAt,
@@ -205,14 +217,22 @@ struct MonthlyRecurringSchedule: Sendable {
                 toGranularity: .month
             )
             if scheduledAt > activatedAt, !isInitialOccurrenceMonth {
-                result.append(scheduledAt)
-                guard result.count <= Self.maximumGeneratedOccurrences else {
-                    throw DataValidationError.recurringGenerationLimit
+                let key = try occurrenceKey(
+                    ruleID: ruleID,
+                    scheduledAt: scheduledAt,
+                    timeZoneIdentifier: timeZoneIdentifier,
+                    calendarIdentifierRaw: calendarIdentifierRaw,
+                    calendar: sourceCalendar
+                )
+                if !existingOccurrenceKeys.contains(key) {
+                    guard result.count < limit else {
+                        return PendingDateBatch(dates: result, hasMore: true)
+                    }
+                    result.append(scheduledAt)
                 }
             }
             offset += 1
         }
-        throw DataValidationError.recurringGenerationLimit
     }
 
     func occurrenceKey(
@@ -623,7 +643,7 @@ actor DataActor {
     func reconcileRecurringFixedExpenses(
         through date: Date,
         calendar: Calendar
-    ) throws -> Int {
+    ) throws -> RecurringExpenseReconciliationResult {
         try commit {
             let rules = try modelContext.fetch(
                 FetchDescriptor<RecurringFixedExpenseRule>(
@@ -635,20 +655,23 @@ actor DataActor {
                     .map(\.occurrenceKey)
             )
             let schedule = MonthlyRecurringSchedule()
-            var insertedKeys = existingKeys
             var pending: [PendingRecurringOccurrence] = []
+            var hasMorePerRule = false
             for rule in rules {
                 let summary = try recurringRuleSummary(rule)
-                let dueDates = try schedule.dueDates(
+                let dateBatch = try schedule.pendingDates(
+                    ruleID: summary.id,
                     anchorDate: summary.anchorDate,
                     initialOccurrenceAt: summary.initialOccurrenceAt,
                     activatedAt: summary.activeSince,
                     through: date,
                     timeZoneIdentifier: summary.timeZoneIdentifier,
                     calendarIdentifierRaw: summary.calendarIdentifierRaw,
-                    calendar: calendar
+                    calendar: calendar,
+                    existingOccurrenceKeys: existingKeys
                 )
-                for scheduledAt in dueDates {
+                hasMorePerRule = hasMorePerRule || dateBatch.hasMore
+                for scheduledAt in dateBatch.dates {
                     let key = try schedule.occurrenceKey(
                         ruleID: summary.id,
                         scheduledAt: scheduledAt,
@@ -656,7 +679,6 @@ actor DataActor {
                         calendarIdentifierRaw: summary.calendarIdentifierRaw,
                         calendar: calendar
                     )
-                    guard insertedKeys.insert(key).inserted else { continue }
                     pending.append(
                         PendingRecurringOccurrence(
                             rule: summary,
@@ -665,13 +687,18 @@ actor DataActor {
                             occurrenceKey: key
                         )
                     )
-                    guard pending.count <= MonthlyRecurringSchedule.maximumGeneratedOccurrences else {
-                        throw DataValidationError.recurringGenerationLimit
-                    }
                 }
             }
 
-            for occurrence in pending {
+            pending.sort { lhs, rhs in
+                lhs.scheduledAt == rhs.scheduledAt
+                    ? lhs.occurrenceKey < rhs.occurrenceKey
+                    : lhs.scheduledAt < rhs.scheduledAt
+            }
+            let selected = Array(
+                pending.prefix(MonthlyRecurringSchedule.maximumGeneratedOccurrences)
+            )
+            for occurrence in selected {
                 let expenseID = UUID()
                 let timestamp = date
                 _ = try insertExpense(
@@ -706,7 +733,10 @@ actor DataActor {
                     )
                 )
             }
-            return pending.count
+            return RecurringExpenseReconciliationResult(
+                insertedCount: selected.count,
+                hasMore: hasMorePerRule || pending.count > selected.count
+            )
         }
     }
 

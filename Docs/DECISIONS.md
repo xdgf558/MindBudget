@@ -1688,3 +1688,43 @@ remains paused until PR #18 is reviewed.
 Files affected: language settings/root environment and integration reconciliation, Schema V3 and
 migration plan, income/budget/savings/recurring actor paths, forms and Settings hierarchy, CSV and
 privacy deletion, bilingual copy, release metadata, tests, task memory, changelog, and session log.
+
+---
+
+## 2026-08-09 — Drain recurring backlogs in bounded chronological batches
+
+Context: The first combined-rule safety implementation rejected an entire reconciliation when more
+than 120 occurrences were pending. Because the rollback preserved no new occurrence identities,
+the next launch received the same input and failed again. A realistic set of monthly fixed expenses
+could therefore become permanently unreconcilable after a long absence. Review also confirmed that
+the selected skin, like the app language before it, affected the root view while remaining an
+unpublished `@AppStorage` property inside an `ObservableObject`.
+
+Decision: Each rule enumerates at most its oldest 120 missing occurrence dates while explicitly
+reporting whether more exist. The actor combines those bounded candidates, sorts them by scheduled
+time and stable occurrence key, and atomically inserts only the globally oldest 120. Its typed
+result reports both the inserted count and whether another foreground pass is needed. Existing
+occurrence identities are skipped during enumeration, so each later prepare/foreground pass makes
+progress without duplicates. The 120 value remains a per-transaction write bound, not a reason to
+reject valid accumulated history or to loop repeatedly during one foreground activation.
+
+Persist skin and language selections as explicit `@Published` values synchronized through named
+UserDefaults keys. These are the two settings directly consumed to build root theme/locale state;
+tests require each change to publish immediately and persist independently. Pass the SwiftUI
+environment calendar into initial preparation as well as foreground reconciliation. Keep the
+budget-plan allocation cross-check unchanged: it deliberately compares cycle-scoped incomes with
+a store-wide allocation map and can detect an out-of-cycle income targeting the plan.
+
+Alternatives considered: Keeping overflow as an atomic error with only a generic Settings warning;
+inserting every missing row in one transaction; repeatedly draining all batches during one launch;
+returning only an insertion count; or relying on navigation and unrelated published state to redraw
+the selected skin.
+
+Consequences: A large backlog may require more than one foreground activation, but every successful
+activation commits no more than 120 oldest entries, exposes remaining work as a non-error state,
+and cannot become stuck on the same first 121 rows. Root language and skin selections now share an
+observable persistence contract. Other `@AppStorage` preferences retain their existing explicit
+session/action redraw paths and should be converted if a future root-only consumer is added.
+
+Files affected: recurring schedule/reconciliation projections and tests, app session calendar and
+backlog state, SettingsStore observation tests, project memory, test plan, changelog, and session log.

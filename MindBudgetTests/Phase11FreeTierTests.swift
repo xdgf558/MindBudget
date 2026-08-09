@@ -489,8 +489,18 @@ struct Phase11FreeTierTests {
         _ = try await actor.createExpense(recurring)
         let through = try date(2026, 4, 30, 23, 0, calendar: calendar)
 
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 3)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 0)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            ) == RecurringExpenseReconciliationResult(insertedCount: 3, hasMore: false)
+        )
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            ) == .empty
+        )
         let expenses = try await actor.fetchExpenseSummaries().sorted { $0.spentAt < $1.spentAt }
         let dates = expenses.map { calendar.dateComponents([.month, .day], from: $0.spentAt) }
 
@@ -553,8 +563,18 @@ struct Phase11FreeTierTests {
         )
         let through = try date(2028, 2, 29, 23, 0, calendar: calendar)
 
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 1)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 0)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            ) == RecurringExpenseReconciliationResult(insertedCount: 1, hasMore: false)
+        )
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            ) == .empty
+        )
         let expenses = try await actor.fetchExpenseSummaries().sorted { $0.spentAt < $1.spentAt }
         let generated = try #require(expenses.last)
 
@@ -577,7 +597,12 @@ struct Phase11FreeTierTests {
             try await actor.fetchRecurringFixedExpenseRuleSummaries().first
         )
         let februaryEnd = try date(2026, 2, 28, 23, 0, calendar: calendar)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: februaryEnd, calendar: calendar) == 1)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: februaryEnd,
+                calendar: calendar
+            ).insertedCount == 1
+        )
 
         let pausedAt = try date(2026, 3, 1, 9, 0, calendar: calendar)
         _ = try await actor.setRecurringFixedExpenseRuleActive(
@@ -586,7 +611,12 @@ struct Phase11FreeTierTests {
             at: pausedAt
         )
         let aprilEnd = try date(2026, 4, 30, 23, 0, calendar: calendar)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: aprilEnd, calendar: calendar) == 0)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: aprilEnd,
+                calendar: calendar
+            ) == .empty
+        )
 
         _ = try await actor.setRecurringFixedExpenseRuleActive(
             id: rule.id,
@@ -594,7 +624,12 @@ struct Phase11FreeTierTests {
             at: aprilEnd
         )
         let mayEnd = try date(2026, 5, 31, 23, 0, calendar: calendar)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: mayEnd, calendar: calendar) == 1)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: mayEnd,
+                calendar: calendar
+            ).insertedCount == 1
+        )
         let months = try await actor.fetchExpenseSummaries().map {
             calendar.component(.month, from: $0.spentAt)
         }.sorted()
@@ -602,7 +637,7 @@ struct Phase11FreeTierTests {
     }
 
     @Test
-    func recurringGenerationLimitRollsBackTheWholeCatchUpBatch() async throws {
+    func singleRuleCatchUpContinuesInBoundedBatches() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let calendar = TestFixtures.utcCalendar
         let anchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
@@ -611,18 +646,63 @@ struct Phase11FreeTierTests {
         )
         let farFuture = try date(2036, 3, 1, 8, 0, calendar: calendar)
 
-        await #expect(throws: DataValidationError.recurringGenerationLimit) {
-            _ = try await actor.reconcileRecurringFixedExpenses(
+        let firstBatch = try await actor.reconcileRecurringFixedExpenses(
+            through: farFuture,
+            calendar: calendar
+        )
+        #expect(firstBatch.insertedCount == 120)
+        #expect(firstBatch.hasMore)
+        #expect(try await actor.modelCounts().recurringOccurrences == 120)
+
+        let secondBatch = try await actor.reconcileRecurringFixedExpenses(
+            through: farFuture,
+            calendar: calendar
+        )
+        #expect(secondBatch.insertedCount == 2)
+        #expect(!secondBatch.hasMore)
+        #expect(try await actor.fetchExpenseSummaries().count == 123)
+        #expect(try await actor.modelCounts().recurringOccurrences == 122)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
                 through: farFuture,
                 calendar: calendar
-            )
-        }
-        #expect(try await actor.fetchExpenseSummaries().count == 1)
-        #expect(try await actor.modelCounts().recurringOccurrences == 0)
+            ) == .empty
+        )
     }
 
     @Test
-    func recurringGenerationLimitAppliesAcrossAllRulesInOneBatch() async throws {
+    func appSessionTreatsARemainingRecurringBacklogAsProgressNotFailure() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let calendar = TestFixtures.utcCalendar
+        let anchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
+        _ = try await actor.createExpense(
+            expenseDraft(at: anchor, createdAt: anchor, isRecurring: true)
+        )
+        let through = try date(2036, 3, 1, 8, 0, calendar: calendar)
+        let session = AppSession(dataActor: actor)
+
+        let firstBatch = await session.reconcileRecurringExpenses(
+            calendar: calendar,
+            now: through
+        )
+
+        #expect(firstBatch.insertedCount == 120)
+        #expect(firstBatch.hasMore)
+        #expect(session.recurringExpenseReconciliationHasMore)
+        #expect(!session.recurringExpenseReconciliationFailed)
+
+        let secondBatch = await session.reconcileRecurringExpenses(
+            calendar: calendar,
+            now: through
+        )
+        #expect(secondBatch.insertedCount == 2)
+        #expect(!secondBatch.hasMore)
+        #expect(!session.recurringExpenseReconciliationHasMore)
+        #expect(!session.recurringExpenseReconciliationFailed)
+    }
+
+    @Test
+    func catchUpLimitAppliesAcrossAllRulesAndResumesOldestFirst() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let calendar = TestFixtures.utcCalendar
         let firstAnchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
@@ -635,15 +715,25 @@ struct Phase11FreeTierTests {
         )
         let through = try date(2031, 2, 28, 23, 0, calendar: calendar)
 
-        await #expect(throws: DataValidationError.recurringGenerationLimit) {
-            _ = try await actor.reconcileRecurringFixedExpenses(
-                through: through,
-                calendar: calendar
-            )
-        }
+        let firstBatch = try await actor.reconcileRecurringFixedExpenses(
+            through: through,
+            calendar: calendar
+        )
+        #expect(firstBatch.insertedCount == 120)
+        #expect(firstBatch.hasMore)
+        #expect(try await actor.modelCounts().recurringOccurrences == 120)
+        let firstBatchExpenses = try await actor.fetchExpenseSummaries()
+        let finalPendingMonth = try date(2031, 2, 1, 0, 0, calendar: calendar)
+        #expect(firstBatchExpenses.allSatisfy { $0.spentAt < finalPendingMonth })
 
-        #expect(try await actor.fetchExpenseSummaries().count == 2)
-        #expect(try await actor.modelCounts().recurringOccurrences == 0)
+        let secondBatch = try await actor.reconcileRecurringFixedExpenses(
+            through: through,
+            calendar: calendar
+        )
+        #expect(secondBatch.insertedCount == 2)
+        #expect(!secondBatch.hasMore)
+        #expect(try await actor.fetchExpenseSummaries().count == 124)
+        #expect(try await actor.modelCounts().recurringOccurrences == 122)
     }
 
     @Test
@@ -679,7 +769,12 @@ struct Phase11FreeTierTests {
         )
 
         let through = try date(2026, 2, 26, 8, 0, calendar: calendar)
-        #expect(try await actor.reconcileRecurringFixedExpenses(through: through, calendar: calendar) == 1)
+        #expect(
+            try await actor.reconcileRecurringFixedExpenses(
+                through: through,
+                calendar: calendar
+            ).insertedCount == 1
+        )
         let generated = try #require(
             try await actor.fetchExpenseSummaries().first { $0.id != rule.originExpenseID }
         )
@@ -705,7 +800,7 @@ struct Phase11FreeTierTests {
             try await actor.reconcileRecurringFixedExpenses(
                 through: TestFixtures.now,
                 calendar: calendar
-            ) == 0
+            ) == .empty
         )
         #expect(try await actor.modelCounts().recurringOccurrences == 0)
     }
@@ -743,7 +838,7 @@ struct Phase11FreeTierTests {
             try await actor.reconcileRecurringFixedExpenses(
                 through: februaryEnd,
                 calendar: calendar
-            ) == 1
+            ).insertedCount == 1
         )
         let generated = try await actor.fetchExpenseSummaries()
             .filter { $0.id != rule.originExpenseID }

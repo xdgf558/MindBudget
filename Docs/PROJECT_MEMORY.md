@@ -47,8 +47,9 @@ explicit per-income allocation to current-cycle spending and/or savings, a cross
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
 recurring fixed-expense rules. Language changes publish immediately without relaunch. A nonzero
 spending allocation targets one already-saved cycle containing the income date, while savings stays
-cross-cycle. Recurring edits retain the immutable source-occurrence month, and the 120-occurrence
-limit applies to the combined atomic reconciliation batch. The candidate is version `0.9.4 (5)`
+cross-cycle. Recurring edits retain the immutable source-occurrence month, and each atomic
+reconciliation commits at most the oldest 120 pending occurrences across all rules, reporting
+whether later foreground work remains instead of entering a permanent failure loop. The candidate is version `0.9.4 (5)`
 and remains unuploaded until PR #18 review and the release checklist authorize TestFlight.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
@@ -130,9 +131,10 @@ app's private data are forbidden in V1.
   replace or reinterpret the per-cycle savings reservation in `BudgetPlan`.
 - Monthly recurring fixed-expense rules begin after explicit confirmation, keep the source expense's
   handled month independent from the editable future anchor, use the saved calendar day/local time
-  with end-of-month clamping, reconcile each occurrence once by stable identity, cap the combined
-  atomic batch at 120, skip paused months after resume, and never delete ledger history when a rule
-  is removed.
+  with end-of-month clamping, reconcile each occurrence once by stable identity, commit the oldest
+  120 pending occurrences across all rules per atomic foreground batch, continue remaining work on
+  a later foreground pass, skip paused months after resume, and never delete ledger history when a
+  rule is removed.
 - The iOS launch screen remains static. The optional brand motion is an app-owned cold-launch
   overlay, never a video or third-party animation, and its Debug UI-test hold cannot ship in Release.
 

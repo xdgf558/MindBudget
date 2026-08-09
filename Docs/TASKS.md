@@ -181,5 +181,8 @@ Status: Done
   models, then publish the completed work as PR #18. Do not mix this scope into PR #17.
 - [x] Close PR #18 review gaps: publish language changes immediately without relaunch, bind every
   nonzero spending allocation to an explicit persisted cycle containing the income date, preserve
-  the source-occurrence month when a recurring rule date is edited, and enforce the 120-occurrence
-  limit across the complete reconciliation batch with atomic rollback.
+  the source-occurrence month when a recurring rule date is edited, and bound each complete
+  reconciliation transaction to the oldest 120 pending occurrences across all rules.
+- [x] Make recurrence catch-up recoverable across successive foreground batches, publish skin
+  changes to the root theme immediately, centralize the new persisted setting keys, and inject the
+  SwiftUI environment calendar into initial reconciliation as well as foreground reconciliation.

@@ -47,7 +47,9 @@ What to test:
   values. Pause it across a due month and resume it; confirm paused months are not backfilled.
   Move a rule's date into the current month before its new due day and confirm that occurrence is
   still generated. Delete the rule and confirm generated history stays in Log. A combined catch-up
-  above 120 occurrences must fail without saving a partial subset from any rule.
+  above 120 occurrences must save only the globally oldest 120 in one foreground transaction,
+  report remaining work without a failure warning, and continue the next oldest batch on a later
+  foreground activation without duplicates.
 - Upgrade an existing 0.9.2 installation and confirm prior income, expenses, budget, wishes,
   cooling-off records, settings, and skin remain intact. Existing income must show zero allocation
   until the owner explicitly changes it.

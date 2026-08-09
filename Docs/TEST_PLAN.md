@@ -522,11 +522,17 @@ February 28 or February 29 as appropriate and on April 30, repeated reconciliati
 and a generated entry remains fixed/planned/recurring without becoming a second rule when edited.
 Pausing prevents
 generation, resuming starts after the new confirmation time without backfilling paused months,
-deleting a rule preserves ledger history, and a bounded reconciliation failure rolls back the
-whole batch rather than saving partial occurrences. Moving a January rule anchor to a future date
-inside February still generates that February occurrence, because the immutable source month is
-separate from the editable anchor. Multiple rules whose combined pending occurrences exceed 120
-must fail together and leave both ledger and occurrence tables unchanged.
+and deleting a rule preserves ledger history. Moving a January rule anchor to a future date inside
+February still generates that February occurrence, because the immutable source month is separate
+from the editable anchor. A catch-up with more than 120 missing rows commits only the globally
+oldest 120 in one atomic transaction, reports that more remain, and a later reconciliation resumes
+without duplicates until the backlog is empty. Cover both one-rule and combined multi-rule
+backlogs, stable chronological ordering, and final idempotency.
+
+Settings observation tests prove both language and skin changes publish through
+`SettingsStore.objectWillChange`, persist to the configured defaults suite, and can invalidate the
+root locale/theme without an unrelated state change or relaunch. App startup passes the SwiftUI
+environment calendar into the same reconciliation path used on foreground return.
 
 ## Continuous integration
 

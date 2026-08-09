@@ -144,6 +144,16 @@ struct RecurringFixedExpenseRuleDetail: Hashable, Sendable {
     let note: String?
 }
 
+struct RecurringExpenseReconciliationResult: Equatable, Sendable {
+    let insertedCount: Int
+    let hasMore: Bool
+
+    static let empty = RecurringExpenseReconciliationResult(
+        insertedCount: 0,
+        hasMore: false
+    )
+}
+
 struct CategoryBudgetSummary: Hashable, Sendable {
     let id: UUID
     let category: ExpenseCategory

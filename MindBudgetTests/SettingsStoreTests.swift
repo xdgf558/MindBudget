@@ -197,6 +197,24 @@ struct SettingsStoreTests {
     }
 
     @Test
+    func changingAppSkinPublishesAnImmediateRootThemeUpdate() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+        var updateCount = 0
+        let observation = store.objectWillChange.sink {
+            updateCount += 1
+        }
+
+        store.appSkinRaw = AppSkin.neonPulse.rawValue
+
+        #expect(updateCount == 1)
+        #expect(store.appSkin == .neonPulse)
+        #expect(SettingsStore(defaults: fixture.defaults).appSkin == .neonPulse)
+        withExtendedLifetime(observation) {}
+    }
+
+    @Test
     func appLanguageDefaultsToSystemAndPersistsAnExplicitLocale() {
         let fixture = isolatedDefaults()
         defer { fixture.cleanup() }

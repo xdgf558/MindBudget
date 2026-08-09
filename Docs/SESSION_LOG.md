@@ -2460,3 +2460,45 @@ selected core service remains above 85%, ranging from CSV export at 87.60% throu
 CurrencyFormatterService at 100%; BudgetEngine is 93.90%.
 
 Next suggested task: Re-review the correction on draft PR #18 before merge or any TestFlight action.
+
+## 2026-08-09 — Session 61 — Make recurring catch-up recoverable
+
+Goal: Close the remaining PR #18 blocking review item by replacing the permanent recurring-expense
+overflow failure with bounded, resumable work, while confirming the income-allocation integrity
+check and auditing root-level settings observation.
+
+Files changed: recurring schedule and reconciliation projections, AppSession preparation, settings
+persistence and publication, recurring/settings tests, Phase 12 project memory, decisions, task and
+test plans, App Store submission checklist, changelog, and this log.
+
+What was completed: Recurring reconciliation now discovers missing occurrences by stable
+rule/month identity, globally orders them by scheduled date, and atomically inserts only the oldest
+120 rows per foreground transaction. It returns an explicit `hasMore` result instead of throwing;
+the next foreground activation continues with the remaining rows, so a long closure or many rules
+cannot create a permanent failure loop. Tests prove a 122-row single-rule backlog and a 122-row
+two-rule backlog complete over two passes, remain chronological, and become idempotent. AppSession
+publishes backlog progress separately from actual reconciliation failure and now passes the
+environment calendar through initial preparation as well as foreground refresh. Skin and language
+are explicit persisted `@Published` root state with centralized storage keys, so both redraw the
+root presentation immediately. The income-allocation cross-check was retained after confirming it
+compares cycle-scoped incomes with the store-wide allocation map and therefore detects an
+out-of-cycle income incorrectly targeting the plan.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, merge, signing change, or new product feature was performed.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. The
+full functional validation ran 249 Swift Testing tests with the repository's wall-clock-only test
+excluded from the concurrent suite, and all 13 end-to-end/localization UI tests passed with zero
+failures. The excluded strict 10,000-row Dashboard benchmark was then run independently on an idle
+simulator and passed together with its deterministic 10,000-row projection companion. An initial
+full run under concurrent load recorded only that known wall-clock signal at 0.770 seconds; no
+functional test failed.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual catalog JSON, and `git diff --check` pass. Every selected core
+service remains above 85%, ranging from CSV export at 87.60% through CurrencyFormatterService at
+100%; BudgetEngine is 93.90%.
+
+Next suggested task: Re-review the bounded recurring catch-up correction on draft PR #18. Merge
+only after approval; keep TestFlight paused until the owner explicitly resumes it.

@@ -49,7 +49,10 @@ No additional user-visible changes are staged beyond the `0.9.4 (5)` internal ca
 - Income allocated to spending now targets the exact saved budget cycle containing its received
   date. Historical income cannot silently change the current cycle or allocate into a missing one.
 - Editing a monthly recurring rule into a new month no longer skips that month's first occurrence,
-  and the 120-occurrence protection now applies to the combined atomic batch across all rules.
+  and each atomic catch-up now saves at most the globally oldest 120 pending occurrences across all
+  rules. Larger backlogs continue on later foreground passes instead of failing forever.
+- Skin changes now update the complete interface immediately without waiting for navigation,
+  another setting change, or an app relaunch.
 
 ## 0.9.2 (4) — 2026-08-08 — Replacement internal TestFlight candidate
 

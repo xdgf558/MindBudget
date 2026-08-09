@@ -51,6 +51,7 @@ final class AppSession: ObservableObject {
     @Published private(set) var appLockState: AppLockState
     @Published private(set) var appLockOperationError: AppLockOperationError?
     @Published private(set) var recurringExpenseReconciliationFailed = false
+    @Published private(set) var recurringExpenseReconciliationHasMore = false
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
 
     var notificationDataIntegrityWarning: Bool {
@@ -151,7 +152,12 @@ final class AppSession: ObservableObject {
         }
     }
 
-    func prepare(settings: SettingsStore, force: Bool = false) async {
+    func prepare(
+        settings: SettingsStore,
+        force: Bool = false,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async {
         guard !isPrepared || force else { return }
         isPrepared = false
         do {
@@ -159,7 +165,7 @@ final class AppSession: ObservableObject {
                 settings.currencyCode = existingPlan.currencyCode
                 settings.firstLaunchCompleted = true
             }
-            _ = await reconcileRecurringExpenses()
+            _ = await reconcileRecurringExpenses(calendar: calendar, now: now)
             preparationFailed = false
         } catch {
             preparationFailed = true
@@ -171,18 +177,20 @@ final class AppSession: ObservableObject {
     func reconcileRecurringExpenses(
         calendar: Calendar = .current,
         now: Date = Date()
-    ) async -> Int {
+    ) async -> RecurringExpenseReconciliationResult {
         do {
-            let count = try await dataActor.reconcileRecurringFixedExpenses(
+            let result = try await dataActor.reconcileRecurringFixedExpenses(
                 through: now,
                 calendar: calendar
             )
             recurringExpenseReconciliationFailed = false
-            if count > 0 { dataDidChange() }
-            return count
+            recurringExpenseReconciliationHasMore = result.hasMore
+            if result.insertedCount > 0 { dataDidChange() }
+            return result
         } catch {
             recurringExpenseReconciliationFailed = true
-            return 0
+            recurringExpenseReconciliationHasMore = false
+            return .empty
         }
     }
 
@@ -427,6 +435,7 @@ final class AppSession: ObservableObject {
 struct AppRouter: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
     @StateObject private var session: AppSession
     @State private var showsLaunchAnimation = true
@@ -462,7 +471,13 @@ struct AppRouter: View {
                             .accessibilityLabel("common.loading")
                     } else if session.preparationFailed {
                         ErrorStateView(messageKey: "error.data.load") {
-                            Task { await session.prepare(settings: settings, force: true) }
+                            Task {
+                                await session.prepare(
+                                    settings: settings,
+                                    force: true,
+                                    calendar: calendar
+                                )
+                            }
                         }
                     } else if !settings.firstLaunchCompleted {
                         OnboardingView(dataActor: session.dataActor) {
@@ -505,7 +520,7 @@ struct AppRouter: View {
                 settings: settings,
                 localizedReason: appLockReason
             )
-            await session.prepare(settings: settings)
+            await session.prepare(settings: settings, calendar: calendar)
             await session.observeIntentNavigation()
         }
         .onChange(of: scenePhase) { _, newPhase in

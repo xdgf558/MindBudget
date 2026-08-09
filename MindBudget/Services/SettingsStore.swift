@@ -58,6 +58,11 @@ struct PreferencesSnapshot: Equatable, Sendable {
 final class SettingsStore: ObservableObject {
     nonisolated static let maximumDailyInterruptions = 2
 
+    private enum StorageKey {
+        static let appLanguage = "appLanguageRaw"
+        static let appSkin = "appSkinRaw"
+    }
+
     private let defaults: UserDefaults
 
     @AppStorage var currencyCode: String {
@@ -78,10 +83,14 @@ final class SettingsStore: ObservableObject {
     @AppStorage var indexMerchantNames: Bool
     @AppStorage var firstLaunchCompleted: Bool
     @AppStorage var budgetCycleStartDay: Int
-    @AppStorage var appSkinRaw: String
+    @Published var appSkinRaw: String {
+        didSet {
+            defaults.set(appSkinRaw, forKey: StorageKey.appSkin)
+        }
+    }
     @Published var appLanguageRaw: String {
         didSet {
-            defaults.set(appLanguageRaw, forKey: "appLanguageRaw")
+            defaults.set(appLanguageRaw, forKey: StorageKey.appLanguage)
         }
     }
     @AppStorage private(set) var categoryBucketOverridesJSON: Data
@@ -97,7 +106,9 @@ final class SettingsStore: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        appLanguageRaw = defaults.string(forKey: "appLanguageRaw")
+        appSkinRaw = defaults.string(forKey: StorageKey.appSkin)
+            ?? AppSkin.defaultSkin.rawValue
+        appLanguageRaw = defaults.string(forKey: StorageKey.appLanguage)
             ?? AppLanguage.system.rawValue
         _currencyCode = AppStorage(wrappedValue: "", "currencyCode", store: defaults)
         _enableGentleReminders = AppStorage(wrappedValue: true, "enableGentleReminders", store: defaults)
@@ -115,11 +126,6 @@ final class SettingsStore: ObservableObject {
         _indexMerchantNames = AppStorage(wrappedValue: false, "indexMerchantNames", store: defaults)
         _firstLaunchCompleted = AppStorage(wrappedValue: false, "firstLaunchCompleted", store: defaults)
         _budgetCycleStartDay = AppStorage(wrappedValue: 1, "budgetCycleStartDay", store: defaults)
-        _appSkinRaw = AppStorage(
-            wrappedValue: AppSkin.defaultSkin.rawValue,
-            "appSkinRaw",
-            store: defaults
-        )
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)
         _ruleConfigurationJSON = AppStorage(wrappedValue: Data(), "ruleConfigurationJSON", store: defaults)
         configurationDiagnostic = nil
