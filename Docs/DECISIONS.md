@@ -1833,3 +1833,34 @@ context.
 Files affected: savings projection and Insights/Settings presentation, Foundation Models
 capability/session construction, Ask/reminder/summary locale plumbing, bilingual copy, tests,
 prompt/test contracts, changelog, project memory, tasks, and session log.
+
+---
+
+## 2026-08-09 — Require the app locale at every model capability boundary
+
+Context: Review of the savings/locale update found that runtime support had moved from region-
+oriented process state to the app-selected language, but the unavailable reason still said the
+region was unsupported. The capability initializer and SDK helper also retained
+`Locale.current` defaults, allowing a future caller to compile while silently restoring the exact
+language mismatch this update fixes. Chinese instructions treated every `zh` locale as Simplified,
+and the savings completion projection multiplied by 10,000 without an explicit overflow-safe path.
+
+Decision: Represent unsupported selected language as a dedicated actionable reason. Require
+`targetLocale` in `AIEnhancementCapability` and `locale` in the runtime availability helper with no
+default, and remove the unused generator-level availability property that was the last process-
+locale route. Derive Simplified or Traditional Chinese instructions from the locale script, with
+TW/HK/MO as the region fallback when a script is absent. Compute savings basis points with
+`multipliedFullWidth` and `dividingFullWidth`, retain the actor's zero clamp for over-target
+remaining money, and cap visible completion at 100%.
+
+Alternatives considered: Rewording the old region message to cover both concepts; retaining
+`Locale.current` as a convenience fallback; mapping every Chinese locale to Simplified Chinese;
+or relying only on the current money ceiling to make ordinary multiplication practically safe.
+
+Consequences: A newly added model path cannot omit the app locale without a compile error. Users
+who select an unsupported language receive a relevant recovery suggestion instead of a false
+region diagnosis. Chinese instructions preserve the requested writing system, and savings
+progress remains exact without overflow or negative remaining money at successful completion.
+
+Files affected: Foundation Models capability and protocol surface, bilingual status copy, savings
+projection arithmetic, Phase 7/11 regressions, and durable project memory.

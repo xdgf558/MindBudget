@@ -21,7 +21,7 @@ unchecked item below has been performed against the release commit.
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is TestFlight candidate version 0.9.4/build 5, iPhone-only,
+- [x] Release configuration is next TestFlight candidate version 0.9.5/build 6, iPhone-only,
   iOS 17+, and contains no shared Apple Team ID.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
@@ -41,6 +41,8 @@ unchecked item below has been performed against the release commit.
   archive's application identifier prefix/team before upload.
 - [x] Upload through Organizer while logged into the current account, wait for processing, and
   verify the build appears under the intended App Store Connect app before assigning testers.
+- [ ] Archive and upload Release 0.9.5 (6) only after PR approval and the remaining candidate
+  checks; verify the current team and App Store Connect record again at Archive time.
 
 ### Dated development preflight evidence (historical, not a release gate)
 

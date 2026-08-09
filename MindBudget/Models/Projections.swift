@@ -127,7 +127,8 @@ struct SavingsGoalSummary: Hashable, Identifiable, Sendable {
     var completionBasisPoints: Int64 {
         guard target.minorUnits > 0 else { return 0 }
         let cappedSaved = min(max(0, savedTotal.minorUnits), target.minorUnits)
-        return cappedSaved * 10_000 / target.minorUnits
+        let scaled = cappedSaved.multipliedFullWidth(by: 10_000)
+        return target.minorUnits.dividingFullWidth(scaled).quotient
     }
 
     var completionPercent: Int64 {

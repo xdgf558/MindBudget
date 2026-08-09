@@ -2827,3 +2827,44 @@ core service remains above the 85% gate; `AdviceSafetyValidator` is at 96.15%,
 Next suggested task: Review this post-upload update, test the savings card and selected-language
 Foundation Models path on the physical iPhone, then decide whether to ship it as the next
 TestFlight build before starting the separate PRO commercialization scope.
+
+## 2026-08-09 — Session 71 — Close PR #20 locale review and prepare 0.9.5 (6)
+
+Goal: Close the review findings on the savings-progress and app-locale AI update, then promote the
+next source candidate to version `0.9.5 (6)` with current bilingual release notes.
+
+Files changed: Foundation Models capability and locale instructions, savings-progress arithmetic,
+AI and savings regressions, bilingual settings/release-note strings, project version settings,
+release-readiness checks, and the repository's AI, release, test, decision, task, changelog, and
+project-memory documents.
+
+What was completed: Unsupported app languages now produce a distinct, actionable
+`languageNotSupported` reason instead of incorrectly blaming the user's region. Every model
+capability boundary requires an explicit app-selected locale, the unused protocol availability
+path was removed, and locale instructions distinguish Simplified Chinese, Traditional Chinese,
+and U.S. English without silently falling back to `Locale.current`. Savings completion uses
+full-width integer multiplication before division and remains capped at 100%, with over-target
+savings verified to display zero remaining. The next source candidate is now `0.9.5 (6)` and the
+About page exposes only its two current bilingual release-note items, while earlier notes remain
+collapsed in history.
+
+What was NOT completed: No Archive, TestFlight upload, tester assignment, physical-device install,
+signing change, merge, or App Store submission was performed. App Store Connect still contains the
+previously uploaded `0.9.4 (5)` binary; `0.9.5 (6)` is source-only and awaits PR #20 approval.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 264 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. The strict 10,000-row Dashboard benchmark then passed in its
+isolated run.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate; Money is at 91.73%, BudgetEngine 93.90%,
+BudgetCycleCalculator 95.15%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.38%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #20. After approval, merge it and verify the savings card,
+language-switch availability state, and selected-language Foundation Models response on the signed
+physical iPhone before deciding whether to Archive and upload `0.9.5 (6)`.

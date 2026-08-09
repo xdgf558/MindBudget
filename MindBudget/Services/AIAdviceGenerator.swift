@@ -21,7 +21,7 @@ enum AIUnavailableReason: String, Equatable, Sendable {
     case deviceNotEligible
     case appleIntelligenceOff
     case modelNotReady
-    case regionNotSupported
+    case languageNotSupported
     case userDisabled
     case buildUnsupported
     case unknown
@@ -108,8 +108,6 @@ struct SourcedSummary: Equatable, Sendable {
 }
 
 protocol AIAdviceGenerating: Sendable {
-    var availability: AIAvailability { get async }
-
     func generateReminder(from context: RedactedAdviceContext) async throws -> GeneratedAdvice
     func generateCycleSummary(from context: RedactedSummaryContext) async throws -> GeneratedSummary
     func answerQuestion(
@@ -128,7 +126,7 @@ struct AIEnhancementCapability: Sendable {
     init(
         productScopeEnabled: Bool = FeatureFlags.enableFoundationModels,
         userEnabled: Bool,
-        targetLocale: Locale = .current,
+        targetLocale: Locale,
         runtimeAvailability: @escaping @Sendable (Locale) async -> AIAvailability = { locale in
             await FoundationModelsAdviceGenerator.runtimeAvailability(locale: locale)
         }
@@ -298,11 +296,7 @@ enum AIAdviceError: Error, Equatable, Sendable {
 }
 
 struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
-    var availability: AIAvailability {
-        get async { await Self.runtimeAvailability() }
-    }
-
-    static func runtimeAvailability(locale: Locale = .current) async -> AIAvailability {
+    static func runtimeAvailability(locale: Locale) async -> AIAvailability {
         #if canImport(FoundationModels)
         guard #available(iOS 26.0, *) else { return .unavailable(.osTooOld) }
         switch SystemLanguageModel.default.availability {
@@ -310,7 +304,7 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
             if #available(iOS 26.4, *) {
                 return SystemLanguageModel.default.supportsLocale(locale)
                     ? .available
-                    : .unavailable(.regionNotSupported)
+                    : .unavailable(.languageNotSupported)
             }
             return .available
         case let .unavailable(reason):
@@ -437,15 +431,21 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
     /// The safety validator remains the final fail-closed boundary if the model still drifts.
     static func localeInstructions(for localeIdentifier: String) -> String {
         let locale = Locale(identifier: localeIdentifier)
-        let normalized = locale.identifier.lowercased()
         let language: String
-        if normalized.hasPrefix("zh") {
-            language = "Simplified Chinese"
-        } else if normalized.hasPrefix("en_us") || normalized.hasPrefix("en-us") {
-            language = "U.S. English"
-        } else if normalized.hasPrefix("en") {
-            language = "English"
-        } else {
+        switch locale.language.languageCode?.identifier.lowercased() {
+        case "zh":
+            let script = locale.language.script?.identifier.lowercased()
+            let region = locale.region?.identifier.uppercased()
+            let usesTraditionalChinese = script == "hant"
+                || (script == nil && region.map { ["TW", "HK", "MO"].contains($0) } == true)
+            language = usesTraditionalChinese
+                ? "Traditional Chinese"
+                : "Simplified Chinese"
+        case "en":
+            language = locale.region?.identifier.uppercased() == "US"
+                ? "U.S. English"
+                : "English"
+        default:
             language = "the language of locale \(locale.identifier)"
         }
         return """

@@ -197,4 +197,9 @@ Status: In Progress
   arithmetic.
 - [x] Check Foundation Models support against the selected app locale and provide Apple's explicit
   locale plus required-language instruction on Ask, reminder, and cycle-summary model paths.
+- [x] Close review gaps by separating unsupported app language from unsupported region, requiring
+  every capability caller to provide a locale, preserving Hans/Hant session instructions, and
+  proving overflow-safe savings completion at and beyond the target.
+- [x] Promote the reviewed source candidate to `0.9.5 (6)` with matching localized in-app notes,
+  changelog, tester guidance, and release-readiness checks; do not Archive or upload before approval.
 - [x] Pass the complete static, Release-build, unit/UI, and coverage validation gates.

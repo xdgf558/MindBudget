@@ -54,6 +54,8 @@ shows that remaining work as a neutral progress notice. Schedule enumeration car
 with its stable occurrence key and fails closed after 1,200 scanned months per rule, so duplicate
 key work and an unbounded foreground loop are both excluded. Version `0.9.4 (5)` has been archived,
 uploaded, processed, and is ready for the owner's manual TestFlight group distribution.
+The next source candidate is `0.9.5 (6)` with localized in-app and tester notes; it has not been
+archived or uploaded.
 Cycle-summary budget usage is a closed unavailable/under-one-percent/exact-whole-percent fact;
 positive recorded spending can no longer be described as zero percent merely because integer
 presentation truncates it. Ask model generation owns wording only: the app attaches deterministic
@@ -72,7 +74,11 @@ percentage. This never reinterprets a cycle reservation or performs money arithm
 Foundation Models availability is checked against the app-selected locale before every Ask,
 reminder, or cycle-summary attempt. Model instructions name that exact locale and require the
 matching output language; the existing language validator and localized template remain the final
-fail-closed boundary if a proposal still drifts.
+fail-closed boundary if a proposal still drifts. The locale is a required capability input rather
+than a `Locale.current` default, unsupported app language is distinct from unsupported region, and
+Chinese session instructions preserve the selected Hans/Hant script where present. Savings
+completion uses overflow-safe full-width integer arithmetic, caps at 100%, and keeps remaining
+money at zero after the target is exceeded.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -134,7 +140,8 @@ app's private data are forbidden in V1.
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
 - Internal TestFlight started with candidate `0.9.0 (1)`; build `0.9.2 (3)` completed the free
-  tier, and `0.9.4 (5)` was uploaded after Phase 12 and PR #19. Replacement
+  tier, and `0.9.4 (5)` was uploaded after Phase 12 and PR #19. The next source candidate is
+  `0.9.5 (6)` and remains unuploaded. Replacement
   uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and

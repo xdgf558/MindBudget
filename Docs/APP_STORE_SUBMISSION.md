@@ -7,6 +7,7 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
+- Next source candidate: version 0.9.5, build 6 (not uploaded)
 - Current uploaded TestFlight candidate: version 0.9.4, build 5
 - Previous uploaded candidate: version 0.9.2, build 3
 - Increment the build number after every uploaded replacement.
@@ -20,6 +21,24 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.5 (6) — Next internal test candidate
+
+What to test:
+
+- In Insights, create a total savings goal with a starting balance, then allocate part of an income
+  to savings. Confirm the separate Savings Progress module shows the exact target, confirmed saved
+  total, remaining amount, and completion percentage. Exceeding the target must show 100% and zero
+  remaining rather than a negative amount; an unreadable goal must not hide spending insights.
+- Switch the app language between Follow System, Simplified Chinese, and English, then check the
+  Apple Intelligence status and try Ask, reminder, and cycle-summary wording. The support check and
+  generated answer must follow the selected app language immediately. An unsupported selection
+  must be described as a language issue with a suggestion to choose Follow System or another
+  supported language, never as a region issue.
+- In Debug on a compatible iOS 26 device, confirm wrong-language model output still falls back to
+  the matching deterministic template. No raw question, note, transaction row, or savings-goal row
+  may enter the model context. In Settings > About, confirm `0.9.5` is expanded while `0.9.4` and
+  earlier versions remain collapsed in history.
 
 ### 0.9.4 (5) — Internal test candidate
 

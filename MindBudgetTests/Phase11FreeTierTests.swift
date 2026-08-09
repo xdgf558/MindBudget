@@ -470,6 +470,42 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func savingsProgressCapsACompletedGoalWithoutShowingNegativeRemainingMoney() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let goal = try await actor.saveSavingsGoal(
+            SavingsGoalDraft(
+                id: UUID(),
+                target: Money(minorUnits: 100_000, currencyCode: "USD"),
+                startingBalance: Money(minorUnits: 150_000, currencyCode: "USD"),
+                createdAt: TestFixtures.now,
+                updatedAt: TestFixtures.now
+            )
+        )
+
+        #expect(goal.savedTotal.minorUnits == 150_000)
+        #expect(goal.remaining.minorUnits == 0)
+        #expect(goal.completionBasisPoints == 10_000)
+        #expect(goal.completionPercent == 100)
+    }
+
+    @Test
+    func savingsProgressUsesFullWidthIntegerMathAtTheInt64Boundary() {
+        let goal = SavingsGoalSummary(
+            id: UUID(),
+            target: Money(minorUnits: Int64.max, currencyCode: "USD"),
+            startingBalance: Money(minorUnits: Int64.max - 1, currencyCode: "USD"),
+            incomeAllocatedToSavings: Money(minorUnits: 0, currencyCode: "USD"),
+            savedTotal: Money(minorUnits: Int64.max - 1, currencyCode: "USD"),
+            remaining: Money(minorUnits: 1, currencyCode: "USD"),
+            createdAt: TestFixtures.now,
+            updatedAt: TestFixtures.now
+        )
+
+        #expect(goal.completionBasisPoints == 9_999)
+        #expect(goal.completionPercent == 99)
+    }
+
+    @Test
     func budgetAllocationRejectsAnIncomeDateOutsideItsExplicitTargetCycle() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let plan = try budgetPlan()

@@ -431,6 +431,7 @@ struct Phase7FeatureTests {
         )
         let available = AIEnhancementCapability(
             userEnabled: true,
+            targetLocale: Locale(identifier: "en_US"),
             runtimeAvailability: { _ in .available }
         )
 
@@ -465,6 +466,7 @@ struct Phase7FeatureTests {
             model: MockAI(mode: .invalidActions),
             capability: AIEnhancementCapability(
                 userEnabled: true,
+                targetLocale: Locale(identifier: "en_US"),
                 runtimeAvailability: { _ in .available }
             )
         ).answer(
@@ -489,6 +491,7 @@ struct Phase7FeatureTests {
             model: MockAI(mode: .fabricated),
             capability: AIEnhancementCapability(
                 userEnabled: true,
+                targetLocale: Locale(identifier: "en_US"),
                 runtimeAvailability: { _ in .available }
             )
         ).answer(
@@ -514,6 +517,7 @@ struct Phase7FeatureTests {
         )
         let available = AIEnhancementCapability(
             userEnabled: true,
+            targetLocale: locale,
             runtimeAvailability: { _ in .available }
         )
 
@@ -1088,6 +1092,7 @@ struct Phase7FeatureTests {
         let userDisabled = await AIEnhancementCapability(
             productScopeEnabled: true,
             userEnabled: false,
+            targetLocale: Locale(identifier: "en_US"),
             runtimeAvailability: { _ in
                 await probe.recordCall()
                 return .available
@@ -1096,6 +1101,7 @@ struct Phase7FeatureTests {
         let buildDisabled = await AIEnhancementCapability(
             productScopeEnabled: false,
             userEnabled: true,
+            targetLocale: Locale(identifier: "en_US"),
             runtimeAvailability: { _ in
                 await probe.recordCall()
                 return .available
@@ -1125,6 +1131,25 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func centralizedCapabilityPreservesTheActionableLanguageUnsupportedReason() async {
+        let locale = Locale(identifier: "zh-Hans")
+
+        let availability = await AIEnhancementCapability(
+            userEnabled: true,
+            targetLocale: locale,
+            runtimeAvailability: { _ in .unavailable(.languageNotSupported) }
+        ).availability
+
+        #expect(availability == .unavailable(.languageNotSupported))
+        #expect(
+            LocalizedCatalog.string(
+                "settings.ai.status.languageNotSupported",
+                locale: locale
+            ).contains("跟随系统")
+        )
+    }
+
+    @Test
     func foundationModelInstructionsNameTheExactLocaleAndRequiredLanguage() {
         let chinese = FoundationModelsAdviceGenerator.localeInstructions(
             for: "zh-Hans"
@@ -1132,11 +1157,19 @@ struct Phase7FeatureTests {
         let english = FoundationModelsAdviceGenerator.localeInstructions(
             for: "en_US"
         )
+        let traditionalChinese = FoundationModelsAdviceGenerator.localeInstructions(
+            for: "zh-Hant"
+        )
+        let traditionalChineseByRegion = FoundationModelsAdviceGenerator.localeInstructions(
+            for: "zh_TW"
+        )
 
         #expect(chinese.contains("The person's locale is zh-Hans"))
         #expect(chinese.contains("MUST respond only in Simplified Chinese"))
         #expect(english.contains("The person's locale is en_US"))
         #expect(english.contains("MUST respond only in U.S. English"))
+        #expect(traditionalChinese.contains("MUST respond only in Traditional Chinese"))
+        #expect(traditionalChineseByRegion.contains("MUST respond only in Traditional Chinese"))
     }
 
     @Test
@@ -1371,7 +1404,6 @@ private struct MockAI: AIAdviceGenerating, Sendable {
     }
 
     let mode: Mode
-    var availability: AIAvailability { get async { .available } }
 
     func generateReminder(from context: RedactedAdviceContext) async throws -> GeneratedAdvice {
         GeneratedAdvice(
