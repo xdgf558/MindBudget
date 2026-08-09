@@ -2908,3 +2908,45 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Re-review draft PR #20. After approval, merge it, complete the unchecked
 signed-device release gates, and only then Archive/upload `0.9.5 (6)` if the product owner chooses
 to resume TestFlight.
+
+## 2026-08-09 — Session 73 — Simplify budget setup and use actual fixed expenses
+
+Goal: Align budget setup with the current expense-entry workflow by removing the duplicate fixed
+expense forecast, clarifying the income and expected-expense labels, and defining this period's
+disposable budget as income minus the savings goal.
+
+Files changed: Onboarding and Settings budget forms, Dashboard budget-transition calls, budget
+engine and cycle-copy behavior, bilingual strings and 0.9.5 release notes, budget/reminder/wishlist
+regressions and UI tests, plus the project memory, decisions, task, changelog, test-plan, and
+TestFlight guidance documents.
+
+What was completed: The budget form now labels its fields “本月收入” and “预计支出”, no longer
+shows or validates a manual fixed-expense field, and previews “本期可支配预算” as monthly income
+minus the savings goal. New, edited, and automatically copied plans persist a zero legacy fixed
+forecast. Existing nonzero forecast values remain readable for schema compatibility but are no
+longer deducted. Actual fixed and discretionary ledger expenses both reduce the available budget
+and daily pace, while recurring fixed expenses continue to originate from the expense-entry
+workflow. Reminder fixtures were updated to preserve their original thresholds under the new
+model, and wishlist budget impact now reflects the absence of forecast pre-deduction.
+
+What was NOT completed: No version/build change, Archive, TestFlight upload, tester assignment,
+physical-device install, signing change, commit, push, pull request, merge, or App Store submission
+was performed. The changes remain Unreleased in the `0.9.5 (6)` source candidate.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 264 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. Focused budget and localization coverage passed 70 tests,
+then the affected wishlist and reminder suites passed all 51 tests after their fixtures were
+aligned with the new budget definition.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate: Money 91.73%, BudgetEngine 90.55%,
+BudgetCycleCalculator 95.15%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.38%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Review the budget setup and Settings preview on a physical iPhone with an
+existing plan that previously stored a fixed forecast, then decide whether to include this change
+in the next `0.9.5 (6)` TestFlight upload.

@@ -1864,3 +1864,34 @@ progress remains exact without overflow or negative remaining money at successfu
 
 Files affected: Foundation Models capability and protocol surface, bilingual status copy, savings
 projection arithmetic, Phase 7/11 regressions, and durable project memory.
+
+---
+
+## 2026-08-09 — Retire manual fixed-expense forecasts from budget setup
+
+Context: Budget setup required a fixed-expense forecast even though expense entry now owns the
+confirmed monthly recurring fixed-expense workflow. Keeping both paths asked for the same fact
+twice and risked reserving a forecast in addition to counting the generated ledger entry. The
+visible “flexible budget after reservations” also no longer matched the requested income-level
+planning question.
+
+Decision: Remove the fixed-expense input from initial setup, transition confirmation, and the
+current-cycle Settings editor. New, updated, and automatically copied plans write zero to the
+existing `fixedExpensesMinorUnits` field; retain the field only for schema and transfer
+compatibility, and ignore legacy forecast values in `BudgetEngine`. Count actual fixed and
+discretionary expense rows against the disposable balance and daily pace. Present “Disposable
+budget this period” as monthly income minus the per-cycle savings goal, clamped at zero, while
+Expected expenses remains the independent cycle spending plan.
+
+Alternatives considered: Hiding the field without changing persisted or engine behavior; deleting
+the persisted property through a new schema migration; deriving a forecast from recurring rules;
+or calculating the preview from expected expenses rather than the explicitly requested income.
+
+Consequences: Users manage fixed expenses in one place, existing stores migrate without a schema
+change, legacy forecasts cannot double-reserve money, and actual fixed charges still reduce what is
+available. The preview answers the income-minus-savings question directly, while Dashboard budget
+enforcement continues to use Expected expenses plus only explicitly allocated income.
+
+Files affected: budget setup, transition and Settings UI, budget draft/copy construction,
+`BudgetEngine`, bilingual copy and release notes, unit/UI regressions, test plan, changelog, project
+memory, tasks, decisions, and session log.

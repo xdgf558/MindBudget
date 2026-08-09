@@ -377,8 +377,8 @@ struct Phase4FeatureTests {
         )
 
         #expect(viewModel.budgetImpact?.remainingTotalAfter.minorUnits == 20_000)
-        #expect(viewModel.budgetImpact?.remainingFreeAfter.minorUnits == -10_000)
-        #expect(viewModel.budgetImpact?.willExceedFreeBudget == true)
+        #expect(viewModel.budgetImpact?.remainingFreeAfter.minorUnits == 10_000)
+        #expect(viewModel.budgetImpact?.willExceedFreeBudget == false)
         #expect(viewModel.budgetImpact?.willExceedTotalBudget == false)
     }
 

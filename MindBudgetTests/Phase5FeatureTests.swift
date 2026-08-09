@@ -1262,8 +1262,8 @@ struct Phase5FeatureTests {
                 currencyCode: "USD",
                 monthlyIncomeMinorUnits: 400_000,
                 totalBudgetMinorUnits: 300_000,
-                fixedExpensesMinorUnits: 100_000,
-                savingGoalMinorUnits: 50_000,
+                fixedExpensesMinorUnits: 0,
+                savingGoalMinorUnits: 150_000,
                 createdAt: context.now,
                 updatedAt: context.now,
                 categoryBudgets: []
@@ -1347,8 +1347,8 @@ struct Phase5FeatureTests {
             currencyCode: "USD",
             monthlyIncomeMinorUnits: 400_000,
             totalBudgetMinorUnits: 300_000,
-            fixedExpensesMinorUnits: 100_000,
-            savingGoalMinorUnits: 50_000,
+            fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 150_000,
             categoryBudgets: [categoryBudget]
         )
         let snapshot = try BudgetEngine().snapshot(

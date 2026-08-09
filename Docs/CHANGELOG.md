@@ -6,7 +6,15 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-## 0.9.5 (6) — 2026-08-09 — Next internal TestFlight candidate
+### Changed
+
+- Budget setup now labels the inputs as Income this month and Expected expenses, removes the
+  duplicate manual fixed-expense field, and shows Disposable budget this period as income minus
+  the savings goal. Fixed expenses continue to come from actual expense entries and confirmed
+  monthly recurring rules, and those entries reduce the available amount and daily pace without
+  reusing a legacy forecast.
+
+## 0.9.5 (6) — 2026-08-09 — Uploaded internal TestFlight candidate
 
 ### Added
 

@@ -264,7 +264,9 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             plan.totalBudgetMinorUnits,
             plan.allocatedIncomeMinorUnits
         )
-        let fixedForecast = plan.fixedExpensesMinorUnits
+        // Fixed expenses are ledger entries now. The persisted forecast remains only
+        // for schema compatibility and must not reserve the same money a second time.
+        let fixedForecast: Int64 = 0
         let savingGoal = plan.savingGoalMinorUnits
         let allocation = try allocation(
             totalBudget: money(totalBudget, currencyCode),
@@ -272,8 +274,9 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             savingGoal: money(savingGoal, currencyCode)
         )
         let freeBudget = allocation.flexibleBudget.minorUnits
-        let remainingFree = try checkedSubtract(freeBudget, discretionarySpent)
-        let pendingFixed = fixedForecast > fixedSpent ? fixedForecast - fixedSpent : 0
+        let spentAgainstDisposable = try checkedAdd(fixedSpent, discretionarySpent)
+        let remainingFree = try checkedSubtract(freeBudget, spentAgainstDisposable)
+        let pendingFixed: Int64 = 0
         let pendingSaving = savingGoal > savedSoFar ? savingGoal - savedSoFar : 0
         let remainingTotal = try checkedSubtract(totalBudget, spentTotal)
         let availableAfterFixed = try checkedSubtract(remainingTotal, pendingFixed)
@@ -326,16 +329,16 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             snapshot.remainingTotal.minorUnits,
             amount.minorUnits
         )
-        let freeReduction = bucket == .discretionary ? amount.minorUnits : 0
+        let freeReduction = bucket == .savings ? 0 : amount.minorUnits
         let remainingFreeAfter = try checkedSubtract(
             snapshot.remainingFree.minorUnits,
             freeReduction
         )
-        let isDiscretionary = bucket == .discretionary
-        let impactRatio = isDiscretionary && snapshot.freeBudget.minorUnits > 0
+        let reducesDisposableBudget = bucket != .savings
+        let impactRatio = reducesDisposableBudget && snapshot.freeBudget.minorUnits > 0
             ? decimalRatio(amount.minorUnits, snapshot.freeBudget.minorUnits)
             : nil
-        let daysConsumed = isDiscretionary && snapshot.safeDailySpend.minorUnits > 0
+        let daysConsumed = reducesDisposableBudget && snapshot.safeDailySpend.minorUnits > 0
             ? decimalRatio(amount.minorUnits, snapshot.safeDailySpend.minorUnits)
             : nil
         let categoryRisk = try categoryRisk(
@@ -387,7 +390,7 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         }
 
         var spentToday: Int64 = 0
-        for expense in expenses where today.contains(expense.spentAt) && expense.bucket == .discretionary {
+        for expense in expenses where today.contains(expense.spentAt) && expense.bucket != .savings {
             try requireCurrency(expense.amount.currencyCode, matches: snapshot.currencyCode)
             guard expense.amount.minorUnits >= 0 else {
                 throw BudgetEngineError.invalidPlan
@@ -417,14 +420,15 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             numerator: dayNumber,
             denominator: totalDays
         )
-        let signedDifference = try checkedSubtract(
+        let spentAgainstDisposable = try checkedAdd(
             snapshot.discretionarySpent.minorUnits,
-            expectedSpent
+            snapshot.fixedSpent.minorUnits
         )
+        let signedDifference = try checkedSubtract(spentAgainstDisposable, expectedSpent)
         let isAhead = signedDifference > 0
         let difference = isAhead ? signedDifference : try checkedSubtract(0, signedDifference)
         let spentRatio = snapshot.freeBudget.minorUnits > 0
-            ? decimalRatio(max(0, snapshot.discretionarySpent.minorUnits), snapshot.freeBudget.minorUnits)
+            ? decimalRatio(max(0, spentAgainstDisposable), snapshot.freeBudget.minorUnits)
             : .zero
 
         return BudgetPaceSummary(

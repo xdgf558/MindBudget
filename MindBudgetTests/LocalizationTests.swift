@@ -191,7 +191,7 @@ struct LocalizationTests {
         let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.5")
 
         #expect(presentation.current?.version == "0.9.5")
-        #expect(presentation.current?.items.count == 4)
+        #expect(presentation.current?.items.count == 5)
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
                 "settings.releaseNotes.savingsProgress"
@@ -210,6 +210,11 @@ struct LocalizationTests {
         #expect(
             presentation.current?.items.map(\.localizationKey).contains(
                 "settings.releaseNotes.askFallbackReasons"
+            ) == true
+        )
+        #expect(
+            presentation.current?.items.map(\.localizationKey).contains(
+                "settings.releaseNotes.disposableBudgetSetup"
             ) == true
         )
         #expect(presentation.history.map(\.version) == ["0.9.4", "0.9.2", "0.9.1", "0.9.0"])
@@ -260,6 +265,7 @@ struct LocalizationTests {
             "settings.releaseNotes.aiAppLanguage",
             "settings.releaseNotes.truthfulCycleUsage",
             "settings.releaseNotes.askFallbackReasons",
+            "settings.releaseNotes.disposableBudgetSetup",
         ]
 
         for key in keys {

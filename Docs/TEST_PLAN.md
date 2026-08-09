@@ -408,7 +408,7 @@ the preference to Warm Botanical with the other local preferences. Simplified Ch
 coverage proves that no user-facing value contains the English product name `MindBudget`.
 Every `AppSkin` must resolve to an opaque portrait artwork asset at least 800 pixels wide and 1700
 pixels tall. The release-readiness script validates all three asset-catalog mappings and dimensions.
-Before TestFlight, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and
+Before each TestFlight replacement, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and
 onboarding in all three skins, including AX5 and VoiceOver on a signed iPhone.
 
 The navigation smoke path must observe Today as selected initially and Wishlist as selected after
@@ -430,21 +430,22 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.5` for candidate build 6, and expose the localized update summary
+from the built bundle, render `0.9.5` for the current marketing version, and expose the localized update summary
 while keeping `0.9.4` and earlier notes collapsed as history.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
-Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
-available flexible amount from a zero budget, a fully reserved budget, and an overcommitted plan.
-For a CNY 6,000 spending budget with CNY 3,000 fixed expenses and a CNY 500 saving goal on day 7
-of a 31-day cycle, Today must expose CNY 100 for 25 remaining days before any expense. The engine
-reconstructs that calendar day's starting flexible amount before division, so each discretionary
-entry reduces the displayed amount one for one without double subtraction. The visible amount
-must clamp at zero; exact overage remains available for a localized icon, text, and VoiceOver
-notice, so red is never the only signal. Fixed and savings-bucket entries do not consume this
-daily flexible amount. If the cycle cannot provide even one minor unit of daily flexible allowance
-before any spending today, the zero must use the attention color and expose a neutral localized
-explanation rather than appearing without context.
+Its amount section must show Income this month, Expected expenses, and Savings goal without a
+manual fixed-expense field. Its disposable preview must use `BudgetEngine` exact-minor-unit
+arithmetic to calculate monthly income minus the savings goal, clamped at zero with distinct zero,
+fully allocated, and overcommitted explanations. New, edited, and automatically copied plans must
+store zero in the legacy fixed-forecast field. Actual fixed and discretionary expense entries both
+reduce the current disposable amount and the daily pace, while savings entries satisfy the savings
+reservation. The engine reconstructs that calendar day's starting amount before division, so each
+fixed or discretionary entry reduces the displayed amount one for one without double subtraction.
+The visible amount must clamp at zero; exact overage remains available for a localized icon, text,
+and VoiceOver notice, so red is never the only signal. If the cycle cannot provide even one minor
+unit of daily allowance before any spending today, the zero must use the attention color and expose
+a neutral localized explanation rather than appearing without context.
 The expense form must expose every persisted expense category in one horizontally scrollable
 selector, keep deterministic ordering, center the selected item, and announce its selected trait.
 The Simplified Chinese Log filter must render `全部` / `支出` / `收入` for record type and

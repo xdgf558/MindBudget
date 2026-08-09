@@ -7,9 +7,11 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next source candidate: version 0.9.5, build 6 (not uploaded)
-- Current uploaded TestFlight candidate: version 0.9.4, build 5
-- Previous uploaded candidate: version 0.9.2, build 3
+- Current uploaded TestFlight candidate: version 0.9.5, build 6 (transport accepted 2026-08-09)
+- Previous uploaded candidate: version 0.9.4, build 5
+- Earlier uploaded candidate: version 0.9.2, build 3
+- The current source contains Unreleased changes. Increment the build number before its next upload;
+  never reuse build 6.
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
@@ -22,7 +24,16 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.5 (6) — Next internal test candidate
+### Unreleased replacement — build number required before upload
+
+What to test:
+
+- Open initial budget setup and Settings > Budget. Confirm the fields read Income this month,
+  Expected expenses, and Savings goal, with no manual fixed-expense field. The disposable preview
+  must equal income minus savings. Record or reconcile a fixed expense and confirm it reduces the
+  available amount and today's pace once, without a second forecast reservation.
+
+### 0.9.5 (6) — Uploaded internal test candidate
 
 What to test:
 
@@ -46,7 +57,6 @@ What to test:
   proposal, and a model error. Confirm the complete deterministic answer remains available and its
   localized source detail accurately distinguishes each local-template fallback reason. App-owned
   suggested actions must remain localized and must never render internal identifiers.
-
 ### 0.9.4 (5) — Internal test candidate
 
 What to test:

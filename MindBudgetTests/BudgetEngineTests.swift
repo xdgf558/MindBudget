@@ -34,18 +34,18 @@ struct BudgetEngineTests {
     }
 
     @Test
-    func snapshotFollowsAuthoritativeReservationFormula() throws {
+    func snapshotUsesSavingsReservationAndActualFixedExpenses() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
 
-        #expect(snapshot.freeBudget.minorUnits == 150_000)
-        #expect(snapshot.remainingFree.minorUnits == 110_000)
-        #expect(snapshot.pendingFixed.minorUnits == 20_000)
+        #expect(snapshot.freeBudget.minorUnits == 250_000)
+        #expect(snapshot.remainingFree.minorUnits == 130_000)
+        #expect(snapshot.pendingFixed.minorUnits == 0)
         #expect(snapshot.pendingSaving.minorUnits == 30_000)
         #expect(snapshot.remainingTotal.minorUnits == 160_000)
-        #expect(snapshot.availableRightNow.minorUnits == 110_000)
+        #expect(snapshot.availableRightNow.minorUnits == 130_000)
         #expect(snapshot.daysRemaining == 12)
-        #expect(snapshot.safeDailySpend.minorUnits == 9_166)
+        #expect(snapshot.safeDailySpend.minorUnits == 10_833)
     }
 
     @Test
@@ -108,10 +108,10 @@ struct BudgetEngineTests {
             calendar: calendar
         )
 
-        #expect(snapshot.freeBudget.minorUnits == 250_000)
+        #expect(snapshot.freeBudget.minorUnits == 550_000)
         #expect(snapshot.daysRemaining == 25)
-        #expect(pace.startingDailyAllowance.minorUnits == 10_000)
-        #expect(pace.leftToSpendToday.minorUnits == 10_000)
+        #expect(pace.startingDailyAllowance.minorUnits == 22_000)
+        #expect(pace.leftToSpendToday.minorUnits == 22_000)
         #expect(pace.exceededDailyAllowanceBy.minorUnits == 0)
         #expect(!pace.hasUsedDailyAllowance)
         #expect(!pace.hasNoDailyAllowance)
@@ -131,7 +131,7 @@ struct BudgetEngineTests {
             monthlyIncomeMinorUnits: 600_000,
             totalBudgetMinorUnits: 250_000,
             fixedExpensesMinorUnits: 200_000,
-            savingGoalMinorUnits: 50_000,
+            savingGoalMinorUnits: 250_000,
             categoryBudgets: []
         )
         let snapshot = try requireConfigured(
@@ -161,7 +161,7 @@ struct BudgetEngineTests {
     }
 
     @Test
-    func fixedPaymentReducesItsPendingReservationWithoutDoubleCounting() throws {
+    func actualFixedPaymentReducesDisposableBudgetWithoutASeparateReservation() throws {
         let context = try makeContext()
         let withoutFixedPayment = try requireConfigured(
             engine.snapshot(
@@ -178,13 +178,14 @@ struct BudgetEngineTests {
         )
         let withFixedPayment = try configuredSnapshot(context: context)
 
-        #expect(withoutFixedPayment.availableRightNow == withFixedPayment.availableRightNow)
-        #expect(withoutFixedPayment.pendingFixed.minorUnits == 100_000)
-        #expect(withFixedPayment.pendingFixed.minorUnits == 20_000)
+        #expect(withoutFixedPayment.availableRightNow.minorUnits == 210_000)
+        #expect(withFixedPayment.availableRightNow.minorUnits == 130_000)
+        #expect(withoutFixedPayment.pendingFixed.minorUnits == 0)
+        #expect(withFixedPayment.pendingFixed.minorUnits == 0)
     }
 
     @Test
-    func overcommittedPlanReturnsZeroFreeBudgetAndNegativeAvailability() throws {
+    func spendingBeyondDisposableBudgetReturnsNegativeAvailability() throws {
         let context = try makeContext(
             totalBudget: 120_000,
             fixedForecast: 80_000,
@@ -195,6 +196,7 @@ struct BudgetEngineTests {
                 cycle: context.cycle,
                 currencyCode: "USD",
                 expenses: [
+                    expense(amount: 80_000, category: .rent, bucket: .fixed, at: context.day20),
                     expense(amount: 10_000, category: .food, bucket: .discretionary, at: context.day20)
                 ],
                 plan: context.plan,
@@ -203,8 +205,8 @@ struct BudgetEngineTests {
             )
         )
 
-        #expect(snapshot.freeBudget.minorUnits == 0)
-        #expect(snapshot.remainingFree.minorUnits == -10_000)
+        #expect(snapshot.freeBudget.minorUnits == 70_000)
+        #expect(snapshot.remainingFree.minorUnits == -20_000)
         #expect(snapshot.availableRightNow.minorUnits == -20_000)
         #expect(snapshot.safeDailySpend.minorUnits == 0)
     }
@@ -247,7 +249,7 @@ struct BudgetEngineTests {
         )
 
         #expect(snapshot.daysRemaining == 1)
-        #expect(snapshot.safeDailySpend.minorUnits == 150_000)
+        #expect(snapshot.safeDailySpend.minorUnits == 250_000)
     }
 
     @Test
@@ -279,17 +281,17 @@ struct BudgetEngineTests {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
         let impact = try engine.impact(
-            of: money(120_000),
+            of: money(140_000),
             category: .food,
             bucket: .discretionary,
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
         #expect(impact.remainingFreeAfter.minorUnits == -10_000)
-        #expect(impact.remainingTotalAfter.minorUnits == 40_000)
+        #expect(impact.remainingTotalAfter.minorUnits == 20_000)
         #expect(impact.willExceedFreeBudget)
         #expect(!impact.willExceedTotalBudget)
-        #expect(impact.impactRatioOfFreeBudget == Decimal(string: "0.8"))
+        #expect(impact.impactRatioOfFreeBudget == Decimal(string: "0.56"))
     }
 
     @Test
@@ -297,22 +299,22 @@ struct BudgetEngineTests {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
         let impact = try engine.impact(
-            of: money(18_332),
+            of: money(21_666),
             category: .food,
             bucket: .discretionary,
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
-        #expect(impact.remainingTotalAfter.minorUnits == 141_668)
-        #expect(impact.remainingFreeAfter.minorUnits == 91_668)
+        #expect(impact.remainingTotalAfter.minorUnits == 138_334)
+        #expect(impact.remainingFreeAfter.minorUnits == 108_334)
         #expect(!impact.willExceedTotalBudget)
         #expect(!impact.willExceedFreeBudget)
         #expect(impact.daysOfBudgetConsumed == Decimal(2))
-        #expect(impact.impactRatioOfFreeBudget == Decimal(18_332) / Decimal(150_000))
+        #expect(impact.impactRatioOfFreeBudget == Decimal(21_666) / Decimal(250_000))
     }
 
     @Test
-    func fixedImpactDoesNotReduceRemainingFree() throws {
+    func fixedImpactReducesRemainingDisposableBudget() throws {
         let context = try makeContext()
         let snapshot = try configuredSnapshot(context: context)
         let impact = try engine.impact(
@@ -322,13 +324,13 @@ struct BudgetEngineTests {
             snapshot: snapshot,
             categoryBudgets: context.plan.categoryBudgets
         )
-        #expect(impact.remainingFreeAfter == snapshot.remainingFree)
-        #expect(impact.impactRatioOfFreeBudget == nil)
-        #expect(impact.daysOfBudgetConsumed == nil)
+        #expect(impact.remainingFreeAfter.minorUnits == 55_000)
+        #expect(impact.impactRatioOfFreeBudget == Decimal(string: "0.3"))
+        #expect(impact.daysOfBudgetConsumed == Decimal(75_000) / Decimal(10_833))
     }
 
     @Test
-    func paceUsesOnlyTodaysDiscretionaryEntriesAndExactCycleDays() throws {
+    func paceUsesTodaysFixedAndDiscretionaryEntriesAndExactCycleDays() throws {
         let context = try makeContext()
         let previousDay = try #require(
             context.calendar.date(byAdding: .day, value: -1, to: context.day20)
@@ -356,14 +358,14 @@ struct BudgetEngineTests {
             calendar: context.calendar
         )
 
-        #expect(pace.spentToday.minorUnits == 12_000)
-        #expect(pace.startingDailyAllowance.minorUnits == 10_833)
+        #expect(pace.spentToday.minorUnits == 42_000)
+        #expect(pace.startingDailyAllowance.minorUnits == 19_166)
         #expect(pace.leftToSpendToday.minorUnits == 0)
-        #expect(pace.exceededDailyAllowanceBy.minorUnits == 1_167)
+        #expect(pace.exceededDailyAllowanceBy.minorUnits == 22_834)
         #expect(pace.hasUsedDailyAllowance)
         #expect(pace.hasExceededDailyAllowance)
-        #expect(pace.expectedSpentByToday.minorUnits == 96_774)
-        #expect(pace.paceDifference.minorUnits == 64_774)
+        #expect(pace.expectedSpentByToday.minorUnits == 161_290)
+        #expect(pace.paceDifference.minorUnits == 99_290)
         #expect(!pace.isAheadOfPace)
         #expect(pace.dayNumber == 20)
         #expect(pace.totalDays == 31)
@@ -390,7 +392,7 @@ struct BudgetEngineTests {
             at: context.day20
         )
         let exactAllowanceExpense = expense(
-            amount: 10_833,
+            amount: 19_166,
             category: .coffee,
             bucket: .discretionary,
             at: context.day20
@@ -446,14 +448,14 @@ struct BudgetEngineTests {
         )
 
         #expect(before.startingDailyAllowance == after.startingDailyAllowance)
-        #expect(before.leftToSpendToday.minorUnits == 10_833)
-        #expect(after.leftToSpendToday.minorUnits == 5_833)
+        #expect(before.leftToSpendToday.minorUnits == 19_166)
+        #expect(after.leftToSpendToday.minorUnits == 14_166)
         #expect(
             before.leftToSpendToday.minorUnits - after.leftToSpendToday.minorUnits
                 == todaysExpense.amount.minorUnits
         )
         #expect(after.exceededDailyAllowanceBy.minorUnits == 0)
-        #expect(exact.startingDailyAllowance.minorUnits == 10_833)
+        #expect(exact.startingDailyAllowance.minorUnits == 19_166)
         #expect(exact.leftToSpendToday.minorUnits == 0)
         #expect(exact.exceededDailyAllowanceBy.minorUnits == 0)
         #expect(exact.hasUsedDailyAllowance)
@@ -486,11 +488,11 @@ struct BudgetEngineTests {
 
         #expect(pace.dayNumber == 31)
         #expect(pace.totalDays == 31)
-        #expect(pace.expectedSpentByToday.minorUnits == 150_000)
-        #expect(pace.startingDailyAllowance.minorUnits == 150_000)
-        #expect(pace.leftToSpendToday.minorUnits == 150_000)
+        #expect(pace.expectedSpentByToday.minorUnits == 250_000)
+        #expect(pace.startingDailyAllowance.minorUnits == 250_000)
+        #expect(pace.leftToSpendToday.minorUnits == 250_000)
         #expect(pace.exceededDailyAllowanceBy.minorUnits == 0)
-        #expect(pace.paceDifference.minorUnits == 150_000)
+        #expect(pace.paceDifference.minorUnits == 250_000)
         #expect(!pace.isAheadOfPace)
     }
 
@@ -539,7 +541,7 @@ struct BudgetEngineTests {
         let context = try makeContext(
             totalBudget: 120_000,
             fixedForecast: 80_000,
-            savingGoal: 50_000
+            savingGoal: 120_000
         )
         let snapshot = try requireConfigured(
             engine.snapshot(

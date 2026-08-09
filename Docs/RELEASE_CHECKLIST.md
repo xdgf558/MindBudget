@@ -21,8 +21,9 @@ unchecked item below has been performed against the release commit.
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is next TestFlight candidate version 0.9.5/build 6, iPhone-only,
-  iOS 17+, and contains no shared Apple Team ID.
+- [x] Release configuration remains version 0.9.5/build 6, iPhone-only, iOS 17+, and contains no
+  shared Apple Team ID. Because build 6 has already been uploaded, increment the build number
+  before archiving the current Unreleased source.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
   `温和的预算与消费复盘工具` as its subtitle.
@@ -37,8 +38,13 @@ unchecked item below has been performed against the release commit.
 - [x] Confirm the distribution certificate and provisioning profile are valid for that team.
 - [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
-- [ ] Archive and upload Release 0.9.5 (6) only after PR approval and the remaining candidate
-  checks; verify the current team and App Store Connect record again at Archive time.
+- [ ] Before the next replacement Archive, increment the build number and verify the current team,
+  App Store Connect record, agreements, certificate, and profile again.
+
+### Completed 0.9.5 (6) release evidence (historical, not a current-source gate)
+
+- [x] On 2026-08-09, Archive Release 0.9.5 (6) with the current team and upload it through the
+  authenticated App Store Connect account; transport accepted the upload for processing.
 
 ### Completed 0.9.4 (5) release evidence (historical, not a 0.9.5 gate)
 
@@ -103,8 +109,8 @@ used for every Archive and upload.
 
 ## Store listing and TestFlight
 
-- [ ] Immediately before uploading 0.9.5 (6), confirm its marketing version/build has a matching
-  dated section in
+- [ ] Immediately before uploading the next replacement, confirm its marketing version/build has a
+  matching dated section in
   `Docs/CHANGELOG.md` and matching TestFlight “What to Test” notes in
   `Docs/APP_STORE_SUBMISSION.md`.
 - [ ] Review `Docs/APP_STORE_SUBMISSION.md` with the product owner and finalize localized name,

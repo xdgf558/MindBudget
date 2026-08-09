@@ -419,7 +419,7 @@ struct Phase11FreeTierTests {
             return
         }
         #expect(configured.totalBudget.minorUnits == plan.totalBudgetMinorUnits + 25_000)
-        #expect(configured.freeBudget.minorUnits == 145_000)
+        #expect(configured.freeBudget.minorUnits == 225_000)
 
         _ = try await actor.updateIncome(
             id: income.id,

@@ -312,6 +312,7 @@ struct DateBoundaryTests {
         }
         #expect(plans.count == 5)
         #expect(plans.map(\.totalBudgetMinorUnits) == [300_000, 210_000, 300_000, 300_000, 300_000])
+        #expect(plans.map(\.fixedExpensesMinorUnits) == [100_000, 100_000, 100_000, 0, 0])
         #expect(covered.cycleStart == date(2026, 4, 15, calendar: calendar))
         #expect(covered.id == plans[4].id)
     }

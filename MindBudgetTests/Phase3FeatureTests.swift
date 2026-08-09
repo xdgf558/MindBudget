@@ -78,7 +78,7 @@ struct Phase3FeatureTests {
     }
 
     @Test
-    func budgetDraftBuilderKeepsEachConfirmedAmountIndependent() throws {
+    func budgetDraftBuilderKeepsConfirmedAmountsIndependentAndRetiresFixedForecast() throws {
         let cycle = DateInterval(
             start: TestFixtures.now,
             end: TestFixtures.now.addingTimeInterval(86_400 * 14)
@@ -89,7 +89,6 @@ struct Phase3FeatureTests {
             cycle: cycle,
             monthlyIncomeText: "2,000.00",
             totalBudgetText: "1,500.00",
-            fixedExpensesText: "800.00",
             savingGoalText: "250.00",
             locale: Locale(identifier: "en_US"),
             timestamp: TestFixtures.now
@@ -97,10 +96,22 @@ struct Phase3FeatureTests {
 
         #expect(draft.monthlyIncomeMinorUnits == 200_000)
         #expect(draft.totalBudgetMinorUnits == 150_000)
-        #expect(draft.fixedExpensesMinorUnits == 80_000)
+        #expect(draft.fixedExpensesMinorUnits == 0)
         #expect(draft.savingGoalMinorUnits == 25_000)
         #expect(draft.cycleStart == cycle.start)
         #expect(draft.cycleEnd == cycle.end)
+
+        let update = try BudgetPlanDraftBuilder().makeCurrentUpdate(
+            planID: draft.id,
+            currencyCode: "USD",
+            monthlyIncomeText: "2,100.00",
+            totalBudgetText: "1,600.00",
+            savingGoalText: "300.00",
+            locale: Locale(identifier: "en_US"),
+            referenceDate: TestFixtures.now,
+            timestamp: TestFixtures.now
+        )
+        #expect(update.fixedExpensesMinorUnits == 0)
     }
 
     @Test

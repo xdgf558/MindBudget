@@ -216,7 +216,7 @@ struct BudgetPlanFactory: Sendable {
             currencyCode: previous.currencyCode,
             monthlyIncomeMinorUnits: previous.monthlyIncomeMinorUnits,
             totalBudgetMinorUnits: previous.totalBudgetMinorUnits,
-            fixedExpensesMinorUnits: previous.fixedExpensesMinorUnits,
+            fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: previous.savingGoalMinorUnits,
             createdAt: timestamp,
             updatedAt: timestamp,
