@@ -641,7 +641,7 @@ private struct SavingsGoalSettingsView: View {
                             MoneyText(money: goal.incomeAllocatedToSavings)
                         }
                         ProgressView(
-                            value: CGFloat(progress(goal)),
+                            value: CGFloat(goal.completionBasisPoints),
                             total: 10_000
                         )
                         .accessibilityValue(progressAccessibility(goal))
@@ -797,16 +797,8 @@ private struct SavingsGoalSettingsView: View {
         )
     }
 
-    private func progress(_ goal: SavingsGoalSummary) -> Int64 {
-        guard goal.target.minorUnits > 0 else { return 0 }
-        let saved = min(goal.savedTotal.minorUnits, goal.target.minorUnits)
-        let quotient = saved / goal.target.minorUnits
-        let remainder = saved % goal.target.minorUnits
-        return quotient * 10_000 + remainder * 10_000 / goal.target.minorUnits
-    }
-
     private func progressAccessibility(_ goal: SavingsGoalSummary) -> Text {
-        Text(verbatim: "\(progress(goal) / 100)%")
+        Text(verbatim: "\(goal.completionPercent)%")
     }
 }
 

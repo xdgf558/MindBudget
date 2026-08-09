@@ -69,7 +69,7 @@ struct AskMindBudgetService: Sendable {
     private let localSearch: LocalSearchService
     private let redactor: PrivacyRedactor
     private let modelFactory: @Sendable (Bool) -> any AIAdviceGenerating
-    private let runtimeAvailability: @Sendable () async -> AIAvailability
+    private let runtimeAvailability: @Sendable (Locale) async -> AIAvailability
 
     init(
         classifier: IntentClassifier = IntentClassifier(),
@@ -78,8 +78,8 @@ struct AskMindBudgetService: Sendable {
         modelFactory: @escaping @Sendable (Bool) -> any AIAdviceGenerating = { _ in
             FoundationModelsAdviceGenerator()
         },
-        runtimeAvailability: @escaping @Sendable () async -> AIAvailability = {
-            await FoundationModelsAdviceGenerator.runtimeAvailability()
+        runtimeAvailability: @escaping @Sendable (Locale) async -> AIAvailability = { locale in
+            await FoundationModelsAdviceGenerator.runtimeAvailability(locale: locale)
         }
     ) {
         self.classifier = classifier
@@ -108,6 +108,7 @@ struct AskMindBudgetService: Sendable {
         let context = redactor.redactAsk(input)
         let capability = AIEnhancementCapability(
             userEnabled: request.enhancementEnabled,
+            targetLocale: request.locale,
             runtimeAvailability: runtimeAvailability
         )
         let result = await CompositeAdviceGenerator(

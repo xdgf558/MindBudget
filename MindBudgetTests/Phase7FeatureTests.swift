@@ -431,7 +431,7 @@ struct Phase7FeatureTests {
         )
         let available = AIEnhancementCapability(
             userEnabled: true,
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         )
 
         let unsafe = await CompositeAdviceGenerator(
@@ -465,7 +465,7 @@ struct Phase7FeatureTests {
             model: MockAI(mode: .invalidActions),
             capability: AIEnhancementCapability(
                 userEnabled: true,
-                runtimeAvailability: { .available }
+                runtimeAvailability: { _ in .available }
             )
         ).answer(
             intent: .remainingBudget,
@@ -489,7 +489,7 @@ struct Phase7FeatureTests {
             model: MockAI(mode: .fabricated),
             capability: AIEnhancementCapability(
                 userEnabled: true,
-                runtimeAvailability: { .available }
+                runtimeAvailability: { _ in .available }
             )
         ).answer(
             intent: .remainingBudget,
@@ -514,7 +514,7 @@ struct Phase7FeatureTests {
         )
         let available = AIEnhancementCapability(
             userEnabled: true,
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         )
 
         let response = await CompositeAdviceGenerator(
@@ -851,7 +851,7 @@ struct Phase7FeatureTests {
 
         let result = await CycleSummaryService(
             model: MockAI(mode: .capturingSummary(recorder)),
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         ).generate(
             snapshot: .configured(configured),
             expenses: [],
@@ -892,7 +892,7 @@ struct Phase7FeatureTests {
 
         let result = await CycleSummaryService(
             model: MockAI(mode: .capturingSummary(recorder)),
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         ).generate(
             snapshot: .configured(configured),
             expenses: expenses,
@@ -930,7 +930,7 @@ struct Phase7FeatureTests {
 
         let underOne = await CycleSummaryService(
             model: MockAI(mode: .capturingSummary(recorder)),
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         ).generate(
             snapshot: .configured(configured),
             expenses: expenses,
@@ -1088,7 +1088,7 @@ struct Phase7FeatureTests {
         let userDisabled = await AIEnhancementCapability(
             productScopeEnabled: true,
             userEnabled: false,
-            runtimeAvailability: {
+            runtimeAvailability: { _ in
                 await probe.recordCall()
                 return .available
             }
@@ -1096,7 +1096,7 @@ struct Phase7FeatureTests {
         let buildDisabled = await AIEnhancementCapability(
             productScopeEnabled: false,
             userEnabled: true,
-            runtimeAvailability: {
+            runtimeAvailability: { _ in
                 await probe.recordCall()
                 return .available
             }
@@ -1105,6 +1105,38 @@ struct Phase7FeatureTests {
         #expect(userDisabled == .unavailable(.userDisabled))
         #expect(buildDisabled == .unavailable(.buildUnsupported))
         #expect(await probe.callCount == 0)
+    }
+
+    @Test
+    func centralizedCapabilityChecksTheAppSelectedLocale() async {
+        let probe = LocaleAvailabilityProbe()
+        let locale = Locale(identifier: "zh-Hans")
+
+        let availability = await AIEnhancementCapability(
+            userEnabled: true,
+            targetLocale: locale,
+            runtimeAvailability: { requestedLocale in
+                await probe.check(requestedLocale)
+            }
+        ).availability
+
+        #expect(availability == .available)
+        #expect(await probe.localeIdentifier == locale.identifier)
+    }
+
+    @Test
+    func foundationModelInstructionsNameTheExactLocaleAndRequiredLanguage() {
+        let chinese = FoundationModelsAdviceGenerator.localeInstructions(
+            for: "zh-Hans"
+        )
+        let english = FoundationModelsAdviceGenerator.localeInstructions(
+            for: "en_US"
+        )
+
+        #expect(chinese.contains("The person's locale is zh-Hans"))
+        #expect(chinese.contains("MUST respond only in Simplified Chinese"))
+        #expect(english.contains("The person's locale is en_US"))
+        #expect(english.contains("MUST respond only in U.S. English"))
     }
 
     @Test
@@ -1128,7 +1160,7 @@ struct Phase7FeatureTests {
         let engine = ReminderEngine(
             aiEnhancementEnabled: true,
             aiGenerator: mock,
-            aiRuntimeAvailability: { .available }
+            aiRuntimeAvailability: { _ in .available }
         )
         let context = engine.buildContext(
             candidate: PurchaseCandidate(
@@ -1153,7 +1185,7 @@ struct Phase7FeatureTests {
         )
         let summary = await CycleSummaryService(
             model: mock,
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         ).generate(
             snapshot: .configured(configured),
             expenses: [],
@@ -1172,7 +1204,7 @@ struct Phase7FeatureTests {
     private func service(model: MockAI) -> AskMindBudgetService {
         AskMindBudgetService(
             modelFactory: { _ in model },
-            runtimeAvailability: { .available }
+            runtimeAvailability: { _ in .available }
         )
     }
 
@@ -1303,6 +1335,15 @@ private actor GateProbe {
 
     func recordCall() {
         callCount += 1
+    }
+}
+
+private actor LocaleAvailabilityProbe {
+    private(set) var localeIdentifier: String?
+
+    func check(_ locale: Locale) -> AIAvailability {
+        localeIdentifier = locale.identifier
+        return .available
     }
 }
 

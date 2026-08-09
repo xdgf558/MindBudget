@@ -73,14 +73,14 @@ struct ReminderEngine: ReminderGenerating, Sendable {
     private let enhancer: (any ReminderWordingEnhancing)?
     private let aiEnhancementEnabled: Bool
     private let aiGenerator: any AIAdviceGenerating
-    private let aiRuntimeAvailability: @Sendable () async -> AIAvailability
+    private let aiRuntimeAvailability: @Sendable (Locale) async -> AIAvailability
 
     init(
         enhancer: (any ReminderWordingEnhancing)? = nil,
         aiEnhancementEnabled: Bool = false,
         aiGenerator: any AIAdviceGenerating = FoundationModelsAdviceGenerator(),
-        aiRuntimeAvailability: @escaping @Sendable () async -> AIAvailability = {
-            await FoundationModelsAdviceGenerator.runtimeAvailability()
+        aiRuntimeAvailability: @escaping @Sendable (Locale) async -> AIAvailability = { locale in
+            await FoundationModelsAdviceGenerator.runtimeAvailability(locale: locale)
         }
     ) {
         self.enhancer = enhancer
@@ -177,6 +177,7 @@ struct ReminderEngine: ReminderGenerating, Sendable {
                 model: aiGenerator,
                 capability: AIEnhancementCapability(
                     userEnabled: true,
+                    targetLocale: locale,
                     runtimeAvailability: aiRuntimeAvailability
                 )
             ).reminder(fallback: generatedFallback, context: redacted)

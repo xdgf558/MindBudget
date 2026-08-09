@@ -207,6 +207,40 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func insightsLoadShowsAuthoritativeCrossCycleSavingsProgress() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let plan = try budgetPlan()
+        _ = try await actor.createBudgetPlan(plan)
+        _ = try await actor.createIncome(
+            incomeDraft(
+                amountMinorUnits: 80_000,
+                allocatedToBudgetMinorUnits: 0,
+                allocatedToSavingsMinorUnits: 25_000
+            )
+        )
+        _ = try await actor.saveSavingsGoal(
+            SavingsGoalDraft(
+                id: UUID(),
+                target: Money(minorUnits: 500_000, currencyCode: "USD"),
+                startingBalance: Money(minorUnits: 100_000, currencyCode: "USD"),
+                createdAt: TestFixtures.now,
+                updatedAt: TestFixtures.now
+            )
+        )
+        let viewModel = InsightsViewModel()
+
+        await loadInsights(viewModel, dataActor: actor)
+
+        let goal = try #require(viewModel.savingsGoal)
+        #expect(goal.target.minorUnits == 500_000)
+        #expect(goal.savedTotal.minorUnits == 125_000)
+        #expect(goal.remaining.minorUnits == 375_000)
+        #expect(goal.completionBasisPoints == 2_500)
+        #expect(goal.completionPercent == 25)
+        #expect(viewModel.savingsGoalUnavailable == false)
+    }
+
+    @Test
     func invalidCoolingProjectionStopsDerivedInsightsWithoutHidingExpenseFacts() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let plan = try budgetPlan()
@@ -429,6 +463,8 @@ struct Phase11FreeTierTests {
 
         #expect(goal.savedTotal.minorUnits == 125_000)
         #expect(goal.remaining.minorUnits == 375_000)
+        #expect(goal.completionBasisPoints == 2_500)
+        #expect(goal.completionPercent == 25)
         #expect(storedPlan.savingGoalMinorUnits == plan.savingGoalMinorUnits)
         #expect(storedPlan.allocatedSavingsMinorUnits == 25_000)
     }

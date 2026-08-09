@@ -2,12 +2,12 @@ import Foundation
 
 struct CycleSummaryService: Sendable {
     private let model: any AIAdviceGenerating
-    private let runtimeAvailability: @Sendable () async -> AIAvailability
+    private let runtimeAvailability: @Sendable (Locale) async -> AIAvailability
 
     init(
         model: any AIAdviceGenerating = FoundationModelsAdviceGenerator(),
-        runtimeAvailability: @escaping @Sendable () async -> AIAvailability = {
-            await FoundationModelsAdviceGenerator.runtimeAvailability()
+        runtimeAvailability: @escaping @Sendable (Locale) async -> AIAvailability = { locale in
+            await FoundationModelsAdviceGenerator.runtimeAvailability(locale: locale)
         }
     ) {
         self.model = model
@@ -75,6 +75,7 @@ struct CycleSummaryService: Sendable {
             model: model,
             capability: AIEnhancementCapability(
                 userEnabled: enhancementEnabled,
+                targetLocale: locale,
                 runtimeAvailability: runtimeAvailability
             )
         ).cycleSummary(fallback: fallback, context: context)

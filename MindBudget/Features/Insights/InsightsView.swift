@@ -117,6 +117,8 @@ struct InsightSummaryBuilder: Sendable {
 @MainActor
 final class InsightsViewModel: ObservableObject {
     @Published private(set) var summary: InsightDashboardSummary?
+    @Published private(set) var savingsGoal: SavingsGoalSummary?
+    @Published private(set) var savingsGoalUnavailable = false
     @Published private(set) var insights: [SpendingInsightSummary] = []
     @Published private(set) var cycleNarrative: SourcedSummary?
     @Published private(set) var isLoading = true
@@ -190,6 +192,16 @@ final class InsightsViewModel: ObservableObject {
             partialDataUnavailable = false
             isLoading = false
 
+            do {
+                savingsGoal = try await dataActor.fetchSavingsGoalSummary()
+                savingsGoalUnavailable = false
+            } catch {
+                guard isCurrent(loadID) else { return }
+                savingsGoal = nil
+                savingsGoalUnavailable = true
+            }
+            guard isCurrent(loadID) else { return }
+
             let coolingPlans: [CoolingOffPlanSummary]
             do {
                 coolingPlans = try await dataActor.fetchCoolingOffPlanSummaries()
@@ -256,6 +268,8 @@ final class InsightsViewModel: ObservableObject {
         } catch {
             guard isCurrent(loadID) else { return }
             summary = nil
+            savingsGoal = nil
+            savingsGoalUnavailable = false
             cycleNarrative = nil
             insights = []
             failed = true
@@ -338,6 +352,7 @@ struct InsightsView: View {
                     if let narrative = viewModel.cycleNarrative {
                         cycleNarrativeCard(narrative)
                     }
+                    savingsProgressCard
                     spendingCharts(summary)
                 }
                 insightCards
@@ -406,6 +421,86 @@ struct InsightsView: View {
                 detail: LocalizedCatalog.string("insights.summary.recorded", locale: locale)
             )
         }
+    }
+
+    private var savingsProgressCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label("insights.savings.title", systemImage: "target")
+                .font(.headline)
+
+            if viewModel.savingsGoalUnavailable {
+                Text("insights.savings.unavailable")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else if let goal = viewModel.savingsGoal {
+                VStack(spacing: 10) {
+                    savingsAmount(
+                        title: "insights.savings.target",
+                        amount: goal.target,
+                        identifier: "insights.savings.target"
+                    )
+                    savingsAmount(
+                        title: "insights.savings.saved",
+                        amount: goal.savedTotal,
+                        identifier: "insights.savings.saved"
+                    )
+                    savingsAmount(
+                        title: "insights.savings.remaining",
+                        amount: goal.remaining,
+                        identifier: "insights.savings.remaining"
+                    )
+                }
+
+                ProgressView(
+                    value: CGFloat(goal.completionBasisPoints),
+                    total: 10_000
+                )
+                .tint(theme.accent)
+                .accessibilityLabel("insights.savings.progress")
+                .accessibilityValue(
+                    LocalizedCatalog.format(
+                        "insights.savings.percent",
+                        locale: locale,
+                        Int(goal.completionPercent)
+                    )
+                )
+
+                Text(
+                    LocalizedCatalog.format(
+                        "insights.savings.percent",
+                        locale: locale,
+                        Int(goal.completionPercent)
+                    )
+                )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(theme.accent)
+                .accessibilityIdentifier("insights.savings.percent")
+            } else {
+                Text("insights.savings.empty")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .budgetCard(cornerRadius: 20, contentPadding: 18)
+        .accessibilityIdentifier("insights.savings.card")
+    }
+
+    private func savingsAmount(
+        title: LocalizedStringKey,
+        amount: Money,
+        identifier: String
+    ) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 12)
+            MoneyText(money: amount, weight: .semibold)
+                .minimumScaleFactor(0.7)
+                .accessibilityIdentifier(identifier)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private func summaryCard(

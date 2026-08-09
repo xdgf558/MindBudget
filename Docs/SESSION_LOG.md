@@ -2754,3 +2754,76 @@ and `PrivacyRedactor` is at 91.91%.
 
 Next suggested task: Re-review the updated draft PR #19. After approval, merge it and repeat the
 previously failing Insights and Ask scenarios on the physical iPhone before resuming TestFlight.
+
+## 2026-08-09 — Session 69 — Archive and upload TestFlight 0.9.4 (5)
+
+Goal: Archive the approved PR #19 release from `main`, upload it to the owner's current App Store
+Connect account, and stop before tester-group distribution as requested by the product owner.
+
+Files changed: Release evidence in `RELEASE_CHECKLIST.md`, the current candidate identity in
+`APP_STORE_SUBMISSION.md`, and this log. No product source, project build setting, version, or
+binary content changed after PR #19 merged.
+
+What was completed: Xcode 26.6 archived `main` merge commit `c13586d` as MindBudget/花有数
+version `0.9.4`, build `5`, minimum iOS 17.0, bundle ID `com.xdgf558.MindBudget`, and team
+`2AM5S7BM2N`. The archive was exported with the App Store Connect distribution method, automatic
+signing, and the matching App Store provisioning profile, then uploaded successfully. App Store
+Connect finished processing the binary and displayed build 5 under version 0.9.4. Source inspection
+confirmed the app contains no custom, proprietary, or standard encryption implementation, so the
+build's export-compliance response was recorded as “none of the listed algorithms”; the build then
+advanced to `Ready to Submit` with a 90-day testing window.
+
+What was NOT completed: No internal or external tester group was assigned, no external Beta App
+Review was submitted, and no App Store production submission was made. The product owner will
+perform tester-group distribution manually. App Privacy, age rating, content-rights, regional
+availability, agreements, screenshots, physical-device accessibility/performance, and the other
+unchecked release gates remain open.
+
+Archive and upload result: pass — `xcodebuild -archivePath ... archive` and the App Store Connect
+`-exportArchive` upload both succeeded. The uploaded binary and App Store Connect record agree on
+version/build, bundle identifier, and Apple team. The temporary archive remains outside the
+repository under `/private/tmp/MindBudgetArchive.LyRv9N/` for this local release session.
+
+Next suggested task: In App Store Connect, manually add 0.9.4 (5) to the intended internal testing
+group, complete the remaining release checklist on the signed build, and submit external testing
+only after the Beta App Review information has been verified.
+
+## 2026-08-09 — Session 70 — Savings progress and exact app-locale model guidance
+
+Goal: Add the requested cross-cycle savings progress to Insights and address the on-device model
+language fallback shown by the current-session diagnostic counters.
+
+Files changed: Savings projections and Insights presentation, Foundation Models capability and
+generation services, the AI status view, bilingual strings, Phase 7/11 regressions, and the
+project/prompt/test/decision/changelog memory. Existing release-evidence edits for the already
+uploaded TestFlight build were preserved.
+
+What was completed: Insights now presents a standalone savings-progress card backed by the
+authoritative cross-cycle savings projection. It shows the total goal, exact saved amount,
+remaining amount, and completion percentage without changing budget arithmetic; an absent goal
+and an unreadable savings projection have distinct localized states, and either condition leaves
+expense insights usable. Foundation Models availability is now checked against the exact locale
+selected inside the app rather than the device's process locale. Ask, reminder, and cycle-summary
+sessions receive explicit locale and required-language instructions, while the existing generated
+language validator remains the final fail-closed boundary. The AI status view rechecks when the
+app locale changes, and its Debug heading now states that counters are cumulative for the current
+process so a prior fallback is not mistaken for current unavailability.
+
+What was NOT completed: No version/build change, Archive, TestFlight upload, tester assignment,
+physical-device install, signing change, commit, push, pull request, or merge was performed. The
+already processed TestFlight binary remains version `0.9.4 (5)`; these changes remain Unreleased.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 261 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. The strict 10,000-row Dashboard benchmark then passed in its
+isolated run.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate; `AdviceSafetyValidator` is at 96.15%,
+`PrivacyRedactor` at 91.91%, and `CycleSummaryService` at 97.38%.
+
+Next suggested task: Review this post-upload update, test the savings card and selected-language
+Foundation Models path on the physical iPhone, then decide whether to ship it as the next
+TestFlight build before starting the separate PRO commercialization scope.

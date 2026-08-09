@@ -554,6 +554,21 @@ Settings observation tests prove both language and skin changes publish through
 root locale/theme without an unrelated state change or relaunch. App startup passes the SwiftUI
 environment calendar into the same reconciliation path used on foreground return.
 
+## Post-upload update acceptance
+
+Insights must fetch the cross-cycle `SavingsGoalSummary` independently from spending-pattern
+projections and show its exact target, saved total, remaining amount, and integer completion
+percentage. A goal-reading failure must not hide authoritative expense totals; a missing goal uses
+a localized neutral empty state. Tests use a starting balance plus an explicit income-to-savings
+allocation and prove the module reads the authoritative combined total without changing a
+`BudgetPlan` reservation.
+
+Every Foundation Models attempt must evaluate runtime support with the active app locale supplied
+by Ask, reminder, cycle-summary, or Settings status. Tests capture that locale at the centralized
+capability boundary and verify the system instruction names the exact identifier and explicitly
+requires Simplified Chinese or English. The existing generated-language validator and template
+fallback remain mandatory even after the stronger instruction.
+
 ## Continuous integration
 
 GitHub Actions uses Xcode 26.6+ to run the floating-point source check, assert the app

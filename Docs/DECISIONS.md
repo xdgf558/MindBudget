@@ -1794,3 +1794,42 @@ validator branch locally without creating a new privacy surface.
 Files affected: advice/summary/Ask redaction and generation, safety diagnostics, Ask and Debug
 settings UI, bilingual copy, Phase 7 tests and contracts, project memory, changelog, decisions,
 and session log.
+
+---
+
+## 2026-08-09 — Present cross-cycle savings separately and bind Foundation Models to app locale
+
+Context: The cross-cycle savings goal existed in Settings, but Insights did not show its progress.
+Physical-device diagnostics also showed the model available while a Simplified Chinese request
+fell back because the generated wording was English. Runtime support had been checked with
+`Locale.current`, and the session carried only a generic locale-language sentence instead of the
+selected app locale's explicit output requirement.
+
+Decision: Derive target, saved, remaining, and integer completion progress from the existing
+`SavingsGoalSummary`. Keep the ratio in basis points on the Sendable projection and let Insights
+render those facts without recalculating money or treating the per-cycle savings reservation as a
+lifetime goal. Read this projection independently so an unavailable goal can show a localized
+module error without hiding valid spending insights.
+
+Pass the active app locale into the centralized Foundation Models capability for Ask, reminders,
+cycle summaries, and Settings status. On supported SDKs, call `supportsLocale` with that locale.
+Every model session names the exact app-locale identifier using Apple's documented wording and
+adds an explicit requirement to answer only in its language. Keep generated-language validation
+and the localized deterministic template fallback unchanged, because instructions reduce drift but
+do not establish trust. Debug fallback counters remain in-memory and cumulative for one process,
+so their heading must not be read as the current availability state.
+
+Alternatives considered: Building savings progress from the current `BudgetPlan` reservation;
+calculating ratios independently in each view; hiding the entire Insights page when the goal read
+fails; checking only the device/process locale; or weakening language validation so more generated
+copy appears.
+
+Consequences: The user can see one honest cross-cycle savings status beside spending insights,
+while cycle budget math remains unchanged. Changing the app language immediately changes both the
+model support check and the requested response language. A model that still answers in the wrong
+language is never shown, and no new user text, raw transaction, or financial detail enters a model
+context.
+
+Files affected: savings projection and Insights/Settings presentation, Foundation Models
+capability/session construction, Ask/reminder/summary locale plumbing, bilingual copy, tests,
+prompt/test contracts, changelog, project memory, tasks, and session log.

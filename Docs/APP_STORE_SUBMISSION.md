@@ -7,7 +7,7 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next TestFlight candidate: version 0.9.4, build 5
+- Current uploaded TestFlight candidate: version 0.9.4, build 5
 - Previous uploaded candidate: version 0.9.2, build 3
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.

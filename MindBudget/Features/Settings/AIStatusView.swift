@@ -61,9 +61,10 @@ struct AIStatusView: View {
             }
             #endif
         }
-        .task(id: userEnabled) {
+        .task(id: "\(userEnabled)-\(locale.identifier)") {
             availability = await AIEnhancementCapability(
-                userEnabled: userEnabled
+                userEnabled: userEnabled,
+                targetLocale: locale
             ).availability
             #if DEBUG
             fallbackCounts = await AIFallbackDiagnostics.shared.snapshot()
