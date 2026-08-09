@@ -164,15 +164,19 @@ struct AskMindBudgetView: View {
                         HStack {
                             Text(response.answer.title).font(.headline)
                             Spacer()
-                            if response.source == .model {
-                                Label("ask.answer.enhanced", systemImage: "apple.intelligence")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                Label("ask.answer.template", systemImage: "function")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                            Label(
+                                LocalizedStringKey(sourceLabelKey(response.source)),
+                                systemImage: response.source == .model
+                                    ? "apple.intelligence"
+                                    : "function"
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
+                        if let detailKey = fallbackDetailKey(response.source) {
+                            Text(LocalizedStringKey(detailKey))
+                                .font(.caption)
+                                .foregroundStyle(theme.inkSecondary)
                         }
                         Text(response.answer.body)
                             .textSelection(.enabled)
@@ -232,5 +236,31 @@ struct AskMindBudgetView: View {
             enhancementEnabled: settings.enableAIEnhancement,
             bucket: settings.bucket(for:)
         )
+    }
+
+    private func sourceLabelKey(_ source: AdviceGenerationSource) -> String {
+        switch source {
+        case .template: "ask.answer.template"
+        case .model: "ask.answer.enhanced"
+        case .modelValidatedFallback: "ask.answer.fallback.validation"
+        case .modelErrorFallback: "ask.answer.fallback.error"
+        case .modelUnavailableFallback: "ask.answer.fallback.unavailable"
+        case .modelTimedOutFallback: "ask.answer.fallback.timeout"
+        }
+    }
+
+    private func fallbackDetailKey(_ source: AdviceGenerationSource) -> String? {
+        switch source {
+        case .template, .model:
+            nil
+        case .modelValidatedFallback:
+            "ask.answer.fallback.validation.detail"
+        case .modelErrorFallback:
+            "ask.answer.fallback.error.detail"
+        case .modelUnavailableFallback:
+            "ask.answer.fallback.unavailable.detail"
+        case .modelTimedOutFallback:
+            "ask.answer.fallback.timeout.detail"
+        }
     }
 }

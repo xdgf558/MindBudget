@@ -41,12 +41,39 @@ struct RedactedAdviceContext: Codable, Equatable, Sendable {
     }
 }
 
+enum SummaryBudgetUsage: Codable, Equatable, Sendable {
+    case unavailable
+    case lessThanOnePercent
+    case percent(Int)
+
+    fileprivate var promptState: String {
+        switch self {
+        case .unavailable: "unavailable"
+        case .lessThanOnePercent: "lessThanOnePercent"
+        case .percent: "percent"
+        }
+    }
+
+    fileprivate var promptFacts: [String: String] {
+        switch self {
+        case .unavailable, .lessThanOnePercent:
+            [:]
+        case let .percent(value):
+            ["totalUsedPercent": String(value)]
+        }
+    }
+
+    fileprivate var numericValues: [String] {
+        Array(promptFacts.values)
+    }
+}
+
 struct RedactedSummaryContext: Codable, Equatable, Sendable {
     let localeIdentifier: String
     let cycleLabel: String
     let topCategoryKeys: [String]
     let categoryChangeDirections: [String: String]
-    let totalUsedPercent: Int
+    let budgetUsage: SummaryBudgetUsage
     let emotionTagCounts: [String: Int]
     let coolingOffSkippedCount: Int
     let coolingOffPurchasedCount: Int
@@ -62,16 +89,18 @@ struct RedactedSummaryContext: Codable, Equatable, Sendable {
     var promptData: String {
         let counts = emotionTagCounts.mapValues(String.init).merging([
             "coolingOffSkippedCount": String(coolingOffSkippedCount),
-            "coolingOffPurchasedCount": String(coolingOffPurchasedCount),
-            "totalUsedPercent": String(totalUsedPercent)
+            "coolingOffPurchasedCount": String(coolingOffPurchasedCount)
         ]) { first, _ in first }
         return PromptDataEncoder.lines(
             scalars: [
                 "locale": localeIdentifier,
                 "cycleLabel": cycleLabel,
+                "budgetUsageState": budgetUsage.promptState,
                 "tone": tonePreference
             ],
-            facts: categoryChangeDirections.merging(counts) { first, _ in first },
+            facts: categoryChangeDirections
+                .merging(counts) { first, _ in first }
+                .merging(budgetUsage.promptFacts) { first, _ in first },
             insightKeys: topCategoryKeys,
             actions: allowedActionIdentifiers
         )
@@ -387,6 +416,23 @@ struct AskAggregateInput: Equatable, Sendable {
     }
 }
 
+/// App-owned Ask actions are checked before a redacted context exists. They are not model
+/// output, so a product configuration error must never be reported as a model safety failure.
+enum AskActionContract {
+    static func isSatisfied(
+        facts: AskAggregateFacts,
+        actions: [SuggestedAction]
+    ) -> Bool {
+        guard actions.count <= 4,
+              Set(actions.map(\.rawValue)).count == actions.count else {
+            return false
+        }
+        guard case .affordability = facts else { return true }
+        return (2...4).contains(actions.count)
+            && actions.contains(.continuePurchase)
+    }
+}
+
 struct AdviceAggregateInput: Equatable, Sendable {
     let localeIdentifier: String
     let currencyCode: String
@@ -409,7 +455,7 @@ struct SummaryAggregateInput: Equatable, Sendable {
     let cycleLabel: String
     let topCategories: [ExpenseCategory]
     let categoryChangeDirections: [ExpenseCategory: String]
-    let totalUsedPercent: Int
+    let budgetUsage: SummaryBudgetUsage
     let emotionCounts: [EmotionTag: Int]
     let coolingOffSkippedCount: Int
     let coolingOffPurchasedCount: Int
@@ -419,6 +465,10 @@ struct SummaryAggregateInput: Equatable, Sendable {
 struct PrivacyRedactor: Sendable {
     func redactAsk(_ input: AskAggregateInput) -> RedactedAskContext {
         precondition(Money.isSupported(input.currencyCode), "Unsupported accounting currency")
+        precondition(
+            AskActionContract.isSatisfied(facts: input.facts, actions: input.allowedActions),
+            "Ask action contract is invalid"
+        )
         let formatter = CurrencyFormatterService()
         func formatted(_ money: Money) -> String {
             precondition(
@@ -528,7 +578,7 @@ struct PrivacyRedactor: Sendable {
                     ($0.key.localizedNameKey, $0.value)
                 }
             ),
-            totalUsedPercent: input.totalUsedPercent,
+            budgetUsage: input.budgetUsage,
             emotionTagCounts: Dictionary(uniqueKeysWithValues: input.emotionCounts.map {
                 ($0.key.rawValue, $0.value)
             }),
@@ -577,7 +627,8 @@ struct AllowedNumericTokens: Equatable, Sendable {
     init(context: RedactedSummaryContext) {
         localeIdentifier = context.localeIdentifier
         values = Self.tokens(
-            in: [context.cycleLabel, String(context.totalUsedPercent)]
+            in: [context.cycleLabel]
+                + context.budgetUsage.numericValues
                 + context.emotionTagCounts.values.map(String.init)
                 + [
                     String(context.coolingOffSkippedCount),
@@ -592,6 +643,20 @@ struct AllowedNumericTokens: Equatable, Sendable {
             in: strings,
             localeIdentifier: localeIdentifier
         ).isSubset(of: values)
+    }
+
+    /// The general numeric allow-list intentionally permits a fact's number to appear in
+    /// different wording. Percentages are stricter: only values supplied by an explicit
+    /// percentage fact may appear next to a percent sign.
+    func containsOnlyAllowedPercentages(
+        in strings: [String],
+        allowedValues: Set<Int>
+    ) -> Bool {
+        let percentages = strings.flatMap {
+            Self.percentageTokens(in: $0, localeIdentifier: localeIdentifier)
+        }
+        let canonicalAllowedValues = Set(allowedValues.map(String.init))
+        return percentages.allSatisfy(canonicalAllowedValues.contains)
     }
 
     private static func tokens<S: Sequence>(
@@ -610,6 +675,7 @@ struct AllowedNumericTokens: Equatable, Sendable {
         var result = Set<String>()
         var token = ""
         var pendingNegative = false
+        var previousCharacter: Character?
         func finish() {
             defer { token = "" }
             guard let normalized = canonical(
@@ -620,7 +686,10 @@ struct AllowedNumericTokens: Equatable, Sendable {
         }
         for character in string {
             if let value = character.wholeNumberValue, (0...9).contains(value) {
-                if token.isEmpty, pendingNegative { token = "-" }
+                if token.isEmpty, pendingNegative {
+                    token = "-"
+                    pendingNegative = false
+                }
                 token.append(String(value))
             } else if isNumericSeparator(character), !token.isEmpty {
                 token.append(character)
@@ -629,15 +698,124 @@ struct AllowedNumericTokens: Equatable, Sendable {
                     finish()
                     pendingNegative = false
                 }
-                if character == "-" || character == "\u{2212}" {
+                let signFollowsBoundary = previousCharacter == nil
+                    || previousCharacter?.isWhitespace == true
+                if (character == "-" || character == "\u{2212}")
+                    && signFollowsBoundary {
                     pendingNegative = true
                 } else if character.isWhitespace {
                     pendingNegative = false
                 }
             }
+            previousCharacter = character
         }
         finish()
         return result
+    }
+
+    /// Extracts canonical numeric values adjacent to an ASCII or full-width percent sign.
+    /// Both `50%` and `%50` word orderings are recognized, with optional presentation spacing.
+    private static func percentageTokens(
+        in string: String,
+        localeIdentifier: String?
+    ) -> [String] {
+        let characters = Array(string)
+        return characters.indices.flatMap { percentIndex -> [String] in
+            guard characters[percentIndex] == "%" || characters[percentIndex] == "％" else {
+                return []
+            }
+            return [
+                percentageToken(
+                    endingBefore: percentIndex,
+                    in: characters,
+                    localeIdentifier: localeIdentifier
+                ),
+                percentageToken(
+                    startingAfter: percentIndex,
+                    in: characters,
+                    localeIdentifier: localeIdentifier
+                )
+            ].compactMap { $0 }
+        }
+    }
+
+    private static func percentageToken(
+        endingBefore percentIndex: Int,
+        in characters: [Character],
+        localeIdentifier: String?
+    ) -> String? {
+        var numericEnd = percentIndex
+        while numericEnd > characters.startIndex,
+              characters[numericEnd - 1].isWhitespace {
+            numericEnd -= 1
+        }
+        guard numericEnd > characters.startIndex,
+              characters[numericEnd - 1].wholeNumberValue != nil else {
+            return nil
+        }
+
+        var numericStart = numericEnd
+        while numericStart > characters.startIndex {
+            let previousIndex = numericStart - 1
+            let character = characters[previousIndex]
+            if character.wholeNumberValue != nil || isNumericSeparator(character) {
+                numericStart = previousIndex
+            } else if character == "-" || character == "\u{2212}" {
+                numericStart = previousIndex
+                break
+            } else {
+                break
+            }
+        }
+        return canonicalPercentageToken(
+            String(characters[numericStart..<numericEnd]),
+            localeIdentifier: localeIdentifier
+        )
+    }
+
+    private static func percentageToken(
+        startingAfter percentIndex: Int,
+        in characters: [Character],
+        localeIdentifier: String?
+    ) -> String? {
+        var numericStart = percentIndex + 1
+        while numericStart < characters.endIndex, characters[numericStart].isWhitespace {
+            numericStart += 1
+        }
+        let rawStart = numericStart
+        if numericStart < characters.endIndex,
+           (characters[numericStart] == "-" || characters[numericStart] == "\u{2212}") {
+            numericStart += 1
+            while numericStart < characters.endIndex, characters[numericStart].isWhitespace {
+                numericStart += 1
+            }
+        }
+        guard numericStart < characters.endIndex,
+              characters[numericStart].wholeNumberValue != nil else {
+            return nil
+        }
+
+        var numericEnd = numericStart
+        while numericEnd < characters.endIndex {
+            let character = characters[numericEnd]
+            guard character.wholeNumberValue != nil || isNumericSeparator(character) else { break }
+            numericEnd += 1
+        }
+        return canonicalPercentageToken(
+            String(characters[rawStart..<numericEnd]),
+            localeIdentifier: localeIdentifier
+        )
+    }
+
+    private static func canonicalPercentageToken(
+        _ token: String,
+        localeIdentifier: String?
+    ) -> String? {
+        var rawValue = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        if rawValue.first == "\u{2212}" {
+            rawValue.replaceSubrange(rawValue.startIndex...rawValue.startIndex, with: "-")
+        }
+        return canonical(rawValue, localeIdentifier: localeIdentifier)
     }
 
     private static func canonical(

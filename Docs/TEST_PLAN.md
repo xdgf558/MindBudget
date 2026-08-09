@@ -311,14 +311,30 @@ contexts expose no raw note, merchant-list, transaction-row, or cooling-timestam
 and generator APIs accept only dedicated allow-listed value types. Ask facts are a closed
 per-intent payload containing only typed money, counts, booleans, and category values;
 template prose and arbitrary insight strings cannot enter the redactor. Safety tests reject
-fabricated numbers, unknown/duplicate/invalid action sets, missing Continue Purchase,
-oversized copy, shame, diagnosis, financial advice, and purchase prohibitions while accepting
-localized forms of allowed numbers. English output requested for a Simplified Chinese context
-must fail validation and return the complete Chinese template; rendered dynamic Ask actions must
+fabricated numbers, oversized copy, shame, diagnosis, financial advice, and purchase prohibitions
+on Ask text while accepting localized forms of allowed numbers. Construction tests reject
+duplicate, oversized, or missing-Continue app-owned Ask action sets before a redacted context
+exists; reminder and summary tests retain generated-action allow-list coverage. English output
+requested for a Simplified Chinese context
+and predominantly English output containing only token Chinese words must fail validation and
+return the complete Chinese template, while short currency codes remain allowed; rendered dynamic Ask actions must
 show their localized labels rather than catalog keys. Capability tests prove user-disabled and
 build-disabled states fail closed before runtime access. Generator failure, validation rejection,
 and timeout
-all return a nonempty template with source metadata. Reminder and cycle-summary enhancement
+all return a nonempty template with distinct source metadata. Ask model proposals cannot replace
+the deterministic allow-listed action set, and Debug diagnostics retain only the exact typed
+validation reason rather than rejected generated content. Cycle summary tests distinguish an
+unavailable budget denominator, positive usage below one percent, and configured exact zero;
+positive spend is never narrated as zero percent, sub-one-percent context does not allow the digit
+`1`, and a cycle-label hyphen cannot turn the localized month into a fabricated negative number.
+With zero-valued cooling-off counts present in the general numeric allow-list, unavailable and
+sub-one-percent contexts must still reject numeric percentages, while an exact 8-percent context
+accepts `8%` and rejects `0%`. Ask contexts reject every numeric percentage even when a zero count
+is allowed; reminder contexts accept only values from their explicit free-budget-impact and
+category-budget percentage fields, and reject both unrelated counts and `daysOfBudgetConsumed` as
+percentage authority. ASCII and full-width percent signs, before or after the number, share the
+same binding.
+Reminder and cycle-summary enhancement
 tests use injected mock generators only; the real on-device model remains a supported-device
 manual smoke requirement.
 

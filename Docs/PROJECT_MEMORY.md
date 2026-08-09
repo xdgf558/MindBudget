@@ -54,6 +54,18 @@ shows that remaining work as a neutral progress notice. Schedule enumeration car
 with its stable occurrence key and fails closed after 1,200 scanned months per rule, so duplicate
 key work and an unbounded foreground loop are both excluded. The candidate is version `0.9.4 (5)`
 and remains unuploaded until PR #18 review and the release checklist authorize TestFlight.
+Cycle-summary budget usage is a closed unavailable/under-one-percent/exact-whole-percent fact;
+positive recorded spending can no longer be described as zero percent merely because integer
+presentation truncates it. Ask model generation owns wording only: the app attaches deterministic
+allow-listed actions after validating their redacted-context contract, retains strict
+text/number/language validation, and presents the safe fallback category when a complete local
+template is used. Sub-one-percent summary state contributes no numeric `1` token, numeric
+component hyphens are not interpreted as unary negative signs, and Chinese proposals cannot be
+predominantly Latin text. Numeric percentages are bound to explicit percentage facts instead of
+each path's flat numeric set: Ask permits none, reminders permit only their supplied free-budget
+impact and category-budget percentages, and summaries permit only their budget-usage value. An
+unrelated zero count cannot authorize a false `0%` claim, including when the percent sign precedes
+the number.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -262,10 +274,15 @@ aggregate context, never detail projections, transaction rows, merchant lists, r
 raw cooling timestamps, or the raw question. Ask facts are an exhaustive per-intent payload
 made only from typed money, counts, booleans, and category values; the redactor owns formatting
 and enum-key conversion, while fallback prose remains outside model facts. Deterministic Swift
-remains authoritative for classification, arithmetic, rules, and allowed actions. Model output uses constrained
-generation, a short timeout, length/action/language/number safety validation, and immediate
+remains authoritative for classification, arithmetic, rules, and allowed actions. Ask model output
+contains wording only and receives its already-contracted action identifiers from deterministic
+code; app configuration is not reported as a model safety failure.
+Model output uses constrained
+generation, a short timeout, path-appropriate length/action/language/number safety validation, and immediate
 template fallback; English/Simplified Chinese proposals with the wrong writing system are
-rejected, and dynamic action identifiers are resolved explicitly through the active locale.
+rejected, dynamic action identifiers are resolved explicitly through the active locale, and the
+UI distinguishes validation, timeout, availability, and model-error fallback without retaining
+rejected generated text.
 Generated copy is not persisted. Settings always explains the current
 availability reason and that the complete template experience remains usable without Apple
 Intelligence. Phase 8A adds nine localized App Intents, seven redacted App Entities, and six

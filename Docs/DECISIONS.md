@@ -1734,3 +1734,63 @@ paths and should be converted if a future root-only consumer is added.
 
 Files affected: recurring schedule/reconciliation projections and tests, app session calendar and
 backlog state, SettingsStore observation tests, project memory, test plan, changelog, and session log.
+
+---
+
+## 2026-08-09 — Keep cycle usage states explicit and Ask actions deterministic
+
+Context: Physical-device testing showed CNY 236 of recorded current-cycle spending beside a
+“0%” cycle narrative. The percentage path used one integer for an unavailable budget denominator,
+configured zero spend, and any positive ratio below one percent. A separate Ask test showed Apple
+Intelligence available and enabled but the answer card reported only a generic local template;
+Debug retained one coarse validation failure but not its typed cause. Ask also asked the model to
+reproduce internal action identifiers even though those suggested labels are deterministic
+product behavior.
+
+Decision: Represent summary usage as a closed `.unavailable`, `.lessThanOnePercent`, or
+`.percent(Int)` state. Only a configured positive budget with exactly zero spending may become
+zero percent. A sub-one-percent state and an unavailable denominator expose no numeric percentage
+fact. The closed state key communicates the relationship, while any generated digit not present in
+other aggregate facts is rejected and falls back to localized template copy. Because every general
+numeric allow-list intentionally flattens numbers from different facts, bind generated numeric
+percentage expressions separately on all three output paths. Ask has no percentage-shaped fact and
+therefore permits none. Reminder output permits only the exact non-nil values supplied by its
+free-budget-impact and category-budget-used percentage fields; days consumed is a count, not
+percentage authority. Summary output binds to `SummaryBudgetUsage`: unavailable and sub-one states
+permit no numeric percent, and an exact state permits only its own integer. Recognize ASCII and
+full-width percent signs before or after
+the number, with optional presentation spacing. This prevents an unrelated zero cooling-off,
+emotion, stress, or impulse count from authorizing a false `0%` statement.
+
+For Ask, generate only title and body with Foundation Models. Validate the app-owned action
+contract while constructing the redacted context: a purchase decision has two to four unique
+actions including Continue Purchase, and every other Ask context has at most four unique actions.
+Attach that complete action set in deterministic Swift and keep it outside model-output
+validation, so an app configuration error cannot pollute model safety diagnostics. Continue to
+reject fabricated numbers, the wrong language, unsafe wording, and empty or oversized text.
+Reminder and summary paths still validate actions that their models generate. A numeric-component
+hyphen is a separator rather than a unary sign, while a leading or whitespace-delimited minus
+retains negative-money meaning. Simplified Chinese model copy must contain Han text and cannot
+contain more basic Latin letters than Han characters, allowing short currency codes without
+accepting predominantly English prose. Distinguish validation, timeout, availability, and
+unexpected-model fallback on the answer card. In Debug builds retain aggregate counts for the exact typed
+`AdviceSafetyViolation`; never retain rejected generated text, prompts, or user financial facts.
+
+Alternatives considered: Rounding or truncating every ratio to zero; showing an invented
+percentage when no budget denominator exists; weakening numeric or language validation so more
+model output passes; persisting failed model text for diagnosis; or continuing to delegate app
+suggested-action identifiers to the wording model; validating deterministic app actions as though
+they were untrusted generated content; or treating every hyphen as a negative sign.
+
+Consequences: Cycle overview remains honest for configured zero, very small positive use, and
+missing baselines. The most avoidable Ask validation failure—generated internal action tokens—is
+structurally removed without weakening any content safety rule. Sub-one-percent wording cannot
+silently become an exact one-percent claim, localized cycle months do not create false fabricated-
+number counts, token Chinese phrases cannot admit an otherwise English response, and percentage
+claims on Ask, reminder, or summary cannot borrow an unrelated fact's number. Users can
+tell why a safe complete template was used, while developers can identify the exact model-output
+validator branch locally without creating a new privacy surface.
+
+Files affected: advice/summary/Ask redaction and generation, safety diagnostics, Ask and Debug
+settings UI, bilingual copy, Phase 7 tests and contracts, project memory, changelog, decisions,
+and session log.

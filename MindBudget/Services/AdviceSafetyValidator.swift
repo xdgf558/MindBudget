@@ -1,6 +1,6 @@
 import Foundation
 
-enum AdviceSafetyViolation: Error, Equatable, Sendable {
+enum AdviceSafetyViolation: String, Error, CaseIterable, Equatable, Sendable {
     case titleTooLong
     case bodyTooLong
     case bannedPhrase
@@ -41,17 +41,14 @@ struct AdviceSafetyValidator: Sendable {
             body: answer.body,
             localeIdentifier: context.localeIdentifier
         )
-        let isPurchaseDecision = context.questionIntentKey == .canIAfford
-            && !context.requiresPurchaseDetails
-        try validateActions(
-            answer.actionIdentifiers,
-            allowed: context.allowedActionIdentifiers,
-            minimumCount: isPurchaseDecision ? 2 : 0,
-            maximumCount: 4,
-            requiresContinuePurchase: isPurchaseDecision
-        )
         guard AllowedNumericTokens(context: context).containsEveryNumber(
             in: [answer.title, answer.body]
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
+            in: [answer.title, answer.body],
+            allowedValues: []
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
@@ -82,6 +79,16 @@ struct AdviceSafetyValidator: Sendable {
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
+        let allowedPercentageValues = Set([
+            context.freeBudgetImpactPercent,
+            context.categoryBudgetUsedPercent
+        ].compactMap { $0 })
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
+            in: [advice.title, advice.body],
+            allowedValues: allowedPercentageValues
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
     }
 
     func validate(summary: GeneratedSummary, context: RedactedSummaryContext) throws {
@@ -100,6 +107,18 @@ struct AdviceSafetyValidator: Sendable {
         )
         guard AllowedNumericTokens(context: context).containsEveryNumber(
             in: [summary.title, summary.body]
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
+        let allowedPercentageValues: Set<Int> = switch context.budgetUsage {
+        case .unavailable, .lessThanOnePercent:
+            []
+        case let .percent(value):
+            [value]
+        }
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
+            in: [summary.title, summary.body],
+            allowedValues: allowedPercentageValues
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
@@ -161,14 +180,16 @@ struct AdviceSafetyValidator: Sendable {
         let locale = localeIdentifier.lowercased()
         let scalars = "\(title) \(body)".unicodeScalars
         let hanCount = scalars.count(where: Self.isHan)
+        let latinLetterCount = scalars.count(where: Self.isBasicLatinLetter)
 
         if locale.hasPrefix("zh") {
-            guard hanCount >= 2 else {
+            guard hanCount >= 2,
+                  latinLetterCount <= hanCount else {
                 throw AdviceSafetyViolation.unexpectedLanguage
             }
         } else if locale.hasPrefix("en") {
             guard hanCount == 0,
-                  scalars.count(where: Self.isBasicLatinLetter) >= 4 else {
+                  latinLetterCount >= 4 else {
                 throw AdviceSafetyViolation.unexpectedLanguage
             }
         }

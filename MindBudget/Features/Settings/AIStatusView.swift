@@ -6,6 +6,7 @@ struct AIStatusView: View {
     @State private var availability: AIAvailability = .unavailable(.unknown)
     #if DEBUG
     @State private var fallbackCounts: [AIFallbackDiagnosticReason: Int] = [:]
+    @State private var validationCounts: [AdviceSafetyViolation: Int] = [:]
     #endif
 
     var body: some View {
@@ -38,6 +39,25 @@ struct AIStatusView: View {
                         .font(.caption)
                     }
                 }
+                if !validationCounts.isEmpty {
+                    Text("settings.ai.debugValidationDetails")
+                        .font(.caption.weight(.semibold))
+                    ForEach(AdviceSafetyViolation.allCases, id: \.rawValue) { violation in
+                        if let count = validationCounts[violation], count > 0 {
+                            LabeledContent {
+                                Text(count, format: .number)
+                            } label: {
+                                Text(
+                                    verbatim: LocalizedCatalog.string(
+                                        "settings.ai.debug.validation.\(violation.rawValue)",
+                                        locale: locale
+                                    )
+                                )
+                            }
+                            .font(.caption)
+                        }
+                    }
+                }
             }
             #endif
         }
@@ -47,6 +67,7 @@ struct AIStatusView: View {
             ).availability
             #if DEBUG
             fallbackCounts = await AIFallbackDiagnostics.shared.snapshot()
+            validationCounts = await AIFallbackDiagnostics.shared.validationSnapshot()
             #endif
         }
     }

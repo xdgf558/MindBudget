@@ -6,7 +6,19 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No additional user-visible changes are staged beyond the `0.9.4 (5)` internal candidate below.
+### Fixed
+
+- Cycle overview no longer labels a positive but sub-one-percent spend as `0%`, and it now
+  distinguishes an unavailable budget baseline from a configured cycle with exactly zero spend.
+- Ask now tells the user whether a complete local answer was used because enhancement was
+  unavailable, timed out, failed validation, or encountered a model error. On-device wording
+  keeps the app-owned suggested-action labels instead of asking the model to reproduce internal
+  identifiers. Numeric date labels, sub-one-percent facts, and mixed Chinese/English output are
+  validated without weakening the existing number, length, or safety rules. Percentage wording
+  is now bound to explicit facts on every generated path: Ask permits none, reminders permit only
+  their supplied free-budget-impact or category-budget percentages, and summaries permit only the
+  dedicated budget-usage value.
+  Unrelated zero counts can no longer authorize false `0%` wording.
 
 ## 0.9.4 (5) — 2026-08-08 — Internal TestFlight candidate
 

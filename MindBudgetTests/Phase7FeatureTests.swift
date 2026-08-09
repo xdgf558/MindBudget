@@ -149,7 +149,45 @@ struct Phase7FeatureTests {
     }
 
     @Test
-    func validatorRejectsFabricatedNumbersAndUnknownActions() throws {
+    func affordabilityTemplateActionsSatisfyEveryAppOwnedBranch() async {
+        let ask = service(model: MockAI(mode: .safe))
+        let needsDetails = await ask.answer(
+            request(question: "Can I afford this?", enhancementEnabled: false)
+        )
+        let affordable = await ask.answer(
+            request(
+                question: "Can I afford this?",
+                amount: Money(minorUnits: 1_000, currencyCode: "USD"),
+                category: .coffee,
+                enhancementEnabled: false
+            )
+        )
+        let outside = await ask.answer(
+            request(
+                question: "Can I afford this?",
+                amount: Money(minorUnits: 200_000, currencyCode: "USD"),
+                category: .shopping,
+                enhancementEnabled: false
+            )
+        )
+
+        #expect(needsDetails.answer.actionIdentifiers == [
+            SuggestedAction.addToWishlist.rawValue,
+            SuggestedAction.reviewRecentSpending.rawValue
+        ])
+        #expect(affordable.answer.actionIdentifiers == [
+            SuggestedAction.reviewRecentSpending.rawValue,
+            SuggestedAction.continuePurchase.rawValue
+        ])
+        #expect(outside.answer.actionIdentifiers == [
+            SuggestedAction.addToWishlist.rawValue,
+            SuggestedAction.adjustBudget.rawValue,
+            SuggestedAction.continuePurchase.rawValue
+        ])
+    }
+
+    @Test
+    func askValidatorRejectsFabricatedNumbersWithoutClassifyingAppOwnedActions() throws {
         let context = askContext(
             actions: [.reviewRecentSpending, .adjustBudget]
         )
@@ -161,7 +199,7 @@ struct Phase7FeatureTests {
                 SuggestedAction.adjustBudget.rawValue
             ]
         )
-        let unknownAction = GeneratedAnswer(
+        let nonAuthoritativeActionFixture = GeneratedAnswer(
             title: "Budget check",
             body: "Review the recorded facts.",
             actionIdentifiers: ["sendMoney", SuggestedAction.adjustBudget.rawValue]
@@ -170,8 +208,43 @@ struct Phase7FeatureTests {
         #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
             try AdviceSafetyValidator().validate(answer: fabricated, context: context)
         }
-        #expect(throws: AdviceSafetyViolation.unknownAction) {
-            try AdviceSafetyValidator().validate(answer: unknownAction, context: context)
+        // Ask actions are replaced from the checked redacted context before validation. A
+        // malformed action attached to this isolated fixture is not a model-text violation.
+        try AdviceSafetyValidator().validate(
+            answer: nonAuthoritativeActionFixture,
+            context: context
+        )
+    }
+
+    @Test
+    func askValidatorRejectsEveryNumericPercentageEvenWhenItsNumberIsAnAllowedCount() throws {
+        let context = askContext(
+            facts: .stressPattern(count: 0),
+            actions: [.reviewRecentSpending]
+        )
+        let validator = AdviceSafetyValidator()
+
+        // The zero count is a valid fact, but Ask has no percentage-shaped fact at all.
+        #expect(AllowedNumericTokens(context: context).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                answer: GeneratedAnswer(
+                    title: "Stress pattern",
+                    body: "Recorded stress spending is 0%.",
+                    actionIdentifiers: context.allowedActionIdentifiers
+                ),
+                context: context
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                answer: GeneratedAnswer(
+                    title: "Stress pattern",
+                    body: "Recorded stress spending is %0.",
+                    actionIdentifiers: context.allowedActionIdentifiers
+                ),
+                context: context
+            )
         }
     }
 
@@ -192,11 +265,25 @@ struct Phase7FeatureTests {
             body: "可以回看已记录的选择。",
             actionIdentifiers: []
         )
+        let mostlyEnglish = GeneratedAnswer(
+            title: "预算 summary",
+            body: "This response is mostly English with 中文 words.",
+            actionIdentifiers: []
+        )
+        let chineseWithCurrencyCode = GeneratedAnswer(
+            title: "预算情况",
+            body: "当前 CNY 金额来自已记录的预算。",
+            actionIdentifiers: []
+        )
 
         #expect(throws: AdviceSafetyViolation.unexpectedLanguage) {
             try AdviceSafetyValidator().validate(answer: english, context: context)
         }
+        #expect(throws: AdviceSafetyViolation.unexpectedLanguage) {
+            try AdviceSafetyValidator().validate(answer: mostlyEnglish, context: context)
+        }
         try AdviceSafetyValidator().validate(answer: chinese, context: context)
+        try AdviceSafetyValidator().validate(answer: chineseWithCurrencyCode, context: context)
     }
 
     @Test
@@ -266,6 +353,78 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func advicePercentagesRequireAnExplicitPercentageFact() throws {
+        func context(
+            freeBudgetImpactPercent: Int?,
+            daysOfBudgetConsumed: Int? = nil
+        ) -> RedactedAdviceContext {
+            PrivacyRedactor().redactAdvice(
+                AdviceAggregateInput(
+                    localeIdentifier: "en_US",
+                    currencyCode: "USD",
+                    purchaseCategory: .coffee,
+                    purchaseAmountFormatted: "$25.00",
+                    remainingFreeAfterFormatted: "$100.00",
+                    freeBudgetImpactPercent: freeBudgetImpactPercent,
+                    daysOfBudgetConsumed: daysOfBudgetConsumed,
+                    categoryBudgetUsedPercent: nil,
+                    recentStressPurchaseCount7d: 0,
+                    recentImpulsePurchaseCount72h: 0,
+                    allowedActions: [.addToWishlist, .continuePurchase],
+                    tone: .soft,
+                    maxTitleLength: 24,
+                    maxBodyLength: 80
+                )
+            )
+        }
+
+        func advice(_ body: String, context: RedactedAdviceContext) -> GeneratedAdvice {
+            GeneratedAdvice(
+                title: "A gentle check",
+                body: body,
+                actionIdentifiers: context.allowedActionIdentifiers,
+                severity: .caution
+            )
+        }
+
+        let unavailable = context(
+            freeBudgetImpactPercent: nil,
+            daysOfBudgetConsumed: 2
+        )
+        let exact = context(freeBudgetImpactPercent: 25)
+        let validator = AdviceSafetyValidator()
+
+        // The unrelated zero counts remain legal numbers, but cannot become percentages.
+        #expect(AllowedNumericTokens(context: unavailable).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 0% of the free budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 2% of the free budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 0％ of the free budget.", context: exact),
+                context: exact
+            )
+        }
+        try validator.validate(
+            advice: advice("This uses 25% of the free budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            advice: advice("This uses ％25 of the free budget.", context: exact),
+            context: exact
+        )
+    }
+
+    @Test
     func compositeFallsBackForUnsafeFailureAndTimeout() async {
         let context = askContext(
             actions: [.reviewRecentSpending, .adjustBudget]
@@ -290,12 +449,61 @@ struct Phase7FeatureTests {
         ).answer(intent: .remainingBudget, context: context, locale: Locale(identifier: "en"))
 
         #expect(unsafe.source == .modelValidatedFallback)
-        #expect(failed.source == .modelValidatedFallback)
+        #expect(failed.source == .modelErrorFallback)
         #expect(timedOut.source == .modelTimedOutFallback)
         #expect(!unsafe.answer.body.isEmpty)
         #expect(!failed.answer.body.isEmpty)
         #expect(!timedOut.answer.body.isEmpty)
     }
+
+    @Test
+    func askModelCannotReplaceDeterministicAllowedActions() async {
+        let context = askContext(
+            actions: [.reviewRecentSpending, .adjustBudget]
+        )
+        let response = await CompositeAdviceGenerator(
+            model: MockAI(mode: .invalidActions),
+            capability: AIEnhancementCapability(
+                userEnabled: true,
+                runtimeAvailability: { .available }
+            )
+        ).answer(
+            intent: .remainingBudget,
+            context: context,
+            locale: Locale(identifier: "en_US")
+        )
+
+        #expect(response.source == .model)
+        #expect(response.answer.actionIdentifiers == context.allowedActionIdentifiers)
+    }
+
+    #if DEBUG
+    @Test
+    func debugDiagnosticsRetainTheSpecificValidationReasonWithoutGeneratedText() async {
+        let before = await AIFallbackDiagnostics.shared.validationSnapshot()
+        let context = askContext(
+            actions: [.reviewRecentSpending, .adjustBudget]
+        )
+
+        _ = await CompositeAdviceGenerator(
+            model: MockAI(mode: .fabricated),
+            capability: AIEnhancementCapability(
+                userEnabled: true,
+                runtimeAvailability: { .available }
+            )
+        ).answer(
+            intent: .remainingBudget,
+            context: context,
+            locale: Locale(identifier: "en_US")
+        )
+
+        let after = await AIFallbackDiagnostics.shared.validationSnapshot()
+        #expect(
+            after[.fabricatedNumber, default: 0]
+                >= before[.fabricatedNumber, default: 0] + 1
+        )
+    }
+    #endif
 
     @Test
     func chineseAskFallsBackToChineseTemplateWhenModelAnswersInEnglish() async throws {
@@ -342,7 +550,7 @@ struct Phase7FeatureTests {
                 cycleLabel: "currentCycle",
                 topCategories: [.food],
                 categoryChangeDirections: [.food: "up"],
-                totalUsedPercent: 40,
+                budgetUsage: .percent(40),
                 emotionCounts: [.neutral: 2],
                 coolingOffSkippedCount: 1,
                 coolingOffPurchasedCount: 0,
@@ -415,13 +623,18 @@ struct Phase7FeatureTests {
         ]
 
         for (facts, expectedKeys) in cases {
+            let actions: [SuggestedAction] = if case .affordability = facts {
+                [.reviewRecentSpending, .continuePurchase]
+            } else {
+                [.reviewRecentSpending]
+            }
             let context = PrivacyRedactor().redactAsk(
                 AskAggregateInput(
                     locale: Locale(identifier: "en_US"),
                     currencyCode: "USD",
                     facts: facts,
                     relevantInsights: [.impulseCluster],
-                    allowedActions: [.reviewRecentSpending],
+                    allowedActions: actions,
                     tone: .soft
                 )
             )
@@ -576,41 +789,47 @@ struct Phase7FeatureTests {
     }
 
     @Test
-    func askPurchaseDecisionRequiresContinueButInformationalOutputMayHaveNoAction() throws {
-        let purchaseContext = PrivacyRedactor().redactAsk(
-            AskAggregateInput(
-                locale: Locale(identifier: "en_US"),
-                currencyCode: "USD",
-                facts: .affordability(
-                    candidateAmount: Money(minorUnits: 2_500, currencyCode: "USD"),
-                    availableRightNow: Money(minorUnits: 10_000, currencyCode: "USD"),
-                    isAffordable: true
-                ),
-                relevantInsights: [],
-                allowedActions: [.addToWishlist, .reviewRecentSpending, .continuePurchase],
-                tone: .soft
+    func askActionContractOwnsPurchaseRequirementsBeforeModelValidation() {
+        let purchaseFacts = AskAggregateFacts.affordability(
+            candidateAmount: Money(minorUnits: 2_500, currencyCode: "USD"),
+            availableRightNow: Money(minorUnits: 10_000, currencyCode: "USD"),
+            isAffordable: true
+        )
+        #expect(
+            AskActionContract.isSatisfied(
+                facts: purchaseFacts,
+                actions: [.reviewRecentSpending, .continuePurchase]
             )
         )
-        let missingContinue = GeneratedAnswer(
-            title: "Budget check",
-            body: "Review the recorded facts.",
-            actionIdentifiers: [
-                SuggestedAction.addToWishlist.rawValue,
-                SuggestedAction.reviewRecentSpending.rawValue
-            ]
+        #expect(
+            !AskActionContract.isSatisfied(
+                facts: purchaseFacts,
+                actions: [.addToWishlist, .reviewRecentSpending]
+            )
         )
-        #expect(throws: AdviceSafetyViolation.missingContinuePurchase) {
-            try AdviceSafetyValidator().validate(answer: missingContinue, context: purchaseContext)
-        }
-
-        let informational = GeneratedAnswer(
-            title: "Budget check",
-            body: "Review the recorded facts.",
-            actionIdentifiers: []
+        #expect(
+            !AskActionContract.isSatisfied(
+                facts: purchaseFacts,
+                actions: [
+                    .addToWishlist,
+                    .adjustBudget,
+                    .reviewRecentSpending,
+                    .startCoolingOff24h,
+                    .continuePurchase
+                ]
+            )
         )
-        try AdviceSafetyValidator().validate(
-            answer: informational,
-            context: askContext(facts: .alternative, actions: [])
+        #expect(
+            !AskActionContract.isSatisfied(
+                facts: purchaseFacts,
+                actions: [.continuePurchase, .continuePurchase]
+            )
+        )
+        #expect(
+            AskActionContract.isSatisfied(
+                facts: .alternative,
+                actions: []
+            )
         )
     }
 
@@ -697,6 +916,170 @@ struct Phase7FeatureTests {
         #expect(context.emotionTagCounts[EmotionTag.neutral.rawValue] == 1)
         #expect(context.emotionTagCounts[EmotionTag.stressed.rawValue] == 1)
         #expect(AllowedNumericTokens(context: context).containsEveryNumber(in: [result.summary.body]))
+    }
+
+    @Test
+    func cycleSummaryDistinguishesUnavailableAndUnderOnePercentFromZeroPercent() async throws {
+        let calendar = TestFixtures.utcCalendar
+        let configured = snapshot(spentTotal: 236)
+        let expenseDate = try #require(
+            calendar.date(byAdding: .day, value: 1, to: configured.cycle.start)
+        )
+        let expenses = [summaryExpense(amount: 236, category: .shopping, at: expenseDate)]
+        let recorder = SummaryContextRecorder()
+
+        let underOne = await CycleSummaryService(
+            model: MockAI(mode: .capturingSummary(recorder)),
+            runtimeAvailability: { .available }
+        ).generate(
+            snapshot: .configured(configured),
+            expenses: expenses,
+            coolingOffPlans: [],
+            locale: Locale(identifier: "en_US"),
+            calendar: calendar,
+            tone: .soft,
+            enhancementEnabled: true
+        )
+        let context = try #require(await recorder.context)
+        let underOneTemplate = await CycleSummaryService().generate(
+            snapshot: .configured(configured),
+            expenses: expenses,
+            coolingOffPlans: [],
+            locale: Locale(identifier: "en_US"),
+            calendar: calendar,
+            tone: .soft,
+            enhancementEnabled: false
+        )
+        let unavailable = await CycleSummaryService().generate(
+            snapshot: .unconfigured(
+                cycle: configured.cycle,
+                currencyCode: configured.currencyCode
+            ),
+            expenses: expenses,
+            coolingOffPlans: [],
+            locale: Locale(identifier: "en_US"),
+            calendar: calendar,
+            tone: .soft,
+            enhancementEnabled: false
+        )
+
+        #expect(context.budgetUsage == .lessThanOnePercent)
+        #expect(context.promptData.contains("budgetUsageState=lessThanOnePercent"))
+        #expect(context.promptData.contains("totalUsedPercent") == false)
+        #expect(
+            AllowedNumericTokens(context: context).containsEveryNumber(
+                in: ["Recorded spending used 1% of the cycle budget."]
+            ) == false
+        )
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try AdviceSafetyValidator().validate(
+                summary: GeneratedSummary(
+                    title: "Cycle summary",
+                    body: "Recorded spending used 1% of the cycle budget.",
+                    actionIdentifiers: context.allowedActionIdentifiers
+                ),
+                context: context
+            )
+        }
+        #expect(underOne.source == .model)
+        #expect(underOneTemplate.summary.body.contains("less than 1%"))
+        #expect(unavailable.summary.body.contains("no budget baseline"))
+        #expect(unavailable.summary.body.contains("0%") == false)
+    }
+
+    @Test
+    func summaryCycleLabelHyphenSeparatesMonthWithoutInventingANegativeNumber() {
+        let context = PrivacyRedactor().redactSummary(
+            SummaryAggregateInput(
+                localeIdentifier: "zh_CN",
+                cycleLabel: "2026-08",
+                topCategories: [],
+                categoryChangeDirections: [:],
+                budgetUsage: .unavailable,
+                emotionCounts: [:],
+                coolingOffSkippedCount: 0,
+                coolingOffPurchasedCount: 0,
+                tone: .soft
+            )
+        )
+        let allowed = AllowedNumericTokens(context: context)
+
+        #expect(allowed.values.contains("2026"))
+        #expect(allowed.values.contains("8"))
+        #expect(allowed.values.contains("-8") == false)
+        #expect(allowed.containsEveryNumber(in: ["2026 年 8 月"]))
+    }
+
+    @Test
+    func summaryPercentageMustMatchItsBudgetUsageFactDespiteOtherZeroCounts() throws {
+        func context(_ budgetUsage: SummaryBudgetUsage) -> RedactedSummaryContext {
+            PrivacyRedactor().redactSummary(
+                SummaryAggregateInput(
+                    localeIdentifier: "en_US",
+                    cycleLabel: "2026-08",
+                    topCategories: [],
+                    categoryChangeDirections: [:],
+                    budgetUsage: budgetUsage,
+                    emotionCounts: [:],
+                    coolingOffSkippedCount: 0,
+                    coolingOffPurchasedCount: 0,
+                    tone: .soft
+                )
+            )
+        }
+
+        func summary(_ body: String, context: RedactedSummaryContext) -> GeneratedSummary {
+            GeneratedSummary(
+                title: "Cycle summary",
+                body: body,
+                actionIdentifiers: context.allowedActionIdentifiers
+            )
+        }
+
+        let underOne = context(.lessThanOnePercent)
+        let unavailable = context(.unavailable)
+        let exactZero = context(.percent(0))
+        let exact = context(.percent(8))
+        let validator = AdviceSafetyValidator()
+
+        // The unrelated cooling-off counts still contribute zero to the general allow-list.
+        #expect(AllowedNumericTokens(context: underOne).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0% of the budget.", context: underOne),
+                context: underOne
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0 ％ of the budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0% of the budget.", context: exact),
+                context: exact
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used %0 of the budget.", context: exact),
+                context: exact
+            )
+        }
+        try validator.validate(
+            summary: summary("Recorded spending used 8% of the budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            summary: summary("Recorded spending used %8 of the budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            summary: summary("Recorded spending used 0% of the budget.", context: exactZero),
+            context: exactZero
+        )
     }
 
     @Test
@@ -814,7 +1197,7 @@ struct Phase7FeatureTests {
         )
     }
 
-    private func snapshot() -> ConfiguredBudgetSnapshot {
+    private func snapshot(spentTotal: Int64 = 40_000) -> ConfiguredBudgetSnapshot {
         let start = Date(timeIntervalSince1970: 1_784_764_800)
         let end = Date(timeIntervalSince1970: 1_785_715_200)
         return ConfiguredBudgetSnapshot(
@@ -824,9 +1207,9 @@ struct Phase7FeatureTests {
             fixedForecast: Money(minorUnits: 100_000, currencyCode: "USD"),
             savingGoal: Money(minorUnits: 50_000, currencyCode: "USD"),
             freeBudget: Money(minorUnits: 150_000, currencyCode: "USD"),
-            spentTotal: Money(minorUnits: 40_000, currencyCode: "USD"),
+            spentTotal: Money(minorUnits: spentTotal, currencyCode: "USD"),
             fixedSpent: Money(minorUnits: 0, currencyCode: "USD"),
-            discretionarySpent: Money(minorUnits: 40_000, currencyCode: "USD"),
+            discretionarySpent: Money(minorUnits: spentTotal, currencyCode: "USD"),
             savedSoFar: Money(minorUnits: 0, currencyCode: "USD"),
             spentByCategory: [:],
             remainingTotal: Money(minorUnits: 260_000, currencyCode: "USD"),
@@ -941,6 +1324,7 @@ private struct MockAI: AIAdviceGenerating, Sendable {
         case capturing(AIContextRecorder)
         case capturingSummary(SummaryContextRecorder)
         case fabricated
+        case invalidActions
         case failure
         case slow
     }
@@ -984,6 +1368,12 @@ private struct MockAI: AIAdviceGenerating, Sendable {
                 title: "Budget check",
                 body: "You have 999 left.",
                 actionIdentifiers: context.allowedActionIdentifiers
+            )
+        case .invalidActions:
+            return GeneratedAnswer(
+                title: "Budget check",
+                body: "Review the recorded facts.",
+                actionIdentifiers: ["localized-or-unknown-action"]
             )
         case .failure:
             throw MockAIError.failed
