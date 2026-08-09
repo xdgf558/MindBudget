@@ -37,12 +37,16 @@ unchecked item below has been performed against the release commit.
 - [x] Confirm the distribution certificate and provisioning profile are valid for that team.
 - [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
-- [x] Archive Release 0.9.4 (5), validate it in Organizer, and inspect the
-  archive's application identifier prefix/team before upload.
-- [x] Upload through Organizer while logged into the current account, wait for processing, and
-  verify the build appears under the intended App Store Connect app before assigning testers.
 - [ ] Archive and upload Release 0.9.5 (6) only after PR approval and the remaining candidate
   checks; verify the current team and App Store Connect record again at Archive time.
+
+### Completed 0.9.4 (5) release evidence (historical, not a 0.9.5 gate)
+
+- [x] On 2026-08-09, Archive Release 0.9.4 (5), validate it in Organizer, and inspect the
+  archive's application identifier prefix/team before upload.
+- [x] On 2026-08-09, upload Release 0.9.4 (5) while logged into the current account, wait for
+  processing, and verify the build appears under the intended App Store Connect app before
+  assigning testers.
 
 ### Dated development preflight evidence (historical, not a release gate)
 
@@ -99,7 +103,8 @@ used for every Archive and upload.
 
 ## Store listing and TestFlight
 
-- [x] Confirm the upload's marketing version/build has a matching dated section in
+- [ ] Immediately before uploading 0.9.5 (6), confirm its marketing version/build has a matching
+  dated section in
   `Docs/CHANGELOG.md` and matching TestFlight “What to Test” notes in
   `Docs/APP_STORE_SUBMISSION.md`.
 - [ ] Review `Docs/APP_STORE_SUBMISSION.md` with the product owner and finalize localized name,

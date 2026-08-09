@@ -2868,3 +2868,43 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Re-review draft PR #20. After approval, merge it and verify the savings card,
 language-switch availability state, and selected-language Foundation Models response on the signed
 physical iPhone before deciding whether to Archive and upload `0.9.5 (6)`.
+
+## 2026-08-09 — Session 72 — Align 0.9.5 release evidence and tester guidance
+
+Goal: Close the remaining PR #20 documentation review by separating historical 0.9.4 release
+evidence from the unexecuted 0.9.5 gates and aligning every 0.9.5 user-visible change across the
+changelog, TestFlight tester guidance, and localized in-app release notes.
+
+Files changed: Release checklist and TestFlight submission notes, the About-page release-note
+catalog and bilingual String Catalog, localization regressions, post-upload task memory, and this
+session log. No budgeting, savings, Ask, persistence, model, or release-signing implementation
+changed.
+
+What was completed: The completed Archive and upload checks now live under an explicitly
+historical `0.9.4 (5)` heading, while the `0.9.5 (6)` Archive/upload and final note-matching gates
+remain unchecked until they are actually performed. The 0.9.5 TestFlight guidance now asks
+testers to verify truthful sub-one-percent/zero/unavailable cycle usage and all localized Ask
+fallback reasons in addition to savings progress and app-locale AI behavior. The About page shows
+the same four current-version topics in English and Simplified Chinese, and its regression requires
+all four while preserving the collapsed history behavior for earlier versions.
+
+What was NOT completed: No Archive, TestFlight upload, tester assignment, physical-device install,
+signing change, merge, App Store submission, or GitHub review-thread write was performed. App Store
+Connect still contains `0.9.4 (5)`; `0.9.5 (6)` remains an unuploaded source candidate.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 264 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures. The focused LocalizationTests suite passed
+10/10, and the strict 10,000-row Dashboard benchmark passed independently after the concurrent
+suite intentionally skipped only its noisy wall-clock assertion.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate: Money 91.73%, BudgetEngine 93.90%,
+BudgetCycleCalculator 95.15%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.38%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #20. After approval, merge it, complete the unchecked
+signed-device release gates, and only then Archive/upload `0.9.5 (6)` if the product owner chooses
+to resume TestFlight.

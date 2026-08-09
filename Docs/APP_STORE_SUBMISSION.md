@@ -39,6 +39,13 @@ What to test:
   the matching deterministic template. No raw question, note, transaction row, or savings-goal row
   may enter the model context. In Settings > About, confirm `0.9.5` is expanded while `0.9.4` and
   earlier versions remain collapsed in history.
+- Record an expense that is positive but uses less than 1% of the cycle budget and confirm Cycle
+  Overview says “less than 1%” rather than `0%`. With a positive budget and no spending, confirm it
+  says exactly `0%`; with no usable budget baseline, confirm it does not invent a percentage.
+- Exercise Ask with enhancement disabled or unavailable, a forced timeout, a rejected model
+  proposal, and a model error. Confirm the complete deterministic answer remains available and its
+  localized source detail accurately distinguishes each local-template fallback reason. App-owned
+  suggested actions must remain localized and must never render internal identifiers.
 
 ### 0.9.4 (5) — Internal test candidate
 

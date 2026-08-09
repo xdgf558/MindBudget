@@ -1434,6 +1434,14 @@ enum ReleaseNotesCatalog {
                     systemImage: "character.bubble.fill",
                     localizationKey: "settings.releaseNotes.aiAppLanguage"
                 ),
+                ReleaseNoteItem(
+                    systemImage: "percent",
+                    localizationKey: "settings.releaseNotes.truthfulCycleUsage"
+                ),
+                ReleaseNoteItem(
+                    systemImage: "text.bubble.fill",
+                    localizationKey: "settings.releaseNotes.askFallbackReasons"
+                ),
             ]
         ),
         ReleaseNotesVersion(

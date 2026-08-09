@@ -203,3 +203,6 @@ Status: In Progress
 - [x] Promote the reviewed source candidate to `0.9.5 (6)` with matching localized in-app notes,
   changelog, tester guidance, and release-readiness checks; do not Archive or upload before approval.
 - [x] Pass the complete static, Release-build, unit/UI, and coverage validation gates.
+- [x] Keep 0.9.4 Archive/upload evidence explicitly historical, leave every 0.9.5 execution gate
+  unchecked, and align all four 0.9.5 user-visible changes across the changelog, TestFlight tester
+  guidance, and localized in-app release notes.
