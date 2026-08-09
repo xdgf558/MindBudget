@@ -28,15 +28,14 @@ struct CycleSummaryService: Sendable {
         }
         let topCategories = topCategories(in: cycleExpenses)
         let leadingCategory = topCategories.first
-        let usedPercent = totalUsedPercent(snapshot)
+        let budgetUsage = budgetUsage(snapshot)
         let categoryName = leadingCategory.map {
             LocalizedCatalog.string($0.localizedNameKey, locale: locale)
         } ?? LocalizedCatalog.string("insights.summary.noCategory", locale: locale)
-        let templateBody = LocalizedCatalog.format(
-            "insights.summary.narrative.body",
-            locale: locale,
-            usedPercent,
-            categoryName
+        let templateBody = templateBody(
+            budgetUsage: budgetUsage,
+            categoryName: categoryName,
+            locale: locale
         )
         let fallback = GeneratedSummary(
             title: LocalizedCatalog.string("insights.summary.narrative.title", locale: locale),
@@ -65,7 +64,7 @@ struct CycleSummaryService: Sendable {
                 cycle: snapshot.cycle,
                 calendar: calendar
             ),
-            totalUsedPercent: usedPercent,
+            budgetUsage: budgetUsage,
             emotionCounts: emotionCounts,
             coolingOffSkippedCount: outcomeCounts[.skipped, default: 0],
             coolingOffPurchasedCount: outcomeCounts[.purchased, default: 0],
@@ -137,12 +136,42 @@ struct CycleSummaryService: Sendable {
         return String(format: "%04d-%02d", year, month)
     }
 
-    private func totalUsedPercent(_ snapshot: BudgetSnapshot) -> Int {
+    private func budgetUsage(_ snapshot: BudgetSnapshot) -> SummaryBudgetUsage {
         guard case let .configured(configured) = snapshot,
-              configured.totalBudget.minorUnits > 0 else { return 0 }
+              configured.totalBudget.minorUnits > 0 else { return .unavailable }
+        guard configured.spentTotal.minorUnits > 0 else { return .percent(0) }
         let ratio = Decimal(configured.spentTotal.minorUnits)
             * Decimal(100)
             / Decimal(configured.totalBudget.minorUnits)
-        return max(0, NSDecimalNumber(decimal: ratio).intValue)
+        let wholePercent = max(0, NSDecimalNumber(decimal: ratio).intValue)
+        return wholePercent == 0 ? .lessThanOnePercent : .percent(wholePercent)
+    }
+
+    private func templateBody(
+        budgetUsage: SummaryBudgetUsage,
+        categoryName: String,
+        locale: Locale
+    ) -> String {
+        switch budgetUsage {
+        case .unavailable:
+            LocalizedCatalog.format(
+                "insights.summary.narrative.body.unavailable",
+                locale: locale,
+                categoryName
+            )
+        case .lessThanOnePercent:
+            LocalizedCatalog.format(
+                "insights.summary.narrative.body.lessThanOnePercent",
+                locale: locale,
+                categoryName
+            )
+        case let .percent(value):
+            LocalizedCatalog.format(
+                "insights.summary.narrative.body",
+                locale: locale,
+                value,
+                categoryName
+            )
+        }
     }
 }

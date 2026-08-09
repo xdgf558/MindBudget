@@ -1,6 +1,6 @@
 import Foundation
 
-enum AdviceSafetyViolation: Error, Equatable, Sendable {
+enum AdviceSafetyViolation: String, Error, CaseIterable, Equatable, Sendable {
     case titleTooLong
     case bodyTooLong
     case bannedPhrase

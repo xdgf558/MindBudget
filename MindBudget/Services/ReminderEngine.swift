@@ -26,6 +26,7 @@ struct ReminderMessage: Equatable, Sendable {
         case template
         case model
         case modelValidatedFallback
+        case modelErrorFallback
         case modelUnavailableFallback
         case modelTimedOutFallback
     }
@@ -256,6 +257,7 @@ struct ReminderEngine: ReminderGenerating, Sendable {
         case .template: .template
         case .model: .model
         case .modelValidatedFallback: .modelValidatedFallback
+        case .modelErrorFallback: .modelErrorFallback
         case .modelUnavailableFallback: .modelUnavailableFallback
         case .modelTimedOutFallback: .modelTimedOutFallback
         }

@@ -36,6 +36,7 @@ enum AdviceGenerationSource: String, Equatable, Sendable {
     case template
     case model
     case modelValidatedFallback
+    case modelErrorFallback
     case modelUnavailableFallback
     case modelTimedOutFallback
 }
@@ -52,6 +53,7 @@ actor AIFallbackDiagnostics {
     static let shared = AIFallbackDiagnostics()
 
     private var counts: [AIFallbackDiagnosticReason: Int] = [:]
+    private var validationCounts: [AdviceSafetyViolation: Int] = [:]
 
     func record(_ reason: AIFallbackDiagnosticReason) {
         counts[reason, default: 0] += 1
@@ -59,6 +61,14 @@ actor AIFallbackDiagnostics {
 
     func snapshot() -> [AIFallbackDiagnosticReason: Int] {
         counts
+    }
+
+    func record(validation violation: AdviceSafetyViolation) {
+        validationCounts[violation, default: 0] += 1
+    }
+
+    func validationSnapshot() -> [AdviceSafetyViolation: Int] {
+        validationCounts
     }
 }
 #endif
@@ -187,17 +197,24 @@ struct CompositeAdviceGenerator: Sendable {
                 group.cancelAll()
                 return first
             }
-            try validator.validate(answer: generated, context: context)
-            return SourcedAnswer(answer: generated, source: .model)
+            // The model is a wording layer. Actions are deterministic product behavior and
+            // come from the already-redacted allow-list rather than generated text.
+            let finalized = GeneratedAnswer(
+                title: generated.title,
+                body: generated.body,
+                actionIdentifiers: Array(context.allowedActionIdentifiers.prefix(4))
+            )
+            try validator.validate(answer: finalized, context: context)
+            return SourcedAnswer(answer: finalized, source: .model)
         } catch AIAdviceError.timedOut {
             await recordFallback(.timeout)
             return SourcedAnswer(answer: fallback, source: .modelTimedOutFallback)
-        } catch is AdviceSafetyViolation {
-            await recordFallback(.validationFailed)
+        } catch let violation as AdviceSafetyViolation {
+            await recordValidationFallback(violation)
             return SourcedAnswer(answer: fallback, source: .modelValidatedFallback)
         } catch {
             await recordFallback(.modelError)
-            return SourcedAnswer(answer: fallback, source: .modelValidatedFallback)
+            return SourcedAnswer(answer: fallback, source: .modelErrorFallback)
         }
     }
 
@@ -218,12 +235,12 @@ struct CompositeAdviceGenerator: Sendable {
         } catch AIAdviceError.timedOut {
             await recordFallback(.timeout)
             return SourcedAdvice(advice: fallback, source: .modelTimedOutFallback)
-        } catch is AdviceSafetyViolation {
-            await recordFallback(.validationFailed)
+        } catch let violation as AdviceSafetyViolation {
+            await recordValidationFallback(violation)
             return SourcedAdvice(advice: fallback, source: .modelValidatedFallback)
         } catch {
             await recordFallback(.modelError)
-            return SourcedAdvice(advice: fallback, source: .modelValidatedFallback)
+            return SourcedAdvice(advice: fallback, source: .modelErrorFallback)
         }
     }
 
@@ -244,18 +261,25 @@ struct CompositeAdviceGenerator: Sendable {
         } catch AIAdviceError.timedOut {
             await recordFallback(.timeout)
             return SourcedSummary(summary: fallback, source: .modelTimedOutFallback)
-        } catch is AdviceSafetyViolation {
-            await recordFallback(.validationFailed)
+        } catch let violation as AdviceSafetyViolation {
+            await recordValidationFallback(violation)
             return SourcedSummary(summary: fallback, source: .modelValidatedFallback)
         } catch {
             await recordFallback(.modelError)
-            return SourcedSummary(summary: fallback, source: .modelValidatedFallback)
+            return SourcedSummary(summary: fallback, source: .modelErrorFallback)
         }
     }
 
     private func recordFallback(_ reason: AIFallbackDiagnosticReason) async {
         #if DEBUG
         await AIFallbackDiagnostics.shared.record(reason)
+        #endif
+    }
+
+    private func recordValidationFallback(_ violation: AdviceSafetyViolation) async {
+        #if DEBUG
+        await AIFallbackDiagnostics.shared.record(.validationFailed)
+        await AIFallbackDiagnostics.shared.record(validation: violation)
         #endif
     }
 
@@ -367,10 +391,7 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
         let response = try await session().respond(
             to: prompt(
                 kind: "answer for intent \(intent.rawValue)",
-                actionRule: intent == .canIAfford
-                    && !context.requiresPurchaseDetails
-                    ? "Return two to four allowed actions and include continuePurchase."
-                    : "Return zero to four allowed actions.",
+                actionRule: "Return title and body only. Actions are attached by deterministic code.",
                 data: context.promptData
             ),
             generating: FoundationModelAnswer.self
@@ -378,7 +399,7 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
         return GeneratedAnswer(
             title: response.content.title,
             body: response.content.body,
-            actionIdentifiers: response.content.actionIdentifiers
+            actionIdentifiers: []
         )
         #else
         throw AIAdviceError.unavailable
@@ -454,8 +475,6 @@ private struct FoundationModelAnswer {
     var title: String
     @Guide(description: "Body of at most 120 characters")
     var body: String
-    @Guide(description: "Only action identifiers listed in the data", .count(0...4))
-    var actionIdentifiers: [String]
 }
 
 @available(iOS 26.0, *)

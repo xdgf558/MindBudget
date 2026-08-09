@@ -2538,3 +2538,106 @@ service remains above 85%, ranging from CSV export at 87.60% through CurrencyFor
 
 Next suggested task: Re-review the final correction on draft PR #18. Merge only after approval;
 keep TestFlight paused until the owner explicitly resumes it.
+
+## 2026-08-09 — Session 63 — Install 0.9.4 on the physical iPhone
+
+Goal: Build the approved `main` revision with the current China-region development team and
+install it on the owner's connected physical iPhone for another hands-on test pass.
+
+Files changed: this log only.
+
+What was completed: The merged PR #18 revision `caa0acf` was built as MindBudget `0.9.4 (5)` for
+the wired iPhone named “拉沙的iPhone” running iOS 26.0. The signed app uses bundle identifier
+`com.xdgf558.MindBudget` and team identifier `2AM5S7BM2N`, then installed successfully through
+CoreDevice. The development certificate holder remains displayed as Hao Ye, while the signed
+application entitlement and provisioning team are the current team identifier.
+
+What was NOT completed: The device was locked when the automatic launch was requested, so iOS
+denied only that launch request; installation had already succeeded and the owner can unlock the
+phone and open the app normally. No Archive, TestFlight upload, tester assignment, code change,
+data reset, or signing-account change was performed.
+
+Build result: pass — Xcode 26.6 completed the arm64 Debug device build and automatic development
+signing without requesting account credentials.
+
+Next suggested task: Test `0.9.4 (5)` on the physical iPhone and report any remaining product or
+presentation issues before TestFlight work resumes.
+
+## 2026-08-09 — Session 64 — Diagnose cycle usage and on-device AI fallback display
+
+Goal: Diagnose two physical-device observations without changing product behavior: a cycle
+snapshot that reports zero percent despite recorded spending, and Ask returning a local template
+after the on-device enhancement toggle was enabled.
+
+Files changed: this log only.
+
+What was completed: The recorded-expense aggregation was confirmed healthy because the same
+Insights load shows CNY 236 for both the recent window and current cycle. The narrative path was
+found to collapse an unconfigured snapshot, a zero-valued budget denominator, and any positive
+ratio below one percent into the integer value `0`; therefore its “0%” wording is not an honest
+representation of every supported state. The Ask path was also confirmed to label every non-model
+source as “Local template”: runtime unavailability, the 2.5-second model timeout, safety/language
+validation failure, and other model errors are indistinguishable on the answer card. The Debug
+settings screen retains per-reason fallback counters, but the response itself does not expose the
+reason. A subsequent physical-device screenshot confirmed Apple Intelligence reports available
+and the recorded fallback category is exactly one safety-validation failure, ruling out the user
+toggle, runtime availability, and timeout for that request. The current diagnostic intentionally
+does not retain generated text or the specific `AdviceSafetyViolation`, so it cannot distinguish
+language, numeric, action, length, empty-field, or banned-copy rejection after the fact.
+
+What was NOT completed: No business logic, localization, timeout, model prompt, validator, UI,
+test, Archive, or TestFlight change was made. No user financial data was copied from the device.
+
+Next suggested task: Replace the cycle percentage integer with an explicit availability/under-one-
+percent/percentage state and show a truthful localized message. Separately expose a safe fallback
+reason on Ask responses and use the existing Debug diagnostic counters to identify whether this
+device is hitting availability, timeout, validation, or model-error fallback before changing the
+model policy.
+
+## 2026-08-09 — Session 65 — Fix cycle usage wording and on-device Ask fallback
+
+Goal: Correct the two physical-device findings diagnosed in Session 64 without weakening the
+project's deterministic budget arithmetic, AI safety validator, numeric allow-list, or privacy
+boundary.
+
+Files changed: cycle-summary aggregate/redaction state and narrative service, Ask generation and
+source metadata, safety diagnostics, Ask and Debug settings UI, bilingual String Catalog entries,
+Phase 7 and end-to-end localization tests, AI/project/test contracts, decisions, changelog, and
+this log.
+
+What was completed: Cycle usage is now a closed unavailable / less-than-one-percent / exact whole
+percent state instead of one ambiguous integer. Only a configured positive budget with exactly
+zero recorded spending may render 0%; a small positive spend says less than 1%, and a missing or
+non-positive denominator says the budget baseline is unavailable. These states flow through the
+redacted summary context without inventing a percentage and remain covered by the model numeric
+allow-list.
+
+Ask now differentiates enhancement unavailable, timeout, safety-validation fallback, and an
+unexpected model error on the answer card while always returning the complete deterministic local
+answer. Foundation Models generate only title and body; navigation actions are attached from the
+redacted app-owned allow-list before the existing validator runs, removing the avoidable failure
+mode where the wording model attempted to reproduce internal action identifiers. Language,
+numeric, length, banned-copy, empty-field, and final action validation remain fail-closed. Debug
+builds also retain aggregate counts for each typed safety violation without retaining prompts,
+generated text, questions, or financial facts.
+
+What was NOT completed: No Archive, TestFlight upload, tester assignment, physical-device install,
+version/build change, signing change, merge, or unrelated product feature was performed.
+TestFlight remains paused and the candidate version remains `0.9.4 (5)`.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 253 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. The strict 10,000-row Dashboard benchmark was then run
+independently on an idle simulator and passed together with its deterministic projection
+companion.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate, ranging from CSV export at 87.60% through
+CurrencyFormatterService at 100%; the directly changed CycleSummaryService is 97.37%,
+AdviceSafetyValidator is 95.65%, PrivacyRedactor is 92.59%, and ReminderEngine is 91.00%.
+
+Next suggested task: Review the focused draft PR and repeat the previously failing Insights and
+Ask scenarios on the physical iPhone after approval. Keep TestFlight paused until that hands-on
+verification is complete.

@@ -327,7 +327,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("ask.answer", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Budget remaining"].exists)
         XCTAssertFalse(app.staticTexts["On-device enhanced"].exists)
-        XCTAssertTrue(app.staticTexts["Local template"].exists)
+        XCTAssertTrue(app.staticTexts["Enhancement unavailable"].exists)
+        XCTAssertTrue(
+            app.staticTexts[
+                "On-device enhancement is off or unavailable, so the complete local answer is shown."
+            ].exists
+        )
     }
 
     @MainActor
@@ -344,7 +349,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("ask.answer", in: app).waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["剩余预算"].exists)
-        XCTAssertTrue(app.staticTexts["本地模板"].exists)
+        XCTAssertTrue(app.staticTexts["增强暂不可用"].exists)
+        XCTAssertTrue(
+            app.staticTexts["本机增强已关闭或暂不可用，已显示完整的本地回答。"].exists
+        )
         XCTAssertTrue(app.staticTexts["回看近期消费"].exists)
         XCTAssertTrue(app.staticTexts["检查预算设置"].exists)
         XCTAssertFalse(app.staticTexts["ask.action.reviewRecentSpending"].exists)

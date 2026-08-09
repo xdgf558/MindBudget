@@ -41,12 +41,41 @@ struct RedactedAdviceContext: Codable, Equatable, Sendable {
     }
 }
 
+enum SummaryBudgetUsage: Codable, Equatable, Sendable {
+    case unavailable
+    case lessThanOnePercent
+    case percent(Int)
+
+    fileprivate var promptState: String {
+        switch self {
+        case .unavailable: "unavailable"
+        case .lessThanOnePercent: "lessThanOnePercent"
+        case .percent: "percent"
+        }
+    }
+
+    fileprivate var promptFacts: [String: String] {
+        switch self {
+        case .unavailable:
+            [:]
+        case .lessThanOnePercent:
+            ["totalUsedPercentUpperBound": "1"]
+        case let .percent(value):
+            ["totalUsedPercent": String(value)]
+        }
+    }
+
+    fileprivate var numericValues: [String] {
+        Array(promptFacts.values)
+    }
+}
+
 struct RedactedSummaryContext: Codable, Equatable, Sendable {
     let localeIdentifier: String
     let cycleLabel: String
     let topCategoryKeys: [String]
     let categoryChangeDirections: [String: String]
-    let totalUsedPercent: Int
+    let budgetUsage: SummaryBudgetUsage
     let emotionTagCounts: [String: Int]
     let coolingOffSkippedCount: Int
     let coolingOffPurchasedCount: Int
@@ -62,16 +91,18 @@ struct RedactedSummaryContext: Codable, Equatable, Sendable {
     var promptData: String {
         let counts = emotionTagCounts.mapValues(String.init).merging([
             "coolingOffSkippedCount": String(coolingOffSkippedCount),
-            "coolingOffPurchasedCount": String(coolingOffPurchasedCount),
-            "totalUsedPercent": String(totalUsedPercent)
+            "coolingOffPurchasedCount": String(coolingOffPurchasedCount)
         ]) { first, _ in first }
         return PromptDataEncoder.lines(
             scalars: [
                 "locale": localeIdentifier,
                 "cycleLabel": cycleLabel,
+                "budgetUsageState": budgetUsage.promptState,
                 "tone": tonePreference
             ],
-            facts: categoryChangeDirections.merging(counts) { first, _ in first },
+            facts: categoryChangeDirections
+                .merging(counts) { first, _ in first }
+                .merging(budgetUsage.promptFacts) { first, _ in first },
             insightKeys: topCategoryKeys,
             actions: allowedActionIdentifiers
         )
@@ -409,7 +440,7 @@ struct SummaryAggregateInput: Equatable, Sendable {
     let cycleLabel: String
     let topCategories: [ExpenseCategory]
     let categoryChangeDirections: [ExpenseCategory: String]
-    let totalUsedPercent: Int
+    let budgetUsage: SummaryBudgetUsage
     let emotionCounts: [EmotionTag: Int]
     let coolingOffSkippedCount: Int
     let coolingOffPurchasedCount: Int
@@ -528,7 +559,7 @@ struct PrivacyRedactor: Sendable {
                     ($0.key.localizedNameKey, $0.value)
                 }
             ),
-            totalUsedPercent: input.totalUsedPercent,
+            budgetUsage: input.budgetUsage,
             emotionTagCounts: Dictionary(uniqueKeysWithValues: input.emotionCounts.map {
                 ($0.key.rawValue, $0.value)
             }),
@@ -577,7 +608,8 @@ struct AllowedNumericTokens: Equatable, Sendable {
     init(context: RedactedSummaryContext) {
         localeIdentifier = context.localeIdentifier
         values = Self.tokens(
-            in: [context.cycleLabel, String(context.totalUsedPercent)]
+            in: [context.cycleLabel]
+                + context.budgetUsage.numericValues
                 + context.emotionTagCounts.values.map(String.init)
                 + [
                     String(context.coolingOffSkippedCount),

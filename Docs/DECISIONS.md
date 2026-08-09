@@ -1734,3 +1734,43 @@ paths and should be converted if a future root-only consumer is added.
 
 Files affected: recurring schedule/reconciliation projections and tests, app session calendar and
 backlog state, SettingsStore observation tests, project memory, test plan, changelog, and session log.
+
+---
+
+## 2026-08-09 — Keep cycle usage states explicit and Ask actions deterministic
+
+Context: Physical-device testing showed CNY 236 of recorded current-cycle spending beside a
+“0%” cycle narrative. The percentage path used one integer for an unavailable budget denominator,
+configured zero spend, and any positive ratio below one percent. A separate Ask test showed Apple
+Intelligence available and enabled but the answer card reported only a generic local template;
+Debug retained one coarse validation failure but not its typed cause. Ask also asked the model to
+reproduce internal action identifiers even though those buttons are deterministic product
+behavior.
+
+Decision: Represent summary usage as a closed `.unavailable`, `.lessThanOnePercent`, or
+`.percent(Int)` state. Only a configured positive budget with exactly zero spending may become
+zero percent. A sub-one-percent state exposes a deterministic upper bound of one to the numeric
+allow-list without claiming the user spent one percent, and an unavailable denominator exposes no
+percentage fact. Localized summary copy names each state directly.
+
+For Ask, generate only title and body with Foundation Models. Attach the current redacted
+allow-listed actions in deterministic Swift before applying the existing validator. Continue to
+reject fabricated numbers, the wrong language, unsafe wording, empty or oversized text, and any
+invalid final action set. Distinguish validation, timeout, availability, and unexpected-model
+fallback on the answer card. In Debug builds retain aggregate counts for the exact typed
+`AdviceSafetyViolation`; never retain rejected generated text, prompts, or user financial facts.
+
+Alternatives considered: Rounding or truncating every ratio to zero; showing an invented
+percentage when no budget denominator exists; weakening numeric or language validation so more
+model output passes; persisting failed model text for diagnosis; or continuing to delegate app
+navigation identifiers to the wording model.
+
+Consequences: Cycle overview remains honest for configured zero, very small positive use, and
+missing baselines. The most avoidable Ask validation failure—generated internal action tokens—is
+structurally removed without weakening any content safety rule. Users can tell why a safe complete
+template was used, while developers can identify the exact validator branch locally without
+creating a new privacy surface.
+
+Files affected: summary redaction and narrative service, Ask generator and source metadata,
+safety diagnostics, Ask and Debug settings UI, bilingual copy, Phase 7 tests and contracts,
+project memory, changelog, decisions, and session log.

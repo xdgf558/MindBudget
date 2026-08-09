@@ -318,7 +318,11 @@ must fail validation and return the complete Chinese template; rendered dynamic 
 show their localized labels rather than catalog keys. Capability tests prove user-disabled and
 build-disabled states fail closed before runtime access. Generator failure, validation rejection,
 and timeout
-all return a nonempty template with source metadata. Reminder and cycle-summary enhancement
+all return a nonempty template with distinct source metadata. Ask model proposals cannot replace
+the deterministic allow-listed action set, and Debug diagnostics retain only the exact typed
+validation reason rather than rejected generated content. Cycle summary tests distinguish an
+unavailable budget denominator, positive usage below one percent, and configured exact zero;
+positive spend is never narrated as zero percent. Reminder and cycle-summary enhancement
 tests use injected mock generators only; the real on-device model remains a supported-device
 manual smoke requirement.
 
