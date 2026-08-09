@@ -57,8 +57,11 @@ and remains unuploaded until PR #18 review and the release checklist authorize T
 Cycle-summary budget usage is a closed unavailable/under-one-percent/exact-whole-percent fact;
 positive recorded spending can no longer be described as zero percent merely because integer
 presentation truncates it. Ask model generation owns wording only: the app attaches deterministic
-allow-listed actions, retains strict text/number/language validation, and presents the safe
-fallback category when a complete local template is used.
+allow-listed actions after validating their redacted-context contract, retains strict
+text/number/language validation, and presents the safe fallback category when a complete local
+template is used. Sub-one-percent summary state contributes no numeric `1` token, numeric
+component hyphens are not interpreted as unary negative signs, and Chinese proposals cannot be
+predominantly Latin text.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second
@@ -268,9 +271,10 @@ raw cooling timestamps, or the raw question. Ask facts are an exhaustive per-int
 made only from typed money, counts, booleans, and category values; the redactor owns formatting
 and enum-key conversion, while fallback prose remains outside model facts. Deterministic Swift
 remains authoritative for classification, arithmetic, rules, and allowed actions. Ask model output
-contains wording only and receives its action identifiers from deterministic code before validation.
+contains wording only and receives its already-contracted action identifiers from deterministic
+code; app configuration is not reported as a model safety failure.
 Model output uses constrained
-generation, a short timeout, length/action/language/number safety validation, and immediate
+generation, a short timeout, path-appropriate length/action/language/number safety validation, and immediate
 template fallback; English/Simplified Chinese proposals with the wrong writing system are
 rejected, dynamic action identifiers are resolved explicitly through the active locale, and the
 UI distinguishes validation, timeout, availability, and model-error fallback without retaining

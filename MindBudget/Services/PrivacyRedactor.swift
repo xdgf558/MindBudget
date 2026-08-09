@@ -56,10 +56,8 @@ enum SummaryBudgetUsage: Codable, Equatable, Sendable {
 
     fileprivate var promptFacts: [String: String] {
         switch self {
-        case .unavailable:
+        case .unavailable, .lessThanOnePercent:
             [:]
-        case .lessThanOnePercent:
-            ["totalUsedPercentUpperBound": "1"]
         case let .percent(value):
             ["totalUsedPercent": String(value)]
         }
@@ -418,6 +416,23 @@ struct AskAggregateInput: Equatable, Sendable {
     }
 }
 
+/// App-owned Ask actions are checked before a redacted context exists. They are not model
+/// output, so a product configuration error must never be reported as a model safety failure.
+enum AskActionContract {
+    static func isSatisfied(
+        facts: AskAggregateFacts,
+        actions: [SuggestedAction]
+    ) -> Bool {
+        guard actions.count <= 4,
+              Set(actions.map(\.rawValue)).count == actions.count else {
+            return false
+        }
+        guard case .affordability = facts else { return true }
+        return (2...4).contains(actions.count)
+            && actions.contains(.continuePurchase)
+    }
+}
+
 struct AdviceAggregateInput: Equatable, Sendable {
     let localeIdentifier: String
     let currencyCode: String
@@ -450,6 +465,10 @@ struct SummaryAggregateInput: Equatable, Sendable {
 struct PrivacyRedactor: Sendable {
     func redactAsk(_ input: AskAggregateInput) -> RedactedAskContext {
         precondition(Money.isSupported(input.currencyCode), "Unsupported accounting currency")
+        precondition(
+            AskActionContract.isSatisfied(facts: input.facts, actions: input.allowedActions),
+            "Ask action contract is invalid"
+        )
         let formatter = CurrencyFormatterService()
         func formatted(_ money: Money) -> String {
             precondition(
@@ -642,6 +661,7 @@ struct AllowedNumericTokens: Equatable, Sendable {
         var result = Set<String>()
         var token = ""
         var pendingNegative = false
+        var previousCharacter: Character?
         func finish() {
             defer { token = "" }
             guard let normalized = canonical(
@@ -652,7 +672,10 @@ struct AllowedNumericTokens: Equatable, Sendable {
         }
         for character in string {
             if let value = character.wholeNumberValue, (0...9).contains(value) {
-                if token.isEmpty, pendingNegative { token = "-" }
+                if token.isEmpty, pendingNegative {
+                    token = "-"
+                    pendingNegative = false
+                }
                 token.append(String(value))
             } else if isNumericSeparator(character), !token.isEmpty {
                 token.append(character)
@@ -661,12 +684,16 @@ struct AllowedNumericTokens: Equatable, Sendable {
                     finish()
                     pendingNegative = false
                 }
-                if character == "-" || character == "\u{2212}" {
+                let signFollowsBoundary = previousCharacter == nil
+                    || previousCharacter?.isWhitespace == true
+                if (character == "-" || character == "\u{2212}")
+                    && signFollowsBoundary {
                     pendingNegative = true
                 } else if character.isWhitespace {
                     pendingNegative = false
                 }
             }
+            previousCharacter = character
         }
         finish()
         return result

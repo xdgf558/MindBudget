@@ -41,15 +41,6 @@ struct AdviceSafetyValidator: Sendable {
             body: answer.body,
             localeIdentifier: context.localeIdentifier
         )
-        let isPurchaseDecision = context.questionIntentKey == .canIAfford
-            && !context.requiresPurchaseDetails
-        try validateActions(
-            answer.actionIdentifiers,
-            allowed: context.allowedActionIdentifiers,
-            minimumCount: isPurchaseDecision ? 2 : 0,
-            maximumCount: 4,
-            requiresContinuePurchase: isPurchaseDecision
-        )
         guard AllowedNumericTokens(context: context).containsEveryNumber(
             in: [answer.title, answer.body]
         ) else {
@@ -161,14 +152,16 @@ struct AdviceSafetyValidator: Sendable {
         let locale = localeIdentifier.lowercased()
         let scalars = "\(title) \(body)".unicodeScalars
         let hanCount = scalars.count(where: Self.isHan)
+        let latinLetterCount = scalars.count(where: Self.isBasicLatinLetter)
 
         if locale.hasPrefix("zh") {
-            guard hanCount >= 2 else {
+            guard hanCount >= 2,
+                  latinLetterCount <= hanCount else {
                 throw AdviceSafetyViolation.unexpectedLanguage
             }
         } else if locale.hasPrefix("en") {
             guard hanCount == 0,
-                  scalars.count(where: Self.isBasicLatinLetter) >= 4 else {
+                  latinLetterCount >= 4 else {
                 throw AdviceSafetyViolation.unexpectedLanguage
             }
         }

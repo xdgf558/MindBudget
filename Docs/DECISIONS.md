@@ -1744,32 +1744,42 @@ Context: Physical-device testing showed CNY 236 of recorded current-cycle spendi
 configured zero spend, and any positive ratio below one percent. A separate Ask test showed Apple
 Intelligence available and enabled but the answer card reported only a generic local template;
 Debug retained one coarse validation failure but not its typed cause. Ask also asked the model to
-reproduce internal action identifiers even though those buttons are deterministic product
-behavior.
+reproduce internal action identifiers even though those suggested labels are deterministic
+product behavior.
 
 Decision: Represent summary usage as a closed `.unavailable`, `.lessThanOnePercent`, or
 `.percent(Int)` state. Only a configured positive budget with exactly zero spending may become
-zero percent. A sub-one-percent state exposes a deterministic upper bound of one to the numeric
-allow-list without claiming the user spent one percent, and an unavailable denominator exposes no
-percentage fact. Localized summary copy names each state directly.
+zero percent. A sub-one-percent state and an unavailable denominator expose no numeric percentage
+fact. The closed state key communicates the relationship, while any generated digit not present in
+other aggregate facts is rejected and falls back to localized template copy.
 
-For Ask, generate only title and body with Foundation Models. Attach the current redacted
-allow-listed actions in deterministic Swift before applying the existing validator. Continue to
-reject fabricated numbers, the wrong language, unsafe wording, empty or oversized text, and any
-invalid final action set. Distinguish validation, timeout, availability, and unexpected-model
-fallback on the answer card. In Debug builds retain aggregate counts for the exact typed
+For Ask, generate only title and body with Foundation Models. Validate the app-owned action
+contract while constructing the redacted context: a purchase decision has two to four unique
+actions including Continue Purchase, and every other Ask context has at most four unique actions.
+Attach that complete action set in deterministic Swift and keep it outside model-output
+validation, so an app configuration error cannot pollute model safety diagnostics. Continue to
+reject fabricated numbers, the wrong language, unsafe wording, and empty or oversized text.
+Reminder and summary paths still validate actions that their models generate. A numeric-component
+hyphen is a separator rather than a unary sign, while a leading or whitespace-delimited minus
+retains negative-money meaning. Simplified Chinese model copy must contain Han text and cannot
+contain more basic Latin letters than Han characters, allowing short currency codes without
+accepting predominantly English prose. Distinguish validation, timeout, availability, and
+unexpected-model fallback on the answer card. In Debug builds retain aggregate counts for the exact typed
 `AdviceSafetyViolation`; never retain rejected generated text, prompts, or user financial facts.
 
 Alternatives considered: Rounding or truncating every ratio to zero; showing an invented
 percentage when no budget denominator exists; weakening numeric or language validation so more
 model output passes; persisting failed model text for diagnosis; or continuing to delegate app
-navigation identifiers to the wording model.
+suggested-action identifiers to the wording model; validating deterministic app actions as though
+they were untrusted generated content; or treating every hyphen as a negative sign.
 
 Consequences: Cycle overview remains honest for configured zero, very small positive use, and
 missing baselines. The most avoidable Ask validation failure—generated internal action tokens—is
-structurally removed without weakening any content safety rule. Users can tell why a safe complete
-template was used, while developers can identify the exact validator branch locally without
-creating a new privacy surface.
+structurally removed without weakening any content safety rule. Sub-one-percent wording cannot
+silently become an exact one-percent claim, localized cycle months do not create false fabricated-
+number counts, and token Chinese phrases cannot admit an otherwise English response. Users can
+tell why a safe complete template was used, while developers can identify the exact model-output
+validator branch locally without creating a new privacy surface.
 
 Files affected: summary redaction and narrative service, Ask generator and source metadata,
 safety diagnostics, Ask and Debug settings UI, bilingual copy, Phase 7 tests and contracts,

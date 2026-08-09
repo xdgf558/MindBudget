@@ -181,28 +181,15 @@ struct CompositeAdviceGenerator: Sendable {
         }
 
         do {
-            let generated = try await withThrowingTaskGroup(
-                of: GeneratedAnswer.self
-            ) { group in
-                group.addTask {
-                    try await model.answerQuestion(intent: intent, context: context)
-                }
-                group.addTask {
-                    try await Task.sleep(nanoseconds: timeoutNanoseconds)
-                    throw AIAdviceError.timedOut
-                }
-                guard let first = try await group.next() else {
-                    throw AIAdviceError.noResult
-                }
-                group.cancelAll()
-                return first
+            let generated = try await timedGeneration {
+                try await model.answerQuestion(intent: intent, context: context)
             }
             // The model is a wording layer. Actions are deterministic product behavior and
-            // come from the already-redacted allow-list rather than generated text.
+            // already satisfy the redacted-context contract rather than being generated text.
             let finalized = GeneratedAnswer(
                 title: generated.title,
                 body: generated.body,
-                actionIdentifiers: Array(context.allowedActionIdentifiers.prefix(4))
+                actionIdentifiers: context.allowedActionIdentifiers
             )
             try validator.validate(answer: finalized, context: context)
             return SourcedAnswer(answer: finalized, source: .model)
@@ -421,8 +408,8 @@ struct FoundationModelsAdviceGenerator: AIAdviceGenerating, Sendable {
         - Never diagnose or reference mental health, addiction, or compulsion.
         - Never give investment, tax, loan, or legal advice.
         - Never suggest the user share, upload, or connect financial accounts.
-        - For a purchase-decision response, include an option that lets the user proceed.
-        - Choose actions only from allowedActionIdentifiers.
+        - When an output schema includes actions for a purchase decision, include an option that lets the user proceed.
+        - When an output schema includes actions, choose them only from allowedActionIdentifiers.
         - Match the requested tone and respect the title/body length limits.
         - Write in the language of localeIdentifier.
 

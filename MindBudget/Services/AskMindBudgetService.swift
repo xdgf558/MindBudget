@@ -290,7 +290,10 @@ extension AdviceTemplateGenerator {
             "ask.answer.\(intent.rawValue).title",
             locale: locale
         )
-        let actions = Array(context.allowedActionIdentifiers.prefix(4))
-        return GeneratedAnswer(title: title, body: body, actionIdentifiers: actions)
+        return GeneratedAnswer(
+            title: title,
+            body: body,
+            actionIdentifiers: context.allowedActionIdentifiers
+        )
     }
 }

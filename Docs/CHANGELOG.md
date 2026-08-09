@@ -12,8 +12,9 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   distinguishes an unavailable budget baseline from a configured cycle with exactly zero spend.
 - Ask now tells the user whether a complete local answer was used because enhancement was
   unavailable, timed out, failed validation, or encountered a model error. On-device wording
-  keeps the app-owned action buttons instead of asking the model to reproduce internal action
-  identifiers, while all language, number, length, and safety validation remains enforced.
+  keeps the app-owned suggested-action labels instead of asking the model to reproduce internal
+  identifiers. Numeric date labels, sub-one-percent facts, and mixed Chinese/English output are
+  validated without weakening the existing number, length, or safety rules.
 
 ## 0.9.4 (5) — 2026-08-08 — Internal TestFlight candidate
 
