@@ -15,8 +15,10 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   keeps the app-owned suggested-action labels instead of asking the model to reproduce internal
   identifiers. Numeric date labels, sub-one-percent facts, and mixed Chinese/English output are
   validated without weakening the existing number, length, or safety rules. Percentage wording
-  must now match the dedicated budget-usage fact, so an unrelated zero count cannot authorize a
-  false `0%` summary.
+  is now bound to explicit facts on every generated path: Ask permits none, reminders permit only
+  their supplied free-budget-impact or category-budget percentages, and summaries permit only the
+  dedicated budget-usage value.
+  Unrelated zero counts can no longer authorize false `0%` wording.
 
 ## 0.9.4 (5) — 2026-08-08 — Internal TestFlight candidate
 

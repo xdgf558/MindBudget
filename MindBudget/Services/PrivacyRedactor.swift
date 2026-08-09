@@ -646,21 +646,17 @@ struct AllowedNumericTokens: Equatable, Sendable {
     }
 
     /// The general numeric allow-list intentionally permits a fact's number to appear in
-    /// different wording. Percentages are stricter: a cooling-off count of zero must not make
-    /// an unrelated `0%` budget claim valid.
-    func containsOnlyAllowedBudgetPercentages(
+    /// different wording. Percentages are stricter: only values supplied by an explicit
+    /// percentage fact may appear next to a percent sign.
+    func containsOnlyAllowedPercentages(
         in strings: [String],
-        budgetUsage: SummaryBudgetUsage
+        allowedValues: Set<Int>
     ) -> Bool {
         let percentages = strings.flatMap {
             Self.percentageTokens(in: $0, localeIdentifier: localeIdentifier)
         }
-        switch budgetUsage {
-        case .unavailable, .lessThanOnePercent:
-            return percentages.isEmpty
-        case let .percent(value):
-            return percentages.allSatisfy { $0 == String(value) }
-        }
+        let canonicalAllowedValues = Set(allowedValues.map(String.init))
+        return percentages.allSatisfy(canonicalAllowedValues.contains)
     }
 
     private static func tokens<S: Sequence>(
@@ -717,50 +713,109 @@ struct AllowedNumericTokens: Equatable, Sendable {
         return result
     }
 
-    /// Extracts canonical numeric values directly attached to an ASCII or full-width percent
-    /// sign. Whitespace between the number and sign is accepted so localized model wording
-    /// cannot bypass the fact binding with presentation spacing.
+    /// Extracts canonical numeric values adjacent to an ASCII or full-width percent sign.
+    /// Both `50%` and `%50` word orderings are recognized, with optional presentation spacing.
     private static func percentageTokens(
         in string: String,
         localeIdentifier: String?
     ) -> [String] {
         let characters = Array(string)
-        return characters.indices.compactMap { percentIndex in
+        return characters.indices.flatMap { percentIndex -> [String] in
             guard characters[percentIndex] == "%" || characters[percentIndex] == "％" else {
-                return nil
+                return []
             }
-
-            var numericEnd = percentIndex
-            while numericEnd > characters.startIndex,
-                  characters[characters.index(before: numericEnd)].isWhitespace {
-                numericEnd = characters.index(before: numericEnd)
-            }
-            guard numericEnd > characters.startIndex,
-                  characters[characters.index(before: numericEnd)].wholeNumberValue != nil else {
-                return nil
-            }
-
-            var numericStart = numericEnd
-            while numericStart > characters.startIndex {
-                let previousIndex = characters.index(before: numericStart)
-                let character = characters[previousIndex]
-                if character.wholeNumberValue != nil || isNumericSeparator(character) {
-                    numericStart = previousIndex
-                } else if character == "-" || character == "\u{2212}" {
-                    numericStart = previousIndex
-                    break
-                } else {
-                    break
-                }
-            }
-
-            var rawValue = String(characters[numericStart..<numericEnd])
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if rawValue.first == "\u{2212}" {
-                rawValue.replaceSubrange(rawValue.startIndex...rawValue.startIndex, with: "-")
-            }
-            return canonical(rawValue, localeIdentifier: localeIdentifier)
+            return [
+                percentageToken(
+                    endingBefore: percentIndex,
+                    in: characters,
+                    localeIdentifier: localeIdentifier
+                ),
+                percentageToken(
+                    startingAfter: percentIndex,
+                    in: characters,
+                    localeIdentifier: localeIdentifier
+                )
+            ].compactMap { $0 }
         }
+    }
+
+    private static func percentageToken(
+        endingBefore percentIndex: Int,
+        in characters: [Character],
+        localeIdentifier: String?
+    ) -> String? {
+        var numericEnd = percentIndex
+        while numericEnd > characters.startIndex,
+              characters[numericEnd - 1].isWhitespace {
+            numericEnd -= 1
+        }
+        guard numericEnd > characters.startIndex,
+              characters[numericEnd - 1].wholeNumberValue != nil else {
+            return nil
+        }
+
+        var numericStart = numericEnd
+        while numericStart > characters.startIndex {
+            let previousIndex = numericStart - 1
+            let character = characters[previousIndex]
+            if character.wholeNumberValue != nil || isNumericSeparator(character) {
+                numericStart = previousIndex
+            } else if character == "-" || character == "\u{2212}" {
+                numericStart = previousIndex
+                break
+            } else {
+                break
+            }
+        }
+        return canonicalPercentageToken(
+            String(characters[numericStart..<numericEnd]),
+            localeIdentifier: localeIdentifier
+        )
+    }
+
+    private static func percentageToken(
+        startingAfter percentIndex: Int,
+        in characters: [Character],
+        localeIdentifier: String?
+    ) -> String? {
+        var numericStart = percentIndex + 1
+        while numericStart < characters.endIndex, characters[numericStart].isWhitespace {
+            numericStart += 1
+        }
+        let rawStart = numericStart
+        if numericStart < characters.endIndex,
+           (characters[numericStart] == "-" || characters[numericStart] == "\u{2212}") {
+            numericStart += 1
+            while numericStart < characters.endIndex, characters[numericStart].isWhitespace {
+                numericStart += 1
+            }
+        }
+        guard numericStart < characters.endIndex,
+              characters[numericStart].wholeNumberValue != nil else {
+            return nil
+        }
+
+        var numericEnd = numericStart
+        while numericEnd < characters.endIndex {
+            let character = characters[numericEnd]
+            guard character.wholeNumberValue != nil || isNumericSeparator(character) else { break }
+            numericEnd += 1
+        }
+        return canonicalPercentageToken(
+            String(characters[rawStart..<numericEnd]),
+            localeIdentifier: localeIdentifier
+        )
+    }
+
+    private static func canonicalPercentageToken(
+        _ token: String,
+        localeIdentifier: String?
+    ) -> String? {
+        var rawValue = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        if rawValue.first == "\u{2212}" {
+            rawValue.replaceSubrange(rawValue.startIndex...rawValue.startIndex, with: "-")
+        }
+        return canonical(rawValue, localeIdentifier: localeIdentifier)
     }
 
     private static func canonical(

@@ -1751,12 +1751,16 @@ Decision: Represent summary usage as a closed `.unavailable`, `.lessThanOnePerce
 `.percent(Int)` state. Only a configured positive budget with exactly zero spending may become
 zero percent. A sub-one-percent state and an unavailable denominator expose no numeric percentage
 fact. The closed state key communicates the relationship, while any generated digit not present in
-other aggregate facts is rejected and falls back to localized template copy. Because the general
-numeric allow-list intentionally flattens numbers from different facts, bind any generated numeric
-percentage expression separately to `SummaryBudgetUsage`: unavailable and sub-one states permit no
-numeric percent, and an exact state permits only its own integer. Recognize ASCII and full-width
-percent signs with optional presentation spacing. This prevents an unrelated zero cooling-off or
-emotion count from authorizing a false `0%` statement.
+other aggregate facts is rejected and falls back to localized template copy. Because every general
+numeric allow-list intentionally flattens numbers from different facts, bind generated numeric
+percentage expressions separately on all three output paths. Ask has no percentage-shaped fact and
+therefore permits none. Reminder output permits only the exact non-nil values supplied by its
+free-budget-impact and category-budget-used percentage fields; days consumed is a count, not
+percentage authority. Summary output binds to `SummaryBudgetUsage`: unavailable and sub-one states
+permit no numeric percent, and an exact state permits only its own integer. Recognize ASCII and
+full-width percent signs before or after
+the number, with optional presentation spacing. This prevents an unrelated zero cooling-off,
+emotion, stress, or impulse count from authorizing a false `0%` statement.
 
 For Ask, generate only title and body with Foundation Models. Validate the app-owned action
 contract while constructing the redacted context: a purchase decision has two to four unique
@@ -1783,10 +1787,10 @@ missing baselines. The most avoidable Ask validation failure—generated interna
 structurally removed without weakening any content safety rule. Sub-one-percent wording cannot
 silently become an exact one-percent claim, localized cycle months do not create false fabricated-
 number counts, token Chinese phrases cannot admit an otherwise English response, and percentage
-claims cannot borrow an unrelated fact's number. Users can
+claims on Ask, reminder, or summary cannot borrow an unrelated fact's number. Users can
 tell why a safe complete template was used, while developers can identify the exact model-output
 validator branch locally without creating a new privacy surface.
 
-Files affected: summary redaction and narrative service, Ask generator and source metadata,
-safety diagnostics, Ask and Debug settings UI, bilingual copy, Phase 7 tests and contracts,
-project memory, changelog, decisions, and session log.
+Files affected: advice/summary/Ask redaction and generation, safety diagnostics, Ask and Debug
+settings UI, bilingual copy, Phase 7 tests and contracts, project memory, changelog, decisions,
+and session log.

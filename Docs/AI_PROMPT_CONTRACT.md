@@ -69,8 +69,7 @@ generated digit absent from the remaining aggregate facts fails numeric validati
 deterministic localized template. Numeric percentage expressions have a stricter fact binding than
 the general numeric token set: `.unavailable` and `.lessThanOnePercent` permit none, while
 `.percent(value)` permits only that exact value. Unrelated zero-valued emotion or cooling-off counts
-therefore cannot authorize a false `0%` claim. ASCII `%`, full-width `％`, and optional spacing
-between the number and sign follow the same rule.
+therefore cannot authorize a false `0%` claim.
 
 ## Typed Ask input and redacted context
 
@@ -111,6 +110,15 @@ is derived from the typed payload after redaction and is not included as a model
 facts. A hyphen between numeric components is a separator, not the sign of the following number;
 this keeps a cycle label such as `2026-08` compatible with localized `2026 年 8 月` wording while
 preserving unary negative-money tokens. An unknown Ask intent never calls a model.
+
+Ask aggregate facts contain no percentage-shaped value, so generated Ask text permits no numeric
+percentage expression even when a count such as zero is otherwise an allowed number. Reminder
+text may use only the exact values supplied by `freeBudgetImpactPercent` or
+`categoryBudgetUsedPercent`; `daysOfBudgetConsumed` is a count of daily allowances, not a
+percentage permission. A missing percentage field contributes no permission. Summary text follows
+the stricter `SummaryBudgetUsage` rule above. ASCII `%` and
+full-width `％`, before or after the number and with optional presentation spacing, all use the
+same binding. A percentage claim can therefore never borrow an unrelated fact's number.
 
 `AskActionContract` validates the app-owned action set while `PrivacyRedactor` constructs the
 context. A purchase decision must already contain two to four unique actions including
@@ -163,7 +171,11 @@ guardrail, validation, and availability failures must return template output.
 Malicious samples containing invented numbers, banned phrases, generated invalid actions on the
 paths that accept them, missing reminder continue options, or output in the wrong interface
 language must fail validation. Ask tests must prove its construction-time action contract and
-that a model cannot replace the deterministic action list. Debug diagnostics may
+that a model cannot replace the deterministic action list. Ask must reject every numeric
+percentage expression, while reminder tests must prove an unrelated zero count cannot authorize
+`0%` when its percentage facts are absent and that an explicitly supplied percentage remains
+valid. Prefix and suffix ASCII/full-width percent signs share the same parser and fact binding.
+Debug diagnostics may
 retain the exact typed validation reason and aggregate counters, but never generated text or user
 financial content. The answer card distinguishes safe fallback categories without exposing model
 output that failed validation.

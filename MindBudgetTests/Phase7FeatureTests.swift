@@ -217,6 +217,38 @@ struct Phase7FeatureTests {
     }
 
     @Test
+    func askValidatorRejectsEveryNumericPercentageEvenWhenItsNumberIsAnAllowedCount() throws {
+        let context = askContext(
+            facts: .stressPattern(count: 0),
+            actions: [.reviewRecentSpending]
+        )
+        let validator = AdviceSafetyValidator()
+
+        // The zero count is a valid fact, but Ask has no percentage-shaped fact at all.
+        #expect(AllowedNumericTokens(context: context).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                answer: GeneratedAnswer(
+                    title: "Stress pattern",
+                    body: "Recorded stress spending is 0%.",
+                    actionIdentifiers: context.allowedActionIdentifiers
+                ),
+                context: context
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                answer: GeneratedAnswer(
+                    title: "Stress pattern",
+                    body: "Recorded stress spending is %0.",
+                    actionIdentifiers: context.allowedActionIdentifiers
+                ),
+                context: context
+            )
+        }
+    }
+
+    @Test
     func validatorRejectsModelOutputOutsideTheRequestedInterfaceLanguage() throws {
         let context = askContext(
             facts: .alternative,
@@ -318,6 +350,78 @@ struct Phase7FeatureTests {
         #expect(throws: AdviceSafetyViolation.missingContinuePurchase) {
             try AdviceSafetyValidator().validate(advice: noContinue, context: expandedContext)
         }
+    }
+
+    @Test
+    func advicePercentagesRequireAnExplicitPercentageFact() throws {
+        func context(
+            freeBudgetImpactPercent: Int?,
+            daysOfBudgetConsumed: Int? = nil
+        ) -> RedactedAdviceContext {
+            PrivacyRedactor().redactAdvice(
+                AdviceAggregateInput(
+                    localeIdentifier: "en_US",
+                    currencyCode: "USD",
+                    purchaseCategory: .coffee,
+                    purchaseAmountFormatted: "$25.00",
+                    remainingFreeAfterFormatted: "$100.00",
+                    freeBudgetImpactPercent: freeBudgetImpactPercent,
+                    daysOfBudgetConsumed: daysOfBudgetConsumed,
+                    categoryBudgetUsedPercent: nil,
+                    recentStressPurchaseCount7d: 0,
+                    recentImpulsePurchaseCount72h: 0,
+                    allowedActions: [.addToWishlist, .continuePurchase],
+                    tone: .soft,
+                    maxTitleLength: 24,
+                    maxBodyLength: 80
+                )
+            )
+        }
+
+        func advice(_ body: String, context: RedactedAdviceContext) -> GeneratedAdvice {
+            GeneratedAdvice(
+                title: "A gentle check",
+                body: body,
+                actionIdentifiers: context.allowedActionIdentifiers,
+                severity: .caution
+            )
+        }
+
+        let unavailable = context(
+            freeBudgetImpactPercent: nil,
+            daysOfBudgetConsumed: 2
+        )
+        let exact = context(freeBudgetImpactPercent: 25)
+        let validator = AdviceSafetyValidator()
+
+        // The unrelated zero counts remain legal numbers, but cannot become percentages.
+        #expect(AllowedNumericTokens(context: unavailable).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 0% of the free budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 2% of the free budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                advice: advice("This uses 0％ of the free budget.", context: exact),
+                context: exact
+            )
+        }
+        try validator.validate(
+            advice: advice("This uses 25% of the free budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            advice: advice("This uses ％25 of the free budget.", context: exact),
+            context: exact
+        )
     }
 
     @Test
@@ -958,8 +1062,18 @@ struct Phase7FeatureTests {
                 context: exact
             )
         }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used %0 of the budget.", context: exact),
+                context: exact
+            )
+        }
         try validator.validate(
             summary: summary("Recorded spending used 8% of the budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            summary: summary("Recorded spending used %8 of the budget.", context: exact),
             context: exact
         )
         try validator.validate(

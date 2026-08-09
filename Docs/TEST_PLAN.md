@@ -329,7 +329,11 @@ positive spend is never narrated as zero percent, sub-one-percent context does n
 `1`, and a cycle-label hyphen cannot turn the localized month into a fabricated negative number.
 With zero-valued cooling-off counts present in the general numeric allow-list, unavailable and
 sub-one-percent contexts must still reject numeric percentages, while an exact 8-percent context
-accepts `8%` and rejects `0%`; ASCII and full-width percent signs share the same binding.
+accepts `8%` and rejects `0%`. Ask contexts reject every numeric percentage even when a zero count
+is allowed; reminder contexts accept only values from their explicit free-budget-impact and
+category-budget percentage fields, and reject both unrelated counts and `daysOfBudgetConsumed` as
+percentage authority. ASCII and full-width percent signs, before or after the number, share the
+same binding.
 Reminder and cycle-summary enhancement
 tests use injected mock generators only; the real on-device model remains a supported-device
 manual smoke requirement.

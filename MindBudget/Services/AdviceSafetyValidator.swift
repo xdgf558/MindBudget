@@ -46,6 +46,12 @@ struct AdviceSafetyValidator: Sendable {
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
+            in: [answer.title, answer.body],
+            allowedValues: []
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
     }
 
     func validate(advice: GeneratedAdvice, context: RedactedAdviceContext) throws {
@@ -73,6 +79,16 @@ struct AdviceSafetyValidator: Sendable {
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
+        let allowedPercentageValues = Set([
+            context.freeBudgetImpactPercent,
+            context.categoryBudgetUsedPercent
+        ].compactMap { $0 })
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
+            in: [advice.title, advice.body],
+            allowedValues: allowedPercentageValues
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
     }
 
     func validate(summary: GeneratedSummary, context: RedactedSummaryContext) throws {
@@ -94,9 +110,15 @@ struct AdviceSafetyValidator: Sendable {
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
-        guard AllowedNumericTokens(context: context).containsOnlyAllowedBudgetPercentages(
+        let allowedPercentageValues: Set<Int> = switch context.budgetUsage {
+        case .unavailable, .lessThanOnePercent:
+            []
+        case let .percent(value):
+            [value]
+        }
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedPercentages(
             in: [summary.title, summary.body],
-            budgetUsage: context.budgetUsage
+            allowedValues: allowedPercentageValues
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
