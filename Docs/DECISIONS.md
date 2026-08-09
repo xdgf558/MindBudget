@@ -1025,19 +1025,21 @@ project memory, changelog, and this file.
 ## 2026-08-07 — Ship the approved budget-track icon as standard, dark, and tinted assets
 
 Context: The Phase 10 placeholder icon proved the release asset pipeline but was not the owner's
-final brand mark. The approved handoff defines a 1024×1024 budget track at x 190...834, centered
-at y 512 with height 74, a 352px completed segment, and a 33×264 marker centered at x 622. It also
-shows dedicated dark and monochrome variants and explicitly delegates corner masking to iOS.
+final brand mark. The approved August 2026 revision enlarges the same pace metaphor for small-size
+recognition: a 720×116 track beginning at x 152, a 396px completed segment, and a 46×344 marker
+beginning at x 585. It provides dedicated standard, dark, and monochrome variants and explicitly
+delegates corner masking to iOS.
 
 Decision: Replace the placeholder with three opaque universal App Icon resources. The standard
-appearance uses the specified 163° `#38806C → #2F6F5E → #245648` background, translucent
-`#102C25` track, `#F2F0EC` completed segment, and `#E0A95C` marker. The dark appearance uses the
-approved near-black, muted-track, mint-segment treatment. The tinted appearance is intentionally
-grayscale so iOS can apply the user's chosen Home Screen tint. Keep one SVG source per appearance
-under `Docs/Brand`, render all three at exactly 1024px, retain square corners in source, and make
-the release script reject a missing, transparent, mis-sized, or unreferenced variant. Document the
-exact SVG-to-PNG mapping and export commands, and checksum all six files as one reviewed source/
-artifact set so editing either side without refreshing the declared contract fails validation.
+appearance uses the supplied green gradient, dark green track, warm-white completed segment, and
+amber marker. The dark appearance uses the supplied near-black, muted-track, mint-segment treatment.
+The tinted appearance is intentionally opaque grayscale with luminance-separated track and mark so
+iOS can apply the user's chosen Home Screen tint without losing the pace distinction. Keep one SVG
+source per appearance under `Docs/Brand`, render all three at exactly 1024px, retain square corners
+in source, and make the release script reject a missing, transparent, mis-sized, or unreferenced
+variant. Document the exact SVG-to-PNG mapping and export commands, and checksum all six files as
+one reviewed source/artifact set so editing either side without refreshing the declared contract
+fails validation.
 
 Alternatives considered: Shipping only the standard image, using the screenshot itself as a
 cropped icon, pre-rounding the corners, or asking iOS to derive dark/tinted appearances from the
@@ -1622,3 +1624,113 @@ and the copy remains accurate for both exhausted and sub-minor-unit-per-day flex
 
 Files affected: budget pace presentation facts and tests, Today card, bilingual copy, release/test
 notes, project memory, changelog, and session log.
+
+---
+
+## 2026-08-08 — Make language, income allocation, savings progress, and recurrence explicit V3 facts
+
+Context: After free-tier completion, the owner requested an app-local Chinese/English switch,
+support for multiple incomes in planning, a total savings goal, and monthly fixed-expense
+automation. These requests affect locale ownership, budget permission, cross-cycle state, and
+calendar scheduling. Directly adding allocation fields to the shipped Schema V2 `Income` model
+would also change that schema's fingerprint and put existing TestFlight stores at migration risk.
+
+Decision: Persist one extensible app-language raw value with Follow System, Simplified Chinese, and
+English. The stored value is also published observable state, so changing it invalidates the
+SwiftUI root immediately rather than waiting for another preference change or a relaunch. Inject
+its locale at the SwiftUI root and use it for deterministic Ask/templates, formatting, app-owned
+notification and Spotlight reconciliation, localized ledger search, and export filenames. Keep
+Siri's own surface governed by the system/Siri locale.
+
+Recording an income remains a ledger fact and grants no spending permission by itself. Store any
+owner-confirmed spending and savings portions in a new Schema V3 `IncomeAllocation` companion row;
+require both values to be nonnegative and their checked sum not to exceed the income. A nonzero
+spending portion must persist the explicit target `BudgetPlan` identifier, and that plan must exist,
+match the accounting currency, and contain the income's `receivedAt`. The income form displays the
+exact target cycle and refuses a spending allocation when no saved cycle contains a historical
+date; it never creates a budget merely to accept an allocation. Only that targeted spending portion
+increases the deterministic budget. Store one independent cross-cycle `SavingsGoal` whose progress
+is its starting balance plus confirmed savings allocations; do not repurpose
+`BudgetPlan.savingGoalMinorUnits`, which remains a cycle reservation.
+
+A monthly fixed-expense rule begins only when the owner confirms the recurring toggle. Its editable
+anchor uses the recorded local day/time and time-zone identifier, clamping days 29–31 to the last
+valid day of shorter months. The immutable initial-occurrence date records only the source expense's
+already-handled month; moving the editable anchor into a later month therefore cannot cause that
+month to be skipped. Reconciliation runs on prepare and foreground, first plans and deduplicates all
+rules' due occurrences, rejects the complete transaction when their combined count exceeds 120,
+then atomically generates fixed/planned expenses and stable year-month occurrence identities. Edits
+affect future occurrences; pause/resume advances `activeSince` so paused months are not backfilled.
+Deleting a rule never deletes generated ledger history, and editing a generated entry cannot create
+a second rule.
+
+Alternatives considered: Mutating the budget for every income automatically; treating all income
+as spendable; relabeling the cycle reservation as a lifetime savings target; modifying Schema V2's
+Income fields in place; using timer/background promises for exact due-time insertion; storing
+recurrence as 30-day seconds; silently backfilling months before confirmation or during a pause;
+or deleting generated expenses with their rule.
+
+Consequences: Existing V2 income migrates with an exact zero allocation rather than an invented
+choice. The Today and Ask budget facts can reflect extra income only after an explicit, valid cycle
+allocation; a historical income cannot silently change the current cycle or point at no cycle.
+Savings progress survives cycle changes without changing cycle arithmetic. Recurring expenses are
+honest about app execution limits, deterministic across DST/month ends, and idempotent after long
+closures. Editing a rule's month cannot lose the first future occurrence, and the 120-row safety
+bound applies to the full foreground transaction rather than independently to each rule. Schema V3
+adds `IncomeAllocation`, `SavingsGoal`, `RecurringFixedExpenseRule`, and
+`RecurringExpenseOccurrence`; CSV and verified Delete All include the new records. Every persisted
+table is a required argument of the production `ModelCounts` initializer, and its explicit `.zero`
+fixture enumerates the same set, so adding a model without extending deletion verification remains
+a compile-time failure. The unified CSV leaves inapplicable attributes empty and appends the two
+allocation columns after every existing column. Candidate version is `0.9.4 (5)` and TestFlight
+remains paused until PR #18 is reviewed.
+
+Files affected: language settings/root environment and integration reconciliation, Schema V3 and
+migration plan, income/budget/savings/recurring actor paths, forms and Settings hierarchy, CSV and
+privacy deletion, bilingual copy, release metadata, tests, task memory, changelog, and session log.
+
+---
+
+## 2026-08-09 — Drain recurring backlogs in bounded chronological batches
+
+Context: The first combined-rule safety implementation rejected an entire reconciliation when more
+than 120 occurrences were pending. Because the rollback preserved no new occurrence identities,
+the next launch received the same input and failed again. A realistic set of monthly fixed expenses
+could therefore become permanently unreconcilable after a long absence. Review also confirmed that
+the selected skin, like the app language before it, affected the root view while remaining an
+unpublished `@AppStorage` property inside an `ObservableObject`.
+
+Decision: Each rule enumerates at most its oldest 120 missing occurrence dates while explicitly
+reporting whether more exist. The actor combines those bounded candidates, sorts them by scheduled
+time and stable occurrence key, and atomically inserts only the globally oldest 120. Its typed
+result reports both the inserted count and whether another foreground pass is needed. Existing
+occurrence identities are skipped during enumeration, so each later prepare/foreground pass makes
+progress without duplicates. The 120 value remains a per-transaction write bound, not a reason to
+reject valid accumulated history or to loop repeatedly during one foreground activation. Each
+enumerated candidate carries its already-computed stable occurrence key into the actor write plan.
+Settings renders the published `hasMore` state as neutral progress rather than an error. A single
+rule scans at most 1,200 calendar months per reconciliation and fails closed if that defensive
+bound is exhausted, preventing unexpected calendar behavior from hanging foreground work.
+
+Persist skin and language selections as explicit `@Published` values synchronized through named
+UserDefaults keys. These are the two settings directly consumed to build root theme/locale state;
+tests require each change to publish immediately and persist independently. Pass the SwiftUI
+environment calendar into initial preparation as well as foreground reconciliation. Keep the
+budget-plan allocation cross-check unchanged: it deliberately compares cycle-scoped incomes with
+a store-wide allocation map and can detect an out-of-cycle income targeting the plan.
+
+Alternatives considered: Keeping overflow as an atomic error with only a generic Settings warning;
+inserting every missing row in one transaction; repeatedly draining all batches during one launch;
+returning only an insertion count; or relying on navigation and unrelated published state to redraw
+the selected skin.
+
+Consequences: A large backlog may require more than one foreground activation, but every successful
+activation commits no more than 120 oldest entries, exposes remaining work as a non-error state,
+shows that state in the recurring-expense Settings page, and cannot become stuck on the same first
+121 rows. Occurrence identity is calculated once per candidate, and enumeration has a separate
+hard termination bound. Root language and skin selections now share an observable persistence
+contract. Other `@AppStorage` preferences retain their existing explicit session/action redraw
+paths and should be converted if a future root-only consumer is added.
+
+Files affected: recurring schedule/reconciliation projections and tests, app session calendar and
+backlog state, SettingsStore observation tests, project memory, test plan, changelog, and session log.

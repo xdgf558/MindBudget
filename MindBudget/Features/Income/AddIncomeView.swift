@@ -4,9 +4,18 @@ import SwiftUI
 enum IncomeFormError: Error, Equatable, Sendable {
     case amount(MoneyInputError)
     case invalidTimeZone
+    case invalidAllocation
+    case budgetCycleUnavailable
     case accountingCurrencyMismatch
     case invalidStoredData
     case persistence
+}
+
+enum IncomeBudgetCycleState: Equatable, Sendable {
+    case loading
+    case available(DateInterval)
+    case unavailable
+    case failed
 }
 
 @MainActor
@@ -15,7 +24,10 @@ final class IncomeFormViewModel: ObservableObject {
     @Published var category: IncomeCategory
     @Published var sourceName: String
     @Published var note: String
+    @Published var allocatedToBudgetText = ""
+    @Published var allocatedToSavingsText = ""
     @Published var receivedAt: Date
+    @Published private(set) var budgetCycleState: IncomeBudgetCycleState = .loading
     @Published private(set) var error: IncomeFormError?
     @Published private(set) var isSaving = false
 
@@ -33,8 +45,23 @@ final class IncomeFormViewModel: ObservableObject {
     func prepareInput(locale: Locale) {
         guard !didPrepareInput else { return }
         if let existingIncome {
-            amountText = MoneyInputParser().inputText(
+            let parser = MoneyInputParser()
+            amountText = parser.inputText(
                 for: existingIncome.summary.amount,
+                locale: locale
+            )
+            allocatedToBudgetText = parser.inputText(
+                for: Money(
+                    minorUnits: existingIncome.summary.allocatedToBudgetMinorUnits,
+                    currencyCode: existingIncome.summary.amount.currencyCode
+                ),
+                locale: locale
+            )
+            allocatedToSavingsText = parser.inputText(
+                for: Money(
+                    minorUnits: existingIncome.summary.allocatedToSavingsMinorUnits,
+                    currencyCode: existingIncome.summary.amount.currencyCode
+                ),
                 locale: locale
             )
         }
@@ -56,6 +83,25 @@ final class IncomeFormViewModel: ObservableObject {
     func deleteKeypadCharacter() {
         guard !amountText.isEmpty else { return }
         amountText.removeLast()
+    }
+
+    func loadBudgetCycle(dataActor: DataActor) async {
+        let referenceDate = receivedAt
+        budgetCycleState = .loading
+        do {
+            let plan = try await dataActor.fetchBudgetPlanCovering(date: referenceDate)
+            guard receivedAt == referenceDate else { return }
+            if let plan {
+                budgetCycleState = .available(
+                    DateInterval(start: plan.cycleStart, end: plan.cycleEnd)
+                )
+            } else {
+                budgetCycleState = .unavailable
+            }
+        } catch {
+            guard receivedAt == referenceDate else { return }
+            budgetCycleState = .failed
+        }
     }
 
     func save(
@@ -83,9 +129,53 @@ final class IncomeFormViewModel: ObservableObject {
             error = .invalidTimeZone
             return false
         }
+        let allocatedToBudget: Int64
+        let allocatedToSavings: Int64
+        do {
+            allocatedToBudget = try allocationMinorUnits(
+                from: allocatedToBudgetText,
+                currencyCode: currencyCode,
+                locale: locale
+            )
+            allocatedToSavings = try allocationMinorUnits(
+                from: allocatedToSavingsText,
+                currencyCode: currencyCode,
+                locale: locale
+            )
+            let (allocated, overflow) = allocatedToBudget.addingReportingOverflow(
+                allocatedToSavings
+            )
+            guard !overflow, allocated <= amount.minorUnits else {
+                error = .invalidAllocation
+                return false
+            }
+        } catch {
+            self.error = .invalidAllocation
+            return false
+        }
 
         isSaving = true
         defer { isSaving = false }
+        let budgetPlanID: UUID?
+        if allocatedToBudget > 0 {
+            do {
+                guard let plan = try await dataActor.fetchBudgetPlanCovering(date: receivedAt) else {
+                    error = .budgetCycleUnavailable
+                    budgetCycleState = .unavailable
+                    return false
+                }
+                budgetPlanID = plan.id
+                budgetCycleState = .available(
+                    DateInterval(start: plan.cycleStart, end: plan.cycleEnd)
+                )
+            } catch {
+                self.error = .budgetCycleUnavailable
+                budgetCycleState = .failed
+                return false
+            }
+        } else {
+            budgetPlanID = nil
+        }
         let summary = existingIncome?.summary
         let draft = IncomeDraft(
             id: summary?.id ?? UUID(),
@@ -93,6 +183,9 @@ final class IncomeFormViewModel: ObservableObject {
             category: category,
             sourceName: optionalTrimmed(sourceName),
             note: optionalTrimmed(note),
+            budgetPlanID: budgetPlanID,
+            allocatedToBudgetMinorUnits: allocatedToBudget,
+            allocatedToSavingsMinorUnits: allocatedToSavings,
             receivedAt: receivedAt,
             receivedTimeZoneIdentifier: timeZone.identifier,
             createdAt: summary?.createdAt ?? now,
@@ -114,6 +207,8 @@ final class IncomeFormViewModel: ObservableObject {
                 error = .amount(.invalid)
             case .invalidTimeZone:
                 error = .invalidTimeZone
+            case .invalidIncomeAllocation:
+                error = .invalidAllocation
             default:
                 error = .persistence
             }
@@ -130,6 +225,22 @@ final class IncomeFormViewModel: ObservableObject {
     private func optionalTrimmed(_ value: String) -> String? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func allocationMinorUnits(
+        from text: String,
+        currencyCode: String,
+        locale: Locale
+    ) throws -> Int64 {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return 0
+        }
+        return try MoneyInputParser().money(
+            from: text,
+            currencyCode: currencyCode,
+            locale: locale,
+            allowsZero: true
+        ).minorUnits
     }
 }
 
@@ -212,6 +323,9 @@ struct AddIncomeView: View {
             }
         }
         .task { viewModel.prepareInput(locale: locale) }
+        .task(id: viewModel.receivedAt) {
+            await viewModel.loadBudgetCycle(dataActor: dataActor)
+        }
         .sheet(isPresented: $showsDatePicker) {
             NavigationStack {
                 DatePicker(
@@ -307,6 +421,25 @@ struct AddIncomeView: View {
                 }
             }
             Divider().overlay(theme.hairline)
+            VStack(alignment: .leading, spacing: 10) {
+                Text("income.allocation.title")
+                    .font(.headline)
+                Text("income.allocation.message")
+                    .font(.footnote)
+                    .foregroundStyle(theme.inkSecondary)
+                budgetCycleStatus
+                allocationField(
+                    "income.allocation.budget",
+                    text: $viewModel.allocatedToBudgetText,
+                    identifier: "income.allocation.budget"
+                )
+                allocationField(
+                    "income.allocation.savings",
+                    text: $viewModel.allocatedToSavingsText,
+                    identifier: "income.allocation.savings"
+                )
+            }
+            Divider().overlay(theme.hairline)
             TextField("income.source.optional", text: $viewModel.sourceName)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("income.source")
@@ -333,6 +466,57 @@ struct AddIncomeView: View {
         }
     }
 
+    @ViewBuilder
+    private var budgetCycleStatus: some View {
+        switch viewModel.budgetCycleState {
+        case .loading:
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("income.allocation.cycle.loading")
+            }
+            .font(.caption)
+            .foregroundStyle(theme.inkSecondary)
+        case let .available(interval):
+            VStack(alignment: .leading, spacing: 4) {
+                Text("income.allocation.cycle.target")
+                    .font(.caption.weight(.semibold))
+                HStack(spacing: 4) {
+                    Text(interval.start, format: .dateTime.year().month().day())
+                    Text(verbatim: "–")
+                    Text(interval.end, format: .dateTime.year().month().day())
+                }
+                .font(.caption)
+                .foregroundStyle(theme.inkSecondary)
+            }
+            .accessibilityIdentifier("income.allocation.cycle")
+        case .unavailable:
+            Label("income.allocation.cycle.unavailable", systemImage: "info.circle")
+                .font(.caption)
+                .foregroundStyle(theme.attentionText)
+                .accessibilityIdentifier("income.allocation.cycle.unavailable")
+        case .failed:
+            Label("income.allocation.cycle.failed", systemImage: "exclamationmark.triangle")
+                .font(.caption)
+                .foregroundStyle(theme.attentionText)
+        }
+    }
+
+    private func allocationField(
+        _ key: LocalizedStringKey,
+        text: Binding<String>,
+        identifier: String
+    ) -> some View {
+        HStack {
+            Text(key)
+            Spacer()
+            TextField("money.amount.placeholder", text: text)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: 140)
+                .accessibilityIdentifier(identifier)
+        }
+    }
+
     private func errorKey(_ error: IncomeFormError) -> LocalizedStringKey {
         switch error {
         case let .amount(inputError):
@@ -344,6 +528,8 @@ struct AddIncomeView: View {
             case .amountOutOfRange: "expense.error.amount.range"
             }
         case .invalidTimeZone: "expense.error.timeZone"
+        case .invalidAllocation: "income.error.allocation"
+        case .budgetCycleUnavailable: "income.error.budgetCycleUnavailable"
         case .accountingCurrencyMismatch: "expense.error.currencyMismatch"
         case .invalidStoredData: "expense.error.invalidStoredData"
         case .persistence: "error.data.save"

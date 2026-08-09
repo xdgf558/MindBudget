@@ -29,10 +29,39 @@ struct IncomeSummary: Hashable, Identifiable, Sendable {
     let amount: Money
     let category: IncomeCategory
     let sourceName: String?
+    let budgetPlanID: UUID?
+    let allocatedToBudgetMinorUnits: Int64
+    let allocatedToSavingsMinorUnits: Int64
     let receivedAt: Date
     let receivedTimeZoneIdentifier: String
     let createdAt: Date
     let updatedAt: Date
+
+    init(
+        id: UUID,
+        amount: Money,
+        category: IncomeCategory,
+        sourceName: String?,
+        budgetPlanID: UUID? = nil,
+        allocatedToBudgetMinorUnits: Int64 = 0,
+        allocatedToSavingsMinorUnits: Int64 = 0,
+        receivedAt: Date,
+        receivedTimeZoneIdentifier: String,
+        createdAt: Date,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.amount = amount
+        self.category = category
+        self.sourceName = sourceName
+        self.budgetPlanID = budgetPlanID
+        self.allocatedToBudgetMinorUnits = allocatedToBudgetMinorUnits
+        self.allocatedToSavingsMinorUnits = allocatedToSavingsMinorUnits
+        self.receivedAt = receivedAt
+        self.receivedTimeZoneIdentifier = receivedTimeZoneIdentifier
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
 }
 
 struct IncomeDetail: Hashable, Sendable {
@@ -49,7 +78,80 @@ struct BudgetPlanSummary: Hashable, Sendable {
     let totalBudgetMinorUnits: Int64
     let fixedExpensesMinorUnits: Int64
     let savingGoalMinorUnits: Int64
+    let recordedIncomeMinorUnits: Int64
+    let allocatedIncomeMinorUnits: Int64
+    let allocatedSavingsMinorUnits: Int64
     let categoryBudgets: [CategoryBudgetSummary]
+
+    init(
+        id: UUID,
+        cycleStart: Date,
+        cycleEnd: Date,
+        currencyCode: String,
+        monthlyIncomeMinorUnits: Int64,
+        totalBudgetMinorUnits: Int64,
+        fixedExpensesMinorUnits: Int64,
+        savingGoalMinorUnits: Int64,
+        recordedIncomeMinorUnits: Int64 = 0,
+        allocatedIncomeMinorUnits: Int64 = 0,
+        allocatedSavingsMinorUnits: Int64 = 0,
+        categoryBudgets: [CategoryBudgetSummary]
+    ) {
+        self.id = id
+        self.cycleStart = cycleStart
+        self.cycleEnd = cycleEnd
+        self.currencyCode = currencyCode
+        self.monthlyIncomeMinorUnits = monthlyIncomeMinorUnits
+        self.totalBudgetMinorUnits = totalBudgetMinorUnits
+        self.fixedExpensesMinorUnits = fixedExpensesMinorUnits
+        self.savingGoalMinorUnits = savingGoalMinorUnits
+        self.recordedIncomeMinorUnits = recordedIncomeMinorUnits
+        self.allocatedIncomeMinorUnits = allocatedIncomeMinorUnits
+        self.allocatedSavingsMinorUnits = allocatedSavingsMinorUnits
+        self.categoryBudgets = categoryBudgets
+    }
+}
+
+struct SavingsGoalSummary: Hashable, Identifiable, Sendable {
+    let id: UUID
+    let target: Money
+    let startingBalance: Money
+    let incomeAllocatedToSavings: Money
+    let savedTotal: Money
+    let remaining: Money
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct RecurringFixedExpenseRuleSummary: Hashable, Identifiable, Sendable {
+    let id: UUID
+    let originExpenseID: UUID
+    let amount: Money
+    let category: ExpenseCategory
+    let merchantName: String?
+    let initialOccurrenceAt: Date
+    let anchorDate: Date
+    let timeZoneIdentifier: String
+    let calendarIdentifierRaw: String
+    let isActive: Bool
+    let activeSince: Date
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct RecurringFixedExpenseRuleDetail: Hashable, Sendable {
+    let summary: RecurringFixedExpenseRuleSummary
+    let note: String?
+}
+
+struct RecurringExpenseReconciliationResult: Equatable, Sendable {
+    let insertedCount: Int
+    let hasMore: Bool
+
+    static let empty = RecurringExpenseReconciliationResult(
+        insertedCount: 0,
+        hasMore: false
+    )
 }
 
 struct CategoryBudgetSummary: Hashable, Sendable {
@@ -143,6 +245,27 @@ struct ModelCounts: Equatable, Sendable {
     let reminderEvents: Int
     let merchants: Int
     let reflectionLogs: Int
+    let savingsGoals: Int
+    let recurringRules: Int
+    let recurringOccurrences: Int
+    let incomeAllocations: Int
+
+    static let zero = ModelCounts(
+        expenses: 0,
+        incomes: 0,
+        budgetPlans: 0,
+        wishItems: 0,
+        coolingOffPlans: 0,
+        categoryBudgets: 0,
+        spendingInsights: 0,
+        reminderEvents: 0,
+        merchants: 0,
+        reflectionLogs: 0,
+        savingsGoals: 0,
+        recurringRules: 0,
+        recurringOccurrences: 0,
+        incomeAllocations: 0
+    )
 
     var isEmpty: Bool {
         expenses == 0
@@ -155,19 +278,27 @@ struct ModelCounts: Equatable, Sendable {
             && reminderEvents == 0
             && merchants == 0
             && reflectionLogs == 0
+            && savingsGoals == 0
+            && recurringRules == 0
+            && recurringOccurrences == 0
+            && incomeAllocations == 0
     }
 
     init(
         expenses: Int,
-        incomes: Int = 0,
+        incomes: Int,
         budgetPlans: Int,
         wishItems: Int,
         coolingOffPlans: Int,
-        categoryBudgets: Int = 0,
-        spendingInsights: Int = 0,
-        reminderEvents: Int = 0,
-        merchants: Int = 0,
-        reflectionLogs: Int = 0
+        categoryBudgets: Int,
+        spendingInsights: Int,
+        reminderEvents: Int,
+        merchants: Int,
+        reflectionLogs: Int,
+        savingsGoals: Int,
+        recurringRules: Int,
+        recurringOccurrences: Int,
+        incomeAllocations: Int
     ) {
         self.expenses = expenses
         self.incomes = incomes
@@ -179,5 +310,9 @@ struct ModelCounts: Equatable, Sendable {
         self.reminderEvents = reminderEvents
         self.merchants = merchants
         self.reflectionLogs = reflectionLogs
+        self.savingsGoals = savingsGoals
+        self.recurringRules = recurringRules
+        self.recurringOccurrences = recurringOccurrences
+        self.incomeAllocations = incomeAllocations
     }
 }

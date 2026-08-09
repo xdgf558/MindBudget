@@ -165,17 +165,27 @@ Status: Done
   and make the partial state visible without showing stale insight cards.
 
 ## Phase 12 — Language, income allocation, savings goal, and recurring fixed expenses
-Status: Todo
-- [ ] Add a persisted, extensible app-language setting with Follow System, Simplified Chinese, and
+Status: Done
+- [x] Add a persisted, extensible app-language setting with Follow System, Simplified Chinese, and
   English choices; make SwiftUI copy, formatters, deterministic Ask/templates, and app-owned
   notifications consistently follow the selected app locale without changing device language.
-- [ ] Show exact per-entry income in cycle planning without silently increasing spending
+- [x] Show exact per-entry income in cycle planning without silently increasing spending
   permission. Define and implement an explicit user-confirmed allocation between current spending
   budget and savings while preserving the independent income ledger.
-- [ ] Add a cross-cycle total savings goal and progress model that remains distinct from the
+- [x] Add a cross-cycle total savings goal and progress model that remains distinct from the
   existing per-cycle savings reservation used by `BudgetEngine`.
-- [ ] Add user-confirmed monthly recurring fixed-expense rules with calendar/time-zone semantics,
+- [x] Add user-confirmed monthly recurring fixed-expense rules with calendar/time-zone semantics,
   stable occurrence identities, duplicate prevention, edit/pause/delete controls, and honest
   reconciliation when the app was not running on the intended date.
-- [ ] Decide and test the required SwiftData Schema V3 migration before adding persisted fields or
+- [x] Decide and test the required SwiftData Schema V3 migration before adding persisted fields or
   models, then publish the completed work as PR #18. Do not mix this scope into PR #17.
+- [x] Close PR #18 review gaps: publish language changes immediately without relaunch, bind every
+  nonzero spending allocation to an explicit persisted cycle containing the income date, preserve
+  the source-occurrence month when a recurring rule date is edited, and bound each complete
+  reconciliation transaction to the oldest 120 pending occurrences across all rules.
+- [x] Make recurrence catch-up recoverable across successive foreground batches, publish skin
+  changes to the root theme immediately, centralize the new persisted setting keys, and inject the
+  SwiftUI environment calendar into initial reconciliation as well as foreground reconciliation.
+- [x] Surface remaining recurring catch-up work in Settings as a non-error progress state, return
+  each pending schedule date with its already-computed occurrence key, and fail closed after a
+  bounded 1,200-month scan instead of leaving an unbounded foreground loop.

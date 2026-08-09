@@ -50,6 +50,8 @@ final class AppSession: ObservableObject {
     @Published private(set) var privacyDeletionState: PrivacyDeletionState = .idle
     @Published private(set) var appLockState: AppLockState
     @Published private(set) var appLockOperationError: AppLockOperationError?
+    @Published private(set) var recurringExpenseReconciliationFailed = false
+    @Published private(set) var recurringExpenseReconciliationHasMore = false
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
 
     var notificationDataIntegrityWarning: Bool {
@@ -150,7 +152,12 @@ final class AppSession: ObservableObject {
         }
     }
 
-    func prepare(settings: SettingsStore, force: Bool = false) async {
+    func prepare(
+        settings: SettingsStore,
+        force: Bool = false,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async {
         guard !isPrepared || force else { return }
         isPrepared = false
         do {
@@ -158,11 +165,33 @@ final class AppSession: ObservableObject {
                 settings.currencyCode = existingPlan.currencyCode
                 settings.firstLaunchCompleted = true
             }
+            _ = await reconcileRecurringExpenses(calendar: calendar, now: now)
             preparationFailed = false
         } catch {
             preparationFailed = true
         }
         isPrepared = true
+    }
+
+    @discardableResult
+    func reconcileRecurringExpenses(
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> RecurringExpenseReconciliationResult {
+        do {
+            let result = try await dataActor.reconcileRecurringFixedExpenses(
+                through: now,
+                calendar: calendar
+            )
+            recurringExpenseReconciliationFailed = false
+            recurringExpenseReconciliationHasMore = result.hasMore
+            if result.insertedCount > 0 { dataDidChange() }
+            return result
+        } catch {
+            recurringExpenseReconciliationFailed = true
+            recurringExpenseReconciliationHasMore = false
+            return .empty
+        }
     }
 
     func dataDidChange() {
@@ -406,6 +435,7 @@ final class AppSession: ObservableObject {
 struct AppRouter: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
     @StateObject private var session: AppSession
     @State private var showsLaunchAnimation = true
@@ -441,7 +471,13 @@ struct AppRouter: View {
                             .accessibilityLabel("common.loading")
                     } else if session.preparationFailed {
                         ErrorStateView(messageKey: "error.data.load") {
-                            Task { await session.prepare(settings: settings, force: true) }
+                            Task {
+                                await session.prepare(
+                                    settings: settings,
+                                    force: true,
+                                    calendar: calendar
+                                )
+                            }
                         }
                     } else if !settings.firstLaunchCompleted {
                         OnboardingView(dataActor: session.dataActor) {
@@ -484,7 +520,7 @@ struct AppRouter: View {
                 settings: settings,
                 localizedReason: appLockReason
             )
-            await session.prepare(settings: settings)
+            await session.prepare(settings: settings, calendar: calendar)
             await session.observeIntentNavigation()
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -606,10 +642,13 @@ private struct MainTabView: View {
         .tint(theme.accent)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                session.dataDidChange()
+                Task {
+                    _ = await session.reconcileRecurringExpenses(calendar: calendar)
+                    session.dataDidChange()
+                }
             }
         }
-        .task(id: session.revision) {
+        .task(id: "\(session.revision)|\(locale.identifier)") {
             async let notifications: Bool = session.reconcileNotifications(
                 settings: settings,
                 locale: locale,

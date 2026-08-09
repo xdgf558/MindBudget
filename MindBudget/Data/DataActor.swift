@@ -1,6 +1,96 @@
 import Foundation
 import SwiftData
 
+extension Calendar.Identifier {
+    var mindBudgetPersistedValue: String {
+        switch self {
+        case .gregorian: "gregorian"
+        case .buddhist: "buddhist"
+        case .chinese: "chinese"
+        case .coptic: "coptic"
+        case .ethiopicAmeteMihret: "ethiopicAmeteMihret"
+        case .ethiopicAmeteAlem: "ethiopicAmeteAlem"
+        case .hebrew: "hebrew"
+        case .iso8601: "iso8601"
+        case .indian: "indian"
+        case .islamic: "islamic"
+        case .islamicCivil: "islamicCivil"
+        case .japanese: "japanese"
+        case .persian: "persian"
+        case .republicOfChina: "republicOfChina"
+        case .islamicTabular: "islamicTabular"
+        case .islamicUmmAlQura: "islamicUmmAlQura"
+        case .bangla: "bangla"
+        case .gujarati: "gujarati"
+        case .kannada: "kannada"
+        case .malayalam: "malayalam"
+        case .marathi: "marathi"
+        case .odia: "odia"
+        case .tamil: "tamil"
+        case .telugu: "telugu"
+        case .vikram: "vikram"
+        case .dangi: "dangi"
+        case .vietnamese: "vietnamese"
+        @unknown default: "unknown"
+        }
+    }
+
+    init?(mindBudgetPersistedValue value: String) {
+        switch value {
+        case "gregorian": self = .gregorian
+        case "buddhist": self = .buddhist
+        case "chinese": self = .chinese
+        case "coptic": self = .coptic
+        case "ethiopicAmeteMihret": self = .ethiopicAmeteMihret
+        case "ethiopicAmeteAlem": self = .ethiopicAmeteAlem
+        case "hebrew": self = .hebrew
+        case "iso8601": self = .iso8601
+        case "indian": self = .indian
+        case "islamic": self = .islamic
+        case "islamicCivil": self = .islamicCivil
+        case "japanese": self = .japanese
+        case "persian": self = .persian
+        case "republicOfChina": self = .republicOfChina
+        case "islamicTabular": self = .islamicTabular
+        case "islamicUmmAlQura": self = .islamicUmmAlQura
+        case "bangla":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .bangla
+        case "gujarati":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .gujarati
+        case "kannada":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .kannada
+        case "malayalam":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .malayalam
+        case "marathi":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .marathi
+        case "odia":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .odia
+        case "tamil":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .tamil
+        case "telugu":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .telugu
+        case "vikram":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .vikram
+        case "dangi":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .dangi
+        case "vietnamese":
+            guard #available(iOS 26.0, *) else { return nil }
+            self = .vietnamese
+        default: return nil
+        }
+    }
+}
+
 enum DataValidationError: Error, Equatable, Sendable {
     case invalidAmount
     case unsupportedCurrency(String)
@@ -17,6 +107,9 @@ enum DataValidationError: Error, Equatable, Sendable {
     case invalidSpendingInsight
     case invalidReminderEvent
     case invalidIntentExpense
+    case invalidIncomeAllocation
+    case invalidSavingsGoal
+    case invalidRecurringExpenseRule
     case merchantAggregateOverflow
     case identityMismatch
     case invalidBudgetTransition
@@ -28,11 +121,168 @@ private struct BudgetPlanCoverageResolution {
     let generatedDrafts: [BudgetPlanDraft]
 }
 
+private struct PendingRecurringOccurrence {
+    let rule: RecurringFixedExpenseRuleSummary
+    let note: String?
+    let scheduledAt: Date
+    let occurrenceKey: String
+}
+
+struct MonthlyRecurringSchedule: Sendable {
+    static let maximumGeneratedOccurrences = 120
+    static let maximumScannedMonths = 1_200
+
+    struct PendingOccurrence: Sendable {
+        let scheduledAt: Date
+        let occurrenceKey: String
+    }
+
+    struct PendingDateBatch: Sendable {
+        let occurrences: [PendingOccurrence]
+        let hasMore: Bool
+    }
+
+    func pendingDates(
+        ruleID: UUID,
+        anchorDate: Date,
+        initialOccurrenceAt: Date,
+        activatedAt: Date,
+        through endDate: Date,
+        timeZoneIdentifier: String,
+        calendarIdentifierRaw: String,
+        calendar sourceCalendar: Calendar,
+        existingOccurrenceKeys: Set<String>,
+        limit: Int = maximumGeneratedOccurrences
+    ) throws -> PendingDateBatch {
+        guard limit > 0 else {
+            return PendingDateBatch(occurrences: [], hasMore: false)
+        }
+        guard let timeZone = TimeZone(identifier: timeZoneIdentifier),
+              let identifier = Calendar.Identifier(
+                mindBudgetPersistedValue: calendarIdentifierRaw
+              ) else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+        guard anchorDate <= endDate else {
+            return PendingDateBatch(occurrences: [], hasMore: false)
+        }
+        var calendar = Calendar(identifier: identifier)
+        calendar.locale = sourceCalendar.locale
+        calendar.timeZone = timeZone
+        let anchor = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: anchorDate
+        )
+        guard let year = anchor.year,
+              let month = anchor.month,
+              let day = anchor.day,
+              let monthStart = calendar.date(
+                from: DateComponents(year: year, month: month, day: 1)
+              ) else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+
+        let firstEligibleDate = max(anchorDate, activatedAt)
+        let eligibleComponents = calendar.dateComponents(
+            [.year, .month],
+            from: firstEligibleDate
+        )
+        guard let eligibleMonthStart = calendar.date(from: eligibleComponents),
+              let elapsedMonths = calendar.dateComponents(
+                [.month],
+                from: monthStart,
+                to: eligibleMonthStart
+              ).month else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+
+        var result: [PendingOccurrence] = []
+        var offset = max(0, elapsedMonths)
+        var scannedMonthCount = 0
+        while scannedMonthCount < Self.maximumScannedMonths {
+            guard let targetMonth = calendar.date(
+                byAdding: .month,
+                value: offset,
+                to: monthStart
+            ), let dayRange = calendar.range(of: .day, in: .month, for: targetMonth) else {
+                throw DataValidationError.invalidRecurringExpenseRule
+            }
+            var components = calendar.dateComponents([.year, .month], from: targetMonth)
+            components.day = min(day, dayRange.count)
+            components.hour = anchor.hour ?? 0
+            components.minute = anchor.minute ?? 0
+            components.second = anchor.second ?? 0
+            guard let scheduledAt = calendar.date(from: components) else {
+                throw DataValidationError.invalidRecurringExpenseRule
+            }
+            if scheduledAt > endDate {
+                return PendingDateBatch(occurrences: result, hasMore: false)
+            }
+            let isInitialOccurrenceMonth = calendar.isDate(
+                scheduledAt,
+                equalTo: initialOccurrenceAt,
+                toGranularity: .month
+            )
+            if scheduledAt > activatedAt, !isInitialOccurrenceMonth {
+                let key = try occurrenceKey(
+                    ruleID: ruleID,
+                    scheduledAt: scheduledAt,
+                    timeZoneIdentifier: timeZoneIdentifier,
+                    calendarIdentifierRaw: calendarIdentifierRaw,
+                    calendar: sourceCalendar
+                )
+                if !existingOccurrenceKeys.contains(key) {
+                    guard result.count < limit else {
+                        return PendingDateBatch(occurrences: result, hasMore: true)
+                    }
+                    result.append(
+                        PendingOccurrence(
+                            scheduledAt: scheduledAt,
+                            occurrenceKey: key
+                        )
+                    )
+                }
+            }
+            offset += 1
+            scannedMonthCount += 1
+        }
+        throw DataValidationError.invalidRecurringExpenseRule
+    }
+
+    func occurrenceKey(
+        ruleID: UUID,
+        scheduledAt: Date,
+        timeZoneIdentifier: String,
+        calendarIdentifierRaw: String,
+        calendar sourceCalendar: Calendar
+    ) throws -> String {
+        guard let timeZone = TimeZone(identifier: timeZoneIdentifier) else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+        guard let identifier = Calendar.Identifier(
+            mindBudgetPersistedValue: calendarIdentifierRaw
+        ) else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+        var calendar = Calendar(identifier: identifier)
+        calendar.locale = sourceCalendar.locale
+        calendar.timeZone = timeZone
+        let components = calendar.dateComponents([.year, .month], from: scheduledAt)
+        guard let year = components.year, let month = components.month else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+        return "\(ruleID.uuidString.lowercased()):\(year)-\(String(format: "%02d", month))"
+    }
+}
+
 @ModelActor
 actor DataActor {
     func createExpense(_ draft: ExpenseDraft) throws -> ExpenseSummary {
         try commit {
             let expense = try insertExpense(draft)
+            if draft.isRecurring {
+                _ = try createOrUpdateRecurringRule(from: draft, existingRule: nil)
+            }
             return try expenseSummary(expense)
         }
     }
@@ -93,6 +343,7 @@ actor DataActor {
             try validateAccountingCurrency(draft.amount.currencyCode)
 
             let previousNormalizedName = expense.normalizedMerchantName
+            let wasRecurring = expense.isRecurring
             let nextNormalizedName = draft.merchantName.flatMap(normalizedMerchantName)
             expense.amountMinorUnits = draft.amount.minorUnits
             expense.currencyCode = draft.amount.currencyCode
@@ -111,6 +362,18 @@ actor DataActor {
             expense.isRecurring = draft.isRecurring
             expense.sourceRaw = draft.source.rawValue
             expense.allowMerchantIndexing = draft.allowMerchantIndexing
+
+            if draft.isRecurring {
+                let rule = try fetchRecurringRule(originExpenseID: id)
+                let occurrence = try fetchRecurringOccurrence(expenseID: id)
+                if rule != nil || occurrence == nil {
+                    _ = try createOrUpdateRecurringRule(from: draft, existingRule: rule)
+                }
+            } else if wasRecurring,
+                      let rule = try fetchRecurringRule(originExpenseID: id) {
+                rule.isActive = false
+                rule.updatedAt = draft.updatedAt
+            }
 
             if let previousNormalizedName, previousNormalizedName != nextNormalizedName {
                 try rebuildMerchant(normalizedName: previousNormalizedName)
@@ -199,6 +462,7 @@ actor DataActor {
             income.receivedAt = draft.receivedAt
             income.receivedTimeZoneIdentifier = draft.receivedTimeZoneIdentifier
             income.updatedAt = draft.updatedAt
+            try upsertIncomeAllocation(for: draft)
             return try incomeSummary(income)
         }
     }
@@ -207,7 +471,10 @@ actor DataActor {
         let descriptor = FetchDescriptor<Income>(
             sortBy: [SortDescriptor(\Income.receivedAt, order: .reverse)]
         )
-        return try modelContext.fetch(descriptor).map { try incomeSummary($0) }
+        let allocations = try incomeAllocationMap()
+        return try modelContext.fetch(descriptor).map {
+            try incomeSummary($0, allocation: allocations[$0.id])
+        }
     }
 
     func fetchIncomeDetail(id: UUID) throws -> IncomeDetail? {
@@ -222,14 +489,17 @@ actor DataActor {
                 SortDescriptor(\Income.createdAt),
             ]
         )
+        let allocations = try incomeAllocationMap()
         return try modelContext.fetch(descriptor).map { income in
-            let summary = try incomeSummary(income)
+            let summary = try incomeSummary(income, allocation: allocations[income.id])
             return IncomeExportRecord(
                 id: summary.id,
                 amount: summary.amount,
                 category: summary.category,
                 sourceName: summary.sourceName,
                 note: income.note,
+                allocatedToBudgetMinorUnits: summary.allocatedToBudgetMinorUnits,
+                allocatedToSavingsMinorUnits: summary.allocatedToSavingsMinorUnits,
                 receivedAt: summary.receivedAt,
                 receivedTimeZoneIdentifier: summary.receivedTimeZoneIdentifier,
                 createdAt: summary.createdAt,
@@ -256,7 +526,224 @@ actor DataActor {
             guard let income = try fetchIncome(id: id) else {
                 throw DataValidationError.modelNotFound
             }
+            if let allocation = try fetchIncomeAllocation(incomeID: id) {
+                modelContext.delete(allocation)
+            }
             modelContext.delete(income)
+        }
+    }
+
+    func saveSavingsGoal(_ draft: SavingsGoalDraft) throws -> SavingsGoalSummary {
+        try commit {
+            try validateSavingsGoal(draft)
+            try validateAccountingCurrency(draft.target.currencyCode)
+            let goals = try modelContext.fetch(FetchDescriptor<SavingsGoal>())
+            let goal: SavingsGoal
+            if let existing = goals.first {
+                guard existing.id == draft.id else {
+                    throw DataValidationError.identityMismatch
+                }
+                existing.targetMinorUnits = draft.target.minorUnits
+                existing.startingBalanceMinorUnits = draft.startingBalance.minorUnits
+                existing.currencyCode = draft.target.currencyCode
+                existing.updatedAt = draft.updatedAt
+                goal = existing
+            } else {
+                goal = SavingsGoal(
+                    id: draft.id,
+                    targetMinorUnits: draft.target.minorUnits,
+                    startingBalanceMinorUnits: draft.startingBalance.minorUnits,
+                    currencyCode: draft.target.currencyCode,
+                    createdAt: draft.createdAt,
+                    updatedAt: draft.updatedAt
+                )
+                modelContext.insert(goal)
+            }
+            return try savingsGoalSummary(goal)
+        }
+    }
+
+    func fetchSavingsGoalSummary() throws -> SavingsGoalSummary? {
+        guard let goal = try modelContext.fetch(FetchDescriptor<SavingsGoal>()).first else {
+            return nil
+        }
+        return try savingsGoalSummary(goal)
+    }
+
+    func deleteSavingsGoal(id: UUID) throws {
+        try commit {
+            let descriptor = FetchDescriptor<SavingsGoal>(
+                predicate: #Predicate { goal in goal.id == id }
+            )
+            guard let goal = try modelContext.fetch(descriptor).first else {
+                throw DataValidationError.modelNotFound
+            }
+            modelContext.delete(goal)
+        }
+    }
+
+    func fetchRecurringFixedExpenseRuleSummaries() throws -> [RecurringFixedExpenseRuleSummary] {
+        let descriptor = FetchDescriptor<RecurringFixedExpenseRule>(
+            sortBy: [SortDescriptor(\.anchorDate)]
+        )
+        return try modelContext.fetch(descriptor).map { try recurringRuleSummary($0) }
+    }
+
+    func fetchRecurringFixedExpenseRuleDetail(
+        id: UUID
+    ) throws -> RecurringFixedExpenseRuleDetail? {
+        guard let rule = try fetchRecurringRule(id: id) else { return nil }
+        return RecurringFixedExpenseRuleDetail(
+            summary: try recurringRuleSummary(rule),
+            note: rule.note
+        )
+    }
+
+    func updateRecurringFixedExpenseRule(
+        _ draft: RecurringFixedExpenseRuleDraft
+    ) throws -> RecurringFixedExpenseRuleSummary {
+        try commit {
+            guard let rule = try fetchRecurringRule(id: draft.id) else {
+                throw DataValidationError.modelNotFound
+            }
+            guard rule.originExpenseID == draft.originExpenseID else {
+                throw DataValidationError.identityMismatch
+            }
+            try validateRecurringRule(draft)
+            rule.amountMinorUnits = draft.amount.minorUnits
+            rule.currencyCode = draft.amount.currencyCode
+            rule.categoryRaw = draft.category.rawValue
+            rule.merchantName = draft.merchantName
+            rule.note = draft.note
+            rule.anchorDate = draft.anchorDate
+            rule.timeZoneIdentifier = draft.timeZoneIdentifier
+            rule.calendarIdentifierRaw = draft.calendarIdentifierRaw
+            if !rule.isActive, draft.isActive {
+                rule.activeSince = draft.updatedAt
+            }
+            rule.isActive = draft.isActive
+            rule.updatedAt = draft.updatedAt
+            return try recurringRuleSummary(rule)
+        }
+    }
+
+    func setRecurringFixedExpenseRuleActive(
+        id: UUID,
+        isActive: Bool,
+        at date: Date
+    ) throws -> RecurringFixedExpenseRuleSummary {
+        try commit {
+            guard let rule = try fetchRecurringRule(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            if !rule.isActive, isActive {
+                rule.activeSince = date
+            }
+            rule.isActive = isActive
+            rule.updatedAt = date
+            return try recurringRuleSummary(rule)
+        }
+    }
+
+    func deleteRecurringFixedExpenseRule(id: UUID) throws {
+        try commit {
+            guard let rule = try fetchRecurringRule(id: id) else {
+                throw DataValidationError.modelNotFound
+            }
+            modelContext.delete(rule)
+        }
+    }
+
+    func reconcileRecurringFixedExpenses(
+        through date: Date,
+        calendar: Calendar
+    ) throws -> RecurringExpenseReconciliationResult {
+        try commit {
+            let rules = try modelContext.fetch(
+                FetchDescriptor<RecurringFixedExpenseRule>(
+                    predicate: #Predicate { rule in rule.isActive }
+                )
+            )
+            let existingKeys = Set(
+                try modelContext.fetch(FetchDescriptor<RecurringExpenseOccurrence>())
+                    .map(\.occurrenceKey)
+            )
+            let schedule = MonthlyRecurringSchedule()
+            var pending: [PendingRecurringOccurrence] = []
+            var hasMorePerRule = false
+            for rule in rules {
+                let summary = try recurringRuleSummary(rule)
+                let dateBatch = try schedule.pendingDates(
+                    ruleID: summary.id,
+                    anchorDate: summary.anchorDate,
+                    initialOccurrenceAt: summary.initialOccurrenceAt,
+                    activatedAt: summary.activeSince,
+                    through: date,
+                    timeZoneIdentifier: summary.timeZoneIdentifier,
+                    calendarIdentifierRaw: summary.calendarIdentifierRaw,
+                    calendar: calendar,
+                    existingOccurrenceKeys: existingKeys
+                )
+                hasMorePerRule = hasMorePerRule || dateBatch.hasMore
+                for occurrence in dateBatch.occurrences {
+                    pending.append(
+                        PendingRecurringOccurrence(
+                            rule: summary,
+                            note: rule.note,
+                            scheduledAt: occurrence.scheduledAt,
+                            occurrenceKey: occurrence.occurrenceKey
+                        )
+                    )
+                }
+            }
+
+            pending.sort { lhs, rhs in
+                lhs.scheduledAt == rhs.scheduledAt
+                    ? lhs.occurrenceKey < rhs.occurrenceKey
+                    : lhs.scheduledAt < rhs.scheduledAt
+            }
+            let selected = Array(
+                pending.prefix(MonthlyRecurringSchedule.maximumGeneratedOccurrences)
+            )
+            for occurrence in selected {
+                let expenseID = UUID()
+                let timestamp = date
+                _ = try insertExpense(
+                    ExpenseDraft(
+                        id: expenseID,
+                        amount: occurrence.rule.amount,
+                        category: occurrence.rule.category,
+                        bucket: .fixed,
+                        merchantName: occurrence.rule.merchantName,
+                        note: occurrence.note,
+                        spentAt: occurrence.scheduledAt,
+                        spentTimeZoneIdentifier: occurrence.rule.timeZoneIdentifier,
+                        createdAt: timestamp,
+                        updatedAt: timestamp,
+                        paymentMethod: nil,
+                        emotionTag: nil,
+                        purchaseReason: .planned,
+                        isPlanned: true,
+                        isRecurring: true,
+                        source: .manual,
+                        allowMerchantIndexing: false
+                    )
+                )
+                modelContext.insert(
+                    RecurringExpenseOccurrence(
+                        id: UUID(),
+                        occurrenceKey: occurrence.occurrenceKey,
+                        ruleID: occurrence.rule.id,
+                        expenseID: expenseID,
+                        scheduledAt: occurrence.scheduledAt,
+                        createdAt: timestamp
+                    )
+                )
+            }
+            return RecurringExpenseReconciliationResult(
+                insertedCount: selected.count,
+                hasMore: hasMorePerRule || pending.count > selected.count
+            )
         }
     }
 
@@ -273,6 +760,10 @@ actor DataActor {
             )
             for wishItem in try modelContext.fetch(linkedWishDescriptor) {
                 wishItem.purchasedExpenseId = nil
+            }
+            if let rule = try fetchRecurringRule(originExpenseID: id) {
+                rule.isActive = false
+                rule.updatedAt = Date()
             }
 
             let normalizedMerchantName = expense.normalizedMerchantName
@@ -362,6 +853,19 @@ actor DataActor {
     func fetchBudgetPlanSummaries() throws -> [BudgetPlanSummary] {
         let descriptor = FetchDescriptor<BudgetPlan>(sortBy: [SortDescriptor(\BudgetPlan.cycleStart)])
         return try modelContext.fetch(descriptor).map { try budgetPlanSummary($0) }
+    }
+
+    /// Returns only an already-persisted plan. Income entry must not create budget cycles
+    /// merely because the user previews or saves a historical income date.
+    func fetchBudgetPlanCovering(date: Date) throws -> BudgetPlanSummary? {
+        var descriptor = FetchDescriptor<BudgetPlan>(
+            predicate: #Predicate { plan in
+                plan.cycleStart <= date && date < plan.cycleEnd
+            }
+        )
+        descriptor.fetchLimit = 1
+        guard let plan = try modelContext.fetch(descriptor).first else { return nil }
+        return try budgetPlanSummary(plan)
     }
 
     func previewPlanCoverage(
@@ -1052,7 +1556,11 @@ actor DataActor {
             spendingInsights: try modelContext.fetchCount(FetchDescriptor<SpendingInsight>()),
             reminderEvents: try modelContext.fetchCount(FetchDescriptor<ReminderEvent>()),
             merchants: try modelContext.fetchCount(FetchDescriptor<Merchant>()),
-            reflectionLogs: try modelContext.fetchCount(FetchDescriptor<ReflectionLog>())
+            reflectionLogs: try modelContext.fetchCount(FetchDescriptor<ReflectionLog>()),
+            savingsGoals: try modelContext.fetchCount(FetchDescriptor<SavingsGoal>()),
+            recurringRules: try modelContext.fetchCount(FetchDescriptor<RecurringFixedExpenseRule>()),
+            recurringOccurrences: try modelContext.fetchCount(FetchDescriptor<RecurringExpenseOccurrence>()),
+            incomeAllocations: try modelContext.fetchCount(FetchDescriptor<IncomeAllocation>())
         )
     }
 
@@ -1131,6 +1639,10 @@ actor DataActor {
     }
 
     private func deleteAllLocalModels() throws {
+        for model in try modelContext.fetch(FetchDescriptor<RecurringExpenseOccurrence>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<RecurringFixedExpenseRule>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<SavingsGoal>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<IncomeAllocation>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<ReminderEvent>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<SpendingInsight>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<ReflectionLog>()) { modelContext.delete(model) }
@@ -1191,6 +1703,7 @@ actor DataActor {
             updatedAt: draft.updatedAt
         )
         modelContext.insert(income)
+        try upsertIncomeAllocation(for: draft)
         return income
     }
 
@@ -1322,6 +1835,75 @@ actor DataActor {
         guard TimeZone(identifier: draft.receivedTimeZoneIdentifier) != nil else {
             throw DataValidationError.invalidTimeZone(draft.receivedTimeZoneIdentifier)
         }
+        try validateIncomeAllocation(
+            budgetPlanID: draft.budgetPlanID,
+            allocatedToBudgetMinorUnits: draft.allocatedToBudgetMinorUnits,
+            allocatedToSavingsMinorUnits: draft.allocatedToSavingsMinorUnits,
+            incomeAmountMinorUnits: draft.amount.minorUnits,
+            currencyCode: draft.amount.currencyCode,
+            receivedAt: draft.receivedAt
+        )
+    }
+
+    private func validateIncomeAllocation(
+        budgetPlanID: UUID?,
+        allocatedToBudgetMinorUnits: Int64,
+        allocatedToSavingsMinorUnits: Int64,
+        incomeAmountMinorUnits: Int64,
+        currencyCode: String,
+        receivedAt: Date
+    ) throws {
+        guard allocatedToBudgetMinorUnits >= 0,
+              allocatedToSavingsMinorUnits >= 0 else {
+            throw DataValidationError.invalidIncomeAllocation
+        }
+        let (allocated, overflow) = allocatedToBudgetMinorUnits.addingReportingOverflow(
+            allocatedToSavingsMinorUnits
+        )
+        guard !overflow, allocated <= incomeAmountMinorUnits else {
+            throw DataValidationError.invalidIncomeAllocation
+        }
+        if allocatedToBudgetMinorUnits == 0 {
+            guard budgetPlanID == nil else {
+                throw DataValidationError.invalidIncomeAllocation
+            }
+            return
+        }
+        guard let budgetPlanID,
+              let plan = try fetchBudgetPlan(id: budgetPlanID),
+              plan.currencyCode == currencyCode,
+              plan.cycleStart <= receivedAt,
+              receivedAt < plan.cycleEnd else {
+            throw DataValidationError.invalidIncomeAllocation
+        }
+    }
+
+    private func validateSavingsGoal(_ draft: SavingsGoalDraft) throws {
+        guard draft.target.currencyCode == draft.startingBalance.currencyCode,
+              draft.target.minorUnits > 0,
+              draft.startingBalance.minorUnits >= 0,
+              draft.target.minorUnits <= Money.maximumMinorUnits(
+                for: draft.target.currencyCode
+              ),
+              draft.startingBalance.minorUnits <= Money.maximumMinorUnits(
+                for: draft.target.currencyCode
+              ) else {
+            throw DataValidationError.invalidSavingsGoal
+        }
+    }
+
+    private func validateRecurringRule(_ draft: RecurringFixedExpenseRuleDraft) throws {
+        guard draft.amount.minorUnits > 0,
+              draft.amount.minorUnits <= Money.maximumMinorUnits(
+                for: draft.amount.currencyCode
+              ),
+              TimeZone(identifier: draft.timeZoneIdentifier) != nil,
+              Calendar.Identifier(
+                mindBudgetPersistedValue: draft.calendarIdentifierRaw
+              ) != nil else {
+            throw DataValidationError.invalidRecurringExpenseRule
+        }
+        try validateAccountingCurrency(draft.amount.currencyCode)
     }
 
     private func validateOpenWishlistCapacity(
@@ -1533,6 +2115,28 @@ actor DataActor {
                 actual: currencyCode
             )
         }
+
+        var savingsGoalDescriptor = FetchDescriptor<SavingsGoal>(
+            predicate: #Predicate { $0.currencyCode != currencyCode }
+        )
+        savingsGoalDescriptor.fetchLimit = 1
+        if let existing = try modelContext.fetch(savingsGoalDescriptor).first {
+            throw DataValidationError.accountingCurrencyMismatch(
+                expected: existing.currencyCode,
+                actual: currencyCode
+            )
+        }
+
+        var recurringRuleDescriptor = FetchDescriptor<RecurringFixedExpenseRule>(
+            predicate: #Predicate { $0.currencyCode != currencyCode }
+        )
+        recurringRuleDescriptor.fetchLimit = 1
+        if let existing = try modelContext.fetch(recurringRuleDescriptor).first {
+            throw DataValidationError.accountingCurrencyMismatch(
+                expected: existing.currencyCode,
+                actual: currencyCode
+            )
+        }
     }
 
     private func fetchExpense(id: UUID) throws -> Expense? {
@@ -1545,6 +2149,137 @@ actor DataActor {
         var descriptor = FetchDescriptor<Income>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
+    }
+
+    private func fetchIncomeAllocation(incomeID: UUID) throws -> IncomeAllocation? {
+        var descriptor = FetchDescriptor<IncomeAllocation>(
+            predicate: #Predicate { allocation in allocation.incomeID == incomeID }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func incomeAllocationMap() throws -> [UUID: IncomeAllocation] {
+        try modelContext.fetch(FetchDescriptor<IncomeAllocation>()).reduce(into: [:]) {
+            result, allocation in
+            guard result.updateValue(allocation, forKey: allocation.incomeID) == nil else {
+                throw DataValidationError.invalidIncomeAllocation
+            }
+        }
+    }
+
+    private func fetchRecurringOccurrence(expenseID: UUID) throws -> RecurringExpenseOccurrence? {
+        var descriptor = FetchDescriptor<RecurringExpenseOccurrence>(
+            predicate: #Predicate { occurrence in occurrence.expenseID == expenseID }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func upsertIncomeAllocation(for draft: IncomeDraft) throws {
+        let existing = try fetchIncomeAllocation(incomeID: draft.id)
+        let isEmpty = draft.allocatedToBudgetMinorUnits == 0
+            && draft.allocatedToSavingsMinorUnits == 0
+        if isEmpty {
+            if let existing { modelContext.delete(existing) }
+            return
+        }
+        if let existing {
+            existing.budgetPlanID = draft.budgetPlanID
+            existing.allocatedToBudgetMinorUnits = draft.allocatedToBudgetMinorUnits
+            existing.allocatedToSavingsMinorUnits = draft.allocatedToSavingsMinorUnits
+            existing.updatedAt = draft.updatedAt
+            return
+        }
+        modelContext.insert(
+            IncomeAllocation(
+                id: UUID(),
+                incomeID: draft.id,
+                budgetPlanID: draft.budgetPlanID,
+                allocatedToBudgetMinorUnits: draft.allocatedToBudgetMinorUnits,
+                allocatedToSavingsMinorUnits: draft.allocatedToSavingsMinorUnits,
+                createdAt: draft.createdAt,
+                updatedAt: draft.updatedAt
+            )
+        )
+    }
+
+    private func fetchRecurringRule(id: UUID) throws -> RecurringFixedExpenseRule? {
+        var descriptor = FetchDescriptor<RecurringFixedExpenseRule>(
+            predicate: #Predicate { rule in rule.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func fetchRecurringRule(originExpenseID: UUID) throws -> RecurringFixedExpenseRule? {
+        var descriptor = FetchDescriptor<RecurringFixedExpenseRule>(
+            predicate: #Predicate { rule in rule.originExpenseID == originExpenseID }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    @discardableResult
+    private func createOrUpdateRecurringRule(
+        from expense: ExpenseDraft,
+        existingRule: RecurringFixedExpenseRule?
+    ) throws -> RecurringFixedExpenseRule {
+        let draft = RecurringFixedExpenseRuleDraft(
+            id: existingRule?.id ?? UUID(),
+            originExpenseID: expense.id,
+            amount: expense.amount,
+            category: expense.category,
+            merchantName: expense.merchantName,
+            note: expense.note,
+            initialOccurrenceAt: existingRule?.initialOccurrenceAt ?? expense.spentAt,
+            anchorDate: expense.spentAt,
+            timeZoneIdentifier: expense.spentTimeZoneIdentifier,
+            calendarIdentifierRaw: expense.recurrenceCalendarIdentifier?
+                .mindBudgetPersistedValue
+                ?? existingRule?.calendarIdentifierRaw
+                ?? Calendar.current.identifier.mindBudgetPersistedValue,
+            isActive: true,
+            activeSince: existingRule?.activeSince ?? expense.updatedAt,
+            createdAt: existingRule?.createdAt ?? expense.updatedAt,
+            updatedAt: expense.updatedAt
+        )
+        try validateRecurringRule(draft)
+        if let existingRule {
+            existingRule.amountMinorUnits = draft.amount.minorUnits
+            existingRule.currencyCode = draft.amount.currencyCode
+            existingRule.categoryRaw = draft.category.rawValue
+            existingRule.merchantName = draft.merchantName
+            existingRule.note = draft.note
+            existingRule.anchorDate = draft.anchorDate
+            existingRule.timeZoneIdentifier = draft.timeZoneIdentifier
+            existingRule.calendarIdentifierRaw = draft.calendarIdentifierRaw
+            if !existingRule.isActive {
+                existingRule.activeSince = draft.updatedAt
+            }
+            existingRule.isActive = true
+            existingRule.updatedAt = draft.updatedAt
+            return existingRule
+        }
+        let rule = RecurringFixedExpenseRule(
+            id: draft.id,
+            originExpenseID: draft.originExpenseID,
+            amountMinorUnits: draft.amount.minorUnits,
+            currencyCode: draft.amount.currencyCode,
+            categoryRaw: draft.category.rawValue,
+            merchantName: draft.merchantName,
+            note: draft.note,
+            initialOccurrenceAt: draft.initialOccurrenceAt,
+            anchorDate: draft.anchorDate,
+            timeZoneIdentifier: draft.timeZoneIdentifier,
+            calendarIdentifierRaw: draft.calendarIdentifierRaw,
+            isActive: true,
+            activeSince: draft.activeSince,
+            createdAt: draft.createdAt,
+            updatedAt: draft.updatedAt
+        )
+        modelContext.insert(rule)
+        return rule
     }
 
     private func fetchBudgetPlan(id: UUID) throws -> BudgetPlan? {
@@ -1723,7 +2458,28 @@ actor DataActor {
     }
 
     private func incomeSummary(_ income: Income) throws -> IncomeSummary {
-        IncomeSummary(
+        try incomeSummary(
+            income,
+            allocation: fetchIncomeAllocation(incomeID: income.id)
+        )
+    }
+
+    private func incomeSummary(
+        _ income: Income,
+        allocation: IncomeAllocation?
+    ) throws -> IncomeSummary {
+        let allocatedToBudget = allocation?.allocatedToBudgetMinorUnits ?? 0
+        let allocatedToSavings = allocation?.allocatedToSavingsMinorUnits ?? 0
+        let budgetPlanID = allocation?.budgetPlanID
+        try validateIncomeAllocation(
+            budgetPlanID: budgetPlanID,
+            allocatedToBudgetMinorUnits: allocatedToBudget,
+            allocatedToSavingsMinorUnits: allocatedToSavings,
+            incomeAmountMinorUnits: income.amountMinorUnits,
+            currencyCode: income.currencyCode,
+            receivedAt: income.receivedAt
+        )
+        return IncomeSummary(
             id: income.id,
             amount: try persistedMoney(
                 minorUnits: income.amountMinorUnits,
@@ -1739,6 +2495,9 @@ actor DataActor {
                 field: "categoryRaw"
             ),
             sourceName: income.sourceName,
+            budgetPlanID: budgetPlanID,
+            allocatedToBudgetMinorUnits: allocatedToBudget,
+            allocatedToSavingsMinorUnits: allocatedToSavings,
             receivedAt: income.receivedAt,
             receivedTimeZoneIdentifier: income.receivedTimeZoneIdentifier,
             createdAt: income.createdAt,
@@ -1752,6 +2511,43 @@ actor DataActor {
 
     private func budgetPlanSummary(_ plan: BudgetPlan) throws -> BudgetPlanSummary {
         try validatePersistedCurrency(plan.currencyCode, entity: "BudgetPlan", id: plan.id)
+        let start = plan.cycleStart
+        let end = plan.cycleEnd
+        let incomes = try modelContext.fetch(
+            FetchDescriptor<Income>(
+                predicate: #Predicate { income in
+                    income.receivedAt >= start && income.receivedAt < end
+                }
+            )
+        )
+        let allocations = try incomeAllocationMap()
+        var recordedIncome: Int64 = 0
+        var allocatedIncome: Int64 = 0
+        var allocatedSavings: Int64 = 0
+        var observedTargetedIncomeIDs: Set<UUID> = []
+        for income in incomes {
+            let summary = try incomeSummary(income, allocation: allocations[income.id])
+            recordedIncome = try checkedDataAdd(recordedIncome, income.amountMinorUnits)
+            if summary.budgetPlanID == plan.id {
+                allocatedIncome = try checkedDataAdd(
+                    allocatedIncome,
+                    summary.allocatedToBudgetMinorUnits
+                )
+                observedTargetedIncomeIDs.insert(income.id)
+            }
+            allocatedSavings = try checkedDataAdd(
+                allocatedSavings,
+                summary.allocatedToSavingsMinorUnits
+            )
+        }
+        let persistedTargetedIncomeIDs = Set(
+            allocations.values.compactMap { allocation in
+                allocation.budgetPlanID == plan.id ? allocation.incomeID : nil
+            }
+        )
+        guard observedTargetedIncomeIDs == persistedTargetedIncomeIDs else {
+            throw DataValidationError.invalidIncomeAllocation
+        }
         return BudgetPlanSummary(
             id: plan.id,
             cycleStart: plan.cycleStart,
@@ -1761,6 +2557,9 @@ actor DataActor {
             totalBudgetMinorUnits: plan.totalBudgetMinorUnits,
             fixedExpensesMinorUnits: plan.fixedExpensesMinorUnits,
             savingGoalMinorUnits: plan.savingGoalMinorUnits,
+            recordedIncomeMinorUnits: recordedIncome,
+            allocatedIncomeMinorUnits: allocatedIncome,
+            allocatedSavingsMinorUnits: allocatedSavings,
             categoryBudgets: try plan.categoryBudgets.map { categoryBudget in
                 CategoryBudgetSummary(
                     id: categoryBudget.id,
@@ -1776,6 +2575,88 @@ actor DataActor {
                 )
             }
         )
+    }
+
+    private func savingsGoalSummary(_ goal: SavingsGoal) throws -> SavingsGoalSummary {
+        let target = try persistedMoney(
+            minorUnits: goal.targetMinorUnits,
+            currencyCode: goal.currencyCode,
+            entity: "SavingsGoal",
+            id: goal.id
+        )
+        guard goal.startingBalanceMinorUnits >= 0 else {
+            throw DataValidationError.invalidSavingsGoal
+        }
+        var allocated: Int64 = 0
+        let allocations = try incomeAllocationMap()
+        for income in try modelContext.fetch(FetchDescriptor<Income>()) {
+            let summary = try incomeSummary(income, allocation: allocations[income.id])
+            guard summary.amount.currencyCode == goal.currencyCode else {
+                throw DataValidationError.accountingCurrencyMismatch(
+                    expected: goal.currencyCode,
+                    actual: summary.amount.currencyCode
+                )
+            }
+            allocated = try checkedDataAdd(
+                allocated,
+                summary.allocatedToSavingsMinorUnits
+            )
+        }
+        let saved = try checkedDataAdd(goal.startingBalanceMinorUnits, allocated)
+        let remaining = target.minorUnits > saved ? target.minorUnits - saved : 0
+        return SavingsGoalSummary(
+            id: goal.id,
+            target: target,
+            startingBalance: Money(
+                minorUnits: goal.startingBalanceMinorUnits,
+                currencyCode: goal.currencyCode
+            ),
+            incomeAllocatedToSavings: Money(
+                minorUnits: allocated,
+                currencyCode: goal.currencyCode
+            ),
+            savedTotal: Money(minorUnits: saved, currencyCode: goal.currencyCode),
+            remaining: Money(minorUnits: remaining, currencyCode: goal.currencyCode),
+            createdAt: goal.createdAt,
+            updatedAt: goal.updatedAt
+        )
+    }
+
+    private func recurringRuleSummary(
+        _ rule: RecurringFixedExpenseRule
+    ) throws -> RecurringFixedExpenseRuleSummary {
+        RecurringFixedExpenseRuleSummary(
+            id: rule.id,
+            originExpenseID: rule.originExpenseID,
+            amount: try persistedMoney(
+                minorUnits: rule.amountMinorUnits,
+                currencyCode: rule.currencyCode,
+                entity: "RecurringFixedExpenseRule",
+                id: rule.id
+            ),
+            category: try persistedEnum(
+                ExpenseCategory.self,
+                rawValue: rule.categoryRaw,
+                entity: "RecurringFixedExpenseRule",
+                id: rule.id,
+                field: "categoryRaw"
+            ),
+            merchantName: rule.merchantName,
+            initialOccurrenceAt: rule.initialOccurrenceAt,
+            anchorDate: rule.anchorDate,
+            timeZoneIdentifier: rule.timeZoneIdentifier,
+            calendarIdentifierRaw: rule.calendarIdentifierRaw,
+            isActive: rule.isActive,
+            activeSince: rule.activeSince,
+            createdAt: rule.createdAt,
+            updatedAt: rule.updatedAt
+        )
+    }
+
+    private func checkedDataAdd(_ lhs: Int64, _ rhs: Int64) throws -> Int64 {
+        let (result, overflow) = lhs.addingReportingOverflow(rhs)
+        guard !overflow else { throw DataValidationError.invalidAmount }
+        return result
     }
 
     private func wishItemSummary(_ wishItem: WishItem) throws -> WishItemSummary {

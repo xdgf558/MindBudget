@@ -78,6 +78,7 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published var merchantName = ""
     @Published var note = ""
     @Published var isPlanned: Bool
+    @Published var isRecurring: Bool
     @Published var emotionTag: EmotionTag?
     @Published var purchaseReason: PurchaseReason?
     @Published private(set) var inlineImpact: InlineBudgetImpact?
@@ -128,6 +129,7 @@ final class ExpenseFormViewModel: ObservableObject {
         merchantName = summary?.merchantName ?? ""
         note = existingExpense?.note ?? ""
         isPlanned = summary?.isPlanned ?? (wishlistSeed != nil)
+        isRecurring = summary?.isRecurring ?? false
         emotionTag = summary?.emotionTag ?? wishlistSeed?.emotionTag
         purchaseReason = summary?.purchaseReason ?? wishlistSeed?.purchaseReason
     }
@@ -428,7 +430,7 @@ final class ExpenseFormViewModel: ObservableObject {
         let saved = await save(
             dataActor: dataActor,
             currencyCode: currencyCode,
-            bucket: bucket,
+            bucket: isRecurring ? .fixed : bucket,
             locale: locale,
             now: now,
             timeZone: timeZone,
@@ -461,7 +463,7 @@ final class ExpenseFormViewModel: ObservableObject {
         let saved = await save(
             dataActor: dataActor,
             currencyCode: currencyCode,
-            bucket: bucket,
+            bucket: isRecurring ? .fixed : bucket,
             locale: locale,
             now: now,
             timeZone: timeZone,
@@ -558,7 +560,7 @@ final class ExpenseFormViewModel: ObservableObject {
             id: existingSummary?.id ?? UUID(),
             amount: amount,
             category: category,
-            bucket: bucket,
+            bucket: isRecurring ? .fixed : bucket,
             merchantName: optionalTrimmed(merchantName),
             note: optionalTrimmed(note),
             spentAt: spentAt,
@@ -569,9 +571,10 @@ final class ExpenseFormViewModel: ObservableObject {
             emotionTag: emotionTag,
             purchaseReason: purchaseReason,
             isPlanned: wishlistSeed == nil ? isPlanned : true,
-            isRecurring: existingSummary?.isRecurring ?? false,
+            isRecurring: isRecurring,
             source: existingSummary?.source ?? (wishlistSeed == nil ? .manual : .wishlistConversion),
-            allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false
+            allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false,
+            recurrenceCalendarIdentifier: calendar.identifier
         )
         do {
             let coverage = try await dataActor.ensurePlanCovering(
@@ -832,6 +835,7 @@ struct AddExpenseView: View {
         .onChange(of: viewModel.category) { _, _ in recalculate() }
         .onChange(of: viewModel.emotionTag) { _, _ in recalculate() }
         .onChange(of: viewModel.purchaseReason) { _, _ in recalculate() }
+        .onChange(of: viewModel.isRecurring) { _, _ in recalculate() }
         .task(id: viewModel.inlineInsight?.dedupeKey) {
             guard viewModel.inlineInsight != nil else { return }
             await viewModel.recordInlinePresentationIfNeeded(
@@ -853,7 +857,9 @@ struct AddExpenseView: View {
                             eventID: presentation.id,
                             dataActor: dataActor,
                             currencyCode: accountingCurrencyCode,
-                            bucket: settings.bucket(for: viewModel.category),
+                            bucket: viewModel.isRecurring
+                                ? .fixed
+                                : settings.bucket(for: viewModel.category),
                             locale: locale,
                             now: Date(),
                             timeZone: .current,
@@ -1123,6 +1129,15 @@ struct AddExpenseView: View {
             Toggle("expense.planned", isOn: $viewModel.isPlanned)
                 .disabled(wishlistSeed != nil)
                 .tint(theme.accent)
+            Toggle("expense.recurring.monthly", isOn: $viewModel.isRecurring)
+                .disabled(wishlistSeed != nil)
+                .tint(theme.accent)
+                .accessibilityIdentifier("expense.recurring.monthly")
+            if viewModel.isRecurring {
+                Text("expense.recurring.monthly.help")
+                    .font(.footnote)
+                    .foregroundStyle(theme.inkSecondary)
+            }
         }
         .budgetCard(cornerRadius: 18, contentPadding: 16)
     }
@@ -1185,7 +1200,9 @@ struct AddExpenseView: View {
             let result = await viewModel.submit(
                 dataActor: dataActor,
                 currencyCode: accountingCurrencyCode,
-                bucket: settings.bucket(for: viewModel.category),
+                bucket: viewModel.isRecurring
+                    ? .fixed
+                    : settings.bucket(for: viewModel.category),
                 aiEnhancementEnabled: settings.enableAIEnhancement,
                 locale: locale,
                 now: Date(),
@@ -1250,7 +1267,9 @@ struct AddExpenseView: View {
         viewModel.recalculate(
             currencyCode: accountingCurrencyCode,
             locale: locale,
-            bucket: settings.bucket(for: viewModel.category),
+            bucket: viewModel.isRecurring
+                ? .fixed
+                : settings.bucket(for: viewModel.category),
             calendar: calendar
         )
     }

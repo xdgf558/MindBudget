@@ -6,7 +6,54 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No additional user-visible changes are staged beyond the `0.9.2 (4)` replacement candidate below.
+No additional user-visible changes are staged beyond the `0.9.4 (5)` internal candidate below.
+
+## 0.9.4 (5) — 2026-08-08 — Internal TestFlight candidate
+
+### Added
+
+- Added an in-app language choice under Settings > Appearance with Follow System, Simplified
+  Chinese, and English. SwiftUI, money/date formatting, deterministic Ask/templates, local
+  notifications, Spotlight copy, search labels, and exported filenames follow the selected app
+  language without changing the iPhone language.
+- Added explicit per-income allocation to the current cycle's spending budget and/or the separate
+  total savings goal. Recording income by itself still changes neither one, and the two allocations
+  can never exceed the income amount.
+- Added one cross-cycle total savings goal with an owner-entered starting balance and progress from
+  confirmed income allocations, without repurposing the existing per-cycle savings reservation.
+- Added confirmed monthly fixed-expense rules from manual expense entry, including future-only
+  edit, pause, resume, and delete controls; calendar/time-zone month-end handling; stable occurrence
+  identities; duplicate prevention; and one-time catch-up when the app next opens.
+- Added SwiftData Schema V3 with independent income-allocation, savings-goal, recurring-rule, and
+  occurrence records. Schema V2 income rows migrate with zero allocation rather than an invented
+  spending or savings decision.
+
+### Changed
+
+- Current-cycle budget calculations now include only the exact income amount explicitly allocated
+  to spending; income allocated to savings remains separate and continues progress across cycles.
+- CSV export discloses the two exact income-allocation minor-unit fields, and verified Delete All
+  includes every new Schema V3 record. The two allocation columns are appended after the existing
+  unified-ledger columns, so saved spreadsheet/import templates should be updated for the extended
+  header without shifting earlier column positions. Income-only rows leave expense-only fields
+  empty instead of inventing values that do not exist on the income model.
+- Replaced all three App Icon appearances with the owner-approved enlarged budget-pace mark. The
+  standard, dark, and tinted resources remain opaque, square, and free of a pre-rendered corner
+  mask so iOS can apply its own presentation.
+- The next internal candidate identifies itself as version `0.9.4`, build `5`; older in-app update
+  notes remain available only inside the collapsed history section.
+
+### Fixed
+
+- App-language changes now update the current interface immediately without requiring a relaunch.
+- Income allocated to spending now targets the exact saved budget cycle containing its received
+  date. Historical income cannot silently change the current cycle or allocate into a missing one.
+- Editing a monthly recurring rule into a new month no longer skips that month's first occurrence,
+  and each atomic catch-up now saves at most the globally oldest 120 pending occurrences across all
+  rules. Larger backlogs continue on later foreground passes instead of failing forever, and
+  Settings now explains the remaining work as progress instead of leaving it invisible.
+- Skin changes now update the complete interface immediately without waiting for navigation,
+  another setting change, or an app relaunch.
 
 ## 0.9.2 (4) — 2026-08-08 — Replacement internal TestFlight candidate
 

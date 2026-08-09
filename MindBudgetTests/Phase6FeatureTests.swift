@@ -10,9 +10,34 @@ struct Phase6FeatureTests {
         let result = CSVExporter().export([])
         let bytes = [UInt8](result.data)
         let text = try #require(String(data: result.data.dropFirst(3), encoding: .utf8))
+        let stableHeader = [
+            "record_type",
+            "id",
+            "occurred_at_utc",
+            "time_zone",
+            "amount",
+            "amount_minor_units",
+            "currency_code",
+            "category",
+            "bucket",
+            "source_name_or_merchant",
+            "note",
+            "payment_method",
+            "emotion_tag",
+            "purchase_reason",
+            "is_planned",
+            "is_recurring",
+            "entry_source",
+            "allow_merchant_indexing",
+            "created_at_utc",
+            "updated_at_utc",
+            "income_allocated_to_budget_minor_units",
+            "income_allocated_to_savings_minor_units",
+        ]
 
         #expect(Array(bytes.prefix(3)) == [0xEF, 0xBB, 0xBF])
-        #expect(text == CSVExporter.header.joined(separator: ",") + "\r\n")
+        #expect(CSVExporter.header == stableHeader)
+        #expect(text == stableHeader.joined(separator: ",") + "\r\n")
         #expect(result.rowCount == 0)
     }
 
@@ -429,17 +454,7 @@ struct Phase6FeatureTests {
 
         #expect(await recorder.values() == ["notifications", "searchIndex"])
         #expect(counts.isEmpty)
-        #expect(counts == ModelCounts(
-            expenses: 0,
-            budgetPlans: 0,
-            wishItems: 0,
-            coolingOffPlans: 0,
-            categoryBudgets: 0,
-            spendingInsights: 0,
-            reminderEvents: 0,
-            merchants: 0,
-            reflectionLogs: 0
-        ))
+        #expect(counts == .zero)
         #expect(settings.currencyCode.isEmpty)
         #expect(!settings.firstLaunchCompleted)
         #expect(!settings.enableLocalNotifications)

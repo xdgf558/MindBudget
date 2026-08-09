@@ -1,7 +1,11 @@
 # App Icon source and export contract
 
-The three SVG files in this directory are the editable sources for the matching 1024×1024 App
-Icon PNGs. Keep the source canvas square and do not add rounded corners; iOS owns the final mask.
+The three SVG files in this directory are editable reconstructions of the geometry and palette in
+the matching 1024×1024 App Icon PNG handoff. Keep the source canvas square and do not add rounded
+corners; iOS owns the final mask. The enlarged pace mark is based on the owner-approved August 2026
+redesign. The current shipping PNGs are opaque flattened copies of that handoff; the tinted
+appearance uses grayscale luminance layers rather than a transparent white silhouette so the
+filled segment, remaining track, and pace marker remain distinguishable.
 
 | Appearance | Source | Asset-catalog output |
 | --- | --- | --- |

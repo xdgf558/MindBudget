@@ -105,6 +105,32 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testAppLanguageChangesImmediatelyWithoutRelaunching() {
+        let app = launchApp(language: "en", locale: "en_US")
+        completeBudgetSetup(in: app)
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.settings"].tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        element("settings.appearance", in: app).tap()
+        XCTAssertTrue(element("settings.appearance.view", in: app).waitForExistence(timeout: 2))
+
+        let languagePicker = element("settings.language.picker", in: app)
+        XCTAssertEqual(languagePicker.value as? String, "Follow System")
+        languagePicker.tap()
+        let simplifiedChinese = app.buttons["Simplified Chinese"]
+        XCTAssertTrue(simplifiedChinese.waitForExistence(timeout: 2))
+        simplifiedChinese.tap()
+
+        XCTAssertTrue(app.navigationBars["外观与皮肤"].waitForExistence(timeout: 3))
+        XCTAssertEqual(element("settings.language.picker", in: app).value as? String, "简体中文")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let localizedAppearanceDestination = element("settings.appearance", in: app)
+        XCTAssertTrue(localizedAppearanceDestination.waitForExistence(timeout: 3))
+        XCTAssertEqual(localizedAppearanceDestination.label, "外观与皮肤")
+    }
+
+    @MainActor
     func testOnboardingAndManualExpenseFlow() {
         let app = launchApp(language: "en", locale: "en_US")
 
@@ -360,9 +386,13 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let totalBudgetField = app.textFields["settings.budget.totalBudget"]
         XCTAssertTrue(totalBudgetField.waitForExistence(timeout: 2))
         XCTAssertTrue(totalBudgetField.isEnabled)
-        XCTAssertTrue(element("settings.budget.flexiblePreview", in: app).exists)
         totalBudgetField.tap()
         totalBudgetField.typeText("0")
+        let flexiblePreview = element("settings.budget.flexiblePreview", in: app)
+        for _ in 0..<4 where !flexiblePreview.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(flexiblePreview.exists)
         let saveBudget = app.buttons["settings.budget.save"]
         for _ in 0..<4 where !saveBudget.isHittable {
             app.swipeUp()
@@ -402,7 +432,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(aboutControl.waitForExistence(timeout: 2))
         aboutControl.tap()
         XCTAssertTrue(element("settings.about.view", in: app).waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.2"))
+        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.4"))
         XCTAssertTrue(element("settings.releaseNotes", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.1", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.0", in: app).exists)

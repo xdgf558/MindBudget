@@ -280,10 +280,13 @@ schedule, the invalid row's stale identifier is cleared, and Settings exposes th
 warning rather than reporting an undifferentiated operation failure. A later scheduling
 failure may coexist with that last-known integrity warning and must not erase it.
 
-CSV tests cover the exact stable unified-ledger header, expense/income row types, header-only
-empty data, UTF-8 BOM, RFC 4180 commas,
-quotes and embedded newlines, exact two-/zero-exponent amount strings derived from `Int64`
-minor units, equal column counts after parsing, and spreadsheet-formula neutralization.
+CSV tests define the exact stable unified-ledger header independently from the exporter and cover
+expense/income row types, header-only empty data, UTF-8 BOM, RFC 4180 commas, quotes and embedded
+newlines, exact two-/zero-exponent amount strings derived from `Int64` minor units, equal column
+counts after parsing, and spreadsheet-formula neutralization. Income rows leave expense-only
+attributes empty rather than manufacturing `false` or `manual` facts. The two Phase 12 allocation
+columns append after every existing column so earlier positions do not move; release notes warn
+saved spreadsheet/import templates about the extended header.
 The settings UI exposes the in-memory ShareLink export and clearly discloses inclusion of
 raw expense/income notes and optional source or merchant names.
 
@@ -411,7 +414,7 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.2` for candidate build 4, and expose the localized update summary.
+from the built bundle, render `0.9.4` for candidate build 5, and expose the localized update summary.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
 Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
@@ -486,6 +489,54 @@ the cycle narrative stays absent, and no stored insight card is reloaded. Wishli
 five open slots, reject a sixth without a partial write, preserve an archived item's state when
 reopening would exceed the limit, and allow a new item after a slot closes. The same typed limit
 error must reach form and Siri presentation paths.
+
+## Phase 12 acceptance
+
+The app-language setting persists a closed, extensible value for Follow System, Simplified
+Chinese, or English. Changing it updates the SwiftUI locale immediately and reruns app-owned
+notification and Spotlight reconciliation in that locale; deterministic Ask/templates, currency
+and date formatting, Log category search, and the export filename use the same selection. Unknown
+future values fall back to Follow System without destroying their stored raw value, while Delete
+All resets the setting to Follow System. Both catalogs contain every Phase 12 runtime and
+release-note key. A UI test changes from English to Simplified Chinese without relaunching and
+asserts the current navigation title, picker value, and parent Settings destination update in place.
+
+Schema migration coverage creates a real Schema V2 store containing an income, opens it through
+Schema V3, and proves every V2 fact remains intact while the new allocation is exactly zero. Income
+allocation persists in a V3 companion model so the shipped V2 `Income` schema fingerprint remains
+frozen. Actor tests reject negative, overflowing, or over-income allocations atomically. Budget
+tests prove only the user-confirmed spending portion increases the containing cycle's deterministic
+budget; savings allocation never increases spending permission, and edit/delete recomputes from
+remaining authoritative entries. A nonzero spending allocation carries the target plan identifier;
+actor tests reject a missing plan, mismatched currency, or income date outside that plan, and the
+form identifies the exact target dates rather than describing every allocation as current-cycle.
+
+The total savings goal stores one target and optional starting balance across cycles. Its progress
+is the checked sum of that starting balance and explicit per-income savings allocations, while the
+existing `BudgetPlan.savingGoalMinorUnits` remains a separate per-cycle reservation. CSV exports
+both allocation values as exact minor units; Delete All verifies the allocation, savings-goal,
+recurring-rule, and occurrence tables are empty before completion.
+
+Monthly recurring tests use injected calendars and time zones. A day-31 rule generates on
+February 28 or February 29 as appropriate and on April 30, repeated reconciliation is idempotent,
+and a generated entry remains fixed/planned/recurring without becoming a second rule when edited.
+Pausing prevents
+generation, resuming starts after the new confirmation time without backfilling paused months,
+and deleting a rule preserves ledger history. Moving a January rule anchor to a future date inside
+February still generates that February occurrence, because the immutable source month is separate
+from the editable anchor. A catch-up with more than 120 missing rows commits only the globally
+oldest 120 in one atomic transaction, reports that more remain, and a later reconciliation resumes
+without duplicates until the backlog is empty. Cover both one-rule and combined multi-rule
+backlogs, stable chronological ordering, and final idempotency.
+When another batch remains, Settings must expose the published progress state with localized,
+non-error copy. Schedule enumeration returns each pending date together with its stable occurrence
+key so reconciliation does not recompute it, and a rule whose known occurrences force more than
+1,200 month probes must fail closed rather than leaving foreground reconciliation unbounded.
+
+Settings observation tests prove both language and skin changes publish through
+`SettingsStore.objectWillChange`, persist to the configured defaults suite, and can invalidate the
+root locale/theme without an unrelated state change or relaunch. App startup passes the SwiftUI
+environment calendar into the same reconciliation path used on foreground return.
 
 ## Continuous integration
 
