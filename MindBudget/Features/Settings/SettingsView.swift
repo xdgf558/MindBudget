@@ -864,6 +864,17 @@ private struct RecurringExpensesSettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            if session.recurringExpenseReconciliationHasMore {
+                Section {
+                    Label(
+                        "settings.recurring.reconcile.pending",
+                        systemImage: "clock.arrow.circlepath"
+                    )
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.recurring.reconcile.pending")
+                }
+            }
+
             if session.recurringExpenseReconciliationFailed || errorKey != nil {
                 Section {
                     Label(

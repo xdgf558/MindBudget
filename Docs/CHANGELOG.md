@@ -50,7 +50,8 @@ No additional user-visible changes are staged beyond the `0.9.4 (5)` internal ca
   date. Historical income cannot silently change the current cycle or allocate into a missing one.
 - Editing a monthly recurring rule into a new month no longer skips that month's first occurrence,
   and each atomic catch-up now saves at most the globally oldest 120 pending occurrences across all
-  rules. Larger backlogs continue on later foreground passes instead of failing forever.
+  rules. Larger backlogs continue on later foreground passes instead of failing forever, and
+  Settings now explains the remaining work as progress instead of leaving it invisible.
 - Skin changes now update the complete interface immediately without waiting for navigation,
   another setting change, or an app relaunch.
 

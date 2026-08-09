@@ -186,3 +186,6 @@ Status: Done
 - [x] Make recurrence catch-up recoverable across successive foreground batches, publish skin
   changes to the root theme immediately, centralize the new persisted setting keys, and inject the
   SwiftUI environment calendar into initial reconciliation as well as foreground reconciliation.
+- [x] Surface remaining recurring catch-up work in Settings as a non-error progress state, return
+  each pending schedule date with its already-computed occurrence key, and fail closed after a
+  bounded 1,200-month scan instead of leaving an unbounded foreground loop.

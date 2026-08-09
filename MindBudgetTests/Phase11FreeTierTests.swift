@@ -702,6 +702,50 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func recurringScheduleFailsClosedAfterItsBoundedMonthScan() throws {
+        let schedule = MonthlyRecurringSchedule()
+        let calendar = TestFixtures.utcCalendar
+        let ruleID = UUID()
+        let anchor = try date(2026, 1, 1, 8, 0, calendar: calendar)
+        var existingKeys: Set<String> = []
+        for offset in 1..<MonthlyRecurringSchedule.maximumScannedMonths {
+            let scheduledAt = try #require(
+                calendar.date(byAdding: .month, value: offset, to: anchor)
+            )
+            existingKeys.insert(
+                try schedule.occurrenceKey(
+                    ruleID: ruleID,
+                    scheduledAt: scheduledAt,
+                    timeZoneIdentifier: "UTC",
+                    calendarIdentifierRaw: Calendar.Identifier.gregorian.mindBudgetPersistedValue,
+                    calendar: calendar
+                )
+            )
+        }
+        let distantEnd = try #require(
+            calendar.date(
+                byAdding: .month,
+                value: MonthlyRecurringSchedule.maximumScannedMonths + 12,
+                to: anchor
+            )
+        )
+
+        #expect(throws: DataValidationError.invalidRecurringExpenseRule) {
+            _ = try schedule.pendingDates(
+                ruleID: ruleID,
+                anchorDate: anchor,
+                initialOccurrenceAt: anchor,
+                activatedAt: anchor,
+                through: distantEnd,
+                timeZoneIdentifier: "UTC",
+                calendarIdentifierRaw: Calendar.Identifier.gregorian.mindBudgetPersistedValue,
+                calendar: calendar,
+                existingOccurrenceKeys: existingKeys
+            )
+        }
+    }
+
+    @Test
     func catchUpLimitAppliesAcrossAllRulesAndResumesOldestFirst() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let calendar = TestFixtures.utcCalendar

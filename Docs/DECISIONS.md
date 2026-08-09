@@ -1706,7 +1706,11 @@ time and stable occurrence key, and atomically inserts only the globally oldest 
 result reports both the inserted count and whether another foreground pass is needed. Existing
 occurrence identities are skipped during enumeration, so each later prepare/foreground pass makes
 progress without duplicates. The 120 value remains a per-transaction write bound, not a reason to
-reject valid accumulated history or to loop repeatedly during one foreground activation.
+reject valid accumulated history or to loop repeatedly during one foreground activation. Each
+enumerated candidate carries its already-computed stable occurrence key into the actor write plan.
+Settings renders the published `hasMore` state as neutral progress rather than an error. A single
+rule scans at most 1,200 calendar months per reconciliation and fails closed if that defensive
+bound is exhausted, preventing unexpected calendar behavior from hanging foreground work.
 
 Persist skin and language selections as explicit `@Published` values synchronized through named
 UserDefaults keys. These are the two settings directly consumed to build root theme/locale state;
@@ -1722,9 +1726,11 @@ the selected skin.
 
 Consequences: A large backlog may require more than one foreground activation, but every successful
 activation commits no more than 120 oldest entries, exposes remaining work as a non-error state,
-and cannot become stuck on the same first 121 rows. Root language and skin selections now share an
-observable persistence contract. Other `@AppStorage` preferences retain their existing explicit
-session/action redraw paths and should be converted if a future root-only consumer is added.
+shows that state in the recurring-expense Settings page, and cannot become stuck on the same first
+121 rows. Occurrence identity is calculated once per candidate, and enumeration has a separate
+hard termination bound. Root language and skin selections now share an observable persistence
+contract. Other `@AppStorage` preferences retain their existing explicit session/action redraw
+paths and should be converted if a future root-only consumer is added.
 
 Files affected: recurring schedule/reconciliation projections and tests, app session calendar and
 backlog state, SettingsStore observation tests, project memory, test plan, changelog, and session log.

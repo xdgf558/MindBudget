@@ -528,6 +528,10 @@ from the editable anchor. A catch-up with more than 120 missing rows commits onl
 oldest 120 in one atomic transaction, reports that more remain, and a later reconciliation resumes
 without duplicates until the backlog is empty. Cover both one-rule and combined multi-rule
 backlogs, stable chronological ordering, and final idempotency.
+When another batch remains, Settings must expose the published progress state with localized,
+non-error copy. Schedule enumeration returns each pending date together with its stable occurrence
+key so reconciliation does not recompute it, and a rule whose known occurrences force more than
+1,200 month probes must fail closed rather than leaving foreground reconciliation unbounded.
 
 Settings observation tests prove both language and skin changes publish through
 `SettingsStore.objectWillChange`, persist to the configured defaults suite, and can invalidate the

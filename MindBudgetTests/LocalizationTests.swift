@@ -239,6 +239,7 @@ struct LocalizationTests {
             "income.error.budgetCycleUnavailable",
             "settings.savingsGoal.title",
             "settings.recurring.title",
+            "settings.recurring.reconcile.pending",
             "expense.recurring.monthly",
             "settings.releaseNotes.appLanguage",
             "settings.releaseNotes.incomeAllocation",

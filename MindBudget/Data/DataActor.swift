@@ -130,9 +130,15 @@ private struct PendingRecurringOccurrence {
 
 struct MonthlyRecurringSchedule: Sendable {
     static let maximumGeneratedOccurrences = 120
+    static let maximumScannedMonths = 1_200
+
+    struct PendingOccurrence: Sendable {
+        let scheduledAt: Date
+        let occurrenceKey: String
+    }
 
     struct PendingDateBatch: Sendable {
-        let dates: [Date]
+        let occurrences: [PendingOccurrence]
         let hasMore: Bool
     }
 
@@ -149,7 +155,7 @@ struct MonthlyRecurringSchedule: Sendable {
         limit: Int = maximumGeneratedOccurrences
     ) throws -> PendingDateBatch {
         guard limit > 0 else {
-            return PendingDateBatch(dates: [], hasMore: false)
+            return PendingDateBatch(occurrences: [], hasMore: false)
         }
         guard let timeZone = TimeZone(identifier: timeZoneIdentifier),
               let identifier = Calendar.Identifier(
@@ -158,7 +164,7 @@ struct MonthlyRecurringSchedule: Sendable {
             throw DataValidationError.invalidRecurringExpenseRule
         }
         guard anchorDate <= endDate else {
-            return PendingDateBatch(dates: [], hasMore: false)
+            return PendingDateBatch(occurrences: [], hasMore: false)
         }
         var calendar = Calendar(identifier: identifier)
         calendar.locale = sourceCalendar.locale
@@ -190,9 +196,10 @@ struct MonthlyRecurringSchedule: Sendable {
             throw DataValidationError.invalidRecurringExpenseRule
         }
 
-        var result: [Date] = []
+        var result: [PendingOccurrence] = []
         var offset = max(0, elapsedMonths)
-        while true {
+        var scannedMonthCount = 0
+        while scannedMonthCount < Self.maximumScannedMonths {
             guard let targetMonth = calendar.date(
                 byAdding: .month,
                 value: offset,
@@ -209,7 +216,7 @@ struct MonthlyRecurringSchedule: Sendable {
                 throw DataValidationError.invalidRecurringExpenseRule
             }
             if scheduledAt > endDate {
-                return PendingDateBatch(dates: result, hasMore: false)
+                return PendingDateBatch(occurrences: result, hasMore: false)
             }
             let isInitialOccurrenceMonth = calendar.isDate(
                 scheduledAt,
@@ -226,13 +233,20 @@ struct MonthlyRecurringSchedule: Sendable {
                 )
                 if !existingOccurrenceKeys.contains(key) {
                     guard result.count < limit else {
-                        return PendingDateBatch(dates: result, hasMore: true)
+                        return PendingDateBatch(occurrences: result, hasMore: true)
                     }
-                    result.append(scheduledAt)
+                    result.append(
+                        PendingOccurrence(
+                            scheduledAt: scheduledAt,
+                            occurrenceKey: key
+                        )
+                    )
                 }
             }
             offset += 1
+            scannedMonthCount += 1
         }
+        throw DataValidationError.invalidRecurringExpenseRule
     }
 
     func occurrenceKey(
@@ -671,20 +685,13 @@ actor DataActor {
                     existingOccurrenceKeys: existingKeys
                 )
                 hasMorePerRule = hasMorePerRule || dateBatch.hasMore
-                for scheduledAt in dateBatch.dates {
-                    let key = try schedule.occurrenceKey(
-                        ruleID: summary.id,
-                        scheduledAt: scheduledAt,
-                        timeZoneIdentifier: summary.timeZoneIdentifier,
-                        calendarIdentifierRaw: summary.calendarIdentifierRaw,
-                        calendar: calendar
-                    )
+                for occurrence in dateBatch.occurrences {
                     pending.append(
                         PendingRecurringOccurrence(
                             rule: summary,
                             note: rule.note,
-                            scheduledAt: scheduledAt,
-                            occurrenceKey: key
+                            scheduledAt: occurrence.scheduledAt,
+                            occurrenceKey: occurrence.occurrenceKey
                         )
                     )
                 }

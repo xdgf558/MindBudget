@@ -49,7 +49,10 @@ recurring fixed-expense rules. Language changes publish immediately without rela
 spending allocation targets one already-saved cycle containing the income date, while savings stays
 cross-cycle. Recurring edits retain the immutable source-occurrence month, and each atomic
 reconciliation commits at most the oldest 120 pending occurrences across all rules, reporting
-whether later foreground work remains instead of entering a permanent failure loop. The candidate is version `0.9.4 (5)`
+whether later foreground work remains instead of entering a permanent failure loop. Settings
+shows that remaining work as a neutral progress notice. Schedule enumeration carries each date
+with its stable occurrence key and fails closed after 1,200 scanned months per rule, so duplicate
+key work and an unbounded foreground loop are both excluded. The candidate is version `0.9.4 (5)`
 and remains unuploaded until PR #18 review and the release checklist authorize TestFlight.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
@@ -133,8 +136,9 @@ app's private data are forbidden in V1.
   handled month independent from the editable future anchor, use the saved calendar day/local time
   with end-of-month clamping, reconcile each occurrence once by stable identity, commit the oldest
   120 pending occurrences across all rules per atomic foreground batch, continue remaining work on
-  a later foreground pass, skip paused months after resume, and never delete ledger history when a
-  rule is removed.
+  a later foreground pass with a visible non-error Settings notice, stop an anomalous scan after
+  1,200 months, skip paused months after resume, and never delete ledger history when a rule is
+  removed.
 - The iOS launch screen remains static. The optional brand motion is an app-owned cold-launch
   overlay, never a video or third-party animation, and its Debug UI-test hold cannot ship in Release.
 

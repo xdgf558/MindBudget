@@ -2502,3 +2502,39 @@ service remains above 85%, ranging from CSV export at 87.60% through CurrencyFor
 
 Next suggested task: Re-review the bounded recurring catch-up correction on draft PR #18. Merge
 only after approval; keep TestFlight paused until the owner explicitly resumes it.
+
+## 2026-08-09 — Session 62 — Surface and bound recurring catch-up progress
+
+Goal: Close the final PR #18 review observations by making resumable recurring catch-up visible,
+removing duplicate occurrence-key work, bounding calendar scanning, and independently confirming
+the reported CI state.
+
+Files changed: recurring schedule projections and reconciliation, recurring-expense settings UI,
+bilingual copy, recurring/localization tests, Phase 12 project memory, task/test/release plans,
+decisions, changelog, and this log.
+
+What was completed: Settings now consumes `recurringExpenseReconciliationHasMore` and displays a
+neutral bilingual progress notice while older fixed expenses remain to be added. Each pending
+recurring occurrence now carries the stable year-month key computed during discovery, so
+reconciliation does not calculate the same identity a second time. The monthly schedule scan is
+explicitly limited to 1,200 examined months and fails closed with a typed validation error if
+calendar behavior cannot reach an existing occurrence or the requested end date within that
+bound. A regression fixture fills the entire bounded identity window and proves the guard throws
+instead of hanging the foreground actor. The previously reported GitHub `0 / 1` state was also
+verified as transient: run 31286727862 and its build-and-test job completed successfully.
+
+What was NOT completed: TestFlight remained paused. No Archive, Organizer validation, App Store
+Connect upload, tester assignment, PR merge, signing change, or new product feature was performed.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build and
+full validation. All 250 Swift Testing tests across 17 suites and all 13 end-to-end/localization
+UI tests passed with zero failures. The strict local 10,000-row Dashboard benchmark was then run
+separately on an idle simulator and passed together with its deterministic projection companion.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual catalog JSON, and `git diff --check` pass. Every selected core
+service remains above 85%, ranging from CSV export at 87.60% through CurrencyFormatterService at
+100%; BudgetEngine is 93.90%.
+
+Next suggested task: Re-review the final correction on draft PR #18. Merge only after approval;
+keep TestFlight paused until the owner explicitly resumes it.
