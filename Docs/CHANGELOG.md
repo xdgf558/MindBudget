@@ -14,7 +14,9 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   unavailable, timed out, failed validation, or encountered a model error. On-device wording
   keeps the app-owned suggested-action labels instead of asking the model to reproduce internal
   identifiers. Numeric date labels, sub-one-percent facts, and mixed Chinese/English output are
-  validated without weakening the existing number, length, or safety rules.
+  validated without weakening the existing number, length, or safety rules. Percentage wording
+  must now match the dedicated budget-usage fact, so an unrelated zero count cannot authorize a
+  false `0%` summary.
 
 ## 0.9.4 (5) — 2026-08-08 — Internal TestFlight candidate
 

@@ -645,6 +645,24 @@ struct AllowedNumericTokens: Equatable, Sendable {
         ).isSubset(of: values)
     }
 
+    /// The general numeric allow-list intentionally permits a fact's number to appear in
+    /// different wording. Percentages are stricter: a cooling-off count of zero must not make
+    /// an unrelated `0%` budget claim valid.
+    func containsOnlyAllowedBudgetPercentages(
+        in strings: [String],
+        budgetUsage: SummaryBudgetUsage
+    ) -> Bool {
+        let percentages = strings.flatMap {
+            Self.percentageTokens(in: $0, localeIdentifier: localeIdentifier)
+        }
+        switch budgetUsage {
+        case .unavailable, .lessThanOnePercent:
+            return percentages.isEmpty
+        case let .percent(value):
+            return percentages.allSatisfy { $0 == String(value) }
+        }
+    }
+
     private static func tokens<S: Sequence>(
         in strings: S,
         localeIdentifier: String?
@@ -697,6 +715,52 @@ struct AllowedNumericTokens: Equatable, Sendable {
         }
         finish()
         return result
+    }
+
+    /// Extracts canonical numeric values directly attached to an ASCII or full-width percent
+    /// sign. Whitespace between the number and sign is accepted so localized model wording
+    /// cannot bypass the fact binding with presentation spacing.
+    private static func percentageTokens(
+        in string: String,
+        localeIdentifier: String?
+    ) -> [String] {
+        let characters = Array(string)
+        return characters.indices.compactMap { percentIndex in
+            guard characters[percentIndex] == "%" || characters[percentIndex] == "％" else {
+                return nil
+            }
+
+            var numericEnd = percentIndex
+            while numericEnd > characters.startIndex,
+                  characters[characters.index(before: numericEnd)].isWhitespace {
+                numericEnd = characters.index(before: numericEnd)
+            }
+            guard numericEnd > characters.startIndex,
+                  characters[characters.index(before: numericEnd)].wholeNumberValue != nil else {
+                return nil
+            }
+
+            var numericStart = numericEnd
+            while numericStart > characters.startIndex {
+                let previousIndex = characters.index(before: numericStart)
+                let character = characters[previousIndex]
+                if character.wholeNumberValue != nil || isNumericSeparator(character) {
+                    numericStart = previousIndex
+                } else if character == "-" || character == "\u{2212}" {
+                    numericStart = previousIndex
+                    break
+                } else {
+                    break
+                }
+            }
+
+            var rawValue = String(characters[numericStart..<numericEnd])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if rawValue.first == "\u{2212}" {
+                rawValue.replaceSubrange(rawValue.startIndex...rawValue.startIndex, with: "-")
+            }
+            return canonical(rawValue, localeIdentifier: localeIdentifier)
+        }
     }
 
     private static func canonical(

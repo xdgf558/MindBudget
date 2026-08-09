@@ -61,7 +61,8 @@ allow-listed actions after validating their redacted-context contract, retains s
 text/number/language validation, and presents the safe fallback category when a complete local
 template is used. Sub-one-percent summary state contributes no numeric `1` token, numeric
 component hyphens are not interpreted as unary negative signs, and Chinese proposals cannot be
-predominantly Latin text.
+predominantly Latin text. Numeric percentages are bound to the budget-usage fact instead of the
+summary's flat numeric set, so an unrelated zero count cannot authorize a false `0%` claim.
 The production icon uses the owner-approved enlarged budget-track mark with standard
 green-gradient, dark, and system-tinted 1024px opaque variants; iOS owns the final corner mask.
 Cold process launches add a localized, selected-skin brand transition lasting less than one second

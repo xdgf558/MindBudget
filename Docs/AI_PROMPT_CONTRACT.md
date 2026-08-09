@@ -66,7 +66,11 @@ state. Only a configured positive budget with exactly zero recorded spend may ex
 `.percent(0)`. A positive sub-one-percent ratio and an unavailable denominator expose no numeric
 percentage fact. Their closed state keys tell the model which relationship may be phrased; any
 generated digit absent from the remaining aggregate facts fails numeric validation and returns the
-deterministic localized template.
+deterministic localized template. Numeric percentage expressions have a stricter fact binding than
+the general numeric token set: `.unavailable` and `.lessThanOnePercent` permit none, while
+`.percent(value)` permits only that exact value. Unrelated zero-valued emotion or cooling-off counts
+therefore cannot authorize a false `0%` claim. ASCII `%`, full-width `％`, and optional spacing
+between the number and sign follow the same rule.
 
 ## Typed Ask input and redacted context
 
@@ -167,7 +171,9 @@ Tests must prove raw Ask text,
 notes, merchant lists, transaction rows, and raw cooling-off timestamps never reach a model
 context. If a cooling-off projection cannot be read completely, its outcome counts are unknown:
 the Insights pipeline must not replace them with zero or invoke a model with that incomplete
-context.
+context. Summary tests must also prove that zero-valued cooling-off counts cannot authorize `0%`
+for unavailable, sub-one-percent, or nonzero exact budget usage; only the exact percentage fact may
+appear beside a percent sign.
 
 Income source names, income notes, allocation rows, savings-goal rows, recurring-rule notes, and
 occurrence rows never enter a model context. Ask may receive only the already-computed effective

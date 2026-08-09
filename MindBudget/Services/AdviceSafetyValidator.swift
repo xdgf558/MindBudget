@@ -94,6 +94,12 @@ struct AdviceSafetyValidator: Sendable {
         ) else {
             throw AdviceSafetyViolation.fabricatedNumber
         }
+        guard AllowedNumericTokens(context: context).containsOnlyAllowedBudgetPercentages(
+            in: [summary.title, summary.body],
+            budgetUsage: context.budgetUsage
+        ) else {
+            throw AdviceSafetyViolation.fabricatedNumber
+        }
     }
 
     private func validateText(title: String, body: String) throws {

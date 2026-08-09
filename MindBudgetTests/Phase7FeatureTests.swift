@@ -199,7 +199,7 @@ struct Phase7FeatureTests {
                 SuggestedAction.adjustBudget.rawValue
             ]
         )
-        let unknownAction = GeneratedAnswer(
+        let nonAuthoritativeActionFixture = GeneratedAnswer(
             title: "Budget check",
             body: "Review the recorded facts.",
             actionIdentifiers: ["sendMoney", SuggestedAction.adjustBudget.rawValue]
@@ -210,7 +210,10 @@ struct Phase7FeatureTests {
         }
         // Ask actions are replaced from the checked redacted context before validation. A
         // malformed action attached to this isolated fixture is not a model-text violation.
-        try AdviceSafetyValidator().validate(answer: unknownAction, context: context)
+        try AdviceSafetyValidator().validate(
+            answer: nonAuthoritativeActionFixture,
+            context: context
+        )
     }
 
     @Test
@@ -901,6 +904,68 @@ struct Phase7FeatureTests {
         #expect(allowed.values.contains("8"))
         #expect(allowed.values.contains("-8") == false)
         #expect(allowed.containsEveryNumber(in: ["2026 年 8 月"]))
+    }
+
+    @Test
+    func summaryPercentageMustMatchItsBudgetUsageFactDespiteOtherZeroCounts() throws {
+        func context(_ budgetUsage: SummaryBudgetUsage) -> RedactedSummaryContext {
+            PrivacyRedactor().redactSummary(
+                SummaryAggregateInput(
+                    localeIdentifier: "en_US",
+                    cycleLabel: "2026-08",
+                    topCategories: [],
+                    categoryChangeDirections: [:],
+                    budgetUsage: budgetUsage,
+                    emotionCounts: [:],
+                    coolingOffSkippedCount: 0,
+                    coolingOffPurchasedCount: 0,
+                    tone: .soft
+                )
+            )
+        }
+
+        func summary(_ body: String, context: RedactedSummaryContext) -> GeneratedSummary {
+            GeneratedSummary(
+                title: "Cycle summary",
+                body: body,
+                actionIdentifiers: context.allowedActionIdentifiers
+            )
+        }
+
+        let underOne = context(.lessThanOnePercent)
+        let unavailable = context(.unavailable)
+        let exactZero = context(.percent(0))
+        let exact = context(.percent(8))
+        let validator = AdviceSafetyValidator()
+
+        // The unrelated cooling-off counts still contribute zero to the general allow-list.
+        #expect(AllowedNumericTokens(context: underOne).values.contains("0"))
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0% of the budget.", context: underOne),
+                context: underOne
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0 ％ of the budget.", context: unavailable),
+                context: unavailable
+            )
+        }
+        #expect(throws: AdviceSafetyViolation.fabricatedNumber) {
+            try validator.validate(
+                summary: summary("Recorded spending used 0% of the budget.", context: exact),
+                context: exact
+            )
+        }
+        try validator.validate(
+            summary: summary("Recorded spending used 8% of the budget.", context: exact),
+            context: exact
+        )
+        try validator.validate(
+            summary: summary("Recorded spending used 0% of the budget.", context: exactZero),
+            context: exactZero
+        )
     }
 
     @Test

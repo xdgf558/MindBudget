@@ -2681,3 +2681,39 @@ and PrivacyRedactor is at 91.65%.
 
 Next suggested task: Re-review the updated draft PR #19. After approval, merge it and repeat the
 previously failing Insights and Ask scenarios on the physical iPhone before resuming TestFlight.
+
+## 2026-08-09 — Session 67 — Bind generated percentages to their budget fact
+
+Goal: Close the remaining PR #19 truthfulness gap where an unrelated zero-valued aggregate could
+authorize a false generated `0%` cycle-usage statement.
+
+Files changed: Summary numeric validation and its regression tests, the AI prompt/project/test
+contracts, decisions, changelog, and this log.
+
+What was completed: Generated numeric percentage expressions are now checked against the closed
+`SummaryBudgetUsage` fact in addition to the general numeric allow-list. Unavailable and
+less-than-one-percent states permit no numeric percentage expression; an exact percentage state
+permits only its own integer. ASCII `%`, full-width `％`, and optional spacing before the sign are
+handled consistently. Zero-valued cooling-off counts can therefore no longer make a false `0%`
+claim valid, while a configured exact-zero state still permits a truthful `0%`. Tests cover the
+unavailable, sub-one-percent, exact-zero, exact-eight-percent, unrelated-zero, and full-width-sign
+cases. A stale test fixture name was also corrected to reflect that Ask action identifiers are
+app-owned rather than model-authoritative.
+
+What was NOT completed: No Archive, TestFlight upload, tester assignment, physical-device install,
+version/build change, signing change, merge, or unrelated product feature was performed.
+TestFlight remains paused and the candidate version remains `0.9.4 (5)`.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 256 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. The strict 10,000-row Dashboard benchmark then passed
+independently together with its deterministic projection companion.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate; the directly changed AdviceSafetyValidator is at 95.60%
+and PrivacyRedactor is at 92.02%.
+
+Next suggested task: Re-review the updated draft PR #19. After approval, merge it and repeat the
+previously failing Insights and Ask scenarios on the physical iPhone before resuming TestFlight.
