@@ -2529,26 +2529,26 @@
     },
     "settings.budget.legacyFixedForecast": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "This current period keeps the fixed-expense reservation from the earlier budget setup so the upgrade does not change your available amount. Actual fixed entries use that reservation first; it retires next period." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本周期会继续沿用旧版预算中的固定支出预留，避免升级后可支配金额突然变化。实际固定支出会先使用这笔预留；下个周期将自动停止沿用。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "This current legacy period keeps its previous expected-expense funding base and any fixed-expense reservation so the upgrade does not change its disposable budget. Next period switches to income minus savings, with fixed expenses counted only when recorded." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前旧版周期会继续使用原有的预计支出计算基准及固定支出预留，避免升级后可支配预算发生变化。下个周期将改为按本月收入减储蓄目标计算，固定支出仅在实际记账后计入。" } }
       }
     },
     "settings.budget.allocation.zeroBudget": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "No income is currently available for spending this period, so the disposable budget is zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本周期当前没有可用于支出的收入，因此本期可支配预算为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "No funding is currently available under this period's calculation, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按本周期的计算方式，目前没有可用于支出的金额，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.fullyAllocated": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations use all income available for this period, so the disposable budget is zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留已用完本周期可用收入，因此本期可支配预算为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations use all funding available under this period's calculation, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留已用完按本周期计算方式可用的金额，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.overcommitted": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations exceed the income available for this period. You can still save, but the disposable budget will stay at zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留超过本周期可用收入。你仍可保存，但本期可支配预算会显示为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations exceed the funding available under this period's calculation. You can still save, but the disposable budget will stay at zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留超过按本周期计算方式可用的金额。你仍可保存，但本期可支配预算会显示为 0。" } }
       }
     },
     "settings.budget.error.notCurrent": {

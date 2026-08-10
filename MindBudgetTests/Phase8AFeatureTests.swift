@@ -490,6 +490,7 @@ struct Phase8AFeatureTests {
             monthlyIncomeMinorUnits: 200_000,
             totalBudgetMinorUnits: totalBudgetMinorUnits,
             fixedExpensesMinorUnits: 20_000, savingGoalMinorUnits: 10_000,
+            authority: .incomeBased,
             categoryBudgets: []
         )
     }

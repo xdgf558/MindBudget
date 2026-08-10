@@ -777,7 +777,7 @@ actor DataActor {
     func createBudgetPlan(_ draft: BudgetPlanDraft) throws -> BudgetPlanSummary {
         try commit {
             let plan = try insertBudgetPlan(draft)
-            return try budgetPlanSummary(plan)
+            return try budgetPlanSummary(plan, authority: .incomeBased)
         }
     }
 
@@ -846,7 +846,7 @@ actor DataActor {
             try validateNewBudgetIdentities(candidates, against: existing)
 
             let plans = [materializeBudgetPlan(transition), materializeBudgetPlan(firstRegular)]
-            return try plans.map { try budgetPlanSummary($0) }
+            return try plans.map { try budgetPlanSummary($0, authority: .incomeBased) }
         }
     }
 
@@ -1550,6 +1550,7 @@ actor DataActor {
             expenses: try modelContext.fetchCount(FetchDescriptor<Expense>()),
             incomes: try modelContext.fetchCount(FetchDescriptor<Income>()),
             budgetPlans: try modelContext.fetchCount(FetchDescriptor<BudgetPlan>()),
+            budgetPlanSemantics: try modelContext.fetchCount(FetchDescriptor<BudgetPlanSemantics>()),
             wishItems: try modelContext.fetchCount(FetchDescriptor<WishItem>()),
             coolingOffPlans: try modelContext.fetchCount(FetchDescriptor<CoolingOffPlan>()),
             categoryBudgets: try modelContext.fetchCount(FetchDescriptor<CategoryBudget>()),
@@ -1648,6 +1649,7 @@ actor DataActor {
         for model in try modelContext.fetch(FetchDescriptor<ReflectionLog>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<Merchant>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<WishItem>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<BudgetPlanSemantics>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<BudgetPlan>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<Expense>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<Income>()) { modelContext.delete(model) }
@@ -1743,6 +1745,12 @@ actor DataActor {
             )
         }
         modelContext.insert(plan)
+        modelContext.insert(
+            BudgetPlanSemantics(
+                planID: plan.id,
+                authorityRaw: BudgetPlanAuthority.incomeBased.rawValue
+            )
+        )
         return plan
     }
 
@@ -2509,8 +2517,12 @@ actor DataActor {
         IncomeDetail(summary: try incomeSummary(income), note: income.note)
     }
 
-    private func budgetPlanSummary(_ plan: BudgetPlan) throws -> BudgetPlanSummary {
+    private func budgetPlanSummary(
+        _ plan: BudgetPlan,
+        authority explicitAuthority: BudgetPlanAuthority? = nil
+    ) throws -> BudgetPlanSummary {
         try validatePersistedCurrency(plan.currencyCode, entity: "BudgetPlan", id: plan.id)
+        let authority = try explicitAuthority ?? budgetPlanAuthority(for: plan.id)
         let start = plan.cycleStart
         let end = plan.cycleEnd
         let incomes = try modelContext.fetch(
@@ -2560,6 +2572,7 @@ actor DataActor {
             recordedIncomeMinorUnits: recordedIncome,
             allocatedIncomeMinorUnits: allocatedIncome,
             allocatedSavingsMinorUnits: allocatedSavings,
+            authority: authority,
             categoryBudgets: try plan.categoryBudgets.map { categoryBudget in
                 CategoryBudgetSummary(
                     id: categoryBudget.id,
@@ -2574,6 +2587,27 @@ actor DataActor {
                     warningThresholdBasisPoints: categoryBudget.warningThresholdBasisPoints
                 )
             }
+        )
+    }
+
+    private func budgetPlanAuthority(for planID: UUID) throws -> BudgetPlanAuthority {
+        var descriptor = FetchDescriptor<BudgetPlanSemantics>(
+            predicate: #Predicate { semantics in
+                semantics.planID == planID
+            }
+        )
+        descriptor.fetchLimit = 1
+        guard let semantics = try modelContext.fetch(descriptor).first else {
+            // Schema V1 through V3 did not persist an authority marker. Absence is the
+            // structural migration signal that this plan must retain its old funding base.
+            return .legacyExpectedExpenses
+        }
+        return try persistedEnum(
+            BudgetPlanAuthority.self,
+            rawValue: semantics.authorityRaw,
+            entity: "BudgetPlanSemantics",
+            id: planID,
+            field: "authorityRaw"
         )
     }
 

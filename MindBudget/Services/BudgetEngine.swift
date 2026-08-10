@@ -266,18 +266,25 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             }
         }
 
+        let fundingBase: Int64
+        switch plan.authority {
+        case .legacyExpectedExpenses:
+            fundingBase = plan.totalBudgetMinorUnits
+        case .incomeBased:
+            fundingBase = plan.monthlyIncomeMinorUnits
+        }
         let totalBudget = try checkedAdd(
-            plan.monthlyIncomeMinorUnits,
+            fundingBase,
             plan.allocatedIncomeMinorUnits
         )
         let expectedExpenses = try checkedAdd(
             plan.totalBudgetMinorUnits,
             plan.allocatedIncomeMinorUnits
         )
-        // New plans write zero here. An already-persisted forecast remains active only
-        // for its current legacy cycle so an upgrade cannot silently increase the
-        // user's available amount. Actual fixed entries consume that reservation first;
-        // only an amount above it reduces the disposable balance again.
+        // A migrated plan keeps both its old expected-expense funding base and any old
+        // fixed reservation for that legacy cycle. New plans use income as the funding
+        // base and write zero forecast. Actual fixed entries consume a retained legacy
+        // reservation first; only an amount above it reduces the balance again.
         let fixedForecast = plan.fixedExpensesMinorUnits
         let savingGoal = plan.savingGoalMinorUnits
         let allocation = try allocation(

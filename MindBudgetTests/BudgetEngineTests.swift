@@ -96,6 +96,7 @@ struct BudgetEngineTests {
             recordedIncomeMinorUnits: context.plan.recordedIncomeMinorUnits,
             allocatedIncomeMinorUnits: context.plan.allocatedIncomeMinorUnits,
             allocatedSavingsMinorUnits: context.plan.allocatedSavingsMinorUnits,
+            authority: .legacyExpectedExpenses,
             categoryBudgets: context.plan.categoryBudgets
         )
         let beforePayment = try requireConfigured(
@@ -145,11 +146,64 @@ struct BudgetEngineTests {
 
         #expect(beforePayment.fixedForecast.minorUnits == 100_000)
         #expect(beforePayment.pendingFixed.minorUnits == 100_000)
-        #expect(beforePayment.availableRightNow.minorUnits == 250_000)
+        #expect(beforePayment.totalBudget.minorUnits == 300_000)
+        #expect(beforePayment.availableRightNow.minorUnits == 150_000)
         #expect(withinForecast.pendingFixed.minorUnits == 20_000)
         #expect(withinForecast.availableRightNow == beforePayment.availableRightNow)
         #expect(aboveForecast.pendingFixed.minorUnits == 0)
-        #expect(aboveForecast.availableRightNow.minorUnits == 230_000)
+        #expect(aboveForecast.availableRightNow.minorUnits == 130_000)
+    }
+
+    @Test
+    func legacyZeroIncomePlanKeepsItsExpectedExpenseFundingBase() throws {
+        let context = try makeContext(
+            monthlyIncome: 0,
+            totalBudget: 600_000,
+            fixedForecast: 100_000,
+            savingGoal: 50_000,
+            authority: .legacyExpectedExpenses
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+
+        #expect(snapshot.totalBudget.minorUnits == 600_000)
+        #expect(snapshot.expectedExpenses.minorUnits == 600_000)
+        #expect(snapshot.freeBudget.minorUnits == 450_000)
+        #expect(snapshot.availableRightNow.minorUnits == 450_000)
+    }
+
+    @Test
+    func newZeroIncomePlanDoesNotBorrowTheExpectedExpenseForecast() throws {
+        let context = try makeContext(
+            monthlyIncome: 0,
+            totalBudget: 600_000,
+            fixedForecast: 0,
+            savingGoal: 0,
+            authority: .incomeBased
+        )
+        let snapshot = try requireConfigured(
+            engine.snapshot(
+                cycle: context.cycle,
+                currencyCode: "USD",
+                expenses: [],
+                plan: context.plan,
+                now: context.day20,
+                calendar: context.calendar
+            )
+        )
+
+        #expect(snapshot.totalBudget.minorUnits == 0)
+        #expect(snapshot.expectedExpenses.minorUnits == 600_000)
+        #expect(snapshot.freeBudget.minorUnits == 0)
+        #expect(snapshot.availableRightNow.minorUnits == 0)
     }
 
     @Test
@@ -193,6 +247,7 @@ struct BudgetEngineTests {
             totalBudgetMinorUnits: 600_000,
             fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: 50_000,
+            authority: .incomeBased,
             categoryBudgets: []
         )
         let snapshot = try requireConfigured(
@@ -236,6 +291,7 @@ struct BudgetEngineTests {
             totalBudgetMinorUnits: 250_000,
             fixedExpensesMinorUnits: 200_000,
             savingGoalMinorUnits: 250_000,
+            authority: .incomeBased,
             categoryBudgets: []
         )
         let snapshot = try requireConfigured(
@@ -805,7 +861,8 @@ struct BudgetEngineTests {
         monthlyIncome: Int64 = 400_000,
         totalBudget: Int64 = 300_000,
         fixedForecast: Int64 = 0,
-        savingGoal: Int64 = 50_000
+        savingGoal: Int64 = 50_000,
+        authority: BudgetPlanAuthority = .incomeBased
     ) throws -> Context {
         let calendar = TestFixtures.utcCalendar
         let start = try date(2026, 1, 1, calendar: calendar)
@@ -826,6 +883,7 @@ struct BudgetEngineTests {
             totalBudgetMinorUnits: totalBudget,
             fixedExpensesMinorUnits: fixedForecast,
             savingGoalMinorUnits: savingGoal,
+            authority: authority,
             categoryBudgets: [categoryBudget]
         )
         return Context(

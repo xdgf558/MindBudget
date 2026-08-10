@@ -192,8 +192,9 @@ Status: Done
 - [x] Remove the redundant manual fixed-expense forecast from initial, transition, and Settings
   budget forms. Keep fixed expenses in the ledger/recurring workflow, use monthly income plus only
   explicitly allocated extra income minus savings for both preview and runtime, keep Expected
-  expenses as an independent pace reference, preserve a current legacy reservation only as an
-  upgrade bridge, and retire it from future plan copies without a destructive schema migration.
+  expenses as an independent pace reference, preserve the old funding base and reservation for a
+  migrated current cycle, and retire both through a lightweight Schema V4 authority marker when
+  future plans are created.
 
 ## Post-upload update — Savings progress and app-locale model guidance
 Status: In Progress

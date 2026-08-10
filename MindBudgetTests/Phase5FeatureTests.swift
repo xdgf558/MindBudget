@@ -554,6 +554,7 @@ struct Phase5FeatureTests {
             totalBudgetMinorUnits: 0,
             fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: 0,
+            authority: .incomeBased,
             categoryBudgets: []
         )
         let expenses = [
@@ -1349,6 +1350,7 @@ struct Phase5FeatureTests {
             totalBudgetMinorUnits: 300_000,
             fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: 150_000,
+            authority: .incomeBased,
             categoryBudgets: [categoryBudget]
         )
         let snapshot = try BudgetEngine().snapshot(

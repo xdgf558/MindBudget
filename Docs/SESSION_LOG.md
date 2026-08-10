@@ -3018,3 +3018,42 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Re-review draft PR #21, including a physical-iPhone upgrade check with a
 current plan that still carries a legacy fixed forecast. Merge only after approval; any subsequent
 TestFlight replacement must use a new build number.
+
+## 2026-08-10 — Session 76 — Preserve migrated budget authority in PR #21
+
+Goal: Close the remaining PR #21 review finding that changing every persisted plan to an
+income-based funding baseline could silently raise or cut an existing user's current-cycle
+disposable budget, especially when an older plan stored zero monthly income.
+
+What was completed: Added Schema V4 with a `BudgetPlanSemantics` companion record that marks every
+newly created, edited, transitioned, or automatically copied plan as income-based without changing
+the frozen historical `BudgetPlan` schema. A migrated plan without that marker is structurally
+recognized as legacy and keeps its original Expected-expenses funding base plus any current-cycle
+fixed reservation; this applies even when its stored monthly income is zero. Its first automatically
+created future cycle receives the explicit income-based marker, clears the legacy reservation, and
+uses monthly income plus explicitly allocated income minus the savings goal. Settings preview now
+uses the same authority as the persisted snapshot and explains that the compatibility calculation
+ends next cycle. Deletion verification, model counts, corruption validation, durable documentation,
+and bilingual copy were extended for the companion model. Regression tests open a real Schema V3
+store through the V4 migration plan, prove the zero-income legacy cycle retains its old balance,
+and prove the following cycle switches to the new semantics; separate engine tests prevent a new
+zero-income plan from borrowing Expected expenses as spending permission.
+
+What was NOT completed: No merge, version/build increment, Archive, TestFlight upload, tester
+assignment, physical-device install, signing change, or App Store submission was performed. Draft
+PR #21 remains open for owner review.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Focused
+budget, migration, and date-boundary validation passed all 72 selected tests. Full validation then
+passed all 270 Swift Testing tests across 17 suites and all 13 UI tests with zero failures.
+
+Static and coverage result: pass — floating-point money and release-readiness checks, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #21 and perform a physical-iPhone upgrade check against an
+existing pre-V4 plan. Merge only after approval; any later TestFlight replacement must use a new
+build number.

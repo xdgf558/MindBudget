@@ -234,6 +234,7 @@ struct BudgetPlanFactory: Sendable {
             totalBudgetMinorUnits: draft.totalBudgetMinorUnits,
             fixedExpensesMinorUnits: draft.fixedExpensesMinorUnits,
             savingGoalMinorUnits: draft.savingGoalMinorUnits,
+            authority: .incomeBased,
             categoryBudgets: draft.categoryBudgets.map { category in
                 CategoryBudgetSummary(
                     id: category.id,

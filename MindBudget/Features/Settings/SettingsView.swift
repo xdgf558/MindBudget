@@ -357,7 +357,7 @@ private struct BudgetSettingsView: View {
                                 .accessibilityIdentifier("settings.budget.allocationWarning")
                         }
 
-                        if plan.fixedExpensesMinorUnits > 0 {
+                        if plan.authority == .legacyExpectedExpenses {
                             Label(
                                 "settings.budget.legacyFixedForecast",
                                 systemImage: "clock.arrow.circlepath"
@@ -567,8 +567,23 @@ private struct BudgetSettingsView: View {
         ) else {
             return nil
         }
+        let fundingBase: Money
+        switch plan.authority {
+        case .legacyExpectedExpenses:
+            guard let expectedExpenses = try? parser.money(
+                from: totalBudgetText,
+                currencyCode: plan.currencyCode,
+                locale: locale,
+                allowsZero: true
+            ) else {
+                return nil
+            }
+            fundingBase = expectedExpenses
+        case .incomeBased:
+            fundingBase = monthlyIncome
+        }
         return try? BudgetEngine().allocation(
-            baseTotalBudget: monthlyIncome,
+            baseTotalBudget: fundingBase,
             additionalBudget: Money(
                 minorUnits: plan.allocatedIncomeMinorUnits,
                 currencyCode: plan.currencyCode

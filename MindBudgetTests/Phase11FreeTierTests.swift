@@ -373,6 +373,100 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func schemaV3BudgetKeepsItsLegacyBaseBeforeTheNextCycleUsesIncome() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudgetV3BudgetMigration-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let storeURL = directory.appendingPathComponent("MindBudget.store")
+        let calendar = TestFixtures.utcCalendar
+        let cycle = try #require(calendar.dateInterval(of: .month, for: TestFixtures.now))
+        let planID = UUID()
+
+        do {
+            let schema = Schema(versionedSchema: SchemaV3.self)
+            let configuration = ModelConfiguration(
+                "MindBudget",
+                schema: schema,
+                url: storeURL,
+                allowsSave: true
+            )
+            let container = try ModelContainer(for: schema, configurations: [configuration])
+            let context = ModelContext(container)
+            context.insert(
+                BudgetPlan(
+                    id: planID,
+                    cycleStart: cycle.start,
+                    cycleEnd: cycle.end,
+                    currencyCode: "USD",
+                    monthlyIncomeMinorUnits: 0,
+                    totalBudgetMinorUnits: 600_000,
+                    fixedExpensesMinorUnits: 100_000,
+                    savingGoalMinorUnits: 50_000,
+                    createdAt: cycle.start,
+                    updatedAt: cycle.start,
+                    categoryBudgets: []
+                )
+            )
+            try context.save()
+        }
+
+        let actor = try DataController(storeURL: storeURL).dataActor
+        let migrated = try #require(
+            try await actor.fetchBudgetPlanSummaries().first { $0.id == planID }
+        )
+        #expect(migrated.authority == .legacyExpectedExpenses)
+        #expect(try await actor.modelCounts().budgetPlanSemantics == 0)
+
+        let currentSnapshot = try BudgetEngine().snapshot(
+            cycle: cycle,
+            currencyCode: "USD",
+            expenses: [],
+            plan: migrated,
+            now: TestFixtures.now,
+            calendar: calendar
+        )
+        guard case let .configured(current) = currentSnapshot else {
+            Issue.record("Expected the migrated plan to stay configured")
+            return
+        }
+        #expect(current.totalBudget.minorUnits == 600_000)
+        #expect(current.freeBudget.minorUnits == 450_000)
+
+        let nextReferenceDate = try #require(
+            calendar.date(byAdding: .day, value: 1, to: cycle.end)
+        )
+        let coverage = try await actor.ensurePlanCovering(
+            date: nextReferenceDate,
+            futureCycleStartDay: 1,
+            calendar: calendar,
+            timestamp: nextReferenceDate
+        )
+        guard case let .covered(nextPlan) = coverage else {
+            Issue.record("Expected the next regular cycle to be generated")
+            return
+        }
+        #expect(nextPlan.authority == .incomeBased)
+        #expect(nextPlan.fixedExpensesMinorUnits == 0)
+        #expect(try await actor.modelCounts().budgetPlanSemantics == 1)
+
+        let nextSnapshot = try BudgetEngine().snapshot(
+            cycle: DateInterval(start: nextPlan.cycleStart, end: nextPlan.cycleEnd),
+            currencyCode: "USD",
+            expenses: [],
+            plan: nextPlan,
+            now: nextReferenceDate,
+            calendar: calendar
+        )
+        guard case let .configured(next) = nextSnapshot else {
+            Issue.record("Expected the new income-based plan to stay configured")
+            return
+        }
+        #expect(next.totalBudget.minorUnits == 0)
+        #expect(next.freeBudget.minorUnits == 0)
+    }
+
+    @Test
     func incomeAllocationMustBeExplicitAndCannotExceedTheIncome() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let invalid = incomeDraft(

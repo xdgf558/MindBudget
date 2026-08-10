@@ -109,11 +109,12 @@ app's private data are forbidden in V1.
   reference date. It preserves plan identity, boundaries, currency, and category budgets;
   historical cycles cannot be edited through that path.
 - Fixed expenses are actual ledger entries created directly or by confirmed monthly recurring
-  rules. Budget setup no longer accepts a separate fixed-expense forecast. An existing current
-  plan temporarily preserves its legacy reservation through edits so upgrading cannot change the
-  available amount; actual fixed entries consume it first, and the next copied cycle writes zero.
-- Setup preview and runtime use the same disposable basis: monthly income plus only extra income
-  explicitly allocated to the spending budget, minus the per-cycle savings goal, clamped at zero.
+  rules. Budget setup no longer accepts a separate fixed-expense forecast. A Schema V1–V3 plan
+  temporarily preserves both its old Expected expenses funding base and any legacy reservation so
+  upgrading cannot change the current cycle's available amount; actual fixed entries consume the
+  reservation first. The next copied cycle writes zero and switches to the new income basis.
+- New-plan setup preview and runtime use the same disposable basis: monthly income plus only extra
+  income explicitly allocated to the spending budget, minus the per-cycle savings goal, clamped at zero.
   Expected expenses remains an independent pace and reasonableness reference rather than being
   auto-filled from income or used as hidden spending permission.
 - Actual fixed and discretionary rows both reduce the cycle's disposable balance. Today's amount
@@ -196,7 +197,9 @@ Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interl
 Phase 10 retains its signed-device and distribution release gates. The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
-models through tested lightweight migrations without mutating the shipped V2 income shape. All
+models. Schema V4 adds companion budget-authority metadata: absence means a migrated legacy plan,
+while every new plan persists the income-based authority. Tested lightweight migrations preserve
+the shipped V2 income and V1–V3 budget shapes. All
 writes remain actor-isolated and cross-boundary projections remain Sendable.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open

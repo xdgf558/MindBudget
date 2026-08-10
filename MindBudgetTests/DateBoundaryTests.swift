@@ -199,6 +199,7 @@ struct DateBoundaryTests {
             pair.0.cycleEnd == pair.1.cycleStart
         })
         #expect(plans.allSatisfy { $0.totalBudgetMinorUnits == initial.totalBudgetMinorUnits })
+        #expect(plans.allSatisfy { $0.authority == .incomeBased })
         #expect(plans.allSatisfy { $0.categoryBudgets.first?.limitMinorUnits == 60_000 })
         #expect(Set(plans.map(\.id)).count == plans.count)
     }
@@ -407,6 +408,7 @@ struct DateBoundaryTests {
             totalBudgetMinorUnits: 300_000,
             fixedExpensesMinorUnits: 100_000,
             savingGoalMinorUnits: 50_000,
+            authority: .incomeBased,
             categoryBudgets: [
                 CategoryBudgetSummary(
                     id: UUID(),
@@ -481,6 +483,7 @@ struct DateBoundaryTests {
             totalBudgetMinorUnits: 300_000,
             fixedExpensesMinorUnits: 100_000,
             savingGoalMinorUnits: 50_000,
+            authority: .incomeBased,
             categoryBudgets: []
         )
     }
