@@ -121,7 +121,10 @@ downloadable after the runner is destroyed. Replaced the repeated unanchored sou
 repository, while its audited fingerprint, byte length, date, derived snapshot, limitation, and
 mandatory replacement-source re-audit procedure are explicit. Made the open-P0 check independent
 of field order and self-tested it. Added `BudgetPlanSemantics` to the current local-model privacy
-inventory and corrected the stale SPEC-015 status in the commercial memory/index.
+inventory and corrected the stale SPEC-015 status in the commercial memory/index. After the first
+review-fix push exposed a workflow-loader failure with no jobs/logs, moved `runner.temp` use from
+job-level `env` to the Build-and-test step where that context is valid; artifact upload continues
+to use the same runner-temporary result bundle.
 
 What was NOT completed: No app source, schema/resource, entitlement, StoreKit product/group,
 price, trial, paywall, CloudKit, telemetry, backend, provider, Watch target, receipt flow, version,

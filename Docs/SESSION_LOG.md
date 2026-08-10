@@ -3289,7 +3289,9 @@ a downloadable pinned-action artifact. The private owner-held v1.4 source has a 
 provenance/fingerprint record and honest external-drift limitation; the open-P0 parser is
 order-independent; `BudgetPlanSemantics` is included in the current local deletion/privacy
 inventory; and SPEC-015's accepted status is consistent across commercial memory. Detailed
-decisions and evidence are in commercialization Session 4.
+decisions and evidence are in commercialization Session 4. The initial review-fix push also
+exposed and closed a GitHub workflow-loader issue by scoping `runner.temp` to the test step rather
+than job-level environment evaluation.
 
 What was NOT completed: No product behavior, app source/schema/resource, entitlement, StoreKit,
 CloudKit, telemetry, backend, provider, receipt, Watch, version, Archive, upload, or tester state
