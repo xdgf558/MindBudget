@@ -3094,3 +3094,35 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 
 Next suggested task: Re-review draft PR #21 with its corrected migration description. Merge only
 after owner approval; any later TestFlight replacement must use a new build number.
+
+## 2026-08-10 — Session 78 — Prepare 0.9.6 (7) TestFlight candidate
+
+Goal: Prepare the owner-approved PR #21 budget-semantics work as the next signed internal
+TestFlight candidate without assigning it to any tester group.
+
+What was completed: Incremented the release from 0.9.5 (6) to 0.9.6 (7), moved the approved
+income-based disposable-budget and lightweight Schema V3-to-V4 migration notes into the 0.9.6
+release section, added concise bilingual in-app release copy, and aligned the About-screen,
+release-readiness script, localization tests, UI tests, submission notes, and release checklist with
+the candidate version. The TestFlight test notes ask testers to verify the new budget authority,
+legacy-plan upgrade behavior, and next-cycle handoff. No signing identity or team identifier was
+committed; the current China-region team remains a local signing override.
+
+What was NOT completed: No Archive, TestFlight upload, tester assignment, external-test
+submission, or App Store submission was performed in this preparation step. The Archive and upload
+remain pending until this release commit is merged to `main`.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation with the established hosted-environment wall-clock exclusion passed all Swift Testing
+and UI test suites with zero functional failures, including all 13 UI tests.
+
+Static and coverage result: pass — floating-point money, release-readiness, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` checks pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Merge this release-preparation commit to `main`, create a signed 0.9.6 (7)
+Archive with the current local team, upload it to App Store Connect, and stop before assigning any
+tester group.

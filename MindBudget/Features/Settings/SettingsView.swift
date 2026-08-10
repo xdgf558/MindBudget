@@ -1431,6 +1431,15 @@ enum ReleaseNotesCatalog {
     /// entry automatically moves into the collapsed history section on the About screen.
     static let versions: [ReleaseNotesVersion] = [
         ReleaseNotesVersion(
+            version: "0.9.6",
+            items: [
+                ReleaseNoteItem(
+                    systemImage: "chart.bar.doc.horizontal.fill",
+                    localizationKey: "settings.releaseNotes.simplifiedBudgetSetup"
+                ),
+            ]
+        ),
+        ReleaseNotesVersion(
             version: "0.9.5",
             items: [
                 ReleaseNoteItem(
