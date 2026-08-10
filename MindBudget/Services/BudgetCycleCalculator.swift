@@ -216,7 +216,7 @@ struct BudgetPlanFactory: Sendable {
             currencyCode: previous.currencyCode,
             monthlyIncomeMinorUnits: previous.monthlyIncomeMinorUnits,
             totalBudgetMinorUnits: previous.totalBudgetMinorUnits,
-            fixedExpensesMinorUnits: previous.fixedExpensesMinorUnits,
+            fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: previous.savingGoalMinorUnits,
             createdAt: timestamp,
             updatedAt: timestamp,
@@ -234,6 +234,7 @@ struct BudgetPlanFactory: Sendable {
             totalBudgetMinorUnits: draft.totalBudgetMinorUnits,
             fixedExpensesMinorUnits: draft.fixedExpensesMinorUnits,
             savingGoalMinorUnits: draft.savingGoalMinorUnits,
+            authority: .incomeBased,
             categoryBudgets: draft.categoryBudgets.map { category in
                 CategoryBudgetSummary(
                     id: category.id,

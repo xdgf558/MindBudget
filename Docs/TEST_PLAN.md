@@ -408,7 +408,7 @@ the preference to Warm Botanical with the other local preferences. Simplified Ch
 coverage proves that no user-facing value contains the English product name `MindBudget`.
 Every `AppSkin` must resolve to an opaque portrait artwork asset at least 800 pixels wide and 1700
 pixels tall. The release-readiness script validates all three asset-catalog mappings and dimensions.
-Before TestFlight, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and
+Before each TestFlight replacement, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and
 onboarding in all three skins, including AX5 and VoiceOver on a signed iPhone.
 
 The navigation smoke path must observe Today as selected initially and Wishlist as selected after
@@ -430,21 +430,37 @@ Export and Privacy remain directly discoverable there. The Simplified Chinese pa
 Reminders second-level page, verifies that the tone value renders as `柔和`, and rejects the raw
 `settings.reminders.tone.soft` key. Debug-only local fallback diagnostics must remain compiled out
 of the generic Release build used for Archive and TestFlight. About must read the marketing version
-from the built bundle, render `0.9.5` for candidate build 6, and expose the localized update summary
+from the built bundle, render `0.9.5` for the current marketing version, and expose the localized update summary
 while keeping `0.9.4` and earlier notes collapsed as history.
 The Budget destination must load the existing current plan into enabled amount fields, expose one
 Save Budget action, and confirm a successful update without adding another plan.
-Its allocation preview must use `BudgetEngine` exact-minor-unit arithmetic and distinguish an
-available flexible amount from a zero budget, a fully reserved budget, and an overcommitted plan.
-For a CNY 6,000 spending budget with CNY 3,000 fixed expenses and a CNY 500 saving goal on day 7
-of a 31-day cycle, Today must expose CNY 100 for 25 remaining days before any expense. The engine
-reconstructs that calendar day's starting flexible amount before division, so each discretionary
-entry reduces the displayed amount one for one without double subtraction. The visible amount
-must clamp at zero; exact overage remains available for a localized icon, text, and VoiceOver
-notice, so red is never the only signal. Fixed and savings-bucket entries do not consume this
-daily flexible amount. If the cycle cannot provide even one minor unit of daily flexible allowance
-before any spending today, the zero must use the attention color and expose a neutral localized
-explanation rather than appearing without context.
+Its amount section must show Income this month, Expected expenses, and Savings goal without a
+manual fixed-expense field. Its disposable preview must use `BudgetEngine` exact-minor-unit
+arithmetic to calculate monthly income plus only explicitly allocated extra income minus the
+savings goal, clamped at zero with distinct zero, fully allocated, and overcommitted explanations.
+The configured snapshot must enforce that same amount; for example, income 20,000, Expected
+expenses 8,000, and savings 2,000 must preview and enforce 18,000. Expected expenses independently
+drives pace and cycle-usage comparisons. New and automatically copied plans must store zero in the
+legacy fixed-forecast field. A real Schema V3 store must pass through the lightweight Schema
+V3-to-V4 migration with no invented authority row: old plans with income 8,000 / Expected expenses
+6,000 and income 0 / Expected expenses 6,000 both keep Expected expenses as the current-cycle
+funding base. Editing and saving one of those plans must preserve its missing-marker legacy
+authority and Settings must preview that same result while explaining the next-cycle switch. A new
+zero-income plan must stay at zero.
+The next copied cycle must persist the income-based authority, write zero fixed forecast, and use
+income-minus-savings. A nonzero value on an existing current plan must remain reserved through
+Settings edits and retire only on that next cycle copy. An actual fixed entry consumes that
+reservation first without changing availability; only
+the amount above it is an additional deduction. For plans without that legacy reservation, actual
+fixed and discretionary expense entries both reduce the current disposable amount, while savings
+entries satisfy the savings reservation. The engine reconstructs
+that calendar day's starting amount before division, so a discretionary entry reduces today's
+display one for one. A fixed entry is already deducted from the cycle amount and is rebalanced
+across the remaining days rather than being charged to today's reference a second time.
+The visible amount must clamp at zero; exact overage remains available for a localized icon, text,
+and VoiceOver notice, so red is never the only signal. If the cycle cannot provide even one minor
+unit of daily allowance before any spending today, the zero must use the attention color and expose
+a neutral localized explanation rather than appearing without context.
 The expense form must expose every persisted expense category in one horizontally scrollable
 selector, keep deterministic ordering, center the selected item, and announce its selected trait.
 The Simplified Chinese Log filter must render `全部` / `支出` / `收入` for record type and

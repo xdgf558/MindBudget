@@ -252,7 +252,6 @@ private struct BudgetSettingsView: View {
     @State private var cycleStartDay = 1
     @State private var monthlyIncomeText = ""
     @State private var totalBudgetText = ""
-    @State private var fixedExpensesText = ""
     @State private var savingGoalText = ""
     @State private var errorKey: LocalizedStringKey?
     @State private var isLoading = true
@@ -334,12 +333,6 @@ private struct BudgetSettingsView: View {
                         identifier: "settings.budget.totalBudget"
                     )
                     amountField(
-                        "budget.fixedExpenses",
-                        text: $fixedExpensesText,
-                        field: .fixed,
-                        identifier: "settings.budget.fixedExpenses"
-                    )
-                    amountField(
                         "budget.savingGoal",
                         text: $savingGoalText,
                         field: .saving,
@@ -362,6 +355,17 @@ private struct BudgetSettingsView: View {
                                 .foregroundStyle(.orange)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .accessibilityIdentifier("settings.budget.allocationWarning")
+                        }
+
+                        if plan.authority == .legacyExpectedExpenses {
+                            Label(
+                                "settings.budget.legacyFixedForecast",
+                                systemImage: "clock.arrow.circlepath"
+                            )
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("settings.budget.legacyFixedForecast")
                         }
                     }
                 }
@@ -421,7 +425,6 @@ private struct BudgetSettingsView: View {
         .onChange(of: cycleStartDay) { _, _ in markDraftChanged() }
         .onChange(of: monthlyIncomeText) { _, _ in markDraftChanged() }
         .onChange(of: totalBudgetText) { _, _ in markDraftChanged() }
-        .onChange(of: fixedExpensesText) { _, _ in markDraftChanged() }
         .onChange(of: savingGoalText) { _, _ in markDraftChanged() }
     }
 
@@ -474,13 +477,6 @@ private struct BudgetSettingsView: View {
                 ),
                 locale: locale
             )
-            fixedExpensesText = parser.inputText(
-                for: Money(
-                    minorUnits: loadedPlan.fixedExpensesMinorUnits,
-                    currencyCode: loadedPlan.currencyCode
-                ),
-                locale: locale
-            )
             savingGoalText = parser.inputText(
                 for: Money(
                     minorUnits: loadedPlan.savingGoalMinorUnits,
@@ -506,7 +502,7 @@ private struct BudgetSettingsView: View {
                 currencyCode: plan.currencyCode,
                 monthlyIncomeText: monthlyIncomeText,
                 totalBudgetText: totalBudgetText,
-                fixedExpensesText: fixedExpensesText,
+                legacyFixedExpensesMinorUnits: plan.fixedExpensesMinorUnits,
                 savingGoalText: savingGoalText,
                 locale: locale,
                 referenceDate: now,
@@ -541,7 +537,6 @@ private struct BudgetSettingsView: View {
         switch error {
         case .invalidIncome: "budget.error.income"
         case .invalidTotalBudget: "budget.error.total"
-        case .invalidFixedExpenses: "budget.error.fixed"
         case .invalidSavingGoal: "budget.error.saving"
         case .persistence: "error.data.save"
         }
@@ -559,13 +554,8 @@ private struct BudgetSettingsView: View {
     private var allocationPreview: BudgetAllocationSummary? {
         guard let plan else { return nil }
         let parser = MoneyInputParser()
-        guard let totalBudget = try? parser.money(
-            from: totalBudgetText,
-            currencyCode: plan.currencyCode,
-            locale: locale,
-            allowsZero: true
-        ), let fixedExpenses = try? parser.money(
-            from: fixedExpensesText,
+        guard let monthlyIncome = try? parser.money(
+            from: monthlyIncomeText,
             currencyCode: plan.currencyCode,
             locale: locale,
             allowsZero: true
@@ -577,13 +567,31 @@ private struct BudgetSettingsView: View {
         ) else {
             return nil
         }
+        let fundingBase: Money
+        switch plan.authority {
+        case .legacyExpectedExpenses:
+            guard let expectedExpenses = try? parser.money(
+                from: totalBudgetText,
+                currencyCode: plan.currencyCode,
+                locale: locale,
+                allowsZero: true
+            ) else {
+                return nil
+            }
+            fundingBase = expectedExpenses
+        case .incomeBased:
+            fundingBase = monthlyIncome
+        }
         return try? BudgetEngine().allocation(
-            baseTotalBudget: totalBudget,
+            baseTotalBudget: fundingBase,
             additionalBudget: Money(
                 minorUnits: plan.allocatedIncomeMinorUnits,
                 currencyCode: plan.currencyCode
             ),
-            fixedForecast: fixedExpenses,
+            fixedForecast: Money(
+                minorUnits: plan.fixedExpensesMinorUnits,
+                currencyCode: plan.currencyCode
+            ),
             savingGoal: savingGoal
         )
     }
@@ -606,7 +614,6 @@ private struct BudgetSettingsView: View {
     private enum AmountField: Hashable {
         case income
         case total
-        case fixed
         case saving
     }
 }

@@ -4,7 +4,6 @@ import SwiftUI
 enum BudgetSetupError: Error, Equatable, Sendable {
     case invalidIncome(MoneyInputError)
     case invalidTotalBudget(MoneyInputError)
-    case invalidFixedExpenses(MoneyInputError)
     case invalidSavingGoal(MoneyInputError)
     case persistence
 }
@@ -15,7 +14,6 @@ struct BudgetPlanDraftBuilder: Sendable {
     private struct ParsedAmounts {
         let income: Money
         let totalBudget: Money
-        let fixedExpenses: Money
         let savingGoal: Money
     }
 
@@ -24,7 +22,6 @@ struct BudgetPlanDraftBuilder: Sendable {
         cycle: DateInterval,
         monthlyIncomeText: String,
         totalBudgetText: String,
-        fixedExpensesText: String,
         savingGoalText: String,
         locale: Locale,
         timestamp: Date
@@ -33,7 +30,6 @@ struct BudgetPlanDraftBuilder: Sendable {
             currencyCode: currencyCode,
             monthlyIncomeText: monthlyIncomeText,
             totalBudgetText: totalBudgetText,
-            fixedExpensesText: fixedExpensesText,
             savingGoalText: savingGoalText,
             locale: locale
         )
@@ -45,7 +41,7 @@ struct BudgetPlanDraftBuilder: Sendable {
             currencyCode: currencyCode,
             monthlyIncomeMinorUnits: amounts.income.minorUnits,
             totalBudgetMinorUnits: amounts.totalBudget.minorUnits,
-            fixedExpensesMinorUnits: amounts.fixedExpenses.minorUnits,
+            fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: amounts.savingGoal.minorUnits,
             createdAt: timestamp,
             updatedAt: timestamp,
@@ -58,7 +54,7 @@ struct BudgetPlanDraftBuilder: Sendable {
         currencyCode: String,
         monthlyIncomeText: String,
         totalBudgetText: String,
-        fixedExpensesText: String,
+        legacyFixedExpensesMinorUnits: Int64,
         savingGoalText: String,
         locale: Locale,
         referenceDate: Date,
@@ -68,7 +64,6 @@ struct BudgetPlanDraftBuilder: Sendable {
             currencyCode: currencyCode,
             monthlyIncomeText: monthlyIncomeText,
             totalBudgetText: totalBudgetText,
-            fixedExpensesText: fixedExpensesText,
             savingGoalText: savingGoalText,
             locale: locale
         )
@@ -77,7 +72,7 @@ struct BudgetPlanDraftBuilder: Sendable {
             currencyCode: currencyCode,
             monthlyIncomeMinorUnits: amounts.income.minorUnits,
             totalBudgetMinorUnits: amounts.totalBudget.minorUnits,
-            fixedExpensesMinorUnits: amounts.fixedExpenses.minorUnits,
+            fixedExpensesMinorUnits: legacyFixedExpensesMinorUnits,
             savingGoalMinorUnits: amounts.savingGoal.minorUnits,
             referenceDate: referenceDate,
             updatedAt: timestamp
@@ -88,13 +83,11 @@ struct BudgetPlanDraftBuilder: Sendable {
         currencyCode: String,
         monthlyIncomeText: String,
         totalBudgetText: String,
-        fixedExpensesText: String,
         savingGoalText: String,
         locale: Locale
     ) throws -> ParsedAmounts {
         let income: Money
         let totalBudget: Money
-        let fixedExpenses: Money
         let savingGoal: Money
         do {
             income = try parser.money(
@@ -117,16 +110,6 @@ struct BudgetPlanDraftBuilder: Sendable {
             throw BudgetSetupError.invalidTotalBudget(error)
         }
         do {
-            fixedExpenses = try parser.money(
-                from: fixedExpensesText,
-                currencyCode: currencyCode,
-                locale: locale,
-                allowsZero: true
-            )
-        } catch let error as MoneyInputError {
-            throw BudgetSetupError.invalidFixedExpenses(error)
-        }
-        do {
             savingGoal = try parser.money(
                 from: savingGoalText,
                 currencyCode: currencyCode,
@@ -140,7 +123,6 @@ struct BudgetPlanDraftBuilder: Sendable {
         return ParsedAmounts(
             income: income,
             totalBudget: totalBudget,
-            fixedExpenses: fixedExpenses,
             savingGoal: savingGoal
         )
     }
@@ -152,7 +134,6 @@ final class BudgetSetupViewModel: ObservableObject {
     @Published var cycleStartDay: Int
     @Published var monthlyIncomeText = ""
     @Published var totalBudgetText = ""
-    @Published var fixedExpensesText = ""
     @Published var savingGoalText = ""
     @Published private(set) var error: BudgetSetupError?
     @Published private(set) var isSaving = false
@@ -181,7 +162,6 @@ final class BudgetSetupViewModel: ObservableObject {
                 cycle: cycle,
                 monthlyIncomeText: monthlyIncomeText,
                 totalBudgetText: totalBudgetText,
-                fixedExpensesText: fixedExpensesText,
                 savingGoalText: savingGoalText,
                 locale: locale,
                 timestamp: now
@@ -346,12 +326,6 @@ struct BudgetSetupView: View {
                     identifier: "budget.totalBudget"
                 )
                 amountField(
-                    "budget.fixedExpenses",
-                    text: $viewModel.fixedExpensesText,
-                    field: .fixed,
-                    identifier: "budget.fixedExpenses"
-                )
-                amountField(
                     "budget.savingGoal",
                     text: $viewModel.savingGoalText,
                     field: .saving,
@@ -446,7 +420,6 @@ struct BudgetSetupView: View {
         switch error {
         case .invalidIncome: "budget.error.income"
         case .invalidTotalBudget: "budget.error.total"
-        case .invalidFixedExpenses: "budget.error.fixed"
         case .invalidSavingGoal: "budget.error.saving"
         case .persistence: "error.data.save"
         }
@@ -454,13 +427,8 @@ struct BudgetSetupView: View {
 
     private var allocationPreview: BudgetAllocationSummary? {
         let parser = MoneyInputParser()
-        guard let totalBudget = try? parser.money(
-            from: viewModel.totalBudgetText,
-            currencyCode: viewModel.currencyCode,
-            locale: locale,
-            allowsZero: true
-        ), let fixedExpenses = try? parser.money(
-            from: viewModel.fixedExpensesText,
+        guard let monthlyIncome = try? parser.money(
+            from: viewModel.monthlyIncomeText,
             currencyCode: viewModel.currencyCode,
             locale: locale,
             allowsZero: true
@@ -473,8 +441,12 @@ struct BudgetSetupView: View {
             return nil
         }
         return try? BudgetEngine().allocation(
-            totalBudget: totalBudget,
-            fixedForecast: fixedExpenses,
+            baseTotalBudget: monthlyIncome,
+            additionalBudget: Money(
+                minorUnits: 0,
+                currencyCode: viewModel.currencyCode
+            ),
+            fixedForecast: Money(minorUnits: 0, currencyCode: viewModel.currencyCode),
             savingGoal: savingGoal
         )
     }
@@ -495,6 +467,6 @@ struct BudgetSetupView: View {
     }
 
     private enum Field: Hashable {
-        case income, total, fixed, saving
+        case income, total, saving
     }
 }

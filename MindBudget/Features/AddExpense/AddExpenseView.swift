@@ -326,8 +326,8 @@ final class ExpenseFormViewModel: ObservableObject {
                 )
                 pendingImpact = impact
             }
-            showsReasonablenessWarning = snapshot.totalBudget.minorUnits > 0
-                && amount.minorUnits > snapshot.totalBudget.minorUnits
+            showsReasonablenessWarning = snapshot.expectedExpenses.minorUnits > 0
+                && amount.minorUnits > snapshot.expectedExpenses.minorUnits
                 && dismissedWarningForMinorUnits != amount.minorUnits
         } else {
             inlineImpact = nil

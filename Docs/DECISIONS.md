@@ -1864,3 +1864,53 @@ progress remains exact without overflow or negative remaining money at successfu
 
 Files affected: Foundation Models capability and protocol surface, bilingual status copy, savings
 projection arithmetic, Phase 7/11 regressions, and durable project memory.
+
+---
+
+## 2026-08-09 — Retire manual fixed-expense forecasts from budget setup
+
+Context: Budget setup required a fixed-expense forecast even though expense entry now owns the
+confirmed monthly recurring fixed-expense workflow. Keeping both paths asked for the same fact
+twice and risked reserving a forecast in addition to counting the generated ledger entry. The
+visible “flexible budget after reservations” also no longer matched the requested income-level
+planning question.
+
+Decision: Remove the fixed-expense input from initial setup, transition confirmation, and the
+current-cycle Settings editor. New and automatically copied plans write zero to the existing
+`fixedExpensesMinorUnits` field. Add a Schema V4 `BudgetPlanSemantics` companion row rather than
+mutating the frozen `BudgetPlan` shape. A plan without that row is a migrated Schema V1–V3 plan and
+keeps its persisted Expected expenses amount as the funding base, plus any fixed reservation,
+through that legacy cycle. Every newly materialized plan writes an `.incomeBased` marker and uses
+configured monthly income plus only extra income explicitly allocated to the spending budget,
+minus the per-cycle savings goal, clamped at zero. Actual fixed entries consume any retained
+compatibility reservation first, so only an amount above it is an additional deduction.
+Expected expenses remains a separate planning reference for pace, cycle-usage copy, and amount
+reasonableness; it does not grant additional spending permission. Actual fixed and discretionary
+ledger rows reduce the disposable balance. The daily card charges only discretionary entries to
+that day's reference amount; a fixed entry already reduces the cycle balance and is therefore
+rebalanced across the remaining days instead of being subtracted a second time on its entry date.
+
+Alternatives considered: Hiding the field without changing persisted or engine behavior; deleting
+the persisted property through a new schema migration; using Expected expenses as the runtime
+funding limit; or deriving a hidden fixed forecast from recurring rules. A schedule-derived
+forecast was rejected because recurring rules are execution aids rather than a complete forecast:
+one-off fixed entries, paused rules, and mid-cycle edits would make that reservation incomplete and
+could silently recreate the same double-accounting problem.
+
+Consequences: Users manage fixed expenses in one place. Existing stores migrate through a
+lightweight companion model without changing the historical plan shape or causing either an upward
+or downward current-cycle balance jump—even when an old plan stored zero monthly income. Legacy
+forecasts cannot double-reserve the current balance. A new 20,000 income,
+8,000 Expected expenses plan, and 2,000 savings goal shows and enforces 18,000 disposable money in
+both setup and Today. Explicit extra-income allocation increases both funding and the spending-plan
+reference; merely recording income changes neither. A large fixed entry can move the cycle's linear
+pace on its occurrence date, but it cannot zero today's amount through a second same-day charge.
+The old funding base and forecast remain readable only for unmarked migrated plans. Settings uses
+that same base for the current preview and explains that the next automatic cycle switches to
+income-minus-savings and writes a zero fixed forecast. A new plan with genuinely zero income stays
+at zero rather than borrowing Expected expenses. No destructive migration is required.
+
+Files affected: budget setup, transition and Settings UI, Schema V4 companion metadata and
+migration, budget draft/copy construction, `BudgetEngine`, bilingual copy and release notes,
+unit/UI regressions, test plan, changelog, project
+memory, tasks, decisions, and session log.

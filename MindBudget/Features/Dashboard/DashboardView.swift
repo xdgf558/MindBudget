@@ -574,7 +574,6 @@ enum BudgetConfirmationContext {
 private struct BudgetAmountFields {
     var income = ""
     var total = ""
-    var fixed = ""
     var saving = ""
 }
 
@@ -675,11 +674,6 @@ struct BudgetConfirmationView: View {
                 identifier: "\(identifierPrefix).total"
             )
             confirmationAmountField(
-                "budget.fixedExpenses",
-                text: fields.fixed,
-                identifier: "\(identifierPrefix).fixed"
-            )
-            confirmationAmountField(
                 "budget.savingGoal",
                 text: fields.saving,
                 identifier: "\(identifierPrefix).saving"
@@ -722,12 +716,10 @@ struct BudgetConfirmationView: View {
         let plan = requirement.precedingPlan
         let income = Money(minorUnits: plan.monthlyIncomeMinorUnits, currencyCode: plan.currencyCode)
         let total = Money(minorUnits: plan.totalBudgetMinorUnits, currencyCode: plan.currencyCode)
-        let fixed = Money(minorUnits: plan.fixedExpensesMinorUnits, currencyCode: plan.currencyCode)
         let saving = Money(minorUnits: plan.savingGoalMinorUnits, currencyCode: plan.currencyCode)
         let fields = BudgetAmountFields(
             income: parser.inputText(for: income, locale: locale),
             total: parser.inputText(for: total, locale: locale),
-            fixed: parser.inputText(for: fixed, locale: locale),
             saving: parser.inputText(for: saving, locale: locale)
         )
         transitionFields = fields
@@ -747,7 +739,6 @@ struct BudgetConfirmationView: View {
                     cycle: requirement.interval,
                     monthlyIncomeText: transitionFields.income,
                     totalBudgetText: transitionFields.total,
-                    fixedExpensesText: transitionFields.fixed,
                     savingGoalText: transitionFields.saving,
                     locale: locale,
                     timestamp: timestamp
@@ -757,7 +748,6 @@ struct BudgetConfirmationView: View {
                     cycle: requirement.firstRegularInterval,
                     monthlyIncomeText: regularFields.income,
                     totalBudgetText: regularFields.total,
-                    fixedExpensesText: regularFields.fixed,
                     savingGoalText: regularFields.saving,
                     locale: locale,
                     timestamp: timestamp
@@ -772,7 +762,6 @@ struct BudgetConfirmationView: View {
                     cycle: requirement.interval,
                     monthlyIncomeText: regularFields.income,
                     totalBudgetText: regularFields.total,
-                    fixedExpensesText: regularFields.fixed,
                     savingGoalText: regularFields.saving,
                     locale: locale,
                     timestamp: timestamp
@@ -792,7 +781,6 @@ struct BudgetConfirmationView: View {
         switch error {
         case .invalidIncome: "budget.error.income"
         case .invalidTotalBudget: "budget.error.total"
-        case .invalidFixedExpenses: "budget.error.fixed"
         case .invalidSavingGoal: "budget.error.saving"
         case .persistence: "error.data.save"
         }

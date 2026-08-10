@@ -81,6 +81,7 @@ struct BudgetPlanSummary: Hashable, Sendable {
     let recordedIncomeMinorUnits: Int64
     let allocatedIncomeMinorUnits: Int64
     let allocatedSavingsMinorUnits: Int64
+    let authority: BudgetPlanAuthority
     let categoryBudgets: [CategoryBudgetSummary]
 
     init(
@@ -95,6 +96,7 @@ struct BudgetPlanSummary: Hashable, Sendable {
         recordedIncomeMinorUnits: Int64 = 0,
         allocatedIncomeMinorUnits: Int64 = 0,
         allocatedSavingsMinorUnits: Int64 = 0,
+        authority: BudgetPlanAuthority,
         categoryBudgets: [CategoryBudgetSummary]
     ) {
         self.id = id
@@ -108,6 +110,7 @@ struct BudgetPlanSummary: Hashable, Sendable {
         self.recordedIncomeMinorUnits = recordedIncomeMinorUnits
         self.allocatedIncomeMinorUnits = allocatedIncomeMinorUnits
         self.allocatedSavingsMinorUnits = allocatedSavingsMinorUnits
+        self.authority = authority
         self.categoryBudgets = categoryBudgets
     }
 }
@@ -251,6 +254,7 @@ struct ModelCounts: Equatable, Sendable {
     let expenses: Int
     let incomes: Int
     let budgetPlans: Int
+    let budgetPlanSemantics: Int
     let wishItems: Int
     let coolingOffPlans: Int
     let categoryBudgets: Int
@@ -267,6 +271,7 @@ struct ModelCounts: Equatable, Sendable {
         expenses: 0,
         incomes: 0,
         budgetPlans: 0,
+        budgetPlanSemantics: 0,
         wishItems: 0,
         coolingOffPlans: 0,
         categoryBudgets: 0,
@@ -284,6 +289,7 @@ struct ModelCounts: Equatable, Sendable {
         expenses == 0
             && incomes == 0
             && budgetPlans == 0
+            && budgetPlanSemantics == 0
             && wishItems == 0
             && coolingOffPlans == 0
             && categoryBudgets == 0
@@ -301,6 +307,7 @@ struct ModelCounts: Equatable, Sendable {
         expenses: Int,
         incomes: Int,
         budgetPlans: Int,
+        budgetPlanSemantics: Int,
         wishItems: Int,
         coolingOffPlans: Int,
         categoryBudgets: Int,
@@ -316,6 +323,7 @@ struct ModelCounts: Equatable, Sendable {
         self.expenses = expenses
         self.incomes = incomes
         self.budgetPlans = budgetPlans
+        self.budgetPlanSemantics = budgetPlanSemantics
         self.wishItems = wishItems
         self.coolingOffPlans = coolingOffPlans
         self.categoryBudgets = categoryBudgets

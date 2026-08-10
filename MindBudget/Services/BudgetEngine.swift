@@ -30,7 +30,12 @@ struct ConfiguredBudgetSnapshot: Sendable, Equatable {
     let cycle: DateInterval
     let currencyCode: String
 
+    /// Funding available for this cycle before the savings reservation. This is the
+    /// configured monthly income plus only income explicitly allocated to this plan.
     let totalBudget: Money
+    /// The user's independent spending-plan reference. It informs pace and
+    /// reasonableness copy, but never grants or removes spending permission.
+    let expectedExpenses: Money
     let fixedForecast: Money
     let savingGoal: Money
     let freeBudget: Money
@@ -227,6 +232,7 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             throw BudgetEngineError.planCycleMismatch
         }
         guard Money.isSupported(plan.currencyCode),
+              plan.monthlyIncomeMinorUnits >= 0,
               plan.totalBudgetMinorUnits >= 0,
               plan.allocatedIncomeMinorUnits >= 0,
               plan.fixedExpensesMinorUnits >= 0,
@@ -260,10 +266,25 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             }
         }
 
+        let fundingBase: Int64
+        switch plan.authority {
+        case .legacyExpectedExpenses:
+            fundingBase = plan.totalBudgetMinorUnits
+        case .incomeBased:
+            fundingBase = plan.monthlyIncomeMinorUnits
+        }
         let totalBudget = try checkedAdd(
+            fundingBase,
+            plan.allocatedIncomeMinorUnits
+        )
+        let expectedExpenses = try checkedAdd(
             plan.totalBudgetMinorUnits,
             plan.allocatedIncomeMinorUnits
         )
+        // A migrated plan keeps both its old expected-expense funding base and any old
+        // fixed reservation for that legacy cycle. New plans use income as the funding
+        // base and write zero forecast. Actual fixed entries consume a retained legacy
+        // reservation first; only an amount above it reduces the balance again.
         let fixedForecast = plan.fixedExpensesMinorUnits
         let savingGoal = plan.savingGoalMinorUnits
         let allocation = try allocation(
@@ -272,7 +293,14 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             savingGoal: money(savingGoal, currencyCode)
         )
         let freeBudget = allocation.flexibleBudget.minorUnits
-        let remainingFree = try checkedSubtract(freeBudget, discretionarySpent)
+        let fixedSpentBeyondForecast = fixedSpent > fixedForecast
+            ? fixedSpent - fixedForecast
+            : 0
+        let spentAgainstDisposable = try checkedAdd(
+            fixedSpentBeyondForecast,
+            discretionarySpent
+        )
+        let remainingFree = try checkedSubtract(freeBudget, spentAgainstDisposable)
         let pendingFixed = fixedForecast > fixedSpent ? fixedForecast - fixedSpent : 0
         let pendingSaving = savingGoal > savedSoFar ? savingGoal - savedSoFar : 0
         let remainingTotal = try checkedSubtract(totalBudget, spentTotal)
@@ -291,6 +319,7 @@ struct BudgetEngine: BudgetCalculating, Sendable {
                 cycle: cycle,
                 currencyCode: currencyCode,
                 totalBudget: money(totalBudget, currencyCode),
+                expectedExpenses: money(expectedExpenses, currencyCode),
                 fixedForecast: money(fixedForecast, currencyCode),
                 savingGoal: money(savingGoal, currencyCode),
                 freeBudget: money(freeBudget, currencyCode),
@@ -326,16 +355,26 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             snapshot.remainingTotal.minorUnits,
             amount.minorUnits
         )
-        let freeReduction = bucket == .discretionary ? amount.minorUnits : 0
+        let freeReduction: Int64
+        switch bucket {
+        case .discretionary:
+            freeReduction = amount.minorUnits
+        case .fixed:
+            freeReduction = amount.minorUnits > snapshot.pendingFixed.minorUnits
+                ? amount.minorUnits - snapshot.pendingFixed.minorUnits
+                : 0
+        case .savings:
+            freeReduction = 0
+        }
         let remainingFreeAfter = try checkedSubtract(
             snapshot.remainingFree.minorUnits,
             freeReduction
         )
-        let isDiscretionary = bucket == .discretionary
-        let impactRatio = isDiscretionary && snapshot.freeBudget.minorUnits > 0
+        let reducesDisposableBudget = bucket != .savings
+        let impactRatio = reducesDisposableBudget && snapshot.freeBudget.minorUnits > 0
             ? decimalRatio(amount.minorUnits, snapshot.freeBudget.minorUnits)
             : nil
-        let daysConsumed = isDiscretionary && snapshot.safeDailySpend.minorUnits > 0
+        let daysConsumed = reducesDisposableBudget && snapshot.safeDailySpend.minorUnits > 0
             ? decimalRatio(amount.minorUnits, snapshot.safeDailySpend.minorUnits)
             : nil
         let categoryRisk = try categoryRisk(
@@ -387,7 +426,8 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         }
 
         var spentToday: Int64 = 0
-        for expense in expenses where today.contains(expense.spentAt) && expense.bucket == .discretionary {
+        for expense in expenses where today.contains(expense.spentAt)
+            && expense.bucket == .discretionary {
             try requireCurrency(expense.amount.currencyCode, matches: snapshot.currencyCode)
             guard expense.amount.minorUnits >= 0 else {
                 throw BudgetEngineError.invalidPlan
@@ -396,10 +436,12 @@ struct BudgetEngine: BudgetCalculating, Sendable {
         }
 
         // Reconstruct the remaining flexible budget at the start of today before
-        // distributing it across the remaining calendar days. Today's entries have
-        // already reduced snapshot.remainingFree, so adding them back here prevents
-        // double subtraction while still making each new entry reduce today's amount
-        // one for one.
+        // distributing it across the remaining calendar days. Today's discretionary
+        // entries have already reduced snapshot.remainingFree, so adding them back here
+        // prevents double subtraction while still making each new flexible entry reduce
+        // today's amount one for one. A fixed entry remains an actual cycle deduction,
+        // but is rebalanced across the remaining days instead of being charged to the
+        // daily reference a second time on its recorded date.
         let startOfDayRemaining = try checkedAdd(
             snapshot.remainingFree.minorUnits,
             spentToday
@@ -413,18 +455,19 @@ struct BudgetEngine: BudgetCalculating, Sendable {
             : 0
         let dayNumber = elapsedDays + 1
         let expectedSpent = try proratedMinorUnits(
-            snapshot.freeBudget.minorUnits,
+            snapshot.expectedExpenses.minorUnits,
             numerator: dayNumber,
             denominator: totalDays
         )
-        let signedDifference = try checkedSubtract(
+        let spentAgainstDisposable = try checkedAdd(
             snapshot.discretionarySpent.minorUnits,
-            expectedSpent
+            snapshot.fixedSpent.minorUnits
         )
+        let signedDifference = try checkedSubtract(spentAgainstDisposable, expectedSpent)
         let isAhead = signedDifference > 0
         let difference = isAhead ? signedDifference : try checkedSubtract(0, signedDifference)
-        let spentRatio = snapshot.freeBudget.minorUnits > 0
-            ? decimalRatio(max(0, snapshot.discretionarySpent.minorUnits), snapshot.freeBudget.minorUnits)
+        let spentRatio = snapshot.expectedExpenses.minorUnits > 0
+            ? decimalRatio(max(0, spentAgainstDisposable), snapshot.expectedExpenses.minorUnits)
             : .zero
 
         return BudgetPaceSummary(

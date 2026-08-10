@@ -2908,3 +2908,189 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Re-review draft PR #20. After approval, merge it, complete the unchecked
 signed-device release gates, and only then Archive/upload `0.9.5 (6)` if the product owner chooses
 to resume TestFlight.
+
+## 2026-08-09 — Session 73 — Simplify budget setup and use actual fixed expenses
+
+Goal: Align budget setup with the current expense-entry workflow by removing the duplicate fixed
+expense forecast, clarifying the income and expected-expense labels, and defining this period's
+disposable budget as income minus the savings goal.
+
+Files changed: Onboarding and Settings budget forms, Dashboard budget-transition calls, budget
+engine and cycle-copy behavior, bilingual strings and 0.9.5 release notes, budget/reminder/wishlist
+regressions and UI tests, plus the project memory, decisions, task, changelog, test-plan, and
+TestFlight guidance documents.
+
+What was completed: The budget form now labels its fields “本月收入” and “预计支出”, no longer
+shows or validates a manual fixed-expense field, and previews “本期可支配预算” as monthly income
+minus the savings goal. New, edited, and automatically copied plans persist a zero legacy fixed
+forecast. Existing nonzero forecast values remain readable for schema compatibility but are no
+longer deducted. Actual fixed and discretionary ledger expenses both reduce the available budget
+and daily pace, while recurring fixed expenses continue to originate from the expense-entry
+workflow. Reminder fixtures were updated to preserve their original thresholds under the new
+model, and wishlist budget impact now reflects the absence of forecast pre-deduction.
+
+What was NOT completed: No version/build change, Archive, TestFlight upload, tester assignment,
+physical-device install, signing change, commit, push, pull request, merge, or App Store submission
+was performed. The changes remain Unreleased in the `0.9.5 (6)` source candidate.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+functional validation passed all 264 Swift Testing tests across 17 suites and all 13
+end-to-end/localization UI tests with zero failures while the wall-clock-only benchmark was
+excluded from the concurrent suite. Focused budget and localization coverage passed 70 tests,
+then the affected wishlist and reminder suites passed all 51 tests after their fixtures were
+aligned with the new budget definition.
+
+Static and coverage result: pass — floating-point money, release readiness, App Icon source and
+artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every selected
+core service remains above the 85% gate: Money 91.73%, BudgetEngine 90.55%,
+BudgetCycleCalculator 95.15%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.38%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Review the budget setup and Settings preview on a physical iPhone with an
+existing plan that previously stored a fixed forecast, then decide whether to include this change
+in the next `0.9.5 (6)` TestFlight upload.
+
+## 2026-08-10 — Session 74 — Publish budget simplification as draft PR #21
+
+Goal: Preserve the completed budget-setup work from the shared local checkout, verify it
+independently, and publish a bounded draft pull request for owner review without merging or
+uploading another binary.
+
+What was completed: Created branch `codex/simplify-budget-setup`, committed the implementation and
+tests, pushed the branch, and opened draft PR #21. Release memory was corrected to record that
+`0.9.5 (6)` had already been accepted by App Store Connect transport on 2026-08-09. The current
+budget changes remain Unreleased and the release checklist now requires a new build number before
+any replacement Archive rather than allowing build 6 to be reused.
+
+What was NOT completed: No PR merge, version/build increment, Archive, TestFlight upload, tester
+assignment, signing change, or App Store submission was performed. The product owner still needs
+to review PR #21 and verify the revised budget forms and legacy fixed-forecast behavior on a
+physical iPhone.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation passed all 264 Swift Testing tests across 17 suites and all 13 UI tests with zero
+failures. The strict local 10,000-row Dashboard performance benchmark also passed independently.
+
+Static and coverage result: pass — floating-point money, release readiness, bilingual String
+Catalog JSON, App Icon integrity, and `git diff --check` all pass. Every selected core service
+remains above the 85% coverage gate.
+
+Next suggested task: Review draft PR #21. If approved, merge it into `main`, then increment the
+build number before preparing any TestFlight replacement containing these Unreleased changes.
+
+## 2026-08-10 — Session 75 — Close PR #21 budget-authority review findings
+
+Goal: Make the budget preview, persisted plan, Today pace, and upgrade behavior use one explicit
+set of semantics before draft PR #21 is reviewed again.
+
+What was completed: The configured monthly income plus explicitly allocated extra income is now
+the authoritative disposable-budget funding base; the per-cycle savings goal and any surviving
+legacy fixed forecast are deducted from that base. Expected expenses remains a separate planning,
+pace, and amount-reasonableness reference and no longer masquerades as spending permission. Both
+initial setup and Settings previews use the same calculation as the saved snapshot, including
+allocated income. Existing current-cycle fixed forecasts are preserved during edits and consumed
+by actual fixed entries before those entries reduce disposable budget again, preventing both an
+upgrade-time balance jump and double deduction. Automatically copied future cycles continue with
+a zero forecast, and Settings explains the temporary compatibility reservation. Today pace now
+subtracts discretionary entries one-for-one while fixed entries rebalance the remaining cycle
+rather than causing a second same-day charge. Orphaned fixed-forecast strings were removed, the
+change remains in Unreleased documentation rather than the already uploaded 0.9.5 notes, and
+regressions cover the 20,000 income / 8,000 expected expenses / 2,000 savings = 18,000 disposable
+example, explicit income allocation, legacy upgrade behavior, and fixed-expense pace smoothing.
+
+What was NOT completed: No merge, version/build increment, Archive, TestFlight upload, tester
+assignment, physical-device install, signing change, or App Store submission was performed. No
+recurring-rule-derived hidden forecast was added; actual ledger entries remain authoritative.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation passed all 267 Swift Testing tests across 17 suites and all 13 UI tests with zero
+failures. The concurrent suite skipped only the intentionally environment-gated wall-clock
+assertion while still exercising the deterministic 10,000-row Dashboard projection.
+
+Static and coverage result: pass — floating-point money and release-readiness checks, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 94.12%,
+BudgetCycleCalculator 95.15%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #21, including a physical-iPhone upgrade check with a
+current plan that still carries a legacy fixed forecast. Merge only after approval; any subsequent
+TestFlight replacement must use a new build number.
+
+## 2026-08-10 — Session 76 — Preserve migrated budget authority in PR #21
+
+Goal: Close the remaining PR #21 review finding that changing every persisted plan to an
+income-based funding baseline could silently raise or cut an existing user's current-cycle
+disposable budget, especially when an older plan stored zero monthly income.
+
+What was completed: Added Schema V4 with a `BudgetPlanSemantics` companion record that marks every
+newly created, edited, transitioned, or automatically copied plan as income-based without changing
+the frozen historical `BudgetPlan` schema. A migrated plan without that marker is structurally
+recognized as legacy and keeps its original Expected-expenses funding base plus any current-cycle
+fixed reservation; this applies even when its stored monthly income is zero. Its first automatically
+created future cycle receives the explicit income-based marker, clears the legacy reservation, and
+uses monthly income plus explicitly allocated income minus the savings goal. Settings preview now
+uses the same authority as the persisted snapshot and explains that the compatibility calculation
+ends next cycle. Deletion verification, model counts, corruption validation, durable documentation,
+and bilingual copy were extended for the companion model. Regression tests open a real Schema V3
+store through the V4 migration plan, prove the zero-income legacy cycle retains its old balance,
+and prove the following cycle switches to the new semantics; separate engine tests prevent a new
+zero-income plan from borrowing Expected expenses as spending permission.
+
+What was NOT completed: No merge, version/build increment, Archive, TestFlight upload, tester
+assignment, physical-device install, signing change, or App Store submission was performed. Draft
+PR #21 remains open for owner review.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Focused
+budget, migration, and date-boundary validation passed all 72 selected tests. Full validation then
+passed all 270 Swift Testing tests across 17 suites and all 13 UI tests with zero failures.
+
+Static and coverage result: pass — floating-point money and release-readiness checks, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #21 and perform a physical-iPhone upgrade check against an
+existing pre-V4 plan. Merge only after approval; any later TestFlight replacement must use a new
+build number.
+
+## 2026-08-10 — Session 77 — Close PR #21 migration and edit-authority review
+
+Goal: Finish the small PR #21 review closeout by proving that editing a migrated legacy plan does
+not silently change its funding authority, and align the pull-request and release memory with the
+actual lightweight Schema V3-to-V4 migration.
+
+What was completed: Extended the real Schema V3 migration regression to edit and save a migrated
+current-cycle plan, prove it remains `legacyExpectedExpenses`, prove no `BudgetPlanSemantics`
+marker is invented by that edit, and prove the saved snapshot keeps the legacy Expected-expenses
+base. The same test still proves that the next automatically generated cycle becomes explicitly
+income-based and receives its companion marker. The test plan, changelog, and TestFlight upgrade
+notes now describe the lightweight V3-to-V4 migration, the no-marker legacy interpretation, the
+edit behavior, and the next-cycle handoff consistently. The draft PR description is updated
+separately after this commit is pushed so it no longer claims that the change has no schema
+migration.
+
+What was NOT completed: No PR merge, version/build increment, Archive, TestFlight upload, tester
+assignment, physical-device install, signing change, or App Store submission was performed. Draft
+PR #21 remains open for owner review.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation with the established hosted-environment wall-clock exclusion passed all 270 Swift
+Testing tests across 17 suites and all 13 UI tests with zero failures. The new migrated-plan edit
+regression passed. The strict local 500 ms wall-clock signal was also measured separately: it took
+0.773 seconds under concurrent local load, while the deterministic 10,000-row Dashboard projection
+test passed; this timing signal is recorded rather than misclassified as a functional regression.
+
+Static and coverage result: pass — floating-point money and release-readiness checks, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #21 with its corrected migration description. Merge only
+after owner approval; any later TestFlight replacement must use a new build number.

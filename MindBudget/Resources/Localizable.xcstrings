@@ -193,22 +193,6 @@
         }
       }
     },
-    "budget.error.fixed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter valid fixed expenses."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请输入有效的固定支出。"
-          }
-        }
-      }
-    },
     "budget.error.income": {
       "localizations": {
         "en": {
@@ -353,34 +337,18 @@
         }
       }
     },
-    "budget.fixedExpenses": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fixed expenses"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "固定支出"
-          }
-        }
-      }
-    },
     "budget.monthlyIncome": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monthly income"
+            "value": "Income this month"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "月收入"
+            "value": "本月收入"
           }
         }
       }
@@ -502,13 +470,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spending budget"
+            "value": "Expected expenses"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "支出预算"
+            "value": "预计支出"
           }
         }
       }
@@ -2555,26 +2523,32 @@
     },
     "settings.budget.flexiblePreview": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Flexible budget after reservations" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "预留后的灵活预算" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Disposable budget this period" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本期可支配预算" } }
+      }
+    },
+    "settings.budget.legacyFixedForecast": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This current legacy period keeps its previous expected-expense funding base and any fixed-expense reservation so the upgrade does not change its disposable budget. Next period switches to income minus savings, with fixed expenses counted only when recorded." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前旧版周期会继续使用原有的预计支出计算基准及固定支出预留，避免升级后可支配预算发生变化。下个周期将改为按本月收入减储蓄目标计算，固定支出仅在实际记账后计入。" } }
       }
     },
     "settings.budget.allocation.zeroBudget": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "The spending budget is zero, so there is no flexible amount yet. Enter the amount you plan to spend this period before saving." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "支出预算目前为 0，因此还没有灵活可用金额。请先填写本周期计划用于支出的金额，再保存预算。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "No funding is currently available under this period's calculation, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按本周期的计算方式，目前没有可用于支出的金额，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.fullyAllocated": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Fixed expenses and the savings goal use the entire spending budget. An ordinary expense will therefore be shown as over the flexible budget." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "固定支出与储蓄目标已经用完全部支出预算，因此普通消费会显示为超出灵活预算。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations use all funding available under this period's calculation, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留已用完按本周期计算方式可用的金额，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.overcommitted": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Fixed expenses and the savings goal exceed the spending budget. This is allowed, but the flexible amount stays at zero until you adjust the plan." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "固定支出与储蓄目标已经超过支出预算。你仍可保存，但在调整计划前，灵活可用金额会保持为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations exceed the funding available under this period's calculation. You can still save, but the disposable budget will stay at zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留超过按本周期计算方式可用的金额。你仍可保存，但本期可支配预算会显示为 0。" } }
       }
     },
     "settings.budget.error.notCurrent": {

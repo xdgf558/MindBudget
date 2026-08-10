@@ -189,6 +189,12 @@ Status: Done
 - [x] Surface remaining recurring catch-up work in Settings as a non-error progress state, return
   each pending schedule date with its already-computed occurrence key, and fail closed after a
   bounded 1,200-month scan instead of leaving an unbounded foreground loop.
+- [x] Remove the redundant manual fixed-expense forecast from initial, transition, and Settings
+  budget forms. Keep fixed expenses in the ledger/recurring workflow, use monthly income plus only
+  explicitly allocated extra income minus savings for both preview and runtime, keep Expected
+  expenses as an independent pace reference, preserve the old funding base and reservation for a
+  migrated current cycle, and retire both through a lightweight Schema V4 authority marker when
+  future plans are created.
 
 ## Post-upload update — Savings progress and app-locale model guidance
 Status: In Progress
@@ -206,3 +212,6 @@ Status: In Progress
 - [x] Keep 0.9.4 Archive/upload evidence explicitly historical, leave every 0.9.5 execution gate
   unchecked, and align all four 0.9.5 user-visible changes across the changelog, TestFlight tester
   guidance, and localized in-app release notes.
+- [x] Archive and upload `0.9.5 (6)` through the owner's current team; App Store Connect transport
+  accepted it on 2026-08-09. Keep subsequent budget-setup work in Unreleased and require a new build
+  number before the next replacement upload.

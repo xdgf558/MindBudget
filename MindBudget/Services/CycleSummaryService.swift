@@ -139,11 +139,14 @@ struct CycleSummaryService: Sendable {
 
     private func budgetUsage(_ snapshot: BudgetSnapshot) -> SummaryBudgetUsage {
         guard case let .configured(configured) = snapshot,
-              configured.totalBudget.minorUnits > 0 else { return .unavailable }
-        guard configured.spentTotal.minorUnits > 0 else { return .percent(0) }
-        let ratio = Decimal(configured.spentTotal.minorUnits)
+              configured.expectedExpenses.minorUnits > 0 else { return .unavailable }
+        let (recordedExpenses, overflow) = configured.spentTotal.minorUnits
+            .subtractingReportingOverflow(configured.savedSoFar.minorUnits)
+        guard !overflow, recordedExpenses >= 0 else { return .unavailable }
+        guard recordedExpenses > 0 else { return .percent(0) }
+        let ratio = Decimal(recordedExpenses)
             * Decimal(100)
-            / Decimal(configured.totalBudget.minorUnits)
+            / Decimal(configured.expectedExpenses.minorUnits)
         let wholePercent = max(0, NSDecimalNumber(decimal: ratio).intValue)
         return wholePercent == 0 ? .lessThanOnePercent : .percent(wholePercent)
     }

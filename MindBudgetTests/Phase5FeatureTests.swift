@@ -554,6 +554,7 @@ struct Phase5FeatureTests {
             totalBudgetMinorUnits: 0,
             fixedExpensesMinorUnits: 0,
             savingGoalMinorUnits: 0,
+            authority: .incomeBased,
             categoryBudgets: []
         )
         let expenses = [
@@ -1260,10 +1261,10 @@ struct Phase5FeatureTests {
                 cycleStart: context.snapshot.cycle.start,
                 cycleEnd: context.snapshot.cycle.end,
                 currencyCode: "USD",
-                monthlyIncomeMinorUnits: 400_000,
+                monthlyIncomeMinorUnits: 300_000,
                 totalBudgetMinorUnits: 300_000,
-                fixedExpensesMinorUnits: 100_000,
-                savingGoalMinorUnits: 50_000,
+                fixedExpensesMinorUnits: 0,
+                savingGoalMinorUnits: 150_000,
                 createdAt: context.now,
                 updatedAt: context.now,
                 categoryBudgets: []
@@ -1345,10 +1346,11 @@ struct Phase5FeatureTests {
             cycleStart: start,
             cycleEnd: end,
             currencyCode: "USD",
-            monthlyIncomeMinorUnits: 400_000,
+            monthlyIncomeMinorUnits: 300_000,
             totalBudgetMinorUnits: 300_000,
-            fixedExpensesMinorUnits: 100_000,
-            savingGoalMinorUnits: 50_000,
+            fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 150_000,
+            authority: .incomeBased,
             categoryBudgets: [categoryBudget]
         )
         let snapshot = try BudgetEngine().snapshot(

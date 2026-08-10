@@ -52,10 +52,11 @@ reconciliation commits at most the oldest 120 pending occurrences across all rul
 whether later foreground work remains instead of entering a permanent failure loop. Settings
 shows that remaining work as a neutral progress notice. Schedule enumeration carries each date
 with its stable occurrence key and fails closed after 1,200 scanned months per rule, so duplicate
-key work and an unbounded foreground loop are both excluded. Version `0.9.4 (5)` has been archived,
-uploaded, processed, and is ready for the owner's manual TestFlight group distribution.
-The next source candidate is `0.9.5 (6)` with localized in-app and tester notes; it has not been
-archived or uploaded.
+key work and an unbounded foreground loop are both excluded. Versions `0.9.4 (5)` and `0.9.5 (6)`
+have been archived and uploaded through the owner's current team; the latter was accepted by App
+Store Connect transport on 2026-08-09. The current source now contains additional Unreleased
+budget-setup changes, so any replacement upload must increment the build number before Archive
+rather than reuse build 6.
 Cycle-summary budget usage is a closed unavailable/under-one-percent/exact-whole-percent fact;
 positive recorded spending can no longer be described as zero percent merely because integer
 presentation truncates it. Ask model generation owns wording only: the app attaches deterministic
@@ -107,7 +108,18 @@ app's private data are forbidden in V1.
 - The Settings budget editor may update amounts only for the cycle containing its explicit
   reference date. It preserves plan identity, boundaries, currency, and category budgets;
   historical cycles cannot be edited through that path.
-- Fixed expenses are forecast reservations; pending fixed values prevent double counting.
+- Fixed expenses are actual ledger entries created directly or by confirmed monthly recurring
+  rules. Budget setup no longer accepts a separate fixed-expense forecast. A Schema V1–V3 plan
+  temporarily preserves both its old Expected expenses funding base and any legacy reservation so
+  upgrading cannot change the current cycle's available amount; actual fixed entries consume the
+  reservation first. The next copied cycle writes zero and switches to the new income basis.
+- New-plan setup preview and runtime use the same disposable basis: monthly income plus only extra
+  income explicitly allocated to the spending budget, minus the per-cycle savings goal, clamped at zero.
+  Expected expenses remains an independent pace and reasonableness reference rather than being
+  auto-filled from income or used as hidden spending permission.
+- Actual fixed and discretionary rows both reduce the cycle's disposable balance. Today's amount
+  subtracts today's discretionary rows one for one; an actual fixed row is rebalanced across the
+  remaining days because it has already reduced the cycle balance.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
 - `SpendingInsight` stores localization keys and payload, not rendered text.
@@ -140,9 +152,9 @@ app's private data are forbidden in V1.
   use the owner's latest China-region team, with the final Bundle ID, distribution identity,
   provisioning profile, agreements, and App Store Connect app reverified before every upload.
 - Internal TestFlight started with candidate `0.9.0 (1)`; build `0.9.2 (3)` completed the free
-  tier, and `0.9.4 (5)` was uploaded after Phase 12 and PR #19. The next source candidate is
-  `0.9.5 (6)` and remains unuploaded. Replacement
-  uploads increment the build number, and owner-approved
+  tier, `0.9.4 (5)` was uploaded after Phase 12 and PR #19, and `0.9.5 (6)` was accepted by App
+  Store Connect transport after PR #20. Current Unreleased source changes require a new build
+  number before the next upload. Replacement uploads increment the build number, and owner-approved
   prerelease milestones may also increment the `0.9.x` patch version. The first public App Store
   release reserves `1.0.0`. Every upload must have a matching dated CHANGELOG section and
   TestFlight/App Store release-note entry, and the app's About page shows localized notes for the
@@ -185,7 +197,9 @@ Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interl
 Phase 10 retains its signed-device and distribution release gates. The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
-models through tested lightweight migrations without mutating the shipped V2 income shape. All
+models. Schema V4 adds companion budget-authority metadata: absence means a migrated legacy plan,
+while every new plan persists the income-based authority. Tested lightweight migrations preserve
+the shipped V2 income and V1–V3 budget shapes. All
 writes remain actor-isolated and cross-boundary projections remain Sendable.
 The pure `BudgetEngine` exposes an unconfigured/configured enum so configured metrics are
 nonoptional, validates that current-budget reference dates remain inside the half-open

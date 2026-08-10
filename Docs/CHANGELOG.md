@@ -6,7 +6,22 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-## 0.9.5 (6) — 2026-08-09 — Next internal TestFlight candidate
+### Changed
+
+- Budget setup now labels the inputs as Income this month and Expected expenses, removes the
+  duplicate manual fixed-expense field, and uses one disposable amount in both setup and Today:
+  configured monthly income plus only explicitly allocated extra income, minus the savings goal.
+  Expected expenses remains an independent pace reference. Fixed expenses continue to come from
+  actual expense entries and confirmed monthly recurring rules. An existing current-cycle fixed
+  forecast remains temporarily reserved so upgrading cannot change the available amount, actual
+  plans also keep their prior Expected expenses funding base—even when their old income field is
+  zero—so the current cycle cannot jump in either direction. A lightweight Schema V3-to-V4
+  migration adds companion authority metadata only for new plans; editing a migrated plan keeps
+  its legacy authority for the current cycle, while the old base and compatibility value retire on
+  the next cycle. New fixed entries are rebalanced across the remaining days instead of being
+  charged to today's amount twice.
+
+## 0.9.5 (6) — 2026-08-09 — Uploaded internal TestFlight candidate
 
 ### Added
 

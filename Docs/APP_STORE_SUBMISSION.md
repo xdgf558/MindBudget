@@ -7,9 +7,11 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Next source candidate: version 0.9.5, build 6 (not uploaded)
-- Current uploaded TestFlight candidate: version 0.9.4, build 5
-- Previous uploaded candidate: version 0.9.2, build 3
+- Current uploaded TestFlight candidate: version 0.9.5, build 6 (transport accepted 2026-08-09)
+- Previous uploaded candidate: version 0.9.4, build 5
+- Earlier uploaded candidate: version 0.9.2, build 3
+- The current source contains Unreleased changes. Increment the build number before its next upload;
+  never reuse build 6.
 - Increment the build number after every uploaded replacement.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
@@ -22,7 +24,28 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.5 (6) — Next internal test candidate
+### Unreleased replacement — build number required before upload
+
+What to test:
+
+- Open initial budget setup and Settings > Budget. Confirm the fields read Income this month,
+  Expected expenses, and Savings goal, with no manual fixed-expense field. With income 20,000,
+  Expected expenses 8,000, and savings 2,000, both the preview and Today must use 18,000 as the
+  starting disposable amount. Allocate extra income to the spending budget and confirm it appears
+  in both places; merely recording income must not change either amount.
+- Upgrade a real Schema V3 store through the lightweight Schema V3-to-V4 migration whose current
+  plan has income 8,000 / Expected expenses 6,000 and another whose plan has income 0 / Expected
+  expenses 6,000. Confirm both keep the old Expected expenses funding base for the current cycle,
+  Settings previews the same amount and explains the next-cycle switch, and saving another budget
+  field preserves the plan's legacy authority for this cycle. Record or reconcile an actual fixed
+  expense within that amount and confirm availability does not fall a second time; only an excess
+  above the reservation is an additional deduction. Confirm the next automatically copied cycle
+  retires the legacy value and switches to the income basis. Confirm a genuinely new zero-income
+  plan remains at zero instead of borrowing Expected expenses. For a new plan, confirm an actual
+  fixed expense reduces the cycle balance once while today's reference amount is rebalanced across
+  the remaining days.
+
+### 0.9.5 (6) — Uploaded internal test candidate
 
 What to test:
 
@@ -46,7 +69,6 @@ What to test:
   proposal, and a model error. Confirm the complete deterministic answer remains available and its
   localized source detail accurately distinguishes each local-template fallback reason. App-owned
   suggested actions must remain localized and must never render internal identifiers.
-
 ### 0.9.4 (5) — Internal test candidate
 
 What to test:
