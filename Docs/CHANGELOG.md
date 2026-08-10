@@ -6,6 +6,10 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
+No changes yet.
+
+## 0.9.6 (7) — 2026-08-10 — Internal TestFlight candidate
+
 ### Changed
 
 - Budget setup now labels the inputs as Income this month and Expected expenses, removes the
