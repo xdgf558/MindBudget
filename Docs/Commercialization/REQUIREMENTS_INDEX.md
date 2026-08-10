@@ -1,0 +1,72 @@
+# Commercialization Requirements Index
+
+## Contract
+
+This index maps the stable v1.4 Requirement IDs to implementation ownership and objective
+acceptance evidence. `Active` means the owner-approved v1.4 requirement is part of the target
+product; it does not mean implementation is complete. `BLOCKED_BY_SPEC` means no affected code may
+be implemented until the cited conflict is closed. `Baseline satisfied / delta pending` records a
+current implementation that already meets the core invariant but still needs its later commercial
+phase audit.
+
+Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.md`, SHA-256
+`290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
+
+No commercial Requirement grants permission to work ahead of the active COM phase.
+
+## Core requirements
+
+| ID | Status | Source | Implementation phase | Required acceptance evidence | Related decision/conflict | Release blocker |
+|---|---|---|---|---|---|---|
+| REQ-R1-NET-001 | Active, not implemented | v1.4 §1 rules 21–23, §4.7, §15.1 | COM-C0B policy; COM-C3 config; COM-C5 telemetry; COM-C6 verification | Release binary egress inventory; deny unknown domains/endpoints/fields; offline/invalid-signature fallback; no ledger/content request in R1 | SPEC-001/012 accepted | P0 / COM-C6 and 1.0 |
+| REQ-R1-TELEMETRY-001 | Active, not implemented | v1.4 §§15.3, 16.5.3, 17 | COM-C5, verified again COM-C6/C12 | Fixed event/property schema rejects free text/content; explicit control; ID rotation; deletion proof; real TTL; failure isolation; capture audit | SPEC-009/012 accepted; SPEC-018 resolved | P0 / COM-C5, G1, 1.0 |
+| REQ-ENTITLEMENT-001 | Active, not implemented | v1.4 §§6.1–6.5 | COM-C1; reused by C2–C12 and Watch | Parameterized union tests for every reachable `EntitlementSet`; Free fallback exact; deferred bits unreachable; no Release manual unlock | SPEC-008/017 accepted | P0 / COM-C1 onward |
+| REQ-STOREKIT-STATE-001 | Active, not implemented | v1.4 §7.5 | COM-C2 | Full table tests: subscribed/grace on; retry/expired/revoked/unverified off; pending off; cached state never permanently grants rights | SPEC-004 resolved | P0 / paid TestFlight and 1.0 |
+| REQ-STOREKIT-LIFECYCLE-001 | Active; formal products evidence-gated | v1.4 §§7.1–7.8, 8.3 | COM-C2/C3; server verification C7/C10 | Exactly one lifecycle listener; verified transactions; required `finish`; purchase/restore/pending/cancel; environment isolation; dynamic price/trial/renewal; no entitlement loss on catalog failure | SPEC-005/006/014/017 accepted | P0 / paid TestFlight and 1.0 |
+| REQ-MONEY-001 | Active; baseline satisfied, delta pending | v1.4 §1 rule 25, §9.2, §9.6.4 | Existing product; COM-C4A delta; shared with Watch | Every stored/calculated amount is `Int64` minor units plus ISO code; currency exponent matrix; overflow/cross-currency failure; money-path float gate | SPEC-015 open tooling boundary | P0 / all financial phases |
+| REQ-MONEY-MIGRATION-001 | Active; delta plan pending | v1.4 §9.6.4, COM-C4A | COM-C4A | Inventory every amount; old-store backup/restore; idempotent restart; no `Double`; anomalies stop and never become zero; USD/JPY/KWD/bounds/negative fixtures | Current V1–V4 are already minor-unit; no destructive rewrite justified by C0A | P0 / COM-C4 and 1.0 |
+| REQ-RECEIPT-PIPELINE-001 | Active, not implemented | v1.4 §9.6.1–9.6.9 | COM-C4C | Five stages; capability tiers; geometry/order/confidence; exact validation; duplicate warning; cancellation/resource limits; 60+ fixed receipts; 20-image stability; no save before confirmation | SPEC-010 resolved; SPEC-015 open | P0 / local Pro and 1.0 |
+| REQ-RECEIPT-PRIVACY-001 | Active, not implemented | v1.4 §1 rules 26–27, §9.6.6 | COM-C4C; verify C6/C8/C12 | Zero raw image/OCR/card/line-name transfer to cloud; sensitive-pattern removal before model; local temp cleanup; no receipt image in iCloud/logs; confirmation before persistence | SPEC-010/012 accepted | P0 / local Pro, cloud AI, 1.0 |
+| REQ-ICLOUD-001 | Active, not implemented | v1.4 §9.7, §16.5.2, COM-C4B | COM-C4B; verify C6/C12 | Explicit opt-in; Free access; stable IDs/tombstones/conflict rules; offline/account/quota transitions; attachment exclusion; local/cloud deletion; no duplicate; local use never blocked | SPEC-003/012 accepted; SPEC-018 resolved; architecture UNVERIFIED | P0 / COM-C4B and 1.0 |
+| REQ-CLOUD-AUTH-001 | Active, G1-gated | v1.4 §§15.4–15.6, COM-C7/C10 | COM-C7 and COM-C10 | App Attest/DeviceCheck decision; verify JWS and app/bundle/environment/product; current App Store status; short cache; notification invalidation; replay/environment tests | SPEC-007/013/014 accepted | P0 / any cloud request and 1.0 |
+| REQ-CLOUD-CONSENT-001 | Active, G1-gated | v1.4 §0.3, §12, §16 | COM-C8; verify C12 | Explicit first-send consent; version/provider/data-purpose set; decline/revoke/delete; provider-set change requires renewal; no request while missing or stale | SPEC-012 accepted | P0 / any third-party model and 1.0 |
+| REQ-CLOUD-USAGE-001 | Active, G1-gated and economics-gated | v1.4 §0.2–0.3, §14 | COM-C9; cost/config C11; verify C12 | Server-authoritative period/quota; idempotent counting; cancellation rules; tiered rate/body/token caps; cost circuit breaker; deterministic local fallback; no “unlimited” claim | SPEC-012/014 accepted | P0 / cloud AI and 1.0 |
+| REQ-G1-001 | Active, not reached | v1.4 §19.2–19.5 | After COM-C6; Watch development may continue in parallel | Every G1 row reports denominator/numerator/sample/confidence/segment; fixed eval version; dated quotes; P50/P95/retry/failover cost; signed owner decision | SPEC-013/014 accepted | P0 / COM-C7 entry |
+| REQ-WATCH-SCOPE-001 | Active; post-iPhone-release distribution | v1.4 §1 rules 31–39, §9.8.1–9.8.3, COM-C6.5 | COM-C6.5 may run in parallel; separate post-1.0 release | Companion-only scope; iPhone remains authoritative; no CloudKit/cloud AI/OCR/free note/account; iPhone works when unavailable; minimum/current device matrix | SPEC-011/013 accepted | P0 / Watch release only |
+| REQ-WATCH-SYNC-001 | Active, not implemented | v1.4 §9.8.4–9.8.5, COM-C6.5 | COM-C6.5 | Versioned snapshot/outbox; stable command ID; persisted dedupe; canonical ID acknowledgement; retry/reorder/duplicate/offline/reinstall/delete-tombstone tests; 100 rapid records | SPEC-011/013 accepted | P0 / Watch release only |
+| REQ-WATCH-ENTITLEMENT-001 | Active, not implemented | v1.4 §9.8.6, COM-C6.5 | COM-C6.5 reusing C1/C2 | Same Product ID allow-list/status mapper/set union; current verified StoreKit state; bounded offline cache; no Watch purchase/restore/manage UI; expiry tests | SPEC-011/017 accepted | P0 / Watch Pro release |
+| REQ-WATCH-PRIVACY-001 | Active, not implemented | v1.4 §9.8.9, §20.7, COM-C6.5 | COM-C6.5; separate Watch release verification | Only latest snapshot/outbox/minimum metadata; no full ledger/note/receipt; Watch never contacts telemetry; amount complication opt-in; logs content-free; Delete All and offline replay proof | SPEC-011/012/013 accepted | P0 / Watch release only |
+
+## COM-C0A implementation inventory against requirements
+
+- Already present: exact `Money`, currency exponents, checked domain arithmetic, versioned
+  SwiftData V1–V4 migration, deterministic finance engines, template fallback, Foundation Models
+  availability/redaction/validation, local export and verified local deletion.
+- Not present: entitlement model, Product IDs, StoreKit catalog/transactions/restore, CloudKit
+  entitlements or sync, centralized network egress, telemetry, first-party backend, third-party
+  model provider, receipt/Vision pipeline, camera/photo picker permission, Watch target or
+  WatchConnectivity.
+- The current app has App Intents and reusable pure money/engine types, but they are members of the
+  iOS app target rather than a cross-platform package. That is preparation evidence, not Watch
+  implementation.
+
+## Current official platform evidence (verified 2026-08-10)
+
+These links verify API shape only, not product policy, pricing, provider availability, or a future
+implementation:
+
+- StoreKit `Transaction.updates` is an async sequence for transactions created/updated outside the
+  current purchase result: <https://developer.apple.com/documentation/storekit/transaction/updates>.
+- Apple documents `CKSyncEngine`, managed Core Data/CloudKit, and lower-level CloudKit as distinct
+  synchronization choices: <https://developer.apple.com/documentation/cloudkit/deciding-whether-cloudkit-is-right-for-your-app>.
+- Foundation Models exposes on-device availability and locale support; unsupported locale must
+  have a fallback: <https://developer.apple.com/documentation/foundationmodels/supporting-languages-and-locales-with-foundation-models>.
+- WatchConnectivity differentiates replace-latest application context, queued background user
+  info, and reachable immediate messages: <https://developer.apple.com/documentation/watchconnectivity/wcsession>.
+
+The accepted technical Product IDs are `com.xdgf558.mindbudget.pro.monthly` and
+`com.xdgf558.mindbudget.pro.annual`; no App Store Connect product has been created. All provider
+model names/prices/retention policies, StoreKit commercial terms, trial, storefront prices, cloud
+quota, CloudKit architecture, App Attest design, backend domains, Watch target minimum, and formal
+release metadata remain **UNVERIFIED** until their named phase produces dated first-party evidence
+and an Accepted decision.

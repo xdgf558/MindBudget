@@ -18,12 +18,18 @@ Also read when relevant: `Docs/AI_PROMPT_CONTRACT.md`,
 `Docs/PRIVACY_AND_REVIEW_NOTES.md`, `Docs/SIRI_PERSONAL_CONTEXT_PLAN.md`,
 and `Docs/COPY_GUIDELINES.md`.
 
+For any COM phase, also read `Docs/COMMERCIALIZATION_TASKS.md` and the current files under
+`Docs/Commercialization/`, especially `PROJECT_MEMORY.md`, `DECISIONS.md`,
+`REQUIREMENTS_INDEX.md`, `NETWORK_EGRESS_POLICY.md`, and `SESSION_LOG.md`.
+
 ## Build and test
 
-Both commands must pass before a phase may be marked Done.
+All commands must pass before a COM phase may be marked Done. The commercialization-doc check is
+also run by `Scripts/validate.sh` so ordinary product phases retain one complete validation entry.
 
 ```bash
 Scripts/check-no-floating-point-money.sh
+Scripts/check-commercialization-docs.sh
 Scripts/validate.sh
 ```
 
@@ -36,6 +42,11 @@ Override `MINDBUDGET_TEST_DESTINATION` when the default simulator is unavailable
 3. `Docs/DECISIONS.md` (if a technical decision was made)
 4. `Docs/CHANGELOG.md` (if user-visible behavior changed)
 
+During a COM phase, also update `Docs/Commercialization/SESSION_LOG.md` always,
+`Docs/COMMERCIALIZATION_TASKS.md` when status changes, and
+`Docs/Commercialization/DECISIONS.md` for a commercial decision. Keep the main decision log to a
+short pointer when the detailed decision belongs to the separate COM track.
+
 ## Non-negotiables
 
 1. Work on one phase at a time; do not implement ahead.
@@ -43,7 +54,10 @@ Override `MINDBUDGET_TEST_DESTINATION` when the default simulator is unavailable
 3. Date calculations use the user's `Calendar` and `TimeZone`; never hardcode 86400 seconds as a day.
 4. Budget, overspend, and pattern decisions are deterministic Swift code. AI only rewrites already-computed facts.
 5. Every AI path has a correct template fallback.
-6. No bank integration, cloud sync, third-party AI, ads, or third-party analytics.
+6. No bank integration, ads, or third-party analytics. The current shipped baseline has no cloud
+   sync, app-owned telemetry, or third-party AI. A future Free iCloud, first-party telemetry, or
+   consented provider-AI channel is permitted only in its accepted COM phase after the exact
+   authorization, disclosure, deletion, network-egress, failure, and release gates pass.
 7. Do not directly access iMessage, voicemail, Mail, Photos, or another app's private data.
 8. No private APIs.
 9. No shame, judgement, or diagnosis in user-facing text.

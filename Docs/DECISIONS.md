@@ -1914,3 +1914,30 @@ Files affected: budget setup, transition and Settings UI, Schema V4 companion me
 migration, budget draft/copy construction, `BudgetEngine`, bilingual copy and release notes,
 unit/UI regressions, test plan, changelog, project
 memory, tasks, decisions, and session log.
+
+---
+
+## 2026-08-10 — Govern commercialization through a separate accepted decision register
+
+Context: The owner-approved commercialization specification creates a new COM-C0A through
+COM-C12 track without replacing the completed local-first product history. Copying every
+commercial Product-ID, pricing, network, iCloud, provider, backend, Watch, and entitlement
+decision into this already long main log would create two authorities that can drift.
+
+Decision: Keep the main product history and current-version guarantees in this file. Make
+`Docs/Commercialization/DECISIONS.md` the detailed decision authority for the COM track, backed by
+stable Requirement IDs, `Docs/Commercialization/PROJECT_MEMORY.md`, and the accepted empty current
+Release app-owned egress set in `NETWORK_EGRESS_POLICY.md`. Existing 0.9.x behavior remains local;
+later channels are permitted only through their named authorization, disclosure, deletion,
+failure, and release gates. This entry is a pointer, not a duplicate commercial decision set.
+
+Alternatives considered: Duplicating every commercial decision here; overwriting historical
+local-only decisions; or leaving commercialization decisions only in session transcripts.
+
+Consequences: A reviewer can identify one detailed authority and one historical pointer. COM-C0B
+changes documentation, CI/report paths, and non-behavioral gates only; entitlement/StoreKit work
+starts no earlier than COM-C1/COM-C2. Prices, trial, quotas, storefronts, providers, domains, and
+formal App Store Connect products remain TBD/evidence-gated.
+
+Files affected: root agent rules, main/commercial project memory, commercial decisions and
+matrices, commercialization task map, CI documentation gate, and session logs.

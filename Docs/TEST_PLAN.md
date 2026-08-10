@@ -290,7 +290,7 @@ saved spreadsheet/import templates about the extended header.
 The settings UI exposes the in-memory ShareLink export and clearly discloses inclusion of
 raw expense/income notes and optional source or merchant names.
 
-Deletion tests populate all ten current Schema V2 entity types, then prove the ordered notification
+Deletion tests populate all current Schema V4 model types, then prove the ordered notification
 and Core Spotlight cleanup precedes verified all-zero local deletion and preference reset.
 An injected failed postcondition withholds completion and preserves preferences even after
 the delete call returns. A forced Spotlight failure leaves SwiftData and onboarding

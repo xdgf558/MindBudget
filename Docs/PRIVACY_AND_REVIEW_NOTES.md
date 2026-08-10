@@ -37,11 +37,17 @@ full internal-database backup.
 
 Delete All is implemented with a confirmation dialog followed by a localized confirmation
 word. It performs these steps in order: cancel app notifications, delete and await all
-app-owned Spotlight index removal, delete all ten SwiftData entity types, reset app
+app-owned Spotlight index removal, delete all current SwiftData model types, reset app
 preferences while leaving system language untouched, and return to onboarding. Progress
-names the current stage. After deletion, the app re-queries all ten model counts and resets
+names the current stage. After deletion, the app re-queries every current model count and resets
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
+
+Future commercialization channels are not part of the current 0.9.x claim. Before an optional
+Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
+must add current bilingual disclosure, App Privacy answers, channel-specific revoke/delete
+behavior, and signed release evidence. No forward-looking permission changes the current binary's
+local-only data handling.
 
 Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
 are never deleted automatically. Settings shows the exact affected count and offers a separate

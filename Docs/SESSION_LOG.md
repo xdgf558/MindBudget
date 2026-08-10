@@ -3159,3 +3159,122 @@ Next suggested task: Wait for App Store Connect processing, then let the owner m
 0.9.6 (7) to the intended TestFlight group and enter the prepared Simplified Chinese What to Test
 notes. Continue the remaining signed physical-device accessibility and system-integration checks
 before public release.
+
+## 2026-08-10 — Commercialization task decomposition and development entry
+
+Goal: Convert the owner-approved v1.4 commercialization and Pro cloud-AI specification into a
+reviewable execution map while preserving the completed Phase 0–12 history and without beginning
+commercial product implementation.
+
+What was completed: Added `Docs/COMMERCIALIZATION_TASKS.md` as a pre-COM-C0A planning scaffold.
+It separates 17 execution stages (COM-C0A, COM-C0B, COM-C1, COM-C2, COM-C3, COM-C4A, COM-C4B,
+COM-C4C, COM-C5, COM-C6, COM-C6.5, and COM-C7 through COM-C12) plus the G1 evidence/cost gate,
+records their dependencies and review-sized work packets, and marks COM-C0A as the only active next
+phase. The map preserves the owner's current decisions: public launch stays paused until the full
+commercialization release gate, test users do not inherit production Pro, prices/trial/cloud quota
+remain cost-dependent TBD, Local Lifetime is deferred, cloud providers are not locked to one
+vendor, and a future backend must be independent and hardened. The main task list and project
+memory now point to the separate COM track.
+
+What was NOT completed: No repository audit result was claimed, no Requirement IDs or conflict
+decisions were invented, and no product code, schema, StoreKit product, CloudKit container,
+telemetry receiver, Watch target, receipt pipeline, backend resource, model provider, version,
+archive, upload, or tester assignment was changed. The three mandatory COM-C0A audit artifacts do
+not yet exist because COM-C0A has not been executed.
+
+Validation result: Documentation-only change. The v1.4 source SHA-256 was recorded as
+`290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`; task order and phase gates
+were checked against the source sections. Product build/test commands were not rerun because no
+source, project, build configuration, resource, or test file changed.
+
+Next suggested task: Begin COM-C0A with read-only repository inspection and reproducible baseline
+execution, create `Docs/Commercialization/SPEC_CONFLICTS.md`,
+`Docs/Commercialization/REQUIREMENTS_INDEX.md`, and
+`Docs/Commercialization/COM_C0A_REPORT.md`, then stop for owner decisions before COM-C0B.
+
+## 2026-08-10 — Session 80 — COM-C0A specification lock and repository audit
+
+Goal: Execute only the read-only COM-C0A audit against the owner-approved v1.4 commercialization
+specification, establish a reproducible baseline and durable Requirement/conflict evidence, and
+stop before COM-C0B or any commercial implementation.
+
+What was completed: Locked the v1.4 source at SHA-256
+`290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0` and audited merged `main`
+commit `6226823370d9ecaedfd89f2754e1f5705dc8d5dd`. Created
+`Docs/Commercialization/REQUIREMENTS_INDEX.md`, `SPEC_CONFLICTS.md`, `COM_C0A_REPORT.md`, and the
+dedicated commercialization session log. Audited toolchain, project/signing configuration,
+SwiftData V1–V4 and all 15 current models, exact-money boundaries, migration/deletion behavior,
+StoreKit/CloudKit/network/telemetry/backend/third-party absence, Foundation Models/privacy gates,
+receipt/camera/Photos absence, logging/export/permissions, secrets, and Watch readiness. No
+product source, schema, project, resource, version, product, or external system was changed.
+
+What was NOT completed: COM-C0A was not marked Done. SPEC-012 (current local-only rules versus
+approved later channels), SPEC-013 (Watch/G1 ordering), and SPEC-014
+(price/product/economics phase cycle) remain Open and require explicit owner decisions. Product
+IDs remain blocked by SPEC-017. COM-C0B, StoreKit, CloudKit, telemetry, Watch, receipt import,
+backend, cloud AI, versioning, Archive, upload, and tester assignment were not started.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build and the
+complete Swift Testing suite with zero functional failures. All 13 UI tests passed. The existing
+shared-host switch excluded only the nondeterministic strict 500 ms wall-clock signal; its
+deterministic 10,000-row contract still ran.
+
+Static and coverage result: pass — money and release-readiness gates passed. All selected services
+passed the 85% minimum: Money 91.73%, BudgetEngine 95.18%, BudgetCycleCalculator 95.17%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 91.02%,
+AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService 97.42%,
+IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Have the owner explicitly resolve SPEC-012, SPEC-013, and SPEC-014 and accept
+the resulting C0B inputs. Only then begin COM-C0B documentation/execution controls; do not start
+entitlement, StoreKit product, or other commercialization code early.
+
+## 2026-08-10 — Session 81 — Close the COM-C0A owner decision gate
+
+Goal: Record the owner's commercialization boundary, Watch schedule, economics-gate, and Product
+ID decisions without starting COM-C0B or creating any commercial product.
+
+What was completed: Accepted a phase-scoped replacement for future data channels while preserving
+existing-version behavior; each later iCloud, telemetry, or cloud-AI channel still requires user
+authorization, privacy disclosure, deletion, and release gates. Made Watch development a parallel,
+nonblocking branch and Watch distribution a separate post-iPhone-1.0 release. Accepted the
+configuration-only → preliminary unit-economics → G1 final economics sequence. Chose immutable
+technical Product IDs `com.xdgf558.mindbudget.pro.monthly` and
+`com.xdgf558.mindbudget.pro.annual` under the internal `MindBudget Pro` group. Closed SPEC-012,
+SPEC-013, SPEC-014, and SPEC-017, marked COM-C0A Done, and made COM-C0B Ready.
+
+What was NOT completed: COM-C0B and every product implementation remain unstarted. No StoreKit
+Configuration or App Store Connect product/group, price, trial, quota, entitlement, CloudKit,
+telemetry, backend, Watch target, receipt pipeline, version, Archive, upload, or tester assignment
+was created.
+
+Validation result: Documentation-only decision update; no buildable input changed. The complete
+COM-C0A Release/test/coverage baseline from Session 80 remains applicable.
+
+Next suggested task: Enter COM-C0B only on explicit owner instruction and create its durable
+commercial controls before any COM-C1 entitlement code.
+
+## 2026-08-10 — Session 82 — Complete COM-C0B governance and CI controls
+
+Goal: Complete the explicitly authorized COM-C0B documentation/test-infrastructure phase without
+starting entitlement, StoreKit, or any later commercial feature.
+
+What was completed: Added the dedicated commercial memory and accepted decision register;
+network-egress, provider, StoreKit, regional-pricing, and CI baseline matrices; a three-packet
+COM-C1 execution contract; and an executable commercialization-document gate used locally and in
+CI. The current app-owned Release HTTP(S) allow-list is explicitly empty. Product IDs are fixed,
+commercial values remain TBD, future provider failover remains consent-bound, and SPEC-018's stale
+deletion model count is corrected to all current models. Root project rules now distinguish the
+unchanged current local baseline from narrowly approved future COM channels. No changelog entry
+was added because app behavior and user-visible copy did not change.
+
+What was NOT completed: No product source/schema/resource, entitlement, StoreKit product/group,
+paywall, price/trial/quota, CloudKit, telemetry, backend, provider, receipt, Watch target, version,
+Archive, upload, or tester assignment changed. COM-C1 is Ready but unstarted.
+
+Validation result: pass — money, commercial-doc, and release-readiness gates; Xcode 26.6 Release
+build; 270 Swift tests; 13 UI tests; and all existing coverage thresholds. Detailed evidence and
+the result-bundle path are in commercialization Session 3 and `CI_BASELINE.md`.
+
+Next suggested task: Enter COM-C1 only after explicit owner instruction and execute its three
+review packets in order, stopping before StoreKit or paid UI.
