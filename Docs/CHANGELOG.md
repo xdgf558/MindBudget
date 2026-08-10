@@ -8,7 +8,7 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 
 No changes yet.
 
-## 0.9.6 (7) — 2026-08-10 — Internal TestFlight candidate
+## 0.9.6 (7) — 2026-08-10 — Uploaded internal TestFlight candidate
 
 ### Changed
 

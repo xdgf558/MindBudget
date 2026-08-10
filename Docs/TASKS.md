@@ -144,8 +144,9 @@ Status: Done
   generic iOS Simulator Release build and the complete unit/UI/coverage suite.
 - [ ] Complete signed physical-iPhone VoiceOver, AX5, dark-mode, iOS 17/iOS 26, Instruments,
   system-integration, data-protection, screenshot, and archive checks in `RELEASE_CHECKLIST.md`.
-- [ ] Archive and upload using the owner's latest China-region Apple Developer team; verify the
-  final Bundle ID, distribution identity, agreements, and App Store Connect app before upload.
+- [x] Archive and upload `0.9.6 (7)` using the owner's latest China-region Apple Developer team;
+  Xcode and App Store Connect transport accepted bundle `com.xdgf558.MindBudget` under team
+  `2AM5S7BM2N` on 2026-08-10. Tester-group assignment remains manual.
 
 ## Phase 11 — Free-tier feature completion
 Status: Done
@@ -215,3 +216,6 @@ Status: In Progress
 - [x] Archive and upload `0.9.5 (6)` through the owner's current team; App Store Connect transport
   accepted it on 2026-08-09. Keep subsequent budget-setup work in Unreleased and require a new build
   number before the next replacement upload.
+- [x] Promote the approved budget-setup work to `0.9.6 (7)`, pass local and GitHub release gates,
+  Archive from merged `main`, and upload it through the owner's current team. App Store Connect
+  transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.

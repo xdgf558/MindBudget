@@ -40,11 +40,11 @@ unchecked item below has been performed against the release commit.
 - [ ] Before the next replacement Archive, increment the build number and verify the current team,
   App Store Connect record, agreements, certificate, and profile again.
 
-### Pending 0.9.6 (7) release execution
+### Completed 0.9.6 (7) release evidence (historical, not a next-upload gate)
 
-- [ ] Archive Release 0.9.6 (7) with the current team and confirm the archive reports bundle ID
+- [x] On 2026-08-10, Archive Release 0.9.6 (7) with the current team and confirm the archive reports bundle ID
   `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only support, and iOS 17.0 minimum deployment.
-- [ ] Upload Release 0.9.6 (7) through the authenticated current App Store Connect account and
+- [x] On 2026-08-10, upload Release 0.9.6 (7) through the authenticated current App Store Connect account and
   confirm transport accepts build 7 for the intended app. Tester-group assignment remains manual.
 
 ### Completed 0.9.5 (6) release evidence (historical, not a current-source gate)

@@ -3126,3 +3126,36 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Merge this release-preparation commit to `main`, create a signed 0.9.6 (7)
 Archive with the current local team, upload it to App Store Connect, and stop before assigning any
 tester group.
+
+## 2026-08-10 — Session 79 — Archive and upload 0.9.6 (7)
+
+Goal: Produce the signed 0.9.6 (7) release artifact from merged `main`, upload it to the intended
+App Store Connect app with the owner's current China-region team, and stop before tester-group
+assignment.
+
+What was completed: GitHub PR #22 passed its independent Build and test job in 21 minutes 37
+seconds and was merged to `main` at commit `c1ef153`. Xcode 26.6 then archived the arm64 Release
+product from that merge. The archive reports version 0.9.6, build 7, bundle
+`com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only family `[1]`, and iOS 17.0 minimum.
+Automatic App Store Connect export used the same team and disabled automatic version/build
+mutation. App Store Connect completed package analysis, accepted the full upload, and returned
+`Uploaded package is processing`, `Upload succeeded`, and `EXPORT SUCCEEDED` at 2026-08-10
+13:01 Asia/Singapore.
+
+What was NOT completed: No internal or external tester group was assigned, no beta-review form was
+submitted, and no App Store version was submitted for review. The owner will handle tester-group
+distribution manually after App Store Connect finishes processing the uploaded build.
+
+Build and test result: pass — the release candidate had already passed the complete local Release,
+Swift Testing, UI testing, and coverage workflow; GitHub PR #22 independently passed before merge.
+The signed generic-device Archive completed with `ARCHIVE SUCCEEDED` and the App Store Connect
+export/upload completed with `EXPORT SUCCEEDED`.
+
+Static and release result: pass — the final archive metadata and embedded entitlements match the
+intended bundle and team. Build 7 is now immutable and must never be reused; any replacement must
+increment the build number.
+
+Next suggested task: Wait for App Store Connect processing, then let the owner manually attach
+0.9.6 (7) to the intended TestFlight group and enter the prepared Simplified Chinese What to Test
+notes. Continue the remaining signed physical-device accessibility and system-integration checks
+before public release.
