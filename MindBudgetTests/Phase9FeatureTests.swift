@@ -262,6 +262,7 @@ struct Phase9FeatureTests {
             cycle: cycle,
             currencyCode: "USD",
             totalBudget: money(300_000),
+            expectedExpenses: money(300_000),
             fixedForecast: money(100_000),
             savingGoal: money(50_000),
             freeBudget: money(150_000),

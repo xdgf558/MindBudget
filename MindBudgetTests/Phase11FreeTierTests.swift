@@ -418,8 +418,13 @@ struct Phase11FreeTierTests {
             Issue.record("Expected a configured snapshot")
             return
         }
-        #expect(configured.totalBudget.minorUnits == plan.totalBudgetMinorUnits + 25_000)
-        #expect(configured.freeBudget.minorUnits == 225_000)
+        #expect(configured.totalBudget.minorUnits == plan.monthlyIncomeMinorUnits + 25_000)
+        #expect(configured.expectedExpenses.minorUnits == plan.totalBudgetMinorUnits + 25_000)
+        #expect(
+            configured.freeBudget.minorUnits
+                == plan.monthlyIncomeMinorUnits + 25_000
+                    - plan.fixedExpensesMinorUnits - plan.savingGoalMinorUnits
+        )
 
         _ = try await actor.updateIncome(
             id: income.id,

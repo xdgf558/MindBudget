@@ -29,9 +29,17 @@ validated under the owner's current China-region Apple Developer account.
 What to test:
 
 - Open initial budget setup and Settings > Budget. Confirm the fields read Income this month,
-  Expected expenses, and Savings goal, with no manual fixed-expense field. The disposable preview
-  must equal income minus savings. Record or reconcile a fixed expense and confirm it reduces the
-  available amount and today's pace once, without a second forecast reservation.
+  Expected expenses, and Savings goal, with no manual fixed-expense field. With income 20,000,
+  Expected expenses 8,000, and savings 2,000, both the preview and Today must use 18,000 as the
+  starting disposable amount. Allocate extra income to the spending budget and confirm it appears
+  in both places; merely recording income must not change either amount.
+- Upgrade a store whose current plan contains an old fixed-expense forecast and confirm its
+  disposable amount does not jump, Settings explains the temporary compatibility reservation, and
+  saving another budget field preserves it for this cycle. Record or reconcile an actual fixed
+  expense within that amount and confirm availability does not fall a second time; only an excess
+  above the reservation is an additional deduction. Confirm the next automatically copied cycle
+  retires the legacy value. For a new plan, confirm an actual fixed expense reduces the cycle
+  balance once while today's reference amount is rebalanced across the remaining days.
 
 ### 0.9.5 (6) — Uploaded internal test candidate
 

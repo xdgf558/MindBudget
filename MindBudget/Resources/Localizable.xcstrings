@@ -193,22 +193,6 @@
         }
       }
     },
-    "budget.error.fixed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter valid fixed expenses."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请输入有效的固定支出。"
-          }
-        }
-      }
-    },
     "budget.error.income": {
       "localizations": {
         "en": {
@@ -349,22 +333,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认下一个常规周期预算"
-          }
-        }
-      }
-    },
-    "budget.fixedExpenses": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fixed expenses"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "固定支出"
           }
         }
       }
@@ -2559,22 +2527,28 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "本期可支配预算" } }
       }
     },
+    "settings.budget.legacyFixedForecast": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This current period keeps the fixed-expense reservation from the earlier budget setup so the upgrade does not change your available amount. Actual fixed entries use that reservation first; it retires next period." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本周期会继续沿用旧版预算中的固定支出预留，避免升级后可支配金额突然变化。实际固定支出会先使用这笔预留；下个周期将自动停止沿用。" } }
+      }
+    },
     "settings.budget.allocation.zeroBudget": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Income this month is zero, so the disposable budget for this period is zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本月收入目前为 0，因此本期可支配预算为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "No income is currently available for spending this period, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本周期当前没有可用于支出的收入，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.fullyAllocated": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "The savings goal uses all income this month, so the disposable budget for this period is zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "储蓄目标已用完本月收入，因此本期可支配预算为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations use all income available for this period, so the disposable budget is zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留已用完本周期可用收入，因此本期可支配预算为 0。" } }
       }
     },
     "settings.budget.allocation.overcommitted": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "The savings goal exceeds income this month. You can still save, but the disposable budget for this period will stay at zero." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "储蓄目标超过本月收入。你仍可保存，但本期可支配预算会显示为 0。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Current savings and compatibility reservations exceed the income available for this period. You can still save, but the disposable budget will stay at zero." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前储蓄与兼容预留超过本周期可用收入。你仍可保存，但本期可支配预算会显示为 0。" } }
       }
     },
     "settings.budget.error.notCurrent": {
@@ -4957,7 +4931,6 @@
     "settings.releaseNotes.aiAppLanguage": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On-device wording enhancement now checks and follows the language selected inside the app, with a clear recovery message when that language is unsupported."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"本机文字增强现会检查并遵循 App 内选择的语言；若该语言不受支持，会提供明确的切换提示。"}}}},
     "settings.releaseNotes.truthfulCycleUsage": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Cycle Overview now distinguishes positive use below 1%, exactly zero spending, and a missing budget baseline instead of describing different states as 0%."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"周期概览现会区分正数但不足 1%、恰好零支出和无可用预算基线，不再将不同状态都显示为 0%。"}}}},
     "settings.releaseNotes.askFallbackReasons": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Ask now explains why a complete local answer was used, distinguishing unavailable enhancement, timeout, safety validation, and model errors."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Ask 现会说明为何使用完整本地回答，并区分增强不可用、请求超时、安全校验未通过和模型错误。"}}}},
-    "settings.releaseNotes.disposableBudgetSetup": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Budget setup now shows income this month, expected expenses, and a disposable budget calculated as income minus the savings goal; recurring fixed expenses are managed when recording expenses."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"预算设置现显示本月收入、预计支出，并按本月收入减储蓄目标计算本期可支配预算；每月固定支出统一在记支出时管理。"}}}},
     "settings.budget.recordedIncome": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Recorded income this cycle"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"本周期已记录收入"}}}},
     "settings.budget.incomeAllocated": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Added to spending budget"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已加入支出预算"}}}},
     "settings.budget.incomeSaved": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Allocated to savings"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已计入储蓄"}}}}

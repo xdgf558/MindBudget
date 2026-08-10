@@ -78,7 +78,7 @@ struct Phase3FeatureTests {
     }
 
     @Test
-    func budgetDraftBuilderKeepsConfirmedAmountsIndependentAndRetiresFixedForecast() throws {
+    func budgetDraftBuilderRetiresNewForecastsButPreservesTheCurrentLegacyCycle() throws {
         let cycle = DateInterval(
             start: TestFixtures.now,
             end: TestFixtures.now.addingTimeInterval(86_400 * 14)
@@ -106,12 +106,13 @@ struct Phase3FeatureTests {
             currencyCode: "USD",
             monthlyIncomeText: "2,100.00",
             totalBudgetText: "1,600.00",
+            legacyFixedExpensesMinorUnits: 42_000,
             savingGoalText: "300.00",
             locale: Locale(identifier: "en_US"),
             referenceDate: TestFixtures.now,
             timestamp: TestFixtures.now
         )
-        #expect(update.fixedExpensesMinorUnits == 0)
+        #expect(update.fixedExpensesMinorUnits == 42_000)
     }
 
     @Test
@@ -138,7 +139,7 @@ struct Phase3FeatureTests {
                 currencyCode: "USD",
                 monthlyIncomeMinorUnits: 200_000,
                 totalBudgetMinorUnits: 100_000,
-                fixedExpensesMinorUnits: 20_000,
+                fixedExpensesMinorUnits: 0,
                 savingGoalMinorUnits: 10_000,
                 createdAt: now,
                 updatedAt: now,
@@ -160,8 +161,8 @@ struct Phase3FeatureTests {
         )
 
         #expect(viewModel.budgetContext == .configured)
-        #expect(viewModel.inlineImpact?.remainingTotalAfter.minorUnits == -20_000)
-        #expect(viewModel.inlineImpact?.willExceedTotalBudget == true)
+        #expect(viewModel.inlineImpact?.remainingTotalAfter.minorUnits == 80_000)
+        #expect(viewModel.inlineImpact?.willExceedTotalBudget == false)
         #expect(viewModel.showsReasonablenessWarning)
 
         viewModel.dismissReasonablenessWarning(

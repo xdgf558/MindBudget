@@ -1269,6 +1269,7 @@ struct Phase7FeatureTests {
             cycle: DateInterval(start: start, end: end),
             currencyCode: "USD",
             totalBudget: Money(minorUnits: 300_000, currencyCode: "USD"),
+            expectedExpenses: Money(minorUnits: 300_000, currencyCode: "USD"),
             fixedForecast: Money(minorUnits: 100_000, currencyCode: "USD"),
             savingGoal: Money(minorUnits: 50_000, currencyCode: "USD"),
             freeBudget: Money(minorUnits: 150_000, currencyCode: "USD"),

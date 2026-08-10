@@ -436,12 +436,20 @@ The Budget destination must load the existing current plan into enabled amount f
 Save Budget action, and confirm a successful update without adding another plan.
 Its amount section must show Income this month, Expected expenses, and Savings goal without a
 manual fixed-expense field. Its disposable preview must use `BudgetEngine` exact-minor-unit
-arithmetic to calculate monthly income minus the savings goal, clamped at zero with distinct zero,
-fully allocated, and overcommitted explanations. New, edited, and automatically copied plans must
-store zero in the legacy fixed-forecast field. Actual fixed and discretionary expense entries both
-reduce the current disposable amount and the daily pace, while savings entries satisfy the savings
-reservation. The engine reconstructs that calendar day's starting amount before division, so each
-fixed or discretionary entry reduces the displayed amount one for one without double subtraction.
+arithmetic to calculate monthly income plus only explicitly allocated extra income minus the
+savings goal, clamped at zero with distinct zero, fully allocated, and overcommitted explanations.
+The configured snapshot must enforce that same amount; for example, income 20,000, Expected
+expenses 8,000, and savings 2,000 must preview and enforce 18,000. Expected expenses independently
+drives pace and cycle-usage comparisons. New and automatically copied plans must store zero in the
+legacy fixed-forecast field. A nonzero value on an existing current plan must remain reserved
+through Settings edits, appear with a compatibility explanation, and retire only on the next cycle
+copy. An actual fixed entry consumes that reservation first without changing availability; only
+the amount above it is an additional deduction. For plans without that legacy reservation, actual
+fixed and discretionary expense entries both reduce the current disposable amount, while savings
+entries satisfy the savings reservation. The engine reconstructs
+that calendar day's starting amount before division, so a discretionary entry reduces today's
+display one for one. A fixed entry is already deducted from the cycle amount and is rebalanced
+across the remaining days rather than being charged to today's reference a second time.
 The visible amount must clamp at zero; exact overage remains available for a localized icon, text,
 and VoiceOver notice, so red is never the only signal. If the cycle cannot provide even one minor
 unit of daily allowance before any spending today, the zero must use the attention color and expose

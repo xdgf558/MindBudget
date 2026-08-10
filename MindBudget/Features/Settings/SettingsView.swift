@@ -356,6 +356,17 @@ private struct BudgetSettingsView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .accessibilityIdentifier("settings.budget.allocationWarning")
                         }
+
+                        if plan.fixedExpensesMinorUnits > 0 {
+                            Label(
+                                "settings.budget.legacyFixedForecast",
+                                systemImage: "clock.arrow.circlepath"
+                            )
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("settings.budget.legacyFixedForecast")
+                        }
                     }
                 }
 
@@ -491,6 +502,7 @@ private struct BudgetSettingsView: View {
                 currencyCode: plan.currencyCode,
                 monthlyIncomeText: monthlyIncomeText,
                 totalBudgetText: totalBudgetText,
+                legacyFixedExpensesMinorUnits: plan.fixedExpensesMinorUnits,
                 savingGoalText: savingGoalText,
                 locale: locale,
                 referenceDate: now,
@@ -556,8 +568,15 @@ private struct BudgetSettingsView: View {
             return nil
         }
         return try? BudgetEngine().allocation(
-            totalBudget: monthlyIncome,
-            fixedForecast: Money(minorUnits: 0, currencyCode: plan.currencyCode),
+            baseTotalBudget: monthlyIncome,
+            additionalBudget: Money(
+                minorUnits: plan.allocatedIncomeMinorUnits,
+                currencyCode: plan.currencyCode
+            ),
+            fixedForecast: Money(
+                minorUnits: plan.fixedExpensesMinorUnits,
+                currencyCode: plan.currencyCode
+            ),
             savingGoal: savingGoal
         )
     }
@@ -1414,10 +1433,6 @@ enum ReleaseNotesCatalog {
                 ReleaseNoteItem(
                     systemImage: "text.bubble.fill",
                     localizationKey: "settings.releaseNotes.askFallbackReasons"
-                ),
-                ReleaseNoteItem(
-                    systemImage: "wallet.bifold.fill",
-                    localizationKey: "settings.releaseNotes.disposableBudgetSetup"
                 ),
             ]
         ),

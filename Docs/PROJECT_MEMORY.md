@@ -109,11 +109,16 @@ app's private data are forbidden in V1.
   reference date. It preserves plan identity, boundaries, currency, and category budgets;
   historical cycles cannot be edited through that path.
 - Fixed expenses are actual ledger entries created directly or by confirmed monthly recurring
-  rules. Budget setup no longer accepts a separate fixed-expense forecast; the persisted legacy
-  field remains schema-compatible but new, updated, and automatically copied plans write zero.
-- The budget editor's disposable preview is monthly income minus the per-cycle savings goal,
-  clamped at zero. Expected expenses remains an independent spending plan rather than being
-  auto-filled from income.
+  rules. Budget setup no longer accepts a separate fixed-expense forecast. An existing current
+  plan temporarily preserves its legacy reservation through edits so upgrading cannot change the
+  available amount; actual fixed entries consume it first, and the next copied cycle writes zero.
+- Setup preview and runtime use the same disposable basis: monthly income plus only extra income
+  explicitly allocated to the spending budget, minus the per-cycle savings goal, clamped at zero.
+  Expected expenses remains an independent pace and reasonableness reference rather than being
+  auto-filled from income or used as hidden spending permission.
+- Actual fixed and discretionary rows both reduce the cycle's disposable balance. Today's amount
+  subtracts today's discretionary rows one for one; an actual fixed row is rebalanced across the
+  remaining days because it has already reduced the cycle balance.
 - Overcommitted budget plans are valid input; Phase 2 clamps free budget to zero while
   preserving negative availability for an honest UI state.
 - `SpendingInsight` stores localization keys and payload, not rendered text.

@@ -54,6 +54,7 @@ struct BudgetPlanDraftBuilder: Sendable {
         currencyCode: String,
         monthlyIncomeText: String,
         totalBudgetText: String,
+        legacyFixedExpensesMinorUnits: Int64,
         savingGoalText: String,
         locale: Locale,
         referenceDate: Date,
@@ -71,7 +72,7 @@ struct BudgetPlanDraftBuilder: Sendable {
             currencyCode: currencyCode,
             monthlyIncomeMinorUnits: amounts.income.minorUnits,
             totalBudgetMinorUnits: amounts.totalBudget.minorUnits,
-            fixedExpensesMinorUnits: 0,
+            fixedExpensesMinorUnits: legacyFixedExpensesMinorUnits,
             savingGoalMinorUnits: amounts.savingGoal.minorUnits,
             referenceDate: referenceDate,
             updatedAt: timestamp
@@ -440,7 +441,11 @@ struct BudgetSetupView: View {
             return nil
         }
         return try? BudgetEngine().allocation(
-            totalBudget: monthlyIncome,
+            baseTotalBudget: monthlyIncome,
+            additionalBudget: Money(
+                minorUnits: 0,
+                currencyCode: viewModel.currencyCode
+            ),
             fixedForecast: Money(minorUnits: 0, currencyCode: viewModel.currencyCode),
             savingGoal: savingGoal
         )

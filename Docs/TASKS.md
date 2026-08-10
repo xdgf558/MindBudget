@@ -190,9 +190,10 @@ Status: Done
   each pending schedule date with its already-computed occurrence key, and fail closed after a
   bounded 1,200-month scan instead of leaving an unbounded foreground loop.
 - [x] Remove the redundant manual fixed-expense forecast from initial, transition, and Settings
-  budget forms. Keep fixed expenses in the ledger/recurring workflow, calculate the visible
-  disposable preview as monthly income minus savings, and retire legacy forecasts from new and
-  copied plans without a destructive schema migration.
+  budget forms. Keep fixed expenses in the ledger/recurring workflow, use monthly income plus only
+  explicitly allocated extra income minus savings for both preview and runtime, keep Expected
+  expenses as an independent pace reference, preserve a current legacy reservation only as an
+  upgrade bridge, and retire it from future plan copies without a destructive schema migration.
 
 ## Post-upload update — Savings progress and app-locale model guidance
 Status: In Progress

@@ -356,7 +356,7 @@ struct Phase4FeatureTests {
                 currencyCode: "USD",
                 monthlyIncomeMinorUnits: 200_000,
                 totalBudgetMinorUnits: 100_000,
-                fixedExpensesMinorUnits: 20_000,
+                fixedExpensesMinorUnits: 0,
                 savingGoalMinorUnits: 10_000,
                 createdAt: now,
                 updatedAt: now,
@@ -376,8 +376,8 @@ struct Phase4FeatureTests {
             now: now
         )
 
-        #expect(viewModel.budgetImpact?.remainingTotalAfter.minorUnits == 20_000)
-        #expect(viewModel.budgetImpact?.remainingFreeAfter.minorUnits == 10_000)
+        #expect(viewModel.budgetImpact?.remainingTotalAfter.minorUnits == 120_000)
+        #expect(viewModel.budgetImpact?.remainingFreeAfter.minorUnits == 110_000)
         #expect(viewModel.budgetImpact?.willExceedFreeBudget == false)
         #expect(viewModel.budgetImpact?.willExceedTotalBudget == false)
     }
