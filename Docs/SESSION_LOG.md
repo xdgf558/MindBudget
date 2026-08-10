@@ -3291,7 +3291,8 @@ order-independent; `BudgetPlanSemantics` is included in the current local deleti
 inventory; and SPEC-015's accepted status is consistent across commercial memory. Detailed
 decisions and evidence are in commercialization Session 4. The initial review-fix push also
 exposed and closed a GitHub workflow-loader issue by scoping `runner.temp` to the test step rather
-than job-level environment evaluation.
+than job-level environment evaluation. The artifact action was also repinned from the deprecated
+Node 20 release to GitHub's verified Node 24 `v7.0.1` commit.
 
 What was NOT completed: No product behavior, app source/schema/resource, entitlement, StoreKit,
 CloudKit, telemetry, backend, provider, receipt, Watch, version, Archive, upload, or tester state

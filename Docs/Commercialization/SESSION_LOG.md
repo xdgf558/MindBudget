@@ -124,7 +124,9 @@ of field order and self-tested it. Added `BudgetPlanSemantics` to the current lo
 inventory and corrected the stale SPEC-015 status in the commercial memory/index. After the first
 review-fix push exposed a workflow-loader failure with no jobs/logs, moved `runner.temp` use from
 job-level `env` to the Build-and-test step where that context is valid; artifact upload continues
-to use the same runner-temporary result bundle.
+to use the same runner-temporary result bundle. The first successful remote run then exposed only
+the old upload action's Node 20 migration warning, so the action was repinned to GitHub's verified
+`v7.0.1` commit, which declares the current Node 24 runtime.
 
 What was NOT completed: No app source, schema/resource, entitlement, StoreKit product/group,
 price, trial, paywall, CloudKit, telemetry, backend, provider, Watch target, receipt flow, version,
