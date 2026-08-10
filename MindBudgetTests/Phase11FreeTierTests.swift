@@ -433,6 +433,36 @@ struct Phase11FreeTierTests {
         #expect(current.totalBudget.minorUnits == 600_000)
         #expect(current.freeBudget.minorUnits == 450_000)
 
+        let edited = try await actor.updateCurrentBudgetPlan(
+            CurrentBudgetPlanUpdate(
+                id: planID,
+                currencyCode: "USD",
+                monthlyIncomeMinorUnits: 0,
+                totalBudgetMinorUnits: 600_000,
+                fixedExpensesMinorUnits: 100_000,
+                savingGoalMinorUnits: 75_000,
+                referenceDate: TestFixtures.now,
+                updatedAt: TestFixtures.now
+            )
+        )
+        #expect(edited.authority == .legacyExpectedExpenses)
+        #expect(try await actor.modelCounts().budgetPlanSemantics == 0)
+
+        let editedSnapshot = try BudgetEngine().snapshot(
+            cycle: cycle,
+            currencyCode: "USD",
+            expenses: [],
+            plan: edited,
+            now: TestFixtures.now,
+            calendar: calendar
+        )
+        guard case let .configured(editedCurrent) = editedSnapshot else {
+            Issue.record("Expected an edited legacy plan to keep its authority")
+            return
+        }
+        #expect(editedCurrent.totalBudget.minorUnits == 600_000)
+        #expect(editedCurrent.freeBudget.minorUnits == 425_000)
+
         let nextReferenceDate = try #require(
             calendar.date(byAdding: .day, value: 1, to: cycle.end)
         )

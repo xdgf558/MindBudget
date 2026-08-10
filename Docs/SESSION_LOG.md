@@ -3057,3 +3057,40 @@ ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, Cyc
 Next suggested task: Re-review draft PR #21 and perform a physical-iPhone upgrade check against an
 existing pre-V4 plan. Merge only after approval; any later TestFlight replacement must use a new
 build number.
+
+## 2026-08-10 — Session 77 — Close PR #21 migration and edit-authority review
+
+Goal: Finish the small PR #21 review closeout by proving that editing a migrated legacy plan does
+not silently change its funding authority, and align the pull-request and release memory with the
+actual lightweight Schema V3-to-V4 migration.
+
+What was completed: Extended the real Schema V3 migration regression to edit and save a migrated
+current-cycle plan, prove it remains `legacyExpectedExpenses`, prove no `BudgetPlanSemantics`
+marker is invented by that edit, and prove the saved snapshot keeps the legacy Expected-expenses
+base. The same test still proves that the next automatically generated cycle becomes explicitly
+income-based and receives its companion marker. The test plan, changelog, and TestFlight upgrade
+notes now describe the lightweight V3-to-V4 migration, the no-marker legacy interpretation, the
+edit behavior, and the next-cycle handoff consistently. The draft PR description is updated
+separately after this commit is pushed so it no longer claims that the change has no schema
+migration.
+
+What was NOT completed: No PR merge, version/build increment, Archive, TestFlight upload, tester
+assignment, physical-device install, signing change, or App Store submission was performed. Draft
+PR #21 remains open for owner review.
+
+Build and test result: pass — Xcode 26.6 completed the generic iOS Simulator Release build. Full
+validation with the established hosted-environment wall-clock exclusion passed all 270 Swift
+Testing tests across 17 suites and all 13 UI tests with zero failures. The new migrated-plan edit
+regression passed. The strict local 500 ms wall-clock signal was also measured separately: it took
+0.773 seconds under concurrent local load, while the deterministic 10,000-row Dashboard projection
+test passed; this timing signal is recorded rather than misclassified as a functional regression.
+
+Static and coverage result: pass — floating-point money and release-readiness checks, App Icon
+source/artifact integrity, bilingual String Catalog JSON, and `git diff --check` pass. Every
+selected core service remains above the 85% coverage gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.02%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService
+97.42%, IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Re-review draft PR #21 with its corrected migration description. Merge only
+after owner approval; any later TestFlight replacement must use a new build number.

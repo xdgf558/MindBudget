@@ -15,10 +15,11 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   actual expense entries and confirmed monthly recurring rules. An existing current-cycle fixed
   forecast remains temporarily reserved so upgrading cannot change the available amount, actual
   plans also keep their prior Expected expenses funding base—even when their old income field is
-  zero—so the current cycle cannot jump in either direction. Schema V4 stores income-based authority
-  only for new plans; the old base and compatibility value retire on the next cycle. New fixed
-  entries are rebalanced across the remaining days instead of
-  being charged to today's amount twice.
+  zero—so the current cycle cannot jump in either direction. A lightweight Schema V3-to-V4
+  migration adds companion authority metadata only for new plans; editing a migrated plan keeps
+  its legacy authority for the current cycle, while the old base and compatibility value retire on
+  the next cycle. New fixed entries are rebalanced across the remaining days instead of being
+  charged to today's amount twice.
 
 ## 0.9.5 (6) — 2026-08-09 — Uploaded internal TestFlight candidate
 

@@ -441,10 +441,12 @@ savings goal, clamped at zero with distinct zero, fully allocated, and overcommi
 The configured snapshot must enforce that same amount; for example, income 20,000, Expected
 expenses 8,000, and savings 2,000 must preview and enforce 18,000. Expected expenses independently
 drives pace and cycle-usage comparisons. New and automatically copied plans must store zero in the
-legacy fixed-forecast field. A real Schema V3 store must migrate to Schema V4 with no invented
-authority row: old plans with income 8,000 / Expected expenses 6,000 and income 0 / Expected
-expenses 6,000 both keep Expected expenses as the current-cycle funding base. Settings must preview
-that same legacy result and explain the next-cycle switch. A new zero-income plan must stay at zero.
+legacy fixed-forecast field. A real Schema V3 store must pass through the lightweight Schema
+V3-to-V4 migration with no invented authority row: old plans with income 8,000 / Expected expenses
+6,000 and income 0 / Expected expenses 6,000 both keep Expected expenses as the current-cycle
+funding base. Editing and saving one of those plans must preserve its missing-marker legacy
+authority and Settings must preview that same result while explaining the next-cycle switch. A new
+zero-income plan must stay at zero.
 The next copied cycle must persist the income-based authority, write zero fixed forecast, and use
 income-minus-savings. A nonzero value on an existing current plan must remain reserved through
 Settings edits and retire only on that next cycle copy. An actual fixed entry consumes that

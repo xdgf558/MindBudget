@@ -33,15 +33,17 @@ What to test:
   Expected expenses 8,000, and savings 2,000, both the preview and Today must use 18,000 as the
   starting disposable amount. Allocate extra income to the spending budget and confirm it appears
   in both places; merely recording income must not change either amount.
-- Upgrade stores whose current plan has income 8,000 / Expected expenses 6,000 and income 0 /
-  Expected expenses 6,000. Confirm both keep the old Expected expenses funding base for the current
-  cycle, Settings previews the same amount and explains the next-cycle switch, and
-  saving another budget field preserves it for this cycle. Record or reconcile an actual fixed
+- Upgrade a real Schema V3 store through the lightweight Schema V3-to-V4 migration whose current
+  plan has income 8,000 / Expected expenses 6,000 and another whose plan has income 0 / Expected
+  expenses 6,000. Confirm both keep the old Expected expenses funding base for the current cycle,
+  Settings previews the same amount and explains the next-cycle switch, and saving another budget
+  field preserves the plan's legacy authority for this cycle. Record or reconcile an actual fixed
   expense within that amount and confirm availability does not fall a second time; only an excess
   above the reservation is an additional deduction. Confirm the next automatically copied cycle
   retires the legacy value and switches to the income basis. Confirm a genuinely new zero-income
-  plan remains at zero instead of borrowing Expected expenses. For a new plan, confirm an actual fixed expense reduces the cycle
-  balance once while today's reference amount is rebalanced across the remaining days.
+  plan remains at zero instead of borrowing Expected expenses. For a new plan, confirm an actual
+  fixed expense reduces the cycle balance once while today's reference amount is rebalanced across
+  the remaining days.
 
 ### 0.9.5 (6) — Uploaded internal test candidate
 
