@@ -8,6 +8,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 
 - Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.md`.
 - Source SHA-256: `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
+- This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
+  repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
 - COM-C0A and COM-C0B are Done. COM-C1 is Ready but has not started.
 - Product implementation has not started. No StoreKit product/group, entitlement, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
@@ -80,8 +82,10 @@ gates:
 - Explicitly consented cloud AI after G1, current-entitlement verification, server quota, dual
   redaction, provider-set disclosure, and deterministic local fallback.
 
-All app-owned HTTP(S) egress is deny-by-default. The current Release allow-list is empty. Future
-entries must be accepted in `NETWORK_EGRESS_POLICY.md` before implementation.
+All app-owned HTTP(S) egress is deny-by-default. The current Release allow-list is empty and
+`Scripts/check-network-egress.sh` rejects app-target network primitives or HTTP(S) literals.
+Future entries must be accepted in `NETWORK_EGRESS_POLICY.md` before an exact centralized adapter
+exception is implemented.
 
 ## AI and provider boundary
 
@@ -152,7 +156,8 @@ entries must be accepted in `NETWORK_EGRESS_POLICY.md` before implementation.
 
 ## Current technical debt and unknowns
 
-- SPEC-015 remains open until the receipt phase scopes non-money Vision floating point safely.
+- SPEC-015 is accepted as a prospective tooling boundary; COM-C4C must scope non-money Vision
+  floating point narrowly before receipt code is added.
 - SPEC-018 is resolved: current deletion documentation tracks all current model types without a
   fragile numeric claim.
 - CloudKit architecture, app-owned domains, provider contracts/prices, App Attest design, trial,

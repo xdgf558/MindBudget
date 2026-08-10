@@ -35,6 +35,9 @@ jobs:
       - name: Reject floating-point money paths
         run: Scripts/check-no-floating-point-money.sh
 
+      - name: Reject unapproved app-owned network egress
+        run: Scripts/check-network-egress.sh
+
       - name: Verify commercialization contracts
         run: Scripts/check-commercialization-docs.sh
 
@@ -78,9 +81,18 @@ jobs:
       - name: Build and test
         run: Scripts/validate.sh
 
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: MindBudget-xcresult-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/MindBudget.xcresult
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Record test report path
         if: always()
         run: |
           echo '### MindBudget validation report' >> "${GITHUB_STEP_SUMMARY}"
           echo '' >> "${GITHUB_STEP_SUMMARY}"
-          echo 'Result bundle: `${{ runner.temp }}/MindBudget.xcresult`' >> "${GITHUB_STEP_SUMMARY}"
+          echo 'Download artifact: `MindBudget-xcresult-${{ github.run_id }}-${{ github.run_attempt }}` (retained for 14 days).' >> "${GITHUB_STEP_SUMMARY}"

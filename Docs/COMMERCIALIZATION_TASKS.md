@@ -11,6 +11,10 @@ Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.m
 Source SHA-256:
 `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`
 
+This is the frozen COM-C0A audit fingerprint, not automatic monitoring of the owner-held external
+file. Its provenance, byte length, repository derivatives, and change procedure are recorded in
+`Docs/Commercialization/SOURCE_PROVENANCE.md`.
+
 This file began as a planning scaffold before COM-C0A. The audit and owner decision gate are now
 complete and their evidence lives under `Docs/Commercialization/`. COM-C0B promoted only the
 owner's accepted result into authoritative commercialization memory, decisions, matrices, and
@@ -138,10 +142,15 @@ Status: **Done.**
 
 - Dedicated commercial memory/decision register plus egress, AI-provider, StoreKit, and pricing
   matrices exist with accepted Product IDs and an empty current Release app-owned egress set.
+- The empty egress set is enforced against app Swift source, the external specification's audit
+  fingerprint has an explicit provenance/limitation record, and CI publishes downloadable
+  xcresult evidence rather than only a runner-local path.
 - SPEC-018's stale deletion-model count is corrected without changing app behavior.
 - CI/report paths and the COM-C1 three-packet input/task/test/stop contract are executable. The
-  money gate, documentation gate, Release build, 270 Swift tests, 13 UI tests, and coverage gate
-  passed on 2026-08-10.
+  money, source-network, and documentation gates, Release build, 270 Swift tests, 13 UI tests,
+  and coverage gate passed on 2026-08-10.
+
+Review closeout evidence: `Docs/Commercialization/SESSION_LOG.md`, Session 4.
 
 ### Technical debt
 

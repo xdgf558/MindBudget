@@ -24,11 +24,13 @@ For any COM phase, also read `Docs/COMMERCIALIZATION_TASKS.md` and the current f
 
 ## Build and test
 
-All commands must pass before a COM phase may be marked Done. The commercialization-doc check is
-also run by `Scripts/validate.sh` so ordinary product phases retain one complete validation entry.
+All commands must pass before a COM phase may be marked Done. The network and commercialization-
+document checks are also run by `Scripts/validate.sh` so ordinary product phases retain one
+complete validation entry.
 
 ```bash
 Scripts/check-no-floating-point-money.sh
+Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
 Scripts/validate.sh
 ```

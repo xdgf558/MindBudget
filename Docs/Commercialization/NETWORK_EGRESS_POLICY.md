@@ -24,18 +24,24 @@ entitlement, container, SDK, or request.
 
 ## Release enforcement contract
 
-1. A new Release network import, URL, domain, entitlement, or endpoint must add/update one row and
+1. `Scripts/check-network-egress.sh` scans every app-target Swift file. While the current set is
+   empty, any app-owned networking primitive, Network/CFNetwork/WebKit import, or HTTP(S) literal
+   fails local validation and CI. A later phase may add only one exact centralized adapter
+   exception after its row and decision become Accepted; broad path or module exclusions remain
+   forbidden.
+2. A new Release network import, URL, domain, entitlement, or endpoint must add/update one row and
    cite an Accepted decision before code review.
-2. Every request has one typed owner, fixed method/path, bounded body, bounded response, timeout,
+3. Every request has one typed owner, fixed method/path, bounded body, bounded response, timeout,
    cancellation, environment isolation, and conservative failure default.
-3. Secrets, provider credentials, App Store server keys, signing keys, and admin tokens never ship
+4. Secrets, provider credentials, App Store server keys, signing keys, and admin tokens never ship
    in the client.
-4. Logs and telemetry never contain request/response bodies, prompts, ledger values, merchant
+5. Logs and telemetry never contain request/response bodies, prompts, ledger values, merchant
    names, notes, receipt text/images, or stable cross-product identifiers.
-5. Production cannot accept a Debug/Sandbox host, product, JWS, container, key, or config.
-6. Unknown domains/endpoints/fields/providers/models fail closed and emit only allow-listed,
+6. Production cannot accept a Debug/Sandbox host, product, JWS, container, key, or config.
+7. Unknown domains/endpoints/fields/providers/models fail closed and emit only allow-listed,
    content-free diagnostics when that channel is itself permitted.
-7. Release validation must inventory the final binary and captured traffic against this table.
+8. Release validation must inventory the final binary and captured traffic against this table;
+   the lexical source gate is an early control, not a replacement for binary/traffic evidence.
 
 ## Change gate
 

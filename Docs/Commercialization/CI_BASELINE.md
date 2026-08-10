@@ -7,6 +7,8 @@ evidence locations; it does not lower an existing product gate or authorize prod
 
 Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.md`, SHA-256
 `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
+`SOURCE_PROVENANCE.md` records this as an external-input audit fingerprint. CI verifies the frozen
+repository snapshot and does not claim access to the owner's external specification.
 
 ## Accepted baseline
 
@@ -18,6 +20,7 @@ Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.m
 
   ```bash
   Scripts/check-no-floating-point-money.sh
+  Scripts/check-network-egress.sh
   Scripts/check-commercialization-docs.sh
   Scripts/validate.sh
   ```
@@ -63,7 +66,11 @@ already exist. Without it, the script uses and removes an isolated temporary dir
 
 - Recommended local path:
   `TestResults/Commercialization/<phase>/<build>/MindBudget.xcresult`.
-- CI path: `${RUNNER_TEMP}/MindBudget.xcresult`, reported in the GitHub Actions job summary.
+- CI working path: `${RUNNER_TEMP}/MindBudget.xcresult`.
+- Downloadable CI artifact:
+  `MindBudget-xcresult-<run-id>-<run-attempt>`, retained for 14 days and uploaded even when the
+  validation step fails after producing a result bundle. If validation stops before testing,
+  absence of an xcresult is reported without hiding the original failure.
 - Signed-device/manual evidence:
   `TestResults/Commercialization/<phase>/<build>/README.md` plus only redacted screenshots/logs.
 - StoreKit evidence: `TestResults/Commercialization/StoreKit/<build>/`.

@@ -123,3 +123,35 @@ context.
   failure default, environment, and owning Requirement.
 - Alternatives rejected: Wildcard domains, arbitrary URL construction, provider URLs in the
   client, or treating TLS alone as approval.
+
+## DEC-COM-010 — Enforce the empty egress baseline against app source
+
+- Status/date: **Accepted — 2026-08-10**
+- Requirements: REQ-R1-NET-001, REQ-R1-TELEMETRY-001
+- Decision: While the current app-owned Release allow-list is empty, validation scans all
+  `MindBudget/**/*.swift` files and rejects known app-owned networking primitives, networking
+  framework imports, and HTTP(S) literals. A later accepted channel may introduce only a narrow
+  centralized adapter exception tied to its exact policy row; binary and captured-traffic review
+  remain required at the release gate.
+- Consequences: Adding a direct URL session or network client now fails CI even if documentation
+  still says the app is local. StoreKit and CloudKit remain Apple-owned typed framework channels
+  and are not falsely classified as app-owned HTTP. The lexical gate is defense in depth, not a
+  proof that arbitrary source cannot conceal networking.
+- Alternatives rejected: Checking policy prose only, granting a directory-wide exception, or
+  treating source scanning as a substitute for final binary and traffic evidence.
+
+## DEC-COM-011 — Keep the detailed source external and make SHA semantics explicit
+
+- Status/date: **Accepted — 2026-08-10**
+- Requirements: all v1.4-derived commercial Requirements
+- Decision: The owner's detailed commercialization specification remains outside the public
+  repository. `SOURCE_PROVENANCE.md` records its audited filename, SHA-256, byte length, date,
+  derived repository snapshot, and mandatory stop/re-audit procedure. CI reads that single lock
+  and checks internal snapshot consistency; it does not claim to monitor an external file it
+  cannot access.
+- Consequences: A replacement source must be supplied explicitly, rehashed, semantically diffed,
+  and accepted before affected work continues. The public repository does not expose the private
+  detailed specification merely to make an impossible CI drift claim.
+- Alternatives rejected: Committing the full owner specification to the public repository,
+  duplicating the hash as an unanchored script constant, or claiming automatic external drift
+  detection.

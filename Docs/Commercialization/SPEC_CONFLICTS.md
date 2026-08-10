@@ -12,6 +12,7 @@ implementation contract; P2 is documentation/tooling ambiguity without current p
 
 Source specification: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.md`, SHA-256
 `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
+See `SOURCE_PROVENANCE.md` for the external-source boundary and mandatory re-audit procedure.
 
 ## Historical conflicts resolved by the specification
 

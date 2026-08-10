@@ -3278,3 +3278,26 @@ the result-bundle path are in commercialization Session 3 and `CI_BASELINE.md`.
 
 Next suggested task: Enter COM-C1 only after explicit owner instruction and execute its three
 review packets in order, stopping before StoreKit or paid UI.
+
+## 2026-08-10 — Session 83 — Close COM-C0B executable review findings
+
+Goal: Close PR #24's review findings without expanding the authorized commercialization phase.
+
+What was completed: The accepted empty current Release app-owned egress set is now enforced
+against all app Swift source, not only policy prose. CI now retains the deterministic xcresult as
+a downloadable pinned-action artifact. The private owner-held v1.4 source has a single explicit
+provenance/fingerprint record and honest external-drift limitation; the open-P0 parser is
+order-independent; `BudgetPlanSemantics` is included in the current local deletion/privacy
+inventory; and SPEC-015's accepted status is consistent across commercial memory. Detailed
+decisions and evidence are in commercialization Session 4.
+
+What was NOT completed: No product behavior, app source/schema/resource, entitlement, StoreKit,
+CloudKit, telemetry, backend, provider, receipt, Watch, version, Archive, upload, or tester state
+changed. COM-C1 remains Ready but unstarted.
+
+Validation result: pass — Release build, 270 Swift tests, 13 UI tests, money/release/network/doc
+gates, and all existing coverage thresholds. The ignored review-result bundle path is recorded in
+commercialization Session 4.
+
+Next suggested task: Merge only after the updated PR CI is green, then wait for a new explicit
+owner instruction before starting COM-C1.

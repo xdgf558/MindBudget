@@ -106,3 +106,39 @@ IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
 
 Next suggested task: Enter COM-C1 only on explicit owner instruction. Execute C1-01, C1-02, and
 C1-03 as separate review units; stop before StoreKit, products, purchase UI, or schema migration.
+
+## 2026-08-10 — Session 4 — COM-C0B executable review-gate closeout
+
+Goal: Close PR #24 review findings by turning the empty current Release network policy and CI
+result-bundle promise into executable, reviewable controls without starting COM-C1.
+
+What was completed: Added `Scripts/check-network-egress.sh`, which scans every app Swift source
+file and rejects app-owned networking primitives, networking-framework imports, and HTTP(S)
+literals while the accepted allow-list is empty. Wired the gate into local validation and CI with
+no broad source exception. Added a pinned `upload-artifact` step so the deterministic xcresult is
+downloadable after the runner is destroyed. Replaced the repeated unanchored source hash with
+`SOURCE_PROVENANCE.md`: the owner-held detailed specification remains outside the public
+repository, while its audited fingerprint, byte length, date, derived snapshot, limitation, and
+mandatory replacement-source re-audit procedure are explicit. Made the open-P0 check independent
+of field order and self-tested it. Added `BudgetPlanSemantics` to the current local-model privacy
+inventory and corrected the stale SPEC-015 status in the commercial memory/index.
+
+What was NOT completed: No app source, schema/resource, entitlement, StoreKit product/group,
+price, trial, paywall, CloudKit, telemetry, backend, provider, Watch target, receipt flow, version,
+Archive, upload, or tester assignment changed. The lexical source gate remains defense in depth;
+binary and captured-traffic verification still belong to the later release gate. COM-C1 remains
+unstarted.
+
+Validation result: pass. The no-floating-point-money, release-readiness, source-network, and
+commercial-document gates passed. Xcode 26.6 completed the Release build, 270 Swift tests and 13
+UI tests with zero failures, plus the existing coverage gate. The shared-host wall-clock signal
+was excluded through its documented switch; the deterministic 10,000-row contract still ran.
+Result bundle:
+`TestResults/Commercialization/COM-C0B/review-fix/MindBudget.xcresult` (ignored evidence
+workspace). Coverage remained Money 91.73%, BudgetEngine 95.18%, BudgetCycleCalculator 95.17%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 91.02%,
+AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService 97.42%,
+IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
+
+Next suggested task: Confirm the updated PR CI is green. After merge, enter COM-C1 only on a new
+explicit owner instruction and follow its three review packets without importing StoreKit early.

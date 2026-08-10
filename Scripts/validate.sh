@@ -27,6 +27,7 @@ fi
 cd "${PROJECT_ROOT}"
 
 Scripts/check-release-readiness.sh
+Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
 
 build_settings="$(

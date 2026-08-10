@@ -5,7 +5,7 @@ SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
-SOURCE_SHA="290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0"
+SOURCE_PROVENANCE="Docs/Commercialization/SOURCE_PROVENANCE.md"
 MONTHLY_PRODUCT_ID="com.xdgf558.mindbudget.pro.monthly"
 ANNUAL_PRODUCT_ID="com.xdgf558.mindbudget.pro.annual"
 
@@ -16,6 +16,9 @@ required_files=(
   Docs/Commercialization/PROJECT_MEMORY.md
   Docs/Commercialization/DECISIONS.md
   Docs/Commercialization/SESSION_LOG.md
+  Docs/Commercialization/REQUIREMENTS_INDEX.md
+  Docs/Commercialization/SPEC_CONFLICTS.md
+  Docs/Commercialization/SOURCE_PROVENANCE.md
   Docs/PRIVACY_AND_REVIEW_NOTES.md
   Docs/Commercialization/AI_PROVIDER_CONTRACT.md
   Docs/Commercialization/STOREKIT_TEST_MATRIX.md
@@ -32,12 +35,27 @@ for file in "${required_files[@]}"; do
   fi
 done
 
+SOURCE_SHA="$(
+  sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |
+    head -n 1
+)"
+if [[ ! "${SOURCE_SHA}" =~ ^[0-9a-f]{64}$ ]]; then
+  echo "Commercial source provenance must contain one valid SHA-256 fingerprint" >&2
+  exit 1
+fi
+
+grep -Fq 'it is not a claim that CI can read or automatically detect changes' \
+  "${SOURCE_PROVENANCE}" || {
+  echo "Commercial source provenance must state the external-drift limitation" >&2
+  exit 1
+}
+
 for file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/PROJECT_MEMORY.md \
   Docs/Commercialization/REQUIREMENTS_INDEX.md; do
   grep -Fq "${SOURCE_SHA}" "${file}" || {
-    echo "Commercial source SHA is missing from ${file}" >&2
+    echo "Commercial source snapshot fingerprint is missing from ${file}" >&2
     exit 1
   }
 done
@@ -70,7 +88,28 @@ for requirement_id in "${requirement_ids[@]}"; do
   }
 done
 
-if grep -Eq 'Priority/status:.*P0.*Open' Docs/Commercialization/SPEC_CONFLICTS.md; then
+contains_open_p0() {
+  awk '
+  {
+    line = tolower($0)
+    if (index(line, "priority/status:") && index(line, "p0") && index(line, "open")) {
+      found = 1
+    }
+  }
+  END { exit found ? 0 : 1 }
+  ' "$@"
+}
+
+if ! contains_open_p0 <<< '- Priority/status: **Open (P0)**'; then
+  echo "Commercial conflict gate no longer detects order-independent Open P0 status" >&2
+  exit 1
+fi
+if contains_open_p0 <<< '- Priority/status: **P1 — Open**'; then
+  echo "Commercial conflict gate incorrectly classifies non-P0 status" >&2
+  exit 1
+fi
+
+if contains_open_p0 Docs/Commercialization/SPEC_CONFLICTS.md; then
   echo "An unresolved P0 commercialization specification conflict remains" >&2
   exit 1
 fi
@@ -116,6 +155,17 @@ done
 if grep -Eq 'all ten (SwiftData|model)|ten SwiftData|all ten model' \
   Docs/PRIVACY_AND_REVIEW_NOTES.md Docs/PROJECT_MEMORY.md Docs/TEST_PLAN.md; then
   echo "Current deletion documentation still contains the stale ten-model count" >&2
+  exit 1
+fi
+
+grep -Fq 'budget-plan-semantics' Docs/PRIVACY_AND_REVIEW_NOTES.md || {
+  echo "Current deletion documentation is missing the BudgetPlanSemantics table" >&2
+  exit 1
+}
+
+if grep -Eq 'SPEC-015 (open|remains open)' \
+  Docs/Commercialization/PROJECT_MEMORY.md Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Commercial memory still describes accepted SPEC-015 as open" >&2
   exit 1
 fi
 

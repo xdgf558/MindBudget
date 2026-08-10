@@ -14,6 +14,8 @@ COM-C0B is ready but has not started.
 
 - Commercial source: `MindBudget 商业化与 Pro 云端 AI 开发方案 v1.4.md`.
 - Source SHA-256: `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
+- `SOURCE_PROVENANCE.md` records the external-file boundary and the manual stop/re-audit procedure;
+  this fingerprint identifies the audited input but does not make that external file visible to CI.
 - Audited repository baseline: `main` commit
   `6226823370d9ecaedfd89f2754e1f5705dc8d5dd` (PR #23 merge).
 - Current repository memory remains authoritative for the behavior of the existing 0.9.x binary.

@@ -234,8 +234,9 @@ Status: COM-C0A and COM-C0B Done; COM-C1 Ready but not started
   documents, CI/report gates, and non-behavioral test infrastructure. Do not skip ahead to
   entitlement, StoreKit, iCloud, telemetry, Watch, receipt, backend, or cloud-AI implementation.
 - [x] Complete COM-C0B with separate commercial memory/decisions, accepted empty current Release
-  egress, AI/StoreKit/pricing matrices, reproducible result paths, a CI documentation gate, the
-  SPEC-018 privacy correction, and independently reviewable COM-C1 execution packets. Full
-  Release, Swift/UI, money, documentation, and coverage validation passed.
+  egress enforced against app Swift source, AI/StoreKit/pricing matrices, reproducible and
+  downloadable CI result bundles, source-provenance and documentation gates, the SPEC-018 privacy
+  correction, and independently reviewable COM-C1 execution packets. Full Release, Swift/UI,
+  money, network, documentation, and coverage validation passed.
 - [ ] Start COM-C1 only after a new explicit owner instruction; follow
   `Docs/Commercialization/COM_C1_EXECUTION_PACKET.md` and do not import StoreKit or add paid UI.
