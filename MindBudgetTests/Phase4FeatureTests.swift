@@ -59,6 +59,44 @@ struct Phase4FeatureTests {
     }
 
     @Test
+    func customCoolingOffDefaultsRequireCentralPremiumAccess() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let freeViewModel = WishItemFormViewModel(existingItem: nil, seed: nil)
+        freeViewModel.name = "Free candidate"
+        freeViewModel.coolingOffHours = 72
+
+        let freeSaved = await freeViewModel.save(
+            dataActor: actor,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            premiumEntryAccess: ExistingPremiumEntryAccess(),
+            now: TestFixtures.now
+        )
+        #expect(freeSaved == false)
+        #expect(freeViewModel.error == .featureNotYetAvailable)
+        #expect(try await actor.modelCounts().wishItems == 0)
+
+        #if DEBUG
+        let subscribedAccess = ExistingPremiumEntryAccess(
+            featureAccess: DebugFeatureAccessProvider(entitlements: .proSubscription)
+        )
+        let subscribedViewModel = WishItemFormViewModel(existingItem: nil, seed: nil)
+        subscribedViewModel.name = "Subscribed candidate"
+        subscribedViewModel.coolingOffHours = 72
+
+        let subscribedSaved = await subscribedViewModel.save(
+            dataActor: actor,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            premiumEntryAccess: subscribedAccess,
+            now: TestFixtures.now
+        )
+        #expect(subscribedSaved)
+        #expect(try await actor.fetchWishItemSummaries().first?.coolingOffHours == 72)
+        #endif
+    }
+
+    @Test
     func expenseDraftCanSeedWishlistWithoutInventingContext() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let viewModel = WishItemFormViewModel(

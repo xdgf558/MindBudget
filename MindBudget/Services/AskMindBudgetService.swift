@@ -12,6 +12,7 @@ struct AskMindBudgetRequest: Sendable {
     let calendar: Calendar
     let tone: ReminderTone
     let enhancementEnabled: Bool
+    let premiumEntryAccess: ExistingPremiumEntryAccess
 }
 
 struct AskMindBudgetResponse: Equatable, Sendable {
@@ -107,7 +108,9 @@ struct AskMindBudgetService: Sendable {
         )
         let context = redactor.redactAsk(input)
         let capability = AIEnhancementCapability(
-            userEnabled: request.enhancementEnabled,
+            userEnabled: request.premiumEntryAccess.enablesAppleOnDeviceAI(
+                userEnabled: request.enhancementEnabled
+            ),
             targetLocale: request.locale,
             runtimeAvailability: runtimeAvailability
         )

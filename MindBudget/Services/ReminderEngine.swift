@@ -72,12 +72,14 @@ protocol ReminderGenerating: Sendable {
 struct ReminderEngine: ReminderGenerating, Sendable {
     private let enhancer: (any ReminderWordingEnhancing)?
     private let aiEnhancementEnabled: Bool
+    private let premiumEntryAccess: ExistingPremiumEntryAccess
     private let aiGenerator: any AIAdviceGenerating
     private let aiRuntimeAvailability: @Sendable (Locale) async -> AIAvailability
 
     init(
         enhancer: (any ReminderWordingEnhancing)? = nil,
         aiEnhancementEnabled: Bool = false,
+        premiumEntryAccess: ExistingPremiumEntryAccess = ExistingPremiumEntryAccess(),
         aiGenerator: any AIAdviceGenerating = FoundationModelsAdviceGenerator(),
         aiRuntimeAvailability: @escaping @Sendable (Locale) async -> AIAvailability = { locale in
             await FoundationModelsAdviceGenerator.runtimeAvailability(locale: locale)
@@ -85,6 +87,7 @@ struct ReminderEngine: ReminderGenerating, Sendable {
     ) {
         self.enhancer = enhancer
         self.aiEnhancementEnabled = aiEnhancementEnabled
+        self.premiumEntryAccess = premiumEntryAccess
         self.aiGenerator = aiGenerator
         self.aiRuntimeAvailability = aiRuntimeAvailability
     }
@@ -176,7 +179,7 @@ struct ReminderEngine: ReminderGenerating, Sendable {
             let result = await CompositeAdviceGenerator(
                 model: aiGenerator,
                 capability: AIEnhancementCapability(
-                    userEnabled: true,
+                    userEnabled: premiumEntryAccess.enablesAppleOnDeviceAI(userEnabled: true),
                     targetLocale: locale,
                     runtimeAvailability: aiRuntimeAvailability
                 )

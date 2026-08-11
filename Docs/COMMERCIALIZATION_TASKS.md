@@ -22,11 +22,12 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active review packet: **COM-C1 / C1-02 — central feature-access service and injection**.
-- Product implementation status: the closed entitlement value/migration vocabulary and immutable
-  exact-Free access-service injection are implemented through C1-02. StoreKit, paid entry
-  integration, paywall, receipt import, iCloud sync, commercialization telemetry, Watch, cloud AI,
-  and backend remain unstarted.
+- Active review packet: **COM-C1 / C1-03 — existing-entry integration and audit**.
+- Product implementation status: all three COM-C1 packets are implemented for review. Existing
+  Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
+  Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
+  period, and basic Siri record/check actions. StoreKit, paywall, receipt import, iCloud sync,
+  commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
@@ -170,7 +171,7 @@ regression, and every C1 Requirement is Active with no `BLOCKED_BY_SPEC` state.
 
 ## COM-C1 — Entitlement model and Feature Access
 
-Status: **In Progress — C1-01 and C1-02 implemented; C1-03 waits for C1-02 review and merge.**
+Status: **In Progress — all three packets implemented; C1-03 awaits independent review.**
 
 - [x] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
   semantics, versioned migration, and the reachable entitlement-domain matrix. Free iCloud must
@@ -182,9 +183,13 @@ Status: **In Progress — C1-01 and C1-02 implemented; C1-03 waits for C1-02 rev
   construction and protocol implementation/refinement for Commerce while allowing exact-Free and
   injected protocol consumers elsewhere. Evidence: `CommercializationEntitlementTests`,
   `Scripts/check-feature-access-boundary.sh`, and commercialization Sessions 8–10.
-- [ ] **C1-03 — Existing-entry integration.** Route existing premium candidates through the
-  central service, remove scattered Product-ID checks, and prove Free manual record/export/delete
-  behavior remains available.
+- [x] **C1-03 — Existing-entry integration.** Route the accepted existing Apple on-device AI,
+  non-24-hour cooling-off, and advanced Siri entries through one immutable Commerce snapshot;
+  keep exact-Free templates, 24-hour cooling-off, basic Siri record/check actions, and all typed
+  Free-core capabilities available. Static validation rejects feature-local Product IDs,
+  `isPro`/`isPremium` state, manual unlock aliases, and duplicate direct feature decisions.
+  Evidence: focused integration tests, the full validation record in commercialization Session
+  11, and `Scripts/check-feature-access-boundary.sh`.
 
 Exit gate: all reachable entitlement combinations pass; removing subscription returns exactly to
 Free; no Release manual unlock or duplicate paid check exists.

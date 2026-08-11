@@ -1317,13 +1317,16 @@ private struct ReminderSettingsView: View {
 
 private struct AISettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
 
     var body: some View {
         List {
             Section("settings.ai.section") {
                 Toggle("settings.ask.enabled", isOn: $settings.enableAskMindBudget)
-                Toggle("settings.ai.enhancement", isOn: $settings.enableAIEnhancement)
-                AIStatusView(userEnabled: settings.enableAIEnhancement)
+                if premiumEntryAccess.offersAppleOnDeviceAI {
+                    Toggle("settings.ai.enhancement", isOn: $settings.enableAIEnhancement)
+                    AIStatusView(userEnabled: settings.enableAIEnhancement)
+                }
                 Text("settings.ai.privacy")
                     .font(.footnote)
                     .foregroundStyle(.secondary)

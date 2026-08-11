@@ -155,6 +155,25 @@ struct CommercializationEntitlementTests {
     }
 
     @Test
+    func existingPremiumEntriesConsumeOnlyTheCentralAccessAuthority() {
+        let freeEntries = ExistingPremiumEntryAccess(
+            featureAccess: FeatureAccessService(entitlements: .free)
+        )
+        let subscribedEntries = ExistingPremiumEntryAccess(
+            featureAccess: FeatureAccessService(entitlements: .proSubscription)
+        )
+
+        #expect(freeEntries.enablesAppleOnDeviceAI(userEnabled: true) == false)
+        #expect(freeEntries.offersCustomCoolingOffDurations == false)
+        #expect(freeEntries.permitsAdvancedSiri == false)
+
+        #expect(subscribedEntries.enablesAppleOnDeviceAI(userEnabled: false) == false)
+        #expect(subscribedEntries.enablesAppleOnDeviceAI(userEnabled: true))
+        #expect(subscribedEntries.offersCustomCoolingOffDurations)
+        #expect(subscribedEntries.permitsAdvancedSiri)
+    }
+
+    @Test
     func immutableFeatureAccessSnapshotIsConsistentAcrossConcurrentReads() async {
         let service: any FeatureAccessChecking = FeatureAccessService(
             entitlements: .proSubscription
@@ -192,9 +211,9 @@ struct CommercializationEntitlementTests {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let freeSession = AppSession(dataActor: controller.dataActor)
 
-        for feature in PremiumFeature.allCases {
-            #expect(freeSession.accessDecision(for: feature) == .requiresProSubscription)
-        }
+        #expect(freeSession.existingPremiumEntryAccess.offersAppleOnDeviceAI == false)
+        #expect(freeSession.existingPremiumEntryAccess.offersCustomCoolingOffDurations == false)
+        #expect(freeSession.existingPremiumEntryAccess.permitsAdvancedSiri == false)
 
         #if DEBUG
         let debugSession = AppSession(
@@ -203,9 +222,9 @@ struct CommercializationEntitlementTests {
                 entitlements: .proSubscription
             )
         )
-        for feature in PremiumFeature.allCases {
-            #expect(debugSession.accessDecision(for: feature) == .allowed)
-        }
+        #expect(debugSession.existingPremiumEntryAccess.offersAppleOnDeviceAI)
+        #expect(debugSession.existingPremiumEntryAccess.offersCustomCoolingOffDurations)
+        #expect(debugSession.existingPremiumEntryAccess.permitsAdvancedSiri)
         #endif
     }
 

@@ -10,6 +10,7 @@ enum IntentExecutionError: Error, Equatable, Sendable {
     case budgetUnavailable
     case itemUnavailable
     case wishlistLimitReached
+    case featureNotYetAvailable
     case invalidStoredData
 
     var dialogKey: LocalizedStringResource {
@@ -22,6 +23,7 @@ enum IntentExecutionError: Error, Equatable, Sendable {
         case .budgetUnavailable: "intent.error.budgetUnavailable"
         case .itemUnavailable: "intent.error.itemUnavailable"
         case .wishlistLimitReached: "intent.error.wishlistLimitReached"
+        case .featureNotYetAvailable: "intent.error.featureNotYetAvailable"
         case .invalidStoredData: "intent.error.data"
         }
     }
@@ -107,19 +109,22 @@ struct MindBudgetIntentService: Sendable {
     let notificationScheduler: any NotificationScheduling
     let navigationStore: MindBudgetNavigationRequestStore
     let capability: SystemIntegrationCapability
+    let premiumEntryAccess: ExistingPremiumEntryAccess
 
     init(
         dataActor: DataActor,
         preferencesProvider: any SystemIntegrationPreferencesProviding,
         notificationScheduler: any NotificationScheduling = NotificationScheduler(),
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
-        capability: SystemIntegrationCapability = SystemIntegrationCapability()
+        capability: SystemIntegrationCapability = SystemIntegrationCapability(),
+        featureAccessService: any FeatureAccessChecking = FeatureAccessService()
     ) {
         self.dataActor = dataActor
         self.preferencesProvider = preferencesProvider
         self.notificationScheduler = notificationScheduler
         self.navigationStore = navigationStore
         self.capability = capability
+        premiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
     }
 
     func requireSiri() async throws -> SystemIntegrationPreferencesSnapshot {
@@ -130,6 +135,14 @@ struct MindBudgetIntentService: Sendable {
         }
         guard Money.isSupported(preferences.accountingCurrencyCode) else {
             throw IntentExecutionError.accountingCurrencyNotConfigured
+        }
+        return preferences
+    }
+
+    func requireAdvancedSiri() async throws -> SystemIntegrationPreferencesSnapshot {
+        let preferences = try await requireSiri()
+        guard premiumEntryAccess.permitsAdvancedSiri else {
+            throw IntentExecutionError.featureNotYetAvailable
         }
         return preferences
     }
@@ -185,7 +198,7 @@ struct MindBudgetIntentService: Sendable {
         requestedCurrencyCode: String?,
         now: Date
     ) async throws -> WishItemSummary {
-        let preferences = try await requireSiri()
+        let preferences = try await requireAdvancedSiri()
         try validateCurrency(
             requestedCurrencyCode,
             accountingCurrencyCode: preferences.accountingCurrencyCode
@@ -267,7 +280,7 @@ struct MindBudgetIntentService: Sendable {
         calendar: Calendar,
         locale: Locale
     ) async throws -> IntentCoolingOffResult {
-        let preferences = try await requireSiri()
+        let preferences = try await requireAdvancedSiri()
         guard durationHours > 0 else { throw IntentExecutionError.invalidAmount }
         let detail: WishItemDetail
         do {
@@ -322,7 +335,7 @@ struct MindBudgetIntentService: Sendable {
         now: Date,
         calendar: Calendar
     ) async throws -> Int {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         guard let start = calendar.date(byAdding: .day, value: -30, to: now) else {
             throw IntentExecutionError.invalidStoredData
         }
@@ -337,7 +350,7 @@ struct MindBudgetIntentService: Sendable {
         now: Date,
         calendar: Calendar
     ) async throws -> SpendingInsightType? {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         guard let start = calendar.date(byAdding: .day, value: -30, to: now) else {
             throw IntentExecutionError.invalidStoredData
         }
@@ -347,12 +360,12 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func validateEphemeralCandidateName(_ name: String?) async throws -> String? {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         return IntentStringSanitizer.sanitize(name)
     }
 
     func expenseEntities(identifiers: [UUID]? = nil) async throws -> [ExpenseEntity] {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         let allowed = identifiers.map(Set.init)
         let summaries = try await dataActor.fetchExpenseSummaries()
         let plans = try await dataActor.fetchBudgetPlanSummaries()
@@ -366,7 +379,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func wishlistEntities(identifiers: [UUID]? = nil) async throws -> [WishlistItemEntity] {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchWishItemSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -375,7 +388,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func coolingOffEntities(identifiers: [UUID]? = nil) async throws -> [CoolingOffPlanEntity] {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchCoolingOffPlanSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -384,7 +397,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func merchantEntities(identifiers: [UUID]? = nil) async throws -> [MerchantEntity] {
-        let preferences = try await requireSiri()
+        let preferences = try await requireAdvancedSiri()
         guard preferences.spotlightEnabled, preferences.merchantNamesEnabled,
               capability.spotlightAvailability(userEnabled: true).isAvailable else {
             return []
@@ -399,7 +412,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func insightEntities(identifiers: [UUID]? = nil) async throws -> [SpendingInsightEntity] {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchSpendingInsightSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -408,7 +421,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func budgetSnapshotEntities() async throws -> [BudgetSnapshotEntity] {
-        let preferences = try await requireSiri()
+        let preferences = try await requireAdvancedSiri()
         let now = Date()
         var calendar = Calendar.autoupdatingCurrent
         calendar.timeZone = .autoupdatingCurrent
@@ -421,7 +434,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func emotionTagEntities(identifiers: [String]? = nil) async throws -> [EmotionTagEntity] {
-        _ = try await requireSiri()
+        _ = try await requireAdvancedSiri()
         let allowed = identifiers.map(Set.init)
         return EmotionTag.allCases.compactMap { tag in
             guard allowed?.contains(tag.rawValue) ?? true else { return nil }

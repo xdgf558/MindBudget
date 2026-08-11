@@ -104,13 +104,15 @@ struct AppEnvironment {
         let dataController = try DataController(isStoredInMemoryOnly: isStoredInMemoryOnly)
         let notificationScheduler = NotificationScheduler()
         let navigationStore = MindBudgetNavigationRequestStore()
+        let featureAccessService: any FeatureAccessChecking = FeatureAccessService()
         let intentService = MindBudgetIntentService(
             dataActor: dataController.dataActor,
             preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
                 suiteName: preferenceSuiteName
             ),
             notificationScheduler: notificationScheduler,
-            navigationStore: navigationStore
+            navigationStore: navigationStore,
+            featureAccessService: featureAccessService
         )
         return AppEnvironment(
             dataController: dataController,
@@ -120,7 +122,7 @@ struct AppEnvironment {
             spotlightIndexer: SpotlightIndexingService(),
             intentService: intentService,
             appLockAuthenticator: LocalAppLockAuthenticator(),
-            featureAccessService: FeatureAccessService()
+            featureAccessService: featureAccessService
         )
     }
 }

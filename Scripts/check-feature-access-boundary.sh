@@ -294,6 +294,41 @@ if [[ -n "${feature_access_conformances}" ]]; then
   exit 1
 fi
 
+direct_feature_decisions="$({
+  find MindBudget -type f -name '*.swift' \
+    ! -path "${ACCESS_SOURCE}" \
+    -exec grep -nEH '\.decision\(for:[[:space:]]*\.' {} + |
+    grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
+} 2>/dev/null || true)"
+if [[ -n "${direct_feature_decisions}" ]]; then
+  echo "Existing feature entries must consume the Commerce-owned access snapshot:" >&2
+  echo "${direct_feature_decisions}" >&2
+  exit 1
+fi
+
+feature_local_paid_state="$({
+  find MindBudget -type f -name '*.swift' \
+    ! -path 'MindBudget/Commerce/*' \
+    -exec grep -nEH '(^|[^[:alnum:]_])(isPro|hasPro|isPremium|hasPremium|manual[A-Za-z0-9_]*Unlock|unlock[A-Za-z0-9_]*(Pro|Premium)|productID|productIdentifier)([^[:alnum:]_]|$)' {} + |
+    grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
+} 2>/dev/null || true)"
+if [[ -n "${feature_local_paid_state}" ]]; then
+  echo "Feature code must not add local paid-state, product-ID, or manual-unlock checks:" >&2
+  echo "${feature_local_paid_state}" >&2
+  exit 1
+fi
+
+commercial_product_literals="$({
+  find MindBudget -type f -name '*.swift' \
+    -exec grep -nEH 'com\.xdgf558\.mindbudget\.pro\.(monthly|annual|lifetime)' {} + |
+    grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
+} 2>/dev/null || true)"
+if [[ -n "${commercial_product_literals}" ]]; then
+  echo "COM-C1 must not embed StoreKit product identifiers in app source:" >&2
+  echo "${commercial_product_literals}" >&2
+  exit 1
+fi
+
 authority_storage_reads="$({
   awk '
   {

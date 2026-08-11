@@ -346,6 +346,7 @@ final class ExpenseFormViewModel: ObservableObject {
         currencyCode: String,
         bucket: BudgetBucket,
         aiEnhancementEnabled: Bool = false,
+        premiumEntryAccess: ExistingPremiumEntryAccess = ExistingPremiumEntryAccess(),
         locale: Locale,
         now: Date,
         timeZone: TimeZone,
@@ -387,7 +388,8 @@ final class ExpenseFormViewModel: ObservableObject {
 
         if !sheetDrafts.isEmpty {
             let reminderEngine = ReminderEngine(
-                aiEnhancementEnabled: aiEnhancementEnabled
+                aiEnhancementEnabled: aiEnhancementEnabled,
+                premiumEntryAccess: premiumEntryAccess
             )
             let context = reminderEngine.buildContext(
                 candidate: candidate,
@@ -716,6 +718,7 @@ struct AddExpenseView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @StateObject private var viewModel: ExpenseFormViewModel
     @State private var showsContextFields = false
     @State private var showsDatePicker = false
@@ -1204,6 +1207,7 @@ struct AddExpenseView: View {
                     ? .fixed
                     : settings.bucket(for: viewModel.category),
                 aiEnhancementEnabled: settings.enableAIEnhancement,
+                premiumEntryAccess: premiumEntryAccess,
                 locale: locale,
                 now: Date(),
                 timeZone: .current,

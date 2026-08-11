@@ -135,7 +135,7 @@ struct OpenWishlistItemIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult {
-        _ = try await service.requireSiri()
+        _ = try await service.requireAdvancedSiri()
         await service.navigationStore.submit(.wishlistItem(item.id))
         return .result()
     }

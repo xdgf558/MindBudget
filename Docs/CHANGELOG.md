@@ -6,7 +6,14 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No changes yet.
+### Changed
+
+- Prepared the existing advanced-entry boundaries for the future Pro subscription without adding
+  a paywall or purchase flow. Apple on-device wording enhancement, non-24-hour cooling-off choices,
+  and advanced Siri actions now use the central feature-access authority. The current exact-Free
+  build continues to provide complete local templates, the basic 24-hour cooling-off period, and
+  basic Siri expense recording and budget checking; unavailable advanced Siri actions return a
+  neutral localized explanation.
 
 ## 0.9.6 (7) — 2026-08-10 — Uploaded internal TestFlight candidate
 

@@ -29,6 +29,7 @@ final class AskMindBudgetViewModel: ObservableObject {
         calendar: Calendar,
         tone: ReminderTone,
         enhancementEnabled: Bool,
+        premiumEntryAccess: ExistingPremiumEntryAccess,
         bucket: (ExpenseCategory) -> BudgetBucket
     ) async {
         guard !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -66,7 +67,8 @@ final class AskMindBudgetViewModel: ObservableObject {
                 locale: locale,
                 calendar: calendar,
                 tone: tone,
-                enhancementEnabled: enhancementEnabled
+                enhancementEnabled: enhancementEnabled,
+                premiumEntryAccess: premiumEntryAccess
             )
         )
     }
@@ -82,6 +84,7 @@ struct AskMindBudgetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @StateObject private var viewModel = AskMindBudgetViewModel()
 
     var body: some View {
@@ -234,6 +237,7 @@ struct AskMindBudgetView: View {
             calendar: calendar,
             tone: settings.reminderTone,
             enhancementEnabled: settings.enableAIEnhancement,
+            premiumEntryAccess: premiumEntryAccess,
             bucket: settings.bucket(for:)
         )
     }

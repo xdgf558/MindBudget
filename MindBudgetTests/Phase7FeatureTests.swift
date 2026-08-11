@@ -863,7 +863,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: calendar,
             tone: .soft,
-            enhancementEnabled: true
+            enhancementEnabled: true,
+            premiumEntryAccess: subscribedPremiumEntryAccess()
         )
         let context = try #require(await recorder.context)
 
@@ -904,7 +905,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: calendar,
             tone: .soft,
-            enhancementEnabled: true
+            enhancementEnabled: true,
+            premiumEntryAccess: subscribedPremiumEntryAccess()
         )
         let context = try #require(await recorder.context)
 
@@ -942,7 +944,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: calendar,
             tone: .soft,
-            enhancementEnabled: true
+            enhancementEnabled: true,
+            premiumEntryAccess: subscribedPremiumEntryAccess()
         )
         let context = try #require(await recorder.context)
         let underOneTemplate = await CycleSummaryService().generate(
@@ -952,7 +955,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: calendar,
             tone: .soft,
-            enhancementEnabled: false
+            enhancementEnabled: false,
+            premiumEntryAccess: ExistingPremiumEntryAccess()
         )
         let unavailable = await CycleSummaryService().generate(
             snapshot: .unconfigured(
@@ -964,7 +968,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: calendar,
             tone: .soft,
-            enhancementEnabled: false
+            enhancementEnabled: false,
+            premiumEntryAccess: ExistingPremiumEntryAccess()
         )
 
         #expect(context.budgetUsage == .lessThanOnePercent)
@@ -1192,6 +1197,7 @@ struct Phase7FeatureTests {
         )
         let engine = ReminderEngine(
             aiEnhancementEnabled: true,
+            premiumEntryAccess: subscribedPremiumEntryAccess(),
             aiGenerator: mock,
             aiRuntimeAvailability: { _ in .available }
         )
@@ -1226,7 +1232,8 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: TestFixtures.utcCalendar,
             tone: .soft,
-            enhancementEnabled: true
+            enhancementEnabled: true,
+            premiumEntryAccess: subscribedPremiumEntryAccess()
         )
 
         #expect(reminder.source == .model)
@@ -1258,8 +1265,21 @@ struct Phase7FeatureTests {
             locale: Locale(identifier: "en_US"),
             calendar: TestFixtures.utcCalendar,
             tone: .soft,
-            enhancementEnabled: enhancementEnabled
+            enhancementEnabled: enhancementEnabled,
+            premiumEntryAccess: enhancementEnabled
+                ? subscribedPremiumEntryAccess()
+                : ExistingPremiumEntryAccess()
         )
+    }
+
+    private func subscribedPremiumEntryAccess() -> ExistingPremiumEntryAccess {
+        #if DEBUG
+        ExistingPremiumEntryAccess(
+            featureAccess: DebugFeatureAccessProvider(entitlements: .proSubscription)
+        )
+        #else
+        preconditionFailure("Commercialization tests require the Debug entitlement provider")
+        #endif
     }
 
     private func snapshot(spentTotal: Int64 = 40_000) -> ConfiguredBudgetSnapshot {

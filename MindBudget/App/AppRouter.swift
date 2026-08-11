@@ -2,6 +2,17 @@ import Foundation
 import SwiftUI
 @preconcurrency import CoreSpotlight
 
+private struct ExistingPremiumEntryAccessEnvironmentKey: EnvironmentKey {
+    static let defaultValue = ExistingPremiumEntryAccess()
+}
+
+extension EnvironmentValues {
+    var existingPremiumEntryAccess: ExistingPremiumEntryAccess {
+        get { self[ExistingPremiumEntryAccessEnvironmentKey.self] }
+        set { self[ExistingPremiumEntryAccessEnvironmentKey.self] = newValue }
+    }
+}
+
 enum AppTab: Hashable, CaseIterable {
     case dashboard
     case list
@@ -33,7 +44,7 @@ final class AppSession: ObservableObject {
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
     private let systemIntegrationCapability: SystemIntegrationCapability
     private let appLockAuthenticator: any AppLockAuthenticating
-    private let featureAccessService: any FeatureAccessChecking
+    let existingPremiumEntryAccess: ExistingPremiumEntryAccess
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -79,14 +90,8 @@ final class AppSession: ObservableObject {
         self.privacyDeletionVerifier = privacyDeletionVerifier
         self.systemIntegrationCapability = systemIntegrationCapability
         self.appLockAuthenticator = appLockAuthenticator
-        self.featureAccessService = featureAccessService
+        existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
-    }
-
-    /// The session-owned feature-access authority. C1-03 consumers call this method rather than
-    /// inspecting entitlements, raw bits, products, or billing state.
-    func accessDecision(for feature: PremiumFeature) -> FeatureAccessDecision {
-        featureAccessService.decision(for: feature)
     }
 
     func faceIDAvailability() -> FaceIDAvailability {
@@ -524,6 +529,7 @@ struct AppRouter: View {
                 .zIndex(2)
             }
         }
+        .environment(\.existingPremiumEntryAccess, session.existingPremiumEntryAccess)
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {

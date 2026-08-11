@@ -21,7 +21,8 @@ struct CycleSummaryService: Sendable {
         locale: Locale,
         calendar: Calendar,
         tone: ReminderTone,
-        enhancementEnabled: Bool
+        enhancementEnabled: Bool,
+        premiumEntryAccess: ExistingPremiumEntryAccess
     ) async -> SourcedSummary {
         let cycleExpenses = expenses.filter {
             snapshot.cycle.start <= $0.spentAt && $0.spentAt < snapshot.cycle.end
@@ -74,7 +75,9 @@ struct CycleSummaryService: Sendable {
         return await CompositeAdviceGenerator(
             model: model,
             capability: AIEnhancementCapability(
-                userEnabled: enhancementEnabled,
+                userEnabled: premiumEntryAccess.enablesAppleOnDeviceAI(
+                    userEnabled: enhancementEnabled
+                ),
                 targetLocale: locale,
                 runtimeAvailability: runtimeAvailability
             )

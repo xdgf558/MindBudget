@@ -3471,3 +3471,39 @@ blocked from CoreSimulator and DerivedData; the identical normal Xcode invocatio
 
 Next suggested task: Push this closeout to PR #26, confirm CI is green, and merge only after owner
 approval. Begin C1-03 only after that merge.
+
+## 2026-08-11 — Session 90 — Implement COM-C1-03 existing-entry integration
+
+Goal: Route only the owner-approved existing feature entries through the COM-C1 access authority,
+while keeping the production/default build exact Free and avoiding StoreKit or purchase UI.
+
+What was completed: Added an immutable `ExistingPremiumEntryAccess` snapshot derived only from
+`FeatureAccessChecking`, then injected that narrowed snapshot through the app session and accepted
+service boundaries. Apple on-device text enhancement, non-24-hour cooling-off choices, and the
+advanced Siri/App Intents set now use that one authority. Exact Free still receives complete local
+Ask and reminder templates, the 24-hour cooling period, basic Siri expense recording and budget
+checks, unlimited manual ledger use, CSV export, Delete All, the five-item wishlist, and the
+30-day local insights baseline. Legacy non-24-hour cooling records remain readable and unchanged,
+while new or changed premium durations fail closed with neutral localized copy. Strengthened the
+static access gate so feature code cannot recreate access decisions through direct
+`decision(for:)` calls, feature-local Pro aliases, manual unlock names, or product identifiers.
+Added focused entitlement, AI, cooling-off, Siri, and Free-baseline regression coverage, and
+updated the main/commercial task memory, DEC-COM-014, execution packet, requirements evidence,
+and changelog.
+
+What was NOT completed: No StoreKit import or state mapping, product identifier, subscription
+group, purchase, restore, paywall, price, trial, quota, receipt, entitlement persistence, schema,
+network/cloud/provider, telemetry, Apple Watch release, version, Archive, upload, or tester state
+changed.
+
+Validation result: pass under Xcode 26.6. All static money, empty-egress, commercialization-
+document, feature-access, and release-readiness gates passed. The Release simulator build,
+complete Swift test suite, all 13 UI tests, and every core-service coverage threshold passed.
+The focused C1-03 regression selection additionally passed 114 tests across five suites. The
+documented shared-host switch excluded only the nondeterministic wall-clock signal while retaining
+the deterministic 10,000-row projection contract. A first sandboxed invocation lacked
+CoreSimulator and DerivedData access; the identical validation with normal Xcode permissions
+passed completely.
+
+Next suggested task: Review C1-03 in its focused PR, merge only after owner approval, and begin
+COM-C2 only after that merge and a separate explicit owner instruction.

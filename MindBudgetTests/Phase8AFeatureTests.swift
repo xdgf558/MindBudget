@@ -120,12 +120,46 @@ struct Phase8AFeatureTests {
             "intent.error.unsupportedPrecision",
             "intent.error.unsupportedCurrency",
             "intent.error.temporary",
+            "intent.error.featureNotYetAvailable",
         ]
 
         for key in keys {
             #expect(english.localizedString(forKey: key, value: nil, table: nil) != key)
             #expect(chinese.localizedString(forKey: key, value: nil, table: nil) != key)
         }
+    }
+
+    @Test
+    func exactFreeSiriKeepsBasicRecordingAndBlocksAnAdvancedEntry() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let service = intentService(
+            actor: actor,
+            preferences: preferences(),
+            subscribed: false
+        )
+
+        _ = try await service.recordExpense(
+            amount: Money(minorUnits: 875, currencyCode: "USD"),
+            category: .coffee,
+            bucket: .discretionary,
+            merchantName: nil,
+            requestedCurrencyCode: nil,
+            now: TestFixtures.now,
+            calendar: TestFixtures.utcCalendar
+        )
+        await #expect(throws: IntentExecutionError.featureNotYetAvailable) {
+            _ = try await service.addWishlistItem(
+                name: "Headphones",
+                estimatedPrice: nil,
+                category: .electronics,
+                requestedCurrencyCode: nil,
+                now: TestFixtures.now
+            )
+        }
+
+        let counts = try await actor.modelCounts()
+        #expect(counts.expenses == 1)
+        #expect(counts.wishItems == 0)
     }
 
     @Test
@@ -464,13 +498,22 @@ struct Phase8AFeatureTests {
 
     private func intentService(
         actor: DataActor,
-        preferences: SystemIntegrationPreferencesSnapshot
+        preferences: SystemIntegrationPreferencesSnapshot,
+        subscribed: Bool = true
     ) -> MindBudgetIntentService {
-        MindBudgetIntentService(
+        #if DEBUG
+        let featureAccessService: any FeatureAccessChecking = DebugFeatureAccessProvider(
+            entitlements: subscribed ? .proSubscription : .free
+        )
+        #else
+        let featureAccessService: any FeatureAccessChecking = FeatureAccessService()
+        #endif
+        return MindBudgetIntentService(
             dataActor: actor,
             preferencesProvider: FixedIntegrationPreferencesProvider(preferences),
             notificationScheduler: NoopIntentNotificationScheduler(),
-            capability: availableCapability()
+            capability: availableCapability(),
+            featureAccessService: featureAccessService
         )
     }
 
