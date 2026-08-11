@@ -101,6 +101,10 @@ booleans, a singleton with hidden mutable state, or a fallback that grants acces
 
 - Merged C1-02 service and accepted list of actual premium candidates. If the owner has not
   accepted a candidate, add no lock/paywall/Pro badge for it.
+- Accepted existing candidates for this packet are Apple on-device wording enhancement,
+  non-24-hour cooling-off choices, and advanced Siri/App Entity actions. The existing five-item
+  wishlist and 30-day local Insights are the approved Free baseline, not the later unlimited or
+  advanced Pro variants.
 
 ### Tasks
 
@@ -110,12 +114,33 @@ booleans, a singleton with hidden mutable state, or a fallback that grants acces
 - Run a repository audit for Product IDs, `isPro`/`premium` booleans, manual unlocks, and duplicate
   access checks; record every intentional result.
 
+### Review checklist
+
+- Exact Free receives deterministic Ask/reminder/summary templates even when the legacy user AI
+  setting remains true; the model is never consulted without both user consent and allowed access.
+- Exact Free can create/use a 24-hour cooling-off period. New or changed 72-hour/custom choices are
+  unavailable; a previously stored non-24-hour value remains readable and is never destructively
+  rewritten merely because access is unavailable.
+- Siri expense recording and budget-impact checking remain Free. Wishlist creation, cooling-off,
+  emotion/pattern queries, App Entity queries, and entity navigation require advanced Siri access.
+  Passive App Entity providers return an empty result without presenting an error; actively
+  invoked advanced actions fail with neutral localized copy rather than purchase language.
+- C1-03 source is not a distributable TestFlight/App Store candidate while it removes existing
+  advanced entries without a verified purchase/restore path. Keep the uploaded 0.9.6 binary
+  unchanged and do not resume distribution until the owning StoreKit, purchase presentation, and
+  release gates are complete.
+- No feature code calls `decision(for:)` directly or introduces Product IDs, `isPro`/`isPremium`,
+  manual unlock aliases, or a second paid authority. `Scripts/check-feature-access-boundary.sh`
+  enforces this audit and retains the C1-01/C1-02 authority checks.
+
 ### Tests
 
 - Free regression for record/edit/delete, export, Delete All, app lock, current local AI fallback,
   and approved iCloud seam.
 - Paid candidate allow/deny tests through the service only; accessibility/localization for any
   user-visible state actually added.
+- Passive App Entity queries return empty under unavailable/exact-Free access, while active
+  advanced actions remain fail-closed with neutral copy.
 - Release static scan finds no arbitrary entitlement provider or manual unlock.
 
 ### Stop conditions

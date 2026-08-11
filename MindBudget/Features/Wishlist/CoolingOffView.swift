@@ -41,6 +41,7 @@ struct CoolingOffView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @EnvironmentObject private var settings: SettingsStore
     @State private var choice: DurationChoice = .hours24
     @State private var customHoursText = "48"
@@ -77,13 +78,21 @@ struct CoolingOffView: View {
         Form {
             Section("wishlist.cooling.title") {
                 Text(wishItem.name).font(.headline)
-                Picker("wishlist.cooling.duration", selection: $choice) {
-                    Text("wishlist.duration.24h").tag(DurationChoice.hours24)
-                    Text("wishlist.duration.72h").tag(DurationChoice.hours72)
-                    Text("wishlist.duration.custom").tag(DurationChoice.custom)
+                if premiumEntryAccess.offersCustomCoolingOffDurations {
+                    Picker("wishlist.cooling.duration", selection: $choice) {
+                        Text("wishlist.duration.24h").tag(DurationChoice.hours24)
+                        Text("wishlist.duration.72h").tag(DurationChoice.hours72)
+                        Text("wishlist.duration.custom").tag(DurationChoice.custom)
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("wishlist.cooling.duration.picker")
+                } else {
+                    LabeledContent("wishlist.cooling.duration") {
+                        Text("wishlist.duration.24h")
+                    }
+                    .accessibilityIdentifier("wishlist.cooling.duration.fixed")
                 }
-                .pickerStyle(.segmented)
-                if choice == .custom {
+                if choice == .custom, premiumEntryAccess.offersCustomCoolingOffDurations {
                     TextField("wishlist.duration.customHours", text: $customHoursText)
                         .keyboardType(.numberPad)
                         .accessibilityIdentifier("wishlist.customHours")
@@ -133,9 +142,17 @@ struct CoolingOffView: View {
                 Button("common.cancel") { dismiss() }
             }
         }
+        .task {
+            if !premiumEntryAccess.offersCustomCoolingOffDurations {
+                choice = .hours24
+            }
+        }
     }
 
     private var durationHours: Int? {
+        guard premiumEntryAccess.offersCustomCoolingOffDurations || choice == .hours24 else {
+            return nil
+        }
         switch choice {
         case .hours24: return 24
         case .hours72: return 72

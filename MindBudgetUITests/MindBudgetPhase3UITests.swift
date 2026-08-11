@@ -242,6 +242,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.buttons["wishlist.startCooling"].waitForExistence(timeout: 5))
         app.buttons["wishlist.startCooling"].tap()
         XCTAssertTrue(app.buttons["wishlist.cooling.start"].waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            element("wishlist.cooling.duration.fixed", in: app).waitForExistence(timeout: 5)
+        )
+        XCTAssertFalse(element("wishlist.cooling.duration.picker", in: app).exists)
         let notificationToggle = app.switches["wishlist.cooling.notification"]
         if notificationToggle.waitForExistence(timeout: 2),
            notificationToggle.value as? String == "1" {

@@ -15,6 +15,7 @@ enum WishItemFormError: Error, Equatable, Sendable {
     case accountingCurrencyMismatch
     case invalidStoredData
     case limitReached
+    case featureNotYetAvailable
     case persistence
 }
 
@@ -56,6 +57,7 @@ final class WishItemFormViewModel: ObservableObject {
         dataActor: DataActor,
         currencyCode: String,
         locale: Locale,
+        premiumEntryAccess: ExistingPremiumEntryAccess = ExistingPremiumEntryAccess(),
         now: Date
     ) async -> Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -85,6 +87,13 @@ final class WishItemFormViewModel: ObservableObject {
 
         isSaving = true
         defer { isSaving = false }
+        let preservesExistingDuration = existingItem?.summary.coolingOffHours == coolingOffHours
+        guard coolingOffHours == 24
+                || premiumEntryAccess.offersCustomCoolingOffDurations
+                || preservesExistingDuration else {
+            error = .featureNotYetAvailable
+            return false
+        }
         do {
             if let existingItem {
                 _ = try await dataActor.updateWishItem(
@@ -159,6 +168,7 @@ struct AddWishItemView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @StateObject private var viewModel: WishItemFormViewModel
     @State private var showsContextFields = false
     @FocusState private var nameFocused: Bool
@@ -218,11 +228,21 @@ struct AddWishItemView: View {
             }
 
             Section("wishlist.defaultCooling") {
-                Picker("wishlist.defaultCooling", selection: $viewModel.coolingOffHours) {
-                    Text("wishlist.duration.24h").tag(24)
-                    Text("wishlist.duration.72h").tag(72)
+                if premiumEntryAccess.offersCustomCoolingOffDurations {
+                    Picker("wishlist.defaultCooling", selection: $viewModel.coolingOffHours) {
+                        Text("wishlist.duration.24h").tag(24)
+                        Text("wishlist.duration.72h").tag(72)
+                    }
+                    .pickerStyle(.segmented)
+                } else {
+                    LabeledContent("wishlist.defaultCooling") {
+                        Text(LocalizedStringKey(
+                            viewModel.coolingOffHours == 72
+                                ? "wishlist.duration.72h"
+                                : "wishlist.duration.24h"
+                        ))
+                    }
                 }
-                .pickerStyle(.segmented)
             }
 
             if let error = viewModel.error {
@@ -247,6 +267,7 @@ struct AddWishItemView: View {
                             dataActor: dataActor,
                             currencyCode: accountingCurrencyCode,
                             locale: locale,
+                            premiumEntryAccess: premiumEntryAccess,
                             now: Date()
                         ) {
                             completed()
@@ -277,6 +298,7 @@ struct AddWishItemView: View {
         case .accountingCurrencyMismatch: "expense.error.currencyMismatch"
         case .invalidStoredData: "expense.error.invalidStoredData"
         case .limitReached: "wishlist.error.limitReached"
+        case .featureNotYetAvailable: "wishlist.error.featureNotYetAvailable"
         case .persistence: "error.data.save"
         }
     }

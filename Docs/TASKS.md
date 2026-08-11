@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01 and C1-02)
+Status: COM-C0A and COM-C0B Done; all COM-C1 packets implemented, C1-03 review pending
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -248,5 +248,8 @@ Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01 and C1-02)
   and executable raw-bit/migrator-call/duplicate-check/authority-chokepoint/Release-boundary gates
   with built-in parser samples, without StoreKit, purchase UI, products, prices, or feature-entry
   locks.
-- [ ] Start C1-03 only after C1-02 is reviewed and merged; route only owner-approved existing entry
-  points through the central service and preserve all typed Free-core capabilities.
+- [x] Complete C1-03 only after C1-02 was reviewed and merged: route the accepted Apple on-device
+  AI, non-24-hour cooling-off, and advanced Siri entries through one Commerce-owned snapshot;
+  preserve template fallback, 24-hour cooling-off, basic Siri record/check actions, and every
+  typed Free-core capability; reject feature-local paid booleans, Product IDs, manual unlocks, and
+  duplicate direct access decisions with the static gate.

@@ -1946,3 +1946,22 @@ Detailed rationale is DEC-COM-010 and DEC-COM-011.
 Files affected: root agent rules, main/commercial project memory, commercial decisions and
 matrices, commercialization task map, CI source/documentation gates, source provenance, retained
 CI evidence, and session logs.
+
+---
+
+## 2026-08-11 — Route accepted existing advanced entries through the COM authority
+
+Context: COM-C1-03 is the first packet allowed to change how existing advanced entries are
+reached, but it cannot add StoreKit, a paywall, pricing, a new feature, or a network channel.
+
+Decision: The detailed accepted scope and fallback behavior live in commercial decision
+DEC-COM-014. Apple on-device wording, non-24-hour cooling choices, and advanced Siri consume one
+Commerce-owned snapshot. Exact Free retains templates, basic 24-hour cooling, basic Siri
+record/check actions, current 30-day Insights, the five-item wishlist, and all trust/core features.
+
+Consequences: Main product history points to one commercial authority instead of duplicating the
+matrix. Passive App Entity providers return no results under unavailable/exact-Free access, while
+active advanced Siri actions retain neutral rejection. The uploaded 0.9.6 binary remains
+unchanged; this source is not distributable until verified purchase/restore, purchase presentation,
+and the owning release gates are complete. No version, schema, product, purchase UI, or release
+state changes in this packet.

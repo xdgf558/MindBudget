@@ -58,6 +58,39 @@ struct FeatureAccessService: FeatureAccessChecking, Sendable {
     }
 }
 
+/// Immutable decisions for the advanced entry points that already exist in the app.
+///
+/// Feature code receives this value instead of entitlement bits, products, or billing state.
+/// The no-argument initializer is exact Free; the only way to create an allowed snapshot is an
+/// injected `FeatureAccessChecking` authority owned by Commerce.
+struct ExistingPremiumEntryAccess: Equatable, Sendable {
+    private let appleOnDeviceAIDecision: FeatureAccessDecision
+    private let customCoolingOffDecision: FeatureAccessDecision
+    private let advancedSiriDecision: FeatureAccessDecision
+
+    init(featureAccess: any FeatureAccessChecking = FeatureAccessService()) {
+        appleOnDeviceAIDecision = featureAccess.decision(for: .appleOnDeviceAI)
+        customCoolingOffDecision = featureAccess.decision(for: .customCoolingOffPeriod)
+        advancedSiriDecision = featureAccess.decision(for: .advancedSiri)
+    }
+
+    func enablesAppleOnDeviceAI(userEnabled: Bool) -> Bool {
+        userEnabled && appleOnDeviceAIDecision.isAllowed
+    }
+
+    var offersAppleOnDeviceAI: Bool {
+        appleOnDeviceAIDecision.isAllowed
+    }
+
+    var offersCustomCoolingOffDurations: Bool {
+        customCoolingOffDecision.isAllowed
+    }
+
+    var permitsAdvancedSiri: Bool {
+        advancedSiriDecision.isAllowed
+    }
+}
+
 #if DEBUG
 /// Development/test injection for any entitlement combination constructible by the domain.
 ///

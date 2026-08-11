@@ -52,14 +52,23 @@ development with post-iPhone-1.0 Watch distribution, the three-stage commercial-
 and Product IDs `com.xdgf558.mindbudget.pro.monthly` and
 `com.xdgf558.mindbudget.pro.annual`. COM-C0B is complete: it added durable commercial
 documentation, an empty current Release egress policy, matrices, CI/report controls, and COM-C1
-execution packets without product behavior. COM-C1 is In Progress: C1-01 defines the exact
+execution packets without product behavior. COM-C1 has all three implementation packets ready for
+review: C1-01 defines the exact
 Free/Pro-subscription set, versioned fail-closed representation migration, and the closed premium
 feature vocabulary. C1-02 adds one pure access decision boundary, exact-Free app/session injection,
 a nonpersistent Debug-only provider, and static gates that reject raw-bit reads, duplicate paid
 checks, entitlement-migrator calls, entitlement-bearing service construction, or access-protocol
 implementations outside the Commerce authority boundary. The DEBUG and authority parsers prove
-their own safe/unsafe classifications before scanning app source. No existing feature entry is
-locked yet; that separately reviewed integration remains in C1-03.
+their own safe/unsafe classifications before scanning app source. C1-03 routes the accepted
+existing Apple on-device AI, non-24-hour cooling-off, and advanced Siri entries through an
+immutable Commerce snapshot. Exact Free retains deterministic templates, the basic 24-hour
+period, basic Siri expense recording and budget checking, the five-item wishlist, current 30-day
+Insights, and all other typed Free-core capabilities. Passive App Entity providers expose no
+entities under exact Free without surfacing a system-initiated error; active advanced Siri actions
+retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged, and this
+unreleased commercial source is not distributable until verified purchase/restore, purchase
+presentation, and the owning release gates are complete. There is still no StoreKit, paywall, price,
+trial, purchase flow, or Release manual unlock.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

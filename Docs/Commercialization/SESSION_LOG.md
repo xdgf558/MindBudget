@@ -338,3 +338,71 @@ CoreSimulator and DerivedData access; the same validation under normal Xcode per
 
 Next suggested task: Push this focused closeout to PR #26, confirm CI is green, and merge only on
 the owner's instruction. Begin C1-03 only after that merge.
+
+## 2026-08-11 — Session 11 — Integrate accepted existing premium entries
+
+Goal: Complete COM-C1-03 by connecting only the three owner-approved existing feature entries to
+the central access authority, without introducing StoreKit, products, or purchase surfaces.
+
+What was completed: Added the immutable `ExistingPremiumEntryAccess` projection, whose only
+source is `FeatureAccessChecking`, and injected it through `AppEnvironment`/`AppSession` into the
+accepted entries: Apple on-device text enhancement, custom cooling-off periods, and advanced
+Siri/App Intents. Exact Free remains the production/default snapshot. Free keeps deterministic
+Ask/reminder templates, the 24-hour cooling period, basic expense-recording and budget-check Siri,
+and every established Free trust capability. Advanced Siri returns a neutral localized
+not-yet-available response; custom/72-hour cooling choices are not offered under Free, and the
+write boundary also rejects a new or changed non-24-hour duration. Existing legacy durations stay
+readable and are not rewritten. The static authority gate now rejects feature-local decision
+calls, Pro/premium boolean aliases, manual unlock vocabulary, and commercial product identifiers
+outside Commerce. Focused tests cover exact Free and subscribed snapshots, Free/paid cooling
+durations, basic-versus-advanced Siri, model-versus-template paths, and the preserved Free
+baseline. DEC-COM-014 records the accepted-entry boundary.
+
+What was NOT completed: No StoreKit state or import, product/group, subscription cache,
+purchase/restore/paywall, paid marketing UI, price/trial/quota, receipt, schema/resource,
+network/cloud/provider, telemetry, Watch release, app version, Archive, upload, or tester state
+changed. COM-C2 remains out of scope until C1-03 is independently reviewed and merged.
+
+Validation result: pass under Xcode 26.6. Static money, empty-egress, commercial-document,
+feature-access, and release-readiness gates passed. Full validation passed the Release simulator
+build, complete Swift test suite, all 13 UI tests, and every core coverage threshold. The focused
+C1-03 selection passed 114 tests in five suites. The documented shared-host switch skipped only
+the nondeterministic wall-clock signal and retained the deterministic 10,000-row projection test.
+A sandboxed validation attempt could not access CoreSimulator/DerivedData; the identical normal
+Xcode run passed completely.
+
+Next suggested task: Open/review C1-03 as one focused PR. Merge only with owner approval; begin
+COM-C2 only after merge and a fresh explicit instruction.
+
+## 2026-08-11 — Session 12 — Close C1-03 disclosure and passive-query review
+
+Goal: Resolve PR #27's exact-Free disclosure and passive App Entity behavior findings while
+preserving the accepted C1 boundary.
+
+What was completed: Passive advanced App Entity providers now return no entities when exact Free
+or Siri-unavailable instead of throwing a user-facing error during system-initiated lookup. The
+seven covered providers are expense, wishlist, cooling-off, merchant, insight, budget snapshot,
+and emotion-tag queries. User-invoked advanced Siri writes still fail closed with neutral
+localized copy. The Free cooling-off screen now renders its fixed 24-hour duration as read-only
+content rather than a one-choice segmented picker. Updated DEC-COM-014, the C1 packet, commercial
+memory, changelog, submission notes, and release checklist to enumerate the removed advanced
+surfaces, retained Free capabilities, legacy-record compatibility, passive-versus-active Siri
+semantics, and the intentional distribution hold. Added regression tests for passive query
+emptiness, active write rejection, and the Free cooling UI.
+
+What was NOT completed: No compatibility entitlement was injected and no feature was temporarily
+re-enabled. No StoreKit mapping/import, product/group, persisted entitlement authority,
+purchase/restore/paywall, paid marketing UI, price/trial/quota, receipt, schema, network/cloud,
+provider AI, telemetry, Watch release, version, Archive, upload, tester, or App Store state
+changed. The already-uploaded 0.9.6 binary is unaffected; post-C1 source remains ineligible for
+distribution until the accepted commerce and release gates are complete.
+
+Validation result: pass under Xcode 26.6. Static money, empty-egress, commercial-document,
+feature-access, release-readiness, and diff gates passed. Full validation passed the Release
+build, all Swift tests, all 13 UI tests, and every core coverage threshold. The shared-host option
+excluded only the nondeterministic wall-clock signal and retained the deterministic 10,000-row
+projection test. An initial invocation used Command Line Tools and stopped before build; the
+identical run with the project-recorded Xcode 26.6 developer directory passed fully.
+
+Next suggested task: Push the focused closeout to PR #27, wait for green CI, and merge only after
+owner approval. Start COM-C2 only after merge and a new explicit instruction.

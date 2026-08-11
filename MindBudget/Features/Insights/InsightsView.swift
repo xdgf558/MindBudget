@@ -134,6 +134,7 @@ final class InsightsViewModel: ObservableObject {
         locale: Locale,
         tone: ReminderTone,
         enhancementEnabled: Bool,
+        premiumEntryAccess: ExistingPremiumEntryAccess,
         now: Date,
         calendar: Calendar
     ) async {
@@ -223,7 +224,8 @@ final class InsightsViewModel: ObservableObject {
                 locale: locale,
                 calendar: calendar,
                 tone: tone,
-                enhancementEnabled: enhancementEnabled
+                enhancementEnabled: enhancementEnabled,
+                premiumEntryAccess: premiumEntryAccess
             )
             guard isCurrent(loadID) else { return }
             cycleNarrative = narrative
@@ -307,6 +309,7 @@ struct InsightsView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
+    @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @StateObject private var viewModel = InsightsViewModel()
 
     var body: some View {
@@ -660,6 +663,7 @@ struct InsightsView: View {
             locale: locale,
             tone: settings.reminderTone,
             enhancementEnabled: settings.enableAIEnhancement,
+            premiumEntryAccess: premiumEntryAccess,
             now: Date(),
             calendar: calendar
         )

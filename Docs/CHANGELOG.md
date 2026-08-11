@@ -6,7 +6,20 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No changes yet.
+### Changed
+
+- Established the first exact-Free boundaries for capabilities accepted for the future Pro
+  subscription, without adding a paywall or purchase flow. Under exact Free, Apple on-device
+  wording enhancement is no longer used, 72-hour and custom cooling-off choices are no longer
+  offered for new or changed items, advanced Siri wishlist/cooling-off/emotion/pattern actions are
+  unavailable, and passive Siri/App Entity providers expose no expense, wishlist, cooling-off,
+  merchant, insight, budget-snapshot, or emotion entities. Existing non-24-hour cooling records
+  remain readable and unchanged.
+- Exact Free continues to provide deterministic Ask/reminder/summary templates, the basic 24-hour
+  cooling-off flow, basic Siri expense recording and budget-impact checking, the five-item
+  wishlist, current 30-day local Insights, and every established trust/core capability. Passive
+  system entity queries return no results without presenting an error; actively invoked advanced
+  Siri actions return a neutral localized not-yet-available explanation.
 
 ## 0.9.6 (7) — 2026-08-10 — Uploaded internal TestFlight candidate
 

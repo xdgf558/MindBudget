@@ -1236,6 +1236,7 @@ struct Phase11FreeTierTests {
             locale: Locale(identifier: "en_US"),
             tone: .soft,
             enhancementEnabled: false,
+            premiumEntryAccess: ExistingPremiumEntryAccess(),
             now: TestFixtures.now,
             calendar: TestFixtures.utcCalendar
         )
