@@ -3540,3 +3540,30 @@ Line Tools; rerunning against the project-recorded Xcode 26.6 path passed comple
 
 Next suggested task: Push this closeout to PR #27, confirm CI is green, and merge only after owner
 approval. Begin COM-C2 only after that merge and a fresh explicit instruction.
+
+## 2026-08-11 — Session 92 — Close COM-C1 and enter COM-C2-01
+
+Goal: Close the independently reviewed COM-C1 track, mark COM-C2 active, and deliver only its
+first isolated StoreKit test-catalog packet.
+
+What was completed: Updated the durable main and commercialization memory so COM-C1 is Done and
+COM-C2 is In Progress at C2-01. Added exactly one local StoreKit Configuration fixture containing
+the accepted Pro Monthly and Pro Annual identifiers, isolated it to the test bundle and a
+non-Archive local Debug scheme, and kept the default scheme and app bundle free of the fixture.
+Added StoreKitTest/JSON regression coverage, a self-testing static catalog/isolation gate, CI and
+validation integration, DEC-COM-015, and a bounded C2-01 through C2-04 execution packet. This is
+test infrastructure only and makes no user-visible product change, so no changelog entry was
+added.
+
+What was NOT completed: No formal App Store Connect product/group, runtime StoreKit catalog or
+transaction owner, entitlement cache/authority, purchase, restore, paywall, price, trial, quota,
+schema, network/cloud/provider, release version, Archive, upload, tester, or distribution state
+changed. C2-02 has not started.
+
+Validation result: pass under Xcode 26.6. All static gates passed. The Release build, 293 Swift
+tests in 19 suites, 13 UI tests, and all selected core-service coverage thresholds passed; the
+focused StoreKit catalog suite passed 3 tests. The shared-host option skipped only the
+nondeterministic wall-clock assertion and retained the deterministic 10,000-row projection test.
+
+Next suggested task: Review C2-01 in a focused PR. Start C2-02 only after review, merge, and a new
+explicit owner instruction.

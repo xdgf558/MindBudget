@@ -2,13 +2,13 @@
 
 ## Fixed technical catalog
 
-No StoreKit product or subscription group exists yet. COM-C2 may first create configuration-only
-fixtures with these accepted technical identifiers:
+No formal App Store Connect product or subscription group exists yet. C2-01 commits one local
+Xcode StoreKit Configuration fixture with these accepted technical identifiers:
 
 | Product | Product ID | Group | Level | Duration | Price/trial |
 |---|---|---|---|---|---|
-| Pro Monthly | `com.xdgf558.mindbudget.pro.monthly` | `MindBudget Pro` | Same Pro service level | 1 month | TBD; never hardcoded |
-| Pro Annual | `com.xdgf558.mindbudget.pro.annual` | `MindBudget Pro` | Same Pro service level | 1 year | TBD; never hardcoded |
+| Pro Monthly | `com.xdgf558.mindbudget.pro.monthly` | `MindBudget Pro` | Same Pro service level | 1 month | Commercial terms TBD; local fixture value is synthetic test data |
+| Pro Annual | `com.xdgf558.mindbudget.pro.annual` | `MindBudget Pro` | Same Pro service level | 1 year | Commercial terms TBD; local fixture value is synthetic test data |
 
 Local Lifetime and all future entitlement/product IDs are absent and must be proven unreachable.
 
@@ -17,7 +17,7 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | Source | May affect | Must never affect | Required evidence |
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
-| StoreKit Configuration | Local development fixture | Sandbox/TestFlight/Production rights or server cache | Dedicated store/environment tag and reset test |
+| StoreKit Configuration | Local development fixture | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate and StoreKitTest/JSON tests |
 | Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
 | TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
 | Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
@@ -62,8 +62,8 @@ Every row must be exercised for Monthly and Annual where applicable:
 
 - Pure unit reports: entitlement-set algebra, feature matrix, status mapper, environment parser,
   cache semantics and transaction idempotency.
-- StoreKit Configuration reports: purchase/restore/lifecycle and UI tests using a committed fixture
-  added only in COM-C2.
+- StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
+  purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same committed fixture.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner

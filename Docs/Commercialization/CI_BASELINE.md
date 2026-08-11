@@ -22,10 +22,12 @@ repository snapshot and does not claim access to the owner's external specificat
   Scripts/check-no-floating-point-money.sh
   Scripts/check-network-egress.sh
   Scripts/check-commercialization-docs.sh
+  Scripts/check-storekit-test-catalog.sh
   Scripts/validate.sh
   ```
 
-- `Scripts/validate.sh` continues to run the existing release-readiness gate, Release build,
+- `Scripts/validate.sh` continues to run the existing release-readiness gate, the isolated
+  StoreKit test-catalog gate, Release build,
   build-for-testing, Swift Testing/UI tests, and coverage thresholds. The COM documentation gate
   is additive and contains no app behavior.
 
@@ -89,7 +91,8 @@ artifact before deliberately adding it to version control.
 
 ## Failure and change rules
 
-- A failed money, documentation, release-readiness, build, test, UI, or coverage gate blocks the
+- A failed money, StoreKit-catalog isolation, documentation, release-readiness, build, test, UI,
+  or coverage gate blocks the
   phase. Hosted wall-clock noise may skip only the already documented 500 ms signal; the
   deterministic 10,000-row contract still runs.
 - A new app-owned network channel, persisted model, Product ID, entitlement, premium feature,

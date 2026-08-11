@@ -26,6 +26,7 @@ required_files=(
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md
   Docs/Commercialization/CI_BASELINE.md
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md
 )
 
 for file in "${required_files[@]}"; do
@@ -164,6 +165,35 @@ for access_boundary_contract in \
   'Subscription checks exist only in the central access service'; do
   grep -Fq "${access_boundary_contract}" Docs/Commercialization/COM_C1_EXECUTION_PACKET.md || {
     echo "COM-C1 execution packet is missing access-boundary review contract: ${access_boundary_contract}" >&2
+    exit 1
+  }
+done
+
+grep -Fq '## COM-C1 — Entitlement model and Feature Access' Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C1 task section is missing" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Done.** All three packets were independently reviewed and merged' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C1 must be recorded as completed before COM-C2" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **In Progress — C2-01 implemented for review; C2-02 has not started.**' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C2 must identify C2-01 as the active packet" >&2
+  exit 1
+}
+
+for heading in \
+  '## Input gate' \
+  '## C2-01 — StoreKit test catalog' \
+  '## C2-02 — Runtime catalog and entitlement store' \
+  '## C2-03 — Purchase, restore, and status mapping' \
+  '## C2-04 — Environment and regression gate'; do
+  grep -Fq "${heading}" Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+    echo "COM-C2 execution packet is missing ${heading}" >&2
     exit 1
   }
 done

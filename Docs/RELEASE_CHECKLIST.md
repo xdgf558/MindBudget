@@ -134,7 +134,9 @@ used for every Archive and upload.
 - [ ] Capture localized screenshots from the release build using synthetic data only.
 - [ ] Complete App Privacy, age rating, encryption/export-compliance, content-rights, and regional
   availability forms from the final binary rather than the development plan.
-- [ ] Confirm V1 contains no StoreKit product, paywall, paid lock, trial, quota, ad, or analytics.
+- [ ] Confirm the release app/Archive contains no local StoreKit Configuration fixture or Debug
+  entitlement provider. Until the owning COM gates complete, also confirm it contains no runtime
+  StoreKit authority, paywall, paid lock, trial, quota, ad, or analytics.
 - [ ] Run Instruments for launch, scrolling, memory, and persistence work; inspect Organizer and
   device logs for crashes or hangs.
 - [ ] Distribute first to internal TestFlight testers, collect results, increment build number for

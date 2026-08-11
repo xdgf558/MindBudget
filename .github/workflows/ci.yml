@@ -40,6 +40,9 @@ jobs:
       - name: Verify commercialization contracts
         run: Scripts/check-commercialization-docs.sh
 
+      - name: Verify StoreKit local test catalog isolation
+        run: Scripts/check-storekit-test-catalog.sh
+
       - name: Verify iOS 17 deployment target
         run: |
           settings="$(xcodebuild -project MindBudget.xcodeproj -target MindBudget -configuration Debug -showBuildSettings)"

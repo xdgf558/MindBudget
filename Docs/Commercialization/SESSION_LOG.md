@@ -406,3 +406,35 @@ identical run with the project-recorded Xcode 26.6 developer directory passed fu
 
 Next suggested task: Push the focused closeout to PR #27, wait for green CI, and merge only after
 owner approval. Start COM-C2 only after merge and a new explicit instruction.
+
+## 2026-08-11 — Session 13 — Close COM-C1 and implement COM-C2-01 local catalog
+
+Goal: Record independently reviewed and merged COM-C1 as complete, start COM-C2 only after the
+owner's explicit instruction, and implement C2-01 without introducing runtime StoreKit authority
+or formal commercial terms.
+
+What was completed: Marked all three COM-C1 packets Done and COM-C2 In Progress at C2-01. Added the
+accepted Monthly and Annual identifiers to one Xcode StoreKit Configuration fixture under
+`Config/StoreKit/`, with a shared Pro group, equal service level, monthly/annual durations, Family
+Sharing off, no Lifetime, and no offer or trial. The fixture is copied only into the test bundle.
+A dedicated `MindBudget-StoreKit-Local` Debug scheme activates it but cannot Archive; the default
+scheme and app resource phase remain clean. Added StoreKitTest/JSON coverage plus a same-code-path
+static gate with positive and negative self-tests, wired that gate into ordinary validation and
+CI, recorded DEC-COM-015, and added the bounded C2 execution packet. Synthetic local labels and
+prices are explicitly test data rather than customer terms.
+
+What was NOT completed: No App Store Connect product or subscription group was created. No app
+target imports StoreKit, loads products, listens for transactions, derives or caches entitlement
+authority, purchases, restores, shows a paywall, advertises price/trial/quota, changes schema,
+opens network/cloud/provider paths, changes the app version, Archives, uploads, or distributes a
+build. C2-02 has not started and remains outside this packet.
+
+Validation result: pass under Xcode 26.6. The money, empty-egress, commercialization-document,
+feature-access, StoreKit-catalog, and release-readiness gates passed. The Release build passed,
+all 293 Swift tests in 19 suites passed, all 13 UI tests passed, and every selected core-service
+coverage threshold remained above 85%. The focused StoreKit catalog suite passed all 3 tests.
+The documented shared-host option skipped only the nondeterministic wall-clock assertion while
+retaining the deterministic 10,000-row projection contract.
+
+Next suggested task: Review C2-01 as one focused PR and merge only after owner approval. Begin
+C2-02 only after that merge and a new explicit instruction.
