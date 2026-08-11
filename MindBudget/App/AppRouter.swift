@@ -33,6 +33,7 @@ final class AppSession: ObservableObject {
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
     private let systemIntegrationCapability: SystemIntegrationCapability
     private let appLockAuthenticator: any AppLockAuthenticating
+    private let featureAccessService: any FeatureAccessChecking
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -67,6 +68,7 @@ final class AppSession: ObservableObject {
         privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier(),
         systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability(),
         appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
+        featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -77,7 +79,14 @@ final class AppSession: ObservableObject {
         self.privacyDeletionVerifier = privacyDeletionVerifier
         self.systemIntegrationCapability = systemIntegrationCapability
         self.appLockAuthenticator = appLockAuthenticator
+        self.featureAccessService = featureAccessService
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
+    }
+
+    /// The session-owned feature-access authority. C1-03 consumers call this method rather than
+    /// inspecting entitlements, raw bits, products, or billing state.
+    func accessDecision(for feature: PremiumFeature) -> FeatureAccessDecision {
+        featureAccessService.decision(for: feature)
     }
 
     func faceIDAvailability() -> FaceIDAvailability {
@@ -447,6 +456,7 @@ struct AppRouter: View {
         spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
         appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
+        featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -457,6 +467,7 @@ struct AppRouter: View {
                 spotlightIndexer: spotlightIndexer,
                 navigationStore: navigationStore,
                 appLockAuthenticator: appLockAuthenticator,
+                featureAccessService: featureAccessService,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )

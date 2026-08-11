@@ -22,11 +22,11 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active review packet: **COM-C1 / C1-01 — pure entitlement domain**.
-- Product implementation status: the non-authoritative entitlement value/migration vocabulary is
-  implemented for C1-01. StoreKit, access-service injection, paid entry integration, paywall,
-  receipt import, iCloud sync, commercialization telemetry, Watch, cloud AI, and backend remain
-  unstarted.
+- Active review packet: **COM-C1 / C1-02 — central feature-access service and injection**.
+- Product implementation status: the closed entitlement value/migration vocabulary and immutable
+  exact-Free access-service injection are implemented through C1-02. StoreKit, paid entry
+  integration, paywall, receipt import, iCloud sync, commercialization telemetry, Watch, cloud AI,
+  and backend remain unstarted.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
@@ -170,15 +170,18 @@ regression, and every C1 Requirement is Active with no `BLOCKED_BY_SPEC` state.
 
 ## COM-C1 — Entitlement model and Feature Access
 
-Status: **In Progress — C1-01 implemented; C1-02/03 wait for the preceding packet to merge.**
+Status: **In Progress — C1-01 and C1-02 implemented; C1-03 waits for C1-02 review and merge.**
 
 - [x] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
   semantics, versioned migration, and the reachable entitlement-domain matrix. Free iCloud must
   not be a premium feature; deferred entitlement bits remain unreachable. Evidence:
   `CommercializationEntitlementTests` and commercialization Session 6.
-- [ ] **C1-02 — Central access service and injection.** Add pure `FeatureAccessService`, protocol
+- [x] **C1-02 — Central access service and injection.** Add pure `FeatureAccessService`, protocol
   seams, the full feature-access matrix, and a Debug-only arbitrary-combination provider without
-  StoreKit or manual Release unlock.
+  StoreKit or manual Release unlock. Static authority chokepoints reserve entitlement-bearing
+  construction and protocol implementation/refinement for Commerce while allowing exact-Free and
+  injected protocol consumers elsewhere. Evidence: `CommercializationEntitlementTests`,
+  `Scripts/check-feature-access-boundary.sh`, and commercialization Sessions 8–10.
 - [ ] **C1-03 — Existing-entry integration.** Route existing premium candidates through the
   central service, remove scattered Product-ID checks, and prove Free manual record/export/delete
   behavior remains available.

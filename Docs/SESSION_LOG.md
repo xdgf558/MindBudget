@@ -3382,3 +3382,92 @@ signal and retained the deterministic 10,000-row projection test.
 
 Next suggested task: Confirm PR #25 CI is green and merge only after owner approval. Start C1-02
 only after that merge.
+
+## 2026-08-11 — Session 87 — Implement COM-C1-02 central feature access
+
+Goal: Add the second isolated COM-C1 review unit after C1-01 merged: one deterministic access
+authority and injection boundary, with no StoreKit or visible paid behavior.
+
+What was completed: Added a pure immutable `FeatureAccessService` behind a `Sendable` protocol,
+with an exhaustive decision for every approved `PremiumFeature`. `AppEnvironment` and
+`AppSession` now own one injected authority whose production/default snapshot is exact Free.
+Added a nonpersistent arbitrary-combination provider compiled only under `#if DEBUG`. Focused
+tests cover the full feature×entitlement matrix, exact-Free default, subscription removal back to
+the same Free matrix, concurrent/read consistency, session injection, and every currently valid
+Debug combination. Added an executable static gate to reject raw entitlement-bit reads,
+`isSuperset(of: .free)`, duplicate paid checks outside the central service, persisted/manual
+authority, an unguarded Debug provider, and StoreKit imports during COM-C1. Updated the execution
+packet, project/task memory, requirement evidence, DEC-COM-013, and commercialization Session 8.
+No changelog entry was added because no user-visible behavior changed.
+
+What was NOT completed: Existing feature entries are not locked or rerouted; C1-03 still owns that
+integration. No StoreKit state/product/group, purchase/restore/paywall, price/trial/quota, paid UI,
+schema/resource, network/cloud/provider, telemetry, version, Archive, upload, or tester state
+changed.
+
+Validation result: pass under Xcode 26.6. Focused commercialization entitlement/access tests
+passed. Full validation passed the Release build, complete Swift test suite, all 13 UI tests,
+no-floating-point-money, empty-egress, commercialization-document, feature-access-boundary, and
+release-readiness gates, plus every existing core-service coverage threshold. The documented
+shared-host switch excluded only the nondeterministic wall-clock signal while retaining the
+deterministic 10,000-row dashboard projection contract.
+
+Next suggested task: Review C1-02 in a focused PR, merge only after owner approval, and begin C1-03
+only after that merge.
+
+## 2026-08-11 — Session 88 — Close COM-C1-02 authority-bypass review findings
+
+Goal: Close PR #26's remaining static-boundary findings before C1-03 begins.
+
+What was completed: Prevented app source outside the entitlement domain from calling
+`EntitlementSetMigrator`, closing the second path by which persisted or transported raw bits could
+otherwise reconstruct Pro without a `.proSubscription` literal. Added executable positive and
+negative fixtures for the DEBUG-provider preprocessor parser: the active DEBUG branch passes,
+while unguarded and `#else` declarations fail. The parser also tolerates a trailing directive
+comment. Updated the C1 execution checklist, DEC-COM-013, project/task memory, and detailed
+commercial Session 9. No changelog entry was added because no user-visible behavior changed.
+
+What was NOT completed: No existing feature was locked or rerouted; C1-03 remains pending. No
+StoreKit state/product, persistence authority, purchase/restore/paywall, paid UI, cloud/backend,
+schema/resource, version, Archive, upload, or tester state changed.
+
+Validation result: pass under Xcode 26.6 — shell syntax, focused access boundary and money gates,
+Release build, 286 Swift tests in 18 suites, all 13 UI tests, static release/network/commercial
+gates, and every coverage threshold. The shared-host switch skipped only the nondeterministic
+500 ms wall-clock assertion and retained the deterministic 10,000-row projection test. An initial
+invocation stopped before build because the global developer directory pointed to Command Line
+Tools; rerunning against the project-recorded Xcode 26.6 path passed completely.
+
+Next suggested task: Push this review closeout to PR #26, confirm CI is green, and merge only after
+owner approval. Start C1-03 only after the merge.
+
+## 2026-08-11 — Session 89 — Close COM-C1-02 authority chokepoints
+
+Goal: Replace the remaining path-by-path paid-entitlement checks with complete authority
+chokepoints before C1-03 adds the first feature-entry consumers.
+
+What was completed: Extended `Scripts/check-feature-access-boundary.sh` with executable parsers
+that allow app code outside Commerce to construct only the no-argument, exact-Free
+`FeatureAccessService()`, while rejecting every entitlement-bearing construction. The same gate
+now rejects `FeatureAccessChecking` conformances and protocol refinements outside Commerce while
+still allowing ordinary consumers to hold the protocol existential. Built-in positive and
+negative fixtures exercise no-argument construction, multiline entitlement injection, consumer
+properties, multiline provider conformance, and protocol refinement through the same parsers
+used on the repository. Existing literal, migrator, raw-bit, StoreKit, persistence, and DEBUG
+checks remain as defense in depth. Updated DEC-COM-013, the C1 execution checklist, and
+project/task memory. No changelog entry was added because user-visible behavior is unchanged.
+
+What was NOT completed: No C1-03 feature entry was integrated or locked. No StoreKit mapping,
+product/group, persisted authority, purchase/restore/paywall, paid UI, price/trial/quota,
+schema/resource, network/cloud/provider, telemetry, version, Archive, upload, or tester state
+changed.
+
+Validation result: pass under Xcode 26.6. Shell syntax and every static access, money, network,
+commercial-document, and release gate passed. Full validation passed the Release build, 286
+Swift tests in 18 suites, all 13 UI tests, and every core-service coverage threshold. The
+documented shared-host switch excluded only the nondeterministic wall-clock signal while
+retaining the deterministic 10,000-row projection contract. An initial sandboxed invocation was
+blocked from CoreSimulator and DerivedData; the identical normal Xcode invocation passed fully.
+
+Next suggested task: Push this closeout to PR #26, confirm CI is green, and merge only after owner
+approval. Begin C1-03 only after that merge.
