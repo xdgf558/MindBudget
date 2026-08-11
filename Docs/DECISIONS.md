@@ -1938,9 +1938,10 @@ Consequences: A reviewer can identify one detailed authority and one historical 
 changes documentation, CI/report paths, and non-behavioral gates only; entitlement/StoreKit work
 starts no earlier than COM-C1/COM-C2. Prices, trial, quotas, storefronts, providers, domains, and
 formal App Store Connect products remain TBD/evidence-gated. The empty current app-owned egress
-set is enforced against app Swift source, and the owner-held detailed specification remains
-private with one repository fingerprint/provenance record whose external-drift limitation is
-explicit. Detailed rationale is DEC-COM-010 and DEC-COM-011.
+set is enforced against app Swift source and Release configuration surfaces without classifying
+documentation links as endpoints, and the owner-held detailed specification remains private with
+one repository fingerprint/provenance record whose external-drift limitation is explicit.
+Detailed rationale is DEC-COM-010 and DEC-COM-011.
 
 Files affected: root agent rules, main/commercial project memory, commercial decisions and
 matrices, commercialization task map, CI source/documentation gates, source provenance, retained

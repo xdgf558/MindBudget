@@ -83,9 +83,10 @@ gates:
   redaction, provider-set disclosure, and deterministic local fallback.
 
 All app-owned HTTP(S) egress is deny-by-default. The current Release allow-list is empty and
-`Scripts/check-network-egress.sh` rejects app-target network primitives or HTTP(S) literals.
-Future entries must be accepted in `NETWORK_EGRESS_POLICY.md` before an exact centralized adapter
-exception is implemented.
+`Scripts/check-network-egress.sh` rejects app-target network primitives, quoted HTTP(S) literals,
+and app Release configuration that declares ATS exceptions, networking entitlements, associated
+domains, or endpoint values. Future entries must be accepted in `NETWORK_EGRESS_POLICY.md` before
+an exact centralized adapter exception is implemented.
 
 ## AI and provider boundary
 

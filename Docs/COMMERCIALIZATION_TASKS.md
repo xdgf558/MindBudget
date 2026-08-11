@@ -142,15 +142,16 @@ Status: **Done.**
 
 - Dedicated commercial memory/decision register plus egress, AI-provider, StoreKit, and pricing
   matrices exist with accepted Product IDs and an empty current Release app-owned egress set.
-- The empty egress set is enforced against app Swift source, the external specification's audit
-  fingerprint has an explicit provenance/limitation record, and CI publishes downloadable
+- The empty egress set is enforced against app Swift source and Release configuration surfaces,
+  with comment/DTD false-positive samples built into the gate. The external specification's
+  audit fingerprint has an explicit provenance/limitation record, and CI publishes downloadable
   xcresult evidence rather than only a runner-local path.
 - SPEC-018's stale deletion-model count is corrected without changing app behavior.
 - CI/report paths and the COM-C1 three-packet input/task/test/stop contract are executable. The
   money, source-network, and documentation gates, Release build, 270 Swift tests, 13 UI tests,
   and coverage gate passed on 2026-08-10.
 
-Review closeout evidence: `Docs/Commercialization/SESSION_LOG.md`, Session 4.
+Review closeout evidence: `Docs/Commercialization/SESSION_LOG.md`, Sessions 4–5.
 
 ### Technical debt
 

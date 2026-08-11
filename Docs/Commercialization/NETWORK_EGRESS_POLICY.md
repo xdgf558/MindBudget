@@ -24,9 +24,12 @@ entitlement, container, SDK, or request.
 
 ## Release enforcement contract
 
-1. `Scripts/check-network-egress.sh` scans every app-target Swift file. While the current set is
-   empty, any app-owned networking primitive, Network/CFNetwork/WebKit import, or HTTP(S) literal
-   fails local validation and CI. A later phase may add only one exact centralized adapter
+1. `Scripts/check-network-egress.sh` scans every app-target Swift file plus checked-in app property
+   lists, entitlements, privacy manifests, xcconfig files, and the project file's generated
+   Info.plist settings. While the current set is empty, any app-owned networking primitive,
+   Network/CFNetwork/WebKit import, quoted HTTP(S) literal, ATS exception, network entitlement,
+   associated domain, or configured HTTP(S) endpoint fails local validation and CI. Full-line
+   documentation comments are ignored. A later phase may add only one exact centralized adapter
    exception after its row and decision become Accepted; broad path or module exclusions remain
    forbidden.
 2. A new Release network import, URL, domain, entitlement, or endpoint must add/update one row and

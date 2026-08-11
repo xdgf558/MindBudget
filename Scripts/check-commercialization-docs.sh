@@ -92,7 +92,9 @@ contains_open_p0() {
   awk '
   {
     line = tolower($0)
-    if (index(line, "priority/status:") && index(line, "p0") && index(line, "open")) {
+    has_p0 = line ~ /(^|[^[:alnum:]_])p0([^[:alnum:]_]|$)/
+    has_open = line ~ /(^|[^[:alnum:]_])open([^[:alnum:]_]|$)/
+    if (index(line, "priority/status:") && has_p0 && has_open) {
       found = 1
     }
   }
@@ -106,6 +108,10 @@ if ! contains_open_p0 <<< '- Priority/status: **Open (P0)**'; then
 fi
 if contains_open_p0 <<< '- Priority/status: **P1 — Open**'; then
   echo "Commercial conflict gate incorrectly classifies non-P0 status" >&2
+  exit 1
+fi
+if contains_open_p0 <<< '- Priority/status: **Open-ended P01 review**'; then
+  echo "Commercial conflict gate must token-match both Open and P0" >&2
   exit 1
 fi
 

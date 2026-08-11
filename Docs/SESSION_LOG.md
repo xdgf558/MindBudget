@@ -3304,3 +3304,33 @@ commercialization Session 4.
 
 Next suggested task: Merge only after the updated PR CI is green, then wait for a new explicit
 owner instruction before starting COM-C1.
+
+## 2026-08-11 — Session 84 — Harden COM-C0B egress and conflict gates
+
+Goal: Close PR #24's final nonblocking review findings without starting COM-C1 or changing app
+behavior.
+
+What was completed: Narrowed HTTP(S) source detection to quoted endpoint values and ignored
+full-line documentation comments, while preserving detection of networking primitives and
+framework imports. Expanded the empty-egress scanner to checked-in app property lists,
+entitlements, privacy manifests, xcconfig files, and generated-Info.plist build settings in the
+project file; ATS exceptions, networking entitlements, associated domains, and configured
+HTTP(S) endpoints now fail closed. Added built-in positive and negative samples for comment/DTD
+boundaries. Changed the unresolved-conflict parser so `Open` and `P0` must each be complete tokens,
+with a regression sample for `Open-ended P01`. Updated the detailed and root decision pointers,
+network policy, project memory, and completed-task evidence. No changelog entry was added because
+there is no user-visible behavior change.
+
+What was NOT completed: No app source/schema/resource, entitlement, StoreKit product/group,
+CloudKit, telemetry, backend, provider, receipt, Watch, version, Archive, upload, or tester state
+changed. COM-C1 remains Ready but unstarted.
+
+Validation result: pass. Script syntax, network-gate self-tests, commercialization-document gate,
+no-floating-point-money gate, Release build, 270 deterministic Swift tests, all 13 UI tests, and
+all coverage thresholds passed under Xcode 26.6. The initial strict local run recorded only the
+known non-deterministic 500 ms wall-clock signal at 0.752 seconds; the documented shared-host
+switch excluded that single timing assertion on the successful rerun while retaining and passing
+the deterministic 10,000-row dashboard projection test.
+
+Next suggested task: Push this review closeout to PR #24, confirm CI is green, and merge only on
+the owner's instruction. Do not start COM-C1 early.

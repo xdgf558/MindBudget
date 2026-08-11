@@ -147,3 +147,32 @@ IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100%.
 
 Next suggested task: Confirm the updated PR CI is green. After merge, enter COM-C1 only on a new
 explicit owner instruction and follow its three review packets without importing StoreKit early.
+
+## 2026-08-11 — Session 5 — Final COM-C0B gate-hardening review closeout
+
+Goal: Close the remaining PR #24 review notes about lexical false positives, unscanned Release
+configuration, and substring conflict matching without expanding beyond COM-C0B.
+
+What was completed: `Scripts/check-network-egress.sh` now ignores full-line Swift/configuration
+documentation comments and recognizes quoted HTTP(S) endpoints instead of every prose URL. Its
+scan surface now includes app property lists, entitlements, privacy manifests, xcconfig files,
+and `MindBudget.xcodeproj/project.pbxproj` generated-Info.plist settings, with explicit detection
+for ATS exceptions, networking entitlements, associated domains, and endpoint values. Built-in
+positive and negative samples prove the source and configuration detectors before scanning the
+repository, including harmless Apple documentation links and the standard plist DTD. The
+open-P0 parser now token-matches both `Open` and `P0`, and rejects `Open-ended P01`. DEC-COM-010,
+the egress policy, memory, root pointer, and COM-C0B evidence now describe the implemented scope.
+
+What was NOT completed: No accepted allow-list row changed and no exception was added. No app
+behavior, source/schema/resource, networking entitlement, URL, StoreKit, CloudKit, telemetry,
+backend, provider, receipt, Watch, release version, Archive, upload, or tester state changed.
+COM-C1 remains unstarted.
+
+Validation result: pass under Xcode 26.6. Static gates, Release build, 270 deterministic Swift
+tests, 13 UI tests, and all service coverage thresholds passed. A first strict run recorded the
+known local wall-clock-only dashboard benchmark at 0.752 seconds; the successful rerun used the
+documented shared-host skip for that single timing signal while retaining the deterministic
+10,000-row projection test.
+
+Next suggested task: Confirm PR #24 CI is green and merge only with owner approval; start COM-C1
+only after a separate explicit instruction.

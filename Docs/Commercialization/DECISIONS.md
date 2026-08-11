@@ -124,19 +124,23 @@ context.
 - Alternatives rejected: Wildcard domains, arbitrary URL construction, provider URLs in the
   client, or treating TLS alone as approval.
 
-## DEC-COM-010 — Enforce the empty egress baseline against app source
+## DEC-COM-010 — Enforce the empty egress baseline against source and Release configuration
 
 - Status/date: **Accepted — 2026-08-10**
 - Requirements: REQ-R1-NET-001, REQ-R1-TELEMETRY-001
 - Decision: While the current app-owned Release allow-list is empty, validation scans all
-  `MindBudget/**/*.swift` files and rejects known app-owned networking primitives, networking
-  framework imports, and HTTP(S) literals. A later accepted channel may introduce only a narrow
-  centralized adapter exception tied to its exact policy row; binary and captured-traffic review
-  remain required at the release gate.
+  `MindBudget/**/*.swift` files for known app-owned networking primitives, networking framework
+  imports, and quoted HTTP(S) literals. It also scans checked-in app property lists, entitlements,
+  privacy manifests, xcconfig files, and generated-Info.plist build settings in the project file
+  for ATS exceptions, network entitlements, associated domains, and HTTP(S) endpoint values. A
+  later accepted channel may introduce only a narrow centralized adapter exception tied to its
+  exact policy row; binary and captured-traffic review remain required at the release gate.
 - Consequences: Adding a direct URL session or network client now fails CI even if documentation
   still says the app is local. StoreKit and CloudKit remain Apple-owned typed framework channels
-  and are not falsely classified as app-owned HTTP. The lexical gate is defense in depth, not a
-  proof that arbitrary source cannot conceal networking.
+  and are not falsely classified as app-owned HTTP. Full-line documentation comments and the
+  standard property-list DTD do not create false positives; built-in positive/negative samples
+  fail the gate if those detection boundaries drift. The lexical gate is defense in depth, not a
+  proof that arbitrary source or configuration cannot conceal networking.
 - Alternatives rejected: Checking policy prose only, granting a directory-wide exception, or
   treating source scanning as a substitute for final binary and traffic evidence.
 
