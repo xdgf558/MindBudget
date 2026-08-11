@@ -4,12 +4,31 @@ set -euo pipefail
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
-VALIDATION_TEMP_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/mindbudget-validation.XXXXXX")"
-RESULT_BUNDLE="${VALIDATION_TEMP_DIRECTORY}/MindBudget.xcresult"
-trap 'rm -rf "${VALIDATION_TEMP_DIRECTORY}"' EXIT
+VALIDATION_TEMP_DIRECTORY=""
+
+cleanup() {
+  if [[ -n "${VALIDATION_TEMP_DIRECTORY}" ]]; then
+    rm -rf -- "${VALIDATION_TEMP_DIRECTORY}"
+  fi
+}
+trap cleanup EXIT
+
+if [[ -n "${MINDBUDGET_RESULT_BUNDLE_PATH:-}" ]]; then
+  RESULT_BUNDLE="${MINDBUDGET_RESULT_BUNDLE_PATH}"
+  if [[ -e "${RESULT_BUNDLE}" ]]; then
+    echo "MINDBUDGET_RESULT_BUNDLE_PATH must not already exist: ${RESULT_BUNDLE}" >&2
+    exit 1
+  fi
+  mkdir -p -- "$(dirname -- "${RESULT_BUNDLE}")"
+else
+  VALIDATION_TEMP_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/mindbudget-validation.XXXXXX")"
+  RESULT_BUNDLE="${VALIDATION_TEMP_DIRECTORY}/MindBudget.xcresult"
+fi
 cd "${PROJECT_ROOT}"
 
 Scripts/check-release-readiness.sh
+Scripts/check-network-egress.sh
+Scripts/check-commercialization-docs.sh
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \

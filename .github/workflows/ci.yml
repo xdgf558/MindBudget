@@ -34,6 +34,12 @@ jobs:
       - name: Reject floating-point money paths
         run: Scripts/check-no-floating-point-money.sh
 
+      - name: Reject unapproved app-owned network egress
+        run: Scripts/check-network-egress.sh
+
+      - name: Verify commercialization contracts
+        run: Scripts/check-commercialization-docs.sh
+
       - name: Verify iOS 17 deployment target
         run: |
           settings="$(xcodebuild -project MindBudget.xcodeproj -target MindBudget -configuration Debug -showBuildSettings)"
@@ -72,4 +78,23 @@ jobs:
           echo "MINDBUDGET_TEST_DESTINATION=platform=iOS Simulator,id=${simulator_id}" >> "${GITHUB_ENV}"
 
       - name: Build and test
+        env:
+          # The runner context is available at step scope, not in jobs.<job_id>.env.
+          MINDBUDGET_RESULT_BUNDLE_PATH: ${{ runner.temp }}/MindBudget.xcresult
         run: Scripts/validate.sh
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: MindBudget-xcresult-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/MindBudget.xcresult
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Record test report path
+        if: always()
+        run: |
+          echo '### MindBudget validation report' >> "${GITHUB_STEP_SUMMARY}"
+          echo '' >> "${GITHUB_STEP_SUMMARY}"
+          echo 'Download artifact: `MindBudget-xcresult-${{ github.run_id }}-${{ github.run_attempt }}` (retained for 14 days).' >> "${GITHUB_STEP_SUMMARY}"

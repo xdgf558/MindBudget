@@ -219,3 +219,24 @@ Status: In Progress
 - [x] Promote the approved budget-setup work to `0.9.6 (7)`, pass local and GitHub release gates,
   Archive from merged `main`, and upload it through the owner's current team. App Store Connect
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
+
+## Commercialization and Pro development — separate COM track
+Status: COM-C0A and COM-C0B Done; COM-C1 Ready but not started
+- [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
+  review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
+- [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
+  conflict register, audit the repository and reproducible baseline, and stop for owner decisions.
+  The owner accepted SPEC-012, SPEC-013, SPEC-014, and SPEC-017 on 2026-08-10.
+- [ ] Keep the public iPhone App Store launch paused until the COM-C0B through COM-C12 iPhone gates
+  are complete. Existing TestFlight users receive no production Pro rights. Watch distribution is
+  a separate post-iPhone-1.0 milestone and does not block the iPhone launch.
+- [x] Begin COM-C0B only after the owner's explicit instruction and keep it to durable commercial
+  documents, CI/report gates, and non-behavioral test infrastructure. Do not skip ahead to
+  entitlement, StoreKit, iCloud, telemetry, Watch, receipt, backend, or cloud-AI implementation.
+- [x] Complete COM-C0B with separate commercial memory/decisions, accepted empty current Release
+  egress enforced against app Swift source, AI/StoreKit/pricing matrices, reproducible and
+  downloadable CI result bundles, source-provenance and documentation gates, the SPEC-018 privacy
+  correction, and independently reviewable COM-C1 execution packets. Full Release, Swift/UI,
+  money, network, documentation, and coverage validation passed.
+- [ ] Start COM-C1 only after a new explicit owner instruction; follow
+  `Docs/Commercialization/COM_C1_EXECUTION_PACKET.md` and do not import StoreKit or add paid UI.

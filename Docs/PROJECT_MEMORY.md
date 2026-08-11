@@ -40,8 +40,17 @@ Phase 10's source-level release polish, accessibility/performance automation, Te
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
 Signed-device, production-signing, Instruments, App Store Connect, screenshot, and upload checks
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
-later phase; the current app contains no StoreKit product, entitlement, quota, lock, paywall,
-trial, or visible paid-feature placeholder.
+COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification and the planning
+map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
+formal release gates pass. The current app contains no StoreKit product, entitlement, quota, lock,
+paywall, trial, or visible paid-feature placeholder; existing TestFlight users receive no
+production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
+are complete. The owner accepted phase-scoped future data channels, parallel/nonblocking Watch
+development with post-iPhone-1.0 Watch distribution, the three-stage commercial-economics gate,
+and Product IDs `com.xdgf558.mindbudget.pro.monthly` and
+`com.xdgf558.mindbudget.pro.annual`. COM-C0B is complete: it added durable commercial
+documentation, an empty current Release egress policy, matrices, CI/report controls, and COM-C1
+execution packets without product behavior. COM-C1 is Ready but has not started.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
@@ -282,7 +291,7 @@ CSV uses UTF-8 BOM, exact integer-derived amount fields, UTC timestamps, correct
 comma/quote/newline escaping, and formula neutralization; its screen discloses that an
 explicit export includes raw expense/income notes and source or merchant names. Delete All requires two confirmations, displays
 each notification/index/data/preference stage, stops without a success claim on failure,
-and returns to onboarding only after a post-delete query verifies all ten SwiftData types
+and returns to onboarding only after a post-delete query verifies every current SwiftData type
 are gone. Notification reconciliation isolates invalid cooling-off records, clears their
 stale identifiers, continues valid requests, and exposes a localized integrity warning with the
 affected count. Settings can explicitly repair only those displayed rows after confirmation;

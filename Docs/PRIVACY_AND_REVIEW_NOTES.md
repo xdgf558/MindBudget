@@ -37,11 +37,17 @@ full internal-database backup.
 
 Delete All is implemented with a confirmation dialog followed by a localized confirmation
 word. It performs these steps in order: cancel app notifications, delete and await all
-app-owned Spotlight index removal, delete all ten SwiftData entity types, reset app
+app-owned Spotlight index removal, delete all current SwiftData model types, reset app
 preferences while leaving system language untouched, and return to onboarding. Progress
-names the current stage. After deletion, the app re-queries all ten model counts and resets
+names the current stage. After deletion, the app re-queries every current model count and resets
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
+
+Future commercialization channels are not part of the current 0.9.x claim. Before an optional
+Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
+must add current bilingual disclosure, App Privacy answers, channel-specific revoke/delete
+behavior, and signed release evidence. No forward-looking permission changes the current binary's
+local-only data handling.
 
 Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
 are never deleted automatically. Settings shows the exact affected count and offers a separate
@@ -148,15 +154,16 @@ does not label a person based on those tags.
 data types, and UserDefaults reason `CA92.1`. Add File Timestamp reasons only if
 a shipped implementation actually uses the covered API.
 
-## Phase 12 local planning data
+## Current local planning data
 
 The in-app language selection is a local UserDefaults preference and does not change device
-language or contact a translation service. Income allocation, the total savings goal, recurring
-fixed-expense rules, and generated occurrence identities are local SwiftData records. Recurring
-rule notes remain behind the actor/detail boundary and are never notification, Spotlight, Siri
-entity, or model context. App lifecycle reconciliation uses no background server and makes no
-claim that an entry will be created while the app is not running.
+language or contact a translation service. Budget-plan-semantics markers, income allocation, the
+total savings goal, recurring fixed-expense rules, and generated occurrence identities are local
+SwiftData records. Recurring rule notes remain behind the actor/detail boundary and are never
+notification, Spotlight, Siri entity, or model context. App lifecycle reconciliation uses no
+background server and makes no claim that an entry will be created while the app is not running.
 
 CSV remains an explicit user export and now includes the exact income portions allocated to the
-current spending budget and savings as minor-unit columns. Delete All removes and verifies the new
-allocation, savings-goal, recurring-rule, and occurrence tables before reporting completion.
+current spending budget and savings as minor-unit columns. Delete All removes and verifies the
+budget-plan-semantics, allocation, savings-goal, recurring-rule, and occurrence tables before
+reporting completion.
