@@ -159,3 +159,25 @@ context.
 - Alternatives rejected: Committing the full owner specification to the public repository,
   duplicating the hash as an unanchored script constant, or claiming automatic external drift
   detection.
+
+## DEC-COM-012 — Make the first Release entitlement domain closed and version-migrated
+
+- Status/date: **Accepted — 2026-08-11**
+- Requirements: REQ-ENTITLEMENT-001
+- Decision: C1-01 represents Free as the empty `EntitlementSet` and exposes only one constructible
+  paid singleton, `proSubscription`. `EntitlementSet` is not directly `Codable`; persistence or
+  transport must use `EntitlementSetRepresentation` with an explicit version and
+  `EntitlementSetMigrator`. Strict migration rejects unknown bits and unsupported versions, while
+  the boundary's safe resolver returns exact Free. Local Lifetime, Connect, and other deferred
+  rights have no Release-domain symbol or constructor. `PremiumFeature` contains the approved
+  subscription-reachable vocabulary but performs no access decision in C1-01. Manual records,
+  CSV export, Delete All, app lock, and opt-in iCloud are separately typed Free invariants.
+- Consequences: Duplicate/union/removal behavior is deterministic; removing the subscription
+  leaves no residual paid state. A future entitlement representation requires a new accepted
+  version migration instead of interpreting a raw unknown bit. Subscribed and grace fixtures both
+  expect the same subscription right, but the production StoreKit status mapper remains owned by
+  COM-C2. C1-02 remains the only owner of feature-access decisions and injection.
+- Alternatives rejected: `OptionSet(rawValue:)` exposed to feature code; direct `Codable`
+  synthesis for the authority type; silently retaining known rights from a representation that
+  also contains unknown bits; adding Lifetime/Connect placeholders; Product IDs in the domain;
+  or implementing `FeatureAccessService` ahead of C1-02.

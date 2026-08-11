@@ -3334,3 +3334,25 @@ the deterministic 10,000-row dashboard projection test.
 
 Next suggested task: Push this review closeout to PR #24, confirm CI is green, and merge only on
 the owner's instruction. Do not start COM-C1 early.
+
+## 2026-08-11 — Session 85 — Implement COM-C1-01 entitlement domain
+
+Goal: Start the explicitly authorized COM-C1 phase with its first isolated review packet only.
+
+What was completed: Added the pure `Sendable` entitlement algebra, closed approved premium
+feature vocabulary, separate Free-core proof vocabulary, and versioned fail-closed entitlement
+representation. Production code can construct only exact Free or Pro subscription; unknown bits
+and unsupported representation versions cannot unlock anything. Added focused tests for all
+C1-01 acceptance cases and recorded DEC-COM-012 plus the detailed evidence in commercialization
+Session 6. No changelog entry was added because the app has no new user-visible behavior.
+
+What was NOT completed: No runtime access service/injection, Debug override, StoreKit, product ID,
+purchase/restore/paywall, paid UI, cloud/backend/provider, schema/resource, version, Archive,
+upload, or tester state changed. C1-02 and C1-03 remain pending.
+
+Validation result: pass under Xcode 26.6 — focused entitlement tests, Release build, complete
+Swift tests, 13 UI tests, static money/network/commercial/release gates, and all coverage
+thresholds passed. The documented shared-host option skipped only the nondeterministic wall-clock
+signal and retained the deterministic 10,000-row projection contract.
+
+Next suggested task: Review C1-01 in a focused PR, then start C1-02 only after merge.

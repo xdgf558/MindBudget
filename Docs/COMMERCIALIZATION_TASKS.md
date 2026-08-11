@@ -22,10 +22,11 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Next ready phase: **COM-C1 — Ready; requires explicit owner instruction**.
-- Product implementation status: **not started** for StoreKit, entitlements, paywall, receipt
-  import, iCloud sync, commercialization telemetry, Watch, cloud AI, and commercialization
-  backend.
+- Active review packet: **COM-C1 / C1-01 — pure entitlement domain**.
+- Product implementation status: the non-authoritative entitlement value/migration vocabulary is
+  implemented for C1-01. StoreKit, access-service injection, paid entry integration, paywall,
+  receipt import, iCloud sync, commercialization telemetry, Watch, cloud AI, and backend remain
+  unstarted.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
@@ -169,13 +170,15 @@ regression, and every C1 Requirement is Active with no `BLOCKED_BY_SPEC` state.
 
 ## COM-C1 — Entitlement model and Feature Access
 
-Status: **Ready; requires explicit owner instruction.**
+Status: **In Progress — C1-01 implemented; C1-02/03 wait for the preceding packet to merge.**
 
-- [ ] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
-  semantics, migration functions, and the full parameterized access matrix. Free iCloud must not
-  be a premium feature; deferred entitlement bits remain unreachable.
+- [x] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
+  semantics, versioned migration, and the reachable entitlement-domain matrix. Free iCloud must
+  not be a premium feature; deferred entitlement bits remain unreachable. Evidence:
+  `CommercializationEntitlementTests` and commercialization Session 6.
 - [ ] **C1-02 — Central access service and injection.** Add pure `FeatureAccessService`, protocol
-  seams, and a Debug-only arbitrary-combination provider without StoreKit or manual Release unlock.
+  seams, the full feature-access matrix, and a Debug-only arbitrary-combination provider without
+  StoreKit or manual Release unlock.
 - [ ] **C1-03 — Existing-entry integration.** Route existing premium candidates through the
   central service, remove scattered Product-ID checks, and prove Free manual record/export/delete
   behavior remains available.

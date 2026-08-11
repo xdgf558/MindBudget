@@ -10,10 +10,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - Source SHA-256: `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
 - This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
-- COM-C0A and COM-C0B are Done. COM-C1 is Ready but has not started.
-- Product implementation has not started. No StoreKit product/group, entitlement, paywall,
-  CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
-  model provider exists.
+- COM-C0A and COM-C0B are Done. COM-C1 is In Progress at C1-01.
+- C1-01 adds only a pure entitlement value, a closed feature vocabulary, and a versioned
+  representation migration boundary. No StoreKit product/group, transaction authority, access
+  service, paywall, CloudKit container, telemetry receiver, backend, Watch target, receipt
+  pipeline, or third-party model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
   post-iPhone-1.0 milestone and does not block iPhone 1.0.
 
@@ -35,6 +36,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 
 - Free remains a complete usable budgeting product, including manual records, export, Delete All,
   and the approved opt-in iCloud feature.
+- The current Release domain can construct only exact Free or the single Pro-subscription right.
+  Local Lifetime, Connect, and unknown future bits have no constructor; unknown or unsupported
+  stored representations fail closed to exact Free through the versioned migrator.
 - `EntitlementSet` is the future single source of truth. Feature code must consume a central
   `FeatureAccessService`, never Product IDs or ad-hoc booleans in views.
 - R1 subscription state grants rights only for verified `subscribed` and `inGracePeriod` states.
@@ -167,7 +171,6 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C0B created/updated documents, build scripts, and non-behavioral test infrastructure only; its
-full baseline passed. COM-C1 may start only on explicit owner instruction and must follow the
-independent packets in `COM_C1_EXECUTION_PACKET.md`. It stops at pure entitlement/access
-infrastructure and must not import StoreKit, create StoreKit products, add a paywall, or work ahead.
+C1-01 is the active independently reviewed packet. C1-02 may start only after C1-01 is reviewed
+and merged; C1-03 follows C1-02. COM-C1 stops at pure entitlement/access infrastructure and must
+not import StoreKit, create StoreKit products, add a paywall, or work ahead.
