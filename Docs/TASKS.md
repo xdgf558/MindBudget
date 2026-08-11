@@ -245,7 +245,7 @@ Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01 and C1-02)
   vocabulary, and structural proof that Free trust features and deferred bits remain unreachable.
 - [x] Complete C1-02 only after C1-01 was reviewed and merged: add one immutable central access
   service, deterministic Free environment/session injection, a Debug-only nonpersistent provider,
-  and executable raw-bit/duplicate-check/Release-boundary gates without StoreKit, purchase UI,
-  products, prices, or feature-entry locks.
+  and executable raw-bit/migrator-call/duplicate-check/Release-boundary gates with built-in DEBUG
+  parser samples, without StoreKit, purchase UI, products, prices, or feature-entry locks.
 - [ ] Start C1-03 only after C1-02 is reviewed and merged; route only owner-approved existing entry
   points through the central service and preserve all typed Free-core capabilities.

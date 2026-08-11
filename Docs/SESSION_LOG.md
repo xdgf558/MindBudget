@@ -3414,3 +3414,29 @@ deterministic 10,000-row dashboard projection contract.
 
 Next suggested task: Review C1-02 in a focused PR, merge only after owner approval, and begin C1-03
 only after that merge.
+
+## 2026-08-11 — Session 88 — Close COM-C1-02 authority-bypass review findings
+
+Goal: Close PR #26's remaining static-boundary findings before C1-03 begins.
+
+What was completed: Prevented app source outside the entitlement domain from calling
+`EntitlementSetMigrator`, closing the second path by which persisted or transported raw bits could
+otherwise reconstruct Pro without a `.proSubscription` literal. Added executable positive and
+negative fixtures for the DEBUG-provider preprocessor parser: the active DEBUG branch passes,
+while unguarded and `#else` declarations fail. The parser also tolerates a trailing directive
+comment. Updated the C1 execution checklist, DEC-COM-013, project/task memory, and detailed
+commercial Session 9. No changelog entry was added because no user-visible behavior changed.
+
+What was NOT completed: No existing feature was locked or rerouted; C1-03 remains pending. No
+StoreKit state/product, persistence authority, purchase/restore/paywall, paid UI, cloud/backend,
+schema/resource, version, Archive, upload, or tester state changed.
+
+Validation result: pass under Xcode 26.6 — shell syntax, focused access boundary and money gates,
+Release build, 286 Swift tests in 18 suites, all 13 UI tests, static release/network/commercial
+gates, and every coverage threshold. The shared-host switch skipped only the nondeterministic
+500 ms wall-clock assertion and retained the deterministic 10,000-row projection test. An initial
+invocation stopped before build because the global developer directory pointed to Command Line
+Tools; rerunning against the project-recorded Xcode 26.6 path passed completely.
+
+Next suggested task: Push this review closeout to PR #26, confirm CI is green, and merge only after
+owner approval. Start C1-03 only after the merge.

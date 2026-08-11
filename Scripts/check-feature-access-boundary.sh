@@ -13,11 +13,10 @@ if [[ ! -s "${ACCESS_SOURCE}" || ! -s "${ENTITLEMENT_SOURCE}" ]]; then
   exit 1
 fi
 
-# Prove the arbitrary-combination provider's declaration is inside an active #if DEBUG region.
-# The app's existing Release build then proves that the guarded source compiles without it.
-debug_provider_status="$({
+debug_provider_status() {
+  local source_path="${1:-/dev/stdin}"
   awk '
-  /^[[:space:]]*#if[[:space:]]+DEBUG[[:space:]]*$/ {
+  /^[[:space:]]*#if[[:space:]]+DEBUG([[:space:]]*(\/\/.*)?)?$/ {
     depth += 1
     debug_guard[depth] = 1
     debug_branch[depth] = 1
@@ -54,8 +53,38 @@ debug_provider_status="$({
   END {
     printf "%d:%d\n", found, unguarded
   }
-  ' "${ACCESS_SOURCE}"
-} || true)"
+  ' "${source_path}"
+}
+
+assert_debug_provider_fixture() {
+  local expected="$1"
+  local description="$2"
+  local fixture="$3"
+  local actual
+  actual="$(printf '%s\n' "${fixture}" | debug_provider_status)"
+  if [[ "${actual}" != "${expected}" ]]; then
+    echo "Feature-access DEBUG parser self-test failed: ${description}" >&2
+    exit 1
+  fi
+}
+
+# Prove the parser rejects unguarded and inactive-branch providers before trusting it on source.
+assert_debug_provider_fixture \
+  "1:0" \
+  "active DEBUG branch should be accepted" \
+  $'#if DEBUG // fixture comment\nstruct DebugFeatureAccessProvider {}\n#endif'
+assert_debug_provider_fixture \
+  "1:1" \
+  "unguarded provider should be rejected" \
+  $'struct DebugFeatureAccessProvider {}'
+assert_debug_provider_fixture \
+  "1:1" \
+  "provider in the DEBUG else branch should be rejected" \
+  $'#if DEBUG\n#else\nstruct DebugFeatureAccessProvider {}\n#endif'
+
+# Prove the arbitrary-combination provider's declaration is inside an active #if DEBUG region.
+# The app's existing Release build then proves that the guarded source compiles without it.
+debug_provider_status="$(debug_provider_status "${ACCESS_SOURCE}" || true)"
 
 if [[ "${debug_provider_status}" != "1:0" ]]; then
   echo "DebugFeatureAccessProvider must have exactly one DEBUG-guarded declaration" >&2
@@ -95,6 +124,18 @@ duplicate_subscription_checks="$({
 if [[ -n "${duplicate_subscription_checks}" ]]; then
   echo "Paid feature checks must remain centralized in FeatureAccessService:" >&2
   echo "${duplicate_subscription_checks}" >&2
+  exit 1
+fi
+
+migrator_call_sites="$({
+  find MindBudget -type f -name '*.swift' \
+    ! -path "${ENTITLEMENT_SOURCE}" \
+    -exec grep -nEH '(^|[^[:alnum:]_])EntitlementSetMigrator([^[:alnum:]_]|$)' {} + |
+    grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
+} 2>/dev/null || true)"
+if [[ -n "${migrator_call_sites}" ]]; then
+  echo "Entitlement migration may not become a second paid-authority path:" >&2
+  echo "${migrator_call_sites}" >&2
   exit 1
 fi
 

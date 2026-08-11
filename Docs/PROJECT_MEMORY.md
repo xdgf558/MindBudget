@@ -55,9 +55,10 @@ documentation, an empty current Release egress policy, matrices, CI/report contr
 execution packets without product behavior. COM-C1 is In Progress: C1-01 defines the exact
 Free/Pro-subscription set, versioned fail-closed representation migration, and the closed premium
 feature vocabulary. C1-02 adds one pure access decision boundary, exact-Free app/session injection,
-a nonpersistent Debug-only provider, and static gates that reject raw-bit reads or duplicate paid
-checks. No existing feature entry is locked yet; that separately reviewed integration remains in
-C1-03.
+a nonpersistent Debug-only provider, and static gates that reject raw-bit reads, duplicate paid
+checks, or entitlement-migrator calls outside its domain boundary. The DEBUG parser proves its own
+active/inactive-branch behavior before scanning app source. No existing feature entry is locked
+yet; that separately reviewed integration remains in C1-03.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

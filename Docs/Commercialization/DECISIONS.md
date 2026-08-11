@@ -198,9 +198,13 @@ context.
   `.proSubscription` right, and the exhaustive feature switch forces every later vocabulary case
   to choose a requirement explicitly. Concurrent reads cannot observe partial mutation. Static
   validation rejects raw `version1Bits`/`version1KnownBits` consumers, duplicate subscription
-  checks, persisted/manual authority, StoreKit imports during COM-C1, and
-  `isSuperset(of: .free)`; exact Free classification remains `isFree`. C1-03 may integrate only
-  owner-approved existing entries after C1-02 review and merge.
+  checks, persisted/manual authority, StoreKit imports during COM-C1,
+  `isSuperset(of: .free)`, and `EntitlementSetMigrator` calls outside its domain file. The latter
+  prevents a stored representation from silently becoming a second Release authority before
+  COM-C2 explicitly owns and reviews that path. The DEBUG preprocessor parser proves its active,
+  unguarded, and inactive-branch classifications with built-in fixtures before scanning app
+  source. Exact Free classification remains `isFree`. C1-03 may integrate only owner-approved
+  existing entries after C1-02 review and merge.
 - Alternatives rejected: Feature-local booleans; product-ID or billing checks in views; a global
   mutable singleton; UserDefaults/process arguments as entitlement authority; a Release manual
   unlock; permissive error fallback; or implementing StoreKit/paid UI in C1-02.

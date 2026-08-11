@@ -274,3 +274,36 @@ deterministic 10,000-row dashboard projection contract.
 
 Next suggested task: Review C1-02 as its own PR. Begin C1-03 only after that packet is reviewed and
 merged; do not import StoreKit or add unapproved paid UI while reviewing C1-02.
+
+## 2026-08-11 — Session 9 — Close COM-C1-02 authority-bypass review findings
+
+Goal: Close PR #26's two feature-access gate findings before C1-03 can consume the central
+authority.
+
+What was completed: Extended `Scripts/check-feature-access-boundary.sh` so app source outside
+`EntitlementDomain.swift` cannot call `EntitlementSetMigrator`; a stored, file, or network
+representation therefore cannot silently reconstruct a paid set and become a second Release
+authority before COM-C2 explicitly owns and reviews that adapter. Refactored the DEBUG-provider
+preprocessor scan into a reusable parser and added built-in fixtures proving that an active
+`#if DEBUG` declaration is accepted while an unguarded declaration and a declaration in the
+`#else` branch are rejected. The parser also accepts a harmless trailing comment on the DEBUG
+directive. Updated DEC-COM-013 and the C1-02 execution/review evidence. No changelog entry was
+added because app behavior and user-visible copy are unchanged.
+
+What was NOT completed: No C1-03 feature entry was integrated or locked. No StoreKit mapping,
+product/group, persistence authority, purchase/restore/paywall, paid UI, price/trial/quota,
+schema/resource, network/cloud/provider, telemetry, version, Archive, upload, or tester state
+changed. COM-C2 must later make any migrator allow-list change explicit and independently
+reviewable.
+
+Validation result: pass under Xcode 26.6. Shell syntax, the feature-access gate and its built-in
+fixtures, and the no-floating-point-money gate passed. Full validation passed the Release build,
+286 Swift tests in 18 suites, all 13 UI tests, the static release/network/commercial/access gates,
+and every existing core-service coverage threshold. The documented shared-host switch excluded
+only the nondeterministic 500 ms wall-clock signal while retaining the deterministic 10,000-row
+dashboard projection contract. The first validation invocation stopped before build because the
+machine-wide `xcode-select` pointed to Command Line Tools; the identical validation with the
+project-recorded Xcode 26.6 `DEVELOPER_DIR` passed.
+
+Next suggested task: Push this focused closeout to PR #26, confirm CI is green, and merge only on
+the owner's instruction. Begin C1-03 only after that merge.

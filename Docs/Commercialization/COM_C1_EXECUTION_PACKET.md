@@ -74,8 +74,12 @@ a migration contract, a manual Release unlock, or any proposal to make Free iClo
   is mathematically a superset of the empty Free set.
 - Subscription checks exist only in the central access service. Views and feature entry points do
   not repeat `.proSubscription` checks or inspect product/billing state.
+- `EntitlementSetMigrator` remains callable only inside `EntitlementDomain.swift` and tests. A
+  future COM-C2 authority adapter must explicitly narrow and review this allow-list before a
+  stored representation may influence the session snapshot.
 - The arbitrary-combination provider is declared only under `#if DEBUG`, is immutable, and has no
-  persistence, process-argument, or Release selection path.
+  persistence, process-argument, or Release selection path. The static parser must first prove
+  active-DEBUG acceptance and unguarded/`#else` rejection against built-in fixtures.
 
 ### Stop conditions
 
