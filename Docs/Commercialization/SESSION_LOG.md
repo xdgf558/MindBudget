@@ -176,3 +176,69 @@ documented shared-host skip for that single timing signal while retaining the de
 
 Next suggested task: Confirm PR #24 CI is green and merge only with owner approval; start COM-C1
 only after a separate explicit instruction.
+
+## 2026-08-11 — Session 6 — COM-C1-01 pure entitlement domain
+
+Goal: Start COM-C1 with only the first approved review unit: a pure, deterministic entitlement
+domain that cannot unlock deferred commercial surfaces.
+
+What was completed: Added a `Sendable` `EntitlementSet` with exact Free and Pro-subscription
+values, deterministic union/removal semantics, and a private raw-bit initializer. The only
+Release-reachable paid value is Pro subscription; Local Lifetime, Connect, bank sync, family
+collaboration, StoreKit product identifiers, and test/grace-state mapping are not representable
+as production entitlements in this packet. Added a closed `PremiumFeature` vocabulary for the
+approved Pro seams and a separate `FreeCoreFeature` proof vocabulary so manual records, CSV
+export, Delete All, app lock, and opt-in iCloud cannot be reclassified as premium features.
+Added an explicit version-1 representation and migrator: unsupported versions and unknown bits
+throw at the strict boundary and resolve to exact Free at the fail-closed boundary. Tests cover
+Free, subscribed and grace fixtures, union, duplicates, removal, representation round trips,
+unknown bits, unsupported versions, the exact premium vocabulary, the sole reachable paid value,
+and the Free-core separation. DEC-COM-012 records the boundary and assigns runtime access
+decisions to C1-02.
+
+What was NOT completed: No `FeatureAccessService`, environment injection, Debug provider,
+StoreKit import/configuration/product/group, product-ID mapping, purchase/restore flow, paywall,
+paid UI, cloud/backend/provider, telemetry, schema/resource, release version, Archive, upload, or
+tester state was added. C1-02 and C1-03 remain unstarted; no user-visible behavior changed, so no
+changelog entry was added.
+
+Validation result: pass under Xcode 26.6. The focused commercialization entitlement suite passed
+with zero failures. The full validation then passed the Release build, complete Swift test run,
+all 13 UI tests, no-floating-point-money, current empty-egress, commercialization-document, and
+release-readiness gates, plus every existing core-service coverage threshold. The documented
+shared-host switch excluded only the nondeterministic 500 ms wall-clock signal; the deterministic
+10,000-row dashboard projection test remained enabled.
+
+Next suggested task: Open a focused C1-01 review PR. Begin C1-02 only after this packet is reviewed
+and merged; do not import StoreKit or add paid UI while reviewing C1-01.
+
+## 2026-08-11 — Session 7 — Close COM-C1-01 entitlement-domain review findings
+
+Goal: Close PR #25's entitlement-domain review findings before any C1-02 consumer is allowed to
+depend on the new vocabulary.
+
+What was completed: Renamed the set operation from the ambiguous `contains(_:)` to
+`isSuperset(of:)`, documented that every entitlement set is a superset of exact Free, and added a
+regression test proving callers must use `isFree` when deciding that no paid right exists. Bound
+`reachablePaidEntitlements` structurally to the complete version-1 known-bit mask so a future bit
+cannot be added without also extending the reachable-right inventory. Reframed the accepted
+subscription fixture as a domain-vocabulary placeholder rather than StoreKit state-mapping proof;
+COM-C2 still owns subscribed, grace, retry, expired, revoked, unverified, and pending mapping. The
+migrator now switches on the persisted representation version and delegates version 1 to its own
+branch, leaving the natural extension point for later versions while all unsupported versions and
+unknown bits continue to fail closed. DEC-COM-012 records these contracts.
+
+What was NOT completed: No C1-02 access service or consumer, StoreKit mapping/import/product,
+Debug override, paid UI, purchase/restore/paywall, cloud/backend/provider, telemetry, schema,
+resource, release version, Archive, upload, or tester state changed. No changelog entry was added
+because there is no user-visible behavior change.
+
+Validation result: pass under Xcode 26.6. The focused commercialization entitlement suite passed
+11 tests with zero failures. Full validation passed the Release build, 281 Swift tests in 18
+suites, all 13 UI tests, no-floating-point-money, empty-egress, commercialization-document, and
+release-readiness gates, plus every existing core-service coverage threshold. The documented
+shared-host switch excluded only the nondeterministic wall-clock signal; the deterministic
+10,000-row projection contract remained enabled.
+
+Next suggested task: Push this closeout to PR #25 and confirm CI is green. Merge only on the
+owner's instruction; begin C1-02 only after that merge.

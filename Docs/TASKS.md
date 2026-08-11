@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A and COM-C0B Done; COM-C1 Ready but not started
+Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01)
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -238,5 +238,10 @@ Status: COM-C0A and COM-C0B Done; COM-C1 Ready but not started
   downloadable CI result bundles, source-provenance and documentation gates, the SPEC-018 privacy
   correction, and independently reviewable COM-C1 execution packets. Full Release, Swift/UI,
   money, network, documentation, and coverage validation passed.
-- [ ] Start COM-C1 only after a new explicit owner instruction; follow
+- [x] Start COM-C1 only after a new explicit owner instruction; follow
   `Docs/Commercialization/COM_C1_EXECUTION_PACKET.md` and do not import StoreKit or add paid UI.
+- [x] Complete the C1-01 pure entitlement domain as its own review unit: exact Free and reachable
+  Pro-subscription set semantics, versioned fail-closed representation migration, closed premium
+  vocabulary, and structural proof that Free trust features and deferred bits remain unreachable.
+- [ ] Start C1-02 only after C1-01 is reviewed and merged; keep StoreKit, purchase UI, products,
+  prices, and feature-entry locks out of that packet.
