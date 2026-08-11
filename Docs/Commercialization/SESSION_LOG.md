@@ -211,3 +211,34 @@ shared-host switch excluded only the nondeterministic 500 ms wall-clock signal; 
 
 Next suggested task: Open a focused C1-01 review PR. Begin C1-02 only after this packet is reviewed
 and merged; do not import StoreKit or add paid UI while reviewing C1-01.
+
+## 2026-08-11 — Session 7 — Close COM-C1-01 entitlement-domain review findings
+
+Goal: Close PR #25's entitlement-domain review findings before any C1-02 consumer is allowed to
+depend on the new vocabulary.
+
+What was completed: Renamed the set operation from the ambiguous `contains(_:)` to
+`isSuperset(of:)`, documented that every entitlement set is a superset of exact Free, and added a
+regression test proving callers must use `isFree` when deciding that no paid right exists. Bound
+`reachablePaidEntitlements` structurally to the complete version-1 known-bit mask so a future bit
+cannot be added without also extending the reachable-right inventory. Reframed the accepted
+subscription fixture as a domain-vocabulary placeholder rather than StoreKit state-mapping proof;
+COM-C2 still owns subscribed, grace, retry, expired, revoked, unverified, and pending mapping. The
+migrator now switches on the persisted representation version and delegates version 1 to its own
+branch, leaving the natural extension point for later versions while all unsupported versions and
+unknown bits continue to fail closed. DEC-COM-012 records these contracts.
+
+What was NOT completed: No C1-02 access service or consumer, StoreKit mapping/import/product,
+Debug override, paid UI, purchase/restore/paywall, cloud/backend/provider, telemetry, schema,
+resource, release version, Archive, upload, or tester state changed. No changelog entry was added
+because there is no user-visible behavior change.
+
+Validation result: pass under Xcode 26.6. The focused commercialization entitlement suite passed
+11 tests with zero failures. Full validation passed the Release build, 281 Swift tests in 18
+suites, all 13 UI tests, no-floating-point-money, empty-egress, commercialization-document, and
+release-readiness gates, plus every existing core-service coverage threshold. The documented
+shared-host switch excluded only the nondeterministic wall-clock signal; the deterministic
+10,000-row projection contract remained enabled.
+
+Next suggested task: Push this closeout to PR #25 and confirm CI is green. Merge only on the
+owner's instruction; begin C1-02 only after that merge.

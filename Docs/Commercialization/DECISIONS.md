@@ -173,10 +173,13 @@ context.
   subscription-reachable vocabulary but performs no access decision in C1-01. Manual records,
   CSV export, Delete All, app lock, and opt-in iCloud are separately typed Free invariants.
 - Consequences: Duplicate/union/removal behavior is deterministic; removing the subscription
-  leaves no residual paid state. A future entitlement representation requires a new accepted
-  version migration instead of interpreting a raw unknown bit. Subscribed and grace fixtures both
-  expect the same subscription right, but the production StoreKit status mapper remains owned by
-  COM-C2. C1-02 remains the only owner of feature-access decisions and injection.
+  leaves no residual paid state. Set containment is named `isSuperset(of:)`, while exact Free
+  detection uses `isFree`, so `.free` cannot be mistaken for a singleton membership query. Tests
+  require the union of every reachable paid singleton to equal the complete known version-1 bit
+  mask. Migration dispatches by stored version so a future version can preserve explicit older
+  branches instead of replacing them with an equality check. Subscribed and grace fixtures only
+  name the shared domain right; the production StoreKit status mapper remains owned by COM-C2.
+  C1-02 remains the only owner of feature-access decisions and injection.
 - Alternatives rejected: `OptionSet(rawValue:)` exposed to feature code; direct `Codable`
   synthesis for the authority type; silently retaining known rights from a representation that
   also contains unknown bits; adding Lifetime/Connect placeholders; Product IDs in the domain;

@@ -25,8 +25,12 @@ struct EntitlementSet: Hashable, Sendable {
         bits == 0
     }
 
-    func contains(_ entitlement: EntitlementSet) -> Bool {
-        bits & entitlement.bits == entitlement.bits
+    /// Returns whether every right in `other` is present in this set.
+    ///
+    /// In particular, every set is a superset of `.free`. Callers deciding whether the current
+    /// user has no paid rights must use `isFree` instead of this collection operation.
+    func isSuperset(of other: EntitlementSet) -> Bool {
+        bits & other.bits == other.bits
     }
 
     func union(_ other: EntitlementSet) -> EntitlementSet {
@@ -44,11 +48,14 @@ struct EntitlementSet: Hashable, Sendable {
         EntitlementSet(bits: bits & ~entitlement.bits)
     }
 
-    fileprivate var version1Bits: UInt64 {
+    /// Internal only for the explicit migration boundary and its structural completeness tests.
+    /// Feature-access code must never inspect raw entitlement bits.
+    var version1Bits: UInt64 {
         bits
     }
 
-    fileprivate static var version1KnownBits: UInt64 {
+    /// Internal only for version-1 migration and the reachable-right completeness proof.
+    static var version1KnownBits: UInt64 {
         knownVersion1Bits
     }
 }
@@ -81,17 +88,22 @@ enum EntitlementSetMigrator {
     }
 
     static func migrate(_ representation: EntitlementSetRepresentation) throws -> EntitlementSet {
-        guard representation.version == currentVersion else {
+        switch representation.version {
+        case 1:
+            return try migrateVersionOne(rawBits: representation.rawBits)
+        default:
             throw EntitlementSetMigrationError.unsupportedVersion(representation.version)
         }
+    }
 
-        let unknownBits = representation.rawBits & ~EntitlementSet.version1KnownBits
+    private static func migrateVersionOne(rawBits: UInt64) throws -> EntitlementSet {
+        let unknownBits = rawBits & ~EntitlementSet.version1KnownBits
         guard unknownBits == 0 else {
             throw EntitlementSetMigrationError.unknownEntitlementBits(unknownBits)
         }
 
         var migrated = EntitlementSet.free
-        if representation.rawBits & EntitlementSet.proSubscription.version1Bits != 0 {
+        if rawBits & EntitlementSet.proSubscription.version1Bits != 0 {
             migrated = migrated.union(.proSubscription)
         }
         return migrated

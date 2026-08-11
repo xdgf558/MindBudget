@@ -6,17 +6,25 @@ struct CommercializationEntitlementTests {
     @Test
     func freeIsTheExactEmptyEntitlementSet() {
         #expect(EntitlementSet.free.isFree)
-        #expect(EntitlementSet.free.contains(.proSubscription) == false)
+        #expect(EntitlementSet.free.isSuperset(of: .proSubscription) == false)
         #expect(EntitlementSet.union([EntitlementSet]()) == .free)
     }
 
     @Test(arguments: AcceptedSubscriptionFixture.allCases)
-    func subscribedAndGraceFixturesProduceTheSameReachableRight(
+    func acceptedSubscriptionVocabularyFixturesUseTheSameDomainRight(
         fixture: AcceptedSubscriptionFixture
     ) {
+        // This is a C1-01 domain-vocabulary fixture, not proof of StoreKit state mapping. COM-C2
+        // owns the subscribed/grace/retry/expired/revoked/unverified/pending mapping matrix.
         #expect(fixture.entitlements == .proSubscription)
-        #expect(fixture.entitlements.contains(.proSubscription))
+        #expect(fixture.entitlements.isSuperset(of: .proSubscription))
         #expect(fixture.entitlements.isFree == false)
+    }
+
+    @Test
+    func supersetSemanticsDoNotMisclassifyPaidUsersAsFree() {
+        #expect(EntitlementSet.proSubscription.isSuperset(of: .free))
+        #expect(EntitlementSet.proSubscription.isFree == false)
     }
 
     @Test
@@ -39,7 +47,7 @@ struct CommercializationEntitlementTests {
 
         #expect(removed == .free)
         #expect(removed.isFree)
-        #expect(removed.contains(.proSubscription) == false)
+        #expect(removed.isSuperset(of: .proSubscription) == false)
     }
 
     @Test
@@ -93,6 +101,10 @@ struct CommercializationEntitlementTests {
     @Test
     func currentReleaseExposesOnlyTheAcceptedSubscriptionRight() {
         #expect(EntitlementSet.reachablePaidEntitlements == [.proSubscription])
+        #expect(
+            EntitlementSet.union(EntitlementSet.reachablePaidEntitlements).version1Bits
+                == EntitlementSet.version1KnownBits
+        )
     }
 
     @Test
@@ -116,6 +128,7 @@ struct CommercializationEntitlementTests {
     }
 }
 
+/// A domain vocabulary fixture only. Production StoreKit status mapping does not exist in C1-01.
 enum AcceptedSubscriptionFixture: CaseIterable, Sendable {
     case subscribed
     case gracePeriod
