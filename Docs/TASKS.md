@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01)
+Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01 and C1-02)
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -243,5 +243,9 @@ Status: COM-C0A and COM-C0B Done; COM-C1 In Progress (C1-01)
 - [x] Complete the C1-01 pure entitlement domain as its own review unit: exact Free and reachable
   Pro-subscription set semantics, versioned fail-closed representation migration, closed premium
   vocabulary, and structural proof that Free trust features and deferred bits remain unreachable.
-- [ ] Start C1-02 only after C1-01 is reviewed and merged; keep StoreKit, purchase UI, products,
-  prices, and feature-entry locks out of that packet.
+- [x] Complete C1-02 only after C1-01 was reviewed and merged: add one immutable central access
+  service, deterministic Free environment/session injection, a Debug-only nonpersistent provider,
+  and executable raw-bit/duplicate-check/Release-boundary gates without StoreKit, purchase UI,
+  products, prices, or feature-entry locks.
+- [ ] Start C1-03 only after C1-02 is reviewed and merged; route only owner-approved existing entry
+  points through the central service and preserve all typed Free-core capabilities.

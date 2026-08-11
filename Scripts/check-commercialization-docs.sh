@@ -158,6 +158,16 @@ for heading in '## Input gate' '### Tasks' '### Tests' '### Stop conditions'; do
   }
 done
 
+for access_boundary_contract in \
+  'No feature-access or application path reads `version1Bits` or `version1KnownBits`' \
+  'Never use `isSuperset(of: .free)`' \
+  'Subscription checks exist only in the central access service'; do
+  grep -Fq "${access_boundary_contract}" Docs/Commercialization/COM_C1_EXECUTION_PACKET.md || {
+    echo "COM-C1 execution packet is missing access-boundary review contract: ${access_boundary_contract}" >&2
+    exit 1
+  }
+done
+
 if grep -Eq 'all ten (SwiftData|model)|ten SwiftData|all ten model' \
   Docs/PRIVACY_AND_REVIEW_NOTES.md Docs/PROJECT_MEMORY.md Docs/TEST_PLAN.md; then
   echo "Current deletion documentation still contains the stale ten-model count" >&2

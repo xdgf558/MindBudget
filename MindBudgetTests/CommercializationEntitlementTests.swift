@@ -126,6 +126,109 @@ struct CommercializationEntitlementTests {
             .appleWatchCompanion,
         ]))
     }
+
+    @Test
+    func fullFeatureAccessMatrixRequiresTheAcceptedSubscription() {
+        let freeService = FeatureAccessService(entitlements: .free)
+        let subscribedService = FeatureAccessService(entitlements: .proSubscription)
+
+        for feature in PremiumFeature.allCases {
+            #expect(freeService.decision(for: feature) == .requiresProSubscription)
+            #expect(freeService.decision(for: feature).isAllowed == false)
+            #expect(subscribedService.decision(for: feature) == .allowed)
+            #expect(subscribedService.decision(for: feature).isAllowed)
+        }
+    }
+
+    @Test
+    func featureAccessDefaultsToExactFreeAndRemovalReturnsToTheSameMatrix() {
+        let defaultService = FeatureAccessService()
+        let granted = EntitlementSet.free.union(.proSubscription)
+        let removed = granted.removing(.proSubscription)
+        let removedService = FeatureAccessService(entitlements: removed)
+
+        #expect(removed.isFree)
+        for feature in PremiumFeature.allCases {
+            #expect(defaultService.decision(for: feature) == .requiresProSubscription)
+            #expect(removedService.decision(for: feature) == .requiresProSubscription)
+        }
+    }
+
+    @Test
+    func immutableFeatureAccessSnapshotIsConsistentAcrossConcurrentReads() async {
+        let service: any FeatureAccessChecking = FeatureAccessService(
+            entitlements: .proSubscription
+        )
+
+        let snapshots = await withTaskGroup(
+            of: [FeatureAccessDecision].self,
+            returning: [[FeatureAccessDecision]].self
+        ) { group in
+            for _ in 0..<128 {
+                group.addTask {
+                    PremiumFeature.allCases.map { feature in
+                        service.decision(for: feature)
+                    }
+                }
+            }
+
+            var results: [[FeatureAccessDecision]] = []
+            for await snapshot in group {
+                results.append(snapshot)
+            }
+            return results
+        }
+
+        #expect(snapshots.count == 128)
+        #expect(snapshots.allSatisfy { decisions in
+            decisions.count == PremiumFeature.allCases.count
+                && decisions.allSatisfy { $0 == .allowed }
+        })
+    }
+
+    @MainActor
+    @Test
+    func appSessionOwnsOneInjectedAuthorityWithAFreeDefault() throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let freeSession = AppSession(dataActor: controller.dataActor)
+
+        for feature in PremiumFeature.allCases {
+            #expect(freeSession.accessDecision(for: feature) == .requiresProSubscription)
+        }
+
+        #if DEBUG
+        let debugSession = AppSession(
+            dataActor: controller.dataActor,
+            featureAccessService: DebugFeatureAccessProvider(
+                entitlements: .proSubscription
+            )
+        )
+        for feature in PremiumFeature.allCases {
+            #expect(debugSession.accessDecision(for: feature) == .allowed)
+        }
+        #endif
+    }
+
+    #if DEBUG
+    @Test
+    func debugProviderAcceptsEveryValidReachableCombinationWithoutPersistence() {
+        let combinations: [EntitlementSet] = [
+            .free,
+            .proSubscription,
+            EntitlementSet.union([.free, .proSubscription, .proSubscription]),
+        ]
+
+        for entitlements in combinations {
+            let provider = DebugFeatureAccessProvider(entitlements: entitlements)
+            let expected: FeatureAccessDecision = entitlements.isFree
+                ? .requiresProSubscription
+                : .allowed
+            for feature in PremiumFeature.allCases {
+                #expect(provider.decision(for: feature) == expected)
+            }
+        }
+    }
+    #endif
 }
 
 /// A domain vocabulary fixture only. Production StoreKit status mapping does not exist in C1-01.

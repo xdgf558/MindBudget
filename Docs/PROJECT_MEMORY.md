@@ -42,7 +42,8 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification and the planning
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
-formal release gates pass. COM-C1 has started with a pure, non-authoritative entitlement domain;
+formal release gates pass. COM-C1 has started with a pure entitlement domain and immutable central
+feature-access evaluator;
 the current app still contains no StoreKit product, transaction-derived right, quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no
 production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
@@ -51,10 +52,12 @@ development with post-iPhone-1.0 Watch distribution, the three-stage commercial-
 and Product IDs `com.xdgf558.mindbudget.pro.monthly` and
 `com.xdgf558.mindbudget.pro.annual`. COM-C0B is complete: it added durable commercial
 documentation, an empty current Release egress policy, matrices, CI/report controls, and COM-C1
-execution packets without product behavior. COM-C1 is In Progress: C1-01 defines only the exact
+execution packets without product behavior. COM-C1 is In Progress: C1-01 defines the exact
 Free/Pro-subscription set, versioned fail-closed representation migration, and the closed premium
-feature vocabulary. Central access decisions, injection, and entry-point integration remain in
-C1-02 and C1-03.
+feature vocabulary. C1-02 adds one pure access decision boundary, exact-Free app/session injection,
+a nonpersistent Debug-only provider, and static gates that reject raw-bit reads or duplicate paid
+checks. No existing feature entry is locked yet; that separately reviewed integration remains in
+C1-03.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

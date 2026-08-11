@@ -60,6 +60,7 @@ private struct ConfiguredAppView: View {
             spotlightIndexer: environment.spotlightIndexer,
             navigationStore: environment.intentService.navigationStore,
             appLockAuthenticator: environment.appLockAuthenticator,
+            featureAccessService: environment.featureAccessService,
             appLockInitiallyEnabled: settings.requireFaceID
         )
         .modelContainer(environment.dataController.container)

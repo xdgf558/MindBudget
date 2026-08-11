@@ -184,3 +184,23 @@ context.
   synthesis for the authority type; silently retaining known rights from a representation that
   also contains unknown bits; adding Lifetime/Connect placeholders; Product IDs in the domain;
   or implementing `FeatureAccessService` ahead of C1-02.
+
+## DEC-COM-013 — Centralize paid access in an immutable session-owned snapshot
+
+- Status/date: **Accepted — 2026-08-11**
+- Requirements: REQ-ENTITLEMENT-001
+- Decision: C1-02 adds one pure `FeatureAccessService` implementing the `FeatureAccessChecking`
+  protocol. It evaluates a closed `PremiumFeature` against one immutable `EntitlementSet`
+  snapshot. `AppEnvironment` constructs exact Free by default and `AppSession` owns the injected
+  authority; consumers receive only `FeatureAccessDecision`. An arbitrary-combination provider is
+  compiled only under `#if DEBUG`, is immutable, and has no persistence or process-argument path.
+- Consequences: All current premium candidates require the sole Release-reachable
+  `.proSubscription` right, and the exhaustive feature switch forces every later vocabulary case
+  to choose a requirement explicitly. Concurrent reads cannot observe partial mutation. Static
+  validation rejects raw `version1Bits`/`version1KnownBits` consumers, duplicate subscription
+  checks, persisted/manual authority, StoreKit imports during COM-C1, and
+  `isSuperset(of: .free)`; exact Free classification remains `isFree`. C1-03 may integrate only
+  owner-approved existing entries after C1-02 review and merge.
+- Alternatives rejected: Feature-local booleans; product-ID or billing checks in views; a global
+  mutable singleton; UserDefaults/process arguments as entitlement authority; a Release manual
+  unlock; permissive error fallback; or implementing StoreKit/paid UI in C1-02.

@@ -10,11 +10,13 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - Source SHA-256: `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
 - This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
-- COM-C0A and COM-C0B are Done. COM-C1 is In Progress at C1-01.
-- C1-01 adds only a pure entitlement value, a closed feature vocabulary, and a versioned
-  representation migration boundary. No StoreKit product/group, transaction authority, access
-  service, paywall, CloudKit container, telemetry receiver, backend, Watch target, receipt
-  pipeline, or third-party model provider exists.
+- COM-C0A and COM-C0B are Done. COM-C1 is In Progress with C1-01 and C1-02 implemented.
+- C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
+  migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
+  environment/session injection with exact Free as the production default, and a nonpersistent
+  `#if DEBUG` provider. No StoreKit product/group, transaction authority, paywall, CloudKit
+  container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party model
+  provider exists, and no existing feature entry has been locked.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
   post-iPhone-1.0 milestone and does not block iPhone 1.0.
 
@@ -171,6 +173,7 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-C1-01 is the active independently reviewed packet. C1-02 may start only after C1-01 is reviewed
-and merged; C1-03 follows C1-02. COM-C1 stops at pure entitlement/access infrastructure and must
-not import StoreKit, create StoreKit products, add a paywall, or work ahead.
+C1-02 is the active independently reviewed packet after C1-01 merged. C1-03 may start only after
+C1-02 is reviewed and merged. COM-C1 stops at pure entitlement/access infrastructure and must not
+import StoreKit, create StoreKit products, add a paywall, or work ahead. Access decisions may not
+read raw entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`.

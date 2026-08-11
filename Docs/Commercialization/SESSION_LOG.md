@@ -242,3 +242,35 @@ shared-host switch excluded only the nondeterministic wall-clock signal; the det
 
 Next suggested task: Push this closeout to PR #25 and confirm CI is green. Merge only on the
 owner's instruction; begin C1-02 only after that merge.
+
+## 2026-08-11 — Session 8 — COM-C1-02 central feature-access boundary
+
+Goal: Implement the second isolated COM-C1 packet after C1-01 review and merge, without adding
+StoreKit, paid UI, products, persistence, or feature-entry locks.
+
+What was completed: Added the pure immutable `FeatureAccessService` and
+`FeatureAccessChecking` protocol. Every closed `PremiumFeature` now has one exhaustive central
+decision against an injected `EntitlementSet`; the production environment and session default to
+exact Free. Added a `#if DEBUG`-only arbitrary-combination provider with no UserDefaults, process
+argument, model, file, or other persistence path. The full Free/subscription feature matrix,
+removal back to exact Free, 128 concurrent immutable snapshots, AppSession ownership/default, and
+all currently constructible Debug combinations have focused tests. Added
+`Scripts/check-feature-access-boundary.sh` to full validation so raw entitlement-bit reads,
+`isSuperset(of: .free)`, duplicate subscription decisions, persisted/manual authority, an
+unguarded Debug provider, or a StoreKit import fail closed. DEC-COM-013 and the C1-02 review
+checklist record the boundary.
+
+What was NOT completed: No existing feature entry consumes this decision yet; that remains C1-03.
+No StoreKit mapping/import/product, purchase/restore/paywall, price/trial/quota, visible Pro lock,
+schema/resource, networking/cloud/provider, telemetry, release version, Archive, upload, or tester
+state changed. No changelog entry was added because user-visible behavior is unchanged.
+
+Validation result: pass under Xcode 26.6. Focused commercialization entitlement/access tests
+passed. Full validation passed the Release build, complete Swift test suite, all 13 UI tests,
+no-floating-point-money, empty-egress, commercialization-document, feature-access-boundary, and
+release-readiness gates, plus every existing core-service coverage threshold. The documented
+shared-host switch excluded only the nondeterministic wall-clock signal while retaining the
+deterministic 10,000-row dashboard projection contract.
+
+Next suggested task: Review C1-02 as its own PR. Begin C1-03 only after that packet is reviewed and
+merged; do not import StoreKit or add unapproved paid UI while reviewing C1-02.

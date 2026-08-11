@@ -66,6 +66,17 @@ a migration contract, a manual Release unlock, or any proposal to make Free iClo
   exact Free, and Debug/Release compile boundary.
 - Existing validation suite remains unchanged and green.
 
+### Review checklist
+
+- No feature-access or application path reads `version1Bits` or `version1KnownBits`; those values
+  remain representation/test seams rather than feature authority.
+- Exact Free checks use `isFree`. Never use `isSuperset(of: .free)`, because every entitlement set
+  is mathematically a superset of the empty Free set.
+- Subscription checks exist only in the central access service. Views and feature entry points do
+  not repeat `.proSubscription` checks or inspect product/billing state.
+- The arbitrary-combination provider is declared only under `#if DEBUG`, is immutable, and has no
+  persistence, process-argument, or Release selection path.
+
 ### Stop conditions
 
 Stop if access depends on UI state, UserDefaults as authority, network/StoreKit, scattered
@@ -107,4 +118,3 @@ or an unaccepted Free/Pro product decision. Defer it to its owning phase rather 
   no StoreKit import, and no paid product/paywall.
 - Money, commercialization-doc, full validation, localization/accessibility, and Release static
   gates pass; the commercial session log records evidence and unresolved debt.
-

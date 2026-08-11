@@ -72,6 +72,7 @@ struct AppEnvironment {
     let spotlightIndexer: any SpotlightIndexing
     let intentService: MindBudgetIntentService
     let appLockAuthenticator: any AppLockAuthenticating
+    let featureAccessService: any FeatureAccessChecking
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -118,7 +119,8 @@ struct AppEnvironment {
             searchIndexCleaner: CoreSpotlightIndexCleaner(),
             spotlightIndexer: SpotlightIndexingService(),
             intentService: intentService,
-            appLockAuthenticator: LocalAppLockAuthenticator()
+            appLockAuthenticator: LocalAppLockAuthenticator(),
+            featureAccessService: FeatureAccessService()
         )
     }
 }
