@@ -231,11 +231,16 @@ context.
   variants are separate features and are not invented in C1-03.
 - Consequences: Apple AI controls are hidden when unavailable, while template Ask remains visible.
   New or changed non-24-hour cooling choices are unavailable under exact Free, but a legacy stored
-  value may remain readable without destructive rewriting. Advanced Siri returns neutral localized
-  “not available yet” copy and never purchase/price language. Static validation rejects direct
+  value may remain readable without destructive rewriting. Passive App Entity providers return an
+  empty set under unavailable/exact-Free access because they are system-initiated queries; active
+  advanced Siri actions return neutral localized “not available yet” copy and never purchase/price
+  language. Static validation rejects direct
   feature decisions outside Commerce, feature-local Product-ID/`isPro`/`isPremium`/manual-unlock
   state, StoreKit imports, and the earlier authority bypasses. There is no paywall, Pro badge,
-  StoreKit product, transaction, price, trial, schema, network channel, or production unlock.
+  StoreKit product, transaction, price, trial, schema, network channel, or production unlock. The
+  already-uploaded 0.9.6 binary remains unchanged; C1-03 and later source must not be archived or
+  distributed until verified purchase/restore, purchase presentation, and the owning release gates
+  are complete, so users never receive a build that removes a capability with no restoration path.
 - Alternatives rejected: Gating all Siri actions; making the current wishlist or 30-day Insights
   paid; deleting legacy cooling values; leaving Apple AI controlled only by its historical user
   setting; or adding purchase presentation before COM-C2/C3.

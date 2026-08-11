@@ -1960,4 +1960,8 @@ Commerce-owned snapshot. Exact Free retains templates, basic 24-hour cooling, ba
 record/check actions, current 30-day Insights, the five-item wishlist, and all trust/core features.
 
 Consequences: Main product history points to one commercial authority instead of duplicating the
-matrix. No version, schema, product, purchase UI, or release state changes in this packet.
+matrix. Passive App Entity providers return no results under unavailable/exact-Free access, while
+active advanced Siri actions retain neutral rejection. The uploaded 0.9.6 binary remains
+unchanged; this source is not distributable until verified purchase/restore, purchase presentation,
+and the owning release gates are complete. No version, schema, product, purchase UI, or release
+state changes in this packet.

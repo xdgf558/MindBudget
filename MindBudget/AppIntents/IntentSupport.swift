@@ -147,6 +147,12 @@ struct MindBudgetIntentService: Sendable {
         return preferences
     }
 
+    /// App Entity queries are passive system lookups rather than user-invoked actions.
+    /// An unavailable integration therefore has no entities instead of presenting an error.
+    private func passiveAdvancedSiriPreferences() async -> SystemIntegrationPreferencesSnapshot? {
+        try? await requireAdvancedSiri()
+    }
+
     func recordExpense(
         amount: Money,
         category: ExpenseCategory,
@@ -365,7 +371,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func expenseEntities(identifiers: [UUID]? = nil) async throws -> [ExpenseEntity] {
-        _ = try await requireAdvancedSiri()
+        guard await passiveAdvancedSiriPreferences() != nil else { return [] }
         let allowed = identifiers.map(Set.init)
         let summaries = try await dataActor.fetchExpenseSummaries()
         let plans = try await dataActor.fetchBudgetPlanSummaries()
@@ -379,7 +385,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func wishlistEntities(identifiers: [UUID]? = nil) async throws -> [WishlistItemEntity] {
-        _ = try await requireAdvancedSiri()
+        guard await passiveAdvancedSiriPreferences() != nil else { return [] }
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchWishItemSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -388,7 +394,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func coolingOffEntities(identifiers: [UUID]? = nil) async throws -> [CoolingOffPlanEntity] {
-        _ = try await requireAdvancedSiri()
+        guard await passiveAdvancedSiriPreferences() != nil else { return [] }
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchCoolingOffPlanSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -397,7 +403,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func merchantEntities(identifiers: [UUID]? = nil) async throws -> [MerchantEntity] {
-        let preferences = try await requireAdvancedSiri()
+        guard let preferences = await passiveAdvancedSiriPreferences() else { return [] }
         guard preferences.spotlightEnabled, preferences.merchantNamesEnabled,
               capability.spotlightAvailability(userEnabled: true).isAvailable else {
             return []
@@ -412,7 +418,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func insightEntities(identifiers: [UUID]? = nil) async throws -> [SpendingInsightEntity] {
-        _ = try await requireAdvancedSiri()
+        guard await passiveAdvancedSiriPreferences() != nil else { return [] }
         let allowed = identifiers.map(Set.init)
         return try await dataActor.fetchSpendingInsightSummaries().compactMap { summary in
             guard allowed?.contains(summary.id) ?? true else { return nil }
@@ -421,7 +427,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func budgetSnapshotEntities() async throws -> [BudgetSnapshotEntity] {
-        let preferences = try await requireAdvancedSiri()
+        guard let preferences = await passiveAdvancedSiriPreferences() else { return [] }
         let now = Date()
         var calendar = Calendar.autoupdatingCurrent
         calendar.timeZone = .autoupdatingCurrent
@@ -434,7 +440,7 @@ struct MindBudgetIntentService: Sendable {
     }
 
     func emotionTagEntities(identifiers: [String]? = nil) async throws -> [EmotionTagEntity] {
-        _ = try await requireAdvancedSiri()
+        guard await passiveAdvancedSiriPreferences() != nil else { return [] }
         let allowed = identifiers.map(Set.init)
         return EmotionTag.allCases.compactMap { tag in
             guard allowed?.contains(tag.rawValue) ?? true else { return nil }

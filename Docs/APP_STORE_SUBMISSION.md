@@ -14,6 +14,9 @@ validated under the owner's current China-region Apple Developer account.
 - Earlier uploaded candidate: version 0.9.2, build 3
 - Build 7 is immutable; increment the build number before uploading any replacement.
 - Increment the build number after every uploaded replacement.
+- Distribution hold: the current unreleased COM-C1-03 source is not a replacement candidate. It
+  must not be archived, uploaded, or assigned to testers until verified purchase/restore, purchase
+  presentation, and their owning commercialization release gates are complete.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only

@@ -19,7 +19,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   cooling-off, and advanced Siri entries through one Commerce-owned decision snapshot. Exact Free
   continues to receive deterministic AI templates, the basic 24-hour period, and basic Siri
   expense-recording and budget-check actions. The existing 30-day Insights experience and
-  five-item wishlist remain Free. No StoreKit product/group, transaction authority, paywall,
+  five-item wishlist remain Free. Passive App Entity providers return no results under exact Free
+  rather than presenting a system-initiated error. The uploaded 0.9.6 binary remains unchanged;
+  this unreleased source is not a distribution candidate until verified purchase/restore,
+  purchase presentation, and their owning release gates are complete. No StoreKit product/group,
+  transaction authority, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate

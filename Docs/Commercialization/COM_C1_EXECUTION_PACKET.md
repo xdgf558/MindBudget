@@ -122,8 +122,13 @@ booleans, a singleton with hidden mutable state, or a fallback that grants acces
   unavailable; a previously stored non-24-hour value remains readable and is never destructively
   rewritten merely because access is unavailable.
 - Siri expense recording and budget-impact checking remain Free. Wishlist creation, cooling-off,
-  emotion/pattern queries, App Entity queries, and entity navigation require advanced Siri access
-  and fail with neutral localized copy rather than purchase language.
+  emotion/pattern queries, App Entity queries, and entity navigation require advanced Siri access.
+  Passive App Entity providers return an empty result without presenting an error; actively
+  invoked advanced actions fail with neutral localized copy rather than purchase language.
+- C1-03 source is not a distributable TestFlight/App Store candidate while it removes existing
+  advanced entries without a verified purchase/restore path. Keep the uploaded 0.9.6 binary
+  unchanged and do not resume distribution until the owning StoreKit, purchase presentation, and
+  release gates are complete.
 - No feature code calls `decision(for:)` directly or introduces Product IDs, `isPro`/`isPremium`,
   manual unlock aliases, or a second paid authority. `Scripts/check-feature-access-boundary.sh`
   enforces this audit and retains the C1-01/C1-02 authority checks.
@@ -134,6 +139,8 @@ booleans, a singleton with hidden mutable state, or a fallback that grants acces
   and approved iCloud seam.
 - Paid candidate allow/deny tests through the service only; accessibility/localization for any
   user-visible state actually added.
+- Passive App Entity queries return empty under unavailable/exact-Free access, while active
+  advanced actions remain fail-closed with neutral copy.
 - Release static scan finds no arbitrary entitlement provider or manual unlock.
 
 ### Stop conditions

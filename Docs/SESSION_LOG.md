@@ -3507,3 +3507,36 @@ passed completely.
 
 Next suggested task: Review C1-03 in its focused PR, merge only after owner approval, and begin
 COM-C2 only after that merge and a separate explicit owner instruction.
+
+## 2026-08-11 — Session 91 — Close COM-C1-03 disclosure and passive-query review
+
+Goal: Close PR #27's review findings without widening the approved premium scope or introducing
+an unreleased purchase authority.
+
+What was completed: Made every advanced App Entity provider a passive system lookup that returns
+an empty collection under exact Free or unavailable Siri integration, while keeping user-invoked
+advanced writes on the neutral `featureNotYetAvailable` error path. Exact Free now presents the
+fixed 24-hour cooling period as read-only content instead of a misleading single-option segmented
+control. Expanded the changelog and commercialization memory to enumerate the affected Apple
+on-device enhancement, custom cooling, advanced Siri action, and passive entity-query surfaces;
+the retained Free baseline and legacy cooling-record behavior remain explicit. Recorded that the
+already-uploaded 0.9.6 binary is unchanged and that this post-C1 source must not be distributed
+until verified StoreKit-derived entitlement lifecycle, purchase/restore, purchase presentation,
+and the owning release gates exist. Added service and UI regression coverage for all seven passive
+entity providers, active-write rejection, and the fixed Free cooling presentation.
+
+What was NOT completed: No temporary Pro entitlement, StoreKit state or import, product/group,
+purchase, restore, paywall, price, trial, quota, receipt, entitlement persistence, schema,
+network/cloud/provider, telemetry, version, Archive, upload, tester assignment, or release state
+changed. The distribution hold is documentation and release-gate policy, not a new product flow.
+
+Validation result: pass under Xcode 26.6. All static money, empty-egress, commercialization-
+document, feature-access, release-readiness, and diff checks passed. Full validation passed the
+Release build, complete Swift test suite, all 13 UI tests with zero failures, and every core-
+service coverage threshold. The documented shared-host switch skipped only the nondeterministic
+wall-clock assertion and retained the deterministic 10,000-row projection contract. The first
+invocation stopped before build because the machine-wide developer directory pointed at Command
+Line Tools; rerunning against the project-recorded Xcode 26.6 path passed completely.
+
+Next suggested task: Push this closeout to PR #27, confirm CI is green, and merge only after owner
+approval. Begin COM-C2 only after that merge and a fresh explicit instruction.

@@ -5,6 +5,11 @@ It cannot prove account ownership, production signing, physical-device accessibi
 integration behavior, or App Store Connect state. Do not label V1 TestFlight-ready until every
 unchecked item below has been performed against the release commit.
 
+The uploaded 0.9.6 (7) binary is historical and remains unchanged. Current unreleased COM-C1-03
+source removes accepted advanced entries under exact Free but intentionally has no purchase path;
+it must not be archived, uploaded, or distributed until verified purchase/restore, purchase
+presentation, and their owning commercialization release gates are complete.
+
 ## Automated release gates
 
 - [x] `Scripts/check-no-floating-point-money.sh` passes.
@@ -114,6 +119,11 @@ used for every Archive and upload.
   a neutral Wishlist pointer without duplicating or automatically triggering the repair action.
 
 ## Store listing and TestFlight
+
+- [ ] Before any post-0.9.6 Archive or TestFlight assignment, verify that the StoreKit-derived
+  entitlement lifecycle, user-visible purchase and restore paths, and the owning commercialization
+  release gates are complete. Until then, keep distribution paused rather than shipping a build
+  that removes an existing capability without a restoration path.
 
 - [ ] Immediately before uploading the next replacement, confirm its marketing version/build has a
   matching dated section in

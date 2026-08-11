@@ -28,6 +28,10 @@ detailed phase checklists; it added no paid product behavior.
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
   period, and basic Siri record/check actions. StoreKit, paywall, receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
+- Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
+  TestFlight/App Store candidate until verified purchase/restore, purchase presentation, and the
+  owning release gates are complete; exact-Free gating must not reach users before there is an
+  approved way to obtain or restore the corresponding right.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be

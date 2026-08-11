@@ -53,16 +53,20 @@ struct Phase8AFeatureTests {
     }
 
     @Test
-    func siriGateFailsClosedBeforeAnyIntentReadOrWrite() async throws {
+    func unavailableSiriReturnsNoPassiveEntitiesAndRejectsActiveWrites() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let service = intentService(
             actor: actor,
             preferences: preferences(siriEnabled: false)
         )
 
-        await #expect(throws: IntentExecutionError.self) {
-            _ = try await service.expenseEntities()
-        }
+        #expect(try await service.expenseEntities().isEmpty)
+        #expect(try await service.wishlistEntities().isEmpty)
+        #expect(try await service.coolingOffEntities().isEmpty)
+        #expect(try await service.merchantEntities().isEmpty)
+        #expect(try await service.insightEntities().isEmpty)
+        #expect(try await service.budgetSnapshotEntities().isEmpty)
+        #expect(try await service.emotionTagEntities().isEmpty)
         await #expect(throws: IntentExecutionError.self) {
             _ = try await service.recordExpense(
                 amount: Money(minorUnits: 500, currencyCode: "USD"),
@@ -160,6 +164,24 @@ struct Phase8AFeatureTests {
         let counts = try await actor.modelCounts()
         #expect(counts.expenses == 1)
         #expect(counts.wishItems == 0)
+    }
+
+    @Test
+    func exactFreePassiveEntityProvidersReturnEmptyWithoutThrowing() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let service = intentService(
+            actor: actor,
+            preferences: preferences(merchantNamesEnabled: true),
+            subscribed: false
+        )
+
+        #expect(try await service.expenseEntities().isEmpty)
+        #expect(try await service.wishlistEntities().isEmpty)
+        #expect(try await service.coolingOffEntities().isEmpty)
+        #expect(try await service.merchantEntities().isEmpty)
+        #expect(try await service.insightEntities().isEmpty)
+        #expect(try await service.budgetSnapshotEntities().isEmpty)
+        #expect(try await service.emotionTagEntities().isEmpty)
     }
 
     @Test

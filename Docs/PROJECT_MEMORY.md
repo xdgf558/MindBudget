@@ -63,7 +63,11 @@ their own safe/unsafe classifications before scanning app source. C1-03 routes t
 existing Apple on-device AI, non-24-hour cooling-off, and advanced Siri entries through an
 immutable Commerce snapshot. Exact Free retains deterministic templates, the basic 24-hour
 period, basic Siri expense recording and budget checking, the five-item wishlist, current 30-day
-Insights, and all other typed Free-core capabilities. There is still no StoreKit, paywall, price,
+Insights, and all other typed Free-core capabilities. Passive App Entity providers expose no
+entities under exact Free without surfacing a system-initiated error; active advanced Siri actions
+retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged, and this
+unreleased commercial source is not distributable until verified purchase/restore, purchase
+presentation, and the owning release gates are complete. There is still no StoreKit, paywall, price,
 trial, purchase flow, or Release manual unlock.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
