@@ -25,7 +25,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   purchase presentation, and their owning release gates are complete. C2-01 adds one committed
   Xcode StoreKit Configuration fixture containing only the accepted Monthly/Annual technical
   catalog. It is copied only to the unit-test bundle, enabled only by a dedicated non-Archive
-  local scheme, and absent from the app target/default scheme. No formal App Store Connect
+  local scheme, and absent from the app target/default scheme. The fixture defaults to
+  CHN/`zh_CN` and pins synthetic test prices plus explicit bilingual “not a customer offer” copy;
+  this does not accept a launch storefront or price. No formal App Store Connect
   product/group, runtime StoreKit catalog, transaction authority, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.

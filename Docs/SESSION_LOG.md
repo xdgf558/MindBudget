@@ -3567,3 +3567,33 @@ nondeterministic wall-clock assertion and retained the deterministic 10,000-row 
 
 Next suggested task: Review C2-01 in a focused PR. Start C2-02 only after review, merge, and a new
 explicit owner instruction.
+
+## 2026-08-12 — Session 93 — Harden COM-C2-01 catalog and project isolation
+
+Goal: Close PR #28's StoreKit catalog-review findings without introducing runtime StoreKit
+authority or beginning C2-02.
+
+What was completed: Replaced line-format-dependent `pbxproj` resource checks with a balanced-object
+parser that works with compact or Xcode-rewritten multiline project files. The gate now runs
+accepted and rejected project/scheme fixtures through the same production parser before checking
+the repository, proving that test-bundle-only placement is accepted while app-resource,
+default-scheme, and Archive-capable configurations are rejected. Pinned the catalog's exact
+bilingual local-test disclaimers, synthetic prices and billing plans, and changed the local default
+environment to CHN/`zh_CN` without accepting customer pricing or a launch storefront. Expanded the
+Swift catalog tests to enforce the same contract. Recorded that C2-02 must also test a non-CHN
+storefront and that C2-03 owns controlled billing-grace lifecycle evidence.
+
+What was NOT completed: No runtime StoreKit product loading, transaction listener, entitlement
+authority/cache, purchase, restore, status mapping, paywall, formal App Store Connect product,
+customer price/trial/quota, schema, app resource, network/cloud/provider, user-visible behavior,
+version, Archive, upload, tester, or distribution state changed. C2-02 has not started.
+
+Validation result: pass under Xcode 26.6. The focused StoreKit catalog suite passed all 3 tests.
+Every static money, empty-egress, commercialization-document, feature-access, StoreKit-catalog,
+release-readiness, and diff gate passed. Full validation passed the Release build, 293 Swift tests
+in 19 suites, all 13 UI tests, and every selected core-service coverage threshold. The documented
+shared-host option skipped only the nondeterministic wall-clock assertion while retaining the
+deterministic 10,000-row projection contract.
+
+Next suggested task: Push this focused review closeout to PR #28 and merge only after owner
+approval. Begin C2-02 only after the merge and a new explicit owner instruction.

@@ -18,6 +18,8 @@ struct StoreKitTestCatalogTests {
     func configurationContainsOnlyTheAcceptedMonthlyAndAnnualSubscriptions() throws {
         let catalog = try decodedCatalog()
 
+        #expect(catalog.settings.storefront == "CHN")
+        #expect(catalog.settings.locale == "zh_CN")
         #expect(catalog.products.isEmpty)
         #expect(catalog.nonRenewingSubscriptions.isEmpty)
         #expect(catalog.subscriptionGroups.count == 1)
@@ -45,8 +47,10 @@ struct StoreKitTestCatalogTests {
 
         #expect(monthly.referenceName == "MindBudget Pro Monthly")
         #expect(monthly.recurringSubscriptionPeriod == "P1M")
+        #expect(monthly.displayPrice == "0.99")
         #expect(annual.referenceName == "MindBudget Pro Annual")
         #expect(annual.recurringSubscriptionPeriod == "P1Y")
+        #expect(annual.displayPrice == "9.99")
 
         for subscription in [monthly, annual] {
             #expect(subscription.type == "RecurringSubscription")
@@ -58,13 +62,42 @@ struct StoreKitTestCatalogTests {
             #expect(subscription.adHocOffers.isEmpty)
             #expect(subscription.winbackOffers.isEmpty)
             #expect(Set(subscription.localizations.map(\.locale)) == Set(["en_US", "zh_CN"]))
-            #expect(
-                subscription.localizations.allSatisfy {
-                    $0.description.localizedCaseInsensitiveContains("test")
-                        || $0.description.contains("测试")
-                }
-            )
+            #expect(subscription.billingPlans.count == 1)
+            let billingPlan = try #require(subscription.billingPlans.first)
+            #expect(billingPlan.billingPlanType == "BILLED_UPFRONT")
+            #expect(billingPlan.displayPrice == subscription.displayPrice)
+            #expect(billingPlan.commitmentDisplayPrice == subscription.displayPrice)
+            #expect(billingPlan.isEnabled)
         }
+
+        #expect(
+            Dictionary(uniqueKeysWithValues: monthly.localizations.map {
+                ($0.locale, [$0.displayName, $0.description])
+            }) == [
+                "en_US": [
+                    "MindBudget Pro Monthly (Local Test)",
+                    "Local StoreKit test configuration fixture only. Not a customer offer.",
+                ],
+                "zh_CN": [
+                    "花有数 Pro 月付（本地测试）",
+                    "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
+                ],
+            ]
+        )
+        #expect(
+            Dictionary(uniqueKeysWithValues: annual.localizations.map {
+                ($0.locale, [$0.displayName, $0.description])
+            }) == [
+                "en_US": [
+                    "MindBudget Pro Annual (Local Test)",
+                    "Local StoreKit test configuration fixture only. Not a customer offer.",
+                ],
+                "zh_CN": [
+                    "花有数 Pro 年付（本地测试）",
+                    "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
+                ],
+            ]
+        )
     }
 
     @Test
@@ -107,9 +140,20 @@ struct StoreKitTestCatalogTests {
 private final class StoreKitTestCatalogBundleMarker {}
 
 private struct StoreKitConfigurationCatalog: Decodable {
+    let settings: StoreKitConfigurationSettings
     let products: [IgnoredStoreKitItem]
     let nonRenewingSubscriptions: [IgnoredStoreKitItem]
     let subscriptionGroups: [StoreKitSubscriptionGroup]
+}
+
+private struct StoreKitConfigurationSettings: Decodable {
+    let storefront: String
+    let locale: String
+
+    enum CodingKeys: String, CodingKey {
+        case storefront = "_storefront"
+        case locale = "_locale"
+    }
 }
 
 private struct IgnoredStoreKitItem: Decodable {}
@@ -122,7 +166,9 @@ private struct StoreKitSubscriptionGroup: Decodable {
 
 private struct StoreKitSubscription: Decodable {
     let adHocOffers: [IgnoredStoreKitItem]
+    let billingPlans: [StoreKitBillingPlan]
     let codeOffers: [IgnoredStoreKitItem]
+    let displayPrice: String
     let familyShareable: Bool
     let groupNumber: Int
     let introductoryOffers: [IgnoredStoreKitItem]
@@ -135,7 +181,15 @@ private struct StoreKitSubscription: Decodable {
     let winbackOffers: [IgnoredStoreKitItem]
 }
 
+private struct StoreKitBillingPlan: Decodable {
+    let billingPlanType: String
+    let commitmentDisplayPrice: String
+    let displayPrice: String
+    let isEnabled: Bool
+}
+
 private struct StoreKitProductLocalization: Decodable {
     let description: String
+    let displayName: String
     let locale: String
 }

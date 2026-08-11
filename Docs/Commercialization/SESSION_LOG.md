@@ -438,3 +438,31 @@ retaining the deterministic 10,000-row projection contract.
 
 Next suggested task: Review C2-01 as one focused PR and merge only after owner approval. Begin
 C2-02 only after that merge and a new explicit instruction.
+
+## 2026-08-12 — Session 14 — Close C2-01 catalog-isolation review
+
+Goal: Resolve PR #28's project-format, self-test, local-copy, and test-environment findings while
+remaining inside the configuration-only C2-01 boundary.
+
+What was completed: Reworked `check-storekit-test-catalog.sh` so its project isolation parser reads
+balanced PBX objects instead of a single matching line. Same-code-path fixtures prove multiline
+test-only placement passes and app-resource placement fails; scheme fixtures likewise prove the
+default-scheme and Archive-capability guards. The catalog validator and Swift tests now require
+exact local-test display names/disclaimers, fixed synthetic monthly/annual prices and billing
+plans, and the CHN/`zh_CN` default environment. Updated DEC-COM-015, the C2 execution packet,
+matrix, CI baseline, and project memory. Later runtime tests explicitly own a second non-CHN
+storefront and controlled grace-period injection.
+
+What was NOT completed: No formal commercial term was accepted. No runtime StoreKit catalog,
+transaction authority, cache, purchase/restore, subscription status mapper, paywall, App Store
+Connect product/group, schema, app-bundle resource, network/cloud/provider, version, Archive,
+upload, tester, or distribution state changed. C2-02 remains out of scope.
+
+Validation result: pass under Xcode 26.6. The StoreKit gate's internal positive/negative fixtures
+and the real repository check passed. The focused catalog suite passed 3 tests. Full validation
+passed every static gate, the Release build, 293 Swift tests in 19 suites, all 13 UI tests, and all
+selected coverage thresholds. Only the documented nondeterministic wall-clock signal was skipped;
+the deterministic 10,000-row projection contract remained active.
+
+Next suggested task: Push the closeout to PR #28, confirm CI is green, and merge only after owner
+approval. Start C2-02 only after merge and a new explicit instruction.

@@ -30,6 +30,9 @@ repository snapshot and does not claim access to the owner's external specificat
   StoreKit test-catalog gate, Release build,
   build-for-testing, Swift Testing/UI tests, and coverage thresholds. The COM documentation gate
   is additive and contains no app behavior.
+- The StoreKit catalog gate parses scheme XML and balanced `pbxproj` objects rather than assuming
+  one-line formatting. Before inspecting the repository, it proves the same parser accepts a
+  test-bundle-only fixture and rejects app-resource, default-scheme, and Archive-capable fixtures.
 
 ## COM-C0A measured coverage
 

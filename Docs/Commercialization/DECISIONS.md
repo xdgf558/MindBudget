@@ -253,15 +253,20 @@ context.
   Monthly and Pro Annual identifiers, reference names, durations, and shared `MindBudget Pro`
   group. The fixture is copied only into `MindBudgetTests`, while a dedicated Debug/local scheme
   activates it and explicitly cannot Archive. The default scheme and app resource phase remain
-  free of the fixture. Synthetic fixture values and bilingual labels are test data only; they do
+  free of the fixture. The fixture defaults to CHN/`zh_CN` and pins exact synthetic prices,
+  billing-plan values, and bilingual local-test disclaimers. Those values are test data only; they do
   not establish customer price, trial, offer, quota, storefront, or formal App Store Connect
   metadata.
 - Consequences: StoreKit catalog shape can be reviewed and exercised before cost-dependent terms
   are accepted. A static same-code-path validator and StoreKitTest/JSON tests reject an unknown or
   duplicate identifier, Lifetime, Family Sharing, offers, wrong duration/service level, app-bundle
-  embedding, default-scheme activation, or Archive-capable local scheme. Runtime StoreKit product
+  embedding, default-scheme activation, or an Archive-capable local scheme. Its project/scheme
+  checks are format-independent and run accepted/rejected same-code-path self-tests before the
+  real files, so an Xcode multiline project rewrite cannot make app-resource isolation fail open.
+  Runtime StoreKit product
   loading, transactions, purchase/restore, entitlement authority, and paywall remain later C2/C3
-  packets; distribution remains paused.
+  packets; those packets must cover CHN plus a non-CHN StoreKit test storefront and inject billing
+  grace through their lifecycle-test owner. Distribution remains paused.
 - Official evidence: Apple's
   [StoreKit Configuration guidance](https://developer.apple.com/documentation/xcode/setting-up-storekit-testing-in-xcode/)
   documents local configuration before App Store Connect products and scheme-based activation;

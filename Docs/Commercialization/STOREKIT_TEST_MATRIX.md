@@ -3,7 +3,9 @@
 ## Fixed technical catalog
 
 No formal App Store Connect product or subscription group exists yet. C2-01 commits one local
-Xcode StoreKit Configuration fixture with these accepted technical identifiers:
+Xcode StoreKit Configuration fixture with these accepted technical identifiers. Its default test
+environment is CHN/`zh_CN`; its fixed prices and bilingual copy are synthetic test controls, not
+accepted storefront or customer terms:
 
 | Product | Product ID | Group | Level | Duration | Price/trial |
 |---|---|---|---|---|---|
@@ -17,7 +19,7 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | Source | May affect | Must never affect | Required evidence |
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
-| StoreKit Configuration | Local development fixture | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate and StoreKitTest/JSON tests |
+| StoreKit Configuration | Local development fixture | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate and StoreKitTest/JSON tests |
 | Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
 | TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
 | Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
@@ -42,12 +44,15 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 Every row must be exercised for Monthly and Annual where applicable:
 
 - product list success, partial result, empty result, timeout, offline, stale cache and unknown ID;
+- product loading under the committed CHN storefront and at least one non-CHN test storefront;
 - purchase success with verified result, pending, user cancellation, unverified, thrown error;
 - exactly one app-lifecycle `Transaction.updates` listener, including update before/after UI owner;
 - every verified transaction is handled idempotently and finished at the required boundary;
 - duplicate/reordered updates, reinstall, app restart, account change and concurrent purchase tap;
 - explicit Restore Purchases success/no purchase/offline/error; no implicit restore prompt;
 - subscribed → grace → recovered, subscribed → retry/no grace, expiry, revoke/refund;
+- billing grace is enabled or injected by the lifecycle packet's controlled `SKTestSession` setup;
+  the C2-01 catalog fixture alone is not lifecycle-mapping evidence;
 - upgrade/crossgrade between Monthly/Annual at the same service level according to current StoreKit
   behavior; no app-invented proration or effective date;
 - Product/catalog failure never deletes a separately verified current entitlement;

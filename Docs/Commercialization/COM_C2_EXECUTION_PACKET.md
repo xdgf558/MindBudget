@@ -31,7 +31,9 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 - Keep the default shared scheme free of StoreKit Configuration. Add a dedicated Debug/local scheme
   that activates the fixture and cannot Archive.
 - Add a same-code-path static validator plus StoreKitTest/JSON tests for identifiers, durations,
-  group membership, bilingual fixture labels, and forbidden catalog content.
+  group membership, exact bilingual local-test disclaimers, synthetic local prices/billing plans,
+  the CHN/`zh_CN` default test environment, and forbidden catalog content. This default improves
+  China-team test coverage but does not accept a launch storefront or customer price.
 
 ### Tests
 
@@ -59,6 +61,8 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 
 - Product-load failure, launch reconciliation, concurrent reads, lifecycle ownership, and
   presentation-cache isolation.
+- Exercise runtime product loading under the committed CHN storefront and at least one non-CHN
+  StoreKit test storefront so currency/locale behavior is not inferred from one environment.
 
 ### Stop conditions
 
@@ -75,6 +79,8 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 
 - Subscribed/grace grant Pro; retry/expired/revoked/unverified/pending do not. Restore and finish
   behavior are explicit and idempotent.
+- Enable or inject the billing-grace condition through the owning `SKTestSession`/StoreKit test
+  setup in this packet; C2-01's catalog-shape fixture does not claim to prove lifecycle mapping.
 
 ### Stop conditions
 
