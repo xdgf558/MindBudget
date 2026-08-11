@@ -77,9 +77,18 @@ a migration contract, a manual Release unlock, or any proposal to make Free iClo
 - `EntitlementSetMigrator` remains callable only inside `EntitlementDomain.swift` and tests. A
   future COM-C2 authority adapter must explicitly narrow and review this allow-list before a
   stored representation may influence the session snapshot.
+- App code outside Commerce may construct only the exact-Free no-argument
+  `FeatureAccessService()`. Supplying an entitlement snapshot is an authority operation owned by
+  Commerce, regardless of whether that set came from a literal, migrator, inventory, or later
+  adapter.
+- `FeatureAccessChecking` implementations and protocol refinements remain inside Commerce or test
+  targets. Application consumers may hold the protocol existential, but cannot create an
+  always-allowed provider outside the authority boundary.
 - The arbitrary-combination provider is declared only under `#if DEBUG`, is immutable, and has no
   persistence, process-argument, or Release selection path. The static parser must first prove
-  active-DEBUG acceptance and unguarded/`#else` rejection against built-in fixtures.
+  active-DEBUG acceptance and unguarded/`#else` rejection against built-in fixtures. Constructor
+  and conformance parsers likewise prove safe-consumer acceptance and authority-bypass rejection
+  before scanning app source.
 
 ### Stop conditions
 

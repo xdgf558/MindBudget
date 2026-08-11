@@ -307,3 +307,34 @@ project-recorded Xcode 26.6 `DEVELOPER_DIR` passed.
 
 Next suggested task: Push this focused closeout to PR #26, confirm CI is green, and merge only on
 the owner's instruction. Begin C1-03 only after that merge.
+
+## 2026-08-11 — Session 10 — Close COM-C1-02 authority chokepoints
+
+Goal: Close the final feature-access authority bypass before C1-03 begins, without chasing every
+individual API capable of returning an entitlement set.
+
+What was completed: Made Commerce the executable authority chokepoint. App source outside
+`MindBudget/Commerce/` may construct only the no-argument `FeatureAccessService()` whose snapshot
+is exact Free; any parameterized or multiline construction is rejected. Implementations and
+refinements of `FeatureAccessChecking` are likewise reserved for Commerce, while ordinary app
+consumers may still store the protocol existential. The gate's parsers include same-code-path
+fixtures proving the safe cases pass and entitlement injection, provider conformance, and
+protocol refinement fail. The earlier `.proSubscription`, migrator, raw-bit, StoreKit,
+persistence, and DEBUG-provider checks remain as defense in depth. DEC-COM-013 and the C1-02
+review packet now record this boundary. No changelog entry was added because app behavior and
+user-visible copy are unchanged.
+
+What was NOT completed: No C1-03 feature entry was integrated or locked. No StoreKit state or
+product mapping, persisted entitlement authority, purchase/restore/paywall, paid UI,
+price/trial/quota, schema/resource, network/cloud/provider, telemetry, version, Archive, upload,
+or tester state changed.
+
+Validation result: pass under Xcode 26.6. Shell syntax and the focused access, money, network,
+commercial-document, and release gates passed. Full validation passed the Release build, 286
+Swift tests in 18 suites, all 13 UI tests, and every core-service coverage threshold. The
+documented shared-host switch excluded only the nondeterministic wall-clock signal while
+retaining the deterministic 10,000-row projection contract. A first sandboxed invocation lacked
+CoreSimulator and DerivedData access; the same validation under normal Xcode permissions passed.
+
+Next suggested task: Push this focused closeout to PR #26, confirm CI is green, and merge only on
+the owner's instruction. Begin C1-03 only after that merge.

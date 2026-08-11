@@ -82,6 +82,139 @@ assert_debug_provider_fixture \
   "provider in the DEBUG else branch should be rejected" \
   $'#if DEBUG\n#else\nstruct DebugFeatureAccessProvider {}\n#endif'
 
+parameterized_feature_access_sites() {
+  local source_path="${1:-/dev/stdin}"
+  awk '
+  FNR == 1 {
+    awaiting_argument = 0
+    start_line = 0
+  }
+  {
+    source = $0
+    sub(/\/\/.*$/, "", source)
+
+    if (awaiting_argument) {
+      trimmed = source
+      sub(/^[[:space:]]*/, "", trimmed)
+      if (trimmed == "") {
+        next
+      }
+      if (trimmed ~ /^\)/) {
+        source = substr(trimmed, 2)
+      } else {
+        print FILENAME ":" start_line ": parameterized FeatureAccessService construction"
+        source = ""
+      }
+      awaiting_argument = 0
+      start_line = 0
+    }
+
+    while (match(source, /FeatureAccessService[[:space:]]*(\.init[[:space:]]*)?\(/)) {
+      found_line = FNR
+      source = substr(source, RSTART + RLENGTH)
+      sub(/^[[:space:]]*/, "", source)
+      if (source ~ /^\)/) {
+        source = substr(source, 2)
+      } else if (source != "") {
+        print FILENAME ":" found_line ": parameterized FeatureAccessService construction"
+        source = ""
+      } else {
+        awaiting_argument = 1
+        start_line = found_line
+      }
+    }
+  }
+  ' "${source_path}"
+}
+
+feature_access_conformance_sites() {
+  local source_path="${1:-/dev/stdin}"
+  awk '
+  FNR == 1 {
+    collecting = 0
+    declaration = ""
+    start_line = 0
+  }
+  {
+    source = $0
+    sub(/\/\/.*$/, "", source)
+    trimmed = source
+    sub(/^[[:space:]]*/, "", trimmed)
+    if (trimmed == "") {
+      next
+    }
+
+    if (!collecting) {
+      if (source !~ /(^|[[:space:]])(struct|class|actor|enum|protocol|extension)[[:space:]]+[[:alnum:]_]+/) {
+        next
+      }
+      collecting = 1
+      declaration = source
+      start_line = FNR
+    } else {
+      declaration = declaration " " source
+    }
+
+    if (declaration ~ /\{/) {
+      sub(/\{.*/, "", declaration)
+      sub(/[[:space:]]+where[[:space:]].*/, "", declaration)
+      if (declaration ~ /:[^{}]*FeatureAccessChecking([^[:alnum:]_]|$)/) {
+        print FILENAME ":" start_line ": FeatureAccessChecking conformance"
+      }
+      collecting = 0
+      declaration = ""
+      start_line = 0
+    }
+  }
+  ' "${source_path}"
+}
+
+assert_gate_fixture() {
+  local parser="$1"
+  local expects_violation="$2"
+  local description="$3"
+  local fixture="$4"
+  local result
+  result="$(printf '%s\n' "${fixture}" | "${parser}")"
+  if [[ "${expects_violation}" == "yes" && -z "${result}" ]] ||
+     [[ "${expects_violation}" == "no" && -n "${result}" ]]; then
+    echo "Feature-access authority gate self-test failed: ${description}" >&2
+    exit 1
+  fi
+}
+
+# Prove the authority chokepoints distinguish safe consumers from new paid-authority paths.
+assert_gate_fixture \
+  parameterized_feature_access_sites \
+  "no" \
+  "the exact-Free no-argument service must remain available to app consumers" \
+  $'let access = FeatureAccessService()'
+assert_gate_fixture \
+  parameterized_feature_access_sites \
+  "yes" \
+  "a multiline entitlement-bearing service construction must be rejected" \
+  $'let access = FeatureAccessService(\n    entitlements: EntitlementSet.reachablePaidEntitlements[0]\n)'
+assert_gate_fixture \
+  parameterized_feature_access_sites \
+  "yes" \
+  "a later parameterized constructor on the same line must not hide behind a Free constructor" \
+  $'let free = FeatureAccessService(); let paid = FeatureAccessService.init(entitlements: paidSet)'
+assert_gate_fixture \
+  feature_access_conformance_sites \
+  "no" \
+  "a protocol-typed consumer is not a new authority implementation" \
+  $'struct FeatureConsumer {\n    let access: any FeatureAccessChecking\n}'
+assert_gate_fixture \
+  feature_access_conformance_sites \
+  "yes" \
+  "a multiline FeatureAccessChecking implementation must be rejected" \
+  $'struct BypassProvider:\n    FeatureAccessChecking,\n    Sendable {\n}'
+assert_gate_fixture \
+  feature_access_conformance_sites \
+  "yes" \
+  "a protocol refinement must not create an indirect authority seam" \
+  $'protocol BypassAccess:\n    FeatureAccessChecking {\n}'
+
 # Prove the arbitrary-combination provider's declaration is inside an active #if DEBUG region.
 # The app's existing Release build then proves that the guarded source compiles without it.
 debug_provider_status="$(debug_provider_status "${ACCESS_SOURCE}" || true)"
@@ -136,6 +269,28 @@ migrator_call_sites="$({
 if [[ -n "${migrator_call_sites}" ]]; then
   echo "Entitlement migration may not become a second paid-authority path:" >&2
   echo "${migrator_call_sites}" >&2
+  exit 1
+fi
+
+parameterized_access_constructors="$({
+  while IFS= read -r source_path; do
+    parameterized_feature_access_sites "${source_path}"
+  done < <(find MindBudget -type f -name '*.swift' ! -path 'MindBudget/Commerce/*')
+} || true)"
+if [[ -n "${parameterized_access_constructors}" ]]; then
+  echo "Only Commerce may construct FeatureAccessService with an entitlement snapshot:" >&2
+  echo "${parameterized_access_constructors}" >&2
+  exit 1
+fi
+
+feature_access_conformances="$({
+  while IFS= read -r source_path; do
+    feature_access_conformance_sites "${source_path}"
+  done < <(find MindBudget -type f -name '*.swift' ! -path 'MindBudget/Commerce/*')
+} || true)"
+if [[ -n "${feature_access_conformances}" ]]; then
+  echo "FeatureAccessChecking implementations must remain inside Commerce:" >&2
+  echo "${feature_access_conformances}" >&2
   exit 1
 fi
 

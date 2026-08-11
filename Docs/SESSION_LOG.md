@@ -3440,3 +3440,34 @@ Tools; rerunning against the project-recorded Xcode 26.6 path passed completely.
 
 Next suggested task: Push this review closeout to PR #26, confirm CI is green, and merge only after
 owner approval. Start C1-03 only after the merge.
+
+## 2026-08-11 — Session 89 — Close COM-C1-02 authority chokepoints
+
+Goal: Replace the remaining path-by-path paid-entitlement checks with complete authority
+chokepoints before C1-03 adds the first feature-entry consumers.
+
+What was completed: Extended `Scripts/check-feature-access-boundary.sh` with executable parsers
+that allow app code outside Commerce to construct only the no-argument, exact-Free
+`FeatureAccessService()`, while rejecting every entitlement-bearing construction. The same gate
+now rejects `FeatureAccessChecking` conformances and protocol refinements outside Commerce while
+still allowing ordinary consumers to hold the protocol existential. Built-in positive and
+negative fixtures exercise no-argument construction, multiline entitlement injection, consumer
+properties, multiline provider conformance, and protocol refinement through the same parsers
+used on the repository. Existing literal, migrator, raw-bit, StoreKit, persistence, and DEBUG
+checks remain as defense in depth. Updated DEC-COM-013, the C1 execution checklist, and
+project/task memory. No changelog entry was added because user-visible behavior is unchanged.
+
+What was NOT completed: No C1-03 feature entry was integrated or locked. No StoreKit mapping,
+product/group, persisted authority, purchase/restore/paywall, paid UI, price/trial/quota,
+schema/resource, network/cloud/provider, telemetry, version, Archive, upload, or tester state
+changed.
+
+Validation result: pass under Xcode 26.6. Shell syntax and every static access, money, network,
+commercial-document, and release gate passed. Full validation passed the Release build, 286
+Swift tests in 18 suites, all 13 UI tests, and every core-service coverage threshold. The
+documented shared-host switch excluded only the nondeterministic wall-clock signal while
+retaining the deterministic 10,000-row projection contract. An initial sandboxed invocation was
+blocked from CoreSimulator and DerivedData; the identical normal Xcode invocation passed fully.
+
+Next suggested task: Push this closeout to PR #26, confirm CI is green, and merge only after owner
+approval. Begin C1-03 only after that merge.

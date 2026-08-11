@@ -194,6 +194,11 @@ context.
   snapshot. `AppEnvironment` constructs exact Free by default and `AppSession` owns the injected
   authority; consumers receive only `FeatureAccessDecision`. An arbitrary-combination provider is
   compiled only under `#if DEBUG`, is immutable, and has no persistence or process-argument path.
+  Commerce is the production authority chokepoint: only it may construct
+  `FeatureAccessService` with an entitlement snapshot or declare/refine a
+  `FeatureAccessChecking` implementation. App consumers may use the exact-Free no-argument
+  service and injected protocol values, but cannot originate a paid snapshot or unconditional
+  provider.
 - Consequences: All current premium candidates require the sole Release-reachable
   `.proSubscription` right, and the exhaustive feature switch forces every later vocabulary case
   to choose a requirement explicitly. Concurrent reads cannot observe partial mutation. Static
@@ -201,10 +206,13 @@ context.
   checks, persisted/manual authority, StoreKit imports during COM-C1,
   `isSuperset(of: .free)`, and `EntitlementSetMigrator` calls outside its domain file. The latter
   prevents a stored representation from silently becoming a second Release authority before
-  COM-C2 explicitly owns and reviews that path. The DEBUG preprocessor parser proves its active,
-  unguarded, and inactive-branch classifications with built-in fixtures before scanning app
-  source. Exact Free classification remains `isFree`. C1-03 may integrate only owner-approved
-  existing entries after C1-02 review and merge.
+  COM-C2 explicitly owns and reviews that path. Static validation additionally rejects an
+  entitlement-bearing `FeatureAccessService` construction or a `FeatureAccessChecking`
+  implementation/refinement outside Commerce, closing source paths such as the reachable-right
+  inventory without endlessly enumerating every API that can return an `EntitlementSet`. The
+  DEBUG, constructor, and conformance parsers prove safe and unsafe classifications with built-in
+  fixtures before scanning app source. Exact Free classification remains `isFree`. C1-03 may
+  integrate only owner-approved existing entries after C1-02 review and merge.
 - Alternatives rejected: Feature-local booleans; product-ID or billing checks in views; a global
   mutable singleton; UserDefaults/process arguments as entitlement authority; a Release manual
   unlock; permissive error fallback; or implementing StoreKit/paid UI in C1-02.

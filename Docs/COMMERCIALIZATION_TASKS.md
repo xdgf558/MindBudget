@@ -178,8 +178,10 @@ Status: **In Progress — C1-01 and C1-02 implemented; C1-03 waits for C1-02 rev
   `CommercializationEntitlementTests` and commercialization Session 6.
 - [x] **C1-02 — Central access service and injection.** Add pure `FeatureAccessService`, protocol
   seams, the full feature-access matrix, and a Debug-only arbitrary-combination provider without
-  StoreKit or manual Release unlock. Evidence: `CommercializationEntitlementTests`,
-  `Scripts/check-feature-access-boundary.sh`, and commercialization Session 8.
+  StoreKit or manual Release unlock. Static authority chokepoints reserve entitlement-bearing
+  construction and protocol implementation/refinement for Commerce while allowing exact-Free and
+  injected protocol consumers elsewhere. Evidence: `CommercializationEntitlementTests`,
+  `Scripts/check-feature-access-boundary.sh`, and commercialization Sessions 8–10.
 - [ ] **C1-03 — Existing-entry integration.** Route existing premium candidates through the
   central service, remove scattered Product-ID checks, and prove Free manual record/export/delete
   behavior remains available.
