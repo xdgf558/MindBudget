@@ -1965,3 +1965,19 @@ active advanced Siri actions retain neutral rejection. The uploaded 0.9.6 binary
 unchanged; this source is not distributable until verified purchase/restore, purchase presentation,
 and the owning release gates are complete. No version, schema, product, purchase UI, or release
 state changes in this packet.
+
+---
+
+## 2026-08-11 — Keep the first StoreKit catalog test-only and non-archivable
+
+Context: COM-C1 is complete, and COM-C2 begins with catalog-shape validation before prices, trials,
+formal App Store Connect products, or a runtime transaction authority are accepted.
+
+Decision: Detailed catalog and isolation rules live in commercial decision DEC-COM-015. C2-01
+contains only the accepted Monthly/Annual Xcode StoreKit Configuration fixture, copied to tests and
+activated by a dedicated local scheme that cannot Archive. The default app scheme and app resources
+remain fixture-free.
+
+Consequences: The catalog can be tested without converting synthetic local values into commercial
+terms or test state into Release authority. Runtime StoreKit, purchase/restore, paywall, formal
+products, and distribution remain blocked by their later packets and release gates.

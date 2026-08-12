@@ -1,0 +1,206 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+
+    ]
+  },
+  "identifier" : "4D424332",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_compatibilityTimeRate" : {
+      "3" : 6
+    },
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "zh_CN",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "CHN",
+    "_storeKitErrors" : [
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : {
+          "index" : 1,
+          "type" : "purchase"
+        },
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : {
+          "index" : 0,
+          "type" : "verification"
+        },
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : {
+          "index" : 3,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : {
+          "index" : 3,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : {
+          "index" : 0,
+          "type" : "refund request"
+        },
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : {
+          "index" : 4,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "4D425052",
+      "localizations" : [
+
+      ],
+      "name" : "MindBudget Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "0.99",
+              "displayPrice" : "0.99",
+              "internalID" : "4D424D42",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "4D424D31",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Local StoreKit test configuration fixture only. Not a customer offer.",
+              "displayName" : "MindBudget Pro Monthly (Local Test)",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
+              "displayName" : "花有数 Pro 月付（本地测试）",
+              "locale" : "zh_CN"
+            }
+          ],
+          "productID" : "com.xdgf558.mindbudget.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "MindBudget Pro Monthly",
+          "subscriptionGroupID" : "4D425052",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "9.99",
+              "displayPrice" : "9.99",
+              "internalID" : "4D424142",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "4D424131",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Local StoreKit test configuration fixture only. Not a customer offer.",
+              "displayName" : "MindBudget Pro Annual (Local Test)",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
+              "displayName" : "花有数 Pro 年付（本地测试）",
+              "locale" : "zh_CN"
+            }
+          ],
+          "productID" : "com.xdgf558.mindbudget.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "MindBudget Pro Annual",
+          "subscriptionGroupID" : "4D425052",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 6,
+    "minor" : 3
+  }
+}

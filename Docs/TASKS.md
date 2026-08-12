@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A and COM-C0B Done; all COM-C1 packets implemented, C1-03 review pending
+Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2 in progress at C2-01
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -253,3 +253,9 @@ Status: COM-C0A and COM-C0B Done; all COM-C1 packets implemented, C1-03 review p
   preserve template fallback, 24-hour cooling-off, basic Siri record/check actions, and every
   typed Free-core capability; reject feature-local paid booleans, Product IDs, manual unlocks, and
   duplicate direct access decisions with the static gate.
+- [x] Close COM-C1 after PR #27 passed independent review and merged to `main`; preserve the
+  post-0.9.6 distribution hold until purchase/restore and purchase presentation exist.
+- [x] Enter COM-C2 only after the owner's explicit instruction. Complete C2-01 as an isolated
+  Xcode StoreKit Configuration fixture containing exactly the accepted Monthly/Annual test
+  catalog, copied only to tests and activated only by a non-Archive local scheme. Do not add
+  runtime StoreKit authority, purchase/restore, paywall, prices, trials, or formal products.

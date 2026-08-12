@@ -30,6 +30,7 @@ Scripts/check-release-readiness.sh
 Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
 Scripts/check-feature-access-boundary.sh
+Scripts/check-storekit-test-catalog.sh
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \

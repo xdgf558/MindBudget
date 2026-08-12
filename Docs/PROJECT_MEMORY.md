@@ -42,9 +42,11 @@ Signed-device, production-signing, Instruments, App Store Connect, screenshot, a
 remain manual release gates, so the phase is still In Progress. Commercialization is a separate
 COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification and the planning
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
-formal release gates pass. COM-C1 has started with a pure entitlement domain and immutable central
-feature-access evaluator;
-the current app still contains no StoreKit product, transaction-derived right, quota, paid lock,
+formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
+feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
+C2-01 is complete with only a local StoreKit Configuration test fixture, while C2-02 has not started;
+the current app target still contains no runtime StoreKit catalog, transaction-derived right,
+quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no
 production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
 are complete. The owner accepted phase-scoped future data channels, parallel/nonblocking Watch
@@ -52,8 +54,8 @@ development with post-iPhone-1.0 Watch distribution, the three-stage commercial-
 and Product IDs `com.xdgf558.mindbudget.pro.monthly` and
 `com.xdgf558.mindbudget.pro.annual`. COM-C0B is complete: it added durable commercial
 documentation, an empty current Release egress policy, matrices, CI/report controls, and COM-C1
-execution packets without product behavior. COM-C1 has all three implementation packets ready for
-review: C1-01 defines the exact
+execution packets without product behavior. COM-C1's three packets were independently reviewed
+and merged: C1-01 defines the exact
 Free/Pro-subscription set, versioned fail-closed representation migration, and the closed premium
 feature vocabulary. C1-02 adds one pure access decision boundary, exact-Free app/session injection,
 a nonpersistent Debug-only provider, and static gates that reject raw-bit reads, duplicate paid
@@ -67,8 +69,10 @@ Insights, and all other typed Free-core capabilities. Passive App Entity provide
 entities under exact Free without surfacing a system-initiated error; active advanced Siri actions
 retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged, and this
 unreleased commercial source is not distributable until verified purchase/restore, purchase
-presentation, and the owning release gates are complete. There is still no StoreKit, paywall, price,
-trial, purchase flow, or Release manual unlock.
+presentation, and the owning release gates are complete. C2-01's synthetic Monthly/Annual fixture
+is test-bundle-only, activated by a dedicated non-Archive local scheme, and absent from the app
+resources/default scheme. There is still no formal product, runtime StoreKit authority, paywall,
+customer price/trial, purchase flow, or Release manual unlock.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

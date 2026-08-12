@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion="2660" version="1.7">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES" buildArchitectures="Automatic">
+      <BuildActionEntries>
+         <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000001" BuildableName="MindBudget.app" BlueprintName="MindBudget" ReferencedContainer="container:MindBudget.xcodeproj"/>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="YES">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000001" BuildableName="MindBudget.app" BlueprintName="MindBudget" ReferencedContainer="container:MindBudget.xcodeproj"/>
+      </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference identifier="../../Config/StoreKit/MindBudgetPro.storekit"/>
+   </LaunchAction>
+   <AnalyzeAction buildConfiguration="Debug"/>
+</Scheme>

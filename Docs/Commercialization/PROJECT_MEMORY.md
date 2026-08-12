@@ -10,8 +10,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - Source SHA-256: `290bc07fe87fe644f201ef33cba342d3dce0368c64a5d020005873014dd342a0`.
 - This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
-- COM-C0A and COM-C0B are Done. All three COM-C1 packets are implemented; C1-03 is awaiting
-  independent review before COM-C1 may be marked merged/closed.
+- COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
+  three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 is Done
+  and C2-02 has not started.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -22,8 +23,15 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   five-item wishlist remain Free. Passive App Entity providers return no results under exact Free
   rather than presenting a system-initiated error. The uploaded 0.9.6 binary remains unchanged;
   this unreleased source is not a distribution candidate until verified purchase/restore,
-  purchase presentation, and their owning release gates are complete. No StoreKit product/group,
-  transaction authority, paywall,
+  purchase presentation, and their owning release gates are complete. C2-01 adds one committed
+  Xcode StoreKit Configuration fixture containing only the accepted Monthly/Annual technical
+  catalog. It is copied only to the unit-test bundle, enabled only by a dedicated non-Archive
+  local scheme, and absent from the app target/default scheme. The fixture defaults to
+  CHN/`zh_CN` and pins synthetic test prices plus explicit bilingual “not a customer offer” copy;
+  this does not accept a launch storefront or price. The catalog/project/scheme contract is an
+  importable Python module with standard `unittest` fixtures behind a thin Shell/CI entry. No
+  formal App Store Connect
+  product/group, runtime StoreKit catalog, transaction authority, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
@@ -182,8 +190,8 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-C1-03 is the active independently reviewed packet after C1-02 merged. COM-C1 stops at local
-entitlement/access infrastructure and accepted existing-entry integration; it must not import
-StoreKit, create StoreKit products, add a paywall, or work ahead. Access decisions may not read raw
-entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. COM-C2 may start
-only after C1-03 is reviewed and COM-C1 is merged/closed on the owner's instruction.
+COM-C1 and C2-01 are closed. C2-01 stops at a configuration-only local test catalog and did not add
+runtime StoreKit authority, transaction observation, purchase, restore, a paywall, formal products,
+or customer terms. Access decisions still may not read raw entitlement bits; exact Free checks use
+`isFree`, never `isSuperset(of: .free)`. C2-02 is the next packet but may begin only after a fresh
+explicit owner instruction.

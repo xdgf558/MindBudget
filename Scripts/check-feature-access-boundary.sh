@@ -324,7 +324,7 @@ commercial_product_literals="$({
     grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
 } 2>/dev/null || true)"
 if [[ -n "${commercial_product_literals}" ]]; then
-  echo "COM-C1 must not embed StoreKit product identifiers in app source:" >&2
+  echo "C2-01 must not embed StoreKit product identifiers in app source:" >&2
   echo "${commercial_product_literals}" >&2
   exit 1
 fi
@@ -351,7 +351,7 @@ fi
 
 if grep -R -nE '^[[:space:]]*(import|@preconcurrency[[:space:]]+import)[[:space:]]+StoreKit' \
   MindBudget --include='*.swift'; then
-  echo "COM-C1 must not import StoreKit" >&2
+  echo "C2-01 must not import StoreKit into app source" >&2
   exit 1
 fi
 

@@ -3540,3 +3540,87 @@ Line Tools; rerunning against the project-recorded Xcode 26.6 path passed comple
 
 Next suggested task: Push this closeout to PR #27, confirm CI is green, and merge only after owner
 approval. Begin COM-C2 only after that merge and a fresh explicit instruction.
+
+## 2026-08-11 — Session 92 — Close COM-C1 and enter COM-C2-01
+
+Goal: Close the independently reviewed COM-C1 track, mark COM-C2 active, and deliver only its
+first isolated StoreKit test-catalog packet.
+
+What was completed: Updated the durable main and commercialization memory so COM-C1 is Done and
+COM-C2 is In Progress at C2-01. Added exactly one local StoreKit Configuration fixture containing
+the accepted Pro Monthly and Pro Annual identifiers, isolated it to the test bundle and a
+non-Archive local Debug scheme, and kept the default scheme and app bundle free of the fixture.
+Added StoreKitTest/JSON regression coverage, a self-testing static catalog/isolation gate, CI and
+validation integration, DEC-COM-015, and a bounded C2-01 through C2-04 execution packet. This is
+test infrastructure only and makes no user-visible product change, so no changelog entry was
+added.
+
+What was NOT completed: No formal App Store Connect product/group, runtime StoreKit catalog or
+transaction owner, entitlement cache/authority, purchase, restore, paywall, price, trial, quota,
+schema, network/cloud/provider, release version, Archive, upload, tester, or distribution state
+changed. C2-02 has not started.
+
+Validation result: pass under Xcode 26.6. All static gates passed. The Release build, 293 Swift
+tests in 19 suites, 13 UI tests, and all selected core-service coverage thresholds passed; the
+focused StoreKit catalog suite passed 3 tests. The shared-host option skipped only the
+nondeterministic wall-clock assertion and retained the deterministic 10,000-row projection test.
+
+Next suggested task: Review C2-01 in a focused PR. Start C2-02 only after review, merge, and a new
+explicit owner instruction.
+
+## 2026-08-12 — Session 93 — Harden COM-C2-01 catalog and project isolation
+
+Goal: Close PR #28's StoreKit catalog-review findings without introducing runtime StoreKit
+authority or beginning C2-02.
+
+What was completed: Replaced line-format-dependent `pbxproj` resource checks with a balanced-object
+parser that works with compact or Xcode-rewritten multiline project files. The gate now runs
+accepted and rejected project/scheme fixtures through the same production parser before checking
+the repository, proving that test-bundle-only placement is accepted while app-resource,
+default-scheme, and Archive-capable configurations are rejected. Pinned the catalog's exact
+bilingual local-test disclaimers, synthetic prices and billing plans, and changed the local default
+environment to CHN/`zh_CN` without accepting customer pricing or a launch storefront. Expanded the
+Swift catalog tests to enforce the same contract. Recorded that C2-02 must also test a non-CHN
+storefront and that C2-03 owns controlled billing-grace lifecycle evidence.
+
+What was NOT completed: No runtime StoreKit product loading, transaction listener, entitlement
+authority/cache, purchase, restore, status mapping, paywall, formal App Store Connect product,
+customer price/trial/quota, schema, app resource, network/cloud/provider, user-visible behavior,
+version, Archive, upload, tester, or distribution state changed. C2-02 has not started.
+
+Validation result: pass under Xcode 26.6. The focused StoreKit catalog suite passed all 3 tests.
+Every static money, empty-egress, commercialization-document, feature-access, StoreKit-catalog,
+release-readiness, and diff gate passed. Full validation passed the Release build, 293 Swift tests
+in 19 suites, all 13 UI tests, and every selected core-service coverage threshold. The documented
+shared-host option skipped only the nondeterministic wall-clock assertion while retaining the
+deterministic 10,000-row projection contract.
+
+Next suggested task: Push this focused review closeout to PR #28 and merge only after owner
+approval. Begin C2-02 only after the merge and a new explicit owner instruction.
+
+## 2026-08-12 — Session 94 — Extract and close the C2-01 StoreKit contract runner
+
+Goal: Apply the final C2-01 maintainability recommendation, preserve the exact catalog/isolation
+contract, and merge PR #28 only after complete validation and green CI.
+
+What was completed: Extracted the approximately 330-line StoreKit catalog, project-resource, and
+scheme contract from the Shell heredoc into importable `Scripts/storekit_catalog_contract.py`.
+Reduced `check-storekit-test-catalog.sh` to a thin repository entry point and moved all accepted and
+rejected fixtures into nine standard `unittest` cases that exercise the same functions used for the
+real repository. Updated the durable commercialization decision, packet, CI baseline, and project
+memory to record the new boundary. After owner approval, marked C2-01 Done while leaving C2-02
+unstarted and blocked on a fresh explicit instruction.
+
+What was NOT completed: No runtime StoreKit catalog, product loading, transaction listener,
+entitlement authority/cache, purchase, restore, status mapping, paywall, customer price/trial,
+formal App Store Connect product, schema, network/cloud/provider, version, Archive, upload, tester,
+or distribution state changed. C2-02 was not started.
+
+Validation result: pass under Xcode 26.6. All static money, empty-egress, commercialization-
+document, feature-access, StoreKit-catalog, release-readiness, and diff gates passed. The extracted
+contract's nine Python tests passed. Full validation passed the Release build, 293 Swift tests in
+19 suites, all 13 UI tests with zero failures, and every selected core-service coverage threshold.
+The documented shared-host option skipped only the nondeterministic wall-clock assertion while
+retaining the deterministic 10,000-row projection contract.
+
+Next suggested task: Wait for a fresh explicit owner instruction before beginning C2-02.

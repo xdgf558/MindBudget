@@ -32,6 +32,7 @@ complete validation entry.
 Scripts/check-no-floating-point-money.sh
 Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
+Scripts/check-storekit-test-catalog.sh
 Scripts/validate.sh
 ```
 
