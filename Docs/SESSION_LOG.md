@@ -3720,3 +3720,24 @@ passed all 12 tests, and the closeout passed `git diff --check`.
 
 Next suggested task: Resolve the supported-final-runtime StoreKit Octane/development-install
 handshake and obtain passing CHN/USA probes before marking C2-03 In Progress.
+
+## 2026-08-13 — Session 98 — Verify the restarted global Xcode toolchain
+
+Goal: Verify the owner's manual global Xcode selection and Mac restart, then re-run the blocked
+StoreKit entry probes without beginning C2-03.
+
+What was completed: Confirmed that machine-wide `xcode-select`, default `xcodebuild`, `xcrun`, and
+`simctl` now all resolve to final Xcode 26.6 build `17F113`. Xcode first-launch status is complete
+and CoreSimulator services respond normally. Re-ran only `StoreKitTestCatalogTests` through the
+dedicated non-Archive scheme on final iOS 26.5 runtime build `23F77`: 5 tests executed, 3 passed,
+and the CHN/USA runtime probes both executed without skipping but failed with
+`SKInternalErrorDomain Code=3` and empty products. The former auxiliary `xcrun`/`simctl` lookup
+error is gone, proving global toolchain selection was fixed but was not the StoreKit root cause.
+
+What was NOT completed: C2-03 remains Blocked. No purchase, restore, status mapper, transaction
+finish, paywall, formal product, commercial term, schema, network/provider path, app version,
+Archive, upload, tester, or distribution state changed.
+
+Evidence: `/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` and
+`/private/tmp/mindbudget-storekit-restart-17F113-ios265-23F77.log`. The remaining prerequisite is a
+supported final runtime on which both storefront probes execute and pass.

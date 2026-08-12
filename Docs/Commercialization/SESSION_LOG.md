@@ -608,3 +608,27 @@ source.
 Next suggested task: Resolve the Octane/development-install handshake on a supported final iOS
 runtime and capture both CHN and USA product probes executing and passing. Only then may C2-03 be
 marked In Progress.
+
+## 2026-08-13 — Session 19 — Eliminate global toolchain selection as the probe cause
+
+Goal: Verify the owner-completed machine-wide Xcode switch and restart, then determine whether the
+C2-03 storefront gate could advance.
+
+What was completed: Confirmed `xcode-select`, default `xcodebuild`, `xcrun`, and `simctl` all use
+final Xcode 26.6 build `17F113`; first-launch setup is complete and simulator services are healthy.
+The dedicated non-Archive scheme ran only `StoreKitTestCatalogTests` against iOS 26.5 build
+`23F77`. All 5 tests executed: 3 deterministic catalog tests passed, while the CHN and USA
+framework probes both executed rather than skipped and failed with `SKInternalErrorDomain Code=3`
+and empty product sets. The pre-restart auxiliary `xcrun`/`simctl` lookup noise did not recur.
+
+Decision/effect: Global toolchain inconsistency is closed as a cause. It did not resolve the
+StoreKit Octane/runtime behavior, so the supported-final-runtime gate remains fail-closed and
+C2-03 is not active. No gate was weakened and beta-runtime diagnostic success remains non-release
+evidence only.
+
+Evidence: `/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` and
+`/private/tmp/mindbudget-storekit-restart-17F113-ios265-23F77.log`.
+
+What was NOT changed: No app source, purchase/restore/status/finish behavior, paywall, formal
+product, customer term, schema, network/provider path, version, Archive, upload, tester, or
+distribution state changed.

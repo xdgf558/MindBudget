@@ -99,6 +99,10 @@ Status: **Blocked pending the runtime-probe entry gate.**
   `23F73` runtime; it was not imported and could not replace it. Direct queries for build `23F81`
   and iOS `26.5.1` returned unavailable. The same 16 tests in 2 suites pass on iOS 27 beta only
   as diagnostic evidence. C2-03 remains blocked; no supported-final-runtime pass is claimed.
+- A post-restart recheck after globally selecting final Xcode `17F113` removed the earlier
+  auxiliary `xcrun`/`simctl` lookup error, but both CHN/USA probes still executed and failed with
+  `Code=3` and empty products on iOS 26.5 `23F77`. Global toolchain selection is therefore closed;
+  it does not satisfy or replace the supported-final-runtime entry gate.
 
 ### Tasks
 

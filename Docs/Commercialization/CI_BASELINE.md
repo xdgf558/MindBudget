@@ -104,6 +104,14 @@ fixture and test code can execute, but it is not accepted evidence for the suppo
 entry gate. The historical RC failure above remains part of the record; no final-runtime pass is
 claimed.
 
+After the machine-wide `xcode-select` was switched to final Xcode `17F113` and the Mac restarted,
+the dedicated iOS 26.5 `23F77` run executed 5 catalog tests: 3 passed, while the CHN and USA probes
+both executed without skipping and failed with the same `Code=3`/empty-product result. The earlier
+auxiliary `xcrun`/`simctl` lookup error disappeared, proving the global toolchain is now coherent
+but was not the StoreKit failure's root cause. Evidence is retained at
+`/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` and
+`/private/tmp/mindbudget-storekit-restart-17F113-ios265-23F77.log` for this local session.
+
 No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
 destination, Archive, upload, tester, or distribution state was introduced or changed. PR #29
 passed independent review and green CI, then merged as `a45d480` on 2026-08-12; C2-02 is Done.
