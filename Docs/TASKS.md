@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 Done and C2-02 implementation awaiting review
+Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 blocked pending its runtime-probe entry gate
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -259,9 +259,10 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 Done and C2-02 implementati
   Xcode StoreKit Configuration fixture containing exactly the accepted Monthly/Annual test
   catalog, copied only to tests and activated only by a non-Archive local scheme. Do not add
   runtime StoreKit authority, purchase/restore, paywall, prices, trials, or formal products.
-- [ ] Complete C2-02 review and merge for the typed runtime catalog, presentation-only cache,
+- [x] Complete C2-02 review and merge for the typed runtime catalog, presentation-only cache,
   verified current-entitlement authority, one update listener, and live UI/App Intent snapshot.
-  Keep purchase, restore, status mapping, transaction finish, formal terms, and distribution out.
+  PR #29 passed independent review and green CI, then merged as `a45d480`; purchase, restore,
+  status mapping, transaction finish, formal terms, and distribution remain out.
 - [ ] Begin C2-03 only after C2-02 review/merge and after both dedicated CHN/USA
   `Product.products(for:)` probes execute rather than skip and pass under a supported final Xcode
   toolchain. `SKInternalErrorDomain Code=3`, an empty catalog, or skipped probes block entry.

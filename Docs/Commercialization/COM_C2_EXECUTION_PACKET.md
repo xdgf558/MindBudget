@@ -55,7 +55,7 @@ Status: **Done** after independent review and full validation.
 
 ## C2-02 — Runtime catalog and entitlement store
 
-Status: **Implementation complete; awaiting focused review and merge.**
+Status: **Done** after independent review, green CI, and merge through PR #29 (`a45d480`).
 
 ### Tasks
 
@@ -82,6 +82,8 @@ Status: **Implementation complete; awaiting focused review and merge.**
 
 ## C2-03 — Purchase, restore, and status mapping
 
+Status: **Blocked pending the runtime-probe entry gate.**
+
 ### Entry gate
 
 - Before the first C2-03 source change, run the dedicated scheme with a supported final Xcode
@@ -90,6 +92,13 @@ Status: **Implementation complete; awaiting focused review and merge.**
   while the iOS 26.5 command-line configuration-synchronization failure remains reproducible.
 - `SKInternalErrorDomain Code=3`, an empty catalog, or a skipped probe is non-evidence and blocks
   entry. Record the Xcode build, simulator runtime, execution surface, and result bundle/log path.
+- Current evidence (2026-08-13): final Xcode 26.6 `17F113` executed both probes on final iOS 26.4
+  and 26.5 runtimes, but both returned `Code=3` and empty products while `storekitd` reported an
+  Octane entitlement/development-install handshake failure. The final SDK is build `23F81a`, the
+  installed iOS 26.5 runtime is `23F77`, and Apple's currently offered export was the older
+  `23F73` runtime; it was not imported and could not replace it. Direct queries for build `23F81`
+  and iOS `26.5.1` returned unavailable. The same 16 tests in 2 suites pass on iOS 27 beta only
+  as diagnostic evidence. C2-03 remains blocked; no supported-final-runtime pass is claimed.
 
 ### Tasks
 

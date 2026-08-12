@@ -44,8 +44,14 @@ COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification 
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
 feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
-C2-01 is complete and C2-02's runtime catalog/current-entitlement authority is implementation-
-complete while awaiting focused review. The current app target still contains no purchase,
+C2-01 and C2-02 are complete. PR #29 passed independent review and green CI, then merged the
+runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 remains blocked
+pending its runtime-probe entry gate. A post-merge recheck with final Xcode 26.6 (`17F113`)
+executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
+`SKInternalErrorDomain Code=3` and empty product sets while `storekitd` reported an Octane
+entitlement/development-install handshake failure. The same 16 tests in 2 suites pass on an
+iOS 27 beta runtime only as diagnostic evidence; beta-runtime success does not satisfy the final-
+runtime entry gate. The current app target still contains no purchase,
 restore, status mapper, transaction finish, quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no
 production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
@@ -76,7 +82,10 @@ purchase/restore flow, status mapper, transaction finish, or Release manual unlo
 presentation cache never grants access; verified current-entitlement input updates one
 process-local authority and keeps revocation/expiration as raw facts for C2-03. C2-03 cannot start
 until both dedicated CHN/USA StoreKit product probes execute (not skip) and pass under a supported
-final Xcode toolchain.
+final Xcode toolchain. Final Xcode's iOS SDK build is `23F81a`; the installed iOS 26.5 runtime is
+`23F77`. Apple's offered export was the older `23F73` runtime; it was not imported and could not
+replace the installed runtime, so it supplied no alternate supported-runtime pass. Direct Apple
+queries for build `23F81` and iOS `26.5.1` returned unavailable.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly
@@ -217,10 +226,11 @@ app's private data are forbidden in V1.
 
 ## Local development environment
 
-- Xcode: 26.6 (build 17F109)
+- Xcode: 26.6 final (build 17F113; iOS SDK build 23F81a)
 - Minimum deployment target: iOS 17.0
 - Swift language mode: Swift 6 with complete strict concurrency checking
 - Phase 0 validation destination: `platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5`
+  (installed runtime build 23F77)
 - GitHub Actions requires Xcode 26.6+ on macOS 26, dynamically creates a simulator
   from the newest compatible iOS 26 runtime, and separately asserts the app target's
   iOS 17.0 deployment setting. Real iOS 17 runtime testing remains manual until a

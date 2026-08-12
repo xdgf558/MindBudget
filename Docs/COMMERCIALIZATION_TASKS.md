@@ -22,13 +22,14 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active implementation packet: **COM-C2 / C2-02 — runtime catalog and entitlement store**, pending
-  focused review. C2-01 is completed.
+- Active phase: **COM-C2**. C2-01 and C2-02 are completed; C2-03 remains blocked pending its
+  runtime-probe entry gate, so no C2-03 implementation packet is active yet.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
   period, and basic Siri record/check actions. C2-01 added only an isolated local StoreKit
-  Configuration fixture for the accepted Monthly/Annual technical catalog. C2-02 adds the typed
+  Configuration fixture for the accepted Monthly/Annual technical catalog. C2-02, completed and
+  merged through PR #29, adds the typed
   runtime catalog, presentation-only cache, process-local entitlement authority, launch
   reconciliation, and one lifecycle-owned transaction listener. Purchase/restore, status mapping,
   paywall, receipt import, iCloud sync,
@@ -206,14 +207,15 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01 completed; C2-02 implementation is active pending focused review.** Follow
-`Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
+Status: **In Progress — C2-01 and C2-02 completed; C2-03 is blocked pending its runtime-probe entry gate.**
+Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an
   isolated environment matrix. Do not create Lifetime or formal App Store products yet.
-- [ ] **C2-02 — Catalog and entitlement store.** Implement `StoreCatalog`, actor-isolated
+- [x] **C2-02 — Catalog and entitlement store.** Implement `StoreCatalog`, actor-isolated
   `EntitlementStore`, startup cache for presentation only, and exactly one lifecycle-owned
-  `Transaction.updates` task.
+  `Transaction.updates` task. PR #29 passed independent review and green CI, then merged as
+  `a45d480` on 2026-08-12.
 - [B] **C2-03 — Purchase and restore flows.** Implement verification, finish, pending, cancel,
   error, user-triggered restore, and `SubscriptionStatusMapper` for subscribed/grace/retry/
   expired/revoked states. Before any C2-03 source change, both dedicated CHN/USA

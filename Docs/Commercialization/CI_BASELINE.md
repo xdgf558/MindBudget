@@ -13,7 +13,7 @@ repository snapshot and does not claim access to the owner's external specificat
 ## Accepted baseline
 
 - Baseline commit audited by COM-C0A: `6226823370d9ecaedfd89f2754e1f5705dc8d5dd`.
-- Toolchain: Xcode 26.6 (`17F109`), Swift 6.3.3, iOS 26.5 SDK.
+- Toolchain: Xcode 26.6 final (`17F113`), Swift 6.3.3, iOS SDK build `23F81a`.
 - Deployment target: iOS 17.0; iPhone only.
 - CI runner: `macos-26`, with an explicit Xcode 26.6-or-newer assertion.
 - Required commands:
@@ -91,9 +91,23 @@ under a supported final Xcode toolchain, preferably the Xcode GUI while the iOS 
 remains reproducible. Default validation reports the probes as skipped rather than manufacturing
 a pass.
 
+Post-merge probe revalidation used final Xcode 26.6 build `17F113`. Both CHN and USA probes
+executed on final iOS 26.4 and 26.5 runtimes, but `Product.products(for:)` again returned empty
+sets with `SKInternalErrorDomain Code=3`; contemporaneous `storekitd` diagnostics reported an
+Octane entitlement/development-install handshake failure. The installed iOS 26.5 runtime is build
+`23F77`, while final Xcode's SDK is build `23F81a`. Apple currently offered only an export of the
+older runtime build `23F73`; it was not imported and could not provide an alternate supported-
+runtime execution surface. Direct download queries for build `23F81` and iOS `26.5.1` both
+returned unavailable. The identical dedicated scheme passes all 16 tests
+in 2 suites on an iOS 27 beta runtime. That beta result is useful diagnostic evidence that the
+fixture and test code can execute, but it is not accepted evidence for the supported-final-runtime
+entry gate. The historical RC failure above remains part of the record; no final-runtime pass is
+claimed.
+
 No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
-destination, Archive, upload, tester, or distribution state was introduced or changed. C2-02 is
-implementation-complete and remains pending focused owner review rather than Done.
+destination, Archive, upload, tester, or distribution state was introduced or changed. PR #29
+passed independent review and green CI, then merged as `a45d480` on 2026-08-12; C2-02 is Done.
+C2-03 remains blocked pending the separate runtime-probe entry gate described above.
 
 ## Result and report paths
 

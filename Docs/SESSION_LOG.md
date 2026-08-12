@@ -3689,3 +3689,34 @@ projection companion.
 
 Next suggested task: Push the remediation to PR #29 and wait for owner approval plus green CI.
 After merge, mark C2-02 Done; C2-03 remains blocked by its framework-probe entry gate.
+
+## 2026-08-13 — Session 97 — Close COM-C2-02 and recheck the StoreKit entry gate
+
+Goal: Close the merged C2-02 packet and re-evaluate the C2-03 runtime-probe prerequisite under
+the final Xcode toolchain without beginning the next packet.
+
+What was completed: Recorded PR #29's green CI and merge as `a45d480`; C2-02 is now Done. Final
+Xcode 26.6 build `17F113` ran both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit
+returned `SKInternalErrorDomain Code=3` and empty products while `storekitd` reported an Octane
+entitlement/development-install handshake failure. Recorded final SDK build `23F81a`, installed
+iOS 26.5 runtime build `23F77`, and the fact that Apple's offered export was the older `23F73`;
+it was not imported and could not replace the installed runtime. The same 16 tests in 2 suites pass on iOS 27 beta only as
+diagnostic evidence. Updated the durable main/commercial memories, C2 packet, matrix, requirement,
+decision, and CI evidence without erasing the historical Xcode RC `17F109` failure.
+
+Direct Apple download queries for build `23F81` and iOS `26.5.1` both returned unavailable. The
+older exported `23F73` bundle was removed from temporary storage without import; installed runtime
+`23F77` was preserved.
+
+What was NOT completed: C2-03 remains Blocked; no supported-final-runtime storefront-probe pass
+is claimed. No purchase, restore, status mapper, transaction finishing, paywall, commercial term,
+formal product, schema, app-owned network/provider path, version, Archive, upload, tester, or
+distribution state changed.
+
+Validation result: pass under final Xcode 26.6 build `17F113` with the documented shared-host
+wall-clock exclusion. All static gates, the Release build, 306 selected Swift tests in 20 suites,
+all 13 UI tests, and every selected coverage threshold passed. The StoreKit Python contract suite
+passed all 12 tests, and the closeout passed `git diff --check`.
+
+Next suggested task: Resolve the supported-final-runtime StoreKit Octane/development-install
+handshake and obtain passing CHN/USA probes before marking C2-03 In Progress.

@@ -2001,4 +2001,6 @@ IDs, prices, raw entitlement bits, or billing state. Unknown, mixed, or unverifi
 returns to Free. C2-02 adds no purchase/restore/paywall, schema, app-owned network domain, customer
 term, version, Archive, upload, tester, or distribution change. C2-03 may not begin until the CHN
 and USA local StoreKit product probes execute rather than skip and pass under a supported final
-Xcode toolchain; the current Xcode 26.6 RC/iOS 26.5 CLI `Code=3` result is not passing evidence.
+Xcode toolchain. Detailed evidence remains in commercial DEC-COM-016: final Xcode 26.6 `17F113`
+still produced `Code=3`/empty products on final iOS 26.4/26.5, while the iOS 27 beta 16-test/
+2-suite pass is diagnostic only and does not unlock C2-03.

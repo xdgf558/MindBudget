@@ -571,3 +571,40 @@ the deterministic 10,000-row projection contract.
 Next suggested task: Push the focused remediation to PR #29, wait for green CI, and request owner
 review. Mark C2-02 Done only after approval and merge; do not start C2-03 until its framework-probe
 entry gate also passes.
+
+## 2026-08-13 — Session 18 — Close C2-02 and recheck the C2-03 final-runtime gate
+
+Goal: Close the independently reviewed and merged C2-02 packet, then recheck its outstanding
+StoreKit product-loading entry gate without beginning C2-03 or manufacturing passing evidence.
+
+What was completed: Recorded PR #29's green CI and merge as `a45d480`, so C2-02 is Done. Re-ran
+the dedicated CHN/USA probes with final Xcode 26.6 build `17F113` on final iOS 26.4 and 26.5
+runtimes. Both probes executed rather than skipped, but returned `SKInternalErrorDomain Code=3`
+and empty product sets; `storekitd` diagnostics reported an Octane entitlement/development-install
+handshake failure. Verified that final Xcode's iOS SDK is build `23F81a` and the installed iOS
+26.5 runtime is build `23F77`. Apple's currently offered export was the older build `23F73`; it
+was not imported and could not replace the installed runtime. The same dedicated code passed all
+16 tests in 2 suites on an iOS 27 beta runtime, which isolates useful diagnostic information but does not
+satisfy the supported-final-runtime gate. Synchronized project memory, the C2 packet, test matrix,
+requirements, DEC-COM-016, CI evidence, and the main decision pointer while preserving the earlier
+RC `17F109` failure as historical evidence.
+
+Direct Apple download queries for build `23F81` and iOS `26.5.1` both returned unavailable. The
+older exported `23F73` bundle was deleted from temporary storage without being imported; the
+installed `23F77` runtime was preserved.
+
+What was NOT completed: C2-03 did not start and remains Blocked. No purchase, restore,
+subscription-status mapper, transaction `finish()`, paywall, formal App Store Connect product,
+customer price/trial/quota, schema, network/provider channel, version, Archive, upload, tester, or
+distribution state changed. Neither the final-runtime failures nor the beta-runtime success are
+reported as an accepted storefront-probe pass.
+
+Validation result: pass under final Xcode 26.6 build `17F113` with the documented shared-host
+wall-clock exclusion. All static gates, the Release build, 306 selected Swift tests in 20 suites,
+all 13 UI tests, and every selected coverage threshold passed. The StoreKit Python contract suite
+passed all 12 tests. The closeout also passed `git diff --check`; this session changed no app
+source.
+
+Next suggested task: Resolve the Octane/development-install handshake on a supported final iOS
+runtime and capture both CHN and USA product probes executing and passing. Only then may C2-03 be
+marked In Progress.

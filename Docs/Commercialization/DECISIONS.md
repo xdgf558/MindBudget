@@ -302,8 +302,16 @@ context.
   StoreKit scheme; the default scheme runs deterministic catalog/cache/lifecycle tests and does not
   claim skipped local-configuration tests passed. The installed Xcode 26.6 RC `17F109`/iOS 26.5
   command-line environment currently produces `SKInternalErrorDomain Code=3` and empty catalogs,
-  so C2-03 cannot begin until both dedicated storefront probes execute and pass under a supported
-  final Xcode execution surface. Purchase, restore, transaction finishing,
+  and that historical failure remains part of the evidence record. Post-merge revalidation with
+  final Xcode 26.6 `17F113` executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but
+  again produced `Code=3`/empty products while `storekitd` reported an Octane entitlement/
+  development-install handshake failure. Final Xcode's SDK is build `23F81a`, the installed 26.5
+  runtime is `23F77`, and Apple's offered export was the older `23F73`; it was not imported and
+  could not replace the installed runtime. Direct download queries for build `23F81` and iOS
+  `26.5.1` both returned unavailable.
+  The same 16 tests in 2 suites passing on iOS 27 beta is diagnostic only. C2-03 therefore cannot
+  begin until both storefront probes execute and pass under a supported final Xcode/runtime
+  surface. Purchase, restore, transaction finishing,
   pending/cancel handling, subscription-status mapping, customer pricing/trial terms, paywall,
   formal App Store Connect products, and distribution remain blocked by C2-03/C2-04 and later
   release gates.

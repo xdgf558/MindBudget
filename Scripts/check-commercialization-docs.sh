@@ -180,15 +180,27 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01 completed; C2-02 implementation is active pending' \
+grep -Fq 'Status: **In Progress — C2-01 and C2-02 completed; C2-03 is blocked pending its runtime-probe entry gate.**' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must record C2-01 complete and C2-02 as the active review packet" >&2
+  echo "COM-C2 must record C2-01/C2-02 complete and keep C2-03 blocked on its probe gate" >&2
   exit 1
 }
 
 grep -Fq 'Status: **Done** after independent review and full validation.' \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
   echo "COM-C2 execution packet must record C2-01 as Done" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Done** after independent review, green CI, and merge through PR #29 (`a45d480`).' \
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+  echo "COM-C2 execution packet must record C2-02 as reviewed, merged, and Done" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Blocked pending the runtime-probe entry gate.**' \
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+  echo "COM-C2 execution packet must keep C2-03 blocked until its runtime probes pass" >&2
   exit 1
 }
 
