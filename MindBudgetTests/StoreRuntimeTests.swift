@@ -151,7 +151,8 @@ struct StoreRuntimeTests {
             productID: "unapproved.product",
             environment: .production,
             isPurchased: true,
-            isActive: true
+            isRevoked: false,
+            expirationDate: nil
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
@@ -168,7 +169,8 @@ struct StoreRuntimeTests {
             productID: StoreProductID.proMonthly.rawValue,
             environment: StoreRuntimeEnvironment(rawValue: "Unknown"),
             isPurchased: true,
-            isActive: true
+            isRevoked: false,
+            expirationDate: nil
         )
         await source.setRead(
             StoreEntitlementRead(
@@ -207,6 +209,94 @@ struct StoreRuntimeTests {
         await startup.value
         #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
         #expect((await store.currentSnapshot()).environment == nil)
+        await store.stop()
+    }
+
+    @Test
+    func pastExpirationDoesNotPreemptTheC203BillingGraceDecision() async {
+        let authority = LiveFeatureAccessAuthority()
+        let graceCandidate = VerifiedStoreTransaction(
+            productID: StoreProductID.proMonthly.rawValue,
+            environment: .sandbox,
+            isPurchased: true,
+            isRevoked: false,
+            expirationDate: Date(timeIntervalSince1970: 1)
+        )
+        let source = TestStoreEntitlementSource(
+            read: StoreEntitlementRead(
+                transactions: [graceCandidate],
+                unverifiedCount: 0
+            )
+        )
+        let store = EntitlementStore(source: source, featureAccessAuthority: authority)
+
+        await store.start()
+
+        #expect(authority.decision(for: .advancedSiri) == .allowed)
+        #expect((await store.currentSnapshot()).environment == .sandbox)
+        await store.stop()
+    }
+
+    @Test
+    func revokedCurrentEntitlementStillFailsClosed() async {
+        let authority = LiveFeatureAccessAuthority()
+        let revoked = VerifiedStoreTransaction(
+            productID: StoreProductID.proMonthly.rawValue,
+            environment: .sandbox,
+            isPurchased: true,
+            isRevoked: true,
+            expirationDate: Date.distantFuture
+        )
+        let source = TestStoreEntitlementSource(
+            read: StoreEntitlementRead(
+                transactions: [revoked],
+                unverifiedCount: 0
+            )
+        )
+        let store = EntitlementStore(source: source, featureAccessAuthority: authority)
+
+        await store.start()
+
+        #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
+        #expect((await store.currentSnapshot()).environment == nil)
+        await store.stop()
+    }
+
+    @MainActor
+    @Test
+    func appSessionPublishesPaidAccessAndItsRevocationToSwiftUIConsumers() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let authority = LiveFeatureAccessAuthority()
+        let source = TestStoreEntitlementSource(read: paidRead(environment: .sandbox))
+        let store = EntitlementStore(
+            source: source,
+            featureAccessAuthority: authority
+        )
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            featureAccessService: authority,
+            entitlementStore: store
+        )
+
+        #expect(session.existingPremiumEntryAccess.offersAppleOnDeviceAI == false)
+        await session.startCommerceLifecycle()
+        #expect(session.existingPremiumEntryAccess.offersAppleOnDeviceAI)
+        #expect(session.existingPremiumEntryAccess.offersCustomCoolingOffDurations)
+        #expect(session.existingPremiumEntryAccess.permitsAdvancedSiri)
+
+        await source.setRead(
+            StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+        )
+        source.sendUpdate()
+        await waitUntil {
+            await MainActor.run {
+                session.existingPremiumEntryAccess.offersAppleOnDeviceAI == false
+            }
+        }
+
+        #expect(session.existingPremiumEntryAccess.offersAppleOnDeviceAI == false)
+        #expect(session.existingPremiumEntryAccess.offersCustomCoolingOffDurations == false)
+        #expect(session.existingPremiumEntryAccess.permitsAdvancedSiri == false)
         await store.stop()
     }
 
@@ -265,7 +355,8 @@ struct StoreRuntimeTests {
             productID: StoreProductID.proMonthly.rawValue,
             environment: environment,
             isPurchased: true,
-            isActive: true
+            isRevoked: false,
+            expirationDate: nil
         )
     }
 

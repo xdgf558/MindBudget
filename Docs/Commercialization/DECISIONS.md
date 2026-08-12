@@ -290,13 +290,20 @@ context.
   `Transaction.updates` listener treats an update only as a signal to re-read current state; it
   never trusts the update as authority. A process-local locked bridge replaces whole immutable
   access snapshots so existing synchronous UI and App Intent consumers observe the same authority.
+  C2-02 preserves verified ownership, revocation, and expiration as raw current-entitlement facts;
+  it rejects revoked transactions but does not reject a record merely because its last renewal
+  expiration is in the past. C2-03's status mapper is the sole owner of subscribed/grace/retry/
+  expired semantics and transaction finishing.
 - Consequences: Missing, unverified, unknown-product, unknown-environment, or mixed-environment
   authority input fails closed to exact Free. Product-loading or presentation-cache failure never
   erases a separately verified entitlement, and cached presentation can never grant one. Repeated
   SwiftUI lifecycle starts do not create another listener or catalog refresh. Delete All clears the
   presentation cache. Runtime CHN and USA product loading is isolated to the dedicated local Xcode
   StoreKit scheme; the default scheme runs deterministic catalog/cache/lifecycle tests and does not
-  claim skipped local-configuration tests passed. Purchase, restore, transaction finishing,
+  claim skipped local-configuration tests passed. The installed Xcode 26.6 RC `17F109`/iOS 26.5
+  command-line environment currently produces `SKInternalErrorDomain Code=3` and empty catalogs,
+  so C2-03 cannot begin until both dedicated storefront probes execute and pass under a supported
+  final Xcode execution surface. Purchase, restore, transaction finishing,
   pending/cancel handling, subscription-status mapping, customer pricing/trial terms, paywall,
   formal App Store Connect products, and distribution remain blocked by C2-03/C2-04 and later
   release gates.

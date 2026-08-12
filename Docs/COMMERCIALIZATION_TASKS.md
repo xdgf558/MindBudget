@@ -216,7 +216,9 @@ Status: **In Progress — C2-01 completed; C2-02 implementation is active pendin
   `Transaction.updates` task.
 - [B] **C2-03 — Purchase and restore flows.** Implement verification, finish, pending, cancel,
   error, user-triggered restore, and `SubscriptionStatusMapper` for subscribed/grace/retry/
-  expired/revoked states.
+  expired/revoked states. Before any C2-03 source change, both dedicated CHN/USA
+  `Product.products(for:)` probes must execute (not skip) and pass under a supported final Xcode
+  toolchain; `Code=3`, an empty catalog, or a skipped probe blocks entry.
 - [B] **C2-04 — Environment and regression gate.** Prove Configuration, Sandbox, TestFlight, and
   Production rights cannot contaminate one another and Product loading failure does not erase a
   verified entitlement.

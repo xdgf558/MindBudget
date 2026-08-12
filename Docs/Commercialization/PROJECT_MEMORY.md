@@ -35,6 +35,12 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `Transaction.updates` task, launch reconciliation, and a process-local synchronized bridge to
   existing feature consumers. Unknown products/environments, mixed environments, and unverified
   input fail closed; Delete All clears the presentation cache, which can never grant a right.
+  C2-02 retains verified ownership, revocation, and expiration as raw facts without deciding
+  billing grace from expiration alone; C2-03 owns the complete status mapping and transaction
+  finish. C2-03 is blocked until both opt-in CHN/USA runtime catalog probes execute (not skip) and
+  pass under a supported final Xcode toolchain. The installed Xcode 26.6 RC `17F109`/iOS 26.5 CLI
+  emits StoreKit synchronization `Code=3` and empty catalogs, which is diagnostic failure evidence
+  rather than a pass.
   No formal App Store Connect
   product/group, purchase, restore, status mapper, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
@@ -195,8 +201,9 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1 and C2-01 are closed. C2-01 stops at a configuration-only local test catalog and did not add
-runtime StoreKit authority, transaction observation, purchase, restore, a paywall, formal products,
-or customer terms. Access decisions still may not read raw entitlement bits; exact Free checks use
-`isFree`, never `isSuperset(of: .free)`. C2-02 is the next packet but may begin only after a fresh
-explicit owner instruction.
+COM-C1 and C2-01 are closed. C2-02 is implementation-complete and awaiting focused review/merge;
+it adds runtime product presentation and verified current-entitlement authority but no purchase,
+restore, status mapping, transaction finish, paywall, formal products, or customer terms. Access
+decisions still may not read raw entitlement bits; exact Free checks use `isFree`, never
+`isSuperset(of: .free)`. C2-03 remains blocked by C2-02 review/merge, a fresh explicit owner
+instruction, and passing non-skipped CHN/USA local StoreKit runtime probes.

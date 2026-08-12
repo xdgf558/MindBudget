@@ -44,9 +44,9 @@ COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification 
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
 feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
-C2-01 is complete with only a local StoreKit Configuration test fixture, while C2-02 has not started;
-the current app target still contains no runtime StoreKit catalog, transaction-derived right,
-quota, paid lock,
+C2-01 is complete and C2-02's runtime catalog/current-entitlement authority is implementation-
+complete while awaiting focused review. The current app target still contains no purchase,
+restore, status mapper, transaction finish, quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no
 production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
 are complete. The owner accepted phase-scoped future data channels, parallel/nonblocking Watch
@@ -71,8 +71,12 @@ retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged,
 unreleased commercial source is not distributable until verified purchase/restore, purchase
 presentation, and the owning release gates are complete. C2-01's synthetic Monthly/Annual fixture
 is test-bundle-only, activated by a dedicated non-Archive local scheme, and absent from the app
-resources/default scheme. There is still no formal product, runtime StoreKit authority, paywall,
-customer price/trial, purchase flow, or Release manual unlock.
+resources/default scheme. There is still no formal product, paywall, customer price/trial,
+purchase/restore flow, status mapper, transaction finish, or Release manual unlock. C2-02's
+presentation cache never grants access; verified current-entitlement input updates one
+process-local authority and keeps revocation/expiration as raw facts for C2-03. C2-03 cannot start
+until both dedicated CHN/USA StoreKit product probes execute (not skip) and pass under a supported
+final Xcode toolchain.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

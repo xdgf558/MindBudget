@@ -5,7 +5,8 @@ struct VerifiedStoreTransaction: Equatable, Sendable {
     let productID: String
     let environment: StoreRuntimeEnvironment
     let isPurchased: Bool
-    let isActive: Bool
+    let isRevoked: Bool
+    let expirationDate: Date?
 }
 
 struct StoreEntitlementRead: Equatable, Sendable {
@@ -47,6 +48,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
     ) async {
         for await _ in Transaction.updates {
             guard !Task.isCancelled else { return }
+            // C2-02 treats the sequence only as a re-read signal. C2-03 owns verified
+            // purchase/restore handling and the exact point at which a transaction is finished.
             await handler(.changed)
         }
     }
@@ -56,8 +59,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             productID: transaction.productID,
             environment: StoreRuntimeEnvironment(rawValue: transaction.environment.rawValue),
             isPurchased: transaction.ownershipType == .purchased,
-            isActive: transaction.revocationDate == nil
-                && (transaction.expirationDate.map { $0 > Date() } ?? true)
+            isRevoked: transaction.revocationDate != nil,
+            expirationDate: transaction.expirationDate
         )
     }
 }
@@ -127,15 +130,19 @@ actor EntitlementStore {
         let generation = reconciliationGeneration
         let read = await source.currentEntitlements()
         guard generation == reconciliationGeneration else { return }
-        let activePurchased = read.transactions.filter { transaction in
-            transaction.isPurchased && transaction.isActive
+        // `currentEntitlements` can include a subscription in billing grace after its last
+        // successful renewal expiration date. C2-02 therefore preserves expiration as an input
+        // fact but must not decide subscription status here. C2-03 owns the complete
+        // subscribed/grace/retry/expired mapping.
+        let purchasedUnrevoked = read.transactions.filter { transaction in
+            transaction.isPurchased && !transaction.isRevoked
         }
         let hasUnacceptedAuthorityInput = read.unverifiedCount > 0
-            || activePurchased.contains { transaction in
+            || purchasedUnrevoked.contains { transaction in
                 !transaction.environment.isRecognizedStoreEnvironment
                     || StoreProductID(rawValue: transaction.productID) == nil
             }
-        let accepted = hasUnacceptedAuthorityInput ? [] : activePurchased
+        let accepted = hasUnacceptedAuthorityInput ? [] : purchasedUnrevoked
         let environments = Set(accepted.map(\.environment))
         let environment = environments.count == 1 ? environments.first : nil
         let entitlements: EntitlementSet

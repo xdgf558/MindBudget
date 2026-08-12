@@ -3656,3 +3656,36 @@ execution honestly skipped the two opt-in framework-backed storefront probes.
 
 Next suggested task: Review C2-02 as one focused PR, capture or explicitly accept the remaining
 dedicated local-StoreKit evidence, and mark the packet Done only after owner approval and green CI.
+
+## 2026-08-12 — Session 96 — Close COM-C2-02 focused review findings
+
+Goal: Resolve PR #29's StoreKit expiration, probe-evidence, and live UI revocation findings while
+remaining inside C2-02 and keeping distribution paused.
+
+What was completed: Preserved verified transaction revocation and expiration as separate raw
+facts. Revoked current entitlements remain fail-closed; a past expiration no longer preempts the
+C2-03 billing-grace/status decision. Added direct regressions for both cases and proved the shared
+AppSession publishes exact Free -> Pro -> exact Free to SwiftUI consumers without restart. The
+dedicated CHN/USA local StoreKit probes were made to execute under Xcode 26.6 RC `17F109` and iOS
+26.5, where StoreKit returned `SKInternalErrorDomain Code=3` and empty product sets. No pass is
+claimed. A false-green scheme variation that silently skipped the probes was rejected and is now
+blocked by a Python contract test. Durable COM decisions, entry gates, matrices, requirements,
+project memory, task state, and CI evidence were synchronized; C2-03 is blocked until both probes
+execute and pass under a supported final Xcode GUI/toolchain.
+
+What was NOT completed: No purchase, restore, final subscription-status mapper, transaction
+`finish()`, paywall, entitlement persistence, customer price/trial/quota, formal App Store Connect
+product, schema, network/cloud/provider path, user-visible released behavior, version, Archive,
+upload, tester, or distribution state changed. C2-02 remains implementation-complete and pending
+owner review rather than Done.
+
+Validation result: pass under Xcode 26.6 with the documented shared-host wall-clock exclusion.
+All static gates and the Release build passed. The full selected suite passed 306 Swift tests in
+20 suites and all 13 UI tests; every selected coverage threshold passed. The StoreKit contract
+suite passed 12 Python tests, and the focused StoreRuntime suite passed all 11 tests. A separate
+strict run recorded only the known local 10,000-row wall-clock signal at 0.830 seconds; the final
+run skipped that nondeterministic 500 ms assertion while retaining its deterministic 10,000-row
+projection companion.
+
+Next suggested task: Push the remediation to PR #29 and wait for owner approval plus green CI.
+After merge, mark C2-02 Done; C2-03 remains blocked by its framework-probe entry gate.

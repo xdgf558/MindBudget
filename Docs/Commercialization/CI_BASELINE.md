@@ -69,21 +69,27 @@ still passed. No product source/schema/resource or user-visible behavior changed
 ## COM-C2-02 verification
 
 On 2026-08-12, Xcode 26.6 passed the complete static, Release-build, Swift Testing, UI, and
-coverage pipeline for the runtime catalog and entitlement-store implementation. The run passed
-303 Swift tests in 20 suites and all 13 UI tests with zero failures; every selected core-service
-coverage threshold remained above 85%. The extracted StoreKit contract suite passed all 11
-Python tests. Focused runtime tests covered exact-context presentation caching and deletion,
-malformed/partial catalogs, startup reconciliation, one transaction-update listener, concurrent
-whole-snapshot reads, fail-closed mixed/unverified/unknown states, and stale-reconciliation
-suppression.
+coverage pipeline for the runtime catalog and entitlement-store implementation plus its focused
+review remediation. The run passed 306 selected Swift tests in 20 suites and all 13 UI tests with
+zero failures; every selected core-service coverage threshold remained above 85%. The extracted
+StoreKit contract suite passed all 12 Python tests. Focused runtime tests covered exact-context
+presentation caching and deletion, malformed/partial catalogs, startup reconciliation, one
+transaction-update listener, concurrent whole-snapshot reads, fail-closed mixed/unverified/
+unknown/revoked states, stale-reconciliation suppression, preservation of a past expiration date
+for C2-03's status mapper, and direct AppSession Free -> Pro -> Free UI snapshot propagation.
 
 Two `Product.products(for:)` storefront probes are deliberately excluded from the default scheme
-and are enabled only by the non-Archive `MindBudget-StoreKit-Local` scheme. The current command-
-line Xcode environment did not attach the Run-action StoreKit configuration to its test process,
-and the local Xcode GUI crashed in an unrelated `ActivityBarAccessory` assertion before the
-dedicated scheme could run. Therefore CHN/USA framework-backed product loading is **not** claimed
-as passing evidence in this packet; it remains an explicit focused-review/local-Xcode evidence
-item. The default suite reports those two probes as skipped instead of manufacturing a pass.
+and are enabled only by the non-Archive `MindBudget-StoreKit-Local` scheme. Focused review ran the
+dedicated Test action under the installed Xcode 26.6 RC build `17F109` and iOS 26.5. Both probes
+executed, `SKTestSession` emitted `SKInternalErrorDomain Code=3` while synchronizing the local
+configuration/storefront, and `Product.products(for:)` returned an empty set. A trial change that
+inherited Launch arguments made the command green only by dropping the Test-action opt-in and
+skipping both probes; that change was rejected, and the scheme contract now rejects this false-
+green shape. Therefore CHN/USA framework-backed product loading is **not** claimed as passing
+evidence in this packet. C2-03 has a hard entry gate requiring both probes to execute and pass
+under a supported final Xcode toolchain, preferably the Xcode GUI while the iOS 26.5 CLI failure
+remains reproducible. Default validation reports the probes as skipped rather than manufacturing
+a pass.
 
 No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
 destination, Archive, upload, tester, or distribution state was introduced or changed. C2-02 is

@@ -231,6 +231,10 @@ def validate_schemes(default_scheme, local_scheme):
     if len(test_actions) != 1 or test_actions[0].get("buildConfiguration") != "Debug":
         errors.append("the local StoreKit scheme must test only a Debug build")
     else:
+        if test_actions[0].get("shouldUseLaunchSchemeArgsEnv") != "NO":
+            errors.append(
+                "the local StoreKit test action must retain its own runtime-test switch"
+            )
         runtime_variables = [
             variable
             for variable in test_actions[0].iter("EnvironmentVariable")

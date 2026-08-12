@@ -100,7 +100,7 @@ def accepted_local_scheme():
   <BuildAction><BuildActionEntries>
     <BuildActionEntry buildForArchiving="NO"/>
   </BuildActionEntries></BuildAction>
-  <TestAction buildConfiguration="Debug">
+  <TestAction buildConfiguration="Debug" shouldUseLaunchSchemeArgsEnv="NO">
     <Testables>
       <TestableReference skipped="NO">
         <BuildableReference BlueprintName="MindBudgetTests"/>
@@ -188,6 +188,13 @@ class StoreKitCatalogContractTests(unittest.TestCase):
         local_scheme = accepted_local_scheme().replace(
             f'key="{LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY}"',
             'key="UNRELATED_TEST_SWITCH"',
+        )
+        self.assertTrue(validate_schemes(accepted_default_scheme(), local_scheme))
+
+    def test_inheriting_launch_environment_cannot_silently_skip_runtime_probes(self):
+        local_scheme = accepted_local_scheme().replace(
+            'shouldUseLaunchSchemeArgsEnv="NO"',
+            'shouldUseLaunchSchemeArgsEnv="YES"',
         )
         self.assertTrue(validate_schemes(accepted_default_scheme(), local_scheme))
 

@@ -47,6 +47,11 @@ Every row must be exercised for Monthly and Annual where applicable:
 - product loading under the committed CHN storefront and at least one non-CHN test storefront;
 - purchase success with verified result, pending, user cancellation, unverified, thrown error;
 - exactly one app-lifecycle `Transaction.updates` listener, including update before/after UI owner;
+- C2-02 preserves an unrevoked current-entitlement record even when its last renewal expiration
+  is in the past; C2-03 alone combines that raw fact with StoreKit subscription status so billing
+  grace is not filtered before the status mapper can see it;
+- the live AppSession access projection changes exact Free → Pro → exact Free after authority
+  updates, without requiring an app restart;
 - every verified transaction is handled idempotently and finished at the required boundary;
 - duplicate/reordered updates, reinstall, app restart, account change and concurrent purchase tap;
 - explicit Restore Purchases success/no purchase/offline/error; no implicit restore prompt;
@@ -71,6 +76,9 @@ Every row must be exercised for Monthly and Annual where applicable:
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
   C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme,
   followed by purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same fixture.
+  Before C2-03 starts, both runtime probes must execute (not skip) and pass under a supported final
+  Xcode toolchain; `SKInternalErrorDomain Code=3` or an empty catalog blocks entry rather than
+  authorizing a weaker probe.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner
