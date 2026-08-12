@@ -15,6 +15,7 @@ from storekit_catalog_contract import (  # noqa: E402
     APP_RESOURCES_ID,
     EXPECTED,
     LOCAL_CONFIGURATION_PATH,
+    LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY,
     MONTHLY,
     TEST_RESOURCES_ID,
     validate_catalog,
@@ -99,6 +100,19 @@ def accepted_local_scheme():
   <BuildAction><BuildActionEntries>
     <BuildActionEntry buildForArchiving="NO"/>
   </BuildActionEntries></BuildAction>
+  <TestAction buildConfiguration="Debug" shouldUseLaunchSchemeArgsEnv="NO">
+    <Testables>
+      <TestableReference skipped="NO">
+        <BuildableReference BlueprintName="MindBudgetTests"/>
+      </TestableReference>
+    </Testables>
+    <EnvironmentVariables>
+      <EnvironmentVariable
+        key="{LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY}"
+        value="1"
+        isEnabled="YES"/>
+    </EnvironmentVariables>
+  </TestAction>
   <LaunchAction buildConfiguration="Debug">
     <StoreKitConfigurationFileReference identifier="{LOCAL_CONFIGURATION_PATH}"/>
   </LaunchAction>
@@ -169,6 +183,36 @@ class StoreKitCatalogContractTests(unittest.TestCase):
             '<ArchiveAction buildConfiguration="Release"/></Scheme>',
         )
         self.assertTrue(validate_schemes(accepted_default_scheme(), local_scheme))
+
+    def test_missing_runtime_storefront_test_switch_is_rejected(self):
+        local_scheme = accepted_local_scheme().replace(
+            f'key="{LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY}"',
+            'key="UNRELATED_TEST_SWITCH"',
+        )
+        self.assertTrue(validate_schemes(accepted_default_scheme(), local_scheme))
+
+    def test_inheriting_launch_environment_cannot_silently_skip_runtime_probes(self):
+        local_scheme = accepted_local_scheme().replace(
+            'shouldUseLaunchSchemeArgsEnv="NO"',
+            'shouldUseLaunchSchemeArgsEnv="YES"',
+        )
+        self.assertTrue(validate_schemes(accepted_default_scheme(), local_scheme))
+
+    def test_default_scheme_runtime_storefront_test_switch_is_rejected(self):
+        default_scheme = f"""
+<Scheme>
+  <TestAction buildConfiguration="Debug">
+    <EnvironmentVariables>
+      <EnvironmentVariable
+        key="{LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY}"
+        value="1"
+        isEnabled="YES"/>
+    </EnvironmentVariables>
+  </TestAction>
+  <LaunchAction buildConfiguration="Debug"/>
+</Scheme>
+"""
+        self.assertTrue(validate_schemes(default_scheme, accepted_local_scheme()))
 
 
 if __name__ == "__main__":

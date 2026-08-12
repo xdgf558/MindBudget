@@ -21,7 +21,7 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 
 ## C2-01 — StoreKit test catalog
 
-Status: **Done** after independent review and full validation. C2-02 has not started.
+Status: **Done** after independent review and full validation.
 
 ### Tasks
 
@@ -55,6 +55,8 @@ Status: **Done** after independent review and full validation. C2-02 has not sta
 
 ## C2-02 — Runtime catalog and entitlement store
 
+Status: **Implementation complete; awaiting focused review and merge.**
+
 ### Tasks
 
 - Add the app-owned StoreKit product catalog and actor-isolated entitlement lifecycle authority.
@@ -67,6 +69,12 @@ Status: **Done** after independent review and full validation. C2-02 has not sta
   presentation-cache isolation.
 - Exercise runtime product loading under the committed CHN storefront and at least one non-CHN
   StoreKit test storefront so currency/locale behavior is not inferred from one environment.
+- The two storefront-loading tests are enabled only by `MindBudget-StoreKit-Local` and run from
+  Xcode's test action, because StoreKit Configuration activation belongs to that scheme's Run/Test
+  session. Default-scheme CI runs the deterministic catalog/cache/lifecycle tests and must not
+  claim that skipped local StoreKit-product tests passed. The probe opt-in remains explicit on the
+  Test action with `shouldUseLaunchSchemeArgsEnv="NO"`; inheriting the Run environment is not
+  evidence because it can silently skip both probes.
 
 ### Stop conditions
 
@@ -74,10 +82,22 @@ Status: **Done** after independent review and full validation. C2-02 has not sta
 
 ## C2-03 — Purchase, restore, and status mapping
 
+### Entry gate
+
+- Before the first C2-03 source change, run the dedicated scheme with a supported final Xcode
+  toolchain and confirm that both the CHN and USA `Product.products(for:)` probes **execute (not
+  skip) and pass** with the committed local StoreKit configuration attached. Prefer Xcode's GUI
+  while the iOS 26.5 command-line configuration-synchronization failure remains reproducible.
+- `SKInternalErrorDomain Code=3`, an empty catalog, or a skipped probe is non-evidence and blocks
+  entry. Record the Xcode build, simulator runtime, execution surface, and result bundle/log path.
+
 ### Tasks
 
 - Implement verified purchase/finish, pending, cancellation, neutral error, user-triggered restore,
   and the accepted subscription-status mapping.
+- Consume the raw revocation and expiration facts retained by C2-02. Only C2-03 may map them with
+  StoreKit subscription status into subscribed/grace/retry/expired access decisions or finish a
+  transaction.
 
 ### Tests
 

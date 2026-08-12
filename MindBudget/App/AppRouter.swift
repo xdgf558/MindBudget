@@ -44,7 +44,8 @@ final class AppSession: ObservableObject {
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
     private let systemIntegrationCapability: SystemIntegrationCapability
     private let appLockAuthenticator: any AppLockAuthenticating
-    let existingPremiumEntryAccess: ExistingPremiumEntryAccess
+    private let storeCatalog: StoreCatalog?
+    private let entitlementStore: EntitlementStore?
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -64,7 +65,10 @@ final class AppSession: ObservableObject {
     @Published private(set) var appLockOperationError: AppLockOperationError?
     @Published private(set) var recurringExpenseReconciliationFailed = false
     @Published private(set) var recurringExpenseReconciliationHasMore = false
+    @Published private(set) var existingPremiumEntryAccess: ExistingPremiumEntryAccess
+    @Published private(set) var storeCatalogAvailability: StoreCatalogAvailability = .unavailable
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
+    private var hasStartedCommerceLifecycle = false
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
@@ -80,6 +84,8 @@ final class AppSession: ObservableObject {
         systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability(),
         appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
         featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
+        storeCatalog: StoreCatalog? = nil,
+        entitlementStore: EntitlementStore? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -90,8 +96,27 @@ final class AppSession: ObservableObject {
         self.privacyDeletionVerifier = privacyDeletionVerifier
         self.systemIntegrationCapability = systemIntegrationCapability
         self.appLockAuthenticator = appLockAuthenticator
+        self.storeCatalog = storeCatalog
+        self.entitlementStore = entitlementStore
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
+    }
+
+    func startCommerceLifecycle() async {
+        guard !hasStartedCommerceLifecycle else { return }
+        hasStartedCommerceLifecycle = true
+        if let entitlementStore {
+            await entitlementStore.start { [weak self] snapshot in
+                self?.existingPremiumEntryAccess = snapshot.premiumEntryAccess
+            }
+        }
+        if let storeCatalog {
+            Task { [weak self] in
+                let availability = await storeCatalog.refresh()
+                guard !Task.isCancelled else { return }
+                self?.storeCatalogAvailability = availability
+            }
+        }
     }
 
     func faceIDAvailability() -> FaceIDAvailability {
@@ -428,6 +453,10 @@ final class AppSession: ObservableObject {
         }
 
         privacyDeletionState = .inProgress(.resettingPreferences)
+        if let storeCatalog {
+            await storeCatalog.clearPresentationCache()
+            storeCatalogAvailability = .unavailable
+        }
         settings.resetAfterDataDeletion()
         selectedTab = .dashboard
         presentsAddExpense = false
@@ -462,6 +491,8 @@ struct AppRouter: View {
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
         appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
         featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
+        storeCatalog: StoreCatalog? = nil,
+        entitlementStore: EntitlementStore? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -473,6 +504,8 @@ struct AppRouter: View {
                 navigationStore: navigationStore,
                 appLockAuthenticator: appLockAuthenticator,
                 featureAccessService: featureAccessService,
+                storeCatalog: storeCatalog,
+                entitlementStore: entitlementStore,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -533,6 +566,7 @@ struct AppRouter: View {
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
+            await session.startCommerceLifecycle()
             await session.unlockAppIfNeeded(
                 settings: settings,
                 localizedReason: appLockReason

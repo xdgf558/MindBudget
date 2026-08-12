@@ -12,6 +12,7 @@ ANNUAL = "com.xdgf558.mindbudget.pro.annual"
 APP_RESOURCES_ID = "F10000000000000000000003"
 TEST_RESOURCES_ID = "F10000000000000000000006"
 LOCAL_CONFIGURATION_PATH = "../../Config/StoreKit/MindBudgetPro.storekit"
+LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY = "MINDBUDGET_LOCAL_STOREKIT_RUNTIME_TESTS"
 EXPECTED = {
     MONTHLY: {
         "referenceName": "MindBudget Pro Monthly",
@@ -203,6 +204,11 @@ def validate_schemes(default_scheme, local_scheme):
 
     if list(default_root.iter("StoreKitConfigurationFileReference")):
         errors.append("the default scheme activates a local StoreKit configuration")
+    if any(
+        variable.get("key") == LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY
+        for variable in default_root.iter("EnvironmentVariable")
+    ):
+        errors.append("the default scheme enables local StoreKit runtime tests")
 
     local_references = list(local_root.iter("StoreKitConfigurationFileReference"))
     if len(local_references) != 1:
@@ -220,6 +226,34 @@ def validate_schemes(default_scheme, local_scheme):
         errors.append("every local-scheme build entry must opt out of Archive")
     if list(local_root.iter("ArchiveAction")):
         errors.append("the local StoreKit scheme must not define an Archive action")
+
+    test_actions = list(local_root.iter("TestAction"))
+    if len(test_actions) != 1 or test_actions[0].get("buildConfiguration") != "Debug":
+        errors.append("the local StoreKit scheme must test only a Debug build")
+    else:
+        if test_actions[0].get("shouldUseLaunchSchemeArgsEnv") != "NO":
+            errors.append(
+                "the local StoreKit test action must retain its own runtime-test switch"
+            )
+        runtime_variables = [
+            variable
+            for variable in test_actions[0].iter("EnvironmentVariable")
+            if variable.get("key") == LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY
+        ]
+        if len(runtime_variables) != 1 or any(
+            variable.get("value") != "1" or variable.get("isEnabled") != "YES"
+            for variable in runtime_variables
+        ):
+            errors.append(
+                "the local scheme must explicitly enable StoreKit runtime storefront tests"
+            )
+
+        testable_names = {
+            reference.get("BlueprintName")
+            for reference in test_actions[0].iter("BuildableReference")
+        }
+        if "MindBudgetTests" not in testable_names:
+            errors.append("the local scheme must include MindBudgetTests")
     return errors
 
 

@@ -492,3 +492,82 @@ shared-host option skipped only the nondeterministic wall-clock assertion and re
 deterministic 10,000-row projection contract.
 
 Next suggested task: Begin C2-02 only after a fresh explicit owner instruction.
+
+## 2026-08-12 — Session 16 — Implement COM-C2-02 runtime catalog and entitlement store
+
+Goal: Implement the bounded C2-02 StoreKit runtime catalog and verified entitlement authority
+without adding purchase, restore, paywall, persistence, formal customer terms, or distribution.
+
+What was completed: Added a typed StoreKit catalog for the accepted Monthly and Annual product
+identifiers, exact product-set/type/group/period validation, environment-plus-storefront keyed
+presentation-only caching, and cache deletion through Delete All. Added a lock-backed shared
+Free-by-default feature-access authority and an actor-isolated entitlement store that derives
+authority only from verified `Transaction.currentEntitlements`, owns exactly one
+`Transaction.updates` listener, treats listener updates only as a re-read signal, and fails closed
+for mixed, unverified, unknown-product, or unknown-environment states. A reconciliation generation
+prevents an older suspended read from overwriting newer authority. App UI and App Intents now read
+the same live authority. Added focused catalog, concurrency, lifecycle, failure, cache, deletion,
+and stale-read tests; expanded the StoreKit catalog contract suite and dedicated local scheme for
+opt-in CHN/USA framework-backed product probes. Recorded DEC-COM-016 and updated the C2 packet,
+requirements, network policy, matrix, project memory, and task status. C2-02 is implementation-
+complete and awaiting focused owner review.
+
+What was NOT completed: No purchase, restore, transaction finishing, subscription-status UI,
+paywall, cached authority, StoreKit receipt persistence, formal App Store Connect product/group,
+customer price/trial/quota, schema, cloud/provider channel, app-owned network domain, version,
+Archive, upload, tester, or distribution state changed. StoreKit presentation cache is never
+entitlement authority. The two framework-backed `Product.products(for:)` storefront probes were
+not claimed as passed: command-line Xcode did not attach the Run-action StoreKit configuration to
+the test process, and Xcode GUI 26.6 crashed in an unrelated `ActivityBarAccessory` assertion
+before the dedicated scheme could run. They remain an explicit local-Xcode/focused-review item;
+the default suite skips them honestly.
+
+Validation result: pass under Xcode 26.6. All static gates, the Release build, 303 Swift tests in
+20 suites, all 13 UI tests, and every selected core-service coverage threshold passed. The Python
+StoreKit contract suite passed 11 tests. Focused runtime tests passed for exact-context catalog
+fallback, cache deletion, malformed/partial rejection, startup and update reconciliation, one
+listener under concurrent starts, whole Free/Pro snapshots, fail-closed authority, and stale-read
+suppression. Only the documented nondeterministic wall-clock assertion was skipped; its
+deterministic 10,000-row contract remained active.
+
+Next suggested task: Open C2-02 as one focused PR. Mark it Done only after owner review, green CI,
+and the remaining dedicated local-StoreKit evidence is either captured or explicitly accepted as
+a bounded environment limitation.
+
+## 2026-08-12 — Session 17 — Close C2-02 focused StoreKit review findings
+
+Goal: Resolve PR #29's billing-grace candidate, framework-probe evidence, UI revocation-refresh,
+and transaction-finishing review findings without beginning C2-03.
+
+What was completed: Replaced the premature `expirationDate > now` authority filter with explicit
+raw `isRevoked` and `expirationDate` facts. C2-02 still rejects revoked transactions, but an
+unrevoked current-entitlement candidate with a past expiration now reaches the future C2-03 status
+mapper instead of being discarded first. Added regressions for both directions and a direct
+AppSession exact-Free -> Pro -> exact-Free test proving SwiftUI-facing premium snapshots refresh
+without relaunch. Reverified the dedicated local StoreKit scheme under Xcode 26.6 RC build
+`17F109` and iOS 26.5: both CHN/USA probes executed, but StoreKit configuration/storefront
+synchronization failed with `SKInternalErrorDomain Code=3` and product loading returned empty.
+A trial Launch-environment inheritance produced a false green by skipping the probes, so the
+scheme was restored to its explicit Test-action opt-in and the catalog contract now rejects that
+shape. Both probes executing and passing under a supported final Xcode GUI/toolchain are a hard
+C2-03 entry gate. Updated the C2 packet, matrices, requirements, decisions, policies, project
+memory, task status, and CI evidence accordingly.
+
+What was NOT completed: No purchase, restore, subscription-status mapper, transaction `finish()`,
+paywall, persistent authority, formal customer price/trial/quota, App Store Connect product,
+schema, cloud/provider channel, app-owned network destination, version, Archive, upload, tester,
+or distribution state changed. The failed framework probes are recorded as non-evidence rather
+than reported as passing. C2-02 remains implementation-complete and awaiting focused owner review;
+C2-03 has not started.
+
+Validation result: pass under Xcode 26.6 with the documented shared-host wall-clock exclusion.
+All static gates, the Release build, 306 selected Swift tests in 20 suites, all 13 UI tests, and
+every selected coverage threshold passed. The StoreKit Python contract suite passed 12 tests; the
+focused StoreRuntime suite passed all 11 tests. A separate strict local run completed all
+functional and UI coverage but measured the known 10,000-row wall-clock signal at 0.830 seconds,
+so the final shared-host run skipped only that nondeterministic 500 ms assertion while retaining
+the deterministic 10,000-row projection contract.
+
+Next suggested task: Push the focused remediation to PR #29, wait for green CI, and request owner
+review. Mark C2-02 Done only after approval and merge; do not start C2-03 until its framework-probe
+entry gate also passes.

@@ -12,7 +12,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
   three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 is Done
-  and C2-02 has not started.
+  and C2-02 implementation is awaiting focused review.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -29,9 +29,20 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   local scheme, and absent from the app target/default scheme. The fixture defaults to
   CHN/`zh_CN` and pins synthetic test prices plus explicit bilingual “not a customer offer” copy;
   this does not accept a launch storefront or price. The catalog/project/scheme contract is an
-  importable Python module with standard `unittest` fixtures behind a thin Shell/CI entry. No
-  formal App Store Connect
-  product/group, runtime StoreKit catalog, transaction authority, paywall,
+  importable Python module with standard `unittest` fixtures behind a thin Shell/CI entry. C2-02
+  adds the app-owned typed StoreKit catalog, environment/storefront-keyed presentation-only cache,
+  an actor-isolated current-entitlement authority, exactly one lifecycle-owned
+  `Transaction.updates` task, launch reconciliation, and a process-local synchronized bridge to
+  existing feature consumers. Unknown products/environments, mixed environments, and unverified
+  input fail closed; Delete All clears the presentation cache, which can never grant a right.
+  C2-02 retains verified ownership, revocation, and expiration as raw facts without deciding
+  billing grace from expiration alone; C2-03 owns the complete status mapping and transaction
+  finish. C2-03 is blocked until both opt-in CHN/USA runtime catalog probes execute (not skip) and
+  pass under a supported final Xcode toolchain. The installed Xcode 26.6 RC `17F109`/iOS 26.5 CLI
+  emits StoreKit synchronization `Code=3` and empty catalogs, which is diagnostic failure evidence
+  rather than a pass.
+  No formal App Store Connect
+  product/group, purchase, restore, status mapper, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
@@ -190,8 +201,9 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1 and C2-01 are closed. C2-01 stops at a configuration-only local test catalog and did not add
-runtime StoreKit authority, transaction observation, purchase, restore, a paywall, formal products,
-or customer terms. Access decisions still may not read raw entitlement bits; exact Free checks use
-`isFree`, never `isSuperset(of: .free)`. C2-02 is the next packet but may begin only after a fresh
-explicit owner instruction.
+COM-C1 and C2-01 are closed. C2-02 is implementation-complete and awaiting focused review/merge;
+it adds runtime product presentation and verified current-entitlement authority but no purchase,
+restore, status mapping, transaction finish, paywall, formal products, or customer terms. Access
+decisions still may not read raw entitlement bits; exact Free checks use `isFree`, never
+`isSuperset(of: .free)`. C2-03 remains blocked by C2-02 review/merge, a fresh explicit owner
+instruction, and passing non-skipped CHN/USA local StoreKit runtime probes.

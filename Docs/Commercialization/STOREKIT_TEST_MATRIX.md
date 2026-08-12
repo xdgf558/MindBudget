@@ -19,7 +19,7 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | Source | May affect | Must never affect | Required evidence |
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
-| StoreKit Configuration | Local development fixture | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate and StoreKitTest/JSON tests |
+| StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in CHN/USA runtime product-load tests |
 | Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
 | TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
 | Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
@@ -47,6 +47,11 @@ Every row must be exercised for Monthly and Annual where applicable:
 - product loading under the committed CHN storefront and at least one non-CHN test storefront;
 - purchase success with verified result, pending, user cancellation, unverified, thrown error;
 - exactly one app-lifecycle `Transaction.updates` listener, including update before/after UI owner;
+- C2-02 preserves an unrevoked current-entitlement record even when its last renewal expiration
+  is in the past; C2-03 alone combines that raw fact with StoreKit subscription status so billing
+  grace is not filtered before the status mapper can see it;
+- the live AppSession access projection changes exact Free → Pro → exact Free after authority
+  updates, without requiring an app restart;
 - every verified transaction is handled idempotently and finished at the required boundary;
 - duplicate/reordered updates, reinstall, app restart, account change and concurrent purchase tap;
 - explicit Restore Purchases success/no purchase/offline/error; no implicit restore prompt;
@@ -65,10 +70,15 @@ Every row must be exercised for Monthly and Annual where applicable:
 
 ## Test layers and report paths
 
-- Pure unit reports: entitlement-set algebra, feature matrix, status mapper, environment parser,
-  cache semantics and transaction idempotency.
+- Pure unit reports: entitlement-set algebra, feature matrix, environment parser, exact-context
+  presentation-cache semantics, current-entitlement reconciliation, fail-closed unknown/mixed/
+  unverified state, concurrent immutable reads, and one listener owner. Status mapping remains C2-03.
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
-  purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same committed fixture.
+  C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme,
+  followed by purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same fixture.
+  Before C2-03 starts, both runtime probes must execute (not skip) and pass under a supported final
+  Xcode toolchain; `SKInternalErrorDomain Code=3` or an empty catalog blocks entry rather than
+  authorizing a weaker probe.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner

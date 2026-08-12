@@ -1981,3 +1981,24 @@ remain fixture-free.
 Consequences: The catalog can be tested without converting synthetic local values into commercial
 terms or test state into Release authority. Runtime StoreKit, purchase/restore, paywall, formal
 products, and distribution remain blocked by their later packets and release gates.
+
+---
+
+## 2026-08-12 — Keep runtime StoreKit authority separate from presentation state
+
+Context: COM-C2-02 is the first packet that may load runtime StoreKit products and reconcile
+current entitlements, but purchase, restore, status mapping, customer terms, and distribution still
+belong to later packets.
+
+Decision: Detailed runtime catalog, cache, lifecycle-listener, environment-isolation, and
+fail-closed rules live in commercial decision DEC-COM-016. The app has one process-local StoreKit
+authority. Only current verified StoreKit state can replace its immutable entitlement snapshot;
+cached Product presentation never grants access. C2-02 retains revocation and expiration as raw
+facts rather than filtering a past expiration before C2-03 can apply the billing-status mapper.
+
+Consequences: Existing UI and App Intents receive one dynamic authority without learning Product
+IDs, prices, raw entitlement bits, or billing state. Unknown, mixed, or unverified authority input
+returns to Free. C2-02 adds no purchase/restore/paywall, schema, app-owned network domain, customer
+term, version, Archive, upload, tester, or distribution change. C2-03 may not begin until the CHN
+and USA local StoreKit product probes execute rather than skip and pass under a supported final
+Xcode toolchain; the current Xcode 26.6 RC/iOS 26.5 CLI `Code=3` result is not passing evidence.
