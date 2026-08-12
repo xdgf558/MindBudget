@@ -261,8 +261,10 @@ context.
   are accepted. A static same-code-path validator and StoreKitTest/JSON tests reject an unknown or
   duplicate identifier, Lifetime, Family Sharing, offers, wrong duration/service level, app-bundle
   embedding, default-scheme activation, or an Archive-capable local scheme. Its project/scheme
-  checks are format-independent and run accepted/rejected same-code-path self-tests before the
-  real files, so an Xcode multiline project rewrite cannot make app-resource isolation fail open.
+  checks are format-independent. The Shell entry remains a thin wrapper around an importable
+  Python contract, and standard `unittest` accepted/rejected fixtures exercise the same functions
+  before the real files, so an Xcode multiline project rewrite cannot make app-resource isolation
+  fail open or later C2 growth turn into an unlintable embedded heredoc.
   Runtime StoreKit product
   loading, transactions, purchase/restore, entitlement authority, and paywall remain later C2/C3
   packets; those packets must cover CHN plus a non-CHN StoreKit test storefront and inject billing

@@ -22,11 +22,12 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active implementation packet: **COM-C2 / C2-01 — isolated StoreKit test catalog**.
+- Active implementation packet: **none**. COM-C2 / C2-01 is completed; C2-02 remains blocked
+  until a fresh explicit owner instruction.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
-  period, and basic Siri record/check actions. C2-01 adds only an isolated local StoreKit
+  period, and basic Siri record/check actions. C2-01 added only an isolated local StoreKit
   Configuration fixture for the accepted Monthly/Annual technical catalog. Runtime StoreKit,
   transactions, purchase/restore, paywall, receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
@@ -203,7 +204,8 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01 implemented for review; C2-02 has not started.** Follow
+Status: **In Progress — C2-01 completed; C2-02 has not started and awaits explicit owner
+instruction.** Follow
 `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an

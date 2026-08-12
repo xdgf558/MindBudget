@@ -11,7 +11,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
-  three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress at C2-01.
+  three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 is Done
+  and C2-02 has not started.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -27,7 +28,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   catalog. It is copied only to the unit-test bundle, enabled only by a dedicated non-Archive
   local scheme, and absent from the app target/default scheme. The fixture defaults to
   CHN/`zh_CN` and pins synthetic test prices plus explicit bilingual “not a customer offer” copy;
-  this does not accept a launch storefront or price. No formal App Store Connect
+  this does not accept a launch storefront or price. The catalog/project/scheme contract is an
+  importable Python module with standard `unittest` fixtures behind a thin Shell/CI entry. No
+  formal App Store Connect
   product/group, runtime StoreKit catalog, transaction authority, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.
@@ -187,8 +190,8 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1 is closed. C2-01 is the active COM-C2 review packet and stops at a configuration-only local
-test catalog. It must not add runtime StoreKit authority, transaction observation, purchase,
-restore, a paywall, formal products, or customer terms. Access decisions still may not read raw
-entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. C2-02 may begin
-only after C2-01 is independently reviewed and merged on the owner's instruction.
+COM-C1 and C2-01 are closed. C2-01 stops at a configuration-only local test catalog and did not add
+runtime StoreKit authority, transaction observation, purchase, restore, a paywall, formal products,
+or customer terms. Access decisions still may not read raw entitlement bits; exact Free checks use
+`isFree`, never `isSuperset(of: .free)`. C2-02 is the next packet but may begin only after a fresh
+explicit owner instruction.

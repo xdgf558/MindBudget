@@ -43,8 +43,8 @@ remain manual release gates, so the phase is still In Progress. Commercializatio
 COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification and the planning
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
-feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress at
-C2-01, which adds only a local StoreKit Configuration test fixture;
+feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
+C2-01 is complete with only a local StoreKit Configuration test fixture, while C2-02 has not started;
 the current app target still contains no runtime StoreKit catalog, transaction-derived right,
 quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no

@@ -3597,3 +3597,30 @@ deterministic 10,000-row projection contract.
 
 Next suggested task: Push this focused review closeout to PR #28 and merge only after owner
 approval. Begin C2-02 only after the merge and a new explicit owner instruction.
+
+## 2026-08-12 — Session 94 — Extract and close the C2-01 StoreKit contract runner
+
+Goal: Apply the final C2-01 maintainability recommendation, preserve the exact catalog/isolation
+contract, and merge PR #28 only after complete validation and green CI.
+
+What was completed: Extracted the approximately 330-line StoreKit catalog, project-resource, and
+scheme contract from the Shell heredoc into importable `Scripts/storekit_catalog_contract.py`.
+Reduced `check-storekit-test-catalog.sh` to a thin repository entry point and moved all accepted and
+rejected fixtures into nine standard `unittest` cases that exercise the same functions used for the
+real repository. Updated the durable commercialization decision, packet, CI baseline, and project
+memory to record the new boundary. After owner approval, marked C2-01 Done while leaving C2-02
+unstarted and blocked on a fresh explicit instruction.
+
+What was NOT completed: No runtime StoreKit catalog, product loading, transaction listener,
+entitlement authority/cache, purchase, restore, status mapping, paywall, customer price/trial,
+formal App Store Connect product, schema, network/cloud/provider, version, Archive, upload, tester,
+or distribution state changed. C2-02 was not started.
+
+Validation result: pass under Xcode 26.6. All static money, empty-egress, commercialization-
+document, feature-access, StoreKit-catalog, release-readiness, and diff gates passed. The extracted
+contract's nine Python tests passed. Full validation passed the Release build, 293 Swift tests in
+19 suites, all 13 UI tests with zero failures, and every selected core-service coverage threshold.
+The documented shared-host option skipped only the nondeterministic wall-clock assertion while
+retaining the deterministic 10,000-row projection contract.
+
+Next suggested task: Wait for a fresh explicit owner instruction before beginning C2-02.

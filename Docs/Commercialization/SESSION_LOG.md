@@ -466,3 +466,29 @@ the deterministic 10,000-row projection contract remained active.
 
 Next suggested task: Push the closeout to PR #28, confirm CI is green, and merge only after owner
 approval. Start C2-02 only after merge and a new explicit instruction.
+
+## 2026-08-12 — Session 15 — Extract and close the C2-01 StoreKit contract runner
+
+Goal: Apply the final C2-01 maintainability recommendation without changing its accepted
+configuration-only scope, then close the packet after owner-approved review.
+
+What was completed: Moved the catalog JSON, PBX resource-isolation, and XML scheme contract into
+the importable `Scripts/storekit_catalog_contract.py` module. The Shell gate is now a thin wrapper;
+nine standard `unittest` cases cover accepted catalog/project/scheme fixtures plus Lifetime,
+Family Sharing, customer-copy, app-resource, default-scheme, and Archive-capability rejections
+through the same code paths used against the repository. Updated DEC-COM-015, the C2 execution
+packet, CI baseline, project memory, and task status. C2-01 is Done after independent review and
+full validation; C2-02 remains unstarted pending a fresh explicit owner instruction.
+
+What was NOT completed: No runtime StoreKit catalog, product loading, transaction observation,
+entitlement lifecycle/cache, purchase, restore, grace-state mapping, paywall, formal product,
+customer price/trial/quota, schema, network/cloud/provider, version, Archive, upload, tester, or
+distribution state changed.
+
+Validation result: pass under Xcode 26.6. The extracted Python contract suite passed 9 tests. All
+static gates passed. Full validation passed the Release build, 293 Swift tests in 19 suites, all
+13 UI tests with zero failures, and every selected core-service coverage threshold. The documented
+shared-host option skipped only the nondeterministic wall-clock assertion and retained the
+deterministic 10,000-row projection contract.
+
+Next suggested task: Begin C2-02 only after a fresh explicit owner instruction.

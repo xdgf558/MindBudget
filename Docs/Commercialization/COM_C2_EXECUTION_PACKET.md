@@ -21,6 +21,8 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 
 ## C2-01 — StoreKit test catalog
 
+Status: **Done** after independent review and full validation. C2-02 has not started.
+
 ### Tasks
 
 - Commit one Xcode StoreKit Configuration fixture containing exactly the accepted Monthly and
@@ -38,6 +40,8 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 ### Tests
 
 - `Scripts/check-storekit-test-catalog.sh`
+- `Scripts/storekit_catalog_contract.py` plus
+  `Scripts/tests/test_storekit_catalog_contract.py` under Python `unittest`.
 - `StoreKitTestCatalogTests`
 - Default-scheme build-for-testing plus the complete repository validation suite.
 

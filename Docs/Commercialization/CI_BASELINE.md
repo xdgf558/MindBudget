@@ -31,8 +31,10 @@ repository snapshot and does not claim access to the owner's external specificat
   build-for-testing, Swift Testing/UI tests, and coverage thresholds. The COM documentation gate
   is additive and contains no app behavior.
 - The StoreKit catalog gate parses scheme XML and balanced `pbxproj` objects rather than assuming
-  one-line formatting. Before inspecting the repository, it proves the same parser accepts a
-  test-bundle-only fixture and rejects app-resource, default-scheme, and Archive-capable fixtures.
+  one-line formatting. Its Shell entry is a thin wrapper around the independently runnable and
+  importable `Scripts/storekit_catalog_contract.py`; a normal Python `unittest` suite proves the
+  same functions accept a test-bundle-only fixture and reject app-resource, default-scheme, and
+  Archive-capable fixtures before the repository contract is checked.
 
 ## COM-C0A measured coverage
 

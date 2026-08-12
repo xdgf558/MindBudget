@@ -180,9 +180,15 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01 implemented for review; C2-02 has not started.**' \
+grep -Fq 'Status: **In Progress — C2-01 completed; C2-02 has not started and awaits explicit owner' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must identify C2-01 as the active packet" >&2
+  echo "COM-C2 must record C2-01 complete and keep C2-02 behind explicit owner instruction" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Done** after independent review and full validation. C2-02 has not started.' \
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+  echo "COM-C2 execution packet must record C2-01 as Done" >&2
   exit 1
 }
 
