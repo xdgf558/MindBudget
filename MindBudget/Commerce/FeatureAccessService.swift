@@ -58,6 +58,28 @@ struct FeatureAccessService: FeatureAccessChecking, Sendable {
     }
 }
 
+/// The process-local bridge from the actor-owned StoreKit lifecycle to existing synchronous
+/// feature consumers.
+///
+/// Only an immutable `FeatureAccessService` snapshot crosses the lock. Nothing is persisted, and
+/// the default remains exact Free until `EntitlementStore` completes verified reconciliation.
+final class LiveFeatureAccessAuthority: FeatureAccessChecking, @unchecked Sendable {
+    private let lock = NSLock()
+    private var service = FeatureAccessService()
+
+    func decision(for feature: PremiumFeature) -> FeatureAccessDecision {
+        lock.lock()
+        defer { lock.unlock() }
+        return service.decision(for: feature)
+    }
+
+    func replaceEntitlements(_ entitlements: EntitlementSet) {
+        lock.lock()
+        service = FeatureAccessService(entitlements: entitlements)
+        lock.unlock()
+    }
+}
+
 /// Immutable decisions for the advanced entry points that already exist in the app.
 ///
 /// Feature code receives this value instead of entitlement bits, products, or billing state.

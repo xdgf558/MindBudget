@@ -22,14 +22,16 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active implementation packet: **none**. COM-C2 / C2-01 is completed; C2-02 remains blocked
-  until a fresh explicit owner instruction.
+- Active implementation packet: **COM-C2 / C2-02 — runtime catalog and entitlement store**, pending
+  focused review. C2-01 is completed.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
   period, and basic Siri record/check actions. C2-01 added only an isolated local StoreKit
-  Configuration fixture for the accepted Monthly/Annual technical catalog. Runtime StoreKit,
-  transactions, purchase/restore, paywall, receipt import, iCloud sync,
+  Configuration fixture for the accepted Monthly/Annual technical catalog. C2-02 adds the typed
+  runtime catalog, presentation-only cache, process-local entitlement authority, launch
+  reconciliation, and one lifecycle-owned transaction listener. Purchase/restore, status mapping,
+  paywall, receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
   TestFlight/App Store candidate until verified purchase/restore, purchase presentation, and the
@@ -204,13 +206,12 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01 completed; C2-02 has not started and awaits explicit owner
-instruction.** Follow
+Status: **In Progress — C2-01 completed; C2-02 implementation is active pending focused review.** Follow
 `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an
   isolated environment matrix. Do not create Lifetime or formal App Store products yet.
-- [B] **C2-02 — Catalog and entitlement store.** Implement `StoreCatalog`, actor-isolated
+- [ ] **C2-02 — Catalog and entitlement store.** Implement `StoreCatalog`, actor-isolated
   `EntitlementStore`, startup cache for presentation only, and exactly one lifecycle-owned
   `Transaction.updates` task.
 - [B] **C2-03 — Purchase and restore flows.** Implement verification, finish, pending, cancel,

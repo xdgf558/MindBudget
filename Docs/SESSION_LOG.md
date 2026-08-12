@@ -3624,3 +3624,35 @@ The documented shared-host option skipped only the nondeterministic wall-clock a
 retaining the deterministic 10,000-row projection contract.
 
 Next suggested task: Wait for a fresh explicit owner instruction before beginning C2-02.
+
+## 2026-08-12 — Session 95 — Implement COM-C2-02 runtime StoreKit authority
+
+Goal: Implement the runtime catalog and verified entitlement store inside the accepted C2-02
+boundary while keeping purchases, restores, customer terms, paywall, and distribution out of
+scope.
+
+What was completed: Added exact Monthly/Annual StoreKit product loading and validation,
+environment/storefront-scoped presentation caching with Delete All cleanup, and a shared dynamic
+feature-access authority backed only by verified current entitlements. The entitlement actor owns
+one transaction-update listener, re-reads current state after signals, rejects mixed/unverified/
+unknown states, and prevents stale suspended reconciliation from overwriting newer authority.
+App UI and App Intents share this authority. Added focused catalog, cache, concurrency, lifecycle,
+failure-closed, and stale-read tests, plus dedicated opt-in CHN/USA local StoreKit probes. Updated
+the commercial decision, packet, matrix, requirements, network policy, project memory, task
+status, CI evidence, and detailed commercial session log. C2-02 is implementation-complete and
+awaiting focused review.
+
+What was NOT completed: No purchase, restore, transaction finish, subscription status UI,
+paywall, persistent entitlement cache, formal product/customer price/trial/quota, schema,
+app-owned network/cloud/provider channel, version, Archive, upload, tester, or distribution state
+changed. Xcode command-line tests did not receive the Run-action StoreKit configuration, and the
+local Xcode GUI crashed before the dedicated scheme could run, so the two framework-backed
+storefront probes remain explicitly unclaimed rather than reported as passing.
+
+Validation result: pass under Xcode 26.6. All static gates and the Release build passed. The full
+suite passed 303 Swift tests in 20 suites and all 13 UI tests with zero failures; every selected
+coverage threshold passed. The StoreKit Python contract suite passed 11 tests. Default-scheme
+execution honestly skipped the two opt-in framework-backed storefront probes.
+
+Next suggested task: Review C2-02 as one focused PR, capture or explicitly accept the remaining
+dedicated local-StoreKit evidence, and mark the packet Done only after owner approval and green CI.

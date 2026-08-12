@@ -7,6 +7,8 @@ cd "${PROJECT_ROOT}"
 
 ACCESS_SOURCE="MindBudget/Commerce/FeatureAccessService.swift"
 ENTITLEMENT_SOURCE="MindBudget/Commerce/EntitlementDomain.swift"
+STORE_CATALOG_SOURCE="MindBudget/Commerce/StoreCatalog.swift"
+ENTITLEMENT_STORE_SOURCE="MindBudget/Commerce/EntitlementStore.swift"
 
 if [[ ! -s "${ACCESS_SOURCE}" || ! -s "${ENTITLEMENT_SOURCE}" ]]; then
   echo "Feature-access and entitlement sources must both exist" >&2
@@ -251,6 +253,7 @@ duplicate_subscription_checks="$({
   find MindBudget -type f -name '*.swift' \
     ! -path "${ACCESS_SOURCE}" \
     ! -path "${ENTITLEMENT_SOURCE}" \
+    ! -path "${STORE_CATALOG_SOURCE}" \
     -exec grep -nEH '\.proSubscription([^[:alnum:]_]|$)' {} + |
     grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
 } 2>/dev/null || true)"
@@ -320,11 +323,12 @@ fi
 
 commercial_product_literals="$({
   find MindBudget -type f -name '*.swift' \
+    ! -path "${STORE_CATALOG_SOURCE}" \
     -exec grep -nEH 'com\.xdgf558\.mindbudget\.pro\.(monthly|annual|lifetime)' {} + |
     grep -Ev '^[^:]+:[0-9]+:[[:space:]]*//'
 } 2>/dev/null || true)"
 if [[ -n "${commercial_product_literals}" ]]; then
-  echo "C2-01 must not embed StoreKit product identifiers in app source:" >&2
+  echo "StoreKit product identifiers must remain centralized in StoreCatalog:" >&2
   echo "${commercial_product_literals}" >&2
   exit 1
 fi
@@ -349,9 +353,15 @@ if [[ -n "${authority_storage_reads}" ]]; then
   exit 1
 fi
 
-if grep -R -nE '^[[:space:]]*(import|@preconcurrency[[:space:]]+import)[[:space:]]+StoreKit' \
-  MindBudget --include='*.swift'; then
-  echo "C2-01 must not import StoreKit into app source" >&2
+storekit_imports="$({
+  find MindBudget -type f -name '*.swift' \
+    ! -path "${STORE_CATALOG_SOURCE}" \
+    ! -path "${ENTITLEMENT_STORE_SOURCE}" \
+    -exec grep -nEH '^[[:space:]]*(import|@preconcurrency[[:space:]]+import)[[:space:]]+StoreKit' {} +
+} 2>/dev/null || true)"
+if [[ -n "${storekit_imports}" ]]; then
+  echo "StoreKit imports must remain inside the Commerce runtime adapters:" >&2
+  echo "${storekit_imports}" >&2
   exit 1
 fi
 

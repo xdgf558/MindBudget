@@ -277,3 +277,31 @@ context.
 - Alternatives rejected: Creating formal products before the economics gate; embedding a local
   configuration in the app/Archive; activating it in the default scheme; adding Lifetime or a
   placeholder offer; or treating synthetic fixture values as customer terms.
+
+## DEC-COM-016 — Make verified current StoreKit state the sole runtime paid authority
+
+- Status/date: **Accepted — 2026-08-12**
+- Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
+- Decision: C2-02 adds one typed runtime catalog containing only the accepted Monthly and Annual
+  identifiers and one actor-owned entitlement lifecycle. Product display name, description, price,
+  and subscription period come from `Product`; a deletable cache may retain only that presentation
+  snapshot under an exact StoreKit environment plus storefront key. Paid access is derived only
+  from a fresh `Transaction.currentEntitlements` read. One lifecycle-scoped
+  `Transaction.updates` listener treats an update only as a signal to re-read current state; it
+  never trusts the update as authority. A process-local locked bridge replaces whole immutable
+  access snapshots so existing synchronous UI and App Intent consumers observe the same authority.
+- Consequences: Missing, unverified, unknown-product, unknown-environment, or mixed-environment
+  authority input fails closed to exact Free. Product-loading or presentation-cache failure never
+  erases a separately verified entitlement, and cached presentation can never grant one. Repeated
+  SwiftUI lifecycle starts do not create another listener or catalog refresh. Delete All clears the
+  presentation cache. Runtime CHN and USA product loading is isolated to the dedicated local Xcode
+  StoreKit scheme; the default scheme runs deterministic catalog/cache/lifecycle tests and does not
+  claim skipped local-configuration tests passed. Purchase, restore, transaction finishing,
+  pending/cancel handling, subscription-status mapping, customer pricing/trial terms, paywall,
+  formal App Store Connect products, and distribution remain blocked by C2-03/C2-04 and later
+  release gates.
+- Alternatives rejected: Persisting an entitlement bit or migrated entitlement representation as
+  Release authority; granting from a cached Product; one update listener per view/scene; trusting
+  an update payload without current-state reconciliation; silently accepting an unknown Product ID
+  beside a known one; hardcoding customer-facing price or trial copy; or enabling purchase/restore
+  ahead of their owning packet.

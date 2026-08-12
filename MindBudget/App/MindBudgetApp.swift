@@ -61,6 +61,8 @@ private struct ConfiguredAppView: View {
             navigationStore: environment.intentService.navigationStore,
             appLockAuthenticator: environment.appLockAuthenticator,
             featureAccessService: environment.featureAccessService,
+            storeCatalog: environment.storeCatalog,
+            entitlementStore: environment.entitlementStore,
             appLockInitiallyEnabled: settings.requireFaceID
         )
         .modelContainer(environment.dataController.container)

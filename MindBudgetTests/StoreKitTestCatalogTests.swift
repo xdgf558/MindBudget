@@ -1,6 +1,8 @@
 import Foundation
+import StoreKit
 import StoreKitTest
 import Testing
+@testable import MindBudget
 
 @Suite(.serialized)
 struct StoreKitTestCatalogTests {
@@ -124,6 +126,40 @@ struct StoreKitTestCatalogTests {
         )
     }
 
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeCatalogLoadsTheCommittedProductsForChina() async throws {
+        let session = try SKTestSession(contentsOf: try configurationURL())
+        session.resetToDefaultState()
+        session.disableDialogs = true
+        session.clearTransactions()
+        session.storefront = "CHN"
+        session.locale = Locale(identifier: "zh_CN")
+
+        let records = try await StoreKitProductLoader().loadProducts(
+            identifiedBy: Set(StoreProductID.allCases.map(\.rawValue))
+        )
+        #expect(Set(records.map(\.id)) == Set(StoreProductID.allCases.map(\.rawValue)))
+        #expect(records.allSatisfy { $0.isAutoRenewable })
+        #expect(records.allSatisfy { !$0.isFamilyShareable })
+        #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
+    }
+
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeCatalogAlsoLoadsUnderANonChinaStorefront() async throws {
+        let session = try SKTestSession(contentsOf: try configurationURL())
+        session.resetToDefaultState()
+        session.disableDialogs = true
+        session.clearTransactions()
+        session.storefront = "USA"
+        session.locale = Locale(identifier: "en_US")
+
+        let records = try await StoreKitProductLoader().loadProducts(
+            identifiedBy: Set(StoreProductID.allCases.map(\.rawValue))
+        )
+        #expect(Set(records.map(\.id)) == Set(StoreProductID.allCases.map(\.rawValue)))
+        #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
+    }
+
     private func decodedCatalog() throws -> StoreKitConfigurationCatalog {
         let data = try Data(contentsOf: try configurationURL())
         return try JSONDecoder().decode(StoreKitConfigurationCatalog.self, from: data)
@@ -134,6 +170,10 @@ struct StoreKitTestCatalogTests {
         return try #require(
             bundle.url(forResource: "MindBudgetPro", withExtension: "storekit")
         )
+    }
+
+    private static var runsLocalStoreKitRuntimeTests: Bool {
+        ProcessInfo.processInfo.environment["MINDBUDGET_LOCAL_STOREKIT_RUNTIME_TESTS"] == "1"
     }
 }
 

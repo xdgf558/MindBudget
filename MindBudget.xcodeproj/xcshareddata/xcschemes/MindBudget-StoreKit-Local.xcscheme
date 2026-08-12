@@ -5,8 +5,21 @@
          <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
             <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000001" BuildableName="MindBudget.app" BlueprintName="MindBudget" ReferencedContainer="container:MindBudget.xcodeproj"/>
          </BuildActionEntry>
+         <BuildActionEntry buildForTesting="YES" buildForRunning="NO" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000002" BuildableName="MindBudgetTests.xctest" BlueprintName="MindBudgetTests" ReferencedContainer="container:MindBudget.xcodeproj"/>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
+   <TestAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="NO">
+      <Testables>
+         <TestableReference skipped="NO">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000002" BuildableName="MindBudgetTests.xctest" BlueprintName="MindBudgetTests" ReferencedContainer="container:MindBudget.xcodeproj"/>
+         </TestableReference>
+      </Testables>
+      <EnvironmentVariables>
+         <EnvironmentVariable key="MINDBUDGET_LOCAL_STOREKIT_RUNTIME_TESTS" value="1" isEnabled="YES"/>
+      </EnvironmentVariables>
+   </TestAction>
    <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="YES">
       <BuildableProductRunnable runnableDebuggingMode="0">
          <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D10000000000000000000001" BuildableName="MindBudget.app" BlueprintName="MindBudget" ReferencedContainer="container:MindBudget.xcodeproj"/>

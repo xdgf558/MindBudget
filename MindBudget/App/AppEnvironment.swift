@@ -73,6 +73,8 @@ struct AppEnvironment {
     let intentService: MindBudgetIntentService
     let appLockAuthenticator: any AppLockAuthenticating
     let featureAccessService: any FeatureAccessChecking
+    let storeCatalog: StoreCatalog
+    let entitlementStore: EntitlementStore
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -104,7 +106,16 @@ struct AppEnvironment {
         let dataController = try DataController(isStoredInMemoryOnly: isStoredInMemoryOnly)
         let notificationScheduler = NotificationScheduler()
         let navigationStore = MindBudgetNavigationRequestStore()
-        let featureAccessService: any FeatureAccessChecking = FeatureAccessService()
+        let featureAccessAuthority = LiveFeatureAccessAuthority()
+        let featureAccessService: any FeatureAccessChecking = featureAccessAuthority
+        let storeCatalog = StoreCatalog(
+            presentationCache: UserDefaultsStorePresentationCache(
+                suiteName: preferenceSuiteName
+            )
+        )
+        let entitlementStore = EntitlementStore(
+            featureAccessAuthority: featureAccessAuthority
+        )
         let intentService = MindBudgetIntentService(
             dataActor: dataController.dataActor,
             preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
@@ -122,7 +133,9 @@ struct AppEnvironment {
             spotlightIndexer: SpotlightIndexingService(),
             intentService: intentService,
             appLockAuthenticator: LocalAppLockAuthenticator(),
-            featureAccessService: featureAccessService
+            featureAccessService: featureAccessService,
+            storeCatalog: storeCatalog,
+            entitlementStore: entitlementStore
         )
     }
 }

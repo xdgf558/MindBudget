@@ -109,7 +109,7 @@ struct MindBudgetIntentService: Sendable {
     let notificationScheduler: any NotificationScheduling
     let navigationStore: MindBudgetNavigationRequestStore
     let capability: SystemIntegrationCapability
-    let premiumEntryAccess: ExistingPremiumEntryAccess
+    let featureAccessService: any FeatureAccessChecking
 
     init(
         dataActor: DataActor,
@@ -124,7 +124,7 @@ struct MindBudgetIntentService: Sendable {
         self.notificationScheduler = notificationScheduler
         self.navigationStore = navigationStore
         self.capability = capability
-        premiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
+        self.featureAccessService = featureAccessService
     }
 
     func requireSiri() async throws -> SystemIntegrationPreferencesSnapshot {
@@ -141,7 +141,9 @@ struct MindBudgetIntentService: Sendable {
 
     func requireAdvancedSiri() async throws -> SystemIntegrationPreferencesSnapshot {
         let preferences = try await requireSiri()
-        guard premiumEntryAccess.permitsAdvancedSiri else {
+        guard ExistingPremiumEntryAccess(
+            featureAccess: featureAccessService
+        ).permitsAdvancedSiri else {
             throw IntentExecutionError.featureNotYetAvailable
         }
         return preferences

@@ -19,7 +19,7 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | Source | May affect | Must never affect | Required evidence |
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
-| StoreKit Configuration | Local development fixture | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate and StoreKitTest/JSON tests |
+| StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in CHN/USA runtime product-load tests |
 | Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
 | TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
 | Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
@@ -65,10 +65,12 @@ Every row must be exercised for Monthly and Annual where applicable:
 
 ## Test layers and report paths
 
-- Pure unit reports: entitlement-set algebra, feature matrix, status mapper, environment parser,
-  cache semantics and transaction idempotency.
+- Pure unit reports: entitlement-set algebra, feature matrix, environment parser, exact-context
+  presentation-cache semantics, current-entitlement reconciliation, fail-closed unknown/mixed/
+  unverified state, concurrent immutable reads, and one listener owner. Status mapping remains C2-03.
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
-  purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same committed fixture.
+  C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme,
+  followed by purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same fixture.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner

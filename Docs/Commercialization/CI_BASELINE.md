@@ -66,6 +66,29 @@ gate, release-readiness checks, generic Release simulator build, 270 Swift tests
 signal was skipped through the existing documented switch; its deterministic 10,000-row contract
 still passed. No product source/schema/resource or user-visible behavior changed in COM-C0B.
 
+## COM-C2-02 verification
+
+On 2026-08-12, Xcode 26.6 passed the complete static, Release-build, Swift Testing, UI, and
+coverage pipeline for the runtime catalog and entitlement-store implementation. The run passed
+303 Swift tests in 20 suites and all 13 UI tests with zero failures; every selected core-service
+coverage threshold remained above 85%. The extracted StoreKit contract suite passed all 11
+Python tests. Focused runtime tests covered exact-context presentation caching and deletion,
+malformed/partial catalogs, startup reconciliation, one transaction-update listener, concurrent
+whole-snapshot reads, fail-closed mixed/unverified/unknown states, and stale-reconciliation
+suppression.
+
+Two `Product.products(for:)` storefront probes are deliberately excluded from the default scheme
+and are enabled only by the non-Archive `MindBudget-StoreKit-Local` scheme. The current command-
+line Xcode environment did not attach the Run-action StoreKit configuration to its test process,
+and the local Xcode GUI crashed in an unrelated `ActivityBarAccessory` assertion before the
+dedicated scheme could run. Therefore CHN/USA framework-backed product loading is **not** claimed
+as passing evidence in this packet; it remains an explicit focused-review/local-Xcode evidence
+item. The default suite reports those two probes as skipped instead of manufacturing a pass.
+
+No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
+destination, Archive, upload, tester, or distribution state was introduced or changed. C2-02 is
+implementation-complete and remains pending focused owner review rather than Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not
