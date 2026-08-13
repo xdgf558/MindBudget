@@ -3741,3 +3741,162 @@ Archive, upload, tester, or distribution state changed.
 Evidence: `/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` and
 `/private/tmp/mindbudget-storekit-restart-17F113-ios265-23F77.log`. The remaining prerequisite is a
 supported final runtime on which both storefront probes execute and pass.
+
+## 2026-08-13 — Session 99 — Pass the COM-C2-03 StoreKit entry gate on a physical device
+
+Goal: Obtain supported-final runtime evidence for the CHN/USA local StoreKit probes without
+starting purchase behavior or weakening the fail-closed commercialization gate.
+
+What was completed: Final Xcode 26.6 build `17F113` ran the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the connected physical `拉沙的iPhone` (`iPhone Air`) with
+final iOS 26.6.1 build `23G82`. `StoreKitTestCatalogTests` completed 5 passed, 0 failed, 0 skipped.
+Both the CHN and USA runtime product-loading probes executed and passed, with no empty catalog and
+no `SKInternalErrorDomain Code=3`. `xcresulttool` independently confirmed the physical arm64
+device, OS/build, all five test names, and the totals. The accepted evidence changes C2-03 from
+Blocked to In Progress; historical simulator failures and beta diagnostic results remain intact.
+
+Evidence: `/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
+
+What was NOT completed: No C2-03 source, purchase, restore, status mapper, transaction finish,
+paywall, formal product or customer term, schema, network/provider channel, app version, Archive,
+upload, tester, or distribution state changed. The public/TestFlight distribution hold remains.
+
+Validation result: pass under final Xcode 26.6 `17F113` with the documented shared-host
+wall-clock exclusion. All static gates and the Release build passed; 306 Swift tests in 20 suites
+and all 13 UI tests passed; every selected coverage threshold remained above 85%; and
+`git diff --check` passed.
+
+Next suggested task: Begin only the C2-03 purchase/restore/status work described by the focused
+execution packet, then stop for review before C2-04 or any customer-facing/paywall/release work.
+
+## 2026-08-13 — Session 100 — Prepare COM-C2-03 for independent review
+
+Goal: Complete the bounded C2-03 StoreKit lifecycle implementation without adding customer-facing
+commerce or advancing any later commercialization/release phase.
+
+What was implemented: The existing single `EntitlementStore` now owns complete verified
+subscription-state mapping, explicit typed purchase and restore seams, one whole-snapshot
+authority publication path, unfinished transaction processing, and transaction acknowledgement.
+Subscribed and verified billing grace grant Pro; billing retry, expired, revoked, unknown,
+unverified, pending, mixed, and incomplete-free input grant no new right. A handled verified
+transaction is reconciled and published before finish. Failed finish remains unfinished and can be
+retried, while duplicate/concurrent delivery cannot finish the same transaction twice in process.
+
+Evidence status: The implementation candidate and its deterministic/opt-in StoreKit tests are
+ready for independent review. **Final test counts, full validation, CI, coverage, and merge evidence
+are pending and are not claimed here.** The physical iPhone Air 5/0/0 CHN/USA catalog run remains
+the C2-03 entry proof only; historical simulator failures and beta diagnostic evidence remain
+preserved rather than reclassified.
+
+What was NOT changed: No current view invokes purchase or restore; no paywall, visible purchase
+entry, formal customer price/trial/product, version, Archive, upload, tester assignment, app-owned
+network destination, or distribution state changed. The 0.9.6 binary and release hold are
+unchanged. C2-03 is implementation complete but not Done; C2-04 and C3 remain blocked.
+
+Next suggested task: Perform independent C2-03 review and the owning validation run, then record
+actual evidence before merge. Do not begin later packets early.
+
+## 2026-08-13 — Session 101 — Supervise StoreKit status signals inside the existing C2-03 authority
+
+Goal: Ensure retry or expiry can revoke access promptly even when StoreKit emits no new
+transaction, without creating a second lifecycle owner or advancing beyond C2-03.
+
+What changed: The existing `EntitlementStore` lifecycle task now supervises both transaction and
+subscription-status update sequences. A status signal has no independent authority; it causes a
+fresh full reconciliation through the same actor and central access publication path. The
+purchase/restore, status mapper, unfinished retry, and publish-before-finish boundaries are
+otherwise unchanged.
+
+Evidence status: Final focused and full test totals, coverage, CI, independent review, and merge
+evidence remain pending. No prior StoreKit entry-probe result is reused as proof of this change.
+
+What was NOT changed: There is no second authority, new UI, paywall, formal product/term, version,
+Archive, upload, tester assignment, app-owned network destination, or distribution change. C2-03
+remains implementation complete and pending independent review; C2-04 and C3 remain blocked.
+
+## 2026-08-13 — Session 102 — Complete local COM-C2-03 validation without advancing its review gate
+
+Goal: Finish the bounded C2-03 local verification record after the final StoreKit lifecycle and
+concurrency fixes, without advancing C2-04, C3, customer commerce UI, or distribution.
+
+What was completed: The single `EntitlementStore` authority now has independently reviewed
+fail-closed handling for subscription-state signals, restore provenance, same-transaction fact
+conflicts, crossgrades, duplicate/concurrent delivery, authoritative publication, and transaction
+finish retry. The focused lifecycle/runtime run passed 44/44. The 31-test lifecycle suite passed
+10 consecutive iterations (310/310). The strict 500 ms Dashboard wall-clock signal separately
+passed 10/10 isolated iterations. The full shared-host run excluded only that already-isolated
+wall-clock signal through the existing validation switch and continued to execute the
+deterministic 10,000-row projection contract.
+
+Validation result: Release and build-for-testing passed; 342 Swift tests completed with zero
+failures (338 passed, 4 dedicated StoreKit runtime probes skipped by design), and all 13 UI tests
+passed. The combined result is 355 total, 351 passed, 4 skipped, 0 failed. Every selected coverage
+file remains above 85%, ranging from CSVExporter at 87.60% to CurrencyFormatterService at 100%.
+All static money, network, commercialization-document, feature-access, StoreKit-catalog,
+release-readiness, and diff gates passed. Evidence:
+`/private/tmp/MindBudget-C203-Full-Final15.xcresult`.
+
+What was NOT completed: CI and merge evidence remain pending. The four opt-in StoreKit runtime
+probes were not reclassified as default-scheme evidence; presented `Product.purchase()` and a
+stable framework grace transition remain later UI/runtime obligations. No paywall, formal
+product/price/trial, version, Archive, upload, tester assignment, app-owned network destination,
+or distribution state changed. C2-03 remains implementation complete pending independent review,
+green CI, and merge; C2-04 and C3 remain blocked.
+
+Next suggested task: Open the C2-03 review unit and wait for independent review plus green CI
+before merge. Do not begin the next packet early.
+
+## 2026-08-13 — Session 103 — Clarify C2-03 actionability and restore concurrency invariants
+
+Goal: Resolve the first PR review's naming/readability concern while preserving the accepted
+C2-03 purchase/restore/status boundary.
+
+What changed: Renamed the lifecycle resolution flag from `isAuthoritative` to `isActionable`.
+Tests now explicitly pin that actionable means safe to use, not necessarily a complete
+supplemental Product/catalog read: a separately verified paid fact survives a catalog-only
+failure, while incomplete Free and unverified input remain fail-closed. Consolidated the actor's
+three coordination mechanisms into one documented invariant block covering whole-snapshot
+generation order, active acknowledgement-batch ownership, restore transaction provenance, and
+continuation completion. The existing deterministic test harness injects suspension gates at
+publish, finish, sync, and active-batch wait points; repeated runs remain stability evidence, not
+the sole interleaving argument.
+
+Review disposition: Did not delete the post-sync restore bridge. C2-03 is the accepted owner of
+purchase, restore, and status mapping; C2-04 owns environment isolation. StoreKit can deliver the
+verified restored transaction before `currentEntitlements` catches up, and the bridge prevents a
+valid restore from being reported as empty. Only completed verified transaction evidence may
+bridge; ordinary refreshes cannot, and newer revoked/unverified authority prevents stale paid
+facts from being reused.
+
+What was NOT changed: No runtime behavior, customer UI, paywall, formal product/term, version,
+Archive, upload, tester assignment, network destination, or distribution state changed. C2-03
+remains implementation complete pending re-review, green CI, and merge; C2-04/C3 remain blocked.
+
+Validation result: The focused lifecycle/runtime suites passed 45/45 after the rename. Static
+money, network, commercialization-document, StoreKit-catalog/environment-isolation, and diff
+gates passed. This review response changes no state-machine behavior, so the existing complete
+local validation and coverage evidence remains applicable.
+
+## 2026-08-13 — Session 104 — Trace C2-03 concurrency gates and narrow framework evidence claims
+
+Goal: Resolve the second review's evidence-location question without changing the reviewed
+StoreKit lifecycle behavior.
+
+What changed: Linked the consolidated actor invariant comment to the actual owning test files.
+`StoreLifecycleDomainTests.swift` contains the 31 deterministic lifecycle tests, including gates
+that suspend publication callbacks, transaction finish, `AppStore.sync()`, and active-batch
+waiting. `StoreRuntimeTests.swift` contains 14 tests, including the separate delayed-first-read
+gate; together they produced the focused 45/45 result. The PR and StoreKit matrix now make those
+locations explicit instead of requiring a reviewer to infer the second test file from totals.
+
+Evidence boundary: Mapper tests deliberately start after StoreKit verification has been projected
+into app-owned boolean facts. They do not independently prove the private
+`verifiedRecord(from:status:)` correlation of original IDs, environments, Product IDs, status
+transactions, renewal info, and crossgrade preference. Only the opt-in Monthly/Annual StoreKit
+integration flows enter the regular production derivation with real framework objects; default
+coverage is not claimed as proof of that seam, and real crossgrade/malformed-status transitions
+remain later controlled runtime evidence.
+
+What was NOT changed: No production behavior, purchase/restore policy, entitlement result,
+customer UI, commercial term, later phase, release artifact, or distribution state changed.
+C2-03 remains implementation complete pending re-review, green CI, and merge.

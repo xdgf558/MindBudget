@@ -1999,8 +1999,43 @@ facts rather than filtering a past expiration before C2-03 can apply the billing
 Consequences: Existing UI and App Intents receive one dynamic authority without learning Product
 IDs, prices, raw entitlement bits, or billing state. Unknown, mixed, or unverified authority input
 returns to Free. C2-02 adds no purchase/restore/paywall, schema, app-owned network domain, customer
-term, version, Archive, upload, tester, or distribution change. C2-03 may not begin until the CHN
-and USA local StoreKit product probes execute rather than skip and pass under a supported final
-Xcode toolchain. Detailed evidence remains in commercial DEC-COM-016: final Xcode 26.6 `17F113`
-still produced `Code=3`/empty products on final iOS 26.4/26.5, while the iOS 27 beta 16-test/
-2-suite pass is diagnostic only and does not unlock C2-03.
+term, version, Archive, upload, tester, or distribution change. The C2-03 entry condition required
+the CHN and USA local StoreKit product probes to execute rather than skip and pass under a
+supported final Xcode/runtime surface. Detailed evidence remains in commercial DEC-COM-016:
+final Xcode 26.6 `17F113` produced historical `Code=3`/empty-product failures on final iOS
+26.4/26.5 simulators, and the iOS 27 beta pass was diagnostic only. On 2026-08-13 the dedicated
+scheme passed all 5 tests with 0 failed and 0 skipped on a physical iPhone Air running final
+iOS 26.6.1 `23G82`, including passed CHN and USA probes. This unlocks C2-03 implementation only;
+C2-04, paywall, commercial terms, and distribution remain blocked by their own gates.
+
+---
+
+## 2026-08-13 — Publish StoreKit authority before finishing a handled transaction
+
+Context: COM-C2-03 is the first packet allowed to add purchase, restore, subscription-status
+mapping, and transaction acknowledgement, but it cannot add a paywall, customer terms, formal
+products, or distribution authorization.
+
+Decision: Detailed lifecycle semantics live in commercial decision DEC-COM-017. One
+`EntitlementStore` remains the sole process-local StoreKit authority. It maps verified status
+transaction and renewal information, grants only subscribed and verified billing grace, exposes
+purchase/restore as typed programmatic seams, publishes one actionable access snapshot before
+calling `Transaction.finish()`, and leaves a failed acknowledgement unfinished for later retry.
+One lifecycle task supervises `Transaction.updates` and
+`Product.SubscriptionInfo.Status.updates`; a status signal only causes the same authority to
+perform a fresh full reconciliation and cannot become a second authority or UI.
+
+The detailed COM decision also keeps the restore post-sync transaction bridge in C2-03. A verified
+restored transaction can arrive before `currentEntitlements` catches up; C2-04 owns environment
+isolation, not first implementation of restore. Status/foreground refreshes cannot satisfy this
+bridge, and newer revocation or unverified authority rejects stale facts. The implementation calls
+a resolution `actionable` when it is safe to use; this intentionally differs from asserting every
+supplemental presentation/catalog read was complete.
+
+Consequences: Pending, cancelled, unverified, retry, expired, revoked, unknown, mixed, or
+incomplete authority cannot silently grant a paid right. Duplicate/concurrent transaction
+delivery does not create another listener or finish the same transaction twice in process. The
+C2-03 candidate is implementation complete and locally validated but pending independent review,
+green CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
+formal price/trial/product work, versioning, Archive/upload, tester assignment, and distribution
+remain blocked. The uploaded 0.9.6 binary and release hold are unchanged.

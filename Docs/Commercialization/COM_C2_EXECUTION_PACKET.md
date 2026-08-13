@@ -82,45 +82,95 @@ Status: **Done** after independent review, green CI, and merge through PR #29 (`
 
 ## C2-03 — Purchase, restore, and status mapping
 
-Status: **Blocked pending the runtime-probe entry gate.**
+Status: **Implementation complete, pending independent review.**
 
 ### Entry gate
 
-- Before the first C2-03 source change, run the dedicated scheme with a supported final Xcode
-  toolchain and confirm that both the CHN and USA `Product.products(for:)` probes **execute (not
-  skip) and pass** with the committed local StoreKit configuration attached. Prefer Xcode's GUI
-  while the iOS 26.5 command-line configuration-synchronization failure remains reproducible.
+- Satisfied on 2026-08-13: final Xcode 26.6 `17F113` ran the dedicated
+  `MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) with final
+  iOS 26.6.1 `23G82`. The run completed 5 passed, 0 failed, 0 skipped, and both the CHN and USA
+  `Product.products(for:)` probes passed with the committed local StoreKit configuration. In
+  short: both the CHN and USA `Product.products(for:)` probes passed.
+  Evidence: `/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
 - `SKInternalErrorDomain Code=3`, an empty catalog, or a skipped probe is non-evidence and blocks
-  entry. Record the Xcode build, simulator runtime, execution surface, and result bundle/log path.
-- Current evidence (2026-08-13): final Xcode 26.6 `17F113` executed both probes on final iOS 26.4
+  entry. Record the Xcode build, device/runtime, execution surface, and result bundle/log path.
+- Historical non-pass evidence (2026-08-13): final Xcode 26.6 `17F113` executed both probes on final iOS 26.4
   and 26.5 runtimes, but both returned `Code=3` and empty products while `storekitd` reported an
   Octane entitlement/development-install handshake failure. The final SDK is build `23F81a`, the
   installed iOS 26.5 runtime is `23F77`, and Apple's currently offered export was the older
   `23F73` runtime; it was not imported and could not replace it. Direct queries for build `23F81`
   and iOS `26.5.1` returned unavailable. The same 16 tests in 2 suites pass on iOS 27 beta only
-  as diagnostic evidence. C2-03 remains blocked; no supported-final-runtime pass is claimed.
+  as diagnostic evidence. These historical results are retained and were not used as the accepted
+  entry proof.
 - A post-restart recheck after globally selecting final Xcode `17F113` removed the earlier
   auxiliary `xcrun`/`simctl` lookup error, but both CHN/USA probes still executed and failed with
   `Code=3` and empty products on iOS 26.5 `23F77`. Global toolchain selection is therefore closed;
-  it does not satisfy or replace the supported-final-runtime entry gate.
+  it did not satisfy or replace the supported-final-runtime entry gate. The later physical-device
+  result above is the accepted evidence that opened C2-03.
 
 ### Tasks
 
-- Implement verified purchase/finish, pending, cancellation, neutral error, user-triggered restore,
-  and the accepted subscription-status mapping.
+- Implemented one actor-owned `EntitlementStore` lifecycle authority. Its one lifecycle task
+  supervises both `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`; this does
+  not create a second authority or UI. A status signal triggers a fresh full reconciliation and
+  never grants or revokes access directly. The actor also owns the status mapper, whole-snapshot
+  entitlement publication, purchase/restore operation serialization, unfinished-transaction
+  processing, and in-process finish deduplication.
+- Contract: one lifecycle task supervises both `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`.
+- Contract: a status signal triggers a fresh full reconciliation through the same authority.
+- Implemented typed explicit purchase and restore seams. Purchase verifies the accepted Product,
+  maps verified success/pending/user-cancelled/unverified/error outcomes, and grants nothing from
+  pending or unverified input. Restore calls `AppStore.sync()` only from the explicit typed seam.
+- Implemented authoritative publish-before-`Transaction.finish()`: a handled transaction is
+  merged with a fresh current/status read, mapped, and published before acknowledgement. A
+  failed finish remains unfinished in StoreKit, is not reported as success, and is eligible for a
+  later lifecycle retry; concurrent duplicate delivery cannot finish the same transaction twice.
 - Consume the raw revocation and expiration facts retained by C2-02. Only C2-03 may map them with
-  StoreKit subscription status into subscribed/grace/retry/expired access decisions or finish a
-  transaction.
+  verified StoreKit status transaction and renewal information; expiration alone never infers
+  billing grace. Subscribed and verified grace grant Pro. Billing retry, expired, revoked,
+  unknown, unverified, and pending input grant no new right.
+- `AppSession` exposes typed seams for later C3 purchase presentation, but no current view calls
+  them. Stop before paywall presentation, formal product creation, formal customer price/trial,
+  versioning, Archive, upload, tester assignment, or distribution.
 
 ### Tests
 
-- Subscribed/grace grant Pro; retry/expired/revoked/unverified/pending do not. Restore and finish
-  behavior are explicit and idempotent.
-- Enable or inject the billing-grace condition through the owning `SKTestSession`/StoreKit test
-  setup in this packet; C2-01's catalog-shape fixture does not claim to prove lifecycle mapping.
+- Deterministic lifecycle tests cover subscribed/grace grant versus retry/expired/revoked/
+  unknown/unverified denial; pending/cancel/error; explicit restore outcomes; publish-before-
+  finish; duplicate/concurrent delivery; operation serialization; failed-finish retry; and
+  unfinished startup processing. The listener contract covers transaction and subscription-status
+  signals converging on the same fresh whole-authority reconciliation path.
+- The dedicated StoreKit configuration surface contains opt-in Monthly/Annual transaction-
+  verification-and-finish probes. `SKTestSession.buyProduct` seeds the transaction because a
+  hosted unit-test process has no purchase-confirmation UI anchor; C3 owns presented
+  `Product.purchase()` evidence. Final execution of the strengthened probes is pending device
+  reconnection and must not be borrowed from an earlier assertion set.
+- Billing-grace/retry behavior is covered by the deterministic verified-state matrix. A physical
+  forced-renewal experiment terminated the hosted test runner before a result, so it was removed
+  rather than retained as a flaky or false-green probe. A stable StoreKit transition probe remains
+  required in a later owning UI/runtime packet; C2-01's catalog fixture proves no lifecycle state.
+
+### Local validation evidence
+
+- Focused lifecycle/runtime tests passed 44/44. The 31-test lifecycle suite passed 10 consecutive
+  iterations (310/310), including the transaction-ordering, restore-provenance, conflict, and
+  finish-retry regressions.
+- The strict 500 ms local Dashboard wall-clock signal passed 10/10 isolated iterations. The full
+  shared-host run used the repository's existing switch to skip only that wall-clock signal while
+  retaining the deterministic 10,000-row projection test.
+- The final default-scheme run completed 342 Swift tests and 13 UI tests with zero failures; its
+  xcresult summary is 355 total, 351 passed, 4 explicit opt-in StoreKit runtime probes skipped,
+  and 0 failed. Every selected core file remains above the 85% coverage gate. Evidence:
+  `/private/tmp/MindBudget-C203-Full-Final15.xcresult`.
+- This local evidence does not replace the pending independent review, green CI, merge, dedicated
+  device probes, presented `Product.purchase()` evidence, or later stable StoreKit transition
+  evidence.
 
 ### Stop conditions
 
+- The local full-validation gate is satisfied. Keep C2-03 not Done until independent review,
+  green CI, and merge. C2-04 and
+  C3 remain blocked; the post-0.9.6 release hold remains active.
 - Stop before customer-facing paywall presentation or unaccepted commercial terms.
 
 ## C2-04 — Environment and regression gate

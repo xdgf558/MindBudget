@@ -115,7 +115,59 @@ but was not the StoreKit failure's root cause. Evidence is retained at
 No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
 destination, Archive, upload, tester, or distribution state was introduced or changed. PR #29
 passed independent review and green CI, then merged as `a45d480` on 2026-08-12; C2-02 is Done.
-C2-03 remains blocked pending the separate runtime-probe entry gate described above.
+C2-03 was still blocked at the conclusion of C2-02; the separate physical-device evidence below
+subsequently satisfied that entry gate.
+
+## COM-C2-03 entry-gate verification
+
+On 2026-08-13, final Xcode 26.6 build `17F113` ran the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) with final
+iOS 26.6.1 build `23G82`. All 5 catalog tests passed with 0 failed and 0 skipped. Both the CHN and
+USA `Product.products(for:)` runtime probes executed and passed; neither returned an empty product
+set or `SKInternalErrorDomain Code=3`. Independent `xcresulttool` parsing confirmed the physical
+arm64 device, OS/build, each named test, and the 5/0/0 totals. Evidence:
+`/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
+
+This supported-final physical-device pass opens C2-03 implementation. It introduces no C2-03
+source, purchase, restore, transaction finish, subscription-status decision, paywall, formal
+product/term, version, Archive, upload, tester, or distribution change. The post-0.9.6 release
+hold remains active.
+
+## COM-C2-03 implementation candidate verification
+
+The current C2-03 candidate is implementation complete and pending independent review. It adds a
+single `EntitlementStore` lifecycle authority, full verified status/renewal mapping, explicit
+typed purchase and restore seams, authoritative whole-snapshot publication before transaction
+finish, and retry for transactions that remain unfinished. One lifecycle task supervises both
+`Transaction.updates` and `Product.SubscriptionInfo.Status.updates`; a status signal triggers a
+fresh full reconciliation through the same authority without creating a second authority or UI.
+Deterministic focused tests cover the
+state table, pending/cancel/error outcomes, restore outcomes, duplicate/concurrent delivery,
+operation serialization, finish ordering/failure, and unfinished startup processing. Opt-in local
+StoreKit probes cover Monthly/Annual seeded transaction verification, authority publication, and
+finish. Presented `Product.purchase()` remains a C3 UI-host obligation. A forced-renewal grace
+experiment terminated the hosted runner before completion and was removed; deterministic state
+tests cover the mapper without claiming a framework transition pass.
+
+Local C2-03 validation is complete. The focused lifecycle/runtime run passed 44/44 tests, and the
+31-test lifecycle suite passed 10 consecutive iterations (310/310). The strict 500 ms local
+Dashboard wall-clock signal also passed 10/10 isolated iterations. The owning full run used the
+repository's documented shared-host switch to exclude only that already-isolated wall-clock
+signal while retaining the deterministic 10,000-row projection contract. It completed 342 Swift
+tests with zero failures (338 passed and 4 explicit opt-in StoreKit runtime probes skipped), all
+13 UI tests, and the full coverage gate. The combined result summary is 355 total, 351 passed,
+4 skipped, and 0 failed. Evidence:
+`/private/tmp/MindBudget-C203-Full-Final15.xcresult`.
+
+Selected line coverage was Money 91.73%, BudgetEngine 95.18%, BudgetCycleCalculator 95.17%,
+SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 91.04%,
+AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService 97.45%,
+IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100.00%; every selected
+file remains above the 85% gate. The four skipped probes remain opt-in dedicated-scheme/device
+evidence and are not reclassified by this default-scheme run. Independent review, CI, and merge
+remain pending. C2-03 is not Done; C2-04, paywall/customer purchase presentation, formal product
+and customer terms, versioning, Archive, upload, tester assignment, and distribution remain
+blocked. The post-0.9.6 release hold is still active.
 
 ## Result and report paths
 
