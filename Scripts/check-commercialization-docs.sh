@@ -180,9 +180,9 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01, C2-02, and C2-03 are Done; C2-04 implementation is complete pending independent review.**' \
+grep -Fq 'Status: **Done — C2-01 through C2-04 passed their owning gates; PR #31 merged C2-04 as `a293762`.**' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must record C2-03 Done and C2-04 implementation complete pending review" >&2
+  echo "COM-C2 must record C2-01 through C2-04 as reviewed, merged, and Done" >&2
   exit 1
 }
 
@@ -204,9 +204,9 @@ grep -Fq 'Status: **Done after independent review, green CI, and merge through P
   exit 1
 }
 
-grep -Fq 'Status: **Implementation complete pending independent review.**' \
+grep -Fq 'Status: **Done after independent review, green CI, and merge through PR #31 (`a293762`).**' \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-04 implementation complete pending review" >&2
+  echo "COM-C2 execution packet must record C2-04 reviewed, merged, and Done" >&2
   exit 1
 }
 
@@ -217,7 +217,7 @@ for c203_contract in \
   'publish-before-`Transaction.finish()`' \
   'failed finish remains unfinished' \
   'no current view calls them' \
-  'post-0.9.6 release hold remains active'; do
+  'post-0.9.6 release hold'; do
   if ! grep -Fq "${c203_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/PROJECT_MEMORY.md \
@@ -234,7 +234,7 @@ for c204_contract in \
   'DEC-COM-018' \
   '49/49 focused' \
   '359 total, 355 passed, 4 skipped, and 0 failed' \
-  'C2-04 is not Done and C3 remains blocked'; do
+  'C2-04 and COM-C2 are'; do
   if ! grep -Fq "${c204_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/STOREKIT_TEST_MATRIX.md \
@@ -244,6 +244,27 @@ for c204_contract in \
     exit 1
   fi
 done
+
+grep -Fq '`a293762`' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C2-04 green-CI merge evidence is missing from CI baseline" >&2
+  exit 1
+}
+
+grep -Fq 'actions/runs/31701374466' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C2-04 green-CI run is missing from CI baseline" >&2
+  exit 1
+}
+
+if grep -Fq 'C2-04 implementation complete pending independent review' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C2-04 as pending review" >&2
+  exit 1
+fi
 
 grep -Fq '`3fc72b4`' Docs/Commercialization/CI_BASELINE.md || {
   echo "C2-03 green-CI merge evidence is missing from CI baseline" >&2

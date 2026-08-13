@@ -875,3 +875,36 @@ What was NOT changed: No purchase/restore UI, paywall, formal App Store Connect 
 price/trial/offer, version, Archive/upload, tester assignment, app-owned HTTP(S), C3 work, or
 distribution action was added. C2-04 remains implementation complete pending independent
 re-review, green CI, and merge; the release hold remains active.
+
+## 2026-08-13 — Session 28 — Close C2-04 and the COM-C2 StoreKit phase
+
+Goal: Close the final COM-C2 packet after independent review, green CI, and merge while preserving
+the later commercial-input and release gates.
+
+Accepted evidence: PR #31 passed independent review and GitHub Actions run
+<https://github.com/xdgf558/MindBudget/actions/runs/31701374466>, then merged to `main` as
+`a293762` on 2026-08-13. Its owning local evidence remains 49/49 focused tests, 20/20 strict
+Phase 10 executions across 10 iterations, and 359 full-validation results: 355 passed, 4 explicit
+opt-in StoreKit runtime probes skipped, and 0 failed. The selected coverage, money, network,
+commercialization-document, StoreKit-catalog, feature-access-boundary, and release gates passed.
+
+Durable result: C2-04 and COM-C2 are Done. The verified `AppTransaction` bundle/environment is
+the independent whole-read authority; Xcode, Sandbox/TestFlight, and Production facts remain
+isolated; presentation-only `Unknown` cannot grant access; catalog-only failure cannot erase a
+separately verified active subscription. The C2-03 lifecycle authority and typed purchase/restore
+seams remain programmatic only and no current View invokes them.
+
+Next boundary: No implementation packet is active. COM-C3 remains blocked until accepted
+price/trial inputs and a new explicit owner instruction. Formal App Store Connect products,
+paywall/customer purchase presentation, customer-visible restore/manage-subscription paths,
+versioning, Archive/upload, tester assignment, and distribution remain outside this closeout.
+
+What was NOT changed: No Swift source, test behavior, schema, product identifier, network
+destination, formal commercial term, release artifact, or user entitlement changed. The uploaded
+0.9.6 binary and post-0.9.6 distribution hold remain unchanged.
+
+Closeout verification: The money, network-egress, commercialization-document, and StoreKit
+catalog commands passed again. The full `Scripts/validate.sh` flow passed with the documented
+shared-host wall-clock exclusion: 359 total results, 355 passed, 4 explicit opt-in StoreKit
+runtime probes skipped, and 0 failed. Every selected core-service coverage threshold remained at
+or above 85%. Result bundle: `/private/tmp/MindBudget-C204-Closeout.xcresult`.

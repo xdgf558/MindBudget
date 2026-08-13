@@ -325,8 +325,8 @@ context.
 
 ## DEC-COM-017 — Keep one StoreKit lifecycle authority and finish only after authoritative publish
 
-- Status/date: **Accepted implementation boundary — 2026-08-13; local validation complete,
-  C2-03 completion pending independent review, green CI, and merge**
+- Status/date: **Accepted and implemented — 2026-08-13; C2-03 merged through PR #30 as
+  `3fc72b4` after independent review and green CI**
 - Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
 - Decision: C2-03 keeps `EntitlementStore` as the single process-local StoreKit authority. The
   StoreKit adapter supplies verified transaction, status-transaction, renewal-info, ownership,
@@ -374,9 +374,10 @@ context.
 - Release boundary: This decision accepts only the programmatic lifecycle seams and their Apple-
   managed StoreKit transport. It creates no paywall, visible Pro purchase/restore UI, formal App
   Store Connect product, customer price/trial/offer, version bump, Archive/upload/tester action, or
-  distribution permission. C2-03 is implementation complete and locally validated but not Done
-  until independent review, green CI, and merge. C2-04 environment isolation and all later release
-  gates remain mandatory; the post-0.9.6 distribution hold remains active.
+  distribution permission. C2-03 completed independent review, green CI, and merge through PR #30
+  as `3fc72b4`. C2-04 subsequently completed its environment isolation gate through PR #31 as
+  `a293762`; all later release gates remain mandatory and the post-0.9.6 distribution hold remains
+  active.
 - Alternatives rejected: Finishing before actionable publication; granting from a purchase
   result without verified status and renewal information; treating expiration as grace; implicit
   restore on launch; persisting a paid bit/cache as authority; allowing each view to own a
@@ -386,7 +387,8 @@ context.
 
 ## DEC-COM-018 — Bind StoreKit authority to the separately verified app environment
 
-- Status/date: **Accepted implementation boundary — 2026-08-13; C2-04 implementation complete pending independent review**
+- Status/date: **Accepted and implemented — 2026-08-13; C2-04 and COM-C2 completed through
+  PR #31 as `a293762` after independent review and green CI**
 - Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
 - Decision: `AppTransaction.shared` is the whole-read environment authority. Its verified bundle
   identifier must match the app bundle, and its environment must be exactly Xcode, Sandbox, or
@@ -409,8 +411,8 @@ context.
   Static validation rejects another app-owned reader or construction of `StoreEntitlementRead`
   outside `EntitlementStore.swift`. Unit tests accept all three exact environments and reject
   cross-environment, missing-environment, and wrong-bundle cases. Focused, full Free regression,
-  strict local performance, and coverage gates pass; independent review, CI, and merge remain
-  required before C2-04 is Done.
+  strict local performance, and coverage gates passed. PR #31 passed independent review and green
+  CI and merged as `a293762`, making C2-04 and COM-C2 Done.
 - Release boundary: No customer UI, paywall, formal product, price, trial, offer, version,
   Archive/upload, tester assignment, app-owned HTTP(S), or distribution permission is added. C3
   remains blocked and the post-0.9.6 release hold remains active.
