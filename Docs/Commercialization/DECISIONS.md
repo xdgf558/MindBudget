@@ -325,8 +325,8 @@ context.
 
 ## DEC-COM-017 — Keep one StoreKit lifecycle authority and finish only after authoritative publish
 
-- Status/date: **Accepted implementation boundary — 2026-08-13; C2-03 completion pending
-  independent review, full validation, green CI, and merge**
+- Status/date: **Accepted implementation boundary — 2026-08-13; local validation complete,
+  C2-03 completion pending independent review, green CI, and merge**
 - Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
 - Decision: C2-03 keeps `EntitlementStore` as the single process-local StoreKit authority. The
   StoreKit adapter supplies verified transaction, status-transaction, renewal-info, ownership,
@@ -344,23 +344,42 @@ context.
   only triggers a fresh full reconciliation through the same actor. This is not a second mapper,
   authority, or UI surface.
 - Consequences: Before any handled verified transaction is acknowledged, the actor merges it with
-  a fresh current/status read, resolves one authoritative whole snapshot, publishes that snapshot
+  a fresh current/status read, resolves one actionable whole snapshot, publishes that snapshot
   to the central access authority, and only then calls `Transaction.finish()`. Duplicate and
   concurrent delivery is serialized and deduplicated in process. A failed finish is not reported
   as purchase success and is not added to the finished-ID set; StoreKit keeps it unfinished so a
-  later startup/update lifecycle pass can retry. Unverified or non-authoritative input is never
+  later startup/update lifecycle pass can retry. `Actionable` means safe to use, not that every
+  presentation/catalog input was complete: a separately verified paid fact may remain actionable
+  during a supplemental catalog failure, while incomplete Free or unverified authority fails
+  closed. Unverified or non-actionable input is never
   finished merely to clear a queue. `Transaction.unfinished`, `Transaction.updates`, current
   entitlements, subscription-status updates, and subscription-status reads all feed the same actor
   rather than independent feature decisions. No entitlement representation is persisted as
   authority.
+- Restore boundary: C2-03, not C2-04, owns the typed restore lifecycle. The post-`AppStore.sync()`
+  transaction-signal bridge is retained even before a View calls it because StoreKit may deliver a
+  verified restored transaction before `currentEntitlements` catches up. Removing it would make
+  the later C3 UI depend on timing and could report no purchase after a valid restore. The bridge
+  is provenance-scoped: only a completed verified transaction signal may satisfy it; status-only
+  or foreground refreshes cannot, and newer revocation/unverified authority rejects stale facts.
+  C2-04 remains the Configuration/Sandbox/TestFlight/Production isolation gate rather than the
+  first implementation owner of restore.
+- Concurrency proof: The actor records one consolidated invariant block beside its three
+  coordination mechanisms: reconciliation generations order whole-snapshot publication; one
+  active transaction batch owns acknowledgement identities and finishes only after actionable
+  publication; transaction-signal sequencing records restore provenance rather than authority;
+  and all waiters are resumed on completion or stop. Deterministic tests inject gates at publish,
+  finish, sync, and active-batch waiting points. Repeating the 31-test suite 10 times is stability
+  evidence in addition to those controlled interleavings, not a substitute for them.
 - Release boundary: This decision accepts only the programmatic lifecycle seams and their Apple-
   managed StoreKit transport. It creates no paywall, visible Pro purchase/restore UI, formal App
   Store Connect product, customer price/trial/offer, version bump, Archive/upload/tester action, or
-  distribution permission. C2-03 is implementation complete but not Done until independent
-  review, final validation, green CI, and merge. C2-04 environment isolation and all later release
+  distribution permission. C2-03 is implementation complete and locally validated but not Done
+  until independent review, green CI, and merge. C2-04 environment isolation and all later release
   gates remain mandatory; the post-0.9.6 distribution hold remains active.
-- Alternatives rejected: Finishing before authoritative publication; granting from a purchase
+- Alternatives rejected: Finishing before actionable publication; granting from a purchase
   result without verified status and renewal information; treating expiration as grace; implicit
   restore on launch; persisting a paid bit/cache as authority; allowing each view to own a
-  listener or mapper; swallowing a failed finish as success; or exposing a paywall before C3 and
-  accepted commercial terms.
+  listener or mapper; swallowing a failed finish as success; deleting the C2-03 restore bridge and
+  deferring its first implementation to the C2-04 environment gate; or exposing a paywall before
+  C3 and accepted commercial terms.

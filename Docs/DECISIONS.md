@@ -2019,16 +2019,23 @@ products, or distribution authorization.
 Decision: Detailed lifecycle semantics live in commercial decision DEC-COM-017. One
 `EntitlementStore` remains the sole process-local StoreKit authority. It maps verified status
 transaction and renewal information, grants only subscribed and verified billing grace, exposes
-purchase/restore as typed programmatic seams, publishes one authoritative access snapshot before
+purchase/restore as typed programmatic seams, publishes one actionable access snapshot before
 calling `Transaction.finish()`, and leaves a failed acknowledgement unfinished for later retry.
 One lifecycle task supervises `Transaction.updates` and
 `Product.SubscriptionInfo.Status.updates`; a status signal only causes the same authority to
 perform a fresh full reconciliation and cannot become a second authority or UI.
 
+The detailed COM decision also keeps the restore post-sync transaction bridge in C2-03. A verified
+restored transaction can arrive before `currentEntitlements` catches up; C2-04 owns environment
+isolation, not first implementation of restore. Status/foreground refreshes cannot satisfy this
+bridge, and newer revocation or unverified authority rejects stale facts. The implementation calls
+a resolution `actionable` when it is safe to use; this intentionally differs from asserting every
+supplemental presentation/catalog read was complete.
+
 Consequences: Pending, cancelled, unverified, retry, expired, revoked, unknown, mixed, or
 incomplete authority cannot silently grant a paid right. Duplicate/concurrent transaction
 delivery does not create another listener or finish the same transaction twice in process. The
-C2-03 candidate is implementation complete but pending independent review, full validation, green
-CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
+C2-03 candidate is implementation complete and locally validated but pending independent review,
+green CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
 formal price/trial/product work, versioning, Archive/upload, tester assignment, and distribution
 remain blocked. The uploaded 0.9.6 binary and release hold are unchanged.

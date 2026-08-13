@@ -51,7 +51,7 @@ struct StoreLifecycleDomainTests {
                 StoreEntitlementRead(transactions: [facts], unverifiedCount: 0)
             )
 
-            #expect(resolution.isAuthoritative)
+            #expect(resolution.isActionable)
             #expect(resolution.hasActiveSubscription == testCase.expectsAccess)
             #expect(resolution.effectiveState == testCase.expectedState)
             #expect(
@@ -62,7 +62,7 @@ struct StoreLifecycleDomainTests {
         let empty = SubscriptionStatusMapper().resolve(
             StoreEntitlementRead(transactions: [], unverifiedCount: 0)
         )
-        #expect(empty.isAuthoritative)
+        #expect(empty.isActionable)
         #expect(empty.hasActiveSubscription == false)
         #expect(empty.effectiveState == .none)
 
@@ -73,7 +73,9 @@ struct StoreLifecycleDomainTests {
                 isComplete: false
             )
         )
-        #expect(incompletePaid.isAuthoritative)
+        // Actionable means safe to use, not that every Product/catalog input was complete.
+        // A separately verified active subscription survives a supplemental catalog failure.
+        #expect(incompletePaid.isActionable)
         #expect(incompletePaid.hasActiveSubscription)
 
         let incompleteFree = SubscriptionStatusMapper().resolve(
@@ -685,7 +687,7 @@ struct StoreLifecycleDomainTests {
     }
 
     @Test
-    func purchaseDoesNotFinishWhenTheCombinedStoreStateIsNotAuthoritative() async {
+    func purchaseDoesNotFinishWhenTheCombinedStoreStateIsNotActionable() async {
         let recorder = FinishRecorder()
         let purchased = finishableTransaction(
             facts: transactionFacts(id: 350, state: .subscribed),

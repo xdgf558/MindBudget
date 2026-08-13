@@ -760,3 +760,35 @@ distribution state changed. C2-03 remains implementation complete and pending in
 green CI, and merge; it is not Done.
 
 Next suggested task: Open C2-03 for independent review and CI. Do not begin C2-04 or C3 early.
+
+## 2026-08-13 — Session 24 — Clarify C2-03 actionability and retain the restore lifecycle boundary
+
+Goal: Address the first independent review's maintainability concern without deleting the
+owner-approved restore path or changing StoreKit behavior.
+
+What changed: Renamed `SubscriptionStatusResolution.isAuthoritative` to `isActionable` and fixed
+its semantics in code and tests. The name now states what consumers require: the whole-snapshot
+decision is safe to act on. It does not claim every supplemental Product/catalog input was
+complete; a separately verified active subscription may remain actionable during catalog failure,
+while incomplete Free and unverified inputs still fail closed. Added one consolidated invariant
+block beside the actor's coordination state, documenting reconciliation-generation ordering,
+single active-batch acknowledgement ownership, restore-provenance sequencing, waiter completion,
+and the deterministic publish/finish/sync/batch-wait test seams.
+
+Review disposition: Kept the post-`AppStore.sync()` transaction bridge. C2-03's accepted packet
+explicitly owns purchase, restore, and status mapping; C2-04 owns environment isolation. A restored
+verified transaction may arrive before `currentEntitlements` catches up, so deleting the bridge
+would defer a timing-dependent defect to C3. The retained mechanism accepts only a completed
+verified transaction signal, rejects ordinary status/foreground publications as restore evidence,
+and cannot reuse a subscribed signal rejected by newer revocation authority. Existing tests open
+those exact sync and finish windows with injected gates; the 10 repeated lifecycle iterations are
+additional stability evidence rather than the sole concurrency proof.
+
+What was NOT changed: No state-machine behavior, entitlement rule, current View, paywall, formal
+product/price/trial, C2-04/C3 scope, version, Archive, upload, tester, or distribution state
+changed. C2-03 remains implementation complete pending re-review, green CI, and merge.
+
+Validation result: The renamed focused lifecycle/runtime surface passed 45/45 tests. Money,
+network-egress, commercialization-document, StoreKit-catalog/environment-isolation, and diff
+gates passed. The earlier owning full-validation evidence remains valid because this review fix
+changes naming, comments, tests, and durable documentation without changing runtime behavior.

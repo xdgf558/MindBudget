@@ -3845,3 +3845,34 @@ green CI, and merge; C2-04 and C3 remain blocked.
 
 Next suggested task: Open the C2-03 review unit and wait for independent review plus green CI
 before merge. Do not begin the next packet early.
+
+## 2026-08-13 — Session 103 — Clarify C2-03 actionability and restore concurrency invariants
+
+Goal: Resolve the first PR review's naming/readability concern while preserving the accepted
+C2-03 purchase/restore/status boundary.
+
+What changed: Renamed the lifecycle resolution flag from `isAuthoritative` to `isActionable`.
+Tests now explicitly pin that actionable means safe to use, not necessarily a complete
+supplemental Product/catalog read: a separately verified paid fact survives a catalog-only
+failure, while incomplete Free and unverified input remain fail-closed. Consolidated the actor's
+three coordination mechanisms into one documented invariant block covering whole-snapshot
+generation order, active acknowledgement-batch ownership, restore transaction provenance, and
+continuation completion. The existing deterministic test harness injects suspension gates at
+publish, finish, sync, and active-batch wait points; repeated runs remain stability evidence, not
+the sole interleaving argument.
+
+Review disposition: Did not delete the post-sync restore bridge. C2-03 is the accepted owner of
+purchase, restore, and status mapping; C2-04 owns environment isolation. StoreKit can deliver the
+verified restored transaction before `currentEntitlements` catches up, and the bridge prevents a
+valid restore from being reported as empty. Only completed verified transaction evidence may
+bridge; ordinary refreshes cannot, and newer revoked/unverified authority prevents stale paid
+facts from being reused.
+
+What was NOT changed: No runtime behavior, customer UI, paywall, formal product/term, version,
+Archive, upload, tester assignment, network destination, or distribution state changed. C2-03
+remains implementation complete pending re-review, green CI, and merge; C2-04/C3 remain blocked.
+
+Validation result: The focused lifecycle/runtime suites passed 45/45 after the rename. Static
+money, network, commercialization-document, StoreKit-catalog/environment-isolation, and diff
+gates passed. This review response changes no state-machine behavior, so the existing complete
+local validation and coverage evidence remains applicable.

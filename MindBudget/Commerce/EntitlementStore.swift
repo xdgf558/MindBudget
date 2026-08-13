@@ -441,7 +441,12 @@ enum StoreCommerceSourceError: Error, Equatable, Sendable {
 struct SubscriptionStatusResolution: Equatable, Sendable {
     let entitlements: EntitlementSet
     let environment: StoreRuntimeEnvironment?
-    let isAuthoritative: Bool
+    /// Whether this whole-snapshot decision is safe to act on.
+    ///
+    /// This does not mean every presentation/catalog input was complete. A separately verified
+    /// active subscription remains actionable when only the supplemental Product read fails;
+    /// incomplete Free or unverified authority still fails closed.
+    let isActionable: Bool
     let effectiveState: EffectiveStoreSubscriptionState
     let observedStates: Set<StoreSubscriptionState>
     let activeTransactionIDs: Set<UInt64>
@@ -449,7 +454,7 @@ struct SubscriptionStatusResolution: Equatable, Sendable {
     static let failedClosed = SubscriptionStatusResolution(
         entitlements: .free,
         environment: nil,
-        isAuthoritative: false,
+        isActionable: false,
         effectiveState: .unavailable,
         observedStates: [],
         activeTransactionIDs: []
@@ -506,7 +511,7 @@ struct SubscriptionStatusMapper: Sendable {
         return SubscriptionStatusResolution(
             entitlements: entitlements,
             environment: entitlements.isFree ? nil : environments.first,
-            isAuthoritative: true,
+            isActionable: true,
             effectiveState: effectiveState(for: observedStates),
             observedStates: Set(observedStates),
             activeTransactionIDs: activeTransactionIDs
@@ -547,6 +552,25 @@ actor EntitlementStore {
     private let statusMapper: SubscriptionStatusMapper
     private let transactionBatchWaitHandler: TransactionBatchWaitHandler?
     private var listenerTask: Task<Void, Never>?
+
+    // Concurrency invariants (all state below is actor-isolated):
+    //
+    // 1. Reconciliation generation is the whole-snapshot publication order. Starting a newer
+    //    reconciliation invalidates an older return value; waiters may accept only the current
+    //    generation's actionable resolution. Publishing Free/unavailable therefore cannot be
+    //    overwritten by a suspended older read or purchase callback.
+    // 2. At most one verified transaction batch owns acknowledgement IDs at a time. A conflicting
+    //    identity invalidates that batch; a disjoint signal waits and then reconciles both sets of
+    //    verified facts. An acknowledgement enters `finishedTransactionIDs` only after an
+    //    actionable snapshot was published and `finish()` succeeded, so failure remains retryable.
+    // 3. Transaction-signal sequence is restore provenance, not entitlement authority. Only a
+    //    verified transaction signal that completed the same reconciliation/finish path may bridge
+    //    the short post-`AppStore.sync()` current-read lag. Status-only/foreground refreshes never
+    //    satisfy restore, and a newer revocation/unverified generation rejects stale bridge facts.
+    // 4. Every continuation is resumed when its owned generation/signal completes or the store
+    //    stops. The deterministic tests inject gates at publish, finish, sync, and active-batch
+    //    wait points to exercise these cross-state-machine orderings rather than relying on random
+    //    task scheduling.
     private var reconciliationGeneration = 0
     private var inFlightReconciliationGenerations: Set<Int> = []
     private var reconciliationWaiters: [Int: [CheckedContinuation<Void, Never>]] = [:]
@@ -690,13 +714,13 @@ actor EntitlementStore {
                     switch synchronizedTransaction.evidence {
                     case let .active(facts):
                         guard let synchronizedResolution = await reconcile(including: facts),
-                              synchronizedResolution.isAuthoritative else {
+                              synchronizedResolution.isActionable else {
                             return .failed(.verificationFailed)
                         }
                         resolution = synchronizedResolution
                     case .noActiveBridge:
                         guard let currentResolution = await reconcile(),
-                              currentResolution.isAuthoritative else {
+                              currentResolution.isActionable else {
                             return .failed(.invalidStoreState)
                         }
                         resolution = currentResolution
@@ -705,7 +729,7 @@ actor EntitlementStore {
                     }
                 } else {
                     guard let currentResolution = await reconcile(),
-                          currentResolution.isAuthoritative else {
+                          currentResolution.isActionable else {
                         return .failed(.invalidStoreState)
                     }
                     resolution = currentResolution
@@ -942,7 +966,7 @@ actor EntitlementStore {
     ) async -> CompletedTransactionBatch? {
         guard !invalidatedTransactionBatchTokens.contains(token) else { return nil }
         guard let resolution = await reconcile(including: reconciliationFacts),
-              resolution.isAuthoritative,
+              resolution.isActionable,
               !invalidatedTransactionBatchTokens.contains(token) else {
             return nil
         }
@@ -1030,7 +1054,7 @@ actor EntitlementStore {
                 return completedBatch.resolution
             }
             if latestResolutionGeneration == reconciliationGeneration {
-                guard let latestResolution, latestResolution.isAuthoritative else {
+                guard let latestResolution, latestResolution.isActionable else {
                     return nil
                 }
                 return latestResolution
