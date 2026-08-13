@@ -82,27 +82,31 @@ Status: **Done** after independent review, green CI, and merge through PR #29 (`
 
 ## C2-03 — Purchase, restore, and status mapping
 
-Status: **Blocked pending the runtime-probe entry gate.**
+Status: **In Progress after the runtime-probe entry gate passed on a physical final iPhone.**
 
 ### Entry gate
 
-- Before the first C2-03 source change, run the dedicated scheme with a supported final Xcode
-  toolchain and confirm that both the CHN and USA `Product.products(for:)` probes **execute (not
-  skip) and pass** with the committed local StoreKit configuration attached. Prefer Xcode's GUI
-  while the iOS 26.5 command-line configuration-synchronization failure remains reproducible.
+- Satisfied on 2026-08-13: final Xcode 26.6 `17F113` ran the dedicated
+  `MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) with final
+  iOS 26.6.1 `23G82`. The run completed 5 passed, 0 failed, 0 skipped, and both the CHN and USA
+  `Product.products(for:)` probes passed with the committed local StoreKit configuration. In
+  short: both the CHN and USA `Product.products(for:)` probes passed.
+  Evidence: `/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
 - `SKInternalErrorDomain Code=3`, an empty catalog, or a skipped probe is non-evidence and blocks
-  entry. Record the Xcode build, simulator runtime, execution surface, and result bundle/log path.
-- Current evidence (2026-08-13): final Xcode 26.6 `17F113` executed both probes on final iOS 26.4
+  entry. Record the Xcode build, device/runtime, execution surface, and result bundle/log path.
+- Historical non-pass evidence (2026-08-13): final Xcode 26.6 `17F113` executed both probes on final iOS 26.4
   and 26.5 runtimes, but both returned `Code=3` and empty products while `storekitd` reported an
   Octane entitlement/development-install handshake failure. The final SDK is build `23F81a`, the
   installed iOS 26.5 runtime is `23F77`, and Apple's currently offered export was the older
   `23F73` runtime; it was not imported and could not replace it. Direct queries for build `23F81`
   and iOS `26.5.1` returned unavailable. The same 16 tests in 2 suites pass on iOS 27 beta only
-  as diagnostic evidence. C2-03 remains blocked; no supported-final-runtime pass is claimed.
+  as diagnostic evidence. These historical results are retained and were not used as the accepted
+  entry proof.
 - A post-restart recheck after globally selecting final Xcode `17F113` removed the earlier
   auxiliary `xcrun`/`simctl` lookup error, but both CHN/USA probes still executed and failed with
   `Code=3` and empty products on iOS 26.5 `23F77`. Global toolchain selection is therefore closed;
-  it does not satisfy or replace the supported-final-runtime entry gate.
+  it did not satisfy or replace the supported-final-runtime entry gate. The later physical-device
+  result above is the accepted evidence that opened C2-03.
 
 ### Tasks
 

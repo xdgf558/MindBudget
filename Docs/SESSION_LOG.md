@@ -3741,3 +3741,30 @@ Archive, upload, tester, or distribution state changed.
 Evidence: `/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` and
 `/private/tmp/mindbudget-storekit-restart-17F113-ios265-23F77.log`. The remaining prerequisite is a
 supported final runtime on which both storefront probes execute and pass.
+
+## 2026-08-13 — Session 99 — Pass the COM-C2-03 StoreKit entry gate on a physical device
+
+Goal: Obtain supported-final runtime evidence for the CHN/USA local StoreKit probes without
+starting purchase behavior or weakening the fail-closed commercialization gate.
+
+What was completed: Final Xcode 26.6 build `17F113` ran the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the connected physical `拉沙的iPhone` (`iPhone Air`) with
+final iOS 26.6.1 build `23G82`. `StoreKitTestCatalogTests` completed 5 passed, 0 failed, 0 skipped.
+Both the CHN and USA runtime product-loading probes executed and passed, with no empty catalog and
+no `SKInternalErrorDomain Code=3`. `xcresulttool` independently confirmed the physical arm64
+device, OS/build, all five test names, and the totals. The accepted evidence changes C2-03 from
+Blocked to In Progress; historical simulator failures and beta diagnostic results remain intact.
+
+Evidence: `/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
+
+What was NOT completed: No C2-03 source, purchase, restore, status mapper, transaction finish,
+paywall, formal product or customer term, schema, network/provider channel, app version, Archive,
+upload, tester, or distribution state changed. The public/TestFlight distribution hold remains.
+
+Validation result: pass under final Xcode 26.6 `17F113` with the documented shared-host
+wall-clock exclusion. All static gates and the Release build passed; 306 Swift tests in 20 suites
+and all 13 UI tests passed; every selected coverage threshold remained above 85%; and
+`git diff --check` passed.
+
+Next suggested task: Begin only the C2-03 purchase/restore/status work described by the focused
+execution packet, then stop for review before C2-04 or any customer-facing/paywall/release work.

@@ -115,7 +115,23 @@ but was not the StoreKit failure's root cause. Evidence is retained at
 No purchase, restore, transaction finishing, customer term, paywall, schema, app-owned network
 destination, Archive, upload, tester, or distribution state was introduced or changed. PR #29
 passed independent review and green CI, then merged as `a45d480` on 2026-08-12; C2-02 is Done.
-C2-03 remains blocked pending the separate runtime-probe entry gate described above.
+C2-03 was still blocked at the conclusion of C2-02; the separate physical-device evidence below
+subsequently satisfied that entry gate.
+
+## COM-C2-03 entry-gate verification
+
+On 2026-08-13, final Xcode 26.6 build `17F113` ran the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) with final
+iOS 26.6.1 build `23G82`. All 5 catalog tests passed with 0 failed and 0 skipped. Both the CHN and
+USA `Product.products(for:)` runtime probes executed and passed; neither returned an empty product
+set or `SKInternalErrorDomain Code=3`. Independent `xcresulttool` parsing confirmed the physical
+arm64 device, OS/build, each named test, and the 5/0/0 totals. Evidence:
+`/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
+
+This supported-final physical-device pass opens C2-03 implementation. It introduces no C2-03
+source, purchase, restore, transaction finish, subscription-status decision, paywall, formal
+product/term, version, Archive, upload, tester, or distribution change. The post-0.9.6 release
+hold remains active.
 
 ## Result and report paths
 

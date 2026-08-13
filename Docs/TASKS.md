@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 blocked pending its runtime-probe entry gate
+Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 In Progress after its physical-device runtime-probe entry gate passed
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -263,6 +263,10 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 block
   verified current-entitlement authority, one update listener, and live UI/App Intent snapshot.
   PR #29 passed independent review and green CI, then merged as `a45d480`; purchase, restore,
   status mapping, transaction finish, formal terms, and distribution remain out.
-- [ ] Begin C2-03 only after C2-02 review/merge and after both dedicated CHN/USA
-  `Product.products(for:)` probes execute rather than skip and pass under a supported final Xcode
-  toolchain. `SKInternalErrorDomain Code=3`, an empty catalog, or skipped probes block entry.
+- [x] Begin C2-03 only after C2-02 review/merge and both dedicated CHN/USA
+  `Product.products(for:)` probes execute rather than skip and pass under a supported final
+  Xcode/runtime surface. The 2026-08-13 physical iPhone Air run used final Xcode 26.6 `17F113`
+  and final iOS 26.6.1 `23G82`; 5 passed, 0 failed, 0 skipped, including both storefront probes.
+- [ ] Complete C2-03 verified purchase/finish, pending, cancellation, neutral error,
+  user-triggered restore, and subscribed/grace/retry/expired/revoked status mapping with its
+  focused tests. Do not begin C2-04, paywall, formal terms, or distribution work early.

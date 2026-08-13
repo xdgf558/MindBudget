@@ -309,9 +309,11 @@ context.
   runtime is `23F77`, and Apple's offered export was the older `23F73`; it was not imported and
   could not replace the installed runtime. Direct download queries for build `23F81` and iOS
   `26.5.1` both returned unavailable.
-  The same 16 tests in 2 suites passing on iOS 27 beta is diagnostic only. C2-03 therefore cannot
-  begin until both storefront probes execute and pass under a supported final Xcode/runtime
-  surface. Purchase, restore, transaction finishing,
+  The same 16 tests in 2 suites passing on iOS 27 beta is diagnostic only. That condition was
+  satisfied on 2026-08-13 when final Xcode 26.6 `17F113` ran the dedicated scheme on a physical
+  iPhone Air with final iOS 26.6.1 `23G82`: 5 passed, 0 failed, 0 skipped, including passed CHN
+  and USA probes. C2-03 may therefore begin, but no later gate is waived. Purchase, restore,
+  transaction finishing,
   pending/cancel handling, subscription-status mapping, customer pricing/trial terms, paywall,
   formal App Store Connect products, and distribution remain blocked by C2-03/C2-04 and later
   release gates.

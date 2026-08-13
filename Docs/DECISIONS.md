@@ -1999,8 +1999,11 @@ facts rather than filtering a past expiration before C2-03 can apply the billing
 Consequences: Existing UI and App Intents receive one dynamic authority without learning Product
 IDs, prices, raw entitlement bits, or billing state. Unknown, mixed, or unverified authority input
 returns to Free. C2-02 adds no purchase/restore/paywall, schema, app-owned network domain, customer
-term, version, Archive, upload, tester, or distribution change. C2-03 may not begin until the CHN
-and USA local StoreKit product probes execute rather than skip and pass under a supported final
-Xcode toolchain. Detailed evidence remains in commercial DEC-COM-016: final Xcode 26.6 `17F113`
-still produced `Code=3`/empty products on final iOS 26.4/26.5, while the iOS 27 beta 16-test/
-2-suite pass is diagnostic only and does not unlock C2-03.
+term, version, Archive, upload, tester, or distribution change. The C2-03 entry condition required
+the CHN and USA local StoreKit product probes to execute rather than skip and pass under a
+supported final Xcode/runtime surface. Detailed evidence remains in commercial DEC-COM-016:
+final Xcode 26.6 `17F113` produced historical `Code=3`/empty-product failures on final iOS
+26.4/26.5 simulators, and the iOS 27 beta pass was diagnostic only. On 2026-08-13 the dedicated
+scheme passed all 5 tests with 0 failed and 0 skipped on a physical iPhone Air running final
+iOS 26.6.1 `23G82`, including passed CHN and USA probes. This unlocks C2-03 implementation only;
+C2-04, paywall, commercial terms, and distribution remain blocked by their own gates.

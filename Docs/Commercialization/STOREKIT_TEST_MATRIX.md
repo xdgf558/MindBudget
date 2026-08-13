@@ -76,9 +76,9 @@ Every row must be exercised for Monthly and Annual where applicable:
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
   C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme,
   followed by purchase/restore/lifecycle and UI tests in later COM-C2 packets using the same fixture.
-  Before C2-03 starts, both runtime probes must execute (not skip) and pass under a supported final
-  Xcode toolchain; `SKInternalErrorDomain Code=3` or an empty catalog blocks entry rather than
-  authorizing a weaker probe.
+  The C2-03 entry gate required both runtime probes to execute (not skip) and pass under a
+  supported final Xcode/runtime surface; `SKInternalErrorDomain Code=3` or an empty catalog could
+  not authorize a weaker probe. The accepted physical-device evidence below satisfied that gate.
 
 ### C2-03 runtime-probe entry evidence
 
@@ -88,11 +88,14 @@ Every row must be exercised for Monthly and Annual where applicable:
 | Xcode 26.6 final `17F113`, final iOS 26.4 | CHN/USA executed; `Code=3`; empty products; `storekitd` Octane entitlement/development-install handshake diagnostic | Supported-final-runtime failure; C2-03 blocked |
 | Xcode 26.6 final `17F113`, final iOS 26.5 runtime `23F77` | CHN/USA executed; `Code=3`; empty products; same handshake diagnostic | Supported-final-runtime failure; C2-03 blocked |
 | Xcode 26.6 final `17F113`, iOS 27 beta | 16 tests in 2 suites pass | Diagnostic only; beta runtime cannot satisfy the entry gate |
+| Xcode 26.6 final `17F113`, physical `iPhone Air`, final iOS 26.6.1 `23G82` | 5 passed, 0 failed, 0 skipped; CHN Passed; USA Passed | Accepted supported-final physical-device evidence; C2-03 entry gate passed |
 
 Final Xcode's iOS SDK build is `23F81a`. Apple's currently offered export was the older runtime
 build `23F73`; it was not imported and could not replace installed build `23F77`, so it supplied no alternative supported-
 runtime pass. Direct download queries for build `23F81` and iOS `26.5.1` returned unavailable.
-This matrix records the observed evidence without inferring probe success.
+The historical simulator and beta evidence remains part of the record. The physical final-device
+row is the accepted pass that opens C2-03; it does not satisfy later purchase, restore, status,
+environment-isolation, paywall, or release gates.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner

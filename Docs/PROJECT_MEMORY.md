@@ -45,13 +45,17 @@ map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused 
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
 feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
 C2-01 and C2-02 are complete. PR #29 passed independent review and green CI, then merged the
-runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 remains blocked
-pending its runtime-probe entry gate. A post-merge recheck with final Xcode 26.6 (`17F113`)
+runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 is In Progress
+after its runtime-probe entry gate passed on 2026-08-13. A post-merge recheck with final Xcode
+26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
 `SKInternalErrorDomain Code=3` and empty product sets while `storekitd` reported an Octane
 entitlement/development-install handshake failure. The same 16 tests in 2 suites pass on an
 iOS 27 beta runtime only as diagnostic evidence; beta-runtime success does not satisfy the final-
-runtime entry gate. The current app target still contains no purchase,
+runtime entry gate. The accepted final-runtime evidence came from the dedicated scheme on the
+physical `拉沙的iPhone` (`iPhone Air`) running final iOS 26.6.1 `23G82`: 5 passed, 0 failed,
+0 skipped, with both CHN and USA runtime product probes passing. This opens C2-03 implementation
+only. The current app target still contains no purchase,
 restore, status mapper, transaction finish, quota, paid lock,
 paywall, trial, or visible paid-feature placeholder, and existing TestFlight users receive no
 production Pro rights. The read-only COM-C0A specification/repository audit and owner decision gate
@@ -80,12 +84,11 @@ is test-bundle-only, activated by a dedicated non-Archive local scheme, and abse
 resources/default scheme. There is still no formal product, paywall, customer price/trial,
 purchase/restore flow, status mapper, transaction finish, or Release manual unlock. C2-02's
 presentation cache never grants access; verified current-entitlement input updates one
-process-local authority and keeps revocation/expiration as raw facts for C2-03. C2-03 cannot start
-until both dedicated CHN/USA StoreKit product probes execute (not skip) and pass under a supported
-final Xcode toolchain. Final Xcode's iOS SDK build is `23F81a`; the installed iOS 26.5 runtime is
-`23F77`. Apple's offered export was the older `23F73` runtime; it was not imported and could not
-replace the installed runtime, so it supplied no alternate supported-runtime pass. Direct Apple
-queries for build `23F81` and iOS `26.5.1` returned unavailable.
+process-local authority and keeps revocation/expiration as raw facts for C2-03. The earlier
+simulator mismatch remains useful historical evidence: final Xcode's iOS SDK build is `23F81a`;
+the installed iOS 26.5 simulator runtime is `23F77`, and Apple's offered export was the older
+`23F73`. None of those failed or beta-only results were used to claim the physical-device entry
+pass.
 Phase 12 implements an extensible in-app language choice (system, Simplified Chinese, and English),
 explicit per-income allocation to current-cycle spending and/or savings, a cross-cycle total
 savings goal distinct from the existing per-cycle savings reservation, and deduplicated monthly

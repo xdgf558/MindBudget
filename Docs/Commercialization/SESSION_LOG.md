@@ -632,3 +632,35 @@ Evidence: `/private/tmp/MindBudget-C2-02-Restart-17F113-iOS26.5-23F77.xcresult` 
 What was NOT changed: No app source, purchase/restore/status/finish behavior, paywall, formal
 product, customer term, schema, network/provider path, version, Archive, upload, tester, or
 distribution state changed.
+
+## 2026-08-13 — Session 20 — Pass the C2-03 runtime entry gate on a physical final iPhone
+
+Goal: Run the committed CHN and USA StoreKit product probes on a supported final physical-device
+surface, then open C2-03 only if both probes execute rather than skip and pass without weakening
+the gate.
+
+What was completed: After the owner unlocked the connected device, final Xcode 26.6 build
+`17F113` ran `StoreKitTestCatalogTests` through the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) with final
+iOS 26.6.1 build `23G82`. All 5 tests passed with 0 failed and 0 skipped. The CHN and USA
+`Product.products(for:)` probes both executed and passed; neither produced an empty product set or
+`SKInternalErrorDomain Code=3`. Independent `xcresulttool` parsing confirmed the physical arm64
+device, OS/build, all five named tests, and the 5/0/0 totals. C2-03 is now In Progress. Historical
+iOS 26.4/26.5 simulator failures and the iOS 27 beta diagnostic pass remain recorded and were not
+rewritten as accepted evidence.
+
+Evidence: `/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult`.
+
+What was NOT changed: No C2-03 app source, purchase, restore, subscription-status mapping,
+transaction `finish()`, paywall, formal product/customer term, schema, network/provider path,
+version, Archive, upload, tester, or distribution state changed. The post-0.9.6 release hold and
+all C2-04/later gates remain active.
+
+Validation result: pass under final Xcode 26.6 `17F113` with the documented shared-host
+wall-clock exclusion. Static money, network, commercialization, StoreKit-catalog, and release
+gates passed; the Release build passed; 306 Swift tests in 20 suites and all 13 UI tests passed;
+every selected coverage threshold remained above 85%; and `git diff --check` passed.
+
+Next suggested task: Implement C2-03 as its own review unit: verified purchase/finish,
+pending/cancel/error, user-triggered restore, and the subscribed/grace/retry/expired/revoked
+status mapper. Do not begin C2-04, paywall, formal customer terms, or distribution work.

@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C2**. C2-01 and C2-02 are completed; C2-03 remains blocked pending its
-  runtime-probe entry gate, so no C2-03 implementation packet is active yet.
+- Active phase: **COM-C2**. C2-01 and C2-02 are completed; C2-03 is In Progress after its
+  runtime-probe entry gate passed on a supported final physical iPhone.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -207,7 +207,7 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01 and C2-02 completed; C2-03 is blocked pending its runtime-probe entry gate.**
+Status: **In Progress — C2-01 and C2-02 completed; C2-03 is In Progress after its runtime-probe entry gate passed.**
 Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an
@@ -216,11 +216,12 @@ Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead
   `EntitlementStore`, startup cache for presentation only, and exactly one lifecycle-owned
   `Transaction.updates` task. PR #29 passed independent review and green CI, then merged as
   `a45d480` on 2026-08-12.
-- [B] **C2-03 — Purchase and restore flows.** Implement verification, finish, pending, cancel,
+- [ ] **C2-03 — Purchase and restore flows.** Implement verification, finish, pending, cancel,
   error, user-triggered restore, and `SubscriptionStatusMapper` for subscribed/grace/retry/
-  expired/revoked states. Before any C2-03 source change, both dedicated CHN/USA
-  `Product.products(for:)` probes must execute (not skip) and pass under a supported final Xcode
-  toolchain; `Code=3`, an empty catalog, or a skipped probe blocks entry.
+  expired/revoked states. Entry evidence accepted on 2026-08-13: final Xcode 26.6 `17F113`, a
+  physical iPhone Air running final iOS 26.6.1 `23G82`, and the dedicated local scheme ran five
+  tests with 5 passed, 0 failed, 0 skipped; both CHN and USA `Product.products(for:)` probes
+  passed. This opens C2-03 only; it does not complete any purchase, restore, or release gate.
 - [B] **C2-04 — Environment and regression gate.** Prove Configuration, Sandbox, TestFlight, and
   Production rights cannot contaminate one another and Product loading failure does not erase a
   verified entitlement.

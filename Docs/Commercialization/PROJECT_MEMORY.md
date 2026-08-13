@@ -13,7 +13,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
   three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 and C2-02
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
-  2026-08-12. C2-03 remains blocked pending its runtime-probe entry gate.
+  2026-08-12. C2-03 is In Progress after its runtime-probe entry gate passed on 2026-08-13 using
+  final Xcode 26.6 `17F113` and a physical iPhone Air on final iOS 26.6.1 `23G82`.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -38,17 +39,24 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   input fail closed; Delete All clears the presentation cache, which can never grant a right.
   C2-02 retains verified ownership, revocation, and expiration as raw facts without deciding
   billing grace from expiration alone; C2-03 owns the complete status mapping and transaction
-  finish. C2-03 is blocked until both opt-in CHN/USA runtime catalog probes execute (not skip) and
-  pass under a supported final Xcode toolchain. Historical Xcode 26.6 RC `17F109`/iOS 26.5 CLI
+  finish. The C2-03 entry condition required both opt-in CHN/USA runtime catalog probes to execute
+  rather than skip and pass under a supported final Xcode/runtime surface. Historical Xcode 26.6
+  RC `17F109`/iOS 26.5 CLI
   evidence remains a StoreKit synchronization `Code=3`/empty-catalog failure, not a pass. A
   post-merge recheck with final Xcode 26.6 `17F113` executed both probes on final iOS 26.4 and
-  iOS 26.5 runtimes, but again returned `SKInternalErrorDomain Code=3` and empty products;
+  iOS 26.5 runtimes, but again returned `SKInternalErrorDomain Code=3` and empty products. On
+  2026-08-13, the dedicated scheme ran on the physical `拉沙的iPhone` (`iPhone Air`) with final
+  iOS 26.6.1 `23G82`: 5 passed, 0 failed, 0 skipped, and both CHN/USA runtime probes passed. That
+  accepted evidence opens C2-03 only; purchase, restore, status mapping, transaction finish,
+  paywall, formal products, and distribution remain unimplemented or blocked by their owning
+  packets and release gates.
   `storekitd` reported an Octane entitlement/development-install handshake failure. The same
   16 tests in 2 suites pass on an iOS 27 beta runtime only as diagnostic evidence and do not
   satisfy the supported-final-runtime gate. Final Xcode's iOS SDK is build `23F81a`, the installed
   iOS 26.5 runtime is `23F77`, and Apple's offered export was the older `23F73`; it was not
   imported and could not replace the installed runtime. Direct queries for build `23F81` and iOS
-  `26.5.1` returned unavailable. No runtime-probe pass is claimed.
+  `26.5.1` returned unavailable. Those historical simulator and download-query results are not
+  claimed as the accepted runtime-probe pass; the supported final physical-device result above is.
   No formal App Store Connect
   product/group, purchase, restore, status mapper, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
@@ -212,9 +220,10 @@ an exact centralized adapter exception is implemented.
 COM-C1, C2-01, and C2-02 are closed. C2-02 adds runtime product presentation and verified
 current-entitlement authority but no purchase, restore, status mapping, transaction finish,
 paywall, formal products, or customer terms. Access decisions still may not read raw entitlement
-bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. C2-03 remains blocked until
-the non-skipped CHN/USA local StoreKit runtime probes pass under a supported final Xcode
-toolchain and their required evidence is recorded.
+bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. C2-03 is In Progress after
+the non-skipped CHN/USA local StoreKit runtime probes passed on the supported final physical-device
+surface recorded above.
 
-Next suggested task: Resolve the C2-03 supported-final-runtime probe gate. Do not begin C2-03 source work or
-mark it In Progress until both probes execute rather than skip and pass.
+Next suggested task: Implement only the C2-03 verified purchase, restore, finish, pending/cancel,
+and subscription-status work in its execution packet. Do not begin C2-04, paywall presentation,
+formal customer terms, or distribution work.

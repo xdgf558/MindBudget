@@ -180,9 +180,9 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01 and C2-02 completed; C2-03 is blocked pending its runtime-probe entry gate.**' \
+grep -Fq 'Status: **In Progress — C2-01 and C2-02 completed; C2-03 is In Progress after its runtime-probe entry gate passed.**' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must record C2-01/C2-02 complete and keep C2-03 blocked on its probe gate" >&2
+  echo "COM-C2 must record C2-01/C2-02 complete and C2-03 active after its accepted probe evidence" >&2
   exit 1
 }
 
@@ -198,11 +198,34 @@ grep -Fq 'Status: **Done** after independent review, green CI, and merge through
   exit 1
 }
 
-grep -Fq 'Status: **Blocked pending the runtime-probe entry gate.**' \
+grep -Fq 'Status: **In Progress after the runtime-probe entry gate passed on a physical final iPhone.**' \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must keep C2-03 blocked until its runtime probes pass" >&2
+  echo "COM-C2 execution packet must record C2-03 active after its runtime probes passed" >&2
   exit 1
 }
+
+for evidence in \
+  'final Xcode 26.6 `17F113`' \
+  'iOS 26.6.1 `23G82`' \
+  '5 passed, 0 failed, 0 skipped' \
+  'both the CHN and USA `Product.products(for:)` probes passed' \
+  '/private/tmp/MindBudget-C2-03-Physical-Unlocked-iOS26.6.1-17F113.xcresult'; do
+  grep -Fq "${evidence}" Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+    echo "COM-C2 execution packet is missing accepted C2-03 entry evidence: ${evidence}" >&2
+    exit 1
+  }
+done
+
+grep -Fq '| Xcode 26.6 final `17F113`, physical `iPhone Air`, final iOS 26.6.1 `23G82` | 5 passed, 0 failed, 0 skipped; CHN Passed; USA Passed | Accepted supported-final physical-device evidence; C2-03 entry gate passed |' \
+  Docs/Commercialization/STOREKIT_TEST_MATRIX.md || {
+  echo "StoreKit test matrix is missing the accepted C2-03 physical-device evidence" >&2
+  exit 1
+}
+
+if grep -Fq 'No runtime-probe pass is claimed.' Docs/Commercialization/PROJECT_MEMORY.md; then
+  echo "Commercial project memory still contains the superseded pre-C2-03 probe status" >&2
+  exit 1
+fi
 
 for heading in \
   '## Input gate' \
