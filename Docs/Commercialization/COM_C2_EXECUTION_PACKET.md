@@ -82,7 +82,7 @@ Status: **Done** after independent review, green CI, and merge through PR #29 (`
 
 ## C2-03 — Purchase, restore, and status mapping
 
-Status: **Implementation complete, pending independent review.**
+Status: **Done after independent review, green CI, and merge through PR #30 (`3fc72b4`).**
 
 ### Entry gate
 
@@ -162,28 +162,45 @@ Status: **Implementation complete, pending independent review.**
   xcresult summary is 355 total, 351 passed, 4 explicit opt-in StoreKit runtime probes skipped,
   and 0 failed. Every selected core file remains above the 85% coverage gate. Evidence:
   `/private/tmp/MindBudget-C203-Full-Final15.xcresult`.
-- This local evidence does not replace the pending independent review, green CI, merge, dedicated
-  device probes, presented `Product.purchase()` evidence, or later stable StoreKit transition
-  evidence.
+- This local evidence was accepted by PR #30 review and green CI before merge `3fc72b4`; it does
+  not replace dedicated device probes, presented `Product.purchase()` evidence, or later stable
+  StoreKit transition evidence.
 
 ### Stop conditions
 
-- The local full-validation gate is satisfied. Keep C2-03 not Done until independent review,
-  green CI, and merge. C2-04 and
-  C3 remain blocked; the post-0.9.6 release hold remains active.
+- The C2-03 review, CI, and merge gate is satisfied. C2-04 is implementation complete pending
+  independent review; C3 remains blocked and the
+  post-0.9.6 release hold remains active.
 - Stop before customer-facing paywall presentation or unaccepted commercial terms.
 
 ## C2-04 — Environment and regression gate
 
+Status: **Implementation complete pending independent review.**
+
 ### Tasks
 
-- Prove Configuration, Sandbox, TestFlight, and Production state cannot contaminate one another.
-- Prove catalog failure never erases a separately verified entitlement.
+- Bind each whole entitlement read to a separately verified `AppTransaction` bundle/environment;
+  transaction, status, renewal, and app-transaction environments must agree exactly.
+- Treat Xcode Configuration as `Xcode`, local development and TestFlight as `Sandbox`, and App
+  Store distribution as `Production`, using StoreKit's verified environment rather than inferring
+  authority from Debug/Release or a distribution label.
+- Keep the presentation cache keyed by exact environment plus storefront and prove catalog failure
+  never erases a separately verified active entitlement.
+- Keep `AppTransaction.shared` centralized in the Commerce adapter and reject app-owned authority
+  constructions elsewhere through the executable boundary gate.
 
 ### Tests
 
-- Complete `STOREKIT_TEST_MATRIX.md`, full Free regression, and retained distribution hold.
+- Complete `STOREKIT_TEST_MATRIX.md`, including Xcode/Sandbox/Production acceptance and every
+  cross-environment/bundle mismatch rejection; run the full Free regression and retain the
+  distribution hold.
+- Local evidence: 48/48 focused environment/lifecycle tests; the strict Phase 10 suite passed
+  20/20 across 10 iterations; the full shared-host run completed 345 Swift tests (341 passed and
+  4 explicit StoreKit runtime probes skipped), all 13 UI tests, and every selected coverage gate.
+  Result bundles: `/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+  `/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
 
 ### Stop conditions
 
 - COM-C2 is not Done until every environment/state row has objective evidence.
+- Independent review, green CI, and merge remain required before C2-04 is Done.

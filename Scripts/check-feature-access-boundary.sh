@@ -171,6 +171,32 @@ feature_access_conformance_sites() {
   ' "${source_path}"
 }
 
+app_transaction_read_sites() {
+  local source_path="${1:-/dev/stdin}"
+  awk '
+  {
+    source = $0
+    sub(/\/\/.*/, "", source)
+    if (source ~ /(^|[^[:alnum:]_])AppTransaction\.shared([^[:alnum:]_]|$)/) {
+      print FILENAME ":" FNR ": AppTransaction.shared read"
+    }
+  }
+  ' "${source_path}"
+}
+
+entitlement_read_construction_sites() {
+  local source_path="${1:-/dev/stdin}"
+  awk '
+  {
+    source = $0
+    sub(/\/\/.*/, "", source)
+    if (source ~ /(^|[^[:alnum:]_])StoreEntitlementRead[[:space:]]*\(/) {
+      print FILENAME ":" FNR ": StoreEntitlementRead construction"
+    }
+  }
+  ' "${source_path}"
+}
+
 assert_gate_fixture() {
   local parser="$1"
   local expects_violation="$2"
@@ -216,6 +242,21 @@ assert_gate_fixture \
   "yes" \
   "a protocol refinement must not create an indirect authority seam" \
   $'protocol BypassAccess:\n    FeatureAccessChecking {\n}'
+assert_gate_fixture \
+  app_transaction_read_sites \
+  "yes" \
+  "a production AppTransaction authority read must be detected" \
+  $'let result = try await AppTransaction.shared'
+assert_gate_fixture \
+  app_transaction_read_sites \
+  "no" \
+  "a documentation comment must not become an AppTransaction authority read" \
+  $'// AppTransaction.shared belongs to Commerce'
+assert_gate_fixture \
+  entitlement_read_construction_sites \
+  "yes" \
+  "an app-owned entitlement authority construction must be detected" \
+  $'let read = StoreEntitlementRead(transactions: [], unverifiedCount: 0, appEnvironment: nil)'
 
 # Prove the arbitrary-combination provider's declaration is inside an active #if DEBUG region.
 # The app's existing Release build then proves that the guarded source compiles without it.
@@ -362,6 +403,36 @@ storekit_imports="$({
 if [[ -n "${storekit_imports}" ]]; then
   echo "StoreKit imports must remain inside the Commerce runtime adapters:" >&2
   echo "${storekit_imports}" >&2
+  exit 1
+fi
+
+app_transaction_reads="$({
+  while IFS= read -r source_path; do
+    app_transaction_read_sites "${source_path}"
+  done < <(find MindBudget -type f -name '*.swift' ! -path "${STORE_CATALOG_SOURCE}")
+} || true)"
+if [[ -n "${app_transaction_reads}" ]]; then
+  echo "Verified AppTransaction environment reads must remain centralized in StoreCatalog:" >&2
+  echo "${app_transaction_reads}" >&2
+  exit 1
+fi
+
+app_transaction_authority_count="$(
+  app_transaction_read_sites "${STORE_CATALOG_SOURCE}" | wc -l | tr -d ' '
+)"
+if [[ "${app_transaction_authority_count}" != "1" ]]; then
+  echo "StoreCatalog must own exactly one verified AppTransaction environment read" >&2
+  exit 1
+fi
+
+entitlement_read_constructions="$({
+  while IFS= read -r source_path; do
+    entitlement_read_construction_sites "${source_path}"
+  done < <(find MindBudget -type f -name '*.swift' ! -path "${ENTITLEMENT_STORE_SOURCE}")
+} || true)"
+if [[ -n "${entitlement_read_constructions}" ]]; then
+  echo "App code must not construct entitlement authority reads outside EntitlementStore:" >&2
+  echo "${entitlement_read_constructions}" >&2
   exit 1
 fi
 

@@ -3900,3 +3900,35 @@ remain later controlled runtime evidence.
 What was NOT changed: No production behavior, purchase/restore policy, entitlement result,
 customer UI, commercial term, later phase, release artifact, or distribution state changed.
 C2-03 remains implementation complete pending re-review, green CI, and merge.
+
+## 2026-08-13 — Session 105 — Close C2-03 and start verified StoreKit environment isolation
+
+Goal: Close the reviewed/merged C2-03 packet and begin only C2-04 without changing customer-visible
+commerce or distribution behavior.
+
+C2-03 closeout: PR #30 passed independent review and green CI, then merged to `main` as `3fc72b4`
+on 2026-08-13. The complete GitHub Actions run passed in 14m26s:
+<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done.
+
+C2-04 work: StoreKit authority now requires a separately verified `AppTransaction` bundle and
+environment. Every transaction/status fact must match the same Xcode, Sandbox, or Production
+environment; TestFlight follows Apple's Sandbox environment and cannot be relabeled by Release
+configuration. Wrong bundle, missing/unknown environment, or cross-environment input fails closed.
+The exact environment/storefront presentation cache remains non-authoritative, and catalog-only
+failure still preserves an independently verified active subscription. Static validation keeps the
+app-transaction reader and entitlement-read construction inside Commerce.
+
+Validation: Production/test compilation and all static gates pass. Focused StoreKit
+environment/lifecycle tests passed 48/48. The strict Phase 10 suite passed 20/20 across 10
+isolated iterations. The owning shared-host run completed 345 Swift tests (341 passed and 4
+explicit StoreKit runtime probes skipped), all 13 UI tests, and every selected coverage gate;
+combined result: 358 total, 354 passed, 4 skipped, 0 failed. Evidence:
+`/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+`/private/tmp/MindBudget-C204-Full-Shared.xcresult`. An initial unsplit run measured the
+environment-sensitive 500 ms signal at 0.814 seconds and then hit Xcode's 600-second diagnostics
+timeout; it is not used as passing evidence. C2-04 is implementation complete pending independent
+review, green CI, and merge; C3 remains blocked.
+
+What was NOT changed: No purchase/restore View, paywall, formal product or term, version, Archive,
+upload, tester assignment, app-owned network destination, or distribution action was added. The
+uploaded 0.9.6 binary and release hold are unchanged.

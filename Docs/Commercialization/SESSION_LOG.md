@@ -815,3 +815,35 @@ reclassified as C2-03 lifecycle evidence.
 What was NOT changed: No production state-machine behavior, entitlement rule, customer UI,
 paywall, product/price/trial, phase, version, Archive, upload, tester, or distribution state
 changed. C2-03 remains implementation complete pending re-review, green CI, and merge.
+
+## 2026-08-13 — Session 26 — Close C2-03 and begin the C2-04 environment gate
+
+Goal: Record the reviewed C2-03 merge before beginning only the next accepted COM-C2 packet.
+
+C2-03 closeout: PR #30 passed independent review and the complete GitHub Actions validation, then
+merged to `main` as `3fc72b4` on 2026-08-13. The CI run completed green in 14m26s:
+<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done.
+
+C2-04 implementation: Added one separately verified app-environment authority based on
+`AppTransaction.shared`. The verified app bundle and Xcode/Sandbox/Production environment must
+match every transaction/status fact in a whole entitlement read. TestFlight is treated as Apple's
+Sandbox environment rather than a fourth or manually relabeled Production environment. Missing,
+unknown, wrong-bundle, or cross-environment authority fails closed. Catalog presentation remains
+cached only by exact environment plus storefront; catalog-only failure still cannot erase an
+independently verified active entitlement. Static validation keeps the app-transaction reader and
+authority-read construction inside their Commerce owners.
+
+Evidence: Production/test compilation and every static gate passed. The focused
+`StoreRuntimeTests` plus `StoreLifecycleDomainTests` run passed 48/48 on iOS 26.5 with final Xcode
+26.6 `17F113`. The strict Phase 10 suite passed 20/20 across 10 isolated iterations. The owning
+shared-host run then completed 345 Swift tests (341 passed and 4 explicit StoreKit runtime probes
+skipped), all 13 UI tests, and the complete coverage gate; combined result: 358 total, 354 passed,
+4 skipped, 0 failed. Evidence: `/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+`/private/tmp/MindBudget-C204-Full-Shared.xcresult`. An initial unsplit run measured the
+nondeterministic wall-clock signal at 0.814 seconds and then hit Xcode's 600-second diagnostics
+timeout; it is recorded but not used as passing evidence. C2-04 is implementation complete
+pending independent review, green CI, and merge, not Done.
+
+What was NOT changed: No current View calls purchase or restore. No paywall, customer UI, formal
+App Store Connect product, price, trial, offer, version, Archive/upload, tester assignment,
+app-owned HTTP(S), C3 work, or distribution state changed. The post-0.9.6 release hold remains.

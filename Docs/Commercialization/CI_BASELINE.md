@@ -135,7 +135,7 @@ hold remains active.
 
 ## COM-C2-03 implementation candidate verification
 
-The current C2-03 candidate is implementation complete and pending independent review. It adds a
+The merged C2-03 implementation adds a
 single `EntitlementStore` lifecycle authority, full verified status/renewal mapping, explicit
 typed purchase and restore seams, authoritative whole-snapshot publication before transaction
 finish, and retry for transactions that remain unfinished. One lifecycle task supervises both
@@ -164,10 +164,44 @@ SpendingPatternDetector 97.57%, ReminderThrottle 96.84%, ReminderEngine 91.04%,
 AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%, CycleSummaryService 97.45%,
 IntentClassifier 97.50%, CSVExporter 87.60%, and CurrencyFormatterService 100.00%; every selected
 file remains above the 85% gate. The four skipped probes remain opt-in dedicated-scheme/device
-evidence and are not reclassified by this default-scheme run. Independent review, CI, and merge
-remain pending. C2-03 is not Done; C2-04, paywall/customer purchase presentation, formal product
-and customer terms, versioning, Archive, upload, tester assignment, and distribution remain
-blocked. The post-0.9.6 release hold is still active.
+evidence and are not reclassified by this default-scheme run. PR #30 subsequently passed
+independent review and the complete GitHub Actions validation in 14m26s, then merged to `main` as
+`3fc72b4` on 2026-08-13. CI run:
+<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done; C2-04 is now
+implementation complete pending independent review.
+Paywall/customer purchase presentation, formal products/customer terms, versioning, Archive,
+upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold is active.
+
+## COM-C2-04 implementation verification
+
+C2-04 binds each whole entitlement read to a separately verified `AppTransaction` bundle and
+environment. Xcode, Sandbox (including TestFlight), and Production transactions are accepted only
+when the app environment and every verified transaction/status fact match exactly; missing,
+unknown, cross-environment, or wrong-bundle input fails closed. Presentation caching continues to
+require an exact environment plus storefront key, and catalog-only failure may not erase an
+independently verified active subscription.
+
+Focused evidence: `StoreRuntimeTests` plus `StoreLifecycleDomainTests` passed 48/48 on the iOS
+26.5 simulator with final Xcode 26.6 `17F113`. The strict Phase 10 suite then passed 20/20 across
+10 isolated iterations, including 10/10 executions of the 500 ms local Dashboard signal. The
+owning shared-host run used the repository's documented switch to omit only that already-isolated
+wall-clock assertion while retaining its deterministic 10,000-row projection test. It completed
+345 Swift tests with zero failures (341 passed and 4 explicit StoreKit runtime probes skipped) and
+all 13 UI tests. The combined result is 358 total, 354 passed, 4 skipped, and 0 failed. Every
+selected coverage file passed the 85% gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.04%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%,
+CycleSummaryService 97.45%, IntentClassifier 97.50%, CSVExporter 87.60%, and
+CurrencyFormatterService 100.00%. Static release, money, network, commercialization-document,
+feature-access, StoreKit-catalog, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+`/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
+
+An initial unsplit full run also completed all functional/UI tests but measured the shared-host
+wall-clock signal at 0.814 seconds and Xcode then spent 600 seconds timing out while collecting
+simulator diagnostics. It is not used as passing evidence; the isolated 10-iteration run and the
+clean shared-host run above are the owning evidence. Independent review, CI, and merge remain
+pending; C2-04 is not Done and C3 remains blocked.
 
 ## Result and report paths
 

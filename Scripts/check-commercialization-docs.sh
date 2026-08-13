@@ -180,9 +180,9 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01 and C2-02 are Done; C2-03 implementation is complete and pending independent review.**' \
+grep -Fq 'Status: **In Progress — C2-01, C2-02, and C2-03 are Done; C2-04 implementation is complete pending independent review.**' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must keep C2-03 review-pending rather than Done or merely entry-gated" >&2
+  echo "COM-C2 must record C2-03 Done and C2-04 implementation complete pending review" >&2
   exit 1
 }
 
@@ -198,9 +198,15 @@ grep -Fq 'Status: **Done** after independent review, green CI, and merge through
   exit 1
 }
 
-grep -Fq 'Status: **Implementation complete, pending independent review.**' \
+grep -Fq 'Status: **Done after independent review, green CI, and merge through PR #30 (`3fc72b4`).**' \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-03 implementation complete and review pending" >&2
+  echo "COM-C2 execution packet must record C2-03 reviewed, merged, and Done" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Implementation complete pending independent review.**' \
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
+  echo "COM-C2 execution packet must record C2-04 implementation complete pending review" >&2
   exit 1
 }
 
@@ -216,10 +222,38 @@ for c203_contract in \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/PROJECT_MEMORY.md \
       Docs/Commercialization/CI_BASELINE.md; then
-    echo "C2-03 review-pending lifecycle/release contract is missing: ${c203_contract}" >&2
+    echo "C2-03 merged lifecycle/release contract is missing: ${c203_contract}" >&2
     exit 1
   fi
 done
+
+for c204_contract in \
+  'separately verified `AppTransaction` bundle/environment' \
+  'TestFlight is modeled as verified Sandbox' \
+  'cross-environment/bundle mismatch rejection' \
+  'DEC-COM-018' \
+  '48/48 focused' \
+  '358 total, 354 passed, 4 skipped, and 0 failed' \
+  'C2-04 is not Done and C3 remains blocked'; do
+  if ! grep -Fq "${c204_contract}" \
+      Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
+      Docs/Commercialization/STOREKIT_TEST_MATRIX.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md; then
+    echo "C2-04 environment/release contract is missing: ${c204_contract}" >&2
+    exit 1
+  fi
+done
+
+grep -Fq '`3fc72b4`' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C2-03 green-CI merge evidence is missing from CI baseline" >&2
+  exit 1
+}
+
+grep -Fq 'actions/runs/31675470258' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C2-03 green-CI run is missing from CI baseline" >&2
+  exit 1
+}
 
 for storekit_api in \
   '`Product.SubscriptionInfo.Status.updates`' \

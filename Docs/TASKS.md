@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 implementation complete and pending independent review
+Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01, C2-02, and C2-03 Done; C2-04 implementation complete pending independent review
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -267,7 +267,7 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 imple
   `Product.products(for:)` probes execute rather than skip and pass under a supported final
   Xcode/runtime surface. The 2026-08-13 physical iPhone Air run used final Xcode 26.6 `17F113`
   and final iOS 26.6.1 `23G82`; 5 passed, 0 failed, 0 skipped, including both storefront probes.
-- [ ] Independently review, obtain green CI, and merge the implementation-complete C2-03
+- [x] Independently review, obtain green CI, and merge the implementation-complete C2-03
   candidate. Local validation is complete: 44/44 focused tests, 310/310 lifecycle iterations,
   342 Swift tests, all 13 UI tests, and every selected coverage file passed; the strict local
   wall-clock signal separately passed 10/10. The candidate centralizes verified purchase/finish,
@@ -276,5 +276,12 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01 and C2-02 Done; C2-03 imple
   the single `EntitlementStore` lifecycle authority. The same lifecycle task supervises both
   transaction and subscription-status update sequences; a status signal triggers a fresh full
   reconciliation rather than becoming a second authority. No current view calls the typed
-  purchase or restore seams. Do not mark C2-03 Done or begin C2-04, paywall, formal terms, or
-  distribution work before review, green CI, and merge.
+  purchase or restore seams. PR #30 passed independent review and CI, then merged as `3fc72b4`
+  on 2026-08-13.
+- [ ] Independently review, obtain green CI, and merge the implementation-complete C2-04
+  candidate. It binds every verified StoreKit fact to the same verified app environment,
+  preserves exact environment-scoped presentation caches, proves
+  Configuration/Sandbox/TestFlight/Production isolation and catalog-failure behavior, runs the
+  full Free regression, and retains the distribution hold. Local evidence passed 48/48 focused
+  tests, 20/20 Phase 10 tests across 10 iterations, 345 Swift tests, all 13 UI tests, and the
+  complete coverage gate. Do not begin C3 early.

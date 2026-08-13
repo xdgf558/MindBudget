@@ -13,11 +13,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
   three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 and C2-02
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
-  2026-08-12. C2-03 implementation is complete and pending independent review after its runtime-
-  probe entry gate passed on 2026-08-13 using final Xcode 26.6 `17F113` and a physical iPhone Air
-  on final iOS 26.6.1 `23G82`. Local validation is complete: 44/44 focused tests, 310/310
-  lifecycle iterations, 342 Swift tests, 13 UI tests, and all selected coverage files above 85%.
-  C2-03 is not Done until independent review, green CI, and merge.
+  2026-08-12. C2-03 then passed independent review and green CI and merged through PR #30 as
+  `3fc72b4` on 2026-08-13; it is Done. C2-04 environment/regression implementation is complete
+  pending independent review, green CI, and merge.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -41,7 +39,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   existing feature consumers. Unknown products/environments, mixed environments, and unverified
   input fail closed; Delete All clears the presentation cache, which can never grant a right.
   C2-02 retained verified ownership, revocation, and expiration as raw facts without deciding
-  billing grace from expiration alone. The C2-03 candidate now makes the single `EntitlementStore`
+  billing grace from expiration alone. Merged C2-03 makes the single `EntitlementStore`
   the lifecycle authority for full verified subscription-state mapping, explicit typed purchase/
   restore seams, whole-snapshot publication, unfinished-transaction retry, and transaction finish.
   Its one lifecycle task supervises both `Transaction.updates` and
@@ -60,9 +58,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   2026-08-13, the dedicated scheme ran on the physical `拉沙的iPhone` (`iPhone Air`) with final
   iOS 26.6.1 `23G82`: 5 passed, 0 failed, 0 skipped, and both CHN/USA runtime probes passed. That
   accepted evidence opened C2-03 only and remains separate from purchase/restore evidence. The
-  implementation candidate exposes purchase and restore only as typed programmatic seams for later
+  merged implementation exposes purchase and restore only as typed programmatic seams for later
   C3 presentation; no current view calls them. Paywall, customer-facing purchase/restore UI,
-  formal products, price/trial terms, C2-04 environment proof, and distribution remain
+  formal products, price/trial terms, completed C2-04 proof, and distribution remain
   unimplemented or blocked by their owning packets and release gates.
   The historical simulator diagnostics reported an Octane entitlement/development-install
   handshake failure. The same
@@ -232,8 +230,9 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1, C2-01, and C2-02 are closed. C2-03 implementation is complete and pending independent
-review. Its candidate keeps one `EntitlementStore` authority, performs full verified status
+COM-C1 and C2-01 through C2-03 are closed. C2-04 is implementation complete pending independent
+review. Merged C2-03 keeps one
+`EntitlementStore` authority, performs full verified status
 mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
 each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
 seams, publishes authoritative access before finish, and retries transactions that remain
@@ -242,7 +241,7 @@ entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`.
 physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
 paths.
 
-Next suggested task: Independently review the locally validated C2-03 candidate, obtain green CI,
-and merge only after approval. Keep C2-04, paywall
-presentation, formal customer terms/products, customer-visible purchase/restore, versioning,
-Archive/upload, tester assignment, and distribution blocked.
+Next suggested task: Submit only C2-04 for independent review and CI, then merge it if green. Keep
+C3, paywall presentation, formal customer terms/products,
+customer-visible purchase/restore, versioning, Archive/upload, tester assignment, and distribution
+blocked.

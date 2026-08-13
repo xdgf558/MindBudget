@@ -45,8 +45,10 @@ map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused 
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
 feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
 C2-01 and C2-02 are complete. PR #29 passed independent review and green CI, then merged the
-runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 implementation is
-complete and pending independent review after its runtime-probe entry gate passed on 2026-08-13.
+runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 passed independent
+review and green CI and merged through PR #30 as `3fc72b4` on 2026-08-13; it is Done. C2-04
+environment/regression implementation is complete pending independent review, green CI, and
+merge.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
@@ -56,7 +58,7 @@ iOS 27 beta runtime only as diagnostic evidence; beta-runtime success does not s
 runtime entry gate. The accepted final-runtime evidence came from the dedicated scheme on the
 physical `拉沙的iPhone` (`iPhone Air`) running final iOS 26.6.1 `23G82`: 5 passed, 0 failed,
 0 skipped, with both CHN and USA runtime product probes passing. This opens C2-03 implementation
-only. The C2-03 candidate now adds one StoreKit lifecycle authority, full status mapping, typed
+only. Merged C2-03 adds one StoreKit lifecycle authority, full status mapping, typed
 purchase/restore seams, publish-before-finish, and unfinished retry. The authority's single
 lifecycle task supervises `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`;
 every status signal triggers a fresh full reconciliation instead of creating a second authority or
@@ -66,7 +68,9 @@ quota, Release manual unlock, or visible paid purchase entry, and existing TestF
 receive no production Pro rights. Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
-review, CI, and merge remain pending, so C2-03 is not Done and C2-04 remains blocked. The read-only
+C2-04 now binds those StoreKit facts to a separately verified app bundle/environment. Local
+Xcode/Sandbox/TestFlight/Production isolation, full regression, and coverage evidence pass;
+independent review, CI, and merge remain before COM-C2 can finish. The read-only
 COM-C0A specification/repository audit and owner decision gate
 are complete. The owner accepted phase-scoped future data channels, parallel/nonblocking Watch
 development with post-iPhone-1.0 Watch distribution, the three-stage commercial-economics gate,
@@ -87,12 +91,12 @@ period, basic Siri expense recording and budget checking, the five-item wishlist
 Insights, and all other typed Free-core capabilities. Passive App Entity providers expose no
 entities under exact Free without surfacing a system-initiated error; active advanced Siri actions
 retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged, and this
-unreleased commercial source is not distributable until C2-03 review/merge, purchase presentation,
+unreleased commercial source is not distributable until C2-04, purchase presentation,
 and the owning release gates are complete. C2-01's synthetic Monthly/Annual fixture
 is test-bundle-only, activated by a dedicated non-Archive local scheme, and absent from the app
 resources/default scheme. There is still no formal product, paywall, customer price/trial,
 customer-facing purchase/restore flow, or Release manual unlock. C2-02's presentation cache never
-grants access; C2-03's implementation candidate consumes its raw verified facts through the same
+grants access; merged C2-03 consumes its raw verified facts through the same
 process-local `EntitlementStore`, grants only subscribed/verified grace, publishes authority before
 finish, leaves failed acknowledgements unfinished for retry, and treats subscription-status
 updates only as signals to re-read the same complete authority. The earlier

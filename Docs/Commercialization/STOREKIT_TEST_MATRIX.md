@@ -20,9 +20,9 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
 | StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in CHN/USA runtime product-load tests |
-| Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
-| TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
-| Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
+| Sandbox | Verified `AppTransaction` Sandbox environment plus matching Sandbox transaction/status facts | Production rights/current-entitlement cache | Exact Sandbox acceptance; Xcode/Production/bundle mismatch rejection |
+| TestFlight | Apple's Sandbox environment under a distributed build; no build-channel inference | Production grandfathering after public release | TestFlight is modeled as verified Sandbox, never as a fourth entitlement environment |
+| Production | Verified `AppTransaction` Production environment plus matching Production facts | Debug/Xcode/Sandbox configuration | Exact bundle/AppTransaction/Product/environment verification; mismatch fails closed |
 
 ## Subscription-state mapping
 
@@ -73,15 +73,20 @@ Every row must be exercised for Monthly and Annual where applicable:
 
 ## Test layers and report paths
 
-- Pure unit reports: entitlement-set algebra, feature matrix, environment parser, exact-context
+- Pure unit reports: entitlement-set algebra, feature matrix, verified app-identity policy,
+  Xcode/Sandbox/Production exact-match and cross-environment/bundle rejection, exact-context
   presentation-cache semantics, current/status reconciliation, fail-closed unknown/mixed/
   unverified/incomplete state, concurrent immutable reads, one listener owner, the full C2-03
   status matrix, typed purchase/restore outcomes, publish-before-finish, duplicate delivery,
   operation serialization, failed-finish retry, unfinished startup processing, and transaction/
-  subscription-status signals converging on the same full-reconciliation path. The 31 tests in
+  subscription-status signals converging on the same full-reconciliation path. The tests in
   `StoreLifecycleDomainTests.swift` own the deterministic publish, finish, sync, and active-batch
-  wait gates; the 14 tests in `StoreRuntimeTests.swift` include the separate out-of-order
-  whole-read gate. Together those files account for the review-fix focused result of 45/45.
+  wait gates; `StoreRuntimeTests.swift` owns the separate out-of-order whole-read gate and the
+  C2-04 app-environment matrix. C2-04's focused run passed 48/48 across these two suites. The
+  strict Phase 10 suite passed 20/20 across 10 iterations, and the owning full run completed 345
+  Swift tests plus 13 UI tests with 0 failures; four explicit runtime probes skipped by design.
+  Evidence: `/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+  `/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
 - Verification-derivation boundary: pure mapper tests intentionally construct app-owned
   `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction` and
   `hasVerifiedRenewalInfo`; they prove how a completed fact set is consumed, not how StoreKit

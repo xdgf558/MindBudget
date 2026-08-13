@@ -32,6 +32,56 @@ struct StoreRuntimeEnvironment: RawRepresentable, Codable, Equatable, Hashable, 
     }
 }
 
+struct StoreAppIdentity: Equatable, Sendable {
+    let bundleID: String
+    let environment: StoreRuntimeEnvironment
+}
+
+/// The verified app transaction is the environment authority for a whole StoreKit read.
+/// Build configuration is deliberately not consulted: TestFlight uses Apple's Sandbox
+/// environment, while an App Store install uses Production.
+struct StoreAppIdentityPolicy: Sendable {
+    let expectedBundleID: String
+
+    func acceptedEnvironment(for identity: StoreAppIdentity) -> StoreRuntimeEnvironment? {
+        guard !expectedBundleID.isEmpty,
+              identity.bundleID == expectedBundleID,
+              identity.environment.isRecognizedStoreEnvironment else {
+            return nil
+        }
+        return identity.environment
+    }
+}
+
+protocol StoreAppEnvironmentProviding: Sendable {
+    func currentEnvironment() async -> StoreRuntimeEnvironment?
+}
+
+struct StoreKitAppEnvironmentProvider: StoreAppEnvironmentProviding {
+    let expectedBundleID: String
+
+    func currentEnvironment() async -> StoreRuntimeEnvironment? {
+        do {
+            switch try await AppTransaction.shared {
+            case let .verified(transaction):
+                return StoreAppIdentityPolicy(expectedBundleID: expectedBundleID)
+                    .acceptedEnvironment(
+                        for: StoreAppIdentity(
+                            bundleID: transaction.bundleID,
+                            environment: StoreRuntimeEnvironment(
+                                rawValue: transaction.environment.rawValue
+                            )
+                        )
+                    )
+            case .unverified:
+                return nil
+            }
+        } catch {
+            return nil
+        }
+    }
+}
+
 struct StoreCatalogContext: Codable, Equatable, Hashable, Sendable {
     let environment: StoreRuntimeEnvironment
     let storefrontCountryCode: String
@@ -160,18 +210,19 @@ protocol StorePresentationCaching: Sendable {
 }
 
 struct StoreKitCatalogContextProvider: StoreCatalogContextProviding {
+    private let appEnvironmentProvider: any StoreAppEnvironmentProviding
+
+    init(
+        expectedBundleID: String = Bundle.main.bundleIdentifier ?? "",
+        appEnvironmentProvider: (any StoreAppEnvironmentProviding)? = nil
+    ) {
+        self.appEnvironmentProvider = appEnvironmentProvider
+            ?? StoreKitAppEnvironmentProvider(expectedBundleID: expectedBundleID)
+    }
+
     func currentContext() async -> StoreCatalogContext {
-        let environment: StoreRuntimeEnvironment
-        do {
-            switch try await AppTransaction.shared {
-            case let .verified(transaction):
-                environment = StoreRuntimeEnvironment(rawValue: transaction.environment.rawValue)
-            case .unverified:
-                environment = StoreRuntimeEnvironment(rawValue: "Unknown")
-            }
-        } catch {
-            environment = StoreRuntimeEnvironment(rawValue: "Unknown")
-        }
+        let environment = await appEnvironmentProvider.currentEnvironment()
+            ?? StoreRuntimeEnvironment(rawValue: "Unknown")
 
         return StoreCatalogContext(
             environment: environment,

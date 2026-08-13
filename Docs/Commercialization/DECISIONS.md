@@ -383,3 +383,34 @@ context.
   listener or mapper; swallowing a failed finish as success; deleting the C2-03 restore bridge and
   deferring its first implementation to the C2-04 environment gate; or exposing a paywall before
   C3 and accepted commercial terms.
+
+## DEC-COM-018 — Bind StoreKit authority to the separately verified app environment
+
+- Status/date: **Accepted implementation boundary — 2026-08-13; C2-04 implementation complete pending independent review**
+- Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
+- Decision: `AppTransaction.shared` is the whole-read environment authority. Its verified bundle
+  identifier must match the app bundle, and its environment must be exactly Xcode, Sandbox, or
+  Production. Every verified transaction/status fact in the read must carry the same recognized
+  environment and expected app bundle before the mapper may act. StoreKit's environment is
+  authoritative; Debug/Release, scheme name, or a manually supplied TestFlight flag cannot select
+  an entitlement environment. Per Apple, TestFlight purchases are Sandbox.
+- Consequences: Xcode Configuration can authorize only Xcode, Sandbox/local development/TestFlight
+  can authorize only Sandbox, and App Store Production can authorize only Production. A missing or
+  unverified app transaction, wrong bundle, unknown environment, or mismatch fails closed.
+  Purchase and explicit restore reject before StoreKit action when the app environment cannot be
+  verified. Presentation caching remains keyed by exact environment plus storefront and never
+  grants access. Supplemental Product/catalog failure may leave an independently verified active
+  subscription actionable, while incomplete Free remains failed closed.
+- Enforcement: `AppTransaction.shared` has one Commerce-owned reader in `StoreCatalog.swift`.
+  Static validation rejects another app-owned reader or construction of `StoreEntitlementRead`
+  outside `EntitlementStore.swift`. Unit tests accept all three exact environments and reject
+  cross-environment, missing-environment, and wrong-bundle cases. Focused, full Free regression,
+  strict local performance, and coverage gates pass; independent review, CI, and merge remain
+  required before C2-04 is Done.
+- Release boundary: No customer UI, paywall, formal product, price, trial, offer, version,
+  Archive/upload, tester assignment, app-owned HTTP(S), or distribution permission is added. C3
+  remains blocked and the post-0.9.6 release hold remains active.
+- Alternatives rejected: Inferring Production from Release; treating TestFlight as a fourth
+  authority environment or as Production; accepting a transaction's self-selected environment
+  without a separately verified app transaction; cross-environment presentation cache; or a
+  persisted/manual environment unlock.

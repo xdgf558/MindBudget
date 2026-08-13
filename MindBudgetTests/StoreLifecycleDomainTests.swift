@@ -48,7 +48,11 @@ struct StoreLifecycleDomainTests {
                 expirationDate: .distantPast
             )
             let resolution = SubscriptionStatusMapper().resolve(
-                StoreEntitlementRead(transactions: [facts], unverifiedCount: 0)
+                StoreEntitlementRead(
+                    transactions: [facts],
+                    unverifiedCount: 0,
+                    appEnvironment: facts.environment
+                )
             )
 
             #expect(resolution.isActionable)
@@ -60,7 +64,11 @@ struct StoreLifecycleDomainTests {
         }
 
         let empty = SubscriptionStatusMapper().resolve(
-            StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
         )
         #expect(empty.isActionable)
         #expect(empty.hasActiveSubscription == false)
@@ -70,7 +78,8 @@ struct StoreLifecycleDomainTests {
             StoreEntitlementRead(
                 transactions: [transactionFacts(id: 199, state: .subscribed)],
                 unverifiedCount: 0,
-                isComplete: false
+                isComplete: false,
+                appEnvironment: .sandbox
             )
         )
         // Actionable means safe to use, not that every Product/catalog input was complete.
@@ -82,7 +91,8 @@ struct StoreLifecycleDomainTests {
             StoreEntitlementRead(
                 transactions: [],
                 unverifiedCount: 0,
-                isComplete: false
+                isComplete: false,
+                appEnvironment: .sandbox
             )
         )
         #expect(incompleteFree == .failedClosed)
@@ -110,14 +120,19 @@ struct StoreLifecycleDomainTests {
             let resolution = SubscriptionStatusMapper().resolve(
                 StoreEntitlementRead(
                     transactions: [accepted, facts],
-                    unverifiedCount: 0
+                    unverifiedCount: 0,
+                    appEnvironment: .sandbox
                 )
             )
             #expect(resolution == .failedClosed)
         }
 
         let unverifiedTransaction = SubscriptionStatusMapper().resolve(
-            StoreEntitlementRead(transactions: [accepted], unverifiedCount: 1)
+            StoreEntitlementRead(
+                transactions: [accepted],
+                unverifiedCount: 1,
+                appEnvironment: .sandbox
+            )
         )
         #expect(unverifiedTransaction == .failedClosed)
     }
@@ -696,7 +711,8 @@ struct StoreLifecycleDomainTests {
         let source = ProgrammableStoreEntitlementSource(
             currentRead: StoreEntitlementRead(
                 transactions: [],
-                unverifiedCount: 1
+                unverifiedCount: 1,
+                appEnvironment: .sandbox
             ),
             purchasePlan: .result(.verified(purchased))
         )
@@ -838,7 +854,11 @@ struct StoreLifecycleDomainTests {
         let recorder = FinishRecorder()
         let facts = transactionFacts(id: 401, state: .subscribed)
         let source = ProgrammableStoreEntitlementSource(
-            currentRead: StoreEntitlementRead(transactions: [], unverifiedCount: 0),
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            ),
             unfinishedRead: StoreUnfinishedTransactionRead(
                 transactions: [finishableTransaction(facts: facts, recorder: recorder)],
                 unverifiedCount: 0
@@ -859,7 +879,11 @@ struct StoreLifecycleDomainTests {
         let facts = transactionFacts(id: 402, state: .subscribed)
         let authority = LiveFeatureAccessAuthority()
         let source = ProgrammableStoreEntitlementSource(
-            currentRead: StoreEntitlementRead(transactions: [], unverifiedCount: 0),
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            ),
             synchronizationGate: synchronizationGate
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -888,7 +912,11 @@ struct StoreLifecycleDomainTests {
         let restoredFacts = transactionFacts(id: 403, state: .subscribed)
         let authority = LiveFeatureAccessAuthority()
         let source = ProgrammableStoreEntitlementSource(
-            currentRead: StoreEntitlementRead(transactions: [], unverifiedCount: 0),
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            ),
             synchronizationGate: synchronizationGate
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -918,7 +946,11 @@ struct StoreLifecycleDomainTests {
         let revoked = transactionFacts(id: 404, state: .revoked, isRevoked: true)
         let authority = LiveFeatureAccessAuthority()
         let source = ProgrammableStoreEntitlementSource(
-            currentRead: StoreEntitlementRead(transactions: [], unverifiedCount: 0),
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            ),
             synchronizationGate: synchronizationGate
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -942,7 +974,11 @@ struct StoreLifecycleDomainTests {
         await store.refreshCurrentEntitlements()
         #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
         await source.setCurrentRead(
-            StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
         )
         await finishGate.release()
         #expect(await eventually { await source.handledSignalCount() == 1 })
@@ -1110,7 +1146,8 @@ struct StoreLifecycleDomainTests {
             currentRead: StoreEntitlementRead(
                 transactions: [],
                 unverifiedCount: 0,
-                isComplete: false
+                isComplete: false,
+                appEnvironment: .sandbox
             )
         )
         let authority = LiveFeatureAccessAuthority()
@@ -1195,14 +1232,19 @@ private func transactionFacts(
         expirationDate: expirationDate,
         subscriptionState: state,
         hasVerifiedStatusTransaction: hasVerifiedStatusTransaction,
-        hasVerifiedRenewalInfo: hasVerifiedRenewalInfo
+        hasVerifiedRenewalInfo: hasVerifiedRenewalInfo,
+        hasVerifiedAppBundle: true
     )
 }
 
 private func entitlementRead(
     _ transaction: VerifiedStoreTransaction
 ) -> StoreEntitlementRead {
-    StoreEntitlementRead(transactions: [transaction], unverifiedCount: 0)
+    StoreEntitlementRead(
+        transactions: [transaction],
+        unverifiedCount: 0,
+        appEnvironment: transaction.environment
+    )
 }
 
 private func finishableTransaction(
@@ -1358,7 +1400,8 @@ private struct ProgrammableStoreEntitlementSource: StoreEntitlementSourcing {
     init(
         currentRead: StoreEntitlementRead = StoreEntitlementRead(
             transactions: [],
-            unverifiedCount: 0
+            unverifiedCount: 0,
+            appEnvironment: .sandbox
         ),
         unfinishedRead: StoreUnfinishedTransactionRead = StoreUnfinishedTransactionRead(
             transactions: [],

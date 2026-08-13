@@ -22,8 +22,9 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C2**. C2-01 and C2-02 are completed; C2-03 implementation is complete and
-  pending independent review. It is not Done and does not authorize C2-04 or distribution.
+- Active phase: **COM-C2**. C2-01, C2-02, and C2-03 are completed; C2-04 environment and
+  regression-gate implementation is complete pending independent review. This does not
+  authorize C3 or distribution.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -31,8 +32,8 @@ detailed phase checklists; it added no paid product behavior.
   Configuration fixture for the accepted Monthly/Annual technical catalog. C2-02, completed and
   merged through PR #29, adds the typed
   runtime catalog, presentation-only cache, process-local entitlement authority, launch
-  reconciliation, and one lifecycle-owned transaction listener. The review-pending C2-03
-  candidate extends that same lifecycle task to supervise transaction and subscription-status
+  reconciliation, and one lifecycle-owned transaction listener. Merged C2-03 extends that same
+  lifecycle task to supervise transaction and subscription-status
   update sequences, makes each status signal trigger a fresh full reconciliation, and adds status
   mapping plus typed purchase/restore/finish seams without a second authority or UI. Paywall,
   receipt import, iCloud sync,
@@ -210,7 +211,7 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01 and C2-02 are Done; C2-03 implementation is complete and pending independent review.**
+Status: **In Progress — C2-01, C2-02, and C2-03 are Done; C2-04 implementation is complete pending independent review.**
 Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an
@@ -219,8 +220,8 @@ Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead
   `EntitlementStore`, startup cache for presentation only, and exactly one lifecycle-owned
   `Transaction.updates` task. PR #29 passed independent review and green CI, then merged as
   `a45d480` on 2026-08-12.
-- [ ] **C2-03 — Purchase and restore flows. Implementation complete; pending independent
-  review.** The candidate has one `EntitlementStore` authority, verified status/renewal mapping,
+- [x] **C2-03 — Purchase and restore flows.** The merged implementation has one
+  `EntitlementStore` authority, verified status/renewal mapping,
   one lifecycle task supervising both `Transaction.updates` and
   `Product.SubscriptionInfo.Status.updates`, fresh full reconciliation after either status signal,
   typed explicit purchase and restore outcomes, pending/cancel/error handling, authoritative
@@ -230,13 +231,16 @@ Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead
   skipped; both CHN and USA `Product.products(for:)` probes passed. Those five tests are entry
   evidence, not C2-03 purchase/restore validation. Local validation passed with 44/44 focused
   tests, 310/310 lifecycle iterations, 342 Swift tests, 13 UI tests, and every selected coverage
-  file above 85%; the strict local wall-clock signal separately passed 10/10. Keep this item
-  unchecked until independent review, green CI, and merge. No current view invokes purchase or restore;
+  file above 85%; the strict local wall-clock signal separately passed 10/10. PR #30 passed
+  independent review and green CI, then merged to `main` as `3fc72b4` on 2026-08-13. No current
+  view invokes purchase or restore;
   there is no paywall, formal price/trial, formal App Store Connect product, or distribution
   authorization.
-- [B] **C2-04 — Environment and regression gate.** Prove Configuration, Sandbox, TestFlight, and
+- [ ] **C2-04 — Environment and regression gate. Implementation complete pending independent review.** Prove Configuration, Sandbox, TestFlight, and
   Production rights cannot contaminate one another and Product loading failure does not erase a
-  verified entitlement.
+  verified entitlement. Local evidence passed 48/48 focused tests, the strict Phase 10 suite
+  across 10 iterations (20/20), 345 Swift tests plus all 13 UI tests in the owning full run,
+  and every selected coverage threshold. Independent review, CI, and merge remain required.
 
 Exit gate: StoreKit matrix passes. Formal prices, trial, cloud quota, and App Store Connect
 products remain blocked until the accepted cost inputs are available.
