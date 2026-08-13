@@ -13,8 +13,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
   three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 and C2-02
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
-  2026-08-12. C2-03 is In Progress after its runtime-probe entry gate passed on 2026-08-13 using
-  final Xcode 26.6 `17F113` and a physical iPhone Air on final iOS 26.6.1 `23G82`.
+  2026-08-12. C2-03 implementation is complete and pending independent review after its runtime-
+  probe entry gate passed on 2026-08-13 using final Xcode 26.6 `17F113` and a physical iPhone Air
+  on final iOS 26.6.1 `23G82`. Local validation is complete: 44/44 focused tests, 310/310
+  lifecycle iterations, 342 Swift tests, 13 UI tests, and all selected coverage files above 85%.
+  C2-03 is not Done until independent review, green CI, and merge.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -37,9 +40,18 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `Transaction.updates` task, launch reconciliation, and a process-local synchronized bridge to
   existing feature consumers. Unknown products/environments, mixed environments, and unverified
   input fail closed; Delete All clears the presentation cache, which can never grant a right.
-  C2-02 retains verified ownership, revocation, and expiration as raw facts without deciding
-  billing grace from expiration alone; C2-03 owns the complete status mapping and transaction
-  finish. The C2-03 entry condition required both opt-in CHN/USA runtime catalog probes to execute
+  C2-02 retained verified ownership, revocation, and expiration as raw facts without deciding
+  billing grace from expiration alone. The C2-03 candidate now makes the single `EntitlementStore`
+  the lifecycle authority for full verified subscription-state mapping, explicit typed purchase/
+  restore seams, whole-snapshot publication, unfinished-transaction retry, and transaction finish.
+  Its one lifecycle task supervises both `Transaction.updates` and
+  `Product.SubscriptionInfo.Status.updates`. A status signal triggers a fresh full reconciliation
+  through the same actor; it is never an independent access decision or a second authority/UI.
+  Subscribed and verified grace grant Pro; billing retry, expired, revoked, unknown, unverified,
+  and pending state grant no new right. Every handled verified transaction is reconciled and its
+  authoritative access snapshot is published before `Transaction.finish()`; failed finish remains
+  unfinished for a later lifecycle retry. The C2-03 entry condition required both opt-in CHN/USA
+  runtime catalog probes to execute
   rather than skip and pass under a supported final Xcode/runtime surface. Historical Xcode 26.6
   RC `17F109`/iOS 26.5 CLI
   evidence remains a StoreKit synchronization `Code=3`/empty-catalog failure, not a pass. A
@@ -47,10 +59,13 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   iOS 26.5 runtimes, but again returned `SKInternalErrorDomain Code=3` and empty products. On
   2026-08-13, the dedicated scheme ran on the physical `拉沙的iPhone` (`iPhone Air`) with final
   iOS 26.6.1 `23G82`: 5 passed, 0 failed, 0 skipped, and both CHN/USA runtime probes passed. That
-  accepted evidence opens C2-03 only; purchase, restore, status mapping, transaction finish,
-  paywall, formal products, and distribution remain unimplemented or blocked by their owning
-  packets and release gates.
-  `storekitd` reported an Octane entitlement/development-install handshake failure. The same
+  accepted evidence opened C2-03 only and remains separate from purchase/restore evidence. The
+  implementation candidate exposes purchase and restore only as typed programmatic seams for later
+  C3 presentation; no current view calls them. Paywall, customer-facing purchase/restore UI,
+  formal products, price/trial terms, C2-04 environment proof, and distribution remain
+  unimplemented or blocked by their owning packets and release gates.
+  The historical simulator diagnostics reported an Octane entitlement/development-install
+  handshake failure. The same
   16 tests in 2 suites pass on an iOS 27 beta runtime only as diagnostic evidence and do not
   satisfy the supported-final-runtime gate. Final Xcode's iOS SDK is build `23F81a`, the installed
   iOS 26.5 runtime is `23F77`, and Apple's offered export was the older `23F73`; it was not
@@ -58,7 +73,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `26.5.1` returned unavailable. Those historical simulator and download-query results are not
   claimed as the accepted runtime-probe pass; the supported final physical-device result above is.
   No formal App Store Connect
-  product/group, purchase, restore, status mapper, paywall,
+  product/group, purchase/restore UI, paywall,
   CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
   model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
@@ -217,13 +232,17 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1, C2-01, and C2-02 are closed. C2-02 adds runtime product presentation and verified
-current-entitlement authority but no purchase, restore, status mapping, transaction finish,
-paywall, formal products, or customer terms. Access decisions still may not read raw entitlement
-bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. C2-03 is In Progress after
-the non-skipped CHN/USA local StoreKit runtime probes passed on the supported final physical-device
-surface recorded above.
+COM-C1, C2-01, and C2-02 are closed. C2-03 implementation is complete and pending independent
+review. Its candidate keeps one `EntitlementStore` authority, performs full verified status
+mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
+each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
+seams, publishes authoritative access before finish, and retries transactions that remain
+unfinished. Access decisions still may not read raw
+entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. The accepted
+physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
+paths.
 
-Next suggested task: Implement only the C2-03 verified purchase, restore, finish, pending/cancel,
-and subscription-status work in its execution packet. Do not begin C2-04, paywall presentation,
-formal customer terms, or distribution work.
+Next suggested task: Independently review the locally validated C2-03 candidate, obtain green CI,
+and merge only after approval. Keep C2-04, paywall
+presentation, formal customer terms/products, customer-visible purchase/restore, versioning,
+Archive/upload, tester assignment, and distribution blocked.

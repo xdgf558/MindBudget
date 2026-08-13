@@ -119,6 +119,22 @@ final class AppSession: ObservableObject {
         }
     }
 
+    /// Typed commerce seams for the future C3 purchase presentation. No current view invokes
+    /// them, so C2-03 cannot accidentally introduce a purchase or restore prompt.
+    func purchasePro(_ product: StoreProductID) async -> StorePurchaseOutcome {
+        guard let entitlementStore else { return .failed(.unavailable) }
+        return await entitlementStore.purchase(product)
+    }
+
+    func restoreProPurchases() async -> StoreRestoreOutcome {
+        guard let entitlementStore else { return .failed(.unavailable) }
+        return await entitlementStore.restorePurchases()
+    }
+
+    func refreshCommerceEntitlements() async {
+        await entitlementStore?.refreshCurrentEntitlements()
+    }
+
     func faceIDAvailability() -> FaceIDAvailability {
         appLockAuthenticator.faceIDAvailability()
     }
@@ -578,6 +594,7 @@ struct AppRouter: View {
             switch newPhase {
             case .active:
                 Task {
+                    await session.refreshCommerceEntitlements()
                     await session.unlockAppIfNeeded(
                         settings: settings,
                         localizedReason: appLockReason

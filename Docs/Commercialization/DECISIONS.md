@@ -322,3 +322,45 @@ context.
   an update payload without current-state reconciliation; silently accepting an unknown Product ID
   beside a known one; hardcoding customer-facing price or trial copy; or enabling purchase/restore
   ahead of their owning packet.
+
+## DEC-COM-017 — Keep one StoreKit lifecycle authority and finish only after authoritative publish
+
+- Status/date: **Accepted implementation boundary — 2026-08-13; C2-03 completion pending
+  independent review, full validation, green CI, and merge**
+- Requirements: REQ-STOREKIT-STATE-001, REQ-STOREKIT-LIFECYCLE-001
+- Decision: C2-03 keeps `EntitlementStore` as the single process-local StoreKit authority. The
+  StoreKit adapter supplies verified transaction, status-transaction, renewal-info, ownership,
+  Product ID, environment, revocation, and expiration facts; `SubscriptionStatusMapper` is the
+  sole interpreter. Subscribed and verified billing grace grant the Pro subscription right.
+  Billing retry outside grace, expired, revoked, unknown, unverified, pending, incomplete-free,
+  mixed-environment, and unknown-product input grant no new right. Expiration alone never infers
+  grace. Purchase and restore are explicit typed seams: purchase maps verified success, pending,
+  user cancellation, unverified, unavailable-product, disallowed-payment, and neutral failure;
+  restore alone may call `AppStore.sync()` and distinguishes restored, no active subscription, and
+  failure. No launch or current view invokes either seam.
+- Lifecycle supervision: The authority starts one lifecycle task that supervises both
+  `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`. Transaction signals may
+  carry a verified finishable transaction; a subscription-status signal carries no authority and
+  only triggers a fresh full reconciliation through the same actor. This is not a second mapper,
+  authority, or UI surface.
+- Consequences: Before any handled verified transaction is acknowledged, the actor merges it with
+  a fresh current/status read, resolves one authoritative whole snapshot, publishes that snapshot
+  to the central access authority, and only then calls `Transaction.finish()`. Duplicate and
+  concurrent delivery is serialized and deduplicated in process. A failed finish is not reported
+  as purchase success and is not added to the finished-ID set; StoreKit keeps it unfinished so a
+  later startup/update lifecycle pass can retry. Unverified or non-authoritative input is never
+  finished merely to clear a queue. `Transaction.unfinished`, `Transaction.updates`, current
+  entitlements, subscription-status updates, and subscription-status reads all feed the same actor
+  rather than independent feature decisions. No entitlement representation is persisted as
+  authority.
+- Release boundary: This decision accepts only the programmatic lifecycle seams and their Apple-
+  managed StoreKit transport. It creates no paywall, visible Pro purchase/restore UI, formal App
+  Store Connect product, customer price/trial/offer, version bump, Archive/upload/tester action, or
+  distribution permission. C2-03 is implementation complete but not Done until independent
+  review, final validation, green CI, and merge. C2-04 environment isolation and all later release
+  gates remain mandatory; the post-0.9.6 distribution hold remains active.
+- Alternatives rejected: Finishing before authoritative publication; granting from a purchase
+  result without verified status and renewal information; treating expiration as grace; implicit
+  restore on launch; persisting a paid bit/cache as authority; allowing each view to own a
+  listener or mapper; swallowing a failed finish as success; or exposing a paywall before C3 and
+  accepted commercial terms.

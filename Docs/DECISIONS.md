@@ -2007,3 +2007,28 @@ final Xcode 26.6 `17F113` produced historical `Code=3`/empty-product failures on
 scheme passed all 5 tests with 0 failed and 0 skipped on a physical iPhone Air running final
 iOS 26.6.1 `23G82`, including passed CHN and USA probes. This unlocks C2-03 implementation only;
 C2-04, paywall, commercial terms, and distribution remain blocked by their own gates.
+
+---
+
+## 2026-08-13 — Publish StoreKit authority before finishing a handled transaction
+
+Context: COM-C2-03 is the first packet allowed to add purchase, restore, subscription-status
+mapping, and transaction acknowledgement, but it cannot add a paywall, customer terms, formal
+products, or distribution authorization.
+
+Decision: Detailed lifecycle semantics live in commercial decision DEC-COM-017. One
+`EntitlementStore` remains the sole process-local StoreKit authority. It maps verified status
+transaction and renewal information, grants only subscribed and verified billing grace, exposes
+purchase/restore as typed programmatic seams, publishes one authoritative access snapshot before
+calling `Transaction.finish()`, and leaves a failed acknowledgement unfinished for later retry.
+One lifecycle task supervises `Transaction.updates` and
+`Product.SubscriptionInfo.Status.updates`; a status signal only causes the same authority to
+perform a fresh full reconciliation and cannot become a second authority or UI.
+
+Consequences: Pending, cancelled, unverified, retry, expired, revoked, unknown, mixed, or
+incomplete authority cannot silently grant a paid right. Duplicate/concurrent transaction
+delivery does not create another listener or finish the same transaction twice in process. The
+C2-03 candidate is implementation complete but pending independent review, full validation, green
+CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
+formal price/trial/product work, versioning, Archive/upload, tester assignment, and distribution
+remain blocked. The uploaded 0.9.6 binary and release hold are unchanged.

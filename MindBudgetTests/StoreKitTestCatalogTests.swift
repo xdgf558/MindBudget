@@ -160,6 +160,16 @@ struct StoreKitTestCatalogTests {
         #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
     }
 
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished() async throws {
+        try await exerciseVerifiedPurchaseAndFinish(.proMonthly)
+    }
+
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeAnnualPurchaseIsVerifiedGrantedAndFinished() async throws {
+        try await exerciseVerifiedPurchaseAndFinish(.proAnnual)
+    }
+
     private func decodedCatalog() throws -> StoreKitConfigurationCatalog {
         let data = try Data(contentsOf: try configurationURL())
         return try JSONDecoder().decode(StoreKitConfigurationCatalog.self, from: data)
@@ -170,6 +180,54 @@ struct StoreKitTestCatalogTests {
         return try #require(
             bundle.url(forResource: "MindBudgetPro", withExtension: "storekit")
         )
+    }
+
+    private func preparedRuntimeSession() throws -> SKTestSession {
+        let session = try SKTestSession(contentsOf: try configurationURL())
+        session.resetToDefaultState()
+        session.disableDialogs = true
+        session.clearTransactions()
+        session.storefront = "CHN"
+        session.locale = Locale(identifier: "zh_CN")
+        return session
+    }
+
+    private func exerciseVerifiedPurchaseAndFinish(
+        _ productID: StoreProductID
+    ) async throws {
+        let session = try preparedRuntimeSession()
+        // A unit-test host has no purchase-confirmation UI anchor. Seed the real StoreKit
+        // transaction here; the presented `Product.purchase()` path belongs to the later
+        // purchase UI packet. This test owns the production verification, authority, and
+        // acknowledgement boundary after StoreKit has created a transaction.
+        try await session.buyProduct(identifier: productID.rawValue)
+
+        let source = StoreKitEntitlementSource()
+        let beforeStart = await source.unfinishedTransactions()
+        #expect(beforeStart.unverifiedCount == 0)
+        #expect(beforeStart.transactions.count == 1)
+        #expect(beforeStart.transactions.first?.facts.productID == productID.rawValue)
+
+        let authority = LiveFeatureAccessAuthority()
+        let store = EntitlementStore(
+            source: source,
+            featureAccessAuthority: authority
+        )
+        await store.start()
+
+        #expect(authority.decision(for: .advancedSiri) == .allowed)
+        #expect((await store.currentSnapshot()).effectiveState == .subscribed)
+        #expect(
+            session.allTransactions().filter {
+                $0.productIdentifier == productID.rawValue
+            }.count == 1
+        )
+
+        let unfinished = await source.unfinishedTransactions()
+        #expect(unfinished.transactions.isEmpty)
+        #expect(unfinished.unverifiedCount == 0)
+
+        await store.stop()
     }
 
     private static var runsLocalStoreKitRuntimeTests: Bool {

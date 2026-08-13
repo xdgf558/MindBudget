@@ -70,7 +70,7 @@ struct StoreRuntimeTests {
             displayPrice: malformed[0].displayPrice,
             isAutoRenewable: true,
             isFamilyShareable: true,
-            hasSubscriptionGroup: true,
+            subscriptionGroupID: malformed[0].subscriptionGroupID,
             subscriptionPeriod: malformed[0].subscriptionPeriod
         )
         let familyShared = StoreCatalog(
@@ -79,6 +79,88 @@ struct StoreRuntimeTests {
             presentationCache: cache
         )
         #expect(await familyShared.refresh() == .unavailable)
+    }
+
+    @Test
+    func catalogContractRequiresTheExactMonthlyAnnualPairInOneSubscriptionGroup() throws {
+        let valid = validRecords()
+        let validated = try StoreCatalogContract.validate(valid)
+
+        #expect(Set(validated.keys) == Set(StoreProductID.allCases))
+        #expect(validated[.proMonthly]?.subscriptionPeriod == .init(value: 1, unit: .month))
+        #expect(validated[.proAnnual]?.subscriptionPeriod == .init(value: 1, unit: .year))
+        #expect(
+            try StoreCatalogContract.validatedRecord(for: .proAnnual, in: valid).id
+                == StoreProductID.proAnnual.rawValue
+        )
+
+        #expect(throws: StoreCatalogValidationError.productSetMismatch) {
+            _ = try StoreCatalogContract.validate(Array(valid.prefix(1)))
+        }
+        #expect(throws: StoreCatalogValidationError.productSetMismatch) {
+            _ = try StoreCatalogContract.validate(valid + [valid[0]])
+        }
+        let unapproved = StoreProductRecord(
+            id: "unapproved.product",
+            displayName: "Unapproved",
+            description: "Unapproved",
+            displayPrice: "CN¥0.01",
+            isAutoRenewable: true,
+            isFamilyShareable: false,
+            subscriptionGroupID: "mindbudget-pro-group",
+            subscriptionPeriod: .init(value: 1, unit: .month)
+        )
+        #expect(throws: StoreCatalogValidationError.productSetMismatch) {
+            _ = try StoreCatalogContract.validate(valid + [unapproved])
+        }
+
+        var wrongGroup = valid
+        wrongGroup[1] = replacing(wrongGroup[1], subscriptionGroupID: "different-group")
+        #expect(throws: StoreCatalogValidationError.subscriptionGroupMismatch) {
+            _ = try StoreCatalogContract.validate(wrongGroup)
+        }
+
+        var missingGroup = valid
+        missingGroup[0] = StoreProductRecord(
+            id: missingGroup[0].id,
+            displayName: missingGroup[0].displayName,
+            description: missingGroup[0].description,
+            displayPrice: missingGroup[0].displayPrice,
+            isAutoRenewable: missingGroup[0].isAutoRenewable,
+            isFamilyShareable: missingGroup[0].isFamilyShareable,
+            subscriptionGroupID: nil,
+            subscriptionPeriod: missingGroup[0].subscriptionPeriod
+        )
+        #expect(throws: StoreCatalogValidationError.subscriptionGroupMismatch) {
+            _ = try StoreCatalogContract.validate(missingGroup)
+        }
+    }
+
+    @Test
+    func catalogContractRejectsEveryMalformedPurchaseTermBeforePresentation() {
+        let valid = validRecords()
+        let monthlyID = StoreProductID.proMonthly.rawValue
+
+        var notRenewing = valid
+        notRenewing[0] = replacing(notRenewing[0], isAutoRenewable: false)
+        #expect(throws: StoreCatalogValidationError.invalidSubscription(monthlyID)) {
+            _ = try StoreCatalogContract.validate(notRenewing)
+        }
+
+        var familyShared = valid
+        familyShared[0] = replacing(familyShared[0], isFamilyShareable: true)
+        #expect(throws: StoreCatalogValidationError.invalidSubscription(monthlyID)) {
+            _ = try StoreCatalogContract.validate(familyShared)
+        }
+
+        var wrongPeriod = valid
+        wrongPeriod[0] = replacing(
+            wrongPeriod[0],
+            subscriptionPeriod: .init(value: 1, unit: .year)
+        )
+        #expect(throws: StoreCatalogValidationError.invalidSubscription(monthlyID)) {
+            _ = try StoreCatalogContract.validate(wrongPeriod)
+        }
     }
 
     @Test
@@ -148,11 +230,15 @@ struct StoreRuntimeTests {
         let authority = LiveFeatureAccessAuthority()
         let accepted = verifiedTransaction(environment: .production)
         let unknownProduct = VerifiedStoreTransaction(
+            transactionID: 9_001,
             productID: "unapproved.product",
             environment: .production,
             isPurchased: true,
             isRevoked: false,
-            expirationDate: nil
+            expirationDate: nil,
+            subscriptionState: .subscribed,
+            hasVerifiedStatusTransaction: true,
+            hasVerifiedRenewalInfo: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
@@ -166,11 +252,15 @@ struct StoreRuntimeTests {
         #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
 
         let unknownEnvironment = VerifiedStoreTransaction(
+            transactionID: 9_002,
             productID: StoreProductID.proMonthly.rawValue,
             environment: StoreRuntimeEnvironment(rawValue: "Unknown"),
             isPurchased: true,
             isRevoked: false,
-            expirationDate: nil
+            expirationDate: nil,
+            subscriptionState: .subscribed,
+            hasVerifiedStatusTransaction: true,
+            hasVerifiedRenewalInfo: true
         )
         await source.setRead(
             StoreEntitlementRead(
@@ -213,14 +303,18 @@ struct StoreRuntimeTests {
     }
 
     @Test
-    func pastExpirationDoesNotPreemptTheC203BillingGraceDecision() async {
+    func verifiedBillingGraceGrantsAccessDespitePastExpiration() async {
         let authority = LiveFeatureAccessAuthority()
         let graceCandidate = VerifiedStoreTransaction(
+            transactionID: 9_003,
             productID: StoreProductID.proMonthly.rawValue,
             environment: .sandbox,
             isPurchased: true,
             isRevoked: false,
-            expirationDate: Date(timeIntervalSince1970: 1)
+            expirationDate: Date(timeIntervalSince1970: 1),
+            subscriptionState: .inGracePeriod,
+            hasVerifiedStatusTransaction: true,
+            hasVerifiedRenewalInfo: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
@@ -241,11 +335,15 @@ struct StoreRuntimeTests {
     func revokedCurrentEntitlementStillFailsClosed() async {
         let authority = LiveFeatureAccessAuthority()
         let revoked = VerifiedStoreTransaction(
+            transactionID: 9_004,
             productID: StoreProductID.proMonthly.rawValue,
             environment: .sandbox,
             isPurchased: true,
             isRevoked: true,
-            expirationDate: Date.distantFuture
+            expirationDate: Date.distantFuture,
+            subscriptionState: .revoked,
+            hasVerifiedStatusTransaction: true,
+            hasVerifiedRenewalInfo: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
@@ -287,7 +385,7 @@ struct StoreRuntimeTests {
         await source.setRead(
             StoreEntitlementRead(transactions: [], unverifiedCount: 0)
         )
-        source.sendUpdate()
+        await session.refreshCommerceEntitlements()
         await waitUntil {
             await MainActor.run {
                 session.existingPremiumEntryAccess.offersAppleOnDeviceAI == false
@@ -325,7 +423,7 @@ struct StoreRuntimeTests {
                 displayPrice: "CN¥0.99",
                 isAutoRenewable: true,
                 isFamilyShareable: false,
-                hasSubscriptionGroup: true,
+                subscriptionGroupID: "mindbudget-pro-group",
                 subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .month)
             ),
             StoreProductRecord(
@@ -335,10 +433,29 @@ struct StoreRuntimeTests {
                 displayPrice: "CN¥9.99",
                 isAutoRenewable: true,
                 isFamilyShareable: false,
-                hasSubscriptionGroup: true,
+                subscriptionGroupID: "mindbudget-pro-group",
                 subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .year)
             ),
         ]
+    }
+
+    private func replacing(
+        _ record: StoreProductRecord,
+        isAutoRenewable: Bool? = nil,
+        isFamilyShareable: Bool? = nil,
+        subscriptionGroupID: String? = nil,
+        subscriptionPeriod: StoreSubscriptionPeriod? = nil
+    ) -> StoreProductRecord {
+        StoreProductRecord(
+            id: record.id,
+            displayName: record.displayName,
+            description: record.description,
+            displayPrice: record.displayPrice,
+            isAutoRenewable: isAutoRenewable ?? record.isAutoRenewable,
+            isFamilyShareable: isFamilyShareable ?? record.isFamilyShareable,
+            subscriptionGroupID: subscriptionGroupID ?? record.subscriptionGroupID,
+            subscriptionPeriod: subscriptionPeriod ?? record.subscriptionPeriod
+        )
     }
 
     private func paidRead(environment: StoreRuntimeEnvironment) -> StoreEntitlementRead {
@@ -349,14 +466,20 @@ struct StoreRuntimeTests {
     }
 
     private func verifiedTransaction(
-        environment: StoreRuntimeEnvironment
+        environment: StoreRuntimeEnvironment,
+        transactionID: UInt64 = 1,
+        state: StoreSubscriptionState = .subscribed
     ) -> VerifiedStoreTransaction {
         VerifiedStoreTransaction(
+            transactionID: transactionID,
             productID: StoreProductID.proMonthly.rawValue,
             environment: environment,
             isPurchased: true,
             isRevoked: false,
-            expirationDate: nil
+            expirationDate: nil,
+            subscriptionState: state,
+            hasVerifiedStatusTransaction: true,
+            hasVerifiedRenewalInfo: true
         )
     }
 
@@ -427,6 +550,10 @@ private struct TestStoreEntitlementSource: StoreEntitlementSourcing {
         await state.currentRead()
     }
 
+    func unfinishedTransactions() async -> StoreUnfinishedTransactionRead {
+        StoreUnfinishedTransactionRead(transactions: [], unverifiedCount: 0)
+    }
+
     func listenForUpdates(
         _ handler: @Sendable @escaping (StoreTransactionSignal) async -> Void
     ) async {
@@ -440,6 +567,13 @@ private struct TestStoreEntitlementSource: StoreEntitlementSourcing {
     func setRead(_ read: StoreEntitlementRead) async {
         await state.setRead(read)
     }
+
+    @MainActor
+    func purchase(_ productID: StoreProductID) async throws -> StorePurchaseResult {
+        .userCancelled
+    }
+
+    func synchronizePurchases() async throws {}
 
     func listenerStartCount() async -> Int {
         await state.startCount()
@@ -476,6 +610,10 @@ private final class OutOfOrderStoreEntitlementSource: StoreEntitlementSourcing, 
         await state.read()
     }
 
+    func unfinishedTransactions() async -> StoreUnfinishedTransactionRead {
+        StoreUnfinishedTransactionRead(transactions: [], unverifiedCount: 0)
+    }
+
     func listenForUpdates(
         _ handler: @Sendable @escaping (StoreTransactionSignal) async -> Void
     ) async {
@@ -490,6 +628,13 @@ private final class OutOfOrderStoreEntitlementSource: StoreEntitlementSourcing, 
     func listenerStartCount() async -> Int { await state.listenerStartCount() }
     func releaseFirstRead() async { await state.releaseFirstRead() }
     func sendUpdate() { channel.continuation.yield(.changed) }
+
+    @MainActor
+    func purchase(_ productID: StoreProductID) async throws -> StorePurchaseResult {
+        .userCancelled
+    }
+
+    func synchronizePurchases() async throws {}
 }
 
 private actor OutOfOrderEntitlementState {

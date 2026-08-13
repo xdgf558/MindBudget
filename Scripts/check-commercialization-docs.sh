@@ -180,9 +180,9 @@ grep -Fq 'Status: **Done.** All three packets were independently reviewed and me
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — C2-01 and C2-02 completed; C2-03 is In Progress after its runtime-probe entry gate passed.**' \
+grep -Fq 'Status: **In Progress — C2-01 and C2-02 are Done; C2-03 implementation is complete and pending independent review.**' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must record C2-01/C2-02 complete and C2-03 active after its accepted probe evidence" >&2
+  echo "COM-C2 must keep C2-03 review-pending rather than Done or merely entry-gated" >&2
   exit 1
 }
 
@@ -198,11 +198,41 @@ grep -Fq 'Status: **Done** after independent review, green CI, and merge through
   exit 1
 }
 
-grep -Fq 'Status: **In Progress after the runtime-probe entry gate passed on a physical final iPhone.**' \
+grep -Fq 'Status: **Implementation complete, pending independent review.**' \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-03 active after its runtime probes passed" >&2
+  echo "COM-C2 execution packet must record C2-03 implementation complete and review pending" >&2
   exit 1
 }
+
+for c203_contract in \
+  'single `EntitlementStore` lifecycle authority' \
+  'one lifecycle task supervises both `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`' \
+  'status signal triggers a fresh full reconciliation' \
+  'publish-before-`Transaction.finish()`' \
+  'failed finish remains unfinished' \
+  'no current view calls them' \
+  'post-0.9.6 release hold remains active'; do
+  if ! grep -Fq "${c203_contract}" \
+      Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/CI_BASELINE.md; then
+    echo "C2-03 review-pending lifecycle/release contract is missing: ${c203_contract}" >&2
+    exit 1
+  fi
+done
+
+for storekit_api in \
+  '`Product.SubscriptionInfo.Status.updates`' \
+  '`Product.SubscriptionInfo.status(for:)`' \
+  '`Transaction.unfinished`' \
+  '`Product.purchase()`' \
+  '`AppStore.sync()`' \
+  '`Transaction.finish()`'; do
+  grep -Fq "${storekit_api}" Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
+    echo "C2-03 Apple-managed StoreKit API is missing from the egress policy: ${storekit_api}" >&2
+    exit 1
+  }
+done
 
 for evidence in \
   'final Xcode 26.6 `17F113`' \

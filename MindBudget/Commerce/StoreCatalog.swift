@@ -86,8 +86,63 @@ struct StoreProductRecord: Equatable, Sendable {
     let displayPrice: String
     let isAutoRenewable: Bool
     let isFamilyShareable: Bool
-    let hasSubscriptionGroup: Bool
+    let subscriptionGroupID: String?
     let subscriptionPeriod: StoreSubscriptionPeriod?
+
+    init(
+        id: String,
+        displayName: String,
+        description: String,
+        displayPrice: String,
+        isAutoRenewable: Bool,
+        isFamilyShareable: Bool,
+        subscriptionGroupID: String?,
+        subscriptionPeriod: StoreSubscriptionPeriod?
+    ) {
+        self.id = id
+        self.displayName = displayName
+        self.description = description
+        self.displayPrice = displayPrice
+        self.isAutoRenewable = isAutoRenewable
+        self.isFamilyShareable = isFamilyShareable
+        self.subscriptionGroupID = subscriptionGroupID
+        self.subscriptionPeriod = subscriptionPeriod
+    }
+
+    init(product: Product) {
+        let period: StoreSubscriptionPeriod?
+        if let subscription = product.subscription {
+            switch subscription.subscriptionPeriod.unit {
+            case .month:
+                period = StoreSubscriptionPeriod(
+                    value: subscription.subscriptionPeriod.value,
+                    unit: .month
+                )
+            case .year:
+                period = StoreSubscriptionPeriod(
+                    value: subscription.subscriptionPeriod.value,
+                    unit: .year
+                )
+            case .day, .week:
+                period = nil
+            @unknown default:
+                period = nil
+            }
+        } else {
+            period = nil
+        }
+
+        self.init(
+            id: product.id,
+            displayName: product.displayName,
+            description: product.description,
+            displayPrice: product.displayPrice,
+            isAutoRenewable: product.type == .autoRenewable,
+            isFamilyShareable: product.isFamilyShareable,
+            subscriptionGroupID: product.subscription?.subscriptionGroupID,
+            subscriptionPeriod: period
+        )
+    }
 }
 
 protocol StoreCatalogContextProviding: Sendable {
@@ -127,40 +182,7 @@ struct StoreKitCatalogContextProvider: StoreCatalogContextProviding {
 
 struct StoreKitProductLoader: StoreProductLoading {
     func loadProducts(identifiedBy identifiers: Set<String>) async throws -> [StoreProductRecord] {
-        try await Product.products(for: identifiers).map { product in
-            let period: StoreSubscriptionPeriod?
-            if let subscription = product.subscription {
-                switch subscription.subscriptionPeriod.unit {
-                case .month:
-                    period = StoreSubscriptionPeriod(
-                        value: subscription.subscriptionPeriod.value,
-                        unit: .month
-                    )
-                case .year:
-                    period = StoreSubscriptionPeriod(
-                        value: subscription.subscriptionPeriod.value,
-                        unit: .year
-                    )
-                case .day, .week:
-                    period = nil
-                @unknown default:
-                    period = nil
-                }
-            } else {
-                period = nil
-            }
-
-            return StoreProductRecord(
-                id: product.id,
-                displayName: product.displayName,
-                description: product.description,
-                displayPrice: product.displayPrice,
-                isAutoRenewable: product.type == .autoRenewable,
-                isFamilyShareable: product.isFamilyShareable,
-                hasSubscriptionGroup: product.subscription != nil,
-                subscriptionPeriod: period
-            )
-        }
+        try await Product.products(for: identifiers).map(StoreProductRecord.init(product:))
     }
 }
 
@@ -210,6 +232,57 @@ actor UserDefaultsStorePresentationCache: StorePresentationCaching {
 enum StoreCatalogValidationError: Error, Equatable, Sendable {
     case productSetMismatch
     case invalidSubscription(String)
+    case subscriptionGroupMismatch
+}
+
+/// A pure, fail-closed contract for the complete owner-approved subscription catalog.
+/// Presentation and purchase paths share this validator so a single individually valid product
+/// can never be offered before the Monthly/Annual pair has been verified as one coherent group.
+enum StoreCatalogContract {
+    static let expectedProductIDs = Set(StoreProductID.allCases.map(\.rawValue))
+
+    static func validate(
+        _ records: [StoreProductRecord]
+    ) throws -> [StoreProductID: StoreProductRecord] {
+        let grouped = Dictionary(grouping: records, by: \.id)
+        guard Set(grouped.keys) == expectedProductIDs,
+              grouped.values.allSatisfy({ $0.count == 1 }) else {
+            throw StoreCatalogValidationError.productSetMismatch
+        }
+
+        var validated: [StoreProductID: StoreProductRecord] = [:]
+        var subscriptionGroupIDs = Set<String>()
+        for identifier in StoreProductID.allCases {
+            guard let record = grouped[identifier.rawValue]?.first,
+                  record.isAutoRenewable,
+                  !record.isFamilyShareable,
+                  record.subscriptionPeriod == identifier.expectedPeriod else {
+                throw StoreCatalogValidationError.invalidSubscription(identifier.rawValue)
+            }
+            guard let subscriptionGroupID = record.subscriptionGroupID,
+                  !subscriptionGroupID.isEmpty else {
+                throw StoreCatalogValidationError.subscriptionGroupMismatch
+            }
+            subscriptionGroupIDs.insert(subscriptionGroupID)
+            validated[identifier] = record
+        }
+
+        guard subscriptionGroupIDs.count == 1 else {
+            throw StoreCatalogValidationError.subscriptionGroupMismatch
+        }
+        return validated
+    }
+
+    static func validatedRecord(
+        for requestedProductID: StoreProductID,
+        in records: [StoreProductRecord]
+    ) throws -> StoreProductRecord {
+        let validated = try validate(records)
+        guard let record = validated[requestedProductID] else {
+            throw StoreCatalogValidationError.productSetMismatch
+        }
+        return record
+    }
 }
 
 actor StoreCatalog {
@@ -230,8 +303,9 @@ actor StoreCatalog {
     func refresh() async -> StoreCatalogAvailability {
         let context = await contextProvider.currentContext()
         do {
-            let requestedIDs = Set(StoreProductID.allCases.map(\.rawValue))
-            let records = try await productLoader.loadProducts(identifiedBy: requestedIDs)
+            let records = try await productLoader.loadProducts(
+                identifiedBy: StoreCatalogContract.expectedProductIDs
+            )
             let snapshot = try validatedSnapshot(context: context, records: records)
             await presentationCache.save(snapshot)
             return .live(snapshot)
@@ -251,20 +325,11 @@ actor StoreCatalog {
         context: StoreCatalogContext,
         records: [StoreProductRecord]
     ) throws -> StoreCatalogSnapshot {
-        let grouped = Dictionary(grouping: records, by: \.id)
-        let expectedIDs = Set(StoreProductID.allCases.map(\.rawValue))
-        guard Set(grouped.keys) == expectedIDs,
-              grouped.values.allSatisfy({ $0.count == 1 }) else {
-            throw StoreCatalogValidationError.productSetMismatch
-        }
+        let validated = try StoreCatalogContract.validate(records)
 
         let products = try StoreProductID.allCases.map { identifier in
-            guard let record = grouped[identifier.rawValue]?.first,
-                  record.isAutoRenewable,
-                  !record.isFamilyShareable,
-                  record.hasSubscriptionGroup,
-                  record.subscriptionPeriod == identifier.expectedPeriod else {
-                throw StoreCatalogValidationError.invalidSubscription(identifier.rawValue)
+            guard let record = validated[identifier] else {
+                throw StoreCatalogValidationError.productSetMismatch
             }
             return StoreProductPresentation(
                 id: identifier,
