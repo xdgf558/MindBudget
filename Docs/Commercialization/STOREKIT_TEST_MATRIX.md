@@ -20,9 +20,14 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
 | StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in CHN/USA runtime product-load tests |
-| Sandbox | Sandbox tester and transaction history | Production rights/current-entitlement cache | Environment mismatch rejection and account-reset test |
-| TestFlight | Sandbox purchase environment under distributed build | Production grandfathering after public release | Production install starts from verified Production state only |
-| Production | Verified current Production StoreKit/App Store state | Debug/Sandbox configuration | Bundle/app/Product/environment verification |
+| Sandbox | Verified `AppTransaction` Sandbox environment plus matching Sandbox transaction/status facts | Production rights/current-entitlement cache | Exact Sandbox acceptance; Xcode/Production/bundle mismatch rejection |
+| TestFlight | Apple's Sandbox environment under a distributed build; no build-channel inference | Production grandfathering after public release | TestFlight is modeled as verified Sandbox, never as a fourth entitlement environment |
+| Production | Verified `AppTransaction` Production environment plus matching Production facts | Debug/Xcode/Sandbox configuration | Exact bundle/AppTransaction/Product/environment verification; mismatch fails closed |
+
+An unavailable app environment may use the literal `Unknown` only to partition non-authoritative
+product presentation and its deletable cache. That presentation path may still show StoreKit
+metadata, but `Unknown` is never accepted by an entitlement read, purchase preflight, or access
+decision and can never grant or preserve a paid right.
 
 ## Subscription-state mapping
 
@@ -73,23 +78,29 @@ Every row must be exercised for Monthly and Annual where applicable:
 
 ## Test layers and report paths
 
-- Pure unit reports: entitlement-set algebra, feature matrix, environment parser, exact-context
+- Pure unit reports: entitlement-set algebra, feature matrix, verified app-identity policy,
+  Xcode/Sandbox/Production exact-match and cross-environment/bundle rejection, exact-context
   presentation-cache semantics, current/status reconciliation, fail-closed unknown/mixed/
   unverified/incomplete state, concurrent immutable reads, one listener owner, the full C2-03
   status matrix, typed purchase/restore outcomes, publish-before-finish, duplicate delivery,
   operation serialization, failed-finish retry, unfinished startup processing, and transaction/
-  subscription-status signals converging on the same full-reconciliation path. The 31 tests in
+  subscription-status signals converging on the same full-reconciliation path. The tests in
   `StoreLifecycleDomainTests.swift` own the deterministic publish, finish, sync, and active-batch
-  wait gates; the 14 tests in `StoreRuntimeTests.swift` include the separate out-of-order
-  whole-read gate. Together those files account for the review-fix focused result of 45/45.
+  wait gates; `StoreRuntimeTests.swift` owns the separate out-of-order whole-read gate and the
+  C2-04 app-environment matrix. C2-04's focused run passed 49/49 across these two suites. The
+  strict Phase 10 suite passed 20/20 across 10 iterations, and the owning full run completed 346
+  Swift tests plus 13 UI tests with 0 failures; four explicit runtime probes skipped by design.
+  Evidence: `/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult` and
+  `/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
 - Verification-derivation boundary: pure mapper tests intentionally construct app-owned
   `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction` and
-  `hasVerifiedRenewalInfo`; they prove how a completed fact set is consumed, not how StoreKit
-  produces those booleans. Production derivation in `verifiedRecord(from:status:)` correlates the
-  handled transaction, verified status transaction, verified renewal info, original transaction
-  ID, environment, accepted Product IDs, current Product ID, and deferred-crossgrade preference.
-  Public StoreKit status/renewal value types cannot be freely constructed by unit tests. Only the
-  opt-in `runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished` and
+  `hasVerifiedRenewalInfo` and `hasVerifiedAppBundle`; they prove how a completed fact set is
+  consumed, not how StoreKit produces those booleans. Production derivation in
+  `verifiedRecord(from:status:)` correlates the handled transaction, verified status transaction,
+  verified renewal info, original transaction ID, verified app bundle, environment, accepted
+  Product IDs, current Product ID, and deferred-crossgrade preference. Public StoreKit status/
+  renewal value types cannot be freely constructed by unit tests. Only the opt-in
+  `runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished` and
   `runtimeAnnualPurchaseIsVerifiedGrantedAndFinished` flows enter that production derivation with
   real `Transaction` and `Product.SubscriptionInfo.Status` objects. Default-scheme coverage and
   the pure mapper matrix must never be cited as proof of that framework bridge; malformed-status

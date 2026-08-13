@@ -30,6 +30,7 @@ struct VerifiedStoreTransaction: Equatable, Sendable {
     let subscriptionState: StoreSubscriptionState
     let hasVerifiedStatusTransaction: Bool
     let hasVerifiedRenewalInfo: Bool
+    let hasVerifiedAppBundle: Bool
 }
 
 struct FinishableStoreTransaction: Sendable {
@@ -65,15 +66,20 @@ struct StoreEntitlementRead: Equatable, Sendable {
     let transactions: [VerifiedStoreTransaction]
     let unverifiedCount: Int
     let isComplete: Bool
+    /// Environment from the separately verified `AppTransaction` for this app bundle.
+    /// A transaction environment is never allowed to select this value for itself.
+    let appEnvironment: StoreRuntimeEnvironment?
 
     init(
         transactions: [VerifiedStoreTransaction],
         unverifiedCount: Int,
-        isComplete: Bool = true
+        isComplete: Bool = true,
+        appEnvironment: StoreRuntimeEnvironment?
     ) {
         self.transactions = transactions
         self.unverifiedCount = unverifiedCount
         self.isComplete = isComplete
+        self.appEnvironment = appEnvironment
     }
 }
 
@@ -102,7 +108,13 @@ struct StoreEntitlementReadMerger: Sendable {
         return StoreEntitlementRead(
             transactions: hasConflict ? [] : Array(byID.values),
             unverifiedCount: current.unverifiedCount + supplemental.unverifiedCount,
-            isComplete: current.isComplete && supplemental.isComplete && !hasConflict
+            isComplete: current.isComplete
+                && supplemental.isComplete
+                && !hasConflict
+                && current.appEnvironment == supplemental.appEnvironment,
+            appEnvironment: current.appEnvironment == supplemental.appEnvironment
+                ? current.appEnvironment
+                : nil
         )
     }
 }
@@ -143,6 +155,10 @@ enum StoreRestoreOutcome: Equatable, Sendable {
 }
 
 protocol StoreEntitlementSourcing: Sendable {
+    /// The separately verified `AppTransaction` environment for the expected app bundle.
+    /// Purchase validation must use this authority instead of deriving an app environment from
+    /// the transaction being validated.
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment?
     func currentEntitlements() async -> StoreEntitlementRead
     func unfinishedTransactions() async -> StoreUnfinishedTransactionRead
     func listenForUpdates(
@@ -156,9 +172,34 @@ protocol StoreEntitlementSourcing: Sendable {
 }
 
 struct StoreKitEntitlementSource: StoreEntitlementSourcing {
+    private let expectedBundleID: String
+    private let appEnvironmentProvider: any StoreAppEnvironmentProviding
+
+    init(expectedBundleID: String = Bundle.main.bundleIdentifier ?? "") {
+        self.expectedBundleID = expectedBundleID
+        self.appEnvironmentProvider = StoreKitAppEnvironmentProvider(
+            expectedBundleID: expectedBundleID
+        )
+    }
+
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await appEnvironmentProvider.currentEnvironment()
+    }
+
     func currentEntitlements() async -> StoreEntitlementRead {
-        let current = await read(Transaction.currentEntitlements)
-        let supplemental = await readSubscriptionStatuses()
+        guard let appEnvironment = await appEnvironmentProvider.currentEnvironment() else {
+            return StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                isComplete: false,
+                appEnvironment: nil
+            )
+        }
+        let current = await read(
+            Transaction.currentEntitlements,
+            appEnvironment: appEnvironment
+        )
+        let supplemental = await readSubscriptionStatuses(appEnvironment: appEnvironment)
         return StoreEntitlementReadMerger().merge(
             current: current,
             supplemental: supplemental
@@ -213,6 +254,9 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
 
     @MainActor
     func purchase(_ productID: StoreProductID) async throws -> StorePurchaseResult {
+        guard await appEnvironmentProvider.currentEnvironment() != nil else {
+            throw StoreCommerceSourceError.invalidEnvironment
+        }
         guard AppStore.canMakePayments else {
             throw StoreCommerceSourceError.purchasesNotAllowed
         }
@@ -251,10 +295,16 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
     }
 
     func synchronizePurchases() async throws {
+        guard await appEnvironmentProvider.currentEnvironment() != nil else {
+            throw StoreCommerceSourceError.invalidEnvironment
+        }
         try await AppStore.sync()
     }
 
-    private func read(_ transactions: Transaction.Transactions) async -> StoreEntitlementRead {
+    private func read(
+        _ transactions: Transaction.Transactions,
+        appEnvironment: StoreRuntimeEnvironment
+    ) async -> StoreEntitlementRead {
         var verified: [VerifiedStoreTransaction] = []
         var unverifiedCount = 0
         for await result in transactions {
@@ -268,14 +318,17 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
         return StoreEntitlementRead(
             transactions: verified,
             unverifiedCount: unverifiedCount,
-            isComplete: true
+            isComplete: true,
+            appEnvironment: appEnvironment
         )
     }
 
     /// Reads the full renewal-state surface so retry, expiry, and revocation remain visible after
     /// they leave `Transaction.currentEntitlements`. Catalog failure never invents a no-purchase
     /// answer; the mapper may still preserve an independently verified active entitlement.
-    private func readSubscriptionStatuses() async -> StoreEntitlementRead {
+    private func readSubscriptionStatuses(
+        appEnvironment: StoreRuntimeEnvironment
+    ) async -> StoreEntitlementRead {
         do {
             let products = try await Product.products(
                 for: StoreCatalogContract.expectedProductIDs
@@ -285,7 +338,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
                 return StoreEntitlementRead(
                     transactions: [],
                     unverifiedCount: 0,
-                    isComplete: false
+                    isComplete: false,
+                    appEnvironment: appEnvironment
                 )
             }
 
@@ -296,7 +350,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
                 return StoreEntitlementRead(
                     transactions: [],
                     unverifiedCount: 0,
-                    isComplete: false
+                    isComplete: false,
+                    appEnvironment: appEnvironment
                 )
             }
             for groupID in subscriptionGroupIDs {
@@ -308,7 +363,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
                             return StoreEntitlementRead(
                                 transactions: [],
                                 unverifiedCount: 0,
-                                isComplete: false
+                                isComplete: false,
+                                appEnvironment: appEnvironment
                             )
                         }
                         byID[record.transactionID] = record
@@ -320,13 +376,15 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             return StoreEntitlementRead(
                 transactions: Array(byID.values),
                 unverifiedCount: unverifiedCount,
-                isComplete: true
+                isComplete: true,
+                appEnvironment: appEnvironment
             )
         } catch {
             return StoreEntitlementRead(
                 transactions: [],
                 unverifiedCount: 0,
-                isComplete: false
+                isComplete: false,
+                appEnvironment: appEnvironment
             )
         }
     }
@@ -367,9 +425,11 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             hasVerifiedStatusTransaction = StoreProductID(
                 rawValue: handledTransaction.productID
             ) != nil
+                && handledTransaction.appBundleID == expectedBundleID
                 && handledTransaction.ownershipType == .purchased
                 && value.originalID == handledTransaction.originalID
                 && StoreProductID(rawValue: value.productID) != nil
+                && value.appBundleID == expectedBundleID
                 && value.environment == handledTransaction.environment
         case .unverified:
             statusTransaction = nil
@@ -403,7 +463,9 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             expirationDate: authoritativeTransaction.expirationDate,
             subscriptionState: state,
             hasVerifiedStatusTransaction: hasVerifiedStatusTransaction,
-            hasVerifiedRenewalInfo: hasVerifiedRenewalInfo
+            hasVerifiedRenewalInfo: hasVerifiedRenewalInfo,
+            hasVerifiedAppBundle: handledTransaction.appBundleID == expectedBundleID
+                && authoritativeTransaction.appBundleID == expectedBundleID
         )
     }
 
@@ -417,7 +479,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             expirationDate: transaction.expirationDate,
             subscriptionState: .unknown,
             hasVerifiedStatusTransaction: false,
-            hasVerifiedRenewalInfo: false
+            hasVerifiedRenewalInfo: false,
+            hasVerifiedAppBundle: false
         )
     }
 
@@ -436,6 +499,7 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
 enum StoreCommerceSourceError: Error, Equatable, Sendable {
     case invalidProduct
     case purchasesNotAllowed
+    case invalidEnvironment
 }
 
 struct SubscriptionStatusResolution: Equatable, Sendable {
@@ -471,7 +535,11 @@ struct SubscriptionStatusResolution: Equatable, Sendable {
 /// verified renewal state can distinguish billing grace from retry or expiry.
 struct SubscriptionStatusMapper: Sendable {
     func resolve(_ read: StoreEntitlementRead) -> SubscriptionStatusResolution {
-        guard read.unverifiedCount == 0 else { return .failedClosed }
+        guard read.unverifiedCount == 0,
+              let appEnvironment = read.appEnvironment,
+              appEnvironment.isRecognizedStoreEnvironment else {
+            return .failedClosed
+        }
 
         var environments: Set<StoreRuntimeEnvironment> = []
         var grantedEntitlements: [EntitlementSet] = []
@@ -484,6 +552,8 @@ struct SubscriptionStatusMapper: Sendable {
                   transaction.isPurchased,
                   transaction.hasVerifiedStatusTransaction,
                   transaction.hasVerifiedRenewalInfo,
+                  transaction.hasVerifiedAppBundle,
+                  transaction.environment == appEnvironment,
                   transaction.subscriptionState != .unknown else {
                 return .failedClosed
             }
@@ -656,10 +726,14 @@ actor EntitlementStore {
                 guard transaction.acknowledgementProductID == productID.rawValue else {
                     return .failed(.invalidStoreState)
                 }
+                guard let appEnvironment = await source.currentAppEnvironment() else {
+                    return .failed(.invalidStoreState)
+                }
                 let handledResolution = statusMapper.resolve(
                     StoreEntitlementRead(
                         transactions: [transaction.facts],
-                        unverifiedCount: 0
+                        unverifiedCount: 0,
+                        appEnvironment: appEnvironment
                     )
                 )
                 guard handledResolution.hasActiveSubscription else {
@@ -684,6 +758,8 @@ actor EntitlementStore {
             return .failed(.productUnavailable)
         } catch StoreCommerceSourceError.purchasesNotAllowed {
             return .failed(.purchasesNotAllowed)
+        } catch StoreCommerceSourceError.invalidEnvironment {
+            return .failed(.verificationFailed)
         } catch {
             return .failed(.unavailable)
         }
@@ -736,6 +812,8 @@ actor EntitlementStore {
                 }
             }
             return resolution.hasActiveSubscription ? .restored : .noActiveSubscription
+        } catch StoreCommerceSourceError.invalidEnvironment {
+            return .failed(.verificationFailed)
         } catch {
             return .failed(.unavailable)
         }
@@ -806,10 +884,15 @@ actor EntitlementStore {
         // transaction, reject the whole batch before publishing or finishing either one.
         let batchFacts = uniqueTransactions.values.map(\.facts)
         let batchRead = StoreEntitlementReadMerger().merge(
-            current: StoreEntitlementRead(transactions: [], unverifiedCount: 0),
+            current: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: nil
+            ),
             supplemental: StoreEntitlementRead(
                 transactions: batchFacts,
-                unverifiedCount: 0
+                unverifiedCount: 0,
+                appEnvironment: nil
             )
         )
         guard batchRead.isComplete else {
@@ -1011,7 +1094,8 @@ actor EntitlementStore {
                 supplemental: StoreEntitlementRead(
                     transactions: additionalTransactions,
                     unverifiedCount: 0,
-                    isComplete: true
+                    isComplete: true,
+                    appEnvironment: read.appEnvironment
                 )
             )
         }

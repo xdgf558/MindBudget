@@ -5,6 +5,144 @@ import Testing
 @Suite(.serialized)
 struct StoreRuntimeTests {
     @Test
+    func verifiedAppIdentityIsTheOnlyAuthorityForAStoreEnvironment() async {
+        let policy = StoreAppIdentityPolicy(expectedBundleID: "com.xdgf558.MindBudget")
+
+        for environment in [
+            StoreRuntimeEnvironment.xcode,
+            .sandbox,
+            .production,
+        ] {
+            #expect(
+                policy.acceptedEnvironment(
+                    for: StoreAppIdentity(
+                        bundleID: "com.xdgf558.MindBudget",
+                        environment: environment
+                    )
+                ) == environment
+            )
+        }
+        #expect(
+            policy.acceptedEnvironment(
+                for: StoreAppIdentity(
+                    bundleID: "com.example.other-app",
+                    environment: .production
+                )
+            ) == nil
+        )
+        #expect(
+            policy.acceptedEnvironment(
+                for: StoreAppIdentity(
+                    bundleID: "com.xdgf558.MindBudget",
+                    environment: StoreRuntimeEnvironment(rawValue: "Unknown")
+                )
+            ) == nil
+        )
+        #expect(
+            StoreAppIdentityPolicy(expectedBundleID: "").acceptedEnvironment(
+                for: StoreAppIdentity(
+                    bundleID: "",
+                    environment: .sandbox
+                )
+            ) == nil
+        )
+
+        let contextProvider = StoreKitCatalogContextProvider(
+            expectedBundleID: "com.xdgf558.MindBudget",
+            appEnvironmentProvider: FixedStoreAppEnvironmentProvider(environment: .sandbox)
+        )
+        #expect((await contextProvider.currentContext()).environment == .sandbox)
+
+        let unavailableContextProvider = StoreKitCatalogContextProvider(
+            expectedBundleID: "com.xdgf558.MindBudget",
+            appEnvironmentProvider: FixedStoreAppEnvironmentProvider(environment: nil)
+        )
+        #expect(
+            (await unavailableContextProvider.currentContext()).environment
+                == StoreRuntimeEnvironment(rawValue: "Unknown")
+        )
+    }
+
+    @Test
+    func entitlementAuthorityRejectsEveryCrossEnvironmentOrBundleMismatch() {
+        let mapper = SubscriptionStatusMapper()
+
+        for environment in [
+            StoreRuntimeEnvironment.xcode,
+            .sandbox,
+            .production,
+        ] {
+            let exact = mapper.resolve(
+                StoreEntitlementRead(
+                    transactions: [verifiedTransaction(environment: environment)],
+                    unverifiedCount: 0,
+                    appEnvironment: environment
+                )
+            )
+            #expect(exact.isActionable)
+            #expect(exact.hasActiveSubscription)
+            #expect(exact.environment == environment)
+        }
+
+        let mismatches: [(StoreRuntimeEnvironment, StoreRuntimeEnvironment)] = [
+            (StoreRuntimeEnvironment.xcode, .sandbox),
+            (.sandbox, .production),
+            (.production, .sandbox),
+        ]
+        for (transactionEnvironment, appEnvironment) in mismatches {
+            #expect(
+                mapper.resolve(
+                    StoreEntitlementRead(
+                        transactions: [
+                            verifiedTransaction(environment: transactionEnvironment)
+                        ],
+                        unverifiedCount: 0,
+                        appEnvironment: appEnvironment
+                    )
+                ) == .failedClosed
+            )
+        }
+
+        #expect(
+            mapper.resolve(
+                StoreEntitlementRead(
+                    transactions: [verifiedTransaction(environment: .production)],
+                    unverifiedCount: 0,
+                    appEnvironment: nil
+                )
+            ) == .failedClosed
+        )
+        #expect(
+            mapper.resolve(
+                StoreEntitlementRead(
+                    transactions: [
+                        verifiedTransaction(
+                            environment: .production,
+                            hasVerifiedAppBundle: false
+                        )
+                    ],
+                    unverifiedCount: 0,
+                    appEnvironment: .production
+                )
+            ) == .failedClosed
+        )
+    }
+
+    @Test
+    func readMergerRejectsConflictingAppEnvironmentAuthorities() {
+        let current = paidRead(environment: .sandbox)
+        let supplemental = paidRead(environment: .production)
+        let merged = StoreEntitlementReadMerger().merge(
+            current: current,
+            supplemental: supplemental
+        )
+
+        #expect(merged.isComplete == false)
+        #expect(merged.appEnvironment == nil)
+        #expect(SubscriptionStatusMapper().resolve(merged) == .failedClosed)
+    }
+
+    @Test
     func productFailureUsesOnlyAnExactEnvironmentAndStorefrontPresentationCache() async {
         let china = StoreCatalogContext(environment: .xcode, storefrontCountryCode: "CHN")
         let usa = StoreCatalogContext(environment: .xcode, storefrontCountryCode: "USA")
@@ -182,7 +320,11 @@ struct StoreRuntimeTests {
     func concurrentStartsOwnOneListenerAndUpdatesReconcileFromCurrentState() async {
         let authority = LiveFeatureAccessAuthority()
         let source = TestStoreEntitlementSource(
-            read: StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+            read: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
 
@@ -213,7 +355,8 @@ struct StoreRuntimeTests {
                 verifiedTransaction(environment: .sandbox),
                 verifiedTransaction(environment: .production),
             ],
-            unverifiedCount: 1
+            unverifiedCount: 1,
+            appEnvironment: .sandbox
         )
         let source = TestStoreEntitlementSource(read: mixed)
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -238,12 +381,14 @@ struct StoreRuntimeTests {
             expirationDate: nil,
             subscriptionState: .subscribed,
             hasVerifiedStatusTransaction: true,
-            hasVerifiedRenewalInfo: true
+            hasVerifiedRenewalInfo: true,
+            hasVerifiedAppBundle: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
                 transactions: [accepted, unknownProduct],
-                unverifiedCount: 0
+                unverifiedCount: 0,
+                appEnvironment: .production
             )
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -260,12 +405,14 @@ struct StoreRuntimeTests {
             expirationDate: nil,
             subscriptionState: .subscribed,
             hasVerifiedStatusTransaction: true,
-            hasVerifiedRenewalInfo: true
+            hasVerifiedRenewalInfo: true,
+            hasVerifiedAppBundle: true
         )
         await source.setRead(
             StoreEntitlementRead(
                 transactions: [accepted, unknownEnvironment],
-                unverifiedCount: 0
+                unverifiedCount: 0,
+                appEnvironment: .production
             )
         )
         source.sendUpdate()
@@ -281,7 +428,11 @@ struct StoreRuntimeTests {
         let authority = LiveFeatureAccessAuthority()
         let source = OutOfOrderStoreEntitlementSource(
             firstRead: paidRead(environment: .sandbox),
-            laterRead: StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+            laterRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
 
@@ -314,12 +465,14 @@ struct StoreRuntimeTests {
             expirationDate: Date(timeIntervalSince1970: 1),
             subscriptionState: .inGracePeriod,
             hasVerifiedStatusTransaction: true,
-            hasVerifiedRenewalInfo: true
+            hasVerifiedRenewalInfo: true,
+            hasVerifiedAppBundle: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
                 transactions: [graceCandidate],
-                unverifiedCount: 0
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
             )
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -343,12 +496,14 @@ struct StoreRuntimeTests {
             expirationDate: Date.distantFuture,
             subscriptionState: .revoked,
             hasVerifiedStatusTransaction: true,
-            hasVerifiedRenewalInfo: true
+            hasVerifiedRenewalInfo: true,
+            hasVerifiedAppBundle: true
         )
         let source = TestStoreEntitlementSource(
             read: StoreEntitlementRead(
                 transactions: [revoked],
-                unverifiedCount: 0
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
             )
         )
         let store = EntitlementStore(source: source, featureAccessAuthority: authority)
@@ -383,7 +538,11 @@ struct StoreRuntimeTests {
         #expect(session.existingPremiumEntryAccess.permitsAdvancedSiri)
 
         await source.setRead(
-            StoreEntitlementRead(transactions: [], unverifiedCount: 0)
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
         )
         await session.refreshCommerceEntitlements()
         await waitUntil {
@@ -461,14 +620,16 @@ struct StoreRuntimeTests {
     private func paidRead(environment: StoreRuntimeEnvironment) -> StoreEntitlementRead {
         StoreEntitlementRead(
             transactions: [verifiedTransaction(environment: environment)],
-            unverifiedCount: 0
+            unverifiedCount: 0,
+            appEnvironment: environment
         )
     }
 
     private func verifiedTransaction(
         environment: StoreRuntimeEnvironment,
         transactionID: UInt64 = 1,
-        state: StoreSubscriptionState = .subscribed
+        state: StoreSubscriptionState = .subscribed,
+        hasVerifiedAppBundle: Bool = true
     ) -> VerifiedStoreTransaction {
         VerifiedStoreTransaction(
             transactionID: transactionID,
@@ -479,7 +640,8 @@ struct StoreRuntimeTests {
             expirationDate: nil,
             subscriptionState: state,
             hasVerifiedStatusTransaction: true,
-            hasVerifiedRenewalInfo: true
+            hasVerifiedRenewalInfo: true,
+            hasVerifiedAppBundle: hasVerifiedAppBundle
         )
     }
 
@@ -497,6 +659,12 @@ private struct FixedStoreContextProvider: StoreCatalogContextProviding {
     let context: StoreCatalogContext
 
     func currentContext() async -> StoreCatalogContext { context }
+}
+
+private struct FixedStoreAppEnvironmentProvider: StoreAppEnvironmentProviding {
+    let environment: StoreRuntimeEnvironment?
+
+    func currentEnvironment() async -> StoreRuntimeEnvironment? { environment }
 }
 
 private enum TestStoreFailure: Error, Sendable {
@@ -546,6 +714,10 @@ private struct TestStoreEntitlementSource: StoreEntitlementSourcing {
         state = TestEntitlementState(read: read)
     }
 
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.appEnvironment()
+    }
+
     func currentEntitlements() async -> StoreEntitlementRead {
         await state.currentRead()
     }
@@ -593,6 +765,7 @@ private actor TestEntitlementState {
     }
 
     func currentRead() -> StoreEntitlementRead { read }
+    func appEnvironment() -> StoreRuntimeEnvironment? { read.appEnvironment }
     func setRead(_ read: StoreEntitlementRead) { self.read = read }
     func listenerStarted() { listeners += 1 }
     func startCount() -> Int { listeners }
@@ -604,6 +777,10 @@ private final class OutOfOrderStoreEntitlementSource: StoreEntitlementSourcing, 
 
     init(firstRead: StoreEntitlementRead, laterRead: StoreEntitlementRead) {
         state = OutOfOrderEntitlementState(firstRead: firstRead, laterRead: laterRead)
+    }
+
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.appEnvironment()
     }
 
     func currentEntitlements() async -> StoreEntitlementRead {
@@ -656,6 +833,8 @@ private actor OutOfOrderEntitlementState {
             firstReadContinuation = continuation
         }
     }
+
+    func appEnvironment() -> StoreRuntimeEnvironment? { laterRead.appEnvironment }
 
     func listenerStarted() { listeners += 1 }
     func readCount() -> Int { reads }

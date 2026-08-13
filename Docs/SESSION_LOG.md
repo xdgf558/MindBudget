@@ -3900,3 +3900,64 @@ remain later controlled runtime evidence.
 What was NOT changed: No production behavior, purchase/restore policy, entitlement result,
 customer UI, commercial term, later phase, release artifact, or distribution state changed.
 C2-03 remains implementation complete pending re-review, green CI, and merge.
+
+## 2026-08-13 — Session 105 — Close C2-03 and start verified StoreKit environment isolation
+
+Goal: Close the reviewed/merged C2-03 packet and begin only C2-04 without changing customer-visible
+commerce or distribution behavior.
+
+C2-03 closeout: PR #30 passed independent review and green CI, then merged to `main` as `3fc72b4`
+on 2026-08-13. The complete GitHub Actions run passed in 14m26s:
+<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done.
+
+C2-04 work: StoreKit authority now requires a separately verified `AppTransaction` bundle and
+environment. Every transaction/status fact must match the same Xcode, Sandbox, or Production
+environment; TestFlight follows Apple's Sandbox environment and cannot be relabeled by Release
+configuration. Wrong bundle, missing/unknown environment, or cross-environment input fails closed.
+The exact environment/storefront presentation cache remains non-authoritative, and catalog-only
+failure still preserves an independently verified active subscription. Static validation keeps the
+app-transaction reader and entitlement-read construction inside Commerce.
+
+Validation: Production/test compilation and all static gates pass. Focused StoreKit
+environment/lifecycle tests passed 48/48. The strict Phase 10 suite passed 20/20 across 10
+isolated iterations. The owning shared-host run completed 345 Swift tests (341 passed and 4
+explicit StoreKit runtime probes skipped), all 13 UI tests, and every selected coverage gate;
+combined result: 358 total, 354 passed, 4 skipped, 0 failed. Evidence:
+`/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
+`/private/tmp/MindBudget-C204-Full-Shared.xcresult`. An initial unsplit run measured the
+environment-sensitive 500 ms signal at 0.814 seconds and then hit Xcode's 600-second diagnostics
+timeout; it is not used as passing evidence. C2-04 is implementation complete pending independent
+review, green CI, and merge; C3 remains blocked.
+
+What was NOT changed: No purchase/restore View, paywall, formal product or term, version, Archive,
+upload, tester assignment, app-owned network destination, or distribution action was added. The
+uploaded 0.9.6 binary and release hold are unchanged.
+
+## 2026-08-13 — Session 106 — Make C2-04 purchase preflight use independent app authority
+
+Goal: Resolve the first independent review of PR #31 without expanding the accepted C2-04 scope.
+
+What changed: `StoreEntitlementSourcing` now exposes the independently verified app environment
+owned by the Commerce `AppTransaction` provider. Purchase-result preflight compares the verified
+transaction against that independent value instead of deriving the app environment from the same
+transaction under review. A regression proves a Sandbox purchase result is rejected before
+publication or `finish()` when the verified app authority is Production. Product presentation may
+still use an explicit `Unknown` cache partition when app verification is unavailable, but durable
+documentation now states that this partition is non-authoritative and cannot grant or preserve a
+paid right.
+
+Evidence boundary: The StoreKit matrix now names all three app-owned projection booleans—
+`hasVerifiedStatusTransaction`, `hasVerifiedRenewalInfo`, and `hasVerifiedAppBundle`—as values
+whose policy consumption is unit tested while their private StoreKit derivation is evidenced only
+by the opt-in production-bridge probes. The focused lifecycle/runtime suites passed 49/49. The
+strict Phase 10 signal passed 10/10 isolated iterations. The clean shared-host run completed 346
+Swift tests (342 passed and 4 explicit StoreKit runtime probes skipped), all 13 UI tests, and the
+coverage gate: 359 total, 355 passed, 4 skipped, 0 failed. Evidence:
+`/private/tmp/MindBudget-C204-ReviewFix-Focused.xcresult`,
+`/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult`, and
+`/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
+
+What was NOT changed: No customer purchase or restore View, paywall, formal product/price/trial,
+version, Archive, upload, tester assignment, app-owned network destination, C3 work, or
+distribution state changed. C2-04 remains implementation complete pending re-review, green CI,
+and merge; the post-0.9.6 release hold remains active.

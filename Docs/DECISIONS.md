@@ -2039,3 +2039,24 @@ C2-03 candidate is implementation complete and locally validated but pending ind
 green CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
 formal price/trial/product work, versioning, Archive/upload, tester assignment, and distribution
 remain blocked. The uploaded 0.9.6 binary and release hold are unchanged.
+
+---
+
+## 2026-08-13 — Bind StoreKit rights to a verified app environment
+
+Context: COM-C2-03 passed independent review and green CI and merged through PR #30 as `3fc72b4`.
+C2-04 must prevent local Configuration, Sandbox/TestFlight, and Production authority from
+contaminating one another without adding customer UI or distribution permission.
+
+Decision: Detailed environment semantics live in commercial decision DEC-COM-018. The verified
+`AppTransaction` bundle and environment select the whole StoreKit authority context. Every
+verified transaction/status fact must match that independently verified environment and expected
+bundle. TestFlight follows Apple's Sandbox environment; no build configuration or manual flag may
+relabel it as Production.
+
+Consequences: Missing, unknown, cross-environment, or wrong-bundle input fails closed. Exact
+environment/storefront presentation caches remain non-authoritative, and catalog-only failure
+does not erase a separately verified active subscription. Focused, full regression, strict local
+performance, and coverage gates pass; C2-04 is implementation complete pending independent
+review, CI, and merge. C3, paywall/customer purchase UI, formal
+terms/products, versioning, Archive/upload, tester assignment, and distribution remain blocked.
