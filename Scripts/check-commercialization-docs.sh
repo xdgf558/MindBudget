@@ -232,8 +232,8 @@ for c204_contract in \
   'TestFlight is modeled as verified Sandbox' \
   'cross-environment/bundle mismatch rejection' \
   'DEC-COM-018' \
-  '48/48 focused' \
-  '358 total, 354 passed, 4 skipped, and 0 failed' \
+  '49/49 focused' \
+  '359 total, 355 passed, 4 skipped, and 0 failed' \
   'C2-04 is not Done and C3 remains blocked'; do
   if ! grep -Fq "${c204_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \

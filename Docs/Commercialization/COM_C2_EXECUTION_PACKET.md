@@ -194,11 +194,11 @@ Status: **Implementation complete pending independent review.**
 - Complete `STOREKIT_TEST_MATRIX.md`, including Xcode/Sandbox/Production acceptance and every
   cross-environment/bundle mismatch rejection; run the full Free regression and retain the
   distribution hold.
-- Local evidence: 48/48 focused environment/lifecycle tests; the strict Phase 10 suite passed
-  20/20 across 10 iterations; the full shared-host run completed 345 Swift tests (341 passed and
+- Local evidence: 49/49 focused environment/lifecycle tests; the strict Phase 10 suite passed
+  20/20 across 10 iterations; the full shared-host run completed 346 Swift tests (342 passed and
   4 explicit StoreKit runtime probes skipped), all 13 UI tests, and every selected coverage gate.
-  Result bundles: `/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
-  `/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
+  Result bundles: `/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult` and
+  `/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
 
 ### Stop conditions
 

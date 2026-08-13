@@ -24,6 +24,11 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | TestFlight | Apple's Sandbox environment under a distributed build; no build-channel inference | Production grandfathering after public release | TestFlight is modeled as verified Sandbox, never as a fourth entitlement environment |
 | Production | Verified `AppTransaction` Production environment plus matching Production facts | Debug/Xcode/Sandbox configuration | Exact bundle/AppTransaction/Product/environment verification; mismatch fails closed |
 
+An unavailable app environment may use the literal `Unknown` only to partition non-authoritative
+product presentation and its deletable cache. That presentation path may still show StoreKit
+metadata, but `Unknown` is never accepted by an entitlement read, purchase preflight, or access
+decision and can never grant or preserve a paid right.
+
 ## Subscription-state mapping
 
 | Verified state | Subscription right | Expected behavior |
@@ -82,19 +87,20 @@ Every row must be exercised for Monthly and Annual where applicable:
   subscription-status signals converging on the same full-reconciliation path. The tests in
   `StoreLifecycleDomainTests.swift` own the deterministic publish, finish, sync, and active-batch
   wait gates; `StoreRuntimeTests.swift` owns the separate out-of-order whole-read gate and the
-  C2-04 app-environment matrix. C2-04's focused run passed 48/48 across these two suites. The
-  strict Phase 10 suite passed 20/20 across 10 iterations, and the owning full run completed 345
+  C2-04 app-environment matrix. C2-04's focused run passed 49/49 across these two suites. The
+  strict Phase 10 suite passed 20/20 across 10 iterations, and the owning full run completed 346
   Swift tests plus 13 UI tests with 0 failures; four explicit runtime probes skipped by design.
-  Evidence: `/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
-  `/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
+  Evidence: `/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult` and
+  `/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
 - Verification-derivation boundary: pure mapper tests intentionally construct app-owned
   `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction` and
-  `hasVerifiedRenewalInfo`; they prove how a completed fact set is consumed, not how StoreKit
-  produces those booleans. Production derivation in `verifiedRecord(from:status:)` correlates the
-  handled transaction, verified status transaction, verified renewal info, original transaction
-  ID, environment, accepted Product IDs, current Product ID, and deferred-crossgrade preference.
-  Public StoreKit status/renewal value types cannot be freely constructed by unit tests. Only the
-  opt-in `runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished` and
+  `hasVerifiedRenewalInfo` and `hasVerifiedAppBundle`; they prove how a completed fact set is
+  consumed, not how StoreKit produces those booleans. Production derivation in
+  `verifiedRecord(from:status:)` correlates the handled transaction, verified status transaction,
+  verified renewal info, original transaction ID, verified app bundle, environment, accepted
+  Product IDs, current Product ID, and deferred-crossgrade preference. Public StoreKit status/
+  renewal value types cannot be freely constructed by unit tests. Only the opt-in
+  `runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished` and
   `runtimeAnnualPurchaseIsVerifiedGrantedAndFinished` flows enter that production derivation with
   real `Transaction` and `Product.SubscriptionInfo.Status` objects. Default-scheme coverage and
   the pure mapper matrix must never be cited as proof of that framework bridge; malformed-status

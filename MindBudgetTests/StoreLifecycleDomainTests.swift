@@ -725,6 +725,29 @@ struct StoreLifecycleDomainTests {
     }
 
     @Test
+    func purchasePreflightRejectsATransactionThatDoesNotMatchTheVerifiedAppEnvironment() async {
+        let recorder = FinishRecorder()
+        let sandboxPurchase = finishableTransaction(
+            facts: transactionFacts(id: 351, state: .subscribed),
+            recorder: recorder
+        )
+        let source = ProgrammableStoreEntitlementSource(
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .production
+            ),
+            purchasePlan: .result(.verified(sandboxPurchase))
+        )
+        let authority = LiveFeatureAccessAuthority()
+        let store = EntitlementStore(source: source, featureAccessAuthority: authority)
+
+        #expect(await store.purchase(.proMonthly) == .failed(.invalidStoreState))
+        #expect(await recorder.count(for: 351) == 0)
+        #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
+    }
+
+    @Test
     func anExistingSubscriptionCannotMakeAMismatchedPurchaseLookSuccessful() async {
         let recorder = FinishRecorder()
         let existingMonthly = transactionFacts(id: 360, state: .subscribed)
@@ -1422,6 +1445,10 @@ private struct ProgrammableStoreEntitlementSource: StoreEntitlementSourcing {
         )
     }
 
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.currentAppEnvironment()
+    }
+
     func currentEntitlements() async -> StoreEntitlementRead {
         await state.currentEntitlements()
     }
@@ -1514,6 +1541,10 @@ private actor ProgrammableStoreState {
 
     func currentEntitlements() -> StoreEntitlementRead {
         currentRead
+    }
+
+    func currentAppEnvironment() -> StoreRuntimeEnvironment? {
+        currentRead.appEnvironment
     }
 
     func unfinishedTransactions() -> StoreUnfinishedTransactionRead {

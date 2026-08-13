@@ -398,9 +398,13 @@ context.
   can authorize only Sandbox, and App Store Production can authorize only Production. A missing or
   unverified app transaction, wrong bundle, unknown environment, or mismatch fails closed.
   Purchase and explicit restore reject before StoreKit action when the app environment cannot be
-  verified. Presentation caching remains keyed by exact environment plus storefront and never
-  grants access. Supplemental Product/catalog failure may leave an independently verified active
-  subscription actionable, while incomplete Free remains failed closed.
+  verified; purchase result preflight obtains that environment independently from the source and
+  never derives it from the transaction under review. Presentation caching remains keyed by exact
+  environment plus storefront and never grants access. When app environment verification is
+  unavailable, the presentation layer may use an explicit `Unknown` partition to show metadata,
+  but entitlement reads and access decisions never accept it. Supplemental Product/catalog failure
+  may leave an independently verified active subscription actionable, while incomplete Free
+  remains failed closed.
 - Enforcement: `AppTransaction.shared` has one Commerce-owned reader in `StoreCatalog.swift`.
   Static validation rejects another app-owned reader or construction of `StoreEntitlementRead`
   outside `EntitlementStore.swift`. Unit tests accept all three exact environments and reject

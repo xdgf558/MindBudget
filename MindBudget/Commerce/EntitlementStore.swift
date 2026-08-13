@@ -155,6 +155,10 @@ enum StoreRestoreOutcome: Equatable, Sendable {
 }
 
 protocol StoreEntitlementSourcing: Sendable {
+    /// The separately verified `AppTransaction` environment for the expected app bundle.
+    /// Purchase validation must use this authority instead of deriving an app environment from
+    /// the transaction being validated.
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment?
     func currentEntitlements() async -> StoreEntitlementRead
     func unfinishedTransactions() async -> StoreUnfinishedTransactionRead
     func listenForUpdates(
@@ -176,6 +180,10 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
         self.appEnvironmentProvider = StoreKitAppEnvironmentProvider(
             expectedBundleID: expectedBundleID
         )
+    }
+
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await appEnvironmentProvider.currentEnvironment()
     }
 
     func currentEntitlements() async -> StoreEntitlementRead {
@@ -718,11 +726,14 @@ actor EntitlementStore {
                 guard transaction.acknowledgementProductID == productID.rawValue else {
                     return .failed(.invalidStoreState)
                 }
+                guard let appEnvironment = await source.currentAppEnvironment() else {
+                    return .failed(.invalidStoreState)
+                }
                 let handledResolution = statusMapper.resolve(
                     StoreEntitlementRead(
                         transactions: [transaction.facts],
                         unverifiedCount: 0,
-                        appEnvironment: transaction.facts.environment
+                        appEnvironment: appEnvironment
                     )
                 )
                 guard handledResolution.hasActiveSubscription else {

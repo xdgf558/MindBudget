@@ -221,6 +221,9 @@ struct StoreKitCatalogContextProvider: StoreCatalogContextProviding {
     }
 
     func currentContext() async -> StoreCatalogContext {
+        // An unavailable app environment may still partition non-authoritative product
+        // presentation under an explicit Unknown cache key. Unlike entitlement reads, this
+        // context can display StoreKit metadata but can never grant or preserve paid access.
         let environment = await appEnvironmentProvider.currentEnvironment()
             ?? StoreRuntimeEnvironment(rawValue: "Unknown")
 

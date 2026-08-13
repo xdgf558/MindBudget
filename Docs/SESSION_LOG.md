@@ -3932,3 +3932,32 @@ review, green CI, and merge; C3 remains blocked.
 What was NOT changed: No purchase/restore View, paywall, formal product or term, version, Archive,
 upload, tester assignment, app-owned network destination, or distribution action was added. The
 uploaded 0.9.6 binary and release hold are unchanged.
+
+## 2026-08-13 — Session 106 — Make C2-04 purchase preflight use independent app authority
+
+Goal: Resolve the first independent review of PR #31 without expanding the accepted C2-04 scope.
+
+What changed: `StoreEntitlementSourcing` now exposes the independently verified app environment
+owned by the Commerce `AppTransaction` provider. Purchase-result preflight compares the verified
+transaction against that independent value instead of deriving the app environment from the same
+transaction under review. A regression proves a Sandbox purchase result is rejected before
+publication or `finish()` when the verified app authority is Production. Product presentation may
+still use an explicit `Unknown` cache partition when app verification is unavailable, but durable
+documentation now states that this partition is non-authoritative and cannot grant or preserve a
+paid right.
+
+Evidence boundary: The StoreKit matrix now names all three app-owned projection booleans—
+`hasVerifiedStatusTransaction`, `hasVerifiedRenewalInfo`, and `hasVerifiedAppBundle`—as values
+whose policy consumption is unit tested while their private StoreKit derivation is evidenced only
+by the opt-in production-bridge probes. The focused lifecycle/runtime suites passed 49/49. The
+strict Phase 10 signal passed 10/10 isolated iterations. The clean shared-host run completed 346
+Swift tests (342 passed and 4 explicit StoreKit runtime probes skipped), all 13 UI tests, and the
+coverage gate: 359 total, 355 passed, 4 skipped, 0 failed. Evidence:
+`/private/tmp/MindBudget-C204-ReviewFix-Focused.xcresult`,
+`/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult`, and
+`/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
+
+What was NOT changed: No customer purchase or restore View, paywall, formal product/price/trial,
+version, Archive, upload, tester assignment, app-owned network destination, C3 work, or
+distribution state changed. C2-04 remains implementation complete pending re-review, green CI,
+and merge; the post-0.9.6 release hold remains active.

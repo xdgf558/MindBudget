@@ -282,6 +282,6 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01, C2-02, and C2-03 Done; C2-
   candidate. It binds every verified StoreKit fact to the same verified app environment,
   preserves exact environment-scoped presentation caches, proves
   Configuration/Sandbox/TestFlight/Production isolation and catalog-failure behavior, runs the
-  full Free regression, and retains the distribution hold. Local evidence passed 48/48 focused
-  tests, 20/20 Phase 10 tests across 10 iterations, 345 Swift tests, all 13 UI tests, and the
+  full Free regression, and retains the distribution hold. Local evidence passed 49/49 focused
+  tests, 20/20 Phase 10 tests across 10 iterations, 346 Swift tests, all 13 UI tests, and the
   complete coverage gate. Do not begin C3 early.

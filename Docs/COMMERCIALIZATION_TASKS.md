@@ -238,8 +238,8 @@ Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead
   authorization.
 - [ ] **C2-04 — Environment and regression gate. Implementation complete pending independent review.** Prove Configuration, Sandbox, TestFlight, and
   Production rights cannot contaminate one another and Product loading failure does not erase a
-  verified entitlement. Local evidence passed 48/48 focused tests, the strict Phase 10 suite
-  across 10 iterations (20/20), 345 Swift tests plus all 13 UI tests in the owning full run,
+  verified entitlement. Local evidence passed 49/49 focused tests, the strict Phase 10 suite
+  across 10 iterations (20/20), 346 Swift tests plus all 13 UI tests in the owning full run,
   and every selected coverage threshold. Independent review, CI, and merge remain required.
 
 Exit gate: StoreKit matrix passes. Formal prices, trial, cloud quota, and App Store Connect

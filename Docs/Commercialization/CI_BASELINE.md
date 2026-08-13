@@ -181,21 +181,21 @@ unknown, cross-environment, or wrong-bundle input fails closed. Presentation cac
 require an exact environment plus storefront key, and catalog-only failure may not erase an
 independently verified active subscription.
 
-Focused evidence: `StoreRuntimeTests` plus `StoreLifecycleDomainTests` passed 48/48 on the iOS
+Focused evidence: `StoreRuntimeTests` plus `StoreLifecycleDomainTests` passed 49/49 on the iOS
 26.5 simulator with final Xcode 26.6 `17F113`. The strict Phase 10 suite then passed 20/20 across
 10 isolated iterations, including 10/10 executions of the 500 ms local Dashboard signal. The
 owning shared-host run used the repository's documented switch to omit only that already-isolated
 wall-clock assertion while retaining its deterministic 10,000-row projection test. It completed
-345 Swift tests with zero failures (341 passed and 4 explicit StoreKit runtime probes skipped) and
-all 13 UI tests. The combined result is 358 total, 354 passed, 4 skipped, and 0 failed. Every
+346 Swift tests with zero failures (342 passed and 4 explicit StoreKit runtime probes skipped) and
+all 13 UI tests. The combined result is 359 total, 355 passed, 4 skipped, and 0 failed. Every
 selected coverage file passed the 85% gate: Money 91.73%, BudgetEngine 95.18%,
 BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
 ReminderEngine 91.04%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%,
 CycleSummaryService 97.45%, IntentClassifier 97.50%, CSVExporter 87.60%, and
 CurrencyFormatterService 100.00%. Static release, money, network, commercialization-document,
 feature-access, StoreKit-catalog, and diff gates pass. Evidence:
-`/private/tmp/MindBudget-C204-WallClockSuite-10x.xcresult` and
-`/private/tmp/MindBudget-C204-Full-Shared.xcresult`.
+`/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult` and
+`/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
 
 An initial unsplit full run also completed all functional/UI tests but measured the shared-host
 wall-clock signal at 0.814 seconds and Xcode then spent 600 seconds timing out while collecting

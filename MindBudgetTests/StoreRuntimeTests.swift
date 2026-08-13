@@ -714,6 +714,10 @@ private struct TestStoreEntitlementSource: StoreEntitlementSourcing {
         state = TestEntitlementState(read: read)
     }
 
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.appEnvironment()
+    }
+
     func currentEntitlements() async -> StoreEntitlementRead {
         await state.currentRead()
     }
@@ -761,6 +765,7 @@ private actor TestEntitlementState {
     }
 
     func currentRead() -> StoreEntitlementRead { read }
+    func appEnvironment() -> StoreRuntimeEnvironment? { read.appEnvironment }
     func setRead(_ read: StoreEntitlementRead) { self.read = read }
     func listenerStarted() { listeners += 1 }
     func startCount() -> Int { listeners }
@@ -772,6 +777,10 @@ private final class OutOfOrderStoreEntitlementSource: StoreEntitlementSourcing, 
 
     init(firstRead: StoreEntitlementRead, laterRead: StoreEntitlementRead) {
         state = OutOfOrderEntitlementState(firstRead: firstRead, laterRead: laterRead)
+    }
+
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.appEnvironment()
     }
 
     func currentEntitlements() async -> StoreEntitlementRead {
@@ -824,6 +833,8 @@ private actor OutOfOrderEntitlementState {
             firstReadContinuation = continuation
         }
     }
+
+    func appEnvironment() -> StoreRuntimeEnvironment? { laterRead.appEnvironment }
 
     func listenerStarted() { listeners += 1 }
     func readCount() -> Int { reads }

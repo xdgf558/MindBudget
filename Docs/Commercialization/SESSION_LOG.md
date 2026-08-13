@@ -847,3 +847,31 @@ pending independent review, green CI, and merge, not Done.
 What was NOT changed: No current View calls purchase or restore. No paywall, customer UI, formal
 App Store Connect product, price, trial, offer, version, Archive/upload, tester assignment,
 app-owned HTTP(S), C3 work, or distribution state changed. The post-0.9.6 release hold remains.
+
+## 2026-08-13 — Session 27 — Close the C2-04 purchase-preflight self-selection gap
+
+Goal: Resolve the first independent review of PR #31 while keeping C2-04 implementation complete
+and awaiting re-review rather than starting a later packet.
+
+What changed: Purchase-result preflight now obtains the app environment through the separately
+verified Commerce `AppTransaction` authority. It no longer assigns the transaction's own
+environment to the app side of the comparison. A deterministic regression supplies a Sandbox
+transaction with independently verified Production app authority and proves exact Free remains,
+the result is `invalidStoreState`, and the transaction is not finished. The `Unknown` catalog
+context is now explicitly documented as presentation-only metadata partitioning; entitlement
+reads, purchase preflight, and access decisions never accept it.
+
+Evidence boundary and validation: The matrix now includes `hasVerifiedAppBundle` alongside the
+status-transaction and renewal-info projection flags, and states that pure tests prove their
+consumption rather than StoreKit's private derivation. Focused lifecycle/runtime tests passed
+49/49. The strict Phase 10 signal passed 10/10 isolated iterations. The clean shared-host run
+completed 346 Swift tests (342 passed, 4 opt-in runtime probes skipped), 13/13 UI tests, and every
+coverage threshold: 359 total, 355 passed, 4 skipped, 0 failed. Evidence:
+`/private/tmp/MindBudget-C204-ReviewFix-Focused.xcresult`,
+`/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult`, and
+`/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
+
+What was NOT changed: No purchase/restore UI, paywall, formal App Store Connect product,
+price/trial/offer, version, Archive/upload, tester assignment, app-owned HTTP(S), C3 work, or
+distribution action was added. C2-04 remains implementation complete pending independent
+re-review, green CI, and merge; the release hold remains active.
