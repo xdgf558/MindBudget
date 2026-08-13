@@ -43,12 +43,13 @@ remain manual release gates, so the phase is still In Progress. Commercializatio
 COM-C0A through COM-C12 track governed by the owner-approved v1.4 specification and the planning
 map in `Docs/COMMERCIALIZATION_TASKS.md`. The public App Store launch is paused until that track's
 formal release gates pass. COM-C1 is completed with a pure entitlement domain, immutable central
-feature-access evaluator, and accepted existing-entry integration. COM-C2 is In Progress;
+feature-access evaluator, and accepted existing-entry integration. COM-C2 is complete.
 C2-01 and C2-02 are complete. PR #29 passed independent review and green CI, then merged the
 runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 passed independent
 review and green CI and merged through PR #30 as `3fc72b4` on 2026-08-13; it is Done. C2-04
-environment/regression implementation is complete pending independent review, green CI, and
-merge.
+passed independent review and green CI and merged through PR #31 as `a293762` on 2026-08-13,
+closing COM-C2. COM-C3 has not started and still requires accepted price/trial inputs plus a new
+explicit owner instruction.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
@@ -68,9 +69,9 @@ quota, Release manual unlock, or visible paid purchase entry, and existing TestF
 receive no production Pro rights. Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
-C2-04 now binds those StoreKit facts to a separately verified app bundle/environment. Local
-Xcode/Sandbox/TestFlight/Production isolation, full regression, and coverage evidence pass;
-independent review, CI, and merge remain before COM-C2 can finish. The read-only
+C2-04 binds those StoreKit facts to a separately verified app bundle/environment. Local
+Xcode/Sandbox/TestFlight/Production isolation, full regression, and coverage evidence passed;
+independent review and CI accepted that evidence before merge `a293762`. The read-only
 COM-C0A specification/repository audit and owner decision gate
 are complete. The owner accepted phase-scoped future data channels, parallel/nonblocking Watch
 development with post-iPhone-1.0 Watch distribution, the three-stage commercial-economics gate,
@@ -91,8 +92,8 @@ period, basic Siri expense recording and budget checking, the five-item wishlist
 Insights, and all other typed Free-core capabilities. Passive App Entity providers expose no
 entities under exact Free without surfacing a system-initiated error; active advanced Siri actions
 retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged, and this
-unreleased commercial source is not distributable until C2-04, purchase presentation,
-and the owning release gates are complete. C2-01's synthetic Monthly/Annual fixture
+unreleased commercial source is not distributable until purchase presentation and the owning
+release gates are complete. C2-01's synthetic Monthly/Annual fixture
 is test-bundle-only, activated by a dedicated non-Archive local scheme, and absent from the app
 resources/default scheme. There is still no formal product, paywall, customer price/trial,
 customer-facing purchase/restore flow, or Release manual unlock. C2-02's presentation cache never

@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01, C2-02, and C2-03 Done; C2-04 implementation complete pending independent review
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 not started
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -278,10 +278,12 @@ Status: COM-C0A, COM-C0B, and COM-C1 Done; COM-C2-01, C2-02, and C2-03 Done; C2-
   reconciliation rather than becoming a second authority. No current view calls the typed
   purchase or restore seams. PR #30 passed independent review and CI, then merged as `3fc72b4`
   on 2026-08-13.
-- [ ] Independently review, obtain green CI, and merge the implementation-complete C2-04
+- [x] Independently review, obtain green CI, and merge the implementation-complete C2-04
   candidate. It binds every verified StoreKit fact to the same verified app environment,
   preserves exact environment-scoped presentation caches, proves
   Configuration/Sandbox/TestFlight/Production isolation and catalog-failure behavior, runs the
   full Free regression, and retains the distribution hold. Local evidence passed 49/49 focused
   tests, 20/20 Phase 10 tests across 10 iterations, 346 Swift tests, all 13 UI tests, and the
-  complete coverage gate. Do not begin C3 early.
+  complete coverage gate. PR #31 passed independent review and green CI and merged as `a293762`
+  on 2026-08-13. Do not begin C3 without accepted price/trial inputs and a new explicit owner
+  instruction.

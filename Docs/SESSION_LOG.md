@@ -3961,3 +3961,32 @@ What was NOT changed: No customer purchase or restore View, paywall, formal prod
 version, Archive, upload, tester assignment, app-owned network destination, C3 work, or
 distribution state changed. C2-04 remains implementation complete pending re-review, green CI,
 and merge; the post-0.9.6 release hold remains active.
+
+## 2026-08-13 — Session 107 — Close C2-04 and COM-C2 after reviewed green merge
+
+Goal: Record the independently reviewed C2-04 merge as durable state and close COM-C2 without
+starting COM-C3 or changing customer-visible commerce.
+
+Closeout evidence: PR #31 passed independent review and the complete GitHub Actions validation,
+then merged to `main` as `a293762` on 2026-08-13. CI run:
+<https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. The accepted local evidence
+remains 49/49 focused environment/lifecycle tests, 20/20 strict Phase 10 executions across 10
+iterations, and 359 total results in the owning full validation: 355 passed, 4 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. Every selected coverage threshold passed.
+
+State transition: C2-04 is Done and COM-C2 is complete. The technical StoreKit catalog,
+lifecycle authority, status mapping, purchase/restore programmatic seams, finish ordering, and
+verified AppTransaction environment isolation are merged. COM-C3 is not active: accepted
+price/trial inputs and a new explicit owner instruction are still required before paywall or
+customer-visible purchase/restore work begins.
+
+What was NOT changed: This closeout changes documentation and executable documentation gates
+only. No app source behavior, schema, formal App Store Connect product, customer price/trial/
+offer, paywall, purchase/restore View, version, Archive, upload, tester assignment, app-owned
+HTTP(S), or distribution action changed. The post-0.9.6 release hold remains active.
+
+Closeout verification: All four standalone COM static commands passed again. The complete
+`Scripts/validate.sh` flow also passed with the documented shared-host wall-clock exclusion:
+359 total results, 355 passed, 4 explicit opt-in StoreKit runtime probes skipped, and 0 failed.
+Every selected core-service coverage threshold remained at or above 85%. Result bundle:
+`/private/tmp/MindBudget-C204-Closeout.xcresult`.

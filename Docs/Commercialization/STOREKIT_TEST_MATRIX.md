@@ -111,7 +111,8 @@ Every row must be exercised for Monthly and Annual where applicable:
   Monthly/Annual transaction-verification-and-finish probes using the same fixture. These probes
   seed transactions through `SKTestSession.buyProduct`; a hosted test has no purchase-sheet UI
   anchor, so presented `Product.purchase()` evidence remains owned by C3. Customer-facing purchase
-  UI remains C3, while the complete environment-isolation regression gate remains C2-04.
+  UI remains C3. The C2-04 environment-isolation regression gate is complete and merged; it does
+  not substitute for the presented-purchase evidence owned by C3.
   The C2-03 entry gate required both runtime probes to execute (not skip) and pass under a
   supported final Xcode/runtime surface; `SKInternalErrorDomain Code=3` or an empty catalog could
   not authorize a weaker probe. The accepted physical-device evidence below satisfied that gate.
@@ -143,17 +144,18 @@ purchase/finish probes are the framework-backed path for the regular Monthly/Ann
 and they remain opt-in rather than part of default-scheme coverage. A physical forced-
 renewal experiment terminated its hosted test runner before completion and was removed rather
 than reported as evidence; a stable real transition probe remains a later UI/runtime obligation.
-The source-level contract is implementation complete and pending independent review. Local
+The source-level contract passed independent review and green CI and merged through PR #30 as
+`3fc72b4`. Local
 evidence records 44/44 focused lifecycle/runtime tests, 31 lifecycle tests across 10 iterations
 (310/310), an isolated strict wall-clock signal at 10/10, and a complete default-scheme run with
 342 Swift tests and 13 UI tests at zero failures. Its combined xcresult is 355 total, 351 passed,
 4 explicit opt-in StoreKit runtime probes skipped, and 0 failed; every selected coverage file
-remains above 85%. Evidence: `/private/tmp/MindBudget-C203-Full-Final15.xcresult`. CI and merge
-evidence remain pending; the five-test physical
+remains above 85%. Evidence: `/private/tmp/MindBudget-C203-Full-Final15.xcresult`. The five-test physical
 entry run above covered catalog entry only and must not be relabeled as evidence that these new
 purchase/restore/finish or status/renewal-derivation paths ran.
-There is no customer-facing purchase/restore UI or paywall, and C2-04 still owns the complete
-Configuration/Sandbox/TestFlight/Production isolation gate.
+There is no customer-facing purchase/restore UI or paywall. C2-04 completed the
+Configuration/Sandbox/TestFlight/Production isolation gate through PR #31, green CI, and merge
+`a293762`; C3 still owns presented purchase/restore and customer terms.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner

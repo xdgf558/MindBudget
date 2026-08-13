@@ -168,14 +168,14 @@ Status: **Done after independent review, green CI, and merge through PR #30 (`3f
 
 ### Stop conditions
 
-- The C2-03 review, CI, and merge gate is satisfied. C2-04 is implementation complete pending
-  independent review; C3 remains blocked and the
-  post-0.9.6 release hold remains active.
+- The C2-03 review, CI, and merge gate is satisfied. C2-04 also passed independent review and
+  green CI and merged through PR #31 as `a293762`; C3 remains blocked and the post-0.9.6 release
+  hold remains active.
 - Stop before customer-facing paywall presentation or unaccepted commercial terms.
 
 ## C2-04 — Environment and regression gate
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, green CI, and merge through PR #31 (`a293762`).**
 
 ### Tasks
 
@@ -202,5 +202,8 @@ Status: **Implementation complete pending independent review.**
 
 ### Stop conditions
 
-- COM-C2 is not Done until every environment/state row has objective evidence.
-- Independent review, green CI, and merge remain required before C2-04 is Done.
+- COM-C2's environment/state evidence, independent review, green CI, and merge gates are
+  satisfied. COM-C2 is Done.
+- Stop before COM-C3 until accepted price/trial inputs and a new explicit owner instruction exist;
+  the paywall, formal products/terms, customer-visible purchase/restore, versioning, Archive,
+  upload, tester assignment, and distribution remain blocked.

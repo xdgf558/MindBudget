@@ -2034,11 +2034,12 @@ supplemental presentation/catalog read was complete.
 
 Consequences: Pending, cancelled, unverified, retry, expired, revoked, unknown, mixed, or
 incomplete authority cannot silently grant a paid right. Duplicate/concurrent transaction
-delivery does not create another listener or finish the same transaction twice in process. The
-C2-03 candidate is implementation complete and locally validated but pending independent review,
-green CI, and merge. No current view invokes purchase or restore; C2-04, paywall/purchase presentation,
-formal price/trial/product work, versioning, Archive/upload, tester assignment, and distribution
-remain blocked. The uploaded 0.9.6 binary and release hold are unchanged.
+delivery does not create another listener or finish the same transaction twice in process. PR #30
+passed independent review and green CI and merged C2-03 as `3fc72b4`. No current view invokes
+purchase or restore; C2-04 subsequently completed through PR #31 as `a293762`, while paywall/
+purchase presentation, formal price/trial/product work, versioning, Archive/upload, tester
+assignment, and distribution remain blocked. The uploaded 0.9.6 binary and release hold are
+unchanged.
 
 ---
 
@@ -2057,6 +2058,6 @@ relabel it as Production.
 Consequences: Missing, unknown, cross-environment, or wrong-bundle input fails closed. Exact
 environment/storefront presentation caches remain non-authoritative, and catalog-only failure
 does not erase a separately verified active subscription. Focused, full regression, strict local
-performance, and coverage gates pass; C2-04 is implementation complete pending independent
-review, CI, and merge. C3, paywall/customer purchase UI, formal
+performance, and coverage gates passed; PR #31 passed independent review and green CI and merged
+C2-04 as `a293762`, completing COM-C2. C3 has not started; paywall/customer purchase UI, formal
 terms/products, versioning, Archive/upload, tester assignment, and distribution remain blocked.

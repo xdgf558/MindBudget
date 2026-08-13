@@ -22,9 +22,10 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C2**. C2-01, C2-02, and C2-03 are completed; C2-04 environment and
-  regression-gate implementation is complete pending independent review. This does not
-  authorize C3 or distribution.
+- Active phase: **No active implementation packet.** COM-C2 is complete after C2-04 passed
+  independent review and green CI and merged through PR #31 as `a293762` on 2026-08-13. This
+  does not authorize C3 or distribution; C3 still requires accepted price/trial inputs and a new
+  explicit owner instruction.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -211,7 +212,7 @@ Free; no Release manual unlock or duplicate paid check exists.
 
 ## COM-C2 — StoreKit 2 purchase, restore, and subscription state
 
-Status: **In Progress — C2-01, C2-02, and C2-03 are Done; C2-04 implementation is complete pending independent review.**
+Status: **Done — C2-01 through C2-04 passed their owning gates; PR #31 merged C2-04 as `a293762`.**
 Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead.
 
 - [x] **C2-01 — StoreKit test catalog.** Add Configuration-only Monthly/Annual products and an
@@ -236,18 +237,19 @@ Follow `Docs/Commercialization/COM_C2_EXECUTION_PACKET.md` and do not work ahead
   view invokes purchase or restore;
   there is no paywall, formal price/trial, formal App Store Connect product, or distribution
   authorization.
-- [ ] **C2-04 — Environment and regression gate. Implementation complete pending independent review.** Prove Configuration, Sandbox, TestFlight, and
+- [x] **C2-04 — Environment and regression gate.** Prove Configuration, Sandbox, TestFlight, and
   Production rights cannot contaminate one another and Product loading failure does not erase a
   verified entitlement. Local evidence passed 49/49 focused tests, the strict Phase 10 suite
   across 10 iterations (20/20), 346 Swift tests plus all 13 UI tests in the owning full run,
-  and every selected coverage threshold. Independent review, CI, and merge remain required.
+  and every selected coverage threshold. PR #31 passed independent review and green CI, then
+  merged to `main` as `a293762` on 2026-08-13.
 
 Exit gate: StoreKit matrix passes. Formal prices, trial, cloud quota, and App Store Connect
 products remain blocked until the accepted cost inputs are available.
 
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
-Status: **Blocked by COM-C2 and accepted price/trial inputs.**
+Status: **Blocked by accepted price/trial inputs and a new explicit owner instruction.**
 
 - [B] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or

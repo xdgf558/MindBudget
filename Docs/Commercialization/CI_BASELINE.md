@@ -167,8 +167,8 @@ file remains above the 85% gate. The four skipped probes remain opt-in dedicated
 evidence and are not reclassified by this default-scheme run. PR #30 subsequently passed
 independent review and the complete GitHub Actions validation in 14m26s, then merged to `main` as
 `3fc72b4` on 2026-08-13. CI run:
-<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done; C2-04 is now
-implementation complete pending independent review.
+<https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done. C2-04 later passed
+its own independent review and green CI and merged through PR #31 as `a293762`.
 Paywall/customer purchase presentation, formal products/customer terms, versioning, Archive,
 upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold is active.
 
@@ -200,8 +200,10 @@ feature-access, StoreKit-catalog, and diff gates pass. Evidence:
 An initial unsplit full run also completed all functional/UI tests but measured the shared-host
 wall-clock signal at 0.814 seconds and Xcode then spent 600 seconds timing out while collecting
 simulator diagnostics. It is not used as passing evidence; the isolated 10-iteration run and the
-clean shared-host run above are the owning evidence. Independent review, CI, and merge remain
-pending; C2-04 is not Done and C3 remains blocked.
+clean shared-host run above are the owning evidence. PR #31 subsequently passed independent
+review and the complete GitHub Actions run, then merged to `main` as `a293762` on 2026-08-13.
+CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are
+Done. C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
 
 ## Result and report paths
 

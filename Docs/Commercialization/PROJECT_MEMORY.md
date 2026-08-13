@@ -11,11 +11,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 - This fingerprint identifies the external input audited by COM-C0A; CI verifies the frozen
   repository snapshot, not changes to the unavailable owner-held file. See `SOURCE_PROVENANCE.md`.
 - COM-C0A, COM-C0B, and COM-C1 are Done. PR #27 completed independent C1-03 review and merged the
-  three-packet entitlement/access boundary on 2026-08-11. COM-C2 is In Progress; C2-01 and C2-02
+  three-packet entitlement/access boundary on 2026-08-11. COM-C2 is Done; C2-01 and C2-02
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
   2026-08-12. C2-03 then passed independent review and green CI and merged through PR #30 as
-  `3fc72b4` on 2026-08-13; it is Done. C2-04 environment/regression implementation is complete
-  pending independent review, green CI, and merge.
+  `3fc72b4` on 2026-08-13; it is Done. C2-04 then passed independent review and green CI and
+  merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 has not started.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -60,8 +60,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   accepted evidence opened C2-03 only and remains separate from purchase/restore evidence. The
   merged implementation exposes purchase and restore only as typed programmatic seams for later
   C3 presentation; no current view calls them. Paywall, customer-facing purchase/restore UI,
-  formal products, price/trial terms, completed C2-04 proof, and distribution remain
-  unimplemented or blocked by their owning packets and release gates.
+  formal products, price/trial terms, and distribution remain unimplemented or blocked by their
+  owning packets and release gates. C2-04's completed environment proof does not waive them.
   The historical simulator diagnostics reported an Octane entitlement/development-install
   handshake failure. The same
   16 tests in 2 suites pass on an iOS 27 beta runtime only as diagnostic evidence and do not
@@ -230,8 +230,8 @@ an exact centralized adapter exception is implemented.
 
 ## Next phase boundary
 
-COM-C1 and C2-01 through C2-03 are closed. C2-04 is implementation complete pending independent
-review. Merged C2-03 keeps one
+COM-C1 and C2-01 through C2-04 are closed. PR #31 passed independent review and green CI and
+merged C2-04 as `a293762`, completing COM-C2. Merged C2-03 keeps one
 `EntitlementStore` authority, performs full verified status
 mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
 each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
@@ -241,7 +241,7 @@ entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`.
 physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
 paths.
 
-Next suggested task: Submit only C2-04 for independent review and CI, then merge it if green. Keep
-C3, paywall presentation, formal customer terms/products,
-customer-visible purchase/restore, versioning, Archive/upload, tester assignment, and distribution
-blocked.
+Next suggested task: obtain accepted price/trial inputs and a new explicit owner instruction before
+opening COM-C3. Keep paywall presentation, formal customer terms/products, customer-visible
+purchase/restore, versioning, Archive/upload, tester assignment, and distribution blocked until
+their owning C3 and release gates pass.
