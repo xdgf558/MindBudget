@@ -78,7 +78,22 @@ Every row must be exercised for Monthly and Annual where applicable:
   unverified/incomplete state, concurrent immutable reads, one listener owner, the full C2-03
   status matrix, typed purchase/restore outcomes, publish-before-finish, duplicate delivery,
   operation serialization, failed-finish retry, unfinished startup processing, and transaction/
-  subscription-status signals converging on the same full-reconciliation path.
+  subscription-status signals converging on the same full-reconciliation path. The 31 tests in
+  `StoreLifecycleDomainTests.swift` own the deterministic publish, finish, sync, and active-batch
+  wait gates; the 14 tests in `StoreRuntimeTests.swift` include the separate out-of-order
+  whole-read gate. Together those files account for the review-fix focused result of 45/45.
+- Verification-derivation boundary: pure mapper tests intentionally construct app-owned
+  `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction` and
+  `hasVerifiedRenewalInfo`; they prove how a completed fact set is consumed, not how StoreKit
+  produces those booleans. Production derivation in `verifiedRecord(from:status:)` correlates the
+  handled transaction, verified status transaction, verified renewal info, original transaction
+  ID, environment, accepted Product IDs, current Product ID, and deferred-crossgrade preference.
+  Public StoreKit status/renewal value types cannot be freely constructed by unit tests. Only the
+  opt-in `runtimeMonthlyPurchaseIsVerifiedGrantedAndFinished` and
+  `runtimeAnnualPurchaseIsVerifiedGrantedAndFinished` flows enter that production derivation with
+  real `Transaction` and `Product.SubscriptionInfo.Status` objects. Default-scheme coverage and
+  the pure mapper matrix must never be cited as proof of that framework bridge; malformed-status
+  and real deferred-crossgrade correlation remain controlled StoreKit runtime obligations.
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
   C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme.
   The C2-03 candidate adds deterministic purchase/restore/lifecycle tests and opt-in local
@@ -111,7 +126,10 @@ environment-isolation, paywall, or release gates.
 
 The implementation candidate adds deterministic lifecycle tests plus opt-in local StoreKit probes
 for Monthly/Annual transaction verification, authority publication, and finish. The deterministic
-state matrix proves subscribed/grace/retry/expired/revoked interpretation. A physical forced-
+state matrix proves subscribed/grace/retry/expired/revoked interpretation after app-owned facts
+exist; it does not independently prove StoreKit's status/renewal-to-fact derivation. The two
+purchase/finish probes are the framework-backed path for the regular Monthly/Annual derivation,
+and they remain opt-in rather than part of default-scheme coverage. A physical forced-
 renewal experiment terminated its hosted test runner before completion and was removed rather
 than reported as evidence; a stable real transition probe remains a later UI/runtime obligation.
 The source-level contract is implementation complete and pending independent review. Local
@@ -121,7 +139,8 @@ evidence records 44/44 focused lifecycle/runtime tests, 31 lifecycle tests acros
 4 explicit opt-in StoreKit runtime probes skipped, and 0 failed; every selected coverage file
 remains above 85%. Evidence: `/private/tmp/MindBudget-C203-Full-Final15.xcresult`. CI and merge
 evidence remain pending; the five-test physical
-entry run above must not be relabeled as evidence that these new purchase/restore/finish paths ran.
+entry run above covered catalog entry only and must not be relabeled as evidence that these new
+purchase/restore/finish or status/renewal-derivation paths ran.
 There is no customer-facing purchase/restore UI or paywall, and C2-04 still owns the complete
 Configuration/Sandbox/TestFlight/Production isolation gate.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under

@@ -3876,3 +3876,27 @@ Validation result: The focused lifecycle/runtime suites passed 45/45 after the r
 money, network, commercialization-document, StoreKit-catalog/environment-isolation, and diff
 gates passed. This review response changes no state-machine behavior, so the existing complete
 local validation and coverage evidence remains applicable.
+
+## 2026-08-13 — Session 104 — Trace C2-03 concurrency gates and narrow framework evidence claims
+
+Goal: Resolve the second review's evidence-location question without changing the reviewed
+StoreKit lifecycle behavior.
+
+What changed: Linked the consolidated actor invariant comment to the actual owning test files.
+`StoreLifecycleDomainTests.swift` contains the 31 deterministic lifecycle tests, including gates
+that suspend publication callbacks, transaction finish, `AppStore.sync()`, and active-batch
+waiting. `StoreRuntimeTests.swift` contains 14 tests, including the separate delayed-first-read
+gate; together they produced the focused 45/45 result. The PR and StoreKit matrix now make those
+locations explicit instead of requiring a reviewer to infer the second test file from totals.
+
+Evidence boundary: Mapper tests deliberately start after StoreKit verification has been projected
+into app-owned boolean facts. They do not independently prove the private
+`verifiedRecord(from:status:)` correlation of original IDs, environments, Product IDs, status
+transactions, renewal info, and crossgrade preference. Only the opt-in Monthly/Annual StoreKit
+integration flows enter the regular production derivation with real framework objects; default
+coverage is not claimed as proof of that seam, and real crossgrade/malformed-status transitions
+remain later controlled runtime evidence.
+
+What was NOT changed: No production behavior, purchase/restore policy, entitlement result,
+customer UI, commercial term, later phase, release artifact, or distribution state changed.
+C2-03 remains implementation complete pending re-review, green CI, and merge.

@@ -792,3 +792,26 @@ Validation result: The renamed focused lifecycle/runtime surface passed 45/45 te
 network-egress, commercialization-document, StoreKit-catalog/environment-isolation, and diff
 gates passed. The earlier owning full-validation evidence remains valid because this review fix
 changes naming, comments, tests, and durable documentation without changing runtime behavior.
+
+## 2026-08-13 — Session 25 — Make the C2-03 concurrency and StoreKit evidence traceable
+
+Goal: Answer the second independent review by locating the deterministic concurrency gates and
+making the StoreKit verification-derivation evidence boundary explicit.
+
+What changed: The actor invariant comment now points directly to `StoreLifecycleDomainTests` for
+the publish, finish, sync, and active-batch wait gates, and to `StoreRuntimeTests` for the separate
+out-of-order whole-read seam. The test matrix records that the former contains 31 tests and the
+latter 14, matching the focused 45/45 result. It also names representative opt-in Monthly/Annual
+tests as the only flows that enter `verifiedRecord(from:status:)` with real StoreKit transaction,
+status, and renewal objects.
+
+Evidence boundary: Pure mapper tests start from app-owned `hasVerifiedStatusTransaction` and
+`hasVerifiedRenewalInfo` facts. They prove fail-closed policy consumption, not the StoreKit-to-fact
+derivation. Default-scheme coverage must not be cited as proof of that private framework bridge,
+and real malformed-status/deferred-crossgrade correlation remains a controlled runtime
+obligation. The earlier five-test physical entry run covered catalog loading only and was not
+reclassified as C2-03 lifecycle evidence.
+
+What was NOT changed: No production state-machine behavior, entitlement rule, customer UI,
+paywall, product/price/trial, phase, version, Archive, upload, tester, or distribution state
+changed. C2-03 remains implementation complete pending re-review, green CI, and merge.

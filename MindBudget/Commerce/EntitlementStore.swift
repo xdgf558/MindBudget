@@ -568,9 +568,9 @@ actor EntitlementStore {
     //    the short post-`AppStore.sync()` current-read lag. Status-only/foreground refreshes never
     //    satisfy restore, and a newer revocation/unverified generation rejects stale bridge facts.
     // 4. Every continuation is resumed when its owned generation/signal completes or the store
-    //    stops. The deterministic tests inject gates at publish, finish, sync, and active-batch
+    //    stops. `StoreLifecycleDomainTests` injects gates at publish, finish, sync, and active-batch
     //    wait points to exercise these cross-state-machine orderings rather than relying on random
-    //    task scheduling.
+    //    task scheduling. `StoreRuntimeTests` separately owns the out-of-order whole-read seam.
     private var reconciliationGeneration = 0
     private var inFlightReconciliationGenerations: Set<Int> = []
     private var reconciliationWaiters: [Int: [CheckedContinuation<Void, Never>]] = [:]
