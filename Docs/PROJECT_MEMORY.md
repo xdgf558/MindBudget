@@ -48,8 +48,10 @@ C2-01 and C2-02 are complete. PR #29 passed independent review and green CI, the
 runtime catalog/current-entitlement authority as `a45d480` on 2026-08-12. C2-03 passed independent
 review and green CI and merged through PR #30 as `3fc72b4` on 2026-08-13; it is Done. C2-04
 passed independent review and green CI and merged through PR #31 as `a293762` on 2026-08-13,
-closing COM-C2. COM-C3 has not started and still requires accepted price/trial inputs plus a new
-explicit owner instruction.
+closing COM-C2. COM-C3 C3-01 implementation is complete pending independent review, green CI,
+and merge under the owner's provisional, nonpublic test inputs: US$1.99 Monthly, US$19.99 Annual,
+a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. These are test
+controls rather than final launch economics.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
@@ -63,10 +65,21 @@ only. Merged C2-03 adds one StoreKit lifecycle authority, full status mapping, t
 purchase/restore seams, publish-before-finish, and unfinished retry. The authority's single
 lifecycle task supervises `Transaction.updates` and `Product.SubscriptionInfo.Status.updates`;
 every status signal triggers a fresh full reconciliation instead of creating a second authority or
-UI. No current view calls those seams; the app still contains no paywall, formal price/trial,
-formal App Store Connect product,
-quota, Release manual unlock, or visible paid purchase entry, and existing TestFlight users
-receive no production Pro rights. Local C2-03 validation passed 44/44 focused tests, the 31-test
+UI. C3-01 now adds a voluntary bilingual Pro screen reachable only from Settings or an explicit
+Pro value trigger. It renders StoreKit-provided prices and fresh introductory-offer eligibility,
+and routes explicit purchase, restore, and subscription-management actions through the existing
+typed lifecycle seams. The exact 7-day offer belongs only to the local StoreKit fixture and
+runtime contract; production validates stable product structure and presents any actual eligible
+offer without making paid authority depend on it. C3-01 retains paid/unknown offer price and mode
+but pauses purchase unless the eligible offer is a free trial, preventing standard renewal copy
+from masking a paid introductory schedule. Unavailable entitlement authority pauses
+purchase at the View and actor, offers an explicit recheck, and renewal disclosure follows the
+app-selected locale. The dedicated physical-device scheme on final Xcode 26.6 `17F113` and
+final iOS 26.6.1 `23G82` passed 9/9 with no skips: HKG/USA/SGP/TWN catalog probes and both
+Monthly/Annual transaction-verification flows all executed. It does not create formal App Store
+Connect products, final regional
+prices, quotas, a Release manual unlock, or distribution permission, and existing TestFlight
+users receive no production Pro rights. Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
 C2-04 binds those StoreKit facts to a separately verified app bundle/environment. Local
@@ -95,8 +108,8 @@ retain neutral localized rejection. The uploaded 0.9.6 binary remains unchanged,
 unreleased commercial source is not distributable until purchase presentation and the owning
 release gates are complete. C2-01's synthetic Monthly/Annual fixture
 is test-bundle-only, activated by a dedicated non-Archive local scheme, and absent from the app
-resources/default scheme. There is still no formal product, paywall, customer price/trial,
-customer-facing purchase/restore flow, or Release manual unlock. C2-02's presentation cache never
+resources/default scheme. There is still no formal product, final customer price/trial,
+Release manual unlock, or distribution authorization. C2-02's presentation cache never
 grants access; merged C2-03 consumes its raw verified facts through the same
 process-local `EntitlementStore`, grants only subscribed/verified grace, publishes authority before
 finish, leaves failed acknowledgements unfinished for retry, and treats subscription-status

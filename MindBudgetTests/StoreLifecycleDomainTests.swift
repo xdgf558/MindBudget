@@ -177,6 +177,26 @@ struct StoreLifecycleDomainTests {
     }
 
     @Test
+    func unavailableAuthorityBlocksPurchaseBeforeTheSourceCanPresentStoreKit() async {
+        let authority = LiveFeatureAccessAuthority()
+        let source = ProgrammableStoreEntitlementSource(
+            currentRead: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                isComplete: false,
+                appEnvironment: .sandbox
+            ),
+            purchasePlan: .result(.pending)
+        )
+        let store = EntitlementStore(source: source, featureAccessAuthority: authority)
+
+        #expect(await store.purchase(.proMonthly) == .failed(.invalidStoreState))
+        #expect(await source.purchaseCallCount() == 0)
+        #expect((await store.currentSnapshot()).effectiveState == .unavailable)
+        #expect(authority.decision(for: .advancedSiri) == .requiresProSubscription)
+    }
+
+    @Test
     func verifiedPurchasePublishesAccessBeforeFinishingExactlyOnce() async {
         let recorder = FinishRecorder()
         let authority = LiveFeatureAccessAuthority()

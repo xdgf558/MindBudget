@@ -170,7 +170,7 @@ independent review and the complete GitHub Actions validation in 14m26s, then me
 <https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done. C2-04 later passed
 its own independent review and green CI and merged through PR #31 as `a293762`.
 Paywall/customer purchase presentation, formal products/customer terms, versioning, Archive,
-upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold is active.
+upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold remains active.
 
 ## COM-C2-04 implementation verification
 
@@ -202,8 +202,94 @@ wall-clock signal at 0.814 seconds and Xcode then spent 600 seconds timing out w
 simulator diagnostics. It is not used as passing evidence; the isolated 10-iteration run and the
 clean shared-host run above are the owning evidence. PR #31 subsequently passed independent
 review and the complete GitHub Actions run, then merged to `main` as `a293762` on 2026-08-13.
-CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are
-Done. C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
+CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are Done.
+C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
+
+## COM-C3-01 implementation candidate verification
+
+C3-01 adds a voluntary bilingual Pro presentation reachable only from Settings or an explicit
+Pro value trigger. It shows the exact current Pro feature set, StoreKit-provided localized prices,
+fresh introductory-offer eligibility, renewal terms, local Terms and Privacy links, and explicit
+purchase, restore, and manage-subscription actions. It never presents automatically. The accepted
+nonpublic test inputs are USD 1.99 monthly, USD 19.99 annually, one 7-day free trial per product,
+and the first HKG/USA/SGP/TWN storefront probes. These values remain StoreKit Configuration test
+inputs rather than formal App Store Connect products or public launch terms.
+
+Framework-backed candidate evidence used final Xcode 26.6 `17F113` and the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) running final
+iOS 26.6.1 `23G82`. All 9 tests passed with 0 failures and 0 skips: three static catalog tests,
+four HKG/USA/SGP/TWN runtime catalog probes, and the Monthly/Annual verified transaction,
+entitlement-publication, and finish probes. Evidence:
+`/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`.
+
+The strict Phase 10 suite passed 20/20 across 10 isolated iterations, including 10/10 executions
+of the 500 ms local Dashboard wall-clock assertion. Evidence:
+`/private/tmp/MindBudget-C301-Phase10-10x.xcresult`. Two earlier full shared-host attempts measured
+that isolated wall-clock signal at 0.7687005 and 0.623222375 seconds while the host was under
+concurrent test load; neither attempt is used as passing evidence. The owning full shared-host
+validation therefore used the repository's documented `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1`
+switch to omit only that separately proven wall-clock assertion while retaining the deterministic
+10,000-row projection contract. It passed 364 total results: 358 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests passed. Every selected core-service
+coverage file remained above the 85% gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.04%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%,
+CycleSummaryService 97.45%, IntentClassifier 97.50%, CSVExporter 87.60%, and
+CurrencyFormatterService 100.00%. Evidence:
+`/private/tmp/MindBudget-C301-Full-Shared.xcresult`.
+
+The StoreKit catalog contract suite passed 13/13 Python tests, and the money, network-egress,
+commercialization-document, feature-access, StoreKit-catalog, release, localization, and diff
+checks pass. C3-01 is implementation complete pending independent review, hosted green CI, and
+merge; it is not Done. C3-02 and later commercial packets remain blocked. No formal product,
+public price/trial, version, Archive, upload, tester assignment, or distribution action is claimed,
+and the post-0.9.6 release hold remains active.
+
+### C3-01 review-remediation verification
+
+The first independent review found that an exact P1W test promotion had entered the production
+catalog contract, unavailable entitlement authority did not independently pause purchase, and
+renewal disclosure used the device/process locale. The remediation keeps P1W exactness inside the
+isolated `.storekit`/Python/runtime fixture only; production accepts a missing or changed
+introductory offer while retaining the stable product/type/period/group contract. The View and
+actor now both reject purchase under unavailable authority and provide an explicit recheck, and
+renewal disclosure uses the injected app locale.
+
+The focused `StoreRuntimeTests` plus `StoreLifecycleDomainTests` run passed 53/53. The complete
+shared-host validation used the already documented wall-clock exclusion and passed 366 total
+results: 360 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests passed. Every selected coverage file remained above 85% with the same percentages recorded
+above. The 13-test Python StoreKit contract and all standalone money, network, documentation,
+feature-access, release, localization, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-ReviewFix-Focused.xcresult` and
+`/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`. C3-01 remains pending independent re-review,
+hosted green CI, and merge; C3-02 and distribution remain blocked.
+
+### C3-01 paid introductory-offer review remediation
+
+The second independent review found that presentation had retained only an introductory offer's
+period/free-trial projection. An eligible paid `.payAsYouGo` or `.payUpFront` offer could therefore
+have been presented as the ordinary renewal price even though StoreKit would charge a different
+introductory schedule. C3-01 remains deliberately free-trial-only: the presentation projection now
+retains StoreKit's complete payment-mode raw value and localized introductory `displayPrice`.
+Eligible free trials remain purchasable; eligible paid or future unknown modes display a bilingual
+unsupported-offer notice and are blocked independently by both the View and the concrete StoreKit
+purchase adapter before `Product.purchase()`. An ineligible paid offer does not block the ordinary
+subscription, and introductory-offer shape remains outside entitlement authorization.
+
+The complete shared-host validation used the repository's documented exclusion for only the
+separately proven 500 ms wall-clock signal. It passed 369 total results: 363 passed, 6 explicit
+opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI tests passed. Every selected
+coverage file remained above 85% with the same percentages recorded above. The 13-test Python
+StoreKit contract, release, money, network, commercialization-document, feature-access,
+localization, StoreKit-isolation, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-PaidOffer-ReviewFix-Full.xcresult`.
+
+One preceding shared-host run intentionally kept the local wall-clock assertion enabled: all
+functional and UI tests passed, but that isolated benchmark measured 0.8285 seconds under load,
+then Xcode hung while finalizing coverage logs. The hung process was terminated and that result is
+not passing evidence. C3-01 remains implementation complete pending independent re-review, hosted
+green CI, and merge; C3-02 and distribution remain blocked.
 
 ## Result and report paths
 

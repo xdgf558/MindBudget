@@ -67,6 +67,7 @@ final class AppSession: ObservableObject {
     @Published private(set) var recurringExpenseReconciliationHasMore = false
     @Published private(set) var existingPremiumEntryAccess: ExistingPremiumEntryAccess
     @Published private(set) var storeCatalogAvailability: StoreCatalogAvailability = .unavailable
+    @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .none
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
 
@@ -108,27 +109,40 @@ final class AppSession: ObservableObject {
         if let entitlementStore {
             await entitlementStore.start { [weak self] snapshot in
                 self?.existingPremiumEntryAccess = snapshot.premiumEntryAccess
+                self?.commerceSubscriptionState = snapshot.effectiveState
             }
         }
-        if let storeCatalog {
-            Task { [weak self] in
-                let availability = await storeCatalog.refresh()
-                guard !Task.isCancelled else { return }
-                self?.storeCatalogAvailability = availability
-            }
+        if storeCatalog != nil {
+            Task { [weak self] in await self?.refreshCommerceCatalog() }
         }
     }
 
-    /// Typed commerce seams for the future C3 purchase presentation. No current view invokes
-    /// them, so C2-03 cannot accidentally introduce a purchase or restore prompt.
+    /// Typed commerce seams owned by the voluntary C3 purchase presentation. Views never call
+    /// StoreKit directly, and none of these operations runs without an explicit user action.
     func purchasePro(_ product: StoreProductID) async -> StorePurchaseOutcome {
         guard let entitlementStore else { return .failed(.unavailable) }
-        return await entitlementStore.purchase(product)
+        let outcome = await entitlementStore.purchase(product)
+        if outcome == .purchased {
+            await refreshCommerceCatalog()
+        }
+        return outcome
     }
 
     func restoreProPurchases() async -> StoreRestoreOutcome {
         guard let entitlementStore else { return .failed(.unavailable) }
-        return await entitlementStore.restorePurchases()
+        let outcome = await entitlementStore.restorePurchases()
+        if outcome == .restored {
+            await refreshCommerceCatalog()
+        }
+        return outcome
+    }
+
+    func refreshCommerceCatalog() async {
+        guard let storeCatalog else {
+            storeCatalogAvailability = .unavailable
+            return
+        }
+        storeCatalogAvailability = await storeCatalog.refresh()
     }
 
     func refreshCommerceEntitlements() async {

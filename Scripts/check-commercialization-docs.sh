@@ -147,10 +147,24 @@ grep -Fq 'Current app-owned HTTP(S) | Accepted empty set' \
   exit 1
 }
 
-grep -Fq '**All commercial values are TBD.**' Docs/Commercialization/REGIONAL_PRICING.md || {
-  echo "Regional pricing must remain explicitly TBD before the evidence gate" >&2
+grep -Fq '**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**' Docs/Commercialization/REGIONAL_PRICING.md || {
+  echo "Regional pricing must distinguish provisional test terms from formal pricing" >&2
   exit 1
 }
+
+for c301_contract in \
+  'Status: **Implementation complete pending independent review, green CI, and merge.**' \
+  'US$1.99' \
+  'US$19.99' \
+  '7-day free trial for StoreKit-eligible subscribers' \
+  'Hong Kong (HKG)' \
+  'Taiwan (TWN)' \
+  'zero automatic presentations'; do
+  grep -Fq "${c301_contract}" Docs/Commercialization/COM_C3_EXECUTION_PACKET.md || {
+    echo "COM-C3 execution packet is missing C3-01 contract: ${c301_contract}" >&2
+    exit 1
+  }
+done
 
 for heading in '## Input gate' '### Tasks' '### Tests' '### Stop conditions'; do
   grep -Fq "${heading}" Docs/Commercialization/COM_C1_EXECUTION_PACKET.md || {
@@ -216,8 +230,7 @@ for c203_contract in \
   'status signal triggers a fresh full reconciliation' \
   'publish-before-`Transaction.finish()`' \
   'failed finish remains unfinished' \
-  'no current view calls them' \
-  'post-0.9.6 release hold'; do
+  'post-0.9.6 release hold remains active'; do
   if ! grep -Fq "${c203_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/PROJECT_MEMORY.md \
@@ -234,7 +247,7 @@ for c204_contract in \
   'DEC-COM-018' \
   '49/49 focused' \
   '359 total, 355 passed, 4 skipped, and 0 failed' \
-  'C2-04 and COM-C2 are'; do
+  'C2-04 and COM-C2 are Done'; do
   if ! grep -Fq "${c204_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/STOREKIT_TEST_MATRIX.md \

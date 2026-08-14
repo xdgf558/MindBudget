@@ -2,9 +2,15 @@
 
 ## Status
 
-**All commercial values are TBD.** This is an evidence/owner-acceptance surface, not authorization
-to create App Store Connect products or display a price. Engineering must render StoreKit values
-and must not choose regional prices.
+**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.** This
+is an evidence/owner-acceptance surface, not authorization to create formal App Store Connect
+products or invent regional conversions. Engineering must render StoreKit values and must not
+choose customer-facing regional prices.
+
+The accepted nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and a 7-day free
+trial for StoreKit-eligible subscribers. The first test storefront set is HKG, USA, SGP, and TWN.
+These values support Configuration/Sandbox/TestFlight validation only and are not final launch
+pricing, proceeds, margin, or storefront authorization.
 
 Accepted technical products:
 
@@ -29,9 +35,11 @@ Rows are evaluation candidates only; they do not promise launch availability.
 
 | Storefront | Monthly price point | Annual price point | Trial availability/terms | Included cloud calls/reset | Effective date | Net proceeds assumption | Evidence date/source | Status/owner |
 |---|---|---|---|---|---|---|---|---|
-| China mainland (CHN) | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Proposed / owner |
-| United States (USA) | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Proposed / owner |
-| Singapore (SGP) | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Proposed / owner |
+| Hong Kong (HKG) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
+| United States (USA) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
+| Singapore (SGP) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
+| Taiwan (TWN) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
+| China mainland (CHN) | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Not in first test set |
 | Other launch storefronts | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Not selected |
 
 ## Unit-economics scenarios

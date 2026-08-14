@@ -908,3 +908,110 @@ catalog commands passed again. The full `Scripts/validate.sh` flow passed with t
 shared-host wall-clock exclusion: 359 total results, 355 passed, 4 explicit opt-in StoreKit
 runtime probes skipped, and 0 failed. Every selected core-service coverage threshold remained at
 or above 85%. Result bundle: `/private/tmp/MindBudget-C204-Closeout.xcresult`.
+
+## 2026-08-14 — Session 29 — Tighten the COM-C2 completion assertions before COM-C3
+
+Goal: Make the two intentionally shortened PR #32 documentation checks retain their full release
+and completion meaning before any later commercial packet starts.
+
+What changed: `check-commercialization-docs.sh` now requires `post-0.9.6 release hold remains
+active` and `C2-04 and COM-C2 are Done` instead of accepting their broad prefixes. The CI baseline
+keeps the completed-phase phrase contiguous. The existing StoreKit matrix already states that the
+three `hasVerified*` facts have unit-tested consumption but opt-in framework-backed derivation, so
+no duplicate coverage note was added.
+
+What was NOT changed: This maintenance work changes no accepted price/trial input, phase state,
+app behavior, formal product, StoreKit authority, network policy, release hold, or distribution.
+
+## 2026-08-14 — Session 30 — Implement the C3-01 test paywall contract and voluntary UI
+
+Goal: Enter only C3-01 after the owner accepted provisional, nonpublic test inputs of USD 1.99
+monthly, USD 19.99 annually, one 7-day free trial per product, and initial HKG/USA/SGP/TWN
+storefront coverage.
+
+Implementation: Added a bilingual Pro presentation reached only from Settings or an explicit Pro
+value trigger, with no automatic presentation. The screen lists only current Pro capabilities,
+uses StoreKit-localized prices and freshly evaluated introductory-offer eligibility, explains
+renewal terms, links local Terms and Privacy, and exposes explicit purchase, restore, and
+manage-subscription controls through the existing single lifecycle authority. Stale cached or
+unavailable catalog state disables purchase. The StoreKit Configuration, static validator, and
+test vocabulary now enforce the two accepted product IDs, P1M/P1Y periods, one P1W free trial per
+product, the provisional USD prices, and the four storefront probes.
+
+Evidence: Final Xcode 26.6 `17F113` ran `MindBudget-StoreKit-Local` on the physical
+`拉沙的iPhone` (`iPhone Air`) with final iOS 26.6.1 `23G82`: 9 passed, 0 failed, 0 skipped,
+including HKG/USA/SGP/TWN runtime catalog probes and Monthly/Annual verified transaction,
+publication, and finish. The strict Phase 10 suite passed 20/20 across 10 isolated iterations.
+The owning full shared-host validation passed 364 total results: 358 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and every selected coverage gate
+passed. The Python StoreKit catalog contract passed 13/13 and all standalone COM gates pass.
+Evidence: `/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`,
+`/private/tmp/MindBudget-C301-Phase10-10x.xcresult`, and
+`/private/tmp/MindBudget-C301-Full-Shared.xcresult`.
+
+Current state: C3-01 is implementation complete pending independent review, hosted green CI, and
+merge; it is not Done. C3-02 and all later commercial packets remain blocked.
+
+What was NOT changed: No formal App Store Connect product or public commercial term was created.
+No automatic paywall, receipt import, schema, version, Archive, upload, tester assignment,
+app-owned HTTP(S), or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-14 — Session 31 — Close the first C3-01 purchase-safety review findings
+
+Goal: Resolve the independent review findings without promoting provisional trial terms into
+production authority or advancing C3-01 past review.
+
+What changed: Removed exact P1W offer requirements from the production catalog and entitlement
+contract. The local `.storekit` fixture, Python validator, and opt-in probes still require the
+owner-approved seven-day test offer, while production treats any valid StoreKit introductory offer
+as optional presentation data and renders its actual duration only after fresh eligibility. A
+live catalog no longer permits purchase when subscription authority is unavailable: the Pro View
+pauses purchase and offers an explicit recheck, and `EntitlementStore.purchase` independently
+performs a fresh actionable-authority preflight before calling the source. Renewal disclosure now
+selects and formats strings with the SwiftUI app locale rather than `Locale.current` or a global
+`NSLocalizedString` lookup. Bilingual copy, the static StoreKit boundary, catalog tests, lifecycle
+tests, decisions, matrices, requirements, and memory were updated to preserve these distinctions.
+
+Evidence: The focused Store runtime/lifecycle run passed 53/53. The owning full validation passed
+366 total results: 360 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed;
+all 14 UI tests and every selected coverage gate passed. The StoreKit Python contract passed
+13/13, and the standalone money, network, commercialization-document, feature-access, release,
+localization, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-ReviewFix-Focused.xcresult` and
+`/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`.
+
+Current state: C3-01 remains implementation complete pending independent re-review, hosted green
+CI, and merge. C3-02 and every later packet remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
+presentation, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
+distribution action was added. The post-0.9.6 release hold remains active.
+
+## 2026-08-14 — Session 32 — Fail closed for unsupported paid introductory offers
+
+Goal: Resolve the second C3-01 review finding without silently presenting a paid introductory
+offer as an ordinary subscription or broadening the accepted nonpublic seven-day free-trial test
+contract.
+
+What changed: The StoreKit presentation model now retains the introductory offer's localized
+`displayPrice` and complete payment-mode raw value. C3-01 continues to support only eligible free
+trials. Eligible `.payAsYouGo`, `.payUpFront`, or future unknown modes pause purchase and show an
+explicit bilingual explanation; the Pro View and the concrete StoreKit source enforce the same
+policy independently before any purchase sheet can be requested. Ineligible paid offers still
+permit the ordinary subscription. Introductory-offer shape remains optional presentation input
+and never enters paid-entitlement authorization. Added direct installment, upfront, ineligible,
+and unknown-mode regressions and strengthened the static StoreKit boundary.
+
+Evidence: The full shared-host validation used the documented exclusion for only the separately
+proven local wall-clock signal and passed 369 total results: 363 passed, 6 explicit opt-in StoreKit
+runtime probes skipped, and 0 failed. All 14 UI tests and every selected coverage gate passed. The
+13-test Python StoreKit contract and all standalone release, money, network, commercialization-
+document, feature-access, localization, StoreKit-isolation, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-PaidOffer-ReviewFix-Full.xcresult`.
+
+Current state: C3-01 remains implementation complete pending independent re-review, hosted green
+CI, and merge. C3-02 and every later commercial packet remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
+presentation, entitlement rule, schema, app-owned HTTP(S), version, Archive, upload, tester
+assignment, or distribution action changed. The post-0.9.6 release hold remains active.

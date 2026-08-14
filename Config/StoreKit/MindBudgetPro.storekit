@@ -21,9 +21,9 @@
     },
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
-    "_locale" : "zh_CN",
+    "_locale" : "en_US",
     "_renewalBillingIssuesEnabled" : false,
-    "_storefront" : "CHN",
+    "_storefront" : "USA",
     "_storeKitErrors" : [
       {
         "current" : {
@@ -115,8 +115,8 @@
           "billingPlans" : [
             {
               "billingPlanType" : "BILLED_UPFRONT",
-              "commitmentDisplayPrice" : "0.99",
-              "displayPrice" : "0.99",
+              "commitmentDisplayPrice" : "1.99",
+              "displayPrice" : "1.99",
               "internalID" : "4D424D42",
               "isEnabled" : true
             }
@@ -124,12 +124,18 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "0.99",
+          "displayPrice" : "1.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "4D424D31",
           "introductoryOffers" : [
-
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "4D424D54",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
+            }
           ],
           "localizations" : [
             {
@@ -159,8 +165,8 @@
           "billingPlans" : [
             {
               "billingPlanType" : "BILLED_UPFRONT",
-              "commitmentDisplayPrice" : "9.99",
-              "displayPrice" : "9.99",
+              "commitmentDisplayPrice" : "19.99",
+              "displayPrice" : "19.99",
               "internalID" : "4D424142",
               "isEnabled" : true
             }
@@ -168,12 +174,18 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "9.99",
+          "displayPrice" : "19.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "4D424131",
           "introductoryOffers" : [
-
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "4D424154",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
+            }
           ],
           "localizations" : [
             {

@@ -14,6 +14,7 @@ from storekit_catalog_contract import (  # noqa: E402
     ANNUAL,
     APP_RESOURCES_ID,
     EXPECTED,
+    EXPECTED_TRIAL,
     LOCAL_CONFIGURATION_PATH,
     LOCAL_RUNTIME_TEST_ENVIRONMENT_KEY,
     MONTHLY,
@@ -38,7 +39,10 @@ def accepted_catalog():
             "displayPrice": expected["displayPrice"],
             "familyShareable": False,
             "groupNumber": 1,
-            "introductoryOffers": [],
+            "introductoryOffers": [{
+                **EXPECTED_TRIAL,
+                "internalID": f"TRIAL-{product_id}",
+            }],
             "localizations": [
                 {
                     "locale": locale,
@@ -56,7 +60,7 @@ def accepted_catalog():
         }
 
     return {
-        "settings": {"_storefront": "CHN", "_locale": "zh_CN"},
+        "settings": {"_storefront": "USA", "_locale": "en_US"},
         "products": [],
         "nonRenewingSubscriptions": [],
         "subscriptionGroups": [{
@@ -144,6 +148,19 @@ class StoreKitCatalogContractTests(unittest.TestCase):
             "description"
         ] = "Customer subscription"
         self.assertTrue(validate_catalog(catalog))
+
+    def test_missing_or_changed_free_trial_is_rejected(self):
+        missing = copy.deepcopy(accepted_catalog())
+        missing["subscriptionGroups"][0]["subscriptions"][0][
+            "introductoryOffers"
+        ] = []
+        self.assertTrue(validate_catalog(missing))
+
+        changed = copy.deepcopy(accepted_catalog())
+        changed["subscriptionGroups"][0]["subscriptions"][1][
+            "introductoryOffers"
+        ][0]["subscriptionPeriod"] = "P2W"
+        self.assertTrue(validate_catalog(changed))
 
     def test_multiline_test_bundle_project_is_accepted(self):
         self.assertEqual(validate_project_resources(accepted_project()), [])

@@ -22,10 +22,10 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **No active implementation packet.** COM-C2 is complete after C2-04 passed
-  independent review and green CI and merged through PR #31 as `a293762` on 2026-08-13. This
-  does not authorize C3 or distribution; C3 still requires accepted price/trial inputs and a new
-  explicit owner instruction.
+- Active phase: **COM-C3 / C3-01 implementation complete pending independent review, green CI,
+  and merge.** COM-C2 is complete after C2-04 passed independent review and green CI and merged
+  through PR #31 as `a293762` on 2026-08-13. DEC-COM-019 accepts provisional test presentation
+  only; C3-02 through C3-04 and distribution remain blocked.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -36,8 +36,8 @@ detailed phase checklists; it added no paid product behavior.
   reconciliation, and one lifecycle-owned transaction listener. Merged C2-03 extends that same
   lifecycle task to supervise transaction and subscription-status
   update sequences, makes each status signal trigger a fresh full reconciliation, and adds status
-  mapping plus typed purchase/restore/finish seams without a second authority or UI. Paywall,
-  receipt import, iCloud sync,
+  mapping plus typed purchase/restore/finish seams without a second authority. C3-01 adds a
+  voluntary bilingual Pro screen using those seams. Receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
   TestFlight/App Store candidate until verified purchase/restore, purchase presentation, and the
@@ -48,9 +48,11 @@ detailed phase checklists; it added no paid product behavior.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
   derived from verified production transactions only.
 - Products: Pro Monthly (`com.xdgf558.mindbudget.pro.monthly`) and Pro Annual
-  (`com.xdgf558.mindbudget.pro.annual`) in the `MindBudget Pro` subscription group. Price, trial,
-  included cloud calls, reset policy, and storefront availability remain TBD until accepted cost
-  analysis. Local Lifetime is deferred and must have no product, entry point, or promise.
+  (`com.xdgf558.mindbudget.pro.annual`) in the `MindBudget Pro` subscription group. C3-01 test
+  presentation uses US$1.99 Monthly, US$19.99 Annual, one P1W eligible trial, and HKG/USA/SGP/TWN;
+  final regional economics, included cloud calls, reset policy, and launch storefront availability
+  remain TBD until accepted cost analysis. Local Lifetime is deferred and must have no product,
+  entry point, or promise.
 - Backend: a new, independent hardened service may follow the engineering pattern of the owner's
   other Cloudflare service, but it must not reuse its data, secrets, admin authorization, or
   deployment state.
@@ -249,11 +251,19 @@ products remain blocked until the accepted cost inputs are available.
 
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
-Status: **Blocked by accepted price/trial inputs and a new explicit owner instruction.**
+Status: **In Progress — C3-01 implementation is complete pending independent review, green CI,
+and merge; C3-02 through C3-04 remain blocked.**
 
-- [B] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
+- [ ] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
-  cloud promise.
+  cloud promise. The test-only anchors are US$1.99 Monthly and US$19.99 Annual, with a 7-day free
+  trial for StoreKit-eligible subscribers and first runtime coverage in HKG/USA/SGP/TWN. StoreKit
+  remains the only customer-facing price and eligibility source; formal regional economics and
+  App Store Connect creation remain blocked. Final Xcode 26.6 `17F113` on the physical iPhone Air
+  with final iOS 26.6.1 `23G82` passed all 9 dedicated catalog/lifecycle tests with no failure or
+  skip, including all four storefront probes and both Monthly/Annual transaction probes. Review
+  remediation keeps the exact P1W offer fixture-only, blocks unavailable entitlement authority at
+  both purchase boundaries with explicit recheck, and formats renewal copy with the app locale.
 - [B] **C3-02 — Trial lifecycle.** Drive activation and renewal reminders from accepted parameters
   and actual dates, with generic notification copy and correct cancellation/rescheduling.
 - [B] **C3-03 — Signed public configuration.** Implement signature/version/expiry/rollback/cache
