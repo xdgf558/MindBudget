@@ -262,6 +262,11 @@ run produced 382 results (376 passed, 6 explicit opt-in probes skipped, 0 failed
 `/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
 `/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`.
 
+PR #34 subsequently passed independent review and green GitHub Actions run `31803898776`, then
+merged C3-02 to `main` as `12d9217` on 2026-08-14. C3-02 is Done. This evidence does not start
+C3-03, accept formal products/economics, or authorize versioning, Archive/upload, tester
+assignment, or distribution.
+
 ## Stop conditions
 
 Stop and do not grant paid access on unknown Product ID, environment mismatch, unverified result,

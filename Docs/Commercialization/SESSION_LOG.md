@@ -1085,3 +1085,29 @@ CI, and merge; it is not Done. C3-03 and C3-04 remain blocked.
 What was NOT changed: No signed public configuration, formal product or final economics,
 automatic paywall, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
 distribution action changed. The uploaded 0.9.6 build and post-0.9.6 release hold remain unchanged.
+
+## 2026-08-14 — Session 35 — Close C3-02 after reviewed merge and green CI
+
+Goal: Record the accepted C3-02 merge as Done without beginning C3-03 or changing distribution.
+
+What changed: Current commercialization tasks, both project memories, the C3 execution packet,
+requirements index, StoreKit matrix, network policy, CI baseline, and decision records now agree
+that PR #34 passed independent review and green GitHub Actions run `31803898776`, then merged to
+`main` as `12d9217` on 2026-08-14. C3-02 is Done. C3-03 has not started and remains blocked until
+the owner explicitly authorizes it and accepts the exact first-party signed-configuration
+contract. The commercialization document gate now requires the C3-02 Done status, green run, and
+merge SHA and rejects stale current-state wording that still describes C3-02 as pending review.
+
+Evidence: Documentation-closeout validation produced 382 results: 376 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests, the Release build, static gates,
+and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-Closeout-Full.xcresult`. The previously accepted physical final-
+device C3-02 suite remains 9/9 with no failure or skip.
+
+Current state: C3-01 and C3-02 are Done. C3-03 and C3-04 remain blocked. No C3-03 source packet is
+active.
+
+What was NOT changed: No Swift/product behavior, signed public configuration, formal App Store
+Connect product, final economics, automatic paywall, schema, app-owned HTTP(S), version, Archive,
+upload, tester assignment, or distribution action changed. The uploaded 0.9.6 build and post-
+0.9.6 release hold remain unchanged.

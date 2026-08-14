@@ -22,9 +22,10 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 / C3-02 implementation is complete pending independent review, hosted
-  green CI, and merge.** C3-01 passed independent review and green CI and merged through PR #33
-  as `747b628` on 2026-08-14. COM-C2 remains
+- Active phase: **COM-C3 between packets. C3-01 and C3-02 are Done; C3-03 has not started and
+  remains blocked pending an explicit owner instruction and an accepted exact configuration
+  contract.** C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
+  CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
   complete through PR #31 (`a293762`). DEC-COM-019 accepts provisional test presentation only;
   C3-03, C3-04, and distribution remain blocked.
 - Product implementation status: COM-C1 is completed and merged. Existing
@@ -256,8 +257,8 @@ products remain blocked until the accepted cost inputs are available.
 
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
-Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 implementation is complete
-pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain blocked.**
+Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
+(`12d9217`); C3-03 and C3-04 remain blocked.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -270,8 +271,7 @@ pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain b
   remediation keeps the exact P1W offer fixture-only, blocks unavailable entitlement authority at
   both purchase boundaries with explicit recheck, and formats renewal copy with the app locale.
   PR #33 passed independent review and green CI and merged as `747b628` on 2026-08-14.
-- [ ] **C3-02 — Trial lifecycle.** Implementation is complete pending independent review, hosted
-  green CI, and merge. Derive trial activation only from an
+- [x] **C3-02 — Trial lifecycle.** Derive trial activation only from an
   accepted verified current StoreKit transaction and verified renewal information; use the actual
   renewal date and `willAutoRenew`; price a scheduled plan switch from the accepted
   `autoRenewPreference` rather than the current trial product; schedule one generic local reminder five user-calendar days
@@ -283,10 +283,11 @@ pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain b
   fixture is not lifecycle authority. Local validation is green: the original focused run passed
   68/68, the review-remediation trial suite passed 13/13, and the owning full run produced 382
   results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped, 0 failed), including all
-  14 UI tests and every selected coverage gate. Independent
-  review, hosted green CI, and merge remain required before this item is Done. The final physical
+  14 UI tests and every selected coverage gate. The final physical
   iPhone Air/iOS 26.6.1 dedicated suite passed 9/9 with no skip, including all four storefronts and
-  both Monthly/Annual trial-lifecycle derivation paths.
+  both Monthly/Annual trial-lifecycle derivation paths. PR #34 passed independent review and
+  GitHub Actions run `31803898776`, then merged to `main` as `12d9217` on 2026-08-14. C3-02 is
+  Done; this does not unblock C3-03 or distribution.
 - [B] **C3-03 — Signed public configuration.** Implement signature/version/expiry/rollback/cache
   verification with conservative offline defaults; configuration may change presentation but
   never entitlement or StoreKit price.

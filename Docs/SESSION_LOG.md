@@ -4156,3 +4156,27 @@ assignment, and distribution remain blocked.
 What was NOT changed: No signed public configuration, formal product or trial term, automatic
 paywall, receipt import, schema, network destination, version, Archive, upload, tester assignment,
 or distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.
+
+## 2026-08-14 — Session 114 — Close C3-02 after PR #34 merge
+
+Goal: Complete the C3-02 documentation closeout only, preserving the C3-03 and release gates.
+
+What changed: The durable main and commercialization status now records that PR #34 passed
+independent review and green GitHub Actions run `31803898776`, then merged as `12d9217` on
+2026-08-14. C3-02 is Done. C3-03 has not started and remains blocked pending explicit owner
+instruction and an accepted exact first-party configuration contract. The documentation gate now
+requires the C3-02 completion evidence and rejects stale pending-review language in current-state
+documents.
+
+Evidence: Full closeout validation produced 382 results: 376 passed, 6 explicit opt-in StoreKit
+runtime probes skipped, and 0 failed. All 14 UI tests, the Release build, static checks, and
+selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-Closeout-Full.xcresult`. Existing physical-device C3-02 evidence
+remains 9/9 with no failure or skip.
+
+State: C3-01 and C3-02 are Done. C3-03 and C3-04 remain blocked; no C3-03 source work has begun.
+
+What was NOT changed: No Swift behavior, signed public configuration, formal product or trial
+economics, automatic paywall, receipt import, schema, network destination, version, Archive,
+upload, tester assignment, or distribution action changed. The uploaded 0.9.6 build and release
+hold are unchanged.
