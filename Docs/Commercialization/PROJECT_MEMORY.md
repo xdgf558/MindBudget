@@ -65,7 +65,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   triggers may open a bilingual screen with StoreKit-provided prices, fresh trial eligibility,
   explicit purchase/restore, and Apple subscription management. The exact P1W promotion remains
   local fixture evidence only; production validates the stable subscription structure and treats
-  an actual introductory offer as optional StoreKit presentation data. An unavailable entitlement
+  an actual introductory offer as optional StoreKit presentation data. The presentation retains
+  the offer's localized price and full payment mode, but C3-01 purchases only an eligible free
+  trial; eligible paid or unknown modes pause at both View and adapter without affecting existing
+  rights. An unavailable entitlement
   snapshot pauses purchase in both the View and actor and exposes explicit recheck, while renewal
   disclosure follows the app-selected locale. Final Xcode 26.6 `17F113` on the
   physical iPhone Air with final iOS 26.6.1 `23G82` executed all 9 dedicated catalog/lifecycle

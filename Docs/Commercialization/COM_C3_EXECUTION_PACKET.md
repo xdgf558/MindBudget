@@ -30,6 +30,10 @@ Status: **Implementation complete pending independent review, green CI, and merg
   converted regional price, or eligibility promise. The P1W offer is exact only in the isolated
   test fixture; production treats any valid StoreKit introductory offer as optional presentation
   data and never makes paid authority depend on its presence or duration.
+- Preserve StoreKit's introductory-offer payment mode and localized offer price. C3-01 supports
+  only an eligible `.freeTrial`; an eligible paid installment, paid-up-front, or unknown future
+  mode must pause purchase in both the View and source adapter instead of falling back to standard
+  renewal disclosure. Offer shape never affects existing entitlement authority.
 - Explain the currently delivered Pro value only: Apple on-device wording enhancement,
   non-24-hour cooling-off choices, and advanced Siri actions. Do not advertise cloud AI, quotas,
   Lifetime, Watch, iCloud, receipt capture, telemetry, or another deferred product.
@@ -54,6 +58,9 @@ Status: **Implementation complete pending independent review, green CI, and merg
 - Production catalog/authority tests prove that removing or changing the introductory offer does
   not invalidate the stable Monthly/Annual subscription contract. The dedicated fixture/runtime
   tests alone retain the exact P1W assertion.
+- Eligible `.payAsYouGo` and `.payUpFront` fixtures retain their StoreKit offer prices/modes and
+  disable purchase; an unknown future mode fails the same way, while an ineligible paid offer does
+  not block the account's ordinary subscription terms.
 - Renewal disclosure follows the injected app locale even when the device/process locale differs.
 - Unavailable entitlement authority blocks the purchase surface and the actor before any source
   purchase call; recheck remains explicit.

@@ -13,6 +13,7 @@ CONTRACT="${SCRIPT_DIRECTORY}/storekit_catalog_contract.py"
 CONTRACT_TESTS="${SCRIPT_DIRECTORY}/tests/test_storekit_catalog_contract.py"
 PAYWALL_SOURCE="MindBudget/Features/Commerce/ProSubscriptionView.swift"
 CATALOG_SOURCE="MindBudget/Commerce/StoreCatalog.swift"
+ENTITLEMENT_SOURCE="MindBudget/Commerce/EntitlementStore.swift"
 SETTINGS_SOURCE="MindBudget/Features/Settings/SettingsView.swift"
 LOCALIZATIONS="MindBudget/Resources/Localizable.xcstrings"
 
@@ -25,6 +26,7 @@ for file in \
   "${CONTRACT_TESTS}" \
   "${PAYWALL_SOURCE}" \
   "${CATALOG_SOURCE}" \
+  "${ENTITLEMENT_SOURCE}" \
   "${SETTINGS_SOURCE}" \
   "${LOCALIZATIONS}"; do
   if [[ ! -s "${file}" ]]; then
@@ -64,6 +66,8 @@ fi
 for contract in \
   'product.displayPrice' \
   'product.isEligibleForIntroductoryOffer' \
+  'ProCommercePurchaseGate.supportsIntroductoryOffer' \
+  'commerce.pro.offer.unsupported' \
   '@Environment(\.locale)' \
   'renewalDisclosure(for: selectedProduct, locale: locale)' \
   'commerce.pro.status.recheck' \
@@ -72,6 +76,17 @@ for contract in \
   '.manageSubscriptionsSheet'; do
   if ! grep -Fq "${contract}" "${PAYWALL_SOURCE}"; then
     echo "Missing C3-01 customer-presentation contract: ${contract}" >&2
+    exit 1
+  fi
+done
+
+for contract in \
+  'offer.displayPrice' \
+  'offer.paymentMode.rawValue' \
+  'StoreIntroductoryOfferPurchasePolicy.permitsPurchase(requestedRecord)' \
+  'StoreCommerceSourceError.unsupportedIntroductoryOffer'; do
+  if ! grep -Fq "${contract}" "${CATALOG_SOURCE}" "${ENTITLEMENT_SOURCE}"; then
+    echo "Missing paid introductory-offer fail-closed contract: ${contract}" >&2
     exit 1
   fi
 done

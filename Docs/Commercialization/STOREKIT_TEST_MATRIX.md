@@ -173,6 +173,12 @@ a price or trial. An unavailable entitlement snapshot independently blocks the V
 offers a user-initiated recheck. Purchase, restore, and manage subscription remain explicit taps
 through the C2 typed seams, and the automatic-presentation count is zero.
 
+The presentation model retains an introductory offer's localized `displayPrice` and full
+payment-mode raw value. C3-01 supports only an eligible free trial. An eligible pay-as-you-go,
+pay-up-front, or unknown future mode suppresses standard renewal disclosure and pauses purchase
+at both the View and StoreKit adapter; an ineligible offer falls back to ordinary subscription
+terms. None of these presentation decisions enter entitlement mapping.
+
 Pure tests cover the complete typed purchase/restore notice matrix, stable production catalog
 shape with a missing or changed promotion, cache eligibility stripping, malformed structural
 terms, StoreKit-price interpolation, unavailable-authority purchase rejection before the source,
@@ -180,6 +186,12 @@ and English/Chinese renewal disclosure under explicit app locales. Exact P1W off
 owned only by the isolated `.storekit` fixture contract and opt-in runtime probes. The UI test
 opens the screen only after the person selects Settings and proves no launch/dashboard
 presentation.
+Pure tests additionally cover eligible paid installment and paid-up-front modes, retained offer
+price/mode identity, unknown-mode rejection, and the ineligible-offer fallback. The production
+derivation of `hasVerifiedStatusTransaction`, `hasVerifiedRenewalInfo`, and
+`hasVerifiedAppBundle` still requires real StoreKit `Transaction`/subscription-status objects;
+its evidence layer is the opt-in local scheme and supported-final physical-device probes, not
+direct construction-based unit coverage.
 The static StoreKit gate rejects provisional price literals or raw StoreKit purchase/sync calls in
 customer source and requires the two approved Settings/value-trigger entry sites.
 

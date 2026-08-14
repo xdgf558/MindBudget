@@ -135,6 +135,7 @@ enum StorePurchaseResult: Sendable {
 enum StoreOperationFailure: Equatable, Sendable {
     case operationInProgress
     case productUnavailable
+    case unsupportedIntroductoryOffer
     case purchasesNotAllowed
     case verificationFailed
     case invalidStoreState
@@ -261,11 +262,21 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             throw StoreCommerceSourceError.purchasesNotAllowed
         }
         let products = try await Product.products(for: StoreCatalogContract.expectedProductIDs)
-        let records = products.map(StoreProductRecord.init(product:))
+        var records: [StoreProductRecord] = []
+        for product in products {
+            records.append(await StoreProductRecord.presentationRecord(product: product))
+        }
+        let requestedRecord: StoreProductRecord
         do {
-            _ = try StoreCatalogContract.validatedRecord(for: productID, in: records)
+            requestedRecord = try StoreCatalogContract.validatedRecord(
+                for: productID,
+                in: records
+            )
         } catch {
             throw StoreCommerceSourceError.invalidProduct
+        }
+        guard StoreIntroductoryOfferPurchasePolicy.permitsPurchase(requestedRecord) else {
+            throw StoreCommerceSourceError.unsupportedIntroductoryOffer
         }
         guard let product = products.first(where: { $0.id == productID.rawValue }) else {
             throw StoreCommerceSourceError.invalidProduct
@@ -498,6 +509,7 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
 
 enum StoreCommerceSourceError: Error, Equatable, Sendable {
     case invalidProduct
+    case unsupportedIntroductoryOffer
     case purchasesNotAllowed
     case invalidEnvironment
 }
@@ -764,6 +776,8 @@ actor EntitlementStore {
             }
         } catch StoreCommerceSourceError.invalidProduct {
             return .failed(.productUnavailable)
+        } catch StoreCommerceSourceError.unsupportedIntroductoryOffer {
+            return .failed(.unsupportedIntroductoryOffer)
         } catch StoreCommerceSourceError.purchasesNotAllowed {
             return .failed(.purchasesNotAllowed)
         } catch StoreCommerceSourceError.invalidEnvironment {

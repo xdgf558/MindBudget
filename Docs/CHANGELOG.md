@@ -13,7 +13,10 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   offer when StoreKit reports that the account is eligible; a promotion's presence or duration is
   never entitlement authority. Cached or unavailable catalog data cannot enable purchase or
   promise a trial, and an unconfirmed subscription state pauses purchase with an explicit recheck
-  action. Renewal disclosure follows the app-selected language even when it differs from the
+  action. If StoreKit reports an eligible paid introductory offer rather than a free trial, its
+  localized price and payment mode are retained but purchase is paused instead of showing
+  misleading standard renewal terms; existing subscription access never depends on promotion
+  shape. Renewal disclosure follows the app-selected language even when it differs from the
   device language. Purchase, Restore Purchases, and Manage Subscription require an explicit tap
   and use neutral localized outcomes. The provisional test anchors are not final launch prices,
   and this source remains under the post-0.9.6 distribution hold.

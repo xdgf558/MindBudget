@@ -42,6 +42,10 @@ struct ProSubscriptionView: View {
         )
     }
 
+    private var selectedProductSupportsPurchase: Bool {
+        selectedProduct.map(ProCommercePurchaseGate.supportsIntroductoryOffer) ?? false
+    }
+
     var body: some View {
         List {
             heroSection
@@ -122,11 +126,21 @@ struct ProSubscriptionView: View {
     @ViewBuilder
     private var purchaseSection: some View {
         Section {
-            if let selectedProduct {
+            if let selectedProduct, selectedProductSupportsPurchase {
                 Text(ProCommerceCopy.renewalDisclosure(for: selectedProduct, locale: locale))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("commerce.pro.renewalDisclosure")
+            }
+
+            if selectedProduct != nil, !selectedProductSupportsPurchase {
+                Label(
+                    "commerce.pro.offer.unsupported",
+                    systemImage: "exclamationmark.triangle"
+                )
+                .font(.footnote)
+                .foregroundStyle(.orange)
+                .accessibilityIdentifier("commerce.pro.offer.unsupported")
             }
 
             if !hasConfirmedPurchaseAuthority {
@@ -167,6 +181,7 @@ struct ProSubscriptionView: View {
                     || selectedProduct == nil
                     || hasActiveSubscription
                     || !hasConfirmedPurchaseAuthority
+                    || !selectedProductSupportsPurchase
             )
             .accessibilityIdentifier("commerce.pro.purchase")
 
@@ -262,7 +277,8 @@ struct ProSubscriptionView: View {
     private func purchaseSelectedProduct() async {
         guard let selectedProduct,
               hasLiveCatalog,
-              hasConfirmedPurchaseAuthority else { return }
+              hasConfirmedPurchaseAuthority,
+              ProCommercePurchaseGate.supportsIntroductoryOffer(selectedProduct) else { return }
         isPerformingOperation = true
         notice = nil
         let outcome = await session.purchasePro(selectedProduct.id)
@@ -283,6 +299,10 @@ enum ProCommercePurchaseGate {
     static func hasConfirmedAuthority(_ state: EffectiveStoreSubscriptionState) -> Bool {
         state != .unavailable
     }
+
+    static func supportsIntroductoryOffer(_ product: StoreProductPresentation) -> Bool {
+        StoreIntroductoryOfferPurchasePolicy.permitsPurchase(product)
+    }
 }
 
 enum ProCommerceNotice: Equatable, Sendable {
@@ -293,6 +313,7 @@ enum ProCommerceNotice: Equatable, Sendable {
     case noActiveSubscription
     case operationInProgress
     case productUnavailable
+    case unsupportedIntroductoryOffer
     case purchasesNotAllowed
     case verificationFailed
     case invalidStoreState
@@ -319,6 +340,7 @@ enum ProCommerceNotice: Equatable, Sendable {
         switch failure {
         case .operationInProgress: self = .operationInProgress
         case .productUnavailable: self = .productUnavailable
+        case .unsupportedIntroductoryOffer: self = .unsupportedIntroductoryOffer
         case .purchasesNotAllowed: self = .purchasesNotAllowed
         case .verificationFailed: self = .verificationFailed
         case .invalidStoreState: self = .invalidStoreState
@@ -335,6 +357,7 @@ enum ProCommerceNotice: Equatable, Sendable {
         case .noActiveSubscription: "commerce.pro.notice.noActive"
         case .operationInProgress: "commerce.pro.notice.inProgress"
         case .productUnavailable: "commerce.pro.notice.productUnavailable"
+        case .unsupportedIntroductoryOffer: "commerce.pro.offer.unsupported"
         case .purchasesNotAllowed: "commerce.pro.notice.purchasesNotAllowed"
         case .verificationFailed: "commerce.pro.notice.verificationFailed"
         case .invalidStoreState: "commerce.pro.notice.invalidState"
@@ -347,7 +370,8 @@ enum ProCommerceNotice: Equatable, Sendable {
         case .purchased, .restored: "checkmark.circle.fill"
         case .pending: "clock"
         case .cancelled, .noActiveSubscription: "info.circle"
-        case .operationInProgress, .productUnavailable, .purchasesNotAllowed,
+        case .operationInProgress, .productUnavailable, .unsupportedIntroductoryOffer,
+             .purchasesNotAllowed,
              .verificationFailed, .invalidStoreState, .unavailable:
             "exclamationmark.triangle"
         }
@@ -355,7 +379,8 @@ enum ProCommerceNotice: Equatable, Sendable {
 
     var isFailure: Bool {
         switch self {
-        case .operationInProgress, .productUnavailable, .purchasesNotAllowed,
+        case .operationInProgress, .productUnavailable, .unsupportedIntroductoryOffer,
+             .purchasesNotAllowed,
              .verificationFailed, .invalidStoreState, .unavailable:
             true
         case .purchased, .pending, .cancelled, .restored, .noActiveSubscription:

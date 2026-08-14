@@ -435,6 +435,13 @@ context.
   localized strings do not hardcode a currency display or promise a trial to an ineligible
   subscriber. Removing or changing a promotion can never invalidate an otherwise verified paid
   entitlement.
+- Introductory-offer boundary: C3-01 supports customer purchase only when a freshly eligible
+  introductory offer is StoreKit `.freeTrial`, or when no offer applies to that account. The
+  presentation model retains StoreKit's full payment-mode raw value and localized offer
+  `displayPrice`. An eligible `.payAsYouGo`, `.payUpFront`, or future unknown mode pauses the
+  product in both the View and the StoreKit purchase adapter so the app cannot substitute standard
+  renewal terms for a paid introductory schedule. This presentation guard never participates in
+  entitlement validation, so changing a promotion cannot remove verified Pro access.
 - Purchase-authority boundary: A live catalog does not prove that the current entitlement read is
   trustworthy. An `.unavailable` subscription snapshot pauses purchase in both the customer View
   and `EntitlementStore.purchase`, exposes an explicit recheck action, and never aliases uncertainty
@@ -456,5 +463,6 @@ context.
 - Alternatives rejected: Hardcoded `$` UI; app-owned currency conversion; making production paid
   authority depend on an exact promotional offer; advertising a trial without StoreKit
   eligibility; treating `.unavailable` as Free for purchase; device-locale renewal copy inside an
-  app-locale screen; automatic paywall presentation; implicit restore; adding Lifetime or deferred
-  product promises; or treating a test anchor as final launch pricing.
+  app-locale screen; presenting a paid introductory offer as an ordinary subscription; automatic
+  paywall presentation; implicit restore; adding Lifetime or deferred product promises; or
+  treating a test anchor as final launch pricing.

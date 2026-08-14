@@ -2084,4 +2084,6 @@ Review remediation: The exact P1W offer remains an isolated Configuration/test a
 not part of production catalog or entitlement validity. Production presents an optional actual
 StoreKit offer only after fresh eligibility, blocks purchase at both View and actor boundaries
 when subscription authority is unavailable, and formats renewal disclosure with the app-selected
-locale. Detailed ownership remains in amended DEC-COM-019.
+locale. Eligible paid/unknown introductory modes retain their StoreKit price/mode but pause at the
+View and adapter instead of inheriting standard renewal copy; promotion shape remains outside
+entitlement authority. Detailed ownership remains in amended DEC-COM-019.

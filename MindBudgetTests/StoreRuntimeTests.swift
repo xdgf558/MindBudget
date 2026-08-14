@@ -322,7 +322,8 @@ struct StoreRuntimeTests {
             introductoryOffer: StoreIntroductoryOfferTerms(
                 period: .init(value: 2, unit: .week),
                 periodCount: 1,
-                isFreeTrial: true
+                displayPrice: "FREE_TRIAL_PRICE_TOKEN",
+                paymentMode: .freeTrial
             )
         )
         #expect(
@@ -345,6 +346,7 @@ struct StoreRuntimeTests {
         let failures: [(StoreOperationFailure, ProCommerceNotice)] = [
             (.operationInProgress, .operationInProgress),
             (.productUnavailable, .productUnavailable),
+            (.unsupportedIntroductoryOffer, .unsupportedIntroductoryOffer),
             (.purchasesNotAllowed, .purchasesNotAllowed),
             (.verificationFailed, .verificationFailed),
             (.invalidStoreState, .invalidStoreState),
@@ -413,6 +415,85 @@ struct StoreRuntimeTests {
         #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.expired))
         #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.revoked))
         #expect(!ProCommercePurchaseGate.hasConfirmedAuthority(.unavailable))
+    }
+
+    @Test
+    func eligiblePayAsYouGoOfferRetainsItsPriceAndPausesPurchase() {
+        let payAsYouGo = StoreProductPresentation(
+            id: .proMonthly,
+            displayName: "Monthly",
+            description: "Monthly",
+            displayPrice: "STANDARD_MONTHLY_PRICE",
+            subscriptionPeriod: .init(value: 1, unit: .month),
+            introductoryOffer: StoreIntroductoryOfferTerms(
+                period: .init(value: 1, unit: .month),
+                periodCount: 3,
+                displayPrice: "INSTALLMENT_OFFER_PRICE",
+                paymentMode: .payAsYouGo
+            ),
+            isEligibleForIntroductoryOffer: true
+        )
+        #expect(payAsYouGo.introductoryOffer?.displayPrice == "INSTALLMENT_OFFER_PRICE")
+        #expect(payAsYouGo.introductoryOffer?.paymentMode == .payAsYouGo)
+        #expect(!ProCommercePurchaseGate.supportsIntroductoryOffer(payAsYouGo))
+    }
+
+    @Test
+    func eligiblePayUpFrontOfferRetainsItsPriceAndPausesPurchase() {
+        let payUpFront = StoreProductPresentation(
+            id: .proAnnual,
+            displayName: "Annual",
+            description: "Annual",
+            displayPrice: "STANDARD_ANNUAL_PRICE",
+            subscriptionPeriod: .init(value: 1, unit: .year),
+            introductoryOffer: StoreIntroductoryOfferTerms(
+                period: .init(value: 3, unit: .month),
+                periodCount: 1,
+                displayPrice: "UPFRONT_OFFER_PRICE",
+                paymentMode: .payUpFront
+            ),
+            isEligibleForIntroductoryOffer: true
+        )
+
+        #expect(payUpFront.introductoryOffer?.displayPrice == "UPFRONT_OFFER_PRICE")
+        #expect(payUpFront.introductoryOffer?.paymentMode == .payUpFront)
+        #expect(!ProCommercePurchaseGate.supportsIntroductoryOffer(payUpFront))
+    }
+
+    @Test
+    func ineligibleOrUnknownIntroductoryOffersCannotBeMisrepresented() {
+        let paidButIneligible = StoreProductPresentation(
+            id: .proMonthly,
+            displayName: "Monthly",
+            description: "Monthly",
+            displayPrice: "STANDARD_PRICE",
+            subscriptionPeriod: .init(value: 1, unit: .month),
+            introductoryOffer: StoreIntroductoryOfferTerms(
+                period: .init(value: 1, unit: .month),
+                periodCount: 2,
+                displayPrice: "PAID_OFFER_PRICE",
+                paymentMode: .payAsYouGo
+            ),
+            isEligibleForIntroductoryOffer: false
+        )
+        let unknownEligibleMode = StoreProductPresentation(
+            id: .proMonthly,
+            displayName: "Monthly",
+            description: "Monthly",
+            displayPrice: "STANDARD_PRICE",
+            subscriptionPeriod: .init(value: 1, unit: .month),
+            introductoryOffer: StoreIntroductoryOfferTerms(
+                period: .init(value: 1, unit: .month),
+                periodCount: 1,
+                displayPrice: "UNKNOWN_OFFER_PRICE",
+                paymentMode: .init(rawValue: "futureStoreKitMode")
+            ),
+            isEligibleForIntroductoryOffer: true
+        )
+
+        #expect(ProCommercePurchaseGate.supportsIntroductoryOffer(paidButIneligible))
+        #expect(!ProCommercePurchaseGate.supportsIntroductoryOffer(unknownEligibleMode))
+        #expect(!ProCommerceCopy.hasPresentableFreeTrial(unknownEligibleMode))
     }
 
     @Test
@@ -745,7 +826,8 @@ struct StoreRuntimeTests {
         StoreIntroductoryOfferTerms(
             period: StoreSubscriptionPeriod(value: 1, unit: .week),
             periodCount: 1,
-            isFreeTrial: true
+            displayPrice: "FREE_TRIAL_PRICE_TOKEN",
+            paymentMode: .freeTrial
         )
     }
 

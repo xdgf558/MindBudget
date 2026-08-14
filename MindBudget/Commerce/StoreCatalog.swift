@@ -105,10 +105,60 @@ struct StoreSubscriptionPeriod: Codable, Equatable, Sendable {
     let unit: StoreSubscriptionPeriodUnit
 }
 
+/// StoreKit's complete introductory-offer payment-mode identity.
+///
+/// The raw value is preserved so a future StoreKit mode cannot be mistaken for a free trial.
+/// C3-01 only presents and purchases `.freeTrial`; paid or unknown modes fail closed at the
+/// purchase-presentation boundary without entering the entitlement contract.
+struct StoreIntroductoryOfferPaymentMode: RawRepresentable, Codable, Equatable, Sendable {
+    let rawValue: String
+
+    static let freeTrial = Self(
+        rawValue: Product.SubscriptionOffer.PaymentMode.freeTrial.rawValue
+    )
+    static let payAsYouGo = Self(
+        rawValue: Product.SubscriptionOffer.PaymentMode.payAsYouGo.rawValue
+    )
+    static let payUpFront = Self(
+        rawValue: Product.SubscriptionOffer.PaymentMode.payUpFront.rawValue
+    )
+}
+
 struct StoreIntroductoryOfferTerms: Codable, Equatable, Sendable {
     let period: StoreSubscriptionPeriod
     let periodCount: Int
-    let isFreeTrial: Bool
+    let displayPrice: String
+    let paymentMode: StoreIntroductoryOfferPaymentMode
+
+    var isFreeTrial: Bool { paymentMode == .freeTrial }
+}
+
+enum StoreIntroductoryOfferPurchasePolicy {
+    static func permitsPurchase(
+        introductoryOffer: StoreIntroductoryOfferTerms?,
+        isEligibleForIntroductoryOffer: Bool
+    ) -> Bool {
+        guard isEligibleForIntroductoryOffer else { return true }
+        guard let introductoryOffer else { return false }
+        return introductoryOffer.paymentMode == .freeTrial
+            && introductoryOffer.period.value > 0
+            && introductoryOffer.periodCount > 0
+            && !introductoryOffer.displayPrice.isEmpty
+    }
+
+    static func permitsPurchase(_ product: StoreProductPresentation) -> Bool {
+        permitsPurchase(
+            introductoryOffer: product.introductoryOffer,
+            isEligibleForIntroductoryOffer: product.isEligibleForIntroductoryOffer
+        )
+    }
+
+    static func permitsPurchase(_ record: StoreProductRecord) -> Bool {
+        permitsPurchase(
+            introductoryOffer: record.introductoryOffer,
+            isEligibleForIntroductoryOffer: record.isEligibleForIntroductoryOffer
+        )
+    }
 }
 
 /// StoreKit-owned display metadata only. It can make a failed product load less abrupt, but it
@@ -220,7 +270,10 @@ struct StoreProductRecord: Equatable, Sendable {
             return StoreIntroductoryOfferTerms(
                 period: period,
                 periodCount: offer.periodCount,
-                isFreeTrial: offer.paymentMode == .freeTrial
+                displayPrice: offer.displayPrice,
+                paymentMode: StoreIntroductoryOfferPaymentMode(
+                    rawValue: offer.paymentMode.rawValue
+                )
             )
         }
 

@@ -70,7 +70,9 @@ Pro value trigger. It renders StoreKit-provided prices and fresh introductory-of
 and routes explicit purchase, restore, and subscription-management actions through the existing
 typed lifecycle seams. The exact 7-day offer belongs only to the local StoreKit fixture and
 runtime contract; production validates stable product structure and presents any actual eligible
-offer without making paid authority depend on it. Unavailable entitlement authority pauses
+offer without making paid authority depend on it. C3-01 retains paid/unknown offer price and mode
+but pauses purchase unless the eligible offer is a free trial, preventing standard renewal copy
+from masking a paid introductory schedule. Unavailable entitlement authority pauses
 purchase at the View and actor, offers an explicit recheck, and renewal disclosure follows the
 app-selected locale. The dedicated physical-device scheme on final Xcode 26.6 `17F113` and
 final iOS 26.6.1 `23G82` passed 9/9 with no skips: HKG/USA/SGP/TWN catalog probes and both

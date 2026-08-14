@@ -7,7 +7,8 @@ import Testing
 private let c301TestFreeTrial = StoreIntroductoryOfferTerms(
     period: StoreSubscriptionPeriod(value: 1, unit: .week),
     periodCount: 1,
-    isFreeTrial: true
+    displayPrice: "$0.00",
+    paymentMode: .freeTrial
 )
 
 @Suite(.serialized)

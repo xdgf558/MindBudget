@@ -4067,3 +4067,29 @@ merge. C3-02 and all distribution work remain blocked.
 What was NOT changed: No formal App Store Connect product, public economics, automatic paywall,
 schema, network destination, version, Archive, upload, tester assignment, or distribution action
 changed. The uploaded 0.9.6 build and release hold are unchanged.
+
+## 2026-08-14 — Session 111 — Pause unsupported paid introductory offers before purchase
+
+Goal: Close the second PR #33 review finding without misstating a paid introductory offer's price
+or schedule and without changing entitlement authority.
+
+What changed: The StoreKit presentation projection now preserves the offer's localized price and
+complete payment-mode raw value. C3-01 remains free-trial-only: an eligible installment,
+up-front, or future unknown introductory mode produces a bilingual unsupported-offer notice and
+cannot call `Product.purchase()` from either the View or the concrete StoreKit source. An
+ineligible paid offer still permits the ordinary subscription. Added direct regressions for paid
+installment, paid upfront, ineligible, and unknown modes; updated the StoreKit boundary script,
+decision, requirement, matrix, execution packet, memory, and changelog.
+
+Evidence: Full shared-host validation passed 369 total results: 363 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests and every selected coverage gate
+passed. The 13-test Python StoreKit contract and all standalone release, money, network,
+commercialization-document, feature-access, localization, StoreKit-isolation, and diff gates
+pass. Evidence: `/private/tmp/MindBudget-C301-PaidOffer-ReviewFix-Full.xcresult`.
+
+State: C3-01 remains implementation complete pending independent re-review, hosted green CI, and
+merge. C3-02 and distribution remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public economics, automatic paywall,
+entitlement rule, schema, network destination, version, Archive, upload, tester assignment, or
+distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.

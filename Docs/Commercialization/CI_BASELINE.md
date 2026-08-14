@@ -265,6 +265,32 @@ feature-access, release, localization, and diff gates pass. Evidence:
 `/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`. C3-01 remains pending independent re-review,
 hosted green CI, and merge; C3-02 and distribution remain blocked.
 
+### C3-01 paid introductory-offer review remediation
+
+The second independent review found that presentation had retained only an introductory offer's
+period/free-trial projection. An eligible paid `.payAsYouGo` or `.payUpFront` offer could therefore
+have been presented as the ordinary renewal price even though StoreKit would charge a different
+introductory schedule. C3-01 remains deliberately free-trial-only: the presentation projection now
+retains StoreKit's complete payment-mode raw value and localized introductory `displayPrice`.
+Eligible free trials remain purchasable; eligible paid or future unknown modes display a bilingual
+unsupported-offer notice and are blocked independently by both the View and the concrete StoreKit
+purchase adapter before `Product.purchase()`. An ineligible paid offer does not block the ordinary
+subscription, and introductory-offer shape remains outside entitlement authorization.
+
+The complete shared-host validation used the repository's documented exclusion for only the
+separately proven 500 ms wall-clock signal. It passed 369 total results: 363 passed, 6 explicit
+opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI tests passed. Every selected
+coverage file remained above 85% with the same percentages recorded above. The 13-test Python
+StoreKit contract, release, money, network, commercialization-document, feature-access,
+localization, StoreKit-isolation, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-PaidOffer-ReviewFix-Full.xcresult`.
+
+One preceding shared-host run intentionally kept the local wall-clock assertion enabled: all
+functional and UI tests passed, but that isolated benchmark measured 0.8285 seconds under load,
+then Xcode hung while finalizing coverage logs. The hung process was terminated and that result is
+not passing evidence. C3-01 remains implementation complete pending independent re-review, hosted
+green CI, and merge; C3-02 and distribution remain blocked.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

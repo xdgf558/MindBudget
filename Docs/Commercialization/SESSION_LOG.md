@@ -986,3 +986,32 @@ CI, and merge. C3-02 and every later packet remain blocked.
 What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
 presentation, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
 distribution action was added. The post-0.9.6 release hold remains active.
+
+## 2026-08-14 — Session 32 — Fail closed for unsupported paid introductory offers
+
+Goal: Resolve the second C3-01 review finding without silently presenting a paid introductory
+offer as an ordinary subscription or broadening the accepted nonpublic seven-day free-trial test
+contract.
+
+What changed: The StoreKit presentation model now retains the introductory offer's localized
+`displayPrice` and complete payment-mode raw value. C3-01 continues to support only eligible free
+trials. Eligible `.payAsYouGo`, `.payUpFront`, or future unknown modes pause purchase and show an
+explicit bilingual explanation; the Pro View and the concrete StoreKit source enforce the same
+policy independently before any purchase sheet can be requested. Ineligible paid offers still
+permit the ordinary subscription. Introductory-offer shape remains optional presentation input
+and never enters paid-entitlement authorization. Added direct installment, upfront, ineligible,
+and unknown-mode regressions and strengthened the static StoreKit boundary.
+
+Evidence: The full shared-host validation used the documented exclusion for only the separately
+proven local wall-clock signal and passed 369 total results: 363 passed, 6 explicit opt-in StoreKit
+runtime probes skipped, and 0 failed. All 14 UI tests and every selected coverage gate passed. The
+13-test Python StoreKit contract and all standalone release, money, network, commercialization-
+document, feature-access, localization, StoreKit-isolation, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-PaidOffer-ReviewFix-Full.xcresult`.
+
+Current state: C3-01 remains implementation complete pending independent re-review, hosted green
+CI, and merge. C3-02 and every later commercial packet remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
+presentation, entitlement rule, schema, app-owned HTTP(S), version, Archive, upload, tester
+assignment, or distribution action changed. The post-0.9.6 release hold remains active.
