@@ -170,7 +170,7 @@ independent review and the complete GitHub Actions validation in 14m26s, then me
 <https://github.com/xdgf558/MindBudget/actions/runs/31675470258>. C2-03 is Done. C2-04 later passed
 its own independent review and green CI and merged through PR #31 as `a293762`.
 Paywall/customer purchase presentation, formal products/customer terms, versioning, Archive,
-upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold is active.
+upload, tester assignment, and distribution remain blocked. The post-0.9.6 release hold remains active.
 
 ## COM-C2-04 implementation verification
 
@@ -202,8 +202,8 @@ wall-clock signal at 0.814 seconds and Xcode then spent 600 seconds timing out w
 simulator diagnostics. It is not used as passing evidence; the isolated 10-iteration run and the
 clean shared-host run above are the owning evidence. PR #31 subsequently passed independent
 review and the complete GitHub Actions run, then merged to `main` as `a293762` on 2026-08-13.
-CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are
-Done. C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
+CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are Done.
+C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
 
 ## Result and report paths
 

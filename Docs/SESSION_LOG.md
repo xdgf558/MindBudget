@@ -3990,3 +3990,18 @@ Closeout verification: All four standalone COM static commands passed again. The
 359 total results, 355 passed, 4 explicit opt-in StoreKit runtime probes skipped, and 0 failed.
 Every selected core-service coverage threshold remained at or above 85%. Result bundle:
 `/private/tmp/MindBudget-C204-Closeout.xcresult`.
+
+## 2026-08-14 — Session 108 — Tighten completed-phase documentation assertions
+
+Goal: Resolve the post-merge PR #32 gate-maintenance note before opening COM-C3 implementation.
+
+What changed: The commercialization documentation gate again requires the complete active-release
+hold phrase and the complete `C2-04 and COM-C2 are Done` phase result. The CI baseline keeps that
+completion phrase on one line so the executable assertion cannot pass on an unrelated future
+sentence prefix. The existing structural `hasVerified*` evidence boundary remains unchanged
+because the StoreKit matrix already names all three projected booleans and their opt-in runtime
+evidence level.
+
+What was NOT changed: No phase status, Swift source, StoreKit behavior, price, trial, storefront,
+product, entitlement, release artifact, or distribution state changed. COM-C3 had not started at
+the time of this isolated maintenance commit.

@@ -217,7 +217,7 @@ for c203_contract in \
   'publish-before-`Transaction.finish()`' \
   'failed finish remains unfinished' \
   'no current view calls them' \
-  'post-0.9.6 release hold'; do
+  'post-0.9.6 release hold remains active'; do
   if ! grep -Fq "${c203_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/PROJECT_MEMORY.md \
@@ -234,7 +234,7 @@ for c204_contract in \
   'DEC-COM-018' \
   '49/49 focused' \
   '359 total, 355 passed, 4 skipped, and 0 failed' \
-  'C2-04 and COM-C2 are'; do
+  'C2-04 and COM-C2 are Done'; do
   if ! grep -Fq "${c204_contract}" \
       Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
       Docs/Commercialization/STOREKIT_TEST_MATRIX.md \

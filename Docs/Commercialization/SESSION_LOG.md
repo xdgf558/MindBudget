@@ -908,3 +908,17 @@ catalog commands passed again. The full `Scripts/validate.sh` flow passed with t
 shared-host wall-clock exclusion: 359 total results, 355 passed, 4 explicit opt-in StoreKit
 runtime probes skipped, and 0 failed. Every selected core-service coverage threshold remained at
 or above 85%. Result bundle: `/private/tmp/MindBudget-C204-Closeout.xcresult`.
+
+## 2026-08-14 — Session 29 — Tighten the COM-C2 completion assertions before COM-C3
+
+Goal: Make the two intentionally shortened PR #32 documentation checks retain their full release
+and completion meaning before any later commercial packet starts.
+
+What changed: `check-commercialization-docs.sh` now requires `post-0.9.6 release hold remains
+active` and `C2-04 and COM-C2 are Done` instead of accepting their broad prefixes. The CI baseline
+keeps the completed-phase phrase contiguous. The existing StoreKit matrix already states that the
+three `hasVerified*` facts have unit-tested consumption but opt-in framework-backed derivation, so
+no duplicate coverage note was added.
+
+What was NOT changed: This maintenance work changes no accepted price/trial input, phase state,
+app behavior, formal product, StoreKit authority, network policy, release hold, or distribution.
