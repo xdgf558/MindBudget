@@ -469,7 +469,7 @@ context.
 
 ## DEC-COM-020 — Derive trial lifecycle from verified StoreKit facts and keep reminders generic
 
-- Status/date: **Accepted for C3-02 implementation — 2026-08-14**
+- Status/date: **Accepted and implemented; C3-02 Done through PR #34 (`12d9217`) — 2026-08-14**
 - Requirements: REQ-STOREKIT-LIFECYCLE-001
 - Decision: An active trial lifecycle exists only when the accepted, app-environment-matched,
   verified current transaction identifies an introductory free trial and the same verified
@@ -509,6 +509,9 @@ context.
 - Release boundary: This adds no app-owned HTTP(S), formal App Store Connect product, final price
   or trial economics, notification auto-prompt, C3-03 configuration, version, Archive/upload,
   tester assignment, or distribution authorization. The post-0.9.6 release hold remains active.
+- Closeout: PR #34 passed independent review and green GitHub Actions run `31803898776`, then
+  merged as `12d9217` on 2026-08-14. This closes C3-02 only; C3-03 still requires an explicit
+  owner instruction and an accepted exact first-party configuration contract.
 - Alternatives rejected: Starting a local seven-day timer after purchase; deriving trial from
   paywall eligibility or cache; requiring `RenewalInfo.offer` for a one-period trial; including
   billing details or a mutable auto-renew assertion in a notification; pricing a scheduled switch

@@ -340,9 +340,19 @@ The dedicated review-remediation trial suite passed 13/13. The owning full valid
 tests, Release build, static gates, and selected coverage thresholds passed. Evidence:
 `/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
 `/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The previously submitted PR head
-`71d7f54` had green GitHub Actions run `31800476681`; hosted validation must rerun for the review-
-fix commit before merge. C3-02 remains implementation complete pending independent re-review,
-green hosted CI, and merge; it is not Done.
+`71d7f54` had green GitHub Actions run `31800476681`; the review-fix head `e79e2c9` subsequently
+passed GitHub Actions run <https://github.com/xdgf558/MindBudget/actions/runs/31803898776>.
+
+## COM-C3-02 reviewed merge closeout
+
+PR #34 passed independent review and the green hosted run above, then merged to `main` as
+`12d9217` on 2026-08-14. C3-02 is Done. Its focused, full, and physical-device evidence remains
+the evidence recorded above. The documentation-closeout validation produced 382 results: 376
+passed, 6 explicit opt-in StoreKit probes skipped, and 0 failed; all 14 UI tests, selected coverage
+thresholds, Release build, and static gates passed. Evidence:
+`/private/tmp/MindBudget-C302-Closeout-Full.xcresult`. This closeout did not begin C3-03, create
+formal App Store Connect products, accept final economics, bump a version, Archive/upload, assign
+testers, or authorize distribution. The post-0.9.6 release hold remains active.
 
 ## Result and report paths
 

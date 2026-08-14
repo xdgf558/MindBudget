@@ -17,8 +17,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `3fc72b4` on 2026-08-13; it is Done. C2-04 then passed independent review and green CI and
   merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 C3-01 passed
   independent review and green CI and merged through PR #33 as `747b628` on 2026-08-14 under the
-  provisional test terms accepted in DEC-COM-019. C3-02 trial-lifecycle implementation is
-  complete pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain blocked.
+  provisional test terms accepted in DEC-COM-019. C3-02 passed independent review and GitHub
+  Actions run `31803898776`, then merged through PR #34 as `12d9217` on 2026-08-14; it is Done.
+  C3-03 and C3-04 remain blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -259,8 +260,8 @@ an exact centralized adapter exception is implemented.
 
 COM-C1 and C2-01 through C2-04 are closed. PR #31 passed independent review and green CI and
 merged C2-04 as `a293762`, completing COM-C2. C3-01 passed independent review and green CI and
-merged through PR #33 as `747b628` under DEC-COM-019 and its provisional test terms. C3-02 is
-implementation complete pending independent review, hosted green CI, and merge. Merged C2-03 keeps one
+merged through PR #33 as `747b628` under DEC-COM-019 and its provisional test terms. C3-02 passed
+independent review and green CI and merged through PR #34 as `12d9217`; it is Done. Merged C2-03 keeps one
 `EntitlementStore` authority, performs full verified status
 mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
 each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
@@ -273,10 +274,11 @@ paths.
 The merged C3-01 review remediation keeps the exact 7-day offer in the isolated Configuration/runtime
 contract instead of production authority, blocks purchase whenever entitlement authority is
 unavailable at both UI and actor boundaries, and binds renewal copy to the app-selected locale.
-C3-02 may implement only the verified active-trial projection, actual-date reminder reconciliation,
-and in-app fallback in `COM_C3_EXECUTION_PACKET.md`. It must not use the P1W fixture as lifecycle
+Merged C3-02 adds only the verified active-trial projection, actual-date reminder reconciliation,
+and in-app fallback in `COM_C3_EXECUTION_PACKET.md`. It does not use the P1W fixture as lifecycle
 authority, prompt for notification consent, persist a right, or add C3-03 configuration.
 
-Next suggested task: independently review C3-02, obtain hosted green CI, and merge only. Keep signed public
-configuration, final customer terms/products, versioning, Archive/upload, tester assignment, and
-distribution blocked until their owning C3 and release gates pass.
+Next suggested task: wait for an explicit owner instruction and an accepted exact first-party
+configuration contract before beginning C3-03. Keep final customer terms/products, versioning,
+Archive/upload, tester assignment, and distribution blocked until their owning C3 and release
+gates pass.

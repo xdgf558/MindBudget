@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 Done and C3-02 implementation complete pending independent review, hosted green CI, and merge
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 and C3-02 Done, with C3-03 not started and still blocked
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -295,7 +295,7 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 Done and C3-02 i
   review remediation now keeps exact P1W terms fixture-only, blocks purchase under unavailable
   entitlement authority in both View and actor, and binds renewal disclosure to the app locale.
   PR #33 passed independent review and green CI and merged as `747b628` on 2026-08-14.
-- [ ] Independently review, obtain hosted green CI, and merge the implementation-complete C3-02
+- [x] Independently review, obtain hosted green CI, and merge the implementation-complete C3-02
   candidate: derive active trial lifecycle from verified
   StoreKit transaction/renewal facts, separate the current trial product from the accepted next-
   renewal `autoRenewPreference`, schedule one generic T−5 calendar reminder, cancel or
@@ -305,6 +305,7 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 Done and C3-02 i
   trial suite. The owning full validation produced 382 results: 376 passed, 6 explicit opt-in
   StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and every selected coverage gate
   passed. The physical final-device suite passed 9/9 with no skip across
-  HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths. The P1W fixture is
-  never authority; C3-03, formal economics,
+  HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths. PR #34 passed
+  independent review and green GitHub Actions run `31803898776`, then merged as `12d9217` on
+  2026-08-14. The P1W fixture is never authority; C3-03, formal economics,
   versioning, Archive/upload, tester assignment, and distribution remain blocked.

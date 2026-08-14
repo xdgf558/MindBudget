@@ -90,7 +90,7 @@ granted, and finished through the production authority. Result bundle:
 
 ## C3-02 — Trial lifecycle
 
-Status: **Implementation complete pending independent review, hosted green CI, and merge.**
+Status: **Done after independent review, green CI, and merge through PR #34 (`12d9217`).**
 
 C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/rescheduling. The
 7-day test offer in C3-01 is presentation and StoreKit Configuration evidence only.
@@ -167,8 +167,8 @@ C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/
 
 ## C3-03 — Signed public configuration
 
-Status: **Blocked until C3-02 is complete and an exact first-party configuration contract is
-accepted.**
+Status: **Blocked pending an explicit owner instruction and an accepted exact first-party
+configuration contract.**
 
 ## C3-04 — UI and release quality
 

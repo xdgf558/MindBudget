@@ -172,7 +172,7 @@ grep -Fq 'actions/runs/31766128587' Docs/Commercialization/CI_BASELINE.md || {
 }
 
 for c302_contract in \
-  'Status: **Implementation complete pending independent review, hosted green CI, and merge.**' \
+  'Status: **Done after independent review, green CI, and merge through PR #34 (`12d9217`).**' \
   'verified current transaction must identify an introductory free trial' \
   'actual `renewalDate` and `willAutoRenew` facts' \
   'current trial product' \
@@ -195,6 +195,16 @@ for c302_contract in \
   fi
 done
 
+grep -Fq 'actions/runs/31803898776' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C3-02 green-CI run is missing from CI baseline" >&2
+  exit 1
+}
+
+grep -Fq '`12d9217`' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C3-02 merge SHA is missing from CI baseline" >&2
+  exit 1
+}
+
 if grep -Fq 'C3-01 implementation complete pending independent review' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
@@ -203,6 +213,17 @@ if grep -Fq 'C3-01 implementation complete pending independent review' \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C3-01 as pending review" >&2
+  exit 1
+fi
+
+if grep -Fq 'C3-02 implementation complete pending' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C3-02 as pending review" >&2
   exit 1
 fi
 

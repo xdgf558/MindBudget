@@ -2111,3 +2111,7 @@ current live StoreKit price for the next-renewal product. Pending notification c
 ends soon rather than promising renewal after the app process can no longer observe cancellation.
 C3-03/configuration, formal products/economics, versioning, Archive/
 upload, tester assignment, and distribution remain blocked.
+
+Closeout: PR #34 passed independent review and green GitHub Actions run `31803898776`, then
+merged as `12d9217` on 2026-08-14. C3-02 is Done. This does not start C3-03 or relax the
+post-0.9.6 release hold.

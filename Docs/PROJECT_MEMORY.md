@@ -79,8 +79,8 @@ final iOS 26.6.1 `23G82` passed 9/9 with no skips: HKG/USA/SGP/TWN catalog probe
 Monthly/Annual transaction-verification flows all executed. It does not create formal App Store
 Connect products, final regional
 prices, quotas, a Release manual unlock, or distribution permission, and existing TestFlight
-users receive no production Pro rights. C3-02 is implementation complete pending independent
-review, hosted green CI, and merge. It projects an active
+users receive no production Pro rights. C3-02 passed independent review and GitHub Actions run
+`31803898776`, then merged through PR #34 as `12d9217` on 2026-08-14; it is Done. It projects an active
 trial only from a verified current introductory-free-trial transaction plus verified renewal
 information, uses Apple's actual renewal date and auto-renew state, and separates the current
 trial product from the accepted next-renewal `autoRenewPreference` for live-price disclosure. It reconciles one generic
@@ -93,6 +93,8 @@ the original 68/68 focused run and the 13/13 review-remediation trial suite. The
 validation produced 382 results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped,
 0 failed), including all 14 UI tests and every selected coverage gate. The physical final-device StoreKit suite passed
 9/9 with no skip across HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths.
+C3-03 has not started and remains blocked pending an explicit owner instruction and an accepted
+exact first-party configuration contract.
 Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
