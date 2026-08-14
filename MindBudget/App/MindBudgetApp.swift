@@ -63,6 +63,7 @@ private struct ConfiguredAppView: View {
             featureAccessService: environment.featureAccessService,
             storeCatalog: environment.storeCatalog,
             entitlementStore: environment.entitlementStore,
+            trialLifecycleScheduler: environment.trialLifecycleScheduler,
             appLockInitiallyEnabled: settings.requireFaceID
         )
         .modelContainer(environment.dataController.container)

@@ -153,7 +153,7 @@ grep -Fq '**Formal commercial values are TBD; provisional C3 test terms were acc
 }
 
 for c301_contract in \
-  'Status: **Implementation complete pending independent review, green CI, and merge.**' \
+  'Status: **Done after independent review, green CI, and merge through PR #33 (`747b628`).**' \
   'US$1.99' \
   'US$19.99' \
   '7-day free trial for StoreKit-eligible subscribers' \
@@ -165,6 +165,46 @@ for c301_contract in \
     exit 1
   }
 done
+
+grep -Fq 'actions/runs/31766128587' Docs/Commercialization/CI_BASELINE.md || {
+  echo "C3-01 green-CI run is missing from CI baseline" >&2
+  exit 1
+}
+
+for c302_contract in \
+  'Status: **Implementation complete pending independent review, hosted green CI, and merge.**' \
+  'verified current transaction must identify an introductory free trial' \
+  'actual `renewalDate` and `willAutoRenew` facts' \
+  'current trial product' \
+  'next-renewal product' \
+  '`autoRenewPreference`' \
+  'five calendar days' \
+  'never requests permission' \
+  'Remove the old request before adding a replacement' \
+  'trial ends soon' \
+  'never promises renewal' \
+  'no date, price, amount, product, or remaining-day count' \
+  'DEC-COM-020'; do
+  if ! grep -Fq "${c302_contract}" \
+      Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/STOREKIT_TEST_MATRIX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C3-02 trial-lifecycle contract is missing: ${c302_contract}" >&2
+    exit 1
+  fi
+done
+
+if grep -Fq 'C3-01 implementation complete pending independent review' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C3-01 as pending review" >&2
+  exit 1
+fi
 
 for heading in '## Input gate' '### Tasks' '### Tests' '### Stop conditions'; do
   grep -Fq "${heading}" Docs/Commercialization/COM_C1_EXECUTION_PACKET.md || {

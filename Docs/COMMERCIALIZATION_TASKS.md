@@ -22,10 +22,11 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 / C3-01 implementation complete pending independent review, green CI,
-  and merge.** COM-C2 is complete after C2-04 passed independent review and green CI and merged
-  through PR #31 as `a293762` on 2026-08-13. DEC-COM-019 accepts provisional test presentation
-  only; C3-02 through C3-04 and distribution remain blocked.
+- Active phase: **COM-C3 / C3-02 implementation is complete pending independent review, hosted
+  green CI, and merge.** C3-01 passed independent review and green CI and merged through PR #33
+  as `747b628` on 2026-08-14. COM-C2 remains
+  complete through PR #31 (`a293762`). DEC-COM-019 accepts provisional test presentation only;
+  C3-03, C3-04, and distribution remain blocked.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -36,8 +37,12 @@ detailed phase checklists; it added no paid product behavior.
   reconciliation, and one lifecycle-owned transaction listener. Merged C2-03 extends that same
   lifecycle task to supervise transaction and subscription-status
   update sequences, makes each status signal trigger a fresh full reconciliation, and adds status
-  mapping plus typed purchase/restore/finish seams without a second authority. C3-01 adds a
-  voluntary bilingual Pro screen using those seams. Receipt import, iCloud sync,
+  mapping plus typed purchase/restore/finish seams without a second authority. Merged C3-01 adds a
+  voluntary bilingual Pro screen using those seams. C3-02 implements an actual verified trial
+  projection plus local renewal reminder/in-app fallback without inventing a trial length. It
+  distinguishes the product carrying the active trial from the verified next-renewal product and
+  keeps pending notification copy safe after the app process stops.
+  Receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
   TestFlight/App Store candidate until verified purchase/restore, purchase presentation, and the
@@ -251,10 +256,10 @@ products remain blocked until the accepted cost inputs are available.
 
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
-Status: **In Progress — C3-01 implementation is complete pending independent review, green CI,
-and merge; C3-02 through C3-04 remain blocked.**
+Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 implementation is complete
+pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain blocked.**
 
-- [ ] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
+- [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
   cloud promise. The test-only anchors are US$1.99 Monthly and US$19.99 Annual, with a 7-day free
   trial for StoreKit-eligible subscribers and first runtime coverage in HKG/USA/SGP/TWN. StoreKit
@@ -264,8 +269,24 @@ and merge; C3-02 through C3-04 remain blocked.**
   skip, including all four storefront probes and both Monthly/Annual transaction probes. Review
   remediation keeps the exact P1W offer fixture-only, blocks unavailable entitlement authority at
   both purchase boundaries with explicit recheck, and formats renewal copy with the app locale.
-- [B] **C3-02 — Trial lifecycle.** Drive activation and renewal reminders from accepted parameters
-  and actual dates, with generic notification copy and correct cancellation/rescheduling.
+  PR #33 passed independent review and green CI and merged as `747b628` on 2026-08-14.
+- [ ] **C3-02 — Trial lifecycle.** Implementation is complete pending independent review, hosted
+  green CI, and merge. Derive trial activation only from an
+  accepted verified current StoreKit transaction and verified renewal information; use the actual
+  renewal date and `willAutoRenew`; price a scheduled plan switch from the accepted
+  `autoRenewPreference` rather than the current trial product; schedule one generic local reminder five user-calendar days
+  before renewal without date, price, amount, or remaining-day content; cancel/reschedule by one
+  stable identifier on cancellation, expiry, refund/revoke, product switch, date change, or
+  missing authority. The pending notification says the trial ends soon rather than promising
+  renewal. Notification denial/disablement or an already-passed reminder time falls
+  back to a noninterrupting in-app card and never requests permission implicitly. The exact P1W
+  fixture is not lifecycle authority. Local validation is green: the original focused run passed
+  68/68, the review-remediation trial suite passed 13/13, and the owning full run produced 382
+  results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped, 0 failed), including all
+  14 UI tests and every selected coverage gate. Independent
+  review, hosted green CI, and merge remain required before this item is Done. The final physical
+  iPhone Air/iOS 26.6.1 dedicated suite passed 9/9 with no skip, including all four storefronts and
+  both Monthly/Annual trial-lifecycle derivation paths.
 - [B] **C3-03 — Signed public configuration.** Implement signature/version/expiry/rollback/cache
   verification with conservative offline defaults; configuration may change presentation but
   never entitlement or StoreKit price.

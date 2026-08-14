@@ -1015,3 +1015,73 @@ CI, and merge. C3-02 and every later commercial packet remain blocked.
 What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
 presentation, entitlement rule, schema, app-owned HTTP(S), version, Archive, upload, tester
 assignment, or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-14 — Session 33 — Implement C3-02 verified trial lifecycle and renewal reminder
+
+Goal: Implement only C3-02 after C3-01 merged, without treating the configured seven-day test
+offer as lifecycle authority or advancing signed configuration, formal economics, or release.
+
+What changed: Added a process-local `TrialLifecycleProjection` derived only from an accepted
+verified current introductory-free-trial transaction and separately verified renewal facts. The
+projection carries Apple's actual renewal date and auto-renew state; no trial length or paid right
+is persisted. A single actor reconciles one stable generic local-notification request at calendar
+T−5, removes or replaces it on every lifecycle change, never requests permission, and falls back
+to a noninterrupting in-app card when notifications or a reliable future trigger are unavailable.
+The reminder copy carries no date, price, amount, product, or remaining-day count. The in-app
+renewal disclosure combines the verified date only with a current live StoreKit display price;
+cached or unavailable price is omitted. App launch, foreground, locale, notification-preference,
+and entitlement changes all reconcile through the same scheduler. Added bilingual UI/copy,
+deterministic calendar/DST/authorization/replacement/failure tests, production StoreKit derivation
+assertions for the opt-in Monthly/Annual paths, and static StoreKit/feature/document gates. The
+framework bridge intentionally reads `Transaction.offer` for the current paid period; a nil
+`RenewalInfo.offer` does not erase a one-period free trial because it describes the next renewal.
+
+Evidence: The final focused entitlement/lifecycle/runtime run passed 68/68; the dedicated trial
+suite passed 12/12. Full validation passed 381 total results: 375 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests, Release build, static gates, and
+every selected coverage threshold passed. Evidence:
+`/private/tmp/MindBudget-C302-Focused.xcresult` and
+`/private/tmp/MindBudget-C302-Full-Final2.xcresult`. The final physical iPhone Air/iOS 26.6.1
+StoreKit suite passed 9/9 with no failure or skip, including all four storefronts and both
+Monthly/Annual trial-lifecycle derivation paths; evidence:
+`/private/tmp/MindBudget-C302-Physical4.xcresult`. The first completed physical run exposed an
+old cross-storefront test defect: it fixed the localized free-trial zero price to the USA literal.
+The runtime test now verifies the P1W/free-trial structure and nonempty StoreKit-localized price,
+while the isolated fixture validator remains the owner of the exact provisional USD literal.
+
+Current state: C3-02 is implementation complete pending independent review, hosted green CI, and
+merge; it is not Done. C3-03 and C3-04 remain blocked.
+
+What was NOT changed: No signed public configuration, formal App Store Connect product, final
+price/trial term, automatic paywall, receipt import, schema, app-owned HTTP(S), version, Archive,
+upload, tester assignment, or distribution action was added. The uploaded 0.9.6 build and
+post-0.9.6 release hold remain unchanged.
+
+## 2026-08-14 — Session 34 — Correct C3-02 renewal-plan disclosure and state-safe reminder copy
+
+Goal: Resolve the independent C3-02 review findings without broadening entitlement authority or
+advancing C3-03.
+
+What changed: `TrialLifecycleProjection` now preserves the verified product carrying the current
+trial separately from the verified next-renewal product. A recognized nonnil
+`autoRenewPreference` selects the renewal product; absence falls back to the current product, and
+an unknown explicit preference produces no lifecycle projection. Renewal price lookup follows the
+next-renewal product, so a same-date plan switch changes the projection and disclosure. Pending
+English and Simplified-Chinese notification copy now says the trial ends soon and asks the person
+to review current status; it no longer promises renewal after the app can be terminated while a
+person changes auto-renew externally. Static StoreKit/document gates and durable decisions,
+requirements, matrix, memory, and changelog were aligned.
+
+Evidence: The dedicated review-remediation trial suite passed 13/13. Full validation produced 382
+results: 376 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests, the Release build, static gates, and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The preceding PR head `71d7f54` had green
+hosted run `31800476681`; the review-fix commit still requires its own hosted green run.
+
+Current state: C3-02 remains implementation complete pending independent re-review, hosted green
+CI, and merge; it is not Done. C3-03 and C3-04 remain blocked.
+
+What was NOT changed: No signed public configuration, formal product or final economics,
+automatic paywall, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
+distribution action changed. The uploaded 0.9.6 build and post-0.9.6 release hold remain unchanged.

@@ -4,13 +4,6 @@ import StoreKitTest
 import Testing
 @testable import MindBudget
 
-private let c301TestFreeTrial = StoreIntroductoryOfferTerms(
-    period: StoreSubscriptionPeriod(value: 1, unit: .week),
-    periodCount: 1,
-    displayPrice: "$0.00",
-    paymentMode: .freeTrial
-)
-
 @Suite(.serialized)
 struct StoreKitTestCatalogTests {
     @Test
@@ -208,9 +201,17 @@ struct StoreKitTestCatalogTests {
         #expect(records.allSatisfy { $0.isAutoRenewable })
         #expect(records.allSatisfy { !$0.isFamilyShareable })
         #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
-        // Exact trial terms belong to the isolated local fixture evidence, never the production
-        // catalog or entitlement authority contract.
-        #expect(records.allSatisfy { $0.introductoryOffer == c301TestFreeTrial })
+        // Exact fixture JSON owns its USD literal. Runtime StoreKit owns the localized zero-price
+        // rendering, which legitimately differs across HKG/USA/SGP/TWN.
+        #expect(
+            records.allSatisfy { record in
+                record.introductoryOffer?.period
+                    == StoreSubscriptionPeriod(value: 1, unit: .week)
+                    && record.introductoryOffer?.periodCount == 1
+                    && record.introductoryOffer?.paymentMode == .freeTrial
+                    && record.introductoryOffer?.displayPrice.isEmpty == false
+            }
+        )
     }
 
     private func exerciseVerifiedPurchaseAndFinish(
@@ -237,7 +238,12 @@ struct StoreKitTestCatalogTests {
         await store.start()
 
         #expect(authority.decision(for: .advancedSiri) == .allowed)
-        #expect((await store.currentSnapshot()).effectiveState == .subscribed)
+        let lifecycleSnapshot = await store.currentSnapshot()
+        #expect(lifecycleSnapshot.effectiveState == .subscribed)
+        #expect(lifecycleSnapshot.trialLifecycle?.currentTrialProductID == productID)
+        #expect(lifecycleSnapshot.trialLifecycle?.renewalProductID == productID)
+        #expect(lifecycleSnapshot.trialLifecycle?.renewalDate != nil)
+        #expect(lifecycleSnapshot.trialLifecycle?.willAutoRenew == true)
         #expect(
             session.allTransactions().filter {
                 $0.productIdentifier == productID.rawValue

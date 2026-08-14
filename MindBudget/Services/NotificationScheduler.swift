@@ -410,9 +410,9 @@ final class MindBudgetNotificationDelegate: NSObject, UNUserNotificationCenterDe
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        guard notification.request.identifier.hasPrefix(
-            CoolingNotificationIdentifier.prefix
-        ) else {
+        let identifier = notification.request.identifier
+        guard identifier.hasPrefix(CoolingNotificationIdentifier.prefix)
+                || identifier == TrialRenewalReminderIdentifier.requestID else {
             return []
         }
         return [.banner, .list, .sound]

@@ -291,6 +291,59 @@ then Xcode hung while finalizing coverage logs. The hung process was terminated 
 not passing evidence. C3-01 remains implementation complete pending independent re-review, hosted
 green CI, and merge; C3-02 and distribution remain blocked.
 
+## COM-C3-01 reviewed merge closeout
+
+PR #33 passed independent review and the complete GitHub Actions validation, then merged to
+`main` as `747b628` on 2026-08-14. Hosted run
+<https://github.com/xdgf558/MindBudget/actions/runs/31766128587> is green. C3-01 is Done; its owning
+local evidence and the historical remediation runs above remain unchanged. This closeout did not
+create formal App Store Connect products, accept final economics, bump a version, Archive/upload,
+assign testers, or authorize distribution. It opens only the C3-02 implementation packet.
+
+## COM-C3-02 implementation verification
+
+C3-02 derives active trial lifecycle only from the verified current StoreKit transaction plus
+verified renewal information and reconciles one generic local calendar T−5 reminder or a
+noninterrupting in-app fallback. The final focused entitlement/lifecycle/runtime regression run
+passed 68/68 on final Xcode 26.6 `17F113`, iOS 26.5 simulator build `23F77`; evidence:
+`/private/tmp/MindBudget-C302-Focused.xcresult`. The dedicated `TrialLifecycleTests` suite passed
+12/12, including calendar/DST, authorization fallback, stable replacement, failed-add cleanup,
+and generic bilingual-copy cases.
+
+The final opt-in StoreKit suite then executed on physical `拉沙的iPhone` (`iPhone Air`) with
+final iOS 26.6.1 `23G82` and final Xcode 26.6 `17F113`: 9 passed, 0 failed, 0 skipped. All four
+HKG/USA/SGP/TWN catalog probes and both Monthly/Annual transaction-to-trial-lifecycle derivation
+paths passed. The runtime assertion compares the one-week/free-trial structure while leaving the
+localized zero-price string to StoreKit; the isolated fixture contract continues to own the USD
+literal. Evidence: `/private/tmp/MindBudget-C302-Physical4.xcresult`.
+
+The owning full validation passed 381 total results: 375 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests and every selected coverage gate
+passed; the money, network, commercialization-document, feature-access, StoreKit-catalog,
+localization, release, and diff gates are green. Evidence:
+`/private/tmp/MindBudget-C302-Full-Final2.xcresult`. C3-02 is implementation complete pending
+independent review, hosted green CI, and merge; it is not Done. C3-03, formal economics/products,
+versioning, Archive/upload, tester assignment, and distribution remain blocked.
+
+### C3-02 independent-review remediation
+
+The review found two truthful-presentation gaps. The lifecycle projection had used the current
+trial product for renewal pricing even when verified `autoRenewPreference` selected a different
+next-period plan, and a pending notification could promise renewal after the app process stopped
+observing an App Store cancellation. The projection now stores current-trial and next-renewal
+product identities separately, falls back to the current product only when the verified preference
+is absent, and changes when only that preference changes. Pending bilingual copy says the trial
+ends soon and asks the person to review current status without asserting that renewal remains on.
+
+The dedicated review-remediation trial suite passed 13/13. The owning full validation produced
+382 results: 376 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests, Release build, static gates, and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The previously submitted PR head
+`71d7f54` had green GitHub Actions run `31800476681`; hosted validation must rerun for the review-
+fix commit before merge. C3-02 remains implementation complete pending independent re-review,
+green hosted CI, and merge; it is not Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

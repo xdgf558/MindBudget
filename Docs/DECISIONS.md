@@ -2087,3 +2087,27 @@ when subscription authority is unavailable, and formats renewal disclosure with 
 locale. Eligible paid/unknown introductory modes retain their StoreKit price/mode but pause at the
 View and adapter instead of inheriting standard renewal copy; promotion shape remains outside
 entitlement authority. Detailed ownership remains in amended DEC-COM-019.
+
+---
+
+## 2026-08-14 — Drive trial reminders from verified lifecycle facts, not configured duration
+
+Context: C3-01 passed independent review and green CI and merged through PR #33 as `747b628`.
+C3-02 may now own trial activation and renewal reminders, but the provisional P1W fixture remains
+test presentation input rather than production lifecycle authority.
+
+Decision: Detailed ownership lives in commercial decision DEC-COM-020. A verified current
+introductory-free-trial transaction proves trial activation; verified renewal information supplies
+Apple's actual renewal date and auto-renew state. The projection keeps the current trial product
+separate from the accepted `autoRenewPreference` used for next-renewal price display, falling back
+only when the preference is absent. One generic pending reminder is reconciled at
+calendar T−5 only when permission already exists and the date is reliable. Disabled/denied
+notifications use an in-app card without an implicit authorization prompt.
+
+Consequences: Cancellation, trial end, refund/revocation, product/date change, missing authority,
+or failed replacement cannot leave stale billing content scheduled. Notification copy contains no
+date, price, amount, product, or day count; in-app disclosure uses only the verified date and a
+current live StoreKit price for the next-renewal product. Pending notification copy says the trial
+ends soon rather than promising renewal after the app process can no longer observe cancellation.
+C3-03/configuration, formal products/economics, versioning, Archive/
+upload, tester assignment, and distribution remain blocked.

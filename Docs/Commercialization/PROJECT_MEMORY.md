@@ -15,9 +15,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
   2026-08-12. C2-03 then passed independent review and green CI and merged through PR #30 as
   `3fc72b4` on 2026-08-13; it is Done. C2-04 then passed independent review and green CI and
-  merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 C3-01 implementation
-  is complete pending independent review, green CI, and merge under the provisional test terms
-  accepted in DEC-COM-019; C3-02 through C3-04 remain blocked.
+  merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 C3-01 passed
+  independent review and green CI and merged through PR #33 as `747b628` on 2026-08-14 under the
+  provisional test terms accepted in DEC-COM-019. C3-02 trial-lifecycle implementation is
+  complete pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -73,9 +74,22 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   disclosure follows the app-selected locale. Final Xcode 26.6 `17F113` on the
   physical iPhone Air with final iOS 26.6.1 `23G82` executed all 9 dedicated catalog/lifecycle
   tests without a failure or skip, including HKG/USA/SGP/TWN and both Monthly/Annual transaction
-  flows. Formal App Store Connect products,
-  final price/trial economics, C3-02 lifecycle reminders, and distribution remain blocked by their
-  owning packets and release gates. C2-04's completed environment proof does not waive them.
+  flows. PR #33 then passed independent review and green CI and merged as `747b628`. C3-02 now
+  derives a process-local active-trial projection only when the verified current transaction is an
+  introductory free-trial transaction and verified renewal information supplies the actual
+  `renewalDate` and `willAutoRenew`. The projection keeps the current trial product separate from
+  the accepted next-renewal `autoRenewPreference`, so a scheduled plan switch selects the correct
+  live StoreKit price and changes the lifecycle even when its date is unchanged. A stable generic local reminder is reconciled five user-
+  calendar days before a reliable future date; disabled/denied notifications or a passed reminder
+  window use an in-app card without requesting permission. Cancellation, end of trial, revocation,
+  product/date changes, and missing authority remove or replace the request. The notification has
+  no price, date, amount, product, or remaining-day content, and says the trial ends soon instead
+  of promising that auto-renew remains enabled after the app stops. Formal App Store Connect products,
+  final price/trial economics, C3-03, C3-04, and distribution remain blocked by their owning
+  packets and release gates. C2-04's completed environment proof does not waive them.
+  Final Xcode 26.6 `17F113` on the physical iPhone Air with final iOS 26.6.1 `23G82` passed the
+  C3-02 dedicated suite 9/9 with no failure or skip, including all four storefronts and both
+  Monthly/Annual transaction-to-trial-lifecycle derivation paths.
   The historical simulator diagnostics reported an Octane entitlement/development-install
   handshake failure. The same
   16 tests in 2 suites pass on an iOS 27 beta runtime only as diagnostic evidence and do not
@@ -237,15 +251,16 @@ an exact centralized adapter exception is implemented.
   floating point narrowly before receipt code is added.
 - SPEC-018 is resolved: current deletion documentation tracks all current model types without a
   fragile numeric claim.
-- CloudKit architecture, app-owned domains, provider contracts/prices, App Attest design, trial,
-  quotas, and storefront pricing remain `UNVERIFIED`/`TBD`.
+- CloudKit architecture, app-owned domains, provider contracts/prices, App Attest design, final
+  trial economics, quotas, and storefront pricing remain `UNVERIFIED`/`TBD`.
 - Signed-device file protection and future channel deletion require later manual evidence.
 
 ## Next phase boundary
 
 COM-C1 and C2-01 through C2-04 are closed. PR #31 passed independent review and green CI and
-merged C2-04 as `a293762`, completing COM-C2. C3-01 implementation is complete pending independent
-review, green CI, and merge under DEC-COM-019 and its provisional test terms. Merged C2-03 keeps one
+merged C2-04 as `a293762`, completing COM-C2. C3-01 passed independent review and green CI and
+merged through PR #33 as `747b628` under DEC-COM-019 and its provisional test terms. C3-02 is
+implementation complete pending independent review, hosted green CI, and merge. Merged C2-03 keeps one
 `EntitlementStore` authority, performs full verified status
 mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
 each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
@@ -255,12 +270,13 @@ entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`.
 physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
 paths.
 
-The C3-01 review remediation keeps the exact 7-day offer in the isolated Configuration/runtime
+The merged C3-01 review remediation keeps the exact 7-day offer in the isolated Configuration/runtime
 contract instead of production authority, blocks purchase whenever entitlement authority is
 unavailable at both UI and actor boundaries, and binds renewal copy to the app-selected locale.
-C3-01 remains pending independent re-review, green CI, and merge; C3-02 has not started.
+C3-02 may implement only the verified active-trial projection, actual-date reminder reconciliation,
+and in-app fallback in `COM_C3_EXECUTION_PACKET.md`. It must not use the P1W fixture as lifecycle
+authority, prompt for notification consent, persist a right, or add C3-03 configuration.
 
-Next suggested task: independently review C3-01 only, then require green CI and merge before any
-status advance. Keep C3-02 lifecycle reminders,
-signed public configuration, formal customer terms/products, versioning, Archive/upload, tester
-assignment, and distribution blocked until their owning C3 and release gates pass.
+Next suggested task: independently review C3-02, obtain hosted green CI, and merge only. Keep signed public
+configuration, final customer terms/products, versioning, Archive/upload, tester assignment, and
+distribution blocked until their owning C3 and release gates pass.

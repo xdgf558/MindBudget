@@ -75,6 +75,7 @@ struct AppEnvironment {
     let featureAccessService: any FeatureAccessChecking
     let storeCatalog: StoreCatalog
     let entitlementStore: EntitlementStore
+    let trialLifecycleScheduler: any TrialLifecycleScheduling
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -116,6 +117,7 @@ struct AppEnvironment {
         let entitlementStore = EntitlementStore(
             featureAccessAuthority: featureAccessAuthority
         )
+        let trialLifecycleScheduler = TrialLifecycleScheduler()
         let intentService = MindBudgetIntentService(
             dataActor: dataController.dataActor,
             preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
@@ -135,7 +137,8 @@ struct AppEnvironment {
             appLockAuthenticator: LocalAppLockAuthenticator(),
             featureAccessService: featureAccessService,
             storeCatalog: storeCatalog,
-            entitlementStore: entitlementStore
+            entitlementStore: entitlementStore,
+            trialLifecycleScheduler: trialLifecycleScheduler
         )
     }
 }

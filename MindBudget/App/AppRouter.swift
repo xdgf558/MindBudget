@@ -46,6 +46,7 @@ final class AppSession: ObservableObject {
     private let appLockAuthenticator: any AppLockAuthenticating
     private let storeCatalog: StoreCatalog?
     private let entitlementStore: EntitlementStore?
+    private let trialLifecycleScheduler: any TrialLifecycleScheduling
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -68,11 +69,26 @@ final class AppSession: ObservableObject {
     @Published private(set) var existingPremiumEntryAccess: ExistingPremiumEntryAccess
     @Published private(set) var storeCatalogAvailability: StoreCatalogAvailability = .unavailable
     @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .none
+    @Published private(set) var trialLifecycle: TrialLifecycleProjection?
+    @Published private(set) var trialRenewalReminder = TrialRenewalReminderReconciliation.inactive
+    @Published private(set) var trialRenewalReminderFailed = false
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
+    private var trialLifecycleReconciliationGeneration = 0
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
+    }
+
+    /// Feature views consume this already-matched presentation value and never inspect a
+    /// StoreKit Product ID. Cached/unavailable catalog state intentionally returns nil.
+    var trialRenewalDisplayPrice: String? {
+        guard let trialLifecycle,
+              case .live = storeCatalogAvailability else { return nil }
+        return TrialLifecyclePresentation.liveDisplayPrice(
+            for: trialLifecycle,
+            catalog: storeCatalogAvailability
+        )
     }
 
     init(
@@ -87,6 +103,7 @@ final class AppSession: ObservableObject {
         featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
+        trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -99,6 +116,7 @@ final class AppSession: ObservableObject {
         self.appLockAuthenticator = appLockAuthenticator
         self.storeCatalog = storeCatalog
         self.entitlementStore = entitlementStore
+        self.trialLifecycleScheduler = trialLifecycleScheduler
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
     }
@@ -110,6 +128,7 @@ final class AppSession: ObservableObject {
             await entitlementStore.start { [weak self] snapshot in
                 self?.existingPremiumEntryAccess = snapshot.premiumEntryAccess
                 self?.commerceSubscriptionState = snapshot.effectiveState
+                self?.trialLifecycle = snapshot.trialLifecycle
             }
         }
         if storeCatalog != nil {
@@ -147,6 +166,34 @@ final class AppSession: ObservableObject {
 
     func refreshCommerceEntitlements() async {
         await entitlementStore?.refreshCurrentEntitlements()
+    }
+
+    @discardableResult
+    func reconcileTrialLifecycle(
+        settings: SettingsStore,
+        locale: Locale,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async -> Bool {
+        trialLifecycleReconciliationGeneration += 1
+        let generation = trialLifecycleReconciliationGeneration
+        do {
+            let reconciliation = try await trialLifecycleScheduler.reconcile(
+                trial: trialLifecycle,
+                notificationsEnabled: settings.enableLocalNotifications,
+                now: now,
+                calendar: calendar,
+                locale: locale
+            )
+            guard generation == trialLifecycleReconciliationGeneration else { return true }
+            trialRenewalReminder = reconciliation
+            trialRenewalReminderFailed = false
+            return true
+        } catch {
+            guard generation == trialLifecycleReconciliationGeneration else { return false }
+            trialRenewalReminderFailed = true
+            return false
+        }
     }
 
     func faceIDAvailability() -> FaceIDAvailability {
@@ -523,6 +570,7 @@ struct AppRouter: View {
         featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
+        trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -536,6 +584,7 @@ struct AppRouter: View {
                 featureAccessService: featureAccessService,
                 storeCatalog: storeCatalog,
                 entitlementStore: entitlementStore,
+                trialLifecycleScheduler: trialLifecycleScheduler,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -597,6 +646,11 @@ struct AppRouter: View {
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
             await session.startCommerceLifecycle()
+            await session.reconcileTrialLifecycle(
+                settings: settings,
+                locale: locale,
+                calendar: calendar
+            )
             await session.unlockAppIfNeeded(
                 settings: settings,
                 localizedReason: appLockReason
@@ -609,6 +663,11 @@ struct AppRouter: View {
             case .active:
                 Task {
                     await session.refreshCommerceEntitlements()
+                    await session.reconcileTrialLifecycle(
+                        settings: settings,
+                        locale: locale,
+                        calendar: calendar
+                    )
                     await session.unlockAppIfNeeded(
                         settings: settings,
                         localizedReason: appLockReason
@@ -622,6 +681,33 @@ struct AppRouter: View {
         }
         .onChange(of: settings.requireFaceID) { _, _ in
             session.synchronizeAppLock(settings: settings)
+        }
+        .onChange(of: session.trialLifecycle) { _, _ in
+            Task {
+                await session.reconcileTrialLifecycle(
+                    settings: settings,
+                    locale: locale,
+                    calendar: calendar
+                )
+            }
+        }
+        .onChange(of: settings.enableLocalNotifications) { _, _ in
+            Task {
+                await session.reconcileTrialLifecycle(
+                    settings: settings,
+                    locale: locale,
+                    calendar: calendar
+                )
+            }
+        }
+        .onChange(of: settings.appLanguageRaw) { _, _ in
+            Task {
+                await session.reconcileTrialLifecycle(
+                    settings: settings,
+                    locale: settings.selectedLocale,
+                    calendar: calendar
+                )
+            }
         }
         .onContinueUserActivity(CSSearchableItemActionType) { activity in
             guard let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier]
