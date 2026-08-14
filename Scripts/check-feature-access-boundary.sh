@@ -9,6 +9,7 @@ ACCESS_SOURCE="MindBudget/Commerce/FeatureAccessService.swift"
 ENTITLEMENT_SOURCE="MindBudget/Commerce/EntitlementDomain.swift"
 STORE_CATALOG_SOURCE="MindBudget/Commerce/StoreCatalog.swift"
 ENTITLEMENT_STORE_SOURCE="MindBudget/Commerce/EntitlementStore.swift"
+PAYWALL_SOURCE="MindBudget/Features/Commerce/ProSubscriptionView.swift"
 
 if [[ ! -s "${ACCESS_SOURCE}" || ! -s "${ENTITLEMENT_SOURCE}" ]]; then
   echo "Feature-access and entitlement sources must both exist" >&2
@@ -398,10 +399,11 @@ storekit_imports="$({
   find MindBudget -type f -name '*.swift' \
     ! -path "${STORE_CATALOG_SOURCE}" \
     ! -path "${ENTITLEMENT_STORE_SOURCE}" \
+    ! -path "${PAYWALL_SOURCE}" \
     -exec grep -nEH '^[[:space:]]*(import|@preconcurrency[[:space:]]+import)[[:space:]]+StoreKit' {} +
 } 2>/dev/null || true)"
 if [[ -n "${storekit_imports}" ]]; then
-  echo "StoreKit imports must remain inside the Commerce runtime adapters:" >&2
+  echo "StoreKit imports must remain inside the Commerce runtime adapters or approved C3 paywall:" >&2
   echo "${storekit_imports}" >&2
   exit 1
 fi

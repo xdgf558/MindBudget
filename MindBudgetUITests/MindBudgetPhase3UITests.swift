@@ -453,6 +453,34 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testProSubscriptionIsOnlyShownAfterAUserOpensTheSettingsEntry() {
+        let app = launchApp(language: "en", locale: "en_US")
+        completeBudgetSetup(in: app)
+
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        XCTAssertFalse(element("commerce.pro.view", in: app).exists)
+
+        app.buttons["dashboard.settings"].tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+        let proEntry = element("settings.pro", in: app)
+        XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
+        proEntry.tap()
+
+        XCTAssertTrue(element("commerce.pro.view", in: app).waitForExistence(timeout: 5))
+        for identifier in [
+            "commerce.pro.purchase",
+            "commerce.pro.restore",
+            "commerce.pro.manage",
+        ] {
+            let control = element(identifier, in: app)
+            for _ in 0..<5 where !control.exists {
+                app.swipeUp()
+            }
+            XCTAssertTrue(control.waitForExistence(timeout: 2))
+        }
+    }
+
+    @MainActor
     func testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable() {
         let app = launchApp(
             language: "en",

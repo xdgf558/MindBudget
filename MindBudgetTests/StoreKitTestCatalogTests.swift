@@ -20,8 +20,8 @@ struct StoreKitTestCatalogTests {
     func configurationContainsOnlyTheAcceptedMonthlyAndAnnualSubscriptions() throws {
         let catalog = try decodedCatalog()
 
-        #expect(catalog.settings.storefront == "CHN")
-        #expect(catalog.settings.locale == "zh_CN")
+        #expect(catalog.settings.storefront == "USA")
+        #expect(catalog.settings.locale == "en_US")
         #expect(catalog.products.isEmpty)
         #expect(catalog.nonRenewingSubscriptions.isEmpty)
         #expect(catalog.subscriptionGroups.count == 1)
@@ -49,17 +49,22 @@ struct StoreKitTestCatalogTests {
 
         #expect(monthly.referenceName == "MindBudget Pro Monthly")
         #expect(monthly.recurringSubscriptionPeriod == "P1M")
-        #expect(monthly.displayPrice == "0.99")
+        #expect(monthly.displayPrice == "1.99")
         #expect(annual.referenceName == "MindBudget Pro Annual")
         #expect(annual.recurringSubscriptionPeriod == "P1Y")
-        #expect(annual.displayPrice == "9.99")
+        #expect(annual.displayPrice == "19.99")
 
         for subscription in [monthly, annual] {
             #expect(subscription.type == "RecurringSubscription")
             #expect(subscription.subscriptionGroupID == group.id)
             #expect(subscription.groupNumber == 1)
             #expect(subscription.familyShareable == false)
-            #expect(subscription.introductoryOffers.isEmpty)
+            #expect(subscription.introductoryOffers.count == 1)
+            let trial = try #require(subscription.introductoryOffers.first)
+            #expect(trial.billingPlanType == "BILLED_UPFRONT")
+            #expect(trial.numberOfPeriods == 1)
+            #expect(trial.paymentMode == "free")
+            #expect(trial.subscriptionPeriod == "P1W")
             #expect(subscription.codeOffers.isEmpty)
             #expect(subscription.adHocOffers.isEmpty)
             #expect(subscription.winbackOffers.isEmpty)
@@ -103,7 +108,7 @@ struct StoreKitTestCatalogTests {
     }
 
     @Test
-    func fixtureHasNoLifetimeOrFormalOfferMetadata() throws {
+    func fixtureHasOnlyTheAcceptedTrialAndNoLifetimeOrOtherOffers() throws {
         let data = try Data(contentsOf: try configurationURL())
         let text = try #require(String(data: data, encoding: .utf8))
         let catalog = try decodedCatalog()
@@ -118,7 +123,7 @@ struct StoreKitTestCatalogTests {
             catalog.subscriptionGroups
                 .flatMap(\.subscriptions)
                 .allSatisfy {
-                    $0.introductoryOffers.isEmpty
+                    $0.introductoryOffers.count == 1
                         && $0.codeOffers.isEmpty
                         && $0.adHocOffers.isEmpty
                         && $0.winbackOffers.isEmpty
@@ -127,37 +132,23 @@ struct StoreKitTestCatalogTests {
     }
 
     @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
-    func runtimeCatalogLoadsTheCommittedProductsForChina() async throws {
-        let session = try SKTestSession(contentsOf: try configurationURL())
-        session.resetToDefaultState()
-        session.disableDialogs = true
-        session.clearTransactions()
-        session.storefront = "CHN"
-        session.locale = Locale(identifier: "zh_CN")
-
-        let records = try await StoreKitProductLoader().loadProducts(
-            identifiedBy: Set(StoreProductID.allCases.map(\.rawValue))
-        )
-        #expect(Set(records.map(\.id)) == Set(StoreProductID.allCases.map(\.rawValue)))
-        #expect(records.allSatisfy { $0.isAutoRenewable })
-        #expect(records.allSatisfy { !$0.isFamilyShareable })
-        #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
+    func runtimeCatalogLoadsForHongKong() async throws {
+        try await exerciseRuntimeCatalog(storefront: "HKG", locale: "en_HK")
     }
 
     @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
-    func runtimeCatalogAlsoLoadsUnderANonChinaStorefront() async throws {
-        let session = try SKTestSession(contentsOf: try configurationURL())
-        session.resetToDefaultState()
-        session.disableDialogs = true
-        session.clearTransactions()
-        session.storefront = "USA"
-        session.locale = Locale(identifier: "en_US")
+    func runtimeCatalogLoadsForUnitedStates() async throws {
+        try await exerciseRuntimeCatalog(storefront: "USA", locale: "en_US")
+    }
 
-        let records = try await StoreKitProductLoader().loadProducts(
-            identifiedBy: Set(StoreProductID.allCases.map(\.rawValue))
-        )
-        #expect(Set(records.map(\.id)) == Set(StoreProductID.allCases.map(\.rawValue)))
-        #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeCatalogLoadsForSingapore() async throws {
+        try await exerciseRuntimeCatalog(storefront: "SGP", locale: "en_SG")
+    }
+
+    @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
+    func runtimeCatalogLoadsForTaiwan() async throws {
+        try await exerciseRuntimeCatalog(storefront: "TWN", locale: "en_TW")
     }
 
     @Test(.enabled(if: Self.runsLocalStoreKitRuntimeTests))
@@ -187,9 +178,30 @@ struct StoreKitTestCatalogTests {
         session.resetToDefaultState()
         session.disableDialogs = true
         session.clearTransactions()
-        session.storefront = "CHN"
-        session.locale = Locale(identifier: "zh_CN")
+        session.storefront = "USA"
+        session.locale = Locale(identifier: "en_US")
         return session
+    }
+
+    private func exerciseRuntimeCatalog(
+        storefront: String,
+        locale: String
+    ) async throws {
+        let session = try SKTestSession(contentsOf: try configurationURL())
+        session.resetToDefaultState()
+        session.disableDialogs = true
+        session.clearTransactions()
+        session.storefront = storefront
+        session.locale = Locale(identifier: locale)
+
+        let records = try await StoreKitProductLoader().loadProducts(
+            identifiedBy: Set(StoreProductID.allCases.map(\.rawValue))
+        )
+        #expect(Set(records.map(\.id)) == Set(StoreProductID.allCases.map(\.rawValue)))
+        #expect(records.allSatisfy { $0.isAutoRenewable })
+        #expect(records.allSatisfy { !$0.isFamilyShareable })
+        #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
+        #expect(records.allSatisfy { $0.introductoryOffer == StoreCatalogContract.expectedIntroductoryOffer })
     }
 
     private func exerciseVerifiedPurchaseAndFinish(
@@ -269,7 +281,7 @@ private struct StoreKitSubscription: Decodable {
     let displayPrice: String
     let familyShareable: Bool
     let groupNumber: Int
-    let introductoryOffers: [IgnoredStoreKitItem]
+    let introductoryOffers: [StoreKitIntroductoryOffer]
     let localizations: [StoreKitProductLocalization]
     let productID: String
     let recurringSubscriptionPeriod: String
@@ -277,6 +289,13 @@ private struct StoreKitSubscription: Decodable {
     let subscriptionGroupID: String
     let type: String
     let winbackOffers: [IgnoredStoreKitItem]
+}
+
+private struct StoreKitIntroductoryOffer: Decodable {
+    let billingPlanType: String
+    let numberOfPeriods: Int
+    let paymentMode: String
+    let subscriptionPeriod: String
 }
 
 private struct StoreKitBillingPlan: Decodable {

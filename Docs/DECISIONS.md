@@ -2061,3 +2061,21 @@ does not erase a separately verified active subscription. Focused, full regressi
 performance, and coverage gates passed; PR #31 passed independent review and green CI and merged
 C2-04 as `a293762`, completing COM-C2. C3 has not started; paywall/customer purchase UI, formal
 terms/products, versioning, Archive/upload, tester assignment, and distribution remain blocked.
+
+---
+
+## 2026-08-14 — Begin C3-01 with provisional StoreKit test terms
+
+Context: COM-C2 is complete. The owner explicitly authorized C3-01 and supplied nonpublic test
+inputs: US$1.99 Monthly, US$19.99 Annual, a 7-day free trial, and HKG/USA/SGP/TWN as the first test
+storefront set.
+
+Decision: Detailed presentation and release boundaries live in commercial decision DEC-COM-019.
+Customer UI must render StoreKit price, period, and eligibility rather than a hardcoded currency or
+local conversion. C3-01 is voluntary and noninterrupting; Settings and explicit Pro value triggers
+are the only entry points. The accepted values configure tests but are not final launch economics.
+
+Consequences: C3-01 may add a transparent purchase/restore/manage-subscription View through the
+existing typed StoreKit lifecycle seams. C3-02 reminders, signed public configuration, formal App
+Store Connect products, versioning, Archive/upload, tester assignment, and distribution remain
+blocked. The post-0.9.6 release hold remains active.

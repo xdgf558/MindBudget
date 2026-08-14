@@ -1,7 +1,8 @@
 import Foundation
 import StoreKit
 
-/// The complete owner-approved StoreKit catalog. Customer terms never live in source code.
+/// The complete owner-approved StoreKit technical catalog. Customer-facing prices always come
+/// from StoreKit; the accepted product and introductory-offer shape is validated here.
 enum StoreProductID: String, CaseIterable, Codable, Sendable {
     case proMonthly = "com.xdgf558.mindbudget.pro.monthly"
     case proAnnual = "com.xdgf558.mindbudget.pro.annual"
@@ -92,6 +93,8 @@ struct StoreCatalogContext: Codable, Equatable, Hashable, Sendable {
 }
 
 enum StoreSubscriptionPeriodUnit: String, Codable, Equatable, Sendable {
+    case day
+    case week
     case month
     case year
 }
@@ -99,6 +102,12 @@ enum StoreSubscriptionPeriodUnit: String, Codable, Equatable, Sendable {
 struct StoreSubscriptionPeriod: Codable, Equatable, Sendable {
     let value: Int
     let unit: StoreSubscriptionPeriodUnit
+}
+
+struct StoreIntroductoryOfferTerms: Codable, Equatable, Sendable {
+    let period: StoreSubscriptionPeriod
+    let periodCount: Int
+    let isFreeTrial: Bool
 }
 
 /// StoreKit-owned display metadata only. It can make a failed product load less abrupt, but it
@@ -109,11 +118,29 @@ struct StoreProductPresentation: Codable, Equatable, Sendable {
     let description: String
     let displayPrice: String
     let subscriptionPeriod: StoreSubscriptionPeriod
+    let introductoryOffer: StoreIntroductoryOfferTerms?
+    let isEligibleForIntroductoryOffer: Bool
+
+    var cacheSafe: StoreProductPresentation {
+        StoreProductPresentation(
+            id: id,
+            displayName: displayName,
+            description: description,
+            displayPrice: displayPrice,
+            subscriptionPeriod: subscriptionPeriod,
+            introductoryOffer: introductoryOffer,
+            isEligibleForIntroductoryOffer: false
+        )
+    }
 }
 
 struct StoreCatalogSnapshot: Codable, Equatable, Sendable {
     let context: StoreCatalogContext
     let products: [StoreProductPresentation]
+
+    var cacheSafe: StoreCatalogSnapshot {
+        StoreCatalogSnapshot(context: context, products: products.map(\.cacheSafe))
+    }
 }
 
 enum StoreCatalogAvailability: Equatable, Sendable {
@@ -138,6 +165,8 @@ struct StoreProductRecord: Equatable, Sendable {
     let isFamilyShareable: Bool
     let subscriptionGroupID: String?
     let subscriptionPeriod: StoreSubscriptionPeriod?
+    let introductoryOffer: StoreIntroductoryOfferTerms?
+    let isEligibleForIntroductoryOffer: Bool
 
     init(
         id: String,
@@ -147,7 +176,9 @@ struct StoreProductRecord: Equatable, Sendable {
         isAutoRenewable: Bool,
         isFamilyShareable: Bool,
         subscriptionGroupID: String?,
-        subscriptionPeriod: StoreSubscriptionPeriod?
+        subscriptionPeriod: StoreSubscriptionPeriod?,
+        introductoryOffer: StoreIntroductoryOfferTerms?,
+        isEligibleForIntroductoryOffer: Bool
     ) {
         self.id = id
         self.displayName = displayName
@@ -157,29 +188,39 @@ struct StoreProductRecord: Equatable, Sendable {
         self.isFamilyShareable = isFamilyShareable
         self.subscriptionGroupID = subscriptionGroupID
         self.subscriptionPeriod = subscriptionPeriod
+        self.introductoryOffer = introductoryOffer
+        self.isEligibleForIntroductoryOffer = isEligibleForIntroductoryOffer
     }
 
     init(product: Product) {
-        let period: StoreSubscriptionPeriod?
-        if let subscription = product.subscription {
-            switch subscription.subscriptionPeriod.unit {
-            case .month:
-                period = StoreSubscriptionPeriod(
-                    value: subscription.subscriptionPeriod.value,
-                    unit: .month
-                )
-            case .year:
-                period = StoreSubscriptionPeriod(
-                    value: subscription.subscriptionPeriod.value,
-                    unit: .year
-                )
-            case .day, .week:
-                period = nil
-            @unknown default:
-                period = nil
-            }
+        self.init(product: product, isEligibleForIntroductoryOffer: false)
+    }
+
+    static func presentationRecord(product: Product) async -> StoreProductRecord {
+        let isEligible = if let subscription = product.subscription,
+                            subscription.introductoryOffer != nil {
+            await subscription.isEligibleForIntroOffer
         } else {
-            period = nil
+            false
+        }
+        return StoreProductRecord(
+            product: product,
+            isEligibleForIntroductoryOffer: isEligible
+        )
+    }
+
+    private init(product: Product, isEligibleForIntroductoryOffer: Bool) {
+        let subscriptionPeriod = product.subscription.flatMap {
+            Self.period(from: $0.subscriptionPeriod)
+        }
+        let introductoryOffer: StoreIntroductoryOfferTerms? = product.subscription?
+            .introductoryOffer.flatMap { offer in
+            guard let period = Self.period(from: offer.period) else { return nil }
+            return StoreIntroductoryOfferTerms(
+                period: period,
+                periodCount: offer.periodCount,
+                isFreeTrial: offer.paymentMode == .freeTrial
+            )
         }
 
         self.init(
@@ -190,8 +231,24 @@ struct StoreProductRecord: Equatable, Sendable {
             isAutoRenewable: product.type == .autoRenewable,
             isFamilyShareable: product.isFamilyShareable,
             subscriptionGroupID: product.subscription?.subscriptionGroupID,
-            subscriptionPeriod: period
+            subscriptionPeriod: subscriptionPeriod,
+            introductoryOffer: introductoryOffer,
+            isEligibleForIntroductoryOffer: isEligibleForIntroductoryOffer
         )
+    }
+
+    private static func period(
+        from period: Product.SubscriptionPeriod
+    ) -> StoreSubscriptionPeriod? {
+        let unit: StoreSubscriptionPeriodUnit
+        switch period.unit {
+        case .day: unit = .day
+        case .week: unit = .week
+        case .month: unit = .month
+        case .year: unit = .year
+        @unknown default: return nil
+        }
+        return StoreSubscriptionPeriod(value: period.value, unit: unit)
     }
 }
 
@@ -236,7 +293,13 @@ struct StoreKitCatalogContextProvider: StoreCatalogContextProviding {
 
 struct StoreKitProductLoader: StoreProductLoading {
     func loadProducts(identifiedBy identifiers: Set<String>) async throws -> [StoreProductRecord] {
-        try await Product.products(for: identifiers).map(StoreProductRecord.init(product:))
+        let products = try await Product.products(for: identifiers)
+        var records: [StoreProductRecord] = []
+        records.reserveCapacity(products.count)
+        for product in products {
+            records.append(await StoreProductRecord.presentationRecord(product: product))
+        }
+        return records
     }
 }
 
@@ -294,6 +357,11 @@ enum StoreCatalogValidationError: Error, Equatable, Sendable {
 /// can never be offered before the Monthly/Annual pair has been verified as one coherent group.
 enum StoreCatalogContract {
     static let expectedProductIDs = Set(StoreProductID.allCases.map(\.rawValue))
+    static let expectedIntroductoryOffer = StoreIntroductoryOfferTerms(
+        period: StoreSubscriptionPeriod(value: 1, unit: .week),
+        periodCount: 1,
+        isFreeTrial: true
+    )
 
     static func validate(
         _ records: [StoreProductRecord]
@@ -310,7 +378,8 @@ enum StoreCatalogContract {
             guard let record = grouped[identifier.rawValue]?.first,
                   record.isAutoRenewable,
                   !record.isFamilyShareable,
-                  record.subscriptionPeriod == identifier.expectedPeriod else {
+                  record.subscriptionPeriod == identifier.expectedPeriod,
+                  record.introductoryOffer == expectedIntroductoryOffer else {
                 throw StoreCatalogValidationError.invalidSubscription(identifier.rawValue)
             }
             guard let subscriptionGroupID = record.subscriptionGroupID,
@@ -361,7 +430,10 @@ actor StoreCatalog {
                 identifiedBy: StoreCatalogContract.expectedProductIDs
             )
             let snapshot = try validatedSnapshot(context: context, records: records)
-            await presentationCache.save(snapshot)
+            // Introductory-offer eligibility is account-specific and can change after redemption.
+            // Cached StoreKit metadata may soften a load failure, but it must never advertise a
+            // trial without a fresh eligibility result.
+            await presentationCache.save(snapshot.cacheSafe)
             return .live(snapshot)
         } catch {
             if let cached = await presentationCache.load(for: context) {
@@ -390,7 +462,9 @@ actor StoreCatalog {
                 displayName: record.displayName,
                 description: record.description,
                 displayPrice: record.displayPrice,
-                subscriptionPeriod: identifier.expectedPeriod
+                subscriptionPeriod: identifier.expectedPeriod,
+                introductoryOffer: record.introductoryOffer,
+                isEligibleForIntroductoryOffer: record.isEligibleForIntroductoryOffer
             )
         }
         return StoreCatalogSnapshot(context: context, products: products)

@@ -17,7 +17,7 @@ EXPECTED = {
     MONTHLY: {
         "referenceName": "MindBudget Pro Monthly",
         "duration": "P1M",
-        "displayPrice": "0.99",
+        "displayPrice": "1.99",
         "localizations": {
             "en_US": (
                 "MindBudget Pro Monthly (Local Test)",
@@ -32,7 +32,7 @@ EXPECTED = {
     ANNUAL: {
         "referenceName": "MindBudget Pro Annual",
         "duration": "P1Y",
-        "displayPrice": "9.99",
+        "displayPrice": "19.99",
         "localizations": {
             "en_US": (
                 "MindBudget Pro Annual (Local Test)",
@@ -45,6 +45,12 @@ EXPECTED = {
         },
     },
 }
+EXPECTED_TRIAL = {
+    "billingPlanType": "BILLED_UPFRONT",
+    "numberOfPeriods": 1,
+    "paymentMode": "free",
+    "subscriptionPeriod": "P1W",
+}
 
 
 def validate_catalog(catalog):
@@ -53,10 +59,10 @@ def validate_catalog(catalog):
     if not isinstance(settings, dict):
         errors.append("catalog settings are missing")
     else:
-        if settings.get("_storefront") != "CHN":
-            errors.append("the local default storefront must be CHN")
-        if settings.get("_locale") != "zh_CN":
-            errors.append("the local default locale must be zh_CN")
+        if settings.get("_storefront") != "USA":
+            errors.append("the local C3 test storefront must default to USA")
+        if settings.get("_locale") != "en_US":
+            errors.append("the local C3 test locale must default to en_US")
 
     if catalog.get("products") != []:
         errors.append("one-time products must remain absent")
@@ -99,8 +105,21 @@ def validate_catalog(catalog):
             errors.append(f"{product_id} must remain at the one shared service level")
         if item.get("familyShareable") is not False:
             errors.append(f"{product_id} must not enable Family Sharing")
+        introductory_offers = item.get("introductoryOffers")
+        if not isinstance(introductory_offers, list) or len(introductory_offers) != 1:
+            errors.append(f"{product_id} must define exactly one P1W free trial")
+        else:
+            offer = {
+                key: value
+                for key, value in introductory_offers[0].items()
+                if key != "internalID"
+            }
+            if offer != EXPECTED_TRIAL:
+                errors.append(f"{product_id} changed its P1W free-trial contract")
+            if not introductory_offers[0].get("internalID"):
+                errors.append(f"{product_id} free trial must have an internal ID")
+
         for offers_key in (
-            "introductoryOffers",
             "codeOffers",
             "adHocOffers",
             "winbackOffers",

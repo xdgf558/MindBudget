@@ -3,14 +3,14 @@
 ## Fixed technical catalog
 
 No formal App Store Connect product or subscription group exists yet. C2-01 commits one local
-Xcode StoreKit Configuration fixture with these accepted technical identifiers. Its default test
-environment is CHN/`zh_CN`; its fixed prices and bilingual copy are synthetic test controls, not
-accepted storefront or customer terms:
+Xcode StoreKit Configuration fixture with these accepted technical identifiers. C3-01 changes its
+default test environment to USA/`en_US` and applies the owner's provisional nonpublic test anchors;
+these remain Configuration/Sandbox/TestFlight controls rather than final regional economics:
 
 | Product | Product ID | Group | Level | Duration | Price/trial |
 |---|---|---|---|---|---|
-| Pro Monthly | `com.xdgf558.mindbudget.pro.monthly` | `MindBudget Pro` | Same Pro service level | 1 month | Commercial terms TBD; local fixture value is synthetic test data |
-| Pro Annual | `com.xdgf558.mindbudget.pro.annual` | `MindBudget Pro` | Same Pro service level | 1 year | Commercial terms TBD; local fixture value is synthetic test data |
+| Pro Monthly | `com.xdgf558.mindbudget.pro.monthly` | `MindBudget Pro` | Same Pro service level | 1 month | US$1.99 test anchor; one P1W free trial for eligible accounts |
+| Pro Annual | `com.xdgf558.mindbudget.pro.annual` | `MindBudget Pro` | Same Pro service level | 1 year | US$19.99 test anchor; one P1W free trial for eligible accounts |
 
 Local Lifetime and all future entitlement/product IDs are absent and must be proven unreachable.
 
@@ -19,7 +19,7 @@ Local Lifetime and all future entitlement/product IDs are absent and must be pro
 | Source | May affect | Must never affect | Required evidence |
 |---|---|---|---|
 | Debug entitlement provider | Debug process only | Release/TestFlight/Production persistence | Release binary/static absence and clean-relaunch test |
-| StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; CHN/`zh_CN` default; exact synthetic prices and local-test disclaimers; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in CHN/USA runtime product-load tests |
+| StoreKit Configuration | Local development fixture and product presentation | App resources/Archive, default scheme, Sandbox/TestFlight/Production rights or server cache | `Config/StoreKit/MindBudgetPro.storekit`; USA/`en_US` default; exact US$1.99/US$19.99 test anchors and one P1W free-trial offer per product; test-bundle-only resource; `MindBudget-StoreKit-Local` non-Archive scheme; catalog gate, StoreKitTest/JSON tests, and opt-in HKG/USA/SGP/TWN runtime product-load tests |
 | Sandbox | Verified `AppTransaction` Sandbox environment plus matching Sandbox transaction/status facts | Production rights/current-entitlement cache | Exact Sandbox acceptance; Xcode/Production/bundle mismatch rejection |
 | TestFlight | Apple's Sandbox environment under a distributed build; no build-channel inference | Production grandfathering after public release | TestFlight is modeled as verified Sandbox, never as a fourth entitlement environment |
 | Production | Verified `AppTransaction` Production environment plus matching Production facts | Debug/Xcode/Sandbox configuration | Exact bundle/AppTransaction/Product/environment verification; mismatch fails closed |
@@ -153,13 +153,44 @@ evidence records 44/44 focused lifecycle/runtime tests, 31 lifecycle tests acros
 remains above 85%. Evidence: `/private/tmp/MindBudget-C203-Full-Final15.xcresult`. The five-test physical
 entry run above covered catalog entry only and must not be relabeled as evidence that these new
 purchase/restore/finish or status/renewal-derivation paths ran.
-There is no customer-facing purchase/restore UI or paywall. C2-04 completed the
-Configuration/Sandbox/TestFlight/Production isolation gate through PR #31, green CI, and merge
-`a293762`; C3 still owns presented purchase/restore and customer terms.
+At the C2-04 closeout there was no customer-facing purchase/restore UI or paywall. C2-04 completed
+the Configuration/Sandbox/TestFlight/Production isolation gate through PR #31, green CI, and merge
+`a293762`; the C3-01 candidate below now owns voluntary presentation without changing that
+authority.
 - Sandbox/TestFlight manual reports: dated account/device/build/environment evidence under
   `TestResults/Commercialization/StoreKit/<build>/` or the CI artifact named in `CI_BASELINE.md`.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner
   approval exist.
+
+### C3-01 presentation candidate
+
+C3-01 owns the first customer-facing purchase surface without changing entitlement authority.
+The voluntary Settings/value-trigger screen displays `Product.displayPrice`, exact Monthly/Annual
+periods, and the P1W offer only after a fresh `isEligibleForIntroOffer` result. Its cached snapshot
+retains presentation metadata but deliberately clears eligibility; cached and unavailable states
+disable purchase and never invent a price or trial. Purchase, restore, and manage subscription
+remain explicit taps through the C2 typed seams, and the automatic-presentation count is zero.
+
+Pure tests cover the complete typed purchase/restore notice matrix, exact catalog and P1W offer,
+cache eligibility stripping, malformed terms, and StoreKit-price interpolation. The UI test opens
+the screen only after the person selects Settings and proves no launch/dashboard presentation.
+The static StoreKit gate rejects provisional price literals or raw StoreKit purchase/sync calls in
+customer source and requires the two approved Settings/value-trigger entry sites.
+
+The dedicated local scheme owns four runtime product probes—HKG, USA, SGP, and TWN. Each must
+actually execute and load the exact Monthly/Annual catalog, periods, localized `displayPrice`, and
+P1W free-trial offer; a skip, empty set, wrong term, or StoreKit error is non-evidence. Formal App
+Store Connect product creation, final regional prices, C3-02 reminders, Archive/upload, tester
+assignment, and distribution remain blocked even after these local probes pass.
+
+Accepted C3-01 candidate evidence: final Xcode 26.6 `17F113` ran `MindBudget-StoreKit-Local` on
+the physical `拉沙的iPhone` (`iPhone Air`) with final iOS 26.6.1 `23G82`. All 9 tests passed,
+0 failed, and 0 skipped. HKG, USA, SGP, and TWN each loaded both products with exact periods and
+P1W offers; the Monthly and Annual transaction probes also entered the production StoreKit
+derivation/authority path, granted Pro, finished, and left no unfinished transaction. Evidence:
+`/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`. This remains local test-fixture
+evidence, not formal-product, Sandbox-account, TestFlight, price-acceptance, or distribution
+evidence.
 
 ## Stop conditions
 

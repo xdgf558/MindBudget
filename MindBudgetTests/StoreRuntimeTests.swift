@@ -157,6 +157,9 @@ struct StoreRuntimeTests {
         let live = await liveCatalog.refresh()
         #expect(live.snapshot?.context == china)
         #expect(live.snapshot?.products.count == 2)
+        #expect(
+            live.snapshot?.products.allSatisfy(\.isEligibleForIntroductoryOffer) == true
+        )
 
         let failedSameContext = StoreCatalog(
             contextProvider: FixedStoreContextProvider(context: china),
@@ -168,6 +171,9 @@ struct StoreRuntimeTests {
             return
         }
         #expect(cached.context == china)
+        #expect(
+            cached.products.allSatisfy { !$0.isEligibleForIntroductoryOffer }
+        )
 
         let failedOtherStorefront = StoreCatalog(
             contextProvider: FixedStoreContextProvider(context: usa),
@@ -209,7 +215,9 @@ struct StoreRuntimeTests {
             isAutoRenewable: true,
             isFamilyShareable: true,
             subscriptionGroupID: malformed[0].subscriptionGroupID,
-            subscriptionPeriod: malformed[0].subscriptionPeriod
+            subscriptionPeriod: malformed[0].subscriptionPeriod,
+            introductoryOffer: malformed[0].introductoryOffer,
+            isEligibleForIntroductoryOffer: malformed[0].isEligibleForIntroductoryOffer
         )
         let familyShared = StoreCatalog(
             contextProvider: FixedStoreContextProvider(context: context),
@@ -246,7 +254,9 @@ struct StoreRuntimeTests {
             isAutoRenewable: true,
             isFamilyShareable: false,
             subscriptionGroupID: "mindbudget-pro-group",
-            subscriptionPeriod: .init(value: 1, unit: .month)
+            subscriptionPeriod: .init(value: 1, unit: .month),
+            introductoryOffer: StoreCatalogContract.expectedIntroductoryOffer,
+            isEligibleForIntroductoryOffer: true
         )
         #expect(throws: StoreCatalogValidationError.productSetMismatch) {
             _ = try StoreCatalogContract.validate(valid + [unapproved])
@@ -267,7 +277,9 @@ struct StoreRuntimeTests {
             isAutoRenewable: missingGroup[0].isAutoRenewable,
             isFamilyShareable: missingGroup[0].isFamilyShareable,
             subscriptionGroupID: nil,
-            subscriptionPeriod: missingGroup[0].subscriptionPeriod
+            subscriptionPeriod: missingGroup[0].subscriptionPeriod,
+            introductoryOffer: missingGroup[0].introductoryOffer,
+            isEligibleForIntroductoryOffer: missingGroup[0].isEligibleForIntroductoryOffer
         )
         #expect(throws: StoreCatalogValidationError.subscriptionGroupMismatch) {
             _ = try StoreCatalogContract.validate(missingGroup)
@@ -299,6 +311,75 @@ struct StoreRuntimeTests {
         #expect(throws: StoreCatalogValidationError.invalidSubscription(monthlyID)) {
             _ = try StoreCatalogContract.validate(wrongPeriod)
         }
+
+        var missingTrial = valid
+        missingTrial[0] = replacing(missingTrial[0], removesIntroductoryOffer: true)
+        #expect(throws: StoreCatalogValidationError.invalidSubscription(monthlyID)) {
+            _ = try StoreCatalogContract.validate(missingTrial)
+        }
+    }
+
+    @Test
+    func proCommerceNoticesCoverEveryTypedPurchaseAndRestoreOutcome() {
+        #expect(ProCommerceNotice(purchaseOutcome: .purchased) == .purchased)
+        #expect(ProCommerceNotice(purchaseOutcome: .pending) == .pending)
+        #expect(ProCommerceNotice(purchaseOutcome: .cancelled) == .cancelled)
+        #expect(ProCommerceNotice(restoreOutcome: .restored) == .restored)
+        #expect(
+            ProCommerceNotice(restoreOutcome: .noActiveSubscription)
+                == .noActiveSubscription
+        )
+
+        let failures: [(StoreOperationFailure, ProCommerceNotice)] = [
+            (.operationInProgress, .operationInProgress),
+            (.productUnavailable, .productUnavailable),
+            (.purchasesNotAllowed, .purchasesNotAllowed),
+            (.verificationFailed, .verificationFailed),
+            (.invalidStoreState, .invalidStoreState),
+            (.unavailable, .unavailable),
+        ]
+        for (failure, expectedNotice) in failures {
+            #expect(
+                ProCommerceNotice(purchaseOutcome: .failed(failure)) == expectedNotice
+            )
+            #expect(
+                ProCommerceNotice(restoreOutcome: .failed(failure)) == expectedNotice
+            )
+            #expect(expectedNotice.isFailure)
+        }
+
+        #expect(!ProCommerceNotice.pending.isFailure)
+        #expect(!ProCommerceNotice.cancelled.isFailure)
+        #expect(!ProCommerceNotice.noActiveSubscription.isFailure)
+    }
+
+    @Test
+    func renewalDisclosureUsesStoreKitDisplayPriceAndOnlyClaimsAnEligibleExactTrial() {
+        let priceToken = "STOREKIT_PRICE_TOKEN_731"
+        let eligibleProduct = StoreProductPresentation(
+            id: .proAnnual,
+            displayName: "Annual",
+            description: "Annual",
+            displayPrice: priceToken,
+            subscriptionPeriod: .init(value: 1, unit: .year),
+            introductoryOffer: StoreCatalogContract.expectedIntroductoryOffer,
+            isEligibleForIntroductoryOffer: true
+        )
+        let ineligibleProduct = StoreProductPresentation(
+            id: .proAnnual,
+            displayName: "Annual",
+            description: "Annual",
+            displayPrice: priceToken,
+            subscriptionPeriod: .init(value: 1, unit: .year),
+            introductoryOffer: StoreCatalogContract.expectedIntroductoryOffer,
+            isEligibleForIntroductoryOffer: false
+        )
+
+        let trialDisclosure = ProCommerceCopy.renewalDisclosure(for: eligibleProduct)
+        let standardDisclosure = ProCommerceCopy.renewalDisclosure(for: ineligibleProduct)
+        #expect(trialDisclosure.contains(priceToken))
+        #expect(standardDisclosure.contains(priceToken))
+        #expect(trialDisclosure != standardDisclosure)
     }
 
     @Test
@@ -579,21 +660,25 @@ struct StoreRuntimeTests {
                 id: StoreProductID.proMonthly.rawValue,
                 displayName: "花有数 Pro 月付（本地测试）",
                 description: "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
-                displayPrice: "CN¥0.99",
+                displayPrice: "US$1.99",
                 isAutoRenewable: true,
                 isFamilyShareable: false,
                 subscriptionGroupID: "mindbudget-pro-group",
-                subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .month)
+                subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .month),
+                introductoryOffer: StoreCatalogContract.expectedIntroductoryOffer,
+                isEligibleForIntroductoryOffer: true
             ),
             StoreProductRecord(
                 id: StoreProductID.proAnnual.rawValue,
                 displayName: "花有数 Pro 年付（本地测试）",
                 description: "仅用于本地 StoreKit 配置测试，不是对用户的售价。",
-                displayPrice: "CN¥9.99",
+                displayPrice: "US$19.99",
                 isAutoRenewable: true,
                 isFamilyShareable: false,
                 subscriptionGroupID: "mindbudget-pro-group",
-                subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .year)
+                subscriptionPeriod: StoreSubscriptionPeriod(value: 1, unit: .year),
+                introductoryOffer: StoreCatalogContract.expectedIntroductoryOffer,
+                isEligibleForIntroductoryOffer: true
             ),
         ]
     }
@@ -603,7 +688,8 @@ struct StoreRuntimeTests {
         isAutoRenewable: Bool? = nil,
         isFamilyShareable: Bool? = nil,
         subscriptionGroupID: String? = nil,
-        subscriptionPeriod: StoreSubscriptionPeriod? = nil
+        subscriptionPeriod: StoreSubscriptionPeriod? = nil,
+        removesIntroductoryOffer: Bool = false
     ) -> StoreProductRecord {
         StoreProductRecord(
             id: record.id,
@@ -613,7 +699,9 @@ struct StoreRuntimeTests {
             isAutoRenewable: isAutoRenewable ?? record.isAutoRenewable,
             isFamilyShareable: isFamilyShareable ?? record.isFamilyShareable,
             subscriptionGroupID: subscriptionGroupID ?? record.subscriptionGroupID,
-            subscriptionPeriod: subscriptionPeriod ?? record.subscriptionPeriod
+            subscriptionPeriod: subscriptionPeriod ?? record.subscriptionPeriod,
+            introductoryOffer: removesIntroductoryOffer ? nil : record.introductoryOffer,
+            isEligibleForIntroductoryOffer: record.isEligibleForIntroductoryOffer
         )
     }
 

@@ -15,7 +15,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   are Done. PR #29 passed independent review and green CI, then merged as `a45d480` on
   2026-08-12. C2-03 then passed independent review and green CI and merged through PR #30 as
   `3fc72b4` on 2026-08-13; it is Done. C2-04 then passed independent review and green CI and
-  merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 has not started.
+  merged through PR #31 as `a293762` on 2026-08-13, closing COM-C2. COM-C3 C3-01 implementation
+  is complete pending independent review, green CI, and merge under the provisional test terms
+  accepted in DEC-COM-019; C3-02 through C3-04 remain blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -58,9 +60,14 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   2026-08-13, the dedicated scheme ran on the physical `拉沙的iPhone` (`iPhone Air`) with final
   iOS 26.6.1 `23G82`: 5 passed, 0 failed, 0 skipped, and both CHN/USA runtime probes passed. That
   accepted evidence opened C2-03 only and remains separate from purchase/restore evidence. The
-  merged implementation exposes purchase and restore only as typed programmatic seams for later
-  C3 presentation; no current view calls them. Paywall, customer-facing purchase/restore UI,
-  formal products, price/trial terms, and distribution remain unimplemented or blocked by their
+  merged implementation exposes purchase and restore as typed programmatic seams. C3-01 adds the
+  first voluntary customer presentation on top of those seams: Settings and explicit Pro-value
+  triggers may open a bilingual screen with StoreKit-provided prices, fresh trial eligibility,
+  explicit purchase/restore, and Apple subscription management. Final Xcode 26.6 `17F113` on the
+  physical iPhone Air with final iOS 26.6.1 `23G82` executed all 9 dedicated catalog/lifecycle
+  tests without a failure or skip, including HKG/USA/SGP/TWN and both Monthly/Annual transaction
+  flows. Formal App Store Connect products,
+  final price/trial economics, C3-02 lifecycle reminders, and distribution remain blocked by their
   owning packets and release gates. C2-04's completed environment proof does not waive them.
   The historical simulator diagnostics reported an Octane entitlement/development-install
   handshake failure. The same
@@ -231,7 +238,8 @@ an exact centralized adapter exception is implemented.
 ## Next phase boundary
 
 COM-C1 and C2-01 through C2-04 are closed. PR #31 passed independent review and green CI and
-merged C2-04 as `a293762`, completing COM-C2. Merged C2-03 keeps one
+merged C2-04 as `a293762`, completing COM-C2. C3-01 implementation is complete pending independent
+review, green CI, and merge under DEC-COM-019 and its provisional test terms. Merged C2-03 keeps one
 `EntitlementStore` authority, performs full verified status
 mapping, uses one lifecycle task for transaction and subscription-status update sequences, makes
 each status signal trigger a fresh full reconciliation, exposes explicit typed purchase/restore
@@ -241,7 +249,7 @@ entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`.
 physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
 paths.
 
-Next suggested task: obtain accepted price/trial inputs and a new explicit owner instruction before
-opening COM-C3. Keep paywall presentation, formal customer terms/products, customer-visible
-purchase/restore, versioning, Archive/upload, tester assignment, and distribution blocked until
-their owning C3 and release gates pass.
+Next suggested task: independently review C3-01 only, then require green CI and merge before any
+status advance. Keep C3-02 lifecycle reminders,
+signed public configuration, formal customer terms/products, versioning, Archive/upload, tester
+assignment, and distribution blocked until their owning C3 and release gates pass.

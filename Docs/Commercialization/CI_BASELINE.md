@@ -205,6 +205,46 @@ review and the complete GitHub Actions run, then merged to `main` as `a293762` o
 CI run: <https://github.com/xdgf558/MindBudget/actions/runs/31701374466>. C2-04 and COM-C2 are Done.
 C3 remains blocked by accepted price/trial inputs and a new explicit owner instruction.
 
+## COM-C3-01 implementation candidate verification
+
+C3-01 adds a voluntary bilingual Pro presentation reachable only from Settings or an explicit
+Pro value trigger. It shows the exact current Pro feature set, StoreKit-provided localized prices,
+fresh introductory-offer eligibility, renewal terms, local Terms and Privacy links, and explicit
+purchase, restore, and manage-subscription actions. It never presents automatically. The accepted
+nonpublic test inputs are USD 1.99 monthly, USD 19.99 annually, one 7-day free trial per product,
+and the first HKG/USA/SGP/TWN storefront probes. These values remain StoreKit Configuration test
+inputs rather than formal App Store Connect products or public launch terms.
+
+Framework-backed candidate evidence used final Xcode 26.6 `17F113` and the dedicated non-Archive
+`MindBudget-StoreKit-Local` scheme on the physical `拉沙的iPhone` (`iPhone Air`) running final
+iOS 26.6.1 `23G82`. All 9 tests passed with 0 failures and 0 skips: three static catalog tests,
+four HKG/USA/SGP/TWN runtime catalog probes, and the Monthly/Annual verified transaction,
+entitlement-publication, and finish probes. Evidence:
+`/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`.
+
+The strict Phase 10 suite passed 20/20 across 10 isolated iterations, including 10/10 executions
+of the 500 ms local Dashboard wall-clock assertion. Evidence:
+`/private/tmp/MindBudget-C301-Phase10-10x.xcresult`. Two earlier full shared-host attempts measured
+that isolated wall-clock signal at 0.7687005 and 0.623222375 seconds while the host was under
+concurrent test load; neither attempt is used as passing evidence. The owning full shared-host
+validation therefore used the repository's documented `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1`
+switch to omit only that separately proven wall-clock assertion while retaining the deterministic
+10,000-row projection contract. It passed 364 total results: 358 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed. All 14 UI tests passed. Every selected core-service
+coverage file remained above the 85% gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.04%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%,
+CycleSummaryService 97.45%, IntentClassifier 97.50%, CSVExporter 87.60%, and
+CurrencyFormatterService 100.00%. Evidence:
+`/private/tmp/MindBudget-C301-Full-Shared.xcresult`.
+
+The StoreKit catalog contract suite passed 13/13 Python tests, and the money, network-egress,
+commercialization-document, feature-access, StoreKit-catalog, release, localization, and diff
+checks pass. C3-01 is implementation complete pending independent review, hosted green CI, and
+merge; it is not Done. C3-02 and later commercial packets remain blocked. No formal product,
+public price/trial, version, Archive, upload, tester assignment, or distribution action is claimed,
+and the post-0.9.6 release hold remains active.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

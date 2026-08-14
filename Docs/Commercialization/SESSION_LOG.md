@@ -922,3 +922,36 @@ no duplicate coverage note was added.
 
 What was NOT changed: This maintenance work changes no accepted price/trial input, phase state,
 app behavior, formal product, StoreKit authority, network policy, release hold, or distribution.
+
+## 2026-08-14 — Session 30 — Implement the C3-01 test paywall contract and voluntary UI
+
+Goal: Enter only C3-01 after the owner accepted provisional, nonpublic test inputs of USD 1.99
+monthly, USD 19.99 annually, one 7-day free trial per product, and initial HKG/USA/SGP/TWN
+storefront coverage.
+
+Implementation: Added a bilingual Pro presentation reached only from Settings or an explicit Pro
+value trigger, with no automatic presentation. The screen lists only current Pro capabilities,
+uses StoreKit-localized prices and freshly evaluated introductory-offer eligibility, explains
+renewal terms, links local Terms and Privacy, and exposes explicit purchase, restore, and
+manage-subscription controls through the existing single lifecycle authority. Stale cached or
+unavailable catalog state disables purchase. The StoreKit Configuration, static validator, and
+test vocabulary now enforce the two accepted product IDs, P1M/P1Y periods, one P1W free trial per
+product, the provisional USD prices, and the four storefront probes.
+
+Evidence: Final Xcode 26.6 `17F113` ran `MindBudget-StoreKit-Local` on the physical
+`拉沙的iPhone` (`iPhone Air`) with final iOS 26.6.1 `23G82`: 9 passed, 0 failed, 0 skipped,
+including HKG/USA/SGP/TWN runtime catalog probes and Monthly/Annual verified transaction,
+publication, and finish. The strict Phase 10 suite passed 20/20 across 10 isolated iterations.
+The owning full shared-host validation passed 364 total results: 358 passed, 6 explicit opt-in
+StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and every selected coverage gate
+passed. The Python StoreKit catalog contract passed 13/13 and all standalone COM gates pass.
+Evidence: `/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`,
+`/private/tmp/MindBudget-C301-Phase10-10x.xcresult`, and
+`/private/tmp/MindBudget-C301-Full-Shared.xcresult`.
+
+Current state: C3-01 is implementation complete pending independent review, hosted green CI, and
+merge; it is not Done. C3-02 and all later commercial packets remain blocked.
+
+What was NOT changed: No formal App Store Connect product or public commercial term was created.
+No automatic paywall, receipt import, schema, version, Archive, upload, tester assignment,
+app-owned HTTP(S), or distribution action changed. The post-0.9.6 release hold remains active.

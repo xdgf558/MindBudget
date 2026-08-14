@@ -60,7 +60,7 @@ struct SettingsView: View {
                     .accessibilityIdentifier("settings.reminders")
 
                     NavigationLink {
-                        AISettingsView()
+                        AISettingsView(session: session)
                     } label: {
                         SettingsDestinationLabel(
                             title: "settings.ai.section",
@@ -68,6 +68,16 @@ struct SettingsView: View {
                         )
                     }
                     .accessibilityIdentifier("settings.ai")
+
+                    NavigationLink {
+                        ProSubscriptionView(session: session)
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "commerce.pro.title",
+                            systemImage: "sparkles.rectangle.stack"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.pro")
 
                     NavigationLink {
                         IntegrationsSettingsView(session: session)
@@ -1316,6 +1326,7 @@ private struct ReminderSettingsView: View {
 }
 
 private struct AISettingsView: View {
+    @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
 
@@ -1330,6 +1341,12 @@ private struct AISettingsView: View {
                 Text("settings.ai.privacy")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                if !premiumEntryAccess.offersAppleOnDeviceAI {
+                    NavigationLink("commerce.pro.aiValueTrigger") {
+                        ProSubscriptionView(session: session)
+                    }
+                    .accessibilityIdentifier("settings.ai.pro")
+                }
             }
         }
         .settingsListPresentation()
@@ -1691,7 +1708,7 @@ private struct AboutSettingsView: View {
     }
 }
 
-private extension View {
+extension View {
     func settingsListPresentation() -> some View {
         listStyle(.insetGrouped)
             .mindBudgetScreenBackground()
