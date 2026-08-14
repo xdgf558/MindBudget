@@ -5,6 +5,7 @@ struct ProSubscriptionView: View {
     @ObservedObject var session: AppSession
     @Environment(\.mindBudgetTheme) private var theme
     @Environment(\.locale) private var locale
+    @Environment(\.calendar) private var calendar
     @State private var selectedProductID: StoreProductID = .proAnnual
     @State private var isPerformingOperation = false
     @State private var notice: ProCommerceNotice?
@@ -49,6 +50,7 @@ struct ProSubscriptionView: View {
     var body: some View {
         List {
             heroSection
+            trialLifecycleSection
             featureSection
             planSection
             purchaseSection
@@ -61,6 +63,22 @@ struct ProSubscriptionView: View {
         .task { await session.refreshCommerceCatalog() }
         .manageSubscriptionsSheet(isPresented: $presentsManageSubscriptions)
         .accessibilityIdentifier("commerce.pro.view")
+    }
+
+    @ViewBuilder
+    private var trialLifecycleSection: some View {
+        if let trial = session.trialLifecycle {
+            Section("commerce.pro.trial.lifecycle.section") {
+                TrialLifecycleSummaryView(
+                    trial: trial,
+                    displayPrice: session.trialRenewalDisplayPrice,
+                    reminder: session.trialRenewalReminder,
+                    reminderFailed: session.trialRenewalReminderFailed,
+                    locale: locale,
+                    calendar: calendar
+                )
+            }
+        }
     }
 
     private var heroSection: some View {
@@ -292,6 +310,95 @@ struct ProSubscriptionView: View {
         let outcome = await session.restoreProPurchases()
         notice = ProCommerceNotice(restoreOutcome: outcome)
         isPerformingOperation = false
+    }
+}
+
+struct TrialLifecycleSummaryView: View {
+    let trial: TrialLifecycleProjection
+    let displayPrice: String?
+    let reminder: TrialRenewalReminderReconciliation
+    let reminderFailed: Bool
+    let locale: Locale
+    let calendar: Calendar
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("commerce.pro.trial.lifecycle.active", systemImage: "clock.badge.checkmark")
+                .font(.headline)
+            Text(renewalSummary)
+                .font(.subheadline)
+            Text(reminderSummary)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("commerce.pro.trial.lifecycle")
+    }
+
+    private var renewalSummary: String {
+        guard trial.willAutoRenew else {
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.notRenewing",
+                locale: locale
+            )
+        }
+        guard let renewalDate = trial.renewalDate else {
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.dateUnavailable",
+                locale: locale
+            )
+        }
+        let formattedDate = Self.dateFormatter(locale: locale, calendar: calendar)
+            .string(from: renewalDate)
+        guard let displayPrice, !displayPrice.isEmpty else {
+            return LocalizedCatalog.format(
+                "commerce.pro.trial.lifecycle.renewsDateOnly",
+                locale: locale,
+                formattedDate
+            )
+        }
+        return LocalizedCatalog.format(
+            "commerce.pro.trial.lifecycle.renews",
+            locale: locale,
+            formattedDate,
+            displayPrice
+        )
+    }
+
+    private var reminderSummary: String {
+        if reminderFailed {
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.reminderFailed",
+                locale: locale
+            )
+        }
+        switch reminder.delivery {
+        case .scheduled:
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.reminderScheduled",
+                locale: locale
+            )
+        case .inAppOnly:
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.inAppOnly",
+                locale: locale
+            )
+        case .inactive:
+            return LocalizedCatalog.string(
+                "commerce.pro.trial.lifecycle.noReminder",
+                locale: locale
+            )
+        }
+    }
+
+    private static func dateFormatter(locale: Locale, calendar: Calendar) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
     }
 }
 

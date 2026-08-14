@@ -466,3 +466,44 @@ context.
   app-locale screen; presenting a paid introductory offer as an ordinary subscription; automatic
   paywall presentation; implicit restore; adding Lifetime or deferred product promises; or
   treating a test anchor as final launch pricing.
+
+## DEC-COM-020 — Derive trial lifecycle from verified StoreKit facts and keep reminders generic
+
+- Status/date: **Accepted for C3-02 implementation — 2026-08-14**
+- Requirements: REQ-STOREKIT-LIFECYCLE-001
+- Decision: An active trial lifecycle exists only when the accepted, app-environment-matched,
+  verified current transaction identifies an introductory free trial and the same verified
+  subscription chain supplies verified renewal information. `Transaction.offer` proves that the
+  current transaction is a free trial; verified `renewalDate` and `willAutoRenew` provide the
+  lifecycle facts. `RenewalInfo.offer` is not required because Apple defines it as an offer for
+  the next renewal period and it may be nil after a one-period trial. Presentation eligibility,
+  cached catalog metadata, and the configured P1W fixture can never activate or preserve this
+  projection. The projection remains process-local and is published with the existing immutable
+  entitlement snapshot.
+- Reminder decision: Reconcile one stable pending local-notification identifier at five user-
+  calendar days before a reliable future renewal date. Use the person's `Calendar` and `TimeZone`,
+  never fixed seconds. The notification is generic bilingual copy containing no renewal date,
+  price, amount, product, remaining-day count, ledger content, or note. Remove the old request
+  before replacement; trial end, auto-renew off, cancellation, refund/revocation, product switch,
+  date change, missing authority, or missing/past date removes or replaces it.
+- Consent and fallback: Lifecycle reconciliation reads notification authorization but never
+  requests it. App notifications disabled, system denial/not-determined state, or a passed T−5
+  window uses a noninterrupting in-app card. A missing reliable date schedules nothing. In-app
+  renewal disclosure may show the verified date and only a current live StoreKit price; it never
+  substitutes cached price.
+- Ordering and failure: Notification-center mutations are serialized so an older add cannot land
+  after a newer cancellation. Replacement removes the old request first; a failed add is visible
+  as a neutral in-app failure and cannot leave stale reminder content pending.
+- Evidence boundary: Pure tests prove projection consumption, failure closure, calendar
+  scheduling, consent fallback, cancellation/replacement, generic copy, and failed-add cleanup.
+  Only opt-in local StoreKit Monthly/Annual tests can exercise real `Transaction.offer`, verified
+  renewal information, `renewalDate`, and `willAutoRenew` derivation. Construction-based unit
+  coverage must not be cited as framework-bridge evidence.
+- Release boundary: This adds no app-owned HTTP(S), formal App Store Connect product, final price
+  or trial economics, notification auto-prompt, C3-03 configuration, version, Archive/upload,
+  tester assignment, or distribution authorization. The post-0.9.6 release hold remains active.
+- Alternatives rejected: Starting a local seven-day timer after purchase; deriving trial from
+  paywall eligibility or cache; requiring `RenewalInfo.offer` for a one-period trial; including
+  billing details in a notification; requesting notification consent automatically; retaining a
+  stale request after cancellation/date change; fixed `5 * 86400` arithmetic; or persisting trial
+  state as entitlement authority.

@@ -85,6 +85,7 @@ struct DashboardView: View {
 
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
+    @Environment(\.locale) private var locale
     @StateObject private var viewModel = DashboardViewModel()
     @State private var presentedSetup: PresentedSetup?
     @State private var presentsAsk = false
@@ -215,6 +216,25 @@ struct DashboardView: View {
             LazyVStack(spacing: 20) {
                 DashboardHeader {
                     presentsSettings = true
+                }
+
+                if let trial = session.trialLifecycle {
+                    NavigationLink {
+                        ProSubscriptionView(session: session)
+                    } label: {
+                        TrialLifecycleSummaryView(
+                            trial: trial,
+                            displayPrice: session.trialRenewalDisplayPrice,
+                            reminder: session.trialRenewalReminder,
+                            reminderFailed: session.trialRenewalReminderFailed,
+                            locale: locale,
+                            calendar: calendar
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .budgetCard(cornerRadius: 18, contentPadding: 14)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("dashboard.trial.lifecycle")
                 }
 
                 TodayPaceCard(snapshot: snapshot, pace: pace)

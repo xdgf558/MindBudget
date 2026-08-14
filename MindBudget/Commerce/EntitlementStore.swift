@@ -31,6 +31,35 @@ struct VerifiedStoreTransaction: Equatable, Sendable {
     let hasVerifiedStatusTransaction: Bool
     let hasVerifiedRenewalInfo: Bool
     let hasVerifiedAppBundle: Bool
+    /// Present only when the verified current transaction identifies an active introductory free
+    /// trial and verified renewal information supplies its lifecycle facts in the accepted chain.
+    let trialLifecycle: TrialLifecycleProjection?
+
+    init(
+        transactionID: UInt64,
+        productID: String,
+        environment: StoreRuntimeEnvironment,
+        isPurchased: Bool,
+        isRevoked: Bool,
+        expirationDate: Date?,
+        subscriptionState: StoreSubscriptionState,
+        hasVerifiedStatusTransaction: Bool,
+        hasVerifiedRenewalInfo: Bool,
+        hasVerifiedAppBundle: Bool,
+        trialLifecycle: TrialLifecycleProjection? = nil
+    ) {
+        self.transactionID = transactionID
+        self.productID = productID
+        self.environment = environment
+        self.isPurchased = isPurchased
+        self.isRevoked = isRevoked
+        self.expirationDate = expirationDate
+        self.subscriptionState = subscriptionState
+        self.hasVerifiedStatusTransaction = hasVerifiedStatusTransaction
+        self.hasVerifiedRenewalInfo = hasVerifiedRenewalInfo
+        self.hasVerifiedAppBundle = hasVerifiedAppBundle
+        self.trialLifecycle = trialLifecycle
+    }
 }
 
 struct FinishableStoreTransaction: Sendable {
@@ -427,6 +456,7 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
     ) -> VerifiedStoreTransaction {
         let state = mappedState(status.state)
         let statusTransaction: Transaction?
+        let verifiedRenewalInfo: Product.SubscriptionInfo.RenewalInfo?
         let hasVerifiedStatusTransaction: Bool
         let hasVerifiedRenewalInfo: Bool
 
@@ -449,6 +479,7 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
 
         switch status.renewalInfo {
         case let .verified(value):
+            verifiedRenewalInfo = value
             // A same-group crossgrade can remain on the current product until renewal. In that
             // case StoreKit proves the handled product through `autoRenewPreference` rather than
             // by replacing `currentProductID` immediately.
@@ -461,10 +492,28 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
                 && statusTransaction?.productID == value.currentProductID
                 && handledProductBelongsToVerifiedChain
         case .unverified:
+            verifiedRenewalInfo = nil
             hasVerifiedRenewalInfo = false
         }
 
         let authoritativeTransaction = statusTransaction ?? handledTransaction
+        let trialLifecycle: TrialLifecycleProjection?
+        if state == .subscribed,
+           hasVerifiedStatusTransaction,
+           hasVerifiedRenewalInfo,
+           let verifiedRenewalInfo,
+           let currentProductID = StoreProductID(
+               rawValue: verifiedRenewalInfo.currentProductID
+           ),
+           isIntroductoryFreeTrial(authoritativeTransaction) {
+            trialLifecycle = TrialLifecycleProjection(
+                productID: currentProductID,
+                renewalDate: verifiedRenewalInfo.renewalDate,
+                willAutoRenew: verifiedRenewalInfo.willAutoRenew
+            )
+        } else {
+            trialLifecycle = nil
+        }
         return VerifiedStoreTransaction(
             transactionID: authoritativeTransaction.id,
             productID: authoritativeTransaction.productID,
@@ -476,7 +525,8 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             hasVerifiedStatusTransaction: hasVerifiedStatusTransaction,
             hasVerifiedRenewalInfo: hasVerifiedRenewalInfo,
             hasVerifiedAppBundle: handledTransaction.appBundleID == expectedBundleID
-                && authoritativeTransaction.appBundleID == expectedBundleID
+                && authoritativeTransaction.appBundleID == expectedBundleID,
+            trialLifecycle: trialLifecycle
         )
     }
 
@@ -491,8 +541,19 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
             subscriptionState: .unknown,
             hasVerifiedStatusTransaction: false,
             hasVerifiedRenewalInfo: false,
-            hasVerifiedAppBundle: false
+            hasVerifiedAppBundle: false,
+            trialLifecycle: nil
         )
+    }
+
+    private func isIntroductoryFreeTrial(_ transaction: Transaction) -> Bool {
+        if #available(iOS 17.2, *) {
+            return transaction.offer?.type == .introductory
+                && transaction.offer?.paymentMode == .freeTrial
+        }
+        return transaction.offerType == .introductory
+            && transaction.offerPaymentModeStringRepresentation
+                == Product.SubscriptionOffer.PaymentMode.freeTrial.rawValue
     }
 
     private func mappedState(
@@ -526,6 +587,7 @@ struct SubscriptionStatusResolution: Equatable, Sendable {
     let effectiveState: EffectiveStoreSubscriptionState
     let observedStates: Set<StoreSubscriptionState>
     let activeTransactionIDs: Set<UInt64>
+    let trialLifecycle: TrialLifecycleProjection?
 
     static let failedClosed = SubscriptionStatusResolution(
         entitlements: .free,
@@ -533,7 +595,8 @@ struct SubscriptionStatusResolution: Equatable, Sendable {
         isActionable: false,
         effectiveState: .unavailable,
         observedStates: [],
-        activeTransactionIDs: []
+        activeTransactionIDs: [],
+        trialLifecycle: nil
     )
 
     var hasActiveSubscription: Bool {
@@ -557,6 +620,7 @@ struct SubscriptionStatusMapper: Sendable {
         var grantedEntitlements: [EntitlementSet] = []
         var observedStates: [StoreSubscriptionState] = []
         var activeTransactionIDs: Set<UInt64> = []
+        var trialLifecycles: [TrialLifecycleProjection] = []
 
         for transaction in read.transactions {
             guard transaction.environment.isRecognizedStoreEnvironment,
@@ -575,11 +639,20 @@ struct SubscriptionStatusMapper: Sendable {
                 observedStates.append(.revoked)
                 continue
             }
+            if let trialLifecycle = transaction.trialLifecycle {
+                guard transaction.subscriptionState == .subscribed,
+                      trialLifecycle.productID == productID else {
+                    return .failedClosed
+                }
+            }
             observedStates.append(transaction.subscriptionState)
             switch transaction.subscriptionState {
             case .subscribed, .inGracePeriod:
                 grantedEntitlements.append(productID.entitlement)
                 activeTransactionIDs.insert(transaction.transactionID)
+                if let trialLifecycle = transaction.trialLifecycle {
+                    trialLifecycles.append(trialLifecycle)
+                }
             case .inBillingRetryPeriod, .expired, .revoked:
                 break
             case .unknown:
@@ -588,6 +661,7 @@ struct SubscriptionStatusMapper: Sendable {
         }
 
         guard environments.count <= 1 else { return .failedClosed }
+        guard trialLifecycles.count <= 1 else { return .failedClosed }
         let entitlements = EntitlementSet.union(grantedEntitlements)
         guard read.isComplete || !entitlements.isFree else { return .failedClosed }
         return SubscriptionStatusResolution(
@@ -596,7 +670,8 @@ struct SubscriptionStatusMapper: Sendable {
             isActionable: true,
             effectiveState: effectiveState(for: observedStates),
             observedStates: Set(observedStates),
-            activeTransactionIDs: activeTransactionIDs
+            activeTransactionIDs: activeTransactionIDs,
+            trialLifecycle: trialLifecycles.first
         )
     }
 
@@ -618,6 +693,7 @@ struct EntitlementLifecycleSnapshot: Equatable, Sendable {
     let unverifiedCount: Int
     let effectiveState: EffectiveStoreSubscriptionState
     let observedStates: Set<StoreSubscriptionState>
+    let trialLifecycle: TrialLifecycleProjection?
 }
 
 /// The sole runtime authority for the StoreKit entitlement lifecycle.
@@ -672,7 +748,8 @@ actor EntitlementStore {
         environment: nil,
         unverifiedCount: 0,
         effectiveState: .none,
-        observedStates: []
+        observedStates: [],
+        trialLifecycle: nil
     )
 
     init(
@@ -1142,7 +1219,8 @@ actor EntitlementStore {
             environment: resolution.environment,
             unverifiedCount: unverifiedCount,
             effectiveState: resolution.effectiveState,
-            observedStates: resolution.observedStates
+            observedStates: resolution.observedStates,
+            trialLifecycle: resolution.trialLifecycle
         )
         if let changeHandler {
             await changeHandler(snapshot)

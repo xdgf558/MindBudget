@@ -4093,3 +4093,39 @@ merge. C3-02 and distribution remain blocked.
 What was NOT changed: No formal App Store Connect product, public economics, automatic paywall,
 entitlement rule, schema, network destination, version, Archive, upload, tester assignment, or
 distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.
+
+## 2026-08-14 — Session 112 — Implement C3-02 trial lifecycle without inventing trial facts
+
+Goal: Enter C3-02 only and add truthful active-trial presentation plus renewal reminder behavior
+on top of the merged C3-01 purchase surface.
+
+What changed: Commerce now publishes a process-local trial lifecycle only when the verified
+current StoreKit transaction is an introductory free trial and verified renewal information
+provides the actual renewal date and auto-renew state. One stable local reminder is reconciled at
+five user-calendar days before renewal; it is removed/replaced on cancellation, expiry,
+revocation, product/date changes, or missing authority. Reconciliation never requests permission,
+uses an in-app fallback when it cannot schedule, and keeps the generic notification free of date,
+price, amount, product, ledger data, or remaining-day counts. Settings Pro and Dashboard show the
+verified lifecycle, using a current live StoreKit price only when available. Launch, foreground,
+language, notification-preference, and entitlement changes use the same scheduler. Added 12 direct
+trial tests, framework-backed Monthly/Annual derivation assertions, bilingual localization, and
+static boundary/document gates. No configured P1W fixture or cached offer can create a lifecycle.
+
+Evidence: Focused entitlement/lifecycle/runtime validation passed 68/68. Full validation passed
+381 total results: 375 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed;
+all 14 UI tests and every selected coverage threshold passed. Evidence:
+`/private/tmp/MindBudget-C302-Focused.xcresult` and
+`/private/tmp/MindBudget-C302-Full-Final2.xcresult`. The final physical iPhone Air/iOS 26.6.1
+StoreKit suite passed 9/9 with no failure or skip, covering HKG/USA/SGP/TWN and both Monthly/Annual
+trial-lifecycle derivation paths; evidence: `/private/tmp/MindBudget-C302-Physical4.xcresult`.
+The first completed physical run also exposed and closed an old test-only locale defect: runtime
+free-trial zero prices now remain StoreKit-localized instead of being fixed to the USA literal;
+the isolated fixture contract still owns the exact provisional USD text.
+
+State: C3-02 is implementation complete pending independent review, hosted green CI, and merge;
+it is not Done. C3-03, final economics/products, versioning, Archive/upload, tester assignment,
+and distribution remain blocked.
+
+What was NOT changed: No signed public configuration, formal product or trial term, automatic
+paywall, receipt import, schema, network destination, version, Archive, upload, tester assignment,
+or distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.

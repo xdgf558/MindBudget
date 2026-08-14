@@ -19,7 +19,7 @@ distribution. Every customer-facing amount and eligibility result comes from Sto
 
 ## C3-01 — Transparent paywall
 
-Status: **Implementation complete pending independent review, green CI, and merge.**
+Status: **Done after independent review, green CI, and merge through PR #33 (`747b628`).**
 
 ### Tasks
 
@@ -90,10 +90,64 @@ granted, and finished through the production authority. Result bundle:
 
 ## C3-02 — Trial lifecycle
 
-Status: **Blocked until C3-01 is independently reviewed, green, and merged.**
+Status: **Implementation complete pending independent review, hosted green CI, and merge.**
 
 C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/rescheduling. The
 7-day test offer in C3-01 is presentation and StoreKit Configuration evidence only.
+
+### Input gate
+
+- C3-01 passed independent review and green CI and merged through PR #33 as `747b628` on
+  2026-08-14. GitHub Actions run `31766128587` is green.
+- `EntitlementStore` remains the only StoreKit lifecycle authority. A presentation offer, cached
+  catalog, configured P1W fixture, or local flag may never create a trial lifecycle.
+- StoreKit's verified current transaction must identify an introductory free trial. Separately
+  verified renewal information supplies the actual `renewalDate` and `willAutoRenew` facts.
+
+### Tasks
+
+- Publish one process-local `TrialLifecycleProjection` from the existing entitlement snapshot.
+  Never persist it as a commercial right or reconstruct it from the seven-day fixture.
+- Reconcile one stable local-notification request five calendar days before a reliable future
+  renewal date using the person's `Calendar` and `TimeZone`. The notification is generic and
+  contains no date, price, amount, product, or remaining-day count.
+- Remove or replace the stable request when the trial ends, auto-renew is disabled, StoreKit
+  authority disappears, a refund/revocation occurs, the product changes, or the renewal date
+  changes. Remove the old request before adding a replacement so a failed add cannot leave stale
+  billing information scheduled.
+- Never request notification authorization from lifecycle reconciliation. Disabled, denied, or
+  undetermined notification state and a passed T−5 window use a noninterrupting in-app card.
+  A missing/unreliable date schedules nothing.
+- Show the verified renewal date in app and combine it only with a current live StoreKit price.
+  Missing catalog data must not resurrect cached price in renewal disclosure.
+
+### Tests
+
+- Pure mapping tests prove that only an accepted subscribed transaction may carry a matching trial
+  projection and that inconsistent product/state facts fail closed.
+- Deterministic scheduler tests cover exact calendar T−5 calculation, notification disabled/
+  denied/not-yet-authorized fallback, missing/past dates, auto-renew off, revoke/absence, product
+  and renewal-date replacement, failed replacement cleanup, stable identifiers, and generic
+  bilingual copy without private or commercial details.
+- The opt-in local StoreKit Monthly/Annual flows are the only framework-backed evidence that real
+  `Transaction.offer`, verified renewal information, `renewalDate`, and `willAutoRenew` derive the
+  production projection. Construction-based unit tests prove consumption, not that private bridge.
+- Final Xcode 26.6 `17F113` on physical `iPhone Air`, final iOS 26.6.1 `23G82`, passed the full
+  dedicated suite 9/9 with no failure or skip, including HKG/USA/SGP/TWN and both Monthly/Annual
+  trial-lifecycle derivation paths. Evidence: `/private/tmp/MindBudget-C302-Physical4.xcresult`.
+- Run every repository gate and the default Swift/UI/coverage validation before requesting review.
+  A skipped, hung, simulator-only verification failure, or empty xcresult is non-evidence.
+
+### Stop conditions
+
+- Stop if a configured duration, presentation eligibility, cached offer, or hardcoded seven-day
+  value can create or preserve an active-trial projection.
+- Stop if a reminder can expose date, price, amount, product, note, ledger content, or a fixed day
+  count; prompt for permission automatically; survive cancellation/revocation/date change; or use
+  fixed seconds instead of calendar arithmetic.
+- Stop if an unavailable StoreKit fact is treated as a reliable date, if cached price appears in
+  renewal disclosure, or if C3-03/config, formal products/economics, versioning, Archive/upload,
+  tester assignment, or distribution enters this packet.
 
 ## C3-03 — Signed public configuration
 

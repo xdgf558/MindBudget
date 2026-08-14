@@ -3,7 +3,7 @@
 ## Fixed technical catalog
 
 No formal App Store Connect product or subscription group exists yet. C2-01 commits one local
-Xcode StoreKit Configuration fixture with these accepted technical identifiers. C3-01 changes its
+Xcode StoreKit Configuration fixture with these accepted technical identifiers. Merged C3-01 changes its
 default test environment to USA/`en_US` and applies the owner's provisional nonpublic test anchors;
 these remain Configuration/Sandbox/TestFlight controls rather than final regional economics:
 
@@ -71,7 +71,12 @@ Every row must be exercised for Monthly and Annual where applicable:
 - Product/catalog failure never deletes a separately verified current entitlement;
 - price/term copy comes from `Product`/current renewal information and remains localized/accessible;
 - trial eligibility and length come from the actual accepted StoreKit offer; no `30 days` guess;
-- renewal reminder exists only with a reliable renewal date and accepted terms;
+- renewal reminder exists only when a verified current introductory-free-trial transaction and
+  verified renewal information provide a reliable future date with auto-renew enabled; the P1W
+  fixture and presentation eligibility are never lifecycle authority;
+- the one stable generic reminder uses calendar T−5, contains no date/price/amount/product/day
+  count, never prompts for permission, and is removed/replaced after cancellation, trial end,
+  refund/revocation, product/date change, missing authority, or failed replacement;
 - manage subscription and legal/restore links remain reachable without purchase pressure;
 - family sharing stays off and `.familyShared` cannot silently grant a state not accepted later;
 - TestFlight/Sandbox rights never become permanent Production rights.
@@ -93,8 +98,8 @@ Every row must be exercised for Monthly and Annual where applicable:
   Evidence: `/private/tmp/MindBudget-C204-ReviewFix-WallClockSuite-10x.xcresult` and
   `/private/tmp/MindBudget-C204-ReviewFix-Full-Shared-Retry.xcresult`.
 - Verification-derivation boundary: pure mapper tests intentionally construct app-owned
-  `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction` and
-  `hasVerifiedRenewalInfo` and `hasVerifiedAppBundle`; they prove how a completed fact set is
+  `VerifiedStoreTransaction` facts, including `hasVerifiedStatusTransaction`,
+  `hasVerifiedRenewalInfo`, `hasVerifiedAppBundle`, and the optional trial projection; they prove how a completed fact set is
   consumed, not how StoreKit produces those booleans. Production derivation in
   `verifiedRecord(from:status:)` correlates the handled transaction, verified status transaction,
   verified renewal info, original transaction ID, verified app bundle, environment, accepted
@@ -104,7 +109,11 @@ Every row must be exercised for Monthly and Annual where applicable:
   `runtimeAnnualPurchaseIsVerifiedGrantedAndFinished` flows enter that production derivation with
   real `Transaction` and `Product.SubscriptionInfo.Status` objects. Default-scheme coverage and
   the pure mapper matrix must never be cited as proof of that framework bridge; malformed-status
-  and real deferred-crossgrade correlation remain controlled StoreKit runtime obligations.
+  and real deferred-crossgrade correlation remain controlled StoreKit runtime obligations. C3-02
+  additionally derives trial activation from real `Transaction.offer` and its lifecycle facts
+  from verified `renewalDate`/`willAutoRenew`; only the opt-in Monthly/Annual flows can prove this
+  framework bridge. `RenewalInfo.offer` is deliberately not required because it describes an
+  offer at the next renewal period and may be nil after a one-period free trial.
 - StoreKit Configuration reports: C2-01 catalog-shape/isolation tests, followed by
   C2-02 CHN/USA runtime product-loading tests enabled only by the dedicated Xcode local scheme.
   The C2-03 candidate adds deterministic purchase/restore/lifecycle tests and opt-in local
@@ -162,7 +171,7 @@ authority.
 - Production preflight: no real purchase until formal products, prices, review metadata and owner
   approval exist.
 
-### C3-01 presentation candidate
+### C3-01 merged presentation
 
 C3-01 owns the first customer-facing purchase surface without changing entitlement authority.
 The voluntary Settings/value-trigger screen displays `Product.displayPrice`, exact Monthly/Annual
@@ -211,6 +220,33 @@ derivation/authority path, granted Pro, finished, and left no unfinished transac
 `/private/tmp/MindBudget-C301-Storefronts-Physical.xcresult`. This remains local test-fixture
 evidence, not formal-product, Sandbox-account, TestFlight, price-acceptance, or distribution
 evidence.
+
+### C3-02 trial-lifecycle candidate
+
+C3-02 does not start a local seven-day clock. The existing verified StoreKit authority publishes
+one process-local `TrialLifecycleProjection` only when the current verified transaction is an
+introductory free trial in the accepted app/product/environment chain. Verified renewal info owns
+the actual renewal date and auto-renew state. The projection disappears with nontrial, grace,
+retry, expired, revoked, unverified, conflicting, or missing authority and is never persisted.
+
+`TrialLifecycleScheduler` reconciles one stable pending request at five user-calendar days before
+a reliable future renewal. Its serialized add/remove effects make the latest entitlement/settings/
+locale state win even across actor suspension. It removes the prior request before replacement,
+so a failed add cannot retain an old renewal date. Disabled/denied/not-determined notifications or
+an already-passed reminder window use a noninterrupting in-app card and never request permission.
+No reliable date or auto-renew off schedules nothing. Dashboard and the voluntary Pro screen show
+the verified date; they may add a price only from a current `.live` StoreKit catalog snapshot.
+
+Pure C3-02 tests cover matching/mismatched trial projections, exact calendar T−5, generic content,
+disabled/denied/no-date/past-window fallback, cancellation/revoke/auto-renew-off removal, product/
+date replacement, and failed-add cleanup. They consume app-owned projections. The opt-in Monthly/
+Annual local StoreKit tests additionally assert that the real production bridge returns the
+matching product, a nonnil renewal date, and auto-renew enabled. Final Xcode 26.6 `17F113` ran
+the dedicated suite on physical `iPhone Air`, final iOS 26.6.1 `23G82`: 9 passed, 0 failed,
+0 skipped. HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths passed. Runtime
+tests validate the free-trial mode/P1W structure while StoreKit owns each locale's zero-price
+string; the isolated fixture validator retains the exact provisional USD literal. Evidence:
+`/private/tmp/MindBudget-C302-Physical4.xcresult`.
 
 ## Stop conditions
 

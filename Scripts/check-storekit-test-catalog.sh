@@ -15,6 +15,8 @@ PAYWALL_SOURCE="MindBudget/Features/Commerce/ProSubscriptionView.swift"
 CATALOG_SOURCE="MindBudget/Commerce/StoreCatalog.swift"
 ENTITLEMENT_SOURCE="MindBudget/Commerce/EntitlementStore.swift"
 SETTINGS_SOURCE="MindBudget/Features/Settings/SettingsView.swift"
+DASHBOARD_SOURCE="MindBudget/Features/Dashboard/DashboardView.swift"
+TRIAL_SOURCE="MindBudget/Commerce/TrialLifecycle.swift"
 LOCALIZATIONS="MindBudget/Resources/Localizable.xcstrings"
 
 for file in \
@@ -28,12 +30,44 @@ for file in \
   "${CATALOG_SOURCE}" \
   "${ENTITLEMENT_SOURCE}" \
   "${SETTINGS_SOURCE}" \
+  "${DASHBOARD_SOURCE}" \
+  "${TRIAL_SOURCE}" \
   "${LOCALIZATIONS}"; do
   if [[ ! -s "${file}" ]]; then
     echo "Missing StoreKit catalog control: ${file}" >&2
     exit 1
   fi
 done
+
+for contract in \
+  'transaction.offer?.type == .introductory' \
+  'verifiedRenewalInfo.renewalDate' \
+  'verifiedRenewalInfo.willAutoRenew' \
+  'TrialLifecycleProjection'; do
+  if ! grep -Fq "${contract}" "${ENTITLEMENT_SOURCE}"; then
+    echo "Missing C3-02 verified trial projection contract: ${contract}" >&2
+    exit 1
+  fi
+done
+
+for contract in \
+  'mindbudget.commerce.trial-renewal' \
+  'advanceDayCount = 5' \
+  'calendar.date(' \
+  'byAdding: .day' \
+  'removePendingRequest' \
+  'notification.trialRenewal.title' \
+  'notification.trialRenewal.body'; do
+  if ! grep -Fq "${contract}" "${TRIAL_SOURCE}"; then
+    echo "Missing C3-02 local trial-reminder contract: ${contract}" >&2
+    exit 1
+  fi
+done
+
+if grep -En 'requestAuthorization|86400|timeIntervalSince' "${TRIAL_SOURCE}"; then
+  echo "Trial lifecycle must not prompt implicitly or use fixed-second day arithmetic" >&2
+  exit 1
+fi
 
 python3 -B "${CONTRACT_TESTS}"
 python3 -B "${CONTRACT}" \
@@ -98,11 +132,19 @@ fi
 
 paywall_entry_sites="$({ find MindBudget -type f -name '*.swift' ! -path "${PAYWALL_SOURCE}" \
   -exec grep -nH 'ProSubscriptionView' {} + || true; })"
-if [[ "$(wc -l <<< "${paywall_entry_sites}" | tr -d ' ')" != "2" ]] \
-  || grep -Fvq "${SETTINGS_SOURCE}:" <<< "${paywall_entry_sites}"; then
-  echo "C3-01 paywall entry points must remain the two explicit Settings value triggers" >&2
+settings_entry_count="$(grep -Fc "${SETTINGS_SOURCE}:" <<< "${paywall_entry_sites}" || true)"
+dashboard_entry_count="$(grep -Fc "${DASHBOARD_SOURCE}:" <<< "${paywall_entry_sites}" || true)"
+if [[ "$(wc -l <<< "${paywall_entry_sites}" | tr -d ' ')" != "3" ]] \
+  || [[ "${settings_entry_count}" != "2" ]] \
+  || [[ "${dashboard_entry_count}" != "1" ]]; then
+  echo "Pro presentation must remain at two explicit Settings triggers plus one verified-trial Dashboard card" >&2
   printf '%s\n' "${paywall_entry_sites}" >&2
   exit 1
 fi
+
+grep -Fq 'if let trial = session.trialLifecycle' "${DASHBOARD_SOURCE}" || {
+  echo "The Dashboard Pro entry must remain conditional on a verified trial lifecycle" >&2
+  exit 1
+}
 
 echo "StoreKit local catalog and environment isolation passed"
