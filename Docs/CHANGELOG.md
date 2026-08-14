@@ -9,12 +9,16 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 ### Changed
 
 - Active Pro trials now show their StoreKit-verified renewal date in the Dashboard and Pro screen.
+  When StoreKit reports a scheduled same-group plan switch, the displayed renewal price follows
+  the verified next-renewal product rather than the product carrying the current trial.
   When local notifications are already enabled and Apple supplies a reliable future date, the app
   schedules one generic reminder five calendar days before renewal; otherwise it keeps a quiet
   in-app reminder and never asks for notification permission automatically. Cancellation, trial
   end, refund/revocation, auto-renew off, product changes, or renewal-date changes remove or
   replace the pending request. Notification copy contains no date, price, amount, product, or
-  remaining-day count, and the configured seven-day test offer is never lifecycle authority.
+  remaining-day count. It says the trial is ending rather than promising that auto-renew remains
+  enabled after the app stops running, and the configured seven-day test offer is never lifecycle
+  authority.
 - Added a voluntary MindBudget Pro screen in Settings and at explicit Pro value triggers. It shows
   only current StoreKit Monthly/Annual prices, exact renewal terms, and the actual introductory
   offer when StoreKit reports that the account is eligible; a promotion's presence or duration is

@@ -175,9 +175,14 @@ for c302_contract in \
   'Status: **Implementation complete pending independent review, hosted green CI, and merge.**' \
   'verified current transaction must identify an introductory free trial' \
   'actual `renewalDate` and `willAutoRenew` facts' \
+  'current trial product' \
+  'next-renewal product' \
+  '`autoRenewPreference`' \
   'five calendar days' \
   'never requests permission' \
   'Remove the old request before adding a replacement' \
+  'trial ends soon' \
+  'never promises renewal' \
   'no date, price, amount, product, or remaining-day count' \
   'DEC-COM-020'; do
   if ! grep -Fq "${c302_contract}" \

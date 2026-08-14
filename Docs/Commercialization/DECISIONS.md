@@ -480,10 +480,17 @@ context.
   cached catalog metadata, and the configured P1W fixture can never activate or preserve this
   projection. The projection remains process-local and is published with the existing immutable
   entitlement snapshot.
+- Product identity: Preserve the accepted `currentProductID` as the product carrying the active
+  trial, but use an accepted nonnil `autoRenewPreference` as the next-renewal product. If StoreKit
+  omits that preference, fall back to the current product. Keeping both identities in the
+  projection makes a scheduled same-group plan switch observable even when the renewal date is
+  unchanged and prevents disclosure from showing the old plan's standard price.
 - Reminder decision: Reconcile one stable pending local-notification identifier at five user-
   calendar days before a reliable future renewal date. Use the person's `Calendar` and `TimeZone`,
   never fixed seconds. The notification is generic bilingual copy containing no renewal date,
-  price, amount, product, remaining-day count, ledger content, or note. Remove the old request
+  price, amount, product, remaining-day count, ledger content, or note. Because a pending request
+  can fire while the app is terminated and cannot observe an App Store cancellation, it says the
+  trial ends soon and asks the person to review current status; it never promises renewal. Remove the old request
   before replacement; trial end, auto-renew off, cancellation, refund/revocation, product switch,
   date change, missing authority, or missing/past date removes or replaces it.
 - Consent and fallback: Lifecycle reconciliation reads notification authorization but never
@@ -504,6 +511,7 @@ context.
   tester assignment, or distribution authorization. The post-0.9.6 release hold remains active.
 - Alternatives rejected: Starting a local seven-day timer after purchase; deriving trial from
   paywall eligibility or cache; requiring `RenewalInfo.offer` for a one-period trial; including
-  billing details in a notification; requesting notification consent automatically; retaining a
+  billing details or a mutable auto-renew assertion in a notification; pricing a scheduled switch
+  from `currentProductID`; requesting notification consent automatically; retaining a
   stale request after cancellation/date change; fixed `5 * 86400` arithmetic; or persisting trial
   state as entitlement authority.

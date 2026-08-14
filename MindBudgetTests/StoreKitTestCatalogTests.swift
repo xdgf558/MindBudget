@@ -240,7 +240,8 @@ struct StoreKitTestCatalogTests {
         #expect(authority.decision(for: .advancedSiri) == .allowed)
         let lifecycleSnapshot = await store.currentSnapshot()
         #expect(lifecycleSnapshot.effectiveState == .subscribed)
-        #expect(lifecycleSnapshot.trialLifecycle?.productID == productID)
+        #expect(lifecycleSnapshot.trialLifecycle?.currentTrialProductID == productID)
+        #expect(lifecycleSnapshot.trialLifecycle?.renewalProductID == productID)
         #expect(lifecycleSnapshot.trialLifecycle?.renewalDate != nil)
         #expect(lifecycleSnapshot.trialLifecycle?.willAutoRenew == true)
         #expect(

@@ -9,7 +9,8 @@ struct TrialLifecycleTests {
         let renewalDate = Date(timeIntervalSince1970: 2_000_000_000)
         let transaction = verifiedTransaction(
             trial: TrialLifecycleProjection(
-                productID: .proMonthly,
+                currentTrialProductID: .proMonthly,
+                renewalProductID: .proMonthly,
                 renewalDate: renewalDate,
                 willAutoRenew: true
             )
@@ -24,9 +25,80 @@ struct TrialLifecycleTests {
         )
 
         #expect(resolution.isActionable)
-        #expect(resolution.trialLifecycle?.productID == .proMonthly)
+        #expect(resolution.trialLifecycle?.currentTrialProductID == .proMonthly)
+        #expect(resolution.trialLifecycle?.renewalProductID == .proMonthly)
         #expect(resolution.trialLifecycle?.renewalDate == renewalDate)
         #expect(resolution.trialLifecycle?.willAutoRenew == true)
+    }
+
+    @Test
+    func renewalPreferenceChangeUpdatesProjectionAndUsesTheRenewalPlanPrice() throws {
+        let renewalDate = Date(timeIntervalSince1970: 2_000_000_000)
+        let monthlyRenewal = try #require(
+            TrialLifecycleProjection.fromVerifiedStoreKitFacts(
+                currentTrialProductID: .proMonthly,
+                autoRenewPreference: StoreProductID.proMonthly.rawValue,
+                renewalDate: renewalDate,
+                willAutoRenew: true
+            )
+        )
+        let annualRenewal = try #require(
+            TrialLifecycleProjection.fromVerifiedStoreKitFacts(
+                currentTrialProductID: .proMonthly,
+                autoRenewPreference: StoreProductID.proAnnual.rawValue,
+                renewalDate: renewalDate,
+                willAutoRenew: true
+            )
+        )
+        let missingPreferenceFallback = try #require(
+            TrialLifecycleProjection.fromVerifiedStoreKitFacts(
+                currentTrialProductID: .proMonthly,
+                autoRenewPreference: nil,
+                renewalDate: renewalDate,
+                willAutoRenew: true
+            )
+        )
+        let catalog = StoreCatalogAvailability.live(
+            StoreCatalogSnapshot(
+                context: StoreCatalogContext(
+                    environment: .xcode,
+                    storefrontCountryCode: "USA"
+                ),
+                products: [
+                    trialProduct(id: .proMonthly, displayPrice: "MONTHLY_PRICE"),
+                    trialProduct(id: .proAnnual, displayPrice: "ANNUAL_PRICE"),
+                ]
+            )
+        )
+        let resolution = SubscriptionStatusMapper().resolve(
+            StoreEntitlementRead(
+                transactions: [verifiedTransaction(trial: annualRenewal)],
+                unverifiedCount: 0,
+                appEnvironment: .xcode
+            )
+        )
+
+        #expect(monthlyRenewal.currentTrialProductID == .proMonthly)
+        #expect(annualRenewal.currentTrialProductID == .proMonthly)
+        #expect(monthlyRenewal.renewalProductID == .proMonthly)
+        #expect(annualRenewal.renewalProductID == .proAnnual)
+        #expect(missingPreferenceFallback.renewalProductID == .proMonthly)
+        #expect(monthlyRenewal != annualRenewal)
+        #expect(resolution.trialLifecycle == annualRenewal)
+        #expect(
+            TrialLifecyclePresentation.liveDisplayPrice(
+                for: try #require(resolution.trialLifecycle),
+                catalog: catalog
+            ) == "ANNUAL_PRICE"
+        )
+        #expect(
+            TrialLifecycleProjection.fromVerifiedStoreKitFacts(
+                currentTrialProductID: .proMonthly,
+                autoRenewPreference: "future.unknown.product",
+                renewalDate: renewalDate,
+                willAutoRenew: true
+            ) == nil
+        )
     }
 
     @Test
@@ -43,7 +115,8 @@ struct TrialLifecycleTests {
             hasVerifiedRenewalInfo: true,
             hasVerifiedAppBundle: true,
             trialLifecycle: TrialLifecycleProjection(
-                productID: .proAnnual,
+                currentTrialProductID: .proAnnual,
+                renewalProductID: .proAnnual,
                 renewalDate: Date(timeIntervalSince1970: 2_000_000_000),
                 willAutoRenew: true
             )
@@ -70,7 +143,8 @@ struct TrialLifecycleTests {
 
         let result = try await scheduler.reconcile(
             trial: TrialLifecycleProjection(
-                productID: .proMonthly,
+                currentTrialProductID: .proMonthly,
+                renewalProductID: .proMonthly,
                 renewalDate: renewalDate,
                 willAutoRenew: true
             ),
@@ -88,6 +162,8 @@ struct TrialLifecycleTests {
         #expect(!request.body.contains("1.99"))
         #expect(!request.body.contains("5 days"))
         #expect(!request.body.contains("2027"))
+        #expect(request.body.contains("ends soon"))
+        #expect(!request.body.contains("will renew"))
     }
 
     @Test
@@ -139,7 +215,8 @@ struct TrialLifecycleTests {
 
         let result = try await scheduler.reconcile(
             trial: TrialLifecycleProjection(
-                productID: .proMonthly,
+                currentTrialProductID: .proMonthly,
+                renewalProductID: .proMonthly,
                 renewalDate: renewalDate,
                 willAutoRenew: true
             ),
@@ -175,6 +252,8 @@ struct TrialLifecycleTests {
         #expect(!request.body.contains("5"))
         #expect(!request.body.contains("2027"))
         #expect(!request.body.contains(StoreProductID.proMonthly.rawValue))
+        #expect(request.body.contains("即将结束"))
+        #expect(!request.body.contains("即将续订"))
     }
 
     @Test
@@ -185,7 +264,8 @@ struct TrialLifecycleTests {
 
         let result = try await scheduler.reconcile(
             trial: TrialLifecycleProjection(
-                productID: .proAnnual,
+                currentTrialProductID: .proAnnual,
+                renewalProductID: .proAnnual,
                 renewalDate: nil,
                 willAutoRenew: true
             ),
@@ -243,7 +323,8 @@ struct TrialLifecycleTests {
         )
         let stopped = try await scheduler.reconcile(
             trial: TrialLifecycleProjection(
-                productID: .proMonthly,
+                currentTrialProductID: .proMonthly,
+                renewalProductID: .proMonthly,
                 renewalDate: date(2027, 1, 10, 9, calendar: calendar),
                 willAutoRenew: false
             ),
@@ -283,7 +364,8 @@ struct TrialLifecycleTests {
         )
         let changed = try await scheduler.reconcile(
             trial: TrialLifecycleProjection(
-                productID: .proAnnual,
+                currentTrialProductID: .proMonthly,
+                renewalProductID: .proAnnual,
                 renewalDate: date(2027, 1, 20, 18, calendar: calendar),
                 willAutoRenew: true
             ),
@@ -318,7 +400,8 @@ struct TrialLifecycleTests {
         await #expect(throws: TrialNotificationCenterFixture.Failure.self) {
             try await scheduler.reconcile(
                 trial: TrialLifecycleProjection(
-                    productID: .proAnnual,
+                    currentTrialProductID: .proMonthly,
+                    renewalProductID: .proAnnual,
                     renewalDate: date(2027, 1, 20, 18, calendar: calendar),
                     willAutoRenew: true
                 ),
@@ -352,9 +435,28 @@ struct TrialLifecycleTests {
 
     private func activeTrial(calendar: Calendar) -> TrialLifecycleProjection {
         TrialLifecycleProjection(
-            productID: .proMonthly,
+            currentTrialProductID: .proMonthly,
+            renewalProductID: .proMonthly,
             renewalDate: date(2027, 1, 10, 9, calendar: calendar),
             willAutoRenew: true
+        )
+    }
+
+    private func trialProduct(
+        id: StoreProductID,
+        displayPrice: String
+    ) -> StoreProductPresentation {
+        StoreProductPresentation(
+            id: id,
+            displayName: id.rawValue,
+            description: id.rawValue,
+            displayPrice: displayPrice,
+            subscriptionPeriod: StoreSubscriptionPeriod(
+                value: 1,
+                unit: id == .proMonthly ? .month : .year
+            ),
+            introductoryOffer: nil,
+            isEligibleForIntroductoryOffer: false
         )
     }
 

@@ -502,12 +502,13 @@ struct StoreKitEntitlementSource: StoreEntitlementSourcing {
            hasVerifiedStatusTransaction,
            hasVerifiedRenewalInfo,
            let verifiedRenewalInfo,
-           let currentProductID = StoreProductID(
+           let currentTrialProductID = StoreProductID(
                rawValue: verifiedRenewalInfo.currentProductID
            ),
            isIntroductoryFreeTrial(authoritativeTransaction) {
-            trialLifecycle = TrialLifecycleProjection(
-                productID: currentProductID,
+            trialLifecycle = TrialLifecycleProjection.fromVerifiedStoreKitFacts(
+                currentTrialProductID: currentTrialProductID,
+                autoRenewPreference: verifiedRenewalInfo.autoRenewPreference,
                 renewalDate: verifiedRenewalInfo.renewalDate,
                 willAutoRenew: verifiedRenewalInfo.willAutoRenew
             )
@@ -641,7 +642,7 @@ struct SubscriptionStatusMapper: Sendable {
             }
             if let trialLifecycle = transaction.trialLifecycle {
                 guard transaction.subscriptionState == .subscribed,
-                      trialLifecycle.productID == productID else {
+                      trialLifecycle.currentTrialProductID == productID else {
                     return .failedClosed
                 }
             }

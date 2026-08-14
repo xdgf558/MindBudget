@@ -6,9 +6,40 @@ import Foundation
 /// This projection is process-local entitlement evidence. It is never reconstructed from the
 /// presentation cache, a configured seven-day fixture, or a locally persisted unlock.
 struct TrialLifecycleProjection: Equatable, Sendable {
-    let productID: StoreProductID
+    /// Product whose current verified transaction proves that the free trial is active now.
+    let currentTrialProductID: StoreProductID
+    /// Product StoreKit says will renew after the current trial period.
+    ///
+    /// A scheduled same-group switch can make this differ from `currentTrialProductID`.
+    let renewalProductID: StoreProductID
     let renewalDate: Date?
     let willAutoRenew: Bool
+
+    /// Translates already-verified StoreKit renewal facts into the process-local projection.
+    /// This helper is not entitlement authority; callers must first verify the transaction and
+    /// renewal chain. An unknown explicit renewal preference cannot select a display product.
+    static func fromVerifiedStoreKitFacts(
+        currentTrialProductID: StoreProductID,
+        autoRenewPreference: String?,
+        renewalDate: Date?,
+        willAutoRenew: Bool
+    ) -> TrialLifecycleProjection? {
+        let renewalProductID: StoreProductID
+        if willAutoRenew, let autoRenewPreference {
+            guard let preferredProductID = StoreProductID(rawValue: autoRenewPreference) else {
+                return nil
+            }
+            renewalProductID = preferredProductID
+        } else {
+            renewalProductID = currentTrialProductID
+        }
+        return TrialLifecycleProjection(
+            currentTrialProductID: currentTrialProductID,
+            renewalProductID: renewalProductID,
+            renewalDate: renewalDate,
+            willAutoRenew: willAutoRenew
+        )
+    }
 }
 
 enum TrialLifecyclePresentation {
@@ -19,7 +50,7 @@ enum TrialLifecyclePresentation {
         catalog: StoreCatalogAvailability
     ) -> String? {
         guard case let .live(snapshot) = catalog else { return nil }
-        return snapshot.products.first { $0.id == trial.productID }?.displayPrice
+        return snapshot.products.first { $0.id == trial.renewalProductID }?.displayPrice
     }
 }
 

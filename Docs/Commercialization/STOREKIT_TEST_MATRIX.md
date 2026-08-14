@@ -226,7 +226,9 @@ evidence.
 C3-02 does not start a local seven-day clock. The existing verified StoreKit authority publishes
 one process-local `TrialLifecycleProjection` only when the current verified transaction is an
 introductory free trial in the accepted app/product/environment chain. Verified renewal info owns
-the actual renewal date and auto-renew state. The projection disappears with nontrial, grace,
+the actual renewal date and auto-renew state. It keeps the current trial product separate from the
+accepted next-period `autoRenewPreference`, so a same-group switch changes the projection and live
+renewal-price lookup even when the date does not move. The projection disappears with nontrial, grace,
 retry, expired, revoked, unverified, conflicting, or missing authority and is never persisted.
 
 `TrialLifecycleScheduler` reconciles one stable pending request at five user-calendar days before
@@ -235,11 +237,15 @@ locale state win even across actor suspension. It removes the prior request befo
 so a failed add cannot retain an old renewal date. Disabled/denied/not-determined notifications or
 an already-passed reminder window use a noninterrupting in-app card and never request permission.
 No reliable date or auto-renew off schedules nothing. Dashboard and the voluntary Pro screen show
-the verified date; they may add a price only from a current `.live` StoreKit catalog snapshot.
+the verified date; they may add the accepted next-renewal product's price only from a current
+`.live` StoreKit catalog snapshot. Notification copy says the trial ends soon and asks the person
+to review current status instead of asserting that auto-renew remains enabled while the app is
+terminated.
 
 Pure C3-02 tests cover matching/mismatched trial projections, exact calendar T−5, generic content,
 disabled/denied/no-date/past-window fallback, cancellation/revoke/auto-renew-off removal, product/
-date replacement, and failed-add cleanup. They consume app-owned projections. The opt-in Monthly/
+date replacement, same-date `autoRenewPreference` switching, state-safe bilingual copy, and
+failed-add cleanup. They consume app-owned projections. The opt-in Monthly/
 Annual local StoreKit tests additionally assert that the real production bridge returns the
 matching product, a nonnil renewal date, and auto-renew enabled. Final Xcode 26.6 `17F113` ran
 the dedicated suite on physical `iPhone Air`, final iOS 26.6.1 `23G82`: 9 passed, 0 failed,
@@ -247,6 +253,14 @@ the dedicated suite on physical `iPhone Air`, final iOS 26.6.1 `23G82`: 9 passed
 tests validate the free-trial mode/P1W structure while StoreKit owns each locale's zero-price
 string; the isolated fixture validator retains the exact provisional USD literal. Evidence:
 `/private/tmp/MindBudget-C302-Physical4.xcresult`.
+
+Independent-review remediation split the current trial product from the verified next-renewal
+product, added the same-date `autoRenewPreference` switch regression, and made pending reminder
+copy state-safe after process termination. The focused trial suite passed 13/13; the owning full
+run produced 382 results (376 passed, 6 explicit opt-in probes skipped, 0 failed), including all
+14 UI tests and every selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`.
 
 ## Stop conditions
 

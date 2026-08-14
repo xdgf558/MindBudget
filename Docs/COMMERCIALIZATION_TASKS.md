@@ -39,7 +39,9 @@ detailed phase checklists; it added no paid product behavior.
   update sequences, makes each status signal trigger a fresh full reconciliation, and adds status
   mapping plus typed purchase/restore/finish seams without a second authority. Merged C3-01 adds a
   voluntary bilingual Pro screen using those seams. C3-02 implements an actual verified trial
-  projection plus local renewal reminder/in-app fallback without inventing a trial length.
+  projection plus local renewal reminder/in-app fallback without inventing a trial length. It
+  distinguishes the product carrying the active trial from the verified next-renewal product and
+  keeps pending notification copy safe after the app process stops.
   Receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
@@ -271,14 +273,17 @@ pending independent review, hosted green CI, and merge; C3-03 and C3-04 remain b
 - [ ] **C3-02 — Trial lifecycle.** Implementation is complete pending independent review, hosted
   green CI, and merge. Derive trial activation only from an
   accepted verified current StoreKit transaction and verified renewal information; use the actual
-  renewal date and `willAutoRenew`; schedule one generic local reminder five user-calendar days
+  renewal date and `willAutoRenew`; price a scheduled plan switch from the accepted
+  `autoRenewPreference` rather than the current trial product; schedule one generic local reminder five user-calendar days
   before renewal without date, price, amount, or remaining-day content; cancel/reschedule by one
   stable identifier on cancellation, expiry, refund/revoke, product switch, date change, or
-  missing authority. Notification denial/disablement or an already-passed reminder time falls
+  missing authority. The pending notification says the trial ends soon rather than promising
+  renewal. Notification denial/disablement or an already-passed reminder time falls
   back to a noninterrupting in-app card and never requests permission implicitly. The exact P1W
-  fixture is not lifecycle authority. Local focused/full validation is green: 68/68 focused tests
-  and 381 total full-validation results (375 passed, 6 explicit opt-in StoreKit runtime probes
-  skipped, 0 failed), including all 14 UI tests and every selected coverage gate. Independent
+  fixture is not lifecycle authority. Local validation is green: the original focused run passed
+  68/68, the review-remediation trial suite passed 13/13, and the owning full run produced 382
+  results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped, 0 failed), including all
+  14 UI tests and every selected coverage gate. Independent
   review, hosted green CI, and merge remain required before this item is Done. The final physical
   iPhone Air/iOS 26.6.1 dedicated suite passed 9/9 with no skip, including all four storefronts and
   both Monthly/Annual trial-lifecycle derivation paths.

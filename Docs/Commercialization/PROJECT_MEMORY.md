@@ -77,11 +77,14 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   flows. PR #33 then passed independent review and green CI and merged as `747b628`. C3-02 now
   derives a process-local active-trial projection only when the verified current transaction is an
   introductory free-trial transaction and verified renewal information supplies the actual
-  `renewalDate` and `willAutoRenew`. A stable generic local reminder is reconciled five user-
+  `renewalDate` and `willAutoRenew`. The projection keeps the current trial product separate from
+  the accepted next-renewal `autoRenewPreference`, so a scheduled plan switch selects the correct
+  live StoreKit price and changes the lifecycle even when its date is unchanged. A stable generic local reminder is reconciled five user-
   calendar days before a reliable future date; disabled/denied notifications or a passed reminder
   window use an in-app card without requesting permission. Cancellation, end of trial, revocation,
   product/date changes, and missing authority remove or replace the request. The notification has
-  no price, date, amount, product, or remaining-day content. Formal App Store Connect products,
+  no price, date, amount, product, or remaining-day content, and says the trial ends soon instead
+  of promising that auto-renew remains enabled after the app stops. Formal App Store Connect products,
   final price/trial economics, C3-03, C3-04, and distribution remain blocked by their owning
   packets and release gates. C2-04's completed environment proof does not waive them.
   Final Xcode 26.6 `17F113` on the physical iPhone Air with final iOS 26.6.1 `23G82` passed the

@@ -297,11 +297,14 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 Done and C3-02 i
   PR #33 passed independent review and green CI and merged as `747b628` on 2026-08-14.
 - [ ] Independently review, obtain hosted green CI, and merge the implementation-complete C3-02
   candidate: derive active trial lifecycle from verified
-  StoreKit transaction/renewal facts, schedule one generic T−5 calendar reminder, cancel or
+  StoreKit transaction/renewal facts, separate the current trial product from the accepted next-
+  renewal `autoRenewPreference`, schedule one generic T−5 calendar reminder, cancel or
   replace it on every lifecycle change, and use an in-app fallback without an implicit permission
-  prompt. Local evidence passed 68/68 focused tests and 381 full-validation results: 375 passed,
-  6 explicit opt-in StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and every
-  selected coverage gate passed. The physical final-device suite passed 9/9 with no skip across
+  prompt. Pending notification copy says the trial ends soon without asserting mutable auto-renew
+  state. Local evidence passed the original 68/68 focused run and the 13/13 review-remediation
+  trial suite. The owning full validation produced 382 results: 376 passed, 6 explicit opt-in
+  StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and every selected coverage gate
+  passed. The physical final-device suite passed 9/9 with no skip across
   HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths. The P1W fixture is
   never authority; C3-03, formal economics,
   versioning, Archive/upload, tester assignment, and distribution remain blocked.

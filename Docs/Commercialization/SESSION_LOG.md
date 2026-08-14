@@ -1056,3 +1056,32 @@ What was NOT changed: No signed public configuration, formal App Store Connect p
 price/trial term, automatic paywall, receipt import, schema, app-owned HTTP(S), version, Archive,
 upload, tester assignment, or distribution action was added. The uploaded 0.9.6 build and
 post-0.9.6 release hold remain unchanged.
+
+## 2026-08-14 — Session 34 — Correct C3-02 renewal-plan disclosure and state-safe reminder copy
+
+Goal: Resolve the independent C3-02 review findings without broadening entitlement authority or
+advancing C3-03.
+
+What changed: `TrialLifecycleProjection` now preserves the verified product carrying the current
+trial separately from the verified next-renewal product. A recognized nonnil
+`autoRenewPreference` selects the renewal product; absence falls back to the current product, and
+an unknown explicit preference produces no lifecycle projection. Renewal price lookup follows the
+next-renewal product, so a same-date plan switch changes the projection and disclosure. Pending
+English and Simplified-Chinese notification copy now says the trial ends soon and asks the person
+to review current status; it no longer promises renewal after the app can be terminated while a
+person changes auto-renew externally. Static StoreKit/document gates and durable decisions,
+requirements, matrix, memory, and changelog were aligned.
+
+Evidence: The dedicated review-remediation trial suite passed 13/13. Full validation produced 382
+results: 376 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests, the Release build, static gates, and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The preceding PR head `71d7f54` had green
+hosted run `31800476681`; the review-fix commit still requires its own hosted green run.
+
+Current state: C3-02 remains implementation complete pending independent re-review, hosted green
+CI, and merge; it is not Done. C3-03 and C3-04 remain blocked.
+
+What was NOT changed: No signed public configuration, formal product or final economics,
+automatic paywall, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
+distribution action changed. The uploaded 0.9.6 build and post-0.9.6 release hold remain unchanged.

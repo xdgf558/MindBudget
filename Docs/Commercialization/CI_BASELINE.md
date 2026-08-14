@@ -325,6 +325,25 @@ localization, release, and diff gates are green. Evidence:
 independent review, hosted green CI, and merge; it is not Done. C3-03, formal economics/products,
 versioning, Archive/upload, tester assignment, and distribution remain blocked.
 
+### C3-02 independent-review remediation
+
+The review found two truthful-presentation gaps. The lifecycle projection had used the current
+trial product for renewal pricing even when verified `autoRenewPreference` selected a different
+next-period plan, and a pending notification could promise renewal after the app process stopped
+observing an App Store cancellation. The projection now stores current-trial and next-renewal
+product identities separately, falls back to the current product only when the verified preference
+is absent, and changes when only that preference changes. Pending bilingual copy says the trial
+ends soon and asks the person to review current status without asserting that renewal remains on.
+
+The dedicated review-remediation trial suite passed 13/13. The owning full validation produced
+382 results: 376 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests, Release build, static gates, and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The previously submitted PR head
+`71d7f54` had green GitHub Actions run `31800476681`; hosted validation must rerun for the review-
+fix commit before merge. C3-02 remains implementation complete pending independent re-review,
+green hosted CI, and merge; it is not Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

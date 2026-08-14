@@ -43,6 +43,7 @@ for contract in \
   'transaction.offer?.type == .introductory' \
   'verifiedRenewalInfo.renewalDate' \
   'verifiedRenewalInfo.willAutoRenew' \
+  'verifiedRenewalInfo.autoRenewPreference' \
   'TrialLifecycleProjection'; do
   if ! grep -Fq "${contract}" "${ENTITLEMENT_SOURCE}"; then
     echo "Missing C3-02 verified trial projection contract: ${contract}" >&2
@@ -55,6 +56,9 @@ for contract in \
   'advanceDayCount = 5' \
   'calendar.date(' \
   'byAdding: .day' \
+  'currentTrialProductID' \
+  'renewalProductID' \
+  'trial.renewalProductID' \
   'removePendingRequest' \
   'notification.trialRenewal.title' \
   'notification.trialRenewal.body'; do
@@ -63,6 +67,20 @@ for contract in \
     exit 1
   fi
 done
+
+for copy in \
+  'Your Pro trial ends soon. Open MindBudget to review its current status.' \
+  '你的 Pro 试用即将结束。打开花有数查看当前状态。'; do
+  if ! grep -Fq "${copy}" "${LOCALIZATIONS}"; then
+    echo "Missing state-safe C3-02 trial reminder copy: ${copy}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'Your Pro trial will renew soon|你的 Pro 试用即将续订' "${LOCALIZATIONS}"; then
+  echo "A pending local reminder must not promise that auto-renew is still enabled" >&2
+  exit 1
+fi
 
 if grep -En 'requestAuthorization|86400|timeIntervalSince' "${TRIAL_SOURCE}"; then
   echo "Trial lifecycle must not prompt implicitly or use fixed-second day arithmetic" >&2

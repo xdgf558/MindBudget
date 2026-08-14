@@ -4129,3 +4129,30 @@ and distribution remain blocked.
 What was NOT changed: No signed public configuration, formal product or trial term, automatic
 paywall, receipt import, schema, network destination, version, Archive, upload, tester assignment,
 or distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.
+
+## 2026-08-14 — Session 113 — Fix C3-02 renewal-plan price and pending reminder wording
+
+Goal: Close the independent C3-02 review findings while keeping C3-03 and distribution blocked.
+
+What changed: Trial lifecycle now distinguishes the current trial product from the verified
+next-renewal product. A recognized `autoRenewPreference` owns next-period price disclosure; a
+missing preference falls back to the current product, while an unknown explicit preference cannot
+create a lifecycle projection. A same-date plan-switch regression proves the projection and live
+price change. Pending bilingual local-notification copy now states that the trial ends soon and
+asks the person to review current status instead of asserting renewal after the process stops.
+The StoreKit and commercial-document gates were strengthened around both contracts.
+
+Evidence: The targeted trial suite passed 13/13. Full validation produced 382 results: 376 passed,
+6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI tests, the Release
+build, static gates, and selected coverage thresholds passed. Evidence:
+`/private/tmp/MindBudget-C302-ReviewFix-Trial2.xcresult` and
+`/private/tmp/MindBudget-C302-ReviewFix-Full.xcresult`. The prior PR head `71d7f54` had green
+GitHub Actions run `31800476681`; the review-fix commit still requires a fresh hosted run.
+
+State: C3-02 remains implementation complete pending independent re-review, hosted green CI, and
+merge; it is not Done. C3-03, final economics/products, versioning, Archive/upload, tester
+assignment, and distribution remain blocked.
+
+What was NOT changed: No signed public configuration, formal product or trial term, automatic
+paywall, receipt import, schema, network destination, version, Archive, upload, tester assignment,
+or distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.

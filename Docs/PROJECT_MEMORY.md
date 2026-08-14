@@ -82,13 +82,16 @@ prices, quotas, a Release manual unlock, or distribution permission, and existin
 users receive no production Pro rights. C3-02 is implementation complete pending independent
 review, hosted green CI, and merge. It projects an active
 trial only from a verified current introductory-free-trial transaction plus verified renewal
-information, uses Apple's actual renewal date and auto-renew state, and reconciles one generic
+information, uses Apple's actual renewal date and auto-renew state, and separates the current
+trial product from the accepted next-renewal `autoRenewPreference` for live-price disclosure. It reconciles one generic
 T−5 calendar reminder or a noninterrupting in-app fallback. It never derives lifecycle from the
 configured seven-day test offer, never requests notification permission implicitly, and removes or
 replaces the stable request after cancellation, trial end, revocation, product/date change, or
-missing authority. C3-02 local evidence passed 68/68 focused tests and 381 full-validation
-results (375 passed, 6 explicit opt-in StoreKit runtime probes skipped, 0 failed), including all
-14 UI tests and every selected coverage gate. The physical final-device StoreKit suite passed
+missing authority. Pending notification copy says the trial ends soon and asks the person to
+review current status rather than promising renewal after the app stops. C3-02 local evidence passed
+the original 68/68 focused run and the 13/13 review-remediation trial suite. The owning full
+validation produced 382 results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped,
+0 failed), including all 14 UI tests and every selected coverage gate. The physical final-device StoreKit suite passed
 9/9 with no skip across HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths.
 Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
