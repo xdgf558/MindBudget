@@ -4,6 +4,12 @@ import StoreKitTest
 import Testing
 @testable import MindBudget
 
+private let c301TestFreeTrial = StoreIntroductoryOfferTerms(
+    period: StoreSubscriptionPeriod(value: 1, unit: .week),
+    periodCount: 1,
+    isFreeTrial: true
+)
+
 @Suite(.serialized)
 struct StoreKitTestCatalogTests {
     @Test
@@ -201,7 +207,9 @@ struct StoreKitTestCatalogTests {
         #expect(records.allSatisfy { $0.isAutoRenewable })
         #expect(records.allSatisfy { !$0.isFamilyShareable })
         #expect(records.allSatisfy { !$0.displayPrice.isEmpty })
-        #expect(records.allSatisfy { $0.introductoryOffer == StoreCatalogContract.expectedIntroductoryOffer })
+        // Exact trial terms belong to the isolated local fixture evidence, never the production
+        // catalog or entitlement authority contract.
+        #expect(records.allSatisfy { $0.introductoryOffer == c301TestFreeTrial })
     }
 
     private func exerciseVerifiedPurchaseAndFinish(

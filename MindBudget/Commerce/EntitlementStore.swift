@@ -720,6 +720,14 @@ actor EntitlementStore {
         commerceOperationInProgress = true
         defer { commerceOperationInProgress = false }
 
+        // A live product catalog is presentation evidence, not entitlement authority. Re-read the
+        // complete StoreKit authority before presenting a purchase so `.unavailable` can never be
+        // treated as confirmed Free. The post-purchase reconciliation below remains the final
+        // authority for granting access and acknowledging the transaction.
+        guard let purchaseAuthority = await reconcile(), purchaseAuthority.isActionable else {
+            return .failed(.invalidStoreState)
+        }
+
         do {
             switch try await source.purchase(productID) {
             case let .verified(transaction):

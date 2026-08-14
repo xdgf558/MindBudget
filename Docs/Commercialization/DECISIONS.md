@@ -427,9 +427,22 @@ context.
 - Requirements: REQ-STOREKIT-LIFECYCLE-001
 - Decision: The C3-01 nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and one
   P1W free-trial offer for StoreKit-eligible subscribers. Initial runtime/storefront evidence
-  covers HKG, USA, SGP, and TWN. Customer UI renders StoreKit `displayPrice`, subscription period,
-  and verified introductory-offer eligibility; source code and localized strings do not hardcode
-  a currency display or promise a trial to an ineligible subscriber.
+  covers HKG, USA, SGP, and TWN. The exact P1W offer is a local fixture/test assertion only, not a
+  production catalog or entitlement requirement. Production validates stable product identity,
+  type, period, Family Sharing state, and subscription group; an introductory offer is optional
+  StoreKit-owned presentation data. Customer UI renders StoreKit `displayPrice`, subscription
+  period, actual offer duration, and verified introductory-offer eligibility; source code and
+  localized strings do not hardcode a currency display or promise a trial to an ineligible
+  subscriber. Removing or changing a promotion can never invalidate an otherwise verified paid
+  entitlement.
+- Purchase-authority boundary: A live catalog does not prove that the current entitlement read is
+  trustworthy. An `.unavailable` subscription snapshot pauses purchase in both the customer View
+  and `EntitlementStore.purchase`, exposes an explicit recheck action, and never aliases uncertainty
+  to confirmed Free. The actor performs a fresh actionable-authority preflight before invoking
+  StoreKit and retains the existing authoritative post-purchase reconciliation.
+- Locale boundary: Renewal disclosure selects and formats localized copy with the SwiftUI
+  app-selected locale. It never falls back to `Locale.current` or a process-global
+  `NSLocalizedString` lookup when the person selected another in-app language.
 - Presentation boundary: The paywall is voluntary. It may open from Settings or an explicit Pro
   value trigger only; C3-01 has zero automatic/interrupting presentations. Purchase, restore, and
   manage-subscription operations require explicit taps and continue through the single C2
@@ -440,6 +453,8 @@ context.
 - Release boundary: These values are provisional Configuration/Sandbox/TestFlight evidence, not
   final regional economics or authorization to create formal App Store Connect products, Archive,
   upload, assign testers, or distribute. The post-0.9.6 release hold remains active.
-- Alternatives rejected: Hardcoded `$` UI; app-owned currency conversion; advertising a trial
-  without StoreKit eligibility; automatic paywall presentation; implicit restore; adding Lifetime
-  or deferred product promises; or treating a test anchor as final launch pricing.
+- Alternatives rejected: Hardcoded `$` UI; app-owned currency conversion; making production paid
+  authority depend on an exact promotional offer; advertising a trial without StoreKit
+  eligibility; treating `.unavailable` as Free for purchase; device-locale renewal copy inside an
+  app-locale screen; automatic paywall presentation; implicit restore; adding Lifetime or deferred
+  product promises; or treating a test anchor as final launch pricing.

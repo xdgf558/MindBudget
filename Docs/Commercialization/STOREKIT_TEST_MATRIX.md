@@ -166,20 +166,28 @@ authority.
 
 C3-01 owns the first customer-facing purchase surface without changing entitlement authority.
 The voluntary Settings/value-trigger screen displays `Product.displayPrice`, exact Monthly/Annual
-periods, and the P1W offer only after a fresh `isEligibleForIntroOffer` result. Its cached snapshot
-retains presentation metadata but deliberately clears eligibility; cached and unavailable states
-disable purchase and never invent a price or trial. Purchase, restore, and manage subscription
-remain explicit taps through the C2 typed seams, and the automatic-presentation count is zero.
+periods, and the actual optional StoreKit introductory offer only after a fresh
+`isEligibleForIntroOffer` result. Its cached snapshot retains presentation metadata but
+deliberately clears eligibility; cached and unavailable states disable purchase and never invent
+a price or trial. An unavailable entitlement snapshot independently blocks the View and actor and
+offers a user-initiated recheck. Purchase, restore, and manage subscription remain explicit taps
+through the C2 typed seams, and the automatic-presentation count is zero.
 
-Pure tests cover the complete typed purchase/restore notice matrix, exact catalog and P1W offer,
-cache eligibility stripping, malformed terms, and StoreKit-price interpolation. The UI test opens
-the screen only after the person selects Settings and proves no launch/dashboard presentation.
+Pure tests cover the complete typed purchase/restore notice matrix, stable production catalog
+shape with a missing or changed promotion, cache eligibility stripping, malformed structural
+terms, StoreKit-price interpolation, unavailable-authority purchase rejection before the source,
+and English/Chinese renewal disclosure under explicit app locales. Exact P1W offer validation is
+owned only by the isolated `.storekit` fixture contract and opt-in runtime probes. The UI test
+opens the screen only after the person selects Settings and proves no launch/dashboard
+presentation.
 The static StoreKit gate rejects provisional price literals or raw StoreKit purchase/sync calls in
 customer source and requires the two approved Settings/value-trigger entry sites.
 
 The dedicated local scheme owns four runtime product probes—HKG, USA, SGP, and TWN. Each must
-actually execute and load the exact Monthly/Annual catalog, periods, localized `displayPrice`, and
-P1W free-trial offer; a skip, empty set, wrong term, or StoreKit error is non-evidence. Formal App
+actually execute and load the exact Monthly/Annual test catalog, periods, localized
+`displayPrice`, and fixture-only P1W free-trial offer; a skip, empty set, wrong test term, or
+StoreKit error is non-evidence. Those probes validate StoreKit-to-app projection for the local
+fixture; production authority deliberately does not require a promotion. Formal App
 Store Connect product creation, final regional prices, C3-02 reminders, Archive/upload, tester
 assignment, and distribution remain blocked even after these local probes pass.
 

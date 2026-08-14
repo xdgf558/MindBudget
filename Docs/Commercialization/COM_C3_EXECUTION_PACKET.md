@@ -27,13 +27,18 @@ Status: **Implementation complete pending independent review, green CI, and merg
   recording, export, deletion, app lock, or another Free trust path.
 - Present the exact Monthly/Annual StoreKit catalog. Display `Product.displayPrice`, subscription
   period, and StoreKit-derived introductory-offer eligibility; never hardcode a customer currency,
-  converted regional price, or eligibility promise.
+  converted regional price, or eligibility promise. The P1W offer is exact only in the isolated
+  test fixture; production treats any valid StoreKit introductory offer as optional presentation
+  data and never makes paid authority depend on its presence or duration.
 - Explain the currently delivered Pro value only: Apple on-device wording enhancement,
   non-24-hour cooling-off choices, and advanced Siri actions. Do not advertise cloud AI, quotas,
   Lifetime, Watch, iCloud, receipt capture, telemetry, or another deferred product.
 - Route purchase and restore only through the existing typed `AppSession`/`EntitlementStore`
   seams. Pending, cancelled, unavailable, verification, and invalid-state outcomes use neutral
   localized copy and never grant locally.
+- Require an actionable entitlement snapshot before purchase at both the View and actor boundary.
+  When authority is unavailable, pause purchase and offer an explicit user-initiated recheck;
+  never infer confirmed Free from a live catalog.
 - Add user-initiated Restore Purchases and Manage Subscription controls, plus accessible local
   subscription/privacy explanations. Never invoke `AppStore.sync()` or a management sheet without
   an explicit tap.
@@ -46,6 +51,12 @@ Status: **Implementation complete pending independent review, green CI, and merg
   Lifetime, with a single P1W free-trial test offer on each product.
 - Live presentation uses StoreKit display values and eligibility; cached/unavailable presentation
   never advertises an unverified trial or invents a price.
+- Production catalog/authority tests prove that removing or changing the introductory offer does
+  not invalidate the stable Monthly/Annual subscription contract. The dedicated fixture/runtime
+  tests alone retain the exact P1W assertion.
+- Renewal disclosure follows the injected app locale even when the device/process locale differs.
+- Unavailable entitlement authority blocks the purchase surface and the actor before any source
+  purchase call; recheck remains explicit.
 - Purchase outcome matrix covers success, pending, cancellation, unavailable product, disallowed
   purchases, verification failure, invalid state, and neutral fallback.
 - Restore covers restored, no active subscription, and neutral failure; no implicit restore runs.

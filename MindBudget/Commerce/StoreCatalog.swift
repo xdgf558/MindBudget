@@ -1,8 +1,9 @@
 import Foundation
 import StoreKit
 
-/// The complete owner-approved StoreKit technical catalog. Customer-facing prices always come
-/// from StoreKit; the accepted product and introductory-offer shape is validated here.
+/// The complete owner-approved StoreKit technical catalog. Customer-facing prices and optional
+/// promotional offers always come from StoreKit; only stable subscription identity and structure
+/// participate in this production contract.
 enum StoreProductID: String, CaseIterable, Codable, Sendable {
     case proMonthly = "com.xdgf558.mindbudget.pro.monthly"
     case proAnnual = "com.xdgf558.mindbudget.pro.annual"
@@ -357,11 +358,6 @@ enum StoreCatalogValidationError: Error, Equatable, Sendable {
 /// can never be offered before the Monthly/Annual pair has been verified as one coherent group.
 enum StoreCatalogContract {
     static let expectedProductIDs = Set(StoreProductID.allCases.map(\.rawValue))
-    static let expectedIntroductoryOffer = StoreIntroductoryOfferTerms(
-        period: StoreSubscriptionPeriod(value: 1, unit: .week),
-        periodCount: 1,
-        isFreeTrial: true
-    )
 
     static func validate(
         _ records: [StoreProductRecord]
@@ -378,8 +374,7 @@ enum StoreCatalogContract {
             guard let record = grouped[identifier.rawValue]?.first,
                   record.isAutoRenewable,
                   !record.isFamilyShareable,
-                  record.subscriptionPeriod == identifier.expectedPeriod,
-                  record.introductoryOffer == expectedIntroductoryOffer else {
+                  record.subscriptionPeriod == identifier.expectedPeriod else {
                 throw StoreCatalogValidationError.invalidSubscription(identifier.rawValue)
             }
             guard let subscriptionGroupID = record.subscriptionGroupID,

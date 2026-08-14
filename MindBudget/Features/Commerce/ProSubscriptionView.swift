@@ -4,6 +4,7 @@ import SwiftUI
 struct ProSubscriptionView: View {
     @ObservedObject var session: AppSession
     @Environment(\.mindBudgetTheme) private var theme
+    @Environment(\.locale) private var locale
     @State private var selectedProductID: StoreProductID = .proAnnual
     @State private var isPerformingOperation = false
     @State private var notice: ProCommerceNotice?
@@ -33,6 +34,12 @@ struct ProSubscriptionView: View {
         case .subscribed, .inGracePeriod: true
         case .none, .inBillingRetryPeriod, .expired, .revoked, .unavailable: false
         }
+    }
+
+    private var hasConfirmedPurchaseAuthority: Bool {
+        ProCommercePurchaseGate.hasConfirmedAuthority(
+            session.commerceSubscriptionState
+        )
     }
 
     var body: some View {
@@ -116,10 +123,26 @@ struct ProSubscriptionView: View {
     private var purchaseSection: some View {
         Section {
             if let selectedProduct {
-                Text(ProCommerceCopy.renewalDisclosure(for: selectedProduct))
+                Text(ProCommerceCopy.renewalDisclosure(for: selectedProduct, locale: locale))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("commerce.pro.renewalDisclosure")
+            }
+
+            if !hasConfirmedPurchaseAuthority {
+                Label(
+                    "commerce.pro.status.unavailable",
+                    systemImage: "exclamationmark.arrow.triangle.2.circlepath"
+                )
+                .font(.footnote)
+                .foregroundStyle(.orange)
+                .accessibilityIdentifier("commerce.pro.status.unavailable")
+
+                Button("commerce.pro.status.recheck") {
+                    Task { await session.refreshCommerceEntitlements() }
+                }
+                .disabled(isPerformingOperation)
+                .accessibilityIdentifier("commerce.pro.status.recheck")
             }
 
             Button {
@@ -143,6 +166,7 @@ struct ProSubscriptionView: View {
                     || !hasLiveCatalog
                     || selectedProduct == nil
                     || hasActiveSubscription
+                    || !hasConfirmedPurchaseAuthority
             )
             .accessibilityIdentifier("commerce.pro.purchase")
 
@@ -205,8 +229,7 @@ struct ProSubscriptionView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.id == .proMonthly ? "commerce.pro.monthly" : "commerce.pro.annual")
                         .font(.headline)
-                    if product.isEligibleForIntroductoryOffer,
-                       product.introductoryOffer == StoreCatalogContract.expectedIntroductoryOffer {
+                    if ProCommerceCopy.hasPresentableFreeTrial(product) {
                         Text("commerce.pro.trial.eligible")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(theme.accent)
@@ -230,15 +253,16 @@ struct ProSubscriptionView: View {
 
     private var primaryButtonTitle: LocalizedStringKey {
         if hasActiveSubscription { return "commerce.pro.active" }
-        if selectedProduct?.isEligibleForIntroductoryOffer == true,
-           selectedProduct?.introductoryOffer == StoreCatalogContract.expectedIntroductoryOffer {
+        if selectedProduct.map(ProCommerceCopy.hasPresentableFreeTrial) == true {
             return "commerce.pro.startTrial"
         }
         return "commerce.pro.continue"
     }
 
     private func purchaseSelectedProduct() async {
-        guard let selectedProduct, hasLiveCatalog else { return }
+        guard let selectedProduct,
+              hasLiveCatalog,
+              hasConfirmedPurchaseAuthority else { return }
         isPerformingOperation = true
         notice = nil
         let outcome = await session.purchasePro(selectedProduct.id)
@@ -252,6 +276,12 @@ struct ProSubscriptionView: View {
         let outcome = await session.restoreProPurchases()
         notice = ProCommerceNotice(restoreOutcome: outcome)
         isPerformingOperation = false
+    }
+}
+
+enum ProCommercePurchaseGate {
+    static func hasConfirmedAuthority(_ state: EffectiveStoreSubscriptionState) -> Bool {
+        state != .unavailable
     }
 }
 
@@ -335,21 +365,81 @@ enum ProCommerceNotice: Equatable, Sendable {
 }
 
 enum ProCommerceCopy {
-    static func renewalDisclosure(for product: StoreProductPresentation) -> String {
-        let eligible = product.isEligibleForIntroductoryOffer
-            && product.introductoryOffer == StoreCatalogContract.expectedIntroductoryOffer
+    static func hasPresentableFreeTrial(_ product: StoreProductPresentation) -> Bool {
+        guard product.isEligibleForIntroductoryOffer,
+              let offer = product.introductoryOffer else { return false }
+        return trialDurationComponents(offer) != nil
+    }
+
+    static func renewalDisclosure(
+        for product: StoreProductPresentation,
+        locale: Locale
+    ) -> String {
+        let trialDuration = product.isEligibleForIntroductoryOffer
+            ? product.introductoryOffer.flatMap { localizedTrialDuration($0, locale: locale) }
+            : nil
         let key: String
-        switch (product.id, eligible) {
+        switch (product.id, trialDuration != nil) {
         case (.proMonthly, true): key = "commerce.pro.disclosure.monthlyTrial"
         case (.proAnnual, true): key = "commerce.pro.disclosure.annualTrial"
         case (.proMonthly, false): key = "commerce.pro.disclosure.monthly"
         case (.proAnnual, false): key = "commerce.pro.disclosure.annual"
         }
-        return String(
-            format: NSLocalizedString(key, comment: "StoreKit subscription renewal disclosure"),
-            locale: Locale.current,
+        if let trialDuration {
+            return LocalizedCatalog.format(
+                key,
+                locale: locale,
+                trialDuration,
+                product.displayPrice
+            )
+        }
+        return LocalizedCatalog.format(
+            key,
+            locale: locale,
             product.displayPrice
         )
+    }
+
+    private static func localizedTrialDuration(
+        _ offer: StoreIntroductoryOfferTerms,
+        locale: Locale
+    ) -> String? {
+        guard let components = trialDurationComponents(offer) else { return nil }
+
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 1
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = locale
+        formatter.calendar = calendar
+        return formatter.string(from: components)
+    }
+
+    private static func trialDurationComponents(
+        _ offer: StoreIntroductoryOfferTerms
+    ) -> DateComponents? {
+        guard offer.isFreeTrial,
+              offer.period.value > 0,
+              offer.periodCount > 0 else { return nil }
+        let multiplied = offer.period.value.multipliedReportingOverflow(
+            by: offer.periodCount
+        )
+        guard !multiplied.overflow else { return nil }
+
+        var components = DateComponents()
+        switch offer.period.unit {
+        case .day:
+            components.day = multiplied.partialValue
+        case .week:
+            let days = multiplied.partialValue.multipliedReportingOverflow(by: 7)
+            guard !days.overflow else { return nil }
+            components.day = days.partialValue
+        case .month:
+            components.month = multiplied.partialValue
+        case .year:
+            components.year = multiplied.partialValue
+        }
+        return components
     }
 }
 

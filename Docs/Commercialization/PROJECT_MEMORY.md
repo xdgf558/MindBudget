@@ -63,7 +63,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   merged implementation exposes purchase and restore as typed programmatic seams. C3-01 adds the
   first voluntary customer presentation on top of those seams: Settings and explicit Pro-value
   triggers may open a bilingual screen with StoreKit-provided prices, fresh trial eligibility,
-  explicit purchase/restore, and Apple subscription management. Final Xcode 26.6 `17F113` on the
+  explicit purchase/restore, and Apple subscription management. The exact P1W promotion remains
+  local fixture evidence only; production validates the stable subscription structure and treats
+  an actual introductory offer as optional StoreKit presentation data. An unavailable entitlement
+  snapshot pauses purchase in both the View and actor and exposes explicit recheck, while renewal
+  disclosure follows the app-selected locale. Final Xcode 26.6 `17F113` on the
   physical iPhone Air with final iOS 26.6.1 `23G82` executed all 9 dedicated catalog/lifecycle
   tests without a failure or skip, including HKG/USA/SGP/TWN and both Monthly/Annual transaction
   flows. Formal App Store Connect products,
@@ -77,10 +81,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   imported and could not replace the installed runtime. Direct queries for build `23F81` and iOS
   `26.5.1` returned unavailable. Those historical simulator and download-query results are not
   claimed as the accepted runtime-probe pass; the supported final physical-device result above is.
-  No formal App Store Connect
-  product/group, purchase/restore UI, paywall,
-  CloudKit container, telemetry receiver, backend, Watch target, receipt pipeline, or third-party
-  model provider exists.
+  The voluntary C3-01 purchase/restore presentation exists only in this unreleased source. No
+  formal App Store Connect product/group, CloudKit container, telemetry receiver, backend, Watch
+  target, receipt pipeline, or third-party model provider exists.
 - The public iPhone launch remains paused through COM-C12. Watch distribution is a separate
   post-iPhone-1.0 milestone and does not block iPhone 1.0.
 
@@ -248,6 +251,11 @@ unfinished. Access decisions still may not read raw
 entitlement bits; exact Free checks use `isFree`, never `isSuperset(of: .free)`. The accepted
 physical-device CHN/USA catalog run remains entry evidence rather than proof of the new lifecycle
 paths.
+
+The C3-01 review remediation keeps the exact 7-day offer in the isolated Configuration/runtime
+contract instead of production authority, blocks purchase whenever entitlement authority is
+unavailable at both UI and actor boundaries, and binds renewal copy to the app-selected locale.
+C3-01 remains pending independent re-review, green CI, and merge; C3-02 has not started.
 
 Next suggested task: independently review C3-01 only, then require green CI and merge before any
 status advance. Keep C3-02 lifecycle reminders,

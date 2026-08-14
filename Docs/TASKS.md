@@ -292,4 +292,6 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 implementation c
   typed purchase/restore authority, and preserve the post-0.9.6 distribution hold. C3-02 and later
   remain blocked. Implementation and local evidence are complete: the physical final-runtime
   dedicated scheme passed 9/9 with HKG/USA/SGP/TWN plus Monthly/Annual transaction verification;
-  independent review, green CI, and merge remain required before this item can be checked.
+  review remediation now keeps exact P1W terms fixture-only, blocks purchase under unavailable
+  entitlement authority in both View and actor, and binds renewal disclosure to the app locale.
+  Independent re-review, green CI, and merge remain required before this item can be checked.

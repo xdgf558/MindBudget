@@ -9,11 +9,14 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 ### Changed
 
 - Added a voluntary MindBudget Pro screen in Settings and at explicit Pro value triggers. It shows
-  only current StoreKit Monthly/Annual prices, exact renewal terms, and a 7-day free trial when
-  StoreKit reports that the account is eligible; cached or unavailable catalog data cannot enable
-  purchase or promise a trial. Purchase, Restore Purchases, and Manage Subscription require an
-  explicit tap and use neutral localized outcomes. The provisional test anchors are not final
-  launch prices, and this source remains under the post-0.9.6 distribution hold.
+  only current StoreKit Monthly/Annual prices, exact renewal terms, and the actual introductory
+  offer when StoreKit reports that the account is eligible; a promotion's presence or duration is
+  never entitlement authority. Cached or unavailable catalog data cannot enable purchase or
+  promise a trial, and an unconfirmed subscription state pauses purchase with an explicit recheck
+  action. Renewal disclosure follows the app-selected language even when it differs from the
+  device language. Purchase, Restore Purchases, and Manage Subscription require an explicit tap
+  and use neutral localized outcomes. The provisional test anchors are not final launch prices,
+  and this source remains under the post-0.9.6 distribution hold.
 - Established the first exact-Free boundaries for capabilities accepted for the future Pro
   subscription, without adding a paywall or purchase flow. Under exact Free, Apple on-device
   wording enhancement is no longer used, 72-hour and custom cooling-off choices are no longer

@@ -245,6 +245,26 @@ merge; it is not Done. C3-02 and later commercial packets remain blocked. No for
 public price/trial, version, Archive, upload, tester assignment, or distribution action is claimed,
 and the post-0.9.6 release hold remains active.
 
+### C3-01 review-remediation verification
+
+The first independent review found that an exact P1W test promotion had entered the production
+catalog contract, unavailable entitlement authority did not independently pause purchase, and
+renewal disclosure used the device/process locale. The remediation keeps P1W exactness inside the
+isolated `.storekit`/Python/runtime fixture only; production accepts a missing or changed
+introductory offer while retaining the stable product/type/period/group contract. The View and
+actor now both reject purchase under unavailable authority and provide an explicit recheck, and
+renewal disclosure uses the injected app locale.
+
+The focused `StoreRuntimeTests` plus `StoreLifecycleDomainTests` run passed 53/53. The complete
+shared-host validation used the already documented wall-clock exclusion and passed 366 total
+results: 360 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI
+tests passed. Every selected coverage file remained above 85% with the same percentages recorded
+above. The 13-test Python StoreKit contract and all standalone money, network, documentation,
+feature-access, release, localization, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-ReviewFix-Focused.xcresult` and
+`/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`. C3-01 remains pending independent re-review,
+hosted green CI, and merge; C3-02 and distribution remain blocked.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

@@ -12,6 +12,7 @@ PROJECT_FILE="MindBudget.xcodeproj/project.pbxproj"
 CONTRACT="${SCRIPT_DIRECTORY}/storekit_catalog_contract.py"
 CONTRACT_TESTS="${SCRIPT_DIRECTORY}/tests/test_storekit_catalog_contract.py"
 PAYWALL_SOURCE="MindBudget/Features/Commerce/ProSubscriptionView.swift"
+CATALOG_SOURCE="MindBudget/Commerce/StoreCatalog.swift"
 SETTINGS_SOURCE="MindBudget/Features/Settings/SettingsView.swift"
 LOCALIZATIONS="MindBudget/Resources/Localizable.xcstrings"
 
@@ -23,6 +24,7 @@ for file in \
   "${CONTRACT}" \
   "${CONTRACT_TESTS}" \
   "${PAYWALL_SOURCE}" \
+  "${CATALOG_SOURCE}" \
   "${SETTINGS_SOURCE}" \
   "${LOCALIZATIONS}"; do
   if [[ ! -s "${file}" ]]; then
@@ -62,7 +64,9 @@ fi
 for contract in \
   'product.displayPrice' \
   'product.isEligibleForIntroductoryOffer' \
-  'StoreCatalogContract.expectedIntroductoryOffer' \
+  '@Environment(\.locale)' \
+  'renewalDisclosure(for: selectedProduct, locale: locale)' \
+  'commerce.pro.status.recheck' \
   'session.purchasePro' \
   'session.restoreProPurchases' \
   '.manageSubscriptionsSheet'; do
@@ -71,6 +75,11 @@ for contract in \
     exit 1
   fi
 done
+
+if grep -En 'record[.]introductoryOffer[[:space:]]*==' "${CATALOG_SOURCE}"; then
+  echo "Optional introductory offers must not enter the production catalog authority contract" >&2
+  exit 1
+fi
 
 paywall_entry_sites="$({ find MindBudget -type f -name '*.swift' ! -path "${PAYWALL_SOURCE}" \
   -exec grep -nH 'ProSubscriptionView' {} + || true; })"

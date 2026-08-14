@@ -4038,3 +4038,32 @@ What was NOT changed: No formal App Store Connect product, public price/trial/of
 frequency automation, receipt import, schema, version, Archive, upload, tester assignment,
 app-owned HTTP(S), or distribution action was added. The uploaded 0.9.6 build and post-0.9.6
 release hold remain unchanged.
+
+## 2026-08-14 — Session 110 — Make the C3-01 purchase surface fail closed under uncertainty
+
+Goal: Close the first PR #33 review findings while keeping provisional promotional terms isolated
+from production authority.
+
+What changed: Production StoreKit validation no longer requires an exact seven-day introductory
+offer; the exact P1W term remains owned by the local Configuration, Python contract, and opt-in
+runtime probes. Customer presentation uses the actual optional StoreKit offer and fresh
+eligibility. An unavailable entitlement snapshot now pauses purchase in both the Pro View and the
+actor before StoreKit is invoked, with an explicit subscription-status recheck. Renewal disclosure
+uses the app-selected SwiftUI locale, including when the device language differs. Added direct
+regressions for a missing/changed promotion, unavailable-authority source suppression, View gating,
+and explicit English/Simplified-Chinese renewal formatting. Durable commercial decisions,
+requirements, matrices, current memory, changelog, and executable StoreKit checks were aligned.
+
+Evidence: Focused Store runtime/lifecycle tests passed 53/53. Full validation passed 366 total:
+360 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed; all 14 UI tests and
+every selected coverage threshold passed. The StoreKit Python contract passed 13/13 and all
+standalone release, money, network, commercialization-document, feature-access, localization, and
+diff checks pass. Evidence: `/private/tmp/MindBudget-C301-ReviewFix-Focused.xcresult` and
+`/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`.
+
+State: C3-01 remains implementation complete pending independent re-review, hosted green CI, and
+merge. C3-02 and all distribution work remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public economics, automatic paywall,
+schema, network destination, version, Archive, upload, tester assignment, or distribution action
+changed. The uploaded 0.9.6 build and release hold are unchanged.

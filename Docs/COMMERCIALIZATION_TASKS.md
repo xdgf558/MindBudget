@@ -261,7 +261,9 @@ and merge; C3-02 through C3-04 remain blocked.**
   remains the only customer-facing price and eligibility source; formal regional economics and
   App Store Connect creation remain blocked. Final Xcode 26.6 `17F113` on the physical iPhone Air
   with final iOS 26.6.1 `23G82` passed all 9 dedicated catalog/lifecycle tests with no failure or
-  skip, including all four storefront probes and both Monthly/Annual transaction probes.
+  skip, including all four storefront probes and both Monthly/Annual transaction probes. Review
+  remediation keeps the exact P1W offer fixture-only, blocks unavailable entitlement authority at
+  both purchase boundaries with explicit recheck, and formats renewal copy with the app locale.
 - [B] **C3-02 — Trial lifecycle.** Drive activation and renewal reminders from accepted parameters
   and actual dates, with generic notification copy and correct cancellation/rescheduling.
 - [B] **C3-03 — Signed public configuration.** Implement signature/version/expiry/rollback/cache

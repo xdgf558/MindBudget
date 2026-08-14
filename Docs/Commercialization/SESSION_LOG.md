@@ -955,3 +955,34 @@ merge; it is not Done. C3-02 and all later commercial packets remain blocked.
 What was NOT changed: No formal App Store Connect product or public commercial term was created.
 No automatic paywall, receipt import, schema, version, Archive, upload, tester assignment,
 app-owned HTTP(S), or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-14 — Session 31 — Close the first C3-01 purchase-safety review findings
+
+Goal: Resolve the independent review findings without promoting provisional trial terms into
+production authority or advancing C3-01 past review.
+
+What changed: Removed exact P1W offer requirements from the production catalog and entitlement
+contract. The local `.storekit` fixture, Python validator, and opt-in probes still require the
+owner-approved seven-day test offer, while production treats any valid StoreKit introductory offer
+as optional presentation data and renders its actual duration only after fresh eligibility. A
+live catalog no longer permits purchase when subscription authority is unavailable: the Pro View
+pauses purchase and offers an explicit recheck, and `EntitlementStore.purchase` independently
+performs a fresh actionable-authority preflight before calling the source. Renewal disclosure now
+selects and formats strings with the SwiftUI app locale rather than `Locale.current` or a global
+`NSLocalizedString` lookup. Bilingual copy, the static StoreKit boundary, catalog tests, lifecycle
+tests, decisions, matrices, requirements, and memory were updated to preserve these distinctions.
+
+Evidence: The focused Store runtime/lifecycle run passed 53/53. The owning full validation passed
+366 total results: 360 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed;
+all 14 UI tests and every selected coverage gate passed. The StoreKit Python contract passed
+13/13, and the standalone money, network, commercialization-document, feature-access, release,
+localization, and diff gates pass. Evidence:
+`/private/tmp/MindBudget-C301-ReviewFix-Focused.xcresult` and
+`/private/tmp/MindBudget-C301-ReviewFix-Full.xcresult`.
+
+Current state: C3-01 remains implementation complete pending independent re-review, hosted green
+CI, and merge. C3-02 and every later packet remain blocked.
+
+What was NOT changed: No formal App Store Connect product, public price/trial/offer, automatic
+presentation, schema, app-owned HTTP(S), version, Archive, upload, tester assignment, or
+distribution action was added. The post-0.9.6 release hold remains active.

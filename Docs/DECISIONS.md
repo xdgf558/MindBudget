@@ -2079,3 +2079,9 @@ Consequences: C3-01 may add a transparent purchase/restore/manage-subscription V
 existing typed StoreKit lifecycle seams. C3-02 reminders, signed public configuration, formal App
 Store Connect products, versioning, Archive/upload, tester assignment, and distribution remain
 blocked. The post-0.9.6 release hold remains active.
+
+Review remediation: The exact P1W offer remains an isolated Configuration/test assertion and is
+not part of production catalog or entitlement validity. Production presents an optional actual
+StoreKit offer only after fresh eligibility, blocks purchase at both View and actor boundaries
+when subscription authority is unavailable, and formats renewal disclosure with the app-selected
+locale. Detailed ownership remains in amended DEC-COM-019.
