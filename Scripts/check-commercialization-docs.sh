@@ -231,8 +231,8 @@ fi
 
 for c303_contract in \
   'Status: **Accepted by the owner for COM-C3-03 on 2026-08-14.**' \
-  'Status: **Implementation complete pending independent review.**' \
-  'Status: **Blocked pending independent review and merge of C3-03A.**' \
+  'Status: **Done after independent review, green CI, and merge through PR #36 (`1ebb36c`).**' \
+  'Status: **In Progress after C3-03A passed independent review, green CI, and merge.**' \
   'mindbudget-public-config-dev.yehao1105.workers.dev' \
   'mindbudget-public-config-staging.yehao1105.workers.dev' \
   'mindbudget-public-config.yehao1105.workers.dev' \
@@ -262,17 +262,47 @@ grep -Fq 'Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3
   exit 1
 }
 
-grep -Fq 'C3-03A is implementation complete pending independent review; C3-03B and C3-04' \
+grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress and C3-04 remains' \
   Docs/COMMERCIALIZATION_TASKS.md || {
   echo "COM-C3 task state must identify the active and blocked C3-03 packets" >&2
   exit 1
 }
 
-grep -Fq 'Signed public configuration | Exact contract Accepted in DEC-COM-021; C3-03A verifier/cache complete pending review; transport not implemented or allowed' \
+grep -Fq 'Signed public configuration | Exact contract Accepted in DEC-COM-021; C3-03A complete through PR #36 (`1ebb36c`); C3-03B In Progress, transport not yet implemented or allowed' \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
-  echo "Network policy must accept only the C3-03 contract while keeping transport disabled" >&2
+  echo "Network policy must record C3-03A completion while keeping unimplemented transport disabled" >&2
   exit 1
 }
+
+for c303_completion in \
+  'GitHub Actions run `31856271268`' \
+  'merged through PR #36 as `1ebb36c`' \
+  'C3-03A is Done' \
+  'C3-03B is In Progress'; do
+  if ! grep -Fq "${c303_completion}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "C3-03A closeout evidence is missing: ${c303_completion}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C3-03A (is )?implementation complete pending independent review|C3-03A verifier/cache complete pending review|Blocked pending independent review and merge of C3-03A' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md; then
+  echo "Current commercialization state still describes C3-03A as pending or C3-03B as blocked" >&2
+  exit 1
+fi
 
 if grep -Fq 'C3-03 has not started and remains blocked' \
     Docs/COMMERCIALIZATION_TASKS.md \

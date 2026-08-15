@@ -22,9 +22,9 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 C3-03 is In Progress. C3-03A signed-document verification and rollback/
-  cache core is implementation complete pending independent review; C3-03B fixed transport and
-  presentation integration remain blocked until C3-03A is reviewed and merged.** The owner
+- Active phase: **COM-C3 C3-03 is In Progress. C3-03A is Done after independent review, green CI,
+  and merge through PR #36 (`1ebb36c`); C3-03B fixed transport and presentation integration is
+  now active.** The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
@@ -260,8 +260,8 @@ products remain blocked until the accepted cost inputs are available.
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
 Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
-(`12d9217`); C3-03A is implementation complete pending independent review; C3-03B and C3-04
-remain blocked.**
+(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress and C3-04 remains
+blocked.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -291,24 +291,27 @@ remain blocked.**
   both Monthly/Annual trial-lifecycle derivation paths. PR #34 passed independent review and
   GitHub Actions run `31803898776`, then merged to `main` as `12d9217` on 2026-08-14. C3-02 is
   Done; this does not unblock C3-03 or distribution.
-- [ ] **C3-03A — Signed public-configuration core.** The owner accepted DEC-COM-021 and the exact
+- [x] **C3-03A — Signed public-configuration core.** The owner accepted DEC-COM-021 and the exact
   contract on 2026-08-14. Implement strict Ed25519 envelope/payload verification, version/expiry/
   size bounds, rollback high-water mark, same-version equivocation rejection, durable signed
   cache, and a conservative built-in default. The closed v1 vocabulary contains only
   `proValueTriggersEnabled`; no URL, production key, transport, entitlement, StoreKit price/trial,
-  notification, or user-content field enters this packet. Implementation is complete pending
-  independent review. Review remediation fixes exact whole-second UTC timestamp bytes, rejects
+  notification, or user-content field enters this packet. Review remediation fixes exact whole-
+  second UTC timestamp bytes, rejects
   duplicate keys, serializes concurrent high-water acceptance, re-verifies persistence through
   its abstraction, and formalizes corrupt state as sticky Release fail-closed until full app-data
   deletion/reinstall. The remediation focused suite passed 12/12; the final owning full run produced
   394 results (388 passed, 6 explicit opt-in StoreKit probes skipped, 0 failed), including all 14 UI
   tests, the Release build, static gates, and every selected coverage threshold. The strict local
-  500 ms signal separately passed 10/10 isolated iterations.
-- [B] **C3-03B — Fixed transport and presentation integration.** After C3-03A review/merge, add
+  500 ms signal separately passed 10/10 isolated iterations. PR #36 passed independent review and
+  green GitHub Actions run `31856271268`, then merged to `main` as `1ebb36c` on 2026-08-15.
+- [ ] **C3-03B — Fixed transport and presentation integration.** C3-03A's owning gate is now
+  satisfied. Add
   only anonymous `GET /v1/config` to the accepted exact environment host, send only bounded app/
   config version metadata, embed the accepted public verification key, connect the verified
-  presentation value, and prove privacy/logging/redirect/timeout/binary-traffic gates. Until then
-  the Release app-owned HTTP(S) allow-list remains empty.
+  presentation value, and prove privacy/logging/redirect/timeout/binary-traffic gates. Entering
+  C3-03B does not itself authorize egress: the Release app-owned HTTP(S) allow-list remains empty
+  until the exact adapter and its evidence pass review.
 - [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,
   VoiceOver, Dynamic Type, appearance testing, and review disclosures.
 

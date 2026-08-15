@@ -4255,3 +4255,29 @@ What was NOT changed: No URL, network adapter/request, Production public key, Wo
 application consumer, user-visible behavior, entitlement/StoreKit authority, schema, version,
 Archive/upload, tester assignment, or distribution action was added. The Release app-owned
 HTTP(S) allow-list remains empty and the post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 117 — Close C3-03A and activate C3-03B
+
+Goal: Record the independently reviewed C3-03A merge and green hosted evidence before allowing
+the fixed transport/integration packet to begin.
+
+What changed: PR #36 review approved the signed-document verifier, sticky rollback failure,
+serialized acceptance, exact UTC/no-duplicate-key byte contract, and persistence read-back
+boundary. Its review-remediation head `3a53107` passed GitHub Actions run `31856271268`; PR #36
+merged to `main` as `1ebb36c` on 2026-08-15. Current tasks, memories, requirements, decisions,
+network policy, CI baseline, and execution packet now mark C3-03A Done and C3-03B In Progress.
+
+Evidence: The closeout branch repeated the full validation with 394 total: 388 passed, 6 explicit
+opt-in StoreKit runtime probes skipped, and 0 failed, including 14/14 UI tests, Release build,
+static gates, and all selected coverage thresholds. Evidence:
+`/private/tmp/MindBudget-C303A-Closeout-Full.xcresult`. Hosted run `31856271268` completed
+successfully on the exact review-remediation head before merge.
+
+State: C3-03A is Done. C3-03B is In Progress under DEC-COM-021's exact host, anonymous GET,
+Production-key, privacy/log/TTL/redirect, captured-traffic, binary, and conservative-failure
+gates. C3-04 remains blocked.
+
+What was NOT changed: This closeout adds no URL, request, Release egress exception, Production
+key, Worker deployment, application consumer, entitlement/StoreKit authority, schema, user-
+visible behavior, version, Archive/upload, tester assignment, or distribution action. The empty
+Release HTTP(S) allow-list and post-0.9.6 release hold remain active.

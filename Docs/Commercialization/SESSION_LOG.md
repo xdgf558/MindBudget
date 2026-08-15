@@ -1181,3 +1181,30 @@ CI, and merge; it is not Done. C3-03B/C3-04 and distribution remain blocked.
 What was NOT changed: No URL, request, Release egress, Production key, Worker deployment, app
 consumer, paid authority, StoreKit behavior, schema, user-facing copy, version, Archive/upload,
 tester assignment, or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 38 — Close C3-03A and open the C3-03B execution gate
+
+Goal: Close the reviewed verifier/cache packet with exact hosted and merge evidence, then activate
+only the accepted fixed transport/presentation packet.
+
+What changed: The C3-03A review-remediation head `3a53107` passed independent review and green
+GitHub Actions run `31856271268`. PR #36 merged it to `main` as `1ebb36c` on 2026-08-15. Durable
+COM task, memory, requirement, decision, network, CI, contract, and execution-packet state now
+marks C3-03A Done and C3-03B In Progress. The C3-03B packet remains limited to the exact
+environment host, anonymous `GET /v1/config`, Production-key provenance, closed non-content reason
+codes, real Worker/privacy/log/TTL/redirect inspection, captured traffic, final-binary proof, and
+the single verified presentation consumer.
+
+Evidence: The closeout branch repeated the full validation with 394 results: 388 passed, 6
+explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14 UI tests, the Release build,
+the complete static gate set, and every selected coverage threshold passed. Evidence:
+`/private/tmp/MindBudget-C303A-Closeout-Full.xcresult`. GitHub Actions run `31856271268` then
+completed successfully before merge `1ebb36c`.
+
+Current state: C3-03A is Done. C3-03B is In Progress. C3-04 and distribution remain blocked.
+
+What was NOT changed: No C3-03B source, URL, network request, allow-list exception, Production
+key, Worker deployment, reason-code sink, presentation consumer, paid authority, StoreKit change,
+schema, user-facing copy, version, Archive/upload, tester assignment, or distribution action was
+added by this closeout. The Release app-owned HTTP(S) allow-list remains empty and the post-0.9.6
+release hold remains active.

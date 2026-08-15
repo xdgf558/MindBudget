@@ -7,9 +7,10 @@ Decision: `DEC-COM-021`
 
 This contract authorizes implementation in two review packets. C3-03A owns only the signed
 document, strict verification, rollback high-water mark, nonexpired cache, and conservative local
-resolution. C3-03B may add the one fixed read-only transport and presentation integration only
-after C3-03A is independently reviewed. C3-03A contains no `URLSession`, URL, Release endpoint,
-embedded production key, or application-network egress.
+resolution. It passed independent review and green GitHub Actions run `31856271268`, then merged
+through PR #36 as `1ebb36c` on 2026-08-15. C3-03B is now active and may add only the one fixed
+read-only transport and presentation integration. C3-03A contains no `URLSession`, URL, Release
+endpoint, embedded production key, or application-network egress.
 
 ## Environment and transport
 

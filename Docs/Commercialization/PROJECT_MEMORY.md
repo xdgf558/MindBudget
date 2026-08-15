@@ -20,8 +20,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   provisional test terms accepted in DEC-COM-019. C3-02 passed independent review and GitHub
   Actions run `31803898776`, then merged through PR #34 as `12d9217` on 2026-08-14; it is Done.
   The owner then authorized C3-03 and accepted the exact two-packet signed-configuration contract
-  in DEC-COM-021. C3-03A is implementation complete pending independent review; C3-03B remains
-  blocked until that review/merge, and C3-04 remains blocked.
+  in DEC-COM-021. C3-03A passed independent review and green GitHub Actions run `31856271268`,
+  then merged through PR #36 as `1ebb36c` on 2026-08-15; it is Done. C3-03B is In Progress, and
+  C3-04 remains blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -290,7 +291,9 @@ sticky in Release: normal Delete All and Offload do not clear it; recovery curre
 deleting the app data container and reinstalling. Non-content reason-code logging remains C3-03B-
 owned because C3-03A has no real transport or operations channel.
 
-Next suggested task: independently review and merge C3-03A. Only then may C3-03B add the accepted
-fixed anonymous configuration transport and presentation integration. Keep final customer terms/
+Next suggested task: implement only C3-03B's accepted fixed anonymous configuration transport,
+Production-key provenance, closed non-content reason codes, and verified presentation integration.
+Keep Release egress fail-closed until the real Worker, key, privacy/log/TTL/redirect behavior,
+captured traffic, final binary, and adapter pass their owning gates. Keep final customer terms/
 products, C3-04, versioning, Archive/upload, tester assignment, and distribution blocked until
 their owning C3 and release gates pass.
