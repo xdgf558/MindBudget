@@ -27,6 +27,8 @@ required_files=(
   Docs/Commercialization/CI_BASELINE.md
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C3_EXECUTION_PACKET.md
+  Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
 
 for file in "${required_files[@]}"; do
@@ -224,6 +226,58 @@ if grep -Fq 'C3-02 implementation complete pending' \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C3-02 as pending review" >&2
+  exit 1
+fi
+
+for c303_contract in \
+  'Status: **Accepted by the owner for COM-C3-03 on 2026-08-14.**' \
+  'Status: **Implementation complete pending independent review.**' \
+  'Status: **Blocked pending independent review and merge of C3-03A.**' \
+  'mindbudget-public-config-dev.yehao1105.workers.dev' \
+  'mindbudget-public-config-staging.yehao1105.workers.dev' \
+  'mindbudget-public-config.yehao1105.workers.dev' \
+  'anonymous `GET /v1/config`' \
+  '"algorithm": "Ed25519"' \
+  '`proValueTriggersEnabled` is the only v1 presentation field' \
+  'no longer than seven 24-hour intervals' \
+  'same-version equivocation is rejected' \
+  'DEC-COM-021'; do
+  if ! grep -Fq "${c303_contract}" \
+      Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md \
+      Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C3-03 signed public-configuration contract is missing: ${c303_contract}" >&2
+    exit 1
+  fi
+done
+
+grep -Fq 'Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C3 task state must retain reviewed C3-01/C3-02 completion" >&2
+  exit 1
+}
+
+grep -Fq 'C3-03A is implementation complete pending independent review; C3-03B and C3-04' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C3 task state must identify the active and blocked C3-03 packets" >&2
+  exit 1
+}
+
+grep -Fq 'Signed public configuration | Exact contract Accepted in DEC-COM-021; C3-03A verifier/cache complete pending review; transport not implemented or allowed' \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
+  echo "Network policy must accept only the C3-03 contract while keeping transport disabled" >&2
+  exit 1
+}
+
+if grep -Fq 'C3-03 has not started and remains blocked' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C3-03 as not started" >&2
   exit 1
 fi
 

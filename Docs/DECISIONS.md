@@ -2115,3 +2115,24 @@ upload, tester assignment, and distribution remain blocked.
 Closeout: PR #34 passed independent review and green GitHub Actions run `31803898776`, then
 merged as `12d9217` on 2026-08-14. C3-02 is Done. This does not start C3-03 or relax the
 post-0.9.6 release hold.
+
+---
+
+## 2026-08-14 — Accept a two-packet signed public-configuration boundary
+
+Context: C3-01 and C3-02 are Done. The owner explicitly authorized C3-03 and accepted the
+recommended exact environment, transport, signature, cache, rollback, privacy, and presentation
+boundary.
+
+Decision: Detailed ownership lives in DEC-COM-021 and
+`Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md`. C3-03A implements only strict Ed25519
+verification, the closed schema/version/expiry/size contract, rollback/equivocation protection,
+durable signed cache/high-water mark, and conservative fallback. It has no network adapter, URL,
+production key, entitlement/StoreKit authority, or application consumer. C3-03B may add only the
+accepted fixed anonymous `GET /v1/config` transport and optional-presentation integration after
+C3-03A review and merge.
+
+Consequences: The current Release HTTP(S) allow-list stays empty. Configuration schema v1 can
+control only `proValueTriggersEnabled` and can never grant paid rights or change products, prices,
+trials, notifications, cloud features, or release behavior. C3-04, formal economics/products,
+versioning, Archive/upload, tester assignment, and distribution remain blocked.

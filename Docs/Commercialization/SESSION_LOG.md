@@ -1111,3 +1111,37 @@ What was NOT changed: No Swift/product behavior, signed public configuration, fo
 Connect product, final economics, automatic paywall, schema, app-owned HTTP(S), version, Archive,
 upload, tester assignment, or distribution action changed. The uploaded 0.9.6 build and post-
 0.9.6 release hold remain unchanged.
+
+## 2026-08-14 — Session 36 — Implement the C3-03A signed public-configuration core
+
+Goal: Enter C3-03 under the owner's recommended exact contract, while keeping transport,
+application integration, and every later commercialization/release gate out of the first packet.
+
+What changed: Accepted DEC-COM-021 and split C3-03 into two review packets. C3-03A adds a strict
+Ed25519 verifier over exact decoded payload bytes; exact envelope, payload, and nested field sets;
+schema/version/time/size bounds; a closed presentation vocabulary containing only
+`proValueTriggersEnabled`; rollback and same-version-equivocation rejection; and an atomic,
+file-protected signed cache whose bytes must read back before presentation is published. Invalid
+signature/key/schema/encoding/time/size, corrupt rollback state, or persistence failure resolves
+to a verified nonexpired cache and then the conservative built-in `false`. A new static contract
+gate runs locally and in CI. Durable tasks, requirements, decisions, network/privacy boundaries,
+and both project memories record the accepted future exact hosts and anonymous GET contract while
+keeping C3-03B blocked.
+
+Evidence: The final focused configuration suite passed 8/8. The owning full validation produced
+390 results: 384 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed. All 14
+UI tests, the Release build, static gates, and every selected coverage threshold passed. The
+strict local Dashboard performance suite separately passed 10/10 isolated iterations after one
+shared-host integrated measurement reached 0.822698 seconds. Evidence:
+`/private/tmp/MindBudget-C303A-Focused3.xcresult`,
+`/private/tmp/MindBudget-C303A-Full-Final.xcresult`, and
+`/private/tmp/MindBudget-C303A-StrictPerformance.xcresult`.
+
+Current state: C3-03A is implementation complete pending independent review, hosted green CI,
+and merge; it is not Done. C3-03B and C3-04 remain blocked.
+
+What was NOT changed: No URL, network adapter/request, Production public key, Worker deployment,
+application consumer, entitlement/StoreKit authority, user-visible behavior, formal product or
+economics, schema, version, Archive/upload, tester assignment, or distribution action was added.
+The Release app-owned HTTP(S) allow-list remains empty and the post-0.9.6 release hold remains
+active.

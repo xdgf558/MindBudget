@@ -354,6 +354,38 @@ thresholds, Release build, and static gates passed. Evidence:
 formal App Store Connect products, accept final economics, bump a version, Archive/upload, assign
 testers, or authorize distribution. The post-0.9.6 release hold remains active.
 
+## COM-C3-03A implementation verification
+
+C3-03A adds only the local signed-document boundary: exact Ed25519 verification over decoded
+payload bytes, a closed schema-v1 presentation vocabulary, bounded time and size validation,
+rollback/equivocation rejection, an atomic file-protected signed cache with readback verification,
+and a conservative built-in fallback. It contains no URL, network adapter, Production public key,
+application consumer, entitlement/StoreKit authority, or user-visible behavior. The Release
+app-owned HTTP(S) allow-list remains empty.
+
+The final focused `PublicConfigurationTests` run passed 8/8; evidence:
+`/private/tmp/MindBudget-C303A-Focused3.xcresult`. The owning full shared-host validation used the
+repository's documented `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1` switch to exclude only the
+separately proven 500 ms local wall-clock signal while retaining the deterministic 10,000-row
+projection contract. It produced 390 results: 384 passed, 6 explicit opt-in StoreKit runtime
+probes skipped, and 0 failed. All 14 UI tests, the Release build, the public-configuration,
+release, money, network, commercialization-document, feature-access, StoreKit-catalog, and
+localization gates passed. Evidence:
+`/private/tmp/MindBudget-C303A-Full-Final.xcresult`.
+
+Every selected coverage file remained above the 85% gate: Money 91.73%, BudgetEngine 95.18%,
+BudgetCycleCalculator 95.17%, SpendingPatternDetector 97.57%, ReminderThrottle 96.84%,
+ReminderEngine 91.04%, AdviceSafetyValidator 96.15%, PrivacyRedactor 91.91%,
+CycleSummaryService 97.45%, IntentClassifier 97.50%, CSVExporter 87.60%, and
+CurrencyFormatterService 100.00%. One preceding integrated run kept the strict local wall-clock
+assertion enabled and measured 0.822698 seconds under shared test load, so it is not passing
+evidence. The exact strict performance suite separately passed 10/10 isolated iterations;
+evidence: `/private/tmp/MindBudget-C303A-StrictPerformance.xcresult`.
+
+C3-03A is implementation complete pending independent review, hosted green CI, and merge; it is
+not Done. C3-03B, C3-04, formal products/economics, versioning, Archive/upload, tester assignment,
+and distribution remain blocked. The post-0.9.6 release hold remains active.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

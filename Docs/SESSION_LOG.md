@@ -4180,3 +4180,36 @@ What was NOT changed: No Swift behavior, signed public configuration, formal pro
 economics, automatic paywall, receipt import, schema, network destination, version, Archive,
 upload, tester assignment, or distribution action changed. The uploaded 0.9.6 build and release
 hold are unchanged.
+
+## 2026-08-14 — Session 115 — Implement C3-03A without opening a network channel
+
+Goal: Begin the owner-authorized C3-03 recommended design with a separately reviewable local
+verification/cache packet before any transport or presentation integration.
+
+What changed: Added a strict Ed25519 signed public-configuration verifier, exact closed schema-v1
+decoder, positive monotonic version and seven-day validity bounds, rollback/equivocation defense,
+and an atomic file-protected signed cache with readback verification. The only configuration field
+is the conservative optional-presentation boolean `proValueTriggersEnabled`; it cannot name or
+change products, prices, trials, rights, notifications, cloud/AI, telemetry, Watch, or release
+behavior. Invalid or unavailable input uses only a verified nonexpired cache and then built-in
+`false`. Added eight focused tests and a self-tested static boundary gate, connected that gate to
+local validation and CI, and recorded the exact future environment-isolated Worker/GET/privacy
+contract in durable COM documentation. The second transport/integration packet remains blocked.
+
+Evidence: The focused suite passed 8/8. Final full validation produced 390 results: 384 passed, 6
+explicit opt-in StoreKit runtime probes skipped, and 0 failed; all 14 UI tests, Release build,
+static gates, and selected coverage thresholds passed. The strict local performance signal passed
+10/10 isolated iterations; one earlier shared-host measurement of 0.822698 seconds is recorded as
+nonpassing diagnostic evidence. Results:
+`/private/tmp/MindBudget-C303A-Focused3.xcresult`,
+`/private/tmp/MindBudget-C303A-Full-Final.xcresult`, and
+`/private/tmp/MindBudget-C303A-StrictPerformance.xcresult`.
+
+State: C3-03A is implementation complete pending independent review, hosted green CI, and merge;
+it is not Done. C3-03B, C3-04, formal economics/products, versioning, Archive/upload, tester
+assignment, and distribution remain blocked.
+
+What was NOT changed: No app-owned HTTP(S), URL, runtime adapter, Production verification key,
+Worker deployment, app consumer, user-facing behavior, entitlement/StoreKit authority, schema,
+version, Archive/upload, tester assignment, or distribution action was added. The uploaded 0.9.6
+build and post-0.9.6 release hold are unchanged.

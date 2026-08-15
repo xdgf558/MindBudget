@@ -518,3 +518,40 @@ context.
   from `currentProductID`; requesting notification consent automatically; retaining a
   stale request after cancellation/date change; fixed `5 * 86400` arithmetic; or persisting trial
   state as entitlement authority.
+
+## DEC-COM-021 — Split signed public configuration into a pure verifier and one later fixed transport
+
+- Status/date: **Accepted by the owner for COM-C3-03 — 2026-08-14**
+- Requirements: REQ-R1-NET-001
+- Decision: C3-03 is split into two independently reviewed packets. C3-03A owns only the exact
+  signed document, Ed25519 verification over decoded payload bytes, closed schema/version/expiry/
+  size bounds, rollback high-water mark, same-version equivocation rejection, durable signed
+  cache, and conservative built-in fallback. C3-03B may add one fixed anonymous read-only transport
+  and one optional-presentation consumer only after C3-03A is reviewed and merged.
+- Environment and transport: Development, Staging, and Production use the exact hosts recorded in
+  `PUBLIC_CONFIGURATION_CONTRACT.md`; future transport is anonymous HTTPS `GET /v1/config` and may
+  send only bounded app version and last accepted configuration version. No request body, auth,
+  cookie, identifier, locale/storefront, StoreKit fact, financial/content field, caller URL,
+  redirect, wildcard, or cross-environment host is accepted. The service is an independent
+  MindBudget Worker and cannot reuse another product's deployment, data, secret, or admin state.
+- Payload authority: Schema v1 contains only `proValueTriggersEnabled`, whose built-in value is
+  `false`. Configuration can affect optional explicit Pro value-trigger presentation only. It can
+  never hide Settings/Restore/Manage, grant or preserve a paid right, name or change a StoreKit
+  product/price/trial, schedule a notification, or control Lifetime, iCloud, Cloud AI/provider/
+  model/quota, receipt, telemetry, Watch, versioning, or release behavior.
+- Verification and cache: Unknown fields/algorithms/keys/schema, invalid signature/encoding,
+  oversize, future/expired/overlong validity, lower version, same-version different digest,
+  corrupt rollback state, and persistence failure fail closed. The maximum signed validity is
+  seven 24-hour intervals. Only the signed envelope, highest version, and SHA-256 payload digest
+  persist in one atomic, file-protected record whose bytes are read back before publication.
+  Remote presentation becomes active only after persistence succeeds; offline failure uses a
+  matching nonexpired verified cache and then the conservative built-in default.
+- Privacy and release boundary: Ordinary edge connection metadata must be disclosed and the real
+  Worker/logging/analytics/TTL/redirect/cache behavior, public-key provenance, captured traffic,
+  and final binary must be verified in C3-03B. C3-03A has no URL, adapter, production key, Release
+  egress exception, user-visible behavior, version, Archive/upload, tester assignment, or
+  distribution authorization. The post-0.9.6 release hold remains active.
+- Alternatives rejected: Unsigned JSON; TLS as the sole integrity boundary; signing decoded or
+  re-encoded JSON; a caller-selected URL; wildcard/shared hosts; long-lived or nonexpiring config;
+  cache-before-verify; overwriting a corrupt rollback mark; remote entitlement/price/trial fields;
+  telemetry/user identifiers; and adding transport before the verifier packet is reviewed.

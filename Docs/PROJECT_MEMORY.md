@@ -93,8 +93,12 @@ the original 68/68 focused run and the 13/13 review-remediation trial suite. The
 validation produced 382 results (376 passed, 6 explicit opt-in StoreKit runtime probes skipped,
 0 failed), including all 14 UI tests and every selected coverage gate. The physical final-device StoreKit suite passed
 9/9 with no skip across HKG/USA/SGP/TWN and both Monthly/Annual trial-lifecycle derivation paths.
-C3-03 has not started and remains blocked pending an explicit owner instruction and an accepted
-exact first-party configuration contract.
+C3-03 is In Progress after the owner accepted DEC-COM-021 and the exact two-packet first-party
+configuration contract. C3-03A is implementation complete pending independent review: it adds
+only strict Ed25519 document verification, closed schema/version/expiry/size checks, rollback and
+same-version-equivocation rejection, and a signed cache/high-water mark with conservative local
+fallback. It adds no URL, transport, production public key, paid authority, or application
+consumer. C3-03B remains blocked until C3-03A review/merge; C3-04 and distribution remain blocked.
 Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
