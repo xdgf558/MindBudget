@@ -8,9 +8,10 @@ Decision: `DEC-COM-021`
 This contract authorizes implementation in two review packets. C3-03A owns only the signed
 document, strict verification, rollback high-water mark, nonexpired cache, and conservative local
 resolution. It passed independent review and green GitHub Actions run `31856271268`, then merged
-through PR #36 as `1ebb36c` on 2026-08-15. C3-03B has now implemented the one fixed read-only
-transport and presentation integration and is pending independent review; it is not Done and is
-not a distribution authorization.
+through PR #36 as `1ebb36c` on 2026-08-15. C3-03B implemented the one fixed read-only transport
+and presentation integration; its reviewed head `09c382e` passed GitHub Actions run
+`31873664396`, and PR #38 merged it as `db7926d` on 2026-08-15. C3-03 is Done, but this remains no
+distribution authorization.
 
 ## Environment and transport
 
@@ -178,4 +179,7 @@ and pre-signed seven-day envelopes only. Development deployment
 `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was created on 2026-08-15 and the dedicated non-Archive
 scheme verified the real Development response through the production verifier and embedded public
 key with 8 passed, 0 failed, and 0 skipped. Staging and Production were not deployed. Private key
-bytes never entered the app, Worker, repository, logs, or test results.
+bytes never entered the app, Worker, repository, logs, or test results. PR #38 passed independent
+review and green GitHub Actions run `31873664396`, then merged as `db7926d`; Production deployment,
+final Release binary/traffic capture, privacy/review approval, Archive/upload, tester assignment,
+and distribution remain later gates.

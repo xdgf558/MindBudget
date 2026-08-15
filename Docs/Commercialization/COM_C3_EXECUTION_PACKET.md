@@ -167,7 +167,7 @@ C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/
 
 ## C3-03 — Signed public configuration
 
-Status: **In Progress — C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending independent review.**
+Status: **Done after independent review, green CI, and merge through PR #38 (`db7926d`).**
 
 Owner instruction: on 2026-08-14 the owner accepted the recommended exact contract in
 `PUBLIC_CONFIGURATION_CONTRACT.md` and authorized C3-03. DEC-COM-021 owns this boundary.
@@ -235,7 +235,7 @@ produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skip
 
 ### C3-03B — Fixed transport and presentation integration
 
-Status: **Implementation complete pending independent review and green hosted CI.**
+Status: **Done after independent review, green CI, and merge through PR #38 (`db7926d`).**
 
 C3-03B may add only the exact anonymous environment-isolated transport and the
 single verified presentation consumer accepted in `PUBLIC_CONFIGURATION_CONTRACT.md`. It must
@@ -281,12 +281,14 @@ Implementation evidence on 2026-08-15:
   the app transport, embedded key, verifier, cache, and consumer seam: 8 passed, 0 failed, 0
   skipped at `/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`. Worker tests passed 13/13;
   typecheck, high-severity dependency audit, and Production-config dry-run passed.
-- Staging and Production were not deployed. Final Release binary/Production traffic and hosted CI
-  remain pending, so C3-03B is not Done and no Archive/upload/TestFlight/distribution gate moves.
+- The reviewed head `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged to `main` as
+  `db7926d` on 2026-08-15. Staging and Production were not deployed. Final Release binary/
+  Production traffic, current privacy/review disclosure, Archive/upload, tester assignment, and
+  distribution remain pending; closing C3-03B moves none of those gates.
 
 ## C3-04 — UI and release quality
 
-Status: **Blocked until C3-03 is complete.**
+Status: **Ready after C3-03 completion; not started pending explicit owner instruction.**
 
 The post-0.9.6 release hold remains active throughout COM-C3. No C3 implementation is a public or
 TestFlight distribution authorization by itself.

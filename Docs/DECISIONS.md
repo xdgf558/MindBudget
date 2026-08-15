@@ -2178,6 +2178,8 @@ point cannot change the cache; an already-started atomic commit may finish but c
 canceled acceptance result. See DEC-COM-022 for the full boundary.
 
 Consequences: Development was deployed and passed real adapter/verifier tests; Staging and
-Production remain undeployed. C3-03B is implementation complete pending independent review and
-green CI, not Done. Final binary/Production traffic, privacy/review disclosure, C3-04, formal
-products/economics, Archive/upload, tester assignment, and distribution remain blocked.
+Production remain undeployed. The final reviewed head `09c382e` passed GitHub Actions run
+`31873664396`; PR #38 merged C3-03B as `db7926d` on 2026-08-15, closing C3-03. C3-04 is ready but
+not started pending explicit owner instruction. Final binary/Production traffic, privacy/review
+disclosure, formal products/economics, Archive/upload, tester assignment, and distribution remain
+blocked.

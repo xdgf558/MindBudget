@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-03A Done, with C3-03B implementation complete pending independent review
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B Done, with C3-04 ready but not started pending explicit owner instruction
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -318,7 +318,7 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-0
   entitlement/StoreKit authority, version, Archive/upload, tester assignment, or distribution.
   PR #36 passed independent review and green GitHub Actions run `31856271268`, then merged to
   `main` as `1ebb36c` on 2026-08-15.
-- [ ] Review and merge C3-03B after the satisfied C3-03A gate. The one accepted fixed anonymous
+- [x] Review and merge C3-03B after the satisfied C3-03A gate. The one accepted fixed anonymous
   `GET /v1/config` transport, key provenance, privacy/log/TTL review, captured-traffic evidence,
   and verified presentation integration are implemented without expanding the payload vocabulary.
   Development version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` is the only deployment; the live app
@@ -330,6 +330,9 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-0
   permits a canceled startup attempt to retry, and defines a tested pre-atomic-write persistence
   commit point. The follow-up owning validation
   produced 410 results (403 passed, 7 explicit skips, 0 failed), including 396/396 unit tests,
-  14/14 UI tests, Release build, static gates, and every selected coverage threshold. Hosted CI
-  remains pending.
-  Staging/Production, final Release binary/traffic, C3-04, and distribution remain blocked.
+  14/14 UI tests, Release build, static gates, and every selected coverage threshold. The reviewed
+  head `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged to `main` as `db7926d` on
+  2026-08-15. Staging/Production, final Release binary/traffic, and distribution remain blocked.
+- [ ] Begin C3-04 only after explicit owner instruction. C3-03 is now closed; C3-04 may address
+  billing-retry/expiry soft landing, bilingual copy, VoiceOver, Dynamic Type, appearance testing,
+  and review disclosures without deploying Production or relaxing the post-0.9.6 release hold.

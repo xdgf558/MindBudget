@@ -21,9 +21,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   Actions run `31803898776`, then merged through PR #34 as `12d9217` on 2026-08-14; it is Done.
   The owner then authorized C3-03 and accepted the exact two-packet signed-configuration contract
   in DEC-COM-021. C3-03A passed independent review and green GitHub Actions run `31856271268`,
-  then merged through PR #36 as `1ebb36c` on 2026-08-15; it is Done. C3-03B is In Progress, and
-  its implementation is complete pending independent review and green hosted CI. C3-04 remains
-  blocked.
+  then merged through PR #36 as `1ebb36c` on 2026-08-15; it is Done. C3-03B's reviewed head
+  `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged it through `db7926d` on
+  2026-08-15. C3-03 is Done. C3-04 is ready but not started pending explicit owner instruction.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -89,9 +89,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   window use an in-app card without requesting permission. Cancellation, end of trial, revocation,
   product/date changes, and missing authority remove or replace the request. The notification has
   no price, date, amount, product, or remaining-day content, and says the trial ends soon instead
-  of promising that auto-renew remains enabled after the app stops. Formal App Store Connect products,
-  final price/trial economics, C3-03, C3-04, and distribution remain blocked by their owning
-  packets and release gates. C2-04's completed environment proof does not waive them.
+  of promising that auto-renew remains enabled after the app stops. Formal App Store Connect
+  products and final price/trial economics remain blocked by their owning release gates. C3-03 is
+  now complete; C3-04 is ready but not started, and distribution remains blocked. C2-04's
+  completed environment proof does not waive those later gates.
   Final Xcode 26.6 `17F113` on the physical iPhone Air with final iOS 26.6.1 `23G82` passed the
   C3-02 dedicated suite 9/9 with no failure or skip, including all four storefronts and both
   Monthly/Annual transaction-to-trial-lifecycle derivation paths.
@@ -306,8 +307,8 @@ sticky in Release: normal Delete All and Offload do not clear it; recovery curre
   no skip; Worker tests passed 13/13 plus typecheck, audit, and Production dry-run. Staging and
   Production remain undeployed.
 
-Next suggested task: independently review C3-03B, run hosted CI, and merge only after its exact
-adapter, public-key/Worker provenance, privacy/log/TTL/redirect behavior, and conservative failure
-boundary are accepted. Do not begin C3-04 or deploy Production in this packet. Keep final customer
-terms/products, final Release binary/traffic evidence, versioning, Archive/upload, tester
-assignment, and distribution blocked until their owning C3 and release gates pass.
+Next suggested task: wait for explicit owner instruction before beginning C3-04. C3-03 is closed
+through PR #38 (`db7926d`) after green GitHub Actions run `31873664396`. C3-04 may own only its
+documented UI and release-quality work; do not deploy Production as part of this closeout. Keep
+final customer terms/products, final Release binary/traffic evidence, versioning, Archive/upload,
+tester assignment, and distribution blocked until their owning C3 and release gates pass.

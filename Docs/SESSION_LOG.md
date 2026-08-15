@@ -4382,3 +4382,26 @@ What was NOT changed: No configuration vocabulary, entitlement/StoreKit authorit
 trial, notification, Worker behavior/deployment, Staging/Production deployment, user content,
 telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
 post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 121 — Close C3-03B and C3-03 after PR #38 merged
+
+Goal: Close the reviewed C3-03B implementation and its C3-03 parent after hosted CI and merge,
+without starting C3-04 or changing runtime/distribution state.
+
+What changed: Repository tasks, memory, decisions, requirements, network policy, the C3 packet,
+public-configuration contract, CI baseline, and documentation gates now record reviewed head
+`09c382e`, successful GitHub Actions run `31873664396`, and PR #38 merge commit `db7926d`.
+C3-03B and C3-03 are Done. C3-04 is ready but not started pending explicit owner instruction.
+
+Evidence: The post-merge CI-style validation produced 410 results: 403 passed, 7 explicit
+opt-in/runtime skips, and 0 failed. All 396 unit tests, 14/14 UI tests, the Release build, static
+gates, and selected coverage thresholds passed at
+`/private/tmp/MindBudget-C303B-Closeout-FullGreen.xcresult`. The shared-load wall-clock diagnostic
+measured 0.83718875 seconds at `/private/tmp/MindBudget-C303B-Closeout-Full.xcresult`; the same
+signal passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-Closeout-StrictPerformance.xcresult`.
+
+What was NOT changed: No Swift/runtime behavior, Worker source/deployment, payload, StoreKit or
+entitlement authority, product/price/trial, notification, user content, telemetry, Staging or
+Production deployment, formal economics, privacy approval, version, Archive/upload, tester
+assignment, or distribution action changed. The post-0.9.6 release hold remains active.
