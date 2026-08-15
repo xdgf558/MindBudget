@@ -478,6 +478,32 @@ signal then passed 10/10 isolated iterations at
 `/private/tmp/MindBudget-C303B-Closeout-StrictPerformance.xcresult`. These post-merge checks confirm
 the closeout only; they do not open C3-04, Production, or distribution.
 
+## COM-C3-04 implementation verification
+
+C3-04 adds one non-blocking Dashboard navigation card, verified-state guidance on the Pro screen,
+and localized VoiceOver/AX5 presentation across all three owner-approved appearances. The focused
+StoreKit-domain run passed 24/24 with no failure or skip at
+`/private/tmp/MindBudget-C304-StoreRuntime.xcresult`.
+
+The first focused AX5 UI run passed its automated assertions, but manual inspection of its captured
+screenshots found that a rapid appearance change could pair the newly selected row background with
+the preceding system color scheme. That run is diagnostic only and is not accepted as final visual
+evidence. The Pro screen now binds its local preferred color scheme to the selected appearance. The
+exact follow-up test passed 1/1 at
+`/private/tmp/MindBudget-C304-ProAX5-ColorFix.xcresult`. The following three AX5 screenshots were
+then inspected for readable text, controls in bounds, and absence of clipping:
+
+- Aurora: `/private/tmp/MindBudget-C304-ProAX5-ColorFix-Attachments/8319E6FF-B028-4B19-AF02-AC24868DA97C.png`
+- Warm Botanical: `/private/tmp/MindBudget-C304-ProAX5-ColorFix-Attachments/F825A832-2C3F-4544-8792-7FE436A1A3BE.png`
+- Neon: `/private/tmp/MindBudget-C304-ProAX5-ColorFix-Attachments/51657CE5-C1C5-4C9C-ADC5-BF0FD4E254B6.png`
+
+The final owning validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips,
+and 0 failed. All 398 unit tests and 15/15 UI tests passed, together with the Release build, all
+static gates, and every selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C304-Full-Final.xcresult`. Hosted CI and independent review remain pending,
+so C3-04 and COM-C3 are not Done. No Production deployment, final customer economics, Archive,
+upload, tester assignment, or distribution permission is claimed.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

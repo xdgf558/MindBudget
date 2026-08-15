@@ -14,9 +14,10 @@ validated under the owner's current China-region Apple Developer account.
 - Earlier uploaded candidate: version 0.9.2, build 3
 - Build 7 is immutable; increment the build number before uploading any replacement.
 - Increment the build number after every uploaded replacement.
-- Distribution hold: the current unreleased COM-C1-03 source is not a replacement candidate. It
-  must not be archived, uploaded, or assigned to testers until verified purchase/restore, purchase
-  presentation, and their owning commercialization release gates are complete.
+- Distribution hold: the current post-0.9.6 commercialization source is not a replacement
+  candidate. It must not be archived, uploaded, or assigned to testers until COM-C3 and every
+  later owning iPhone release gate are complete, Production configuration has dated final-binary
+  evidence, and the owner has approved final products, economics, disclosures, and distribution.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
@@ -291,13 +292,17 @@ Chinese and English where App Store Connect requests localization:
 5. Wishlist — cooling-off status and review choices.
 6. Privacy — local-only explanation, CSV export, integrations, and Delete All.
 
-Do not show prototype Pro locks, trial language, prices, paywalls, or paid-rule controls; none are
-implemented in V1. Use realistic sample data with no real names, notes, merchants, or finances.
+For the final commercialization listing, show the voluntary Pro screen only with terms loaded by
+StoreKit from the release account. Do not show local-fixture prices or trial duration, Lifetime,
+cloud-AI quotas, deferred receipt/iCloud/Watch capabilities, or any other incomplete product.
+Do not capture final commerce screenshots until the owner has approved the formal products and
+economics and the Production configuration/final Release binary gates have passed. Use realistic
+synthetic data with no real names, notes, merchants, or finances.
 
 ## App Review notes draft
 
-MindBudget has no account login, server, or reviewer credentials. Its optional local Face ID app
-lock is off by default. Complete onboarding with any supported
+MindBudget has no account login or reviewer credentials. Its optional local Face ID app lock is
+off by default. Complete onboarding with any supported
 currency, enter a budget, and add a manual expense to reach the main flows. All core behavior is
 available without Apple Intelligence, Siri, notifications, or Spotlight. Those integrations are
 independently off by default and can be enabled in Settings. Apple Intelligence is an optional
@@ -308,6 +313,22 @@ leaves the app only after the user explicitly invokes the system share sheet. De
 two confirmations, then cancels app notifications, clears the app-owned Spotlight domain, deletes
 all local models, verifies the store is empty, and resets preferences. Emotion tags are optional
 user-selected spending context, not a mental-health assessment or diagnosis.
+
+Draft commercialization review path: Settings > MindBudget Pro is voluntary; there is no
+automatic blocking paywall. Apple StoreKit supplies product names, localized price/period,
+introductory-offer eligibility, purchase confirmation, Restore Purchases, Manage Subscription,
+and verified subscription state. Billing grace retains Pro. Billing retry, expiry, and revocation
+return to Free while preserving local data and show a non-blocking localized status card with
+Manage Subscription and Recheck actions. The app receives no card details. A local test fixture's
+price and seven-day offer are not customer terms and must not appear in the final submission.
+
+The only app-owned network request currently implemented is a first-party anonymous signed public-
+configuration `GET /v1/config`. It sends bounded app/config-version headers and no account, device,
+advertising, locale, storefront, StoreKit, ledger, note, or other user-content field. Cloudflare's
+edge necessarily receives ordinary connection metadata such as an IP address. Development is the
+only deployed environment today; this paragraph is a draft, not Production evidence. Revalidate
+the exact Production host/key, captured final-binary traffic, Worker logging/storage settings,
+App Privacy answers, and all wording before submission.
 
 ## App Privacy draft
 

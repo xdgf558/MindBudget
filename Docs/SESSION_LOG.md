@@ -4405,3 +4405,31 @@ What was NOT changed: No Swift/runtime behavior, Worker source/deployment, paylo
 entitlement authority, product/price/trial, notification, user content, telemetry, Staging or
 Production deployment, formal economics, privacy approval, version, Archive/upload, tester
 assignment, or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 122 — Implement COM-C3-04 UI and release quality
+
+Goal: Implement the scoped C3-04 UI and release-quality candidate without opening Production or
+distribution.
+
+What changed: Dashboard and Pro presentation now explain verified exceptional subscription states
+through one non-blocking navigation surface and StoreKit-derived guidance. Purchase remains blocked
+when authority is unavailable or otherwise not actionable. Restore, Manage, and Recheck remain
+reachable, bilingual VoiceOver copy describes plans and actions, and AX5 layout adapts across all
+three appearances. Manual screenshot review caught and fixed an appearance-transition contrast
+defect. User-facing disclosure, review notes, tasks, decisions, requirements, matrices, release
+checklists, and static gates were updated to match the candidate exactly.
+
+Evidence: The focused StoreKit-domain suite passed 24/24 at
+`/private/tmp/MindBudget-C304-StoreRuntime.xcresult`. The final three-appearance AX5 run passed 1/1
+and was visually inspected at `/private/tmp/MindBudget-C304-ProAX5-ColorFix.xcresult`. The final
+owning validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed;
+all 398 unit tests, 15/15 UI tests, the Release build, static gates, and selected coverage thresholds
+passed at `/private/tmp/MindBudget-C304-Full-Final.xcresult`. Hosted CI remains pending.
+
+State: C3-04 implementation is complete pending independent review and green hosted CI. It and
+COM-C3 are not Done.
+
+What was NOT changed: No StoreKit or entitlement authority, product IDs, formal price/trial terms,
+signed configuration or Worker deployment, Staging/Production deployment, data schema, user content,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.

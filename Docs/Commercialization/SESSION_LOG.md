@@ -1344,3 +1344,33 @@ What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/p
 notification, Worker response/deployment, Staging/Production deployment, content/identifier,
 telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
 post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 43 — Implement C3-04 UI and release quality
+
+Goal: Implement only the owner-authorized C3-04 UI and release-quality packet without changing
+StoreKit authority, signed configuration, formal economics, Production, or distribution.
+
+What changed: The Dashboard now offers one non-blocking navigation card for verified exceptional
+subscription states. The Pro screen explains grace, retry, expired, and revoked states using the
+same StoreKit-derived authority, retains Restore/Manage/Recheck actions, blocks purchase when the
+whole subscription state is not safely actionable, and provides bilingual VoiceOver labels and
+hints. AX5 layout adapts across Aurora, Warm Botanical, and Neon. Manual screenshot inspection
+found and fixed an appearance-transition contrast defect by binding the screen's local system color
+scheme to the selected appearance. Review, privacy, release, change-log, matrix, requirement, and
+static-contract documents now describe the actual candidate behavior.
+
+Evidence: Focused StoreKit-domain tests passed 24/24 at
+`/private/tmp/MindBudget-C304-StoreRuntime.xcresult`. The corrected AX5 visual test passed 1/1 at
+`/private/tmp/MindBudget-C304-ProAX5-ColorFix.xcresult`; all three captured appearances were manually
+inspected for contrast, bounds, and clipping. The final full validation produced 413 results:
+406 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 398 unit tests, 15/15 UI tests, the
+Release build, static gates, and selected coverage thresholds passed at
+`/private/tmp/MindBudget-C304-Full-Final.xcresult`. Hosted CI remains pending.
+
+Current state: C3-04 implementation is complete pending independent review and green hosted CI; it
+is not Done, and COM-C3 is not Done.
+
+What was NOT changed: No entitlement or StoreKit facts, product IDs, formal price/trial terms,
+signed-configuration vocabulary, Worker source/deployment, Staging/Production deployment,
+content/identifier/telemetry policy, schema, version, Archive/upload, tester assignment, or
+distribution action changed. The post-0.9.6 release hold remains active.

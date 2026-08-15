@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B Done, with C3-04 ready but not started pending explicit owner instruction
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B Done, with C3-04 implementation complete pending independent review and green CI
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -333,6 +333,11 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B D
   14/14 UI tests, Release build, static gates, and every selected coverage threshold. The reviewed
   head `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged to `main` as `db7926d` on
   2026-08-15. Staging/Production, final Release binary/traffic, and distribution remain blocked.
-- [ ] Begin C3-04 only after explicit owner instruction. C3-03 is now closed; C3-04 may address
+- [x] Begin C3-04 after explicit owner instruction. C3-03 is closed; C3-04 may address
   billing-retry/expiry soft landing, bilingual copy, VoiceOver, Dynamic Type, appearance testing,
   and review disclosures without deploying Production or relaxing the post-0.9.6 release hold.
+- [x] Complete the C3-04 source candidate: one non-blocking Dashboard navigation card and matching
+  Pro-screen guidance for verified grace/retry/expired/revoked, exact purchase-state gating,
+  bilingual/VoiceOver/AX5 presentation across all three appearances, fixture-free customer trial
+  terms, and updated privacy/App Review/Archive disclosure. Keep C3-04 pending independent review
+  and green CI; do not mark COM-C3 Done or open Production/distribution.

@@ -2183,3 +2183,22 @@ Production remain undeployed. The final reviewed head `09c382e` passed GitHub Ac
 not started pending explicit owner instruction. Final binary/Production traffic, privacy/review
 disclosure, formal products/economics, Archive/upload, tester assignment, and distribution remain
 blocked.
+
+---
+
+## 2026-08-15 — Keep C3-04 subscription guidance non-blocking and StoreKit-authoritative
+
+Context: C3-03 is Done and the owner explicitly started C3-04. The existing entitlement mapper
+already distinguishes subscribed, billing grace, billing retry, expired, revoked, and unavailable;
+the release-quality packet needs truthful presentation without creating a second authority.
+
+Decision: Detailed ownership lives in DEC-COM-023. Exceptional verified states use one bilingual
+Dashboard navigation card plus one Pro-screen explanation with Manage Subscription and Recheck.
+Grace keeps Pro; retry/expired/revoked preserve local data and Free capabilities. Unavailable is
+not exact Free. Plan controls reflow at accessibility sizes and carry explicit VoiceOver semantics
+across all three appearances. Customer terms never hardcode fixture prices or a seven-day trial.
+
+Consequences: No automatic modal paywall, entitlement rule, StoreKit product, signed-config field,
+or network channel changes. Review disclosure is updated, but Staging/Production deployment,
+formal economics, final Release binary/traffic evidence, versioning, Archive/upload, tester
+assignment, and distribution remain blocked.

@@ -50,6 +50,7 @@ struct ProSubscriptionView: View {
     var body: some View {
         List {
             heroSection
+            subscriptionStatusSection
             trialLifecycleSection
             featureSection
             planSection
@@ -58,11 +59,39 @@ struct ProSubscriptionView: View {
             legalSection
         }
         .settingsListPresentation()
+        // Keep the StoreKit disclosure surface synchronized with the selected skin even when
+        // the enclosing navigation stack is still applying its previous color-scheme update.
+        // Without this local preference, a rapid dark↔light skin change can briefly pair the
+        // new list background with stale system text colors and produce unreadable rows.
+        .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.title")
         .navigationBarTitleDisplayMode(.inline)
         .task { await session.refreshCommerceCatalog() }
         .manageSubscriptionsSheet(isPresented: $presentsManageSubscriptions)
         .accessibilityIdentifier("commerce.pro.view")
+    }
+
+    @ViewBuilder
+    private var subscriptionStatusSection: some View {
+        if let guidance = ProSubscriptionStatusGuidance(
+            state: session.commerceSubscriptionState
+        ) {
+            Section("commerce.pro.status.section") {
+                ProSubscriptionStatusSummaryView(guidance: guidance)
+
+                Button("commerce.pro.manage") {
+                    presentsManageSubscriptions = true
+                }
+                .disabled(isPerformingOperation)
+                .accessibilityIdentifier("commerce.pro.status.manage")
+
+                Button("commerce.pro.status.recheck") {
+                    Task { await session.refreshCommerceEntitlements() }
+                }
+                .disabled(isPerformingOperation)
+                .accessibilityIdentifier("commerce.pro.status.recheckGuidance")
+            }
+        }
     }
 
     @ViewBuilder
@@ -197,10 +226,14 @@ struct ProSubscriptionView: View {
                 isPerformingOperation
                     || !hasLiveCatalog
                     || selectedProduct == nil
-                    || hasActiveSubscription
+                    || !ProCommercePurchaseGate.permitsNewPurchase(
+                        session.commerceSubscriptionState
+                    )
                     || !hasConfirmedPurchaseAuthority
                     || !selectedProductSupportsPurchase
             )
+            .accessibilityLabel(Text(primaryButtonTitle))
+            .accessibilityHint("commerce.pro.purchase.hint")
             .accessibilityIdentifier("commerce.pro.purchase")
 
             if let notice {
@@ -256,31 +289,19 @@ struct ProSubscriptionView: View {
             selectedProductID = product.id
             notice = nil
         } label: {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? theme.accent : theme.inkTertiary)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(product.id == .proMonthly ? "commerce.pro.monthly" : "commerce.pro.annual")
-                        .font(.headline)
-                    if ProCommerceCopy.hasPresentableFreeTrial(product) {
-                        Text("commerce.pro.trial.eligible")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(theme.accent)
-                    }
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(product.displayPrice)
-                        .font(.headline.monospacedDigit())
-                    Text(product.id == .proMonthly ? "commerce.pro.perMonth" : "commerce.pro.perYear")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            ProPlanOptionLabel(
+                product: product,
+                isSelected: isSelected
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityLabel(
+            Text(ProCommerceCopy.planAccessibilityLabel(for: product, locale: locale))
+        )
+        .accessibilityValue(isSelected ? Text("commerce.pro.plan.selected") : Text(""))
+        .accessibilityHint("commerce.pro.plan.selectHint")
         .accessibilityIdentifier("commerce.pro.plan.\(product.id.rawValue)")
     }
 
@@ -410,6 +431,17 @@ enum ProCommercePurchaseGate {
     static func supportsIntroductoryOffer(_ product: StoreProductPresentation) -> Bool {
         StoreIntroductoryOfferPurchasePolicy.permitsPurchase(product)
     }
+
+    /// Billing grace retains Pro, while billing retry must direct the person to Apple rather than
+    /// starting a second purchase flow. An expired or revoked subscription may choose a new plan.
+    static func permitsNewPurchase(_ state: EffectiveStoreSubscriptionState) -> Bool {
+        switch state {
+        case .none, .expired, .revoked:
+            true
+        case .subscribed, .inGracePeriod, .inBillingRetryPeriod, .unavailable:
+            false
+        }
+    }
 }
 
 enum ProCommerceNotice: Equatable, Sendable {
@@ -532,6 +564,19 @@ enum ProCommerceCopy {
         )
     }
 
+    static func planAccessibilityLabel(
+        for product: StoreProductPresentation,
+        locale: Locale
+    ) -> String {
+        LocalizedCatalog.format(
+            product.id == .proMonthly
+                ? "commerce.pro.plan.accessibility.monthly"
+                : "commerce.pro.plan.accessibility.annual",
+            locale: locale,
+            product.displayPrice
+        )
+    }
+
     private static func localizedTrialDuration(
         _ offer: StoreIntroductoryOfferTerms,
         locale: Locale
@@ -572,6 +617,136 @@ enum ProCommerceCopy {
             components.year = multiplied.partialValue
         }
         return components
+    }
+}
+
+enum ProSubscriptionStatusGuidance: String, Equatable, Sendable {
+    case grace
+    case billingRetry
+    case expired
+    case revoked
+
+    init?(state: EffectiveStoreSubscriptionState) {
+        switch state {
+        case .inGracePeriod:
+            self = .grace
+        case .inBillingRetryPeriod:
+            self = .billingRetry
+        case .expired:
+            self = .expired
+        case .revoked:
+            self = .revoked
+        case .none, .subscribed, .unavailable:
+            return nil
+        }
+    }
+
+    var titleKey: String {
+        switch self {
+        case .grace: "commerce.pro.status.grace.title"
+        case .billingRetry: "commerce.pro.status.retry.title"
+        case .expired: "commerce.pro.status.expired.title"
+        case .revoked: "commerce.pro.status.revoked.title"
+        }
+    }
+
+    var detailKey: String {
+        switch self {
+        case .grace: "commerce.pro.status.grace.detail"
+        case .billingRetry: "commerce.pro.status.retry.detail"
+        case .expired: "commerce.pro.status.expired.detail"
+        case .revoked: "commerce.pro.status.revoked.detail"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .grace: "creditcard.trianglebadge.exclamationmark"
+        case .billingRetry: "exclamationmark.arrow.triangle.2.circlepath"
+        case .expired: "clock.badge.xmark"
+        case .revoked: "xmark.shield"
+        }
+    }
+
+    var usesWarningTint: Bool {
+        self == .grace || self == .billingRetry || self == .revoked
+    }
+}
+
+struct ProSubscriptionStatusSummaryView: View {
+    let guidance: ProSubscriptionStatusGuidance
+
+    @Environment(\.mindBudgetTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(LocalizedStringKey(guidance.titleKey), systemImage: guidance.systemImage)
+                .font(.headline)
+                .foregroundStyle(guidance.usesWarningTint ? Color.orange : theme.ink)
+            Text(LocalizedStringKey(guidance.detailKey))
+                .font(.subheadline)
+                .foregroundStyle(theme.inkSecondary)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("commerce.pro.status.\(guidance.rawValue)")
+    }
+}
+
+private struct ProPlanOptionLabel: View {
+    let product: StoreProductPresentation
+    let isSelected: Bool
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.mindBudgetTheme) private var theme
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isSelected ? theme.accent : theme.inkTertiary)
+                .padding(.top, 2)
+
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    planIdentity
+                    price
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    planIdentity
+                    Spacer(minLength: 8)
+                    price
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var planIdentity: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(product.id == .proMonthly ? "commerce.pro.monthly" : "commerce.pro.annual")
+                .font(.headline)
+            if ProCommerceCopy.hasPresentableFreeTrial(product) {
+                Text("commerce.pro.trial.eligible")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(theme.accent)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var price: some View {
+        VStack(
+            alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing,
+            spacing: 2
+        ) {
+            Text(product.displayPrice)
+                .font(.headline.monospacedDigit())
+            Text(product.id == .proMonthly ? "commerce.pro.perMonth" : "commerce.pro.perYear")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 

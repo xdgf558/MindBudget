@@ -272,6 +272,30 @@ merged C3-02 to `main` as `12d9217` on 2026-08-14. C3-02 is Done. This evidence 
 C3-03, accept formal products/economics, or authorize versioning, Archive/upload, tester
 assignment, or distribution.
 
+### C3-04 UI and release-quality candidate
+
+C3-04 consumes only `EffectiveStoreSubscriptionState`; it does not interpret StoreKit objects or
+change entitlement authority. Verified grace shows a non-blocking payment-method/status prompt and
+retains Pro. Verified retry, expired, and revoked states preserve local data and Free capabilities,
+show one calm Dashboard navigation card plus the matching Pro-screen explanation, and expose
+Manage Subscription and Recheck. Retry cannot start a second purchase. Expired/revoked may select
+only a current live accepted product. Unavailable/unverified authority is not a confirmed Free
+state and receives no exceptional-state card or enabled purchase.
+
+Pure tests cover the four-state presentation table, exact purchase gate, English/Chinese strings,
+and VoiceOver plan labels under an explicit app locale with StoreKit-supplied price tokens. The AX5
+UI test selects all three appearances and verifies that purchase remains visible and restore/manage
+remain reachable without horizontal or vertical clipping. Customer terms no longer hardcode the
+fixture-only seven-day duration. Review notes disclose Apple-handled commerce, local-data
+retention, the exact anonymous first-party configuration request, and ordinary edge connection
+metadata; screenshots must not advertise a deferred product or provisional term.
+
+The production derivation of `hasVerifiedStatusTransaction`, `hasVerifiedRenewalInfo`, and
+`hasVerifiedAppBundle` remains outside direct unit construction. Those booleans are consumed by
+pure tests, while their derivation evidence is the opt-in local scheme and supported-final physical
+device using real `Transaction`, subscription-status, renewal-info, and `AppTransaction` values.
+C3-04's view tests must not be cited as proof of that framework bridge.
+
 ## Stop conditions
 
 Stop and do not grant paid access on unknown Product ID, environment mismatch, unverified result,

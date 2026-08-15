@@ -8,6 +8,13 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 
 ### Changed
 
+- Added bilingual, non-blocking subscription-status guidance for StoreKit-verified billing grace,
+  billing retry, expiry, and revocation. Grace keeps Pro; retry, expiry, and revocation preserve
+  local data and Free capabilities while providing Manage Subscription and Recheck actions. The
+  Dashboard uses one calm navigation card instead of an automatic modal paywall. Pro plan rows and
+  actions now expose explicit VoiceOver labels/hints and reflow at accessibility text sizes across
+  all three appearances. Customer-facing trial terms no longer hardcode the fixture-only seven-day
+  duration and instead defer exact length and eligibility to the App Store.
 - Added an unreleased, signed first-party presentation configuration path that may show or hide
   only optional explicit Pro value triggers. It cannot hide Settings, Restore Purchases, Manage
   Subscription, or subscription status, and cannot change products, prices, trials, entitlement,

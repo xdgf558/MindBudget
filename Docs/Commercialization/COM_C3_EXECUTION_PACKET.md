@@ -288,7 +288,41 @@ Implementation evidence on 2026-08-15:
 
 ## C3-04 — UI and release quality
 
-Status: **Ready after C3-03 completion; not started pending explicit owner instruction.**
+Status: **Implementation complete pending independent review and green CI.**
 
 The post-0.9.6 release hold remains active throughout COM-C3. No C3 implementation is a public or
 TestFlight distribution authorization by itself.
+
+### Tasks
+
+- [x] Map only verified billing-grace/retry/expired/revoked states into bilingual presentation;
+  never infer a state from price, trial, cached presentation, or signed configuration.
+- [x] Keep the soft landing non-blocking: one Dashboard navigation card and one Pro-screen status
+  section with explicit Manage Subscription and Recheck actions; never present an automatic modal.
+- [x] Preserve Pro in grace, exact Free/local data in retry/expired/revoked, and block a second
+  purchase during grace/retry or any unavailable authority.
+- [x] Reflow plan rows at accessibility text sizes and provide explicit localized VoiceOver
+  labels, selected state, hints, and non-color-only status across all three appearances. The Pro
+  surface applies the currently selected skin's light/dark preference locally so a rapid skin
+  change cannot pair new row backgrounds with stale system text colors.
+- [x] Remove fixture-only trial duration from customer terms and align privacy, App Review,
+  screenshot, and Archive checks with the implemented StoreKit and signed-config boundaries.
+
+### Tests
+
+- Pure presentation tests cover every exceptional state, purchase gating, bilingual status copy,
+  and app-locale VoiceOver labels containing StoreKit-supplied prices.
+- The dedicated AX5 UI test selects Aurora Glow, Warm Botanical, and Neon Pulse, captures each Pro
+  surface, and verifies purchase/restore/manage controls stay inside the visible screen. A disabled
+  purchase button must remain visible and legible; Restore and Manage remain actionable. The three
+  retained captures also require manual contrast inspection rather than treating element existence
+  as visual evidence.
+- Full validation must pass localization parity, Release build, unit/UI suites, coverage, StoreKit
+  isolation, signed-config/network, documentation, and money gates before this candidate can be
+  called implementation complete.
+
+### Stop conditions
+
+Stop on an automatic blocking paywall, unavailable-as-Free presentation, local-data removal,
+fixture price/trial customer copy, color-only state, clipped AX5 action, deferred product claim,
+Production/Staging deployment, or any Archive/upload/tester/distribution action.

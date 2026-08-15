@@ -481,6 +481,75 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance() {
+        let app = launchApp(
+            language: "en",
+            locale: "en_US",
+            additionalArguments: [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+            ]
+        )
+        completeBudgetSetup(in: app)
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        app.buttons["dashboard.settings"].tap()
+        XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+
+        for skin in ["auroraGlow", "warmBotanical", "neonPulse"] {
+            for _ in 0..<6 where !element("settings.appearance", in: app).isHittable {
+                app.swipeDown()
+            }
+            let appearance = element("settings.appearance", in: app)
+            XCTAssertTrue(appearance.waitForExistence(timeout: 2))
+            appearance.tap()
+
+            let skinControl = element("settings.appearance.skin.\(skin)", in: app)
+            for _ in 0..<4 where !skinControl.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
+            skinControl.tap()
+            XCTAssertTrue(skinControl.isSelected)
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+
+            let proEntry = element("settings.pro", in: app)
+            for _ in 0..<7 where !proEntry.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
+            proEntry.tap()
+            XCTAssertTrue(element("commerce.pro.view", in: app).waitForExistence(timeout: 5))
+
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "MindBudget Pro AX5 - \(skin)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+
+            for identifier in [
+                "commerce.pro.purchase",
+                "commerce.pro.restore",
+                "commerce.pro.manage",
+            ] {
+                let control = element(identifier, in: app)
+                for _ in 0..<8 where !control.exists || control.frame.maxY > app.frame.maxY {
+                    app.swipeUp()
+                }
+                XCTAssertTrue(control.waitForExistence(timeout: 2), "Missing AX5 control: \(identifier)")
+                if identifier != "commerce.pro.purchase" {
+                    XCTAssertTrue(control.isHittable, "Clipped AX5 control: \(identifier)")
+                }
+                XCTAssertGreaterThanOrEqual(control.frame.minX, app.frame.minX)
+                XCTAssertLessThanOrEqual(control.frame.maxX, app.frame.maxX)
+                XCTAssertGreaterThanOrEqual(control.frame.minY, app.frame.minY)
+                XCTAssertLessThanOrEqual(control.frame.maxY, app.frame.maxY)
+            }
+
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
+        }
+    }
+
+    @MainActor
     func testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable() {
         let app = launchApp(
             language: "en",
