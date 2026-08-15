@@ -40,6 +40,9 @@ jobs:
       - name: Verify commercialization contracts
         run: Scripts/check-commercialization-docs.sh
 
+      - name: Verify signed public configuration boundary
+        run: Scripts/check-public-configuration-contract.sh
+
       - name: Verify StoreKit local test catalog isolation
         run: Scripts/check-storekit-test-catalog.sh
 

@@ -167,8 +167,82 @@ C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/
 
 ## C3-03 — Signed public configuration
 
-Status: **Blocked pending an explicit owner instruction and an accepted exact first-party
-configuration contract.**
+Status: **In Progress — C3-03A implementation is complete pending independent review; C3-03B is
+blocked until C3-03A is reviewed and merged.**
+
+Owner instruction: on 2026-08-14 the owner accepted the recommended exact contract in
+`PUBLIC_CONFIGURATION_CONTRACT.md` and authorized C3-03. DEC-COM-021 owns this boundary.
+
+### Input gate
+
+- C3-01 and C3-02 are Done through PRs #33 and #34.
+- The exact Development, Staging, and Production hosts; anonymous `GET /v1/config`; outbound
+  metadata; Ed25519 envelope; seven-day maximum validity; conservative fallback; and closed
+  presentation vocabulary are Accepted in DEC-COM-021.
+- The post-0.9.6 release hold remains active. This packet does not accept final economics,
+  formal products, Archive/upload, tester assignment, or distribution.
+
+### C3-03A — Signed document, verification, and local resolution
+
+Status: **Implementation complete pending independent review.**
+
+#### Tasks
+
+- Define an exact JSON envelope whose Ed25519 signature covers the exact decoded payload bytes.
+- Reject unknown/missing fields, algorithm/key/schema/version errors, invalid encoding/signature,
+  oversized documents, future issuance beyond bounded skew, expired payloads, and validity windows
+  longer than seven 24-hour intervals.
+- Keep the v1 payload vocabulary closed to the single optional-presentation field
+  `proValueTriggersEnabled`, whose built-in conservative value is `false`.
+- Persist only the signed envelope, highest accepted version, and SHA-256 payload digest. Publish a
+  remote value only after durable persistence succeeds. Reject lower versions and same-version
+  equivocation; corrupted rollback state cannot be overwritten silently and remains a sticky
+  Release fail-closed state until the app data container is deleted and the app is reinstalled.
+- Require exact whole-second UTC timestamps and no duplicate JSON keys while continuing to verify
+  exact signer bytes rather than defining a client-side canonical JSON encoder.
+- Serialize concurrent remote acceptance across read/compare/write/read-back, then re-read and
+  re-verify the exact intended snapshot through the persistence abstraction before returning a
+  remote resolution.
+- Add a standalone static contract gate and run it in local validation and CI. C3-03A contains no
+  `URLSession`, URL, endpoint, embedded Production public key, entitlement/StoreKit authority, or
+  application integration.
+
+#### Tests
+
+- Valid Ed25519 envelope and closed payload decoding.
+- Invalid signature/key/algorithm/encoding and unknown envelope/payload/nested fields.
+- Schema/version/clock/expiry/validity/size boundaries.
+- Fixed-timestamp golden bytes, fractional-timestamp rejection, duplicate envelope/payload keys,
+  and zero-length validity windows.
+- Rollback, same-version equivocation, cache expiry, cache digest mismatch, corrupt persistence,
+  malformed high-water records, concurrent high-water ordering, no-op persistence, and save-before-
+  publish failure.
+- Atomic file-protected persistence round trip, readback verification, and conservative built-in
+  fallback.
+
+#### Stop conditions
+
+- Stop if configuration can name a product, price, trial, entitlement, notification, Lifetime,
+  iCloud, cloud AI/provider/model/quota, receipt, telemetry, Watch, or arbitrary feature.
+- Stop if a cache can grant paid access, an invalid/expired/rolled-back document can activate a
+  value, persistence failure can publish, concurrent acceptance can lower the high-water mark,
+  duplicate/unknown JSON is ignored, or Release code can reset corrupt rollback state.
+- Stop if a URL, transport, Production public key, Worker deployment, Release egress exception, or
+  presentation consumer enters C3-03A.
+
+### C3-03B — Fixed transport and presentation integration
+
+Status: **Blocked pending independent review and merge of C3-03A.**
+
+After that gate, C3-03B may add only the exact anonymous environment-isolated transport and the
+single verified presentation consumer accepted in `PUBLIC_CONFIGURATION_CONTRACT.md`. It must
+inspect the real Worker, platform logs/analytics and TTL, redirects/cache headers, request and
+response bounds, public key provenance/rotation boundary, captured traffic, final binary, privacy
+copy, timeout/cancellation, and offline/invalid-signature behavior. It must not expand the payload
+vocabulary or make configuration an entitlement, price, trial, or release authority.
+It also owns closed non-content reason codes for rejected configuration operations; payload and
+signature bytes are never logged. C3-03A intentionally adds no logging sink before that real
+transport/operations boundary exists.
 
 ## C3-04 — UI and release quality
 

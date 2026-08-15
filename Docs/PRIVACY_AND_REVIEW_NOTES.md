@@ -49,6 +49,17 @@ must add current bilingual disclosure, App Privacy answers, channel-specific rev
 behavior, and signed release evidence. No forward-looking permission changes the current binary's
 local-only data handling.
 
+C3-03A remains inside that current local-only claim. It implements only local verification and
+storage of a signed public presentation document and rollback metadata; it has no URL, transport,
+embedded Production key, application consumer, user content, identifier, or automatic request.
+The future C3-03B contract permits an anonymous fixed-host configuration GET carrying only bounded
+app/config versions. Even without an app identifier or content, ordinary HTTPS exposes connection
+metadata such as an IP address to the first-party edge and its infrastructure provider. Before
+that adapter can ship, the real independent MindBudget Worker, Cloudflare analytics/logging and
+TTL, redirects/cache headers, traffic capture, binary inventory, deletion/retention meaning, and
+App Privacy/review wording must be verified. This accepted future contract does not change the
+privacy statement for the currently uploaded 0.9.6 binary.
+
 Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
 are never deleted automatically. Settings shows the exact affected count and offers a separate
 destructive repair action with explicit confirmation. At commit time the actor revalidates every

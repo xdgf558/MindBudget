@@ -19,7 +19,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   independent review and green CI and merged through PR #33 as `747b628` on 2026-08-14 under the
   provisional test terms accepted in DEC-COM-019. C3-02 passed independent review and GitHub
   Actions run `31803898776`, then merged through PR #34 as `12d9217` on 2026-08-14; it is Done.
-  C3-03 and C3-04 remain blocked.
+  The owner then authorized C3-03 and accepted the exact two-packet signed-configuration contract
+  in DEC-COM-021. C3-03A is implementation complete pending independent review; C3-03B remains
+  blocked until that review/merge, and C3-04 remains blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -276,9 +278,19 @@ contract instead of production authority, blocks purchase whenever entitlement a
 unavailable at both UI and actor boundaries, and binds renewal copy to the app-selected locale.
 Merged C3-02 adds only the verified active-trial projection, actual-date reminder reconciliation,
 and in-app fallback in `COM_C3_EXECUTION_PACKET.md`. It does not use the P1W fixture as lifecycle
-authority, prompt for notification consent, persist a right, or add C3-03 configuration.
+authority, prompt for notification consent, or persist a right. C3-03A now adds only a pure
+Ed25519 signed-document verifier, exact closed schema, version/expiry/size checks, rollback and
+same-version-equivocation protection, and a durable signed cache/high-water mark. Its only v1
+presentation field is `proValueTriggersEnabled`, with a conservative built-in `false`; it has no
+URL, transport, production public key, entitlement/StoreKit authority, or application consumer.
+Review remediation fixes timestamps to whole-second UTC, rejects duplicate keys without inventing
+a client canonicalizer, serializes the full acceptance transaction, and re-verifies the exact
+persisted snapshot through the persistence abstraction. Corrupt rollback state is deliberately
+sticky in Release: normal Delete All and Offload do not clear it; recovery currently requires
+deleting the app data container and reinstalling. Non-content reason-code logging remains C3-03B-
+owned because C3-03A has no real transport or operations channel.
 
-Next suggested task: wait for an explicit owner instruction and an accepted exact first-party
-configuration contract before beginning C3-03. Keep final customer terms/products, versioning,
-Archive/upload, tester assignment, and distribution blocked until their owning C3 and release
-gates pass.
+Next suggested task: independently review and merge C3-03A. Only then may C3-03B add the accepted
+fixed anonymous configuration transport and presentation integration. Keep final customer terms/
+products, C3-04, versioning, Archive/upload, tester assignment, and distribution blocked until
+their owning C3 and release gates pass.

@@ -22,12 +22,14 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 between packets. C3-01 and C3-02 are Done; C3-03 has not started and
-  remains blocked pending an explicit owner instruction and an accepted exact configuration
-  contract.** C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
+- Active phase: **COM-C3 C3-03 is In Progress. C3-03A signed-document verification and rollback/
+  cache core is implementation complete pending independent review; C3-03B fixed transport and
+  presentation integration remain blocked until C3-03A is reviewed and merged.** The owner
+  accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
+  C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
   complete through PR #31 (`a293762`). DEC-COM-019 accepts provisional test presentation only;
-  C3-03, C3-04, and distribution remain blocked.
+  C3-04 and distribution remain blocked.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -258,7 +260,8 @@ products remain blocked until the accepted cost inputs are available.
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
 Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
-(`12d9217`); C3-03 and C3-04 remain blocked.**
+(`12d9217`); C3-03A is implementation complete pending independent review; C3-03B and C3-04
+remain blocked.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -288,9 +291,24 @@ Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Don
   both Monthly/Annual trial-lifecycle derivation paths. PR #34 passed independent review and
   GitHub Actions run `31803898776`, then merged to `main` as `12d9217` on 2026-08-14. C3-02 is
   Done; this does not unblock C3-03 or distribution.
-- [B] **C3-03 — Signed public configuration.** Implement signature/version/expiry/rollback/cache
-  verification with conservative offline defaults; configuration may change presentation but
-  never entitlement or StoreKit price.
+- [ ] **C3-03A — Signed public-configuration core.** The owner accepted DEC-COM-021 and the exact
+  contract on 2026-08-14. Implement strict Ed25519 envelope/payload verification, version/expiry/
+  size bounds, rollback high-water mark, same-version equivocation rejection, durable signed
+  cache, and a conservative built-in default. The closed v1 vocabulary contains only
+  `proValueTriggersEnabled`; no URL, production key, transport, entitlement, StoreKit price/trial,
+  notification, or user-content field enters this packet. Implementation is complete pending
+  independent review. Review remediation fixes exact whole-second UTC timestamp bytes, rejects
+  duplicate keys, serializes concurrent high-water acceptance, re-verifies persistence through
+  its abstraction, and formalizes corrupt state as sticky Release fail-closed until full app-data
+  deletion/reinstall. The remediation focused suite passed 12/12; the final owning full run produced
+  394 results (388 passed, 6 explicit opt-in StoreKit probes skipped, 0 failed), including all 14 UI
+  tests, the Release build, static gates, and every selected coverage threshold. The strict local
+  500 ms signal separately passed 10/10 isolated iterations.
+- [B] **C3-03B — Fixed transport and presentation integration.** After C3-03A review/merge, add
+  only anonymous `GET /v1/config` to the accepted exact environment host, send only bounded app/
+  config version metadata, embed the accepted public verification key, connect the verified
+  presentation value, and prove privacy/logging/redirect/timeout/binary-traffic gates. Until then
+  the Release app-owned HTTP(S) allow-list remains empty.
 - [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,
   VoiceOver, Dynamic Type, appearance testing, and review disclosures.
 

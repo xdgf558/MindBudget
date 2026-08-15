@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 and C3-02 Done, with C3-03 not started and still blocked
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 and C3-02 Done, with C3-03A implementation complete pending independent review and C3-03B blocked
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -309,3 +309,13 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 and C3-02 Done, 
   independent review and green GitHub Actions run `31803898776`, then merged as `12d9217` on
   2026-08-14. The P1W fixture is never authority; C3-03, formal economics,
   versioning, Archive/upload, tester assignment, and distribution remain blocked.
+- [ ] Independently review and merge C3-03A: strict Ed25519 signed-envelope verification, exact
+  schema/version/expiry/size bounds, rollback and same-version-equivocation rejection, durable
+  signed cache/high-water mark, serialized concurrent acceptance, exact UTC timestamp/no-duplicate-
+  key parsing, sticky corrupt-state fail-closed recovery, abstraction-level write readback, and
+  conservative built-in presentation. The accepted v1 payload
+  contains only `proValueTriggersEnabled`; C3-03A adds no network transport, URL, production key,
+  entitlement/StoreKit authority, version, Archive/upload, tester assignment, or distribution.
+- [B] Begin C3-03B only after C3-03A review/merge. Add the one accepted fixed anonymous
+  `GET /v1/config` transport, key provenance, privacy/log/TTL review, captured-traffic evidence,
+  and verified presentation integration without expanding the payload vocabulary.
