@@ -425,8 +425,8 @@ shared-load run measured the local signal at 0.850044833 seconds and is retained
 diagnostic evidence at `/private/tmp/MindBudget-C303B-Full.xcresult`; the isolated signal then
 passed 10/10 at `/private/tmp/MindBudget-C303B-StrictPerformance.xcresult`.
 
-Staging and Production were not deployed. Hosted CI remains pending. C3-03B is implementation
-complete pending independent review and green hosted CI; it is not Done. Final Release binary/
+Staging and Production were not deployed. Hosted CI was pending at this initial implementation
+checkpoint. Final Release binary/
 Production captured traffic, current privacy/review disclosure, C3-04, formal products/economics,
 versioning, Archive/upload, tester assignment, and distribution remain blocked.
 
@@ -445,8 +445,8 @@ static gates, and every selected coverage threshold passed; evidence:
 separately passed 10/10 isolated iterations at
 `/private/tmp/MindBudget-C303B-ReviewFix-StrictPerformance.xcresult`. One preceding shared-load run
 measured 0.838828417 seconds and is retained only as nonpassing diagnostic evidence at
-`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI for the remediation head remains
-pending; C3-03B is not Done.
+`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI was pending at this review-
+remediation checkpoint.
 
 Second cancellation review remediation on 2026-08-15 makes the startup refresh a separately
 structured SwiftUI task, retains scene-active work for explicit inactive/background/replacement/
@@ -461,8 +461,22 @@ file write, and cancellation while a persistence actor is suspended. Evidence:
 then produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit
 tests and 14/14 UI tests passed, together with the Release build, all static gates, and every
 selected coverage threshold. Evidence:
-`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. Hosted CI for this follow-up
-head remains pending; C3-03B is not Done.
+`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. The exact follow-up head
+`09c382e` then passed GitHub Actions run `31873664396`; PR #38 merged to `main` as `db7926d` on
+2026-08-15. C3-03B and C3-03 are Done. Staging/Production, final Release binary/Production traffic,
+current privacy/review disclosure, C3-04 implementation, formal products/economics, versioning,
+Archive/upload, tester assignment, and distribution remain pending their own gates.
+
+The post-merge C3-03B documentation closeout reran the complete validation on `db7926d` with the
+document-state changes present. The CI-style run intentionally skipped only the separately measured
+local wall-clock signal and produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and
+0 failed. The Release build, all 396 unit tests, 14/14 UI tests, every static gate, and every selected
+coverage threshold passed at `/private/tmp/MindBudget-C303B-Closeout-FullGreen.xcresult`.
+An earlier shared-load run measured that local Dashboard signal at 0.83718875 seconds and is retained
+as diagnostic-only evidence at `/private/tmp/MindBudget-C303B-Closeout-Full.xcresult`; the exact
+signal then passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-Closeout-StrictPerformance.xcresult`. These post-merge checks confirm
+the closeout only; they do not open C3-04, Production, or distribution.
 
 ## Result and report paths
 

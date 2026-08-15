@@ -232,7 +232,7 @@ fi
 for c303_contract in \
   'Status: **Accepted by the owner for COM-C3-03 on 2026-08-14.**' \
   'Status: **Done after independent review, green CI, and merge through PR #36 (`1ebb36c`).**' \
-  'Status: **Implementation complete pending independent review and green hosted CI.**' \
+  'Status: **Done after independent review, green CI, and merge through PR #38 (`db7926d`).**' \
   'mindbudget-public-config-dev.yehao1105.workers.dev' \
   'mindbudget-public-config-staging.yehao1105.workers.dev' \
   'mindbudget-public-config.yehao1105.workers.dev' \
@@ -262,15 +262,15 @@ grep -Fq 'Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3
   exit 1
 }
 
-grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending' \
+grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is Done through PR #38' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C3 task state must identify the active and blocked C3-03 packets" >&2
+  echo "COM-C3 task state must record both reviewed C3-03 packets as Done" >&2
   exit 1
 }
 
-grep -Fq 'Signed public configuration | C3-03B implementation complete pending independent review; Development deployed and verified; Staging/Production undeployed; no distribution authorization' \
+grep -Fq 'Signed public configuration | C3-03 Done through PR #38 (`db7926d`); Development deployed and verified; Staging/Production undeployed; no distribution authorization' \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
-  echo "Network policy must record the exact reviewed C3-03B adapter without implying distribution" >&2
+  echo "Network policy must record completed C3-03 without implying Production deployment or distribution" >&2
   exit 1
 }
 
@@ -278,7 +278,11 @@ for c303_completion in \
   'GitHub Actions run `31856271268`' \
   'merged through PR #36 as `1ebb36c`' \
   'C3-03A is Done' \
-  'C3-03B implementation'; do
+  'GitHub Actions run `31873664396`' \
+  'PR #38' \
+  '`db7926d`' \
+  'C3-03 is Done' \
+  'C3-04 is ready but not started'; do
   if ! grep -Fq "${c303_completion}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -291,6 +295,20 @@ for c303_completion in \
     exit 1
   fi
 done
+
+if grep -Eq 'C3-03B (is )?implementation complete pending|C3-03B remains implementation complete pending|C3-03B is In Progress|C3-03B has now implemented.*pending independent review|C3-03B is not Done|Hosted CI remains pending' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/CI_BASELINE.md \
+    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+    Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md; then
+  echo "Current commercialization state still describes C3-03B as pending review/CI or not Done" >&2
+  exit 1
+fi
 
 if grep -Eq 'C3-03A (is )?implementation complete pending independent review|C3-03A verifier/cache complete pending review|Blocked pending independent review and merge of C3-03A' \
     Docs/COMMERCIALIZATION_TASKS.md \

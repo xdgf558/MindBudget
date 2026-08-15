@@ -22,14 +22,14 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 C3-03 is In Progress. C3-03A is Done after independent review, green CI,
-  and merge through PR #36 (`1ebb36c`); C3-03B fixed transport and presentation integration is
-  implementation complete pending independent review and green hosted CI.** The owner
+- Active phase: **COM-C3. C3-03A and C3-03B are Done after independent review, green CI,
+  and merges through PR #36 (`1ebb36c`) and PR #38 (`db7926d`), respectively. C3-04 is ready but
+  has not started pending explicit owner instruction.** The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
   complete through PR #31 (`a293762`). DEC-COM-019 accepts provisional test presentation only;
-  C3-04 and distribution remain blocked.
+  Production deployment, final-binary/traffic evidence, and distribution remain blocked.
 - Product implementation status: COM-C1 is completed and merged. Existing
   Apple on-device AI, non-24-hour cooling-off choices, and advanced Siri entries consume one
   Commerce-owned access snapshot; exact Free retains deterministic templates, the basic 24-hour
@@ -260,8 +260,8 @@ products remain blocked until the accepted cost inputs are available.
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
 Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
-(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending
-independent review, and C3-04 remains blocked.**
+(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is Done through PR #38
+(`db7926d`); C3-04 is ready but not started pending explicit owner instruction.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -305,8 +305,8 @@ independent review, and C3-04 remains blocked.**
   tests, the Release build, static gates, and every selected coverage threshold. The strict local
   500 ms signal separately passed 10/10 isolated iterations. PR #36 passed independent review and
   green GitHub Actions run `31856271268`, then merged to `main` as `1ebb36c` on 2026-08-15.
-- [ ] **C3-03B — Fixed transport and presentation integration (implementation complete pending
-  independent review and green hosted CI).** The exact anonymous `GET /v1/config`, bounded
+- [x] **C3-03B — Fixed transport and presentation integration.** The exact anonymous
+  `GET /v1/config`, bounded
   app/config-version metadata, embedded public verification key, closed reason codes, conservative
   cache/transport fallback, and single optional presentation consumer are implemented. The
   independent Worker has no private key, storage, outbound fetch, or app logging. Development
@@ -322,11 +322,13 @@ independent review, and C3-04 remains blocked.**
   tested pre-atomic-write persistence commit
   point. The follow-up owning validation produced 410 results (403 passed, 7 explicit skips,
   0 failed), including 396/396 unit tests, 14/14 UI tests, Release build, static gates, and every
-  selected coverage threshold. Hosted CI remains pending. Staging/
-  Production, final Release binary/Production traffic evidence, C3-04, Archive/upload, tester
-  assignment, and distribution remain blocked.
-- [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,
-  VoiceOver, Dynamic Type, appearance testing, and review disclosures.
+  selected coverage threshold. The reviewed head `09c382e` passed GitHub Actions run
+  `31873664396`; PR #38 then merged to `main` as `db7926d` on 2026-08-15. Staging/Production,
+  final Release binary/Production traffic evidence, Archive/upload, tester assignment, and
+  distribution remain blocked.
+- [ ] **C3-04 — UI and release quality (ready, not started pending explicit owner instruction).**
+  Add billing-retry/expiry soft landing, bilingual copy, VoiceOver, Dynamic Type, appearance
+  testing, and review disclosures.
 
 Exit gate: purchase presentation is accurate and non-blocking, signed-config failure is safe, and
 no deferred or incomplete product is advertised.

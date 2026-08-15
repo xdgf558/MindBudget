@@ -621,9 +621,13 @@ context.
   typecheck, high-severity dependency audit, and Production configuration dry-run passed. Staging
   and Production were not deployed.
 - Release boundary: Source-level acceptance of this exact adapter is not distribution approval.
-  C3-03B remains implementation complete pending independent review and green hosted CI. Final
-  Release binary/traffic, current App Privacy/review disclosure, Production deployment, C3-04,
-  formal economics/products, Archive/upload, tester assignment, and distribution remain blocked.
+  Final Release binary/traffic, current App Privacy/review disclosure, Production deployment,
+  C3-04 implementation, formal economics/products, Archive/upload, tester assignment, and
+  distribution remain blocked by their own gates.
+- Closeout: The final reviewed head `09c382e` passed GitHub Actions run `31873664396`; PR #38
+  merged C3-03B to `main` as `db7926d` on 2026-08-15. C3-03A and C3-03B are Done, closing C3-03.
+  C3-04 is ready but not started pending explicit owner instruction. This completion does not
+  deploy Staging/Production or relax any release gate above.
 - Alternatives rejected: Shared product Worker/admin state; a generic networking client;
   caller-selected URLs/headers; redirects; cookies/auth/identifiers; private key in app/repository/
   Worker; Worker storage or app logging; remotely granting entitlement; deploying all environments

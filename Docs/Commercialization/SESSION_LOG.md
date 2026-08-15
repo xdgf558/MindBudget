@@ -1285,6 +1285,35 @@ notification, Worker response/deployment, Staging/Production deployment, content
 telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
 post-0.9.6 release hold remains active.
 
+## 2026-08-15 — Session 42 — Close C3-03B and C3-03 after review, green CI, and merge
+
+Goal: Close the reviewed C3-03B implementation and parent C3-03 packet durably after the exact
+follow-up head passed hosted CI and merged, without implicitly starting C3-04 or opening a release
+gate.
+
+What changed: Current-state tasks, packet status, requirements, decision pointers, network policy,
+public-configuration contract, project memory, and documentation gates now record C3-03A and
+C3-03B as Done. The reviewed C3-03B head was `09c382e`; GitHub Actions run `31873664396` completed
+successfully; PR #38 merged to `main` as `db7926d`. C3-04 is ready but not started and still requires
+an explicit owner instruction.
+
+Evidence: The post-merge CI-style validation produced 410 results: 403 passed, 7 explicit
+opt-in/runtime skips, and 0 failed. All 396 unit tests and 14/14 UI tests passed with the Release
+build, all static gates, and every selected coverage threshold at
+`/private/tmp/MindBudget-C303B-Closeout-FullGreen.xcresult`. A shared-load-only 0.83718875-second
+Dashboard wall-clock miss remains diagnostic evidence at
+`/private/tmp/MindBudget-C303B-Closeout-Full.xcresult`; the same signal passed 10/10 isolated
+iterations at `/private/tmp/MindBudget-C303B-Closeout-StrictPerformance.xcresult`.
+
+Current state: C3-03B and C3-03 are Done. C3-04 is ready but not started pending explicit owner
+instruction. Staging and Production remain undeployed, and Development remains the only deployed
+signed public-configuration Worker environment.
+
+What was NOT changed: No Swift/runtime behavior, Worker source or deployment, signed payload,
+entitlement/StoreKit authority, product/price/trial, notification, user content, telemetry,
+Production traffic, privacy approval, version, Archive/upload, tester assignment, or distribution
+action changed. The post-0.9.6 release hold remains active.
+
 ## 2026-08-15 — Session 41 — Close remaining C3-03B cancellation boundaries
 
 Goal: Resolve the second PR #38 cancellation review without expanding DEC-COM-022 or opening any
