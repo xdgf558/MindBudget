@@ -1284,3 +1284,34 @@ What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/p
 notification, Worker response/deployment, Staging/Production deployment, content/identifier,
 telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
 post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 41 — Close remaining C3-03B cancellation boundaries
+
+Goal: Resolve the second PR #38 cancellation review without expanding DEC-COM-022 or opening any
+later commercialization/release gate.
+
+What changed: Startup refresh is now structurally awaited by a dedicated SwiftUI task. AppSession
+retains scene-active refresh and cancels it on replacement, inactive/background transition, or
+Session destruction. Cancellation resets the startup one-time guard so a recreated SwiftUI task
+can retry. File persistence checks cancellation after actor entry and immediately
+before its atomic-write commit point. Cancellation observed before that point leaves the prior
+cache untouched; an atomic commit already started may finish, but canceled acceptance cannot
+publish its result. Static contract anchors now require the lifecycle and commit-point seams.
+
+Evidence: The combined public-configuration core/transport suites produced 28 results: 27 passed,
+the explicit live Development Worker probe skipped, and 0 failed. Tests deterministically gate
+AppSession caller/lifecycle destruction and persistence-actor suspension rather than relying on
+scheduler timing. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-Focused3.xcresult`. The fresh owning validation then
+produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit tests
+and 14/14 UI tests passed, together with the Release build, all static gates, and every selected
+coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. Hosted CI remains pending.
+
+Current state: C3-03B remains implementation complete pending independent re-review and green
+hosted CI; it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/price/trial,
+notification, Worker response/deployment, Staging/Production deployment, content/identifier,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.

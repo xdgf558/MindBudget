@@ -294,8 +294,12 @@ sticky in Release: normal Delete All and Offload do not clear it; recovery curre
   Pro-value-trigger presentation consumer. Review remediation makes response-completion time own
   verification, clears the presentation at the exact signed expiry, propagates caller cancellation
   through transport/acceptance, and requires an actionable exact-Free StoreKit whole snapshot;
-  unavailable or unverified authority cannot impersonate Free. Release is compiled to Production
-  only; Development and Staging cannot be selected remotely. The Worker has no private key,
+  unavailable or unverified authority cannot impersonate Free. Follow-up review makes startup
+  refresh structurally owned by SwiftUI, cancels retained scene refresh on lifecycle exit/Session
+  destruction, resets canceled startup attempts so recreated SwiftUI tasks can retry, and defines
+  the final pre-atomic-write cancellation check as the persistence commit point. Release is
+  compiled to Production only; Development and Staging cannot be selected
+  remotely. The Worker has no private key,
   storage, outbound fetch, analytics binding, or app logging, and platform observability is
   disabled. The Development
   deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the dedicated live app suite 8/8 with

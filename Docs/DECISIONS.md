@@ -2170,6 +2170,13 @@ caller cancellation cancel the owned refresh operation before it can publish. Th
 also requires an actionable exact-Free StoreKit whole snapshot; unavailable or unverified
 fail-closed access is not treated as confirmed Free presentation authority.
 
+Follow-up review makes startup refresh a dedicated structured SwiftUI task, retains and cancels
+scene refresh on lifecycle exit or Session destruction, resets the startup one-time guard after
+cancellation so a recreated SwiftUI task can retry, and defines the persistence commit point as
+the final cancellation check immediately before the atomic write. Cancellation before that
+point cannot change the cache; an already-started atomic commit may finish but cannot publish a
+canceled acceptance result. See DEC-COM-022 for the full boundary.
+
 Consequences: Development was deployed and passed real adapter/verifier tests; Staging and
 Production remain undeployed. C3-03B is implementation complete pending independent review and
 green CI, not Done. Final binary/Production traffic, privacy/review disclosure, C3-04, formal

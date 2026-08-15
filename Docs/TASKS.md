@@ -325,6 +325,11 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-0
   path passed 8/8, Worker tests passed 13/13, and the owning full validation produced 402 results
   (395 passed, 7 explicit skips, 0 failed) plus 14/14 UI and a separate 10/10 performance signal.
   Review remediation closes request-time expiry, continuous-foreground expiry, unavailable-
-  authority presentation, and detached-cancellation gaps; its focused suite passed 11/11 and fresh
-  full/hosted evidence is pending.
+  authority presentation, and direct-service cancellation gaps. Follow-up remediation makes
+  startup refresh structured, cancels retained scene refresh on lifecycle exit/Session destruction,
+  permits a canceled startup attempt to retry, and defines a tested pre-atomic-write persistence
+  commit point. The follow-up owning validation
+  produced 410 results (403 passed, 7 explicit skips, 0 failed), including 396/396 unit tests,
+  14/14 UI tests, Release build, static gates, and every selected coverage threshold. Hosted CI
+  remains pending.
   Staging/Production, final Release binary/traffic, C3-04, and distribution remain blocked.

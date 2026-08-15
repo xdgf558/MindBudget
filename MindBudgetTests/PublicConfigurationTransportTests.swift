@@ -423,6 +423,72 @@ struct PublicConfigurationTransportTests {
         #expect(await persistence.writeCount() == 0)
     }
 
+    @MainActor
+    @Test
+    func cancellingAppSessionStartupCancelsItsStructuredRefresh() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let service = CancellationRecordingPublicConfigurationService()
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            publicConfigurationService: service
+        )
+
+        let startup = Task { await session.startPublicConfigurationLifecycle() }
+        await service.waitUntilStarted()
+        startup.cancel()
+        await startup.value
+        await service.waitUntilCancelled()
+
+        #expect(await service.wasCancelled())
+        #expect(session.publicConfigurationPresentation == .conservativeDefault)
+
+        let replacementStartup = Task { await session.startPublicConfigurationLifecycle() }
+        await service.waitUntilStarted(count: 2)
+        replacementStartup.cancel()
+        await replacementStartup.value
+
+        #expect(await service.refreshCallCount() == 2)
+    }
+
+    @MainActor
+    @Test
+    func inactiveSceneCancellationStopsTheRetainedRefresh() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let service = CancellationRecordingPublicConfigurationService()
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            publicConfigurationService: service
+        )
+
+        session.beginScenePublicConfigurationRefresh()
+        await service.waitUntilStarted()
+        session.cancelScenePublicConfigurationRefresh()
+        await service.waitUntilCancelled()
+
+        #expect(await service.wasCancelled())
+        #expect(session.publicConfigurationPresentation == .conservativeDefault)
+    }
+
+    @MainActor
+    @Test
+    func destroyingAppSessionCancelsTheRetainedSceneRefresh() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let service = CancellationRecordingPublicConfigurationService()
+        var session: AppSession? = AppSession(
+            dataActor: controller.dataActor,
+            publicConfigurationService: service
+        )
+        weak var releasedSession = session
+
+        session?.beginScenePublicConfigurationRefresh()
+        await service.waitUntilStarted()
+        session = nil
+        await service.waitUntilCancelled()
+
+        #expect(releasedSession == nil)
+        #expect(await service.wasCancelled())
+    }
+
     private static func paidRead() -> StoreEntitlementRead {
         StoreEntitlementRead(
             transactions: [
@@ -538,6 +604,57 @@ private struct FixedPublicConfigurationService: PublicConfigurationServicing {
     func refresh() async throws -> PublicConfigurationResolution {
         return resolution
     }
+}
+
+private actor CancellationRecordingPublicConfigurationService: PublicConfigurationServicing {
+    private struct StartWaiter {
+        let count: Int
+        let continuation: CheckedContinuation<Void, Never>
+    }
+
+    private var starts = 0
+    private var cancelled = false
+    private var startWaiters: [StartWaiter] = []
+    private var cancellationWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func resolveCached(now: Date) async -> PublicConfigurationResolution {
+        _ = now
+        return .conservativeDefault
+    }
+
+    func refresh() async throws -> PublicConfigurationResolution {
+        starts += 1
+        let readyWaiters = startWaiters.filter { $0.count <= starts }
+        startWaiters.removeAll { $0.count <= starts }
+        readyWaiters.forEach { $0.continuation.resume() }
+        do {
+            try await Task.sleep(for: .seconds(60))
+            return .conservativeDefault
+        } catch is CancellationError {
+            cancelled = true
+            cancellationWaiters.forEach { $0.resume() }
+            cancellationWaiters.removeAll()
+            throw CancellationError()
+        }
+    }
+
+    func waitUntilStarted(count: Int = 1) async {
+        guard starts < count else { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(StartWaiter(count: count, continuation: continuation))
+        }
+    }
+
+    func waitUntilCancelled() async {
+        guard !cancelled else { return }
+        await withCheckedContinuation { continuation in
+            cancellationWaiters.append(continuation)
+        }
+    }
+
+    func wasCancelled() -> Bool { cancelled }
+
+    func refreshCallCount() -> Int { starts }
 }
 
 private struct TransportSignedConfigurationFixture {

@@ -144,6 +144,11 @@ final class AppSession: ObservableObject {
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
     }
 
+    deinit {
+        publicConfigurationRefreshTask?.cancel()
+        publicConfigurationExpiryTask?.cancel()
+    }
+
     func startCommerceLifecycle() async {
         guard !hasStartedCommerceLifecycle else { return }
         hasStartedCommerceLifecycle = true
@@ -163,25 +168,22 @@ final class AppSession: ObservableObject {
     func startPublicConfigurationLifecycle() async {
         guard !hasStartedPublicConfigurationLifecycle else { return }
         hasStartedPublicConfigurationLifecycle = true
+        defer {
+            // A SwiftUI task can be recreated after its view disappears. Cancellation ends only
+            // this attempt; it must not poison the one-time guard and suppress that later retry.
+            if Task.isCancelled {
+                hasStartedPublicConfigurationLifecycle = false
+            }
+        }
         guard let publicConfigurationService else { return }
 
         let cacheNow = Date()
-        applyPublicConfiguration(
-            await publicConfigurationService.resolveCached(now: cacheNow),
-            now: cacheNow
-        )
-        publicConfigurationRefreshTask?.cancel()
-        let service = publicConfigurationService
-        publicConfigurationRefreshTask = Task { [weak self] in
-            do {
-                let resolution = try await service.refresh()
-                try Task.checkCancellation()
-                self?.applyPublicConfiguration(resolution, now: Date())
-            } catch {
-                // Caller/lifecycle cancellation retains the already verified nonexpired cache or
-                // conservative built-in value and never publishes a canceled remote result.
-            }
-        }
+        let cachedResolution = await publicConfigurationService.resolveCached(now: cacheNow)
+        guard !Task.isCancelled else { return }
+        applyPublicConfiguration(cachedResolution, now: cacheNow)
+        // Remain structured under the owning SwiftUI `.task`: if that task disappears or is
+        // canceled, cancellation reaches the service instead of leaving a detached refresh.
+        await refreshPublicConfiguration()
     }
 
     func refreshPublicConfiguration() async {
@@ -194,6 +196,27 @@ final class AppSession: ObservableObject {
             // Retain the currently scheduled verified value; its independent expiry task still
             // clears it at the signed instant.
         }
+    }
+
+    /// Scene activation owns one explicitly retained refresh. A later activation replaces it,
+    /// while inactive/background and deinitialization cancel it through the service boundary.
+    func beginScenePublicConfigurationRefresh() {
+        publicConfigurationRefreshTask?.cancel()
+        guard let service = publicConfigurationService else { return }
+        publicConfigurationRefreshTask = Task { [weak self] in
+            do {
+                let resolution = try await service.refresh()
+                try Task.checkCancellation()
+                self?.applyPublicConfiguration(resolution, now: Date())
+            } catch {
+                // Scene cancellation retains the verified nonexpired cache/current presentation.
+            }
+        }
+    }
+
+    func cancelScenePublicConfigurationRefresh() {
+        publicConfigurationRefreshTask?.cancel()
+        publicConfigurationRefreshTask = nil
     }
 
     private func applyPublicConfiguration(
@@ -741,8 +764,12 @@ struct AppRouter: View {
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
-            await session.startCommerceLifecycle()
+            // Kept separate from local app preparation so network latency cannot delay startup,
+            // while SwiftUI still owns and cancels this refresh with the view lifecycle.
             await session.startPublicConfigurationLifecycle()
+        }
+        .task {
+            await session.startCommerceLifecycle()
             await session.reconcileTrialLifecycle(
                 settings: settings,
                 locale: locale,
@@ -758,9 +785,9 @@ struct AppRouter: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
+                session.beginScenePublicConfigurationRefresh()
                 Task {
                     await session.refreshCommerceEntitlements()
-                    await session.refreshPublicConfiguration()
                     await session.reconcileTrialLifecycle(
                         settings: settings,
                         locale: locale,
@@ -772,8 +799,10 @@ struct AppRouter: View {
                     )
                 }
             case .inactive, .background:
+                session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
             @unknown default:
+                session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
             }
         }

@@ -39,10 +39,14 @@ not a distribution authorization.
 - The Development Worker deployment is first-party evidence only. Staging and Production remain
   undeployed, and the post-0.9.6 distribution hold means the reviewed Release adapter cannot ship
   until the later release, privacy, final-binary, and captured-traffic gates pass.
-- Refresh cancellation is structural: canceling the caller cancels the owned transport/acceptance
-  task. Cancellation is checked before request construction, after transport completion, before
-  verification/persistence, and before publication, so a canceled refresh cannot later publish a
-  presentation. A canceled operation may not be treated as an ordinary offline fallback result.
+- Refresh cancellation is structural: the startup refresh is awaited by its own SwiftUI `.task`,
+  while a scene-active refresh is retained by `AppSession` and canceled on replacement,
+  inactive/background transition, or Session destruction. Canceling either owner cancels the
+  transport/acceptance task. A canceled startup attempt resets its one-time guard so a recreated
+  SwiftUI task can retry. Cancellation is checked before request construction, after transport
+  completion, before verification/persistence, and before publication, so a canceled refresh
+  cannot later publish a presentation. A canceled operation may not be treated as an ordinary
+  offline fallback result.
 
 ## Signed envelope
 
@@ -120,6 +124,11 @@ never grant or preserve a paid right.
 - Persist only the signed envelope, highest accepted version, and SHA-256 digest of the signed
   payload in one atomic, file-protected record. Readback must match before the value is published.
   These bytes contain no user content or identifier.
+- File persistence checks cancellation after actor entry and immediately before the atomic write.
+  That final check is the explicit commit point: cancellation observed before it leaves the prior
+  cache untouched; once the non-suspending atomic write begins, it may complete, while the
+  canceled acceptance still cannot publish its result. This avoids claiming that an already
+  committed durable write can be rolled back safely.
 - A lower version is rejected. The same version is accepted only with the same payload digest;
   same-version equivocation is rejected.
 - Offline/remote/verification failure uses the last verified, digest-matching, nonexpired cache.

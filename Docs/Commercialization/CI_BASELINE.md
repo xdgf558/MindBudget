@@ -448,6 +448,22 @@ measured 0.838828417 seconds and is retained only as nonpassing diagnostic evide
 `/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI for the remediation head remains
 pending; C3-03B is not Done.
 
+Second cancellation review remediation on 2026-08-15 makes the startup refresh a separately
+structured SwiftUI task, retains scene-active work for explicit inactive/background/replacement/
+Session-destruction cancellation, and adds cancellation checks after persistence actor entry and
+immediately before the atomic-write commit point. Cancellation before that point leaves the prior
+cache untouched; an atomic commit already started may finish, but canceled acceptance cannot
+publish. The combined public-configuration core/transport suites produced 28 results: 27 passed,
+the explicit live Development Worker probe skipped, and 0 failed. Deterministic tests cover caller
+cancellation at AppSession startup, retained scene work, Session destruction, a pre-canceled real
+file write, and cancellation while a persistence actor is suspended. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-Focused3.xcresult`. The fresh owning full validation
+then produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit
+tests and 14/14 UI tests passed, together with the Release build, all static gates, and every
+selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. Hosted CI for this follow-up
+head remains pending; C3-03B is not Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

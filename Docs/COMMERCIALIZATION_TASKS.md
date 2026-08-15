@@ -316,8 +316,13 @@ independent review, and C3-04 remains blocked.**
   explicit skips, 0 failed), including 14/14 UI tests, Release build, static gates, and every
   selected coverage threshold; the isolated local performance signal passed 10/10. Review
   remediation now validates after the response completes, self-expires presentation at the signed
-  instant, propagates cancellation, and requires actionable exact-Free StoreKit authority; its
-  focused suite passed 11/11 while fresh full/hosted evidence remains pending. Staging/
+  instant, propagates cancellation, and requires actionable exact-Free StoreKit authority.
+  Follow-up remediation makes startup refresh structured, cancels retained scene refresh on
+  lifecycle exit/Session destruction, permits a canceled startup attempt to retry, and defines a
+  tested pre-atomic-write persistence commit
+  point. The follow-up owning validation produced 410 results (403 passed, 7 explicit skips,
+  0 failed), including 396/396 unit tests, 14/14 UI tests, Release build, static gates, and every
+  selected coverage threshold. Hosted CI remains pending. Staging/
   Production, final Release binary/Production traffic evidence, C3-04, Archive/upload, tester
   assignment, and distribution remain blocked.
 - [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,

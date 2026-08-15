@@ -601,9 +601,13 @@ context.
 - Expiry/cancellation boundary: The verification clock is sampled after a full response arrives,
   not when the request starts. Verified remote/cache resolutions carry the exact signed expiry and
   the app replaces presentation with the conservative built-in value at that instant, including
-  while continuously foregrounded. Canceling a refresh cancels its owned network/acceptance task;
-  cancellation is checked before request, verification/persistence, and publication so the
-  canceled result cannot surface later.
+  while continuously foregrounded. The startup refresh is structurally awaited by a dedicated
+  SwiftUI task; scene-active work is retained and canceled on inactive/background, replacement,
+  or Session destruction. A canceled startup resets its one-time guard so a recreated SwiftUI task
+  can retry. Canceling a refresh cancels its owned network/acceptance task. File
+  persistence checks cancellation after actor entry and immediately before its atomic-write
+  commit point; cancellation observed before that point leaves the prior cache untouched. Once
+  the atomic write begins it may complete, but canceled acceptance can never publish its result.
 - Diagnostics/privacy boundary: Client diagnostics are closed `transport.*` and `resolution.*`
   reason codes only. Payload, signature, response body, metadata values, IP address, StoreKit,
   and user/financial content are never logged. Cloudflare necessarily processes ordinary edge

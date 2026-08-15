@@ -335,11 +335,17 @@ actor FilePublicConfigurationPersistence: PublicConfigurationPersisting {
     }
 
     func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        try Task.checkCancellation()
         let data = try JSONEncoder().encode(snapshot)
+        try Task.checkCancellation()
         try FileManager.default.createDirectory(
             at: fileURL.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
+        // This is the persistence commit point. Cancellation observed before it leaves the
+        // previous cache untouched. Once the atomic write starts, the file operation is allowed
+        // to complete, but the controller still refuses to publish a canceled result.
+        try Task.checkCancellation()
         try data.write(
             to: fileURL,
             options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]

@@ -112,7 +112,10 @@ for test_contract in \
   'signedPresentationRequiresActionableExactFreeAndExpiresWithoutForegrounding' \
   'unavailableUnverifiedAndFailedPaidAuthorityNeverExposeTheFreeValueTrigger' \
   'responseExpiringWhileTheRequestIsSuspendedIsNeverAccepted' \
-  'cancellingRefreshCancelsTheNetworkOperationAndPreventsAcceptance'; do
+  'cancellingRefreshCancelsTheNetworkOperationAndPreventsAcceptance' \
+  'cancellingAppSessionStartupCancelsItsStructuredRefresh' \
+  'inactiveSceneCancellationStopsTheRetainedRefresh' \
+  'destroyingAppSessionCancelsTheRetainedSceneRefresh'; do
   grep -Fq "${test_contract}" "${TEST_SOURCE}" || {
     echo "Public-configuration transport tests are missing: ${test_contract}" >&2
     exit 1
@@ -123,6 +126,8 @@ for consumer_contract in \
   'commerceSubscriptionAuthorityIsActionable' \
   'commerceSubscriptionState == .none' \
   'publicConfigurationExpiryTask' \
+  'beginScenePublicConfigurationRefresh()' \
+  'cancelScenePublicConfigurationRefresh()' \
   'publicConfigurationPresentation = .conservativeDefault'; do
   grep -Fq "${consumer_contract}" "${APP_ROUTER}" || {
     echo "Public-configuration consumer is missing lifecycle contract: ${consumer_contract}" >&2

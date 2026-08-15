@@ -83,6 +83,7 @@ for contract in \
   'return try await withTaskCancellationHandler {' \
   'operation.cancel()' \
   'expiresAt: verified.payload.expiresAt' \
+  'This is the persistence commit point.' \
   'try requireExactKeyOccurrences(' \
   'let matchesExpectedSnapshot = expectedSnapshot.map { expected in' \
   'options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]' \
@@ -104,6 +105,8 @@ for test_contract in \
   'invalidPersistenceCannotBeOverwrittenAndNeverEnablesPresentation' \
   'persistenceFailureDoesNotActivateAnUnstoredConfiguration' \
   'atomicFilePersistenceRoundTripsOnlySignedPublicState' \
+  'cancelledFileWriteBeforeTheCommitPointLeavesNoCache' \
+  'cancellingAcceptanceWhilePersistenceIsSuspendedCannotCommitTheSnapshot' \
   'envelopeDataWithOversizedSignedPayload' \
   'envelopeDataWithUnknownPresentationField'; do
   grep -Fq "${test_contract}" "${TEST_SOURCE}" || {

@@ -4349,3 +4349,36 @@ What was NOT changed: No payload/schema field, entitlement right, StoreKit produ
 Worker behavior or deployment, Production/Staging deployment, user content, telemetry, version,
 Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
 remains active.
+
+## 2026-08-15 — Session 120 — Close remaining C3-03B cancellation boundaries
+
+Goal: Resolve the second PR #38 cancellation review without expanding the signed payload,
+transport destination, presentation authority, Worker, or release permission.
+
+What changed: The startup public-configuration refresh is now directly awaited by a dedicated
+SwiftUI task, so view-task cancellation reaches the service instead of leaving detached work.
+The startup one-time guard resets after cancellation so a recreated SwiftUI task can retry.
+Scene-active refresh remains independently concurrent with local startup, but AppSession retains
+it and cancels it on replacement, inactive/background transition, and Session destruction. File
+persistence checks cancellation after actor entry and immediately before the atomic write; that
+last check is the documented commit point. Cancellation before it cannot change the cache. Once
+the non-suspending atomic commit starts it may complete, but canceled acceptance cannot publish.
+
+Evidence: The combined `PublicConfigurationTests` and `PublicConfigurationTransportTests` run
+produced 28 results: 27 passed, the explicit live Development Worker probe skipped, and 0 failed.
+Deterministic tests cover startup caller cancellation, retained scene cancellation, Session
+destruction, a pre-canceled real file write, and cancellation while a persistence actor is
+suspended. Evidence: `/private/tmp/MindBudget-C303B-CancellationFix-Focused3.xcresult`. Static
+contract, network, and commercialization-document gates pass. The fresh owning validation produced
+410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit tests and
+14/14 UI tests passed, together with the Release build, all static gates, and every selected
+coverage threshold. Evidence: `/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`.
+Hosted CI for this follow-up head remains pending.
+
+State: C3-03B remains implementation complete pending independent re-review and green hosted CI;
+it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No configuration vocabulary, entitlement/StoreKit authority, product/price/
+trial, notification, Worker behavior/deployment, Staging/Production deployment, user content,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.

@@ -256,6 +256,16 @@ Implementation evidence on 2026-08-15:
 - Review remediation samples verification time only after the response completes, propagates
   caller cancellation into the owned transport/acceptance task, and carries the signed expiry into
   AppSession so an enabled presentation clears at expiry even while continuously foregrounded.
+- Follow-up cancellation remediation makes startup refresh a separately structured SwiftUI task,
+  retains scene-active refresh for explicit replacement/background/Session-destruction
+  cancellation, resets canceled startup attempts so recreated SwiftUI tasks can retry, and defines
+  the last pre-atomic-write cancellation check as the persistence
+  commit point. Cancellation before that point cannot change the cache; a commit already in
+  progress may finish but can never publish a canceled acceptance result.
+- The follow-up owning validation produced 410 results: 403 passed, 7 explicit opt-in/runtime
+  skips, and 0 failed. All 396 unit tests and 14/14 UI tests passed, together with the Release
+  build, static gates, and selected coverage thresholds. Evidence:
+  `/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`.
 - The app embeds only public key `mb-config-2026-01`. The protected private key remains outside the
   repository and is used only by the local signing utility. The single consumer can expose an
   optional AI Pro-value trigger only when the signed flag is true and StoreKit has published an

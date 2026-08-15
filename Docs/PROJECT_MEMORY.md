@@ -103,7 +103,10 @@ configuration contract. C3-03A passed independent review and green GitHub Action
   non-content reason codes, and one optional Pro-value-trigger presentation consumer. Review
   remediation validates at response completion, clears at signed expiry without waiting for a
   foreground refresh, cancels owned transport work with its caller, and requires actionable exact
-  Free rather than unavailable/unverified fail-closed access. The
+  Free rather than unavailable/unverified fail-closed access. Follow-up review makes startup
+  refresh structurally owned by SwiftUI, cancels retained scene refresh on lifecycle exit/Session
+  destruction, resets canceled startup attempts so recreated SwiftUI tasks can retry, and defines
+  a final pre-atomic-write persistence commit point. The
   Development deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the real live app path 8/8
   with no skip; the Worker passed 13/13 tests plus typecheck, audit, and Production dry-run.
   Staging/Production, C3-04, final binary/traffic gates, and distribution remain blocked.
