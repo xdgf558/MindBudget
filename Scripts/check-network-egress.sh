@@ -5,11 +5,12 @@ SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
-# COM-C0B accepts an empty app-owned Release HTTP(S) allow-list. Scan app source and Release
+# COM-C3-03B accepts exactly one app-owned Release HTTP(S) adapter. Scan app source and Release
 # configuration rather than trusting documentation alone. System-owned transports such as
-# StoreKit and CloudKit are not matched here; any future first-party networking adapter requires
-# a phase-scoped, exact exception only after NETWORK_EGRESS_POLICY.md moves its channel to
-# Accepted.
+# StoreKit and CloudKit are not matched here. The exact source exception below is intentionally
+# file-scoped and its host/method/privacy contract is checked independently before any broad scan
+# exclusion is applied.
+APPROVED_PUBLIC_CONFIGURATION_SOURCE="MindBudget/Commerce/PublicConfigurationTransport.swift"
 swift_network_pattern='(^|[^[:alnum:]_])(URLSession|URLRequest|NSURLConnection|NWConnection|NWListener|NWBrowser|CFHTTPMessage|CFHost|CFSocket|WKWebView)([^[:alnum:]_]|$)|^[[:space:]]*import[[:space:]]+(Network|CFNetwork|WebKit)([[:space:]]|$)|"[^"]*https?://'
 configuration_network_pattern='NSAppTransportSecurity|NSAllowsArbitraryLoads|NSExceptionDomains|NSAllowsLocalNetworking|com\.apple\.developer\.networking\.|com\.apple\.developer\.associated-domains|<string>[[:space:]]*https?://|^[[:space:]]*[[:alnum:]_.-]+[[:space:]]*=.*https?://'
 
@@ -99,8 +100,62 @@ for sample in "${ignored_configuration_samples[@]}"; do
   fi
 done
 
+if [[ ! -s "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" ]]; then
+  echo "Missing the one approved app-owned network adapter: ${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" >&2
+  exit 1
+fi
+
+approved_urls="$({
+  grep -Eo 'https://[^"[:space:]]+' "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" || true
+} | LC_ALL=C sort)"
+expected_approved_urls="$(printf '%s\n' \
+  'https://mindbudget-public-config-dev.yehao1105.workers.dev/v1/config' \
+  'https://mindbudget-public-config-staging.yehao1105.workers.dev/v1/config' \
+  'https://mindbudget-public-config.yehao1105.workers.dev/v1/config' \
+  | LC_ALL=C sort)"
+if [[ "${approved_urls}" != "${expected_approved_urls}" ]]; then
+  echo "The approved public-configuration adapter must contain exactly the three reviewed URLs" >&2
+  printf '%s\n' "${approved_urls}" >&2
+  exit 1
+fi
+
+for approved_contract in \
+  'URLSessionConfiguration.ephemeral' \
+  'configuration.httpShouldSetCookies = false' \
+  'configuration.urlCredentialStorage = nil' \
+  'configuration.urlCache = nil' \
+  'PublicConfigurationRedirectRejector()' \
+  'request.httpMethod = "GET"' \
+  'request.httpBody = nil' \
+  'maximumResponseBytes: PublicConfigurationVerificationPolicy.maximumEnvelopeBytes' \
+  '#if DEBUG' \
+  'arguments.contains("-public-configuration-staging") ? .staging : .development' \
+  '#else' \
+  '.production'; do
+  grep -Fq "${approved_contract}" "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" || {
+    echo "Approved public-configuration adapter is missing contract: ${approved_contract}" >&2
+    exit 1
+  }
+done
+
+for forbidden_approved_shape in \
+  'URLSession.shared' \
+  'httpShouldSetCookies = true' \
+  'httpCookieStorage' \
+  'allowsArbitraryLoads' \
+  'forHTTPHeaderField: "Authorization"' \
+  'forHTTPHeaderField: "Cookie"'; do
+  if grep -Fq "${forbidden_approved_shape}" "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}"; then
+    echo "Approved public-configuration adapter contains forbidden shape: ${forbidden_approved_shape}" >&2
+    exit 1
+  fi
+done
+
 swift_violations="$({
   while IFS= read -r -d '' file; do
+    if [[ "${file}" == "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" ]]; then
+      continue
+    fi
     scan_file "${file}" "${swift_network_pattern}"
   done < <(find MindBudget -type f -name '*.swift' -print0)
 } 2>/dev/null || true)"
@@ -139,10 +194,10 @@ if [[ -n "${configuration_violations}" ]]; then
 fi
 
 if [[ -n "${violations}" ]]; then
-  echo "App-owned network source or Release configuration found while the current allow-list is empty:" >&2
+  echo "App-owned network source or Release configuration found outside the one approved adapter:" >&2
   echo "${violations}" >&2
-  echo "Accept the exact channel in Docs/Commercialization/NETWORK_EGRESS_POLICY.md before adding a narrow centralized adapter exception." >&2
+  echo "Accept a new exact channel before adding another centralized adapter exception." >&2
   exit 1
 fi
 
-echo "Current app-owned Release network egress baseline is empty"
+echo "App-owned Release network egress is limited to the exact signed public-configuration adapter"

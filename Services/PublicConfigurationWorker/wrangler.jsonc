@@ -1,0 +1,67 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mindbudget-public-config",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-15",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "DEPLOYMENT_ENVIRONMENT": "production",
+    "EXPECTED_HOST": "mindbudget-public-config.yehao1105.workers.dev",
+    "PUBLIC_CONFIG_PAYLOAD_BASE64": "eyJjb25maWdWZXJzaW9uIjoxLCJleHBpcmVzQXQiOiIyMDI2LTA4LTIyVDAyOjAwOjAwWiIsImlzc3VlZEF0IjoiMjAyNi0wOC0xNVQwMjowMDowMFoiLCJwcmVzZW50YXRpb24iOnsicHJvVmFsdWVUcmlnZ2Vyc0VuYWJsZWQiOmZhbHNlfSwic2NoZW1hVmVyc2lvbiI6MX0=",
+    "PUBLIC_CONFIG_SIGNATURE_BASE64": "LPfUflHQXtEoRWBDXm2KZH2KL0eEUaQQiZW8wn+vI/Lx7Z/5w1RcqvIBRNN7GDO3nr2iVk9tZ4ne6qDbmBw1Dg=="
+  },
+  "ratelimits": [
+    {
+      "name": "PUBLIC_CONFIG_RATE_LIMITER",
+      "namespace_id": "97500303",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ],
+  "env": {
+    "development": {
+      "name": "mindbudget-public-config-dev",
+      "vars": {
+        "DEPLOYMENT_ENVIRONMENT": "development",
+        "EXPECTED_HOST": "mindbudget-public-config-dev.yehao1105.workers.dev",
+        "PUBLIC_CONFIG_PAYLOAD_BASE64": "eyJjb25maWdWZXJzaW9uIjoxLCJleHBpcmVzQXQiOiIyMDI2LTA4LTIyVDAyOjAwOjAwWiIsImlzc3VlZEF0IjoiMjAyNi0wOC0xNVQwMjowMDowMFoiLCJwcmVzZW50YXRpb24iOnsicHJvVmFsdWVUcmlnZ2Vyc0VuYWJsZWQiOnRydWV9LCJzY2hlbWFWZXJzaW9uIjoxfQ==",
+        "PUBLIC_CONFIG_SIGNATURE_BASE64": "JsYasCC7FClzyjYT42PNUNeSt1w43hOP8b9I28UDugaKlpNmhmvofSctxyol+4qhEMey7+Aidx/r0kjxJrV3CA=="
+      },
+      "ratelimits": [
+        {
+          "name": "PUBLIC_CONFIG_RATE_LIMITER",
+          "namespace_id": "97500301",
+          "simple": {
+            "limit": 60,
+            "period": 60
+          }
+        }
+      ]
+    },
+    "staging": {
+      "name": "mindbudget-public-config-staging",
+      "vars": {
+        "DEPLOYMENT_ENVIRONMENT": "staging",
+        "EXPECTED_HOST": "mindbudget-public-config-staging.yehao1105.workers.dev",
+        "PUBLIC_CONFIG_PAYLOAD_BASE64": "eyJjb25maWdWZXJzaW9uIjoxLCJleHBpcmVzQXQiOiIyMDI2LTA4LTIyVDAyOjAwOjAwWiIsImlzc3VlZEF0IjoiMjAyNi0wOC0xNVQwMjowMDowMFoiLCJwcmVzZW50YXRpb24iOnsicHJvVmFsdWVUcmlnZ2Vyc0VuYWJsZWQiOnRydWV9LCJzY2hlbWFWZXJzaW9uIjoxfQ==",
+        "PUBLIC_CONFIG_SIGNATURE_BASE64": "JsYasCC7FClzyjYT42PNUNeSt1w43hOP8b9I28UDugaKlpNmhmvofSctxyol+4qhEMey7+Aidx/r0kjxJrV3CA=="
+      },
+      "ratelimits": [
+        {
+          "name": "PUBLIC_CONFIG_RATE_LIMITER",
+          "namespace_id": "97500302",
+          "simple": {
+            "limit": 60,
+            "period": 60
+          }
+        }
+      ]
+    }
+  }
+}

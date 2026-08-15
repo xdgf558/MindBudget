@@ -357,6 +357,76 @@ struct PublicConfigurationTests {
     }
 
     @Test
+    func cancelledFileWriteBeforeTheCommitPointLeavesNoCache() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("PublicConfigurationCancellationTests.\(UUID().uuidString)")
+        let fileURL = directory.appendingPathComponent("configuration.json")
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let fixture = try SignedConfigurationFixture()
+        let envelopeData = try fixture.envelopeData(version: 4, enabled: true)
+        let verified = try fixture.verifier.verify(envelopeData: envelopeData, now: fixture.now)
+        let snapshot = PublicConfigurationPersistenceSnapshot(
+            envelopeData: envelopeData,
+            highestAcceptedVersion: verified.payload.configVersion,
+            highestAcceptedPayloadDigest: verified.payloadDigest
+        )
+        let persistence = FilePublicConfigurationPersistence(fileURL: fileURL)
+        let gate = PublicConfigurationPersistenceTestGate()
+
+        let write = Task {
+            await gate.enterAndWait()
+            try await persistence.write(snapshot)
+        }
+        await gate.waitUntilEntered()
+        write.cancel()
+        await gate.release()
+
+        do {
+            try await write.value
+            Issue.record("A write canceled before its commit point unexpectedly succeeded")
+        } catch is CancellationError {
+            // Expected: the persistence actor observes cancellation before filesystem mutation.
+        } catch {
+            Issue.record("Unexpected persistence cancellation error: \(error)")
+        }
+        #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
+        #expect(await persistence.read() == .empty)
+    }
+
+    @Test
+    func cancellingAcceptanceWhilePersistenceIsSuspendedCannotCommitTheSnapshot() async throws {
+        let fixture = try SignedConfigurationFixture()
+        let persistence = GatedCancellationPublicConfigurationPersistence()
+        let controller = PublicConfigurationController(
+            verifier: fixture.verifier,
+            persistence: persistence
+        )
+        let envelopeData = try fixture.envelopeData(version: 1, enabled: true)
+
+        let acceptance = Task {
+            try await controller.acceptRemoteResult(
+                envelopeData: envelopeData,
+                now: fixture.now
+            )
+        }
+        await persistence.waitUntilWriteEntered()
+        acceptance.cancel()
+        await persistence.releaseWrite()
+
+        do {
+            _ = try await acceptance.value
+            Issue.record("Canceled acceptance unexpectedly returned a resolution")
+        } catch is CancellationError {
+            // Expected: cancellation crosses the actor hop and reaches the pre-commit check.
+        } catch {
+            Issue.record("Unexpected acceptance cancellation error: \(error)")
+        }
+        #expect(await persistence.read() == .empty)
+        #expect(await persistence.writeCount() == 0)
+    }
+
+    @Test
     func filePersistenceTreatsMalformedRollbackRecordsAsStickyInvalidState() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("PublicConfigurationInvalidTests.\(UUID().uuidString)")
@@ -590,6 +660,61 @@ private actor InMemoryPublicConfigurationPersistence: PublicConfigurationPersist
     }
 
     func writeCount() -> Int { writes }
+}
+
+private actor GatedCancellationPublicConfigurationPersistence: PublicConfigurationPersisting {
+    private var value: PublicConfigurationPersistenceRead = .empty
+    private var writes = 0
+    private let gate = PublicConfigurationPersistenceTestGate()
+
+    func read() async -> PublicConfigurationPersistenceRead { value }
+
+    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        await gate.enterAndWait()
+        try Task.checkCancellation()
+        writes += 1
+        value = .stored(snapshot)
+    }
+
+    func waitUntilWriteEntered() async {
+        await gate.waitUntilEntered()
+    }
+
+    func releaseWrite() async {
+        await gate.release()
+    }
+
+    func writeCount() -> Int { writes }
+}
+
+private actor PublicConfigurationPersistenceTestGate {
+    private var entered = false
+    private var released = false
+    private var entryWaiters: [CheckedContinuation<Void, Never>] = []
+    private var releaseWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func enterAndWait() async {
+        entered = true
+        entryWaiters.forEach { $0.resume() }
+        entryWaiters.removeAll()
+        guard !released else { return }
+        await withCheckedContinuation { continuation in
+            releaseWaiters.append(continuation)
+        }
+    }
+
+    func waitUntilEntered() async {
+        guard !entered else { return }
+        await withCheckedContinuation { continuation in
+            entryWaiters.append(continuation)
+        }
+    }
+
+    func release() {
+        released = true
+        releaseWaiters.forEach { $0.resume() }
+        releaseWaiters.removeAll()
+    }
 }
 
 private actor NoOpPublicConfigurationPersistence: PublicConfigurationPersisting {

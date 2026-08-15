@@ -47,6 +47,8 @@ final class AppSession: ObservableObject {
     private let storeCatalog: StoreCatalog?
     private let entitlementStore: EntitlementStore?
     private let trialLifecycleScheduler: any TrialLifecycleScheduling
+    private let publicConfigurationService: (any PublicConfigurationServicing)?
+    private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -68,16 +70,32 @@ final class AppSession: ObservableObject {
     @Published private(set) var recurringExpenseReconciliationHasMore = false
     @Published private(set) var existingPremiumEntryAccess: ExistingPremiumEntryAccess
     @Published private(set) var storeCatalogAvailability: StoreCatalogAvailability = .unavailable
-    @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .none
+    @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .unavailable
+    @Published private(set) var commerceSubscriptionAuthorityIsActionable = false
     @Published private(set) var trialLifecycle: TrialLifecycleProjection?
     @Published private(set) var trialRenewalReminder = TrialRenewalReminderReconciliation.inactive
     @Published private(set) var trialRenewalReminderFailed = false
+    @Published private(set) var publicConfigurationPresentation =
+        PublicConfigurationPresentation.conservativeDefault
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
     private var trialLifecycleReconciliationGeneration = 0
+    private var hasStartedPublicConfigurationLifecycle = false
+    private var publicConfigurationExpiresAt: Date?
+    private var publicConfigurationRefreshTask: Task<Void, Never>?
+    private var publicConfigurationExpiryTask: Task<Void, Never>?
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
+    }
+
+    /// The only signed-configuration presentation consumer. It may hide or show this voluntary
+    /// entry, but it cannot alter access and never suppresses the permanent Settings Pro entry.
+    var offersAppleOnDeviceAIProValueTrigger: Bool {
+        publicConfigurationPresentation.proValueTriggersEnabled
+            && commerceSubscriptionAuthorityIsActionable
+            && commerceSubscriptionState == .none
+            && !existingPremiumEntryAccess.offersAppleOnDeviceAI
     }
 
     /// Feature views consume this already-matched presentation value and never inspect a
@@ -104,6 +122,9 @@ final class AppSession: ObservableObject {
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
+        publicConfigurationService: (any PublicConfigurationServicing)? = nil,
+        publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling =
+            SystemPublicConfigurationExpirationScheduler(),
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -117,8 +138,15 @@ final class AppSession: ObservableObject {
         self.storeCatalog = storeCatalog
         self.entitlementStore = entitlementStore
         self.trialLifecycleScheduler = trialLifecycleScheduler
+        self.publicConfigurationService = publicConfigurationService
+        self.publicConfigurationExpirationScheduler = publicConfigurationExpirationScheduler
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
+    }
+
+    deinit {
+        publicConfigurationRefreshTask?.cancel()
+        publicConfigurationExpiryTask?.cancel()
     }
 
     func startCommerceLifecycle() async {
@@ -128,12 +156,101 @@ final class AppSession: ObservableObject {
             await entitlementStore.start { [weak self] snapshot in
                 self?.existingPremiumEntryAccess = snapshot.premiumEntryAccess
                 self?.commerceSubscriptionState = snapshot.effectiveState
+                self?.commerceSubscriptionAuthorityIsActionable = snapshot.isActionable
                 self?.trialLifecycle = snapshot.trialLifecycle
             }
         }
         if storeCatalog != nil {
             Task { [weak self] in await self?.refreshCommerceCatalog() }
         }
+    }
+
+    func startPublicConfigurationLifecycle() async {
+        guard !hasStartedPublicConfigurationLifecycle else { return }
+        hasStartedPublicConfigurationLifecycle = true
+        defer {
+            // A SwiftUI task can be recreated after its view disappears. Cancellation ends only
+            // this attempt; it must not poison the one-time guard and suppress that later retry.
+            if Task.isCancelled {
+                hasStartedPublicConfigurationLifecycle = false
+            }
+        }
+        guard let publicConfigurationService else { return }
+
+        let cacheNow = Date()
+        let cachedResolution = await publicConfigurationService.resolveCached(now: cacheNow)
+        guard !Task.isCancelled else { return }
+        applyPublicConfiguration(cachedResolution, now: cacheNow)
+        // Remain structured under the owning SwiftUI `.task`: if that task disappears or is
+        // canceled, cancellation reaches the service instead of leaving a detached refresh.
+        await refreshPublicConfiguration()
+    }
+
+    func refreshPublicConfiguration() async {
+        guard let publicConfigurationService else { return }
+        do {
+            let resolution = try await publicConfigurationService.refresh()
+            try Task.checkCancellation()
+            applyPublicConfiguration(resolution, now: Date())
+        } catch {
+            // Retain the currently scheduled verified value; its independent expiry task still
+            // clears it at the signed instant.
+        }
+    }
+
+    /// Scene activation owns one explicitly retained refresh. A later activation replaces it,
+    /// while inactive/background and deinitialization cancel it through the service boundary.
+    func beginScenePublicConfigurationRefresh() {
+        publicConfigurationRefreshTask?.cancel()
+        guard let service = publicConfigurationService else { return }
+        publicConfigurationRefreshTask = Task { [weak self] in
+            do {
+                let resolution = try await service.refresh()
+                try Task.checkCancellation()
+                self?.applyPublicConfiguration(resolution, now: Date())
+            } catch {
+                // Scene cancellation retains the verified nonexpired cache/current presentation.
+            }
+        }
+    }
+
+    func cancelScenePublicConfigurationRefresh() {
+        publicConfigurationRefreshTask?.cancel()
+        publicConfigurationRefreshTask = nil
+    }
+
+    private func applyPublicConfiguration(
+        _ resolution: PublicConfigurationResolution,
+        now: Date
+    ) {
+        publicConfigurationExpiryTask?.cancel()
+        publicConfigurationExpiryTask = nil
+        publicConfigurationExpiresAt = nil
+
+        guard let expiresAt = resolution.expiresAt, expiresAt > now else {
+            publicConfigurationPresentation = .conservativeDefault
+            return
+        }
+
+        publicConfigurationPresentation = resolution.presentation
+        publicConfigurationExpiresAt = expiresAt
+        let expirationScheduler = publicConfigurationExpirationScheduler
+        publicConfigurationExpiryTask = Task { [weak self] in
+            do {
+                try await expirationScheduler.wait(until: expiresAt)
+                try Task.checkCancellation()
+                self?.expirePublicConfiguration(expectedExpiration: expiresAt)
+            } catch {
+                // A replacement configuration cancels this task and owns the next expiry.
+            }
+        }
+    }
+
+    private func expirePublicConfiguration(expectedExpiration: Date) {
+        guard publicConfigurationExpiresAt == expectedExpiration else { return }
+        publicConfigurationExpiresAt = nil
+        publicConfigurationExpiryTask = nil
+        publicConfigurationPresentation = .conservativeDefault
     }
 
     /// Typed commerce seams owned by the voluntary C3 purchase presentation. Views never call
@@ -571,6 +688,7 @@ struct AppRouter: View {
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
+        publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -585,6 +703,7 @@ struct AppRouter: View {
                 storeCatalog: storeCatalog,
                 entitlementStore: entitlementStore,
                 trialLifecycleScheduler: trialLifecycleScheduler,
+                publicConfigurationService: publicConfigurationService,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -645,6 +764,11 @@ struct AppRouter: View {
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
+            // Kept separate from local app preparation so network latency cannot delay startup,
+            // while SwiftUI still owns and cancels this refresh with the view lifecycle.
+            await session.startPublicConfigurationLifecycle()
+        }
+        .task {
             await session.startCommerceLifecycle()
             await session.reconcileTrialLifecycle(
                 settings: settings,
@@ -661,6 +785,7 @@ struct AppRouter: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
+                session.beginScenePublicConfigurationRefresh()
                 Task {
                     await session.refreshCommerceEntitlements()
                     await session.reconcileTrialLifecycle(
@@ -674,8 +799,10 @@ struct AppRouter: View {
                     )
                 }
             case .inactive, .background:
+                session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
             @unknown default:
+                session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
             }
         }

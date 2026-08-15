@@ -1341,7 +1341,7 @@ private struct AISettingsView: View {
                 Text("settings.ai.privacy")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                if !premiumEntryAccess.offersAppleOnDeviceAI {
+                if session.offersAppleOnDeviceAIProValueTrigger {
                     NavigationLink("commerce.pro.aiValueTrigger") {
                         ProSubscriptionView(session: session)
                     }

@@ -2149,3 +2149,35 @@ Completion evidence: The review-remediation head `3a53107` passed independent re
 GitHub Actions run `31856271268`; PR #36 merged C3-03A to `main` as `1ebb36c` on 2026-08-15.
 This activates only C3-03B implementation. The empty Release HTTP(S) allow-list, C3-04 block, and
 post-0.9.6 distribution hold remain unchanged.
+
+---
+
+## 2026-08-15 — Keep the public-configuration transport fixed and non-authoritative
+
+Context: C3-03A is Done. C3-03B needs one real first-party path without creating a generic network
+client, entitlement channel, identifier, content upload, or premature Production deployment.
+
+Decision: Detailed ownership lives in DEC-COM-022. The app uses one exact environment-isolated
+anonymous configuration GET, an ephemeral no-cookie/no-cache session, the embedded Ed25519 public
+key, conservative verified cache fallback, and closed non-content reason codes. The independent
+Worker serves only pre-signed bounded envelopes and has no private key, storage, outbound fetch, or
+app logging. Configuration can affect only an optional explicit Pro value trigger and never paid
+authority or permanent purchase/restore/manage access.
+
+Independent-review remediation requires that the response-completion clock validate expiry, that
+every verified resolution carry its signed expiry for automatic foreground invalidation, and that
+caller cancellation cancel the owned refresh operation before it can publish. The optional trigger
+also requires an actionable exact-Free StoreKit whole snapshot; unavailable or unverified
+fail-closed access is not treated as confirmed Free presentation authority.
+
+Follow-up review makes startup refresh a dedicated structured SwiftUI task, retains and cancels
+scene refresh on lifecycle exit or Session destruction, resets the startup one-time guard after
+cancellation so a recreated SwiftUI task can retry, and defines the persistence commit point as
+the final cancellation check immediately before the atomic write. Cancellation before that
+point cannot change the cache; an already-started atomic commit may finish but cannot publish a
+canceled acceptance result. See DEC-COM-022 for the full boundary.
+
+Consequences: Development was deployed and passed real adapter/verifier tests; Staging and
+Production remain undeployed. C3-03B is implementation complete pending independent review and
+green CI, not Done. Final binary/Production traffic, privacy/review disclosure, C3-04, formal
+products/economics, Archive/upload, tester assignment, and distribution remain blocked.

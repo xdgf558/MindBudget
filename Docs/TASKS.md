@@ -221,7 +221,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-03A Done, with C3-03B In Progress
+Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-03A Done, with C3-03B implementation complete pending independent review
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -318,6 +318,18 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01, C3-02, and C3-0
   entitlement/StoreKit authority, version, Archive/upload, tester assignment, or distribution.
   PR #36 passed independent review and green GitHub Actions run `31856271268`, then merged to
   `main` as `1ebb36c` on 2026-08-15.
-- [ ] Execute C3-03B after the satisfied C3-03A gate. Add the one accepted fixed anonymous
+- [ ] Review and merge C3-03B after the satisfied C3-03A gate. The one accepted fixed anonymous
   `GET /v1/config` transport, key provenance, privacy/log/TTL review, captured-traffic evidence,
-  and verified presentation integration without expanding the payload vocabulary.
+  and verified presentation integration are implemented without expanding the payload vocabulary.
+  Development version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` is the only deployment; the live app
+  path passed 8/8, Worker tests passed 13/13, and the owning full validation produced 402 results
+  (395 passed, 7 explicit skips, 0 failed) plus 14/14 UI and a separate 10/10 performance signal.
+  Review remediation closes request-time expiry, continuous-foreground expiry, unavailable-
+  authority presentation, and direct-service cancellation gaps. Follow-up remediation makes
+  startup refresh structured, cancels retained scene refresh on lifecycle exit/Session destruction,
+  permits a canceled startup attempt to retry, and defines a tested pre-atomic-write persistence
+  commit point. The follow-up owning validation
+  produced 410 results (403 passed, 7 explicit skips, 0 failed), including 396/396 unit tests,
+  14/14 UI tests, Release build, static gates, and every selected coverage threshold. Hosted CI
+  remains pending.
+  Staging/Production, final Release binary/traffic, C3-04, and distribution remain blocked.

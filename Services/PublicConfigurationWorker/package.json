@@ -1,0 +1,25 @@
+{
+  "name": "mindbudget-public-configuration-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npm run types:check && npm run test:run && npm run deploy:dry-run",
+    "deploy:development": "wrangler deploy --env development",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env=",
+    "deploy:dry-run": "wrangler deploy --env= --dry-run --outdir .wrangler/deploy-dry-run",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "types": "wrangler types --include-runtime=false",
+    "types:check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.21.3",
+    "@cloudflare/workers-types": "^5.20260811.1",
+    "@types/node": "^22.15.17",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.36.0"
+  }
+}

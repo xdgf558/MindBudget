@@ -22,7 +22,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   The owner then authorized C3-03 and accepted the exact two-packet signed-configuration contract
   in DEC-COM-021. C3-03A passed independent review and green GitHub Actions run `31856271268`,
   then merged through PR #36 as `1ebb36c` on 2026-08-15; it is Done. C3-03B is In Progress, and
-  C3-04 remains blocked.
+  its implementation is complete pending independent review and green hosted CI. C3-04 remains
+  blocked.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -288,12 +289,25 @@ Review remediation fixes timestamps to whole-second UTC, rejects duplicate keys 
 a client canonicalizer, serializes the full acceptance transaction, and re-verifies the exact
 persisted snapshot through the persistence abstraction. Corrupt rollback state is deliberately
 sticky in Release: normal Delete All and Offload do not clear it; recovery currently requires
-deleting the app data container and reinstalling. Non-content reason-code logging remains C3-03B-
-owned because C3-03A has no real transport or operations channel.
+  deleting the app data container and reinstalling. C3-03B adds one exact anonymous fixed-host
+  adapter, an embedded public verification key, closed non-content reason codes, and one optional
+  Pro-value-trigger presentation consumer. Review remediation makes response-completion time own
+  verification, clears the presentation at the exact signed expiry, propagates caller cancellation
+  through transport/acceptance, and requires an actionable exact-Free StoreKit whole snapshot;
+  unavailable or unverified authority cannot impersonate Free. Follow-up review makes startup
+  refresh structurally owned by SwiftUI, cancels retained scene refresh on lifecycle exit/Session
+  destruction, resets canceled startup attempts so recreated SwiftUI tasks can retry, and defines
+  the final pre-atomic-write cancellation check as the persistence commit point. Release is
+  compiled to Production only; Development and Staging cannot be selected
+  remotely. The Worker has no private key,
+  storage, outbound fetch, analytics binding, or app logging, and platform observability is
+  disabled. The Development
+  deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the dedicated live app suite 8/8 with
+  no skip; Worker tests passed 13/13 plus typecheck, audit, and Production dry-run. Staging and
+  Production remain undeployed.
 
-Next suggested task: implement only C3-03B's accepted fixed anonymous configuration transport,
-Production-key provenance, closed non-content reason codes, and verified presentation integration.
-Keep Release egress fail-closed until the real Worker, key, privacy/log/TTL/redirect behavior,
-captured traffic, final binary, and adapter pass their owning gates. Keep final customer terms/
-products, C3-04, versioning, Archive/upload, tester assignment, and distribution blocked until
-their owning C3 and release gates pass.
+Next suggested task: independently review C3-03B, run hosted CI, and merge only after its exact
+adapter, public-key/Worker provenance, privacy/log/TTL/redirect behavior, and conservative failure
+boundary are accepted. Do not begin C3-04 or deploy Production in this packet. Keep final customer
+terms/products, final Release binary/traffic evidence, versioning, Archive/upload, tester
+assignment, and distribution blocked until their owning C3 and release gates pass.

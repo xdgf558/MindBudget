@@ -692,6 +692,9 @@ struct EntitlementLifecycleSnapshot: Equatable, Sendable {
     let premiumEntryAccess: ExistingPremiumEntryAccess
     let environment: StoreRuntimeEnvironment?
     let unverifiedCount: Int
+    /// True only when the whole StoreKit read is safe to use for a purchase-presentation decision.
+    /// Exact Free is actionable; initial, incomplete, or unverified Free is not.
+    let isActionable: Bool
     let effectiveState: EffectiveStoreSubscriptionState
     let observedStates: Set<StoreSubscriptionState>
     let trialLifecycle: TrialLifecycleProjection?
@@ -748,7 +751,8 @@ actor EntitlementStore {
         premiumEntryAccess: ExistingPremiumEntryAccess(),
         environment: nil,
         unverifiedCount: 0,
-        effectiveState: .none,
+        isActionable: false,
+        effectiveState: .unavailable,
         observedStates: [],
         trialLifecycle: nil
     )
@@ -1219,6 +1223,7 @@ actor EntitlementStore {
             ),
             environment: resolution.environment,
             unverifiedCount: unverifiedCount,
+            isActionable: resolution.isActionable,
             effectiveState: resolution.effectiveState,
             observedStates: resolution.observedStates,
             trialLifecycle: resolution.trialLifecycle

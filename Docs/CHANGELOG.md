@@ -8,6 +8,14 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 
 ### Changed
 
+- Added an unreleased, signed first-party presentation configuration path that may show or hide
+  only optional explicit Pro value triggers. It cannot hide Settings, Restore Purchases, Manage
+  Subscription, or subscription status, and cannot change products, prices, trials, entitlement,
+  notifications, cloud features, or release behavior. Requests contain only bounded app/config
+  versions; verification, cache, expiry, rollback, persistence, transport, or offline failure uses
+  a previously verified nonexpired value and then the conservative built-in default. Only the
+  Development service has been deployed for verification; Staging, Production, Archive/upload,
+  tester assignment, and distribution remain blocked.
 - Active Pro trials now show their StoreKit-verified renewal date in the Dashboard and Pro screen.
   When StoreKit reports a scheduled same-group plan switch, the displayed renewal price follows
   the verified next-renewal product rather than the product carrying the current trial.

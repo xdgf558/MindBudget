@@ -24,7 +24,7 @@ detailed phase checklists; it added no paid product behavior.
 
 - Active phase: **COM-C3 C3-03 is In Progress. C3-03A is Done after independent review, green CI,
   and merge through PR #36 (`1ebb36c`); C3-03B fixed transport and presentation integration is
-  now active.** The owner
+  implementation complete pending independent review and green hosted CI.** The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
@@ -260,8 +260,8 @@ products remain blocked until the accepted cost inputs are available.
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
 Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
-(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress and C3-04 remains
-blocked.**
+(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending
+independent review, and C3-04 remains blocked.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -305,13 +305,26 @@ blocked.**
   tests, the Release build, static gates, and every selected coverage threshold. The strict local
   500 ms signal separately passed 10/10 isolated iterations. PR #36 passed independent review and
   green GitHub Actions run `31856271268`, then merged to `main` as `1ebb36c` on 2026-08-15.
-- [ ] **C3-03B — Fixed transport and presentation integration.** C3-03A's owning gate is now
-  satisfied. Add
-  only anonymous `GET /v1/config` to the accepted exact environment host, send only bounded app/
-  config version metadata, embed the accepted public verification key, connect the verified
-  presentation value, and prove privacy/logging/redirect/timeout/binary-traffic gates. Entering
-  C3-03B does not itself authorize egress: the Release app-owned HTTP(S) allow-list remains empty
-  until the exact adapter and its evidence pass review.
+- [ ] **C3-03B — Fixed transport and presentation integration (implementation complete pending
+  independent review and green hosted CI).** The exact anonymous `GET /v1/config`, bounded
+  app/config-version metadata, embedded public verification key, closed reason codes, conservative
+  cache/transport fallback, and single optional presentation consumer are implemented. The
+  independent Worker has no private key, storage, outbound fetch, or app logging. Development
+  version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` is the only deployed environment; its dedicated
+  live app suite passed 8/8 with no skip, while Worker tests passed 13/13 plus typecheck, audit, and
+  Production dry-run. The owning shared-host full validation produced 402 results (395 passed, 7
+  explicit skips, 0 failed), including 14/14 UI tests, Release build, static gates, and every
+  selected coverage threshold; the isolated local performance signal passed 10/10. Review
+  remediation now validates after the response completes, self-expires presentation at the signed
+  instant, propagates cancellation, and requires actionable exact-Free StoreKit authority.
+  Follow-up remediation makes startup refresh structured, cancels retained scene refresh on
+  lifecycle exit/Session destruction, permits a canceled startup attempt to retry, and defines a
+  tested pre-atomic-write persistence commit
+  point. The follow-up owning validation produced 410 results (403 passed, 7 explicit skips,
+  0 failed), including 396/396 unit tests, 14/14 UI tests, Release build, static gates, and every
+  selected coverage threshold. Hosted CI remains pending. Staging/
+  Production, final Release binary/Production traffic evidence, C3-04, Archive/upload, tester
+  assignment, and distribution remain blocked.
 - [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,
   VoiceOver, Dynamic Type, appearance testing, and review disclosures.
 

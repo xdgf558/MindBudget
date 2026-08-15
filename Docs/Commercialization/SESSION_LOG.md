@@ -1208,3 +1208,110 @@ key, Worker deployment, reason-code sink, presentation consumer, paid authority,
 schema, user-facing copy, version, Archive/upload, tester assignment, or distribution action was
 added by this closeout. The Release app-owned HTTP(S) allow-list remains empty and the post-0.9.6
 release hold remains active.
+
+## 2026-08-15 — Session 39 — Implement and verify the fixed C3-03B configuration path
+
+Goal: Implement only the owner-accepted first-party signed configuration transport and optional
+presentation consumer after C3-03A merged, while keeping Production deployment and distribution
+closed.
+
+What changed: Added one exact Development/Staging/Production URL vocabulary and a centralized
+anonymous GET adapter with bounded metadata, ephemeral no-cookie/no-credential/no-cache transport,
+redirect rejection, timeout/cancellation, exact response URL/status/MIME, and 16 KiB streaming
+bound. Embedded only the `mb-config-2026-01` Ed25519 public key. Cache and remote acceptance emit
+closed non-content reason codes; payload, signature, metadata values, IP addresses, and user or
+financial content are never logged. The app resolves cache then refreshes at launch/foreground and
+uses the verified flag only for an optional AI Pro-value trigger when the person is not already
+Pro. Permanent Settings, Restore, Manage Subscription, subscription status, and StoreKit rights
+remain independent.
+
+Worker/key operations: Added an independent Cloudflare Worker, exact request validator,
+environment-specific rate-limit namespaces, `no-store`/security headers, disabled observability,
+and no private key, storage, analytics binding, cookie, CORS, outbound fetch, or app request log.
+The private key remains in an owner-controlled protected file outside the repository. Only
+Development version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was deployed. Staging and Production
+were not deployed. Live traffic confirmed the 387-byte signed response and conservative empty-body
+400/404 rejection behavior; Cloudflare's ordinary injected edge metadata is recorded for final
+privacy/traffic review.
+
+Evidence: The real Development Worker passed the dedicated non-Archive app suite 8/8 with no skip
+at `/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`. Worker tests passed 13/13; typecheck,
+zero-vulnerability high-severity audit, and Production-config dry-run passed. The owning shared-
+host full validation produced 402 results: 395 passed, 7 explicit skips, and 0 failed, including
+14/14 UI tests, Release build, all static gates, and every selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-Full-Final.xcresult`. One shared-load 0.850044833-second performance
+measurement is retained only as nonpassing diagnostic evidence; the isolated signal passed 10/10
+at `/private/tmp/MindBudget-C303B-StrictPerformance.xcresult`.
+
+Current state: C3-03B is implementation complete pending independent review and green hosted CI;
+it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No schema/payload expansion, entitlement/StoreKit authority, product/price/
+trial, notification, user-content upload, telemetry, Staging/Production deployment, formal
+economics/product, version, Archive/upload, tester assignment, or distribution action changed.
+The post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 40 — Remediate C3-03B runtime lifecycle review findings
+
+Goal: Close the PR #38 findings for in-flight expiry, continuous-foreground expiry, unavailable
+StoreKit authority, and detached refresh cancellation while keeping C3-03B within DEC-COM-022.
+
+What changed: The transport service samples the verification clock after response completion and
+propagates structured cancellation through network and acceptance tasks. Signed expiry is carried
+through every verified resolution and independently scheduled by AppSession, so an enabled
+presentation becomes conservative exactly at expiry without another refresh. Presentation of the
+optional value trigger additionally requires actionable exact-Free StoreKit authority; an empty
+fail-closed entitlement set produced by incomplete/unverified authority is not treated as Free.
+Static contract gates now require these runtime and regression seams.
+
+Evidence: Generic simulator test build succeeded. The focused transport/configuration suite passed
+11/11, zero failure/skip, at
+`/private/tmp/MindBudget-C303B-ReviewFix-Focused.xcresult`. Source contract, transport/Worker,
+network-egress, commercialization-document, shell-syntax, and diff checks pass. The final owning
+validation, with the shared-load wall-clock signal separated as designed, produced 405 results:
+398 passed, 7 explicit opt-in/runtime skips, and 0 failed. The Release build, 14/14 UI tests, all
+static gates, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C303B-ReviewFix-FullFinal.xcresult`. The strict local Dashboard signal
+separately passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-ReviewFix-StrictPerformance.xcresult`; the preceding shared-load
+0.838828417-second miss remains diagnostic-only at
+`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI remains pending.
+
+Current state: C3-03B remains implementation complete pending independent re-review and green
+hosted CI; it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/price/trial,
+notification, Worker response/deployment, Staging/Production deployment, content/identifier,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 41 — Close remaining C3-03B cancellation boundaries
+
+Goal: Resolve the second PR #38 cancellation review without expanding DEC-COM-022 or opening any
+later commercialization/release gate.
+
+What changed: Startup refresh is now structurally awaited by a dedicated SwiftUI task. AppSession
+retains scene-active refresh and cancels it on replacement, inactive/background transition, or
+Session destruction. Cancellation resets the startup one-time guard so a recreated SwiftUI task
+can retry. File persistence checks cancellation after actor entry and immediately
+before its atomic-write commit point. Cancellation observed before that point leaves the prior
+cache untouched; an atomic commit already started may finish, but canceled acceptance cannot
+publish its result. Static contract anchors now require the lifecycle and commit-point seams.
+
+Evidence: The combined public-configuration core/transport suites produced 28 results: 27 passed,
+the explicit live Development Worker probe skipped, and 0 failed. Tests deterministically gate
+AppSession caller/lifecycle destruction and persistence-actor suspension rather than relying on
+scheduler timing. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-Focused3.xcresult`. The fresh owning validation then
+produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit tests
+and 14/14 UI tests passed, together with the Release build, all static gates, and every selected
+coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. Hosted CI remains pending.
+
+Current state: C3-03B remains implementation complete pending independent re-review and green
+hosted CI; it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/price/trial,
+notification, Worker response/deployment, Staging/Production deployment, content/identifier,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.

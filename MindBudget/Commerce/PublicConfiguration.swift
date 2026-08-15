@@ -335,11 +335,17 @@ actor FilePublicConfigurationPersistence: PublicConfigurationPersisting {
     }
 
     func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        try Task.checkCancellation()
         let data = try JSONEncoder().encode(snapshot)
+        try Task.checkCancellation()
         try FileManager.default.createDirectory(
             at: fileURL.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
+        // This is the persistence commit point. Cancellation observed before it leaves the
+        // previous cache untouched. Once the atomic write starts, the file operation is allowed
+        // to complete, but the controller still refuses to publish a canceled result.
+        try Task.checkCancellation()
         try data.write(
             to: fileURL,
             options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]
@@ -360,12 +366,49 @@ struct PublicConfigurationResolution: Equatable, Sendable {
     let presentation: PublicConfigurationPresentation
     let source: PublicConfigurationResolutionSource
     let acceptedConfigVersion: UInt64?
+    /// Exact signed expiry for remote/cache values. Built-in fallback has no validity window and
+    /// therefore can never keep a remotely enabled presentation alive.
+    let expiresAt: Date?
 
     static let conservativeDefault = PublicConfigurationResolution(
         presentation: .conservativeDefault,
         source: .builtIn,
-        acceptedConfigVersion: nil
+        acceptedConfigVersion: nil,
+        expiresAt: nil
     )
+}
+
+/// Closed, non-content diagnostics for the signed-configuration acceptance boundary. These values
+/// may be logged, but payload bytes, envelope bytes, signatures, digests, URLs, and user data may
+/// not. A reason describes the operation that just ran; the paired resolution remains the only
+/// presentation value a caller may consume.
+enum PublicConfigurationResolutionReason: String, Equatable, Sendable {
+    case remoteAccepted
+    case cacheAccepted
+    case builtInNoCache
+    case builtInInvalidCache
+    case builtInUnusableCache
+    case rejectedEnvelopeSize
+    case rejectedPayloadSize
+    case rejectedSchema
+    case rejectedAlgorithm
+    case rejectedKey
+    case rejectedEncoding
+    case rejectedSignature
+    case rejectedVersion
+    case rejectedIssuedInFuture
+    case rejectedExpired
+    case rejectedValidityWindow
+    case rejectedRollback
+    case rejectedEquivocation
+    case rejectedStickyPersistence
+    case rejectedPersistenceWrite
+    case rejectedPersistenceReadback
+}
+
+struct PublicConfigurationResolutionResult: Equatable, Sendable {
+    let resolution: PublicConfigurationResolution
+    let reason: PublicConfigurationResolutionReason
 }
 
 /// Owns acceptance and rollback ordering, but no network transport. The C3-03 transport packet
@@ -376,7 +419,7 @@ actor PublicConfigurationController {
     /// Serializes the complete read/compare/write/read-back acceptance transaction. Actor
     /// isolation alone is insufficient because persistence awaits permit reentrancy and could let
     /// an older concurrent document overwrite a newer high-water mark.
-    private var acceptanceTail: Task<PublicConfigurationResolution, Never>?
+    private var acceptanceTail: Task<PublicConfigurationResolutionResult, Error>?
 
     init(
         verifier: PublicConfigurationVerifier,
@@ -387,24 +430,57 @@ actor PublicConfigurationController {
     }
 
     func resolveCached(now: Date) async -> PublicConfigurationResolution {
-        Self.resolveStored(
-            read: await persistence.read(),
+        await resolveCachedResult(now: now).resolution
+    }
+
+    func resolveCachedResult(now: Date) async -> PublicConfigurationResolutionResult {
+        let read = await persistence.read()
+        let resolution = Self.resolveStored(
+            read: read,
             verifier: verifier,
             now: now,
             source: .verifiedCache
         )
+        let reason: PublicConfigurationResolutionReason
+        if resolution.source == .verifiedCache {
+            reason = .cacheAccepted
+        } else {
+            switch read {
+            case .empty: reason = .builtInNoCache
+            case .invalid: reason = .builtInInvalidCache
+            case .stored: reason = .builtInUnusableCache
+            }
+        }
+        return PublicConfigurationResolutionResult(resolution: resolution, reason: reason)
+    }
+
+    func highestAcceptedVersion() async -> UInt64? {
+        guard case let .stored(snapshot) = await persistence.read() else { return nil }
+        return snapshot.highestAcceptedVersion
     }
 
     func acceptRemote(
         envelopeData: Data,
         now: Date
     ) async -> PublicConfigurationResolution {
+        do {
+            return try await acceptRemoteResult(envelopeData: envelopeData, now: now).resolution
+        } catch {
+            return .conservativeDefault
+        }
+    }
+
+    func acceptRemoteResult(
+        envelopeData: Data,
+        now: Date
+    ) async throws -> PublicConfigurationResolutionResult {
         let predecessor = acceptanceTail
         let verifier = verifier
         let persistence = persistence
         let operation = Task {
-            _ = await predecessor?.value
-            return await Self.performAcceptance(
+            _ = try? await predecessor?.value
+            try Task.checkCancellation()
+            return try await Self.performAcceptance(
                 envelopeData: envelopeData,
                 now: now,
                 verifier: verifier,
@@ -412,7 +488,11 @@ actor PublicConfigurationController {
             )
         }
         acceptanceTail = operation
-        return await operation.value
+        return try await withTaskCancellationHandler {
+            try await operation.value
+        } onCancel: {
+            operation.cancel()
+        }
     }
 
     private static func performAcceptance(
@@ -420,38 +500,57 @@ actor PublicConfigurationController {
         now: Date,
         verifier: PublicConfigurationVerifier,
         persistence: any PublicConfigurationPersisting
-    ) async -> PublicConfigurationResolution {
-        guard let verified = try? verifier.verify(envelopeData: envelopeData, now: now) else {
-            return resolveStored(
-                read: await persistence.read(),
+    ) async throws -> PublicConfigurationResolutionResult {
+        try Task.checkCancellation()
+        let verified: VerifiedPublicConfiguration
+        do {
+            verified = try verifier.verify(envelopeData: envelopeData, now: now)
+        } catch let error as PublicConfigurationVerificationError {
+            let read = await persistence.read()
+            try Task.checkCancellation()
+            return fallback(
+                read: read,
+                reason: reason(for: error),
                 verifier: verifier,
-                now: now,
-                source: .verifiedCache
+                now: now
+            )
+        } catch {
+            let read = await persistence.read()
+            try Task.checkCancellation()
+            return fallback(
+                read: read,
+                reason: .rejectedSchema,
+                verifier: verifier,
+                now: now
             )
         }
 
         let storedRead = await persistence.read()
+        try Task.checkCancellation()
         switch storedRead {
         case .invalid:
-            return .conservativeDefault
+            return PublicConfigurationResolutionResult(
+                resolution: .conservativeDefault,
+                reason: .rejectedStickyPersistence
+            )
         case .empty:
             break
         case let .stored(snapshot):
             guard verified.payload.configVersion >= snapshot.highestAcceptedVersion else {
-                return resolveStored(
+                return fallback(
                     read: storedRead,
+                    reason: .rejectedRollback,
                     verifier: verifier,
-                    now: now,
-                    source: .verifiedCache
+                    now: now
                 )
             }
             if verified.payload.configVersion == snapshot.highestAcceptedVersion,
                verified.payloadDigest != snapshot.highestAcceptedPayloadDigest {
-                return resolveStored(
+                return fallback(
                     read: storedRead,
+                    reason: .rejectedEquivocation,
                     verifier: verifier,
-                    now: now,
-                    source: .verifiedCache
+                    now: now
                 )
             }
         }
@@ -461,26 +560,80 @@ actor PublicConfigurationController {
             highestAcceptedVersion: verified.payload.configVersion,
             highestAcceptedPayloadDigest: verified.payloadDigest
         )
+        try Task.checkCancellation()
         do {
             try await persistence.write(snapshot)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
-            return resolveStored(
-                read: await persistence.read(),
+            let read = await persistence.read()
+            try Task.checkCancellation()
+            return fallback(
+                read: read,
+                reason: .rejectedPersistenceWrite,
                 verifier: verifier,
-                now: now,
-                source: .verifiedCache
+                now: now
             )
         }
+        try Task.checkCancellation()
 
         // Verify through the persistence abstraction, not only the file adapter's private
         // read-back. A lying/no-op/custom persistence cannot activate an unstored document.
-        return resolveStored(
-            read: await persistence.read(),
+        let persistedRead = await persistence.read()
+        try Task.checkCancellation()
+        let persisted = resolveStored(
+            read: persistedRead,
             expectedSnapshot: snapshot,
             verifier: verifier,
             now: now,
             source: .remote
         )
+        guard persisted.source == .remote else {
+            return PublicConfigurationResolutionResult(
+                resolution: persisted,
+                reason: .rejectedPersistenceReadback
+            )
+        }
+        return PublicConfigurationResolutionResult(
+            resolution: persisted,
+            reason: .remoteAccepted
+        )
+    }
+
+    private static func fallback(
+        read: PublicConfigurationPersistenceRead,
+        reason: PublicConfigurationResolutionReason,
+        verifier: PublicConfigurationVerifier,
+        now: Date
+    ) -> PublicConfigurationResolutionResult {
+        PublicConfigurationResolutionResult(
+            resolution: resolveStored(
+                read: read,
+                verifier: verifier,
+                now: now,
+                source: .verifiedCache
+            ),
+            reason: reason
+        )
+    }
+
+    private static func reason(
+        for error: PublicConfigurationVerificationError
+    ) -> PublicConfigurationResolutionReason {
+        switch error {
+        case .envelopeTooLarge: .rejectedEnvelopeSize
+        case .payloadTooLarge: .rejectedPayloadSize
+        case .invalidEnvelopeSchema, .invalidPayloadSchema, .unsupportedSchemaVersion:
+            .rejectedSchema
+        case .unsupportedAlgorithm: .rejectedAlgorithm
+        case .unknownKey: .rejectedKey
+        case .invalidEncoding: .rejectedEncoding
+        case .invalidSignature: .rejectedSignature
+        case .invalidVersion: .rejectedVersion
+        case .issuedInFuture: .rejectedIssuedInFuture
+        case .expired: .rejectedExpired
+        case .invalidValidityWindow: .rejectedValidityWindow
+        }
     }
 
     private static func resolveStored(
@@ -508,7 +661,8 @@ actor PublicConfigurationController {
         return PublicConfigurationResolution(
             presentation: verified.payload.presentation,
             source: source,
-            acceptedConfigVersion: verified.payload.configVersion
+            acceptedConfigVersion: verified.payload.configVersion,
+            expiresAt: verified.payload.expiresAt
         )
     }
 }

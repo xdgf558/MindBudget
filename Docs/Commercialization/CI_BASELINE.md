@@ -393,12 +393,76 @@ passed. Evidence: `/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. The 
 head `3a53107` then passed GitHub Actions run `31856271268`; PR #36 merged it to `main` as
 `1ebb36c` on 2026-08-15.
 
-C3-03A is Done. C3-03B is In Progress, but its adapter, Worker/key provenance, captured traffic,
-privacy/log/TTL/redirect evidence, and final-binary gate remain unsatisfied. C3-04, formal
-products/economics, versioning, Archive/upload, tester assignment, and distribution remain
-blocked. The documentation closeout branch repeated 394 results with 388 passed, 6 opt-in
+C3-03A is Done. The documentation closeout branch repeated 394 results with 388 passed, 6 opt-in
 StoreKit probes skipped, and 0 failed; evidence:
 `/private/tmp/MindBudget-C303A-Closeout-Full.xcresult`. The post-0.9.6 release hold remains active.
+
+## COM-C3-03B implementation verification
+
+C3-03B adds one exact environment-isolated public-configuration adapter, the embedded Ed25519
+public key, closed non-content reason codes, a first-party Worker, and one optional presentation
+consumer. The Worker test suite passed 13/13. TypeScript typecheck, `npm audit --audit-level=high`
+with zero vulnerabilities, and a Production-configuration Wrangler dry-run passed. The static
+network gate allows only `MindBudget/Commerce/PublicConfigurationTransport.swift`, checks all
+other app Swift/configuration sources, and passes; the public-configuration transport gate also
+passes.
+
+Development Worker version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was deployed on 2026-08-15.
+An exact accepted GET returned the 387-byte signed envelope with `no-store` and security headers;
+missing metadata returned 400 with an empty body, and query/unknown metadata returned 404 with an
+empty body. Cloudflare injected ordinary edge headers including `Report-To`/`NEL`; the Worker has
+no request logging/storage/outbound fetch and platform observability is disabled. The dedicated
+non-Archive `MindBudget-PublicConfig-Live` scheme exercised the real Development endpoint through
+the app transport, embedded public key, production verifier, cache, and consumer seam on iPhone
+17 Pro Simulator iOS 26.5 (`23F77`): 8 passed, 0 failed, 0 skipped. Evidence:
+`/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`.
+
+The owning shared-host full validation skipped only the six explicit StoreKit runtime probes and
+the separately measured local wall-clock signal. It produced 402 results: 395 passed, 7 skipped,
+and 0 failed, including 14/14 UI tests, the Release build, all static gates, and every selected
+coverage threshold. Evidence: `/private/tmp/MindBudget-C303B-Full-Final.xcresult`. One preceding
+shared-load run measured the local signal at 0.850044833 seconds and is retained as nonpassing
+diagnostic evidence at `/private/tmp/MindBudget-C303B-Full.xcresult`; the isolated signal then
+passed 10/10 at `/private/tmp/MindBudget-C303B-StrictPerformance.xcresult`.
+
+Staging and Production were not deployed. Hosted CI remains pending. C3-03B is implementation
+complete pending independent review and green hosted CI; it is not Done. Final Release binary/
+Production captured traffic, current privacy/review disclosure, C3-04, formal products/economics,
+versioning, Archive/upload, tester assignment, and distribution remain blocked.
+
+Independent-review remediation on 2026-08-15 closed three lifecycle gaps without changing the
+Worker or deployment: response-completion time now owns verification, signed expiry is propagated
+to an independent foreground expiry schedule, the optional trigger requires actionable exact-Free
+StoreKit authority, and caller cancellation cancels the owned refresh operation before it can
+verify, persist, or publish. The focused `PublicConfigurationTransportTests` suite passed 11/11
+with zero failure or skip at
+`/private/tmp/MindBudget-C303B-ReviewFix-Focused.xcresult`. It includes deterministic response-gate,
+expiry-scheduler, StoreKit-authority, and cancellation-aware transport fixtures. The final owning
+validation, with the shared-load wall-clock signal separated as designed, produced 405 results:
+398 passed, 7 explicit opt-in/runtime skips, and 0 failed. The Release build, 14/14 UI tests, all
+static gates, and every selected coverage threshold passed; evidence:
+`/private/tmp/MindBudget-C303B-ReviewFix-FullFinal.xcresult`. The strict local Dashboard signal
+separately passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-ReviewFix-StrictPerformance.xcresult`. One preceding shared-load run
+measured 0.838828417 seconds and is retained only as nonpassing diagnostic evidence at
+`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI for the remediation head remains
+pending; C3-03B is not Done.
+
+Second cancellation review remediation on 2026-08-15 makes the startup refresh a separately
+structured SwiftUI task, retains scene-active work for explicit inactive/background/replacement/
+Session-destruction cancellation, and adds cancellation checks after persistence actor entry and
+immediately before the atomic-write commit point. Cancellation before that point leaves the prior
+cache untouched; an atomic commit already started may finish, but canceled acceptance cannot
+publish. The combined public-configuration core/transport suites produced 28 results: 27 passed,
+the explicit live Development Worker probe skipped, and 0 failed. Deterministic tests cover caller
+cancellation at AppSession startup, retained scene work, Session destruction, a pre-canceled real
+file write, and cancellation while a persistence actor is suspended. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-Focused3.xcresult`. The fresh owning full validation
+then produced 410 results: 403 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 396 unit
+tests and 14/14 UI tests passed, together with the Release build, all static gates, and every
+selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-CancellationFix-FullFinal2.xcresult`. Hosted CI for this follow-up
+head remains pending; C3-03B is not Done.
 
 ## Result and report paths
 

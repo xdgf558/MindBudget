@@ -96,18 +96,29 @@ validation produced 382 results (376 passed, 6 explicit opt-in StoreKit runtime 
 C3-03 is In Progress after the owner accepted DEC-COM-021 and the exact two-packet first-party
 configuration contract. C3-03A passed independent review and green GitHub Actions run
 `31856271268`, then merged through PR #36 as `1ebb36c` on 2026-08-15. It adds
-only strict Ed25519 document verification, closed schema/version/expiry/size checks, rollback and
-same-version-equivocation rejection, and a signed cache/high-water mark with conservative local
-fallback. It adds no URL, transport, production public key, paid authority, or application
-consumer. C3-03B is now In Progress; C3-04 and distribution remain blocked.
+  only strict Ed25519 document verification, closed schema/version/expiry/size checks, rollback and
+  same-version-equivocation rejection, and a signed cache/high-water mark with conservative local
+  fallback. C3-03B is now implementation complete pending independent review and green hosted CI.
+  It adds one exact anonymous fixed-host adapter, the embedded public verification key, closed
+  non-content reason codes, and one optional Pro-value-trigger presentation consumer. Review
+  remediation validates at response completion, clears at signed expiry without waiting for a
+  foreground refresh, cancels owned transport work with its caller, and requires actionable exact
+  Free rather than unavailable/unverified fail-closed access. Follow-up review makes startup
+  refresh structurally owned by SwiftUI, cancels retained scene refresh on lifecycle exit/Session
+  destruction, resets canceled startup attempts so recreated SwiftUI tasks can retry, and defines
+  a final pre-atomic-write persistence commit point. The
+  Development deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the real live app path 8/8
+  with no skip; the Worker passed 13/13 tests plus typecheck, audit, and Production dry-run.
+  Staging/Production, C3-04, final binary/traffic gates, and distribution remain blocked.
 Its review remediation uses fixed whole-second UTC timestamps, rejects duplicate JSON keys,
 serializes concurrent high-water acceptance, and requires abstraction-level write readback. A
 corrupt high-water record remains fail-closed until the app data container is deleted and the app
 is reinstalled; normal Delete All and Offload do not reset this security marker. Exact signed
 bytes remain the authority rather than a client canonical-JSON re-encoding, and failure reason-code
-observability remains C3-03B-owned without payload/signature logging. Entering C3-03B does not
-itself authorize Release egress; the empty allow-list remains enforced until the exact adapter and
-first-party evidence pass their owning review.
+  observability is now limited to closed reason codes without payload/signature logging. The
+  Worker has no private key, storage, outbound fetch, analytics binding, or app request logs and
+  has platform observability disabled. Source-level acceptance of the exact Production adapter is
+  not permission to deploy Production, Archive/upload, assign testers, or distribute.
 Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent
