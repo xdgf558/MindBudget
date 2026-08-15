@@ -314,7 +314,10 @@ independent review, and C3-04 remains blocked.**
   live app suite passed 8/8 with no skip, while Worker tests passed 13/13 plus typecheck, audit, and
   Production dry-run. The owning shared-host full validation produced 402 results (395 passed, 7
   explicit skips, 0 failed), including 14/14 UI tests, Release build, static gates, and every
-  selected coverage threshold; the isolated local performance signal passed 10/10. Staging/
+  selected coverage threshold; the isolated local performance signal passed 10/10. Review
+  remediation now validates after the response completes, self-expires presentation at the signed
+  instant, propagates cancellation, and requires actionable exact-Free StoreKit authority; its
+  focused suite passed 11/11 while fresh full/hosted evidence remains pending. Staging/
   Production, final Release binary/Production traffic evidence, C3-04, Archive/upload, tester
   assignment, and distribution remain blocked.
 - [B] **C3-04 — UI and release quality.** Add billing-retry/expiry soft landing, bilingual copy,

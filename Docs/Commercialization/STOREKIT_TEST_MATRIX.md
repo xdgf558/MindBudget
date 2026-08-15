@@ -203,6 +203,11 @@ its evidence layer is the opt-in local scheme and supported-final physical-devic
 direct construction-based unit coverage.
 The static StoreKit gate rejects provisional price literals or raw StoreKit purchase/sync calls in
 customer source and requires the two approved Settings/value-trigger entry sites.
+The signed public-configuration value trigger is stricter than an empty fail-closed entitlement
+set: it requires an actionable whole-snapshot StoreKit resolution whose effective state is exact
+Free. Initial, incomplete, unverified, mixed, unavailable, and paid-then-unverifiable states remain
+suppressed. Focused C3-03B regressions cover each unavailable shape and the paid-to-unavailable
+refresh transition.
 
 The dedicated local scheme owns four runtime product probes—HKG, USA, SGP, and TWN. Each must
 actually execute and load the exact Monthly/Annual test catalog, periods, localized

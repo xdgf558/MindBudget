@@ -48,6 +48,7 @@ final class AppSession: ObservableObject {
     private let entitlementStore: EntitlementStore?
     private let trialLifecycleScheduler: any TrialLifecycleScheduling
     private let publicConfigurationService: (any PublicConfigurationServicing)?
+    private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -69,7 +70,8 @@ final class AppSession: ObservableObject {
     @Published private(set) var recurringExpenseReconciliationHasMore = false
     @Published private(set) var existingPremiumEntryAccess: ExistingPremiumEntryAccess
     @Published private(set) var storeCatalogAvailability: StoreCatalogAvailability = .unavailable
-    @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .none
+    @Published private(set) var commerceSubscriptionState: EffectiveStoreSubscriptionState = .unavailable
+    @Published private(set) var commerceSubscriptionAuthorityIsActionable = false
     @Published private(set) var trialLifecycle: TrialLifecycleProjection?
     @Published private(set) var trialRenewalReminder = TrialRenewalReminderReconciliation.inactive
     @Published private(set) var trialRenewalReminderFailed = false
@@ -79,6 +81,9 @@ final class AppSession: ObservableObject {
     private var hasStartedCommerceLifecycle = false
     private var trialLifecycleReconciliationGeneration = 0
     private var hasStartedPublicConfigurationLifecycle = false
+    private var publicConfigurationExpiresAt: Date?
+    private var publicConfigurationRefreshTask: Task<Void, Never>?
+    private var publicConfigurationExpiryTask: Task<Void, Never>?
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
@@ -88,6 +93,8 @@ final class AppSession: ObservableObject {
     /// entry, but it cannot alter access and never suppresses the permanent Settings Pro entry.
     var offersAppleOnDeviceAIProValueTrigger: Bool {
         publicConfigurationPresentation.proValueTriggersEnabled
+            && commerceSubscriptionAuthorityIsActionable
+            && commerceSubscriptionState == .none
             && !existingPremiumEntryAccess.offersAppleOnDeviceAI
     }
 
@@ -116,6 +123,8 @@ final class AppSession: ObservableObject {
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
         publicConfigurationService: (any PublicConfigurationServicing)? = nil,
+        publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling =
+            SystemPublicConfigurationExpirationScheduler(),
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -130,6 +139,7 @@ final class AppSession: ObservableObject {
         self.entitlementStore = entitlementStore
         self.trialLifecycleScheduler = trialLifecycleScheduler
         self.publicConfigurationService = publicConfigurationService
+        self.publicConfigurationExpirationScheduler = publicConfigurationExpirationScheduler
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
     }
@@ -141,6 +151,7 @@ final class AppSession: ObservableObject {
             await entitlementStore.start { [weak self] snapshot in
                 self?.existingPremiumEntryAccess = snapshot.premiumEntryAccess
                 self?.commerceSubscriptionState = snapshot.effectiveState
+                self?.commerceSubscriptionAuthorityIsActionable = snapshot.isActionable
                 self?.trialLifecycle = snapshot.trialLifecycle
             }
         }
@@ -149,26 +160,74 @@ final class AppSession: ObservableObject {
         }
     }
 
-    func startPublicConfigurationLifecycle(now: Date = Date()) async {
+    func startPublicConfigurationLifecycle() async {
         guard !hasStartedPublicConfigurationLifecycle else { return }
         hasStartedPublicConfigurationLifecycle = true
         guard let publicConfigurationService else { return }
 
-        publicConfigurationPresentation = await publicConfigurationService
-            .resolveCached(now: now)
-            .presentation
-        Task { [weak self] in
-            guard let self, let service = self.publicConfigurationService else { return }
-            let resolution = await service.refresh(now: Date())
-            self.publicConfigurationPresentation = resolution.presentation
+        let cacheNow = Date()
+        applyPublicConfiguration(
+            await publicConfigurationService.resolveCached(now: cacheNow),
+            now: cacheNow
+        )
+        publicConfigurationRefreshTask?.cancel()
+        let service = publicConfigurationService
+        publicConfigurationRefreshTask = Task { [weak self] in
+            do {
+                let resolution = try await service.refresh()
+                try Task.checkCancellation()
+                self?.applyPublicConfiguration(resolution, now: Date())
+            } catch {
+                // Caller/lifecycle cancellation retains the already verified nonexpired cache or
+                // conservative built-in value and never publishes a canceled remote result.
+            }
         }
     }
 
-    func refreshPublicConfiguration(now: Date = Date()) async {
+    func refreshPublicConfiguration() async {
         guard let publicConfigurationService else { return }
-        publicConfigurationPresentation = await publicConfigurationService
-            .refresh(now: now)
-            .presentation
+        do {
+            let resolution = try await publicConfigurationService.refresh()
+            try Task.checkCancellation()
+            applyPublicConfiguration(resolution, now: Date())
+        } catch {
+            // Retain the currently scheduled verified value; its independent expiry task still
+            // clears it at the signed instant.
+        }
+    }
+
+    private func applyPublicConfiguration(
+        _ resolution: PublicConfigurationResolution,
+        now: Date
+    ) {
+        publicConfigurationExpiryTask?.cancel()
+        publicConfigurationExpiryTask = nil
+        publicConfigurationExpiresAt = nil
+
+        guard let expiresAt = resolution.expiresAt, expiresAt > now else {
+            publicConfigurationPresentation = .conservativeDefault
+            return
+        }
+
+        publicConfigurationPresentation = resolution.presentation
+        publicConfigurationExpiresAt = expiresAt
+        let expirationScheduler = publicConfigurationExpirationScheduler
+        publicConfigurationExpiryTask = Task { [weak self] in
+            do {
+                try await expirationScheduler.wait(until: expiresAt)
+                try Task.checkCancellation()
+                self?.expirePublicConfiguration(expectedExpiration: expiresAt)
+            } catch {
+                // A replacement configuration cancels this task and owns the next expiry.
+            }
+        }
+    }
+
+    private func expirePublicConfiguration(expectedExpiration: Date) {
+        guard publicConfigurationExpiresAt == expectedExpiration else { return }
+        publicConfigurationExpiresAt = nil
+        publicConfigurationExpiryTask = nil
+        publicConfigurationPresentation = .conservativeDefault
     }
 
     /// Typed commerce seams owned by the voluntary C3 purchase presentation. Views never call

@@ -360,11 +360,15 @@ struct PublicConfigurationResolution: Equatable, Sendable {
     let presentation: PublicConfigurationPresentation
     let source: PublicConfigurationResolutionSource
     let acceptedConfigVersion: UInt64?
+    /// Exact signed expiry for remote/cache values. Built-in fallback has no validity window and
+    /// therefore can never keep a remotely enabled presentation alive.
+    let expiresAt: Date?
 
     static let conservativeDefault = PublicConfigurationResolution(
         presentation: .conservativeDefault,
         source: .builtIn,
-        acceptedConfigVersion: nil
+        acceptedConfigVersion: nil,
+        expiresAt: nil
     )
 }
 
@@ -409,7 +413,7 @@ actor PublicConfigurationController {
     /// Serializes the complete read/compare/write/read-back acceptance transaction. Actor
     /// isolation alone is insufficient because persistence awaits permit reentrancy and could let
     /// an older concurrent document overwrite a newer high-water mark.
-    private var acceptanceTail: Task<PublicConfigurationResolutionResult, Never>?
+    private var acceptanceTail: Task<PublicConfigurationResolutionResult, Error>?
 
     init(
         verifier: PublicConfigurationVerifier,
@@ -453,19 +457,24 @@ actor PublicConfigurationController {
         envelopeData: Data,
         now: Date
     ) async -> PublicConfigurationResolution {
-        await acceptRemoteResult(envelopeData: envelopeData, now: now).resolution
+        do {
+            return try await acceptRemoteResult(envelopeData: envelopeData, now: now).resolution
+        } catch {
+            return .conservativeDefault
+        }
     }
 
     func acceptRemoteResult(
         envelopeData: Data,
         now: Date
-    ) async -> PublicConfigurationResolutionResult {
+    ) async throws -> PublicConfigurationResolutionResult {
         let predecessor = acceptanceTail
         let verifier = verifier
         let persistence = persistence
         let operation = Task {
-            _ = await predecessor?.value
-            return await Self.performAcceptance(
+            _ = try? await predecessor?.value
+            try Task.checkCancellation()
+            return try await Self.performAcceptance(
                 envelopeData: envelopeData,
                 now: now,
                 verifier: verifier,
@@ -473,7 +482,11 @@ actor PublicConfigurationController {
             )
         }
         acceptanceTail = operation
-        return await operation.value
+        return try await withTaskCancellationHandler {
+            try await operation.value
+        } onCancel: {
+            operation.cancel()
+        }
     }
 
     private static func performAcceptance(
@@ -481,20 +494,25 @@ actor PublicConfigurationController {
         now: Date,
         verifier: PublicConfigurationVerifier,
         persistence: any PublicConfigurationPersisting
-    ) async -> PublicConfigurationResolutionResult {
+    ) async throws -> PublicConfigurationResolutionResult {
+        try Task.checkCancellation()
         let verified: VerifiedPublicConfiguration
         do {
             verified = try verifier.verify(envelopeData: envelopeData, now: now)
         } catch let error as PublicConfigurationVerificationError {
+            let read = await persistence.read()
+            try Task.checkCancellation()
             return fallback(
-                read: await persistence.read(),
+                read: read,
                 reason: reason(for: error),
                 verifier: verifier,
                 now: now
             )
         } catch {
+            let read = await persistence.read()
+            try Task.checkCancellation()
             return fallback(
-                read: await persistence.read(),
+                read: read,
                 reason: .rejectedSchema,
                 verifier: verifier,
                 now: now
@@ -502,6 +520,7 @@ actor PublicConfigurationController {
         }
 
         let storedRead = await persistence.read()
+        try Task.checkCancellation()
         switch storedRead {
         case .invalid:
             return PublicConfigurationResolutionResult(
@@ -535,21 +554,29 @@ actor PublicConfigurationController {
             highestAcceptedVersion: verified.payload.configVersion,
             highestAcceptedPayloadDigest: verified.payloadDigest
         )
+        try Task.checkCancellation()
         do {
             try await persistence.write(snapshot)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
+            let read = await persistence.read()
+            try Task.checkCancellation()
             return fallback(
-                read: await persistence.read(),
+                read: read,
                 reason: .rejectedPersistenceWrite,
                 verifier: verifier,
                 now: now
             )
         }
+        try Task.checkCancellation()
 
         // Verify through the persistence abstraction, not only the file adapter's private
         // read-back. A lying/no-op/custom persistence cannot activate an unstored document.
+        let persistedRead = await persistence.read()
+        try Task.checkCancellation()
         let persisted = resolveStored(
-            read: await persistence.read(),
+            read: persistedRead,
             expectedSnapshot: snapshot,
             verifier: verifier,
             now: now,
@@ -628,7 +655,8 @@ actor PublicConfigurationController {
         return PublicConfigurationResolution(
             presentation: verified.payload.presentation,
             source: source,
-            acceptedConfigVersion: verified.payload.configVersion
+            acceptedConfigVersion: verified.payload.configVersion,
+            expiresAt: verified.payload.expiresAt
         )
     }
 }

@@ -2164,6 +2164,12 @@ Worker serves only pre-signed bounded envelopes and has no private key, storage,
 app logging. Configuration can affect only an optional explicit Pro value trigger and never paid
 authority or permanent purchase/restore/manage access.
 
+Independent-review remediation requires that the response-completion clock validate expiry, that
+every verified resolution carry its signed expiry for automatic foreground invalidation, and that
+caller cancellation cancel the owned refresh operation before it can publish. The optional trigger
+also requires an actionable exact-Free StoreKit whole snapshot; unavailable or unverified
+fail-closed access is not treated as confirmed Free presentation authority.
+
 Consequences: Development was deployed and passed real adapter/verifier tests; Staging and
 Production remain undeployed. C3-03B is implementation complete pending independent review and
 green CI, not Done. Final binary/Production traffic, privacy/review disclosure, C3-04, formal

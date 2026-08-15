@@ -1250,3 +1250,37 @@ What was NOT changed: No schema/payload expansion, entitlement/StoreKit authorit
 trial, notification, user-content upload, telemetry, Staging/Production deployment, formal
 economics/product, version, Archive/upload, tester assignment, or distribution action changed.
 The post-0.9.6 release hold remains active.
+
+## 2026-08-15 — Session 40 — Remediate C3-03B runtime lifecycle review findings
+
+Goal: Close the PR #38 findings for in-flight expiry, continuous-foreground expiry, unavailable
+StoreKit authority, and detached refresh cancellation while keeping C3-03B within DEC-COM-022.
+
+What changed: The transport service samples the verification clock after response completion and
+propagates structured cancellation through network and acceptance tasks. Signed expiry is carried
+through every verified resolution and independently scheduled by AppSession, so an enabled
+presentation becomes conservative exactly at expiry without another refresh. Presentation of the
+optional value trigger additionally requires actionable exact-Free StoreKit authority; an empty
+fail-closed entitlement set produced by incomplete/unverified authority is not treated as Free.
+Static contract gates now require these runtime and regression seams.
+
+Evidence: Generic simulator test build succeeded. The focused transport/configuration suite passed
+11/11, zero failure/skip, at
+`/private/tmp/MindBudget-C303B-ReviewFix-Focused.xcresult`. Source contract, transport/Worker,
+network-egress, commercialization-document, shell-syntax, and diff checks pass. The final owning
+validation, with the shared-load wall-clock signal separated as designed, produced 405 results:
+398 passed, 7 explicit opt-in/runtime skips, and 0 failed. The Release build, 14/14 UI tests, all
+static gates, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C303B-ReviewFix-FullFinal.xcresult`. The strict local Dashboard signal
+separately passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-ReviewFix-StrictPerformance.xcresult`; the preceding shared-load
+0.838828417-second miss remains diagnostic-only at
+`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI remains pending.
+
+Current state: C3-03B remains implementation complete pending independent re-review and green
+hosted CI; it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No signed vocabulary, paid right, StoreKit fact, product/price/trial,
+notification, Worker response/deployment, Staging/Production deployment, content/identifier,
+telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
+post-0.9.6 release hold remains active.

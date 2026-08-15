@@ -39,6 +39,10 @@ not a distribution authorization.
 - The Development Worker deployment is first-party evidence only. Staging and Production remain
   undeployed, and the post-0.9.6 distribution hold means the reviewed Release adapter cannot ship
   until the later release, privacy, final-binary, and captured-traffic gates pass.
+- Refresh cancellation is structural: canceling the caller cancels the owned transport/acceptance
+  task. Cancellation is checked before request construction, after transport completion, before
+  verification/persistence, and before publication, so a canceled refresh cannot later publish a
+  presentation. A canceled operation may not be treated as an ordinary offline fallback result.
 
 ## Signed envelope
 
@@ -102,6 +106,13 @@ entitlements, billing state, notifications, Local Lifetime, iCloud, Cloud Coach,
 quota, Watch, receipt, telemetry, version rollout, or another feature authority. StoreKit remains
 the sole paid authority and customer-price source.
 
+An enabled trigger is presentable only when StoreKit has published an actionable whole-snapshot
+result whose effective state is exact Free (`.none`). Initial, incomplete, unverified, mixed, or
+otherwise unavailable StoreKit authority is not Free for presentation purposes, even when the
+fail-closed entitlement set itself is empty. This prevents a temporarily unverifiable paid user
+from being shown a Free acquisition entry. Presentation may disappear conservatively; it can
+never grant or preserve a paid right.
+
 ## Cache, expiry, and rollback
 
 - Accept and publish a remote document only after verification and durable cache/high-water-mark
@@ -113,6 +124,11 @@ the sole paid authority and customer-price source.
   same-version equivocation is rejected.
 - Offline/remote/verification failure uses the last verified, digest-matching, nonexpired cache.
   If none exists, use the conservative built-in presentation.
+- Remote verification samples the clock after the complete response arrives. A payload that was
+  nonexpired when the request began but expires in flight is rejected. Every verified remote/cache
+  resolution carries its exact signed `expiresAt`; AppSession schedules independent expiry and
+  replaces the presentation with the built-in conservative value at that instant without waiting
+  for another foreground transition or network refresh. Replacement cancels the older schedule.
 - An invalid/corrupt rollback record is not silently overwritten because its lost high-water mark
   cannot prove that a remote document is not a rollback. This is a sticky Release fail-closed
   state: later valid remote bytes cannot overwrite it, and the app uses the built-in default.

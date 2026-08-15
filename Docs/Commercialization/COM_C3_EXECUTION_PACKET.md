@@ -253,10 +253,15 @@ Implementation evidence on 2026-08-15:
   Debug defaults to Development, and a Debug-only launch argument selects Staging. The session is
   ephemeral, cookie/credential/cache-free, redirect rejecting, time/size bounded, and accepts only
   the exact URL, status, MIME, signed-envelope size, method, and bounded metadata headers.
+- Review remediation samples verification time only after the response completes, propagates
+  caller cancellation into the owned transport/acceptance task, and carries the signed expiry into
+  AppSession so an enabled presentation clears at expiry even while continuously foregrounded.
 - The app embeds only public key `mb-config-2026-01`. The protected private key remains outside the
   repository and is used only by the local signing utility. The single consumer can expose an
-  optional AI Pro-value trigger only when the signed flag is true and exact current access is not
-  already Pro; permanent Settings, restore, manage, and subscription-status entry points remain.
+  optional AI Pro-value trigger only when the signed flag is true and StoreKit has published an
+  actionable exact-Free whole snapshot. Initial, incomplete, unverified, mixed, unavailable, and
+  previously-paid-then-unverifiable authority cannot expose it; permanent Settings, restore,
+  manage, and subscription-status entry points remain.
 - The independent Worker has exact Development/Staging/Production configuration, per-environment
   60-request/60-second rate-limit namespaces, `no-store`, no redirects, no outbound fetch, no
   private key, no storage or analytics binding, and disabled platform observability. Closed client

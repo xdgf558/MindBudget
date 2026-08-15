@@ -430,6 +430,24 @@ complete pending independent review and green hosted CI; it is not Done. Final R
 Production captured traffic, current privacy/review disclosure, C3-04, formal products/economics,
 versioning, Archive/upload, tester assignment, and distribution remain blocked.
 
+Independent-review remediation on 2026-08-15 closed three lifecycle gaps without changing the
+Worker or deployment: response-completion time now owns verification, signed expiry is propagated
+to an independent foreground expiry schedule, the optional trigger requires actionable exact-Free
+StoreKit authority, and caller cancellation cancels the owned refresh operation before it can
+verify, persist, or publish. The focused `PublicConfigurationTransportTests` suite passed 11/11
+with zero failure or skip at
+`/private/tmp/MindBudget-C303B-ReviewFix-Focused.xcresult`. It includes deterministic response-gate,
+expiry-scheduler, StoreKit-authority, and cancellation-aware transport fixtures. The final owning
+validation, with the shared-load wall-clock signal separated as designed, produced 405 results:
+398 passed, 7 explicit opt-in/runtime skips, and 0 failed. The Release build, 14/14 UI tests, all
+static gates, and every selected coverage threshold passed; evidence:
+`/private/tmp/MindBudget-C303B-ReviewFix-FullFinal.xcresult`. The strict local Dashboard signal
+separately passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C303B-ReviewFix-StrictPerformance.xcresult`. One preceding shared-load run
+measured 0.838828417 seconds and is retained only as nonpassing diagnostic evidence at
+`/private/tmp/MindBudget-C303B-ReviewFix-Full.xcresult`. Hosted CI for the remediation head remains
+pending; C3-03B is not Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

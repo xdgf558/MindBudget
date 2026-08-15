@@ -243,7 +243,24 @@ struct PublicConfigurationReasonLogger: PublicConfigurationReasonObserving {
 
 protocol PublicConfigurationServicing: Sendable {
     func resolveCached(now: Date) async -> PublicConfigurationResolution
-    func refresh(now: Date) async -> PublicConfigurationResolution
+    func refresh() async throws -> PublicConfigurationResolution
+}
+
+protocol PublicConfigurationExpirationScheduling: Sendable {
+    func wait(until expiration: Date) async throws
+}
+
+struct SystemPublicConfigurationExpirationScheduler: PublicConfigurationExpirationScheduling {
+    func wait(until expiration: Date) async throws {
+        while true {
+            try Task.checkCancellation()
+            let remaining = expiration.timeIntervalSinceNow
+            guard remaining > 0 else { return }
+            // Recheck wall-clock time periodically so a manual/system clock change cannot retain
+            // an enabled presentation beyond the signed instant.
+            try await Task.sleep(for: .seconds(min(remaining, 3_600)))
+        }
+    }
 }
 
 /// Orchestrates only cache/transport/verification. It publishes no entitlement and exposes no
@@ -254,18 +271,21 @@ actor PublicConfigurationService: PublicConfigurationServicing {
     private let transport: any PublicConfigurationFetching
     private let observer: any PublicConfigurationReasonObserving
     private let appVersion: String
-    private var refreshTail: Task<PublicConfigurationResolution, Never>?
+    private let nowProvider: @Sendable () -> Date
+    private var refreshTail: Task<PublicConfigurationResolution, Error>?
 
     init(
         controller: PublicConfigurationController,
         transport: any PublicConfigurationFetching,
         observer: any PublicConfigurationReasonObserving,
-        appVersion: String
+        appVersion: String,
+        nowProvider: @Sendable @escaping () -> Date = Date.init
     ) {
         self.controller = controller
         self.transport = transport
         self.observer = observer
         self.appVersion = appVersion
+        self.nowProvider = nowProvider
     }
 
     func resolveCached(now: Date) async -> PublicConfigurationResolution {
@@ -274,32 +294,50 @@ actor PublicConfigurationService: PublicConfigurationServicing {
         return result.resolution
     }
 
-    func refresh(now: Date) async -> PublicConfigurationResolution {
+    func refresh() async throws -> PublicConfigurationResolution {
         let predecessor = refreshTail
         let controller = controller
         let transport = transport
         let observer = observer
         let appVersion = appVersion
+        let nowProvider = nowProvider
         let operation = Task {
-            _ = await predecessor?.value
+            _ = try? await predecessor?.value
+            try Task.checkCancellation()
             let metadata = PublicConfigurationRequestMetadata(
                 appVersion: appVersion,
                 lastAcceptedConfigVersion: await controller.highestAcceptedVersion()
             )
+            try Task.checkCancellation()
             switch await transport.fetch(metadata: metadata) {
             case let .failed(reason):
+                try Task.checkCancellation()
                 observer.record(transport: reason)
-                let fallback = await controller.resolveCachedResult(now: now)
+                let fallback = await controller.resolveCachedResult(now: nowProvider())
+                try Task.checkCancellation()
                 observer.record(resolution: fallback.reason)
+                try Task.checkCancellation()
                 return fallback.resolution
             case let .envelope(data):
-                let result = await controller.acceptRemoteResult(envelopeData: data, now: now)
+                // The verification instant is sampled only after the complete response arrives.
+                // A document expiring while the request is in flight therefore cannot be accepted.
+                try Task.checkCancellation()
+                let result = try await controller.acceptRemoteResult(
+                    envelopeData: data,
+                    now: nowProvider()
+                )
+                try Task.checkCancellation()
                 observer.record(resolution: result.reason)
+                try Task.checkCancellation()
                 return result.resolution
             }
         }
         refreshTail = operation
-        return await operation.value
+        return try await withTaskCancellationHandler {
+            try await operation.value
+        } onCancel: {
+            operation.cancel()
+        }
     }
 }
 

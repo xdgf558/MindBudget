@@ -100,7 +100,10 @@ configuration contract. C3-03A passed independent review and green GitHub Action
   same-version-equivocation rejection, and a signed cache/high-water mark with conservative local
   fallback. C3-03B is now implementation complete pending independent review and green hosted CI.
   It adds one exact anonymous fixed-host adapter, the embedded public verification key, closed
-  non-content reason codes, and one optional Pro-value-trigger presentation consumer. The
+  non-content reason codes, and one optional Pro-value-trigger presentation consumer. Review
+  remediation validates at response completion, clears at signed expiry without waiting for a
+  foreground refresh, cancels owned transport work with its caller, and requires actionable exact
+  Free rather than unavailable/unverified fail-closed access. The
   Development deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the real live app path 8/8
   with no skip; the Worker passed 13/13 tests plus typecheck, audit, and Production dry-run.
   Staging/Production, C3-04, final binary/traffic gates, and distribution remain blocked.

@@ -166,19 +166,22 @@ struct PublicConfigurationTransportTests {
             persistence: persistence
         )
         let observer = RecordingPublicConfigurationObserver()
+        let fixtureNow = fixture.now
         let service = PublicConfigurationService(
             controller: controller,
             transport: FixedResultPublicConfigurationTransport(
                 result: .envelope(try fixture.envelopeData(version: 3, enabled: true))
             ),
             observer: observer,
-            appVersion: "0.9.6"
+            appVersion: "0.9.6",
+            nowProvider: { fixtureNow }
         )
 
-        let resolution = await service.refresh(now: fixture.now)
+        let resolution = try await service.refresh()
 
         #expect(resolution.source == .remote)
         #expect(resolution.acceptedConfigVersion == 3)
+        #expect(resolution.expiresAt == fixture.now.addingTimeInterval(3_600))
         #expect(resolution.presentation.proValueTriggersEnabled)
         #expect(observer.resolutionReasons() == [.remoteAccepted])
         #expect(observer.transportReasons().isEmpty)
@@ -198,15 +201,17 @@ struct PublicConfigurationTransportTests {
         )
 
         let invalidObserver = RecordingPublicConfigurationObserver()
+        let fixtureNow = fixture.now
         let invalidService = PublicConfigurationService(
             controller: controller,
             transport: FixedResultPublicConfigurationTransport(
                 result: .envelope(try fixture.envelopeDataWithInvalidSignature())
             ),
             observer: invalidObserver,
-            appVersion: "0.9.6"
+            appVersion: "0.9.6",
+            nowProvider: { fixtureNow }
         )
-        let invalidResolution = await invalidService.refresh(now: fixture.now)
+        let invalidResolution = try await invalidService.refresh()
         #expect(invalidResolution.source == .verifiedCache)
         #expect(invalidResolution.presentation.proValueTriggersEnabled)
         #expect(invalidObserver.resolutionReasons() == [.rejectedSignature])
@@ -216,9 +221,10 @@ struct PublicConfigurationTransportTests {
             controller: controller,
             transport: FixedResultPublicConfigurationTransport(result: .failed(.offline)),
             observer: offlineObserver,
-            appVersion: "0.9.6"
+            appVersion: "0.9.6",
+            nowProvider: { fixtureNow }
         )
-        let offlineResolution = await offlineService.refresh(now: fixture.now)
+        let offlineResolution = try await offlineService.refresh()
         #expect(offlineResolution.source == .verifiedCache)
         #expect(offlineResolution.presentation.proValueTriggersEnabled)
         #expect(offlineObserver.transportReasons() == [.offline])
@@ -227,32 +233,215 @@ struct PublicConfigurationTransportTests {
 
     @MainActor
     @Test
-    func signedPresentationControlsOnlyTheOptionalFreeValueTrigger() async throws {
+    func signedPresentationRequiresActionableExactFreeAndExpiresWithoutForegrounding() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let expirationScheduler = TestPublicConfigurationExpirationScheduler()
+        let expiration = Date().addingTimeInterval(3_600)
+        let enabled = PublicConfigurationResolution(
+            presentation: PublicConfigurationPresentation(proValueTriggersEnabled: true),
+            source: .remote,
+            acceptedConfigVersion: 1,
+            expiresAt: expiration
+        )
+        let authority = LiveFeatureAccessAuthority()
+        let source = TestPublicConfigurationEntitlementSource(
+            read: StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                appEnvironment: .sandbox
+            )
+        )
+        let store = EntitlementStore(
+            source: source,
+            featureAccessAuthority: authority
+        )
+        let freeSession = AppSession(
+            dataActor: controller.dataActor,
+            featureAccessService: authority,
+            entitlementStore: store,
+            publicConfigurationService: FixedPublicConfigurationService(resolution: enabled),
+            publicConfigurationExpirationScheduler: expirationScheduler
+        )
+
+        #expect(freeSession.offersAppleOnDeviceAIProValueTrigger == false)
+        await freeSession.startCommerceLifecycle()
+        #expect(freeSession.commerceSubscriptionAuthorityIsActionable)
+        #expect(freeSession.commerceSubscriptionState == .none)
+        await freeSession.refreshPublicConfiguration()
+        #expect(freeSession.offersAppleOnDeviceAIProValueTrigger)
+        await expirationScheduler.waitUntilScheduled()
+        await expirationScheduler.expire()
+        #expect(await eventually { !freeSession.offersAppleOnDeviceAIProValueTrigger })
+        await store.stop()
+    }
+
+    @MainActor
+    @Test
+    func unavailableUnverifiedAndFailedPaidAuthorityNeverExposeTheFreeValueTrigger() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let enabled = PublicConfigurationResolution(
             presentation: PublicConfigurationPresentation(proValueTriggersEnabled: true),
             source: .remote,
-            acceptedConfigVersion: 1
-        )
-        let freeSession = AppSession(
-            dataActor: controller.dataActor,
-            publicConfigurationService: FixedPublicConfigurationService(resolution: enabled)
+            acceptedConfigVersion: 1,
+            expiresAt: Date().addingTimeInterval(3_600)
         )
 
-        #expect(freeSession.offersAppleOnDeviceAIProValueTrigger == false)
-        await freeSession.refreshPublicConfiguration(now: Date())
-        #expect(freeSession.offersAppleOnDeviceAIProValueTrigger)
+        for read in [
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                isComplete: false,
+                appEnvironment: .sandbox
+            ),
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 1,
+                appEnvironment: .sandbox
+            )
+        ] {
+            let authority = LiveFeatureAccessAuthority()
+            let source = TestPublicConfigurationEntitlementSource(read: read)
+            let store = EntitlementStore(source: source, featureAccessAuthority: authority)
+            let session = AppSession(
+                dataActor: controller.dataActor,
+                featureAccessService: authority,
+                entitlementStore: store,
+                publicConfigurationService: FixedPublicConfigurationService(resolution: enabled)
+            )
+            await session.startCommerceLifecycle()
+            await session.refreshPublicConfiguration()
+            #expect(session.commerceSubscriptionState == .unavailable)
+            #expect(session.commerceSubscriptionAuthorityIsActionable == false)
+            #expect(session.offersAppleOnDeviceAIProValueTrigger == false)
+            await store.stop()
+        }
 
-        #if DEBUG
-        let proSession = AppSession(
+        let paidAuthority = LiveFeatureAccessAuthority()
+        let paidSource = TestPublicConfigurationEntitlementSource(read: Self.paidRead())
+        let paidStore = EntitlementStore(
+            source: paidSource,
+            featureAccessAuthority: paidAuthority
+        )
+        let paidSession = AppSession(
             dataActor: controller.dataActor,
-            featureAccessService: DebugFeatureAccessProvider(entitlements: .proSubscription),
+            featureAccessService: paidAuthority,
+            entitlementStore: paidStore,
             publicConfigurationService: FixedPublicConfigurationService(resolution: enabled)
         )
-        await proSession.refreshPublicConfiguration(now: Date())
-        #expect(proSession.existingPremiumEntryAccess.offersAppleOnDeviceAI)
-        #expect(proSession.offersAppleOnDeviceAIProValueTrigger == false)
-        #endif
+        await paidSession.startCommerceLifecycle()
+        await paidSession.refreshPublicConfiguration()
+        #expect(paidSession.existingPremiumEntryAccess.offersAppleOnDeviceAI)
+        #expect(paidSession.offersAppleOnDeviceAIProValueTrigger == false)
+
+        await paidSource.setRead(
+            StoreEntitlementRead(
+                transactions: [],
+                unverifiedCount: 0,
+                isComplete: false,
+                appEnvironment: .sandbox
+            )
+        )
+        await paidSession.refreshCommerceEntitlements()
+        #expect(paidSession.existingPremiumEntryAccess.offersAppleOnDeviceAI == false)
+        #expect(paidSession.commerceSubscriptionState == .unavailable)
+        #expect(paidSession.commerceSubscriptionAuthorityIsActionable == false)
+        #expect(paidSession.offersAppleOnDeviceAIProValueTrigger == false)
+        await paidStore.stop()
+    }
+
+    @Test
+    func responseExpiringWhileTheRequestIsSuspendedIsNeverAccepted() async throws {
+        let fixture = try TransportSignedConfigurationFixture()
+        let clock = TestPublicConfigurationClock(now: fixture.now)
+        let gate = PublicConfigurationTestGate()
+        let transport = GatedPublicConfigurationTransport(
+            result: .envelope(
+                try fixture.envelopeData(
+                    version: 1,
+                    enabled: true,
+                    expiresAt: fixture.now.addingTimeInterval(30)
+                )
+            ),
+            gate: gate
+        )
+        let persistence = TransportConfigurationPersistence()
+        let observer = RecordingPublicConfigurationObserver()
+        let service = PublicConfigurationService(
+            controller: PublicConfigurationController(
+                verifier: fixture.verifier,
+                persistence: persistence
+            ),
+            transport: transport,
+            observer: observer,
+            appVersion: "0.9.6",
+            nowProvider: { clock.now() }
+        )
+
+        let refresh = Task { try await service.refresh() }
+        await gate.waitUntilEntered()
+        clock.set(fixture.now.addingTimeInterval(30))
+        await gate.release()
+        let resolution = try await refresh.value
+
+        #expect(resolution == .conservativeDefault)
+        #expect(observer.resolutionReasons() == [.rejectedExpired])
+        #expect(await persistence.writeCount() == 0)
+    }
+
+    @Test
+    func cancellingRefreshCancelsTheNetworkOperationAndPreventsAcceptance() async throws {
+        let fixture = try TransportSignedConfigurationFixture()
+        let transport = CancellationRecordingPublicConfigurationTransport(
+            envelope: try fixture.envelopeData(version: 1, enabled: true)
+        )
+        let persistence = TransportConfigurationPersistence()
+        let fixtureNow = fixture.now
+        let service = PublicConfigurationService(
+            controller: PublicConfigurationController(
+                verifier: fixture.verifier,
+                persistence: persistence
+            ),
+            transport: transport,
+            observer: RecordingPublicConfigurationObserver(),
+            appVersion: "0.9.6",
+            nowProvider: { fixtureNow }
+        )
+
+        let refresh = Task { try await service.refresh() }
+        await transport.waitUntilStarted()
+        refresh.cancel()
+
+        do {
+            _ = try await refresh.value
+            Issue.record("A canceled refresh unexpectedly returned a presentation")
+        } catch is CancellationError {
+            // Expected: no canceled result reaches AppSession.
+        } catch {
+            Issue.record("Unexpected cancellation error: \(error)")
+        }
+        #expect(await transport.wasCancelled())
+        #expect(await persistence.writeCount() == 0)
+    }
+
+    private static func paidRead() -> StoreEntitlementRead {
+        StoreEntitlementRead(
+            transactions: [
+                VerifiedStoreTransaction(
+                    transactionID: 42,
+                    productID: StoreProductID.proMonthly.rawValue,
+                    environment: .sandbox,
+                    isPurchased: true,
+                    isRevoked: false,
+                    expirationDate: Date().addingTimeInterval(3_600),
+                    subscriptionState: .subscribed,
+                    hasVerifiedStatusTransaction: true,
+                    hasVerifiedRenewalInfo: true,
+                    hasVerifiedAppBundle: true
+                )
+            ],
+            unverifiedCount: 0,
+            appEnvironment: .sandbox
+        )
     }
 
     private static func response(
@@ -326,12 +515,16 @@ private final class RecordingPublicConfigurationObserver: PublicConfigurationRea
 
 private actor TransportConfigurationPersistence: PublicConfigurationPersisting {
     private var readValue: PublicConfigurationPersistenceRead = .empty
+    private var writes = 0
 
     func read() async -> PublicConfigurationPersistenceRead { readValue }
 
     func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        writes += 1
         readValue = .stored(snapshot)
     }
+
+    func writeCount() -> Int { writes }
 }
 
 private struct FixedPublicConfigurationService: PublicConfigurationServicing {
@@ -342,8 +535,7 @@ private struct FixedPublicConfigurationService: PublicConfigurationServicing {
         return .conservativeDefault
     }
 
-    func refresh(now: Date) async -> PublicConfigurationResolution {
-        _ = now
+    func refresh() async throws -> PublicConfigurationResolution {
         return resolution
     }
 }
@@ -363,12 +555,16 @@ private struct TransportSignedConfigurationFixture {
         )
     }
 
-    func envelopeData(version: UInt64, enabled: Bool) throws -> Data {
+    func envelopeData(
+        version: UInt64,
+        enabled: Bool,
+        expiresAt: Date? = nil
+    ) throws -> Data {
         let payload = PublicConfigurationPayload(
             schemaVersion: 1,
             configVersion: version,
             issuedAt: now.addingTimeInterval(-60),
-            expiresAt: now.addingTimeInterval(3_600),
+            expiresAt: expiresAt ?? now.addingTimeInterval(3_600),
             presentation: PublicConfigurationPresentation(proValueTriggersEnabled: enabled)
         )
         let encoder = JSONEncoder()
@@ -396,4 +592,196 @@ private struct TransportSignedConfigurationFixture {
         object["signatureBase64"] = signature.base64EncodedString()
         return try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
     }
+}
+
+private final class TestPublicConfigurationClock: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value: Date
+
+    init(now: Date) {
+        value = now
+    }
+
+    func now() -> Date {
+        lock.withLock { value }
+    }
+
+    func set(_ now: Date) {
+        lock.withLock { value = now }
+    }
+}
+
+private actor PublicConfigurationTestGate {
+    private var entered = false
+    private var released = false
+    private var entryWaiters: [CheckedContinuation<Void, Never>] = []
+    private var releaseWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func enterAndWait() async {
+        entered = true
+        entryWaiters.forEach { $0.resume() }
+        entryWaiters.removeAll()
+        guard !released else { return }
+        await withCheckedContinuation { continuation in
+            releaseWaiters.append(continuation)
+        }
+    }
+
+    func waitUntilEntered() async {
+        guard !entered else { return }
+        await withCheckedContinuation { continuation in
+            entryWaiters.append(continuation)
+        }
+    }
+
+    func release() {
+        released = true
+        releaseWaiters.forEach { $0.resume() }
+        releaseWaiters.removeAll()
+    }
+}
+
+private struct GatedPublicConfigurationTransport: PublicConfigurationFetching {
+    let result: PublicConfigurationFetchResult
+    let gate: PublicConfigurationTestGate
+
+    func fetch(metadata: PublicConfigurationRequestMetadata) async -> PublicConfigurationFetchResult {
+        _ = metadata
+        await gate.enterAndWait()
+        return result
+    }
+}
+
+private actor CancellationRecordingPublicConfigurationTransport: PublicConfigurationFetching {
+    private let envelope: Data
+    private var started = false
+    private var cancelled = false
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+
+    init(envelope: Data) {
+        self.envelope = envelope
+    }
+
+    func fetch(metadata: PublicConfigurationRequestMetadata) async -> PublicConfigurationFetchResult {
+        _ = metadata
+        started = true
+        startWaiters.forEach { $0.resume() }
+        startWaiters.removeAll()
+        do {
+            try await Task.sleep(for: .seconds(60))
+            return .envelope(envelope)
+        } catch {
+            cancelled = true
+            return .failed(.cancelled)
+        }
+    }
+
+    func waitUntilStarted() async {
+        guard !started else { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(continuation)
+        }
+    }
+
+    func wasCancelled() -> Bool { cancelled }
+}
+
+private actor TestPublicConfigurationExpirationScheduler: PublicConfigurationExpirationScheduling {
+    private let gate = PublicConfigurationTestGate()
+
+    func wait(until expiration: Date) async throws {
+        _ = expiration
+        await gate.enterAndWait()
+        try Task.checkCancellation()
+    }
+
+    func waitUntilScheduled() async {
+        await gate.waitUntilEntered()
+    }
+
+    func expire() async {
+        await gate.release()
+    }
+}
+
+private final class TestPublicConfigurationUpdateChannel: @unchecked Sendable {
+    let stream: AsyncStream<StoreTransactionSignal>
+    let continuation: AsyncStream<StoreTransactionSignal>.Continuation
+
+    init() {
+        var captured: AsyncStream<StoreTransactionSignal>.Continuation?
+        stream = AsyncStream { captured = $0 }
+        continuation = captured!
+    }
+}
+
+private struct TestPublicConfigurationEntitlementSource: StoreEntitlementSourcing {
+    private let state: TestPublicConfigurationEntitlementState
+    private let channel = TestPublicConfigurationUpdateChannel()
+
+    init(read: StoreEntitlementRead) {
+        state = TestPublicConfigurationEntitlementState(read: read)
+    }
+
+    func currentAppEnvironment() async -> StoreRuntimeEnvironment? {
+        await state.read().appEnvironment
+    }
+
+    func currentEntitlements() async -> StoreEntitlementRead {
+        await state.read()
+    }
+
+    func unfinishedTransactions() async -> StoreUnfinishedTransactionRead {
+        StoreUnfinishedTransactionRead(transactions: [], unverifiedCount: 0)
+    }
+
+    func listenForUpdates(
+        _ handler: @Sendable @escaping (StoreTransactionSignal) async -> Void
+    ) async {
+        for await signal in channel.stream {
+            guard !Task.isCancelled else { return }
+            await handler(signal)
+        }
+    }
+
+    @MainActor
+    func purchase(_ productID: StoreProductID) async throws -> StorePurchaseResult {
+        _ = productID
+        return .userCancelled
+    }
+
+    func synchronizePurchases() async throws {}
+
+    func setRead(_ read: StoreEntitlementRead) async {
+        await state.set(read)
+    }
+}
+
+private actor TestPublicConfigurationEntitlementState {
+    private var value: StoreEntitlementRead
+
+    init(read: StoreEntitlementRead) {
+        value = read
+    }
+
+    func read() -> StoreEntitlementRead { value }
+    func set(_ read: StoreEntitlementRead) { value = read }
+}
+
+@MainActor
+private func eventually(
+    timeout: Duration = .seconds(2),
+    condition: @MainActor () -> Bool
+) async -> Bool {
+    let clock = ContinuousClock()
+    let deadline = clock.now.advanced(by: timeout)
+    while clock.now < deadline {
+        if condition() { return true }
+        do {
+            try await clock.sleep(for: .milliseconds(10))
+        } catch {
+            return false
+        }
+    }
+    return condition()
 }

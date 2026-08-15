@@ -64,6 +64,10 @@ for source_contract in \
   'configuration.urlCache = nil' \
   'request.httpMethod = "GET"' \
   'request.httpBody = nil' \
+  'func refresh() async throws -> PublicConfigurationResolution' \
+  'now: nowProvider()' \
+  'return try await withTaskCancellationHandler {' \
+  'operation.cancel()' \
   'logger.notice("reason=transport.\(reason.rawValue, privacy: .public)")' \
   'logger.notice("reason=resolution.\(reason.rawValue, privacy: .public)")'; do
   grep -Fq "${source_contract}" "${SOURCE}" || {
@@ -105,9 +109,23 @@ for test_contract in \
   'exactEnvironmentRequestsContainOnlyReviewedMetadataAndNoBody' \
   'redirectWrongURLStatusTypeEmptyAndOversizeResponsesFailClosed' \
   'invalidSignatureAndOfflineTransportRetainOnlyVerifiedCache' \
-  'signedPresentationControlsOnlyTheOptionalFreeValueTrigger'; do
+  'signedPresentationRequiresActionableExactFreeAndExpiresWithoutForegrounding' \
+  'unavailableUnverifiedAndFailedPaidAuthorityNeverExposeTheFreeValueTrigger' \
+  'responseExpiringWhileTheRequestIsSuspendedIsNeverAccepted' \
+  'cancellingRefreshCancelsTheNetworkOperationAndPreventsAcceptance'; do
   grep -Fq "${test_contract}" "${TEST_SOURCE}" || {
     echo "Public-configuration transport tests are missing: ${test_contract}" >&2
+    exit 1
+  }
+done
+
+for consumer_contract in \
+  'commerceSubscriptionAuthorityIsActionable' \
+  'commerceSubscriptionState == .none' \
+  'publicConfigurationExpiryTask' \
+  'publicConfigurationPresentation = .conservativeDefault'; do
+  grep -Fq "${consumer_contract}" "${APP_ROUTER}" || {
+    echo "Public-configuration consumer is missing lifecycle contract: ${consumer_contract}" >&2
     exit 1
   }
 done

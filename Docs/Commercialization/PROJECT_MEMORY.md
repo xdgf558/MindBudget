@@ -291,9 +291,13 @@ persisted snapshot through the persistence abstraction. Corrupt rollback state i
 sticky in Release: normal Delete All and Offload do not clear it; recovery currently requires
   deleting the app data container and reinstalling. C3-03B adds one exact anonymous fixed-host
   adapter, an embedded public verification key, closed non-content reason codes, and one optional
-  Pro-value-trigger presentation consumer. Release is compiled to Production only; Development
-  and Staging cannot be selected remotely. The Worker has no private key, storage, outbound fetch,
-  analytics binding, or app logging, and platform observability is disabled. The Development
+  Pro-value-trigger presentation consumer. Review remediation makes response-completion time own
+  verification, clears the presentation at the exact signed expiry, propagates caller cancellation
+  through transport/acceptance, and requires an actionable exact-Free StoreKit whole snapshot;
+  unavailable or unverified authority cannot impersonate Free. Release is compiled to Production
+  only; Development and Staging cannot be selected remotely. The Worker has no private key,
+  storage, outbound fetch, analytics binding, or app logging, and platform observability is
+  disabled. The Development
   deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the dedicated live app suite 8/8 with
   no skip; Worker tests passed 13/13 plus typecheck, audit, and Production dry-run. Staging and
   Production remain undeployed.

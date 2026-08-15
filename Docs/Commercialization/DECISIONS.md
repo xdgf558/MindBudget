@@ -592,9 +592,18 @@ context.
   Ed25519 private key remains in an owner-controlled protected file outside the repository. Only
   the public key, signer utility, and seven-day signed public envelope enter the repository.
 - Presentation boundary: The one consumer may show an optional explicit Pro value trigger only
-  when the verified flag is true and the user is not already Pro. Permanent Settings, Restore,
-  Manage Subscription, current subscription status, StoreKit authority, price/trial facts,
-  notifications, and every Free trust capability are independent of configuration.
+  when the verified flag is true and StoreKit has published an actionable exact-Free whole
+  snapshot. Initial, incomplete, unverified, mixed, or unavailable StoreKit authority never
+  qualifies as Free for this presentation decision, including after a previously paid user's
+  verification fails. Permanent Settings, Restore, Manage Subscription, current subscription
+  status, StoreKit authority, price/trial facts, notifications, and every Free trust capability
+  are independent of configuration.
+- Expiry/cancellation boundary: The verification clock is sampled after a full response arrives,
+  not when the request starts. Verified remote/cache resolutions carry the exact signed expiry and
+  the app replaces presentation with the conservative built-in value at that instant, including
+  while continuously foregrounded. Canceling a refresh cancels its owned network/acceptance task;
+  cancellation is checked before request, verification/persistence, and publication so the
+  canceled result cannot surface later.
 - Diagnostics/privacy boundary: Client diagnostics are closed `transport.*` and `resolution.*`
   reason codes only. Payload, signature, response body, metadata values, IP address, StoreKit,
   and user/financial content are never logged. Cloudflare necessarily processes ordinary edge
@@ -614,4 +623,7 @@ context.
 - Alternatives rejected: Shared product Worker/admin state; a generic networking client;
   caller-selected URLs/headers; redirects; cookies/auth/identifiers; private key in app/repository/
   Worker; Worker storage or app logging; remotely granting entitlement; deploying all environments
-  together; and treating Development evidence as Production release evidence.
+  together; treating an unavailable fail-closed entitlement set as confirmed Free; retaining an
+  enabled presentation until a later foreground refresh after signed expiry; detached refresh
+  work that survives caller cancellation; and treating Development evidence as Production release
+  evidence.
