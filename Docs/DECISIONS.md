@@ -2144,3 +2144,8 @@ Delete All and Offload do not reset it. It also fixes UTC timestamps to whole-se
 and requires post-write abstraction-level re-verification. The client continues to verify exact
 signed bytes instead of defining a second canonical-JSON encoder. C3-03A adds no runtime logging;
 closed non-content reason-code observability remains a C3-03B transport/operations responsibility.
+
+Completion evidence: The review-remediation head `3a53107` passed independent review and green
+GitHub Actions run `31856271268`; PR #36 merged C3-03A to `main` as `1ebb36c` on 2026-08-15.
+This activates only C3-03B implementation. The empty Release HTTP(S) allow-list, C3-04 block, and
+post-0.9.6 distribution hold remain unchanged.

@@ -167,8 +167,7 @@ C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/
 
 ## C3-03 — Signed public configuration
 
-Status: **In Progress — C3-03A implementation is complete pending independent review; C3-03B is
-blocked until C3-03A is reviewed and merged.**
+Status: **In Progress — C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress.**
 
 Owner instruction: on 2026-08-14 the owner accepted the recommended exact contract in
 `PUBLIC_CONFIGURATION_CONTRACT.md` and authorized C3-03. DEC-COM-021 owns this boundary.
@@ -184,7 +183,11 @@ Owner instruction: on 2026-08-14 the owner accepted the recommended exact contra
 
 ### C3-03A — Signed document, verification, and local resolution
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, green CI, and merge through PR #36 (`1ebb36c`).**
+
+Completion evidence: the review-remediation head `3a53107` passed GitHub Actions run
+`31856271268`; PR #36 merged to `main` as `1ebb36c` on 2026-08-15. The final owning local run
+produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed.
 
 #### Tasks
 
@@ -232,9 +235,9 @@ Status: **Implementation complete pending independent review.**
 
 ### C3-03B — Fixed transport and presentation integration
 
-Status: **Blocked pending independent review and merge of C3-03A.**
+Status: **In Progress after C3-03A passed independent review, green CI, and merge.**
 
-After that gate, C3-03B may add only the exact anonymous environment-isolated transport and the
+C3-03B may add only the exact anonymous environment-isolated transport and the
 single verified presentation consumer accepted in `PUBLIC_CONFIGURATION_CONTRACT.md`. It must
 inspect the real Worker, platform logs/analytics and TTL, redirects/cache headers, request and
 response bounds, public key provenance/rotation boundary, captured traffic, final binary, privacy

@@ -565,6 +565,10 @@ context.
   and final binary must be verified in C3-03B. C3-03A has no URL, adapter, production key, Release
   egress exception, user-visible behavior, version, Archive/upload, tester assignment, or
   distribution authorization. The post-0.9.6 release hold remains active.
+- C3-03A completion evidence: The review-remediation head `3a53107` passed independent review and
+  green GitHub Actions run `31856271268`; PR #36 merged it to `main` as `1ebb36c` on 2026-08-15.
+  This satisfies only the C3-03A gate and activates C3-03B. It does not itself accept Release
+  egress, a Worker deployment, a Production key, C3-04, or distribution.
 - Alternatives rejected: Unsigned JSON; TLS as the sole integrity boundary; signing decoded or
   re-encoded/canonicalized JSON; a caller-selected URL; wildcard/shared hosts; long-lived or
   nonexpiring config; cache-before-verify; overwriting or locally resetting a corrupt rollback

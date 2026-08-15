@@ -389,13 +389,16 @@ acceptance, and abstraction-level post-write verification. The focused run passe
 `/private/tmp/MindBudget-C303A-ReviewFix-Focused.xcresult`. The final owning full validation then
 produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed.
 All 14 UI tests, the Release build, every static gate, and every selected coverage threshold
-passed. Evidence: `/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. Fresh hosted CI remains
-required before merge; the earlier green run is retained only as evidence for the pre-remediation
-head.
+passed. Evidence: `/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. The review-remediation
+head `3a53107` then passed GitHub Actions run `31856271268`; PR #36 merged it to `main` as
+`1ebb36c` on 2026-08-15.
 
-C3-03A is implementation complete pending independent review, hosted green CI, and merge; it is
-not Done. C3-03B, C3-04, formal products/economics, versioning, Archive/upload, tester assignment,
-and distribution remain blocked. The post-0.9.6 release hold remains active.
+C3-03A is Done. C3-03B is In Progress, but its adapter, Worker/key provenance, captured traffic,
+privacy/log/TTL/redirect evidence, and final-binary gate remain unsatisfied. C3-04, formal
+products/economics, versioning, Archive/upload, tester assignment, and distribution remain
+blocked. The documentation closeout branch repeated 394 results with 388 passed, 6 opt-in
+StoreKit probes skipped, and 0 failed; evidence:
+`/private/tmp/MindBudget-C303A-Closeout-Full.xcresult`. The post-0.9.6 release hold remains active.
 
 ## Result and report paths
 
