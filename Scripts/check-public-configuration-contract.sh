@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# The exact strings below are contract anchors, not prose search conveniences. Any source/test
+# rename or contract wording change must update this gate in the same reviewed commit.
+
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 cd "${PROJECT_ROOT}"
@@ -70,11 +73,15 @@ for contract in \
   'static let algorithm = "Ed25519"' \
   'static let schemaVersion = 1' \
   'static let maximumValidityInterval: TimeInterval = 7 * 24 * 60 * 60' \
+  'static let grammar = "yyyy-MM-dd'\''T'\''HH:mm:ss'\''Z'\''"' \
   'case invalidSignature' \
   'case expired' \
   'case invalidValidityWindow' \
   'verified.payload.configVersion >= snapshot.highestAcceptedVersion' \
   'verified.payloadDigest != snapshot.highestAcceptedPayloadDigest' \
+  'private var acceptanceTail: Task<PublicConfigurationResolution, Never>?' \
+  'try requireExactKeyOccurrences(' \
+  'let matchesExpectedSnapshot = expectedSnapshot.map { expected in' \
   'options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]' \
   'guard (try? Data(contentsOf: fileURL)) == data else'; do
   grep -Fq "${contract}" "${SOURCE}" || {
@@ -85,6 +92,10 @@ done
 
 for test_contract in \
   'invalidEnvelopeSignatureKeyAndUnknownFieldsFailClosed' \
+  'fixedGoldenEnvelopeUsesTheFixedTimestampByteContract' \
+  'concurrentAcceptanceCannotLowerThePersistedHighWaterMark' \
+  'persistenceReadBackMustConfirmTheExactAcceptedSnapshot' \
+  'filePersistenceTreatsMalformedRollbackRecordsAsStickyInvalidState' \
   'remoteRollbackAndSameVersionEquivocationKeepTheVerifiedCache' \
   'offlineUsesOnlyANonexpiredVerifiedCacheThenFallsBackBuiltIn' \
   'invalidPersistenceCannotBeOverwrittenAndNeverEnablesPresentation' \

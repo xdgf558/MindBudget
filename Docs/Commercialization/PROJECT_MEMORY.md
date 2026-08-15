@@ -283,6 +283,12 @@ Ed25519 signed-document verifier, exact closed schema, version/expiry/size check
 same-version-equivocation protection, and a durable signed cache/high-water mark. Its only v1
 presentation field is `proValueTriggersEnabled`, with a conservative built-in `false`; it has no
 URL, transport, production public key, entitlement/StoreKit authority, or application consumer.
+Review remediation fixes timestamps to whole-second UTC, rejects duplicate keys without inventing
+a client canonicalizer, serializes the full acceptance transaction, and re-verifies the exact
+persisted snapshot through the persistence abstraction. Corrupt rollback state is deliberately
+sticky in Release: normal Delete All and Offload do not clear it; recovery currently requires
+deleting the app data container and reinstalling. Non-content reason-code logging remains C3-03B-
+owned because C3-03A has no real transport or operations channel.
 
 Next suggested task: independently review and merge C3-03A. Only then may C3-03B add the accepted
 fixed anonymous configuration transport and presentation integration. Keep final customer terms/

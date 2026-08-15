@@ -382,6 +382,17 @@ assertion enabled and measured 0.822698 seconds under shared test load, so it is
 evidence. The exact strict performance suite separately passed 10/10 isolated iterations;
 evidence: `/private/tmp/MindBudget-C303A-StrictPerformance.xcresult`.
 
+Independent-review remediation expanded the deterministic public-configuration suite from 8 to
+12 tests. It now covers an encoder-independent fixed Ed25519 byte vector, exact whole-second UTC
+grammar, duplicate keys, zero validity, malformed high-water variants, serialized concurrent
+acceptance, and abstraction-level post-write verification. The focused run passed 12/12; evidence:
+`/private/tmp/MindBudget-C303A-ReviewFix-Focused.xcresult`. The final owning full validation then
+produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skipped, and 0 failed.
+All 14 UI tests, the Release build, every static gate, and every selected coverage threshold
+passed. Evidence: `/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. Fresh hosted CI remains
+required before merge; the earlier green run is retained only as evidence for the pre-remediation
+head.
+
 C3-03A is implementation complete pending independent review, hosted green CI, and merge; it is
 not Done. C3-03B, C3-04, formal products/economics, versioning, Archive/upload, tester assignment,
 and distribution remain blocked. The post-0.9.6 release hold remains active.

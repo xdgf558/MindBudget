@@ -196,7 +196,13 @@ Status: **Implementation complete pending independent review.**
   `proValueTriggersEnabled`, whose built-in conservative value is `false`.
 - Persist only the signed envelope, highest accepted version, and SHA-256 payload digest. Publish a
   remote value only after durable persistence succeeds. Reject lower versions and same-version
-  equivocation; corrupted rollback state cannot be overwritten silently.
+  equivocation; corrupted rollback state cannot be overwritten silently and remains a sticky
+  Release fail-closed state until the app data container is deleted and the app is reinstalled.
+- Require exact whole-second UTC timestamps and no duplicate JSON keys while continuing to verify
+  exact signer bytes rather than defining a client-side canonical JSON encoder.
+- Serialize concurrent remote acceptance across read/compare/write/read-back, then re-read and
+  re-verify the exact intended snapshot through the persistence abstraction before returning a
+  remote resolution.
 - Add a standalone static contract gate and run it in local validation and CI. C3-03A contains no
   `URLSession`, URL, endpoint, embedded Production public key, entitlement/StoreKit authority, or
   application integration.
@@ -206,8 +212,11 @@ Status: **Implementation complete pending independent review.**
 - Valid Ed25519 envelope and closed payload decoding.
 - Invalid signature/key/algorithm/encoding and unknown envelope/payload/nested fields.
 - Schema/version/clock/expiry/validity/size boundaries.
+- Fixed-timestamp golden bytes, fractional-timestamp rejection, duplicate envelope/payload keys,
+  and zero-length validity windows.
 - Rollback, same-version equivocation, cache expiry, cache digest mismatch, corrupt persistence,
-  and save-before-publish failure.
+  malformed high-water records, concurrent high-water ordering, no-op persistence, and save-before-
+  publish failure.
 - Atomic file-protected persistence round trip, readback verification, and conservative built-in
   fallback.
 
@@ -216,7 +225,8 @@ Status: **Implementation complete pending independent review.**
 - Stop if configuration can name a product, price, trial, entitlement, notification, Lifetime,
   iCloud, cloud AI/provider/model/quota, receipt, telemetry, Watch, or arbitrary feature.
 - Stop if a cache can grant paid access, an invalid/expired/rolled-back document can activate a
-  value, persistence failure can publish, or unknown JSON is ignored.
+  value, persistence failure can publish, concurrent acceptance can lower the high-water mark,
+  duplicate/unknown JSON is ignored, or Release code can reset corrupt rollback state.
 - Stop if a URL, transport, Production public key, Worker deployment, Release egress exception, or
   presentation consumer enters C3-03A.
 
@@ -230,6 +240,9 @@ inspect the real Worker, platform logs/analytics and TTL, redirects/cache header
 response bounds, public key provenance/rotation boundary, captured traffic, final binary, privacy
 copy, timeout/cancellation, and offline/invalid-signature behavior. It must not expand the payload
 vocabulary or make configuration an entitlement, price, trial, or release authority.
+It also owns closed non-content reason codes for rejected configuration operations; payload and
+signature bytes are never logged. C3-03A intentionally adds no logging sink before that real
+transport/operations boundary exists.
 
 ## C3-04 — UI and release quality
 

@@ -4213,3 +4213,45 @@ What was NOT changed: No app-owned HTTP(S), URL, runtime adapter, Production ver
 Worker deployment, app consumer, user-facing behavior, entitlement/StoreKit authority, schema,
 version, Archive/upload, tester assignment, or distribution action was added. The uploaded 0.9.6
 build and post-0.9.6 release hold are unchanged.
+
+## 2026-08-15 — Session 116 — Harden C3-03A persistence and byte contracts after review
+
+Goal: Resolve the independent PR #36 findings that affect rollback recovery, concurrent high-water
+ordering, exact signed-byte interoperability, and persistence confirmation without advancing the
+blocked transport packet.
+
+What changed: Corrupt rollback state is now a documented sticky Release fail-closed condition:
+normal Delete All, Offload, later remote bytes, and Release code cannot reset it; current recovery
+requires deleting the app data container and reinstalling. File persistence uses explicit async
+protocol witnesses. Remote acceptance serializes the complete read/compare/write/read-back
+transaction so actor reentrancy cannot let a lower version overwrite a higher one, and a purported
+write must re-read and re-verify the exact intended snapshot through the persistence abstraction
+before returning `.remote`. Signed payload timestamps now use exact whole-second UTC grammar;
+duplicate envelope or payload keys are rejected before Foundation decoding. A fixed Ed25519 golden
+vector is independent of the test fixture encoder, while real Worker-produced bytes remain a
+C3-03B gate. Added deterministic concurrency, no-op
+persistence, malformed high-water, zero-validity, duplicate-key, and timestamp regressions.
+
+Decision notes: We did not add client-side canonical JSON or require sorted keys: exact emitted
+payload bytes remain the signature authority, while fixed timestamps and duplicate-key rejection
+remove the relevant ambiguity. The real Worker does not exist in C3-03A, so a Worker-produced
+golden response remains a C3-03B acceptance item. We also did not add `os_log`, rename the
+controller, or parameterize fixed security bounds. C3-03B owns closed non-content reason codes once
+a real transport/operations channel exists; payload and signature bytes may never be logged.
+
+Evidence: The expanded focused suite passed 12/12 at
+`/private/tmp/MindBudget-C303A-ReviewFix-Focused.xcresult`. Public-configuration,
+commercialization-document, network-egress, shell-syntax, and diff checks pass. Final owning full
+validation produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skipped,
+and 0 failed. All 14 UI tests, the Release build, every selected coverage threshold, and the
+complete static gate set passed. Evidence:
+`/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. Fresh hosted CI remains pending before
+merge.
+
+State: C3-03A remains implementation complete pending independent re-review and green CI; it is
+not Done. C3-03B and C3-04 remain blocked.
+
+What was NOT changed: No URL, network adapter/request, Production public key, Worker deployment,
+application consumer, user-visible behavior, entitlement/StoreKit authority, schema, version,
+Archive/upload, tester assignment, or distribution action was added. The Release app-owned
+HTTP(S) allow-list remains empty and the post-0.9.6 release hold remains active.

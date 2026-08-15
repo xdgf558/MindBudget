@@ -99,6 +99,12 @@ only strict Ed25519 document verification, closed schema/version/expiry/size che
 same-version-equivocation rejection, and a signed cache/high-water mark with conservative local
 fallback. It adds no URL, transport, production public key, paid authority, or application
 consumer. C3-03B remains blocked until C3-03A review/merge; C3-04 and distribution remain blocked.
+Its review remediation uses fixed whole-second UTC timestamps, rejects duplicate JSON keys,
+serializes concurrent high-water acceptance, and requires abstraction-level write readback. A
+corrupt high-water record remains fail-closed until the app data container is deleted and the app
+is reinstalled; normal Delete All and Offload do not reset this security marker. Exact signed
+bytes remain the authority rather than a client canonical-JSON re-encoding, and failure reason-code
+observability remains C3-03B-owned without payload/signature logging.
 Local C2-03 validation passed 44/44 focused tests, the 31-test
 lifecycle suite across 10 iterations (310/310), 342 Swift tests, all 13 UI tests, and every
 selected coverage threshold; the isolated strict wall-clock signal passed 10/10. Independent

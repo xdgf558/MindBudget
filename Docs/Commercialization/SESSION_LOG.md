@@ -1145,3 +1145,39 @@ application consumer, entitlement/StoreKit authority, user-visible behavior, for
 economics, schema, version, Archive/upload, tester assignment, or distribution action was added.
 The Release app-owned HTTP(S) allow-list remains empty and the post-0.9.6 release hold remains
 active.
+
+## 2026-08-15 — Session 37 — Close the first C3-03A review findings without opening transport
+
+Goal: Harden the local signed-configuration core after independent review while keeping C3-03B,
+application integration, and distribution blocked.
+
+What changed: The rollback/high-water record now has an explicit sticky Release failure contract:
+corruption cannot be overwritten or reset by normal Delete All, Offload, or later remote bytes;
+current recovery is full app-data deletion and reinstall. Persistence witnesses are explicitly
+async. Acceptance is serialized across every persistence suspension and re-reads/re-verifies the
+exact snapshot through the protocol before publishing `.remote`. The signed payload contract uses
+exact UTC whole seconds and rejects duplicate JSON keys before Foundation can collapse them. A
+encoder-independent fixed Ed25519 vector, deterministic concurrent-version inversion, no-op write,
+malformed record, zero-validity, duplicate-key, and fractional-timestamp tests were added.
+
+Accepted/non-adopted review guidance: Exact payload bytes remain the signing authority; the client
+does not re-encode canonical JSON or require sorted keys. C3-03A has no deployed signer, so real
+Worker-produced bytes remain a C3-03B gate. No `os_log` or analytics sink is added before that
+operations boundary; C3-03B must add closed reason codes without payload/signature/content. The
+controller name and fixed security-policy constants remain unchanged because their current scope
+is accurate and no multi-policy requirement exists.
+
+Evidence: Expanded focused validation passed 12/12 at
+`/private/tmp/MindBudget-C303A-ReviewFix-Focused.xcresult`. The public-configuration,
+commercialization-document, network-egress, shell-syntax, and diff gates pass. Final owning full
+validation produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skipped,
+and 0 failed. All 14 UI tests, the Release build, every selected coverage threshold, and the
+complete static gate set passed. Evidence:
+`/private/tmp/MindBudget-C303A-ReviewFix-Full3.xcresult`. Fresh hosted CI remains pending.
+
+Current state: C3-03A remains implementation complete pending independent re-review, hosted green
+CI, and merge; it is not Done. C3-03B/C3-04 and distribution remain blocked.
+
+What was NOT changed: No URL, request, Release egress, Production key, Worker deployment, app
+consumer, paid authority, StoreKit behavior, schema, user-facing copy, version, Archive/upload,
+tester assignment, or distribution action changed. The post-0.9.6 release hold remains active.

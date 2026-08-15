@@ -60,6 +60,40 @@ struct PublicConfigurationVerificationPolicy: Sendable {
     let publicKeysByID: [String: Data]
 }
 
+/// The signer and verifier share one timestamp grammar. Signatures cover the exact payload bytes,
+/// so accepting Foundation's wider ISO-8601 variants here would make otherwise equivalent
+/// documents depend on encoder-specific fractional-second behavior.
+enum PublicConfigurationTimestamp {
+    static let grammar = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+
+    static func string(from date: Date) -> String {
+        formatter().string(from: date)
+    }
+
+    static func date(from value: String) -> Date? {
+        guard value.utf8.count == 20,
+              value.range(
+                  of: #"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"#,
+                  options: .regularExpression
+              ) != nil,
+              let date = formatter().date(from: value),
+              formatter().string(from: date) == value else {
+            return nil
+        }
+        return date
+    }
+
+    private static func formatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = grammar
+        formatter.isLenient = false
+        return formatter
+    }
+}
+
 struct PublicConfigurationVerifier: Sendable {
     let policy: PublicConfigurationVerificationPolicy
 
@@ -71,6 +105,11 @@ struct PublicConfigurationVerifier: Sendable {
             throw PublicConfigurationVerificationError.envelopeTooLarge
         }
         try requireExactObjectKeys(
+            in: envelopeData,
+            expected: ["algorithm", "keyID", "payloadBase64", "signatureBase64"],
+            error: .invalidEnvelopeSchema
+        )
+        try requireExactKeyOccurrences(
             in: envelopeData,
             expected: ["algorithm", "keyID", "payloadBase64", "signatureBase64"],
             error: .invalidEnvelopeSchema
@@ -113,6 +152,18 @@ struct PublicConfigurationVerifier: Sendable {
         let payloadObject = try requireExactObjectKeys(
             in: payloadData,
             expected: ["schemaVersion", "configVersion", "issuedAt", "expiresAt", "presentation"],
+            error: .invalidPayloadSchema
+        )
+        try requireExactKeyOccurrences(
+            in: payloadData,
+            expected: [
+                "schemaVersion",
+                "configVersion",
+                "issuedAt",
+                "expiresAt",
+                "presentation",
+                "proValueTriggersEnabled"
+            ],
             error: .invalidPayloadSchema
         )
         guard let presentationObject = payloadObject["presentation"] as? [String: Any],
@@ -172,9 +223,64 @@ struct PublicConfigurationVerifier: Sendable {
         return dictionary
     }
 
+    /// JSONSerialization intentionally does not diagnose duplicate object keys. This bounded
+    /// lexical pass counts every decoded key token before either Foundation decoder may collapse
+    /// one. The schema is closed, so an exact occurrence set rejects duplicates at every depth.
+    private func requireExactKeyOccurrences(
+        in data: Data,
+        expected: Set<String>,
+        error: PublicConfigurationVerificationError
+    ) throws {
+        guard let json = String(data: data, encoding: .utf8) else {
+            throw error
+        }
+        let expression: NSRegularExpression
+        do {
+            expression = try NSRegularExpression(
+                pattern: #"\"(?:\\.|[^\"\\])*\"\s*:"#
+            )
+        } catch {
+            throw error
+        }
+        let fullRange = NSRange(json.startIndex..<json.endIndex, in: json)
+        let matches = expression.matches(in: json, range: fullRange)
+        var keys: [String] = []
+        keys.reserveCapacity(matches.count)
+        let decoder = JSONDecoder()
+        for match in matches {
+            guard let range = Range(match.range, in: json) else {
+                throw error
+            }
+            let matched = json[range]
+            guard let colon = matched.lastIndex(of: ":") else {
+                throw error
+            }
+            let token = matched[..<colon].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let tokenData = token.data(using: .utf8),
+                  let key = try? decoder.decode(String.self, from: tokenData) else {
+                throw error
+            }
+            keys.append(key)
+        }
+        guard keys.count == expected.count,
+              Set(keys) == expected else {
+            throw error
+        }
+    }
+
     private func strictDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            guard let date = PublicConfigurationTimestamp.date(from: value) else {
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Expected UTC timestamp using \(PublicConfigurationTimestamp.grammar)"
+                )
+            }
+            return date
+        }
         return decoder
     }
 }
@@ -202,7 +308,9 @@ enum PublicConfigurationPersistenceError: Error, Equatable, Sendable {
 
 /// Stores only signed public bytes and rollback metadata. It contains no person, device, ledger,
 /// StoreKit, or entitlement data. A corrupt rollback record is not overwritten automatically:
-/// losing the high-water mark must fail closed to the built-in presentation.
+/// losing the high-water mark must fail closed to the built-in presentation. Release code exposes
+/// no reset seam; recovery requires deleting the app and its container (Offload is insufficient),
+/// unless a separately reviewed signed recovery protocol is added in a later phase.
 actor FilePublicConfigurationPersistence: PublicConfigurationPersisting {
     private let fileURL: URL
 
@@ -210,7 +318,7 @@ actor FilePublicConfigurationPersistence: PublicConfigurationPersisting {
         self.fileURL = fileURL
     }
 
-    func read() -> PublicConfigurationPersistenceRead {
+    func read() async -> PublicConfigurationPersistenceRead {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return .empty
         }
@@ -226,7 +334,7 @@ actor FilePublicConfigurationPersistence: PublicConfigurationPersisting {
         return .stored(snapshot)
     }
 
-    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) throws {
+    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
         let data = try JSONEncoder().encode(snapshot)
         try FileManager.default.createDirectory(
             at: fileURL.deletingLastPathComponent(),
@@ -265,6 +373,10 @@ struct PublicConfigurationResolution: Equatable, Sendable {
 actor PublicConfigurationController {
     private let verifier: PublicConfigurationVerifier
     private let persistence: any PublicConfigurationPersisting
+    /// Serializes the complete read/compare/write/read-back acceptance transaction. Actor
+    /// isolation alone is insufficient because persistence awaits permit reentrancy and could let
+    /// an older concurrent document overwrite a newer high-water mark.
+    private var acceptanceTail: Task<PublicConfigurationResolution, Never>?
 
     init(
         verifier: PublicConfigurationVerifier,
@@ -275,19 +387,11 @@ actor PublicConfigurationController {
     }
 
     func resolveCached(now: Date) async -> PublicConfigurationResolution {
-        guard case let .stored(snapshot) = await persistence.read(),
-              let verified = try? verifier.verify(
-                  envelopeData: snapshot.envelopeData,
-                  now: now
-              ),
-              verified.payload.configVersion == snapshot.highestAcceptedVersion,
-              verified.payloadDigest == snapshot.highestAcceptedPayloadDigest else {
-            return .conservativeDefault
-        }
-        return PublicConfigurationResolution(
-            presentation: verified.payload.presentation,
-            source: .verifiedCache,
-            acceptedConfigVersion: verified.payload.configVersion
+        Self.resolveStored(
+            read: await persistence.read(),
+            verifier: verifier,
+            now: now,
+            source: .verifiedCache
         )
     }
 
@@ -295,8 +399,35 @@ actor PublicConfigurationController {
         envelopeData: Data,
         now: Date
     ) async -> PublicConfigurationResolution {
+        let predecessor = acceptanceTail
+        let verifier = verifier
+        let persistence = persistence
+        let operation = Task {
+            _ = await predecessor?.value
+            return await Self.performAcceptance(
+                envelopeData: envelopeData,
+                now: now,
+                verifier: verifier,
+                persistence: persistence
+            )
+        }
+        acceptanceTail = operation
+        return await operation.value
+    }
+
+    private static func performAcceptance(
+        envelopeData: Data,
+        now: Date,
+        verifier: PublicConfigurationVerifier,
+        persistence: any PublicConfigurationPersisting
+    ) async -> PublicConfigurationResolution {
         guard let verified = try? verifier.verify(envelopeData: envelopeData, now: now) else {
-            return await resolveCached(now: now)
+            return resolveStored(
+                read: await persistence.read(),
+                verifier: verifier,
+                now: now,
+                source: .verifiedCache
+            )
         }
 
         let storedRead = await persistence.read()
@@ -307,11 +438,21 @@ actor PublicConfigurationController {
             break
         case let .stored(snapshot):
             guard verified.payload.configVersion >= snapshot.highestAcceptedVersion else {
-                return await resolveCached(now: now)
+                return resolveStored(
+                    read: storedRead,
+                    verifier: verifier,
+                    now: now,
+                    source: .verifiedCache
+                )
             }
             if verified.payload.configVersion == snapshot.highestAcceptedVersion,
                verified.payloadDigest != snapshot.highestAcceptedPayloadDigest {
-                return await resolveCached(now: now)
+                return resolveStored(
+                    read: storedRead,
+                    verifier: verifier,
+                    now: now,
+                    source: .verifiedCache
+                )
             }
         }
 
@@ -323,12 +464,50 @@ actor PublicConfigurationController {
         do {
             try await persistence.write(snapshot)
         } catch {
-            return await resolveCached(now: now)
+            return resolveStored(
+                read: await persistence.read(),
+                verifier: verifier,
+                now: now,
+                source: .verifiedCache
+            )
         }
 
+        // Verify through the persistence abstraction, not only the file adapter's private
+        // read-back. A lying/no-op/custom persistence cannot activate an unstored document.
+        return resolveStored(
+            read: await persistence.read(),
+            expectedSnapshot: snapshot,
+            verifier: verifier,
+            now: now,
+            source: .remote
+        )
+    }
+
+    private static func resolveStored(
+        read: PublicConfigurationPersistenceRead,
+        expectedSnapshot: PublicConfigurationPersistenceSnapshot? = nil,
+        verifier: PublicConfigurationVerifier,
+        now: Date,
+        source: PublicConfigurationResolutionSource
+    ) -> PublicConfigurationResolution {
+        guard case let .stored(snapshot) = read else {
+            return .conservativeDefault
+        }
+        let matchesExpectedSnapshot = expectedSnapshot.map { expected in
+            expected == snapshot
+        } ?? true
+        guard matchesExpectedSnapshot,
+              let verified = try? verifier.verify(
+                  envelopeData: snapshot.envelopeData,
+                  now: now
+              ),
+              verified.payload.configVersion == snapshot.highestAcceptedVersion,
+              verified.payloadDigest == snapshot.highestAcceptedPayloadDigest else {
+            return .conservativeDefault
+        }
         return PublicConfigurationResolution(
             presentation: verified.payload.presentation,
-            source: .remote,
+            source: source,
             acceptedConfigVersion: verified.payload.configVersion
         )
     }

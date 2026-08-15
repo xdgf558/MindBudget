@@ -239,8 +239,12 @@ for c303_contract in \
   'anonymous `GET /v1/config`' \
   '"algorithm": "Ed25519"' \
   '`proValueTriggersEnabled` is the only v1 presentation field' \
+  '`yyyy-MM-dd'\''T'\''HH:mm:ss'\''Z'\''`' \
+  'without duplicate object keys' \
   'no longer than seven 24-hour intervals' \
   'same-version equivocation is rejected' \
+  'sticky Release fail-closed' \
+  'does not add `os_log`' \
   'DEC-COM-021'; do
   if ! grep -Fq "${c303_contract}" \
       Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md \

@@ -46,6 +46,11 @@ The response is one JSON object with exactly these fields:
 
 - The client verifies the exact decoded payload bytes before decoding the payload. This avoids an
   ad-hoc canonical-JSON signature scheme.
+- The signing service must emit UTF-8 JSON without duplicate object keys. Field ordering is not a
+  client-side authority: sorted keys are a signer convenience, while the signature always covers
+  the exact emitted bytes. The client does not decode and re-encode a purported canonical form.
+- Envelope, payload, and nested presentation keys are counted before Foundation decoding so a
+  duplicate key cannot be silently collapsed by a parser.
 - The app contains public verification keys only. Private signing keys and admin credentials never
   enter the app, repository, fixture bundle, logs, or public configuration.
 - Unknown algorithms, key IDs, fields, encodings, signatures, or oversized documents fail closed.
@@ -69,6 +74,9 @@ The verified payload contains exactly:
 ```
 
 - `configVersion` is a positive monotonic unsigned integer.
+- `issuedAt` and `expiresAt` must use the exact UTC grammar `yyyy-MM-dd'T'HH:mm:ss'Z'`: exactly
+  four-digit year through whole seconds, uppercase `T`/`Z`, no fractional seconds, and no numeric
+  offset. The signed golden vector is fixed independently from the client fixture encoder.
 - A document may be at most 16 KiB and its decoded payload at most 8 KiB.
 - The validity window must be positive and no longer than seven 24-hour intervals. A signed
   `issuedAt` may be at most five minutes ahead of the device clock. `expiresAt <= now` is expired.
@@ -97,7 +105,17 @@ the sole paid authority and customer-price source.
 - Offline/remote/verification failure uses the last verified, digest-matching, nonexpired cache.
   If none exists, use the conservative built-in presentation.
 - An invalid/corrupt rollback record is not silently overwritten because its lost high-water mark
-  cannot prove that a remote document is not a rollback. The app uses the built-in default.
+  cannot prove that a remote document is not a rollback. This is a sticky Release fail-closed
+  state: later valid remote bytes cannot overwrite it, and the app uses the built-in default.
+- Release code has no reset, delete-file, Debug-provider, or user-facing recovery seam for this
+  rollback record. Recovery currently requires deleting the app and its data container, then
+  reinstalling; iOS Offload is insufficient because it preserves app data. The ordinary in-app
+  Delete All User Data workflow must not reset this security high-water mark. A future signed
+  recovery protocol or operational reset requires a separate Accepted decision and tests.
+- Every accepted write is read again through the persistence abstraction, compared with the exact
+  intended snapshot, and re-verified before `.remote` is returned. Concurrent acceptance is
+  serialized across read/compare/write/read-back so an older document cannot overwrite a newer
+  high-water mark during actor reentrancy.
 - Cache or configuration can never grant or preserve paid access.
 
 ## Privacy, operations, and release gates
@@ -109,3 +127,8 @@ inspected for platform analytics/logging, storage, TTL, cache headers, redirect 
 limits, and privacy disclosure; captured traffic and the final binary must match the allow-list.
 The endpoint and public key must have dated first-party evidence. The post-0.9.6 release hold,
 formal-product/economics gates, Archive/upload, tester assignment, and distribution remain active.
+
+C3-03A deliberately does not add `os_log`, analytics, or another diagnostics sink before a real
+transport/operations boundary exists. C3-03B must define closed reason-code observability for
+verification, rollback/equivocation, persistence, and transport failures; it may never log signed
+payload bytes, signatures, financial/user content, or stable identifiers.

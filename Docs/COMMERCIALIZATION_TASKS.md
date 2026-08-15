@@ -297,8 +297,11 @@ remain blocked.**
   cache, and a conservative built-in default. The closed v1 vocabulary contains only
   `proValueTriggersEnabled`; no URL, production key, transport, entitlement, StoreKit price/trial,
   notification, or user-content field enters this packet. Implementation is complete pending
-  independent review. The final focused suite passed 8/8; the owning full run produced 390
-  results (384 passed, 6 explicit opt-in StoreKit probes skipped, 0 failed), including all 14 UI
+  independent review. Review remediation fixes exact whole-second UTC timestamp bytes, rejects
+  duplicate keys, serializes concurrent high-water acceptance, re-verifies persistence through
+  its abstraction, and formalizes corrupt state as sticky Release fail-closed until full app-data
+  deletion/reinstall. The remediation focused suite passed 12/12; the final owning full run produced
+  394 results (388 passed, 6 explicit opt-in StoreKit probes skipped, 0 failed), including all 14 UI
   tests, the Release build, static gates, and every selected coverage threshold. The strict local
   500 ms signal separately passed 10/10 isolated iterations.
 - [B] **C3-03B — Fixed transport and presentation integration.** After C3-03A review/merge, add

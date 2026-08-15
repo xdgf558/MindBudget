@@ -6,6 +6,31 @@ import Testing
 @Suite(.serialized)
 struct PublicConfigurationTests {
     @Test
+    func fixedGoldenEnvelopeUsesTheFixedTimestampByteContract() throws {
+        let publicKey = try #require(
+            Data(base64Encoded: "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=")
+        )
+        let envelopeData = Data(
+            #"{"algorithm":"Ed25519","keyID":"golden-2026-01","payloadBase64":"eyJjb25maWdWZXJzaW9uIjo3LCJleHBpcmVzQXQiOiIyMDI2LTA4LTIxVDAwOjAwOjAwWiIsImlzc3VlZEF0IjoiMjAyNi0wOC0xNFQwMDowMDowMFoiLCJwcmVzZW50YXRpb24iOnsicHJvVmFsdWVUcmlnZ2Vyc0VuYWJsZWQiOnRydWV9LCJzY2hlbWFWZXJzaW9uIjoxfQ==","signatureBase64":"cazLg8SFbV19REHbjhYvy0ilHJTeCCyzZB1tjwMM49D2bVf2KQUi5G2tfcJsU8JH4zHghTWPuFwE98gqBq8FDQ=="}"#.utf8
+        )
+        let verifier = PublicConfigurationVerifier(
+            policy: PublicConfigurationVerificationPolicy(
+                publicKeysByID: ["golden-2026-01": publicKey]
+            )
+        )
+        let now = try #require(PublicConfigurationTimestamp.date(from: "2026-08-15T00:00:00Z"))
+
+        let verified = try verifier.verify(envelopeData: envelopeData, now: now)
+
+        #expect(verified.payload.configVersion == 7)
+        #expect(verified.payload.presentation.proValueTriggersEnabled)
+        #expect(
+            PublicConfigurationTimestamp.string(from: verified.payload.issuedAt)
+                == "2026-08-14T00:00:00Z"
+        )
+    }
+
+    @Test
     func validEd25519EnvelopeProducesOnlyTheClosedPresentationSnapshot() throws {
         let fixture = try SignedConfigurationFixture()
         let verified = try fixture.verifier.verify(
@@ -65,6 +90,24 @@ struct PublicConfigurationTests {
                 now: fixture.now
             )
         }
+        #expect(throws: PublicConfigurationVerificationError.invalidEnvelopeSchema) {
+            try fixture.verifier.verify(
+                envelopeData: try fixture.envelopeDataWithDuplicateEnvelopeKey(),
+                now: fixture.now
+            )
+        }
+        #expect(throws: PublicConfigurationVerificationError.invalidPayloadSchema) {
+            try fixture.verifier.verify(
+                envelopeData: try fixture.envelopeDataWithDuplicatePayloadKey(),
+                now: fixture.now
+            )
+        }
+        #expect(throws: PublicConfigurationVerificationError.invalidPayloadSchema) {
+            try fixture.verifier.verify(
+                envelopeData: try fixture.envelopeDataWithFractionalTimestamp(),
+                now: fixture.now
+            )
+        }
         #expect(throws: PublicConfigurationVerificationError.invalidEncoding) {
             try fixture.verifier.verify(
                 envelopeData: try fixture.envelopeDataWithInvalidBase64(),
@@ -113,6 +156,17 @@ struct PublicConfigurationTests {
                     expiresAt: fixture.now.addingTimeInterval(
                         PublicConfigurationVerificationPolicy.maximumValidityInterval + 1
                     )
+                ),
+                now: fixture.now
+            )
+        }
+        #expect(throws: PublicConfigurationVerificationError.invalidValidityWindow) {
+            try fixture.verifier.verify(
+                envelopeData: try fixture.envelopeData(
+                    version: 1,
+                    enabled: false,
+                    issuedAt: fixture.now.addingTimeInterval(60),
+                    expiresAt: fixture.now.addingTimeInterval(60)
                 ),
                 now: fixture.now
             )
@@ -227,6 +281,54 @@ struct PublicConfigurationTests {
     }
 
     @Test
+    func persistenceReadBackMustConfirmTheExactAcceptedSnapshot() async throws {
+        let fixture = try SignedConfigurationFixture()
+        let persistence = NoOpPublicConfigurationPersistence()
+        let controller = PublicConfigurationController(
+            verifier: fixture.verifier,
+            persistence: persistence
+        )
+
+        let resolution = await controller.acceptRemote(
+            envelopeData: try fixture.envelopeData(version: 1, enabled: true),
+            now: fixture.now
+        )
+
+        #expect(resolution == .conservativeDefault)
+        #expect(await persistence.writeCount() == 1)
+    }
+
+    @Test
+    func concurrentAcceptanceCannotLowerThePersistedHighWaterMark() async throws {
+        let fixture = try SignedConfigurationFixture()
+        let persistence = ReorderingPublicConfigurationPersistence()
+        let controller = PublicConfigurationController(
+            verifier: fixture.verifier,
+            persistence: persistence
+        )
+        let lowerEnvelope = try fixture.envelopeData(version: 1, enabled: false)
+        let higherEnvelope = try fixture.envelopeData(version: 2, enabled: true)
+
+        let lower = Task {
+            await controller.acceptRemote(envelopeData: lowerEnvelope, now: fixture.now)
+        }
+        #expect(await persistence.waitForLowerWriteEntry())
+        let higher = Task {
+            await controller.acceptRemote(envelopeData: higherEnvelope, now: fixture.now)
+        }
+
+        let lowerResolution = await lower.value
+        let higherResolution = await higher.value
+        let cached = await controller.resolveCached(now: fixture.now)
+
+        #expect(lowerResolution.acceptedConfigVersion == 1)
+        #expect(higherResolution.acceptedConfigVersion == 2)
+        #expect(cached.acceptedConfigVersion == 2)
+        #expect(cached.presentation.proValueTriggersEnabled)
+        #expect(await persistence.lowerWriteObservedHigherWrite() == false)
+    }
+
+    @Test
     func atomicFilePersistenceRoundTripsOnlySignedPublicState() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("PublicConfigurationTests.\(UUID().uuidString)")
@@ -252,6 +354,40 @@ struct PublicConfigurationTests {
         #expect(resolution.source == .verifiedCache)
         #expect(resolution.acceptedConfigVersion == 4)
         #expect(resolution.presentation.proValueTriggersEnabled)
+    }
+
+    @Test
+    func filePersistenceTreatsMalformedRollbackRecordsAsStickyInvalidState() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("PublicConfigurationInvalidTests.\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let invalidSnapshots = [
+            Data(),
+            Data("{}".utf8),
+            try JSONEncoder().encode(
+                PublicConfigurationPersistenceSnapshot(
+                    envelopeData: Data(),
+                    highestAcceptedVersion: 1,
+                    highestAcceptedPayloadDigest: Data(repeating: 1, count: SHA256.byteCount)
+                )
+            ),
+            try JSONEncoder().encode(
+                PublicConfigurationPersistenceSnapshot(
+                    envelopeData: Data("signed".utf8),
+                    highestAcceptedVersion: 1,
+                    highestAcceptedPayloadDigest: Data(repeating: 1, count: SHA256.byteCount - 1)
+                )
+            )
+        ]
+
+        for (index, data) in invalidSnapshots.enumerated() {
+            let fileURL = directory.appendingPathComponent("invalid-\(index).json")
+            try data.write(to: fileURL)
+            let persistence = FilePublicConfigurationPersistence(fileURL: fileURL)
+            #expect(await persistence.read() == .invalid)
+        }
     }
 }
 
@@ -340,6 +476,33 @@ private struct SignedConfigurationFixture {
         )
     }
 
+    func envelopeDataWithDuplicateEnvelopeKey() throws -> Data {
+        let valid = try envelopeData(version: 1, enabled: false)
+        let object = try #require(JSONSerialization.jsonObject(with: valid) as? [String: Any])
+        let payload = try #require(object["payloadBase64"] as? String)
+        let signature = try #require(object["signatureBase64"] as? String)
+        return Data(
+            #"{"algorithm":"Ed25519","algorithm":"Ed25519","keyID":"mb-config-2026-01","payloadBase64":"\#(payload)","signatureBase64":"\#(signature)"}"#.utf8
+        )
+    }
+
+    func envelopeDataWithDuplicatePayloadKey() throws -> Data {
+        let issuedAt = PublicConfigurationTimestamp.string(from: now.addingTimeInterval(-60))
+        let expiresAt = PublicConfigurationTimestamp.string(from: now.addingTimeInterval(3_600))
+        let payload = Data(
+            #"{"schemaVersion":1,"configVersion":1,"configVersion":2,"issuedAt":"\#(issuedAt)","expiresAt":"\#(expiresAt)","presentation":{"proValueTriggersEnabled":false}}"#.utf8
+        )
+        return try signedEnvelope(payloadData: payload)
+    }
+
+    func envelopeDataWithFractionalTimestamp() throws -> Data {
+        let expiresAt = PublicConfigurationTimestamp.string(from: now.addingTimeInterval(3_600))
+        let payload = Data(
+            #"{"schemaVersion":1,"configVersion":1,"issuedAt":"2026-08-14T00:00:00.000Z","expiresAt":"\#(expiresAt)","presentation":{"proValueTriggersEnabled":false}}"#.utf8
+        )
+        return try signedEnvelope(payloadData: payload)
+    }
+
     func envelopeDataWithInvalidBase64() throws -> Data {
         let data = try envelopeData(version: 1, enabled: false)
         var object = try #require(
@@ -389,12 +552,15 @@ private struct SignedConfigurationFixture {
             payloadBase64: payloadData.base64EncodedString(),
             signatureBase64: try privateKey.signature(for: payloadData).base64EncodedString()
         )
-        return try encode(envelope)
+        return encode(envelope)
     }
 
     private func encode<T: Encodable>(_ value: T) -> Data {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(PublicConfigurationTimestamp.string(from: date))
+        }
         encoder.outputFormatting = [.sortedKeys]
         return try! encoder.encode(value)
     }
@@ -413,9 +579,9 @@ private actor InMemoryPublicConfigurationPersistence: PublicConfigurationPersist
         self.failsWrites = failsWrites
     }
 
-    func read() -> PublicConfigurationPersistenceRead { value }
+    func read() async -> PublicConfigurationPersistenceRead { value }
 
-    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) throws {
+    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
         guard !failsWrites else {
             throw PublicConfigurationPersistenceError.writeFailed
         }
@@ -424,4 +590,55 @@ private actor InMemoryPublicConfigurationPersistence: PublicConfigurationPersist
     }
 
     func writeCount() -> Int { writes }
+}
+
+private actor NoOpPublicConfigurationPersistence: PublicConfigurationPersisting {
+    private var writes = 0
+
+    func read() async -> PublicConfigurationPersistenceRead { .empty }
+
+    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        _ = snapshot
+        writes += 1
+    }
+
+    func writeCount() -> Int { writes }
+}
+
+/// Deliberately permits a higher-version write to overtake the lower write if the controller does
+/// not serialize the complete acceptance transaction. The lower write waits briefly for that
+/// unsafe overtake, making the stale-overwrite regression deterministic rather than scheduler-led.
+private actor ReorderingPublicConfigurationPersistence: PublicConfigurationPersisting {
+    private var value: PublicConfigurationPersistenceRead = .empty
+    private var lowerWriteEntered = false
+    private var higherWriteEntered = false
+    private var lowerObservedHigher = false
+
+    func read() async -> PublicConfigurationPersistenceRead { value }
+
+    func write(_ snapshot: PublicConfigurationPersistenceSnapshot) async throws {
+        if snapshot.highestAcceptedVersion == 1 {
+            lowerWriteEntered = true
+            let clock = ContinuousClock()
+            let deadline = clock.now.advanced(by: .milliseconds(300))
+            while !higherWriteEntered, clock.now < deadline, !Task.isCancelled {
+                try? await clock.sleep(for: .milliseconds(5))
+            }
+            lowerObservedHigher = higherWriteEntered
+        } else if snapshot.highestAcceptedVersion == 2 {
+            higherWriteEntered = true
+        }
+        value = .stored(snapshot)
+    }
+
+    func waitForLowerWriteEntry() async -> Bool {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(2))
+        while !lowerWriteEntered, clock.now < deadline, !Task.isCancelled {
+            try? await clock.sleep(for: .milliseconds(5))
+        }
+        return lowerWriteEntered
+    }
+
+    func lowerWriteObservedHigherWrite() -> Bool { lowerObservedHigher }
 }

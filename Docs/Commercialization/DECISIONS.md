@@ -545,13 +545,28 @@ context.
   seven 24-hour intervals. Only the signed envelope, highest version, and SHA-256 payload digest
   persist in one atomic, file-protected record whose bytes are read back before publication.
   Remote presentation becomes active only after persistence succeeds; offline failure uses a
-  matching nonexpired verified cache and then the conservative built-in default.
+  matching nonexpired verified cache and then the conservative built-in default. Timestamps use
+  exact UTC whole-second `yyyy-MM-dd'T'HH:mm:ss'Z'` bytes and duplicate object keys are rejected
+  before Foundation decoding. Concurrent acceptance serializes the full read/compare/write/read-
+  back transaction, and a successful write is re-read through the persistence abstraction and
+  re-verified before `.remote` is returned.
+- Corrupt-state recovery: A corrupt rollback/high-water record is a sticky Release fail-closed
+  state. No later remote document, normal Delete All workflow, Release reset seam, or iOS Offload
+  may replace it. Current recovery is full app-and-container deletion followed by reinstall. A
+  future signed recovery or support reset needs a separate Accepted decision because clearing the
+  marker can reopen rollback.
+- Encoding and diagnostics boundary: The verifier signs exact payload bytes and does not invent a
+  client-side canonical-JSON/re-encoding authority. The signer must use the fixed timestamp grammar
+  and no duplicate keys; sorted-key output is optional signer discipline. C3-03A adds no `os_log`
+  or analytics. C3-03B must add only closed reason-code observability after its real transport and
+  operations contract is accepted, and must never log payload/signature/user content.
 - Privacy and release boundary: Ordinary edge connection metadata must be disclosed and the real
   Worker/logging/analytics/TTL/redirect/cache behavior, public-key provenance, captured traffic,
   and final binary must be verified in C3-03B. C3-03A has no URL, adapter, production key, Release
   egress exception, user-visible behavior, version, Archive/upload, tester assignment, or
   distribution authorization. The post-0.9.6 release hold remains active.
 - Alternatives rejected: Unsigned JSON; TLS as the sole integrity boundary; signing decoded or
-  re-encoded JSON; a caller-selected URL; wildcard/shared hosts; long-lived or nonexpiring config;
-  cache-before-verify; overwriting a corrupt rollback mark; remote entitlement/price/trial fields;
-  telemetry/user identifiers; and adding transport before the verifier packet is reviewed.
+  re-encoded/canonicalized JSON; a caller-selected URL; wildcard/shared hosts; long-lived or
+  nonexpiring config; cache-before-verify; overwriting or locally resetting a corrupt rollback
+  mark; remote entitlement/price/trial fields; payload/signature logging; telemetry/user
+  identifiers; and adding transport before the verifier packet is reviewed.

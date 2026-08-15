@@ -2136,3 +2136,11 @@ Consequences: The current Release HTTP(S) allow-list stays empty. Configuration 
 control only `proValueTriggersEnabled` and can never grant paid rights or change products, prices,
 trials, notifications, cloud features, or release behavior. C3-04, formal economics/products,
 versioning, Archive/upload, tester assignment, and distribution remain blocked.
+
+Review clarification: Detailed DEC-COM-021 now makes corrupt rollback state a sticky Release
+fail-closed condition recoverable only by deleting the app data container and reinstalling; normal
+Delete All and Offload do not reset it. It also fixes UTC timestamps to whole-second
+`yyyy-MM-dd'T'HH:mm:ss'Z'`, rejects duplicate keys, serializes concurrent high-water acceptance,
+and requires post-write abstraction-level re-verification. The client continues to verify exact
+signed bytes instead of defining a second canonical-JSON encoder. C3-03A adds no runtime logging;
+closed non-content reason-code observability remains a C3-03B transport/operations responsibility.
