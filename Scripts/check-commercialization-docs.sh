@@ -232,7 +232,7 @@ fi
 for c303_contract in \
   'Status: **Accepted by the owner for COM-C3-03 on 2026-08-14.**' \
   'Status: **Done after independent review, green CI, and merge through PR #36 (`1ebb36c`).**' \
-  'Status: **In Progress after C3-03A passed independent review, green CI, and merge.**' \
+  'Status: **Implementation complete pending independent review and green hosted CI.**' \
   'mindbudget-public-config-dev.yehao1105.workers.dev' \
   'mindbudget-public-config-staging.yehao1105.workers.dev' \
   'mindbudget-public-config.yehao1105.workers.dev' \
@@ -244,7 +244,7 @@ for c303_contract in \
   'no longer than seven 24-hour intervals' \
   'same-version equivocation is rejected' \
   'sticky Release fail-closed' \
-  'does not add `os_log`' \
+  'closed `transport.*` and `resolution.*` reason codes' \
   'DEC-COM-021'; do
   if ! grep -Fq "${c303_contract}" \
       Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md \
@@ -262,15 +262,15 @@ grep -Fq 'Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3
   exit 1
 }
 
-grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress and C3-04 remains' \
+grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending' \
   Docs/COMMERCIALIZATION_TASKS.md || {
   echo "COM-C3 task state must identify the active and blocked C3-03 packets" >&2
   exit 1
 }
 
-grep -Fq 'Signed public configuration | Exact contract Accepted in DEC-COM-021; C3-03A complete through PR #36 (`1ebb36c`); C3-03B In Progress, transport not yet implemented or allowed' \
+grep -Fq 'Signed public configuration | C3-03B implementation complete pending independent review; Development deployed and verified; Staging/Production undeployed; no distribution authorization' \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
-  echo "Network policy must record C3-03A completion while keeping unimplemented transport disabled" >&2
+  echo "Network policy must record the exact reviewed C3-03B adapter without implying distribution" >&2
   exit 1
 }
 
@@ -278,7 +278,7 @@ for c303_completion in \
   'GitHub Actions run `31856271268`' \
   'merged through PR #36 as `1ebb36c`' \
   'C3-03A is Done' \
-  'C3-03B is In Progress'; do
+  'C3-03B implementation'; do
   if ! grep -Fq "${c303_completion}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -301,6 +301,40 @@ if grep -Eq 'C3-03A (is )?implementation complete pending independent review|C3-
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
     Docs/Commercialization/COM_C3_EXECUTION_PACKET.md; then
   echo "Current commercialization state still describes C3-03A as pending or C3-03B as blocked" >&2
+  exit 1
+fi
+
+for c303b_evidence in \
+  'bf6c5049-a389-4ea7-af0a-e8425b8957e2' \
+  '8 passed, 0 failed, 0 skipped' \
+  'Worker tests passed 13/13' \
+  'Staging and Production were not deployed' \
+  'closed non-content reason codes' \
+  'no private key, storage, outbound fetch'; do
+  if ! grep -Fq "${c303b_evidence}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C3-03B implementation evidence is missing: ${c303b_evidence}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C3-03B (is )?In Progress with no transport yet|C3-03B In Progress, transport not yet implemented|future C3-03B contract' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md; then
+  echo "Current commercialization state still describes C3-03B transport as unimplemented" >&2
   exit 1
 fi
 

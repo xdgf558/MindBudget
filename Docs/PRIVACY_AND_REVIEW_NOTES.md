@@ -49,16 +49,21 @@ must add current bilingual disclosure, App Privacy answers, channel-specific rev
 behavior, and signed release evidence. No forward-looking permission changes the current binary's
 local-only data handling.
 
-C3-03A remains inside that current local-only claim. It implements only local verification and
-storage of a signed public presentation document and rollback metadata; it has no URL, transport,
-embedded Production key, application consumer, user content, identifier, or automatic request.
-The future C3-03B contract permits an anonymous fixed-host configuration GET carrying only bounded
-app/config versions. Even without an app identifier or content, ordinary HTTPS exposes connection
-metadata such as an IP address to the first-party edge and its infrastructure provider. Before
-that adapter can ship, the real independent MindBudget Worker, Cloudflare analytics/logging and
-TTL, redirects/cache headers, traffic capture, binary inventory, deletion/retention meaning, and
-App Privacy/review wording must be verified. This accepted future contract does not change the
-privacy statement for the currently uploaded 0.9.6 binary.
+C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
+versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,
+storefront, StoreKit fact, or financial/content field. The independent MindBudget Worker stores no
+request data, has no database or analytics binding, calls no outbound service, disables Worker
+observability, and serves only a pre-signed seven-day envelope with `no-store`. The app logs only a
+closed non-content reason code and never logs request/response bytes or metadata values. Even
+without an identifier or content, ordinary HTTPS exposes connection metadata such as an IP
+address to Cloudflare's first-party edge. The tested workers.dev surface also injects ordinary
+edge response metadata such as `Report-To`/`NEL`; native `URLSession` does not execute browser NEL
+reporting, but provider-level metadata remains part of final review disclosure.
+
+Only Development was deployed and exercised in C3-03B. Staging and Production remain undeployed,
+and the exact adapter remains under independent review plus the final binary/traffic/App Privacy
+release gates. This unreleased source does not change the privacy statement for the currently
+uploaded 0.9.6 binary.
 
 Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
 are never deleted automatically. Settings shows the exact affected count and offers a separate

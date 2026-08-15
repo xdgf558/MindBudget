@@ -368,6 +368,39 @@ struct PublicConfigurationResolution: Equatable, Sendable {
     )
 }
 
+/// Closed, non-content diagnostics for the signed-configuration acceptance boundary. These values
+/// may be logged, but payload bytes, envelope bytes, signatures, digests, URLs, and user data may
+/// not. A reason describes the operation that just ran; the paired resolution remains the only
+/// presentation value a caller may consume.
+enum PublicConfigurationResolutionReason: String, Equatable, Sendable {
+    case remoteAccepted
+    case cacheAccepted
+    case builtInNoCache
+    case builtInInvalidCache
+    case builtInUnusableCache
+    case rejectedEnvelopeSize
+    case rejectedPayloadSize
+    case rejectedSchema
+    case rejectedAlgorithm
+    case rejectedKey
+    case rejectedEncoding
+    case rejectedSignature
+    case rejectedVersion
+    case rejectedIssuedInFuture
+    case rejectedExpired
+    case rejectedValidityWindow
+    case rejectedRollback
+    case rejectedEquivocation
+    case rejectedStickyPersistence
+    case rejectedPersistenceWrite
+    case rejectedPersistenceReadback
+}
+
+struct PublicConfigurationResolutionResult: Equatable, Sendable {
+    let resolution: PublicConfigurationResolution
+    let reason: PublicConfigurationResolutionReason
+}
+
 /// Owns acceptance and rollback ordering, but no network transport. The C3-03 transport packet
 /// may hand this actor bytes from the one fixed GET endpoint; consumers receive presentation only.
 actor PublicConfigurationController {
@@ -376,7 +409,7 @@ actor PublicConfigurationController {
     /// Serializes the complete read/compare/write/read-back acceptance transaction. Actor
     /// isolation alone is insufficient because persistence awaits permit reentrancy and could let
     /// an older concurrent document overwrite a newer high-water mark.
-    private var acceptanceTail: Task<PublicConfigurationResolution, Never>?
+    private var acceptanceTail: Task<PublicConfigurationResolutionResult, Never>?
 
     init(
         verifier: PublicConfigurationVerifier,
@@ -387,18 +420,46 @@ actor PublicConfigurationController {
     }
 
     func resolveCached(now: Date) async -> PublicConfigurationResolution {
-        Self.resolveStored(
-            read: await persistence.read(),
+        await resolveCachedResult(now: now).resolution
+    }
+
+    func resolveCachedResult(now: Date) async -> PublicConfigurationResolutionResult {
+        let read = await persistence.read()
+        let resolution = Self.resolveStored(
+            read: read,
             verifier: verifier,
             now: now,
             source: .verifiedCache
         )
+        let reason: PublicConfigurationResolutionReason
+        if resolution.source == .verifiedCache {
+            reason = .cacheAccepted
+        } else {
+            switch read {
+            case .empty: reason = .builtInNoCache
+            case .invalid: reason = .builtInInvalidCache
+            case .stored: reason = .builtInUnusableCache
+            }
+        }
+        return PublicConfigurationResolutionResult(resolution: resolution, reason: reason)
+    }
+
+    func highestAcceptedVersion() async -> UInt64? {
+        guard case let .stored(snapshot) = await persistence.read() else { return nil }
+        return snapshot.highestAcceptedVersion
     }
 
     func acceptRemote(
         envelopeData: Data,
         now: Date
     ) async -> PublicConfigurationResolution {
+        await acceptRemoteResult(envelopeData: envelopeData, now: now).resolution
+    }
+
+    func acceptRemoteResult(
+        envelopeData: Data,
+        now: Date
+    ) async -> PublicConfigurationResolutionResult {
         let predecessor = acceptanceTail
         let verifier = verifier
         let persistence = persistence
@@ -420,38 +481,51 @@ actor PublicConfigurationController {
         now: Date,
         verifier: PublicConfigurationVerifier,
         persistence: any PublicConfigurationPersisting
-    ) async -> PublicConfigurationResolution {
-        guard let verified = try? verifier.verify(envelopeData: envelopeData, now: now) else {
-            return resolveStored(
+    ) async -> PublicConfigurationResolutionResult {
+        let verified: VerifiedPublicConfiguration
+        do {
+            verified = try verifier.verify(envelopeData: envelopeData, now: now)
+        } catch let error as PublicConfigurationVerificationError {
+            return fallback(
                 read: await persistence.read(),
+                reason: reason(for: error),
                 verifier: verifier,
-                now: now,
-                source: .verifiedCache
+                now: now
+            )
+        } catch {
+            return fallback(
+                read: await persistence.read(),
+                reason: .rejectedSchema,
+                verifier: verifier,
+                now: now
             )
         }
 
         let storedRead = await persistence.read()
         switch storedRead {
         case .invalid:
-            return .conservativeDefault
+            return PublicConfigurationResolutionResult(
+                resolution: .conservativeDefault,
+                reason: .rejectedStickyPersistence
+            )
         case .empty:
             break
         case let .stored(snapshot):
             guard verified.payload.configVersion >= snapshot.highestAcceptedVersion else {
-                return resolveStored(
+                return fallback(
                     read: storedRead,
+                    reason: .rejectedRollback,
                     verifier: verifier,
-                    now: now,
-                    source: .verifiedCache
+                    now: now
                 )
             }
             if verified.payload.configVersion == snapshot.highestAcceptedVersion,
                verified.payloadDigest != snapshot.highestAcceptedPayloadDigest {
-                return resolveStored(
+                return fallback(
                     read: storedRead,
+                    reason: .rejectedEquivocation,
                     verifier: verifier,
-                    now: now,
-                    source: .verifiedCache
+                    now: now
                 )
             }
         }
@@ -464,23 +538,69 @@ actor PublicConfigurationController {
         do {
             try await persistence.write(snapshot)
         } catch {
-            return resolveStored(
+            return fallback(
                 read: await persistence.read(),
+                reason: .rejectedPersistenceWrite,
                 verifier: verifier,
-                now: now,
-                source: .verifiedCache
+                now: now
             )
         }
 
         // Verify through the persistence abstraction, not only the file adapter's private
         // read-back. A lying/no-op/custom persistence cannot activate an unstored document.
-        return resolveStored(
+        let persisted = resolveStored(
             read: await persistence.read(),
             expectedSnapshot: snapshot,
             verifier: verifier,
             now: now,
             source: .remote
         )
+        guard persisted.source == .remote else {
+            return PublicConfigurationResolutionResult(
+                resolution: persisted,
+                reason: .rejectedPersistenceReadback
+            )
+        }
+        return PublicConfigurationResolutionResult(
+            resolution: persisted,
+            reason: .remoteAccepted
+        )
+    }
+
+    private static func fallback(
+        read: PublicConfigurationPersistenceRead,
+        reason: PublicConfigurationResolutionReason,
+        verifier: PublicConfigurationVerifier,
+        now: Date
+    ) -> PublicConfigurationResolutionResult {
+        PublicConfigurationResolutionResult(
+            resolution: resolveStored(
+                read: read,
+                verifier: verifier,
+                now: now,
+                source: .verifiedCache
+            ),
+            reason: reason
+        )
+    }
+
+    private static func reason(
+        for error: PublicConfigurationVerificationError
+    ) -> PublicConfigurationResolutionReason {
+        switch error {
+        case .envelopeTooLarge: .rejectedEnvelopeSize
+        case .payloadTooLarge: .rejectedPayloadSize
+        case .invalidEnvelopeSchema, .invalidPayloadSchema, .unsupportedSchemaVersion:
+            .rejectedSchema
+        case .unsupportedAlgorithm: .rejectedAlgorithm
+        case .unknownKey: .rejectedKey
+        case .invalidEncoding: .rejectedEncoding
+        case .invalidSignature: .rejectedSignature
+        case .invalidVersion: .rejectedVersion
+        case .issuedInFuture: .rejectedIssuedInFuture
+        case .expired: .rejectedExpired
+        case .invalidValidityWindow: .rejectedValidityWindow
+        }
     }
 
     private static func resolveStored(

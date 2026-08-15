@@ -574,3 +574,44 @@ context.
   nonexpiring config; cache-before-verify; overwriting or locally resetting a corrupt rollback
   mark; remote entitlement/price/trial fields; payload/signature logging; telemetry/user
   identifiers; and adding transport before the verifier packet is reviewed.
+
+## DEC-COM-022 — Keep public configuration first-party, fixed, non-content, and non-authoritative
+
+- Status/date: **Accepted implementation boundary for COM-C3-03B — 2026-08-15**
+- Requirements: REQ-R1-NET-001
+- Decision: C3-03B owns exactly one centralized `URLSession` adapter for the three fixed DEC-COM-021
+  hosts and exact anonymous `GET /v1/config`. Debug defaults to Development and may select Staging
+  only through a local launch argument; Release is compiled to Production and cannot accept a
+  caller or remote URL. Only bounded app version and optional last accepted configuration version
+  headers leave the app. The ephemeral session has no cookies, credentials, or shared cache,
+  rejects redirects, and enforces method/path, URL, status, MIME, size, timeout, and cancellation.
+- Worker and key boundary: Each environment is an independent deployment of the repository-owned
+  Worker with an environment-specific rate-limit namespace and pre-signed envelope variables. It
+  has no signing key, database, KV, R2, queue, analytics binding, outbound fetch, cookie, CORS, or
+  application request log; platform observability is disabled and responses are `no-store`. The
+  Ed25519 private key remains in an owner-controlled protected file outside the repository. Only
+  the public key, signer utility, and seven-day signed public envelope enter the repository.
+- Presentation boundary: The one consumer may show an optional explicit Pro value trigger only
+  when the verified flag is true and the user is not already Pro. Permanent Settings, Restore,
+  Manage Subscription, current subscription status, StoreKit authority, price/trial facts,
+  notifications, and every Free trust capability are independent of configuration.
+- Diagnostics/privacy boundary: Client diagnostics are closed `transport.*` and `resolution.*`
+  reason codes only. Payload, signature, response body, metadata values, IP address, StoreKit,
+  and user/financial content are never logged. Cloudflare necessarily processes ordinary edge
+  connection metadata and may inject platform response metadata on workers.dev; this must remain
+  disclosed and included in final captured-traffic review even though native URLSession does not
+  execute browser NEL reporting.
+- Evidence and deployment: On 2026-08-15, Development Worker version
+  `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was deployed. The dedicated non-Archive live scheme used
+  the real Development Worker, embedded production public key, production verifier, cache, and
+  consumer boundary and passed 8/8 with no failure or skip. Worker unit tests passed 13/13;
+  typecheck, high-severity dependency audit, and Production configuration dry-run passed. Staging
+  and Production were not deployed.
+- Release boundary: Source-level acceptance of this exact adapter is not distribution approval.
+  C3-03B remains implementation complete pending independent review and green hosted CI. Final
+  Release binary/traffic, current App Privacy/review disclosure, Production deployment, C3-04,
+  formal economics/products, Archive/upload, tester assignment, and distribution remain blocked.
+- Alternatives rejected: Shared product Worker/admin state; a generic networking client;
+  caller-selected URLs/headers; redirects; cookies/auth/identifiers; private key in app/repository/
+  Worker; Worker storage or app logging; remotely granting entitlement; deploying all environments
+  together; and treating Development evidence as Production release evidence.

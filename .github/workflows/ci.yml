@@ -43,6 +43,18 @@ jobs:
       - name: Verify signed public configuration boundary
         run: Scripts/check-public-configuration-contract.sh
 
+      - name: Install public-configuration Worker toolchain
+        working-directory: Services/PublicConfigurationWorker
+        run: |
+          node -e 'const major = Number(process.versions.node.split(".")[0]); if (major < 22) throw new Error(`Expected Node 22+, got ${process.versions.node}`)'
+          npm ci
+
+      - name: Audit and verify public-configuration Worker
+        working-directory: Services/PublicConfigurationWorker
+        run: |
+          npm audit --audit-level=high
+          npm run check
+
       - name: Verify StoreKit local test catalog isolation
         run: Scripts/check-storekit-test-catalog.sh
 

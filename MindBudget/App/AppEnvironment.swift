@@ -76,6 +76,7 @@ struct AppEnvironment {
     let storeCatalog: StoreCatalog
     let entitlementStore: EntitlementStore
     let trialLifecycleScheduler: any TrialLifecycleScheduling
+    let publicConfigurationService: any PublicConfigurationServicing
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -118,6 +119,7 @@ struct AppEnvironment {
             featureAccessAuthority: featureAccessAuthority
         )
         let trialLifecycleScheduler = TrialLifecycleScheduler()
+        let publicConfigurationService = PublicConfigurationServiceFactory.live()
         let intentService = MindBudgetIntentService(
             dataActor: dataController.dataActor,
             preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
@@ -138,7 +140,8 @@ struct AppEnvironment {
             featureAccessService: featureAccessService,
             storeCatalog: storeCatalog,
             entitlementStore: entitlementStore,
-            trialLifecycleScheduler: trialLifecycleScheduler
+            trialLifecycleScheduler: trialLifecycleScheduler,
+            publicConfigurationService: publicConfigurationService
         )
     }
 }

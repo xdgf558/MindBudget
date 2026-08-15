@@ -47,6 +47,7 @@ final class AppSession: ObservableObject {
     private let storeCatalog: StoreCatalog?
     private let entitlementStore: EntitlementStore?
     private let trialLifecycleScheduler: any TrialLifecycleScheduling
+    private let publicConfigurationService: (any PublicConfigurationServicing)?
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -72,12 +73,22 @@ final class AppSession: ObservableObject {
     @Published private(set) var trialLifecycle: TrialLifecycleProjection?
     @Published private(set) var trialRenewalReminder = TrialRenewalReminderReconciliation.inactive
     @Published private(set) var trialRenewalReminderFailed = false
+    @Published private(set) var publicConfigurationPresentation =
+        PublicConfigurationPresentation.conservativeDefault
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
     private var trialLifecycleReconciliationGeneration = 0
+    private var hasStartedPublicConfigurationLifecycle = false
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
+    }
+
+    /// The only signed-configuration presentation consumer. It may hide or show this voluntary
+    /// entry, but it cannot alter access and never suppresses the permanent Settings Pro entry.
+    var offersAppleOnDeviceAIProValueTrigger: Bool {
+        publicConfigurationPresentation.proValueTriggersEnabled
+            && !existingPremiumEntryAccess.offersAppleOnDeviceAI
     }
 
     /// Feature views consume this already-matched presentation value and never inspect a
@@ -104,6 +115,7 @@ final class AppSession: ObservableObject {
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
+        publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -117,6 +129,7 @@ final class AppSession: ObservableObject {
         self.storeCatalog = storeCatalog
         self.entitlementStore = entitlementStore
         self.trialLifecycleScheduler = trialLifecycleScheduler
+        self.publicConfigurationService = publicConfigurationService
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
     }
@@ -134,6 +147,28 @@ final class AppSession: ObservableObject {
         if storeCatalog != nil {
             Task { [weak self] in await self?.refreshCommerceCatalog() }
         }
+    }
+
+    func startPublicConfigurationLifecycle(now: Date = Date()) async {
+        guard !hasStartedPublicConfigurationLifecycle else { return }
+        hasStartedPublicConfigurationLifecycle = true
+        guard let publicConfigurationService else { return }
+
+        publicConfigurationPresentation = await publicConfigurationService
+            .resolveCached(now: now)
+            .presentation
+        Task { [weak self] in
+            guard let self, let service = self.publicConfigurationService else { return }
+            let resolution = await service.refresh(now: Date())
+            self.publicConfigurationPresentation = resolution.presentation
+        }
+    }
+
+    func refreshPublicConfiguration(now: Date = Date()) async {
+        guard let publicConfigurationService else { return }
+        publicConfigurationPresentation = await publicConfigurationService
+            .refresh(now: now)
+            .presentation
     }
 
     /// Typed commerce seams owned by the voluntary C3 purchase presentation. Views never call
@@ -571,6 +606,7 @@ struct AppRouter: View {
         storeCatalog: StoreCatalog? = nil,
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
+        publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -585,6 +621,7 @@ struct AppRouter: View {
                 storeCatalog: storeCatalog,
                 entitlementStore: entitlementStore,
                 trialLifecycleScheduler: trialLifecycleScheduler,
+                publicConfigurationService: publicConfigurationService,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -646,6 +683,7 @@ struct AppRouter: View {
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
             await session.startCommerceLifecycle()
+            await session.startPublicConfigurationLifecycle()
             await session.reconcileTrialLifecycle(
                 settings: settings,
                 locale: locale,
@@ -663,6 +701,7 @@ struct AppRouter: View {
             case .active:
                 Task {
                     await session.refreshCommerceEntitlements()
+                    await session.refreshPublicConfiguration()
                     await session.reconcileTrialLifecycle(
                         settings: settings,
                         locale: locale,

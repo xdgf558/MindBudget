@@ -1208,3 +1208,45 @@ key, Worker deployment, reason-code sink, presentation consumer, paid authority,
 schema, user-facing copy, version, Archive/upload, tester assignment, or distribution action was
 added by this closeout. The Release app-owned HTTP(S) allow-list remains empty and the post-0.9.6
 release hold remains active.
+
+## 2026-08-15 — Session 39 — Implement and verify the fixed C3-03B configuration path
+
+Goal: Implement only the owner-accepted first-party signed configuration transport and optional
+presentation consumer after C3-03A merged, while keeping Production deployment and distribution
+closed.
+
+What changed: Added one exact Development/Staging/Production URL vocabulary and a centralized
+anonymous GET adapter with bounded metadata, ephemeral no-cookie/no-credential/no-cache transport,
+redirect rejection, timeout/cancellation, exact response URL/status/MIME, and 16 KiB streaming
+bound. Embedded only the `mb-config-2026-01` Ed25519 public key. Cache and remote acceptance emit
+closed non-content reason codes; payload, signature, metadata values, IP addresses, and user or
+financial content are never logged. The app resolves cache then refreshes at launch/foreground and
+uses the verified flag only for an optional AI Pro-value trigger when the person is not already
+Pro. Permanent Settings, Restore, Manage Subscription, subscription status, and StoreKit rights
+remain independent.
+
+Worker/key operations: Added an independent Cloudflare Worker, exact request validator,
+environment-specific rate-limit namespaces, `no-store`/security headers, disabled observability,
+and no private key, storage, analytics binding, cookie, CORS, outbound fetch, or app request log.
+The private key remains in an owner-controlled protected file outside the repository. Only
+Development version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was deployed. Staging and Production
+were not deployed. Live traffic confirmed the 387-byte signed response and conservative empty-body
+400/404 rejection behavior; Cloudflare's ordinary injected edge metadata is recorded for final
+privacy/traffic review.
+
+Evidence: The real Development Worker passed the dedicated non-Archive app suite 8/8 with no skip
+at `/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`. Worker tests passed 13/13; typecheck,
+zero-vulnerability high-severity audit, and Production-config dry-run passed. The owning shared-
+host full validation produced 402 results: 395 passed, 7 explicit skips, and 0 failed, including
+14/14 UI tests, Release build, all static gates, and every selected coverage threshold. Evidence:
+`/private/tmp/MindBudget-C303B-Full-Final.xcresult`. One shared-load 0.850044833-second performance
+measurement is retained only as nonpassing diagnostic evidence; the isolated signal passed 10/10
+at `/private/tmp/MindBudget-C303B-StrictPerformance.xcresult`.
+
+Current state: C3-03B is implementation complete pending independent review and green hosted CI;
+it is not Done. C3-04 remains blocked.
+
+What was NOT changed: No schema/payload expansion, entitlement/StoreKit authority, product/price/
+trial, notification, user-content upload, telemetry, Staging/Production deployment, formal
+economics/product, version, Archive/upload, tester assignment, or distribution action changed.
+The post-0.9.6 release hold remains active.

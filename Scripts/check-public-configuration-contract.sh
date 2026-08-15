@@ -79,7 +79,7 @@ for contract in \
   'case invalidValidityWindow' \
   'verified.payload.configVersion >= snapshot.highestAcceptedVersion' \
   'verified.payloadDigest != snapshot.highestAcceptedPayloadDigest' \
-  'private var acceptanceTail: Task<PublicConfigurationResolution, Never>?' \
+  'private var acceptanceTail: Task<PublicConfigurationResolutionResult, Never>?' \
   'try requireExactKeyOccurrences(' \
   'let matchesExpectedSnapshot = expectedSnapshot.map { expected in' \
   'options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]' \
@@ -119,3 +119,4 @@ if [[ "$(grep -Fc 'PublicConfigurationTests.swift in Sources' "${PROJECT_FILE}")
 fi
 
 echo "Signed public configuration core contract passed"
+Scripts/check-public-configuration-transport.sh

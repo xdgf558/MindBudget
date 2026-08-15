@@ -4281,3 +4281,35 @@ What was NOT changed: This closeout adds no URL, request, Release egress excepti
 key, Worker deployment, application consumer, entitlement/StoreKit authority, schema, user-
 visible behavior, version, Archive/upload, tester assignment, or distribution action. The empty
 Release HTTP(S) allow-list and post-0.9.6 release hold remain active.
+
+## 2026-08-15 — Session 118 — Implement C3-03B without opening Production distribution
+
+Goal: Complete the fixed signed public-configuration transport/consumer packet after reviewed
+C3-03A merge, retaining conservative fallback and all later release gates.
+
+What changed: Added the exact environment-isolated anonymous GET adapter, embedded public key,
+closed non-content diagnostics, signed cache/remote lifecycle integration, and one optional Pro-
+value-trigger consumer. Added an independent Cloudflare Worker with strict host/path/method/header
+validation, environment-specific 60/60 rate limiting, seven-day pre-signed envelopes, `no-store`,
+disabled observability, and no private key/storage/outbound fetch/app logging. CI now runs Worker
+typecheck, audit, tests, and Production dry-run. Static gates constrain the only app HTTP(S)
+exception, non-Archive live scheme, Worker contract, and consumer boundary.
+
+Operational evidence: The owner-controlled private key remains outside the repository.
+Development Worker version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was the only deployment. The
+real Development endpoint passed the dedicated app transport/verifier suite 8/8 with no skip;
+Worker tests passed 13/13, audit found zero vulnerabilities, and typecheck/dry-run passed. The
+owning shared-host full validation produced 402 results (395 passed, 7 explicit skips, 0 failed),
+including 14/14 UI, Release build, static gates, and all selected coverage thresholds. The
+isolated local performance signal passed 10/10. Evidence:
+`/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`,
+`/private/tmp/MindBudget-C303B-Full-Final.xcresult`, and
+`/private/tmp/MindBudget-C303B-StrictPerformance.xcresult`.
+
+State: C3-03B is implementation complete pending independent review and green hosted CI; it is
+not Done. C3-04 remains blocked.
+
+What was NOT changed: No Production/Staging deployment, schema vocabulary, paid authority,
+StoreKit fact, product/price/trial, notification, user-content upload, telemetry, formal economics,
+version, Archive/upload, tester assignment, or distribution action changed. The currently uploaded
+0.9.6 binary and post-0.9.6 release hold remain unchanged.

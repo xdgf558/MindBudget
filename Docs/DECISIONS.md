@@ -2149,3 +2149,22 @@ Completion evidence: The review-remediation head `3a53107` passed independent re
 GitHub Actions run `31856271268`; PR #36 merged C3-03A to `main` as `1ebb36c` on 2026-08-15.
 This activates only C3-03B implementation. The empty Release HTTP(S) allow-list, C3-04 block, and
 post-0.9.6 distribution hold remain unchanged.
+
+---
+
+## 2026-08-15 — Keep the public-configuration transport fixed and non-authoritative
+
+Context: C3-03A is Done. C3-03B needs one real first-party path without creating a generic network
+client, entitlement channel, identifier, content upload, or premature Production deployment.
+
+Decision: Detailed ownership lives in DEC-COM-022. The app uses one exact environment-isolated
+anonymous configuration GET, an ephemeral no-cookie/no-cache session, the embedded Ed25519 public
+key, conservative verified cache fallback, and closed non-content reason codes. The independent
+Worker serves only pre-signed bounded envelopes and has no private key, storage, outbound fetch, or
+app logging. Configuration can affect only an optional explicit Pro value trigger and never paid
+authority or permanent purchase/restore/manage access.
+
+Consequences: Development was deployed and passed real adapter/verifier tests; Staging and
+Production remain undeployed. C3-03B is implementation complete pending independent review and
+green CI, not Done. Final binary/Production traffic, privacy/review disclosure, C3-04, formal
+products/economics, Archive/upload, tester assignment, and distribution remain blocked.

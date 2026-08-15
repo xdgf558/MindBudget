@@ -17,3 +17,9 @@ xcuserdata/
 # Local configuration
 *.local.xcconfig
 Config/Local.xcconfig
+
+# Cloudflare Workers local state and secrets
+Services/PublicConfigurationWorker/.dev.vars*
+Services/PublicConfigurationWorker/.env*
+Services/PublicConfigurationWorker/.wrangler/
+Services/PublicConfigurationWorker/node_modules/

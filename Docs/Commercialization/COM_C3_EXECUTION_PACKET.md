@@ -167,7 +167,7 @@ C3-02 owns actual trial activation/renewal reminder scheduling and cancellation/
 
 ## C3-03 — Signed public configuration
 
-Status: **In Progress — C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is In Progress.**
+Status: **In Progress — C3-03A is Done through PR #36 (`1ebb36c`); C3-03B implementation is complete pending independent review.**
 
 Owner instruction: on 2026-08-14 the owner accepted the recommended exact contract in
 `PUBLIC_CONFIGURATION_CONTRACT.md` and authorized C3-03. DEC-COM-021 owns this boundary.
@@ -235,7 +235,7 @@ produced 394 results: 388 passed, 6 explicit opt-in StoreKit runtime probes skip
 
 ### C3-03B — Fixed transport and presentation integration
 
-Status: **In Progress after C3-03A passed independent review, green CI, and merge.**
+Status: **Implementation complete pending independent review and green hosted CI.**
 
 C3-03B may add only the exact anonymous environment-isolated transport and the
 single verified presentation consumer accepted in `PUBLIC_CONFIGURATION_CONTRACT.md`. It must
@@ -246,6 +246,28 @@ vocabulary or make configuration an entitlement, price, trial, or release author
 It also owns closed non-content reason codes for rejected configuration operations; payload and
 signature bytes are never logged. C3-03A intentionally adds no logging sink before that real
 transport/operations boundary exists.
+
+Implementation evidence on 2026-08-15:
+
+- One centralized adapter contains the exact three HTTPS URLs; Release selects only Production,
+  Debug defaults to Development, and a Debug-only launch argument selects Staging. The session is
+  ephemeral, cookie/credential/cache-free, redirect rejecting, time/size bounded, and accepts only
+  the exact URL, status, MIME, signed-envelope size, method, and bounded metadata headers.
+- The app embeds only public key `mb-config-2026-01`. The protected private key remains outside the
+  repository and is used only by the local signing utility. The single consumer can expose an
+  optional AI Pro-value trigger only when the signed flag is true and exact current access is not
+  already Pro; permanent Settings, restore, manage, and subscription-status entry points remain.
+- The independent Worker has exact Development/Staging/Production configuration, per-environment
+  60-request/60-second rate-limit namespaces, `no-store`, no redirects, no outbound fetch, no
+  private key, no storage or analytics binding, and disabled platform observability. Closed client
+  diagnostics contain only typed reason codes.
+- Development version `bf6c5049-a389-4ea7-af0a-e8425b8957e2` was deployed. The dedicated
+  non-Archive `MindBudget-PublicConfig-Live` scheme exercised the real Development endpoint through
+  the app transport, embedded key, verifier, cache, and consumer seam: 8 passed, 0 failed, 0
+  skipped at `/private/tmp/MindBudget-C303B-LiveWorkerFinal.xcresult`. Worker tests passed 13/13;
+  typecheck, high-severity dependency audit, and Production-config dry-run passed.
+- Staging and Production were not deployed. Final Release binary/Production traffic and hosted CI
+  remain pending, so C3-03B is not Done and no Archive/upload/TestFlight/distribution gate moves.
 
 ## C3-04 — UI and release quality
 
