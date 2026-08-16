@@ -530,6 +530,18 @@ and all selected coverage thresholds at
 `/private/tmp/MindBudget-C304-ReviewFix-Full.xcresult`. Hosted CI for the follow-up head remains
 pending, so C3-04 and COM-C3 remain implementation-complete review candidates rather than Done.
 
+The final P3 review follow-up on 2026-08-16 removed purchase-button/action drift by making both
+paths consume the same `canPurchaseSelectedProduct` predicate. Every warning treatment on the Pro
+screen now uses the selected skin's `attentionText` token, and the Pro, subscription-terms, and
+subscription-privacy screens each bind the selected preferred color scheme. The expanded AX5 test
+passed 1/1 at `/private/tmp/MindBudget-C304-P3-AX5-Rerun.xcresult` and retained nine captures—one
+Pro, terms, and privacy image for each owner-approved appearance. All nine were manually inspected
+for readable contrast, correct light/dark presentation, bounds, and clipping. The fresh owning
+validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed. It
+included 398 unit-test results, 15/15 passing UI tests, the Release build, every static gate, and
+all selected coverage thresholds at `/private/tmp/MindBudget-C304-P3-Full2.xcresult`. Hosted CI for
+this new head remains pending, so C3-04 and COM-C3 are not Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not

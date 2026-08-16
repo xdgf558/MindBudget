@@ -47,6 +47,17 @@ struct ProSubscriptionView: View {
         selectedProduct.map(ProCommercePurchaseGate.supportsIntroductoryOffer) ?? false
     }
 
+    private var canPurchaseSelectedProduct: Bool {
+        !isPerformingOperation
+            && hasLiveCatalog
+            && selectedProduct != nil
+            && ProCommercePurchaseGate.permitsNewPurchase(
+                session.commerceSubscriptionState
+            )
+            && hasConfirmedPurchaseAuthority
+            && selectedProductSupportsPurchase
+    }
+
     var body: some View {
         List {
             heroSection
@@ -186,7 +197,7 @@ struct ProSubscriptionView: View {
                     systemImage: "exclamationmark.triangle"
                 )
                 .font(.footnote)
-                .foregroundStyle(.orange)
+                .foregroundStyle(theme.attentionText)
                 .accessibilityIdentifier("commerce.pro.offer.unsupported")
             }
 
@@ -196,7 +207,7 @@ struct ProSubscriptionView: View {
                     systemImage: "exclamationmark.arrow.triangle.2.circlepath"
                 )
                 .font(.footnote)
-                .foregroundStyle(.orange)
+                .foregroundStyle(theme.attentionText)
                 .accessibilityIdentifier("commerce.pro.status.unavailable")
 
                 Button("commerce.pro.status.recheck") {
@@ -222,16 +233,7 @@ struct ProSubscriptionView: View {
                 .frame(minHeight: 30)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(
-                isPerformingOperation
-                    || !hasLiveCatalog
-                    || selectedProduct == nil
-                    || !ProCommercePurchaseGate.permitsNewPurchase(
-                        session.commerceSubscriptionState
-                    )
-                    || !hasConfirmedPurchaseAuthority
-                    || !selectedProductSupportsPurchase
-            )
+            .disabled(!canPurchaseSelectedProduct)
             .accessibilityLabel(Text(primaryButtonTitle))
             .accessibilityHint("commerce.pro.purchase.hint")
             .accessibilityIdentifier("commerce.pro.purchase")
@@ -239,7 +241,7 @@ struct ProSubscriptionView: View {
             if let notice {
                 Label(notice.localizedKey, systemImage: notice.systemImage)
                     .font(.footnote)
-                    .foregroundStyle(notice.isFailure ? Color.orange : theme.inkSecondary)
+                    .foregroundStyle(notice.isFailure ? theme.attentionText : theme.inkSecondary)
                     .accessibilityIdentifier("commerce.pro.notice")
             }
         } footer: {
@@ -268,9 +270,11 @@ struct ProSubscriptionView: View {
             NavigationLink("commerce.pro.terms.title") {
                 ProSubscriptionTermsView(products: products)
             }
+            .accessibilityIdentifier("commerce.pro.terms")
             NavigationLink("commerce.pro.privacy.title") {
                 ProSubscriptionPrivacyView()
             }
+            .accessibilityIdentifier("commerce.pro.privacy")
         } header: {
             Text("commerce.pro.legal")
         } footer: {
@@ -314,10 +318,7 @@ struct ProSubscriptionView: View {
     }
 
     private func purchaseSelectedProduct() async {
-        guard let selectedProduct,
-              hasLiveCatalog,
-              hasConfirmedPurchaseAuthority,
-              ProCommercePurchaseGate.supportsIntroductoryOffer(selectedProduct) else { return }
+        guard canPurchaseSelectedProduct, let selectedProduct else { return }
         isPerformingOperation = true
         notice = nil
         let outcome = await session.purchasePro(selectedProduct.id)
@@ -757,6 +758,7 @@ private struct ProPlanOptionLabel: View {
 
 private struct ProSubscriptionTermsView: View {
     let products: [StoreProductPresentation]
+    @Environment(\.mindBudgetTheme) private var theme
 
     var body: some View {
         List {
@@ -768,6 +770,7 @@ private struct ProSubscriptionTermsView: View {
                     )
                 }
                 Text("commerce.pro.terms.renewal")
+                    .accessibilityIdentifier("commerce.pro.terms.view")
                 Text("commerce.pro.terms.trial")
             }
             Section("commerce.pro.terms.control") {
@@ -775,22 +778,27 @@ private struct ProSubscriptionTermsView: View {
             }
         }
         .settingsListPresentation()
+        .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.terms.title")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 private struct ProSubscriptionPrivacyView: View {
+    @Environment(\.mindBudgetTheme) private var theme
+
     var body: some View {
         List {
             Section("commerce.pro.privacy.storekit") {
                 Text("commerce.pro.privacy.storekit.detail")
+                    .accessibilityIdentifier("commerce.pro.privacy.view")
             }
             Section("commerce.pro.privacy.local") {
                 Text("commerce.pro.privacy.local.detail")
             }
         }
         .settingsListPresentation()
+        .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.privacy.title")
         .navigationBarTitleDisplayMode(.inline)
     }

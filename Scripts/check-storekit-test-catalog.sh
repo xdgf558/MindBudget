@@ -123,7 +123,10 @@ for contract in \
   '@Environment(\.locale)' \
   'renewalDisclosure(for: selectedProduct, locale: locale)' \
   '.preferredColorScheme(theme.preferredColorScheme)' \
+  '.disabled(!canPurchaseSelectedProduct)' \
+  'guard canPurchaseSelectedProduct, let selectedProduct else { return }' \
   'guidance.usesWarningTint ? theme.attentionText : theme.ink' \
+  'notice.isFailure ? theme.attentionText : theme.inkSecondary' \
   'commerce.pro.status.recheck' \
   'session.purchasePro' \
   'session.restoreProPurchases' \
@@ -133,6 +136,16 @@ for contract in \
     exit 1
   fi
 done
+
+if [[ "$(grep -Fc '.preferredColorScheme(theme.preferredColorScheme)' "${PAYWALL_SOURCE}")" -ne 3 ]]; then
+  echo "The Pro, Terms, and Privacy presentation boundaries must each bind the selected skin" >&2
+  exit 1
+fi
+
+if grep -Eq 'Color\.orange|\.foregroundStyle\(\.orange\)' "${PAYWALL_SOURCE}"; then
+  echo "The Pro presentation must use theme attention colors rather than hard-coded orange" >&2
+  exit 1
+fi
 
 for contract in \
   'offer.displayPrice' \

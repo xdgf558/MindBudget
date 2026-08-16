@@ -544,6 +544,35 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 XCTAssertLessThanOrEqual(control.frame.maxY, app.frame.maxY)
             }
 
+            for destination in ["terms", "privacy"] {
+                let link = element("commerce.pro.\(destination)", in: app)
+                for _ in 0..<8 where !link.isHittable {
+                    app.swipeUp()
+                }
+                XCTAssertTrue(
+                    link.waitForExistence(timeout: 2),
+                    "Missing AX5 legal link: \(destination)"
+                )
+                XCTAssertTrue(link.isHittable, "Clipped AX5 legal link: \(destination)")
+                link.tap()
+
+                let destinationView = element("commerce.pro.\(destination).view", in: app)
+                XCTAssertTrue(
+                    destinationView.waitForExistence(timeout: 5),
+                    "Missing AX5 legal destination: \(destination)"
+                )
+                XCTAssertGreaterThanOrEqual(destinationView.frame.minX, app.frame.minX)
+                XCTAssertLessThanOrEqual(destinationView.frame.maxX, app.frame.maxX)
+
+                let legalScreenshot = XCTAttachment(screenshot: app.screenshot())
+                legalScreenshot.name = "MindBudget Pro \(destination) AX5 - \(skin)"
+                legalScreenshot.lifetime = .keepAlways
+                add(legalScreenshot)
+
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+                XCTAssertTrue(element("commerce.pro.view", in: app).waitForExistence(timeout: 2))
+            }
+
             app.navigationBars.buttons.element(boundBy: 0).tap()
             XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
         }

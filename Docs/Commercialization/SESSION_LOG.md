@@ -1406,3 +1406,31 @@ What was NOT changed: No unavailable-authority entitlement decision, StoreKit fa
 restore behavior, product ID, formal price/trial term, signed configuration, Worker/deployment,
 Staging/Production state, schema, user content, telemetry, version, Archive/upload, tester
 assignment, or distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 45 — Close remaining C3-04 presentation review notes
+
+Goal: Resolve the three non-blocking follow-up observations without changing commerce authority or
+opening a later commercialization or release gate.
+
+What changed: Purchase availability now has one shared `canPurchaseSelectedProduct` predicate used
+by both the button's disabled state and the async action guard. Every Pro-screen warning path uses
+the active skin's `attentionText` token. The Pro, subscription-terms, and subscription-privacy
+screens each retain the selected preferred color scheme, and the AX5 UI flow now opens and captures
+all three screens under Aurora, Warm Botanical, and Neon. The static StoreKit contract pins the
+shared purchase gate, the theme-token boundary, and all three preferred-color-scheme bindings.
+
+Evidence: The expanded AX5 test passed 1/1 at
+`/private/tmp/MindBudget-C304-P3-AX5-Rerun.xcresult`; all nine retained screenshots were manually
+inspected for readable contrast, correct appearance, bounds, and clipping. The fresh owning
+validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed. It
+included 398 unit-test results, 15/15 passing UI tests, the Release build, every static gate, and
+all selected coverage thresholds at `/private/tmp/MindBudget-C304-P3-Full2.xcresult`. Hosted CI for
+the follow-up head remains pending.
+
+Current state: C3-04 remains implementation complete pending independent re-review and green
+hosted CI. It is not Done, and COM-C3 is not Done.
+
+What was NOT changed: No StoreKit or entitlement fact, purchase/restore authority, product ID,
+formal price/trial term, signed configuration, Worker/deployment, Staging/Production state, schema,
+user content, telemetry, version, Archive/upload, tester assignment, or distribution action
+changed. The post-0.9.6 release hold remains active.

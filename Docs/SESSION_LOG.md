@@ -4464,3 +4464,29 @@ What was NOT changed: No entitlement/StoreKit authority, purchase/restore behavi
 formal price/trial, signed configuration, Worker/deployment, Staging/Production status, schema,
 user content, telemetry, version, Archive/upload, tester assignment, or distribution action
 changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 124 — Close remaining COM-C3-04 presentation review notes
+
+Goal: Resolve the final non-blocking C3-04 review observations without changing paid authority or
+distribution state.
+
+What changed: The purchase button and its action now consume one shared availability predicate,
+preventing future guard drift. All Pro warning copy uses the selected skin's attention color. The
+Pro, subscription-terms, and subscription-privacy screens each retain the selected preferred color
+scheme. The AX5 flow now verifies navigation and bounds and captures those three screens under all
+three appearances; the StoreKit static contract pins these boundaries.
+
+Evidence: The expanded AX5 test passed 1/1 at
+`/private/tmp/MindBudget-C304-P3-AX5-Rerun.xcresult`, and all nine screenshots were manually
+inspected for readable contrast, correct appearance, bounds, and clipping. Full validation
+produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed. It included 398
+unit-test results, 15/15 passing UI tests, the Release build, every static gate, and all selected
+coverage thresholds at `/private/tmp/MindBudget-C304-P3-Full2.xcresult`. Hosted CI remains pending.
+
+State: C3-04 remains implementation complete pending independent re-review and green hosted CI;
+it and COM-C3 are not Done.
+
+What was NOT changed: No StoreKit/entitlement authority, purchase or restore behavior, product ID,
+formal price/trial term, signed configuration, Worker/deployment, Staging/Production state, schema,
+user content, telemetry, version, Archive/upload, tester assignment, or distribution action
+changed. The post-0.9.6 release hold remains active.
