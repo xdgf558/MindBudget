@@ -412,9 +412,90 @@ struct StoreRuntimeTests {
     @Test
     func unavailableSubscriptionAuthorityNeverPermitsThePurchaseSurface() {
         #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.none))
+        #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.inBillingRetryPeriod))
         #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.expired))
         #expect(ProCommercePurchaseGate.hasConfirmedAuthority(.revoked))
         #expect(!ProCommercePurchaseGate.hasConfirmedAuthority(.unavailable))
+
+        #expect(ProCommercePurchaseGate.permitsNewPurchase(.none))
+        #expect(ProCommercePurchaseGate.permitsNewPurchase(.expired))
+        #expect(ProCommercePurchaseGate.permitsNewPurchase(.revoked))
+        #expect(!ProCommercePurchaseGate.permitsNewPurchase(.subscribed))
+        #expect(!ProCommercePurchaseGate.permitsNewPurchase(.inGracePeriod))
+        #expect(!ProCommercePurchaseGate.permitsNewPurchase(.inBillingRetryPeriod))
+        #expect(!ProCommercePurchaseGate.permitsNewPurchase(.unavailable))
+    }
+
+    @Test
+    func subscriptionSoftLandingCoversEveryVerifiedExceptionalStateBilingually() throws {
+        let cases: [(EffectiveStoreSubscriptionState, ProSubscriptionStatusGuidance, String)] = [
+            (.inGracePeriod, .grace, "commerce.pro.status.grace.title"),
+            (.inBillingRetryPeriod, .billingRetry, "commerce.pro.status.retry.title"),
+            (.expired, .expired, "commerce.pro.status.expired.title"),
+            (.revoked, .revoked, "commerce.pro.status.revoked.title"),
+        ]
+
+        for (state, expected, expectedTitleKey) in cases {
+            let guidance = try #require(ProSubscriptionStatusGuidance(state: state))
+            #expect(guidance == expected)
+            #expect(guidance.titleKey == expectedTitleKey)
+            #expect(!guidance.systemImage.isEmpty)
+
+            let englishTitle = LocalizedCatalog.string(
+                guidance.titleKey,
+                locale: Locale(identifier: "en")
+            )
+            let chineseTitle = LocalizedCatalog.string(
+                guidance.titleKey,
+                locale: Locale(identifier: "zh-Hans")
+            )
+            let englishDetail = LocalizedCatalog.string(
+                guidance.detailKey,
+                locale: Locale(identifier: "en")
+            )
+            let chineseDetail = LocalizedCatalog.string(
+                guidance.detailKey,
+                locale: Locale(identifier: "zh-Hans")
+            )
+            #expect(!englishTitle.isEmpty)
+            #expect(!chineseTitle.isEmpty)
+            #expect(englishTitle != chineseTitle)
+            #expect(!englishDetail.isEmpty)
+            #expect(!chineseDetail.isEmpty)
+            #expect(englishDetail != chineseDetail)
+        }
+
+        #expect(ProSubscriptionStatusGuidance(state: .none) == nil)
+        #expect(ProSubscriptionStatusGuidance(state: .subscribed) == nil)
+        #expect(ProSubscriptionStatusGuidance(state: .unavailable) == nil)
+    }
+
+    @Test
+    func planVoiceOverLabelsFollowTheApplicationLocaleAndStoreKitPrice() {
+        let product = StoreProductPresentation(
+            id: .proAnnual,
+            displayName: "Annual",
+            description: "Annual",
+            displayPrice: "STOREKIT_PRICE_TOKEN_904",
+            subscriptionPeriod: .init(value: 1, unit: .year),
+            introductoryOffer: nil,
+            isEligibleForIntroductoryOffer: false
+        )
+
+        let english = ProCommerceCopy.planAccessibilityLabel(
+            for: product,
+            locale: Locale(identifier: "en")
+        )
+        let chinese = ProCommerceCopy.planAccessibilityLabel(
+            for: product,
+            locale: Locale(identifier: "zh-Hans")
+        )
+
+        #expect(english.contains("STOREKIT_PRICE_TOKEN_904"))
+        #expect(chinese.contains("STOREKIT_PRICE_TOKEN_904"))
+        #expect(english.localizedCaseInsensitiveContains("annual"))
+        #expect(chinese.contains("年付"))
+        #expect(english != chinese)
     }
 
     @Test

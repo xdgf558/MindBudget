@@ -218,6 +218,21 @@ struct DashboardView: View {
                     presentsSettings = true
                 }
 
+                if let guidance = ProSubscriptionStatusGuidance(
+                    state: session.commerceSubscriptionState
+                ) {
+                    NavigationLink {
+                        ProSubscriptionView(session: session)
+                    } label: {
+                        ProSubscriptionStatusSummaryView(guidance: guidance)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .budgetCard(cornerRadius: 18, contentPadding: 14)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("commerce.pro.status.openHint")
+                    .accessibilityIdentifier("dashboard.commerce.status")
+                }
+
                 if let trial = session.trialLifecycle {
                     NavigationLink {
                         ProSubscriptionView(session: session)

@@ -61,9 +61,30 @@ edge response metadata such as `Report-To`/`NEL`; native `URLSession` does not e
 reporting, but provider-level metadata remains part of final review disclosure.
 
 Only Development was deployed and exercised in C3-03B. Staging and Production remain undeployed,
-and the exact adapter remains under independent review plus the final binary/traffic/App Privacy
-release gates. This unreleased source does not change the privacy statement for the currently
-uploaded 0.9.6 binary.
+and the exact adapter remains behind the final binary/traffic/App Privacy release gates. This
+unreleased source does not change the privacy statement for the currently uploaded 0.9.6 binary.
+
+## Commerce and subscription review disclosure
+
+The voluntary MindBudget Pro screen uses Apple StoreKit for localized products, price/period,
+introductory-offer eligibility, purchase confirmation, Restore Purchases, Manage Subscription,
+and verified subscription state. MindBudget receives no payment-card details. No budget, expense,
+income, wishlist, note, merchant, or stable app/user/device identifier enters the StoreKit catalog
+or purchase request.
+
+Billing grace retains Pro. Billing retry, expiry, and revocation remove Pro while preserving the
+person's local records and every Free capability. These exceptional verified states appear as one
+non-blocking bilingual Dashboard card and an explanatory Pro-screen section with explicit Manage
+Subscription and Recheck actions; they never trigger an automatic modal paywall. An unavailable
+or unverified StoreKit authority is not described as Free and cannot enable purchase or a signed-
+configuration value trigger.
+
+Product presentation may partition a cache under an `Unknown` environment so it can safely show
+non-authoritative StoreKit metadata while the app identity is temporarily unavailable. Paid access
+and purchase preflight never accept `Unknown`: they require independently verified AppTransaction
+bundle/environment authority. Prices and trial eligibility are display-only StoreKit facts, never
+entitlement authority. The exact seven-day offer and USD values in the local test fixture are not
+customer terms.
 
 Unreadable or orphaned cooling-off records are isolated from valid reminder reconciliation and
 are never deleted automatically. Settings shows the exact affected count and offers a separate

@@ -23,8 +23,8 @@ detailed phase checklists; it added no paid product behavior.
 ## Current state
 
 - Active phase: **COM-C3. C3-03A and C3-03B are Done after independent review, green CI,
-  and merges through PR #36 (`1ebb36c`) and PR #38 (`db7926d`), respectively. C3-04 is ready but
-  has not started pending explicit owner instruction.** The owner
+  and merges through PR #36 (`1ebb36c`) and PR #38 (`db7926d`), respectively. C3-04
+  implementation is complete pending independent review and green CI.** The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
@@ -261,7 +261,7 @@ products remain blocked until the accepted cost inputs are available.
 
 Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
 (`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is Done through PR #38
-(`db7926d`); C3-04 is ready but not started pending explicit owner instruction.**
+(`db7926d`); C3-04 implementation is complete pending independent review and green CI.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -326,9 +326,13 @@ Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Don
   `31873664396`; PR #38 then merged to `main` as `db7926d` on 2026-08-15. Staging/Production,
   final Release binary/Production traffic evidence, Archive/upload, tester assignment, and
   distribution remain blocked.
-- [ ] **C3-04 — UI and release quality (ready, not started pending explicit owner instruction).**
-  Add billing-retry/expiry soft landing, bilingual copy, VoiceOver, Dynamic Type, appearance
-  testing, and review disclosures.
+- [ ] **C3-04 — UI and release quality (implementation complete pending independent review and
+  green CI).** One non-blocking Dashboard navigation card and the Pro screen now explain verified
+  billing grace, billing retry, expiry, and revocation without changing StoreKit authority or
+  local data. Billing grace retains Pro; the other three states preserve exact Free. Bilingual
+  copy, VoiceOver semantics, accessibility-size plan reflow, three-appearance AX5 coverage,
+  truthful fixture-free customer terms, and current privacy/App Review/release checks are in the
+  candidate. Staging/Production and all distribution gates remain blocked.
 
 Exit gate: purchase presentation is accurate and non-blocking, signed-config failure is safe, and
 no deferred or incomplete product is advertised.

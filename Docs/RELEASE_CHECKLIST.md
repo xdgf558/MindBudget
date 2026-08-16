@@ -5,10 +5,10 @@ It cannot prove account ownership, production signing, physical-device accessibi
 integration behavior, or App Store Connect state. Do not label V1 TestFlight-ready until every
 unchecked item below has been performed against the release commit.
 
-The uploaded 0.9.6 (7) binary is historical and remains unchanged. Current unreleased COM-C1-03
-source removes accepted advanced entries under exact Free but intentionally has no purchase path;
-it must not be archived, uploaded, or distributed until verified purchase/restore, purchase
-presentation, and their owning commercialization release gates are complete.
+The uploaded 0.9.6 (7) binary is historical and remains unchanged. Current post-0.9.6
+commercialization source must not be archived, uploaded, assigned to testers, or distributed until
+COM-C3 and every later owning iPhone release gate are complete. A source-level StoreKit or signed-
+configuration implementation is not Production deployment or final-binary evidence.
 
 ## Automated release gates
 
@@ -134,9 +134,11 @@ used for every Archive and upload.
 - [ ] Capture localized screenshots from the release build using synthetic data only.
 - [ ] Complete App Privacy, age rating, encryption/export-compliance, content-rights, and regional
   availability forms from the final binary rather than the development plan.
-- [ ] Confirm the release app/Archive contains no local StoreKit Configuration fixture or Debug
-  entitlement provider. Until the owning COM gates complete, also confirm it contains no runtime
-  StoreKit authority, paywall, paid lock, trial, quota, ad, or analytics.
+- [ ] Confirm the release app/Archive contains no local StoreKit Configuration fixture, Debug
+  entitlement provider, Development/Staging configuration endpoint, provisional price/trial
+  literal, or deferred Lifetime/cloud-AI quota/iCloud/receipt/Watch claim. Confirm only approved
+  products and current StoreKit terms are presented, and that the embedded Production host/key
+  match the dated captured-traffic and Worker-deployment evidence.
 - [ ] Run Instruments for launch, scrolling, memory, and persistence work; inspect Organizer and
   device logs for crashes or hangs.
 - [ ] Distribute first to internal TestFlight testers, collect results, increment build number for

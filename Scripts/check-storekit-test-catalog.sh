@@ -122,6 +122,11 @@ for contract in \
   'commerce.pro.offer.unsupported' \
   '@Environment(\.locale)' \
   'renewalDisclosure(for: selectedProduct, locale: locale)' \
+  '.preferredColorScheme(theme.preferredColorScheme)' \
+  '.disabled(!canPurchaseSelectedProduct)' \
+  'guard canPurchaseSelectedProduct, let selectedProduct else { return }' \
+  'guidance.usesWarningTint ? theme.attentionText : theme.ink' \
+  'notice.isFailure ? theme.attentionText : theme.inkSecondary' \
   'commerce.pro.status.recheck' \
   'session.purchasePro' \
   'session.restoreProPurchases' \
@@ -131,6 +136,16 @@ for contract in \
     exit 1
   fi
 done
+
+if [[ "$(grep -Fc '.preferredColorScheme(theme.preferredColorScheme)' "${PAYWALL_SOURCE}")" -ne 3 ]]; then
+  echo "The Pro, Terms, and Privacy presentation boundaries must each bind the selected skin" >&2
+  exit 1
+fi
+
+if grep -Eq 'Color\.orange|\.foregroundStyle\(\.orange\)' "${PAYWALL_SOURCE}"; then
+  echo "The Pro presentation must use theme attention colors rather than hard-coded orange" >&2
+  exit 1
+fi
 
 for contract in \
   'offer.displayPrice' \
@@ -152,16 +167,26 @@ paywall_entry_sites="$({ find MindBudget -type f -name '*.swift' ! -path "${PAYW
   -exec grep -nH 'ProSubscriptionView' {} + || true; })"
 settings_entry_count="$(grep -Fc "${SETTINGS_SOURCE}:" <<< "${paywall_entry_sites}" || true)"
 dashboard_entry_count="$(grep -Fc "${DASHBOARD_SOURCE}:" <<< "${paywall_entry_sites}" || true)"
-if [[ "$(wc -l <<< "${paywall_entry_sites}" | tr -d ' ')" != "3" ]] \
+if [[ "$(wc -l <<< "${paywall_entry_sites}" | tr -d ' ')" != "4" ]] \
   || [[ "${settings_entry_count}" != "2" ]] \
-  || [[ "${dashboard_entry_count}" != "1" ]]; then
-  echo "Pro presentation must remain at two explicit Settings triggers plus one verified-trial Dashboard card" >&2
+  || [[ "${dashboard_entry_count}" != "2" ]]; then
+  echo "Pro presentation must remain at two explicit Settings triggers plus the verified-trial and verified-status Dashboard cards" >&2
   printf '%s\n' "${paywall_entry_sites}" >&2
   exit 1
 fi
 
 grep -Fq 'if let trial = session.trialLifecycle' "${DASHBOARD_SOURCE}" || {
   echo "The Dashboard Pro entry must remain conditional on a verified trial lifecycle" >&2
+  exit 1
+}
+
+grep -Fq 'if let guidance = ProSubscriptionStatusGuidance(' "${DASHBOARD_SOURCE}" || {
+  echo "The C3-04 Dashboard Pro entry must remain conditional on verified subscription-status guidance" >&2
+  exit 1
+}
+
+grep -Fq '.accessibilityIdentifier("dashboard.commerce.status")' "${DASHBOARD_SOURCE}" || {
+  echo "The non-blocking C3-04 status entry must retain its review/accessibility seam" >&2
   exit 1
 }
 

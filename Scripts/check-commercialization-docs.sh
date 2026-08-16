@@ -281,8 +281,7 @@ for c303_completion in \
   'GitHub Actions run `31873664396`' \
   'PR #38' \
   '`db7926d`' \
-  'C3-03 is Done' \
-  'C3-04 is ready but not started'; do
+  'C3-03 is Done'; do
   if ! grep -Fq "${c303_completion}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -295,6 +294,42 @@ for c303_completion in \
     exit 1
   fi
 done
+
+# These phrases are deliberate cross-file contract anchors, not incidental prose. If C3-04's
+# accepted presentation/release boundary changes, update the owning decision and every anchor in
+# the same reviewed change instead of weakening this check.
+for c304_contract in \
+  'C3-04 implementation is complete pending independent review and green CI' \
+  'one non-blocking Dashboard navigation card' \
+  'Billing grace retains Pro' \
+  'Billing retry, expiry, and revocation' \
+  'AX5' \
+  'Staging/Production'; do
+  if ! grep -Fq "${c304_contract}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/STOREKIT_TEST_MATRIX.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/RELEASE_CHECKLIST.md; then
+    echo "C3-04 implementation/release contract is missing: ${c304_contract}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C3-04 is ready but not started|C3-04 remains blocked|C3-04 implementation is not started' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C3-04 as not started or blocked" >&2
+  exit 1
+fi
 
 if grep -Eq 'C3-03B (is )?implementation complete pending|C3-03B remains implementation complete pending|C3-03B is In Progress|C3-03B has now implemented.*pending independent review|C3-03B is not Done|Hosted CI remains pending' \
     Docs/COMMERCIALIZATION_TASKS.md \

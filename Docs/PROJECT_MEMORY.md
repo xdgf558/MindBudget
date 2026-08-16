@@ -109,8 +109,13 @@ independent review and green GitHub Actions run
   Development deployment `bf6c5049-a389-4ea7-af0a-e8425b8957e2` passed the real live app path 8/8
   with no skip; the Worker passed 13/13 tests plus typecheck, audit, and Production dry-run. The
   reviewed head `09c382e` passed GitHub Actions run `31873664396`; PR #38 then merged to `main` as
-  `db7926d` on 2026-08-15. C3-04 is ready but not started pending explicit owner instruction.
-  Staging/Production, final binary/traffic gates, and distribution remain blocked.
+  `db7926d` on 2026-08-15. C3-04 implementation is complete pending independent review and green
+  CI: one non-blocking Dashboard navigation card plus the Pro screen explain verified exceptional
+  StoreKit states, with bilingual VoiceOver/AX5 presentation and updated release disclosure. Local
+  evidence is 24/24 focused StoreKit-domain tests, a manually inspected 1/1 AX5 three-appearance
+  screenshot run, and 413 final validation results with 406 passed, 7 explicit opt-in/runtime skips,
+  and 0 failed at `/private/tmp/MindBudget-C304-Full-Final.xcresult`.
+  Staging/Production, formal economics, final binary/traffic gates, and distribution remain blocked.
 Its review remediation uses fixed whole-second UTC timestamps, rejects duplicate JSON keys,
 serializes concurrent high-water acceptance, and requires abstraction-level write readback. A
 corrupt high-water record remains fail-closed until the app data container is deleted and the app

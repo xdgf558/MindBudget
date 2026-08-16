@@ -635,3 +635,35 @@ context.
   enabled presentation until a later foreground refresh after signed expiry; detached refresh
   work that survives caller cancellation; and treating Development evidence as Production release
   evidence.
+
+## DEC-COM-023 — Present subscription soft landing as one non-blocking verified-state surface
+
+- Status/date: **Accepted implementation boundary for COM-C3-04 — 2026-08-15**
+- Requirements: REQ-STOREKIT-LIFECYCLE-001
+- Decision: A verified exceptional StoreKit state may produce one calm Dashboard navigation card
+  and one explanatory section on the voluntary Pro screen. Neither surface is an automatic modal
+  or entitlement authority. Billing grace retains Pro. Billing retry, expiry, and revocation do
+  not grant Pro; they preserve local data and every Free capability and expose explicit Manage
+  Subscription and Recheck actions.
+- Purchase boundary: Billing grace and billing retry do not start a second purchase flow. Expired
+  or revoked users may review and select only currently live, structurally accepted StoreKit
+  products. Unavailable or unverified authority is not a Free state and continues to block a new
+  purchase. Status guidance never changes StoreKit facts or signed-configuration eligibility.
+- Copy and accessibility boundary: Every new status, action, plan-selection label, and hint is
+  localized in English and Simplified Chinese. Plan rows reflow vertically at accessibility text
+  sizes, status is conveyed by text and symbol rather than color alone, and the primary purchase,
+  restore, and manage controls remain reachable at AX5 across Aurora Glow, Warm Botanical, and
+  Neon Pulse. The Pro list applies the selected skin's light/dark preference locally so an
+  in-session skin change cannot briefly combine stale system text colors with the new row
+  appearance. Customer copy never hardcodes the local fixture's price or seven-day duration;
+  exact terms and eligibility remain StoreKit/App Store facts.
+- Review and release boundary: Review notes disclose Apple-handled purchase/status, local-data
+  retention, the first-party anonymous signed-config request, and ordinary Cloudflare edge
+  connection metadata. Final screenshots may advertise only live approved StoreKit products and
+  must omit Lifetime, cloud-AI quotas, receipt/iCloud/Watch claims, provisional prices/trials, or
+  another deferred product. Staging/Production deployment, formal economics, final Release
+  binary/traffic evidence, Archive/upload, tester assignment, and distribution remain blocked.
+- Alternatives rejected: automatic blocking paywall; treating StoreKit-unavailable as exact Free;
+  hiding local data after a paid-state loss; opening a second purchase during grace/retry; color-
+  only status; fixed-height/truncating plan rows; fixture literals in customer terms; and release
+  screenshots that advertise incomplete work.
