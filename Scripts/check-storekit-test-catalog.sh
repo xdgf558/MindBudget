@@ -123,6 +123,7 @@ for contract in \
   '@Environment(\.locale)' \
   'renewalDisclosure(for: selectedProduct, locale: locale)' \
   '.preferredColorScheme(theme.preferredColorScheme)' \
+  'guidance.usesWarningTint ? theme.attentionText : theme.ink' \
   'commerce.pro.status.recheck' \
   'session.purchasePro' \
   'session.restoreProPurchases' \

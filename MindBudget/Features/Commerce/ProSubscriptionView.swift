@@ -59,10 +59,10 @@ struct ProSubscriptionView: View {
             legalSection
         }
         .settingsListPresentation()
-        // Keep the StoreKit disclosure surface synchronized with the selected skin even when
-        // the enclosing navigation stack is still applying its previous color-scheme update.
-        // Without this local preference, a rapid dark↔light skin change can briefly pair the
-        // new list background with stale system text colors and produce unreadable rows.
+        // AppRouter already supplies the same selected-skin preference at the root. Manual AX5
+        // captures nevertheless proved that this pushed List can retain the preceding system text
+        // scheme during a rapid dark↔light change. This local binding is therefore an intentional
+        // presentation-boundary override, not a second theme source.
         .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.title")
         .navigationBarTitleDisplayMode(.inline)
@@ -636,7 +636,12 @@ enum ProSubscriptionStatusGuidance: String, Equatable, Sendable {
             self = .expired
         case .revoked:
             self = .revoked
-        case .none, .subscribed, .unavailable:
+        case .none, .subscribed:
+            return nil
+        case .unavailable:
+            // Unavailable is not exact Free. It intentionally skips this verified-state card
+            // because purchaseSection already presents the distinct unavailable-authority copy,
+            // disables purchase, and exposes the user-initiated Recheck action.
             return nil
         }
     }
@@ -682,7 +687,7 @@ struct ProSubscriptionStatusSummaryView: View {
         VStack(alignment: .leading, spacing: 8) {
             Label(LocalizedStringKey(guidance.titleKey), systemImage: guidance.systemImage)
                 .font(.headline)
-                .foregroundStyle(guidance.usesWarningTint ? Color.orange : theme.ink)
+                .foregroundStyle(guidance.usesWarningTint ? theme.attentionText : theme.ink)
             Text(LocalizedStringKey(guidance.detailKey))
                 .font(.subheadline)
                 .foregroundStyle(theme.inkSecondary)

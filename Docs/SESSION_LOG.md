@@ -4433,3 +4433,34 @@ What was NOT changed: No StoreKit or entitlement authority, product IDs, formal 
 signed configuration or Worker deployment, Staging/Production deployment, data schema, user content,
 telemetry, version, Archive/upload, tester assignment, or distribution action changed. The
 post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 123 — Resolve COM-C3-04 review feedback
+
+Goal: Address the actionable UI/release-quality review findings and record the rejected
+unavailable-as-Free finding accurately, without changing paid authority or distribution state.
+
+What changed: The existing unavailable-authority purchase section was confirmed to show distinct
+localized copy, disable purchase, and retain Recheck, so a code comment now explains why the
+verified-state guidance does not duplicate that surface. Exceptional-state emphasis now uses the
+selected skin's `attentionText` token. The Pro screen retains its local preferred-color-scheme
+binding because the root already had the same value when the pushed List nevertheless exhibited a
+captured appearance-transition lag. The StoreKit static contract pins the theme-aware tint, and
+the commercialization test matrix now explicitly separates automated AX5 reachability evidence
+from manual screenshot-based contrast review.
+
+Evidence: The StoreKit-domain suite passed 24/24 at
+`/private/tmp/MindBudget-C304-ReviewFix-StoreRuntime.xcresult`; the three-appearance AX5 run passed
+1/1 at `/private/tmp/MindBudget-C304-ReviewFix-AX5.xcresult`, followed by manual inspection of all
+three retained captures. Full validation produced 413 results: 406 passed, 7 explicit opt-in/
+runtime skips, and 0 failed. All 398 unit tests and 15/15 UI tests, the Release build, static gates,
+and selected coverage thresholds passed at
+`/private/tmp/MindBudget-C304-ReviewFix-Full.xcresult`. Hosted CI for the follow-up head remains
+pending.
+
+State: C3-04 remains implementation complete pending independent re-review and green hosted CI;
+it and COM-C3 are not Done.
+
+What was NOT changed: No entitlement/StoreKit authority, purchase/restore behavior, product,
+formal price/trial, signed configuration, Worker/deployment, Staging/Production status, schema,
+user content, telemetry, version, Archive/upload, tester assignment, or distribution action
+changed. The post-0.9.6 release hold remains active.

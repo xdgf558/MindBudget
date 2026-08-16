@@ -1374,3 +1374,35 @@ What was NOT changed: No entitlement or StoreKit facts, product IDs, formal pric
 signed-configuration vocabulary, Worker source/deployment, Staging/Production deployment,
 content/identifier/telemetry policy, schema, version, Archive/upload, tester assignment, or
 distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 44 — Address C3-04 independent-review presentation findings
+
+Goal: Resolve the actionable C3-04 review feedback while documenting why the unavailable-as-Free
+P1 did not match the existing presentation and without expanding the packet or release authority.
+
+What changed: The existing purchase section remains the single unavailable-authority surface: it
+shows localized unavailable copy, disables purchase, and exposes Recheck, so exact Free and
+StoreKit-unavailable were already distinguishable. A code comment now makes that boundary explicit
+instead of adding a duplicate exceptional-state card. The exceptional-state warning tint now uses
+the active skin's `attentionText` token. The Pro screen's local preferred-color-scheme binding is
+retained with an explicit explanation that the root already supplies the same value, but retained
+AX5 evidence showed a pushed List could lag during a rapid appearance transition. The StoreKit
+gate pins the theme-token use, and the test matrix now states that AX5 automation proves control
+reachability and bounds, not visual contrast.
+
+Evidence: The focused StoreKit-domain run passed 24/24 at
+`/private/tmp/MindBudget-C304-ReviewFix-StoreRuntime.xcresult`. The three-appearance AX5 test passed
+1/1 at `/private/tmp/MindBudget-C304-ReviewFix-AX5.xcresult`; all three retained captures were
+manually inspected for readability, bounds, and clipping. The full validation produced 413
+results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed. All 398 unit tests, 15/15 UI
+tests, the Release build, static gates, and selected coverage thresholds passed at
+`/private/tmp/MindBudget-C304-ReviewFix-Full.xcresult`. Hosted CI for the follow-up head remains
+pending.
+
+Current state: C3-04 remains implementation complete pending independent re-review and green
+hosted CI. It is not Done, and COM-C3 is not Done.
+
+What was NOT changed: No unavailable-authority entitlement decision, StoreKit fact, purchase or
+restore behavior, product ID, formal price/trial term, signed configuration, Worker/deployment,
+Staging/Production state, schema, user content, telemetry, version, Archive/upload, tester
+assignment, or distribution action changed. The post-0.9.6 release hold remains active.

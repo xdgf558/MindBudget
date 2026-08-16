@@ -285,10 +285,12 @@ state and receives no exceptional-state card or enabled purchase.
 Pure tests cover the four-state presentation table, exact purchase gate, English/Chinese strings,
 and VoiceOver plan labels under an explicit app locale with StoreKit-supplied price tokens. The AX5
 UI test selects all three appearances and verifies that purchase remains visible and restore/manage
-remain reachable without horizontal or vertical clipping. Customer terms no longer hardcode the
-fixture-only seven-day duration. Review notes disclose Apple-handled commerce, local-data
-retention, the exact anonymous first-party configuration request, and ordinary edge connection
-metadata; screenshots must not advertise a deferred product or provisional term.
+remain reachable without horizontal or vertical clipping. Those automated assertions prove
+existence, bounds, and hit testing; they do not prove visual contrast. The retained screenshots
+therefore require separate manual contrast inspection for every appearance. Customer terms no
+longer hardcode the fixture-only seven-day duration. Review notes disclose Apple-handled commerce,
+local-data retention, the exact anonymous first-party configuration request, and ordinary edge
+connection metadata; screenshots must not advertise a deferred product or provisional term.
 
 The production derivation of `hasVerifiedStatusTransaction`, `hasVerifiedRenewalInfo`, and
 `hasVerifiedAppBundle` remains outside direct unit construction. Those booleans are consumed by

@@ -504,6 +504,32 @@ static gates, and every selected coverage threshold. Evidence:
 so C3-04 and COM-C3 are not Done. No Production deployment, final customer economics, Archive,
 upload, tester assignment, or distribution permission is claimed.
 
+Independent-review remediation on 2026-08-16 confirmed that StoreKit-unavailable presentation was
+already distinct from exact Free: the existing purchase section shows localized unavailable-
+authority copy, disables purchase, and keeps the user-initiated Recheck action reachable. The
+verified-state guidance initializer now documents why it must not add a duplicate status card for
+that same condition. The exceptional-state tint now uses `theme.attentionText` instead of a hard-
+coded orange. The Pro screen's local preferred-color-scheme binding remains intentionally in place:
+`AppRouter` already supplied the same root value, while the earlier retained AX5 screenshot proved
+that a pushed `List` could still display the preceding scheme during a rapid appearance transition.
+The StoreKit contract gate now pins the theme-token boundary, and the matrix explicitly records
+that automated AX5 assertions prove reachability and bounds, while contrast still requires manual
+inspection of retained screenshots.
+
+The review-fix StoreKit-domain run passed 24/24 with no failure or skip at
+`/private/tmp/MindBudget-C304-ReviewFix-StoreRuntime.xcresult`. The three-appearance AX5 run passed
+1/1 at `/private/tmp/MindBudget-C304-ReviewFix-AX5.xcresult`; its Aurora, Warm Botanical, and Neon
+captures were manually inspected at
+`/private/tmp/MindBudget-C304-ReviewFix-AX5-Attachments/389C83B9-37FF-473F-A365-BE6AEA0D4ACC.png`,
+`/private/tmp/MindBudget-C304-ReviewFix-AX5-Attachments/E23DC834-7596-4D29-9894-095D50113DA2.png`,
+and
+`/private/tmp/MindBudget-C304-ReviewFix-AX5-Attachments/C809B330-F3F3-48FB-AFBF-F39C9BFAEF3E.png`.
+The fresh owning validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and
+0 failed. All 398 unit tests and 15/15 UI tests passed with the Release build, every static gate,
+and all selected coverage thresholds at
+`/private/tmp/MindBudget-C304-ReviewFix-Full.xcresult`. Hosted CI for the follow-up head remains
+pending, so C3-04 and COM-C3 remain implementation-complete review candidates rather than Done.
+
 ## Result and report paths
 
 `Scripts/validate.sh` accepts an optional `MINDBUDGET_RESULT_BUNDLE_PATH`. The path must not
