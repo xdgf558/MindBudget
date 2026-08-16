@@ -137,6 +137,10 @@ Status: Done
 - [x] Anchor Today's reference amount at the start of each calendar day so every flexible expense
   reduces it one for one, clamp the visible value at zero with a localized non-color-only notice,
   and expose all expense categories in one horizontally scrollable selector.
+- [ ] Make the Add Expense category chooser fully discoverable and tappable at true AX5 in both
+  English and Simplified Chinese, including categories beyond the first visible group. Correct the
+  UI-test content-size launch value and add end-to-end AX5 coverage; keep this as a standalone
+  accessibility follow-up rather than coupling it to the Insights chart fix in PR #41.
 - [x] Add an optional, default-off Face ID app lock under Privacy controls, with authenticated
   enable/disable, launch and foreground locking, a passcode recovery path, and an opaque privacy
   cover while locked.

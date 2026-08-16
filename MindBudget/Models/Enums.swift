@@ -151,6 +151,20 @@ enum SpendingInsightType: String, Codable, CaseIterable, Sendable, StringIdentif
     case monthlySummary
     case safeToProceed
 
+    /// Only facts that remain meaningful after the entry flow belong in retrospective
+    /// surfaces. `safeToProceed` is a point-in-time candidate check whose balance can
+    /// become stale as soon as another entry is saved.
+    var isDurableReviewInsight: Bool {
+        switch self {
+        case .highSinglePurchase, .categoryBudgetRisk, .lateNightSpending,
+             .repeatedStressSpending, .imageRelatedIncrease, .impulseCluster,
+             .wishlistCoolingOff, .coolingOffSuccess, .monthlySummary:
+            true
+        case .safeToProceed:
+            false
+        }
+    }
+
     var canInterrupt: Bool {
         switch self {
         case .highSinglePurchase, .categoryBudgetRisk, .lateNightSpending,

@@ -395,12 +395,12 @@ struct Phase6FeatureTests {
         _ = try await controller.dataActor.upsertSpendingInsights(
             [
                 InsightDraft(
-                    type: .safeToProceed,
+                    type: .coolingOffSuccess,
                     severity: .info,
                     dedupeKey: "phase6-deletion-fixture",
                     payload: [:],
                     throttleMetadata: ReminderThrottleMetadata(
-                        scopeKey: "safeToProceed:global",
+                        scopeKey: "coolingOffSuccess:global",
                         categoryRiskBasisPoints: nil
                     ),
                     relatedCategory: nil,

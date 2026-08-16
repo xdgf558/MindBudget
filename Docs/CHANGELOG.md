@@ -8,6 +8,11 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
 
 ### Changed
 
+- Corrected Insights so the point-in-time "budget still has a buffer" result is no longer stored
+  or shown later as if it were a current balance; older stored copies are also hidden. The
+  category breakdown is now a localized donut chart with a Dynamic Type-aware category key. It
+  preserves up to six actual category names and uses a combined remainder only from seven
+  categories onward, so every recorded amount in the 30-day total remains represented.
 - Added bilingual, non-blocking subscription-status guidance for StoreKit-verified billing grace,
   billing retry, expiry, and revocation. Grace keeps Pro; retry, expiry, and revocation preserve
   local data and Free capabilities while providing Manage Subscription and Recheck actions. The

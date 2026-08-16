@@ -1434,3 +1434,29 @@ What was NOT changed: No StoreKit or entitlement fact, purchase/restore authorit
 formal price/trial term, signed configuration, Worker/deployment, Staging/Production state, schema,
 user content, telemetry, version, Archive/upload, tester assignment, or distribution action
 changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 46 — Pause commercialization for an independent Insights correction
+
+Goal: Preserve the commercial phase boundary while correcting a reported Free-core Insights
+presentation defect on a separate branch.
+
+What changed: No commerce implementation changed. The core fix makes the point-in-time
+`safeToProceed` entry check non-durable, hides legacy copies from retrospective reads, and replaces
+the 30-day category prefix bar chart with a lossless top-five-plus-remainder donut. Main project
+memory owns the detailed calculation and UI decision.
+
+Evidence: Focused Phase 5/11 tests passed 69/69, the legacy insight suite passed 39/39, and the
+focused Insights UI flow passed 1/1 with retained visual evidence. The Phase 6/10 regression
+rerun passed 16/16, including the strict local 10,000-expense wall-clock benchmark. Final
+validation used the repository's explicit wall-clock exclusion for the concurrently loaded full
+suite and produced 416 results: 409 passed, 7 explicit opt-in/runtime skips, and 0 failed. It
+included 401 unit-test results, 15/15 passing UI tests, the Release build, every static gate, and
+all selected coverage thresholds at `/private/tmp/MindBudget-InsightsFix-FullFinalSkip.xcresult`.
+
+Current state: New commercialization development remains paused. This core correction does not
+close C3-04 documentation, start a later COM packet, or relax any commercial or release gate.
+
+What was NOT changed: No StoreKit/entitlement authority, product, purchase/restore behavior,
+signed-configuration field or transport, Worker/deployment, Staging/Production status, formal
+price/trial term, privacy/network allowance, version, Archive/upload, tester assignment, or
+distribution action changed. The post-0.9.6 release hold remains active.

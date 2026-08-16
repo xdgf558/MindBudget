@@ -1408,7 +1408,8 @@ actor DataActor {
         try commit {
             var summaries: [SpendingInsightSummary] = []
             var processedKeys: Set<String> = []
-            for draft in drafts where processedKeys.insert(draft.dedupeKey).inserted {
+            for draft in drafts where draft.type.isDurableReviewInsight {
+                guard processedKeys.insert(draft.dedupeKey).inserted else { continue }
                 guard !draft.dedupeKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       draft.periodStart < draft.periodEnd else {
                     throw DataValidationError.invalidSpendingInsight
@@ -1474,7 +1475,15 @@ actor DataActor {
                 sortBy: [SortDescriptor(\SpendingInsight.createdAt, order: .reverse)]
             )
         }
-        return try modelContext.fetch(descriptor).map { try spendingInsightSummary($0) }
+        return try modelContext.fetch(descriptor)
+            // Hide point-in-time positive checks written by older builds before decoding
+            // their payload. A malformed legacy safe check is intentionally irrelevant to
+            // a retrospective surface, whereas an unknown type still reaches the strict
+            // mapper so corrupted durable data fails closed.
+            .filter {
+                SpendingInsightType(rawValue: $0.typeRaw)?.isDurableReviewInsight ?? true
+            }
+            .map { try spendingInsightSummary($0) }
     }
 
     func dismissSpendingInsight(id: UUID, at date: Date) throws {

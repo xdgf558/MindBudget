@@ -4490,3 +4490,100 @@ What was NOT changed: No StoreKit/entitlement authority, purchase or restore beh
 formal price/trial term, signed configuration, Worker/deployment, Staging/Production state, schema,
 user content, telemetry, version, Archive/upload, tester assignment, or distribution action
 changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 125 — Correct stale budget-buffer insight and category chart
+
+Goal: Pause new commercialization work to investigate the reported current-cycle buffer mismatch
+and replace the category comparison with a more objective proportional chart.
+
+What changed: The investigation confirmed that `BudgetEngine` includes current-cycle expenses;
+the incorrect-looking ¥4,088.70 was a persisted `safeToProceed` payload calculated for an earlier
+expense candidate, then displayed later as though it were current. The positive check remains
+available during expense entry but is no longer persisted, and legacy rows are filtered from
+retrospective reads without deleting user data. The category chart is now a localized donut with
+the five largest categories plus a checked aggregate of all remaining categories, so the chart
+represents the complete rolling 30-day amount. Deterministic aggregation, new/legacy persistence,
+and UI reachability regressions were added.
+
+Evidence: Focused Phase 5/11 tests passed 69/69, the follow-up Phase 5 legacy-row suite passed
+39/39, and the focused Insights UI flow passed 1/1 with a retained screenshot at
+`/private/tmp/MindBudget-InsightsFix-UI.xcresult`. The Phase 6/10 regression rerun passed 16/16,
+including the strict local 10,000-expense wall-clock benchmark, at
+`/private/tmp/MindBudget-InsightsFix-FailureSuites.xcresult`. Final validation then used the
+repository's explicit wall-clock exclusion for the concurrently loaded full suite and produced
+416 results: 409 passed, 7 explicit opt-in/runtime skips, and 0 failed. It included 401 unit-test
+results, 15/15 passing UI tests, the Release build, every static gate, and all selected coverage
+thresholds at `/private/tmp/MindBudget-InsightsFix-FullFinalSkip.xcresult`.
+
+State: Core bug-fix implementation and local validation are complete pending independent review.
+The next commercialization packet remains paused; C3-04 source is already merged but its separate
+commercial closeout is not advanced by this fix.
+
+What was NOT changed: No budget formula, expense amount, category assignment, schema, StoreKit or
+entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
+Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
+remains active.
+
+## 2026-08-16 — Session 126 — Resolve Insights persistence and chart review findings
+
+Goal: Close the review findings in the Insights legacy-read path and category donut without
+changing budget authority, persisted schema, or commercialization scope.
+
+What changed: Retrospective insight reads now inspect persisted `typeRaw` before decoding a row.
+A known legacy `safeToProceed` row is hidden before its payload is read, so a corrupted stale
+positive check cannot prevent durable insight cards or the Insights page from loading. Unknown raw
+types still reach the strict mapper and fail closed. The category donut preserves all six real
+category labels, aggregates only from seven categories onward, and replaces Charts' fixed bottom
+legend with an app-owned category-and-amount key. It uses a two-column grid at normal text sizes
+and a one-column AX5 layout with explicit VoiceOver label/value semantics.
+
+Evidence: Focused `Phase5FeatureTests` and `Phase11FreeTierTests` passed 72/72 on iPhone 17 Pro,
+iOS 26.5. The malformed legacy-safe-check regression, six-category boundary, seven-category
+remainder, and deterministic normal-versus-accessibility layout-contract tests are included. The
+final English and Simplified Chinese localized UI runs passed 2/2 at
+`/private/tmp/MindBudget-InsightsReview-LocalizedLegend-Final.xcresult`; each retained a screenshot
+and asserted all six key entries exist, are reachable, and remain within the horizontal app bounds.
+As supplemental evidence, an exploratory run with the simulator's actual AX5 content-size category
+passed 1/1 in English at
+`/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4.xcresult`. Manual inspection of its
+top and bottom exports at
+`/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4-Attachments/3F914329-58C2-40FA-A554-6B2D5252C282.png`
+and `/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4-Attachments/D363F962-E93E-4AAA-B038-A68036EF4747.png`
+confirmed that the category key uses the intended single-column layout without horizontal label or
+amount clipping. The retained bilingual UI tests intentionally run at normal Dynamic Type; the AX5
+branch is language-independent and is locked by the focused layout-contract test. A matching true
+AX5 Chinese end-to-end run was not claimed because its data-preparation flow was blocked in the
+pre-existing Add Expense horizontal category chooser before the Insights chart was reached. The
+money, network-egress, commercialization-document, and StoreKit-catalog static gates passed, and
+`git diff --check` is clean.
+
+What was NOT changed: No budget formula, expense amount, category assignment, schema, StoreKit or
+entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
+Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
+remains active.
+
+## 2026-08-16 — Session 127 — Close PR #41 visual-review follow-ups
+
+Goal: Confirm the revised Insights category chart under every included skin before merge and
+separate the pre-existing AX5 Add Expense category-selector limitation from this focused fix.
+
+What changed: No runtime or retained test code changed. A temporary UI probe created the same
+six-category dataset, switched through Aurora Glow, Warm Botanical, and Neon Pulse, and captured
+both the donut and the complete app-owned legend under each skin. The probe was removed after the
+run. `Docs/TASKS.md` now carries a standalone accessibility follow-up to make every Add Expense
+category discoverable and tappable at true AX5 in English and Simplified Chinese and to correct
+the UI-test content-size launch value.
+
+Evidence: PR #41 head `7884b36` completed hosted CI successfully. The temporary three-skin probe
+passed 1/1 at `/private/tmp/MindBudget-Insights-ThreeSkins-Final2.xcresult`; its six exported
+screenshots are under `/private/tmp/MindBudget-Insights-ThreeSkins-Final2-Attachments`. Manual
+inspection confirmed that all six donut colors remain distinct, the two-column category names and
+amounts are readable without clipping or overlap, and card/background contrast is coherent under
+all three skins. This is normal-Dynamic-Type appearance evidence; the already recorded true-AX5
+English chart evidence remains separate, and the Chinese true-AX5 flow remains assigned to the
+new standalone category-selector task.
+
+What was NOT changed: No budget logic, chart aggregation, persisted data, localization, schema,
+StoreKit or entitlement authority, signed configuration, Worker/deployment, formal price/trial
+term, version, Archive/upload, tester assignment, merge, or distribution action changed. The
+post-0.9.6 release hold remains active.

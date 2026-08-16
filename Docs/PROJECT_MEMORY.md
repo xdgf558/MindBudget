@@ -380,14 +380,19 @@ accepted discoverability tradeoff with automated Export/Privacy reachability and
 signed-device usability check.
 Phase 5 adds a pure deterministic detector for large purchases, late-hour patterns,
 stress-related repetition, image-related increases, impulse clusters, category risk,
-cooling-off outcomes, and adequate budget buffers. Typed localized insights are deduplicated
-and dismissible in SwiftData. Presentation is independently throttled by settings, scoped
+cooling-off outcomes, and point-in-time adequate-budget-buffer checks. The positive
+`safeToProceed` result remains an entry-flow check only: it is neither persisted nor returned
+from retrospective insight reads because its remaining-balance payload becomes stale after later
+ledger changes. Other typed localized insights are deduplicated and dismissible in SwiftData.
+Presentation is independently throttled by settings, scoped
 cooldowns, threshold re-crossing, recent responses, and daily caps; only actually shown
 messages create reminder events. Manual expense entry offers one highest-priority sheet at
 most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
-Insights tab now shows a rolling local 30-calendar-day total/count, category/emotion breakdowns,
-a 30-point daily trend, the current-cycle summary, generated pattern cards, dismissal, and a
-fixed informational disclaimer. Its ledger summary remains authoritative when a supplementary
+Insights tab now shows a rolling local 30-calendar-day total/count, a category donut that keeps
+up to six real categories and combines categories into one localized remainder only when seven or
+more categories exist, without dropping any recorded amount, an emotion breakdown, a 30-point daily trend, the
+current-cycle summary, generated pattern cards, dismissal, and a fixed informational disclaimer.
+Its ledger summary remains authoritative when a supplementary
 cooling-off projection is unreadable, but that partial state is disclosed and all dependent
 narrative, model, pattern-write, and stored-card work stops because unknown outcomes must never be
 represented as zero. Template

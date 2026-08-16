@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import MindBudget
 
@@ -1095,7 +1096,11 @@ struct Phase5FeatureTests {
     func insightUpsertDeduplicatesAndPreservesDismissal() async throws {
         let context = try makeContext()
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
-        let draft = insightDraft(type: .safeToProceed, snapshot: context.snapshot, severity: .info)
+        let draft = insightDraft(
+            type: .coolingOffSuccess,
+            snapshot: context.snapshot,
+            severity: .info
+        )
 
         let first = try await actor.upsertSpendingInsights([draft, draft], createdAt: context.now)
         let stored = try await actor.fetchSpendingInsightSummaries()
@@ -1109,6 +1114,36 @@ struct Phase5FeatureTests {
         #expect(active.isEmpty)
         #expect(all.count == 1)
         #expect(all.first?.isDismissed == true)
+    }
+
+    @Test
+    func pointInTimeSafeCheckIsNotPersistedAsACurrentReviewInsight() async throws {
+        let context = try makeContext()
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let draft = insightDraft(
+            type: .safeToProceed,
+            snapshot: context.snapshot,
+            severity: .info
+        )
+
+        let inserted = try await actor.upsertSpendingInsights([draft], createdAt: context.now)
+        let stored = try await actor.fetchSpendingInsightSummaries(includeDismissed: true)
+
+        #expect(inserted.isEmpty)
+        #expect(stored.isEmpty)
+    }
+
+    @Test
+    func legacyPointInTimeSafeCheckIsHiddenWithoutHidingDurableInsights() async throws {
+        let context = try makeContext()
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        try await Phase5LegacyInsightSeeder(modelContainer: controller.container)
+            .insertMalformedSafeAndDurableInsights(at: context.now)
+
+        let stored = try await controller.makeDataActor()
+            .fetchSpendingInsightSummaries(includeDismissed: true)
+
+        #expect(stored.map(\.type) == [.coolingOffSuccess])
     }
 
     @Test
@@ -1587,5 +1622,37 @@ struct Phase5FeatureTests {
 
     private enum ForcedReminderWriterError: Error {
         case failure
+    }
+}
+
+@ModelActor
+private actor Phase5LegacyInsightSeeder {
+    func insertMalformedSafeAndDurableInsights(at date: Date) throws {
+        modelContext.insert(insight(type: .safeToProceed, payloadJSON: "not-json", at: date))
+        modelContext.insert(insight(type: .coolingOffSuccess, at: date.addingTimeInterval(-1)))
+        try modelContext.save()
+    }
+
+    private func insight(
+        type: SpendingInsightType,
+        payloadJSON: String = "{}",
+        at date: Date
+    ) -> SpendingInsight {
+        SpendingInsight(
+            id: UUID(),
+            dedupeKey: "legacy:\(type.rawValue)",
+            typeRaw: type.rawValue,
+            severityRaw: InsightSeverity.info.rawValue,
+            titleKey: "insight.\(type.rawValue).title",
+            bodyKey: "insight.\(type.rawValue).body",
+            payloadJSON: payloadJSON,
+            relatedCategoryRaw: nil,
+            relatedEmotionTagRaw: nil,
+            createdAt: date,
+            periodStart: date.addingTimeInterval(-1),
+            periodEnd: date,
+            isDismissed: false,
+            dismissedAt: nil
+        )
     }
 }
