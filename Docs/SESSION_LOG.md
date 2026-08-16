@@ -4561,3 +4561,29 @@ What was NOT changed: No budget formula, expense amount, category assignment, sc
 entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
 Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
 remains active.
+
+## 2026-08-16 — Session 127 — Close PR #41 visual-review follow-ups
+
+Goal: Confirm the revised Insights category chart under every included skin before merge and
+separate the pre-existing AX5 Add Expense category-selector limitation from this focused fix.
+
+What changed: No runtime or retained test code changed. A temporary UI probe created the same
+six-category dataset, switched through Aurora Glow, Warm Botanical, and Neon Pulse, and captured
+both the donut and the complete app-owned legend under each skin. The probe was removed after the
+run. `Docs/TASKS.md` now carries a standalone accessibility follow-up to make every Add Expense
+category discoverable and tappable at true AX5 in English and Simplified Chinese and to correct
+the UI-test content-size launch value.
+
+Evidence: PR #41 head `7884b36` completed hosted CI successfully. The temporary three-skin probe
+passed 1/1 at `/private/tmp/MindBudget-Insights-ThreeSkins-Final2.xcresult`; its six exported
+screenshots are under `/private/tmp/MindBudget-Insights-ThreeSkins-Final2-Attachments`. Manual
+inspection confirmed that all six donut colors remain distinct, the two-column category names and
+amounts are readable without clipping or overlap, and card/background contrast is coherent under
+all three skins. This is normal-Dynamic-Type appearance evidence; the already recorded true-AX5
+English chart evidence remains separate, and the Chinese true-AX5 flow remains assigned to the
+new standalone category-selector task.
+
+What was NOT changed: No budget logic, chart aggregation, persisted data, localization, schema,
+StoreKit or entitlement authority, signed configuration, Worker/deployment, formal price/trial
+term, version, Archive/upload, tester assignment, merge, or distribution action changed. The
+post-0.9.6 release hold remains active.
