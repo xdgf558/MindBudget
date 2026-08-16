@@ -1476,10 +1476,14 @@ actor DataActor {
             )
         }
         return try modelContext.fetch(descriptor)
+            // Hide point-in-time positive checks written by older builds before decoding
+            // their payload. A malformed legacy safe check is intentionally irrelevant to
+            // a retrospective surface, whereas an unknown type still reaches the strict
+            // mapper so corrupted durable data fails closed.
+            .filter {
+                SpendingInsightType(rawValue: $0.typeRaw)?.isDurableReviewInsight ?? true
+            }
             .map { try spendingInsightSummary($0) }
-            // Hide point-in-time positive checks written by older builds. Their stored
-            // balance described the candidate-entry moment, not the current ledger.
-            .filter { $0.type.isDurableReviewInsight }
     }
 
     func dismissSpendingInsight(id: UUID, at date: Date) throws {

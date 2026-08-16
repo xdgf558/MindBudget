@@ -309,6 +309,16 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testCategoryChartLegendKeepsSixItemsReachableInEnglish() {
+        assertCategoryChartLegend(language: "en", locale: "en_US")
+    }
+
+    @MainActor
+    func testCategoryChartLegendKeepsSixItemsReachableInSimplifiedChinese() {
+        assertCategoryChartLegend(language: "zh-Hans", locale: "zh_CN")
+    }
+
+    @MainActor
     func testAskReturnsATemplateAnswerWithEnhancementOff() {
         let app = launchApp(language: "en", locale: "en_US")
 
@@ -713,6 +723,60 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
         app.buttons["budget.save"].tap()
+    }
+
+    @MainActor
+    private func recordExpense(in app: XCUIApplication, category: String) {
+        app.buttons["dashboard.quickAdd"].tap()
+        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        addExpense.tap()
+        XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 3))
+        element("expense.keypad.1", in: app).tap()
+
+        let categoryScroll = element("expense.category.scroll", in: app)
+        let categoryButton = app.buttons["expense.category.\(category)"]
+        for _ in 0..<12 where !categoryButton.isHittable {
+            categoryScroll.swipeLeft()
+        }
+        XCTAssertTrue(categoryButton.isHittable, "Missing category: \(category)")
+        categoryButton.tap()
+        app.buttons["expense.save"].tap()
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 3))
+    }
+
+    @MainActor
+    private func assertCategoryChartLegend(language: String, locale: String) {
+        let app = launchApp(language: language, locale: locale)
+        completeBudgetSetup(in: app)
+        for category in ["food", "coffee", "groceries", "transport", "shopping", "clothing"] {
+            recordExpense(in: app, category: category)
+        }
+
+        app.buttons["tab.insights"].tap()
+        let legend = element("insights.chart.category.legend", in: app)
+        for _ in 0..<8 where !legend.exists || legend.frame.maxY > app.frame.maxY {
+            app.swipeUp()
+        }
+        XCTAssertTrue(legend.waitForExistence(timeout: 3))
+        XCTAssertGreaterThanOrEqual(legend.frame.minX, app.frame.minX)
+        XCTAssertLessThanOrEqual(legend.frame.maxX, app.frame.maxX)
+
+        for category in ["food", "coffee", "groceries", "transport", "shopping", "clothing"] {
+            let item = element("insights.chart.category.legend.\(category)", in: app)
+            for _ in 0..<8 where !item.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(item.waitForExistence(timeout: 2), "Missing legend item: \(category)")
+            XCTAssertTrue(item.isHittable, "Clipped legend item: \(category)")
+            XCTAssertGreaterThanOrEqual(item.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(item.frame.maxX, app.frame.maxX)
+        }
+
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Insights category legend - \(language)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     @MainActor

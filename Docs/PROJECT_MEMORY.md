@@ -389,8 +389,8 @@ cooldowns, threshold re-crossing, recent responses, and daily caps; only actuall
 messages create reminder events. Manual expense entry offers one highest-priority sheet at
 most, keeps Continue Purchase primary, and supports Wishlist as a calm alternative. The
 Insights tab now shows a rolling local 30-calendar-day total/count, a category donut that keeps
-the five largest categories and combines every remaining category into one localized remainder
-without dropping any recorded amount, an emotion breakdown, a 30-point daily trend, the
+up to six real categories and combines categories into one localized remainder only when seven or
+more categories exist, without dropping any recorded amount, an emotion breakdown, a 30-point daily trend, the
 current-cycle summary, generated pattern cards, dismissal, and a fixed informational disclaimer.
 Its ledger summary remains authoritative when a supplementary
 cooling-off projection is unreadable, but that partial state is disclosed and all dependent

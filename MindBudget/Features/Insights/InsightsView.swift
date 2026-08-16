@@ -23,6 +23,24 @@ struct InsightDashboardSummary: Equatable, Sendable {
     let dailyTotals: [InsightDailyTotal]
 }
 
+enum CategoryChartLayout: Equatable, Sendable {
+    case grid(chartHeight: CGFloat)
+    case stacked(chartHeight: CGFloat)
+
+    init(dynamicTypeSize: DynamicTypeSize) {
+        self = dynamicTypeSize.isAccessibilitySize
+            ? .stacked(chartHeight: 180)
+            : .grid(chartHeight: 220)
+    }
+
+    var chartHeight: CGFloat {
+        switch self {
+        case let .grid(chartHeight), let .stacked(chartHeight):
+            chartHeight
+        }
+    }
+}
+
 struct InsightSummaryBuilder: Sendable {
     private let visibleCategoryCount = 5
 
@@ -115,7 +133,9 @@ struct InsightSummaryBuilder: Sendable {
         from totals: [InsightBreakdown],
         currencyCode: String
     ) throws -> [InsightBreakdown] {
-        guard totals.count > visibleCategoryCount else { return totals }
+        // Six real categories still fit the chart's maximum visible segment count. Only
+        // seven or more categories need a fifth-plus-remainder presentation.
+        guard totals.count > visibleCategoryCount + 1 else { return totals }
         let leading = Array(totals.prefix(visibleCategoryCount))
         let remainingMinorUnits = try checkedSum(
             totals.dropFirst(visibleCategoryCount).map(\.amount.minorUnits)
@@ -348,6 +368,7 @@ struct InsightsView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.calendar) private var calendar
     @Environment(\.locale) private var locale
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @StateObject private var viewModel = InsightsViewModel()
 
@@ -569,7 +590,9 @@ struct InsightsView: View {
     private func spendingCharts(_ summary: InsightDashboardSummary) -> some View {
         if !summary.categoryChartSegments.isEmpty {
             chartSection(title: "insights.chart.category") {
-                Chart(summary.categoryChartSegments) { item in
+                Chart(Array(summary.categoryChartSegments.enumerated()), id: \.element.id) { entry in
+                    let index = entry.offset
+                    let item = entry.element
                     let label = LocalizedCatalog.string(item.labelKey, locale: locale)
                     SectorMark(
                         angle: .value("insights.chart.amount", item.amount.minorUnits),
@@ -577,18 +600,18 @@ struct InsightsView: View {
                         angularInset: 1.5
                     )
                     .cornerRadius(3)
-                    .foregroundStyle(
-                        by: .value("insights.chart.category", label)
-                    )
+                    .foregroundStyle(categoryChartColor(at: index))
                     .accessibilityLabel(label)
                     .accessibilityValue(
                         CurrencyFormatterService().string(from: item.amount, locale: locale)
                     )
                 }
-                .frame(height: 260)
-                .chartLegend(position: .bottom, alignment: .leading, spacing: 8)
+                .frame(height: CategoryChartLayout(dynamicTypeSize: dynamicTypeSize).chartHeight)
+                .chartLegend(.hidden)
                 .accessibilityLabel("insights.chart.category")
                 .accessibilityIdentifier("insights.chart.category.pie")
+
+                categoryChartLegend(summary.categoryChartSegments)
             }
         }
         chartSection(title: "insights.chart.thirtyDays") {
@@ -626,6 +649,55 @@ struct InsightsView: View {
                 .chartXAxis(.hidden)
             }
         }
+    }
+
+    @ViewBuilder
+    private func categoryChartLegend(_ segments: [InsightBreakdown]) -> some View {
+        let layout = CategoryChartLayout(dynamicTypeSize: dynamicTypeSize)
+        let columns: [GridItem] = switch layout {
+        case .grid:
+            [
+                GridItem(.flexible(minimum: 0), alignment: .leading),
+                GridItem(.flexible(minimum: 0), alignment: .leading),
+            ]
+        case .stacked:
+            [GridItem(.flexible(minimum: 0), alignment: .leading)]
+        }
+
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+            ForEach(Array(segments.enumerated()), id: \.element.id) { entry in
+                let index = entry.offset
+                let item = entry.element
+                let label = LocalizedCatalog.string(item.labelKey, locale: locale)
+                let amount = CurrencyFormatterService().string(from: item.amount, locale: locale)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Circle()
+                        .fill(categoryChartColor(at: index))
+                        .frame(width: 10, height: 10)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(label)
+                        Text(amount)
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(label)
+                .accessibilityValue(amount)
+                .accessibilityIdentifier("insights.chart.category.legend.\(item.id)")
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("insights.chart.category")
+        .accessibilityIdentifier("insights.chart.category.legend")
+    }
+
+    private func categoryChartColor(at index: Int) -> Color {
+        let colors: [Color] = [.blue, .teal, .orange, .purple, .pink, .green]
+        return colors[index % colors.count]
     }
 
     private func chartSection<Content: View>(

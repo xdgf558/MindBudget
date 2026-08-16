@@ -2216,11 +2216,15 @@ omitting the remaining categories from the visual breakdown.
 
 Decision: Keep `safeToProceed` available to the immediate expense-entry reminder flow, but classify
 it as non-durable. `DataActor` does not persist new instances and filters legacy instances from all
-retrospective insight reads. Warning and recurring-pattern insight types remain durable. Replace
-the category bar chart with a donut chart based on the full rolling 30-calendar-day ledger. Show
-the five largest categories explicitly and combine every other category into one localized
-"Other categories" segment using checked `Int64` minor-unit addition. Equal totals use a stable
-category-identifier tie-breaker.
+retrospective insight reads. The legacy filter runs on `typeRaw` before payload decoding so a
+malformed legacy safe-check row cannot block an otherwise valid retrospective read; unknown raw
+types still reach the strict mapper and fail closed. Warning and recurring-pattern insight types
+remain durable. Replace the category bar chart with a donut chart based on the full rolling
+30-calendar-day ledger. Keep up to six real categories; only seven or more categories show the
+five largest plus one localized "Other categories" segment using checked `Int64` minor-unit
+addition. Equal totals use a stable category-identifier tie-breaker. The chart uses an app-owned
+key with category and amount values, changing from two columns to one at accessibility sizes so
+each item remains available to VoiceOver without a clipped system legend.
 
 Alternatives considered: Recomputing the old stored positive card from its payload, retaining it
 with a historical label, deleting all legacy rows destructively, continuing to show only a prefix
@@ -2232,8 +2236,9 @@ interpret.
 Consequences: The immediate purchase check remains deterministic, but Insights and passive system
 projections no longer repeat a stale positive balance. Existing legacy rows remain recoverable in
 the local store but are hidden by the typed read boundary. The category chart is bounded to six
-segments while its segment sum remains exactly equal to the 30-day category total. No budget
-formula, schema, entitlement, network, commerce, version, upload, or distribution behavior changes.
+segments while its segment sum remains exactly equal to the 30-day category total; a six-category
+ledger preserves every category name rather than replacing one with a remainder. No budget formula,
+schema, entitlement, network, commerce, version, upload, or distribution behavior changes.
 
 Files affected: Insight-type durability vocabulary, spending-insight persistence/read policy,
 Insights aggregation and chart presentation, localization, Phase 5/11 tests, UI evidence, change

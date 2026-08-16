@@ -1138,7 +1138,7 @@ struct Phase5FeatureTests {
         let context = try makeContext()
         let controller = try DataController(isStoredInMemoryOnly: true)
         try await Phase5LegacyInsightSeeder(modelContainer: controller.container)
-            .insertSafeAndDurableInsights(at: context.now)
+            .insertMalformedSafeAndDurableInsights(at: context.now)
 
         let stored = try await controller.makeDataActor()
             .fetchSpendingInsightSummaries(includeDismissed: true)
@@ -1627,13 +1627,17 @@ struct Phase5FeatureTests {
 
 @ModelActor
 private actor Phase5LegacyInsightSeeder {
-    func insertSafeAndDurableInsights(at date: Date) throws {
-        modelContext.insert(insight(type: .safeToProceed, at: date))
+    func insertMalformedSafeAndDurableInsights(at date: Date) throws {
+        modelContext.insert(insight(type: .safeToProceed, payloadJSON: "not-json", at: date))
         modelContext.insert(insight(type: .coolingOffSuccess, at: date.addingTimeInterval(-1)))
         try modelContext.save()
     }
 
-    private func insight(type: SpendingInsightType, at date: Date) -> SpendingInsight {
+    private func insight(
+        type: SpendingInsightType,
+        payloadJSON: String = "{}",
+        at date: Date
+    ) -> SpendingInsight {
         SpendingInsight(
             id: UUID(),
             dedupeKey: "legacy:\(type.rawValue)",
@@ -1641,7 +1645,7 @@ private actor Phase5LegacyInsightSeeder {
             severityRaw: InsightSeverity.info.rawValue,
             titleKey: "insight.\(type.rawValue).title",
             bodyKey: "insight.\(type.rawValue).body",
-            payloadJSON: "{}",
+            payloadJSON: payloadJSON,
             relatedCategoryRaw: nil,
             relatedEmotionTagRaw: nil,
             createdAt: date,

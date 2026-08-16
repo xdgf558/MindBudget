@@ -4523,3 +4523,41 @@ What was NOT changed: No budget formula, expense amount, category assignment, sc
 entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
 Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
 remains active.
+
+## 2026-08-16 — Session 126 — Resolve Insights persistence and chart review findings
+
+Goal: Close the review findings in the Insights legacy-read path and category donut without
+changing budget authority, persisted schema, or commercialization scope.
+
+What changed: Retrospective insight reads now inspect persisted `typeRaw` before decoding a row.
+A known legacy `safeToProceed` row is hidden before its payload is read, so a corrupted stale
+positive check cannot prevent durable insight cards or the Insights page from loading. Unknown raw
+types still reach the strict mapper and fail closed. The category donut preserves all six real
+category labels, aggregates only from seven categories onward, and replaces Charts' fixed bottom
+legend with an app-owned category-and-amount key. It uses a two-column grid at normal text sizes
+and a one-column AX5 layout with explicit VoiceOver label/value semantics.
+
+Evidence: Focused `Phase5FeatureTests` and `Phase11FreeTierTests` passed 72/72 on iPhone 17 Pro,
+iOS 26.5. The malformed legacy-safe-check regression, six-category boundary, seven-category
+remainder, and deterministic normal-versus-accessibility layout-contract tests are included. The
+final English and Simplified Chinese localized UI runs passed 2/2 at
+`/private/tmp/MindBudget-InsightsReview-LocalizedLegend-Final.xcresult`; each retained a screenshot
+and asserted all six key entries exist, are reachable, and remain within the horizontal app bounds.
+As supplemental evidence, an exploratory run with the simulator's actual AX5 content-size category
+passed 1/1 in English at
+`/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4.xcresult`. Manual inspection of its
+top and bottom exports at
+`/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4-Attachments/3F914329-58C2-40FA-A554-6B2D5252C282.png`
+and `/private/tmp/MindBudget-InsightsReview-TrueAX5-English-Final4-Attachments/D363F962-E93E-4AAA-B038-A68036EF4747.png`
+confirmed that the category key uses the intended single-column layout without horizontal label or
+amount clipping. The retained bilingual UI tests intentionally run at normal Dynamic Type; the AX5
+branch is language-independent and is locked by the focused layout-contract test. A matching true
+AX5 Chinese end-to-end run was not claimed because its data-preparation flow was blocked in the
+pre-existing Add Expense horizontal category chooser before the Insights chart was reached. The
+money, network-egress, commercialization-document, and StoreKit-catalog static gates passed, and
+`git diff --check` is clean.
+
+What was NOT changed: No budget formula, expense amount, category assignment, schema, StoreKit or
+entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
+Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
+remains active.
