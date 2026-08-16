@@ -187,6 +187,44 @@ struct Phase11FreeTierTests {
     }
 
     @Test
+    func categoryPieKeepsTheFullThirtyDayAmountWithAnAggregatedRemainder() throws {
+        let calendar = TestFixtures.utcCalendar
+        let now = TestFixtures.now
+        let expenses = [
+            expenseSummary(amountMinorUnits: 7_000, category: .food, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 6_000, category: .coffee, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 5_000, category: .groceries, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 4_000, category: .transport, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 3_000, category: .shopping, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 2_000, category: .clothing, emotion: .neutral, at: now),
+            expenseSummary(amountMinorUnits: 1_000, category: .electronics, emotion: .neutral, at: now),
+        ]
+        let result = try InsightSummaryBuilder().build(
+            expenses: expenses,
+            cycle: DateInterval(
+                start: try #require(calendar.date(byAdding: .day, value: -10, to: now)),
+                end: try #require(calendar.date(byAdding: .day, value: 20, to: now))
+            ),
+            currencyCode: "USD",
+            now: now,
+            calendar: calendar
+        )
+
+        #expect(result.categoryChartSegments.count == 6)
+        #expect(Array(result.categoryChartSegments.prefix(5)).map { $0.id } == [
+            ExpenseCategory.food.rawValue,
+            ExpenseCategory.coffee.rawValue,
+            ExpenseCategory.groceries.rawValue,
+            ExpenseCategory.transport.rawValue,
+            ExpenseCategory.shopping.rawValue,
+        ])
+        #expect(result.categoryChartSegments.last?.id == "__remaining_categories__")
+        #expect(result.categoryChartSegments.last?.amount.minorUnits == 3_000)
+        #expect(result.categoryChartSegments.map { $0.amount.minorUnits }.reduce(0, +) == 28_000)
+        #expect(result.lastThirtyDaysTotal.minorUnits == 28_000)
+    }
+
+    @Test
     func insightsReloadShowsAnExpenseSavedAfterTheInitialEmptyLoad() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         _ = try await actor.createBudgetPlan(try budgetPlan())

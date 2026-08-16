@@ -297,6 +297,15 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let recentTotal = element("insights.summary.thirtyDays.amount", in: app)
         XCTAssertTrue(recentTotal.waitForExistence(timeout: 5))
         XCTAssertTrue(recentTotal.label.contains("12.34"))
+        let categoryPie = element("insights.chart.category.pie", in: app)
+        for _ in 0..<5 where !categoryPie.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(categoryPie.waitForExistence(timeout: 3))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Insights category pie"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     @MainActor

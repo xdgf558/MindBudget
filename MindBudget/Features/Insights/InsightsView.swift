@@ -18,11 +18,14 @@ struct InsightDashboardSummary: Equatable, Sendable {
     let lastThirtyDaysCount: Int
     let currentCycleTotal: Money
     let categoryTotals: [InsightBreakdown]
+    let categoryChartSegments: [InsightBreakdown]
     let emotionTotals: [InsightBreakdown]
     let dailyTotals: [InsightDailyTotal]
 }
 
 struct InsightSummaryBuilder: Sendable {
+    private let visibleCategoryCount = 5
+
     func build(
         expenses: [ExpenseSummary],
         cycle: DateInterval,
@@ -54,7 +57,11 @@ struct InsightSummaryBuilder: Sendable {
                     )
                 )
             }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+            .sorted(by: descendingAmountThenID)
+        let categoryChartSegments = try categoryChartSegments(
+            from: categoryTotals,
+            currencyCode: currencyCode
+        )
         let tagged = recentExpenses.compactMap { expense in
             expense.emotionTag.map { ($0, expense) }
         }
@@ -69,7 +76,7 @@ struct InsightSummaryBuilder: Sendable {
                     )
                 )
             }
-            .sorted { $0.amount.minorUnits > $1.amount.minorUnits }
+            .sorted(by: descendingAmountThenID)
         let groupedDays = Dictionary(grouping: recentExpenses) {
             calendar.startOfDay(for: $0.spentAt)
         }
@@ -98,9 +105,41 @@ struct InsightSummaryBuilder: Sendable {
                 currencyCode: currencyCode
             ),
             categoryTotals: categoryTotals,
+            categoryChartSegments: categoryChartSegments,
             emotionTotals: emotionTotals,
             dailyTotals: dailyTotals
         )
+    }
+
+    private func categoryChartSegments(
+        from totals: [InsightBreakdown],
+        currencyCode: String
+    ) throws -> [InsightBreakdown] {
+        guard totals.count > visibleCategoryCount else { return totals }
+        let leading = Array(totals.prefix(visibleCategoryCount))
+        let remainingMinorUnits = try checkedSum(
+            totals.dropFirst(visibleCategoryCount).map(\.amount.minorUnits)
+        )
+        return leading + [
+            InsightBreakdown(
+                id: "__remaining_categories__",
+                labelKey: "insights.chart.category.remaining",
+                amount: Money(
+                    minorUnits: remainingMinorUnits,
+                    currencyCode: currencyCode
+                )
+            )
+        ]
+    }
+
+    private func descendingAmountThenID(
+        _ lhs: InsightBreakdown,
+        _ rhs: InsightBreakdown
+    ) -> Bool {
+        if lhs.amount.minorUnits == rhs.amount.minorUnits {
+            return lhs.id < rhs.id
+        }
+        return lhs.amount.minorUnits > rhs.amount.minorUnits
     }
 
     private func checkedSum(_ values: [Int64]) throws -> Int64 {
@@ -528,23 +567,28 @@ struct InsightsView: View {
 
     @ViewBuilder
     private func spendingCharts(_ summary: InsightDashboardSummary) -> some View {
-        if !summary.categoryTotals.isEmpty {
+        if !summary.categoryChartSegments.isEmpty {
             chartSection(title: "insights.chart.category") {
-                Chart(summary.categoryTotals.prefix(6)) { item in
-                    BarMark(
-                        x: .value(
-                            LocalizedCatalog.string(item.labelKey, locale: locale),
-                            item.amount.minorUnits
-                        ),
-                        y: .value(
-                            "insights.chart.category",
-                            LocalizedCatalog.string(item.labelKey, locale: locale)
-                        )
+                Chart(summary.categoryChartSegments) { item in
+                    let label = LocalizedCatalog.string(item.labelKey, locale: locale)
+                    SectorMark(
+                        angle: .value("insights.chart.amount", item.amount.minorUnits),
+                        innerRadius: .ratio(0.52),
+                        angularInset: 1.5
                     )
-                    .foregroundStyle(theme.accent.gradient)
+                    .cornerRadius(3)
+                    .foregroundStyle(
+                        by: .value("insights.chart.category", label)
+                    )
+                    .accessibilityLabel(label)
+                    .accessibilityValue(
+                        CurrencyFormatterService().string(from: item.amount, locale: locale)
+                    )
                 }
-                .frame(height: 180)
-                .chartXAxis(.hidden)
+                .frame(height: 260)
+                .chartLegend(position: .bottom, alignment: .leading, spacing: 8)
+                .accessibilityLabel("insights.chart.category")
+                .accessibilityIdentifier("insights.chart.category.pie")
             }
         }
         chartSection(title: "insights.chart.thirtyDays") {

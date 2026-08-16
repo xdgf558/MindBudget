@@ -4490,3 +4490,36 @@ What was NOT changed: No StoreKit/entitlement authority, purchase or restore beh
 formal price/trial term, signed configuration, Worker/deployment, Staging/Production state, schema,
 user content, telemetry, version, Archive/upload, tester assignment, or distribution action
 changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 125 — Correct stale budget-buffer insight and category chart
+
+Goal: Pause new commercialization work to investigate the reported current-cycle buffer mismatch
+and replace the category comparison with a more objective proportional chart.
+
+What changed: The investigation confirmed that `BudgetEngine` includes current-cycle expenses;
+the incorrect-looking ¥4,088.70 was a persisted `safeToProceed` payload calculated for an earlier
+expense candidate, then displayed later as though it were current. The positive check remains
+available during expense entry but is no longer persisted, and legacy rows are filtered from
+retrospective reads without deleting user data. The category chart is now a localized donut with
+the five largest categories plus a checked aggregate of all remaining categories, so the chart
+represents the complete rolling 30-day amount. Deterministic aggregation, new/legacy persistence,
+and UI reachability regressions were added.
+
+Evidence: Focused Phase 5/11 tests passed 69/69, the follow-up Phase 5 legacy-row suite passed
+39/39, and the focused Insights UI flow passed 1/1 with a retained screenshot at
+`/private/tmp/MindBudget-InsightsFix-UI.xcresult`. The Phase 6/10 regression rerun passed 16/16,
+including the strict local 10,000-expense wall-clock benchmark, at
+`/private/tmp/MindBudget-InsightsFix-FailureSuites.xcresult`. Final validation then used the
+repository's explicit wall-clock exclusion for the concurrently loaded full suite and produced
+416 results: 409 passed, 7 explicit opt-in/runtime skips, and 0 failed. It included 401 unit-test
+results, 15/15 passing UI tests, the Release build, every static gate, and all selected coverage
+thresholds at `/private/tmp/MindBudget-InsightsFix-FullFinalSkip.xcresult`.
+
+State: Core bug-fix implementation and local validation are complete pending independent review.
+The next commercialization packet remains paused; C3-04 source is already merged but its separate
+commercial closeout is not advanced by this fix.
+
+What was NOT changed: No budget formula, expense amount, category assignment, schema, StoreKit or
+entitlement authority, signed configuration, Worker/deployment, formal price/trial term, version,
+Archive/upload, tester assignment, or distribution action changed. The post-0.9.6 release hold
+remains active.
