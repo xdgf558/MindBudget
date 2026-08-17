@@ -411,11 +411,21 @@ struct InsightsView: View {
                     partialDataWarning
                 }
                 if let summary = viewModel.summary {
+                    groupHeader("insights.group.currentCycle")
+                        .accessibilityIdentifier("insights.group.currentCycle")
                     summaryCards(summary)
                     if let narrative = viewModel.cycleNarrative {
                         cycleNarrativeCard(narrative)
                     }
+
+                    groupHeader("insights.group.longTerm")
+                        .accessibilityIdentifier("insights.group.longTerm")
                     savingsProgressCard
+
+                    if !summary.categoryChartSegments.isEmpty {
+                        groupHeader("insights.group.composition")
+                            .accessibilityIdentifier("insights.group.composition")
+                    }
                     spendingCharts(summary)
                 }
                 insightCards
@@ -430,6 +440,18 @@ struct InsightsView: View {
         .mindBudgetScreenBackground()
         .accessibilityIdentifier("insights.view")
         .refreshable { await load() }
+    }
+
+    /// Names a group of modules so this screen reads as a small number of themes rather than an
+    /// unbroken column of equally weighted cards. A new module joins an existing group instead of
+    /// being appended anonymously to the bottom. The group names the theme; each card keeps its own
+    /// title for the specific module it shows.
+    private func groupHeader(_ title: LocalizedStringKey) -> some View {
+        Text(title)
+            .font(.title3.bold())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 4)
+            .accessibilityAddTraits(.isHeader)
     }
 
     private var partialDataWarning: some View {
@@ -696,7 +718,7 @@ struct InsightsView: View {
     }
 
     private func categoryChartColor(at index: Int) -> Color {
-        let colors: [Color] = [.blue, .teal, .orange, .purple, .pink, .green]
+        let colors = theme.categoricalChart
         return colors[index % colors.count]
     }
 
@@ -721,8 +743,8 @@ struct InsightsView: View {
             )
             .accessibilityIdentifier("insights.empty")
         } else {
-            Text("insights.cards.title")
-                .font(.title3.bold())
+            groupHeader("insights.cards.title")
+                .accessibilityIdentifier("insights.group.patterns")
             ForEach(viewModel.insights) { insight in
                 let wording = InsightPresentationFormatter().wording(
                     for: insight,

@@ -2335,6 +2335,24 @@
         }
       }
     },
+    "insights.group.currentCycle": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This cycle" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本期" } }
+      }
+    },
+    "insights.group.longTerm": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Long-term goals" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "长期目标" } }
+      }
+    },
+    "insights.group.composition": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Where money went" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "消费构成" } }
+      }
+    },
     "settings.group.budget": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Budget" } },

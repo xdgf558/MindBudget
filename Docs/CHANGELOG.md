@@ -14,6 +14,13 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   explaining the relationship, and every group carries a header so VoiceOver announces it.
 - Moved app language out of "Appearance and skins" into its own Settings entry under General, and
   made its picker inline so choosing a language no longer pushes an extra screen.
+- Category chart segments now use a palette derived from the selected skin instead of fixed system
+  colours, so the chart belongs to the screen it sits on in all three appearances. Neighbouring
+  segments alternate warm and cool rather than placing confusable colours side by side; the key
+  still repeats every category name, so colour is never the only channel.
+- Grouped Insights into named sections — This cycle, Long-term goals, Where money went, and the
+  existing patterns list — so the screen reads as a few themes instead of one column of equally
+  weighted cards.
 
 ## 0.9.7 (8) — 2026-08-16 — Internal TestFlight candidate
 
