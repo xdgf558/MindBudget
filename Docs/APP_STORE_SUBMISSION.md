@@ -8,15 +8,26 @@ validated under the owner's current China-region Apple Developer account.
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
 - Current source candidate: version 0.9.7, build 8
-- Current uploaded TestFlight candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
-- Previous uploaded candidate: version 0.9.5, build 6
+- Current uploaded TestFlight candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
+- Previous uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
+- Earlier uploaded candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
+- Earlier uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Build 7 is immutable. Version 0.9.7/build 8 is the next owner-authorized upload candidate.
+- Every uploaded build above is immutable. Increment to build 9 before uploading any replacement.
 - Increment the build number after every uploaded replacement.
+- Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
+  legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
+- Recorded gap: `0.9.6 (8)` was accepted on 2026-08-11 but never recorded here at the time, and
+  `CURRENT_PROJECT_VERSION = 8` did not exist in this repository until `e1f2831` on 2026-08-17.
+  That upload therefore did not come from any committed state; the likely cause is an Organizer
+  export that left `manageAppVersionAndBuildNumber` enabled, letting Xcode auto-increment the build
+  number without writing it back. Keep that option disabled so App Store Connect build numbers stay
+  traceable to a commit; the 2026-08-17 export used `manageAppVersionAndBuildNumber: false`.
 - Release boundary: the owner authorized Archive and transport upload of 0.9.7 (8) on 2026-08-16
-  after COM-C3 passed independent review and green CI. This authorization stops at a successful
-  upload: no tester group, external Beta App Review, or App Store submission is performed here.
+  after COM-C3 passed independent review and green CI, and that upload completed on 2026-08-17.
+  This authorization stopped at the successful upload: no tester group, external Beta App Review,
+  or App Store submission was performed here.
   The Production signed-configuration service remains undeployed, so its optional value trigger
   stays conservatively off on transport/offline failure and is never purchase or entitlement
   authority. The product owner retains all TestFlight assignment and later distribution actions.
@@ -31,7 +42,7 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.7 (8) — Internal test candidate
+### 0.9.7 (8) — Uploaded internal test candidate
 
 What to test:
 
