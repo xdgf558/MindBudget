@@ -10,16 +10,6 @@ struct SettingsView: View {
             List {
                 Section {
                     NavigationLink {
-                        AppearanceSettingsView()
-                    } label: {
-                        SettingsDestinationLabel(
-                            title: "settings.appearance.title",
-                            systemImage: "paintpalette"
-                        )
-                    }
-                    .accessibilityIdentifier("settings.appearance")
-
-                    NavigationLink {
                         BudgetSettingsView(session: session)
                     } label: {
                         SettingsDestinationLabel(
@@ -48,7 +38,13 @@ struct SettingsView: View {
                         )
                     }
                     .accessibilityIdentifier("settings.recurring")
+                } header: {
+                    Text("settings.group.budget")
+                } footer: {
+                    Text("settings.group.budget.footer")
+                }
 
+                Section {
                     NavigationLink {
                         ReminderSettingsView(session: session)
                     } label: {
@@ -70,16 +66,6 @@ struct SettingsView: View {
                     .accessibilityIdentifier("settings.ai")
 
                     NavigationLink {
-                        ProSubscriptionView(session: session)
-                    } label: {
-                        SettingsDestinationLabel(
-                            title: "commerce.pro.title",
-                            systemImage: "sparkles.rectangle.stack"
-                        )
-                    }
-                    .accessibilityIdentifier("settings.pro")
-
-                    NavigationLink {
                         IntegrationsSettingsView(session: session)
                     } label: {
                         SettingsDestinationLabel(
@@ -88,6 +74,46 @@ struct SettingsView: View {
                         )
                     }
                     .accessibilityIdentifier("settings.integrations")
+                } header: {
+                    Text("settings.group.assistance")
+                }
+
+                Section {
+                    NavigationLink {
+                        ProSubscriptionView(session: session)
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "commerce.pro.title",
+                            systemImage: "sparkles.rectangle.stack"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.pro")
+                } header: {
+                    Text("settings.group.subscription")
+                }
+
+                Section {
+                    NavigationLink {
+                        LanguageSettingsView()
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "settings.language.section",
+                            systemImage: "globe"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.language")
+
+                    NavigationLink {
+                        AppearanceSettingsView()
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "settings.appearance.title",
+                            systemImage: "paintpalette"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.appearance")
+                } header: {
+                    Text("settings.group.general")
                 }
 
                 Section {
@@ -156,7 +182,10 @@ private struct SettingsDestinationLabel: View {
     }
 }
 
-private struct AppearanceSettingsView: View {
+/// App language is a first-level destination rather than a section inside appearance: readers look
+/// for it under its own name, and an inline picker keeps the choice two levels deep instead of
+/// pushing a third screen for a single selection.
+private struct LanguageSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
 
     var body: some View {
@@ -168,14 +197,33 @@ private struct AppearanceSettingsView: View {
                             .tag(language.rawValue)
                     }
                 }
-                .pickerStyle(.navigationLink)
+                .pickerStyle(.inline)
+                .labelsHidden()
                 .accessibilityIdentifier("settings.language.picker")
             } header: {
                 Text("settings.language.section")
             } footer: {
                 Text("settings.language.footer")
             }
+        }
+        .settingsListPresentation()
+        // This is the one screen that can change the app language while staying on screen. A
+        // LocalizedStringKey title keeps its previous wording here because the key itself never
+        // changes, which would leave a Chinese list under an English title. Resolving the string
+        // against the selected locale changes the title's value, so the bar follows the selection.
+        .navigationTitle(
+            Text(verbatim: LocalizedCatalog.string("settings.language.section", locale: settings.selectedLocale))
+        )
+        .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier("settings.language.view")
+    }
+}
 
+private struct AppearanceSettingsView: View {
+    @EnvironmentObject private var settings: SettingsStore
+
+    var body: some View {
+        List {
             Section {
                 ForEach(AppSkin.allCases, id: \.rawValue) { skin in
                     skinButton(skin)

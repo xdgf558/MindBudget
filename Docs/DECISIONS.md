@@ -2260,3 +2260,39 @@ conservatively off; it does not affect StoreKit or permanent subscription contro
 
 Consequences: Build 8 becomes immutable after upload. This instruction does not approve public
 launch economics, deploy Production, begin COM-C4A, or complete any manual distribution gate.
+
+---
+
+## 2026-08-17 — Group Settings at the first level and cap navigation depth at two
+
+Context: The Settings root put eight unrelated destinations into one unlabeled section — budget
+domain configuration, system integration, an AI feature switch, and the subscription entry — while
+only the privacy group carried a header and footer. Readers got no grouping context, VoiceOver users
+got none at all, and the three pages that together decide the spendable amount (budget, savings
+goal, fixed expenses) read as unrelated siblings. App language was also reachable only through the
+"Appearance and skins" row, which no reader would search for it under.
+
+Navigation depth had drifted without a rule. Three third-level paths already existed and none was a
+deliberate choice: appearance to a pushed language picker, fixed expenses to a rule editor, and the
+AI page to the Pro screen.
+
+Decision: Group the Settings root into labeled sections — Budget, Reminders and Intelligence,
+Subscription, General, Privacy, About — instead of adding a navigation level. Promote app language
+to its own first-level destination under General and render its picker inline.
+
+Cap normal navigation at two levels. A third level is reserved for exactly two cases: editing one
+instance drawn from a list (a fixed-expense rule, and later categories, accounts, or templates), and
+documents that stand alone (subscription terms, privacy policy, licenses). Grouping never justifies
+a third level, because it charges every visit an extra tap and hides the destination.
+
+Growth is absorbed by first-level sections and by splitting a page whose *concerns* diverge — not by
+page length. `BudgetSettingsView` stays whole at roughly 375 lines because currency, cycle start day,
+and amounts commit through one save action, and splitting it would break that atomic save.
+`ReminderSettingsView` stays whole because in-app reminders and system notifications are two channels
+of one concern.
+
+Consequences: Every destination, accessibility identifier, and second-level page body is unchanged,
+so this is a grouping and ordering change plus one promoted language entry. Language moves out of
+appearance, which changes the path in `testAppLanguageChangesImmediatelyWithoutRelaunching`. Four new
+group-header strings enter both catalogs. Adding a future third level now requires justifying it
+against the two reserved cases above.

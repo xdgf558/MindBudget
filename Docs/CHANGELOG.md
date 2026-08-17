@@ -6,7 +6,14 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-No changes yet.
+### Changed
+
+- Reorganized Settings into labeled groups — Budget, Reminders and Intelligence, Subscription,
+  General, Privacy, and About — instead of one unlabeled list of eight unrelated destinations. The
+  three pages that together decide the spendable amount now sit in one Budget group with a footer
+  explaining the relationship, and every group carries a header so VoiceOver announces it.
+- Moved app language out of "Appearance and skins" into its own Settings entry under General, and
+  made its picker inline so choosing a language no longer pushes an extra screen.
 
 ## 0.9.7 (8) — 2026-08-16 — Internal TestFlight candidate
 

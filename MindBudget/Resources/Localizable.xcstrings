@@ -2335,6 +2335,36 @@
         }
       }
     },
+    "settings.group.budget": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Budget" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "预算" } }
+      }
+    },
+    "settings.group.budget.footer": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Income, savings goal, and fixed expenses together decide how much this cycle leaves you to spend." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "收入、储蓄目标与固定支出共同决定本周期可支配的金额。" } }
+      }
+    },
+    "settings.group.assistance": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reminders and Intelligence" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "提醒与智能" } }
+      }
+    },
+    "settings.group.subscription": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Subscription" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "订阅" } }
+      }
+    },
+    "settings.group.general": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "General" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通用" } }
+      }
+    },
     "settings.releaseNotes.0_9_0.foundation": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Introduced local-first budgeting, manual expense tracking, insights, wishlist cooling-off, and deterministic Ask." } },

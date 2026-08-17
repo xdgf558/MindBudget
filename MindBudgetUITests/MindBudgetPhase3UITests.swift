@@ -112,22 +112,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["dashboard.settings"].tap()
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
-        element("settings.appearance", in: app).tap()
-        XCTAssertTrue(element("settings.appearance.view", in: app).waitForExistence(timeout: 2))
+        element("settings.language", in: app).tap()
+        XCTAssertTrue(element("settings.language.view", in: app).waitForExistence(timeout: 2))
 
-        let languagePicker = element("settings.language.picker", in: app)
-        XCTAssertEqual(languagePicker.value as? String, "Follow System")
-        languagePicker.tap()
         let simplifiedChinese = app.buttons["Simplified Chinese"]
         XCTAssertTrue(simplifiedChinese.waitForExistence(timeout: 2))
         simplifiedChinese.tap()
 
-        XCTAssertTrue(app.navigationBars["外观与皮肤"].waitForExistence(timeout: 3))
-        XCTAssertEqual(element("settings.language.picker", in: app).value as? String, "简体中文")
+        // The language page stays on screen while the language changes, so its own navigation bar
+        // title is the strictest check that the new language took effect immediately.
+        XCTAssertTrue(app.navigationBars["语言"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        let localizedAppearanceDestination = element("settings.appearance", in: app)
-        XCTAssertTrue(localizedAppearanceDestination.waitForExistence(timeout: 3))
-        XCTAssertEqual(localizedAppearanceDestination.label, "外观与皮肤")
+        let localizedLanguageDestination = element("settings.language", in: app)
+        XCTAssertTrue(localizedLanguageDestination.waitForExistence(timeout: 3))
+        XCTAssertEqual(localizedLanguageDestination.label, "语言")
+        XCTAssertEqual(element("settings.appearance", in: app).label, "外观与皮肤")
     }
 
     @MainActor
@@ -393,11 +392,15 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
         for identifier in [
+            "settings.language",
             "settings.appearance",
             "settings.budget",
+            "settings.savingsGoal",
+            "settings.recurring",
             "settings.reminders",
             "settings.ai",
             "settings.integrations",
+            "settings.pro",
         ] {
             XCTAssertTrue(element(identifier, in: app).exists)
         }
