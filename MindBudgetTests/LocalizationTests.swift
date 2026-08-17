@@ -188,21 +188,24 @@ struct LocalizationTests {
 
     @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
-        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.6")
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.7")
 
-        #expect(presentation.current?.version == "0.9.6")
-        #expect(presentation.current?.items.count == 1)
+        #expect(presentation.current?.version == "0.9.7")
+        #expect(presentation.current?.items.count == 4)
         #expect(
-            presentation.current?.items.map(\.localizationKey).contains(
-                "settings.releaseNotes.simplifiedBudgetSetup"
-            ) == true
+            Set(presentation.current?.items.map(\.localizationKey) ?? []) == [
+                "settings.releaseNotes.subscriptionExperience",
+                "settings.releaseNotes.trialLifecycle",
+                "settings.releaseNotes.subscriptionGuidance",
+                "settings.releaseNotes.insightsReview",
+            ]
         )
         #expect(
-            presentation.history.map(\.version) == ["0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+            presentation.history.map(\.version) == ["0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
         )
 
         let future = ReleaseNotesVersion(
-            version: "0.9.7",
+            version: "0.9.8",
             items: [
                 ReleaseNoteItem(
                     systemImage: "sparkles",
@@ -211,13 +214,13 @@ struct LocalizationTests {
             ]
         )
         let nextPresentation = ReleaseNotesCatalog.presentation(
-            installedVersion: "0.9.7",
+            installedVersion: "0.9.8",
             versions: [future] + ReleaseNotesCatalog.versions
         )
 
-        #expect(nextPresentation.current?.version == "0.9.7")
+        #expect(nextPresentation.current?.version == "0.9.8")
         #expect(
-            nextPresentation.history.map(\.version) == ["0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+            nextPresentation.history.map(\.version) == ["0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
         )
     }
 
@@ -248,6 +251,10 @@ struct LocalizationTests {
             "settings.releaseNotes.truthfulCycleUsage",
             "settings.releaseNotes.askFallbackReasons",
             "settings.releaseNotes.simplifiedBudgetSetup",
+            "settings.releaseNotes.subscriptionExperience",
+            "settings.releaseNotes.trialLifecycle",
+            "settings.releaseNotes.subscriptionGuidance",
+            "settings.releaseNotes.insightsReview",
         ]
 
         for key in keys {

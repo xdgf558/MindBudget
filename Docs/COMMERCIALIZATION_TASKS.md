@@ -22,9 +22,9 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3. C3-03A and C3-03B are Done after independent review, green CI,
-  and merges through PR #36 (`1ebb36c`) and PR #38 (`db7926d`), respectively. C3-04
-  implementation is complete pending independent review and green CI.** The owner
+- Active phase: **COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
+  `31918968478`, then merged through PR #40 as `9448ca9` on 2026-08-16.** C3-03A and C3-03B
+  remain Done through PR #36 (`1ebb36c`) and PR #38 (`db7926d`). The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
   CI and merged through PR #34 as `12d9217` on 2026-08-14. COM-C2 remains
@@ -47,10 +47,11 @@ detailed phase checklists; it added no paid product behavior.
   keeps pending notification copy safe after the app process stops.
   Receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
-- Distribution hold: keep the uploaded 0.9.6 binary unchanged. C1-03 and later source is not a
-  TestFlight/App Store candidate until verified purchase/restore, purchase presentation, and the
-  owning release gates are complete; exact-Free gating must not reach users before there is an
-  approved way to obtain or restore the corresponding right.
+- Release boundary: the uploaded 0.9.6 binary remains immutable. Verified purchase/restore and
+  purchase presentation are complete through COM-C3. On 2026-08-16 the owner authorized a
+  traceable 0.9.7 (8) Archive and transport upload only. This workflow does not assign testers,
+  submit external testing, or authorize App Store release; Production signed configuration stays
+  conservative while its service remains undeployed.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
@@ -259,9 +260,8 @@ products remain blocked until the accepted cost inputs are available.
 
 ## COM-C3 — Paywall, trial, subscription management, and public configuration
 
-Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34
-(`12d9217`); C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is Done through PR #38
-(`db7926d`); C3-04 implementation is complete pending independent review and green CI.**
+Status: **Done — C3-01 through C3-04 passed independent review and green CI; PR #40 merged the
+final C3-04 packet as `9448ca9`.**
 
 - [x] **C3-01 — Transparent paywall.** Monthly/Annual StoreKit prices, terms, restore, manage
   subscription, legal links, voluntary entry, value triggers, and frequency limits; no Lifetime or
@@ -326,20 +326,20 @@ Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Don
   `31873664396`; PR #38 then merged to `main` as `db7926d` on 2026-08-15. Staging/Production,
   final Release binary/Production traffic evidence, Archive/upload, tester assignment, and
   distribution remain blocked.
-- [ ] **C3-04 — UI and release quality (implementation complete pending independent review and
-  green CI).** One non-blocking Dashboard navigation card and the Pro screen now explain verified
+- [x] **C3-04 — UI and release quality.** One non-blocking Dashboard navigation card and the Pro screen now explain verified
   billing grace, billing retry, expiry, and revocation without changing StoreKit authority or
   local data. Billing grace retains Pro; the other three states preserve exact Free. Bilingual
   copy, VoiceOver semantics, accessibility-size plan reflow, three-appearance AX5 coverage,
   truthful fixture-free customer terms, and current privacy/App Review/release checks are in the
-  candidate. Staging/Production and all distribution gates remain blocked.
+  candidate. PR #40 passed independent review and GitHub Actions run `31918968478`, then merged
+  as `9448ca9` on 2026-08-16. Production deployment and public distribution remain separate.
 
 Exit gate: purchase presentation is accurate and non-blocking, signed-config failure is safe, and
 no deferred or incomplete product is advertised.
 
 ## COM-C4A — Money migration delta
 
-Status: **Blocked by COM-C3 and COM-C0A's money audit.**
+Status: **Ready but not started; blocked pending explicit owner instruction and the opening delta audit.**
 
 The current app already has an `Int64` minor-unit `Money` model, currency exponents, exact parsers,
 versioned SwiftData migrations, and a floating-point gate. This phase must begin with a delta audit;

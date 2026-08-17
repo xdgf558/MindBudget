@@ -288,10 +288,13 @@ Implementation evidence on 2026-08-15:
 
 ## C3-04 — UI and release quality
 
-Status: **Implementation complete pending independent review and green CI.**
+Status: **Done after independent review, green CI, and merge through PR #40 (`9448ca9`).**
 
-The post-0.9.6 release hold remains active throughout COM-C3. No C3 implementation is a public or
-TestFlight distribution authorization by itself.
+PR #40's owning GitHub Actions run `31918968478` passed before merge. COM-C3 completion satisfies
+the purchase/restore and presentation source gate; C3-04 and COM-C3 are Done. On 2026-08-16 the owner separately authorized
+only a 0.9.7 (8) Archive and transport upload; tester assignment, external Beta App Review, App
+Store submission, Production configuration deployment, and public distribution remain outside
+that authorization.
 
 ### Tasks
 

@@ -4587,3 +4587,36 @@ What was NOT changed: No budget logic, chart aggregation, persisted data, locali
 StoreKit or entitlement authority, signed configuration, Worker/deployment, formal price/trial
 term, version, Archive/upload, tester assignment, merge, or distribution action changed. The
 post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 128 — Merge PR #41 and prepare TestFlight 0.9.7 (8)
+
+Goal: Merge the approved Insights correction after green CI, close the already merged C3-04/COM-C3
+documentation state, and prepare one owner-authorized TestFlight upload without assigning testers.
+
+What changed: PR #41 passed GitHub Actions run `31943778984` and merged to `main` as `afddb5c`.
+The release candidate is now version 0.9.7/build 8 with matching bilingual in-app release notes,
+changelog, TestFlight What to Test notes, release-readiness checks, and UI/localization assertions.
+PR #40's independent review, green run `31918968478`, and merge `9448ca9` close C3-04 and COM-C3.
+DEC-COM-024 records the owner's narrow instruction to Archive and transport-upload build 8 only.
+
+Release boundary: Production signed configuration remains undeployed; the Release adapter can use
+only its exact Production host and failure keeps the optional value trigger at conservative
+`false`. StoreKit and permanent Settings/Restore/Manage controls remain independent. This session
+does not assign internal testers, submit external Beta App Review, deploy Production, approve
+public economics, start COM-C4A, or submit an App Store version.
+
+Validation result: the 0.9.7 preparation passed every static release/commercialization/network/
+StoreKit gate and the generic Release build. The final wall-clock-excluded run produced 420
+results: 411 passed, 7 explicit opt-in/runtime skips, and 2 simulator UI failures. Both failed UI
+cases then passed independently: Simplified Chinese ledger filters at
+`/private/tmp/MindBudget-0.9.7-ReleasePrep-ChineseLedger.xcresult` and the three-skin Pro AX5 flow at
+`/private/tmp/MindBudget-0.9.7-ReleasePrep-AX5-Quiet.xcresult`. The strict local 10,000-expense
+Dashboard first-load signal also passed alone at
+`/private/tmp/MindBudget-0.9.7-ReleasePrep-StrictPerformance3.xcresult`; its earlier loaded-suite
+measurements were 2.500 seconds and 0.696 seconds, so they are retained as load evidence rather
+than represented as passing. The corrected Simplified Chinese release-note brand assertion passed
+in the focused localization run. Hosted CI for the release-preparation commit remains pending.
+
+Upload result: pending at this preparation checkpoint. Build 8 is not immutable until App Store
+Connect transport accepts it. Archive metadata and upload evidence will be added after the release
+commit is merged and the signed upload completes.

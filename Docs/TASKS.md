@@ -225,7 +225,7 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B Done, with C3-04 implementation complete pending independent review and green CI
+Status: COM-C0A through COM-C3 Done; C3-04 merged through PR #40 as `9448ca9`; COM-C4A is not started
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -345,3 +345,7 @@ Status: COM-C0A, COM-C0B, COM-C1, and COM-C2 Done; COM-C3 C3-01 through C3-03B D
   bilingual/VoiceOver/AX5 presentation across all three appearances, fixture-free customer trial
   terms, and updated privacy/App Review/Archive disclosure. Keep C3-04 pending independent review
   and green CI; do not mark COM-C3 Done or open Production/distribution.
+- [x] Close C3-04 and COM-C3 after independent review, green GitHub Actions run `31918968478`,
+  and PR #40 merge `9448ca9`.
+- [x] Prepare owner-authorized TestFlight candidate 0.9.7 (8) with matching release notes and
+  release gates. Archive/upload only; do not assign testers or submit external testing.

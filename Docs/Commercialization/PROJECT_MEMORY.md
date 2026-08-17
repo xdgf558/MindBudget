@@ -23,8 +23,8 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   in DEC-COM-021. C3-03A passed independent review and green GitHub Actions run `31856271268`,
   then merged through PR #36 as `1ebb36c` on 2026-08-15; it is Done. C3-03B's reviewed head
   `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged it through `db7926d` on
-  2026-08-15. C3-03 is Done. C3-04 implementation is complete pending independent review and
-  green CI; COM-C3 is not Done.
+  2026-08-15. C3-03 is Done. C3-04 passed independent review and GitHub Actions run
+  `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -91,9 +91,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   product/date changes, and missing authority remove or replace the request. The notification has
   no price, date, amount, product, or remaining-day content, and says the trial ends soon instead
   of promising that auto-renew remains enabled after the app stops. Formal App Store Connect
-  products and final price/trial economics remain blocked by their owning release gates. C3-03 is
-  now complete; C3-04 implementation is complete pending independent review and green CI, and
-  distribution remains blocked. C2-04's
+  products and final price/trial economics remain blocked by their owning release gates. C3-03 and
+  C3-04 are complete, and COM-C3 is Done. The owner authorized a 0.9.7 (8) Archive and transport
+  upload only; tester assignment, external testing, Production deployment, and public distribution
+  remain separate. C2-04's
   completed environment proof does not waive those later gates.
   Final Xcode 26.6 `17F113` on the physical iPhone Air with final iOS 26.6.1 `23G82` passed the
   C3-02 dedicated suite 9/9 with no failure or skip, including all four storefronts and both
@@ -313,9 +314,6 @@ Local implementation evidence is 24/24 focused StoreKit-domain tests, a manually
 AX5 three-appearance screenshot run, and a final 413-result validation with 406 passed, 7 explicit
 opt-in/runtime skips, and 0 failed at `/private/tmp/MindBudget-C304-Full-Final.xcresult`.
 
-Next suggested task: independently review the implementation-complete C3-04 candidate and require
-green hosted CI before merge. The candidate owns one non-blocking Dashboard navigation card,
-verified-state Pro guidance, bilingual VoiceOver/AX5 presentation across all three appearances,
-and current review/release disclosure. It does not deploy Production. Keep formal customer
-products/economics, final Release binary/traffic evidence, versioning, Archive/upload, tester
-assignment, and distribution blocked until their owning gates pass.
+Next suggested task: prepare, validate, Archive, and transport-upload the owner-authorized 0.9.7
+(8) candidate, then stop. Do not assign testers, submit external Beta App Review, deploy Production,
+or begin COM-C4A without a separate owner instruction.

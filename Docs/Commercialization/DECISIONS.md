@@ -667,3 +667,26 @@ context.
   hiding local data after a paid-state loss; opening a second purchase during grace/retry; color-
   only status; fixed-height/truncating plan rows; fixture literals in customer terms; and release
   screenshots that advertise incomplete work.
+
+## DEC-COM-024 — Allow one transport-only 0.9.7 TestFlight upload after COM-C3
+
+- Status/date: **Accepted owner release instruction — 2026-08-16**
+- Requirements: REQ-STOREKIT-LIFECYCLE-001, REQ-R1-NET-001
+- Decision: PR #40 passed independent review and GitHub Actions run `31918968478`, then merged
+  C3-04 as `9448ca9`; COM-C3 is Done. The owner authorizes preparing, signing, archiving, and
+  transport-uploading version 0.9.7/build 8 to the existing App Store Connect record. This
+  workflow must stop after a successful upload and must not assign an internal tester, submit
+  external Beta App Review, or submit an App Store version.
+- Configuration boundary: Production signed configuration remains undeployed. The Release binary
+  may contact only the exact reviewed Production host. Failure or absence keeps the optional Pro
+  value trigger at the built-in `false`; Settings, Restore Purchases, Manage Subscription,
+  StoreKit entitlement, price/trial facts, and Free trust capabilities remain independent.
+- Product boundary: Customer-facing prices, offers, eligibility, and availability come only from
+  StoreKit. Catalog or authority uncertainty pauses purchase. This upload does not convert the
+  provisional test anchors into public-launch economics or authorize a later COM phase.
+- Evidence boundary: Archive metadata, embedded endpoints/resources, signing identity, and upload
+  acceptance must be recorded against the merged release commit. Tester assignment and any later
+  distribution evidence remain the owner's manual responsibility.
+- Alternatives rejected: Reusing immutable build 7; uploading from an unmerged feature branch;
+  treating an undeployed configuration service as entitlement failure; deploying Production as
+  an inferred side effect; or broadening upload authority into tester assignment/public release.

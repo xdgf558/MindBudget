@@ -38,8 +38,10 @@ distribution authorization.
   limits the response to 16 KiB; and fails conservatively on timeout, cancellation, offline,
   status, MIME, URL, empty-body, or size error.
 - The Development Worker deployment is first-party evidence only. Staging and Production remain
-  undeployed, and the post-0.9.6 distribution hold means the reviewed Release adapter cannot ship
-  until the later release, privacy, final-binary, and captured-traffic gates pass.
+  undeployed. The owner authorized 0.9.7 (8) Archive and transport upload after COM-C3 closed;
+  until Production is deployed and separately verified, Release transport failure keeps only the
+  optional value trigger at the conservative built-in `false`. No entitlement or permanent
+  subscription control depends on that request.
 - Refresh cancellation is structural: the startup refresh is awaited by its own SwiftUI `.task`,
   while a scene-active refresh is retained by `AppSession` and canceled on replacement,
   inactive/background transition, or Session destruction. Canceling either owner cancels the
