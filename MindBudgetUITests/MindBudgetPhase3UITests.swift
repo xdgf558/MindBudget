@@ -278,6 +278,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Last 30 days"].exists)
         XCTAssertTrue(element("insights.empty", in: app).exists)
         XCTAssertTrue(element("insights.disclaimer", in: app).exists)
+        // With no recorded spending there are no category segments, but the 30-day trend still
+        // renders. Its group heading must render with it rather than leaving the card ungrouped.
+        XCTAssertTrue(element("insights.group.composition", in: app).exists)
+        XCTAssertTrue(element("insights.group.currentCycle", in: app).exists)
+        XCTAssertTrue(element("insights.group.longTerm", in: app).exists)
 
         app.buttons["tab.dashboard"].tap()
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))

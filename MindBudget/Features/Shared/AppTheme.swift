@@ -170,6 +170,41 @@ struct MindBudgetTheme: Sendable {
         }
     }
 
+    /// Categorical scale for chart segments, in draw order. The category chart shows at most six
+    /// segments — six real categories, or five plus a combined remainder — so six entries cover it
+    /// without repeating a colour inside one chart. Each skin keeps its own family so a chart reads
+    /// as part of the screen instead of as system colours dropped onto it, and neighbouring entries
+    /// alternate warm and cool rather than sitting next to a confusable partner such as red beside
+    /// green. Colour is never the only channel: the key repeats every category name.
+    var categoricalChart: [Color] {
+        switch skin {
+        case .warmBotanical: [
+            Color(red: 0.361, green: 0.522, blue: 0.376),
+            Color(red: 0.800, green: 0.510, blue: 0.360),
+            Color(red: 0.310, green: 0.545, blue: 0.545),
+            Color(red: 0.545, green: 0.400, blue: 0.545),
+            Color(red: 0.780, green: 0.640, blue: 0.310),
+            Color(red: 0.400, green: 0.490, blue: 0.660),
+        ]
+        case .auroraGlow: [
+            Color(red: 0.425, green: 0.900, blue: 0.820),
+            Color(red: 0.920, green: 0.760, blue: 0.420),
+            Color(red: 0.450, green: 0.720, blue: 0.960),
+            Color(red: 0.960, green: 0.560, blue: 0.480),
+            Color(red: 0.720, green: 0.620, blue: 0.960),
+            Color(red: 0.680, green: 0.880, blue: 0.500),
+        ]
+        case .neonPulse: [
+            Color(red: 0.605, green: 0.355, blue: 1.000),
+            Color(red: 0.325, green: 0.850, blue: 1.000),
+            Color(red: 1.000, green: 0.420, blue: 0.780),
+            Color(red: 0.640, green: 0.950, blue: 0.420),
+            Color(red: 1.000, green: 0.740, blue: 0.360),
+            Color(red: 0.400, green: 0.560, blue: 1.000),
+        ]
+        }
+    }
+
     var attentionBorder: Color { attention.opacity(0.52) }
     var attentionText: Color { skin == .warmBotanical ? Color(red: 0.490, green: 0.335, blue: 0.120) : attention }
     var destructive: Color { Color(red: 0.780, green: 0.220, blue: 0.220) }
