@@ -256,17 +256,18 @@ for c303_contract in \
   fi
 done
 
-grep -Fq 'Status: **In Progress — C3-01 is Done through PR #33 (`747b628`); C3-02 is Done through PR #34' \
+grep -Fq 'Status: **Done — C3-01 through C3-04 passed independent review and green CI; PR #40 merged the' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C3 task state must retain reviewed C3-01/C3-02 completion" >&2
+  echo "COM-C3 task state must record reviewed completion through C3-04" >&2
   exit 1
 }
 
-grep -Fq 'C3-03A is Done through PR #36 (`1ebb36c`); C3-03B is Done through PR #38' \
-  Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C3 task state must record both reviewed C3-03 packets as Done" >&2
-  exit 1
-}
+for c303_task_evidence in 'PR #36 (`1ebb36c`)' 'PR #38 (`db7926d`)'; do
+  grep -Fq "${c303_task_evidence}" Docs/COMMERCIALIZATION_TASKS.md || {
+    echo "COM-C3 task state must retain reviewed C3-03 evidence: ${c303_task_evidence}" >&2
+    exit 1
+  }
+done
 
 grep -Fq 'Signed public configuration | C3-03 Done through PR #38 (`db7926d`); Development deployed and verified; Staging/Production undeployed; no distribution authorization' \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
@@ -299,7 +300,10 @@ done
 # accepted presentation/release boundary changes, update the owning decision and every anchor in
 # the same reviewed change instead of weakening this check.
 for c304_contract in \
-  'C3-04 implementation is complete pending independent review and green CI' \
+  'C3-04 and COM-C3 are Done' \
+  'PR #40' \
+  '`9448ca9`' \
+  '`31918968478`' \
   'one non-blocking Dashboard navigation card' \
   'Billing grace retains Pro' \
   'Billing retry, expiry, and revocation' \
@@ -319,6 +323,17 @@ for c304_contract in \
     exit 1
   fi
 done
+
+if grep -Eq 'C3-04 implementation is complete pending independent review|C3-04 and COM-C3 are not Done|C3-04 and COM-C3 remain implementation-complete review candidates' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C3-04 as pending review" >&2
+  exit 1
+fi
 
 if grep -Eq 'C3-04 is ready but not started|C3-04 remains blocked|C3-04 implementation is not started' \
     Docs/COMMERCIALIZATION_TASKS.md \

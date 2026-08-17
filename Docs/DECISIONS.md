@@ -2243,3 +2243,20 @@ schema, entitlement, network, commerce, version, upload, or distribution behavio
 Files affected: Insight-type durability vocabulary, spending-insight persistence/read policy,
 Insights aggregation and chart presentation, localization, Phase 5/11 tests, UI evidence, change
 log, and durable project memory.
+
+---
+
+## 2026-08-16 — Authorize only the 0.9.7 TestFlight transport upload
+
+Context: C3-04 passed independent review and green GitHub Actions run `31918968478`, then merged
+through PR #40 as `9448ca9`, closing COM-C3. The owner requested a new uploaded build while
+retaining control of internal/external TestFlight assignment.
+
+Decision: Detailed ownership lives in DEC-COM-024. Prepare version 0.9.7/build 8 from merged source,
+validate and sign it with the current team, upload it to the existing App Store Connect record,
+and stop after transport acceptance. Do not assign testers or submit external/App Store review.
+Production signed configuration remains undeployed and therefore leaves only its optional trigger
+conservatively off; it does not affect StoreKit or permanent subscription controls.
+
+Consequences: Build 8 becomes immutable after upload. This instruction does not approve public
+launch economics, deploy Production, begin COM-C4A, or complete any manual distribution gate.

@@ -540,7 +540,20 @@ for readable contrast, correct light/dark presentation, bounds, and clipping. Th
 validation produced 413 results: 406 passed, 7 explicit opt-in/runtime skips, and 0 failed. It
 included 398 unit-test results, 15/15 passing UI tests, the Release build, every static gate, and
 all selected coverage thresholds at `/private/tmp/MindBudget-C304-P3-Full2.xcresult`. Hosted CI for
-this new head remains pending, so C3-04 and COM-C3 are not Done.
+this new head subsequently passed independent review and the hosted CI evidence recorded below.
+
+## COM-C3-04 reviewed merge closeout
+
+PR #40 passed independent review and GitHub Actions run `31918968478` with the complete Build and
+test job green, then merged to `main` as `9448ca9` on 2026-08-16. C3-04 and COM-C3 are Done. The
+local focused, AX5, and full-validation evidence above remains the owning implementation evidence;
+the hosted run independently passed the repository's money, network, commercialization, signed-
+configuration, StoreKit isolation, Release build, unit/UI, and coverage workflow.
+
+This closeout did not deploy Staging or Production, approve public launch economics, assign a
+tester, submit external Beta App Review, or submit an App Store version. The owner later authorized
+only 0.9.7 (8) Archive and transport upload; those artifact results are recorded separately after
+the signed upload completes.
 
 ## Result and report paths
 

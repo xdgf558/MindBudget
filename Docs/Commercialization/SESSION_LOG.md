@@ -1460,3 +1460,27 @@ What was NOT changed: No StoreKit/entitlement authority, product, purchase/resto
 signed-configuration field or transport, Worker/deployment, Staging/Production status, formal
 price/trial term, privacy/network allowance, version, Archive/upload, tester assignment, or
 distribution action changed. The post-0.9.6 release hold remains active.
+
+## 2026-08-16 — Session 47 — Close COM-C3 and authorize only build 8 transport upload
+
+Goal: Record the already reviewed/merged C3-04 result and the owner's exact post-COM-C3 release
+instruction without starting COM-C4A or broadening upload into distribution.
+
+What changed: C3-04 passed independent review and GitHub Actions run `31918968478`; PR #40 merged
+it as `9448ca9`, so C3-04 and COM-C3 are Done. DEC-COM-024 authorizes one traceable 0.9.7 (8)
+Archive and App Store Connect transport upload. Purchase/restore, verified subscription-state
+guidance, and voluntary presentation have passed their owning COM-C3 gates.
+
+Boundary: No tester group may be assigned by this workflow, and no external Beta App Review,
+App Store submission, public-launch economics, Production/Staging deployment, or later COM work is
+authorized. Production configuration remains undeployed; failure keeps only the optional value
+trigger at built-in `false` and never changes StoreKit authority or permanent subscription access.
+
+Evidence: PR #40 merge `9448ca9`, hosted run `31918968478`; PR #41 merge `afddb5c`, hosted run
+`31943778984`. The 0.9.7 preparation passed all static release/commercialization/network/StoreKit
+gates and the Release build. Its 420-result wall-clock-excluded run recorded 411 passed, 7 explicit
+opt-in/runtime skips, and 2 simulator UI failures; both UI cases passed in immediate isolated runs.
+The strict 10,000-expense wall-clock signal also passed independently, and the corrected bilingual
+release-note brand assertion passed its focused localization run. Hosted release-preparation CI,
+signed Archive inspection, and transport acceptance remain pending and will be appended after
+completion.

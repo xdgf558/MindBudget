@@ -7,8 +7,9 @@ implementing phase has passed its own consent, privacy, deletion, failure, and r
 Wildcards, caller-supplied URLs, arbitrary model IDs, and untyped payload dictionaries are
 forbidden. Debug/test endpoints never authorize Production behavior.
 
-The current 0.9.6 app has **no app-owned business-network egress**. This policy creates no URL,
-entitlement, container, SDK, or request.
+The uploaded 0.9.6 app has no app-owned business-network egress. The 0.9.7 candidate adds only the
+exact signed public-configuration row below; its failure default is conservative and it remains
+structurally incapable of changing entitlement, StoreKit terms, or permanent subscription controls.
 
 ## Allow-list
 
@@ -57,7 +58,8 @@ product creation, Archive/upload, tester assignment, or distribution.
 DEC-COM-021 accepts the signed-public-configuration contract. C3-03A is Done through PR #36
 (`1ebb36c`); C3-03B passed independent review and GitHub Actions run `31873664396`, then merged
 through PR #38 as `db7926d`. The Development Worker and real adapter/verifier path have dated
-evidence; Staging and Production remain undeployed. This row does
-not authorize Archive/upload, TestFlight assignment, or distribution: final Release binary and
-captured Production traffic, current privacy disclosure, review, and later release gates remain
-mandatory.
+evidence; Staging and Production remain undeployed. The owner separately authorized 0.9.7 (8)
+Archive and transport upload on 2026-08-16 after COM-C3 closed. That narrow action does not deploy
+Production, assign TestFlight users, submit Beta App Review, or authorize App Store release. With
+Production undeployed, the optional trigger resolves to the conservative built-in `false`;
+permanent subscription controls and StoreKit authority do not depend on this row.

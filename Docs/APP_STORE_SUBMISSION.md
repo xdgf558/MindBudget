@@ -7,17 +7,19 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Current source and uploaded TestFlight candidate: version 0.9.6, build 7 (transport accepted
-  2026-08-10)
+- Current source candidate: version 0.9.7, build 8
+- Current uploaded TestFlight candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
 - Previous uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Build 7 is immutable; increment the build number before uploading any replacement.
+- Build 7 is immutable. Version 0.9.7/build 8 is the next owner-authorized upload candidate.
 - Increment the build number after every uploaded replacement.
-- Distribution hold: the current post-0.9.6 commercialization source is not a replacement
-  candidate. It must not be archived, uploaded, or assigned to testers until COM-C3 and every
-  later owning iPhone release gate are complete, Production configuration has dated final-binary
-  evidence, and the owner has approved final products, economics, disclosures, and distribution.
+- Release boundary: the owner authorized Archive and transport upload of 0.9.7 (8) on 2026-08-16
+  after COM-C3 passed independent review and green CI. This authorization stops at a successful
+  upload: no tester group, external Beta App Review, or App Store submission is performed here.
+  The Production signed-configuration service remains undeployed, so its optional value trigger
+  stays conservatively off on transport/offline failure and is never purchase or entitlement
+  authority. The product owner retains all TestFlight assignment and later distribution actions.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
@@ -28,6 +30,31 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.7 (8) — Internal test candidate
+
+What to test:
+
+- Open Settings > MindBudget Pro. Confirm Monthly and Annual rows use current StoreKit prices and
+  terms, purchase begins only after an explicit tap, and Restore Purchases plus Manage Subscription
+  remain available. An unavailable or unverified StoreKit state must pause purchase and offer a
+  recheck instead of being described as Free.
+- For an eligible introductory trial, confirm the Pro and Dashboard surfaces use StoreKit's actual
+  renewal date and verified next-renewal product. If notifications are already allowed, at most one
+  generic local reminder may be scheduled; the app must never request permission automatically or
+  put a date, price, amount, product, or remaining-day count in notification copy.
+- Exercise verified billing grace, billing retry, expiry, and revocation. Grace retains Pro. The
+  other states keep local data and Free capabilities, show calm bilingual guidance, and provide
+  Manage Subscription/Recheck without opening an automatic paywall or a second purchase in retry.
+- Disable networking or leave the Production configuration endpoint unavailable. Confirm the
+  optional Pro value trigger stays hidden while the permanent Settings Pro entry, restore/manage
+  controls, StoreKit authority, and every Free trust capability continue to work.
+- In Insights, confirm an older stored “budget still has a buffer” entry is not shown as a current
+  balance. The current cycle's recorded spending must remain authoritative. Confirm the 30-day
+  category donut and its Dynamic Type-aware key represent the entire 30-day total; six categories
+  keep all six names, while seven or more combine only the remainder.
+- Repeat the upgrade, export, Delete All, Face ID, Siri, notification, localization, three-skin,
+  VoiceOver, and AX5 checks from the prior candidates because build 8 replaces build 7.
 
 ### 0.9.6 (7) — Uploaded internal test candidate
 

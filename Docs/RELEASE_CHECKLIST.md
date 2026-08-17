@@ -5,10 +5,12 @@ It cannot prove account ownership, production signing, physical-device accessibi
 integration behavior, or App Store Connect state. Do not label V1 TestFlight-ready until every
 unchecked item below has been performed against the release commit.
 
-The uploaded 0.9.6 (7) binary is historical and remains unchanged. Current post-0.9.6
-commercialization source must not be archived, uploaded, assigned to testers, or distributed until
-COM-C3 and every later owning iPhone release gate are complete. A source-level StoreKit or signed-
-configuration implementation is not Production deployment or final-binary evidence.
+The uploaded 0.9.6 (7) binary is historical and immutable. COM-C3 passed independent review and
+green CI through PR #40 (`9448ca9`), and the owner authorized one traceable 0.9.7 (8) Archive and
+transport upload on 2026-08-16. This does not authorize this workflow to assign internal testers,
+submit external Beta App Review, or submit an App Store version; those actions remain manual.
+Production signed configuration remains undeployed and therefore fails to its conservative `false`
+presentation default without changing StoreKit entitlement or permanent subscription controls.
 
 ## Automated release gates
 
@@ -26,8 +28,8 @@ configuration implementation is not Production deployment or final-binary eviden
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is version 0.9.6/build 7, iPhone-only, iOS 17+, and contains no shared
-  Apple Team ID. Build 7 is the next replacement candidate and build 6 remains historical.
+- [x] Release configuration is version 0.9.7/build 8, iPhone-only, iOS 17+, and contains no shared
+  Apple Team ID. Build 8 is the next replacement candidate and build 7 remains historical.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
   `温和的预算与消费复盘工具` as its subtitle.
@@ -42,8 +44,17 @@ configuration implementation is not Production deployment or final-binary eviden
 - [x] Confirm the distribution certificate and provisioning profile are valid for that team.
 - [ ] Confirm App Store Connect agreements are accepted and the correct legal entity, tax, and
   banking state is active where applicable.
-- [ ] Before the next replacement Archive, increment the build number and verify the current team,
-  App Store Connect record, agreements, certificate, and profile again.
+- [x] Before the 0.9.7 replacement Archive, increment the build number. Reverify the current team,
+  App Store Connect record, agreements, certificate, and profile during Archive/export.
+
+### Pending 0.9.7 (8) release execution
+
+- [ ] Archive Release 0.9.7 (8) with the current team and confirm the archive reports bundle ID
+  `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only support, and iOS 17.0 minimum deployment.
+- [ ] Confirm the Archive contains neither the local StoreKit fixture nor a Development/Staging
+  configuration endpoint, and that Release selects only the exact Production configuration host.
+- [ ] Upload Release 0.9.7 (8) through the authenticated current App Store Connect account and
+  confirm transport accepts build 8 for the intended app. Stop before any tester-group assignment.
 
 ### Completed 0.9.6 (7) release evidence (historical, not a next-upload gate)
 
@@ -120,12 +131,13 @@ used for every Archive and upload.
 
 ## Store listing and TestFlight
 
-- [ ] Before any post-0.9.6 Archive or TestFlight assignment, verify that the StoreKit-derived
+- [x] Before any post-0.9.6 Archive, verify that the StoreKit-derived
   entitlement lifecycle, user-visible purchase and restore paths, and the owning commercialization
-  release gates are complete. Until then, keep distribution paused rather than shipping a build
-  that removes an existing capability without a restoration path.
+  release gates are complete. COM-C3 met that source/review/CI gate through PR #40 (`9448ca9`).
+  Upload-only authorization does not complete the separate tester-assignment or public-release
+  checks below.
 
-- [ ] Immediately before uploading the next replacement, confirm its marketing version/build has a
+- [x] Immediately before uploading the next replacement, confirm its marketing version/build has a
   matching dated section in
   `Docs/CHANGELOG.md` and matching TestFlight “What to Test” notes in
   `Docs/APP_STORE_SUBMISSION.md`.
