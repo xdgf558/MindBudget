@@ -7,14 +7,15 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Current source candidate: version 0.9.7, build 8
+- Current source candidate: version 0.9.8, build 9
 - Current uploaded TestFlight candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
 - Previous uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
 - Earlier uploaded candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
 - Earlier uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Every uploaded build above is immutable. Increment to build 9 before uploading any replacement.
+- Every uploaded build above is immutable. Version 0.9.8/build 9 is the next upload candidate;
+  increment to build 10 before uploading any replacement after it.
 - Increment the build number after every uploaded replacement.
 - Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
   legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
@@ -26,8 +27,10 @@ validated under the owner's current China-region Apple Developer account.
   traceable to a commit; the 2026-08-17 export used `manageAppVersionAndBuildNumber: false`.
 - Release boundary: the owner authorized Archive and transport upload of 0.9.7 (8) on 2026-08-16
   after COM-C3 passed independent review and green CI, and that upload completed on 2026-08-17.
-  This authorization stopped at the successful upload: no tester group, external Beta App Review,
-  or App Store submission was performed here.
+  The owner then authorized the same narrow action for 0.9.8 (9) on 2026-08-17, a UI-only change
+  set carrying no StoreKit, entitlement, pricing, network, or persistence change. Each
+  authorization stops at the successful upload: no tester group, external Beta App Review, or App
+  Store submission is performed here.
   The Production signed-configuration service remains undeployed, so its optional value trigger
   stays conservatively off on transport/offline failure and is never purchase or entitlement
   authority. The product owner retains all TestFlight assignment and later distribution actions.
@@ -41,6 +44,34 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.8 (9) — Internal test candidate
+
+This build changes presentation only. No StoreKit, entitlement, pricing, notification, network,
+calculation, or persistence behaviour changed, so anything that looks different in those areas is
+a defect worth reporting.
+
+What to test:
+
+- Open Settings. Confirm the destinations are grouped under Budget, Reminders and Intelligence,
+  Subscription, General, Privacy, and About, that the Budget group's footer explains how income,
+  savings goal, and fixed expenses decide the spendable amount, and that VoiceOver announces each
+  group heading before the rows inside it.
+- Open Settings > General > Language. Confirm language now has its own entry rather than living
+  inside Appearance and skins, that all options appear on one screen without pushing another, and
+  that switching language updates the screen you are on, including its navigation bar title,
+  without relaunching.
+- Confirm MindBudget Pro, Restore Purchases, Manage Subscription, and every previously reachable
+  Settings page are still reachable after the regrouping, and that no page lost content.
+- In Insights, confirm the screen is grouped into This cycle, Long-term goals, Where money went,
+  and the patterns list, and that each group heading is announced by VoiceOver.
+- Confirm the category chart's colours match the skin you selected rather than looking like system
+  colours, in all three skins, and that the key still names every category. Neighbouring segments
+  should be easy to tell apart.
+- With no recorded spending in the cycle, confirm the 30-day trend still appears under the
+  "Where money went" heading rather than as a card with no group above it.
+- Confirm amounts, totals, category shares, savings progress, and the 30-day figures are unchanged
+  from build 8 for the same data.
 
 ### 0.9.7 (8) — Uploaded internal test candidate
 

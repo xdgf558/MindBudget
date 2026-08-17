@@ -4642,3 +4642,46 @@ uniqueness is scoped to the marketing version, and the 2026-08-17 export explici
 
 Not performed: no internal tester-group assignment, no external Beta App Review submission, no App
 Store version submission, no Production configuration deployment, and no COM-C4A start.
+
+## 2026-08-17 — Session 129 — UI information architecture and TestFlight 0.9.8 (9)
+
+Goal: Improve the Settings and Insights screens so later modules have a place to go, then prepare
+one owner-authorized TestFlight upload of the result without assigning testers.
+
+What changed: PR #44 (`ca01dec`) grouped the Settings root into named sections instead of one
+unlabeled list of eight destinations, promoted app language to its own first-level entry with an
+inline picker, and recorded a navigation-depth contract in `Docs/DECISIONS.md`: two levels by
+default, a third only for editing one instance drawn from a list and for documents that stand
+alone. PR #45 (`18460f2`) replaced the category chart's hardcoded system colours with a per-skin
+`MindBudgetTheme.categoricalChart` scale and grouped Insights into This cycle, Long-term goals,
+Where money went, and the existing patterns list. The release candidate is now version 0.9.8/build
+9 with matching bilingual in-app release notes, changelog, and TestFlight notes.
+
+Two defects were found and fixed during the work rather than shipped. Moving the language picker
+inline removed the pop-back that had been refreshing the navigation bar, so the language screen
+kept an English title under a Chinese list; a `.id()` rebuild did not fix it, which disproved the
+"view did not rebuild" explanation and located the cause in the unchanging `LocalizedStringKey`,
+resolved by formatting the title against the selected locale. Independent review then found the
+Insights composition heading keyed off the category segments while `spendingCharts` also draws an
+unconditional 30-day trend and a conditional emotion chart, so a cycle with no categorised spending
+drew charts with no group above them; the heading moved inside `spendingCharts` so the two
+conditions cannot drift apart again.
+
+Deliberately not changed: `BudgetSettingsView` stays whole because its fields commit through one
+save action, `ReminderSettingsView` stays whole because in-app reminders and system notifications
+are two channels of one concern, and `InsightSummaryBuilder` is calculation with no UI role. An
+earlier suggestion to split them was withdrawn after reading the code.
+
+Release boundary: this candidate changes presentation only. No StoreKit, entitlement, pricing,
+notification, network, calculation, or persistence behaviour changed. Production signed
+configuration remains undeployed. This session does not assign internal testers, submit external
+Beta App Review, deploy Production, or submit an App Store version.
+
+Open product question, deliberately unresolved: Insights shows the same figure for "last 30 days"
+and "current cycle" whenever every record falls inside the current cycle, which is systematic for
+a cycle starting on the 1st rather than coincidental. Merging the cards, changing the wording, or
+hiding one when equal is the owner's decision.
+
+Upload result: pending at this preparation checkpoint. Build 9 is not immutable until App Store
+Connect transport accepts it. Archive metadata and upload evidence will be added after the release
+commit is merged and the signed upload completes.
