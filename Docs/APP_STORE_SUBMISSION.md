@@ -8,14 +8,14 @@ validated under the owner's current China-region Apple Developer account.
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
 - Current source candidate: version 0.9.8, build 9
-- Current uploaded TestFlight candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
-- Previous uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
+- Current uploaded TestFlight candidate: version 0.9.8, build 9 (transport accepted 2026-08-17)
+- Previous uploaded candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
+- Earlier uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
 - Earlier uploaded candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
 - Earlier uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Every uploaded build above is immutable. Version 0.9.8/build 9 is the next upload candidate;
-  increment to build 10 before uploading any replacement after it.
+- Every uploaded build above is immutable. Increment to build 10 before uploading any replacement.
 - Increment the build number after every uploaded replacement.
 - Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
   legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
@@ -45,7 +45,7 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.8 (9) — Internal test candidate
+### 0.9.8 (9) — Uploaded internal test candidate
 
 This build changes presentation only. No StoreKit, entitlement, pricing, notification, network,
 calculation, or persistence behaviour changed, so anything that looks different in those areas is

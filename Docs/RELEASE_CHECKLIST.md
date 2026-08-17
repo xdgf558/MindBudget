@@ -47,15 +47,21 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [x] Before the 0.9.7 replacement Archive, increment the build number. Reverify the current team,
   App Store Connect record, agreements, certificate, and profile during Archive/export.
 
-### Pending 0.9.8 (9) release execution
+### Completed 0.9.8 (9) release execution
 
-- [ ] Archive Release 0.9.8 (9) from merged `main` and confirm the archive reports bundle ID
-  `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only support, and iOS 17.0 minimum deployment.
-- [ ] Confirm the Archive contains no local StoreKit fixture and that Release still selects only the
-  exact Production configuration host.
-- [ ] Upload Release 0.9.8 (9) with `manageAppVersionAndBuildNumber: false` so the uploaded build
-  number stays traceable to the merged commit, and confirm transport accepts build 9. Stop before
-  any tester-group assignment.
+- [x] On 2026-08-17, Archive Release 0.9.8 (9) from merged `main` (`6fa1cb3`). The archive reports
+  bundle ID `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, `UIDeviceFamily = [1]` (iPhone-only), and
+  `MinimumOSVersion 17.0`.
+- [x] Confirm the Archive contains no local StoreKit fixture, and that Release still reaches only
+  the Production configuration host because `PublicConfigurationDeploymentEnvironment.current()`
+  returns `.production` unconditionally outside `DEBUG`. The same recorded limitation applies: all
+  three endpoint literals remain inert strings in the binary.
+- [x] Upload Release 0.9.8 (9) with `manageAppVersionAndBuildNumber: false`, so build 9 stays
+  traceable to the merged commit. Export used Apple cloud-managed remote signing with
+  `Apple Distribution: Hao Ye (2AM5S7BM2N)`; transport accepted build 9 at 2026-08-17 21:59 (+0800)
+  with delivery UUID `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`.
+- [ ] Not performed here and still owned manually: internal tester-group assignment, external Beta
+  App Review submission, and App Store version submission.
 
 ### Completed 0.9.7 (8) release execution
 
