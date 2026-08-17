@@ -422,10 +422,6 @@ struct InsightsView: View {
                         .accessibilityIdentifier("insights.group.longTerm")
                     savingsProgressCard
 
-                    if !summary.categoryChartSegments.isEmpty {
-                        groupHeader("insights.group.composition")
-                            .accessibilityIdentifier("insights.group.composition")
-                    }
                     spendingCharts(summary)
                 }
                 insightCards
@@ -610,6 +606,11 @@ struct InsightsView: View {
 
     @ViewBuilder
     private func spendingCharts(_ summary: InsightDashboardSummary) -> some View {
+        // The header belongs with the charts it names. Deciding it at the call site let it key off
+        // the category segments alone, so a cycle with no categorised spending still drew the
+        // unconditional 30-day trend — and the emotion chart — with no group above them.
+        groupHeader("insights.group.composition")
+            .accessibilityIdentifier("insights.group.composition")
         if !summary.categoryChartSegments.isEmpty {
             chartSection(title: "insights.chart.category") {
                 Chart(Array(summary.categoryChartSegments.enumerated()), id: \.element.id) { entry in
