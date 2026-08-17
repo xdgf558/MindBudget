@@ -4632,5 +4632,13 @@ literals (Development, Staging, Production) because they are cases of one `endpo
 `DEBUG`, so no Release code path reaches Development or Staging; the extra strings are inert and are
 reported here rather than described as an absent endpoint.
 
+Correction to prior release history: App Store Connect also holds `0.9.6 (8)`, accepted 2026-08-11,
+which no document in this repository recorded. `CURRENT_PROJECT_VERSION = 8` first entered the
+repository in `e1f2831` on 2026-08-17, so that earlier upload did not come from a committed state;
+the likely cause is an Organizer export that left `manageAppVersionAndBuildNumber` enabled and let
+Xcode auto-increment the build number without writing it back. It caused no collision because build
+uniqueness is scoped to the marketing version, and the 2026-08-17 export explicitly set
+`manageAppVersionAndBuildNumber: false` so build 8 matches the merged commit.
+
 Not performed: no internal tester-group assignment, no external Beta App Review submission, no App
 Store version submission, no Production configuration deployment, and no COM-C4A start.
