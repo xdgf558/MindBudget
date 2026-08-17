@@ -28,8 +28,8 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is version 0.9.7/build 8, iPhone-only, iOS 17+, and contains no shared
-  Apple Team ID. Build 8 is the next replacement candidate and build 7 remains historical.
+- [x] Release configuration is version 0.9.8/build 9, iPhone-only, iOS 17+, and contains no shared
+  Apple Team ID. Build 9 is the next replacement candidate and build 8 remains historical.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
   `温和的预算与消费复盘工具` as its subtitle.
@@ -46,6 +46,16 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   banking state is active where applicable.
 - [x] Before the 0.9.7 replacement Archive, increment the build number. Reverify the current team,
   App Store Connect record, agreements, certificate, and profile during Archive/export.
+
+### Pending 0.9.8 (9) release execution
+
+- [ ] Archive Release 0.9.8 (9) from merged `main` and confirm the archive reports bundle ID
+  `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only support, and iOS 17.0 minimum deployment.
+- [ ] Confirm the Archive contains no local StoreKit fixture and that Release still selects only the
+  exact Production configuration host.
+- [ ] Upload Release 0.9.8 (9) with `manageAppVersionAndBuildNumber: false` so the uploaded build
+  number stays traceable to the merged commit, and confirm transport accepts build 9. Stop before
+  any tester-group assignment.
 
 ### Completed 0.9.7 (8) release execution
 

@@ -2335,6 +2335,30 @@
         }
       }
     },
+    "settings.releaseNotes.settingsGroups": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Settings is now grouped into Budget, Reminders and Intelligence, Subscription, General, Privacy, and About, so related pages sit together and every group is announced by VoiceOver." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "设置改为「预算」「提醒与智能」「订阅」「通用」「隐私」「关于」分组，相关页面归在一处，每个分组也能被旁白朗读。" } }
+      }
+    },
+    "settings.releaseNotes.languageEntry": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "App language now has its own Settings entry under General instead of hiding inside appearance, and choosing a language no longer opens an extra screen." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "应用语言从「外观与皮肤」中独立出来，成为「通用」下的单独入口，选择语言也不再多打开一层页面。" } }
+      }
+    },
+    "settings.releaseNotes.chartPalette": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Chart colours now follow the skin you chose instead of fixed system colours, and neighbouring segments alternate warm and cool. Every category name still appears in the key." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图表配色改为跟随所选皮肤，不再使用固定的系统色，相邻分段冷暖交替。图例仍会显示每个分类名称。" } }
+      }
+    },
+    "settings.releaseNotes.insightsGroups": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Insights is now grouped into This cycle, Long-term goals, Where money went, and patterns to review, so the screen reads as a few themes instead of one long column of cards." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察改为「本期」「长期目标」「消费构成」与可回看的模式分组，页面读起来是几个主题，而不是一长列卡片。" } }
+      }
+    },
     "insights.group.currentCycle": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "This cycle" } },
