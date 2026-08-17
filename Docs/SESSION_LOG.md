@@ -4617,6 +4617,20 @@ measurements were 2.500 seconds and 0.696 seconds, so they are retained as load 
 than represented as passing. The corrected Simplified Chinese release-note brand assertion passed
 in the focused localization run. Hosted CI for the release-preparation commit remains pending.
 
-Upload result: pending at this preparation checkpoint. Build 8 is not immutable until App Store
-Connect transport accepts it. Archive metadata and upload evidence will be added after the release
-commit is merged and the signed upload completes.
+Upload result: completed on 2026-08-17. The preparation commit `e1f2831` merged through PR #42 as
+`9792901` after GitHub Actions run `31984665049` passed. Release 0.9.7 (8) was archived from that
+merged commit; the archive reports bundle ID `com.xdgf558.MindBudget`, team `2AM5S7BM2N`,
+`UIDeviceFamily = [1]`, and `MinimumOSVersion 17.0`, and carries no `.storekit` fixture. Export used
+Apple cloud-managed remote signing with `Apple Distribution: Hao Ye (2AM5S7BM2N)` — no local
+distribution private key exists or is required. Transport accepted build 8 at 09:52 (+0800) with
+delivery UUID `b7fb59b8-a9c6-4003-a07a-71ea608a2ea6`, and App Store Connect began processing. Build 8
+is now immutable.
+
+Recorded limitation: the Release binary still contains all three public-configuration endpoint
+literals (Development, Staging, Production) because they are cases of one `endpoint` property.
+`PublicConfigurationDeploymentEnvironment.current()` returns `.production` unconditionally outside
+`DEBUG`, so no Release code path reaches Development or Staging; the extra strings are inert and are
+reported here rather than described as an absent endpoint.
+
+Not performed: no internal tester-group assignment, no external Beta App Review submission, no App
+Store version submission, no Production configuration deployment, and no COM-C4A start.

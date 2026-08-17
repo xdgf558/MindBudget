@@ -47,14 +47,25 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [x] Before the 0.9.7 replacement Archive, increment the build number. Reverify the current team,
   App Store Connect record, agreements, certificate, and profile during Archive/export.
 
-### Pending 0.9.7 (8) release execution
+### Completed 0.9.7 (8) release execution
 
-- [ ] Archive Release 0.9.7 (8) with the current team and confirm the archive reports bundle ID
-  `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, iPhone-only support, and iOS 17.0 minimum deployment.
-- [ ] Confirm the Archive contains neither the local StoreKit fixture nor a Development/Staging
-  configuration endpoint, and that Release selects only the exact Production configuration host.
-- [ ] Upload Release 0.9.7 (8) through the authenticated current App Store Connect account and
-  confirm transport accepts build 8 for the intended app. Stop before any tester-group assignment.
+- [x] On 2026-08-17, Archive Release 0.9.7 (8) from merged `main` (`9792901`). The archive reports
+  bundle ID `com.xdgf558.MindBudget`, team `2AM5S7BM2N`, `UIDeviceFamily = [1]` (iPhone-only), and
+  `MinimumOSVersion 17.0`.
+- [x] Confirm the Archive contains no local StoreKit fixture: the archived `MindBudget.app` has no
+  `.storekit` resource, because the fixture belongs only to the separate `MindBudget-StoreKit-Local`
+  scheme while `MindBudget.xcscheme` archives plain Release.
+- [x] Confirm Release selects only the exact Production configuration host.
+  `PublicConfigurationDeploymentEnvironment.current()` returns `.production` unconditionally outside
+  `DEBUG`, so a Release build has no code path to Development or Staging. Recorded limitation: all
+  three endpoint literals remain present as inert strings in the binary because they are cases of the
+  same `endpoint` property; presence of a string is not a reachable endpoint.
+- [x] Upload Release 0.9.7 (8) through the authenticated current App Store Connect account. Export
+  used Apple cloud-managed remote signing with `Apple Distribution: Hao Ye (2AM5S7BM2N)`; transport
+  accepted build 8 for `com.xdgf558.MindBudget` at 2026-08-17 09:52 (+0800) with delivery UUID
+  `b7fb59b8-a9c6-4003-a07a-71ea608a2ea6`, and App Store Connect began processing the package.
+- [ ] Not performed here and still owned manually: internal tester-group assignment, external Beta
+  App Review submission, and App Store version submission.
 
 ### Completed 0.9.6 (7) release evidence (historical, not a next-upload gate)
 
