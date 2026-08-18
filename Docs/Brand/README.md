@@ -40,3 +40,32 @@ shasum -a 256 \
 
 `Scripts/check-release-readiness.sh` verifies that manifest. A source or PNG change therefore
 cannot silently leave the repository's declared source/artifact pair out of sync.
+
+## Theme colour-token sheet
+
+`MindBudget/Features/Shared/AppTheme.swift` is the only source of truth for skin colours. To review
+every token across all three skins at once — including the categorical chart scale on its own
+`canvas`, and WCAG contrast ratios against `surface` — generate the sheet:
+
+```bash
+python3 -B Scripts/theme_palette.py MindBudget/Features/Shared/AppTheme.swift /tmp/palette.html
+```
+
+Omit the output path to print the parsed values as JSON instead.
+
+The sheet is generated, never hand-maintained, so it cannot drift from the theme the way a copied
+palette would. For that reason it is deliberately **not** committed: regenerate it after any theme
+change rather than reading a stale copy.
+
+The parser understands the four declaration shapes the theme uses — a per-skin `switch`, a ternary
+with an alias fallback, an alias plus `.opacity()`, and a named colour plus `.opacity()`. Aliases may
+point at a token declared later in the file, and an alias keeps the alpha of the token it references.
+
+The skin list comes from the `AppSkin` enum rather than a constant, so adding a skin widens the sheet
+instead of being silently omitted. Anything the parser cannot resolve for every skin — or a layout
+change that matches no token at all — raises rather than producing a quietly incomplete sheet. Run
+its tests after changing either the parser or the shape of a theme declaration:
+
+```bash
+python3 -B Scripts/tests/test_theme_palette.py
+```
