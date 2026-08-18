@@ -4682,9 +4682,21 @@ and "current cycle" whenever every record falls inside the current cycle, which 
 a cycle starting on the 1st rather than coincidental. Merging the cards, changing the wording, or
 hiding one when equal is the owner's decision.
 
-Upload result: pending at this preparation checkpoint. Build 9 is not immutable until App Store
-Connect transport accepts it. Archive metadata and upload evidence will be added after the release
-commit is merged and the signed upload completes.
+Upload result: completed on 2026-08-17. The preparation commit `2d25bd7` merged through PR #46 as
+`6fa1cb3` after GitHub Actions run `32032989206` passed. Release 0.9.8 (9) was archived from that
+merged commit; the archive reports bundle ID `com.xdgf558.MindBudget`, team `2AM5S7BM2N`,
+`UIDeviceFamily = [1]`, and `MinimumOSVersion 17.0`, and carries no `.storekit` fixture. Export used
+Apple cloud-managed remote signing with `Apple Distribution: Hao Ye (2AM5S7BM2N)` and kept
+`manageAppVersionAndBuildNumber: false`, so build 9 corresponds exactly to the merged commit.
+Transport accepted build 9 at 21:59 (+0800) with delivery UUID
+`dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`, and App Store Connect began processing. Build 9 is now
+immutable.
+
+App Store Connect now holds both 0.9.7 (8) and 0.9.8 (9). Only 0.9.8 (9) contains the grouped
+Settings and Insights work; 0.9.7 (8) was built from `e1f2831` and predates it.
+
+Not performed: no internal tester-group assignment, no external Beta App Review submission, no App
+Store version submission, no Production configuration deployment.
 
 ## 2026-08-18 — Session 130 — Review PR #48 theme palette generator
 
@@ -4694,5 +4706,16 @@ shipping theme parses to the expected 22 tokens plus the six-entry chart scale p
 with hand-checked alias/opacity values, and all seven static gates pass. Four edge-case
 probes were run against the parser; findings (new skin silently omitted, alpha dropped
 across an alias, whole-file mis-parse silent in JSON mode, declaration-order sensitivity)
-were reported back in the review along with smaller rendering nits. The PR is sound to
-merge as a developer tool; the reported items are follow-ups, not blockers.
+were reported back in the review along with smaller rendering nits. The PR was judged sound to merge as a
+developer tool with the reported items treated as non-blocking follow-ups.
+
+All four findings were then fixed inside the same PR as `6653551` rather than deferred, each
+verified by reproducing the reviewer's own probe: skins are parsed from the `AppSkin` enum, an
+alias keeps the referenced token's alpha and stacked opacities multiply as SwiftUI does, a parse
+matching no token raises so JSON mode fails too, and a second resolution pass removes the
+declaration-order constraint instead of only explaining it. The three rendering nits were also
+taken: a standards-mode document, checkerboard backing for translucent swatches, and rejection of
+translucent inputs to contrast maths, which cannot composite. Tests grew from 15 to 24.
+
+Recorded process note: this review entry reached the pull request only because an over-broad
+`git add -A` in the review-fix commit swept it in alongside the intended source changes.

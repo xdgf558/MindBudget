@@ -13,7 +13,11 @@ jobs:
   validate:
     name: Build and test
     runs-on: macos-26
-    timeout-minutes: 30
+    # Runs land between 18 and 29 minutes on hosted macOS, so a 30-minute budget
+    # left no headroom: a normal commit could exceed it purely on runner variance,
+    # and GitHub reports that timeout as "cancelled", which reads like a human
+    # cancelled the job rather than like a limit being hit.
+    timeout-minutes: 45
     env:
       # A newly migrated hosted simulator can time out on its first UI launch.
       # Retry once without weakening any localization assertion.
