@@ -21,13 +21,18 @@ import argparse
 import json
 import re
 
-SKINS = ["warmBotanical", "auroraGlow", "neonPulse"]
+# Display order for the sheet. The authoritative list is parsed from the AppSkin
+# enum; this only decides which column comes first, and any skin missing a label
+# still renders under its raw case name.
+SKIN_ORDER = ["warmBotanical", "auroraGlow", "neonPulse"]
 SKIN_LABELS = {
     "warmBotanical": ("Warm Botanical", "暖植物"),
     "auroraGlow": ("Aurora Glow", "极光"),
     "neonPulse": ("Neon Pulse", "霓虹"),
 }
 CHART_TOKEN = "categoricalChart"
+SKIN_ENUM = re.compile(r"enum AppSkin:[^{]*\{(.*?)\n\}", re.S)
+SKIN_CASE = re.compile(r"^\s*case (\w+)\s*$", re.M)
 
 COLOR = re.compile(r"Color\(red:\s*([\d.]+),\s*green:\s*([\d.]+),\s*blue:\s*([\d.]+)\)")
 NAMED = {"Color.black": [0.0, 0.0, 0.0], "Color.white": [1.0, 1.0, 1.0]}
@@ -62,9 +67,20 @@ def resolve(expression, skin=None, known=None):
     elif expression in NAMED:
         base = list(NAMED[expression])
     elif known and expression in known and skin in known[expression]:
-        base = list(known[expression][skin])[:3]
+        # Keep the referenced token's own alpha. Dropping it would render a
+        # translucent colour as an opaque one — a silently wrong value, which is
+        # worse than a missing one. SwiftUI multiplies stacked opacities, so an
+        # alias that also carries .opacity() multiplies rather than replaces.
+        base = list(known[expression][skin])
     else:
         return None
+
+    inherited = base[3] if len(base) > 3 else None
+    base = base[:3]
+    if alpha is None:
+        alpha = inherited
+    elif inherited is not None:
+        alpha = round(alpha * inherited, 6)
     return base + ([alpha] if alpha is not None else [])
 
 
@@ -87,9 +103,25 @@ def _body(source, name):
     return None, None
 
 
-def _per_skin(body, known):
+def parse_skins(source):
+    """Read the skin list from the AppSkin enum.
+
+    Hardcoding it would reintroduce exactly the drift this tool exists to
+    prevent: a fourth skin would render a sheet that silently covers three.
+    """
+    block = SKIN_ENUM.search(source)
+    if not block:
+        raise ThemeParseError("Could not find the AppSkin enum")
+    skins = SKIN_CASE.findall(block.group(1))
+    if not skins:
+        raise ThemeParseError("AppSkin declared no cases")
+    ordered = [s for s in SKIN_ORDER if s in skins]
+    return ordered + [s for s in skins if s not in ordered]
+
+
+def _per_skin(body, known, skins):
     values = {}
-    for skin in SKINS:
+    for skin in skins:
         match = re.search(r"case \.%s:\s*" % skin + BRANCH, body)
         if match:
             value = resolve(match.group(1), skin, known)
@@ -98,14 +130,14 @@ def _per_skin(body, known):
     return values
 
 
-def _derived(body, known):
+def _derived(body, known, skins):
     values = {}
     ternary = re.search(
         r"skin == \.(\w+)\s*\?\s*" + BRANCH + r"\s*:\s*" + BRANCH, body, re.S
     )
     if ternary:
         target, when_true, when_false = ternary.groups()
-        for skin in SKINS:
+        for skin in skins:
             value = resolve(when_true if skin == target else when_false, skin, known)
             if value:
                 values[skin] = value
@@ -113,16 +145,16 @@ def _derived(body, known):
 
     constant = re.search(r"\{\s*" + BRANCH + r"\s*\}", body, re.S)
     if constant:
-        for skin in SKINS:
+        for skin in skins:
             value = resolve(constant.group(1), skin, known)
             if value:
                 values[skin] = value
     return values
 
 
-def _scale(body):
+def _scale(body, skins):
     values = {}
-    for skin in SKINS:
+    for skin in skins:
         match = re.search(r"case \.%s:\s*\[(.*?)\]" % skin, body, re.S)
         if match:
             values[skin] = [_rgb(color) for color in COLOR.finditer(match.group(1))]
@@ -131,28 +163,46 @@ def _scale(body):
 
 def parse_theme(source):
     """Return {"order": [...], "tokens": {...}, "scales": {...}}."""
+    skins = parse_skins(source)
     declared = re.findall(r"\n    var (\w+):\s*(?:\[Color\]|Color)\s*\{", source)
-    tokens, scales, order = {}, {}, []
+    tokens, scales, order, bodies = {}, {}, [], {}
     for name in declared:
         body, kind = _body(source, name)
         if body is None:
             continue
         if kind == "[Color]":
-            scales[name] = _scale(body)
+            scales[name] = _scale(body, skins)
             continue
+        bodies[name] = body
         # A token that resolves for no skin at all must fail rather than vanish:
         # silently dropping it would leave a gap in the sheet with nothing to
         # signal that the theme grew a shape this parser does not understand.
-        values = _per_skin(body, tokens) or _derived(body, tokens)
-        tokens[name] = values
+        tokens[name] = _per_skin(body, tokens, skins) or _derived(body, tokens, skins)
         order.append(name)
 
-    incomplete = sorted(n for n in order if len(tokens[n]) != len(SKINS))
+    # Second pass so an alias may point at a token declared later in the file.
+    # Without it, reordering two declarations breaks the sheet for no real reason.
+    for name in order:
+        if len(tokens[name]) == len(skins):
+            continue
+        retry = _per_skin(bodies[name], tokens, skins) or _derived(bodies[name], tokens, skins)
+        if len(retry) > len(tokens[name]):
+            tokens[name] = retry
+
+    if not order:
+        raise ThemeParseError(
+            "No colour tokens were found. The theme's declaration layout probably "
+            "changed; this parser expects `    var <name>: Color {` at four-space indent."
+        )
+
+    incomplete = sorted(n for n in order if len(tokens[n]) != len(skins))
     if incomplete:
         raise ThemeParseError(
-            "Tokens did not resolve for every skin: " + ", ".join(incomplete)
+            "Tokens did not resolve for every skin: "
+            + ", ".join(incomplete)
+            + ". A token aliasing another one must be declared after it."
         )
-    return {"order": order, "tokens": tokens, "scales": scales}
+    return {"order": order, "tokens": tokens, "scales": scales, "skins": skins}
 
 
 def css(value):
@@ -160,6 +210,32 @@ def css(value):
     if len(value) > 3:
         return "rgba(%d,%d,%d,%s)" % (red, green, blue, value[3])
     return "rgb(%d,%d,%d)" % (red, green, blue)
+
+
+CHECKER = (
+    "background-image:linear-gradient(45deg,#bbb 25%,transparent 25%),"
+    "linear-gradient(-45deg,#bbb 25%,transparent 25%),"
+    "linear-gradient(45deg,transparent 75%,#bbb 75%),"
+    "linear-gradient(-45deg,transparent 75%,#bbb 75%);"
+    "background-size:8px 8px;"
+    "background-position:0 0,0 4px,4px -4px,-4px 0px;"
+)
+
+
+def swatch(value, size=34):
+    """A swatch that stays legible when the colour is translucent.
+
+    A colour with alpha painted straight onto the card can be invisible — white
+    at 0.04 is the case in this very theme — which would contradict the point of
+    the sheet, so translucent values sit on a checkerboard.
+    """
+    box = "width:%dpx;height:%dpx" % (size, size)
+    if len(value) > 3:
+        return (
+            '<div class="sw" style="%s;%s"><div style="width:100%%;height:100%%;'
+            'border-radius:7px;background:%s"></div></div>' % (box, CHECKER, css(value))
+        )
+    return '<div class="sw" style="%s;background:%s"></div>' % (box, css(value))
 
 
 def swatch_label(value):
@@ -178,6 +254,16 @@ def relative_luminance(value):
 
 
 def contrast_ratio(foreground, background):
+    """WCAG ratio for two opaque colours.
+
+    Compositing is out of scope, so a translucent input would silently produce a
+    ratio for a colour nobody sees. Reject it instead of reporting a wrong number.
+    """
+    for value in (foreground, background):
+        if len(value) > 3:
+            raise ThemeParseError(
+                "Contrast needs opaque colours; got alpha %s" % value[3]
+            )
     first = relative_luminance(foreground)
     second = relative_luminance(background)
     lighter, darker = max(first, second), min(first, second)
@@ -241,15 +327,23 @@ TEXT_TOKENS = [
 
 def render(theme):
     tokens, scales, order = theme["tokens"], theme["scales"], theme["order"]
+    skins = theme["skins"]
     if CHART_TOKEN not in scales:
         raise ThemeParseError("Missing categorical chart scale")
     chart = scales[CHART_TOKEN]
-    out = ["<title>MindBudget Palette</title>", "<style>%s</style>" % STYLE, '<div class="wrap">']
+    out = [
+        "<!DOCTYPE html>",
+        '<html lang="zh-Hans"><head><meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1">',
+        "<title>MindBudget Palette</title>",
+        "<style>%s</style></head><body>" % STYLE,
+        '<div class="wrap">',
+    ]
     out.append("<h1>MindBudget 主题色板</h1>")
     out.append(
         '<p class="sub">从 <code>MindBudget/Features/Shared/AppTheme.swift</code> 直接解析生成 · '
         "%d 个 token × %d 套皮肤 · 分类色阶 %d 色</p>"
-        % (len(order), len(SKINS), len(chart[SKINS[0]]))
+        % (len(order), len(skins), len(chart[skins[0]]))
     )
     out.append(
         '<p class="sub">色值没有一个是手抄的。主题改动后重新运行 '
@@ -257,7 +351,7 @@ def render(theme):
     )
 
     out.append("<h2>颜色 token</h2><div class=\"scroll\"><table><thead><tr><th>Token</th>")
-    for skin in SKINS:
+    for skin in skins:
         english, chinese = SKIN_LABELS[skin]
         out.append(
             '<th>%s <span style="color:var(--muted);font-weight:400">%s</span></th>'
@@ -266,11 +360,11 @@ def render(theme):
     out.append("</tr></thead><tbody>")
     for name in order:
         out.append("<tr><td><code>%s</code></td>" % name)
-        for skin in SKINS:
+        for skin in skins:
             value = tokens[name][skin]
             out.append(
-                '<td><div class="cell"><div class="sw" style="background:%s"></div>'
-                "<code>%s</code></div></td>" % (css(value), swatch_label(value))
+                '<td><div class="cell">%s<code>%s</code></div></td>'
+                % (swatch(value), swatch_label(value))
             )
         out.append("</tr>")
     out.append("</tbody></table></div>")
@@ -281,7 +375,7 @@ def render(theme):
         "——这才是用户实际看到的对比关系。</p>"
     )
     out.append('<div class="grid">')
-    for skin in SKINS:
+    for skin in skins:
         english, chinese = SKIN_LABELS[skin]
         canvas, surface, ink = tokens["canvas"][skin], tokens["surface"][skin], tokens["ink"][skin]
         colors = chart[skin]
@@ -313,10 +407,9 @@ def render(theme):
             ratio = contrast_ratio(color, surface)
             grade, css_class = wcag_grade(ratio)
             out.append(
-                '<tr><td><div class="cell"><div class="sw" style="width:20px;height:20px;'
-                'background:%s"></div><code>%s</code></div></td><td><code>%.2f</code></td>'
-                '<td><span class="pill %s">%s</span></td></tr>'
-                % (css(color), swatch_label(color), ratio, css_class, grade)
+                '<tr><td><div class="cell">%s<code>%s</code></div></td>'
+                '<td><code>%.2f</code></td><td><span class="pill %s">%s</span></td></tr>'
+                % (swatch(color, 20), swatch_label(color), ratio, css_class, grade)
             )
         out.append("</tbody></table></div>")
         out.append(
@@ -330,14 +423,14 @@ def render(theme):
         '<p class="sub">在 <code>surface</code> 上。WCAG 正文阈值 AA 4.5、AAA 7。</p>'
     )
     out.append('<div class="scroll"><table><thead><tr><th>Token</th>')
-    for skin in SKINS:
+    for skin in skins:
         out.append("<th>%s</th>" % SKIN_LABELS[skin][0])
     out.append("</tr></thead><tbody>")
     for name in TEXT_TOKENS:
         if name not in tokens:
             continue
         out.append("<tr><td><code>%s</code></td>" % name)
-        for skin in SKINS:
+        for skin in skins:
             ratio = contrast_ratio(tokens[name][skin], tokens["surface"][skin])
             grade, css_class = wcag_grade(ratio)
             out.append(
@@ -348,7 +441,7 @@ def render(theme):
                 % (css(tokens["surface"][skin]), css(tokens[name][skin]), ratio, css_class, grade)
             )
         out.append("</tr>")
-    out.append("</tbody></table></div></div>")
+    out.append("</tbody></table></div></div></body></html>")
     return "\n".join(out)
 
 
@@ -369,7 +462,7 @@ def main():
         handle.write(render(theme))
     print(
         "Wrote %s from %d tokens across %d skins"
-        % (arguments.output, len(theme["order"]), len(SKINS))
+        % (arguments.output, len(theme["order"]), len(theme["skins"]))
     )
 
 

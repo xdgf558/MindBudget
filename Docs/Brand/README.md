@@ -58,9 +58,13 @@ palette would. For that reason it is deliberately **not** committed: regenerate 
 change rather than reading a stale copy.
 
 The parser understands the four declaration shapes the theme uses — a per-skin `switch`, a ternary
-with an alias fallback, an alias plus `.opacity()`, and a named colour plus `.opacity()`. A token it
-cannot resolve for all three skins fails loudly instead of disappearing from the sheet. Run its
-tests after changing either the parser or the shape of a theme declaration:
+with an alias fallback, an alias plus `.opacity()`, and a named colour plus `.opacity()`. Aliases may
+point at a token declared later in the file, and an alias keeps the alpha of the token it references.
+
+The skin list comes from the `AppSkin` enum rather than a constant, so adding a skin widens the sheet
+instead of being silently omitted. Anything the parser cannot resolve for every skin — or a layout
+change that matches no token at all — raises rather than producing a quietly incomplete sheet. Run
+its tests after changing either the parser or the shape of a theme declaration:
 
 ```bash
 python3 -B Scripts/tests/test_theme_palette.py

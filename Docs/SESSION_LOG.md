@@ -4685,3 +4685,14 @@ hiding one when equal is the owner's decision.
 Upload result: pending at this preparation checkpoint. Build 9 is not immutable until App Store
 Connect transport accepts it. Archive metadata and upload evidence will be added after the release
 commit is merged and the signed upload completes.
+
+## 2026-08-18 — Session 130 — Review PR #48 theme palette generator
+
+Reviewed PR #48 (`Scripts/theme_palette.py`, its tests, and the `Docs/Brand/README.md`
+section) at the owner's request. No code changed. Verified all 15 parser tests pass, the
+shipping theme parses to the expected 22 tokens plus the six-entry chart scale per skin
+with hand-checked alias/opacity values, and all seven static gates pass. Four edge-case
+probes were run against the parser; findings (new skin silently omitted, alpha dropped
+across an alias, whole-file mis-parse silent in JSON mode, declaration-order sensitivity)
+were reported back in the review along with smaller rendering nits. The PR is sound to
+merge as a developer tool; the reported items are follow-ups, not blockers.
