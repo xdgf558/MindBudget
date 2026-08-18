@@ -4682,6 +4682,18 @@ and "current cycle" whenever every record falls inside the current cycle, which 
 a cycle starting on the 1st rather than coincidental. Merging the cards, changing the wording, or
 hiding one when equal is the owner's decision.
 
-Upload result: pending at this preparation checkpoint. Build 9 is not immutable until App Store
-Connect transport accepts it. Archive metadata and upload evidence will be added after the release
-commit is merged and the signed upload completes.
+Upload result: completed on 2026-08-17. The preparation commit `2d25bd7` merged through PR #46 as
+`6fa1cb3` after GitHub Actions run `32032989206` passed. Release 0.9.8 (9) was archived from that
+merged commit; the archive reports bundle ID `com.xdgf558.MindBudget`, team `2AM5S7BM2N`,
+`UIDeviceFamily = [1]`, and `MinimumOSVersion 17.0`, and carries no `.storekit` fixture. Export used
+Apple cloud-managed remote signing with `Apple Distribution: Hao Ye (2AM5S7BM2N)` and kept
+`manageAppVersionAndBuildNumber: false`, so build 9 corresponds exactly to the merged commit.
+Transport accepted build 9 at 21:59 (+0800) with delivery UUID
+`dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`, and App Store Connect began processing. Build 9 is now
+immutable.
+
+App Store Connect now holds both 0.9.7 (8) and 0.9.8 (9). Only 0.9.8 (9) contains the grouped
+Settings and Insights work; 0.9.7 (8) was built from `e1f2831` and predates it.
+
+Not performed: no internal tester-group assignment, no external Beta App Review submission, no App
+Store version submission, no Production configuration deployment.
