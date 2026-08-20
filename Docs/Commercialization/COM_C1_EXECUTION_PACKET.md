@@ -1,6 +1,7 @@
 # COM-C1 Execution Packet — Entitlement Model and Feature Access
 
-Status: **Done.** C1-01, C1-02, and C1-03 were independently reviewed and merged by 2026-08-11.
+Status: **Done after independent review and merge through PR #27 (`17031e2`).** C1-01, C1-02, and
+C1-03 were independently reviewed and merged by 2026-08-11.
 This packet remains the durable boundary contract consumed by later COM phases.
 
 ## Input gate

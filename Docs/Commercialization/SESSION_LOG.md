@@ -1514,3 +1514,60 @@ What was NOT changed: No Swift source, model schema, store content, migration ex
 currency, entitlement, StoreKit behavior, signed-configuration field, network channel, version,
 Archive/upload, tester assignment, review submission, Production deployment, or distribution
 action changed.
+
+## 2026-08-20 — Session 49 — Close C4A-01 review findings before independent re-review
+
+Goal: Make the money-inventory closure, pre-open recovery boundary, and commercialization state
+gate independently checkable without implementing C4A-02.
+
+What changed: The C4A inventory now lists all 15 `ModelCounts` tables. Five reviewed tables are
+explicitly marked as carrying no persisted monetary amount: `BudgetPlanSemantics`,
+`CoolingOffPlan`, `ReminderEvent` (whose basis-points field is a ratio), `ReflectionLog`, and
+`RecurringExpenseOccurrence`. The C4A-02 plan now defines its trigger without relying on
+undocumented SwiftData/Core Data schema metadata: no store has no backup; a trusted committed
+target marker takes the fast path; a missing/untrusted/target-mismatched marker takes one
+pre-open snapshot and journal before opening, and only post-open integrity validation commits the
+target marker. That recovery path has separate C4A-03 evidence and is outside the normal Dashboard
+first-screen budget.
+
+Follow-up verification defines a trusted marker as a supported, parseable app-owned format in
+committed state, with an exact target match and no active/nonterminal recovery journal. The phase
+parser's actual-source invocation now requires one direct Status for every recognized phase or
+subphase in the authoritative map and the C2/C3/C4A packets. A stable approved top-level phase-ID
+set detects whole-phase deletion without encoding mutable status prose; nested additions are
+covered automatically. C1 remains the one documented source-level exception because its
+historical subpacket headings are prose-only.
+
+The documentation gate now runs a reusable structural phase-state parser with self-tests for
+heading discovery, missing/duplicate top-level and nested status records, Done-plus-pending
+conflict, Done-without-PR/SHA, blocked-plus-In-Progress conflict, and C4A-01 pending-review versus
+C4A-02/C4A-03 blocked states. Historical bootstrap exceptions are limited to COM-C0A/COM-C0B;
+C1 and the C2 packet status records now retain their correct merge evidence.
+
+Evidence: `python3 -B Scripts/commercialization_phase_states.py --self-test`, the parser over the
+phase map and C1/C2/C3/C4A execution packets, `bash -n Scripts/check-commercialization-docs.sh`,
+and `Scripts/check-commercialization-docs.sh` passed. No source/schema/runtime behavior changed;
+C4A-01 remains pending independent review and C4A-02/C4A-03 remain blocked.
+
+## 2026-08-20 — Session 50 — Generalize phase-status completeness after re-review
+
+Goal: Remove the remaining C4A-specific status registrations from the documentation gate while
+making missing status lines and whole-heading deletion fail loudly across the authoritative map.
+
+What changed: `commercialization_phase_states.py` now supports a source-level require-all mode:
+every recognized phase/subphase heading in the task map and C2/C3/C4A execution packets must own
+exactly one direct `Status`. C1 is the narrow documented source exception because its historical
+subpacket headings predate per-packet status records; its top-level COM-C1 status remains covered
+by the authoritative task map. The task map also supplies one exact approved phase-ID set,
+including G1. This identifier-only set closes require-all's unavoidable blind spot when an entire
+top-level phase heading is deleted, without pinning mutable status text or requiring new nested
+subphase registrations.
+
+Self-tests now reject a missing or duplicate nested status, a deleted C3-style status, a deleted
+approved heading, and an unapproved heading in addition to the existing classification and merge-
+evidence cases. The shell gate contains no per-C4A status registration. No product source, schema,
+store, phase state, or release authority changed.
+
+Evidence: Python compilation, the parser's self-test and real authoritative-source invocation,
+shell syntax, money, network-egress, commercialization-document, StoreKit-catalog, and diff checks
+all passed.

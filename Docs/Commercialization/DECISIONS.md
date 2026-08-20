@@ -709,9 +709,16 @@ context.
   inconsistent allocations, unreadable stores, and interruption stop migration and preserve the
   original store. No failure is coerced to zero or treated as a successful empty migration.
 - Recovery boundary: SwiftData's existing V1 → V2 → V3 → V4 `SchemaMigrationPlan` remains the
-  schema mechanism. The app-owned coordinator surrounds container opening and commits only after
-  the migrated store passes the inventory. A durable journal determines whether restart resumes,
-  validates, or restores; it must never infer success from a partially opened store.
+  schema mechanism. The app-owned coordinator surrounds container opening and does not infer a
+  SwiftData schema version from undocumented persistent-store metadata. No store means no backup;
+  a trusted committed sidecar marker for the current target is the normal fast path. Trust
+  requires a parseable supported app-owned marker format, committed state, exact target match,
+  and no active/nonterminal recovery journal. A missing marker or failure of any trust condition
+  creates one recoverable pre-open snapshot/journal before the attempted open; only successful
+  post-open inventory validation commits the target marker.
+  A durable journal then determines whether restart validates or restores; it must never infer
+  success from a partially opened store. This recovery path has separate C4A-03 evidence and is
+  excluded from the normal Dashboard first-screen performance budget.
 - Test boundary: C4A-03 must cover V1–V4 clean/interrupted paths, repeated restart, backup restore,
   USD/JPY/KWD exponents, persisted sign rules, derived negative values, `Int64` bounds, overflow,
   unsupported/cross-currency facts, duplicate identity, broken references, allocation mismatch,

@@ -10,7 +10,9 @@ current implementation; the owner-held specification remains frozen through the 
 
 ## C4A-01 — Delta and migration plan
 
-Status: **Implementation complete pending independent review; C4A-02 and C4A-03 remain blocked.**
+Status: **Implementation complete pending independent review.**
+
+C4A-02 and C4A-03 remain blocked.
 
 ### Audit result
 
@@ -27,7 +29,7 @@ rebuildable derived cache.
 
 ### Persisted amount inventory and sign policy
 
-| Owner | Persisted amount fields | Currency ownership | Accepted persisted sign |
+| `ModelCounts` owner | Persisted amount fields | Currency ownership | Accepted persisted sign |
 |---|---|---|---|
 | `Expense` | `amountMinorUnits` | own `currencyCode` | strictly positive |
 | `Income` | `amountMinorUnits` | own `currencyCode` | strictly positive |
@@ -39,6 +41,15 @@ rebuildable derived cache.
 | `WishItem` | optional estimated price | own `currencyCode` | strictly positive when present |
 | `Merchant` | all-time derived total | current accounting currency is only implicit today | nonnegative rebuildable cache; explicit currency ownership is a C4A-02 delta |
 | `SpendingInsight` | typed money values inside `payloadJSON` | each encoded `Money` owns its ISO code | source fact determines sign; invalid payload fails closed |
+| `BudgetPlanSemantics` | none | not applicable | not applicable; authority discriminator only |
+| `CoolingOffPlan` | none | not applicable | not applicable; dates, duration, and state only |
+| `ReminderEvent` | none | not applicable | not applicable; `categoryRiskBasisPoints` is a ratio, not money |
+| `ReflectionLog` | none | not applicable | not applicable; reflection metadata and optional text/IDs only |
+| `RecurringExpenseOccurrence` | none | not applicable | not applicable; amount and currency remain on its referenced rule/expense |
+
+This is the complete 15-table `ModelCounts` inventory. The five explicit no-money rows make the
+audit closed: they were reviewed and contain no persisted monetary amount rather than being
+omitted from a list of monetary owners.
 
 Negative values remain valid only for derived in-memory differences such as remaining budget,
 variance, and deltas. They are never used to repair an invalid persisted amount. Cross-currency
@@ -64,9 +75,19 @@ no anomaly becomes zero.
 
 C4A-02 may implement only these missing boundaries:
 
-1. Add one pre-open migration coordinator for the local store and sidecars. Before a migration it
-   creates a recoverable backup and a durable journal containing an explicit migration identifier,
-   source/target schema, backup location/integrity metadata, and state.
+1. Add one pre-open migration coordinator for the local store and sidecars. It must not infer a
+   SwiftData schema version from undocumented persistent-store metadata. With no store, it creates
+   no backup. A trusted, committed sidecar marker naming the current target schema is the normal
+   fast path. `Trusted` means the app-owned marker is parseable in a supported marker format, its
+   state is committed, its target identifier exactly matches the current schema target, and no
+   active/nonterminal recovery journal exists. A marker that fails any one of those checks, or a
+   marker naming another target, is an
+   unknown-or-different source: before that one attempted open, create a recoverable snapshot and
+   durable journal containing an explicit migration identifier, source/target marker values,
+   backup location/integrity metadata, and state. Opening and post-open validation may commit a
+   trusted target marker only after success. Thus an old install may take one conservative backup,
+   but a normal cold start never copies the store. This pre-open recovery path is excluded from the
+   normal Dashboard first-screen performance budget and receives its own C4A-03 evidence.
 2. Define idempotent journal transitions for prepared, migrating, validating, committed, and
    restoring outcomes. A restart resumes or restores from durable state; it never guesses that a
    partially opened store succeeded.

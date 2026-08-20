@@ -200,8 +200,8 @@ regression, and every C1 Requirement is Active with no `BLOCKED_BY_SPEC` state.
 
 ## COM-C1 — Entitlement model and Feature Access
 
-Status: **Done.** All three packets were independently reviewed and merged; PR #27 closed C1-03
-on 2026-08-11.
+Status: **Done after independent review and merge through PR #27 (`17031e2`).** All three packets
+were independently reviewed and merged on 2026-08-11.
 
 - [x] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
   semantics, versioned migration, and the reachable entitlement-domain matrix. Free iCloud must
@@ -342,20 +342,33 @@ no deferred or incomplete product is advertised.
 
 ## COM-C4A — Money migration delta
 
-Status: **In Progress — C4A-01 implementation complete pending independent review; C4A-02 and C4A-03 blocked.**
+Status: **In Progress.**
 
 The current app already has an `Int64` minor-unit `Money` model, currency exponents, exact parsers,
 versioned SwiftData migrations, and a floating-point gate. This phase must begin with a delta audit;
 it must not replace correct existing infrastructure merely because v1.4 describes it generically.
 
-- [ ] **C4A-01 — Delta and migration plan.** Implementation complete pending independent review.
-  Compare every v1.4 money/migration requirement with
+### C4A-01 — Delta and migration plan
+
+Status: **Implementation complete pending independent review.**
+
+- [ ] Compare every v1.4 money/migration requirement with
   the existing implementation; define signs and anomaly/rollback behavior; mark already-satisfied
   requirements with evidence in `Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md`.
-- [B] **C4A-02 — Required migration only.** Implement only missing schema/currency/identifier/
+
+### C4A-02 — Required migration only
+
+Status: **Blocked by C4A-01 independent review, green CI, and merge.**
+
+- [B] Implement only missing schema/currency/identifier/
   backup behavior proven by C4A-01. Unsafe conversion stops and preserves the old store; no value
   passes through `Double`.
-- [B] **C4A-03 — Recovery and currency matrix.** Prove idempotence, interruption rollback,
+
+### C4A-03 — Recovery and currency matrix
+
+Status: **Blocked by C4A-02 independent review, green CI, and merge.**
+
+- [B] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
 
 Exit gate: accepted plan and full money/migration test matrix pass with a rehearsed recovery path.
