@@ -1571,3 +1571,16 @@ store, phase state, or release authority changed.
 Evidence: Python compilation, the parser's self-test and real authoritative-source invocation,
 shell syntax, money, network-egress, commercialization-document, StoreKit-catalog, and diff checks
 all passed.
+
+## 2026-08-20 — Session 51 — Align the public README with reviewed commercial boundaries
+
+Refreshed the public repository README without entering C4A-02. The status section now states that
+0.9.8 (9) was accepted by App Store Connect transport while later repository changes remain
+unreleased, and that no external Beta review, public App Store release, Production public
+configuration deployment, or final launch pricing is claimed. It distinguishes reviewed
+source-level StoreKit/public-configuration support from formal products and identifies fixture
+prices/trials as test controls rather than launch economics. The privacy section links to the
+network-egress contract and does not claim that the signed public-configuration adapter is absent.
+
+No commercial phase, product, price, trial, entitlement, network allow-list, Worker deployment,
+schema, build, upload, tester, review, or distribution state changed.

@@ -4786,3 +4786,16 @@ its status sentence. Parser self-tests cover missing/duplicate nested statuses, 
 and missing/unapproved headings. Python compilation, the real-source parser run, all four named
 static gates, shell syntax, and diff validation passed. No Swift, schema, runtime, data, or release
 state changed.
+
+## 2026-08-20 — Session 134 — Refresh the public repository README
+
+Updated the previously skeletal README into a current public project entry point. It now describes
+MindBudget's local-first budgeting value, implemented Free-core capabilities, privacy boundaries,
+deterministic/SwiftData architecture, pre-1.0 and App Store Connect transport status, complete
+repository validation commands, and the durable documentation map. The wording distinguishes
+source-level StoreKit and signed-public-configuration support from formal products, pricing,
+Production deployment, external testing, or public release, and identifies fixture economics as
+test controls only.
+
+No Swift source, schema, user data, entitlement, StoreKit behavior, network allowance, version,
+Archive/upload, tester assignment, deployment, or distribution state changed.
