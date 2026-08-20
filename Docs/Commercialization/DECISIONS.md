@@ -787,8 +787,8 @@ context.
   supplies no behavior, it exposes no user surface, and it does not alter state transitions or
   recovery authority. The next ordinary coordinator invocation must recover from the retained
   journal and verified backup.
-- Evidence: The corrected focused run recorded 20 passing tests across the 12-case C4A-03 matrix
-  and 8 existing recovery cases at `/private/tmp/MindBudget-C4A03-Focused2.xcresult`. Full
+- Evidence: The final corrected focused run recorded 20 passing tests across the 12-case C4A-03
+  matrix and 8 existing recovery cases at `/private/tmp/MindBudget-C4A03-Focused4.xcresult`. Full
   validation, Release evidence, independent review, hosted CI, and merge remain required.
 - Alternatives rejected: Allowing values above the aggregate-safety ceiling through create or
   transition paths while rejecting them only during recovery; treating signed insight values as
