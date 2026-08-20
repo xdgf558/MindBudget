@@ -4719,3 +4719,33 @@ translucent inputs to contrast maths, which cannot composite. Tests grew from 15
 
 Recorded process note: this review entry reached the pull request only because an over-broad
 `git add -A` in the review-fix commit swept it in alongside the intended source changes.
+
+## 2026-08-20 — Session 131 — Calibrate current state and complete the C4A-01 delta audit
+
+Goal: Synchronize current `main`, correct stale post-upload/project state, and enter only
+COM-C4A-01 without implementing C4A-02 or a destructive money migration.
+
+What changed: `main` was fast-forwarded to `abd27ce`, then work continued on
+`codex/com-c4a-01-delta-audit`. Current memory now records that App Store Connect accepted 0.9.8
+(9) as delivery `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`, while no tester assignment, external Beta
+review, App Store submission, or Production configuration deployment followed. The completed
+post-upload product section no longer remains incorrectly In Progress.
+
+C4A-01 result: The source/schema audit found that V1–V4 authoritative amounts already use `Int64`
+minor units, exact currency validation, and stable identities; a destructive conversion is not
+justified. The new execution packet inventories persisted amounts and sign rules and assigns only
+the proven delta to C4A-02: a recoverable pre-open store/sidecar backup, explicit durable migration
+journal, idempotent restart/restore, post-open integrity validation, content-minimized anomaly
+report, and explicit currency ownership for the rebuildable merchant aggregate cache. C4A-03 owns
+the V1–V4 recovery plus USD/JPY/KWD/sign/bounds/anomaly matrix. C4A-02 and C4A-03 remain blocked.
+
+Evidence: The money, network, commercialization-document, and StoreKit catalog gates passed. The
+final owning validation produced 420 results: 413 passed, 7 explicit runtime/opt-in skips, and 0
+failed; 17/17 UI tests, the Release build, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C4A01-Full.xcresult`. The strict Phase 10 performance suite separately
+executed and passed 2/2 at `/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`.
+Hosted CI and independent review remain pending.
+
+What was NOT changed: No Swift source, model schema, store bytes, amount, currency, entitlement,
+StoreKit product, signed configuration, network channel, user content, version, Archive/upload,
+tester assignment, review submission, Production deployment, or distribution action changed.

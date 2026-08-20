@@ -7,9 +7,10 @@ implementing phase has passed its own consent, privacy, deletion, failure, and r
 Wildcards, caller-supplied URLs, arbitrary model IDs, and untyped payload dictionaries are
 forbidden. Debug/test endpoints never authorize Production behavior.
 
-The uploaded 0.9.6 app has no app-owned business-network egress. The 0.9.7 candidate adds only the
-exact signed public-configuration row below; its failure default is conservative and it remains
-structurally incapable of changing entitlement, StoreKit terms, or permanent subscription controls.
+The uploaded 0.9.8 (9) build has only the exact signed public-configuration row below; its failure
+default is conservative and it remains structurally incapable of changing entitlement, StoreKit
+terms, or permanent subscription controls. No tester assignment, external Beta review, App Store
+submission, or Production configuration deployment followed transport acceptance.
 
 ## Allow-list
 
@@ -58,8 +59,9 @@ product creation, Archive/upload, tester assignment, or distribution.
 DEC-COM-021 accepts the signed-public-configuration contract. C3-03A is Done through PR #36
 (`1ebb36c`); C3-03B passed independent review and GitHub Actions run `31873664396`, then merged
 through PR #38 as `db7926d`. The Development Worker and real adapter/verifier path have dated
-evidence; Staging and Production remain undeployed. The owner separately authorized 0.9.7 (8)
-Archive and transport upload on 2026-08-16 after COM-C3 closed. That narrow action does not deploy
-Production, assign TestFlight users, submit Beta App Review, or authorize App Store release. With
+evidence; Staging and Production remain undeployed. The owner separately authorized 0.9.7 (8) and
+later 0.9.8 (9) Archive and transport uploads after COM-C3 closed. App Store Connect accepted
+build 9 on 2026-08-17 as delivery `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. Those narrow actions do
+not deploy Production, assign TestFlight users, submit Beta App Review, or authorize App Store release. With
 Production undeployed, the optional trigger resolves to the conservative built-in `false`;
 permanent subscription controls and StoreKit authority do not depend on this row.

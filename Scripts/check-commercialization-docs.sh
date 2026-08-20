@@ -28,6 +28,7 @@ required_files=(
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
 
@@ -474,6 +475,49 @@ grep -Fq 'Status: **Done after independent review, green CI, and merge through P
   echo "COM-C2 execution packet must record C2-04 reviewed, merged, and Done" >&2
   exit 1
 }
+
+for c4a01_contract in \
+  'Status: **Implementation complete pending independent review; C4A-02 and C4A-03 remain blocked.**' \
+  'The V1–V4 store does not contain a floating-point money representation that needs conversion.' \
+  'no anomaly becomes zero' \
+  '`Merchant.totalMinorUnitsAllTime` currency ownership explicit' \
+  'idempotent journal transitions' \
+  'USD, JPY, and KWD' \
+  'C4A-02 and C4A-03 may not begin from this branch.' \
+  'DEC-COM-025'; do
+  if ! grep -Fqi "${c4a01_contract}" \
+      Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "COM-C4A-01 delta/recovery contract is missing: ${c4a01_contract}" >&2
+    exit 1
+  fi
+done
+
+grep -Fq 'Status: **In Progress — C4A-01 implementation complete pending independent review; C4A-02 and C4A-03 blocked.**' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C4A task state must keep only C4A-01 pending review" >&2
+  exit 1
+}
+
+for c4a_release_anchor in '0.9.8 (9)' 'dda1eb09-5d8b-43c6-a2fd-ea910fa422ac'; do
+  if ! grep -Fq "${c4a_release_anchor}" \
+      Docs/TASKS.md Docs/PROJECT_MEMORY.md Docs/Commercialization/PROJECT_MEMORY.md; then
+    echo "Current release calibration is missing: ${c4a_release_anchor}" >&2
+    exit 1
+  fi
+done
+
+for forbidden_c4a_state in \
+  'C4A-02 is In Progress' 'C4A-02 implementation complete' 'C4A-02 is Done' \
+  'C4A-03 is In Progress' 'C4A-03 implementation complete' 'C4A-03 is Done'; do
+  if grep -Fq "${forbidden_c4a_state}" \
+      Docs/COMMERCIALIZATION_TASKS.md Docs/TASKS.md Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "C4A-02/C4A-03 must remain blocked while C4A-01 awaits independent review" >&2
+    exit 1
+  fi
+done
 
 for c203_contract in \
   'single `EntitlementStore` lifecycle authority' \

@@ -1484,3 +1484,33 @@ The strict 10,000-expense wall-clock signal also passed independently, and the c
 release-note brand assertion passed its focused localization run. Hosted release-preparation CI,
 signed Archive inspection, and transport acceptance remain pending and will be appended after
 completion.
+
+## 2026-08-20 — Session 48 — Enter COM-C4A through the C4A-01 delta packet only
+
+Goal: Calibrate the commercial state after the accepted 0.9.8 (9) transport upload and complete the
+read-only money/migration delta audit before any schema or recovery implementation.
+
+What changed: `COM_C4A_EXECUTION_PACKET.md` now inventories every persisted amount owner, currency
+ownership, accepted persisted signs, existing V1–V4 migration evidence, and the exact C4A-02/C4A-03
+boundaries. DEC-COM-025 rejects a destructive rewrite of already-correct `Int64` minor-unit values.
+It assigns C4A-02 only the missing pre-open backup/journal/integrity/rollback envelope and explicit
+currency ownership for the rebuildable merchant aggregate cache. It assigns C4A-03 the interrupted
+V1–V4 plus USD/JPY/KWD/sign/`Int64`/anomaly matrix. Requirements and current-state documents now
+describe C4A-01 as implementation complete pending independent review; later packets stay blocked.
+
+Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 as delivery
+`dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester group, external Beta review, App Store submission,
+or Production configuration deployment followed, and this historical upload grants no C4A or
+public-launch authority.
+
+Evidence: All four named static gates passed. The final full validation produced 420 results:
+413 passed, 7 explicit runtime/opt-in skips, and 0 failed; 17/17 UI tests, the Release build, and all
+selected coverage thresholds passed at `/private/tmp/MindBudget-C4A01-Full.xcresult`. The strict
+Phase 10 suite separately executed and passed 2/2 at
+`/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`. Independent review and
+hosted CI remain pending.
+
+What was NOT changed: No Swift source, model schema, store content, migration execution, amount,
+currency, entitlement, StoreKit behavior, signed-configuration field, network channel, version,
+Archive/upload, tester assignment, review submission, Production deployment, or distribution
+action changed.

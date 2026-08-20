@@ -202,7 +202,7 @@ Status: Done
   future plans are created.
 
 ## Post-upload update — Savings progress and app-locale model guidance
-Status: In Progress
+Status: Done
 - [x] Add a standalone Insights savings-progress module backed by the cross-cycle savings-goal
   projection, showing target, saved, remaining, and completion percentage without changing budget
   arithmetic.
@@ -225,7 +225,8 @@ Status: In Progress
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C3 Done; C3-04 merged through PR #40 as `9448ca9`; COM-C4A is not started
+Status: COM-C0A through COM-C3 Done; C4A-01 implementation complete pending independent review;
+C4A-02 and C4A-03 blocked
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -349,3 +350,11 @@ Status: COM-C0A through COM-C3 Done; C3-04 merged through PR #40 as `9448ca9`; C
   and PR #40 merge `9448ca9`.
 - [x] Prepare owner-authorized TestFlight candidate 0.9.7 (8) with matching release notes and
   release gates. Archive/upload only; do not assign testers or submit external testing.
+- [x] Record the later owner-authorized 0.9.8 (9) transport upload from merged source. App Store
+  Connect accepted delivery `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac` on 2026-08-17; no tester group,
+  external Beta review, App Store submission, or Production configuration deployment was done.
+- [x] Complete the C4A-01 repository delta audit and execution packet: current V1–V4 amounts are
+  already `Int64` minor units, so no destructive amount rewrite is justified; define the missing
+  recoverable migration journal/backup boundary, explicit merchant-cache currency ownership,
+  sign/anomaly rules, and C4A-03 recovery/currency matrix. Keep it pending independent review.
+- [ ] Begin C4A-02 only after C4A-01 passes independent review, green CI, and merge.
