@@ -22,9 +22,11 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4A. C4A-01 is Done after independent review, green CI, and PR #51 merge
-  `bcd56a3`; C4A-02 implementation is complete pending independent review; C4A-03 remains blocked.** COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
-  `31918968478`, then merged through PR #40 as `9448ca9` on 2026-08-16.** C3-03A and C3-03B
+- Active phase: **COM-C4A. C4A-01 and C4A-02 are Done; C4A-03 is blocked pending explicit owner
+  instruction.** C4A-02 passed independent review and GitHub Actions run `32375823770`, then
+  merged through PR #53 as `c905415` on 2026-08-20. COM-C3 is Done; C3-04 passed independent
+  review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
+  2026-08-16. C3-03A and C3-03B
   remain Done through PR #36 (`1ebb36c`) and PR #38 (`db7926d`). The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
   C3-01 merged through PR #33 as `747b628`; C3-02 passed independent review and green
@@ -358,7 +360,8 @@ Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
 ### C4A-02 — Required migration only
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
+`c905415`.**
 
 - [x] Implement only missing schema/currency/identifier/
   backup behavior proven by C4A-01. Unsafe conversion stops and preserves the old store; no value
@@ -366,7 +369,7 @@ Status: **Implementation complete pending independent review.**
 
 ### C4A-03 — Recovery and currency matrix
 
-Status: **Blocked by C4A-02 independent review, green CI, and merge.**
+Status: **Blocked pending explicit owner instruction.**
 
 - [B] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.

@@ -596,8 +596,8 @@ artifact before deliberately adding it to version control.
 
 ## COM-C4A-01 delta-audit verification
 
-Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; C4A-02 is
-implementation complete pending independent review and C4A-03 remains blocked.**
+Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; C4A-02 is Done
+through PR #53 `c905415`, and C4A-03 is blocked pending explicit owner instruction.**
 
 The 2026-08-20 C4A-01 audit is documentation and gate work only. It inventories the persisted
 money owners, existing V1 → V2 → V3 → V4 migration evidence, checked-arithmetic/currency
@@ -613,14 +613,13 @@ selected coverage threshold passed at `/private/tmp/MindBudget-C4A01-Full.xcresu
 `/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`. An earlier concurrent full
 run measured only the known 500 ms wall-clock diagnostic at 1.046 seconds; it was not used as
 passing evidence. PR #51 subsequently supplied the independent-review, hosted-green, and merge
-evidence. C4A-02 now adds the approved V5 merchant-currency companion and recovery envelope; its
-final local validation is recorded below, while independent review and hosted CI remain pending.
-It does not authorize distribution.
+evidence. C4A-02 then added the approved V5 merchant-currency companion and recovery envelope;
+its local and hosted evidence is recorded below. It does not authorize distribution.
 
 ## COM-C4A-02 local verification
 
-Status: **Implementation complete pending independent review and hosted green CI; C4A-03 remains
-blocked.**
+Status: **Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
+`c905415`; C4A-03 is blocked pending explicit owner instruction.**
 
 The final owning validation used final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`)
 iPhone 17e simulator. With only the already documented strict wall-clock diagnostic excluded from
@@ -638,5 +637,7 @@ default validation measured only that known local wall-clock diagnostic at 1.240
 all deterministic 10,000-row assertions and all 17 UI tests passed, so that run is retained as a
 non-passing diagnostic rather than promoted to evidence. Root review also found and fixed a V1
 compatibility regression: a migrated expense may legitimately have no derived `Merchant` cache
-row, and inventory must not invent a replacement UUID. C4A-02 still requires independent review,
-hosted green CI, and merge before Done; none of this evidence opens C4A-03 or distribution.
+row, and inventory must not invent a replacement UUID. Reviewed head `9d2171d` then passed every
+step of GitHub Actions run `32375823770`; PR #53 merged it to `main` as `c905415` on 2026-08-20.
+C4A-02 is Done. C4A-03 remains blocked pending explicit owner instruction, and no distribution
+gate opened.

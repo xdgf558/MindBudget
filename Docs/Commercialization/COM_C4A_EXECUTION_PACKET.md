@@ -12,7 +12,8 @@ current implementation; the owner-held specification remains frozen through the 
 
 Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
-C4A-02 implementation is complete pending independent review. C4A-03 remains blocked.
+C4A-02 is Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
+`c905415`. C4A-03 remains blocked pending explicit owner instruction.
 
 ### Audit result
 
@@ -102,7 +103,10 @@ C4A-02 may implement only these missing boundaries:
    add a floating-point intermediate, default an invalid value, or run a destructive rewrite only
    to satisfy the shape of a generic specification.
 
-### C4A-02 implementation boundary
+### C4A-02 — Implementation boundary
+
+Status: **Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
+`c905415`.**
 
 C4A-02 adds Schema V5 only for the `MerchantAccountingContext` companion keyed by the existing
 merchant UUID, preserving every V1–V4 model hash and source amount. Existing untrusted stores are
@@ -116,9 +120,12 @@ cleanup failure cannot roll back a store that already committed, and the next co
 All retries removal. An earlier anomaly is retained for support diagnosis; Delete All removes every
 recovery artifact that can contain local data, including that report.
 
-### C4A-03 acceptance matrix
+### C4A-03 — Recovery and currency matrix
 
-C4A-03 remains blocked until C4A-02 passes independent review. It must prove:
+Status: **Blocked pending explicit owner instruction.**
+
+C4A-03's C4A-02 prerequisite is satisfied, but the phase has not started. On explicit owner
+instruction it must prove:
 
 - clean and interrupted V1, V2, V3, and V4 upgrades, including repeated restart and restore;
 - backup integrity, failure-before-open, failure-during-validation, failure-during-restore, and
@@ -135,8 +142,9 @@ C4A-03 remains blocked until C4A-02 passes independent review. It must prove:
 
 ## Stop conditions
 
-- C4A-02 is not Done until this packet passes independent review, green CI, and merge.
-- C4A-03 may not begin from this branch.
+- C4A-02 is Done through PR #53 (`c905415`) after independent review and green CI.
+- C4A-03 remains blocked pending explicit owner instruction; this closeout branch must not
+  implement it.
 - No iCloud, telemetry, receipt, Watch, backend, cloud-AI, formal economics, Production deployment,
   tester assignment, Beta review, App Store submission, or public distribution is authorized.
 - App Store Connect transport acceptance of 0.9.8 (9) is historical release evidence only and
