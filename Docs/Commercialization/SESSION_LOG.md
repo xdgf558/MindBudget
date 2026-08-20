@@ -1641,3 +1641,16 @@ passed 10/10 isolated iterations at
 measured only the known local wall-clock diagnostic at 1.240605666 seconds and is not claimed as a
 pass. C4A-02 remains implementation complete pending independent review and hosted green CI;
 C4A-03 and distribution remain blocked.
+
+## 2026-08-20 — Session 55 — Accept the C4A-02 recovery UI boundary
+
+After independent PR #53 review, the owner accepted the current fail-closed recovery product
+boundary. `StoreRecoveryView` remains retry-only in C4A-02. If neither the live store nor a trusted
+backup can be opened, self-recovery currently requires deleting the app data container or
+reinstalling; Delete All cannot run before the store opens. This is an explicit accepted limitation,
+not an accidental omission.
+
+C4A-03 must either preserve this boundary or obtain a separate Accepted decision and dedicated
+tests before adding an in-app destructive reset. No Swift, schema, migration, data, version,
+distribution, or network behavior changed. PR #53 remains pending hosted green CI and merge;
+C4A-03 remains blocked.

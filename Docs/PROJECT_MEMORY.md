@@ -64,6 +64,9 @@ C4A-02 local owning validation is green: 429 results produced 422 passes, 7 expl
 case separately passed 10/10. Review also proved that a V1 expense may legitimately have no
 derived Merchant cache row, so inventory validates existing cache rows but never invents one.
 Independent review, hosted green CI, and merge are still required before C4A-02 is Done.
+The owner accepted the retry-only C4A-02 recovery UI on 2026-08-20. An unrecoverable store without
+a trusted backup currently requires app-data deletion or reinstall; any in-app destructive reset
+must be a separate C4A-03 decision with dedicated tests.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned

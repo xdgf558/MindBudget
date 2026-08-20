@@ -37,6 +37,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   performance case separately passed 10/10. A V1 regression found during review established that
   the derived Merchant cache may be absent and must never be invented during inventory repair.
   Independent review, hosted green CI, and merge remain required.
+- The owner accepted C4A-02's retry-only recovery UI on 2026-08-20. When neither the live store nor
+  a trusted backup is usable, current self-recovery is app-data deletion or reinstall. C4A-03 must
+  explicitly retain that boundary or separately accept and test an in-app destructive reset.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent

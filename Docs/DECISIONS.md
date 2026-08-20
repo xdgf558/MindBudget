@@ -2330,4 +2330,6 @@ released. Merchant repair is deliberately limited to its rebuildable total and c
 
 Consequences: C4A-02 remains pending independent review and green CI; C4A-03 remains blocked.
 The recovery envelope creates no user-visible behavior, no network path, and no distribution
-authority.
+authority. On 2026-08-20 the owner accepted the current retry-only recovery UI: an unrecoverable
+store without a trusted backup requires app-data deletion or reinstall. Any in-app destructive
+reset needs a separate C4A-03 decision and evidence.

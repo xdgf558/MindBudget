@@ -4126,6 +4126,17 @@ State: C3-02 is implementation complete pending independent review, hosted green
 it is not Done. C3-03, final economics/products, versioning, Archive/upload, tester assignment,
 and distribution remain blocked.
 
+## 2026-08-20 — Session 138 — Confirm the C4A-02 retry-only recovery boundary
+
+The owner accepted the product-level item raised by independent PR #53 review. C4A-02 keeps the
+existing `StoreRecoveryView` retry-only. If both the live store and trusted recovery snapshot are
+unusable, the present recovery path is deleting the app data container or reinstalling because
+the in-app Delete All workflow requires an opened store.
+
+Any in-app destructive reset is deferred to a separate C4A-03 Accepted decision and test contract.
+This record changes no Swift, schema, data, migration, network, version, or distribution behavior.
+PR #53 still awaits hosted green CI and merge; C4A-03 remains blocked.
+
 What was NOT changed: No signed public configuration, formal product or trial term, automatic
 paywall, receipt import, schema, network destination, version, Archive, upload, tester assignment,
 or distribution action changed. The uploaded 0.9.6 build and release hold are unchanged.

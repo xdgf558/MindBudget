@@ -370,6 +370,8 @@ Status: **Blocked by C4A-02 independent review, green CI, and merge.**
 
 - [B] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
+- [B] Reconfirm the owner-accepted retry-only/reinstall recovery boundary before implementation;
+  an in-app destructive reset requires a separate Accepted decision and dedicated tests.
 
 Exit gate: accepted plan and full money/migration test matrix pass with a rehearsed recovery path.
 

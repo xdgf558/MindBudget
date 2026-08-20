@@ -128,6 +128,8 @@ C4A-03 remains blocked until C4A-02 passes independent review. It must prove:
 - unsupported currency, cross-currency, duplicate-identity, broken-reference, inconsistent-
   allocation, unreadable-payload, and merchant-context anomalies remain nonzero/noninvented and
   leave the old store recoverable;
+- preserve the owner-confirmed retry-only/reinstall recovery boundary, or obtain a separate
+  Accepted decision and prove a deliberate destructive-reset flow before exposing one in-app;
 - the money floating-point gate, full existing migration regression, Release build, and repository
   validation remain green.
 

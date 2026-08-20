@@ -754,6 +754,11 @@ context.
   cleanup failure must never trigger rollback of an already-committed store, and the next cold
   start or Delete All retries removal. A prior closed anomaly report remains available for support;
   Delete All must clear all recovery artifacts before it can reset preferences.
+- Recovery UI boundary: **Owner-confirmed — 2026-08-20.** C4A-02 deliberately keeps the existing
+  recovery surface retry-only. If the live store is invalid and no trusted backup can restore it,
+  recovery currently requires deleting the app data container or reinstalling. Adding an in-app
+  destructive reset is not a review fix for this packet; C4A-03 must explicitly decide and test
+  that product boundary before changing it.
 - Alternatives rejected: Adding currency directly to `Merchant`; using undocumented SwiftData
   metadata to decide whether to back up; treating any parseable marker as trusted; treating
   historical provenance IDs as broken relationships; deleting/recreating orphan merchants; or
