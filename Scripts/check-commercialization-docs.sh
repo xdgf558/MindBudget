@@ -6,6 +6,8 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
 SOURCE_PROVENANCE="Docs/Commercialization/SOURCE_PROVENANCE.md"
+PHASE_STATE_CHECKER="Scripts/commercialization_phase_states.py"
+AUTHORITATIVE_PHASE_IDS="COM-C0A,COM-C0B,COM-C1,COM-C2,COM-C3,COM-C4A,COM-C4B,COM-C4C,COM-C5,COM-C6,COM-C6.5,G1,COM-C7,COM-C8,COM-C9,COM-C10,COM-C11,COM-C12"
 MONTHLY_PRODUCT_ID="com.xdgf558.mindbudget.pro.monthly"
 ANNUAL_PRODUCT_ID="com.xdgf558.mindbudget.pro.annual"
 
@@ -28,6 +30,7 @@ required_files=(
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
 
@@ -37,6 +40,27 @@ for file in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+# Phase status is parsed structurally rather than being a growing collection of exact prose
+# comparisons below. The checker proves its own missing/duplicate/status-conflict fixtures before
+# it reads the durable phase map and execution packets. Require-all detects deletion of a Status
+# below a retained heading; the approved top-level phase-ID set separately detects deletion of an
+# authoritative phase without coupling the gate to mutable status prose. Newly structured
+# subphases are protected automatically by require-all. C1's historical
+# subpacket headings are the narrow source-level exception because that packet predates per-packet
+# Status records; its top-level COM-C1 state remains mandatory in the authoritative task map.
+python3 -B "${PHASE_STATE_CHECKER}" --self-test
+python3 -B "${PHASE_STATE_CHECKER}" \
+  --require-all-status Docs/COMMERCIALIZATION_TASKS.md \
+  --require-all-status Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
+  --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
 
 SOURCE_SHA="$(
   sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |
@@ -155,7 +179,6 @@ grep -Fq '**Formal commercial values are TBD; provisional C3 test terms were acc
 }
 
 for c301_contract in \
-  'Status: **Done after independent review, green CI, and merge through PR #33 (`747b628`).**' \
   'US$1.99' \
   'US$19.99' \
   '7-day free trial for StoreKit-eligible subscribers' \
@@ -174,7 +197,6 @@ grep -Fq 'actions/runs/31766128587' Docs/Commercialization/CI_BASELINE.md || {
 }
 
 for c302_contract in \
-  'Status: **Done after independent review, green CI, and merge through PR #34 (`12d9217`).**' \
   'verified current transaction must identify an introductory free trial' \
   'actual `renewalDate` and `willAutoRenew` facts' \
   'current trial product' \
@@ -231,8 +253,6 @@ fi
 
 for c303_contract in \
   'Status: **Accepted by the owner for COM-C3-03 on 2026-08-14.**' \
-  'Status: **Done after independent review, green CI, and merge through PR #36 (`1ebb36c`).**' \
-  'Status: **Done after independent review, green CI, and merge through PR #38 (`db7926d`).**' \
   'mindbudget-public-config-dev.yehao1105.workers.dev' \
   'mindbudget-public-config-staging.yehao1105.workers.dev' \
   'mindbudget-public-config.yehao1105.workers.dev' \
@@ -255,12 +275,6 @@ for c303_contract in \
     exit 1
   fi
 done
-
-grep -Fq 'Status: **Done — C3-01 through C3-04 passed independent review and green CI; PR #40 merged the' \
-  Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C3 task state must record reviewed completion through C3-04" >&2
-  exit 1
-}
 
 for c303_task_evidence in 'PR #36 (`1ebb36c`)' 'PR #38 (`db7926d`)'; do
   grep -Fq "${c303_task_evidence}" Docs/COMMERCIALIZATION_TASKS.md || {
@@ -323,54 +337,6 @@ for c304_contract in \
     exit 1
   fi
 done
-
-if grep -Eq 'C3-04 implementation is complete pending independent review|C3-04 and COM-C3 are not Done|C3-04 and COM-C3 remain implementation-complete review candidates' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
-  echo "Current commercialization state still describes C3-04 as pending review" >&2
-  exit 1
-fi
-
-if grep -Eq 'C3-04 is ready but not started|C3-04 remains blocked|C3-04 implementation is not started' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
-  echo "Current commercialization state still describes C3-04 as not started or blocked" >&2
-  exit 1
-fi
-
-if grep -Eq 'C3-03B (is )?implementation complete pending|C3-03B remains implementation complete pending|C3-03B is In Progress|C3-03B has now implemented.*pending independent review|C3-03B is not Done|Hosted CI remains pending' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md \
-    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
-    Docs/Commercialization/CI_BASELINE.md \
-    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
-    Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md; then
-  echo "Current commercialization state still describes C3-03B as pending review/CI or not Done" >&2
-  exit 1
-fi
-
-if grep -Eq 'C3-03A (is )?implementation complete pending independent review|C3-03A verifier/cache complete pending review|Blocked pending independent review and merge of C3-03A' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md \
-    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
-    Docs/Commercialization/COM_C3_EXECUTION_PACKET.md; then
-  echo "Current commercialization state still describes C3-03A as pending or C3-03B as blocked" >&2
-  exit 1
-fi
 
 for c303b_evidence in \
   'bf6c5049-a389-4ea7-af0a-e8425b8957e2' \
@@ -439,41 +405,33 @@ grep -Fq '## COM-C1 — Entitlement model and Feature Access' Docs/COMMERCIALIZA
   exit 1
 }
 
-grep -Fq 'Status: **Done.** All three packets were independently reviewed and merged' \
-  Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C1 must be recorded as completed before COM-C2" >&2
-  exit 1
-}
+for c4a01_contract in \
+  'The V1–V4 store does not contain a floating-point money representation that needs conversion.' \
+  'complete 15-table `ModelCounts` inventory' \
+  'no anomaly becomes zero' \
+  '`Merchant.totalMinorUnitsAllTime` currency ownership explicit' \
+  'idempotent journal transitions' \
+  'undocumented persistent-store metadata' \
+  'normal cold start never copies the store' \
+  'USD, JPY, and KWD' \
+  'C4A-02 and C4A-03 may not begin from this branch.' \
+  'DEC-COM-025'; do
+  if ! grep -Fqi "${c4a01_contract}" \
+      Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "COM-C4A-01 delta/recovery contract is missing: ${c4a01_contract}" >&2
+    exit 1
+  fi
+done
 
-grep -Fq 'Status: **Done — C2-01 through C2-04 passed their owning gates; PR #31 merged C2-04 as `a293762`.**' \
-  Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "COM-C2 must record C2-01 through C2-04 as reviewed, merged, and Done" >&2
-  exit 1
-}
-
-grep -Fq 'Status: **Done** after independent review and full validation.' \
-  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-01 as Done" >&2
-  exit 1
-}
-
-grep -Fq 'Status: **Done** after independent review, green CI, and merge through PR #29 (`a45d480`).' \
-  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-02 as reviewed, merged, and Done" >&2
-  exit 1
-}
-
-grep -Fq 'Status: **Done after independent review, green CI, and merge through PR #30 (`3fc72b4`).**' \
-  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-03 reviewed, merged, and Done" >&2
-  exit 1
-}
-
-grep -Fq 'Status: **Done after independent review, green CI, and merge through PR #31 (`a293762`).**' \
-  Docs/Commercialization/COM_C2_EXECUTION_PACKET.md || {
-  echo "COM-C2 execution packet must record C2-04 reviewed, merged, and Done" >&2
-  exit 1
-}
+for c4a_release_anchor in '0.9.8 (9)' 'dda1eb09-5d8b-43c6-a2fd-ea910fa422ac'; do
+  if ! grep -Fq "${c4a_release_anchor}" \
+      Docs/TASKS.md Docs/PROJECT_MEMORY.md Docs/Commercialization/PROJECT_MEMORY.md; then
+    echo "Current release calibration is missing: ${c4a_release_anchor}" >&2
+    exit 1
+  fi
+done
 
 for c203_contract in \
   'single `EntitlementStore` lifecycle authority' \
@@ -518,17 +476,6 @@ grep -Fq 'actions/runs/31701374466' Docs/Commercialization/CI_BASELINE.md || {
   echo "C2-04 green-CI run is missing from CI baseline" >&2
   exit 1
 }
-
-if grep -Fq 'C2-04 implementation complete pending independent review' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md \
-    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "Current commercialization state still describes C2-04 as pending review" >&2
-  exit 1
-fi
 
 grep -Fq '`3fc72b4`' Docs/Commercialization/CI_BASELINE.md || {
   echo "C2-03 green-CI merge evidence is missing from CI baseline" >&2

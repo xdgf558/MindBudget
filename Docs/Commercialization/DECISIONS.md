@@ -690,3 +690,44 @@ context.
 - Alternatives rejected: Reusing immutable build 7; uploading from an unmerged feature branch;
   treating an undeployed configuration service as entitlement failure; deploying Production as
   an inferred side effect; or broadening upload authority into tester assignment/public release.
+
+## DEC-COM-025 — Preserve exact V1–V4 amounts and add only a recoverable migration envelope
+
+- Status/date: **Accepted C4A-01 implementation plan pending independent review — 2026-08-20**
+- Requirements: REQ-MONEY-001, REQ-MONEY-MIGRATION-001
+- Decision: The C4A-01 repository audit found that authoritative V1–V4 amounts already use
+  `Int64` minor units and independently owned amounts already carry ISO currency. COM-C4A must not
+  rewrite those values through a new representation or a floating-point intermediate. C4A-02 is
+  limited to the missing recovery envelope documented in `COM_C4A_EXECUTION_PACKET.md`: a
+  pre-open backup of the store and sidecars, a durable explicit migration journal, idempotent
+  restart/restore states, post-open integrity validation, content-minimized anomaly reporting, and
+  explicit currency ownership for the rebuildable merchant aggregate cache.
+- Sign and anomaly boundary: Persisted expense, income, recurring, and optional wishlist prices
+  are positive when present; persisted budget, goal, allocation, category, and merchant totals are
+  nonnegative. Negative numbers are valid only for derived in-memory differences. Unsupported or
+  cross-currency facts, overflow, invalid signs, broken references, duplicate stable identity,
+  inconsistent allocations, unreadable stores, and interruption stop migration and preserve the
+  original store. No failure is coerced to zero or treated as a successful empty migration.
+- Recovery boundary: SwiftData's existing V1 → V2 → V3 → V4 `SchemaMigrationPlan` remains the
+  schema mechanism. The app-owned coordinator surrounds container opening and does not infer a
+  SwiftData schema version from undocumented persistent-store metadata. No store means no backup;
+  a trusted committed sidecar marker for the current target is the normal fast path. Trust
+  requires a parseable supported app-owned marker format, committed state, exact target match,
+  and no active/nonterminal recovery journal. A missing marker or failure of any trust condition
+  creates one recoverable pre-open snapshot/journal before the attempted open; only successful
+  post-open inventory validation commits the target marker.
+  A durable journal then determines whether restart validates or restores; it must never infer
+  success from a partially opened store. This recovery path has separate C4A-03 evidence and is
+  excluded from the normal Dashboard first-screen performance budget.
+- Test boundary: C4A-03 must cover V1–V4 clean/interrupted paths, repeated restart, backup restore,
+  USD/JPY/KWD exponents, persisted sign rules, derived negative values, `Int64` bounds, overflow,
+  unsupported/cross-currency facts, duplicate identity, broken references, allocation mismatch,
+  merchant currency context, and every existing money/migration gate.
+- Release boundary: C4A-01 adds documentation and gates only. C4A-02/C4A-03, iCloud, telemetry,
+  receipts, Watch, backend, cloud AI, formal economics, Production deployment, tester assignment,
+  Beta/App Store review, and public distribution remain blocked.
+- Alternatives rejected: Destructively rewriting correct minor-unit fields merely to create a
+  migration; adding an unneeded schema version in C4A-01; treating the globally locked accounting
+  currency as permanently implicit for a stored merchant amount; attempting repair by zeroing,
+  dropping, or partially committing anomalous records; and relying on SwiftData container opening
+  without an app-owned recoverable checkpoint.

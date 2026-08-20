@@ -21,7 +21,7 @@ of the post-C1 source. The accepted technical catalog remains Pro Monthly and Pr
 
 ## C2-01 — StoreKit test catalog
 
-Status: **Done** after independent review and full validation.
+Status: **Done after independent review, full validation, and merge through PR #28 (`999ca34`).**
 
 ### Tasks
 
@@ -55,7 +55,7 @@ Status: **Done** after independent review and full validation.
 
 ## C2-02 — Runtime catalog and entitlement store
 
-Status: **Done** after independent review, green CI, and merge through PR #29 (`a45d480`).
+Status: **Done after independent review, green CI, and merge through PR #29 (`a45d480`).**
 
 ### Tasks
 

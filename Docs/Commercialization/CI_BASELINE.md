@@ -593,3 +593,23 @@ artifact before deliberately adding it to version control.
   privacy statement, or SDK capability must extend its owning matrix and tests in the same PR.
 - CI/action upgrades remain commit-SHA pinned. A report path or test retry never converts a failed
   assertion into success.
+
+## COM-C4A-01 delta-audit verification
+
+Status: **Implementation complete pending independent review; C4A-02 and C4A-03 remain blocked.**
+
+The 2026-08-20 C4A-01 audit is documentation and gate work only. It inventories the persisted
+money owners, existing V1 → V2 → V3 → V4 migration evidence, checked-arithmetic/currency
+boundaries, sign rules, and the missing recovery controls. It finds no floating-point amount to
+convert and therefore rejects a destructive rewrite. The owning plan is
+`COM_C4A_EXECUTION_PACKET.md`; DEC-COM-025 records the decision.
+
+Local validation passed under final Xcode 26.6 (`17F113`) on the iOS 26.5 (`23F77`) iPhone 17 Pro
+simulator. The final wall-clock-excluded owning run produced 420 results: 413 passed, 7 explicit
+runtime/opt-in skips, and 0 failed; 17/17 UI tests, the Release build, every static gate, and every
+selected coverage threshold passed at `/private/tmp/MindBudget-C4A01-Full.xcresult`. The strict
+`Phase10ReleaseReadinessTests` suite separately executed and passed 2/2 at
+`/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`. An earlier concurrent full
+run measured only the known 500 ms wall-clock diagnostic at 1.046 seconds; it was not used as
+passing evidence. Hosted CI has not run for the C4A-01 branch. Passing C4A-01 does not start C4A-02, change a schema,
+or authorize distribution.

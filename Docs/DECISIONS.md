@@ -2296,3 +2296,22 @@ so this is a grouping and ordering change plus one promoted language entry. Lang
 appearance, which changes the path in `testAppLanguageChangesImmediatelyWithoutRelaunching`. Four new
 group-header strings enter both catalogs. Adding a future third level now requires justifying it
 against the two reserved cases above.
+
+---
+
+## 2026-08-20 — Preserve exact money and make recovery the COM-C4A delta
+
+Context: App Store Connect accepted 0.9.8 (9), no tester/review/distribution action followed, and
+the owner explicitly started COM-C4A-01. The repository already has four versioned SwiftData
+schemas and exact minor-unit money; the v1.4 migration requirement therefore needed a source audit
+before any implementation.
+
+Decision: Detailed ownership lives in DEC-COM-025 and
+`Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md`. V1–V4 authoritative amounts remain exact
+`Int64` minor units. C4A-02 may add only the proven recovery delta: pre-open store/sidecar backup,
+an explicit durable and idempotent migration journal, post-open integrity validation, fail-closed
+restore/anomaly handling, and explicit currency ownership for the rebuildable merchant aggregate.
+
+Consequences: No C4A-01 source/schema change or destructive rewrite is justified. C4A-02 and
+C4A-03 remain blocked until independent review, green CI, and merge. No failed conversion may
+become zero, and no later COM or release authority is implied.

@@ -22,7 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
+- Active phase: **COM-C4A. C4A-01 is implementation complete pending independent review;
+  C4A-02 and C4A-03 remain blocked.** COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
   `31918968478`, then merged through PR #40 as `9448ca9` on 2026-08-16.** C3-03A and C3-03B
   remain Done through PR #36 (`1ebb36c`) and PR #38 (`db7926d`). The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
@@ -47,11 +48,13 @@ detailed phase checklists; it added no paid product behavior.
   keeps pending notification copy safe after the app process stops.
   Receipt import, iCloud sync,
   commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
-- Release boundary: the uploaded 0.9.6 binary remains immutable. Verified purchase/restore and
+- Release boundary: uploaded builds remain immutable. Verified purchase/restore and
   purchase presentation are complete through COM-C3. On 2026-08-16 the owner authorized a
-  traceable 0.9.7 (8) Archive and transport upload only. This workflow does not assign testers,
-  submit external testing, or authorize App Store release; Production signed configuration stays
-  conservative while its service remains undeployed.
+  traceable 0.9.7 (8) Archive and transport upload only. A later explicit owner instruction
+  authorized 0.9.8 (9), which App Store Connect accepted on 2026-08-17 as delivery
+  `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. Neither workflow assigned testers, submitted external
+  testing, or authorized App Store release; Production signed configuration stays conservative
+  while its service remains undeployed.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
@@ -197,8 +200,8 @@ regression, and every C1 Requirement is Active with no `BLOCKED_BY_SPEC` state.
 
 ## COM-C1 — Entitlement model and Feature Access
 
-Status: **Done.** All three packets were independently reviewed and merged; PR #27 closed C1-03
-on 2026-08-11.
+Status: **Done after independent review and merge through PR #27 (`17031e2`).** All three packets
+were independently reviewed and merged on 2026-08-11.
 
 - [x] **C1-01 — Pure entitlement domain.** Implement `EntitlementSet`, `PremiumFeature`, collection
   semantics, versioned migration, and the reachable entitlement-domain matrix. Free iCloud must
@@ -339,19 +342,33 @@ no deferred or incomplete product is advertised.
 
 ## COM-C4A — Money migration delta
 
-Status: **Ready but not started; blocked pending explicit owner instruction and the opening delta audit.**
+Status: **In Progress.**
 
 The current app already has an `Int64` minor-unit `Money` model, currency exponents, exact parsers,
 versioned SwiftData migrations, and a floating-point gate. This phase must begin with a delta audit;
 it must not replace correct existing infrastructure merely because v1.4 describes it generically.
 
-- [B] **C4A-01 — Delta and migration plan.** Compare every v1.4 money/migration requirement with
+### C4A-01 — Delta and migration plan
+
+Status: **Implementation complete pending independent review.**
+
+- [ ] Compare every v1.4 money/migration requirement with
   the existing implementation; define signs and anomaly/rollback behavior; mark already-satisfied
-  requirements with evidence.
-- [B] **C4A-02 — Required migration only.** Implement only missing schema/currency/identifier/
+  requirements with evidence in `Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md`.
+
+### C4A-02 — Required migration only
+
+Status: **Blocked by C4A-01 independent review, green CI, and merge.**
+
+- [B] Implement only missing schema/currency/identifier/
   backup behavior proven by C4A-01. Unsafe conversion stops and preserves the old store; no value
   passes through `Double`.
-- [B] **C4A-03 — Recovery and currency matrix.** Prove idempotence, interruption rollback,
+
+### C4A-03 — Recovery and currency matrix
+
+Status: **Blocked by C4A-02 independent review, green CI, and merge.**
+
+- [B] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
 
 Exit gate: accepted plan and full money/migration test matrix pass with a rehearsed recovery path.

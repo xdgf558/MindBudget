@@ -4719,3 +4719,70 @@ translucent inputs to contrast maths, which cannot composite. Tests grew from 15
 
 Recorded process note: this review entry reached the pull request only because an over-broad
 `git add -A` in the review-fix commit swept it in alongside the intended source changes.
+
+## 2026-08-20 — Session 131 — Calibrate current state and complete the C4A-01 delta audit
+
+Goal: Synchronize current `main`, correct stale post-upload/project state, and enter only
+COM-C4A-01 without implementing C4A-02 or a destructive money migration.
+
+What changed: `main` was fast-forwarded to `abd27ce`, then work continued on
+`codex/com-c4a-01-delta-audit`. Current memory now records that App Store Connect accepted 0.9.8
+(9) as delivery `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`, while no tester assignment, external Beta
+review, App Store submission, or Production configuration deployment followed. The completed
+post-upload product section no longer remains incorrectly In Progress.
+
+C4A-01 result: The source/schema audit found that V1–V4 authoritative amounts already use `Int64`
+minor units, exact currency validation, and stable identities; a destructive conversion is not
+justified. The new execution packet inventories persisted amounts and sign rules and assigns only
+the proven delta to C4A-02: a recoverable pre-open store/sidecar backup, explicit durable migration
+journal, idempotent restart/restore, post-open integrity validation, content-minimized anomaly
+report, and explicit currency ownership for the rebuildable merchant aggregate cache. C4A-03 owns
+the V1–V4 recovery plus USD/JPY/KWD/sign/bounds/anomaly matrix. C4A-02 and C4A-03 remain blocked.
+
+Evidence: The money, network, commercialization-document, and StoreKit catalog gates passed. The
+final owning validation produced 420 results: 413 passed, 7 explicit runtime/opt-in skips, and 0
+failed; 17/17 UI tests, the Release build, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C4A01-Full.xcresult`. The strict Phase 10 performance suite separately
+executed and passed 2/2 at `/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`.
+Hosted CI and independent review remain pending.
+
+What was NOT changed: No Swift source, model schema, store bytes, amount, currency, entitlement,
+StoreKit product, signed configuration, network channel, user content, version, Archive/upload,
+tester assignment, review submission, Production deployment, or distribution action changed.
+
+## 2026-08-20 — Session 132 — Make C4A-01 review evidence structurally checkable
+
+Closed the PR #51 review findings without entering C4A-02. The money inventory now closes over the
+15 `ModelCounts` tables and explicitly records the five models with no persisted monetary value.
+The C4A-02 plan defines a conservative pre-open sidecar/journal trigger: no store means no backup,
+a trusted committed target marker is the fast path, and only a missing/untrusted/target-mismatched
+marker takes one recoverable snapshot before opening; post-open integrity validation is the only
+way to commit the marker. This avoids undocumented SwiftData schema-metadata inference and keeps
+the recovery route outside the normal Dashboard startup budget.
+
+The marker fast path is intentionally closed: the marker must use a supported, parseable
+app-owned format, be committed, match the exact target, and have no active/nonterminal recovery
+journal. Any missing condition stays on the recoverable unknown-or-different path.
+
+The commercialization documentation check now delegates phase-state consistency to a Python parser
+with deterministic self-tests for headings, top-level and nested status cardinality,
+review/completion contradictions, merge evidence, and C4A blocked-state conflicts. The real gate
+requires every recognized phase/subphase in the authoritative map and C2/C3/C4A packets to own
+exactly one direct Status; a stable approved top-level phase-ID set also detects whole-phase
+deletion without making future nested subphases add another registration.
+The historical prose-only C1 subpackets remain the one explicit source-level exception.
+C4A-01 remains pending independent review; no
+Swift source, schema, store, commercial behavior, build, upload, tester, deployment, or
+distribution state changed.
+
+## 2026-08-20 — Session 133 — Generalize the commercialization phase-state gate
+
+Replaced the remaining per-C4A status registrations with source-level structural enforcement.
+Every recognized phase/subphase in the authoritative task map and C2/C3/C4A packets now requires
+exactly one direct status; C1 remains a documented historical packet-format exception while its
+top-level state is still mandatory in the task map. An exact approved top-level phase-ID set,
+including G1, detects deletion or unreviewed addition of a whole phase heading without hardcoding
+its status sentence. Parser self-tests cover missing/duplicate nested statuses, a deleted C3-style status,
+and missing/unapproved headings. Python compilation, the real-source parser run, all four named
+static gates, shell syntax, and diff validation passed. No Swift, schema, runtime, data, or release
+state changed.
