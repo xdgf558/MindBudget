@@ -2312,9 +2312,10 @@ Decision: Detailed ownership lives in DEC-COM-025 and
 an explicit durable and idempotent migration journal, post-open integrity validation, fail-closed
 restore/anomaly handling, and explicit currency ownership for the rebuildable merchant aggregate.
 
-Consequences: No C4A-01 source/schema change or destructive rewrite is justified. C4A-02 and
-C4A-03 remain blocked until independent review, green CI, and merge. No failed conversion may
-become zero, and no later COM or release authority is implied.
+Consequences: No C4A-01 source/schema change or destructive rewrite is justified. At this
+decision's time, C4A-02 and C4A-03 were blocked until the prerequisite review, green CI, and
+merge; C4A-02 subsequently closed and C4A-03 is now implementation complete pending its own
+review. No failed conversion may become zero, and no later COM or release authority is implied.
 
 ---
 
@@ -2329,8 +2330,30 @@ integrity failure restores the checksum-verified original only after the contain
 released. Merchant repair is deliberately limited to its rebuildable total and currency context.
 
 Consequences: Reviewed head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
-C4A-02 as `c905415` on 2026-08-20. C4A-02 is Done, while C4A-03 remains blocked pending explicit
-owner instruction. The recovery envelope creates no user-visible behavior, no network path, and
+C4A-02 as `c905415` on 2026-08-20. C4A-02 is Done; the owner later started C4A-03's limited
+recovery/currency matrix, pending implementation and independent review. The recovery envelope
+creates no user-visible behavior, no network path, and
 no distribution authority. On 2026-08-20 the owner accepted the current retry-only recovery UI: an unrecoverable
 store without a trusted backup requires app-data deletion or reinstall. Any in-app destructive
 reset needs a separate C4A-03 decision and evidence.
+
+---
+
+## 2026-08-20 — Bound persisted budget values and deterministically test interrupted restore
+
+Context: The owner started C4A-03 after C4A-02 merged. The recovery/currency matrix needed to
+prove both the preexisting signed-derived-value boundary and recovery behavior if restoration
+fails after the live artifact has been removed.
+
+Decision: Detailed ownership is DEC-COM-027. `BudgetPlan` and `CategoryBudget` persistence now
+share the inventory's inclusive `Money.maximumMinorUnits` single-entry ceiling. Historical zero
+`SavingsGoal` targets remain readable only in the migration inventory; source-ledger contracts are
+unchanged. Derived signed insight aggregates remain valid throughout the existing `Int64` storage
+range because the single-entry ceiling intentionally leaves aggregation headroom. An internal
+default-no-op restore-copy callback supplies deterministic test-only interruption; production
+behavior, schema hashes, recovery UI, and authority do not change.
+
+Consequences: The corrected focused C4A-03 recovery/currency suite passed 20 tests with no
+failures. This is implementation evidence only: full validation, independent review, hosted green
+CI, and merge remain required. No network, StoreKit, iCloud, release, or distribution authority is
+added.

@@ -765,5 +765,32 @@ context.
   historical provenance IDs as broken relationships; deleting/recreating orphan merchants; or
   silently converting a failed repair to zero.
 - Merge evidence: Reviewed head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
-  the C4A-02 implementation as `c905415` on 2026-08-20. This closes C4A-02 only. C4A-03 remains
-  blocked pending explicit owner instruction.
+  the C4A-02 implementation as `c905415` on 2026-08-20. This closes C4A-02 only. The owner later
+  started C4A-03's limited recovery/currency matrix; implementation and independent review remain
+  pending.
+
+## DEC-COM-027 — Bound persisted budget values and make recovery interruption deterministic
+
+- Status/date: **Accepted implementation decision pending independent review — 2026-08-20**
+- Requirements: REQ-MONEY-001, REQ-MONEY-MIGRATION-001
+- Decision: The post-open inventory and every `BudgetPlan` write path use the same inclusive
+  `Money.maximumMinorUnits(for:)` ceiling for all plan and category amounts. Existing source
+  ledger values remain positive where their established owner contract requires it; a zero
+  `SavingsGoal` target remains readable in the migration inventory for historical compatibility,
+  even though new goal entry continues to require a positive target. Insight payload money is a
+  derived signed aggregate/delta, so it remains valid anywhere in `Int64` storage range; the
+  single-entry ceiling deliberately leaves aggregation headroom and must not be applied to it.
+  Invalid source facts fail closed and are never repaired to zero.
+- Deterministic evidence boundary: `StoreMigrationRecoveryCoordinator` accepts an internal,
+  default-no-op callback immediately before each already-checksummed backup artifact is copied
+  during restore. It exists only to inject a deterministic mid-restore failure in tests; production
+  supplies no behavior, it exposes no user surface, and it does not alter state transitions or
+  recovery authority. The next ordinary coordinator invocation must recover from the retained
+  journal and verified backup.
+- Evidence: The corrected focused run recorded 20 passing tests across the 12-case C4A-03 matrix
+  and 8 existing recovery cases at `/private/tmp/MindBudget-C4A03-Focused2.xcresult`. Full
+  validation, Release evidence, independent review, hosted CI, and merge remain required.
+- Alternatives rejected: Allowing values above the aggregate-safety ceiling through create or
+  transition paths while rejecting them only during recovery; treating signed insight values as
+  persisted source-ledger amounts; using a timing-dependent `Task.yield()` failure test; adding an
+  in-app destructive reset; or changing V1–V4 schema hashes.

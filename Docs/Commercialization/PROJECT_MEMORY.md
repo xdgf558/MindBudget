@@ -27,8 +27,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
 - The owner started COM-C4A on 2026-08-20. C4A-01 is Done after independent review, green CI,
   and PR #51 merge `bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run
-  `32375823770`; PR #53 merged it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03 remains
-  blocked pending explicit owner instruction. The audit confirms that V1–V4 authoritative amounts
+  `32375823770`; PR #53 merged it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03's
+  recovery/currency matrix implementation is complete pending independent review, hosted green CI,
+  and merge. The audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in

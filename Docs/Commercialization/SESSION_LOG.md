@@ -1667,3 +1667,47 @@ memories now record the merge evidence and remove the obsolete pending-review bl
 C4A-02 implementation and owner-confirmed retry-only/reinstall recovery boundary are unchanged.
 C4A-03 is blocked only pending explicit owner instruction; this closeout does not implement its
 recovery/currency matrix or open any distribution gate.
+
+## 2026-08-20 — Session 57 — Start the C4A-03 recovery and currency matrix
+
+The owner explicitly authorized C4A-03 after C4A-02 merged. The sole active packet is now the
+deterministic recovery/currency evidence matrix: clean and interrupted V1–V4-to-V5 opens,
+repeated restart/restore, backup and journal failure boundaries, USD/JPY/KWD exponents, persisted
+money signs and bounds, checked overflow, and closed malformed-store anomalies. It retains the
+owner-confirmed retry-only/reinstall recovery surface; no in-app destructive reset is introduced.
+
+Current implementation work is limited to that evidence plus the smallest supporting guards needed
+to keep writer and post-open inventory bounds consistent. C4A-03 is not Done: focused and complete
+validation, independent review, hosted CI, and merge evidence remain pending. C4B/C4C, iCloud,
+network, StoreKit, release, and distribution work remain out of scope.
+
+## 2026-08-20 — Session 58 — Complete the C4A-03 implementation matrix
+
+The C4A-03 implementation adds deterministic clean/interrupted/restart coverage for V1 through
+V4, preserving each version's distinct added facts: V2 income, V3 savings goal, and V4 budget-plan
+semantics. A default-no-op internal restore-copy fault hook proves the only sensitive mid-restore
+window: after live removal but before a backup artifact copy, a failure preserves the journal and
+backup; a fresh ordinary coordinator restores and commits idempotently.
+
+The inventory and BudgetPlan write paths now share the inclusive `Money.maximumMinorUnits` bound
+for plan/category amounts. Historical zero savings-goal targets remain readable in inventory, while
+new goal entry remains positive-only. Signed derived insight aggregates retain their full `Int64`
+range because the entry ceiling deliberately leaves aggregation headroom. Independent anomaly fixtures prove allocation overflow, missing live
+references, unsupported/mixed currency, duplicate category identity, unreadable payload, and
+merchant/context anomalies do not zero or invent facts. No schema hash, recovery UI, network,
+StoreKit, iCloud, or distribution behavior changed.
+
+The first focused compile had three test-only throwing-`#require` macro errors and is explicitly
+non-evidence. The final corrected focused evidence at
+`/private/tmp/MindBudget-C4A03-Focused4.xcresult` passed 20 tests in two suites with zero failures:
+12 C4A-03 matrix tests and 8 existing recovery tests. The generic Release build succeeded with
+DerivedData at `/private/tmp/MindBudget-C4A03-Release2-DD`.
+
+The first shared-load validation attempt missed only the existing strict 500 ms Phase 10
+Dashboard wall-clock signal and is retained as diagnostic-only evidence. Its owning isolated
+performance suite then passed 10/10 at
+`/private/tmp/MindBudget-C4A03-StrictPerformance-10x.xcresult`. The final wall-clock-excluded full
+validation produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, and 0 failed. All
+17 UI tests, every static gate, the Release build, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. C4A-03 is implementation complete pending
+independent review, hosted green CI, and merge.

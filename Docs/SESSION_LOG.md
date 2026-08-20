@@ -4878,3 +4878,38 @@ same result instead of the pre-merge pending-review state.
 No Swift, schema, data, migration, network, version, Archive/upload, tester, review, or distribution
 behavior changed in this closeout. The owner-confirmed retry-only/reinstall recovery boundary
 remains intact. C4A-03 is blocked pending explicit owner instruction and was not started.
+
+## 2026-08-20 — Session 140 — Start COM-C4A-03 recovery/currency evidence
+
+The owner explicitly started C4A-03 after C4A-02 merged. Work is limited to the approved
+recovery/currency test matrix: deterministic V1–V4 clean/interrupted/restart evidence, backup and
+journal failure recovery, exact USD/JPY/KWD and `Int64` boundaries, and malformed-store anomalies
+that remain nonzero and recoverable. The previously accepted retry-only/reinstall recovery boundary
+is retained; no in-app destructive reset, schema expansion, network, StoreKit, iCloud, release, or
+distribution action is authorized.
+
+C4A-03 remains In Progress. Final validation, independent review, hosted green CI, and merge
+evidence are still required before it can be marked Done.
+
+## 2026-08-20 — Session 141 — Complete COM-C4A-03 implementation evidence
+
+C4A-03 now has deterministic recovery/currency matrix implementation evidence: clean and
+interrupted V1–V4-to-V5 opens, a repeated independent reopen, checksum-journal retry after a
+forced mid-restore failure, currency-exponent/boundary fixtures, and independent malformed-store
+anomalies that preserve original nonzero facts. Budget-plan and category writes now reject values
+above the same inclusive minor-unit maximum used by inventory; no invalid store value is converted
+to zero. The accepted retry-only/reinstall recovery boundary remains unchanged.
+
+The initial focused compilation had only three test-macro shape errors and is not promoted as
+evidence. The final corrected focused result at
+`/private/tmp/MindBudget-C4A03-Focused4.xcresult` passed 20 tests in two suites with zero failures,
+and the generic Release build succeeded at `/private/tmp/MindBudget-C4A03-Release2-DD`.
+
+The first shared-load validation attempt missed only the existing strict 500 ms Phase 10
+Dashboard wall-clock signal and remains diagnostic-only. The strict performance suite then passed
+10/10 in isolation at `/private/tmp/MindBudget-C4A03-StrictPerformance-10x.xcresult`. The final
+wall-clock-excluded validation produced 441 results: 434 passed, 7 explicit runtime/opt-in skips,
+and 0 failed; all 17 UI tests, static gates, the Release build, and selected coverage thresholds
+passed at `/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. C4A-03 is implementation complete
+pending independent review, hosted green CI, and merge; no later commercial or distribution gate
+changed.

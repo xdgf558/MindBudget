@@ -13,7 +13,8 @@ current implementation; the owner-held specification remains frozen through the 
 Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
 C4A-02 is Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
-`c905415`. C4A-03 remains blocked pending explicit owner instruction.
+`c905415`. C4A-03 implementation is complete pending independent review, hosted green CI, and
+merge.
 
 ### Audit result
 
@@ -122,10 +123,10 @@ recovery artifact that can contain local data, including that report.
 
 ### C4A-03 — Recovery and currency matrix
 
-Status: **Blocked pending explicit owner instruction.**
+Status: **Implementation complete pending independent review.**
 
-C4A-03's C4A-02 prerequisite is satisfied, but the phase has not started. On explicit owner
-instruction it must prove:
+C4A-03's C4A-02 prerequisite is satisfied and the owner has explicitly started this matrix. This
+packet must prove:
 
 - clean and interrupted V1, V2, V3, and V4 upgrades, including repeated restart and restore;
 - backup integrity, failure-before-open, failure-during-validation, failure-during-restore, and
@@ -140,11 +141,27 @@ instruction it must prove:
 - the money floating-point gate, full existing migration regression, Release build, and repository
   validation remain green.
 
+Implementation evidence: `C4A03RecoveryAndCurrencyMatrixTests` deterministically covers distinct
+V1/V2/V3/V4 shapes across clean upgrade, interrupted recovery, and a second reopened container;
+V2 preserves an `Income`, V3 also preserves a `SavingsGoal`, and V4 also preserves a plan and its
+semantics authority. It injects a failure after live-artifact removal but before backup copy, then
+proves an ordinary later coordinator restores, commits, and reaches an idempotent terminal path.
+The matrix separately retains nonzero original facts for overflow, broken reference, unsupported
+currency, orphan merchant/context, cross-currency, duplicate-category identity, and unreadable
+payload anomalies. The first focused run had a test-macro compilation error and is non-evidence;
+the final corrected run passed 20 tests across the 12-case C4A-03 matrix and 8 existing recovery
+cases at `/private/tmp/MindBudget-C4A03-Focused4.xcresult`. The generic Release build passed, the
+strict Dashboard performance suite passed 10/10 in isolation, and the final wall-clock-excluded
+full validation produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, and 0 failed,
+including 17/17 UI tests and every selected coverage threshold, at
+`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. Independent review, hosted CI, and merge
+evidence remain exit gates.
+
 ## Stop conditions
 
 - C4A-02 is Done through PR #53 (`c905415`) after independent review and green CI.
-- C4A-03 remains blocked pending explicit owner instruction; this closeout branch must not
-  implement it.
+- C4A-03 is the sole active COM-C4A subphase. It must not enter C4B/C4C or alter the
+  owner-confirmed retry-only/reinstall recovery boundary.
 - No iCloud, telemetry, receipt, Watch, backend, cloud-AI, formal economics, Production deployment,
   tester assignment, Beta review, App Store submission, or public distribution is authorized.
 - App Store Connect transport acceptance of 0.9.8 (9) is historical release evidence only and
