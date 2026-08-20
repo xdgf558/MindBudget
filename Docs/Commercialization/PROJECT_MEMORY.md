@@ -25,12 +25,18 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged it through `db7926d` on
   2026-08-15. C3-03 is Done. C3-04 passed independent review and GitHub Actions run
   `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
-- The owner started COM-C4A on 2026-08-20. C4A-01 is implementation complete pending independent
-  review; C4A-02 and C4A-03 remain blocked. The audit confirms that V1–V4 authoritative amounts
+- The owner started COM-C4A on 2026-08-20. C4A-01 is Done after independent review, green CI,
+  and PR #51 merge `bcd56a3`; C4A-02 is implementation complete pending independent review and
+  C4A-03 remains blocked. The audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in
   `COM_C4A_EXECUTION_PACKET.md`.
+- C4A-02 local owning validation is complete: the final 429-result run passed 422 with 7 explicit
+  skips and 0 failures, including 17/17 UI tests, Release, static gates, and coverage; the strict
+  performance case separately passed 10/10. A V1 regression found during review established that
+  the derived Merchant cache may be absent and must never be invented during inventory repair.
+  Independent review, hosted green CI, and merge remain required.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -324,5 +330,6 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review C4A-01 and its execution packet. Do not begin C4A-02
-until review, green CI, and merge; do not infer any distribution authority from the accepted build.
+Next suggested task: independently review the C4A-02 recovery-envelope candidate. Do not begin
+C4A-03 until review, green CI, and merge; do not infer any distribution authority from the accepted
+build.

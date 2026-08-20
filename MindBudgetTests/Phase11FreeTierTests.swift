@@ -99,6 +99,7 @@ struct Phase11FreeTierTests {
         #expect(expenses.map(\.id) == [expenseID])
         #expect(expenses.first?.amount.minorUnits == 1_250)
         #expect(try await upgraded.fetchIncomeSummaries().isEmpty)
+        #expect(try await upgraded.fetchMerchantSummaries().isEmpty)
     }
 
     @Test

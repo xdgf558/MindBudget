@@ -763,3 +763,233 @@ private actor ExpenseStorageInspector {
         return try modelContext.fetch(descriptor).first?.normalizedMerchantName
     }
 }
+
+@ModelActor
+private actor MerchantInventorySeeder {
+    struct Snapshot: Equatable, Sendable {
+        let totalMinorUnits: Int64
+        let displayName: String
+        let primaryCategoryRaw: String?
+        let visitCount: Int
+        let contextCurrencyCode: String?
+    }
+
+    func insertMerchantWithVerifiedExpense(staleTotal: Int64, invalidWishCurrency: String? = nil) throws -> UUID {
+        let merchantID = UUID()
+        let expense = Expense(
+            id: UUID(), amountMinorUnits: 425, currencyCode: "USD",
+            categoryRaw: ExpenseCategory.food.rawValue, bucketRaw: BudgetBucket.discretionary.rawValue,
+            merchantName: "Corner Market", normalizedMerchantName: "corner market", note: nil,
+            spentAt: TestFixtures.now, spentTimeZoneIdentifier: "UTC", createdAt: TestFixtures.now,
+            updatedAt: TestFixtures.now, paymentMethodRaw: nil, emotionTagRaw: nil, purchaseReasonRaw: nil,
+            isPlanned: false, isRecurring: false, sourceRaw: ExpenseSource.manual.rawValue,
+            allowMerchantIndexing: true
+        )
+        modelContext.insert(expense)
+        modelContext.insert(
+            Merchant(
+                id: merchantID, normalizedName: "corner market", displayName: "Corner Market",
+                primaryCategoryRaw: ExpenseCategory.food.rawValue, visitCount: 9,
+                lastVisitedAt: TestFixtures.now, totalMinorUnitsAllTime: staleTotal
+            )
+        )
+        if let invalidWishCurrency {
+            modelContext.insert(
+                WishItem(
+                    id: UUID(), name: "Invalid fixture", estimatedPriceMinorUnits: nil,
+                    currencyCode: invalidWishCurrency, categoryRaw: ExpenseCategory.other.rawValue,
+                    reasonRaw: nil, emotionTagRaw: nil, sourceContextLabel: nil,
+                    createdAt: TestFixtures.now, updatedAt: TestFixtures.now, coolingOffHours: 24,
+                    targetReviewDate: nil, statusRaw: WishItemStatus.active.rawValue, notes: nil,
+                    purchasedExpenseId: nil, coolingOffPlans: []
+                )
+            )
+        }
+        try modelContext.save()
+        return merchantID
+    }
+
+    func snapshot(merchantID: UUID) throws -> Snapshot? {
+        var merchantDescriptor = FetchDescriptor<Merchant>(predicate: #Predicate { $0.id == merchantID })
+        merchantDescriptor.fetchLimit = 1
+        guard let merchant = try modelContext.fetch(merchantDescriptor).first else { return nil }
+        var contextDescriptor = FetchDescriptor<MerchantAccountingContext>(predicate: #Predicate { $0.merchantID == merchantID })
+        contextDescriptor.fetchLimit = 1
+        return Snapshot(
+            totalMinorUnits: merchant.totalMinorUnitsAllTime,
+            displayName: merchant.displayName,
+            primaryCategoryRaw: merchant.primaryCategoryRaw,
+            visitCount: merchant.visitCount,
+            contextCurrencyCode: try modelContext.fetch(contextDescriptor).first?.currencyCode
+        )
+    }
+}
+
+struct StoreMigrationRecoveryTests {
+    @Test
+    func firstExistingStoreGetsOneSnapshotThenCommittedMarkerIsCopyFreeAndDeleteAllKeepsMarker() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let original = Data("original-store".utf8)
+        try original.write(to: storeURL)
+        let coordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
+
+        let preparedAttempt = try coordinator.prepareForOpen()
+        let attempt = try #require(preparedAttempt)
+        try coordinator.markMigrating(attempt)
+        try coordinator.markValidating(attempt)
+        try coordinator.commit(attempt)
+
+        #expect(try coordinator.prepareForOpen() == nil)
+        try coordinator.deleteRecoveryArtifacts()
+        #expect(try coordinator.prepareForOpen() == nil)
+        #expect(try Data(contentsOf: storeURL) == original)
+    }
+
+    @Test
+    func historicalProvenanceAfterNormalExpenseDeletionDoesNotFailThePostOpenInventory() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let expenseID = UUID()
+        do {
+            let controller = try DataController(storeURL: storeURL)
+            let actor = controller.dataActor
+            _ = try await actor.createExpense(
+                ExpenseDraft(
+                    id: expenseID, amount: Money(minorUnits: 100, currencyCode: "USD"),
+                    category: .coffee, bucket: .discretionary, merchantName: nil, note: nil,
+                    spentAt: TestFixtures.now, spentTimeZoneIdentifier: "UTC", createdAt: TestFixtures.now,
+                    updatedAt: TestFixtures.now, paymentMethod: nil, emotionTag: nil, purchaseReason: nil,
+                    isPlanned: false, isRecurring: true, source: .manual, allowMerchantIndexing: false
+                )
+            )
+            try await actor.deleteExpense(id: expenseID)
+        }
+        try FileManager.default.removeItem(at: URL(fileURLWithPath: storeURL.path + ".migration-marker"))
+        // End the reopened container's lifetime before the deferred fixture-directory cleanup.
+        // Removing SQLite sidecars while the container is alive is itself an API violation and
+        // would make this recovery test manufacture the corruption it is supposed to detect.
+        do {
+            let reopened = try DataController(storeURL: storeURL)
+            #expect(try await reopened.dataActor.fetchExpenseSummaries().isEmpty)
+            #expect((try await reopened.dataActor.modelCounts()).recurringRules == 1)
+        }
+    }
+
+    @Test
+    func interruptedAttemptRestoresOriginalBytesBeforeCreatingTheNextSnapshot() throws {
+        let root = try recoveryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let original = Data("before".utf8)
+        try original.write(to: storeURL)
+        let coordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
+        let preparedAttempt = try coordinator.prepareForOpen()
+        let attempt = try #require(preparedAttempt)
+        try coordinator.markMigrating(attempt)
+        try Data("partially-migrated".utf8).write(to: storeURL)
+
+        _ = try StoreMigrationRecoveryCoordinator(storeURL: storeURL).prepareForOpen()
+        #expect(try Data(contentsOf: storeURL) == original)
+    }
+
+    @Test
+    func corruptManifestBackupNeverOverwritesTheLiveStore() throws {
+        let root = try recoveryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        try Data("before".utf8).write(to: storeURL)
+        let coordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
+        let preparedAttempt = try coordinator.prepareForOpen()
+        let attempt = try #require(preparedAttempt)
+        try coordinator.markMigrating(attempt)
+        let backupStore = try #require(
+            FileManager.default.contentsOfDirectory(
+                at: root.appendingPathComponent("MindBudgetMigrationRecovery"),
+                includingPropertiesForKeys: nil
+            ).first(where: { $0.hasDirectoryPath })
+        ).appendingPathComponent("store")
+        try Data("corrupt-backup".utf8).write(to: backupStore)
+        let live = Data("live-after-failure".utf8)
+        try live.write(to: storeURL)
+
+        #expect(throws: StoreMigrationRecoveryCoordinator.RecoveryError.backupIntegrityMismatch) {
+            try coordinator.restore(attempt, reason: .inventoryRejected)
+        }
+        #expect(try Data(contentsOf: storeURL) == live)
+    }
+
+    @Test
+    func uncommittedMarkerNeverSelectsTheFastPath() throws {
+        let root = try recoveryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        try Data("existing".utf8).write(to: storeURL)
+        try Data(#"{"formatVersion":1,"state":"prepared","target":"mindbudget-schema-v5"}"#.utf8)
+            .write(to: URL(fileURLWithPath: storeURL.path + ".migration-marker"))
+        #expect(try StoreMigrationRecoveryCoordinator(storeURL: storeURL).prepareForOpen() != nil)
+    }
+
+    @Test
+    func journalPathTraversalIsRejectedBeforeAnyLiveStoreMutation() throws {
+        let root = try recoveryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let original = Data("existing".utf8)
+        try original.write(to: storeURL)
+        let recovery = root.appendingPathComponent("MindBudgetMigrationRecovery")
+        try FileManager.default.createDirectory(at: recovery, withIntermediateDirectories: true)
+        let id = UUID()
+        let journal = #"{"backupDirectoryName":"../escape","formatVersion":1,"manifestFileName":"manifest.json","migrationID":"\#(id.uuidString)","sourceMarkerTarget":null,"state":"prepared","target":"mindbudget-schema-v5"}"#
+        try Data(journal.utf8).write(to: recovery.appendingPathComponent("journal.json"))
+
+        #expect(throws: StoreMigrationRecoveryCoordinator.RecoveryError.unreadableJournal) {
+            _ = try StoreMigrationRecoveryCoordinator(storeURL: storeURL).prepareForOpen()
+        }
+        #expect(try Data(contentsOf: storeURL) == original)
+    }
+
+    @Test @MainActor
+    func inventoryRepairsOnlyMerchantAggregateAndAddsVerifiedCurrencyContext() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let seeder = MerchantInventorySeeder(modelContainer: controller.container)
+        let merchantID = try await seeder.insertMerchantWithVerifiedExpense(staleTotal: 1)
+
+        try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+
+        let snapshot = try #require(try await seeder.snapshot(merchantID: merchantID))
+        #expect(snapshot.totalMinorUnits == 425)
+        #expect(snapshot.contextCurrencyCode == "USD")
+        #expect(snapshot.displayName == "Corner Market")
+        #expect(snapshot.primaryCategoryRaw == ExpenseCategory.food.rawValue)
+        #expect(snapshot.visitCount == 9)
+    }
+
+    @Test @MainActor
+    func inventoryFailureBuildsRepairPlanBeforeMutatingMerchantAggregate() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let seeder = MerchantInventorySeeder(modelContainer: controller.container)
+        let merchantID = try await seeder.insertMerchantWithVerifiedExpense(
+            staleTotal: 1,
+            invalidWishCurrency: "ZZZ"
+        )
+
+        #expect(throws: MigrationIntegrityInventory.Error.unsupportedCurrency) {
+            try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+        }
+
+        let snapshot = try #require(try await seeder.snapshot(merchantID: merchantID))
+        #expect(snapshot.totalMinorUnits == 1)
+        #expect(snapshot.contextCurrencyCode == nil)
+    }
+
+    private func recoveryRoot() throws -> URL {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        return root
+    }
+}

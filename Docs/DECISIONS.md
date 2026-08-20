@@ -2315,3 +2315,19 @@ restore/anomaly handling, and explicit currency ownership for the rebuildable me
 Consequences: No C4A-01 source/schema change or destructive rewrite is justified. C4A-02 and
 C4A-03 remain blocked until independent review, green CI, and merge. No failed conversion may
 become zero, and no later COM or release authority is implied.
+
+---
+
+## 2026-08-20 — Keep C4A-02 recovery outside historical money schemas
+
+Context: C4A-01 passed independent review, green CI, and merged through PR #51 as `bcd56a3`.
+C4A-02 now implements the approved recovery delta without changing a V1–V4 authoritative amount.
+
+Decision: Detailed ownership lives in DEC-COM-026. Schema V5 is a companion-only merchant
+currency record; a pre-open app-owned journal/manifest surrounds SwiftData opening, and an
+integrity failure restores the checksum-verified original only after the container has been
+released. Merchant repair is deliberately limited to its rebuildable total and currency context.
+
+Consequences: C4A-02 remains pending independent review and green CI; C4A-03 remains blocked.
+The recovery envelope creates no user-visible behavior, no network path, and no distribution
+authority.

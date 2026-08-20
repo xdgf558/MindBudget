@@ -4799,3 +4799,60 @@ test controls only.
 
 No Swift source, schema, user data, entitlement, StoreKit behavior, network allowance, version,
 Archive/upload, tester assignment, deployment, or distribution state changed.
+
+## 2026-08-20 — Session 135 — Implement the C4A-02 recovery envelope
+
+After C4A-01 merged as PR #51 (`bcd56a3`) with green CI, C4A-02 adds the bounded Schema V5
+merchant-accounting companion plus the pre-open recoverable store envelope. The existing V1–V4
+minor-unit fields and UUIDs are not rewritten. An app-owned marker/journal/manifest surrounds
+SwiftData opening; the trusted exact-target marker avoids normal-start copying, while an unknown
+existing store snapshots its SQLite artifacts before opening. Inventory failure restores a checksum-
+verified source snapshot. Pending recovery artifacts are included in Delete All cleanup. C4A-03
+remains blocked for the complete recovery and currency matrix; independent review and CI remain
+required before C4A-02 is Done.
+
+## 2026-08-20 — Session 136 — Harden C4A-02 recovery and deletion evidence
+
+C4A-02 now snapshots the store plus `-wal`, `-shm`, `-journal`, and `_SUPPORT` artifacts before
+an untrusted existing-store open, validates every journal path and manifest checksum before a
+restore, and never promotes a merely parseable noncommitted marker to the fast path. The normal
+fast path does neither a full copy nor a full inventory scan. A recovered interrupted attempt
+restores only a formerly committed source marker, releases a failed `ModelContainer` before file
+restore, and preserves a content-minimized closed anomaly report until Delete All.
+
+Schema V5 adds only the merchant currency companion. The full post-open inventory builds all
+checks and the merchant repair plan before it writes; it can repair only an existing merchant's
+derived total and currency context from validated same-currency expenses. Ordinary historical
+recurring/reflection provenance left after deletion remains readable rather than becoming a false
+migration failure. Delete All now treats recovery-artifact cleanup as a privacy-critical stage:
+failure leaves preferences intact and reports deletion failure.
+
+Evidence: `StoreMigrationRecoveryTests` plus `Phase6FeatureTests` passed on the available iOS 26.4
+iPhone 17 Pro simulator after a first iOS 26.5 destination reported an external Busy preflight
+failure. `xcodebuild build-for-testing` passed (with the pre-existing weak-variable warning in
+`PublicConfigurationTransportTests`). Money, network-egress, commercialization-document, and
+StoreKit catalog gates plus `git diff --check` passed. C4A-02 remains pending independent review
+and hosted green CI; C4A-03 remains blocked.
+
+## 2026-08-20 — Session 137 — Review and fully validate the C4A-02 implementation
+
+Root review tightened the recovery commit boundary: once the trusted target marker and committed
+journal are durable, terminal artifact cleanup is best effort and retried later rather than being
+allowed to trigger an unsafe rollback from a partly deleted backup. Support-directory checksums now
+use a canonical sorted entry manifest containing relative path, byte count, and SHA-256.
+
+The first full unit run found a real V1 compatibility issue. Legacy expense data may have a
+normalized merchant name without a derived Merchant cache row, so the integrity inventory now
+validates every cache row that exists but never invents a missing Merchant or UUID. The V1 migration
+test locks this behavior. The corrected unit-only run produced 413 total, 406 passed, 7 skipped,
+and 0 failed.
+
+The final owning run under Xcode 26.6 (`17F113`) on iOS 26.4.1 (`23E254a`) passed with 429 results:
+422 passed, 7 explicit runtime/opt-in skips, and 0 failed. It includes 17/17 UI tests, the Release
+build, all static gates, and coverage at
+`/private/tmp/MindBudget-C4A02-Validate-Green-Retry-20260820.xcresult`. The strict performance test
+also passed ten isolated iterations at
+`/private/tmp/MindBudget-C4A02-StrictPerformance-10x-20260820.xcresult`. An earlier concurrent run
+hit only the known local 500 ms wall-clock diagnostic at 1.240605666 seconds and is recorded as a
+non-pass, not promoted. C4A-02 still awaits independent review, hosted green CI, and merge; C4A-03
+and distribution remain blocked.

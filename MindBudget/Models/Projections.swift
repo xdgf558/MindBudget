@@ -248,6 +248,7 @@ struct MerchantSummary: Hashable, Sendable {
     let visitCount: Int
     let lastVisitedAt: Date?
     let totalMinorUnitsAllTime: Int64
+    let accountingCurrencyCode: String
 }
 
 struct ModelCounts: Equatable, Sendable {
@@ -266,6 +267,7 @@ struct ModelCounts: Equatable, Sendable {
     let recurringRules: Int
     let recurringOccurrences: Int
     let incomeAllocations: Int
+    let merchantAccountingContexts: Int
 
     static let zero = ModelCounts(
         expenses: 0,
@@ -282,7 +284,8 @@ struct ModelCounts: Equatable, Sendable {
         savingsGoals: 0,
         recurringRules: 0,
         recurringOccurrences: 0,
-        incomeAllocations: 0
+        incomeAllocations: 0,
+        merchantAccountingContexts: 0
     )
 
     var isEmpty: Bool {
@@ -301,6 +304,7 @@ struct ModelCounts: Equatable, Sendable {
             && recurringRules == 0
             && recurringOccurrences == 0
             && incomeAllocations == 0
+            && merchantAccountingContexts == 0
     }
 
     init(
@@ -318,7 +322,8 @@ struct ModelCounts: Equatable, Sendable {
         savingsGoals: Int,
         recurringRules: Int,
         recurringOccurrences: Int,
-        incomeAllocations: Int
+        incomeAllocations: Int,
+        merchantAccountingContexts: Int
     ) {
         self.expenses = expenses
         self.incomes = incomes
@@ -335,5 +340,6 @@ struct ModelCounts: Equatable, Sendable {
         self.recurringRules = recurringRules
         self.recurringOccurrences = recurringOccurrences
         self.incomeAllocations = incomeAllocations
+        self.merchantAccountingContexts = merchantAccountingContexts
     }
 }

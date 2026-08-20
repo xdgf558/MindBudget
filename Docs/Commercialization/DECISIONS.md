@@ -731,3 +731,30 @@ context.
   currency as permanently implicit for a stored merchant amount; attempting repair by zeroing,
   dropping, or partially committing anomalous records; and relying on SwiftData container opening
   without an app-owned recoverable checkpoint.
+
+## DEC-COM-026 — Use a V5 merchant-currency companion and fail-closed recovery envelope
+
+- Status/date: **Accepted C4A-02 implementation boundary pending independent review — 2026-08-20**
+- Requirements: REQ-MONEY-001, REQ-MONEY-MIGRATION-001
+- Decision: Preserve all V1–V4 model hashes, UUIDs, and authoritative `Int64` minor-unit values.
+  Schema V5 adds only `MerchantAccountingContext`, keyed by the existing merchant UUID, so the
+  rebuildable merchant aggregate has an explicit accounting currency without reinterpreting an
+  old number. Before a non-fast-path SwiftData open, snapshot the store plus SQLite sidecars and
+  `_SUPPORT` directory with a checksum manifest; persist an app-owned journal with closed state
+  transitions. Only a parseable committed current-target marker with no active journal skips that
+  work. A failed open or inventory releases the container before checksum-verified restoration,
+  restores only a previously trusted source marker, and records only a closed reason code.
+- Integrity and deletion boundary: Build the complete integrity and merchant repair plan before
+  mutating. A repair may change only `Merchant.totalMinorUnitsAllTime` and its companion context,
+  and only from existing, validated same-currency expense facts. Missing/ambiguous facts, broken
+  required links, unsupported/mixed currency, invalid amount/allocation, unreadable insight, or
+  duplicate stable identity fail closed and retain the original store. Historical provenance IDs
+  left by ordinary deletion are not required live references. Once the target marker and journal
+  are both durably committed, removing their terminal backup/journal artifacts is best effort: a
+  cleanup failure must never trigger rollback of an already-committed store, and the next cold
+  start or Delete All retries removal. A prior closed anomaly report remains available for support;
+  Delete All must clear all recovery artifacts before it can reset preferences.
+- Alternatives rejected: Adding currency directly to `Merchant`; using undocumented SwiftData
+  metadata to decide whether to back up; treating any parseable marker as trusted; treating
+  historical provenance IDs as broken relationships; deleting/recreating orphan merchants; or
+  silently converting a failed repair to zero.

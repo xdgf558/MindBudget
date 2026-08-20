@@ -52,12 +52,18 @@ closing COM-C2. COM-C3 C3-01 passed independent review and green CI and merged t
 `747b628` on 2026-08-14 under the owner's provisional, nonpublic test inputs: US$1.99 Monthly, US$19.99 Annual,
 a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. These are test
 controls rather than final launch economics.
-COM-C4A is now active. C4A-01 is implementation complete pending independent review, while C4A-02
-and C4A-03 remain blocked. The audit found no V1–V4 floating-point amount conversion to perform:
+COM-C4A is now active. C4A-01 is Done after independent review, green CI, and PR #51 merge
+`bcd56a3`; C4A-02 is implementation complete pending independent review and C4A-03 remains
+blocked. The audit found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
 backup/journal/integrity boundary plus explicit currency ownership for the rebuildable merchant
 aggregate cache. App Store Connect accepted 0.9.8 (9) on 2026-08-17; no tester assignment,
 external Beta review, App Store submission, or Production configuration deployment followed.
+C4A-02 local owning validation is green: 429 results produced 422 passes, 7 explicit skips, and
+0 failures, including 17/17 UI tests, Release, static gates, and coverage; the strict performance
+case separately passed 10/10. Review also proved that a V1 expense may legitimately have no
+derived Merchant cache row, so inventory validates existing cache rows but never invents one.
+Independent review, hosted green CI, and merge are still required before C4A-02 is Done.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
