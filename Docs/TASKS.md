@@ -225,8 +225,8 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C3 and C4A-01 Done; C4A-02 implementation complete pending independent review;
-C4A-03 blocked
+Status: COM-C0A through COM-C3 and C4A-01/C4A-02 Done; C4A-03 blocked pending explicit owner
+instruction
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -360,5 +360,6 @@ C4A-03 blocked
 - [x] Implement the C4A-02 source candidate after C4A-01 passed independent review, green CI,
   and PR #51 merge `bcd56a3`: preserve V1–V4 values and IDs; add only the V5 merchant-currency
   companion, pre-open recovery envelope, exact-target fast path, integrity inventory, closed
-  anomaly handling, and Delete All artifact boundary. Keep C4A-02 pending independent review and
-  C4A-03 blocked.
+  anomaly handling, and Delete All artifact boundary. Independent review and GitHub Actions run
+  `32375823770` passed; PR #53 merged the result as `c905415` on 2026-08-20. Keep C4A-03 blocked
+  pending explicit owner instruction.

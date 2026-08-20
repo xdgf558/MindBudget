@@ -2328,8 +2328,9 @@ currency record; a pre-open app-owned journal/manifest surrounds SwiftData openi
 integrity failure restores the checksum-verified original only after the container has been
 released. Merchant repair is deliberately limited to its rebuildable total and currency context.
 
-Consequences: C4A-02 remains pending independent review and green CI; C4A-03 remains blocked.
-The recovery envelope creates no user-visible behavior, no network path, and no distribution
-authority. On 2026-08-20 the owner accepted the current retry-only recovery UI: an unrecoverable
+Consequences: Reviewed head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
+C4A-02 as `c905415` on 2026-08-20. C4A-02 is Done, while C4A-03 remains blocked pending explicit
+owner instruction. The recovery envelope creates no user-visible behavior, no network path, and
+no distribution authority. On 2026-08-20 the owner accepted the current retry-only recovery UI: an unrecoverable
 store without a trusted backup requires app-data deletion or reinstall. Any in-app destructive
 reset needs a separate C4A-03 decision and evidence.

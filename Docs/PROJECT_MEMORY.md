@@ -53,8 +53,9 @@ closing COM-C2. COM-C3 C3-01 passed independent review and green CI and merged t
 a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. These are test
 controls rather than final launch economics.
 COM-C4A is now active. C4A-01 is Done after independent review, green CI, and PR #51 merge
-`bcd56a3`; C4A-02 is implementation complete pending independent review and C4A-03 remains
-blocked. The audit found no V1–V4 floating-point amount conversion to perform:
+`bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
+it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03 remains blocked pending explicit owner
+instruction. The audit found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
 backup/journal/integrity boundary plus explicit currency ownership for the rebuildable merchant
 aggregate cache. App Store Connect accepted 0.9.8 (9) on 2026-08-17; no tester assignment,
@@ -63,7 +64,7 @@ C4A-02 local owning validation is green: 429 results produced 422 passes, 7 expl
 0 failures, including 17/17 UI tests, Release, static gates, and coverage; the strict performance
 case separately passed 10/10. Review also proved that a V1 expense may legitimately have no
 derived Merchant cache row, so inventory validates existing cache rows but never invents one.
-Independent review, hosted green CI, and merge are still required before C4A-02 is Done.
+Independent review, hosted green CI, and merge are satisfied through PR #53 (`c905415`).
 The owner accepted the retry-only C4A-02 recovery UI on 2026-08-20. An unrecoverable store without
 a trusted backup currently requires app-data deletion or reinstall; any in-app destructive reset
 must be a separate C4A-03 decision with dedicated tests.

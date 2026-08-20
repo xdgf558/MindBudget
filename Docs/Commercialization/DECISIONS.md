@@ -734,7 +734,8 @@ context.
 
 ## DEC-COM-026 — Use a V5 merchant-currency companion and fail-closed recovery envelope
 
-- Status/date: **Accepted C4A-02 implementation boundary pending independent review — 2026-08-20**
+- Status/date: **Accepted and implemented through PR #53 (`c905415`) after green GitHub Actions
+  run `32375823770` — 2026-08-20**
 - Requirements: REQ-MONEY-001, REQ-MONEY-MIGRATION-001
 - Decision: Preserve all V1–V4 model hashes, UUIDs, and authoritative `Int64` minor-unit values.
   Schema V5 adds only `MerchantAccountingContext`, keyed by the existing merchant UUID, so the
@@ -763,3 +764,6 @@ context.
   metadata to decide whether to back up; treating any parseable marker as trusted; treating
   historical provenance IDs as broken relationships; deleting/recreating orphan merchants; or
   silently converting a failed repair to zero.
+- Merge evidence: Reviewed head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
+  the C4A-02 implementation as `c905415` on 2026-08-20. This closes C4A-02 only. C4A-03 remains
+  blocked pending explicit owner instruction.

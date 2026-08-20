@@ -1654,3 +1654,16 @@ C4A-03 must either preserve this boundary or obtain a separate Accepted decision
 tests before adding an in-app destructive reset. No Swift, schema, migration, data, version,
 distribution, or network behavior changed. PR #53 remains pending hosted green CI and merge;
 C4A-03 remains blocked.
+
+## 2026-08-20 — Session 56 — Close C4A-02 after review, green CI, and merge
+
+Reviewed head `9d2171d` passed every step of GitHub Actions run `32375823770`, including the
+complete Build and test job and test-report upload. PR #53 merged C4A-02 to `main` as `c905415` on
+2026-08-20. C4A-02 is therefore Done after independent review, local validation, hosted green CI,
+and merge.
+
+Current-state tasks, requirements, decisions, execution packet, CI baseline, and both project
+memories now record the merge evidence and remove the obsolete pending-review blocker. The
+C4A-02 implementation and owner-confirmed retry-only/reinstall recovery boundary are unchanged.
+C4A-03 is blocked only pending explicit owner instruction; this closeout does not implement its
+recovery/currency matrix or open any distribution gate.

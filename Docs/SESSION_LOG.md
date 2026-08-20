@@ -4867,3 +4867,14 @@ also passed ten isolated iterations at
 hit only the known local 500 ms wall-clock diagnostic at 1.240605666 seconds and is recorded as a
 non-pass, not promoted. C4A-02 still awaits independent review, hosted green CI, and merge; C4A-03
 and distribution remain blocked.
+
+## 2026-08-20 — Session 139 — Close C4A-02 after PR #53 merge
+
+Reviewed head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged the recoverable
+migration envelope to `main` as `c905415` on 2026-08-20. C4A-02 is Done. The authoritative task
+maps, requirements, decisions, CI evidence, execution packet, and project memories now carry the
+same result instead of the pre-merge pending-review state.
+
+No Swift, schema, data, migration, network, version, Archive/upload, tester, review, or distribution
+behavior changed in this closeout. The owner-confirmed retry-only/reinstall recovery boundary
+remains intact. C4A-03 is blocked pending explicit owner instruction and was not started.

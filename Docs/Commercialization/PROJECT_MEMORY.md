@@ -26,8 +26,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   2026-08-15. C3-03 is Done. C3-04 passed independent review and GitHub Actions run
   `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
 - The owner started COM-C4A on 2026-08-20. C4A-01 is Done after independent review, green CI,
-  and PR #51 merge `bcd56a3`; C4A-02 is implementation complete pending independent review and
-  C4A-03 remains blocked. The audit confirms that V1–V4 authoritative amounts
+  and PR #51 merge `bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run
+  `32375823770`; PR #53 merged it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03 remains
+  blocked pending explicit owner instruction. The audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in
@@ -36,7 +37,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   skips and 0 failures, including 17/17 UI tests, Release, static gates, and coverage; the strict
   performance case separately passed 10/10. A V1 regression found during review established that
   the derived Merchant cache may be absent and must never be invented during inventory repair.
-  Independent review, hosted green CI, and merge remain required.
+  Independent review, hosted green CI, and merge are satisfied through PR #53 (`c905415`).
 - The owner accepted C4A-02's retry-only recovery UI on 2026-08-20. When neither the live store nor
   a trusted backup is usable, current self-recovery is app-data deletion or reinstall. C4A-03 must
   explicitly retain that boundary or separately accept and test an in-app destructive reset.
@@ -333,6 +334,6 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the C4A-02 recovery-envelope candidate. Do not begin
-C4A-03 until review, green CI, and merge; do not infer any distribution authority from the accepted
+Next suggested task: await explicit owner instruction before beginning C4A-03's recovery and
+currency matrix. Do not infer any distribution authority from C4A-02 completion or the accepted
 build.
