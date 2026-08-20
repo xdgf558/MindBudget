@@ -4913,3 +4913,22 @@ and 0 failed; all 17 UI tests, static gates, the Release build, and selected cov
 passed at `/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. C4A-03 is implementation complete
 pending independent review, hosted green CI, and merge; no later commercial or distribution gate
 changed.
+
+## 2026-08-21 — Session 142 — Close COM-C4A after C4A-03 merge
+
+Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged the recovery
+and currency matrix to `main` as `77292c6`. C4A-03 and COM-C4A are Done. The authoritative task
+maps, requirements, CI evidence, execution packet, project memories, and decision pointer now carry
+the same result instead of the pre-merge pending-review state.
+
+This closeout changes documentation and its static contract only. It does not change Swift,
+schema, stored data, recovery behavior, network, StoreKit, iCloud, versioning, Archive/upload,
+tester assignment, review, or distribution. C4B remains blocked pending an accepted CloudKit
+architecture and explicit owner instruction.
+
+The closeout itself also passed the wall-clock-excluded full validation on merged source: 441
+results, 434 passed, 7 explicit runtime/opt-in skips, and 0 failed; all 17 UI tests, the Release
+build, static gates, and selected coverage thresholds passed at
+`/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`. The preceding sandbox-only attempt failed
+before project testing because Xcode could not write DerivedData; it is environment diagnostics,
+not a product failure or accepted evidence.

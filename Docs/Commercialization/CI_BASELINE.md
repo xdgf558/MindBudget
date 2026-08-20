@@ -596,8 +596,8 @@ artifact before deliberately adding it to version control.
 
 ## COM-C4A-01 delta-audit verification
 
-Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; C4A-02 is Done
-through PR #53 `c905415`, and C4A-03 implementation is complete pending independent review.**
+Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; COM-C4A is Done
+through PR #55 `77292c6`.**
 
 The 2026-08-20 C4A-01 audit is documentation and gate work only. It inventories the persisted
 money owners, existing V1 → V2 → V3 → V4 migration evidence, checked-arithmetic/currency
@@ -619,7 +619,7 @@ its local and hosted evidence is recorded below. It does not authorize distribut
 ## COM-C4A-02 local verification
 
 Status: **Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
-`c905415`; C4A-03 implementation is complete pending independent review.**
+`c905415`; COM-C4A is Done through PR #55 `77292c6`.**
 
 The final owning validation used final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`)
 iPhone 17e simulator. With only the already documented strict wall-clock diagnostic excluded from
@@ -639,10 +639,13 @@ non-passing diagnostic rather than promoted to evidence. Root review also found 
 compatibility regression: a migrated expense may legitimately have no derived `Merchant` cache
 row, and inventory must not invent a replacement UUID. Reviewed head `9d2171d` then passed every
 step of GitHub Actions run `32375823770`; PR #53 merged it to `main` as `c905415` on 2026-08-20.
-C4A-02 is Done. C4A-03 implementation is complete pending independent review, and no distribution
-gate opened.
+C4A-02 is Done. C4A-03 later passed its owning gates and closed COM-C4A through PR #55
+(`77292c6`); no distribution gate opened.
 
 ## COM-C4A-03 focused recovery/currency verification
+
+Status: **Done after independent review, GitHub Actions run `32406654986`, and PR #55 merge
+`77292c6`.**
 
 The first local focused compilation was not accepted as evidence because three throwing
 `#require` expressions in the new test body were rejected by the Testing macro. The test shape was
@@ -663,5 +666,13 @@ promoted as a passing full run. The owning isolated strict performance suite sub
 The final wall-clock-excluded full validation produced 441 results: 434 passed, 7 explicit
 runtime/opt-in skips, and 0 failed. All 17 UI tests, every static gate, the Release build, and every
 selected core-service coverage threshold passed at
-`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. This local evidence does not replace
-independent review, hosted green CI, or merge evidence.
+`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. Reviewed head `138c240` passed every step of
+GitHub Actions run `32406654986`, including the complete Build and test job and test-report upload.
+PR #55 merged it to `main` as `77292c6`, closing C4A-03 and COM-C4A. C4B remains blocked pending
+its accepted CloudKit architecture and explicit owner instruction.
+
+The documentation closeout then reran the same wall-clock-excluded full validation on the merged
+source with final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`) iPhone 17 Pro simulator.
+It again produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, and 0 failed; all 17 UI
+tests, the Release build, every static gate, and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`.

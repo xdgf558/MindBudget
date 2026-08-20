@@ -25,11 +25,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `09c382e` passed GitHub Actions run `31873664396`; PR #38 merged it through `db7926d` on
   2026-08-15. C3-03 is Done. C3-04 passed independent review and GitHub Actions run
   `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
-- The owner started COM-C4A on 2026-08-20. C4A-01 is Done after independent review, green CI,
-  and PR #51 merge `bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run
-  `32375823770`; PR #53 merged it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03's
-  recovery/currency matrix implementation is complete pending independent review, hosted green CI,
-  and merge. The audit confirms that V1–V4 authoritative amounts
+- COM-C4A is Done. C4A-01 closed through PR #51 (`bcd56a3`), and C4A-02 closed through PR #53
+  (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
+  merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B remains blocked pending an accepted
+  CloudKit architecture and explicit owner instruction. The audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in
@@ -39,9 +38,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   performance case separately passed 10/10. A V1 regression found during review established that
   the derived Merchant cache may be absent and must never be invented during inventory repair.
   Independent review, hosted green CI, and merge are satisfied through PR #53 (`c905415`).
-- The owner accepted C4A-02's retry-only recovery UI on 2026-08-20. When neither the live store nor
-  a trusted backup is usable, current self-recovery is app-data deletion or reinstall. C4A-03 must
-  explicitly retain that boundary or separately accept and test an in-app destructive reset.
+- The owner accepted C4A-02's retry-only recovery UI on 2026-08-20, and C4A-03 retained it. When
+  neither the live store nor a trusted backup is usable, current self-recovery is app-data deletion
+  or reinstall. Any future in-app destructive reset requires a separate Accepted decision and
+  dedicated tests.
 - C1-01 adds a pure entitlement value, a closed feature vocabulary, and a versioned representation
   migration boundary. C1-02 adds one immutable `FeatureAccessService` snapshot, protocol-based
   environment/session injection with exact Free as the production default, and a nonpersistent
@@ -335,6 +335,6 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: await explicit owner instruction before beginning C4A-03's recovery and
-currency matrix. Do not infer any distribution authority from C4A-02 completion or the accepted
-build.
+Next suggested task: await an accepted CloudKit architecture and explicit owner instruction before
+beginning C4B-01 sync-data design. Do not implement iCloud, C4C, or distribution work from this
+COM-C4A closeout.

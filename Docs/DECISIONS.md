@@ -2357,3 +2357,17 @@ Consequences: The corrected focused C4A-03 recovery/currency suite passed 20 tes
 failures. This is implementation evidence only: full validation, independent review, hosted green
 CI, and merge remain required. No network, StoreKit, iCloud, release, or distribution authority is
 added.
+
+---
+
+## 2026-08-21 — Close COM-C4A after the recovery and currency matrix
+
+Context: C4A-03 passed independent review and every step of GitHub Actions run `32406654986` at
+reviewed head `138c240`; PR #55 merged it to `main` as `77292c6`.
+
+Decision: Detailed closeout evidence is appended to DEC-COM-027. C4A-01 through C4A-03 are Done,
+so COM-C4A is closed. The accepted retry-only/reinstall recovery boundary remains unchanged.
+
+Consequences: C4B is not started and remains blocked pending an accepted CloudKit architecture
+and explicit owner instruction. This closeout adds no iCloud, network, StoreKit, schema, reset UI,
+release, or distribution authority.

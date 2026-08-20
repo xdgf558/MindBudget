@@ -1711,3 +1711,24 @@ validation produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, an
 17 UI tests, every static gate, the Release build, and every selected coverage threshold passed at
 `/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. C4A-03 is implementation complete pending
 independent review, hosted green CI, and merge.
+
+## 2026-08-21 — Session 59 — Close C4A-03 and COM-C4A after PR #55 merge
+
+Reviewed head `138c240` passed every step of GitHub Actions run `32406654986`, including the
+complete Build and test job and test-report upload. PR #55 merged C4A-03 to `main` as `77292c6`.
+C4A-03 and COM-C4A are therefore Done after independent review, local validation, hosted green CI,
+and merge.
+
+Current-state task maps, requirements, CI baseline, execution packet, project memories, and the
+append-only DEC-COM-027 closeout evidence now carry the same result. No Swift, schema, data,
+migration, network, StoreKit, iCloud, version, Archive/upload, tester, review, or distribution
+behavior changed. C4B remains blocked pending an accepted CloudKit architecture and explicit owner
+instruction; C4C and later phases remain blocked.
+
+The closeout reran `Scripts/validate.sh` against the merged source with only the separately proven
+strict wall-clock benchmark excluded. The host Xcode run produced 441 results: 434 passed, 7
+explicit runtime/opt-in skips, and 0 failed; all 17 UI tests, the Release build, every static gate,
+and every selected coverage threshold passed at
+`/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`. An earlier sandboxed invocation could not
+create Xcode DerivedData and never entered project testing, so it is retained only as an
+environment-permission diagnostic and not promoted as test evidence.

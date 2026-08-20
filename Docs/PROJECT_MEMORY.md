@@ -52,10 +52,10 @@ closing COM-C2. COM-C3 C3-01 passed independent review and green CI and merged t
 `747b628` on 2026-08-14 under the owner's provisional, nonpublic test inputs: US$1.99 Monthly, US$19.99 Annual,
 a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. These are test
 controls rather than final launch economics.
-COM-C4A is now active. C4A-01 is Done after independent review, green CI, and PR #51 merge
-`bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
-it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03's recovery/currency matrix implementation
-is complete pending independent review, hosted green CI, and merge. The audit
+COM-C4A is Done. C4A-01 closed through PR #51 (`bcd56a3`), and C4A-02 closed through PR #53
+(`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
+merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B remains blocked pending an accepted
+CloudKit architecture and explicit owner instruction. The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
 backup/journal/integrity boundary plus explicit currency ownership for the rebuildable merchant
@@ -66,9 +66,9 @@ C4A-02 local owning validation is green: 429 results produced 422 passes, 7 expl
 case separately passed 10/10. Review also proved that a V1 expense may legitimately have no
 derived Merchant cache row, so inventory validates existing cache rows but never invents one.
 Independent review, hosted green CI, and merge are satisfied through PR #53 (`c905415`).
-The owner accepted the retry-only C4A-02 recovery UI on 2026-08-20. An unrecoverable store without
-a trusted backup currently requires app-data deletion or reinstall; any in-app destructive reset
-must be a separate C4A-03 decision with dedicated tests.
+The owner accepted the retry-only C4A-02 recovery UI on 2026-08-20. C4A-03 retained that boundary:
+an unrecoverable store without a trusted backup currently requires app-data deletion or reinstall;
+any future in-app destructive reset requires a separate Accepted decision with dedicated tests.
 A post-merge recheck with final Xcode
 26.6 (`17F113`)
 executed both CHN/USA probes on final iOS 26.4 and 26.5 runtimes, but StoreKit still returned
