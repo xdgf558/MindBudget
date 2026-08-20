@@ -414,7 +414,7 @@ for c4a01_contract in \
   'undocumented persistent-store metadata' \
   'normal cold start never copies the store' \
   'USD, JPY, and KWD' \
-  'C4A-03 remains blocked pending explicit owner instruction' \
+  'C4A-03 implementation is complete pending independent review' \
   'DEC-COM-025'; do
   if ! grep -Fqi "${c4a01_contract}" \
       Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \

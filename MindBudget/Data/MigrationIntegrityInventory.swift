@@ -71,9 +71,12 @@ enum MigrationIntegrityInventory {
             guard category.limitMinorUnits >= 0,
                   let plan = category.plan,
                   planIDs.contains(plan.id),
-                  ExpenseCategory(rawValue: category.categoryRaw) != nil,
-                  categoryKeys.insert("\(plan.id.uuidString):\(category.categoryRaw)").inserted else {
+                  category.limitMinorUnits <= Money.maximumMinorUnits(for: plan.currencyCode),
+                  ExpenseCategory(rawValue: category.categoryRaw) != nil else {
                 throw Error.invalidPersistedAmount
+            }
+            guard categoryKeys.insert("\(plan.id.uuidString):\(category.categoryRaw)").inserted else {
+                throw Error.duplicateIdentity
             }
         }
         for semantics in planSemantics where !planIDs.contains(semantics.planID) {
@@ -185,8 +188,12 @@ enum MigrationIntegrityInventory {
     }
 
     private static func validatePlan(_ plan: BudgetPlan) throws -> String {
-        guard Money.isSupported(plan.currencyCode),
-              [plan.monthlyIncomeMinorUnits, plan.totalBudgetMinorUnits, plan.fixedExpensesMinorUnits, plan.savingGoalMinorUnits].allSatisfy({ $0 >= 0 }) else { throw Error.invalidPersistedAmount }
+        guard Money.isSupported(plan.currencyCode) else { throw Error.unsupportedCurrency }
+        let maximum = Money.maximumMinorUnits(for: plan.currencyCode)
+        guard [plan.monthlyIncomeMinorUnits, plan.totalBudgetMinorUnits, plan.fixedExpensesMinorUnits, plan.savingGoalMinorUnits]
+            .allSatisfy({ (0...maximum).contains($0) }) else {
+            throw Error.invalidPersistedAmount
+        }
         return plan.currencyCode
     }
 
@@ -250,6 +257,9 @@ enum MigrationIntegrityInventory {
         for value in payload.values {
             if case let .money(money) = value {
                 guard Money.isSupported(money.currencyCode) else { throw Error.invalidPersistedAmount }
+                // Insight payloads are derived aggregates/deltas, not individual accepted entries.
+                // `Money.maximumMinorUnits` intentionally limits entry values to leave aggregate
+                // headroom, so it must not reject an otherwise representable Int64 derived fact.
                 currencies.insert(money.currencyCode)
             }
         }

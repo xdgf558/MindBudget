@@ -54,8 +54,9 @@ a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. T
 controls rather than final launch economics.
 COM-C4A is now active. C4A-01 is Done after independent review, green CI, and PR #51 merge
 `bcd56a3`. Reviewed C4A-02 head `9d2171d` passed GitHub Actions run `32375823770`; PR #53 merged
-it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03 remains blocked pending explicit owner
-instruction. The audit found no V1–V4 floating-point amount conversion to perform:
+it as `c905415` on 2026-08-20, so C4A-02 is Done. C4A-03's recovery/currency matrix implementation
+is complete pending independent review, hosted green CI, and merge. The audit
+found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
 backup/journal/integrity boundary plus explicit currency ownership for the rebuildable merchant
 aggregate cache. App Store Connect accepted 0.9.8 (9) on 2026-08-17; no tester assignment,

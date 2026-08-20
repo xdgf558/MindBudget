@@ -66,10 +66,18 @@ struct StoreMigrationRecoveryCoordinator: @unchecked Sendable {
 
     private let storeURL: URL
     private let fileManager: FileManager
+    /// Internal deterministic fault seam for the C4A-03 recovery matrix. Production uses the
+    /// default no-op; it exposes no user action and does not participate in recovery decisions.
+    private let beforeRestoreArtifactCopy: @Sendable (String) throws -> Void
 
-    init(storeURL: URL, fileManager: FileManager = .default) {
+    init(
+        storeURL: URL,
+        fileManager: FileManager = .default,
+        beforeRestoreArtifactCopy: @escaping @Sendable (String) throws -> Void = { _ in }
+    ) {
         self.storeURL = storeURL
         self.fileManager = fileManager
+        self.beforeRestoreArtifactCopy = beforeRestoreArtifactCopy
     }
 
     var hasExistingStore: Bool {
@@ -308,6 +316,7 @@ struct StoreMigrationRecoveryCoordinator: @unchecked Sendable {
             guard let destination = liveArtifacts().first(where: { $0.name == artifact.name })?.url else {
                 throw RecoveryError.unreadableManifest
             }
+            try beforeRestoreArtifactCopy(artifact.name)
             try fileManager.copyItem(at: source, to: destination)
             try applyProtection(to: destination)
         }

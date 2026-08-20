@@ -1955,11 +1955,10 @@ actor DataActor {
         }
         // Overcommitted plans remain valid input. Phase 2 derives a zero free budget
         // and preserves negative availability instead of rejecting the user's plan.
-        guard draft.monthlyIncomeMinorUnits >= 0,
-              draft.totalBudgetMinorUnits >= 0,
-              draft.fixedExpensesMinorUnits >= 0,
-              draft.savingGoalMinorUnits >= 0,
-              draft.categoryBudgets.allSatisfy({ $0.limitMinorUnits >= 0 }) else {
+        let maximum = Money.maximumMinorUnits(for: draft.currencyCode)
+        guard [draft.monthlyIncomeMinorUnits, draft.totalBudgetMinorUnits, draft.fixedExpensesMinorUnits, draft.savingGoalMinorUnits]
+            .allSatisfy({ (0...maximum).contains($0) }),
+              draft.categoryBudgets.allSatisfy({ (0...maximum).contains($0.limitMinorUnits) }) else {
             throw DataValidationError.invalidBudgetAmount
         }
         let categories = draft.categoryBudgets.map(\.category)

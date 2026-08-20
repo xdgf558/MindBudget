@@ -993,3 +993,512 @@ struct StoreMigrationRecoveryTests {
         return root
     }
 }
+
+private enum C4A03LegacyStore: String, CaseIterable {
+    case v1 = "V1"
+    case v2 = "V2"
+    case v3 = "V3"
+    case v4 = "V4"
+}
+
+private enum C4A03InjectedRestoreFailure: Error {
+    case beforeArtifactCopy
+}
+
+@MainActor
+struct C4A03RecoveryAndCurrencyMatrixTests {
+    @Test
+    func everyLegacySchemaUpgradesCleanlyToV5AndRepeatedRestartPreservesItsExactExpense() async throws {
+        for legacy in C4A03LegacyStore.allCases {
+            let root = try makeRoot()
+            defer { try? FileManager.default.removeItem(at: root) }
+            let storeURL = root.appendingPathComponent("MindBudget.store")
+            let expenseID = try seedLegacyStore(legacy, at: storeURL, amountMinorUnits: 1_234)
+
+            let firstOpen = try await upgradedSnapshot(at: storeURL)
+            #expect(firstOpen.ids == [expenseID], "\(legacy.rawValue) clean upgrade")
+            #expect(firstOpen.amounts == [1_234])
+            #expect(firstOpen.incomeCount == legacy.expectedIncomeCount)
+            #expect(firstOpen.incomeAmounts == legacy.expectedIncomeAmounts)
+            #expect(firstOpen.savingsGoalCount == legacy.expectedSavingsGoalCount)
+            #expect(firstOpen.goalTargetMinorUnits == legacy.expectedGoalTargetMinorUnits)
+            #expect(firstOpen.goalStartingBalanceMinorUnits == legacy.expectedGoalStartingBalanceMinorUnits)
+            #expect(firstOpen.budgetPlanSemanticsCount == legacy.expectedBudgetPlanSemanticsCount)
+            #expect(firstOpen.planMonthlyIncomeMinorUnits == legacy.expectedPlanMonthlyIncomeMinorUnits)
+            #expect(firstOpen.planAuthority == legacy.expectedPlanAuthority)
+
+            let restarted = try await upgradedSnapshot(at: storeURL)
+            #expect(restarted.ids == [expenseID], "\(legacy.rawValue) repeated restart")
+            #expect(restarted.merchantAccountingContexts == 0, "migration must not invent a Merchant companion")
+            #expect(restarted.incomeCount == legacy.expectedIncomeCount)
+            #expect(restarted.incomeAmounts == legacy.expectedIncomeAmounts)
+            #expect(restarted.savingsGoalCount == legacy.expectedSavingsGoalCount)
+            #expect(restarted.goalTargetMinorUnits == legacy.expectedGoalTargetMinorUnits)
+            #expect(restarted.goalStartingBalanceMinorUnits == legacy.expectedGoalStartingBalanceMinorUnits)
+            #expect(restarted.budgetPlanSemanticsCount == legacy.expectedBudgetPlanSemanticsCount)
+            #expect(restarted.planMonthlyIncomeMinorUnits == legacy.expectedPlanMonthlyIncomeMinorUnits)
+            #expect(restarted.planAuthority == legacy.expectedPlanAuthority)
+        }
+    }
+
+    @Test
+    func everyLegacySchemaInterruptedBeforeOpenRestoresThenUpgradesAndRestarts() async throws {
+        for legacy in C4A03LegacyStore.allCases {
+            let root = try makeRoot()
+            defer { try? FileManager.default.removeItem(at: root) }
+            let storeURL = root.appendingPathComponent("MindBudget.store")
+            let expenseID = try seedLegacyStore(legacy, at: storeURL, amountMinorUnits: 4_250)
+
+            let coordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
+            let prepared = try coordinator.prepareForOpen()
+            let attempt = try #require(prepared)
+            try coordinator.markMigrating(attempt)
+            try Data("interrupted-open".utf8).write(to: storeURL)
+
+            let recovered = try await upgradedSnapshot(at: storeURL)
+            #expect(recovered.ids == [expenseID], "\(legacy.rawValue) interrupted upgrade")
+            #expect(recovered.amounts == [4_250])
+            #expect(recovered.incomeCount == legacy.expectedIncomeCount)
+            #expect(recovered.incomeAmounts == legacy.expectedIncomeAmounts)
+            #expect(recovered.savingsGoalCount == legacy.expectedSavingsGoalCount)
+            #expect(recovered.goalTargetMinorUnits == legacy.expectedGoalTargetMinorUnits)
+            #expect(recovered.goalStartingBalanceMinorUnits == legacy.expectedGoalStartingBalanceMinorUnits)
+            #expect(recovered.budgetPlanSemanticsCount == legacy.expectedBudgetPlanSemanticsCount)
+            #expect(recovered.planMonthlyIncomeMinorUnits == legacy.expectedPlanMonthlyIncomeMinorUnits)
+            #expect(recovered.planAuthority == legacy.expectedPlanAuthority)
+
+            let restarted = try await upgradedSnapshot(at: storeURL)
+            #expect(restarted.ids == [expenseID], "\(legacy.rawValue) restart after restore")
+            #expect(restarted.incomeCount == legacy.expectedIncomeCount)
+            #expect(restarted.incomeAmounts == legacy.expectedIncomeAmounts)
+            #expect(restarted.savingsGoalCount == legacy.expectedSavingsGoalCount)
+            #expect(restarted.goalTargetMinorUnits == legacy.expectedGoalTargetMinorUnits)
+            #expect(restarted.goalStartingBalanceMinorUnits == legacy.expectedGoalStartingBalanceMinorUnits)
+            #expect(restarted.budgetPlanSemanticsCount == legacy.expectedBudgetPlanSemanticsCount)
+            #expect(restarted.planMonthlyIncomeMinorUnits == legacy.expectedPlanMonthlyIncomeMinorUnits)
+            #expect(restarted.planAuthority == legacy.expectedPlanAuthority)
+        }
+    }
+
+    @Test
+    func restoreFailureAfterLiveRemovalLeavesTheJournalAndBackupForARepeatableRecovery() throws {
+        let root = try makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let original = Data("recoverable-original".utf8)
+        try original.write(to: storeURL)
+
+        let failing = StoreMigrationRecoveryCoordinator(
+            storeURL: storeURL,
+            beforeRestoreArtifactCopy: { _ in throw C4A03InjectedRestoreFailure.beforeArtifactCopy }
+        )
+        let prepared = try failing.prepareForOpen()
+        let attempt = try #require(prepared)
+        try failing.markMigrating(attempt)
+        try Data("mutated-live-store".utf8).write(to: storeURL)
+
+        #expect(throws: C4A03InjectedRestoreFailure.self) {
+            try failing.restore(attempt, reason: .inventoryRejected)
+        }
+        let recoveryRoot = root.appendingPathComponent("MindBudgetMigrationRecovery", isDirectory: true)
+        #expect(FileManager.default.fileExists(atPath: recoveryRoot.appendingPathComponent("journal.json").path))
+        #expect(!FileManager.default.fileExists(atPath: storeURL.path), "fault occurs after live bytes are removed")
+
+        let resumed = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
+        let resumedPrepared = try resumed.prepareForOpen()
+        let resumedAttempt = try #require(resumedPrepared)
+        #expect(try Data(contentsOf: storeURL) == original)
+        try resumed.markMigrating(resumedAttempt)
+        try resumed.markValidating(resumedAttempt)
+        try resumed.commit(resumedAttempt)
+        #expect(try resumed.prepareForOpen() == nil)
+        #expect(try resumed.prepareForOpen() == nil, "terminal committed recovery is idempotent")
+    }
+
+    @Test
+    func failedValidationRestoresTheLegacyStoreWithoutZeroingItsInvalidFact() throws {
+        let root = try makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("MindBudget.store")
+        let expenseID = try seedLegacyStore(.v4, at: storeURL, amountMinorUnits: -1)
+
+        #expect(throws: (any Error).self) {
+            _ = try DataController(storeURL: storeURL)
+        }
+
+        let schema = Schema(versionedSchema: SchemaV4.self)
+        let configuration = ModelConfiguration("MindBudget", schema: schema, url: storeURL, allowsSave: true)
+        let legacyContainer = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(legacyContainer)
+        let recovered = try #require(try context.fetch(FetchDescriptor<Expense>()).first { $0.id == expenseID })
+        #expect(recovered.amountMinorUnits == -1)
+        #expect(recovered.currencyCode == "USD")
+    }
+
+    @Test
+    func inventoryAcceptsUSDJPYAndKWDWithZeroGoalAndSignedDerivedDeltaBeyondTheEntryBound() throws {
+        for fixture in [("USD", 2), ("JPY", 0), ("KWD", 3)] {
+            let controller = try DataController(isStoredInMemoryOnly: true)
+            let context = ModelContext(controller.container)
+            let amount = Money(decimal: Decimal(string: "1.234", locale: Locale(identifier: "en_US_POSIX"))!, currencyCode: fixture.0)
+            #expect(amount.exponent == fixture.1)
+            context.insert(makeExpense(amountMinorUnits: max(1, amount.minorUnits), currencyCode: fixture.0))
+            context.insert(
+                SavingsGoal(
+                    id: UUID(), targetMinorUnits: 0, startingBalanceMinorUnits: 0, currencyCode: fixture.0,
+                    createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+                )
+            )
+            let maximum = Money.maximumMinorUnits(for: fixture.0)
+            let plan = BudgetPlan(
+                id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: fixture.0,
+                monthlyIncomeMinorUnits: maximum, totalBudgetMinorUnits: maximum, fixedExpensesMinorUnits: 0,
+                savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+            )
+            context.insert(plan)
+            context.insert(
+                CategoryBudget(
+                    id: UUID(), categoryRaw: ExpenseCategory.food.rawValue, limitMinorUnits: maximum,
+                    warningThresholdBasisPoints: 8_000, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, plan: plan
+                )
+            )
+            context.insert(makeInsight(payload: try payloadJSON(.money(Money(minorUnits: -(maximum + 1), currencyCode: fixture.0)))))
+            try context.save()
+            try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+        }
+    }
+
+    @Test
+    func inventoryRejectsOutOfBoundBudgetPlanWithoutRepairingIt() throws {
+        let maximum = Money.maximumMinorUnits(for: "USD")
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let context = ModelContext(controller.container)
+        let plan = BudgetPlan(
+            id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+            monthlyIncomeMinorUnits: maximum + 1, totalBudgetMinorUnits: 0, fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+        )
+        context.insert(plan)
+        try context.save()
+
+        #expect(throws: MigrationIntegrityInventory.Error.invalidPersistedAmount) {
+            try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+        }
+        #expect(plan.monthlyIncomeMinorUnits == maximum + 1)
+    }
+
+    @Test
+    func inventoryRejectsOutOfBoundCategoryWithoutRepairingIt() throws {
+        let maximum = Money.maximumMinorUnits(for: "USD")
+        let categoryController = try DataController(isStoredInMemoryOnly: true)
+        let categoryContext = ModelContext(categoryController.container)
+        let plan = BudgetPlan(
+            id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+            monthlyIncomeMinorUnits: 0, totalBudgetMinorUnits: 0, fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+        )
+        let category = CategoryBudget(
+            id: UUID(), categoryRaw: ExpenseCategory.food.rawValue, limitMinorUnits: maximum + 1,
+            warningThresholdBasisPoints: 8_000, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, plan: plan
+        )
+        categoryContext.insert(plan)
+        categoryContext.insert(category)
+        try categoryContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.invalidPersistedAmount) {
+            try MigrationIntegrityInventory.validateAndRepair(in: categoryController.container)
+        }
+        #expect(category.limitMinorUnits == maximum + 1)
+
+    }
+
+    @Test
+    func writerAndInventoryBothRejectBudgetAmountsAboveTheAcceptedMaximum() async throws {
+        let maximum = Money.maximumMinorUnits(for: "USD")
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let accepted = BudgetPlanDraft(
+            id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+            monthlyIncomeMinorUnits: maximum, totalBudgetMinorUnits: 0, fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now,
+            categoryBudgets: [
+                CategoryBudgetDraft(
+                    id: UUID(), category: .food, limitMinorUnits: maximum, warningThresholdBasisPoints: 8_000,
+                    createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+                )
+            ]
+        )
+        let stored = try await actor.createBudgetPlan(accepted)
+        #expect(stored.monthlyIncomeMinorUnits == maximum)
+        #expect(stored.categoryBudgets.first?.limitMinorUnits == maximum)
+        let plan = BudgetPlanDraft(
+            id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+            monthlyIncomeMinorUnits: maximum + 1, totalBudgetMinorUnits: 0, fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+        )
+        await #expect(throws: DataValidationError.invalidBudgetAmount) {
+            _ = try await actor.createBudgetPlan(plan)
+        }
+    }
+
+    @Test
+    func allocationOverflowAndBrokenReferenceFailClosedWithoutInventingZeros() throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let context = ModelContext(controller.container)
+        let income = Income(
+            id: UUID(), amountMinorUnits: 100, currencyCode: "USD", categoryRaw: IncomeCategory.salary.rawValue,
+            sourceName: nil, note: nil, receivedAt: TestFixtures.now, receivedTimeZoneIdentifier: "UTC",
+            createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+        )
+        context.insert(income)
+        context.insert(
+            IncomeAllocation(
+                id: UUID(), incomeID: income.id, budgetPlanID: nil, allocatedToBudgetMinorUnits: Int64.max,
+                allocatedToSavingsMinorUnits: 1, createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+            )
+        )
+        try context.save()
+
+        #expect(throws: MigrationIntegrityInventory.Error.invalidPersistedAmount) {
+            try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+        }
+    }
+
+    @Test
+    func brokenReferenceUnsupportedCurrencyAndMerchantContextAnomaliesPreserveExistingNonzeroFacts() throws {
+        let brokenReference = try DataController(isStoredInMemoryOnly: true)
+        let brokenContext = ModelContext(brokenReference.container)
+        let income = Income(
+            id: UUID(), amountMinorUnits: 100, currencyCode: "USD", categoryRaw: IncomeCategory.salary.rawValue,
+            sourceName: nil, note: nil, receivedAt: TestFixtures.now, receivedTimeZoneIdentifier: "UTC",
+            createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+        )
+        brokenContext.insert(income)
+        brokenContext.insert(
+            IncomeAllocation(
+                id: UUID(), incomeID: income.id, budgetPlanID: UUID(), allocatedToBudgetMinorUnits: 10,
+                allocatedToSavingsMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+            )
+        )
+        try brokenContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.invalidPersistedAmount) {
+            try MigrationIntegrityInventory.validateAndRepair(in: brokenReference.container)
+        }
+        #expect(income.amountMinorUnits == 100)
+
+        let unsupported = try DataController(isStoredInMemoryOnly: true)
+        let unsupportedContext = ModelContext(unsupported.container)
+        let invalidExpense = makeExpense(amountMinorUnits: 99, currencyCode: "ZZZ")
+        unsupportedContext.insert(invalidExpense)
+        try unsupportedContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.unsupportedCurrency) {
+            try MigrationIntegrityInventory.validateAndRepair(in: unsupported.container)
+        }
+        #expect(invalidExpense.amountMinorUnits == 99)
+
+        let merchantController = try DataController(isStoredInMemoryOnly: true)
+        let merchantContext = ModelContext(merchantController.container)
+        let merchant = Merchant(
+            id: UUID(), normalizedName: "orphan", displayName: "Orphan", primaryCategoryRaw: nil,
+            visitCount: 1, lastVisitedAt: nil, totalMinorUnitsAllTime: 777
+        )
+        merchantContext.insert(merchant)
+        try merchantContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.invalidMerchantAggregate) {
+            try MigrationIntegrityInventory.validateAndRepair(in: merchantController.container)
+        }
+        #expect(merchant.totalMinorUnitsAllTime == 777)
+
+        let orphanContextController = try DataController(isStoredInMemoryOnly: true)
+        let orphanContext = ModelContext(orphanContextController.container)
+        let accountingContext = MerchantAccountingContext(merchantID: UUID(), currencyCode: "USD")
+        orphanContext.insert(accountingContext)
+        try orphanContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.invalidMerchantAggregate) {
+            try MigrationIntegrityInventory.validateAndRepair(in: orphanContextController.container)
+        }
+        #expect(accountingContext.currencyCode == "USD")
+    }
+
+    @Test
+    func duplicateCategoryIdentityIsRejectedWithoutDiscardingEitherLimit() throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let context = ModelContext(controller.container)
+        let plan = BudgetPlan(
+            id: UUID(), cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+            monthlyIncomeMinorUnits: 0, totalBudgetMinorUnits: 0, fixedExpensesMinorUnits: 0,
+            savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+        )
+        let first = CategoryBudget(
+            id: UUID(), categoryRaw: ExpenseCategory.food.rawValue, limitMinorUnits: 100,
+            warningThresholdBasisPoints: 8_000, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, plan: plan
+        )
+        let second = CategoryBudget(
+            id: UUID(), categoryRaw: ExpenseCategory.food.rawValue, limitMinorUnits: 200,
+            warningThresholdBasisPoints: 8_000, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, plan: plan
+        )
+        context.insert(plan)
+        context.insert(first)
+        context.insert(second)
+        try context.save()
+        #expect(throws: MigrationIntegrityInventory.Error.duplicateIdentity) {
+            try MigrationIntegrityInventory.validateAndRepair(in: controller.container)
+        }
+        #expect(first.limitMinorUnits == 100)
+        #expect(second.limitMinorUnits == 200)
+    }
+
+    @Test
+    func crossCurrencyAndUnreadablePayloadAreIndependentClosedAnomalies() throws {
+        let crossCurrency = try DataController(isStoredInMemoryOnly: true)
+        let crossContext = ModelContext(crossCurrency.container)
+        let expense = makeExpense(amountMinorUnits: 100, currencyCode: "USD")
+        let income = Income(
+            id: UUID(), amountMinorUnits: 100, currencyCode: "JPY", categoryRaw: IncomeCategory.salary.rawValue,
+            sourceName: nil, note: nil, receivedAt: TestFixtures.now, receivedTimeZoneIdentifier: "UTC",
+            createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+        )
+        crossContext.insert(expense)
+        crossContext.insert(income)
+        try crossContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.mixedAccountingCurrency) {
+            try MigrationIntegrityInventory.validateAndRepair(in: crossCurrency.container)
+        }
+        #expect(expense.amountMinorUnits == 100)
+        #expect(income.amountMinorUnits == 100)
+
+        let unreadable = try DataController(isStoredInMemoryOnly: true)
+        let unreadableContext = ModelContext(unreadable.container)
+        let malformedInsight = makeInsight(payload: "{not-json")
+        unreadableContext.insert(malformedInsight)
+        try unreadableContext.save()
+        #expect(throws: MigrationIntegrityInventory.Error.invalidPersistedAmount) {
+            try MigrationIntegrityInventory.validateAndRepair(in: unreadable.container)
+        }
+        #expect(malformedInsight.payloadJSON == "{not-json")
+    }
+
+    private func makeRoot() throws -> URL {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        return root
+    }
+
+    private func seedLegacyStore(_ legacy: C4A03LegacyStore, at storeURL: URL, amountMinorUnits: Int64) throws -> UUID {
+        let schema: Schema
+        switch legacy {
+        case .v1: schema = Schema(versionedSchema: SchemaV1.self)
+        case .v2: schema = Schema(versionedSchema: SchemaV2.self)
+        case .v3: schema = Schema(versionedSchema: SchemaV3.self)
+        case .v4: schema = Schema(versionedSchema: SchemaV4.self)
+        }
+        let configuration = ModelConfiguration("MindBudget", schema: schema, url: storeURL, allowsSave: true)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let expenseID = UUID()
+        context.insert(makeExpense(id: expenseID, amountMinorUnits: amountMinorUnits, currencyCode: "USD"))
+        switch legacy {
+        case .v1:
+            break
+        case .v2:
+            context.insert(legacyIncome())
+        case .v3:
+            context.insert(legacyIncome())
+            context.insert(
+                SavingsGoal(
+                    id: UUID(), targetMinorUnits: 1_000, startingBalanceMinorUnits: 0, currencyCode: "USD",
+                    createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+                )
+            )
+        case .v4:
+            context.insert(legacyIncome())
+            context.insert(
+                SavingsGoal(
+                    id: UUID(), targetMinorUnits: 1_000, startingBalanceMinorUnits: 0, currencyCode: "USD",
+                    createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+                )
+            )
+            let planID = UUID()
+            context.insert(
+                BudgetPlan(
+                    id: planID, cycleStart: TestFixtures.now, cycleEnd: TestFixtures.now.addingTimeInterval(1), currencyCode: "USD",
+                    monthlyIncomeMinorUnits: 100, totalBudgetMinorUnits: 100, fixedExpensesMinorUnits: 0,
+                    savingGoalMinorUnits: 0, createdAt: TestFixtures.now, updatedAt: TestFixtures.now, categoryBudgets: []
+                )
+            )
+            context.insert(BudgetPlanSemantics(planID: planID, authorityRaw: BudgetPlanAuthority.incomeBased.rawValue))
+        }
+        try context.save()
+        return expenseID
+    }
+
+    private func upgradedSnapshot(at storeURL: URL) async throws -> (
+        ids: [UUID],
+        amounts: [Int64],
+        merchantAccountingContexts: Int,
+        incomeCount: Int,
+        incomeAmounts: [Int64],
+        savingsGoalCount: Int,
+        goalTargetMinorUnits: Int64?,
+        goalStartingBalanceMinorUnits: Int64?,
+        budgetPlanSemanticsCount: Int,
+        planMonthlyIncomeMinorUnits: Int64?,
+        planAuthority: BudgetPlanAuthority?
+    ) {
+        let controller = try DataController(storeURL: storeURL)
+        let summaries = try await controller.dataActor.fetchExpenseSummaries()
+        let incomes = try await controller.dataActor.fetchIncomeSummaries()
+        let goal = try await controller.dataActor.fetchSavingsGoalSummary()
+        let plan = try await controller.dataActor.fetchBudgetPlanSummaries().first
+        let counts = try await controller.dataActor.modelCounts()
+        return (
+            summaries.map(\.id), summaries.map { $0.amount.minorUnits }, counts.merchantAccountingContexts,
+            counts.incomes, incomes.map { $0.amount.minorUnits }, counts.savingsGoals,
+            goal?.target.minorUnits, goal?.startingBalance.minorUnits, counts.budgetPlanSemantics,
+            plan?.monthlyIncomeMinorUnits, plan?.authority
+        )
+    }
+
+    private func legacyIncome() -> Income {
+        Income(
+            id: UUID(), amountMinorUnits: 100, currencyCode: "USD", categoryRaw: IncomeCategory.salary.rawValue,
+            sourceName: nil, note: nil, receivedAt: TestFixtures.now, receivedTimeZoneIdentifier: "UTC",
+            createdAt: TestFixtures.now, updatedAt: TestFixtures.now
+        )
+    }
+
+    private func makeExpense(id: UUID = UUID(), amountMinorUnits: Int64, currencyCode: String) -> Expense {
+        Expense(
+            id: id, amountMinorUnits: amountMinorUnits, currencyCode: currencyCode,
+            categoryRaw: ExpenseCategory.food.rawValue, bucketRaw: BudgetBucket.discretionary.rawValue,
+            merchantName: nil, normalizedMerchantName: nil, note: nil, spentAt: TestFixtures.now,
+            spentTimeZoneIdentifier: "UTC", createdAt: TestFixtures.now, updatedAt: TestFixtures.now,
+            paymentMethodRaw: nil, emotionTagRaw: nil, purchaseReasonRaw: nil, isPlanned: false,
+            isRecurring: false, sourceRaw: ExpenseSource.manual.rawValue, allowMerchantIndexing: false
+        )
+    }
+
+    private func makeInsight(payload: String) -> SpendingInsight {
+        SpendingInsight(
+            id: UUID(), dedupeKey: UUID().uuidString, typeRaw: SpendingInsightType.safeToProceed.rawValue,
+            severityRaw: InsightSeverity.info.rawValue, titleKey: "test", bodyKey: "test", payloadJSON: payload,
+            relatedCategoryRaw: nil, relatedEmotionTagRaw: nil, createdAt: TestFixtures.now,
+            periodStart: TestFixtures.now, periodEnd: TestFixtures.now.addingTimeInterval(1),
+            isDismissed: false, dismissedAt: nil
+        )
+    }
+
+    private func payloadJSON(_ value: InsightValue) throws -> String {
+        let data = try SettingsCodec.encode(["value": value])
+        return try #require(String(data: data, encoding: .utf8))
+    }
+}
+
+private extension C4A03LegacyStore {
+    var expectedIncomeCount: Int { self == .v1 ? 0 : 1 }
+    var expectedIncomeAmounts: [Int64] { self == .v1 ? [] : [100] }
+    var expectedSavingsGoalCount: Int { self == .v3 || self == .v4 ? 1 : 0 }
+    var expectedGoalTargetMinorUnits: Int64? { self == .v3 || self == .v4 ? 1_000 : nil }
+    var expectedGoalStartingBalanceMinorUnits: Int64? { self == .v3 || self == .v4 ? 0 : nil }
+    var expectedBudgetPlanSemanticsCount: Int { self == .v4 ? 1 : 0 }
+    var expectedPlanMonthlyIncomeMinorUnits: Int64? { self == .v4 ? 100 : nil }
+    var expectedPlanAuthority: BudgetPlanAuthority? { self == .v4 ? .incomeBased : nil }
+}

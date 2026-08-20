@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4A. C4A-01 and C4A-02 are Done; C4A-03 is blocked pending explicit owner
-  instruction.** C4A-02 passed independent review and GitHub Actions run `32375823770`, then
+- Active phase: **COM-C4A. C4A-01 and C4A-02 are Done; C4A-03 implementation is complete pending
+  independent review.** C4A-02 passed independent review and GitHub Actions run `32375823770`, then
   merged through PR #53 as `c905415` on 2026-08-20. COM-C3 is Done; C3-04 passed independent
   review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
   2026-08-16. C3-03A and C3-03B
@@ -369,11 +369,11 @@ Status: **Done after independent review, GitHub Actions run `32375823770`, and P
 
 ### C4A-03 — Recovery and currency matrix
 
-Status: **Blocked pending explicit owner instruction.**
+Status: **Implementation complete pending independent review.**
 
-- [B] Prove idempotence, interruption rollback,
+- [x] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
-- [B] Reconfirm the owner-accepted retry-only/reinstall recovery boundary before implementation;
+- [x] Retain the owner-accepted retry-only/reinstall recovery boundary;
   an in-app destructive reset requires a separate Accepted decision and dedicated tests.
 
 Exit gate: accepted plan and full money/migration test matrix pass with a rehearsed recovery path.

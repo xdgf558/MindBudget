@@ -597,7 +597,7 @@ artifact before deliberately adding it to version control.
 ## COM-C4A-01 delta-audit verification
 
 Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; C4A-02 is Done
-through PR #53 `c905415`, and C4A-03 is blocked pending explicit owner instruction.**
+through PR #53 `c905415`, and C4A-03 implementation is complete pending independent review.**
 
 The 2026-08-20 C4A-01 audit is documentation and gate work only. It inventories the persisted
 money owners, existing V1 → V2 → V3 → V4 migration evidence, checked-arithmetic/currency
@@ -619,7 +619,7 @@ its local and hosted evidence is recorded below. It does not authorize distribut
 ## COM-C4A-02 local verification
 
 Status: **Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
-`c905415`; C4A-03 is blocked pending explicit owner instruction.**
+`c905415`; C4A-03 implementation is complete pending independent review.**
 
 The final owning validation used final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`)
 iPhone 17e simulator. With only the already documented strict wall-clock diagnostic excluded from
@@ -639,5 +639,29 @@ non-passing diagnostic rather than promoted to evidence. Root review also found 
 compatibility regression: a migrated expense may legitimately have no derived `Merchant` cache
 row, and inventory must not invent a replacement UUID. Reviewed head `9d2171d` then passed every
 step of GitHub Actions run `32375823770`; PR #53 merged it to `main` as `c905415` on 2026-08-20.
-C4A-02 is Done. C4A-03 remains blocked pending explicit owner instruction, and no distribution
+C4A-02 is Done. C4A-03 implementation is complete pending independent review, and no distribution
 gate opened.
+
+## COM-C4A-03 focused recovery/currency verification
+
+The first local focused compilation was not accepted as evidence because three throwing
+`#require` expressions in the new test body were rejected by the Testing macro. The test shape was
+corrected by evaluating each throwing preparation before applying `#require`; the production source
+had no compile errors.
+
+The final corrected focused run passed on 2026-08-20 under final Xcode 26.6 (`17F113`) against
+iOS 26.4.1 device `A86B6BE8-D716-4E1D-A731-6F40BAFBB02F`: 20 tests in 2 suites, 0 failures, at
+`/private/tmp/MindBudget-C4A03-Focused4.xcresult`. It includes the new 12/12 deterministic
+`C4A03RecoveryAndCurrencyMatrixTests` and the existing 8/8 `StoreMigrationRecoveryTests`.
+
+The generic iOS Simulator Release build then succeeded with DerivedData at
+`/private/tmp/MindBudget-C4A03-Release2-DD`. The first shared-load validation attempt missed only
+the existing strict 500 ms Phase 10 Dashboard wall-clock signal; it is diagnostic-only and is not
+promoted as a passing full run. The owning isolated strict performance suite subsequently passed
+10/10 iterations at `/private/tmp/MindBudget-C4A03-StrictPerformance-10x.xcresult`.
+
+The final wall-clock-excluded full validation produced 441 results: 434 passed, 7 explicit
+runtime/opt-in skips, and 0 failed. All 17 UI tests, every static gate, the Release build, and every
+selected core-service coverage threshold passed at
+`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. This local evidence does not replace
+independent review, hosted green CI, or merge evidence.
