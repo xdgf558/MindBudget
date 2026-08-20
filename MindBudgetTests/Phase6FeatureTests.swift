@@ -438,6 +438,7 @@ struct Phase6FeatureTests {
         let recorder = DeletionStageRecorder()
         let notificationScheduler = TestDeletionNotificationScheduler(recorder: recorder)
         let indexCleaner = TestSearchIndexCleaner(recorder: recorder)
+        let recoveryCleaner = TestMigrationRecoveryArtifactDeleter(recorder: recorder)
         let settings = testSettings()
         settings.firstLaunchCompleted = true
         settings.currencyCode = "USD"
@@ -446,13 +447,14 @@ struct Phase6FeatureTests {
         let session = AppSession(
             dataActor: controller.dataActor,
             notificationScheduler: notificationScheduler,
-            searchIndexCleaner: indexCleaner
+            searchIndexCleaner: indexCleaner,
+            migrationRecoveryArtifactDeleter: recoveryCleaner
         )
 
         #expect(await session.deleteAllData(settings: settings))
         let counts = try await controller.dataActor.modelCounts()
 
-        #expect(await recorder.values() == ["notifications", "searchIndex"])
+        #expect(await recorder.values() == ["notifications", "searchIndex", "recoveryArtifacts"])
         #expect(counts.isEmpty)
         #expect(counts == .zero)
         #expect(settings.currencyCode.isEmpty)
@@ -517,6 +519,32 @@ struct Phase6FeatureTests {
         #expect(settings.enableLocalNotifications)
         #expect(session.privacyDeletionState == .failed(.deletingLocalData))
         #expect(await recorder.values() == ["notifications", "searchIndex"])
+    }
+
+    @Test
+    func recoveryArtifactCleanupFailureNeverResetsPreferencesOrReportsSuccess() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        try await controller.dataActor.replaceLocalData(with: TestFixtures.sample(.endOfCycle))
+        let recorder = DeletionStageRecorder()
+        let settings = testSettings()
+        settings.firstLaunchCompleted = true
+        settings.currencyCode = "USD"
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            notificationScheduler: TestDeletionNotificationScheduler(recorder: recorder),
+            searchIndexCleaner: TestSearchIndexCleaner(recorder: recorder),
+            migrationRecoveryArtifactDeleter: TestMigrationRecoveryArtifactDeleter(
+                recorder: recorder,
+                shouldFail: true
+            )
+        )
+
+        #expect(await session.deleteAllData(settings: settings) == false)
+        #expect((try await controller.dataActor.modelCounts()).isEmpty)
+        #expect(settings.firstLaunchCompleted)
+        #expect(settings.currencyCode == "USD")
+        #expect(session.privacyDeletionState == .failed(.deletingLocalData))
+        #expect(await recorder.values() == ["notifications", "searchIndex", "recoveryArtifacts"])
     }
 
     @Test
@@ -823,6 +851,21 @@ private actor TestSearchIndexCleaner: SearchIndexDeleting {
 
     func deleteAll() async throws {
         await recorder?.append("searchIndex")
+        if shouldFail { throw Phase6TestError.forcedFailure }
+    }
+}
+
+private actor TestMigrationRecoveryArtifactDeleter: MigrationRecoveryArtifactDeleting {
+    let recorder: DeletionStageRecorder?
+    let shouldFail: Bool
+
+    init(recorder: DeletionStageRecorder? = nil, shouldFail: Bool = false) {
+        self.recorder = recorder
+        self.shouldFail = shouldFail
+    }
+
+    func deleteRecoveryArtifacts() async throws {
+        await recorder?.append("recoveryArtifacts")
         if shouldFail { throw Phase6TestError.forcedFailure }
     }
 }

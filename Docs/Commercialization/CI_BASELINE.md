@@ -596,7 +596,8 @@ artifact before deliberately adding it to version control.
 
 ## COM-C4A-01 delta-audit verification
 
-Status: **Implementation complete pending independent review; C4A-02 and C4A-03 remain blocked.**
+Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`; C4A-02 is
+implementation complete pending independent review and C4A-03 remains blocked.**
 
 The 2026-08-20 C4A-01 audit is documentation and gate work only. It inventories the persisted
 money owners, existing V1 → V2 → V3 → V4 migration evidence, checked-arithmetic/currency
@@ -611,5 +612,31 @@ selected coverage threshold passed at `/private/tmp/MindBudget-C4A01-Full.xcresu
 `Phase10ReleaseReadinessTests` suite separately executed and passed 2/2 at
 `/private/tmp/MindBudget-C4A01-StrictPerformanceSuite-Retry.xcresult`. An earlier concurrent full
 run measured only the known 500 ms wall-clock diagnostic at 1.046 seconds; it was not used as
-passing evidence. Hosted CI has not run for the C4A-01 branch. Passing C4A-01 does not start C4A-02, change a schema,
-or authorize distribution.
+passing evidence. PR #51 subsequently supplied the independent-review, hosted-green, and merge
+evidence. C4A-02 now adds the approved V5 merchant-currency companion and recovery envelope; its
+final local validation is recorded below, while independent review and hosted CI remain pending.
+It does not authorize distribution.
+
+## COM-C4A-02 local verification
+
+Status: **Implementation complete pending independent review and hosted green CI; C4A-03 remains
+blocked.**
+
+The final owning validation used final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`)
+iPhone 17e simulator. With only the already documented strict wall-clock diagnostic excluded from
+the concurrent full run, `Scripts/validate.sh` completed successfully at
+`/private/tmp/MindBudget-C4A02-Validate-Green-Retry-20260820.xcresult`: 429 results, 422 passed,
+7 explicit runtime/opt-in skips, and 0 failed; 17/17 UI tests, the Release build, all four static
+gates, and every selected core-service coverage threshold passed. The full unit-only run separately
+produced 413 results, 406 passed, 7 skipped, and 0 failed at
+`/private/tmp/MindBudget-C4A02-AllUnits-Final-20260820.xcresult`.
+
+The strict `Phase10ReleaseReadinessTests` performance case then executed ten consecutive isolated
+iterations and passed 10/10 at
+`/private/tmp/MindBudget-C4A02-StrictPerformance-10x-20260820.xcresult`. An earlier concurrent
+default validation measured only that known local wall-clock diagnostic at 1.240605666 seconds;
+all deterministic 10,000-row assertions and all 17 UI tests passed, so that run is retained as a
+non-passing diagnostic rather than promoted to evidence. Root review also found and fixed a V1
+compatibility regression: a migrated expense may legitimately have no derived `Merchant` cache
+row, and inventory must not invent a replacement UUID. C4A-02 still requires independent review,
+hosted green CI, and merge before Done; none of this evidence opens C4A-03 or distribution.

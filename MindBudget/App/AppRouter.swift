@@ -42,6 +42,7 @@ final class AppSession: ObservableObject {
     private let spotlightIndexer: any SpotlightIndexing
     private let navigationStore: MindBudgetNavigationRequestStore
     private let privacyDeletionVerifier: any PrivacyDeletionVerifying
+    private let migrationRecoveryArtifactDeleter: any MigrationRecoveryArtifactDeleting
     private let systemIntegrationCapability: SystemIntegrationCapability
     private let appLockAuthenticator: any AppLockAuthenticating
     private let storeCatalog: StoreCatalog?
@@ -116,6 +117,7 @@ final class AppSession: ObservableObject {
         spotlightIndexer: any SpotlightIndexing = SpotlightIndexingService(),
         navigationStore: MindBudgetNavigationRequestStore = MindBudgetNavigationRequestStore(),
         privacyDeletionVerifier: any PrivacyDeletionVerifying = ModelCountPrivacyDeletionVerifier(),
+        migrationRecoveryArtifactDeleter: any MigrationRecoveryArtifactDeleting = NoopMigrationRecoveryArtifactDeleter(),
         systemIntegrationCapability: SystemIntegrationCapability = SystemIntegrationCapability(),
         appLockAuthenticator: any AppLockAuthenticating = LocalAppLockAuthenticator(),
         featureAccessService: any FeatureAccessChecking = FeatureAccessService(),
@@ -133,6 +135,7 @@ final class AppSession: ObservableObject {
         self.spotlightIndexer = spotlightIndexer
         self.navigationStore = navigationStore
         self.privacyDeletionVerifier = privacyDeletionVerifier
+        self.migrationRecoveryArtifactDeleter = migrationRecoveryArtifactDeleter
         self.systemIntegrationCapability = systemIntegrationCapability
         self.appLockAuthenticator = appLockAuthenticator
         self.storeCatalog = storeCatalog
@@ -637,6 +640,7 @@ final class AppSession: ObservableObject {
         privacyDeletionState = .inProgress(.deletingLocalData)
         do {
             try await dataActor.deleteAllUserData()
+            try await migrationRecoveryArtifactDeleter.deleteRecoveryArtifacts()
             guard try await privacyDeletionVerifier.isDeletionComplete(in: dataActor) else {
                 privacyDeletionState = .failed(.deletingLocalData)
                 return false
@@ -698,6 +702,7 @@ struct AppRouter: View {
                 searchIndexCleaner: searchIndexCleaner,
                 spotlightIndexer: spotlightIndexer,
                 navigationStore: navigationStore,
+                migrationRecoveryArtifactDeleter: dataController.migrationRecoveryArtifactDeleter,
                 appLockAuthenticator: appLockAuthenticator,
                 featureAccessService: featureAccessService,
                 storeCatalog: storeCatalog,

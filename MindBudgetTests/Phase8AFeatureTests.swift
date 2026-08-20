@@ -594,7 +594,7 @@ struct Phase8AFeatureTests {
         MerchantSummary(
             id: UUID(), normalizedName: name.lowercased(), displayName: name,
             primaryCategory: .coffee, visitCount: 1, lastVisitedAt: TestFixtures.now,
-            totalMinorUnitsAllTime: 12_345
+            totalMinorUnitsAllTime: 12_345, accountingCurrencyCode: "USD"
         )
     }
 

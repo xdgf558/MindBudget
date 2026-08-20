@@ -1584,3 +1584,73 @@ network-egress contract and does not claim that the signed public-configuration 
 
 No commercial phase, product, price, trial, entitlement, network allow-list, Worker deployment,
 schema, build, upload, tester, review, or distribution state changed.
+
+## 2026-08-20 — Session 52 — Implement C4A-02 recoverable migration envelope
+
+C4A-01 is now Done after PR #51 merge `bcd56a3` and green CI. C4A-02 adds only the accepted
+delta: Schema V5's `MerchantAccountingContext` companion, an app-owned pre-open SQLite
+store/sidecar recovery snapshot and journal, post-open inventory, checksum-gated restore, closed
+reason-code anomaly records, and Delete All cleanup of pending recovery artifacts. V1–V4 amounts
+and stable identities remain untouched; merchant repair is limited to rebuilding the existing
+derived total and currency companion from validated same-currency expenses. C4A-03 remains blocked
+and owns the full interrupted-version/currency/anomaly evidence matrix. Independent review and
+green CI remain required before C4A-02 is marked Done.
+
+## 2026-08-20 — Session 53 — Complete C4A-02 safety edges and focused evidence
+
+The recovery coordinator now validates durable journal identifiers, target, fixed manifest name,
+and recovery-directory identity before using any persisted path. Its manifest accepts exactly the
+known store artifacts, requires the main store, rejects duplicates, verifies every digest before
+touching the live store, and restores only a previously trusted committed source marker. A clean
+fast path does no copy or inventory scan; no-store creates no backup. Successful commit clears the
+backup/journal while retaining an existing closed anomaly report; Delete All alone clears all
+recovery artifacts.
+
+The V5 inventory validates all persisted money owners and required live companions before building
+one merchant-only repair plan. It never changes Merchant UUID/name/display/category/visit facts,
+never invents or drops a merchant, and fails closed on ambiguous currency or malformed data.
+Historical recurring and reflection IDs remain valid provenance after ordinary deletion. Focused
+tests cover interrupted byte restoration, checksum refusal without live overwrite, uncommitted
+marker rejection, journal path traversal rejection, merchant context/aggregate repair, late
+inventory failure with no partial repair, ordinary recurring-origin deletion, and Delete All
+artifact-cleanup success/failure. The iOS 26.4 targeted suite, build-for-testing, all four static
+gates, and diff check passed; C4A-02 awaits independent review and hosted CI, and C4A-03 remains
+blocked.
+
+## 2026-08-20 — Session 54 — Independently harden and validate the C4A-02 candidate
+
+Root review refined the recovery transaction boundary after the Terra implementation. A committed
+target marker plus committed journal is now the durable success boundary; deletion of terminal
+backup/journal artifacts is best effort and retried on the next cold start or Delete All, so a
+cleanup failure can never initiate rollback after part of the backup has already disappeared.
+Directory digests now hash a canonical sorted manifest of relative path, byte count, and SHA-256
+rather than ambiguous concatenated file bytes.
+
+The first full unit run exposed one real V1 compatibility regression. A legacy expense can carry a
+normalized merchant name without a separately materialized derived `Merchant` row. Inventory now
+requires every existing Merchant cache row to be supported by verified expenses, but treats a
+missing cache row as valid and never invents a UUID. The V1 migration regression test explicitly
+locks that boundary. The final unit-only result was 413 total, 406 passed, 7 skipped, and 0 failed.
+
+Final Xcode 26.6 (`17F113`) validation on iOS 26.4.1 (`23E254a`) produced 429 results: 422 passed,
+7 explicit runtime/opt-in skips, and 0 failed, including 17/17 UI tests, Release, all static gates,
+and every selected coverage threshold at
+`/private/tmp/MindBudget-C4A02-Validate-Green-Retry-20260820.xcresult`. The strict performance case
+passed 10/10 isolated iterations at
+`/private/tmp/MindBudget-C4A02-StrictPerformance-10x-20260820.xcresult`. An earlier concurrent run
+measured only the known local wall-clock diagnostic at 1.240605666 seconds and is not claimed as a
+pass. C4A-02 remains implementation complete pending independent review and hosted green CI;
+C4A-03 and distribution remain blocked.
+
+## 2026-08-20 — Session 55 — Accept the C4A-02 recovery UI boundary
+
+After independent PR #53 review, the owner accepted the current fail-closed recovery product
+boundary. `StoreRecoveryView` remains retry-only in C4A-02. If neither the live store nor a trusted
+backup can be opened, self-recovery currently requires deleting the app data container or
+reinstalling; Delete All cannot run before the store opens. This is an explicit accepted limitation,
+not an accidental omission.
+
+C4A-03 must either preserve this boundary or obtain a separate Accepted decision and dedicated
+tests before adding an in-app destructive reset. No Swift, schema, migration, data, version,
+distribution, or network behavior changed. PR #53 remains pending hosted green CI and merge;
+C4A-03 remains blocked.

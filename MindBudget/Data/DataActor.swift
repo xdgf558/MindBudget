@@ -1570,7 +1570,8 @@ actor DataActor {
             savingsGoals: try modelContext.fetchCount(FetchDescriptor<SavingsGoal>()),
             recurringRules: try modelContext.fetchCount(FetchDescriptor<RecurringFixedExpenseRule>()),
             recurringOccurrences: try modelContext.fetchCount(FetchDescriptor<RecurringExpenseOccurrence>()),
-            incomeAllocations: try modelContext.fetchCount(FetchDescriptor<IncomeAllocation>())
+            incomeAllocations: try modelContext.fetchCount(FetchDescriptor<IncomeAllocation>()),
+            merchantAccountingContexts: try modelContext.fetchCount(FetchDescriptor<MerchantAccountingContext>())
         )
     }
 
@@ -1583,7 +1584,8 @@ actor DataActor {
     func fetchMerchantSummaries() throws -> [MerchantSummary] {
         let descriptor = FetchDescriptor<Merchant>(sortBy: [SortDescriptor(\Merchant.displayName)])
         return try modelContext.fetch(descriptor).map { merchant in
-            MerchantSummary(
+            let accountingCurrencyCode = try merchantAccountingCurrencyCode(for: merchant)
+            return MerchantSummary(
                 id: merchant.id,
                 normalizedName: merchant.normalizedName,
                 displayName: merchant.displayName,
@@ -1596,7 +1598,8 @@ actor DataActor {
                 ),
                 visitCount: merchant.visitCount,
                 lastVisitedAt: merchant.lastVisitedAt,
-                totalMinorUnitsAllTime: merchant.totalMinorUnitsAllTime
+                totalMinorUnitsAllTime: merchant.totalMinorUnitsAllTime,
+                accountingCurrencyCode: accountingCurrencyCode
             )
         }
     }
@@ -1656,6 +1659,7 @@ actor DataActor {
         for model in try modelContext.fetch(FetchDescriptor<ReminderEvent>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<SpendingInsight>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<ReflectionLog>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<MerchantAccountingContext>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<Merchant>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<WishItem>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<BudgetPlanSemantics>()) { modelContext.delete(model) }
@@ -2346,6 +2350,9 @@ actor DataActor {
 
         guard !expenses.isEmpty else {
             if let existingMerchant {
+                if let context = try merchantAccountingContext(for: existingMerchant.id) {
+                    modelContext.delete(context)
+                }
                 modelContext.delete(existingMerchant)
             }
             return
@@ -2353,7 +2360,17 @@ actor DataActor {
 
         var totalMinorUnits: Int64 = 0
         var categoryCounts: [ExpenseCategory: Int] = [:]
+        var accountingCurrencyCode: String?
         for expense in expenses {
+            try validatePersistedCurrency(expense.currencyCode, entity: "Expense", id: expense.id)
+            guard expense.amountMinorUnits > 0 else { throw DataValidationError.invalidAmount }
+            if let accountingCurrencyCode, accountingCurrencyCode != expense.currencyCode {
+                throw DataValidationError.accountingCurrencyMismatch(
+                    expected: accountingCurrencyCode,
+                    actual: expense.currencyCode
+                )
+            }
+            accountingCurrencyCode = expense.currencyCode
             let (nextTotal, overflow) = totalMinorUnits.addingReportingOverflow(expense.amountMinorUnits)
             guard !overflow else { throw DataValidationError.merchantAggregateOverflow }
             totalMinorUnits = nextTotal
@@ -2396,6 +2413,44 @@ actor DataActor {
         if existingMerchant == nil {
             modelContext.insert(merchant)
         }
+        guard let accountingCurrencyCode else { throw DataValidationError.invalidAmount }
+        if let context = try merchantAccountingContext(for: merchant.id) {
+            context.currencyCode = accountingCurrencyCode
+        } else {
+            modelContext.insert(
+                MerchantAccountingContext(
+                    merchantID: merchant.id,
+                    currencyCode: accountingCurrencyCode
+                )
+            )
+        }
+    }
+
+    private func merchantAccountingContext(for merchantID: UUID) throws -> MerchantAccountingContext? {
+        var descriptor = FetchDescriptor<MerchantAccountingContext>(
+            predicate: #Predicate { $0.merchantID == merchantID }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func merchantAccountingCurrencyCode(for merchant: Merchant) throws -> String {
+        guard let context = try merchantAccountingContext(for: merchant.id) else {
+            // A context-free aggregate is never reinterpreted. The post-open inventory rebuilds
+            // legacy rows from verified expenses before this typed read boundary becomes reachable.
+            throw PersistedModelError.invalidRawValue(
+                entity: "MerchantAccountingContext",
+                id: merchant.id,
+                field: "currencyCode",
+                rawValue: "missing"
+            )
+        }
+        try validatePersistedCurrency(
+            context.currencyCode,
+            entity: "MerchantAccountingContext",
+            id: merchant.id
+        )
+        return context.currencyCode
     }
 
     private func normalizedMerchantName(_ name: String) -> String? {

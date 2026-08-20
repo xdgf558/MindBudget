@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4A. C4A-01 is implementation complete pending independent review;
-  C4A-02 and C4A-03 remain blocked.** COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
+- Active phase: **COM-C4A. C4A-01 is Done after independent review, green CI, and PR #51 merge
+  `bcd56a3`; C4A-02 implementation is complete pending independent review; C4A-03 remains blocked.** COM-C3 is Done. C3-04 passed independent review and GitHub Actions run
   `31918968478`, then merged through PR #40 as `9448ca9` on 2026-08-16.** C3-03A and C3-03B
   remain Done through PR #36 (`1ebb36c`) and PR #38 (`db7926d`). The owner
   accepted the exact first-party configuration contract and two-packet split on 2026-08-14.
@@ -350,17 +350,17 @@ it must not replace correct existing infrastructure merely because v1.4 describe
 
 ### C4A-01 — Delta and migration plan
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
-- [ ] Compare every v1.4 money/migration requirement with
+- [x] Compare every v1.4 money/migration requirement with
   the existing implementation; define signs and anomaly/rollback behavior; mark already-satisfied
   requirements with evidence in `Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md`.
 
 ### C4A-02 — Required migration only
 
-Status: **Blocked by C4A-01 independent review, green CI, and merge.**
+Status: **Implementation complete pending independent review.**
 
-- [B] Implement only missing schema/currency/identifier/
+- [x] Implement only missing schema/currency/identifier/
   backup behavior proven by C4A-01. Unsafe conversion stops and preserves the old store; no value
   passes through `Double`.
 
@@ -370,6 +370,8 @@ Status: **Blocked by C4A-02 independent review, green CI, and merge.**
 
 - [B] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
+- [B] Reconfirm the owner-accepted retry-only/reinstall recovery boundary before implementation;
+  an in-app destructive reset requires a separate Accepted decision and dedicated tests.
 
 Exit gate: accepted plan and full money/migration test matrix pass with a rehearsed recovery path.
 

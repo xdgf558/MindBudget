@@ -29,3 +29,17 @@ final class Merchant {
         self.totalMinorUnitsAllTime = totalMinorUnitsAllTime
     }
 }
+
+/// Currency metadata for the rebuildable merchant aggregate deliberately lives outside
+/// `Merchant`. Keeping this companion model preserves the historical V1–V4 `Merchant`
+/// schema hashes while making the aggregate's accounting currency explicit in Schema V5.
+@Model
+final class MerchantAccountingContext {
+    @Attribute(.unique) var merchantID: UUID
+    var currencyCode: String
+
+    init(merchantID: UUID, currencyCode: String) {
+        self.merchantID = merchantID
+        self.currencyCode = currencyCode
+    }
+}

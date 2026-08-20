@@ -10,9 +10,9 @@ current implementation; the owner-held specification remains frozen through the 
 
 ## C4A-01 — Delta and migration plan
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
-C4A-02 and C4A-03 remain blocked.
+C4A-02 implementation is complete pending independent review. C4A-03 remains blocked.
 
 ### Audit result
 
@@ -102,6 +102,20 @@ C4A-02 may implement only these missing boundaries:
    add a floating-point intermediate, default an invalid value, or run a destructive rewrite only
    to satisfy the shape of a generic specification.
 
+### C4A-02 implementation boundary
+
+C4A-02 adds Schema V5 only for the `MerchantAccountingContext` companion keyed by the existing
+merchant UUID, preserving every V1–V4 model hash and source amount. Existing untrusted stores are
+snapshotted with their SQLite sidecars and support directory before opening; only an app-owned
+committed exact-target marker is copy-free. Post-open inventory may rebuild the merchant total and
+its context only from verified same-currency expenses. It does not reinterpret a historic total or
+modify the merchant's stable identity or presentation fields. A failed open or inventory restores
+the checksum-verified snapshot and writes only a closed reason-code anomaly. After both the target
+marker and journal durably reach committed, backup/journal cleanup is terminal best-effort work:
+cleanup failure cannot roll back a store that already committed, and the next cold start or Delete
+All retries removal. An earlier anomaly is retained for support diagnosis; Delete All removes every
+recovery artifact that can contain local data, including that report.
+
 ### C4A-03 acceptance matrix
 
 C4A-03 remains blocked until C4A-02 passes independent review. It must prove:
@@ -114,13 +128,15 @@ C4A-03 remains blocked until C4A-02 passes independent review. It must prove:
 - unsupported currency, cross-currency, duplicate-identity, broken-reference, inconsistent-
   allocation, unreadable-payload, and merchant-context anomalies remain nonzero/noninvented and
   leave the old store recoverable;
+- preserve the owner-confirmed retry-only/reinstall recovery boundary, or obtain a separate
+  Accepted decision and prove a deliberate destructive-reset flow before exposing one in-app;
 - the money floating-point gate, full existing migration regression, Release build, and repository
   validation remain green.
 
 ## Stop conditions
 
-- C4A-01 is not Done until this packet passes independent review, green CI, and merge.
-- C4A-02 and C4A-03 may not begin from this branch.
+- C4A-02 is not Done until this packet passes independent review, green CI, and merge.
+- C4A-03 may not begin from this branch.
 - No iCloud, telemetry, receipt, Watch, backend, cloud-AI, formal economics, Production deployment,
   tester assignment, Beta review, App Store submission, or public distribution is authorized.
 - App Store Connect transport acceptance of 0.9.8 (9) is historical release evidence only and
