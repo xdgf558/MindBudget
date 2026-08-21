@@ -1841,3 +1841,26 @@ and Python syntax passed. Money, network-egress, commercialization-document, Sto
 rerun. No runtime Swift, schema, container, entitlement, request, deployment, Archive/upload,
 tester, review, or distribution behavior changed; C4B-02P remains pending review and C4B-02 remains
 Blocked.
+
+## 2026-08-21 — Session 65 — Close initializer-value and SwiftUI container escapes
+
+Independent review found two more valid construction forms outside the earlier call inventory.
+Swift permits `ModelConfiguration.init` or `ModelContainer.init` to be retained as a function value
+and invoked indirectly, while SwiftUI's `modelContainer(for:)` creates a container without spelling
+the SwiftData initializer at the call site.
+
+The checker now inventories unapplied initializer references separately from `.init(...)` calls and
+allows only the existing reviewed `Date`, `Set`, `String`, and recovery-deleter references by exact
+path, receiver, and maximum count. A bare SwiftData initializer function value therefore fails.
+SwiftUI container modifiers are independently closed: only the single unlabeled
+`environment.dataController.container` attachment in `MindBudgetApp.swift` is allowed. View, Scene,
+implicit-self, extra, `for:`-creating, and method-reference forms fail.
+
+New fixtures retain both SwiftData initializers as function values, exercise View/Scene and
+implicit-self `modelContainer(for:)`, reject a modifier function value, and prove the reviewed
+existing-container attachment still passes. No runtime Swift, schema, container, entitlement,
+request, deployment, Archive/upload, tester, review, or distribution behavior changed. C4B-02P
+remains pending review and C4B-02 remains Blocked.
+
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud self/repository,
+Python syntax, and `git diff --check` all passed in the final local rerun.

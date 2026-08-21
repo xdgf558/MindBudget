@@ -90,6 +90,25 @@ ALLOWED_INITIALIZER_CALLS: dict[str, Counter[tuple[str | None, tuple[str, ...]]]
     }),
 }
 
+ALLOWED_INITIALIZER_REFERENCES: dict[str, Counter[str | None]] = {
+    "MindBudget/AppIntents/IntentSupport.swift": Counter({"Set": 6}),
+    "MindBudget/Commerce/PublicConfigurationTransport.swift": Counter({"Date": 1}),
+    "MindBudget/Data/DataController.swift": Counter({
+        "StoreMigrationRecoveryArtifactDeleter": 1,
+    }),
+    "MindBudget/Services/PrivacyRedactor.swift": Counter({"String": 7}),
+}
+
+# SwiftUI's unlabeled overload attaches an already-created container. The `for:` overload creates
+# a new one and is therefore forbidden outside the DataController boundary. Keeping even the safe
+# attachment call path- and count-bound prevents another View or Scene from silently becoming a
+# second construction owner.
+ALLOWED_MODEL_CONTAINER_MODIFIER_CALLS: dict[str, Counter[tuple[str, ...]]] = {
+    "MindBudget/App/MindBudgetApp.swift": Counter({
+        (): 1,
+    }),
+}
+
 SWIFT_IMPORT_KINDS = {
     "class",
     "enum",
@@ -397,6 +416,41 @@ def _initializer_call_shapes(tokens: list[SwiftToken]) -> Counter[tuple[str | No
     return calls
 
 
+def _initializer_reference_receivers(tokens: list[SwiftToken]) -> Counter[str | None]:
+    """Inventory `.init` function values that are not immediately applied or label-specialized."""
+
+    references: Counter[str | None] = Counter()
+    for dot in range(len(tokens) - 1):
+        if tokens[dot].value != '.' or tokens[dot + 1].value != 'init':
+            continue
+        if dot + 2 < len(tokens) and tokens[dot + 2].value == '(':
+            continue
+        references[tokens[dot - 1].value if dot > 0 else None] += 1
+    return references
+
+
+def _member_call_shapes(tokens: list[SwiftToken], member: str) -> Counter[tuple[str, ...]]:
+    """Inventory qualified or implicit-self calls by top-level argument-label shape."""
+
+    calls: Counter[tuple[str, ...]] = Counter()
+    for index in range(len(tokens) - 1):
+        if tokens[index].value != member or tokens[index + 1].value != '(':
+            continue
+        calls[_top_level_argument_labels(tokens, index + 1)] += 1
+    return calls
+
+
+def _unapplied_member_reference_count(tokens: list[SwiftToken], member: str) -> int:
+    """Count unapplied references to a protected member such as SwiftUI's modelContainer."""
+
+    return sum(
+        1
+        for index, token in enumerate(tokens)
+        if token.value == member
+        and (index + 1 >= len(tokens) or tokens[index + 1].value not in {'(', ':'})
+    )
+
+
 def _imports_swift_module(tokens: list[SwiftToken], module: str) -> bool:
     """Recognize direct and selective Swift imports such as `import class CloudKit.CKSyncEngine`."""
 
@@ -493,6 +547,38 @@ def validate_swiftdata_boundary(project_root: Path) -> list[str]:
                     f"{file}: unapproved initializer call {call} appears {count} time(s); "
                     f"the repository allowance permits {allowed_count}"
                 )
+
+        initializer_references = _initializer_reference_receivers(tokens)
+        initializer_reference_allowance = ALLOWED_INITIALIZER_REFERENCES.get(
+            relative_file,
+            Counter(),
+        )
+        for receiver, count in initializer_references.items():
+            allowed_count = initializer_reference_allowance[receiver]
+            if count > allowed_count:
+                reference = f"{receiver + '.' if receiver else '.'}init"
+                errors.append(
+                    f"{file}: unapproved initializer function reference {reference} appears "
+                    f"{count} time(s); the repository allowance permits {allowed_count}"
+                )
+
+        modifier_calls = _member_call_shapes(tokens, 'modelContainer')
+        modifier_allowance = ALLOWED_MODEL_CONTAINER_MODIFIER_CALLS.get(relative_file, Counter())
+        for labels, count in modifier_calls.items():
+            allowed_count = modifier_allowance[labels]
+            if count > allowed_count:
+                call = f".modelContainer({', '.join(labels)})"
+                errors.append(
+                    f"{file}: unapproved SwiftUI container modifier {call} appears {count} "
+                    f"time(s); the repository allowance permits {allowed_count}"
+                )
+
+        unapplied_modifiers = _unapplied_member_reference_count(tokens, 'modelContainer')
+        if unapplied_modifiers:
+            errors.append(
+                f"{file}: unapplied .modelContainer function reference appears "
+                f"{unapplied_modifiers} time(s); only the reviewed existing-container call is allowed"
+            )
 
     if not requires_cloudkit_hardening(project_root, swift_sources):
         return errors
@@ -658,6 +744,86 @@ def self_test() -> None:
             raise AssertionError("cross-file contextual ModelContainer .init fixture accepted")
         (root / "MindBudget/ContainerSink.swift").unlink()
         (root / "MindBudget/AlternateStore.swift").unlink()
+
+        (root / "MindBudget/AlternateStore.swift").write_text(
+            "let factory: (\n"
+            "  String?, Schema?, Bool, Bool,\n"
+            "  ModelConfiguration.GroupContainer,\n"
+            "  ModelConfiguration.CloudKitDatabase\n"
+            ") -> ModelConfiguration = ModelConfiguration.init\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("ModelConfiguration initializer function-value fixture accepted")
+        (root / "MindBudget/AlternateStore.swift").unlink()
+
+        (root / "MindBudget/AlternateStore.swift").write_text(
+            "let factory = ModelContainer.init\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("ModelContainer initializer function-value fixture accepted")
+        (root / "MindBudget/AlternateStore.swift").unlink()
+
+        app = root / "MindBudget/App"
+        app.mkdir(parents=True)
+        (app / "MindBudgetApp.swift").write_text(
+            "WindowGroup { EmptyView() }\n"
+            "  .modelContainer(environment.dataController.container)\n",
+            encoding="utf-8",
+        )
+        if validate_swiftdata_boundary(root):
+            raise AssertionError("reviewed existing-container SwiftUI modifier fixture rejected")
+
+        (root / "MindBudget/AlternateView.swift").write_text(
+            "EmptyView().modelContainer(for: AlternateModel.self)\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("SwiftUI View modelContainer(for:) fixture accepted")
+        (root / "MindBudget/AlternateView.swift").unlink()
+
+        (root / "MindBudget/AlternateView.swift").write_text(
+            "extension View {\n"
+            "  func alternateStorage() -> some View {\n"
+            "    modelContainer(for: AlternateModel.self)\n"
+            "  }\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("implicit-self SwiftUI modelContainer(for:) fixture accepted")
+        (root / "MindBudget/AlternateView.swift").unlink()
+
+        (root / "MindBudget/AlternateScene.swift").write_text(
+            "WindowGroup { EmptyView() }\n"
+            "  .modelContainer(for: AlternateModel.self)\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("SwiftUI Scene modelContainer(for:) fixture accepted")
+        (root / "MindBudget/AlternateScene.swift").unlink()
+
+        (root / "MindBudget/AlternateView.swift").write_text(
+            "let attachContainer = EmptyView().modelContainer\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("SwiftUI modelContainer function-value fixture accepted")
+        (root / "MindBudget/AlternateView.swift").unlink()
+
+        (root / "MindBudget/AlternateView.swift").write_text(
+            "extension View {\n"
+            "  func captureStorageModifier() {\n"
+            "    let attachContainer = modelContainer\n"
+            "    _ = attachContainer\n"
+            "  }\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("implicit-self modelContainer function-value fixture accepted")
+        (root / "MindBudget/AlternateView.swift").unlink()
 
         data_controller.write_text(
             "ModelConfiguration.init(cloudKitDatabase: .none)\nModelContainer(for: Schema.self)\n",

@@ -5026,3 +5026,25 @@ Swift, schema, container, entitlement, request, deployment, Archive/upload, test
 distribution behavior changed. C4B-02P stays pending independent review and C4B-02 stays Blocked.
 The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
 self/repository, Python syntax, and `git diff --check` rerun also passed.
+
+## 2026-08-21 — Session 148 — Guard initializer values and SwiftUI-created containers
+
+The next review correctly identified that `.init(...)` call scanning did not cover an initializer
+stored as a function value, and that SwiftUI's `modelContainer(for:)` can create a persistent
+container without a `ModelContainer(...)` token. Both shapes violated the centralized primary-store
+boundary once future iCloud capability hardening activates.
+
+Unapplied `.init` references now have their own exact repository allowance for the currently
+reviewed `Date`, `Set`, `String`, and recovery-deleter function values; an unapproved
+`ModelConfiguration.init` or `ModelContainer.init` reference fails before it can be called
+indirectly. SwiftUI modifier calls are also path/label/count-bound. Only the existing unlabeled
+`.modelContainer(environment.dataController.container)` call in `MindBudgetApp.swift` remains
+valid; View, Scene, implicit-self, extra, `for:`-creating, and modifier-reference forms fail.
+
+Deterministic fixtures cover both SwiftData initializer values, both SwiftUI surfaces, implicit
+self, modifier reference, and the accepted existing-container call. No runtime Swift, schema,
+container, entitlement, request, deployment, Archive/upload, tester, review, or distribution
+behavior changed. C4B-02P remains pending independent review and C4B-02 remains Blocked.
+
+The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
+self/repository, Python syntax, and `git diff --check` rerun passed.

@@ -225,12 +225,15 @@ availability; it must not promise a time or amount.
   normal/raw single-line or multiline string literal text (but retaining interpolation code). It
   applies Swift's delimiter-specific raw-string escape rules, recognizes direct and selective
   CloudKit imports, and manages every real production `.init(...)` through a path/call-shape/count
-  allowance so contextual type inference cannot move construction across files. It must fail
-  clearly for missing/alternate owners, aliases, unapproved direct or contextual `.init` calls,
-  metatype `.self` escapes, nested-code `.none` lookalikes, missing top-level per-call `.none`, and
-  explicit `.automatic`/private managed-mirroring selection. Ordinary `ModelContainer`
-  parameter/reference types outside `DataController` remain valid; only construction is
-  centralized.
+  allowance so contextual type inference cannot move construction across files. Unapplied
+  initializer function values are separately path/receiver/count-bound. SwiftUI may attach only the
+  already-created `environment.dataController.container` through the one reviewed unlabeled
+  `.modelContainer(...)` call in `MindBudgetApp`; every `modelContainer(for:)`, additional call, or
+  method reference is rejected for both View and Scene syntax. The checker must fail clearly for
+  missing/alternate owners, aliases, unapproved initializer calls/references, metatype `.self`
+  escapes, nested-code `.none` lookalikes, missing top-level per-call `.none`, and explicit
+  `.automatic`/private managed-mirroring selection. Ordinary `ModelContainer` parameter/reference
+  types outside `DataController` remain valid; only construction is centralized.
 
 ## C4B-02 and C4B-03 handoff
 

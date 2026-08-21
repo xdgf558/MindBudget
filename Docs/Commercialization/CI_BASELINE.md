@@ -711,14 +711,20 @@ a missing `DataController` as a closed diagnostic, scans all `MindBudget/**/*.sw
 `ModelConfiguration` constructions, applies delimiter-specific raw-string escape rules, recognizes
 direct and selective CloudKit imports, and rejects aliases and metatype `.self` bypasses. Every
 production `.init(...)` is checked against an exact path/receiver/argument-label/count allowance,
-closing cross-file contextual inference without rejecting the current reviewed initializers. The
-checker requires top-level `.none` inside every individual real configuration call, rejects explicit
-`.automatic`/private managed CloudKit selection, and centralizes construction without rejecting
-ordinary `ModelContainer` parameter/reference types outside `DataController`. Its self-test proves
-compact `.none`, partial hardening, `.automatic`, private managed storage, alternate production
-construction, direct/same-file/cross-file contextual `.init`, metatype escape, aliases, fake
-comment/string or nested-code `.none`, raw trailing-backslash termination, every supported selective
-import kind, entitlement-triggered hardening, and missing-owner cases.
+closing cross-file contextual inference without rejecting the current reviewed initializers.
+Initializer function values have a separate exact path/receiver/count allowance, so bare
+`ModelConfiguration.init`/`ModelContainer.init` cannot escape into an indirect factory. SwiftUI's
+container modifier has one exact allowance: the existing unlabeled attachment of
+`environment.dataController.container` in `MindBudgetApp`; View/Scene `modelContainer(for:)`,
+implicit-self variants, extra calls, and method references fail. The checker requires top-level
+`.none` inside every individual real configuration call, rejects explicit `.automatic`/private
+managed CloudKit selection, and centralizes construction without rejecting ordinary
+`ModelContainer` parameter/reference types outside `DataController`. Its self-test proves compact
+`.none`, partial hardening, `.automatic`, private managed storage, alternate production
+construction, direct/same-file/cross-file contextual `.init`, initializer function values,
+metatype escape, SwiftUI View/Scene/implicit-self modifier construction, aliases, fake comment/
+string or nested-code `.none`, raw trailing-backslash termination, every supported selective import
+kind, entitlement-triggered hardening, and missing-owner cases.
 
 Local prerequisite verification passed the money, network-egress, commercialization-document,
 StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and
