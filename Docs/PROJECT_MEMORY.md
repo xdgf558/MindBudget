@@ -62,8 +62,10 @@ passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-r
 sync metadata, every primary SwiftData configuration is explicitly non-mirrored, and the Free,
 default-off private custom-record path has transactional outbox/inbox, 12 allow-listed fact types,
 logical tombstones, no-winner quarantine, account/key-reset pauses, and localized Settings consent.
-External remote-zone deletion/purge also becomes a sticky pause rather than an automatic zone
-recreation/reupload.
+DEC-COM-031 closes the review gaps: destructive `zoneNotFound` errors and external remote-zone
+deletion/purge enter sticky pauses that delayed callbacks cannot reopen; invalid allocations and
+divergent recurring claims quarantine; parent-owned upserts require their parent key; and Delete
+All remains explicitly local-only until C4B-03 owns cloud-wide deletion/reimport.
 No entitlement, provisioned container, Dashboard deployment, verified CloudKit request,
 multi-device evidence, cloud-wide deletion, or release authority is claimed; C4B-03 remains blocked.
 The C4A audit

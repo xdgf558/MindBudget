@@ -271,7 +271,7 @@ struct MonthlyRecurringSchedule: Sendable {
         guard let year = components.year, let month = components.month else {
             throw DataValidationError.invalidRecurringExpenseRule
         }
-        return "\(ruleID.uuidString.lowercased()):\(year)-\(String(format: "%02d", month))"
+        return try RecurringOccurrenceKey(ruleID: ruleID, year: year, month: month).rawValue
     }
 }
 

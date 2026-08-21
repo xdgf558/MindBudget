@@ -37,7 +37,7 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Local authority | Local reads/writes/export/Delete All never wait for CloudKit success; retries are asynchronous and nonblocking |
 | Cloud database | Private database only; accepted zone `MindBudget.Sync.v1` and record type `MindBudgetEnvelopeV1`; never public/shared database |
 | Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring claim `<type>/<occurrenceKey>`, where the only accepted occurrence key is lower-case UUID + `:` + signed base-10 calendar year + `-` + two-digit month; `/`, `%`, controls, and caller strings are rejected |
-| Envelope | Closed `schemaVersion`, `type`, `id`, per-record-lineage `revision`, `isDeleted`, `modifiedAt`, and typed encrypted payload carrying parent/semantic digests; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
+| Envelope | Closed `schemaVersion`, canonical `recordName`, `entityType`, `operation` (`upsert` or `tombstone`), per-record-lineage `revision`, informational `modifiedAt`, `parentSemanticDigest`, `semanticDigest`, and encrypted typed payload; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
 | Deletion | Logical tombstone has the same record name and participates in ordering; retain until C4B-03 proves compaction safety |
 | Environment | One accepted exact future container identifier `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
@@ -109,9 +109,9 @@ stable companion keys.
 | RecurringExpenseOccurrence | `id`, unique `occurrenceKey`, rule/expense IDs | Sync control-plane envelope to prevent duplicate cross-device generation |
 | BudgetPlan | `id`; cascades category budgets | Sync authoritative envelope; child carries `planID` |
 | BudgetPlanSemantics | unique `planID` | Sync companion envelope |
-| CategoryBudget | `id`, optional plan relationship | Sync; remote child may arrive before parent |
+| CategoryBudget | `id`, required `planID` in every upsert envelope; SwiftData relationship stays optional only for persistence/migration mechanics | Sync; key absence is malformed, while an identified parent that has not arrived stays pending |
 | WishItem | `id`; cascades cooling-off plans | Sync authoritative envelope |
-| CoolingOffPlan | `id`, optional wish relationship | Sync excluding local notification identifier |
+| CoolingOffPlan | `id`, required `wishItemID` in every upsert envelope; SwiftData relationship stays optional only for persistence/migration mechanics | Sync excluding local notification identifier; key absence is malformed, while an identified parent that has not arrived stays pending |
 | ReflectionLog | `id`, scalar provenance IDs | Sync authoritative envelope |
 | SpendingInsight | `id`, unique dedupe key, derived payload | Local-only/recompute |
 | ReminderEvent | `id`, throttle/notification history | Local-only/device-specific |
@@ -180,10 +180,17 @@ re-consent. No timing-based online lease may delay or reject offline budgeting w
 
 An externally deleted or purged private custom zone is destructive remote state, not an empty
 server. C4B-02 enters a separate sticky pause and generic disable/re-enable cannot recreate the zone
-or repopulate it from the local ledger. C4B-03 owns the explicit recovery or cloud-delete choice,
-just as it owns recovery after encrypted-key reset; neither condition may auto-purge or reupload.
+or repopulate it from the local ledger. The same rule applies when CloudKit reports
+`zoneNotFound`: the `CKErrorUserDidResetEncryptedDataKey` flag selects the encrypted-key-reset pause,
+and an otherwise missing accepted zone selects the remote-zone-loss pause. Once any account,
+encrypted-key-reset, or remote-zone-loss pause is stored, ordinary success/network/quota/service
+callbacks cannot overwrite it. C4B-03 owns the explicit recovery or cloud-delete choice; neither
+condition may auto-purge or reupload.
 
-Delete All is unchanged in C4B-01. C4B-03 must offer an explicit distinction between local delete,
+The current Delete All action is explicitly local-only: it stops the adapter, removes local facts
+and local sync metadata, and does not write cloud tombstones or delete the private zone. Existing
+iCloud copies can therefore be imported if sync is enabled again. Settings and both confirmation
+steps disclose that boundary. C4B-03 must offer an explicit distinction between local delete,
 required cloud-wide delete, and disable while retaining cloud copy. Cloud-wide delete writes durable
 tombstones and reports pending completion while offline; local deletion remains available even if
 cloud deletion cannot start. Re-enable after local-only deletion needs confirmation before import.

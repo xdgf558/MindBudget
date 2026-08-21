@@ -1908,3 +1908,29 @@ benchmark, 444 remaining unit tests, 17 UI tests, Release build, static contract
 gate at `/private/tmp/MindBudget-C4B02-Validate.xcresult`. No C4B-03 environment, deployment,
 physical-device, conflict-resolution, cloud-wide deletion, Archive/upload, tester, or distribution
 claim was added.
+
+## 2026-08-21 — Session 68 — Close PR #59 destructive-state and remote-apply review findings
+
+Independent review correctly found two paths around the C4B-02 destructive-state boundary and four
+remote-application mismatches. `zoneNotFound` now distinguishes encrypted-key reset through
+`CKErrorUserDidResetEncryptedDataKey` and otherwise enters the accepted remote-zone-loss pause.
+Database deletion and destructive CKError paths cancel and discard the engine. Once account-change,
+encrypted-reset, or zone-loss pause is stored, ordinary account/network/service callbacks cannot
+replace it; only the future explicit C4B-03 recovery flow may clear it.
+
+The recurrence engine and record-name path now share `RecurringOccurrenceKey`. Allocation with a
+missing Income remains pending, while overflow or a total above the verified Income quarantines.
+An accepted occurrence claim cannot silently change its identity, rule, or expense. CategoryBudget
+and CoolingOffPlan sync upserts require their parent identity and distinguish malformed envelopes
+from parents that have not arrived. The existing Delete All flow is explicitly local-only in C4B-02;
+bilingual Settings/confirmation copy warns that retained iCloud copies may be imported after a
+future re-enable, while confirmed cloud deletion/reimport remains C4B-03 work.
+
+Focused evidence passed 25/25 at `/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The final
+`Scripts/validate.sh` run passed the isolated strict benchmark 1/1; 466 combined correctness/UI
+results with 459 passed, seven opt-in skips, and UI 17/17; Release compilation; every static gate;
+and coverage (minimum 87.60% against 85%) at
+`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. No entitlement, live container,
+Dashboard deployment, real CloudKit request, physical/multi-device evidence, cloud-wide deletion,
+Archive, upload, tester, or distribution action occurred. PR #59 remains pending final re-review,
+hosted green CI, and merge; C4B-03 remains blocked.

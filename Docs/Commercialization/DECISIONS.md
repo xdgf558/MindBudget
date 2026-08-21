@@ -917,3 +917,33 @@ architecture and explicit owner instruction.
 - Evidence: 20/20 Phase 10 tests across 10 isolated iterations passed at
   `/private/tmp/MindBudget-C4B02-Performance10-iOS264.xcresult`; the corrected full validation then
   passed at `/private/tmp/MindBudget-C4B02-Validate.xcresult`.
+
+## DEC-COM-031 — Close C4B-02 destructive-state and remote-apply review gaps
+
+- Status/date: **Accepted review remediation pending final independent re-review — 2026-08-21**
+- Requirements: REQ-ICLOUD-001, REQ-MONEY-001
+- Sticky-state decision: Account change, encrypted-key reset, and accepted-zone loss are
+  trust-boundary transitions. Once stored, ordinary status/account callbacks cannot replace them.
+  Both database-deletion events and `zoneNotFound` CKErrors enter a sticky pause; the
+  `CKErrorUserDidResetEncryptedDataKey` flag distinguishes encrypted reset from other remote-zone
+  loss. The active engine is cancelled and discarded before retry can recreate a zone.
+- Apply decision: The recurrence engine and record-name path share `RecurringOccurrenceKey`.
+  Missing allocation parents remain pending, while arithmetic overflow or allocation above the
+  verified income is quarantined. An accepted occurrence claim cannot change its `id`, `ruleID`,
+  or `expenseID`; divergence is quarantined without overwriting the local claim. CategoryBudget and
+  CoolingOffPlan keep optional SwiftData relations for migration/cascade mechanics, but every sync
+  upsert envelope requires `planID` or `wishItemID`. A missing key is malformed; a named parent that
+  has not arrived remains pending. Tombstones need only the canonical record identity.
+- Delete boundary: The existing Delete All workflow remains local-only in C4B-02. It stops sync and
+  clears local facts plus sync metadata, but authors no cloud tombstones and deletes no zone.
+  Bilingual Settings and confirmation copy disclose that retained iCloud copies may be imported
+  after a future re-enable. C4B-03 still owns confirmed cloud-wide deletion and confirmed reimport.
+- Alternatives rejected: Treating destructive CloudKit errors as retryable; permitting delayed
+  callbacks to reopen a sticky pause; waiting forever on a mathematically invalid allocation;
+  overwriting a divergent occurrence claim; calling absent parent identity a retryable delivery
+  order; or implying local Delete All removes cloud copies.
+- Evidence: The expanded focused sync suite passed 25/25 at
+  `/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The final owning validation then passed the
+  isolated strict benchmark 1/1; 466 combined correctness/UI results with 459 passed, seven opt-in
+  skips, and UI 17/17; Release compilation; every static contract; and the coverage gate at
+  `/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`.

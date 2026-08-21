@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Hardened the unreleased optional iCloud sync path so encrypted-key reset, missing-zone, and
+  account-change pauses cannot be reopened by late retry callbacks; invalid allocations and
+  divergent recurring claims now quarantine without changing local facts.
+- Clarified in Privacy settings that Delete All removes this device's data only and does not yet
+  delete retained iCloud copies, which may return after a later re-enable.
+
 Every user-visible change must be added here when it is implemented. Before each TestFlight or
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.

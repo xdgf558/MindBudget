@@ -5097,3 +5097,23 @@ passed: isolated benchmark 1/1, remaining unit tests 444/444, UI 17/17, Release 
 and coverage thresholds. Result: `/private/tmp/MindBudget-C4B02-Validate.xcresult`. C4B-02 remains
 pending independent review/hosted CI/merge; no entitlement, provisioned container, Dashboard
 deployment, real CloudKit request, Archive, upload, tester, or distribution action occurred.
+
+## 2026-08-21 — Session 151 — Harden PR #59 trust-boundary pauses and remote apply
+
+Independent review found that destructive `zoneNotFound` CKErrors could remain retryable, delayed
+callbacks could overwrite a stored sticky pause, and several remote-apply edge cases did not match
+the accepted C4B contract. DEC-COM-031 now owns the detailed remediation. Destructive database and
+CKError paths cancel/discard the engine and enter an irreversible-within-C4B-02 pause; ordinary
+transport/account callbacks cannot reopen it. Recurrence generation uses the canonical shared key,
+invalid allocation arithmetic and divergent accepted claims quarantine without overwriting local
+facts, required parent identities distinguish malformed envelopes from delivery-order waits, and
+Delete All is accurately disclosed as local-only pending C4B-03 cloud deletion/reimport UX.
+
+The focused sync suite passed 25/25 at `/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. Final
+`Scripts/validate.sh` passed the isolated benchmark 1/1; 466 combined correctness/UI results with
+459 passed, seven opt-in skips, and UI 17/17; Release compilation; all static contracts; and selected
+coverage (minimum 87.60%, required 85%) at
+`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. No entitlement, provisioned container,
+Dashboard deployment, real CloudKit request, physical/multi-device evidence, cloud-wide deletion,
+Archive, upload, tester, or distribution action occurred. C4B-02 remains pending final re-review,
+hosted CI, and merge; C4B-03 remains blocked.

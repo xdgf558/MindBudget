@@ -63,6 +63,16 @@ topological `DataActor` application, and exposes only closed local-first status/
 The adapter uses only the accepted private database/custom zone/record type and one encrypted
 envelope field; no entitlement or deployed container is claimed.
 
+Independent-review remediation makes all three trust-boundary pauses sticky against delayed
+status/account callbacks, maps both database-deletion events and `zoneNotFound` CKErrors to the
+correct encrypted-reset or remote-zone-loss pause, and cancels the engine before any zone can be
+recreated. The recurrence engine now uses the shared closed occurrence formatter; over-allocation
+and divergent occurrence claims quarantine instead of waiting or overwriting. Category-budget and
+cooling-off upsert envelopes require their parent identity, while a named parent that has not yet
+arrived remains pending. The existing Delete All action is explicitly local-only and its bilingual
+UI warns that retained iCloud copies may be imported after a future re-enable; C4B-03 still owns
+cloud-wide deletion and confirmed reimport.
+
 ### C4B-02P — Prerequisite contract and static gate
 
 Status: **Done after independent review, GitHub Actions run `32454490080`, and PR #58 merge
@@ -85,9 +95,15 @@ cross-account merge, online write leases, and automatic enablement are prohibite
 
 ### Implementation evidence
 
-- The focused deterministic `CloudSyncTests` suite passes 20/20 on an iOS 26.4 simulator with
+- The original focused deterministic `CloudSyncTests` suite passed 20/20 on an iOS 26.4 simulator with
   Xcode 26.6 (`17F113`) at
   `/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult`.
+- The independent-review remediation expanded the same suite to 25/25 passing tests at
+  `/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The added cases prove that a
+  `zoneNotFound` CKError is a sticky encrypted-reset or accepted-zone-loss pause, late transport
+  and account callbacks cannot reopen any sticky pause, recurrence generation uses the canonical
+  key formatter, invalid over-allocation quarantines, divergent recurring claims preserve the
+  accepted expense identity, and parent-owned envelopes reject a missing parent key.
 - Tests cover default-off adapter construction, account/retry/failure mapping, V5-to-V6 migration,
   canonical recurrence identity and bytes, all 12 allow-listed fact types, permanent local-only
   cache exclusion, duplicate/replay, logical and cascade tombstones, topology, malformed/physical
@@ -96,7 +112,7 @@ cross-account merge, online write leases, and automatic enablement are prohibite
 - Static verification enforces the exact 12-type allow-list, runtime anchors, private database,
   no physical `deleteRecord`, no public/shared database, no `CKAsset`, no iCloud entitlement in
   this packet, repository-wide `.none`, and centralized container construction.
-- Full local validation, independent review, hosted CI, and merge remain required. C4B-03 evidence
+- Final re-review, hosted CI, and merge remain required. C4B-03 evidence
   cannot be inferred from simulator fakes or this source-only adapter.
 
 ## C4B-03 — Lifecycle and deletion

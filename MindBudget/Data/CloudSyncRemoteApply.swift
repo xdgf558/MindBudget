@@ -188,6 +188,7 @@ extension DataActor {
             case .missingParent: return .missingParent
             case .invalidPayload: return .malformedRecord
             case .validationFailed: return .localValidationFailed
+            case .divergentConflict: return .divergentConflict
             }
         }
         return .localValidationFailed
@@ -473,18 +474,17 @@ extension DataActor {
 extension DataActor {
     private func upsertCloudSyncCategoryBudget(_ reader: CloudSyncFieldReader, identity: String) throws {
         try reader.requireKeys(
-            ["id", "category", "limit", "warningBasisPoints", "createdAt", "updatedAt"],
-            optional: ["planID"]
+            ["id", "category", "limit", "warningBasisPoints", "createdAt", "updatedAt", "planID"]
         )
         let id = try requireIdentity(identity, reader: reader)
         let category = try reader.string("category")
         let limit = try reader.integer("limit")
         let warning = try reader.integer("warningBasisPoints")
         guard ExpenseCategory(rawValue: category) != nil,
-              let warningValue = Int(exactly: warning), (1...10_000).contains(warningValue),
-              let planID = try reader.optionalIdentifier("planID") else {
+              let warningValue = Int(exactly: warning), (1...10_000).contains(warningValue) else {
             throw CloudSyncApplicationError.validationFailed
         }
+        let planID = try reader.identifier("planID")
         var planDescriptor = FetchDescriptor<BudgetPlan>(predicate: #Predicate { $0.id == planID })
         planDescriptor.fetchLimit = 1
         guard let plan = try modelContext.fetch(planDescriptor).first else {
@@ -576,8 +576,8 @@ extension DataActor {
 
     private func upsertCloudSyncCoolingOffPlan(_ reader: CloudSyncFieldReader, identity: String) throws {
         try reader.requireKeys(
-            ["id", "startedAt", "reviewAt", "durationHours", "status"],
-            optional: ["completedAt", "outcome", "outcomeRecordedAt", "wishItemID"]
+            ["id", "startedAt", "reviewAt", "durationHours", "status", "wishItemID"],
+            optional: ["completedAt", "outcome", "outcomeRecordedAt"]
         )
         let id = try requireIdentity(identity, reader: reader)
         let startedAt = try reader.date("startedAt")
@@ -585,10 +585,10 @@ extension DataActor {
         let duration = try reader.integer("durationHours")
         let statusRaw = try reader.string("status")
         guard reviewAt > startedAt, let durationValue = Int(exactly: duration), durationValue > 0,
-              let status = CoolingOffStatus(rawValue: statusRaw),
-              let wishID = try reader.optionalIdentifier("wishItemID") else {
+              let status = CoolingOffStatus(rawValue: statusRaw) else {
             throw CloudSyncApplicationError.validationFailed
         }
+        let wishID = try reader.identifier("wishItemID")
         var wishDescriptor = FetchDescriptor<WishItem>(predicate: #Predicate { $0.id == wishID })
         wishDescriptor.fetchLimit = 1
         guard let wish = try modelContext.fetch(wishDescriptor).first else {
@@ -684,9 +684,11 @@ extension DataActor {
         let (allocated, overflow) = budgetAmount.addingReportingOverflow(savingsAmount)
         var incomeDescriptor = FetchDescriptor<Income>(predicate: #Predicate { $0.id == incomeID })
         incomeDescriptor.fetchLimit = 1
-        guard !overflow, let income = try modelContext.fetch(incomeDescriptor).first,
-              allocated <= income.amountMinorUnits else {
+        guard let income = try modelContext.fetch(incomeDescriptor).first else {
             throw CloudSyncApplicationError.missingParent
+        }
+        guard !overflow, allocated <= income.amountMinorUnits else {
+            throw CloudSyncApplicationError.validationFailed
         }
         if budgetAmount == 0 {
             guard budgetPlanID == nil else { throw CloudSyncApplicationError.validationFailed }
@@ -803,12 +805,15 @@ extension DataActor {
         var descriptor = FetchDescriptor<RecurringExpenseOccurrence>(predicate: #Predicate { $0.occurrenceKey == occurrenceKey })
         descriptor.fetchLimit = 1
         let existing = try modelContext.fetch(descriptor).first
+        if let existing,
+           existing.id != id || existing.ruleID != ruleID || existing.expenseID != expenseID {
+            throw CloudSyncApplicationError.divergentConflict
+        }
         let occurrence = try existing ?? RecurringExpenseOccurrence(
             id: id, occurrenceKey: occurrenceKey, ruleID: ruleID, expenseID: expenseID,
             scheduledAt: try reader.date("scheduledAt"), createdAt: try reader.date("createdAt")
         )
         if existing == nil { modelContext.insert(occurrence) }
-        guard occurrence.id == id else { throw CloudSyncApplicationError.validationFailed }
         occurrence.ruleID = ruleID
         occurrence.expenseID = expenseID
         occurrence.scheduledAt = try reader.date("scheduledAt")

@@ -295,6 +295,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                         reason: pause.reason
                     )
                     await syncEngine.cancelOperations()
+                    await lifecycle.setEngine(nil)
                 }
             case .fetchedRecordZoneChanges(let changes):
                 try await ingest(changes)
@@ -514,18 +515,39 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
     private func handle(_ error: Error) async {
         let resolution = Self.statusResolution(for: error)
         try? await dataActor.updateCloudSyncStatus(resolution.status, reason: resolution.reason)
+        if resolution.status.isStickyPause {
+            if let engine = await lifecycle.engine { await engine.cancelOperations() }
+            await lifecycle.setEngine(nil)
+        }
     }
 
-    private static func statusResolution(for error: Error) -> (status: CloudSyncStatus, reason: CloudSyncReasonCode) {
+    /// CloudKit may report a destructive encrypted-key reset as `zoneNotFound` plus
+    /// `CKErrorUserDidResetEncryptedDataKey`, rather than as a database-deletion event. Preserve
+    /// that distinction and treat every other missing accepted zone as remote zone loss. Both
+    /// outcomes are sticky and therefore cannot flow through the ordinary retry path.
+    nonisolated static func statusResolution(
+        for error: Error
+    ) -> (status: CloudSyncStatus, reason: CloudSyncReasonCode) {
         guard let cloudError = error as? CKError else { return (.failed, .transportFailed) }
-        return statusResolution(for: cloudError.code)
+        let didResetEncryptedDataKey =
+            (cloudError.userInfo[CKErrorUserDidResetEncryptedDataKey] as? NSNumber)?.boolValue == true
+        return statusResolution(
+            for: cloudError.code,
+            userDidResetEncryptedDataKey: didResetEncryptedDataKey
+        )
     }
 
     /// Closed non-content mapping used by the adapter and deterministic tests. Raw CloudKit
     /// messages never cross into UI or analytics.
     nonisolated static func statusResolution(
-        for code: CKError.Code
+        for code: CKError.Code,
+        userDidResetEncryptedDataKey: Bool = false
     ) -> (status: CloudSyncStatus, reason: CloudSyncReasonCode) {
+        if code == .zoneNotFound {
+            return userDidResetEncryptedDataKey
+                ? (.pausedEncryptedDataReset, .encryptedDataReset)
+                : (.pausedRemoteZoneDeleted, .remoteZoneDeleted)
+        }
         switch code {
         case .notAuthenticated: return (.accountUnavailable, .noAccount)
         case .networkFailure, .networkUnavailable: return (.waitingForNetwork, .networkUnavailable)

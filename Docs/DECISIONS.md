@@ -2443,3 +2443,21 @@ invocation in its full correctness/coverage run. Hosted CI's existing wall-clock
 Consequences: The 500 ms limit remains intact and must pass independently; correctness, UI, and
 coverage still run in full. This changes validation scheduling only and grants no CloudKit,
 deployment, or release authority.
+
+---
+
+## 2026-08-21 — Harden C4B-02 destructive pauses and remote application
+
+Context: Independent review of PR #59 found that destructive `zoneNotFound` CKErrors could enter a
+retryable state, delayed callbacks could overwrite an existing sticky pause, and several remote
+application edge cases did not match the accepted contract.
+
+Decision: Detailed ownership is DEC-COM-031. All trust-boundary pauses are sticky, destructive
+CloudKit errors cancel the engine, recurrence identity uses one formatter, invalid allocations and
+divergent occurrence claims quarantine, and parent-owned upsert envelopes require the parent key.
+The current bilingual Delete All surface now states that it deletes local data only and leaves
+cloud-wide deletion/reimport to C4B-03.
+
+Consequences: PR #59 remains C4B-02 implementation pending final re-review and hosted green CI.
+No entitlement, live container, cloud deletion, conflict-resolution UI, or release authority is
+added.

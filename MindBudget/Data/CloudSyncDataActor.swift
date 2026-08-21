@@ -18,6 +18,7 @@ enum CloudSyncApplicationError: Error {
     case missingParent
     case invalidPayload
     case validationFailed
+    case divergentConflict
 }
 
 extension DataActor {
@@ -145,6 +146,9 @@ extension DataActor {
         guard !identifierHash.isEmpty, let control = try fetchCloudSyncControl(), control.isEnabled else {
             return false
         }
+        if (CloudSyncStatus(rawValue: control.statusRaw) ?? .failed).isStickyPause {
+            return false
+        }
         if let accepted = control.accountIdentifierHash, accepted != identifierHash {
             control.statusRaw = CloudSyncStatus.pausedAccountChanged.rawValue
             control.lastReasonRaw = CloudSyncReasonCode.accountChanged.rawValue
@@ -166,6 +170,13 @@ extension DataActor {
         at date: Date = Date()
     ) throws {
         guard let control = try fetchCloudSyncControl() else { return }
+        let currentStatus = CloudSyncStatus(rawValue: control.statusRaw) ?? .failed
+        // A sticky pause is a trust-boundary transition. Ordinary network/account callbacks can
+        // arrive late, but they may neither downgrade it to a retryable state nor replace one
+        // sticky cause with another. C4B-03 will own any explicit recovery transition.
+        if currentStatus.isStickyPause {
+            return
+        }
         control.statusRaw = status.rawValue
         control.lastReasonRaw = reason?.rawValue
         control.updatedAt = date
@@ -537,13 +548,23 @@ extension DataActor {
             return projection(type: .budgetPlanSemantics, id: model.planID, operation: operation, fields: budgetPlanSemanticsFields(model))
         }
         if let model = model as? CategoryBudget {
-            return projection(type: .categoryBudget, id: model.id, operation: operation, fields: categoryBudgetFields(model))
+            return projection(
+                type: .categoryBudget,
+                id: model.id,
+                operation: operation,
+                fields: operation == .upsert ? try categoryBudgetFields(model) : [:]
+            )
         }
         if let model = model as? WishItem {
             return projection(type: .wishItem, id: model.id, operation: operation, fields: wishItemFields(model))
         }
         if let model = model as? CoolingOffPlan {
-            return projection(type: .coolingOffPlan, id: model.id, operation: operation, fields: coolingOffPlanFields(model))
+            return projection(
+                type: .coolingOffPlan,
+                id: model.id,
+                operation: operation,
+                fields: operation == .upsert ? try coolingOffPlanFields(model) : [:]
+            )
         }
         if let model = model as? ReflectionLog {
             return projection(type: .reflectionLog, id: model.id, operation: operation, fields: reflectionLogFields(model))
@@ -660,15 +681,15 @@ extension DataActor {
         ["planID": commonID(value.planID), "authority": .string(value.authorityRaw)]
     }
 
-    private func categoryBudgetFields(_ value: CategoryBudget) -> [String: CloudSyncValue] {
-        var fields: [String: CloudSyncValue] = [
+    private func categoryBudgetFields(_ value: CategoryBudget) throws -> [String: CloudSyncValue] {
+        guard let planID = value.plan?.id else { throw CloudSyncApplicationError.missingParent }
+        return [
             "id": commonID(value.id), "category": .string(value.categoryRaw),
             "limit": .integer(value.limitMinorUnits),
             "warningBasisPoints": .integer(Int64(value.warningThresholdBasisPoints)),
-            "createdAt": .unsigned(value.createdAt.cloudSyncBits), "updatedAt": .unsigned(value.updatedAt.cloudSyncBits)
+            "createdAt": .unsigned(value.createdAt.cloudSyncBits), "updatedAt": .unsigned(value.updatedAt.cloudSyncBits),
+            "planID": commonID(planID)
         ]
-        optionalUUID(value.plan?.id, key: "planID", into: &fields)
-        return fields
     }
 
     private func wishItemFields(_ value: WishItem) -> [String: CloudSyncValue] {
@@ -688,16 +709,18 @@ extension DataActor {
         return fields
     }
 
-    private func coolingOffPlanFields(_ value: CoolingOffPlan) -> [String: CloudSyncValue] {
+    private func coolingOffPlanFields(_ value: CoolingOffPlan) throws -> [String: CloudSyncValue] {
+        guard let wishItemID = value.wishItem?.id else {
+            throw CloudSyncApplicationError.missingParent
+        }
         var fields: [String: CloudSyncValue] = [
             "id": commonID(value.id), "startedAt": .unsigned(value.startedAt.cloudSyncBits),
             "reviewAt": .unsigned(value.reviewAt.cloudSyncBits), "durationHours": .integer(Int64(value.durationHours)),
-            "status": .string(value.statusRaw)
+            "status": .string(value.statusRaw), "wishItemID": commonID(wishItemID)
         ]
         optionalDate(value.completedAt, key: "completedAt", into: &fields)
         optionalString(value.outcomeRaw, key: "outcome", into: &fields)
         optionalDate(value.outcomeRecordedAt, key: "outcomeRecordedAt", into: &fields)
-        optionalUUID(value.wishItem?.id, key: "wishItemID", into: &fields)
         return fields
     }
 

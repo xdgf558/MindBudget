@@ -784,3 +784,24 @@ The corrected full `Scripts/validate.sh` run passed on Xcode 26.6 (`17F113`) and
 isolated strict benchmark 1/1, remaining unit tests 444/444 across 27 suites, UI tests 17/17, Release
 build, all static contracts, and every selected core-service coverage threshold (minimum 87.60%,
 required 85%). Result bundle: `/private/tmp/MindBudget-C4B02-Validate.xcresult`.
+
+### Independent-review remediation evidence
+
+The C4B-02 review remediation expanded `CloudSyncTests` from 20 to 25 deterministic tests. All
+25 passed in one suite on Xcode 26.6 (`17F113`) and iOS 26.4.1 simulator
+`A86B6BE8-D716-4E1D-A731-6F40BAFBB02F`; result bundle:
+`/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The new evidence covers actual CKError
+`zoneNotFound` mapping with and without `CKErrorUserDidResetEncryptedDataKey`, sticky-pause
+protection against delayed transport/account callbacks, the shared recurrence formatter,
+over-allocation quarantine, divergent recurring-claim preservation, and required parent identity
+in CategoryBudget/CoolingOffPlan upserts. The money, network-egress, commercialization-document,
+StoreKit catalog 13/13, iCloud contract self-test/repository, localized-catalog JSON, Python syntax,
+and `git diff --check` gates also passed after remediation.
+
+The final owning `Scripts/validate.sh` rerun passed on the same Xcode/runtime surface. Its strict
+Dashboard benchmark passed independently 1/1. The combined correctness/UI result bundle contains
+466 results: 459 passed and seven explicitly opt-in tests skipped, including all 17/17 UI tests;
+Release compilation, every static contract, and all selected coverage thresholds also passed
+(minimum 87.60%, required 85%). Result bundle:
+`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. This is local evidence for the reviewed
+source only; final independent re-review, hosted CI, and merge remain required.

@@ -36,8 +36,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   explicitly non-mirrored, private-database/custom-zone only, stages each local fact and outbox in
   one transaction, validates remote facts through a durable inbox and `DataActor`, and preserves
   local authority for account, quota, network, malformed-data, conflict, and encrypted-key-reset
-  failure. External custom-zone deletion/purge is a separate sticky pause, never an automatic zone
-  recreation/reupload. No entitlement, provisioned container, Dashboard schema, verified request, physical
+  failure. DEC-COM-031 makes all account/key-reset/zone-loss pauses sticky against delayed
+  callbacks, quarantines invalid allocations and divergent recurring claims, requires parent-owned
+  upsert keys, and records Delete All as local-only until C4B-03. No entitlement, provisioned
+  container, Dashboard schema, verified request, physical
   multi-device, cloud-wide deletion, or release evidence is claimed. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta

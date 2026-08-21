@@ -64,6 +64,19 @@ enum CloudSyncStatus: String, Codable, Equatable, Sendable {
     case pausedEncryptedDataReset
     case pausedRemoteZoneDeleted
     case failed
+
+    /// These states represent a changed trust boundary, not a retryable transport condition.
+    /// Only the explicit account re-consent flow or a future C4B-03 recovery decision may clear
+    /// them; delayed callbacks must never reopen transport.
+    var isStickyPause: Bool {
+        switch self {
+        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
+            true
+        case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
+             .accountUnavailable, .quotaExceeded, .failed:
+            false
+        }
+    }
 }
 
 enum CloudSyncRecordState: String, Codable, Sendable {

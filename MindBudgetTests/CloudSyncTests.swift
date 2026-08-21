@@ -118,6 +118,28 @@ struct CloudSyncTests {
     }
 
     @Test
+    func recurrenceEngineUsesTheSharedCanonicalOccurrenceFormatter() throws {
+        let schedule = MonthlyRecurringSchedule()
+        let ruleID = try #require(UUID(uuidString: "5D8CBF05-7AD2-474E-8867-2938A3697D7A"))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "America/Los_Angeles"))
+        let scheduledAt = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 8, day: 15, hour: 12))
+        )
+
+        let generated = try schedule.occurrenceKey(
+            ruleID: ruleID,
+            scheduledAt: scheduledAt,
+            timeZoneIdentifier: "America/Los_Angeles",
+            calendarIdentifierRaw: Calendar.Identifier.gregorian.mindBudgetPersistedValue,
+            calendar: calendar
+        )
+        let expected = try RecurringOccurrenceKey(ruleID: ruleID, year: 2026, month: 8).rawValue
+
+        #expect(generated == expected)
+    }
+
+    @Test
     func transportFailuresMapToClosedLocalOnlyStatuses() {
         let noAccount = CKSyncEngineAdapter.statusResolution(for: .notAuthenticated)
         let offline = CKSyncEngineAdapter.statusResolution(for: .networkUnavailable)
@@ -129,6 +151,27 @@ struct CloudSyncTests {
         #expect(offline.reason == .networkUnavailable)
         #expect(quota.status == .quotaExceeded)
         #expect(quota.reason == .quotaExceeded)
+
+        let missingZone = CKSyncEngineAdapter.statusResolution(for: .zoneNotFound)
+        let resetZone = CKSyncEngineAdapter.statusResolution(
+            for: .zoneNotFound,
+            userDidResetEncryptedDataKey: true
+        )
+        let resetError = CKError(
+            _nsError: NSError(
+                domain: CKErrorDomain,
+                code: CKError.Code.zoneNotFound.rawValue,
+                userInfo: [CKErrorUserDidResetEncryptedDataKey: NSNumber(value: true)]
+            )
+        )
+        let resetFromError = CKSyncEngineAdapter.statusResolution(for: resetError)
+
+        #expect(missingZone.status == .pausedRemoteZoneDeleted)
+        #expect(missingZone.reason == .remoteZoneDeleted)
+        #expect(resetZone.status == .pausedEncryptedDataReset)
+        #expect(resetZone.reason == .encryptedDataReset)
+        #expect(resetFromError.status == .pausedEncryptedDataReset)
+        #expect(resetFromError.reason == .encryptedDataReset)
     }
 
     @Test
@@ -145,6 +188,39 @@ struct CloudSyncTests {
         #expect(purged.reason == .remoteZoneDeleted)
         #expect(reset.status == .pausedEncryptedDataReset)
         #expect(reset.reason == .encryptedDataReset)
+    }
+
+    @Test
+    func stickyPausesRejectLateTransportAndAccountCallbacks() async throws {
+        for (stickyStatus, stickyReason) in [
+            (CloudSyncStatus.pausedAccountChanged, CloudSyncReasonCode.accountChanged),
+            (.pausedEncryptedDataReset, .encryptedDataReset),
+            (.pausedRemoteZoneDeleted, .remoteZoneDeleted)
+        ] {
+            let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+            _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+            try await actor.updateCloudSyncStatus(stickyStatus, reason: stickyReason, at: fixedDate)
+
+            try await actor.updateCloudSyncStatus(
+                .waitingForNetwork,
+                reason: .networkUnavailable,
+                at: fixedDate.addingTimeInterval(1)
+            )
+            try await actor.updateCloudSyncStatus(
+                .failed,
+                reason: .transportFailed,
+                at: fixedDate.addingTimeInterval(2)
+            )
+            let rebound = try await actor.bindCloudSyncAccount(
+                identifierHash: "late-account",
+                at: fixedDate.addingTimeInterval(3)
+            )
+            let snapshot = try await actor.cloudSyncSnapshot()
+
+            #expect(!rebound)
+            #expect(snapshot.status == stickyStatus)
+            #expect(snapshot.reason == stickyReason)
+        }
     }
 
     @Test
@@ -258,6 +334,161 @@ struct CloudSyncTests {
         #expect(counts.reminderEvents == 0)
         #expect(try await destinationActor.cloudSyncSnapshot().quarantinedCount == 0)
         #expect(try await destinationActor.pendingCloudSyncRecordNames().isEmpty)
+    }
+
+    @Test
+    func overAllocatedIncomeIsQuarantinedInsteadOfWaitingForAParent() async throws {
+        let sourceController = try DataController(isStoredInMemoryOnly: true)
+        let sourceActor = sourceController.makeDataActor()
+        let seed = CloudSyncFactSeed()
+        try await CloudSyncFactSeeder(modelContainer: sourceController.container)
+            .insert(seed: seed, at: fixedDate)
+        _ = try await sourceActor.setCloudSyncEnabled(true, at: fixedDate)
+
+        let records = try await pendingRemoteRecords(using: sourceActor).map { record in
+            guard let data = record.envelopeData else { return record }
+            let envelope = try CloudSyncCodec.decodeEnvelope(data)
+            guard envelope.entityType == .incomeAllocation,
+                  var fields = envelope.payload?.fields else { return record }
+            fields["budgetAmount"] = .integer(10_001)
+            fields["savingsAmount"] = .integer(0)
+            let invalid = try CloudSyncCodec.makeEnvelope(
+                payload: CloudSyncPayload(
+                    entityType: .incomeAllocation,
+                    identity: envelope.payload?.identity ?? "",
+                    fields: fields
+                ),
+                entityType: .incomeAllocation,
+                identity: envelope.payload?.identity ?? "",
+                operation: .upsert,
+                revision: 1,
+                parentSemanticDigest: nil,
+                modifiedAt: fixedDate
+            )
+            return CloudSyncRemoteRecord(
+                recordName: invalid.recordName,
+                envelopeData: try CloudSyncCodec.encodeEnvelope(invalid),
+                encodedSystemFields: nil,
+                wasPhysicallyDeleted: false
+            )
+        }
+
+        let destination = try DataController(isStoredInMemoryOnly: true)
+        let destinationActor = destination.makeDataActor()
+        _ = try await destinationActor.setCloudSyncEnabled(true, at: fixedDate)
+        try await destinationActor.ingestCloudSyncRecords(records, receivedAt: fixedDate)
+
+        #expect(try await destinationActor.modelCounts().incomeAllocations == 0)
+        #expect(try await destinationActor.cloudSyncSnapshot().quarantinedCount == 1)
+        #expect(try quarantinedReasons(in: destination) == [.localValidationFailed])
+    }
+
+    @Test
+    func divergentRecurringClaimCannotReplaceTheAcceptedExpenseIdentity() async throws {
+        let sourceController = try DataController(isStoredInMemoryOnly: true)
+        let sourceActor = sourceController.makeDataActor()
+        let seed = CloudSyncFactSeed()
+        try await CloudSyncFactSeeder(modelContainer: sourceController.container)
+            .insert(seed: seed, at: fixedDate)
+        _ = try await sourceActor.setCloudSyncEnabled(true, at: fixedDate)
+        let records = try await pendingRemoteRecords(using: sourceActor)
+        let occurrenceRecord = try #require(
+            records.first(where: { $0.recordName.hasPrefix("recurringOccurrence/") })
+        )
+        let first = try CloudSyncCodec.decodeEnvelope(try #require(occurrenceRecord.envelopeData))
+
+        let destination = try DataController(isStoredInMemoryOnly: true)
+        let destinationActor = destination.makeDataActor()
+        _ = try await destinationActor.setCloudSyncEnabled(true, at: fixedDate)
+        try await destinationActor.ingestCloudSyncRecords(records, receivedAt: fixedDate)
+
+        let differentExpense = makeExpense(amountMinorUnits: 2_000)
+        _ = try await destinationActor.createExpense(differentExpense)
+        var changedFields = try #require(first.payload?.fields)
+        changedFields["expenseID"] = .string(differentExpense.id.uuidString.lowercased())
+        let divergent = try CloudSyncCodec.makeEnvelope(
+            payload: CloudSyncPayload(
+                entityType: .recurringOccurrence,
+                identity: try #require(first.payload?.identity),
+                fields: changedFields
+            ),
+            entityType: .recurringOccurrence,
+            identity: try #require(first.payload?.identity),
+            operation: .upsert,
+            revision: 2,
+            parentSemanticDigest: first.semanticDigest,
+            modifiedAt: fixedDate.addingTimeInterval(1)
+        )
+        try await destinationActor.ingestCloudSyncRecords(
+            [CloudSyncRemoteRecord(
+                recordName: divergent.recordName,
+                envelopeData: try CloudSyncCodec.encodeEnvelope(divergent),
+                encodedSystemFields: nil,
+                wasPhysicallyDeleted: false
+            )],
+            receivedAt: fixedDate.addingTimeInterval(1)
+        )
+
+        let context = ModelContext(destination.container)
+        let occurrence = try #require(
+            context.fetch(FetchDescriptor<RecurringExpenseOccurrence>()).first
+        )
+        #expect(occurrence.expenseID == seed.expenseID)
+        #expect(try await destinationActor.cloudSyncSnapshot().quarantinedCount == 1)
+        #expect(try quarantinedReasons(in: destination) == [.divergentConflict])
+    }
+
+    @Test
+    func parentOwnedUpsertsRequireTheirParentIdentityField() async throws {
+        let sourceController = try DataController(isStoredInMemoryOnly: true)
+        let sourceActor = sourceController.makeDataActor()
+        let seed = CloudSyncFactSeed()
+        try await CloudSyncFactSeeder(modelContainer: sourceController.container)
+            .insert(seed: seed, at: fixedDate)
+        _ = try await sourceActor.setCloudSyncEnabled(true, at: fixedDate)
+
+        let malformed = try await pendingRemoteRecords(using: sourceActor).compactMap { record -> CloudSyncRemoteRecord? in
+            guard let data = record.envelopeData else { return nil }
+            let envelope = try CloudSyncCodec.decodeEnvelope(data)
+            let removedKey: String
+            switch envelope.entityType {
+            case .categoryBudget: removedKey = "planID"
+            case .coolingOffPlan: removedKey = "wishItemID"
+            default: return nil
+            }
+            var fields = try #require(envelope.payload?.fields)
+            fields.removeValue(forKey: removedKey)
+            let invalid = try CloudSyncCodec.makeEnvelope(
+                payload: CloudSyncPayload(
+                    entityType: envelope.entityType,
+                    identity: try #require(envelope.payload?.identity),
+                    fields: fields
+                ),
+                entityType: envelope.entityType,
+                identity: try #require(envelope.payload?.identity),
+                operation: .upsert,
+                revision: 1,
+                parentSemanticDigest: nil,
+                modifiedAt: fixedDate
+            )
+            return CloudSyncRemoteRecord(
+                recordName: invalid.recordName,
+                envelopeData: try CloudSyncCodec.encodeEnvelope(invalid),
+                encodedSystemFields: nil,
+                wasPhysicallyDeleted: false
+            )
+        }
+        #expect(malformed.count == 2)
+
+        let destination = try DataController(isStoredInMemoryOnly: true)
+        let destinationActor = destination.makeDataActor()
+        _ = try await destinationActor.setCloudSyncEnabled(true, at: fixedDate)
+        try await destinationActor.ingestCloudSyncRecords(malformed, receivedAt: fixedDate)
+
+        #expect(try await destinationActor.modelCounts().categoryBudgets == 0)
+        #expect(try await destinationActor.modelCounts().coolingOffPlans == 0)
+        #expect(try await destinationActor.cloudSyncSnapshot().quarantinedCount == 2)
+        #expect(try quarantinedReasons(in: destination) == [.malformedRecord, .malformedRecord])
     }
 
     @Test
@@ -779,6 +1010,32 @@ struct CloudSyncTests {
         try await actor.deleteAllUserData()
         _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
         return fields
+    }
+
+    private func pendingRemoteRecords(using actor: DataActor) async throws -> [CloudSyncRemoteRecord] {
+        var records: [CloudSyncRemoteRecord] = []
+        for name in try await actor.pendingCloudSyncRecordNames() {
+            let pending = try #require(try await actor.pendingCloudSyncRecord(named: name))
+            records.append(
+                CloudSyncRemoteRecord(
+                    recordName: name,
+                    envelopeData: pending.envelopeData,
+                    encodedSystemFields: nil,
+                    wasPhysicallyDeleted: false
+                )
+            )
+        }
+        return records
+    }
+
+    private func quarantinedReasons(in controller: DataController) throws -> [CloudSyncReasonCode] {
+        let context = ModelContext(controller.container)
+        return try context.fetch(
+            FetchDescriptor<CloudSyncInboxItem>(
+                predicate: #Predicate { $0.statusRaw == "quarantined" },
+                sortBy: [SortDescriptor(\CloudSyncInboxItem.recordName)]
+            )
+        ).compactMap { $0.reasonRaw.flatMap(CloudSyncReasonCode.init(rawValue:)) }
     }
 }
 
