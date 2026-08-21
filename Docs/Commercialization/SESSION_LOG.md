@@ -1934,3 +1934,25 @@ and coverage (minimum 87.60% against 85%) at
 Dashboard deployment, real CloudKit request, physical/multi-device evidence, cloud-wide deletion,
 Archive, upload, tester, or distribution action occurred. PR #59 remains pending final re-review,
 hosted green CI, and merge; C4B-03 remains blocked.
+
+## 2026-08-21 — Session 69 — Close C4B-02 after reviewed green merge
+
+The owner accepted the final PR #59 re-review and required the hosted `Build and test` gate to pass
+before merge. Reviewed head `0024507` passed GitHub Actions run `32490174014` in 34m30s, and PR #59
+merged that exact source to `main` as `211dff2`. C4B-02 is therefore Done. The current task maps,
+execution packet, sync contract, requirement index, network policy, CI baseline, memories, and
+decision pointers now record that evidence without rewriting Sessions 66–68 or the original
+decision state at the time it was made.
+
+C4B-03 remains blocked until this documentation-only closeout passes independent review, hosted CI,
+and merge. The owner has explicitly authorized formal C4B-03 entry after that condition. C4B-03
+still owns the iCloud entitlement, container provisioning, Dashboard Development/Production
+deployment, real account/quota/offline evidence, physical multi-device convergence, conflict
+resolution, confirmed cloud-wide deletion/reimport, tombstone compaction/retention, privacy/review,
+and release gates.
+
+This closeout changes no Swift, Schema, entitlement, container constant, adapter, deployment,
+Archive/upload, tester, or distribution behavior. Money, network-egress, commercialization-
+documentation, StoreKit catalog 13/13, iCloud self-test/repository scan, shell syntax, and
+`git diff --check` passed locally. Hosted CI and merge for this closeout remain required before
+C4B-03 starts.

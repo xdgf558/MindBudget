@@ -23,9 +23,10 @@ detailed phase checklists; it added no paid product behavior.
 ## Current state
 
 - Active phase: **COM-C4B is In Progress. C4B-01 is Done through PR #57 (`90a1e66`),
-  C4B-02P is Done through PR #58 (`6f5fded`), C4B-02 implementation is complete pending
-  independent review, and C4B-03 remains blocked.**
-  Reviewed C4B-01 head `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
+  C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
+  (`211dff2`). C4B-03 remains blocked pending this closeout review/CI/merge and formal entry.**
+  Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
+  `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
   COM-C4A. C4A-02 remains Done through PR #53 (`c905415`). COM-C3 is Done; C3-04 passed independent
   review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
@@ -388,8 +389,9 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 Status: **In Progress.**
 
 C4B-01 is Done through PR #57 (`90a1e66`), and C4B-02P is Done through PR #58 (`6f5fded`).
-C4B-02 implementation is complete pending independent review; C4B-03 remains blocked by its
-review, hosted CI, and merge.
+C4B-02 is Done through PR #59 (`211dff2`) after reviewed head `0024507` passed GitHub Actions run
+`32490174014`. C4B-03 remains blocked pending this documentation closeout review/CI/merge and
+formal entry.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -400,14 +402,16 @@ review, hosted CI, and merge.
   revision-1 genesis, accepted-parent ancestry, no-winner quarantine handoff, exact container/
   bilingual disclosure inputs, and repository-wide SwiftData `.none`/centralized-container gate.
   Reviewed head `0fece3a` passed GitHub Actions run `32454490080`; PR #58 merged as `6f5fded`.
-- [ ] **C4B-02 — Sync implementation.** Implementation complete pending independent review:
+- [x] **C4B-02 — Sync implementation.** Reviewed head `0024507` passed GitHub Actions run
+  `32490174014`; PR #59 merged as `211dff2`. The merged boundary includes
   Schema V6 sync metadata, transactional outbox/inbox, 12 allow-listed custom envelopes, logical
   tombstones, no-winner conflict quarantine, account/key-reset pauses, default-off Settings
   consent, and a private-database `CKSyncEngine` adapter. No entitlement, container provisioning,
   Dashboard deployment, public/shared database, receipt image, or local intermediate transfer is
   claimed.
 - [B] **C4B-03 — Lifecycle and deletion.** Verify enable/disable/re-enable, entitlement changes,
-  local/cloud Delete All, conflict visibility, duplicate prevention, and failure isolation.
+  local/cloud Delete All, conflict visibility, duplicate prevention, and failure isolation. The
+  owner authorized formal entry after this C4B-02 closeout merges; no C4B-03 work starts earlier.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.

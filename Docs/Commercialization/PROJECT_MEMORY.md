@@ -31,7 +31,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
   `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. Reviewed C4B-02P head
   `0fece3a` passed GitHub Actions run `32454490080`, and PR #58 merged the prerequisites as
-  `6f5fded`. C4B-02 implementation is complete pending independent review; C4B-03 remains blocked.
+  `6f5fded`. Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59
+  merged it as `211dff2`; C4B-02 is Done. C4B-03 remains blocked pending this documentation
+  closeout review/CI/merge; the owner has authorized formal entry only afterward.
   Schema V6 adds only five local sync metadata models. The implemented path is Free/default-off,
   explicitly non-mirrored, private-database/custom-zone only, stages each local fact and outbox in
   one transaction, validates remote facts through a durable inbox and `DataActor`, and preserves
@@ -357,6 +359,7 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: complete independent review, hosted CI, and merge for C4B-02. Keep C4B-03,
-C4C, container provisioning, Dashboard deployment, physical multi-device work, cloud-wide deletion,
-and distribution blocked until their explicit owner start.
+Next suggested task: pass review/CI/merge for this C4B-02 documentation closeout, then formally
+enter C4B-03 under the owner's explicit instruction. Keep C4C, container provisioning, Dashboard
+deployment, physical multi-device work, cloud-wide deletion, and distribution blocked until their
+own accepted C4B-03 gates authorize each action.

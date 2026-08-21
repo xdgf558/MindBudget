@@ -2461,3 +2461,19 @@ cloud-wide deletion/reimport to C4B-03.
 Consequences: PR #59 remains C4B-02 implementation pending final re-review and hosted green CI.
 No entitlement, live container, cloud deletion, conflict-resolution UI, or release authority is
 added.
+
+---
+
+## 2026-08-21 — Close C4B-02 after reviewed merge
+
+Context: Reviewed remediation head `0024507` passed GitHub Actions run `32490174014`; PR #59 then
+merged that exact C4B-02 source to `main` as `211dff2`.
+
+Decision: Detailed closeout evidence is appended to DEC-COM-031. C4B-02 is Done. C4B-03 remains
+blocked until this documentation closeout passes review/CI/merge; the owner has explicitly
+authorized formal C4B-03 entry only after that condition is met.
+
+Consequences: The merged custom-record runtime remains default-off, local-authority, and source-
+only without an iCloud entitlement or provisioned environment. No Dashboard deployment, verified
+CloudKit request, physical multi-device claim, conflict-resolution UX, cloud-wide deletion,
+Archive, upload, tester, or distribution authority is inferred.

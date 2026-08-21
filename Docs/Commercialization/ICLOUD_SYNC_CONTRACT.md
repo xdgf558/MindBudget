@@ -2,12 +2,14 @@
 
 ## Status
 
-Status: **C4B-01 and C4B-02P Done; C4B-02 implementation complete pending independent review.**
+Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 remains blocked pending closeout merge and
+formal entry.**
 
 This is the Accepted design and implementation contract, not authorization by itself to create or
 provision a CloudKit container, add an entitlement, deploy a Dashboard schema, prove a real request,
-or distribute the feature. PR #58 merged the prerequisites as `6f5fded`; the owner then explicitly
-started C4B-02. C4B-03 remains the operational/deletion/release gate.
+or distribute the feature. PR #58 merged the prerequisites as `6f5fded`; reviewed C4B-02 head
+`0024507` then passed GitHub Actions run `32490174014`, and PR #59 merged it as `211dff2`.
+C4B-03 remains the operational/deletion/release gate.
 
 ## Scope and authority
 
