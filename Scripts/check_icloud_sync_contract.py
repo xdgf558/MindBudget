@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from dataclasses import dataclass
 import re
 import tempfile
@@ -53,6 +54,53 @@ REQUIRED_DECLARATION_TOKENS = {
 }
 HEADING = re.compile(r"^##\s+(.+?)\s*$", re.MULTILINE)
 TABLE_ROW = re.compile(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$", re.MULTILINE)
+
+
+# Before CloudKit hardening can activate, every real `.init(...)` spelling is repository-managed.
+# The allowance is intentionally exact and count-bounded: adding even another otherwise harmless
+# contextual initializer requires a review of this gate rather than silently expanding the surface
+# through which ModelConfiguration or ModelContainer could be inferred across files.
+ALLOWED_INITIALIZER_CALLS: dict[str, Counter[tuple[str | None, tuple[str, ...]]]] = {
+    "MindBudget/AppIntents/Entities/MindBudgetEntities.swift": Counter({
+        (None, ("systemName",)): 7,
+    }),
+    "MindBudget/Commerce/EntitlementStore.swift": Counter({
+        ("StoreProductRecord", ("product",)): 1,
+    }),
+    "MindBudget/Commerce/StoreCatalog.swift": Counter({
+        ("self", ("product", "isEligibleForIntroductoryOffer")): 1,
+        (
+            "self",
+            (
+                "id",
+                "displayName",
+                "description",
+                "displayPrice",
+                "isAutoRenewable",
+                "isFamilyShareable",
+                "subscriptionGroupID",
+                "subscriptionPeriod",
+                "introductoryOffer",
+                "isEligibleForIntroductoryOffer",
+            ),
+        ): 1,
+    }),
+    "MindBudget/Services/PrivacyRedactor.swift": Counter({
+        ("Locale", ("identifier",)): 1,
+    }),
+}
+
+SWIFT_IMPORT_KINDS = {
+    "class",
+    "enum",
+    "func",
+    "let",
+    "macro",
+    "protocol",
+    "struct",
+    "typealias",
+    "var",
+}
 
 
 @dataclass(frozen=True)
@@ -135,13 +183,21 @@ def _skip_string(
         if source.startswith(closing, cursor):
             return (cursor + len(closing), tokens)
         if source[cursor] == '\\':
-            # A quote only terminates a string when it is not escaped. Raw-string escapes carry
-            # exactly the opening number of hashes; accepting an ordinary escaped next character
-            # as well is conservative and prevents literal text from becoming code tokens.
-            cursor += 1
-            if hashes and source.startswith('#' * hashes, cursor):
-                cursor += hashes
-            if cursor < len(source):
+            if hashes == 0:
+                # In an ordinary Swift string every backslash introduces an escape. Skipping the
+                # escaped scalar prevents an escaped quote from looking like the closing quote.
+                cursor = min(len(source), cursor + 2)
+                continue
+
+            # In a raw string an ordinary backslash is literal content. It becomes an escape only
+            # when immediately followed by exactly the opening delimiter's hashes. In particular,
+            # a literal trailing backslash must not consume the quote that closes `#"...\\"#`.
+            raw_escape = '\\' + '#' * hashes
+            if source.startswith(raw_escape, cursor):
+                cursor += len(raw_escape)
+                if cursor < len(source):
+                    cursor += 1
+            else:
                 cursor += 1
             continue
         cursor += 1
@@ -265,12 +321,6 @@ def _typealias_mentions_swiftdata_type(tokens: list[SwiftToken]) -> bool:
     return False
 
 
-def _has_contextual_initializer(tokens: list[SwiftToken]) -> bool:
-    """Return whether a real-code contextual `.init(...)` appears in a protected file."""
-
-    return _has_sequence(tokens, ('.', 'init', '('))
-
-
 def _direct_construction_indices(tokens: list[SwiftToken], type_name: str) -> list[int]:
     return [
         index
@@ -296,6 +346,67 @@ def _configuration_explicitly_disables_cloudkit(tokens: list[SwiftToken], openin
         if depth == 0 and tuple(item.value for item in arguments[index:index + 4]) == (
             'cloudKitDatabase', ':', '.', 'none'
         ):
+            return True
+    return False
+
+
+def _top_level_argument_labels(tokens: list[SwiftToken], opening: int) -> tuple[str, ...]:
+    """Return the labels of one initializer call without considering nested expressions."""
+
+    closing = _matching_token_parenthesis(tokens, opening)
+    if closing is None:
+        return ("<unclosed>",)
+    labels: list[str] = []
+    depth = 0
+    at_argument_start = True
+    for index in range(opening + 1, closing):
+        value = tokens[index].value
+        if value in {'(', '[', '{'}:
+            depth += 1
+            continue
+        if value in {')', ']', '}'}:
+            depth = max(0, depth - 1)
+            continue
+        if depth != 0:
+            continue
+        if value == ',':
+            at_argument_start = True
+            continue
+        if at_argument_start:
+            if index + 1 < closing and tokens[index + 1].value == ':':
+                labels.append(value)
+            at_argument_start = False
+    return tuple(labels)
+
+
+def _initializer_call_shapes(tokens: list[SwiftToken]) -> Counter[tuple[str | None, tuple[str, ...]]]:
+    """Inventory every real `.init(...)` call for the repository-wide closed allowance."""
+
+    allowed_receivers = {
+        receiver
+        for allowed in ALLOWED_INITIALIZER_CALLS.values()
+        for receiver, _ in allowed
+        if receiver is not None
+    }
+    calls: Counter[tuple[str | None, tuple[str, ...]]] = Counter()
+    for dot in range(len(tokens) - 2):
+        if tuple(token.value for token in tokens[dot:dot + 3]) != ('.', 'init', '('):
+            continue
+        receiver = tokens[dot - 1].value if dot > 0 and tokens[dot - 1].value in allowed_receivers else None
+        calls[(receiver, _top_level_argument_labels(tokens, dot + 2))] += 1
+    return calls
+
+
+def _imports_swift_module(tokens: list[SwiftToken], module: str) -> bool:
+    """Recognize direct and selective Swift imports such as `import class CloudKit.CKSyncEngine`."""
+
+    for index, token in enumerate(tokens):
+        if token.value != 'import' or index + 1 >= len(tokens):
+            continue
+        module_index = index + 1
+        if tokens[module_index].value in SWIFT_IMPORT_KINDS:
+            module_index += 1
+        if module_index < len(tokens) and tokens[module_index].value == module:
             return True
     return False
 
@@ -333,7 +444,7 @@ def requires_cloudkit_hardening(
         }
     tokenized_sources = [_swift_code_tokens(text) for text in swift_sources.values()]
     has_cloudkit_source = any(
-        _has_sequence(tokens, ('import', 'CloudKit'))
+        _imports_swift_module(tokens, 'CloudKit')
         or any(token.value == 'CKContainer' for token in tokens)
         for tokens in tokenized_sources
     )
@@ -370,16 +481,24 @@ def validate_swiftdata_boundary(project_root: Path) -> list[str]:
                 f"{file}: primary local SwiftData must never opt into managed CloudKit sync"
             )
 
+        relative_file = file.relative_to(project_root).as_posix()
+        initializer_calls = _initializer_call_shapes(tokens)
+        initializer_allowance = ALLOWED_INITIALIZER_CALLS.get(relative_file, Counter())
+        for shape, count in initializer_calls.items():
+            allowed_count = initializer_allowance[shape]
+            if count > allowed_count:
+                receiver, labels = shape
+                call = f"{receiver + '.' if receiver else '.'}init({', '.join(labels)})"
+                errors.append(
+                    f"{file}: unapproved initializer call {call} appears {count} time(s); "
+                    f"the repository allowance permits {allowed_count}"
+                )
+
     if not requires_cloudkit_hardening(project_root, swift_sources):
         return errors
 
     total_configurations = 0
     for file, tokens in tokenized_sources.items():
-        protected_types_present = {
-            token.value
-            for token in tokens
-            if token.value in {'ModelConfiguration', 'ModelContainer'}
-        }
         if _typealias_mentions_swiftdata_type(tokens):
             errors.append(
                 f"{file}: typealiases for ModelConfiguration/ModelContainer bypass the centralized construction boundary"
@@ -389,28 +508,17 @@ def validate_swiftdata_boundary(project_root: Path) -> list[str]:
         container_calls = _direct_construction_indices(tokens, 'ModelContainer')
         total_configurations += len(configuration_calls)
 
-        # Direct `.init`, metatype `.self`, and contextual `.init` spellings are intentionally
-        # rejected. The centralized owner has stable direct constructor calls; accepting aliases,
-        # metatypes, or inference would make a static requirement on each configuration
-        # unverifiable. A contextual initializer is rejected anywhere in a file mentioning either
-        # protected type so a return-style `-> ModelConfiguration { .init(...) }` cannot cross a
-        # scope boundary undetected.
+        # Type-specific aliases and metatypes are rejected in addition to the global `.init`
+        # allowance. The latter is global because Swift can infer a contextual initializer from a
+        # declaration in a different file, where no ModelContainer token is present at the call.
         for type_name in ('ModelConfiguration', 'ModelContainer'):
             for index, token in enumerate(tokens):
                 if token.value != type_name:
                     continue
-                if index + 2 < len(tokens) and tokens[index + 1].value == '.' and tokens[index + 2].value == 'init':
-                    errors.append(
-                        f"{file}: {type_name}.init bypasses the explicit SwiftData construction form"
-                    )
                 if index + 2 < len(tokens) and tokens[index + 1].value == '.' and tokens[index + 2].value == 'self':
                     errors.append(
                         f"{file}: {type_name}.self bypasses the explicit SwiftData construction form"
                     )
-        if protected_types_present and _has_contextual_initializer(tokens):
-            errors.append(
-                f"{file}: contextual .init bypasses the explicit SwiftData construction form"
-            )
 
         if file != data_controller:
             if configuration_calls:
@@ -464,6 +572,17 @@ def self_test() -> None:
         (root / "MindBudget/Sync.swift").write_text("import CloudKit\n", encoding="utf-8")
         if validate_swiftdata_boundary(root):
             raise AssertionError("explicit .none fixture rejected")
+
+        for import_kind in sorted(SWIFT_IMPORT_KINDS):
+            (root / "MindBudget/Sync.swift").write_text(
+                f"import {import_kind} CloudKit.ImportedSymbol\n",
+                encoding="utf-8",
+            )
+            data_controller.write_text("ModelConfiguration()\n", encoding="utf-8")
+            if not validate_swiftdata_boundary(root):
+                raise AssertionError(f"selective CloudKit {import_kind} import did not trigger hardening")
+        (root / "MindBudget/Sync.swift").write_text("import CloudKit\n", encoding="utf-8")
+
         data_controller.write_text("ModelConfiguration()\n", encoding="utf-8")
         if not validate_swiftdata_boundary(root):
             raise AssertionError("implicit managed-sync fixture accepted")
@@ -511,6 +630,34 @@ def self_test() -> None:
         )
         if validate_swiftdata_boundary(root):
             raise AssertionError("iCloud-entitlement explicit-.none fixture rejected")
+
+        (root / "MindBudget/AlternateStore.swift").write_text(
+            r'let marker = #"ends with backslash\"#' + "\n"
+            "let configuration = ModelConfiguration()\n"
+            "let container = ModelContainer(\n"
+            "  for: AlternateSchema.self,\n"
+            "  configurations: [configuration]\n"
+            ")\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("raw-string trailing-backslash fixture swallowed later construction")
+        (root / "MindBudget/AlternateStore.swift").unlink()
+
+        (root / "MindBudget/ContainerSink.swift").write_text(
+            "func publish(_ value: ModelContainer) {}\n",
+            encoding="utf-8",
+        )
+        (root / "MindBudget/AlternateStore.swift").write_text(
+            "func constructAlternateStore() throws {\n"
+            "  publish(try .init(for: AlternateSchema.self))\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("cross-file contextual ModelContainer .init fixture accepted")
+        (root / "MindBudget/ContainerSink.swift").unlink()
+        (root / "MindBudget/AlternateStore.swift").unlink()
 
         data_controller.write_text(
             "ModelConfiguration.init(cloudKitDatabase: .none)\nModelContainer(for: Schema.self)\n",

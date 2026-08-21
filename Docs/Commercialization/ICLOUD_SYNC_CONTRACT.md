@@ -223,7 +223,10 @@ availability; it must not promise a time or amount.
   `cloudKitDatabase: .none`, and `ModelContainer` construction remains centralized in
   `DataController`. The structural checker tokenizes real Swift code while excluding comments and
   normal/raw single-line or multiline string literal text (but retaining interpolation code). It
-  must fail clearly for missing/alternate owners, aliases, direct or contextual `.init` bypasses,
+  applies Swift's delimiter-specific raw-string escape rules, recognizes direct and selective
+  CloudKit imports, and manages every real production `.init(...)` through a path/call-shape/count
+  allowance so contextual type inference cannot move construction across files. It must fail
+  clearly for missing/alternate owners, aliases, unapproved direct or contextual `.init` calls,
   metatype `.self` escapes, nested-code `.none` lookalikes, missing top-level per-call `.none`, and
   explicit `.automatic`/private managed-mirroring selection. Ordinary `ModelContainer`
   parameter/reference types outside `DataController` remain valid; only construction is

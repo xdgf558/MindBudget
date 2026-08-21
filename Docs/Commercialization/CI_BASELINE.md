@@ -708,14 +708,17 @@ or distribution was added.
 The prerequisite checker now tokenizes each production Swift source while excluding comments and
 normal/raw single-line or multiline string literal text (but retaining interpolation code), reports
 a missing `DataController` as a closed diagnostic, scans all `MindBudget/**/*.swift`
-`ModelConfiguration` constructions, rejects aliases, direct/contextual `.init`, and metatype
-`.self` bypasses, requires top-level `.none` inside every individual real configuration call,
-rejects explicit
+`ModelConfiguration` constructions, applies delimiter-specific raw-string escape rules, recognizes
+direct and selective CloudKit imports, and rejects aliases and metatype `.self` bypasses. Every
+production `.init(...)` is checked against an exact path/receiver/argument-label/count allowance,
+closing cross-file contextual inference without rejecting the current reviewed initializers. The
+checker requires top-level `.none` inside every individual real configuration call, rejects explicit
 `.automatic`/private managed CloudKit selection, and centralizes construction without rejecting
 ordinary `ModelContainer` parameter/reference types outside `DataController`. Its self-test proves
 compact `.none`, partial hardening, `.automatic`, private managed storage, alternate production
-construction, direct/contextual `.init`, metatype escape, aliases, fake comment/string or nested-code
-`.none`, entitlement-triggered hardening, and missing-owner cases.
+construction, direct/same-file/cross-file contextual `.init`, metatype escape, aliases, fake
+comment/string or nested-code `.none`, raw trailing-backslash termination, every supported selective
+import kind, entitlement-triggered hardening, and missing-owner cases.
 
 Local prerequisite verification passed the money, network-egress, commercialization-document,
 StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and

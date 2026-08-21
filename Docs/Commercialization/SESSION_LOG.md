@@ -1818,3 +1818,26 @@ The money, network-egress, commercialization-document, StoreKit-catalog 13/13, i
 self-test/repository check, Python syntax, and `git diff --check` gates passed locally. This is
 still documentation/static-gate maintenance only: no runtime Swift, schema, CloudKit container,
 entitlement, request, deployment, Archive/upload, tester, review, or distribution behavior changed.
+
+## 2026-08-21 — Session 64 — Make the C4B-02P lexer delimiter- and cross-file-safe
+
+The next independent review reproduced two further P1 lexical escapes and one P2 trigger gap. A
+literal trailing backslash in a raw string could consume its closing quote and hide later source;
+a contextual `.init` could infer `ModelContainer` from a declaration in another file; and a
+selective import such as `import class CloudKit.CKSyncEngine` did not activate hardening.
+
+Raw strings now treat a backslash as an escape only when it carries the exact opening hash count.
+Every real production `.init(...)` is inventoried across the repository even before a CloudKit
+trigger and checked against a closed path/receiver/top-level-label/count allowance for the 11
+reviewed existing calls. This avoids pretending a lexical scanner can infer cross-file types:
+another contextual initializer fails regardless of which file declares its expected type. Direct
+and every supported selective CloudKit import kind now activate the same SwiftData boundary.
+
+The deterministic fixtures reproduce the raw trailing-backslash case with a later default
+configuration/container, a two-file `ModelContainer` sink plus bare `.init`, and class/struct/enum/
+protocol/typealias/func/var/let/macro selective imports. Targeted iCloud self-test, repository scan,
+and Python syntax passed. Money, network-egress, commercialization-document, StoreKit-catalog
+13/13, iCloud self/repository, Python syntax, and `git diff --check` all passed in the final static
+rerun. No runtime Swift, schema, container, entitlement, request, deployment, Archive/upload,
+tester, review, or distribution behavior changed; C4B-02P remains pending review and C4B-02 remains
+Blocked.

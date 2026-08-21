@@ -5003,3 +5003,26 @@ tester, or distribution behavior changed.
 Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
 self-test/repository check, Python syntax, and `git diff --check` all passed locally. Hosted CI,
 independent review, and merge remain required before C4B-02P can close.
+
+## 2026-08-21 — Session 147 — Close raw-string, cross-file init, and selective-import escapes
+
+The follow-up review correctly reproduced three remaining static-gate gaps. The raw-string scanner
+treated an ordinary backslash like a non-raw escape and could swallow the closing quote plus later
+Swift code. A bare `.init` could receive `ModelContainer` context from a declaration in another
+file, defeating the same-file protected-type heuristic. Selective imports such as
+`import class CloudKit.CKSyncEngine` did not match the direct-import trigger.
+
+The lexer now applies Swift raw delimiters exactly: only a backslash followed by the opening number
+of hashes starts a raw escape or interpolation. Instead of attempting local type inference, the
+checker inventories every real production `.init(...)` repository-wide and permits only the 11
+existing reviewed calls by exact path, receiver, top-level argument labels, and maximum count.
+Direct and all supported selective CloudKit import kinds activate hardening. Comments and all
+literal text remain excluded, while string-interpolation code remains visible.
+
+New fixtures place a default configuration/container after a raw string ending in a literal
+backslash, split a `ModelContainer` sink and inferred `.init` across two files, and exercise every
+selective-import kind. Targeted self-test, repository scan, and Python syntax passed. No runtime
+Swift, schema, container, entitlement, request, deployment, Archive/upload, tester, review, or
+distribution behavior changed. C4B-02P stays pending independent review and C4B-02 stays Blocked.
+The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
+self/repository, Python syntax, and `git diff --check` rerun also passed.
