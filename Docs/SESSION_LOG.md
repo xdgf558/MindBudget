@@ -5048,3 +5048,52 @@ behavior changed. C4B-02P remains pending independent review and C4B-02 remains 
 
 The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
 self/repository, Python syntax, and `git diff --check` rerun passed.
+
+## 2026-08-21 — Session 149 — Implement C4B-02 custom-record sync without provisioning iCloud
+
+PR #58 prerequisite evidence was first calibrated: reviewed head `0fece3a` passed GitHub Actions
+run `32454490080` and merged as `6f5fded`. The owner then explicitly started C4B-02 and asked that
+implementation and documentation closeout ship in the same review branch.
+
+Schema V6 adds five local, non-authoritative sync metadata models. Every primary
+`ModelConfiguration` is explicitly `cloudKitDatabase: .none`. The new default-off service and
+Settings disclosure create no adapter before consent; after consent, local business facts and
+outbox/tombstones share one `ModelContext` transaction. Remote records are inbox-first and only
+`DataActor` may validate/topologically apply them. Twelve exact authoritative fact types are
+supported; Merchant plus context, SpendingInsight, and ReminderEvent remain local. The adapter is
+private-database/custom-zone only, encrypts the complete envelope, keeps logical tombstones, and
+maps account, network, quota, service, conflict, physical deletion, malformed data, and encrypted-
+key reset to closed local-first status. Account changes require explicit disable/re-consent before
+new-account genesis staging; key reset cannot be cleared by generic re-enable.
+
+The final focused sync suite passed 20/20 on Xcode 26.6/iOS 26.4.1 at
+`/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult`. It includes all 12 facts and permanent
+local-only exclusion, V5-to-V6 migration, lineage/replay, duplicate delivery, cascade and logical
+tombstones, malformed/physical deletion, no-winner conflict, account and key-reset lifecycle, and
+default-off transport. It also proves that encrypted-key reset and external remote-zone deletion/
+purge remain sticky pauses that generic disable/re-enable cannot turn into a destructive reupload.
+One preceding run failed only because a new cascade test compared two
+equivalent record-name arrays in different queue order; it now compares sets and still reverses the
+remote delivery to prove child-before-parent tombstone application.
+
+No iCloud entitlement, provisioned container, Dashboard schema/deployment, verified CloudKit
+request, physical/multi-device evidence, conflict-resolution UI, cloud-wide deletion, Archive,
+upload, tester, review, or distribution action was added. C4B-02 remains pending independent review,
+hosted CI, and merge; C4B-03 remains blocked.
+
+## 2026-08-21 — Session 150 — Complete C4B-02 validation with an isolated performance signal
+
+The first default `Scripts/validate.sh` run passed the Release build, the functional suites, and all
+17 UI tests, but its strict 10,000-row Dashboard wall-clock test was the only failure while competing
+with 27 concurrent Swift Testing suites. That run is explicitly a non-pass. A focused Phase 10 run
+then passed, and 10 isolated iterations passed 20/20 on iOS 26.4.1 at
+`/private/tmp/MindBudget-C4B02-Performance10-iOS264.xcresult`, closing an actual product-regression
+theory and identifying invalid concurrent measurement.
+
+`Scripts/validate.sh` now runs the local 500 ms benchmark once with parallel testing disabled and
+skips only its duplicate invocation in the main run; hosted CI still skips the machine-sensitive
+signal and runs the deterministic 10,000-row projection contract. The corrected full validation
+passed: isolated benchmark 1/1, remaining unit tests 444/444, UI 17/17, Release build, static gates,
+and coverage thresholds. Result: `/private/tmp/MindBudget-C4B02-Validate.xcresult`. C4B-02 remains
+pending independent review/hosted CI/merge; no entitlement, provisioned container, Dashboard
+deployment, real CloudKit request, Archive, upload, tester, or distribution action occurred.

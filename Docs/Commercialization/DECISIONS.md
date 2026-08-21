@@ -857,3 +857,63 @@ architecture and explicit owner instruction.
   not a container creation, entitlement, CloudKit request, deployment, runtime implementation, or
   distribution action. C4B-02 remains blocked pending prerequisite review/merge and explicit owner
   instruction.
+
+## DEC-COM-029 — Implement C4B-02 as an explicit local-authority custom-record runtime
+
+- Status/date: **Accepted implementation decision pending independent review — 2026-08-21**
+- Requirements: REQ-ICLOUD-001, REQ-RECEIPT-PRIVACY-001, REQ-MONEY-001
+- Decision: Schema V6 adds five non-authoritative local sync models for consent/control, accepted
+  record lineage/system fields, durable outbox, durable inbox/quarantine, and rebuildable opaque
+  engine state. Every primary SwiftData configuration explicitly selects
+  `cloudKitDatabase: .none`; managed mirroring remains prohibited. Enabling sync after the exact
+  bilingual disclosure stages the current 12-type authoritative fact inventory, and every later
+  local authoring/deletion transaction stages its envelope or logical tombstone in the same
+  `ModelContext` save. Remote records enter the inbox first, then are decoded, validated, and
+  topologically applied by `DataActor`; the engine delegate never writes a business fact directly.
+- Conflict and lifecycle boundary: Canonical bytes, exact record identity, revision/digest ancestry,
+  encoded server change tags, and same-name logical tombstones are mandatory. Replay is idempotent;
+  true divergence, physical deletion, malformed data, unknown schema, or invalid lineage is
+  durably quarantined without choosing a financial winner. Account change pauses, clears only the
+  old account's transport metadata after explicit disable, and requires a new disclosure acceptance
+  before staging new-account genesis facts. Encrypted-key reset remains a distinct sticky pause that
+  generic enable/disable cannot clear. External custom-zone deletion or purge is also sticky:
+  C4B-02 never treats a missing zone as an empty server to recreate and repopulate. Network,
+  account, quota, service, and transport failures never block local reads or writes.
+- Transport and UI boundary: The centralized adapter is private-database only, creates only the
+  accepted custom zone/record type, places the full typed envelope in one encrypted value, and uses
+  no public/shared database, attachment, physical record delete, or app-owned HTTP endpoint. Settings
+  exposes only default-off consent, neutral closed status, retry, and disable-retaining-data. The
+  exact container identifier is still an unprovisioned source constant; this packet adds no iCloud
+  entitlement, Dashboard deployment, verified CloudKit request, or distribution authority.
+- C4B-03 handoff: Physical account and multi-device convergence, actual container/entitlement and
+  Development/Production schema, conflict-resolution visibility, cloud-wide Delete All, tombstone
+  retention/compaction, Dashboard roles, quota wording on device, privacy/review evidence, and
+  release remain blocked for C4B-03.
+- Evidence: Focused deterministic `CloudSyncTests` pass 20/20 at
+  `/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult`; the exact 12-type source gate and
+  existing money/network/commercial/StoreKit gates are part of final validation. Independent
+  review, hosted CI, and merge remain required.
+- Alternatives rejected: Managed model mirroring; immediate physical delete; delegate writes into
+  SwiftData; storing attachments or local-only caches; implicit/Pro-gated enablement; retry loops
+  that block budgeting; last-writer-wins/device/wall-clock conflict choice; automatically uploading
+  an old account's ledger to a new account; and treating simulator fakes as C4B-03 cloud evidence.
+
+## DEC-COM-030 — Isolate the strict local Dashboard benchmark from correctness-suite contention
+
+- Status/date: **Accepted verification maintenance — 2026-08-21**
+- Requirements: REQ-ICLOUD-001 and the existing local release-performance contract
+- Decision: `Scripts/validate.sh` runs the 10,000-row, 500 ms Dashboard wall-clock test once in a
+  dedicated non-parallel test invocation on local release machines, then excludes only the
+  duplicate invocation from the full correctness/coverage run. Hosted CI continues to skip the
+  machine-sensitive wall-clock signal while running the deterministic 10,000-row projection test.
+- Reason: The pre-change validation attempt passed every functional and UI assertion but ran the
+  wall-clock test concurrently with 27 Swift Testing suites. The same code passed a focused run and
+  10/10 isolated iterations. Measuring unrelated suite contention would not represent Dashboard
+  first-load latency and made the release signal nondeterministic.
+- Consequences: The 500 ms threshold is not raised, disabled locally, retried until green, or
+  replaced by a mock. The final validation must pass both the isolated benchmark and the complete
+  correctness/UI/coverage run. This maintenance grants no CloudKit entitlement, container,
+  deployment, or C4B-03 authority.
+- Evidence: 20/20 Phase 10 tests across 10 isolated iterations passed at
+  `/private/tmp/MindBudget-C4B02-Performance10-iOS264.xcresult`; the corrected full validation then
+  passed at `/private/tmp/MindBudget-C4B02-Validate.xcresult`.

@@ -1864,3 +1864,47 @@ remains pending review and C4B-02 remains Blocked.
 
 Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud self/repository,
 Python syntax, and `git diff --check` all passed in the final local rerun.
+
+## 2026-08-21 — Session 66 — Implement the C4B-02 local-authority custom-record runtime
+
+C4B-02P passed independent review and GitHub Actions run `32454490080`, then merged through PR #58
+as `6f5fded`. After the owner's explicit start, C4B-02 implemented only the accepted runtime/local
+boundary and combined its documentation closeout in the same branch.
+
+Schema V6 adds five non-authoritative sync metadata models; all primary stores are explicitly
+non-mirrored. The app stages each approved fact and its custom envelope/tombstone atomically,
+persists remote data in an inbox before `DataActor` validation/topological application, and keeps a
+separate durable outbox from opaque engine state. The exact 12-type allow-list is exhaustive and
+four local-only owners remain excluded. Canonical bytes, revision/digest ancestry, encoded server
+system fields, no-winner quarantine, same-name logical tombstones, account re-consent, sticky
+encrypted-key-reset/remote-zone-loss pauses, and local-first closed failure statuses implement
+DEC-COM-028/029.
+Settings shows the accepted bilingual default-off disclosure and only neutral status/retry/disable
+controls.
+
+Focused evidence is 20/20 passing tests at
+`/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult` on Xcode 26.6/iOS 26.4.1. Static source
+checks additionally enforce the exact allow-list and adapter anchors while rejecting public/shared
+database, attachment, physical record deletion, managed mirroring, unapproved container creation,
+and a C4B-02 iCloud entitlement. Full local/static validation and hosted CI are recorded separately.
+
+The exact container identifier remains only an unprovisioned source constant. There is no iCloud
+entitlement, Dashboard schema/deployment, real CloudKit request, physical account/multi-device
+evidence, conflict-resolution UI, cloud-wide deletion, Archive/upload/tester/review/distribution, or
+C4C work. C4B-02 is implementation complete pending independent review; C4B-03 remains blocked.
+
+## 2026-08-21 — Session 67 — Finish C4B-02 full validation without a contended benchmark
+
+The first full validation attempt passed every functional/UI assertion and the Release build but
+failed only the strict local Dashboard wall-clock signal while it ran beside 27 concurrent Swift
+Testing suites. It is retained as a non-pass. The focused Phase 10 suite passed, followed by 10/10
+isolated iterations (20/20 tests) on iOS 26.4.1 at
+`/private/tmp/MindBudget-C4B02-Performance10-iOS264.xcresult`.
+
+DEC-COM-030 therefore keeps the exact 500 ms threshold while making the measurement meaningful:
+local validation runs that test once with parallel testing disabled, and the full run excludes only
+the duplicate concurrent copy. The corrected `Scripts/validate.sh` run passed the isolated
+benchmark, 444 remaining unit tests, 17 UI tests, Release build, static contracts, and coverage
+gate at `/private/tmp/MindBudget-C4B02-Validate.xcresult`. No C4B-03 environment, deployment,
+physical-device, conflict-resolution, cloud-wide deletion, Archive/upload, tester, or distribution
+claim was added.

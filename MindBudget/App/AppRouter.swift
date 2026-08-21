@@ -50,6 +50,7 @@ final class AppSession: ObservableObject {
     private let trialLifecycleScheduler: any TrialLifecycleScheduling
     private let publicConfigurationService: (any PublicConfigurationServicing)?
     private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
+    private let cloudSyncService: (any CloudSyncServicing)?
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -78,6 +79,7 @@ final class AppSession: ObservableObject {
     @Published private(set) var trialRenewalReminderFailed = false
     @Published private(set) var publicConfigurationPresentation =
         PublicConfigurationPresentation.conservativeDefault
+    @Published private(set) var cloudSyncSnapshot = CloudSyncSnapshot.disabled
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
     private var trialLifecycleReconciliationGeneration = 0
@@ -127,6 +129,7 @@ final class AppSession: ObservableObject {
         publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling =
             SystemPublicConfigurationExpirationScheduler(),
+        cloudSyncService: (any CloudSyncServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -143,8 +146,15 @@ final class AppSession: ObservableObject {
         self.trialLifecycleScheduler = trialLifecycleScheduler
         self.publicConfigurationService = publicConfigurationService
         self.publicConfigurationExpirationScheduler = publicConfigurationExpirationScheduler
+        self.cloudSyncService = cloudSyncService
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
+        if let cloudSyncService {
+            cloudSyncSnapshot = cloudSyncService.snapshot
+            cloudSyncService.onSnapshotChange = { [weak self] snapshot in
+                self?.cloudSyncSnapshot = snapshot
+            }
+        }
     }
 
     deinit {
@@ -286,6 +296,22 @@ final class AppSession: ObservableObject {
 
     func refreshCommerceEntitlements() async {
         await entitlementStore?.refreshCurrentEntitlements()
+    }
+
+    func startCloudSyncLifecycle() async {
+        await cloudSyncService?.start()
+    }
+
+    func setCloudSyncEnabled(_ enabled: Bool) async {
+        await cloudSyncService?.setEnabled(enabled)
+    }
+
+    func retryCloudSync() async {
+        await cloudSyncService?.retry()
+    }
+
+    func refreshCloudSyncOnSceneActivation() async {
+        await cloudSyncService?.sceneDidBecomeActive()
     }
 
     @discardableResult
@@ -621,6 +647,7 @@ final class AppSession: ObservableObject {
 
     @discardableResult
     func deleteAllData(settings: SettingsStore) async -> Bool {
+        await cloudSyncService?.stop()
         privacyDeletionState = .inProgress(.cancellingNotifications)
         do {
             try await notificationScheduler.cancelAll()
@@ -663,6 +690,7 @@ final class AppSession: ObservableObject {
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
+        cloudSyncSnapshot = .disabled
         return true
     }
 
@@ -693,6 +721,7 @@ struct AppRouter: View {
         entitlementStore: EntitlementStore? = nil,
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
         publicConfigurationService: (any PublicConfigurationServicing)? = nil,
+        cloudSyncService: (any CloudSyncServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -709,6 +738,7 @@ struct AppRouter: View {
                 entitlementStore: entitlementStore,
                 trialLifecycleScheduler: trialLifecycleScheduler,
                 publicConfigurationService: publicConfigurationService,
+                cloudSyncService: cloudSyncService,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -774,6 +804,11 @@ struct AppRouter: View {
             await session.startPublicConfigurationLifecycle()
         }
         .task {
+            // The service reads the durable default-off switch first. No CKContainer or
+            // CKSyncEngine is created until the owner has explicitly accepted the disclosure.
+            await session.startCloudSyncLifecycle()
+        }
+        .task {
             await session.startCommerceLifecycle()
             await session.reconcileTrialLifecycle(
                 settings: settings,
@@ -792,6 +827,7 @@ struct AppRouter: View {
             case .active:
                 session.beginScenePublicConfigurationRefresh()
                 Task {
+                    await session.refreshCloudSyncOnSceneActivation()
                     await session.refreshCommerceEntitlements()
                     await session.reconcileTrialLifecycle(
                         settings: settings,

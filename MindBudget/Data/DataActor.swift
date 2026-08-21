@@ -277,6 +277,10 @@ struct MonthlyRecurringSchedule: Sendable {
 
 @ModelActor
 actor DataActor {
+    /// Remote application reuses the same validation and save boundary but must never echo a
+    /// fetched CloudKit record back into the durable outbox.
+    var isApplyingCloudSyncMutation = false
+
     func createExpense(_ draft: ExpenseDraft) throws -> ExpenseSummary {
         try commit {
             let expense = try insertExpense(draft)
@@ -1576,6 +1580,9 @@ actor DataActor {
     }
 
     func deleteAllUserData() throws {
+        let previousSuppression = isApplyingCloudSyncMutation
+        isApplyingCloudSyncMutation = true
+        defer { isApplyingCloudSyncMutation = previousSuppression }
         try commit {
             try deleteAllLocalModels()
         }
@@ -1633,17 +1640,23 @@ actor DataActor {
             for coolingOffPlan in sample.coolingOffPlans {
                 _ = try insertCoolingOffPlan(coolingOffPlan)
             }
+            _ = try stageCloudSyncChangesFromCurrentContext()
             try modelContext.save()
+            CloudSyncLocalChangeSignal.post()
         } catch {
             modelContext.rollback()
             throw error
         }
     }
 
-    private func commit<Result>(_ changes: () throws -> Result) throws -> Result {
+    func commit<Result>(_ changes: () throws -> Result) throws -> Result {
         do {
             let result = try changes()
+            let stagedSyncChange = try stageCloudSyncChangesFromCurrentContext()
             try modelContext.save()
+            if stagedSyncChange {
+                CloudSyncLocalChangeSignal.post()
+            }
             return result
         } catch {
             modelContext.rollback()
@@ -1652,6 +1665,11 @@ actor DataActor {
     }
 
     private func deleteAllLocalModels() throws {
+        for model in try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<CloudSyncOutboxItem>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<CloudSyncEngineState>()) { modelContext.delete(model) }
+        for model in try modelContext.fetch(FetchDescriptor<CloudSyncControl>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<RecurringExpenseOccurrence>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<RecurringFixedExpenseRule>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<SavingsGoal>()) { modelContext.delete(model) }
@@ -2088,7 +2106,7 @@ actor DataActor {
         }
     }
 
-    private func validateAccountingCurrency(_ currencyCode: String) throws {
+    func validateAccountingCurrency(_ currencyCode: String) throws {
         guard Money.isSupported(currencyCode) else {
             throw DataValidationError.unsupportedCurrency(currencyCode)
         }
@@ -2314,7 +2332,7 @@ actor DataActor {
         return try modelContext.fetch(descriptor).first
     }
 
-    private func rebuildMerchant(
+    func rebuildMerchant(
         normalizedName: String,
         including pendingExpense: Expense? = nil,
         excludingExpenseID: UUID? = nil
@@ -2452,7 +2470,7 @@ actor DataActor {
         return context.currencyCode
     }
 
-    private func normalizedMerchantName(_ name: String) -> String? {
+    func normalizedMerchantName(_ name: String) -> String? {
         let folded = name.folding(
             options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive],
             locale: Locale(identifier: "en_US_POSIX")

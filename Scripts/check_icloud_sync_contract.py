@@ -85,6 +85,15 @@ ALLOWED_INITIALIZER_CALLS: dict[str, Counter[tuple[str | None, tuple[str, ...]]]
             ),
         ): 1,
     }),
+    "MindBudget/Data/CloudSyncDataActor.swift": Counter({
+        ("CloudSyncReasonCode", ("rawValue",)): 1,
+    }),
+    "MindBudget/Services/CloudSyncDomain.swift": Counter({
+        ("self", ("timeIntervalSinceReferenceDate",)): 1,
+    }),
+    "MindBudget/Services/CloudSyncRuntime.swift": Counter({
+        ("super", ()): 1,
+    }),
     "MindBudget/Services/PrivacyRedactor.swift": Counter({
         ("Locale", ("identifier",)): 1,
     }),
@@ -119,6 +128,46 @@ SWIFT_IMPORT_KINDS = {
     "struct",
     "typealias",
     "var",
+}
+
+EXPECTED_SYNC_ENTITY_CASES = {
+    "expense",
+    "income",
+    "incomeAllocation",
+    "savingsGoal",
+    "recurringRule",
+    "recurringOccurrence",
+    "budgetPlan",
+    "budgetPlanSemantics",
+    "categoryBudget",
+    "wishItem",
+    "coolingOffPlan",
+    "reflectionLog",
+}
+
+REQUIRED_RUNTIME_ANCHORS = {
+    "MindBudget/Services/CloudSyncRuntime.swift": (
+        'containerIdentifier = "iCloud.com.xdgf558.MindBudget"',
+        'zoneName = "MindBudget.Sync.v1"',
+        'recordType = "MindBudgetEnvelopeV1"',
+        "container.privateCloudDatabase",
+        "configuration.automaticallySync = false",
+        "record.encryptedValues[Self.encryptedEnvelopeKey]",
+    ),
+    "MindBudget/Data/DataController.swift": (
+        "Schema(versionedSchema: SchemaV6.self)",
+        "cloudKitDatabase: .none",
+    ),
+    "MindBudget/Data/CloudSyncDataActor.swift": (
+        "stageAllCurrentFacts",
+        "CloudSyncOutboxItem",
+        "CloudSyncRecordMetadata",
+    ),
+    "MindBudget/Data/CloudSyncRemoteApply.swift": (
+        "applyPendingCloudSyncInbox",
+        "CloudSyncInboxStatus.quarantined",
+        "CloudSyncOperation.tombstone",
+    ),
 }
 
 
@@ -321,6 +370,39 @@ def _matching_token_parenthesis(tokens: list[SwiftToken], opening: int) -> int |
             depth -= 1
             if depth == 0:
                 return index
+    return None
+
+
+def _matching_token_brace(tokens: list[SwiftToken], opening: int) -> int | None:
+    depth = 1
+    for index in range(opening + 1, len(tokens)):
+        if tokens[index].value == '{':
+            depth += 1
+        elif tokens[index].value == '}':
+            depth -= 1
+            if depth == 0:
+                return index
+    return None
+
+
+def _enum_cases(tokens: list[SwiftToken], enum_name: str) -> set[str] | None:
+    for index in range(len(tokens) - 2):
+        if tokens[index].value != 'enum' or tokens[index + 1].value != enum_name:
+            continue
+        opening = next(
+            (candidate for candidate in range(index + 2, len(tokens)) if tokens[candidate].value == '{'),
+            None,
+        )
+        if opening is None:
+            return None
+        closing = _matching_token_brace(tokens, opening)
+        if closing is None:
+            return None
+        return {
+            tokens[candidate + 1].value
+            for candidate in range(opening + 1, closing - 1)
+            if tokens[candidate].value == 'case'
+        }
     return None
 
 
@@ -626,6 +708,59 @@ def validate_swiftdata_boundary(project_root: Path) -> list[str]:
 
     if total_configurations == 0:
         errors.append("CloudKit capability/import found no explicit primary ModelConfiguration")
+    return errors
+
+
+def validate_custom_sync_runtime(project_root: Path) -> list[str]:
+    """Keep the accepted C4B-02 custom-record boundary structural and fail closed."""
+
+    errors: list[str] = []
+    source_text: dict[str, str] = {}
+    for relative, anchors in REQUIRED_RUNTIME_ANCHORS.items():
+        path = project_root / relative
+        if not path.is_file():
+            errors.append(f"{path}: missing accepted C4B-02 runtime owner")
+            continue
+        text = path.read_text(encoding="utf-8")
+        source_text[relative] = text
+        for anchor in anchors:
+            if anchor not in text:
+                errors.append(f"{path}: missing C4B-02 runtime contract anchor {anchor!r}")
+
+    domain_path = project_root / "MindBudget/Services/CloudSyncDomain.swift"
+    if not domain_path.is_file():
+        errors.append(f"{domain_path}: missing versioned sync envelope domain")
+    else:
+        domain_text = domain_path.read_text(encoding="utf-8")
+        source_text["MindBudget/Services/CloudSyncDomain.swift"] = domain_text
+        cases = _enum_cases(_swift_code_tokens(domain_text), "CloudSyncEntityType")
+        if cases != EXPECTED_SYNC_ENTITY_CASES:
+            errors.append(
+                f"{domain_path}: CloudSyncEntityType must be exactly the 12 accepted facts; "
+                f"found {sorted(cases or set())}"
+            )
+
+    combined_runtime = "\n".join(source_text.values())
+    for forbidden in (
+        "publicCloudDatabase",
+        "sharedCloudDatabase",
+        "CKAsset(",
+        ".deleteRecord(",
+    ):
+        if forbidden in combined_runtime:
+            errors.append(
+                f"C4B-02 custom sync runtime contains forbidden transport shape {forbidden!r}"
+            )
+
+    # C4B-02 implements and tests the default-off custom-record runtime but does not authorize
+    # provisioning. C4B-03 must deliberately replace this guard when its container/environment
+    # evidence packet is accepted.
+    for entitlement in project_root.rglob("*.entitlements"):
+        text = entitlement.read_text(encoding="utf-8")
+        if "com.apple.developer.icloud-container-identifiers" in text:
+            errors.append(
+                f"{entitlement}: C4B-02 does not authorize an iCloud container entitlement"
+            )
     return errors
 
 
@@ -950,6 +1085,7 @@ def main() -> int:
         return 0
     errors = validate_contract(args.contract)
     errors.extend(validate_swiftdata_boundary(args.project_root))
+    errors.extend(validate_custom_sync_runtime(args.project_root))
     if errors:
         raise SystemExit("\n".join(errors))
     return 0

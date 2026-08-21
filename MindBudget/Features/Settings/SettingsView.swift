@@ -136,6 +136,16 @@ struct SettingsView: View {
                         )
                     }
                     .accessibilityIdentifier("settings.privacy")
+
+                    NavigationLink {
+                        CloudSyncSettingsView(session: session)
+                    } label: {
+                        SettingsDestinationLabel(
+                            title: "settings.icloudSync.title",
+                            systemImage: "icloud"
+                        )
+                    }
+                    .accessibilityIdentifier("settings.icloudSync")
                 } header: {
                     Text("settings.privacy.section")
                 } footer: {
@@ -164,6 +174,115 @@ struct SettingsView: View {
             }
             .accessibilityIdentifier("settings.view")
         }
+    }
+}
+
+private struct CloudSyncSettingsView: View {
+    @ObservedObject var session: AppSession
+    @Environment(\.mindBudgetTheme) private var theme
+    @State private var showsEnableConfirmation = false
+    @State private var isWorking = false
+
+    var body: some View {
+        List {
+            Section {
+                LabeledContent("settings.icloudSync.status") {
+                    Text(statusKey)
+                        .foregroundStyle(
+                            statusUsesAttention
+                                ? AnyShapeStyle(theme.attentionText)
+                                : AnyShapeStyle(theme.inkSecondary)
+                        )
+                        .multilineTextAlignment(.trailing)
+                }
+                .accessibilityIdentifier("settings.icloudSync.status")
+
+                if session.cloudSyncSnapshot.pendingCount > 0 {
+                    LabeledContent(
+                        "settings.icloudSync.pending",
+                        value: String(session.cloudSyncSnapshot.pendingCount)
+                    )
+                }
+                if session.cloudSyncSnapshot.quarantinedCount > 0 {
+                    LabeledContent(
+                        "settings.icloudSync.needsReview",
+                        value: String(session.cloudSyncSnapshot.quarantinedCount)
+                    )
+                }
+            } footer: {
+                Text("settings.icloudSync.disclosure")
+            }
+
+            Section {
+                if session.cloudSyncSnapshot.isEnabled {
+                    Button("settings.icloudSync.retry") {
+                        Task { await perform { await session.retryCloudSync() } }
+                    }
+                    .disabled(isWorking)
+
+                    Button("settings.icloudSync.disable", role: .destructive) {
+                        Task { await perform { await session.setCloudSyncEnabled(false) } }
+                    }
+                    .disabled(isWorking)
+                } else {
+                    Button("settings.icloudSync.enable") {
+                        showsEnableConfirmation = true
+                    }
+                    .disabled(isWorking)
+                    .accessibilityIdentifier("settings.icloudSync.enable")
+                }
+            } footer: {
+                Text("settings.icloudSync.disable.footer")
+            }
+        }
+        .settingsListPresentation()
+        .navigationTitle("settings.icloudSync.title")
+        .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "settings.icloudSync.confirm.title",
+            isPresented: $showsEnableConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("settings.icloudSync.confirm.enable") {
+                Task { await perform { await session.setCloudSyncEnabled(true) } }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("settings.icloudSync.disclosure")
+        }
+        .accessibilityIdentifier("settings.icloudSync.view")
+    }
+
+    private var statusKey: LocalizedStringKey {
+        switch session.cloudSyncSnapshot.status {
+        case .disabled: "settings.icloudSync.status.disabled"
+        case .starting, .syncing: "settings.icloudSync.status.syncing"
+        case .ready: "settings.icloudSync.status.ready"
+        case .waitingForNetwork: "settings.icloudSync.status.offline"
+        case .accountUnavailable: "settings.icloudSync.status.account"
+        case .quotaExceeded: "settings.icloudSync.status.quota"
+        case .pausedAccountChanged: "settings.icloudSync.status.accountChanged"
+        case .pausedEncryptedDataReset: "settings.icloudSync.status.encryptedReset"
+        case .pausedRemoteZoneDeleted: "settings.icloudSync.status.remoteZoneDeleted"
+        case .failed: "settings.icloudSync.status.failed"
+        }
+    }
+
+    private var statusUsesAttention: Bool {
+        switch session.cloudSyncSnapshot.status {
+        case .disabled, .starting, .ready, .syncing, .waitingForNetwork:
+            false
+        case .accountUnavailable, .quotaExceeded, .pausedAccountChanged,
+             .pausedEncryptedDataReset, .pausedRemoteZoneDeleted, .failed:
+            true
+        }
+    }
+
+    private func perform(_ operation: @escaping @MainActor () async -> Void) async {
+        guard !isWorking else { return }
+        isWorking = true
+        await operation()
+        isWorking = false
     }
 }
 

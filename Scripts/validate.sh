@@ -60,14 +60,19 @@ test_arguments=(
   -resultBundlePath "${RESULT_BUNDLE}"
 )
 
-# Hosted runners have nondeterministic neighboring load. They still execute the
-# deterministic 10,000-row Dashboard projection contract; only the strict local
-# 500 ms wall-clock signal is excluded from their correctness gate.
-if [[ "${MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK:-0}" == "1" ]]; then
-  test_arguments+=(
-    "-skip-testing:MindBudgetTests/Phase10ReleaseReadinessTests/localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds()"
-  )
+wall_clock_benchmark="MindBudgetTests/Phase10ReleaseReadinessTests/localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds()"
+
+# A wall-clock benchmark is meaningful only without unrelated test-suite CPU contention.
+# Run it once, serially, on the local release machine; the full correctness/coverage run
+# below skips only the duplicate concurrent invocation. Hosted runners retain their
+# existing behavior: they execute the deterministic 10,000-row projection contract but
+# skip the strict 500 ms signal because neighboring load is nondeterministic.
+if [[ "${MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK:-0}" != "1" ]]; then
+  xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+    -destination "${DESTINATION}" -parallel-testing-enabled NO \
+    "-only-testing:${wall_clock_benchmark}" test-without-building
 fi
+test_arguments+=( "-skip-testing:${wall_clock_benchmark}" )
 
 if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
   test_arguments+=( -retry-tests-on-failure -test-iterations 2 )
