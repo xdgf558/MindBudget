@@ -4932,3 +4932,21 @@ build, static gates, and selected coverage thresholds passed at
 `/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`. The preceding sandbox-only attempt failed
 before project testing because Xcode could not write DerivedData; it is environment diagnostics,
 not a product failure or accepted evidence.
+
+
+## 2026-08-21 — Session 143 — Start COM-C4B-01 architecture design only
+
+The owner authorized only the C4B-01 Free iCloud design packet. DEC-COM-028 is Proposed, not
+Accepted: it recommends explicit custom private-zone `CKSyncEngine` envelopes with default-off
+Free/local-first behavior and rejects managed SwiftData mirroring. The source audit found V5
+`ModelCounts` has 16 tables, not the pre-V5 15-table C4A inventory. Authoritative user facts are
+allow-listed; derived Merchant/merchant-context/insight and device-specific reminder state stay local.
+
+C4B-02 must first pin each primary `ModelConfiguration` to `cloudKitDatabase: .none`, because
+the URL initializer defaults to `.automatic`; a new structural static gate enforces that whenever
+an iCloud entitlement or CloudKit import appears. This session adds no Swift, schema, container,
+entitlement, request, deployment, CloudKit Dashboard, release, or distribution behavior. C4B-02 and
+C4B-03 remain blocked pending owner acceptance and independent review.
+
+The four static gates, new contract-parser self-test, Python AST/shell syntax checks, and
+`git diff --check` passed. No full runtime validation was run because C4B-01 changes no runtime code.

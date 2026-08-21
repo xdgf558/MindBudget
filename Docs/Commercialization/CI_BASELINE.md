@@ -676,3 +676,22 @@ source with final Xcode 26.6 (`17F113`) and the iOS 26.4.1 (`23E254a`) iPhone 17
 It again produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, and 0 failed; all 17 UI
 tests, the Release build, every static gate, and every selected coverage threshold passed at
 `/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`.
+
+
+## COM-C4B-01 design-candidate verification
+
+Status: **Proposed architecture candidate complete pending independent review and owner acceptance.**
+
+C4B-01 changes only contract documents and static checks. It adds no Swift production source,
+SwiftData schema/model/entitlement, CloudKit container, Dashboard schema, request, or deployment.
+The candidate's static verification runs the existing phase-state parser plus
+`check_icloud_sync_contract.py` self-test and repository check. The latter fails a future
+CloudKit import or iCloud entitlement unless every primary local `DataController`
+`ModelConfiguration` explicitly sets `cloudKitDatabase: .none`, preventing accidental managed
+SwiftData mirroring. C4B-01 claims no runtime CloudKit evidence; C4B-02/03 still require their own
+full validation, independent review, hosted CI, merge, physical-device, and Dashboard gates.
+
+Local C4B-01 design validation passed the money, network-egress, commercialization-document, and
+StoreKit-catalog gates; the new parser self-test/repository check, Python AST syntax check, shell
+syntax check, and `git diff --check` also passed. A full runtime suite is intentionally not claimed:
+this candidate changes no runtime source, schema, entitlement, or container.

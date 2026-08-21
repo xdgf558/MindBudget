@@ -1732,3 +1732,32 @@ and every selected coverage threshold passed at
 `/private/tmp/MindBudget-C4A03-Closeout-Full.xcresult`. An earlier sandboxed invocation could not
 create Xcode DerivedData and never entered project testing, so it is retained only as an
 environment-permission diagnostic and not promoted as test evidence.
+
+
+## 2026-08-21 — Session 60 — Produce COM-C4B-01 Free iCloud sync design candidate
+
+The owner explicitly started C4B-01 design only. The proposed (not Accepted) DEC-COM-028 selects
+custom versioned `CKSyncEngine` records in one private custom zone, not managed SwiftData/Core Data
+mirroring. The candidate is Free, default-off, local-first, and never initializes an engine before
+consent. It inventories the actual V5 16-table `ModelCounts` set: twelve authoritative sync
+envelope owners, including the recurring-occurrence control-plane claim, and four local-only
+derived/device-specific owners (Merchant, MerchantAccountingContext, SpendingInsight, ReminderEvent).
+
+The contract pins the primary local `ModelConfiguration` boundary: the current URL initializers
+default to `.automatic`, so C4B-02 must explicitly set every one to `.none` before an iCloud
+entitlement/import. The new static contract check will reject a future entitlement/import without
+that hardening. Remote records enter durable inbox/shadow and only `DataActor` applies validated,
+topologically ordered facts; local facts and outbox/tombstones are one transaction. No online lease
+can block local budget writes. True divergent record/tombstone conflicts quarantine rather than use
+replica-ID/wall-clock LWW, while logical tombstones protect against resurrection.
+
+The uncreated/unaccepted candidate is one `iCloud.com.xdgf558.MindBudget` container with
+entitlement-selected Development/Production environments, proposed `MindBudget.Sync.v1` zone, and
+proposed `MindBudgetEnvelopeV1` record type. Typed ledger/note/reflection payload and semantic
+digest use `CKRecord.encryptedValues`; key reset pauses for explicit recovery, never automatic
+purging/reupload. No container, entitlement, CloudKit import, schema, request, Dashboard action,
+deployment, test account, release, or distribution action occurred. C4B-02/03 remain blocked pending
+owner acceptance and independent review.
+
+The money, network-egress, commercialization-document (including the new contract parser/self-test),
+and StoreKit-catalog gates passed, as did Python AST and shell syntax checks and `git diff --check`.

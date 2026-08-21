@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **No COM implementation phase is active. COM-C4A is Done; C4B remains blocked
-  pending an accepted CloudKit architecture and explicit owner instruction.** Reviewed C4A-03
+- Active phase: **COM-C4B-01 design candidate is complete pending owner and independent review.
+  COM-C4A is Done; C4B-02 and C4B-03 remain blocked.** Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
   COM-C4A. C4A-02 remains Done through PR #53 (`c905415`). COM-C3 is Done; C3-04 passed independent
   review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
@@ -383,11 +383,13 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 
 ## COM-C4B — Free iCloud sync
 
-Status: **Blocked pending an accepted CloudKit architecture and explicit owner instruction.**
+Status: **C4B-01 proposed architecture candidate complete pending independent review and owner acceptance.**
 
-- [B] **C4B-01 — Sync data design.** Define opt-in semantics, stable IDs, tombstones, conflict
-  rules, local attachment separation, containers/environments, deletion, and schema migration.
-- [B] **C4B-02 — Sync implementation.** Implement Free access, multi-device reconciliation,
+- [~] **C4B-01 — Sync data design.** Candidate: default-off Free custom versioned records in one
+  private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
+  CloudKit entitlement. `ICLOUD_SYNC_CONTRACT.md` inventories all V5 owners and marks this design
+  Proposed through DEC-COM-028 until owner/independent review.
+- [B] **C4B-02 — Sync implementation.** Implement the accepted Free custom-record path, multi-device reconciliation,
   offline retry, quota/iCloud-disabled handling, and allow-listed diagnostics. Receipt images and
   local intermediate files never enter CloudKit.
 - [B] **C4B-03 — Lifecycle and deletion.** Verify enable/disable/re-enable, entitlement changes,

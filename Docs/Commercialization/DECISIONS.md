@@ -802,3 +802,47 @@ test job and report upload. PR #55 merged C4A-03 to `main` as `77292c6`, satisfy
 review/CI/merge gates and closing COM-C4A. This is append-only closeout evidence, not a change to
 the accepted recovery or money boundary. C4B remains blocked pending an accepted CloudKit
 architecture and explicit owner instruction.
+
+## DEC-COM-028 — Proposed Free iCloud custom-record architecture
+
+- Status/date: **Proposed — 2026-08-21; pending owner and independent review**
+- Requirements: REQ-ICLOUD-001, REQ-RECEIPT-PRIVACY-001, REQ-MONEY-001
+- Decision candidate: Use `CKSyncEngine` only with one custom zone in the current person's private
+  CloudKit database. Sync is Free, default off, and not initialized before explicit opt-in. The
+  app owns typed/versioned custom envelopes, canonical record names, a durable transactional
+  outbox, a validated inbox/shadow, and logical tombstones. Full allow-listed user fields are stored
+  with parent/semantic digests in one `CKRecord.encryptedValues` Data field; unencrypted routing
+  metadata has no content or query index. Per-record lineage revision plus encrypted digest ancestry may
+  acknowledge replay or safe descent, but a true divergent payload/tombstone is quarantined rather
+  than selected by wall clock, device identity, or last-writer-wins. Durable local sync metadata
+  retains encoded server-owned CKRecord system fields/change tags for conditional save.
+  `CKSyncEngine` serialized state is persisted but rebuildable; it never replaces the
+  outbox or local business authority. Remote changes enter staging and are validated/topologically
+  applied by `DataActor`, never directly by the engine delegate.
+- Local-store safeguard: Before any iCloud entitlement or CloudKit import, every primary local
+  `ModelConfiguration` must explicitly use `cloudKitDatabase: .none`. This prevents its documented
+  `.automatic` default from enabling managed SwiftData mirroring when a ubiquity container appears.
+  Managed SwiftData/Core Data mirroring is excluded because the current V5 graph has unique
+  identities/cascade edges and the product needs a selective envelope/tombstone/conflict contract.
+- Data boundary: The allow-list and all 16 V5 owners are in `ICLOUD_SYNC_CONTRACT.md`. Merchant,
+  MerchantAccountingContext, SpendingInsight, and ReminderEvent remain local-only/rebuildable or
+  device-specific. Recurring occurrence control-plane facts use `occurrenceKey` record identity to
+  prevent duplicate multi-device generation; simultaneous divergent claims must surface or gain an
+  accepted deterministic origin companion, never delete an edited expense automatically. Receipt
+  images/OCR/intermediates, recovery artifacts, logs, StoreKit, notification, and configuration
+  caches never enter CloudKit.
+- Account/deletion candidate: Account change pauses transfer and requires new explicit consent;
+  local writes never use an online lease. Same-record logical tombstones prevent stale resurrection
+  after reinstall/full fetch and remain until C4B-03 proves safe compaction. Disable keeps local
+  data and does not silently delete cloud data. C4B-03 owns the required cloud-wide deletion
+  choice and evidence, distinct from local-only deletion.
+- Alternatives rejected: Pro-gating or implicit sync; public/shared database; CloudKit-generated
+  business IDs; direct delegate writes into SwiftData; immediate physical deletes that permit
+  resurrection; relying on engine state as the unsent-write authority; managed model mirroring; and
+  a timing-based online write lease.
+- Environment candidate: one uncreated/unaccepted `iCloud.com.xdgf558.MindBudget` container, with
+  provisioning-selected Development/Production environments and proposed `MindBudget.Sync.v1`
+  private custom zone containing proposed `MindBudgetEnvelopeV1` records.
+  Encrypted-key reset pauses and requires explicit recovery; it never auto-purges/reuploads.
+- Not yet decided/evidenced: dashboard roles/schema, Development/Production provisioning/deployment,
+  exact opt-in disclosure wording, physical-device account transitions, and multi-device convergence.

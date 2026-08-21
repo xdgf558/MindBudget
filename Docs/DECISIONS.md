@@ -2371,3 +2371,21 @@ so COM-C4A is closed. The accepted retry-only/reinstall recovery boundary remain
 Consequences: C4B is not started and remains blocked pending an accepted CloudKit architecture
 and explicit owner instruction. This closeout adds no iCloud, network, StoreKit, schema, reset UI,
 release, or distribution authority.
+
+---
+
+## 2026-08-21 — Propose, but do not yet accept, the Free iCloud sync architecture
+
+Context: The owner explicitly started C4B-01 design after COM-C4A closed. The existing SwiftData
+store's URL-backed `ModelConfiguration` calls rely on the SDK's `.automatic` CloudKit default, so
+adding an iCloud entitlement later could accidentally select managed mirroring.
+
+Decision: Detailed candidate ownership is DEC-COM-028. The proposal is default-off Free sync through
+custom versioned `CKSyncEngine` records in one private custom zone, with primary local store
+configurations explicitly pinned to `.none` before any entitlement/import. The candidate is not
+Accepted and C4B-02/C4B-03 remain blocked.
+
+Consequences: No CloudKit container, entitlement, request, schema, SwiftData migration, deployment,
+or distribution authority is granted. A static gate will reject a future CloudKit import/entitlement
+unless the primary local store is explicitly non-mirrored. Remote facts would enter durable staging
+and be applied through `DataActor`; local writes/outbox creation would remain transactional.
