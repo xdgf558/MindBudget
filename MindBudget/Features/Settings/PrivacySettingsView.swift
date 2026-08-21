@@ -64,6 +64,9 @@ struct PrivacySettingsView: View {
             Section("privacy.delete.section") {
                 Text("privacy.delete.explanation")
                     .foregroundStyle(.secondary)
+                Text("privacy.delete.cloudBoundary")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 Button("privacy.delete.start", role: .destructive) {
                     presentsFirstConfirmation = true
                 }

@@ -4,7 +4,7 @@ import Foundation
 /// App-owned pre-open checkpointing for a SwiftData store. It deliberately knows nothing about
 /// SwiftData's private metadata: our durable marker is the only fast-path trust signal.
 struct StoreMigrationRecoveryCoordinator: @unchecked Sendable {
-    static let currentTarget = "mindbudget-schema-v5"
+    static let currentTarget = "mindbudget-schema-v6"
 
     enum RecoveryError: Error, Equatable, Sendable {
         case unreadableJournal

@@ -98,3 +98,19 @@ enum SchemaV5: VersionedSchema {
         ]
     }
 }
+
+enum SchemaV6: VersionedSchema {
+    static var versionIdentifier: Schema.Version {
+        Schema.Version(6, 0, 0)
+    }
+
+    static var models: [any PersistentModel.Type] {
+        SchemaV5.models + [
+            CloudSyncControl.self,
+            CloudSyncRecordMetadata.self,
+            CloudSyncOutboxItem.self,
+            CloudSyncInboxItem.self,
+            CloudSyncEngineState.self
+        ]
+    }
+}

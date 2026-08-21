@@ -7,7 +7,7 @@ struct DataController: Sendable {
     let migrationRecoveryArtifactDeleter: any MigrationRecoveryArtifactDeleting
 
     init(isStoredInMemoryOnly: Bool = false, storeURL: URL? = nil) throws {
-        let schema = Schema(versionedSchema: SchemaV5.self)
+        let schema = Schema(versionedSchema: SchemaV6.self)
         let configuration: ModelConfiguration
         let recoveryCoordinator: StoreMigrationRecoveryCoordinator?
 
@@ -16,14 +16,16 @@ struct DataController: Sendable {
                 "MindBudget",
                 schema: schema,
                 url: storeURL,
-                allowsSave: true
+                allowsSave: true,
+                cloudKitDatabase: .none
             )
             recoveryCoordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
         } else if isStoredInMemoryOnly {
             configuration = ModelConfiguration(
                 "MindBudget",
                 schema: schema,
-                isStoredInMemoryOnly: true
+                isStoredInMemoryOnly: true,
+                cloudKitDatabase: .none
             )
             recoveryCoordinator = nil
         } else {
@@ -38,7 +40,8 @@ struct DataController: Sendable {
                 "MindBudget",
                 schema: schema,
                 url: storeURL,
-                allowsSave: true
+                allowsSave: true,
+                cloudKitDatabase: .none
             )
             recoveryCoordinator = StoreMigrationRecoveryCoordinator(storeURL: storeURL)
         }

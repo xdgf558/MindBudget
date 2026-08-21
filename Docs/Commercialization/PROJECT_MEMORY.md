@@ -29,8 +29,18 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
   merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B-01 is Done: reviewed head `093535f`
   passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
-  `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02P prerequisite
-  contract/gate maintenance is pending independent review; runtime C4B-02/03 remain blocked. The
+  `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. Reviewed C4B-02P head
+  `0fece3a` passed GitHub Actions run `32454490080`, and PR #58 merged the prerequisites as
+  `6f5fded`. C4B-02 implementation is complete pending independent review; C4B-03 remains blocked.
+  Schema V6 adds only five local sync metadata models. The implemented path is Free/default-off,
+  explicitly non-mirrored, private-database/custom-zone only, stages each local fact and outbox in
+  one transaction, validates remote facts through a durable inbox and `DataActor`, and preserves
+  local authority for account, quota, network, malformed-data, conflict, and encrypted-key-reset
+  failure. DEC-COM-031 makes all account/key-reset/zone-loss pauses sticky against delayed
+  callbacks, quarantines invalid allocations and divergent recurring claims, requires parent-owned
+  upsert keys, and records Delete All as local-only until C4B-03. No entitlement, provisioned
+  container, Dashboard schema, verified request, physical
+  multi-device, cloud-wide deletion, or release evidence is claimed. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
@@ -234,10 +244,10 @@ an exact centralized adapter exception is implemented.
 - Stable IDs, tombstones, conflict rules, account/quota/offline behavior, container environments,
   and local/cloud deletion must be accepted before COM-C4B implementation.
 - Receipt images and local intermediate files are excluded.
-- The C4B-01 architecture is Accepted, while all runtime/container/provisioning behavior remains
-  unimplemented and unverified. C4B-02P prerequisites pin occurrence identity, lineage genesis,
-  quarantine ownership, disclosure, and repository-wide SwiftData non-mirroring before any
-  container or entitlement work.
+- The C4B-01 architecture and C4B-02P prerequisites are Accepted and merged. C4B-02 implements the
+  local/custom-record runtime boundary and exact disclosure without adding a CloudKit entitlement
+  or provisioning a container. C4B-03 still owns real account/container environments, Dashboard,
+  physical multi-device convergence, conflict resolution, cloud-wide deletion, and release proof.
 
 ## Receipt and local Pro boundary
 
@@ -347,6 +357,6 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: await an accepted CloudKit architecture and explicit owner instruction before
-beginning C4B-01 sync-data design. Do not implement iCloud, C4C, or distribution work from this
-COM-C4A closeout.
+Next suggested task: complete independent review, hosted CI, and merge for C4B-02. Keep C4B-03,
+C4C, container provisioning, Dashboard deployment, physical multi-device work, cloud-wide deletion,
+and distribution blocked until their explicit owner start.

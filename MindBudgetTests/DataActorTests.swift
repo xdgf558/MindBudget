@@ -929,7 +929,7 @@ struct StoreMigrationRecoveryTests {
         defer { try? FileManager.default.removeItem(at: root) }
         let storeURL = root.appendingPathComponent("MindBudget.store")
         try Data("existing".utf8).write(to: storeURL)
-        try Data(#"{"formatVersion":1,"state":"prepared","target":"mindbudget-schema-v5"}"#.utf8)
+        try Data(#"{"formatVersion":1,"state":"prepared","target":"mindbudget-schema-v6"}"#.utf8)
             .write(to: URL(fileURLWithPath: storeURL.path + ".migration-marker"))
         #expect(try StoreMigrationRecoveryCoordinator(storeURL: storeURL).prepareForOpen() != nil)
     }
@@ -944,7 +944,7 @@ struct StoreMigrationRecoveryTests {
         let recovery = root.appendingPathComponent("MindBudgetMigrationRecovery")
         try FileManager.default.createDirectory(at: recovery, withIntermediateDirectories: true)
         let id = UUID()
-        let journal = #"{"backupDirectoryName":"../escape","formatVersion":1,"manifestFileName":"manifest.json","migrationID":"\#(id.uuidString)","sourceMarkerTarget":null,"state":"prepared","target":"mindbudget-schema-v5"}"#
+        let journal = #"{"backupDirectoryName":"../escape","formatVersion":1,"manifestFileName":"manifest.json","migrationID":"\#(id.uuidString)","sourceMarkerTarget":null,"state":"prepared","target":"mindbudget-schema-v6"}"#
         try Data(journal.utf8).write(to: recovery.appendingPathComponent("journal.json"))
 
         #expect(throws: StoreMigrationRecoveryCoordinator.RecoveryError.unreadableJournal) {

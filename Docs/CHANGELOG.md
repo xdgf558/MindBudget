@@ -2,12 +2,25 @@
 
 ## Unreleased
 
+- Hardened the unreleased optional iCloud sync path so encrypted-key reset, missing-zone, and
+  account-change pauses cannot be reopened by late retry callbacks; invalid allocations and
+  divergent recurring claims now quarantine without changing local facts.
+- Clarified in Privacy settings that Delete All removes this device's data only and does not yet
+  delete retained iCloud copies, which may return after a later re-enable.
+
 Every user-visible change must be added here when it is implemented. Before each TestFlight or
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
 ### Changed
 
+- Added an unreleased, Free, default-off iCloud sync control in Settings. After the exact bilingual
+  disclosure is accepted, the app can stage only the 12 approved budgeting fact types as encrypted
+  private-database custom records while local reads and writes remain authoritative. Turning sync
+  off keeps local data and the cloud copy; account changes, encrypted-key reset, malformed data,
+  quota, network failure, and unresolved conflicts pause or defer transfer without blocking local
+  use. This source intentionally has no iCloud entitlement, provisioned container, Dashboard
+  deployment, cloud-wide deletion flow, or distribution authorization yet.
 - Budget plans and category limits now reject values above MindBudget's documented safe minor-unit
   maximum consistently at entry and while opening an existing store. Existing invalid records are
   preserved for recovery rather than being silently changed to zero.

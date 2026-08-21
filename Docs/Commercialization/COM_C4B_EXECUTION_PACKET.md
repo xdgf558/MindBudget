@@ -5,21 +5,24 @@
 Status: **In Progress.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
-`32434148439`, and PR #57 merge `90a1e66`. C4B-02P prerequisite maintenance is pending review.
+`32434148439`, and PR #57 merge `90a1e66`. C4B-02P is Done after independent review, green
+GitHub Actions run `32454490080`, and PR #58 merge `6f5fded`. C4B-02 implementation is complete
+pending independent review; C4B-03 remains blocked.
 
 ## Input gate
 
-PR #57 closed C4B-01 design. This prerequisite closeout does not create an iCloud container, enable iCloud/
-CloudKit/push/background entitlements, alter `ModelConfiguration`, introduce a `CloudKit` import,
-create a network request, change SwiftData schema, deploy a CloudKit environment, or authorize
-release/distribution. DEC-COM-028 is Accepted as architecture after owner acceptance, independent
-review, green CI, and merge; runtime implementation still requires an explicit owner start.
+PR #57 closed C4B-01 design and PR #58 closed the C4B-02P static prerequisites. The owner then
+explicitly started C4B-02. This implementation adds an explicit non-mirrored Schema V6 sync
+metadata boundary, a custom `CKSyncEngine` adapter, and default-off Settings consent, but it does
+not create or provision an iCloud container, add iCloud/CloudKit/push/background entitlements,
+deploy a Dashboard schema, contact a verified environment, or authorize release/distribution.
 
 The normative accepted design is `ICLOUD_SYNC_CONTRACT.md`. It selects custom versioned records and
 `CKSyncEngine` in a private custom zone, preserving the primary SwiftData store as explicitly
-non-mirrored. This maintenance packet pins the recurring-claim grammar, genesis ancestry,
-quarantine handoff, exact container/disclosure inputs, and repository-wide SwiftData static gate
-before C4B-02 runtime work may start.
+non-mirrored. The prerequisite work pins the recurring-claim grammar, genesis ancestry, quarantine
+handoff, exact container/disclosure inputs, and repository-wide SwiftData static gate. C4B-02
+implements that accepted local/runtime boundary while C4B-03 retains operational cloud and release
+evidence.
 
 ## C4B-01 — Sync data design
 
@@ -51,14 +54,29 @@ Status: **Done after independent review, GitHub Actions run `32434148439`, and P
 
 ## C4B-02 — Sync implementation
 
-Status: **Blocked.**
+Status: **Implementation complete pending independent review.**
 
-Runtime implementation is blocked pending review/merge of C4B-02P and
-explicit owner instruction to begin it.
+Schema V6 adds five app-owned sync metadata models without changing financial authority. Every
+primary `ModelConfiguration` is explicitly `.none`. The implementation stages local fact and
+outbox/tombstone in one `ModelContext` transaction, puts fetched records in a durable inbox before
+topological `DataActor` application, and exposes only closed local-first status/retry controls.
+The adapter uses only the accepted private database/custom zone/record type and one encrypted
+envelope field; no entitlement or deployed container is claimed.
+
+Independent-review remediation makes all three trust-boundary pauses sticky against delayed
+status/account callbacks, maps both database-deletion events and `zoneNotFound` CKErrors to the
+correct encrypted-reset or remote-zone-loss pause, and cancels the engine before any zone can be
+recreated. The recurrence engine now uses the shared closed occurrence formatter; over-allocation
+and divergent occurrence claims quarantine instead of waiting or overwriting. Category-budget and
+cooling-off upsert envelopes require their parent identity, while a named parent that has not yet
+arrived remains pending. The existing Delete All action is explicitly local-only and its bilingual
+UI warns that retained iCloud copies may be imported after a future re-enable; C4B-03 still owns
+cloud-wide deletion and confirmed reimport.
 
 ### C4B-02P — Prerequisite contract and static gate
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, GitHub Actions run `32454490080`, and PR #58 merge
+`6f5fded`.**
 
 Before runtime implementation, the accepted contract requires: the canonical occurrence-key
 parser/formatter with no `/`-bearing caller input; revision-1/no-parent genesis and exact accepted
@@ -75,9 +93,31 @@ store hardening. All local mutations and sync outbox/tombstone creation must be 
 applies them. Managed SwiftData mirroring, public/shared database, attachment transfer,
 cross-account merge, online write leases, and automatic enablement are prohibited.
 
+### Implementation evidence
+
+- The original focused deterministic `CloudSyncTests` suite passed 20/20 on an iOS 26.4 simulator with
+  Xcode 26.6 (`17F113`) at
+  `/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult`.
+- The independent-review remediation expanded the same suite to 25/25 passing tests at
+  `/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The added cases prove that a
+  `zoneNotFound` CKError is a sticky encrypted-reset or accepted-zone-loss pause, late transport
+  and account callbacks cannot reopen any sticky pause, recurrence generation uses the canonical
+  key formatter, invalid over-allocation quarantines, divergent recurring claims preserve the
+  accepted expense identity, and parent-owned envelopes reject a missing parent key.
+- Tests cover default-off adapter construction, account/retry/failure mapping, V5-to-V6 migration,
+  canonical recurrence identity and bytes, all 12 allow-listed fact types, permanent local-only
+  cache exclusion, duplicate/replay, logical and cascade tombstones, topology, malformed/physical
+  deletion, lineage ordering, resurrection rejection, account re-consent, encrypted-key reset,
+  server-save conflict quarantine, and a sticky no-reupload pause after remote zone deletion/purge.
+- Static verification enforces the exact 12-type allow-list, runtime anchors, private database,
+  no physical `deleteRecord`, no public/shared database, no `CKAsset`, no iCloud entitlement in
+  this packet, repository-wide `.none`, and centralized container construction.
+- Final re-review, hosted CI, and merge remain required. C4B-03 evidence
+  cannot be inferred from simulator fakes or this source-only adapter.
+
 ## C4B-03 — Lifecycle and deletion
 
-Status: **Blocked by C4B-02 implementation, review, CI, and merge.**
+Status: **Blocked by C4B-02 independent review, hosted CI, and merge.**
 
 Own physical-device/multi-device lifecycle, CloudKit Dashboard, conflict/tombstone/deletion,
 environment-isolation, privacy disclosure, and release evidence. C4B-02 unit fakes cannot close
@@ -85,8 +125,9 @@ these claims.
 
 ## Tests
 
-C4B-01 runs documentation and static-boundary checks only. C4B-02 must add deterministic envelope,
-outbox, conflict, malformed-record, and local-failure-isolation tests before enabling Development.
+C4B-01 ran documentation and static-boundary checks only. C4B-02 adds deterministic envelope,
+outbox, conflict, malformed-record, local-failure-isolation, account, and full allow-list tests
+without enabling Development.
 C4B-03 must add opt-in/account/offline/quota/disable/delete/re-enable/multi-device physical-device
 evidence and separate Dashboard checks for Development and Production.
 

@@ -2,13 +2,12 @@
 
 ## Status
 
-Status: **C4B-01 Done after owner acceptance, independent review, green GitHub Actions run
-`32434148439`, and PR #57 merge `90a1e66`.**
+Status: **C4B-01 and C4B-02P Done; C4B-02 implementation complete pending independent review.**
 
-This is the Accepted design contract, not authorization by itself to create a CloudKit container,
-add an entitlement, ship a request, migrate SwiftData, deploy a schema, or change local-only
-behavior. C4B-02 remains blocked until C4B-02P is reviewed and merged and the owner explicitly
-starts runtime implementation.
+This is the Accepted design and implementation contract, not authorization by itself to create or
+provision a CloudKit container, add an entitlement, deploy a Dashboard schema, prove a real request,
+or distribute the feature. PR #58 merged the prerequisites as `6f5fded`; the owner then explicitly
+started C4B-02. C4B-03 remains the operational/deletion/release gate.
 
 ## Scope and authority
 
@@ -38,7 +37,7 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Local authority | Local reads/writes/export/Delete All never wait for CloudKit success; retries are asynchronous and nonblocking |
 | Cloud database | Private database only; accepted zone `MindBudget.Sync.v1` and record type `MindBudgetEnvelopeV1`; never public/shared database |
 | Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring claim `<type>/<occurrenceKey>`, where the only accepted occurrence key is lower-case UUID + `:` + signed base-10 calendar year + `-` + two-digit month; `/`, `%`, controls, and caller strings are rejected |
-| Envelope | Closed `schemaVersion`, `type`, `id`, per-record-lineage `revision`, `isDeleted`, `modifiedAt`, and typed encrypted payload carrying parent/semantic digests; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
+| Envelope | Closed `schemaVersion`, canonical `recordName`, `entityType`, `operation` (`upsert` or `tombstone`), per-record-lineage `revision`, informational `modifiedAt`, `parentSemanticDigest`, `semanticDigest`, and encrypted typed payload; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
 | Deletion | Logical tombstone has the same record name and participates in ordering; retain until C4B-03 proves compaction safety |
 | Environment | One accepted exact future container identifier `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
@@ -92,12 +91,15 @@ an explicit recovery choice. It must never auto-purge/reupload after key reset. 
 ## Current-store inventory and mapping
 
 `SchemaV1` contains 9 models, V2 adds `Income`, V3 adds four income/recurrence models, V4 adds
-`BudgetPlanSemantics`, and V5 adds `MerchantAccountingContext`. `ModelCounts` therefore has **16**
-V5 tables (not 15): the prior C4A 15-table audit predates the V5 companion. UUIDs below are current
+`BudgetPlanSemantics`, and V5 adds `MerchantAccountingContext`. Schema V6 adds five local sync
+metadata models: `CloudSyncControl`, `CloudSyncRecordMetadata`, `CloudSyncOutboxItem`,
+`CloudSyncInboxItem`, and `CloudSyncEngineState`. They are transport/control state, never a
+business or financial authority. `ModelCounts` therefore still inventories **16** business tables
+(not 15): the prior C4A 15-table audit predates the V5 companion. UUIDs below are current
 unique business IDs; `BudgetPlanSemantics.planID` and `MerchantAccountingContext.merchantID` are
 stable companion keys.
 
-| V5 owner | Identity / relationship | C4B treatment |
+| V6 business owner | Identity / relationship | C4B treatment |
 |---|---|---|
 | Expense | `id`; scalar recurrence/merchant provenance | Sync authoritative envelope |
 | Income | `id` | Sync authoritative envelope |
@@ -107,16 +109,16 @@ stable companion keys.
 | RecurringExpenseOccurrence | `id`, unique `occurrenceKey`, rule/expense IDs | Sync control-plane envelope to prevent duplicate cross-device generation |
 | BudgetPlan | `id`; cascades category budgets | Sync authoritative envelope; child carries `planID` |
 | BudgetPlanSemantics | unique `planID` | Sync companion envelope |
-| CategoryBudget | `id`, optional plan relationship | Sync; remote child may arrive before parent |
+| CategoryBudget | `id`, required `planID` in every upsert envelope; SwiftData relationship stays optional only for persistence/migration mechanics | Sync; key absence is malformed, while an identified parent that has not arrived stays pending |
 | WishItem | `id`; cascades cooling-off plans | Sync authoritative envelope |
-| CoolingOffPlan | `id`, optional wish relationship | Sync excluding local notification identifier |
+| CoolingOffPlan | `id`, required `wishItemID` in every upsert envelope; SwiftData relationship stays optional only for persistence/migration mechanics | Sync excluding local notification identifier; key absence is malformed, while an identified parent that has not arrived stays pending |
 | ReflectionLog | `id`, scalar provenance IDs | Sync authoritative envelope |
 | SpendingInsight | `id`, unique dedupe key, derived payload | Local-only/recompute |
 | ReminderEvent | `id`, throttle/notification history | Local-only/device-specific |
 | Merchant | `id`, unique normalized name, aggregate cache | Local-only/rebuild |
 | MerchantAccountingContext | unique `merchantID` | Local-only/rebuild |
 
-No receipt/OCR/image/attachment/temp-file model exists in V5. Future C4C artifacts are permanently
+No receipt/OCR/image/attachment/temp-file model exists in V6. Future C4C artifacts are permanently
 excluded. Recovery backup/journal/manifest and signed public-config cache are local security or
 recovery artifacts, never envelopes.
 
@@ -125,11 +127,12 @@ recovery artifacts, never envelopes.
 Each allow-listed object has deterministic record name from type and canonical UUID in
 `MindBudget.Sync.v1` using record type `MindBudgetEnvelopeV1`. The recurring
 claim instead derives from its stable `occurrenceKey`, not random `occurrence.id`. The only
-accepted occurrence-key serializer is the existing `DataActor` format: canonical lower-case UUID,
+accepted occurrence-key serializer is the shared `RecurringOccurrenceKey` format: canonical lower-case UUID,
 `:`, the persisted calendar's signed base-10 year, `-`, and a two-digit month from `01` through
 `12`. C4B-02 must share one parser/formatter, require a full ASCII match, and reject `/`, `%`, NUL,
 controls, noncanonical UUID case, out-of-range month, and arbitrary caller-supplied strings before
-constructing a record name. Typed payloads
+constructing a record name. The C4B-02 implementation uses the same parser for existing recurrence
+generation and record-name validation. Typed payloads
 preserve `Int64` minor units plus ISO currency. Every local authoring transaction writes its local
 fact plus durable pending envelope/tombstone in one `ModelContext` transaction before background
 send. C4B-02 may add those sync metadata models in Schema V6; a save without its outbox is invalid.
@@ -175,7 +178,19 @@ retry. Disable stops future transfer and keeps local records; it neither deletes
 permits automatic reimport. A different iCloud account pauses the old state and requires explicit
 re-consent. No timing-based online lease may delay or reject offline budgeting writes.
 
-Delete All is unchanged in C4B-01. C4B-03 must offer an explicit distinction between local delete,
+An externally deleted or purged private custom zone is destructive remote state, not an empty
+server. C4B-02 enters a separate sticky pause and generic disable/re-enable cannot recreate the zone
+or repopulate it from the local ledger. The same rule applies when CloudKit reports
+`zoneNotFound`: the `CKErrorUserDidResetEncryptedDataKey` flag selects the encrypted-key-reset pause,
+and an otherwise missing accepted zone selects the remote-zone-loss pause. Once any account,
+encrypted-key-reset, or remote-zone-loss pause is stored, ordinary success/network/quota/service
+callbacks cannot overwrite it. C4B-03 owns the explicit recovery or cloud-delete choice; neither
+condition may auto-purge or reupload.
+
+The current Delete All action is explicitly local-only: it stops the adapter, removes local facts
+and local sync metadata, and does not write cloud tombstones or delete the private zone. Existing
+iCloud copies can therefore be imported if sync is enabled again. Settings and both confirmation
+steps disclose that boundary. C4B-03 must offer an explicit distinction between local delete,
 required cloud-wide delete, and disable while retaining cloud copy. Cloud-wide delete writes durable
 tombstones and reports pending completion while offline; local deletion remains available even if
 cloud deletion cannot start. Re-enable after local-only deletion needs confirmation before import.
@@ -190,9 +205,10 @@ documents the entitlement-selected environment and that deployment copies a test
 schema to Production without copying records. C4B-01 adds neither entitlement nor schema.
 Sources: [CKContainer](https://developer.apple.com/documentation/cloudkit/ckcontainer) and
 [Deploying an iCloud Container’s Schema](https://developer.apple.com/documentation/cloudkit/deploying-an-icloud-container-s-schema).
-C4B-02 runtime implementation starts only after C4B-02P is reviewed/merged and
-the owner gives explicit implementation instruction. Team/roles and account matrix remain
-operational inputs. Neutral
+C4B-02P passed independent review and merged through PR #58 as `6f5fded`; the owner then explicitly
+started C4B-02. The exact identifier now exists only as an unprovisioned source constant: no iCloud
+entitlement, Dashboard container/schema, or verified request is added here. Team/roles and account
+matrix remain C4B-03 operational inputs. Neutral
 quota wording must say local data and edits remain safe and sync resumes after iCloud space/account
 availability; it must not promise a time or amount.
 
@@ -215,7 +231,7 @@ availability; it must not promise a time or amount.
   diagnostics, and local recovery files are not uploaded. Sync is off by default, and local use
   continues when iCloud is unavailable. Turning sync off keeps local data and does not delete the
   iCloud copy; deleting cloud data is a separate confirmed action.` /
-  `开启后，MindBudget 会将你的收支记录、预算、储蓄目标、愿望清单与冷静期计划、备注和复盘内容存入你的私人
+  `开启后，花有数会将你的收支记录、预算、储蓄目标、愿望清单与冷静期计划、备注和复盘内容存入你的私人
   iCloud 数据库，并在登录同一 Apple 账户的设备间同步。收据图片、OCR 数据、提醒历史、诊断信息和本地恢复文件不会上传。
   同步默认关闭；iCloud 不可用时仍可在本机使用。关闭同步会保留本地数据，也不会删除 iCloud 副本；删除云端数据是另一个需确认的操作。`
 - Before any CloudKit import, entitlement, or engine initialization, every production
@@ -246,11 +262,13 @@ cannot close C4B-03 claims.
 
 ## Unknowns and required evidence
 
-- No container identifier, provisioning, Dashboard schema, quota, push, account transition, or
-  multi-device convergence is claimed verified in C4B-01.
-- Local-at-rest protection/lifecycle for engine state, outbox, staging, encoded system fields, and
-  audit still needs C4B-02 threat-model review; CloudKit payload encryption is selected above. None may be an
-  exported ledger or uploaded attachment data.
+- The exact container identifier is present only as an unprovisioned source constant. No actual
+  container, entitlement, Dashboard schema, quota, push, physical account transition, request, or
+  multi-device convergence is claimed verified in C4B-02.
+- Schema V6 keeps engine state, outbox, inbox, control, and encoded system fields in the same local
+  protected store as explicit non-authoritative metadata. Applied inbox content is removed after
+  accepted lineage metadata is committed; unresolved/quarantined content remains local for C4B-03
+  visibility. None is an exported ledger or attachment channel.
 - The owner accepted the exact identifier, disclosure scope/copy, genesis rule, and quarantine
   responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
   roles and test Apple IDs remain C4B-03 operational evidence inputs.

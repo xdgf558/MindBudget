@@ -225,8 +225,9 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P
-prerequisite maintenance pending independent review; C4B-02 runtime/C4B-03 blocked
+Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
+through PR #58 (`6f5fded`); C4B-02 implementation complete pending independent review; C4B-03
+blocked
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -370,7 +371,12 @@ prerequisite maintenance pending independent review; C4B-02 runtime/C4B-03 block
   `32434148439`, and PR #57 merge `90a1e66`: custom private-zone `CKSyncEngine`
   envelopes, default-off/local-first semantics, stable IDs/tombstones/conflict order, explicit
   SwiftData `.none` guard, and permanently excluded attachments/OCR/recovery artifacts.
-- [ ] Finish C4B-02P prerequisites without runtime CloudKit changes: canonical occurrence identity,
+- [x] Finish C4B-02P prerequisites without runtime CloudKit changes: canonical occurrence identity,
   revision-1/no-parent genesis, accepted-parent ancestry, durable no-winner quarantine handoff,
   exact future container/disclosure inputs, and repository-wide SwiftData construction checks.
-  C4B-02/03 runtime, containers, entitlements, Dashboard deployment, and distribution stay blocked.
+  Reviewed head `0fece3a` passed GitHub Actions run `32454490080`; PR #58 merged as `6f5fded`.
+- [ ] Complete C4B-02 review/CI/merge for the implemented default-off custom-record runtime:
+  Schema V6 metadata, explicit SwiftData `.none`, transactional outbox/inbox, all 12 allow-listed
+  facts, logical tombstones, no-winner quarantine, account/key-reset pause, Settings consent, and
+  local-first failure isolation. C4B-03 still owns entitlement/container provisioning, Dashboard,
+  physical multi-device convergence, conflict resolution UI, cloud-wide deletion, and release.

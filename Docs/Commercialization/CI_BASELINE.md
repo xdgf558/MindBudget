@@ -739,3 +739,69 @@ C4B-02 runtime remains a separate Blocked phase. The later review remediation ch
 the optional/parallel `[~]` marker to mandatory pending `[ ]` in both task maps and closes the
 comment/string counting bypass. The pre-existing generic nested-heading deletion/format-drift limits
 remain documented P3 maintenance items.
+
+## COM-C4B-02 custom-record runtime verification
+
+Status: **Implementation complete pending independent review, hosted CI, and merge.**
+
+Prerequisite evidence is closed: reviewed C4B-02P head `0fece3a` passed GitHub Actions run
+`32454490080`, and PR #58 merged as `6f5fded`. C4B-02 then adds Schema V6's five
+non-authoritative local sync metadata models, explicit `.none` on every primary configuration,
+transactional local-fact/outbox staging, inbox-first topological remote application, all 12
+allow-listed typed envelopes, logical tombstones, closed no-winner quarantine, account and
+encrypted-key-reset pauses, default-off localized Settings consent, and the accepted private-
+database `CKSyncEngine` adapter.
+
+The final focused C4B-02 suite passed 20 tests in one suite with zero failures on Xcode 26.6
+(`17F113`), iOS 26.4.1 simulator `A86B6BE8-D716-4E1D-A731-6F40BAFBB02F`. Result bundle:
+`/private/tmp/MindBudget-C4B02-CloudSync-Final.xcresult`. It verifies V5-to-V6 migration,
+default-off/no-adapter behavior, exact recurrence/canonical bytes/lineage, each allow-listed fact,
+local-only cache exclusion, duplicate delivery, logical and cascade tombstones, reverse-topology
+application, malformed/physical deletion isolation, account re-consent, encrypted-key reset, and
+server-save conflict quarantine, and sticky fail-closed handling of encrypted-key reset and remote
+zone deletion/purge. An earlier 18-test run failed one test-only ordered-array
+assertion even though both tombstone identities were correct; the assertion now compares the
+identity set, while the same test continues to reverse the inbound tombstones and proves child-
+before-parent application.
+
+The iCloud static checker additionally requires the exact 12-case enum and runtime anchors, and
+rejects public/shared database, `CKAsset`, physical `deleteRecord`, managed mirroring, unapproved
+container construction, or an iCloud entitlement in C4B-02. Final full local/static results are
+recorded below. No container was provisioned, no Dashboard schema was deployed, no real CloudKit
+request or physical/multi-device convergence was claimed, and C4B-03 remains blocked.
+
+The first default `Scripts/validate.sh` attempt passed the Release build, all 445 correctness tests
+except the strict wall-clock benchmark, and all 17 UI tests; that single benchmark was running amid
+the other 27 Swift Testing suites and exceeded its local 500 ms signal, so the attempt is retained
+as a non-pass rather than evidence. A focused run then passed the two Phase 10 tests, and an
+independent iOS 26.4.1 run repeated that suite 10 times: 20/20 passed at
+`/private/tmp/MindBudget-C4B02-Performance10-iOS264.xcresult`. The validation runner now executes
+the local wall-clock benchmark once with parallel testing disabled, then skips only its duplicate
+concurrent invocation in the full correctness/coverage run; hosted CI retains its existing
+wall-clock skip and deterministic 10,000-row projection coverage.
+
+The corrected full `Scripts/validate.sh` run passed on Xcode 26.6 (`17F113`) and iOS 26.4.1:
+isolated strict benchmark 1/1, remaining unit tests 444/444 across 27 suites, UI tests 17/17, Release
+build, all static contracts, and every selected core-service coverage threshold (minimum 87.60%,
+required 85%). Result bundle: `/private/tmp/MindBudget-C4B02-Validate.xcresult`.
+
+### Independent-review remediation evidence
+
+The C4B-02 review remediation expanded `CloudSyncTests` from 20 to 25 deterministic tests. All
+25 passed in one suite on Xcode 26.6 (`17F113`) and iOS 26.4.1 simulator
+`A86B6BE8-D716-4E1D-A731-6F40BAFBB02F`; result bundle:
+`/private/tmp/MindBudget-C4B02-ReviewFix2.xcresult`. The new evidence covers actual CKError
+`zoneNotFound` mapping with and without `CKErrorUserDidResetEncryptedDataKey`, sticky-pause
+protection against delayed transport/account callbacks, the shared recurrence formatter,
+over-allocation quarantine, divergent recurring-claim preservation, and required parent identity
+in CategoryBudget/CoolingOffPlan upserts. The money, network-egress, commercialization-document,
+StoreKit catalog 13/13, iCloud contract self-test/repository, localized-catalog JSON, Python syntax,
+and `git diff --check` gates also passed after remediation.
+
+The final owning `Scripts/validate.sh` rerun passed on the same Xcode/runtime surface. Its strict
+Dashboard benchmark passed independently 1/1. The combined correctness/UI result bundle contains
+466 results: 459 passed and seven explicitly opt-in tests skipped, including all 17/17 UI tests;
+Release compilation, every static contract, and all selected coverage thresholds also passed
+(minimum 87.60%, required 85%). Result bundle:
+`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. This is local evidence for the reviewed
+source only; final independent re-review, hosted CI, and merge remain required.

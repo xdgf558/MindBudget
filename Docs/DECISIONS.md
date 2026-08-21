@@ -2407,3 +2407,57 @@ Consequences: C4B-01 is Done. This closeout and maintenance step creates no cont
 request, schema, deployment, or distribution authority. C4B-02 runtime implementation remains
 blocked until the prerequisite change passes review/CI/merge and the owner explicitly starts it;
 C4B-03 retains physical-device, conflict-resolution, deletion, and Dashboard evidence ownership.
+
+---
+
+## 2026-08-21 — Implement the local-authority C4B-02 custom-record runtime
+
+Context: C4B-02P passed independent review and GitHub Actions run `32454490080`, then merged
+through PR #58 as `6f5fded`. The owner explicitly started C4B-02.
+
+Decision: Detailed ownership is DEC-COM-029. Schema V6 contains only non-authoritative custom-sync
+metadata; all primary SwiftData configurations remain `.none`. A default-off Settings consent can
+start the private-database custom-record adapter, while local fact plus outbox/tombstone is one
+transaction and remote records are inbox-first, validated, and topologically applied by `DataActor`.
+Conflict, malformed input, account change, encrypted-key reset, quota, network, and service failure
+never select a financial winner or block local budgeting.
+
+Consequences: C4B-02 implementation is complete pending independent review, hosted CI, and merge.
+No iCloud entitlement, provisioned container, Dashboard deployment, verified CloudKit request,
+physical multi-device convergence, cloud-wide deletion, or distribution authority is added.
+C4B-03 retains those operational and release gates.
+
+---
+
+## 2026-08-21 — Isolate the strict local Dashboard benchmark from suite contention
+
+Context: C4B-02's first full validation passed the Release build and all functional/UI assertions,
+but its strict 500 ms local Dashboard benchmark ran concurrently with 27 Swift Testing suites and
+was the sole non-pass. The same implementation passed the focused Phase 10 suite and 10/10
+isolated benchmark iterations.
+
+Decision: Detailed verification ownership is DEC-COM-030. Local `Scripts/validate.sh` executes the
+wall-clock test once with parallel testing disabled, then skips only the duplicate concurrent
+invocation in its full correctness/coverage run. Hosted CI's existing wall-clock skip is unchanged.
+
+Consequences: The 500 ms limit remains intact and must pass independently; correctness, UI, and
+coverage still run in full. This changes validation scheduling only and grants no CloudKit,
+deployment, or release authority.
+
+---
+
+## 2026-08-21 — Harden C4B-02 destructive pauses and remote application
+
+Context: Independent review of PR #59 found that destructive `zoneNotFound` CKErrors could enter a
+retryable state, delayed callbacks could overwrite an existing sticky pause, and several remote
+application edge cases did not match the accepted contract.
+
+Decision: Detailed ownership is DEC-COM-031. All trust-boundary pauses are sticky, destructive
+CloudKit errors cancel the engine, recurrence identity uses one formatter, invalid allocations and
+divergent occurrence claims quarantine, and parent-owned upsert envelopes require the parent key.
+The current bilingual Delete All surface now states that it deletes local data only and leaves
+cloud-wide deletion/reimport to C4B-03.
+
+Consequences: PR #59 remains C4B-02 implementation pending final re-review and hosted green CI.
+No entitlement, live container, cloud deletion, conflict-resolution UI, or release authority is
+added.
