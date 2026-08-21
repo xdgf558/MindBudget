@@ -5117,3 +5117,18 @@ coverage (minimum 87.60%, required 85%) at
 Dashboard deployment, real CloudKit request, physical/multi-device evidence, cloud-wide deletion,
 Archive, upload, tester, or distribution action occurred. C4B-02 remains pending final re-review,
 hosted CI, and merge; C4B-03 remains blocked.
+
+## 2026-08-21 — Session 152 — Calibrate C4B-02 to its reviewed merge
+
+Reviewed remediation head `0024507` passed GitHub Actions run `32490174014` in 34m30s, and PR #59
+merged the exact C4B-02 source to `main` as `211dff2`. The owner accepted the review and authorized
+formal C4B-03 entry only after a separate documentation closeout passes review, hosted CI, and
+merge. Current memory/task/requirement/contract/CI state now marks C4B-02 Done while keeping C4B-03
+blocked by that closeout condition.
+
+The closeout adds no Swift, Schema, iCloud entitlement, provisioned container, Dashboard
+environment, CloudKit request, physical multi-device evidence, conflict/deletion UI, Archive,
+upload, tester, or distribution action. Money, network-egress, commercialization-document,
+StoreKit catalog 13/13, iCloud self-test/repository, shell syntax, and `git diff --check` all passed.
+The next authorized step is to merge this closeout, then formally enter C4B-03 without inferring
+any operational or release evidence from C4B-02.

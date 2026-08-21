@@ -58,7 +58,8 @@ merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B-01 is Done: reviewed hea
 passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
 `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. Reviewed C4B-02P head
 `0fece3a` passed GitHub Actions run `32454490080`, and PR #58 merged the prerequisites as
-`6f5fded`. C4B-02 implementation is complete pending independent review: Schema V6 adds only local
+`6f5fded`. Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59
+merged it as `211dff2`; C4B-02 is Done. Schema V6 adds only local
 sync metadata, every primary SwiftData configuration is explicitly non-mirrored, and the Free,
 default-off private custom-record path has transactional outbox/inbox, 12 allow-listed fact types,
 logical tombstones, no-winner quarantine, account/key-reset pauses, and localized Settings consent.
@@ -67,7 +68,8 @@ deletion/purge enter sticky pauses that delayed callbacks cannot reopen; invalid
 divergent recurring claims quarantine; parent-owned upserts require their parent key; and Delete
 All remains explicitly local-only until C4B-03 owns cloud-wide deletion/reimport.
 No entitlement, provisioned container, Dashboard deployment, verified CloudKit request,
-multi-device evidence, cloud-wide deletion, or release authority is claimed; C4B-03 remains blocked.
+multi-device evidence, cloud-wide deletion, or release authority is claimed. C4B-03 remains blocked
+pending this closeout review/CI/merge; the owner has authorized formal entry only afterward.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

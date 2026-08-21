@@ -6,8 +6,9 @@ Status: **In Progress.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
 `32434148439`, and PR #57 merge `90a1e66`. C4B-02P is Done after independent review, green
-GitHub Actions run `32454490080`, and PR #58 merge `6f5fded`. C4B-02 implementation is complete
-pending independent review; C4B-03 remains blocked.
+GitHub Actions run `32454490080`, and PR #58 merge `6f5fded`. C4B-02 is Done after reviewed head
+`0024507` passed GitHub Actions run `32490174014` and PR #59 merged as `211dff2`. C4B-03 remains
+blocked pending this documentation closeout review/CI/merge and formal entry.
 
 ## Input gate
 
@@ -54,7 +55,8 @@ Status: **Done after independent review, GitHub Actions run `32434148439`, and P
 
 ## C4B-02 — Sync implementation
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, GitHub Actions run `32490174014`, and PR #59 merge
+`211dff2`.**
 
 Schema V6 adds five app-owned sync metadata models without changing financial authority. Every
 primary `ModelConfiguration` is explicitly `.none`. The implementation stages local fact and
@@ -112,12 +114,13 @@ cross-account merge, online write leases, and automatic enablement are prohibite
 - Static verification enforces the exact 12-type allow-list, runtime anchors, private database,
   no physical `deleteRecord`, no public/shared database, no `CKAsset`, no iCloud entitlement in
   this packet, repository-wide `.none`, and centralized container construction.
-- Final re-review, hosted CI, and merge remain required. C4B-03 evidence
-  cannot be inferred from simulator fakes or this source-only adapter.
+- Reviewed remediation head `0024507` passed every step of GitHub Actions run `32490174014`; PR #59
+  merged the accepted C4B-02 source to `main` as `211dff2` on 2026-08-21. C4B-03 evidence cannot
+  be inferred from simulator fakes, hosted CI, or this source-only adapter.
 
 ## C4B-03 — Lifecycle and deletion
 
-Status: **Blocked by C4B-02 independent review, hosted CI, and merge.**
+Status: **Blocked pending the C4B-02 documentation closeout review/CI/merge and formal entry.**
 
 Own physical-device/multi-device lifecycle, CloudKit Dashboard, conflict/tombstone/deletion,
 environment-isolation, privacy disclosure, and release evidence. C4B-02 unit fakes cannot close
@@ -129,12 +132,13 @@ C4B-01 ran documentation and static-boundary checks only. C4B-02 adds determinis
 outbox, conflict, malformed-record, local-failure-isolation, account, and full allow-list tests
 without enabling Development.
 C4B-03 must add opt-in/account/offline/quota/disable/delete/re-enable/multi-device physical-device
-evidence and separate Dashboard checks for Development and Production.
+evidence and separate Dashboard checks for Development and Production. The owner has authorized
+formal C4B-03 entry only after this C4B-02 closeout merges.
 
 ## Stop conditions
 
 Stop and return to the owner if the requested solution needs managed SwiftData mirroring, implicit
 enablement, a Pro gate, public/shared database, generated CloudKit identity, automatic destructive
-conflict resolution, attachment/OCR transfer, or Production deployment without acceptance. No Free
-sync implementation claim is valid before C4B-02 review/CI/merge; no cloud-delete or multi-device
-claim is valid before C4B-03 evidence.
+conflict resolution, attachment/OCR transfer, or Production deployment without acceptance. C4B-02
+review/CI/merge is satisfied through PR #59 (`211dff2`); no entitlement, deployed environment,
+cloud-delete, or multi-device claim is valid before C4B-03 evidence.

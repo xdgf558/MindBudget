@@ -449,6 +449,41 @@ if grep -Fq 'C4A-03 implementation is complete pending independent review' \
   exit 1
 fi
 
+for c4b02_closeout_anchor in \
+  'C4B-02 is Done through PR #59' \
+  '32490174014' \
+  '211dff2' \
+  'C4B-03 remains blocked pending this documentation closeout review/CI/merge'; do
+  if ! grep -Fq "${c4b02_closeout_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+      Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md; then
+    echo "C4B-02 reviewed merge closeout evidence is missing: ${c4b02_closeout_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C4B-02 implementation (is )?complete pending independent review|C4B-02 remains pending (final re-review|independent review)|Final re-review, hosted CI, and merge remain required' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+    Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/CI_BASELINE.md; then
+  echo "Current COM-C4B state still describes C4B-02 as pending review/merge" >&2
+  exit 1
+fi
+
 for c4a_release_anchor in '0.9.8 (9)' 'dda1eb09-5d8b-43c6-a2fd-ea910fa422ac'; do
   if ! grep -Fq "${c4a_release_anchor}" \
       Docs/TASKS.md Docs/PROJECT_MEMORY.md Docs/Commercialization/PROJECT_MEMORY.md; then

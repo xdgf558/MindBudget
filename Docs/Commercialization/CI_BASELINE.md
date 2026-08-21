@@ -742,7 +742,8 @@ remain documented P3 maintenance items.
 
 ## COM-C4B-02 custom-record runtime verification
 
-Status: **Implementation complete pending independent review, hosted CI, and merge.**
+Status: **C4B-02 Done after independent review, hosted CI, and PR #59 merge `211dff2`; C4B-03
+evidence remains unclaimed.**
 
 Prerequisite evidence is closed: reviewed C4B-02P head `0fece3a` passed GitHub Actions run
 `32454490080`, and PR #58 merged as `6f5fded`. C4B-02 then adds Schema V6's five
@@ -803,5 +804,14 @@ Dashboard benchmark passed independently 1/1. The combined correctness/UI result
 466 results: 459 passed and seven explicitly opt-in tests skipped, including all 17/17 UI tests;
 Release compilation, every static contract, and all selected coverage thresholds also passed
 (minimum 87.60%, required 85%). Result bundle:
-`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. This is local evidence for the reviewed
-source only; final independent re-review, hosted CI, and merge remain required.
+`/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`. This local evidence belongs to reviewed
+head `0024507`; the merge closeout below records its satisfied hosted gate.
+
+### C4B-02 merge closeout
+
+Reviewed remediation head `0024507` passed the complete GitHub Actions `Build and test` job in run
+`32490174014` (34m30s). PR #59 then merged that exact head to `main` as `211dff2` on 2026-08-21.
+This closes C4B-02 source/review/CI/merge only. No iCloud entitlement, provisioned container,
+Dashboard schema/environment deployment, verified CloudKit request, physical multi-device/account/
+quota evidence, conflict-resolution UI, cloud-wide deletion, Archive, upload, tester, or
+distribution evidence is inferred. C4B-03 remains separately gated.

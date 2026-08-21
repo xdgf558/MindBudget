@@ -947,3 +947,12 @@ architecture and explicit owner instruction.
   isolated strict benchmark 1/1; 466 combined correctness/UI results with 459 passed, seven opt-in
   skips, and UI 17/17; Release compilation; every static contract; and the coverage gate at
   `/private/tmp/MindBudget-C4B02-ReviewFix-Validate.xcresult`.
+
+### Closeout evidence — 2026-08-21
+
+Reviewed remediation head `0024507` passed every step of GitHub Actions run `32490174014`. PR #59
+merged that exact head to `main` as `211dff2`, satisfying DEC-COM-029 and DEC-COM-031's independent
+review, hosted-CI, and merge conditions. C4B-02 is Done. This evidence does not authorize an iCloud
+entitlement, provision a container, deploy a Dashboard schema/environment, prove a real CloudKit
+request or physical multi-device lifecycle, delete cloud data, or distribute the feature. The
+owner authorized formal C4B-03 entry only after this documentation closeout passes review/CI/merge.
