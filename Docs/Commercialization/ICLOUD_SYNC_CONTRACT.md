@@ -2,11 +2,13 @@
 
 ## Status
 
-Status: **C4B-01 proposed architecture candidate complete pending owner and independent review.**
+Status: **C4B-01 Done after owner acceptance, independent review, green GitHub Actions run
+`32434148439`, and PR #57 merge `90a1e66`.**
 
-This is a design contract, not authorization to create a CloudKit container, add an entitlement,
-ship a request, migrate SwiftData, deploy a schema, or change local-only behavior. Only an Accepted
-decision may authorize C4B-02.
+This is the Accepted design contract, not authorization by itself to create a CloudKit container,
+add an entitlement, ship a request, migrate SwiftData, deploy a schema, or change local-only
+behavior. C4B-02 remains blocked until its prerequisite contract/gate change is reviewed and
+merged and the owner explicitly starts runtime implementation.
 
 ## Scope and authority
 
@@ -15,7 +17,7 @@ only after explicit user choice. Missing account, disabled iCloud, offline state
 remote data, CloudKit failure, or unresolved conflict never prevents local create/read/edit/export/
 Delete All.
 
-The candidate is **custom versioned records in one custom zone of the signed-in person's CloudKit
+The accepted architecture is **custom versioned records in one custom zone of the signed-in person's CloudKit
 private database, synchronized by `CKSyncEngine`**. `CKSyncEngine` supplies Apple-managed
 scheduling/change transfer; MindBudget owns the record schema, identity, outbox, conflict resolver,
 tombstones, and local projection. Its opaque serialized state must be persisted/restored unchanged,
@@ -34,15 +36,15 @@ indeterminate scheduling, and must not sync a public database. Sources:
 |---|---|
 | Access | Free for all entitlement states; explicit default-off opt-in; no implicit enablement or Pro gate |
 | Local authority | Local reads/writes/export/Delete All never wait for CloudKit success; retries are asynchronous and nonblocking |
-| Cloud database | Private database only; proposed zone `MindBudget.Sync.v1` and record type `MindBudgetEnvelopeV1`; never public/shared database |
-| Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring occurrence claim `<type>/<occurrenceKey>`; CloudKit-generated identity is never a business key |
-| Envelope | Closed `schemaVersion`, `type`, `id`, per-record-lineage `revision`, `isDeleted`, `modifiedAt`, and typed encrypted payload carrying parent/semantic digests; unknown data fails closed without mutating local facts |
-| Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; wall clock and device identity never choose a divergent financial winner |
+| Cloud database | Private database only; accepted zone `MindBudget.Sync.v1` and record type `MindBudgetEnvelopeV1`; never public/shared database |
+| Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring claim `<type>/<occurrenceKey>`, where the only accepted occurrence key is lower-case UUID + `:` + signed base-10 calendar year + `-` + two-digit month; `/`, `%`, controls, and caller strings are rejected |
+| Envelope | Closed `schemaVersion`, `type`, `id`, per-record-lineage `revision`, `isDeleted`, `modifiedAt`, and typed encrypted payload carrying parent/semantic digests; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
+| Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
 | Deletion | Logical tombstone has the same record name and participates in ordering; retain until C4B-03 proves compaction safety |
-| Environment | One proposed exact container `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
+| Environment | One accepted exact future container identifier `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
 | Encryption | Typed ledger/note/reflection payload and semantic digest are one encrypted `Data` field in `CKRecord.encryptedValues`; only non-content routing metadata is unencrypted and no content field is indexed |
 | Attachments | Receipt images, OCR text/geometry, local intermediates, recovery artifacts, logs, StoreKit data, notification state, and config cache never enter CloudKit |
-| Managed SwiftData sync | Every primary local `ModelConfiguration` must explicitly use `cloudKitDatabase: .none` before any CloudKit entitlement/import |
+| Managed SwiftData sync | Every production `ModelConfiguration` across `MindBudget/**/*.swift` must explicitly use `cloudKitDatabase: .none`, and `ModelContainer` construction remains centralized in `DataController`, before any CloudKit entitlement/import |
 | Disable/delete | Disable cancels transfer and retains local facts; remote deletion is separately confirmed and never silently implied |
 
 ## Why this architecture
@@ -120,9 +122,14 @@ recovery artifacts, never envelopes.
 
 ## Envelope, mutation, and conflict rules
 
-Each allow-listed object has deterministic record name from type and canonical UUID in proposed
-`MindBudget.Sync.v1` using proposed record type `MindBudgetEnvelopeV1`. The recurring
-claim instead derives from its stable `occurrenceKey`, not random `occurrence.id`. Typed payloads
+Each allow-listed object has deterministic record name from type and canonical UUID in
+`MindBudget.Sync.v1` using record type `MindBudgetEnvelopeV1`. The recurring
+claim instead derives from its stable `occurrenceKey`, not random `occurrence.id`. The only
+accepted occurrence-key serializer is the existing `DataActor` format: canonical lower-case UUID,
+`:`, the persisted calendar's signed base-10 year, `-`, and a two-digit month from `01` through
+`12`. C4B-02 must share one parser/formatter, require a full ASCII match, and reject `/`, `%`, NUL,
+controls, noncanonical UUID case, out-of-range month, and arbitrary caller-supplied strings before
+constructing a record name. Typed payloads
 preserve `Int64` minor units plus ISO currency. Every local authoring transaction writes its local
 fact plus durable pending envelope/tombstone in one `ModelContext` transaction before background
 send. C4B-02 may add those sync metadata models in Schema V6; a save without its outbox is invalid.
@@ -131,7 +138,10 @@ for conditional save. Replays are idempotent by record name, accepted parent dig
 lineage revision, and encrypted semantic digest; engine serialization may be a rebuildable sidecar
 because the durable outbox, not engine state, is the source for unsent work.
 
-An envelope records a per-record-lineage revision plus encrypted parent and semantic digests. A
+An envelope records a per-record-lineage revision plus encrypted parent and semantic digests.
+The first accepted envelope is exactly revision 1 with no encoded parent digest and a required
+semantic digest. Revision 0, revision 1 with a parent, or revision greater than 1 without the exact
+last accepted semantic digest is malformed and quarantined without local mutation. A
 later envelope is an idempotent replay or safe supersession only when it descends from the same
 accepted parent and its digest proves the stated content. The durable local sync metadata's
 CKRecord system fields carry the server-owned change tag; save-if-unchanged is the concurrency
@@ -172,17 +182,47 @@ cloud deletion cannot start. Re-enable after local-only deletion needs confirmat
 
 ## Environment and deployment boundary
 
-The proposed identifier is `iCloud.com.xdgf558.MindBudget`, but it has not been created or accepted.
+The accepted future identifier is `iCloud.com.xdgf558.MindBudget`, but it has not been created,
+provisioned, or deployed.
 One CloudKit container has strictly separate Development and Production environments selected by
 the provisioning entitlement, and each environment uses the same-named private custom zone. Apple
 documents the entitlement-selected environment and that deployment copies a tested Development
 schema to Production without copying records. C4B-01 adds neither entitlement nor schema.
 Sources: [CKContainer](https://developer.apple.com/documentation/cloudkit/ckcontainer) and
 [Deploying an iCloud Container’s Schema](https://developer.apple.com/documentation/cloudkit/deploying-an-icloud-container-s-schema).
-C4B-02 starts only when owner acceptance confirms this exact identifier, team/roles, account
-matrix, and explicit opt-in disclosure naming financial records plus notes/reflections. Neutral
+C4B-02 runtime implementation starts only after this prerequisite closeout is reviewed/merged and
+the owner gives explicit implementation instruction. Team/roles and account matrix remain
+operational inputs. Neutral
 quota wording must say local data and edits remain safe and sync resumes after iCloud space/account
 availability; it must not promise a time or amount.
+
+## C4B-02 prerequisite decisions
+
+- The exact container identifier is `iCloud.com.xdgf558.MindBudget`; Development and Production
+  are entitlement-selected environments of that one container and never exchange records.
+- The first envelope is revision 1 with absent parent digest. Every later revision must name the
+  last accepted semantic digest; no zero digest or generated placeholder is a valid parent.
+- A conflict quarantine is durable status, not entitlement or financial authority. C4B-02 stores
+  both candidates, keeps the last valid local fact visible, pauses only that record, and exposes no
+  automatic winner. C4B-03 owns the user resolution surface: keep local by authoring a new
+  descendant against the accepted server base, accept the verified cloud candidate, or explicitly
+  keep/delete when one candidate is a tombstone. It never duplicates an accounting fact to make a
+  conflict disappear.
+- The opt-in title is `Sync with iCloud` / `使用 iCloud 同步`. The accepted disclosure is:
+  `When enabled, MindBudget stores your financial records, budgets, savings goals, wishlist and
+  cooling-off plans, notes, and reflections in your private iCloud database and syncs them across
+  devices signed in to the same Apple Account. Receipt images, OCR data, reminder history,
+  diagnostics, and local recovery files are not uploaded. Sync is off by default, and local use
+  continues when iCloud is unavailable. Turning sync off keeps local data and does not delete the
+  iCloud copy; deleting cloud data is a separate confirmed action.` /
+  `开启后，MindBudget 会将你的收支记录、预算、储蓄目标、愿望清单与冷静期计划、备注和复盘内容存入你的私人
+  iCloud 数据库，并在登录同一 Apple 账户的设备间同步。收据图片、OCR 数据、提醒历史、诊断信息和本地恢复文件不会上传。
+  同步默认关闭；iCloud 不可用时仍可在本机使用。关闭同步会保留本地数据，也不会删除 iCloud 副本；删除云端数据是另一个需确认的操作。`
+- Before any CloudKit import, entitlement, or engine initialization, every production
+  `ModelConfiguration` across `MindBudget/**/*.swift` explicitly uses
+  `cloudKitDatabase: .none`, and `ModelContainer` construction remains centralized in
+  `DataController`. The structural checker must fail clearly for missing/alternate owners and for
+  explicit `.automatic`/private managed-mirroring selection.
 
 ## C4B-02 and C4B-03 handoff
 
@@ -200,6 +240,6 @@ cannot close C4B-03 claims.
 - Local-at-rest protection/lifecycle for engine state, outbox, staging, encoded system fields, and
   audit still needs C4B-02 threat-model review; CloudKit payload encryption is selected above. None may be an
   exported ledger or uploaded attachment data.
-- Owner must accept the proposed `iCloud.com.xdgf558.MindBudget` identifier and the exact opt-in
-  disclosure naming financial records plus notes/reflections. Cloud-wide Delete All is required for
-  COM-C4B completion; Dashboard roles and test Apple IDs remain C4B-03 operational evidence inputs.
+- The owner accepted the exact identifier, disclosure scope/copy, genesis rule, and quarantine
+  responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
+  roles and test Apple IDs remain C4B-03 operational evidence inputs.

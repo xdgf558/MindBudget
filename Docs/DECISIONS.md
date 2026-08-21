@@ -2389,3 +2389,21 @@ Consequences: No CloudKit container, entitlement, request, schema, SwiftData mig
 or distribution authority is granted. A static gate will reject a future CloudKit import/entitlement
 unless the primary local store is explicitly non-mirrored. Remote facts would enter durable staging
 and be applied through `DataActor`; local writes/outbox creation would remain transactional.
+
+---
+
+## 2026-08-21 — Accept C4B-01 architecture and freeze C4B-02 prerequisites
+
+Context: The owner accepted the independently reviewed C4B-01 result. Reviewed head `093535f`
+passed GitHub Actions run `32434148439`; PR #57 merged to `main` as `90a1e66`.
+
+Decision: DEC-COM-028 is Accepted. The C4B-02 prerequisite contract pins the existing recurring
+occurrence-key grammar, revision-1/no-parent genesis, exact digest ancestry, durable no-winner
+quarantine, the exact future container/disclosure inputs, and repository-wide explicit
+`cloudKitDatabase: .none`/centralized `ModelContainer` gate. Detailed wording remains in the COM
+decision and `ICLOUD_SYNC_CONTRACT.md`.
+
+Consequences: C4B-01 is Done. This closeout and maintenance step creates no container, entitlement,
+request, schema, deployment, or distribution authority. C4B-02 runtime implementation remains
+blocked until the prerequisite change passes review/CI/merge and the owner explicitly starts it;
+C4B-03 retains physical-device, conflict-resolution, deletion, and Dashboard evidence ownership.

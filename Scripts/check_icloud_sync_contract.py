@@ -18,6 +18,7 @@ REQUIRED_SECTIONS = {
     "Envelope, mutation, and conflict rules",
     "Account, offline, quota, and lifecycle behavior",
     "Environment and deployment boundary",
+    "C4B-02 prerequisite decisions",
     "C4B-02 and C4B-03 handoff",
     "Unknowns and required evidence",
 }
@@ -39,9 +40,9 @@ REQUIRED_DECLARATION_TOKENS = {
     "Access": ("free", "default-off"),
     "Local authority": ("never wait", "nonblocking"),
     "Cloud database": ("private", "mindbudget.sync.v1"),
-    "Record identity": ("uuid", "<type>/<uuid>"),
-    "Envelope": ("schemaversion", "encrypted"),
-    "Ordering": ("change tag", "semantic digest"),
+    "Record identity": ("uuid", "<type>/<uuid>", "signed base-10 calendar year", "caller strings are rejected"),
+    "Envelope": ("schemaversion", "encrypted", "revision 1", "absent parent digest"),
+    "Ordering": ("change tag", "semantic digest", "last accepted semantic digest"),
     "Deletion": ("tombstone",),
     "Environment": ("icloud.com.xdgf558.mindbudget", "development", "production"),
     "Encryption": ("encrypted", "no content"),
@@ -74,11 +75,19 @@ def validate_contract(path: Path) -> list[str]:
     return errors
 
 
-def requires_cloudkit_hardening(project_root: Path) -> bool:
-    source = project_root / "MindBudget"
+def requires_cloudkit_hardening(
+    project_root: Path,
+    swift_sources: dict[Path, str] | None = None,
+) -> bool:
+    if swift_sources is None:
+        source = project_root / "MindBudget"
+        swift_sources = {
+            file: file.read_text(encoding="utf-8")
+            for file in source.rglob("*.swift")
+        }
     has_cloudkit_source = any(
-        "import CloudKit" in file.read_text(encoding="utf-8") or "CKContainer" in file.read_text(encoding="utf-8")
-        for file in source.rglob("*.swift")
+        "import CloudKit" in text or "CKContainer" in text
+        for text in swift_sources.values()
     )
     has_icloud_entitlement = any(
         "icloud" in file.read_text(encoding="utf-8").lower()
@@ -89,17 +98,51 @@ def requires_cloudkit_hardening(project_root: Path) -> bool:
 
 def validate_swiftdata_boundary(project_root: Path) -> list[str]:
     data_controller = project_root / "MindBudget/Data/DataController.swift"
-    text = data_controller.read_text(encoding="utf-8")
     errors: list[str] = []
-    if ".automatic" in text or "CloudKitDatabase.private" in text:
-        errors.append("DataController must never opt the primary local store into managed CloudKit sync")
-    if requires_cloudkit_hardening(project_root):
-        configurations = text.count("ModelConfiguration(")
-        explicit_none = text.count("cloudKitDatabase: .none")
-        if configurations == 0 or explicit_none != configurations:
+    if not data_controller.is_file():
+        return [f"{data_controller}: missing primary SwiftData construction owner"]
+
+    source = project_root / "MindBudget"
+    swift_sources = {
+        file: file.read_text(encoding="utf-8")
+        for file in source.rglob("*.swift")
+    }
+    normalized_sources = {
+        file: re.sub(r"\s+", "", text)
+        for file, text in swift_sources.items()
+    }
+
+    for file, normalized in normalized_sources.items():
+        if (
+            "cloudKitDatabase:.automatic" in normalized
+            or "cloudKitDatabase:.private" in normalized
+            or "CloudKitDatabase.private" in normalized
+        ):
             errors.append(
-                "CloudKit capability/import requires every DataController ModelConfiguration to explicitly use cloudKitDatabase: .none"
+                f"{file}: primary local SwiftData must never opt into managed CloudKit sync"
             )
+
+    if not requires_cloudkit_hardening(project_root, swift_sources):
+        return errors
+
+    total_configurations = 0
+    for file, normalized in normalized_sources.items():
+        configurations = normalized.count("ModelConfiguration(")
+        explicit_none = normalized.count("cloudKitDatabase:.none")
+        total_configurations += configurations
+        if configurations != explicit_none:
+            errors.append(
+                f"{file}: CloudKit capability/import requires every ModelConfiguration "
+                "to explicitly use cloudKitDatabase: .none"
+            )
+
+        if file != data_controller and "ModelContainer(" in normalized:
+            errors.append(
+                f"{file}: production ModelContainer construction must remain centralized in DataController"
+            )
+
+    if total_configurations == 0:
+        errors.append("CloudKit capability/import found no explicit primary ModelConfiguration")
     return errors
 
 
@@ -124,33 +167,66 @@ def self_test() -> None:
 
         data = root / "MindBudget/Data"
         data.mkdir(parents=True)
-        (data / "DataController.swift").write_text(
-            "ModelConfiguration(\n cloudKitDatabase: .none\n)\n",
+        data_controller = data / "DataController.swift"
+        data_controller.write_text(
+            "ModelConfiguration(\n cloudKitDatabase:.none\n)\nModelContainer(for: Schema.self)\n",
             encoding="utf-8",
         )
         (root / "MindBudget/Sync.swift").write_text("import CloudKit\n", encoding="utf-8")
         if validate_swiftdata_boundary(root):
             raise AssertionError("explicit .none fixture rejected")
-        (data / "DataController.swift").write_text("ModelConfiguration()\n", encoding="utf-8")
+        data_controller.write_text("ModelConfiguration()\n", encoding="utf-8")
         if not validate_swiftdata_boundary(root):
             raise AssertionError("implicit managed-sync fixture accepted")
-        (data / "DataController.swift").write_text(
+        data_controller.write_text(
             "ModelConfiguration(\n cloudKitDatabase: .none\n)\nModelConfiguration()\n",
             encoding="utf-8",
         )
         if not validate_swiftdata_boundary(root):
             raise AssertionError("partial explicit-.none fixture accepted")
+
+        data_controller.write_text(
+            "ModelConfiguration(cloudKitDatabase: .automatic)\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("managed .automatic fixture accepted")
+
+        data_controller.write_text(
+            "ModelConfiguration(cloudKitDatabase: CloudKitDatabase.private(\"unsafe\"))\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("managed private-database fixture accepted")
+
+        data_controller.write_text(
+            "ModelConfiguration(cloudKitDatabase:.none)\nModelContainer(for: Schema.self)\n",
+            encoding="utf-8",
+        )
+        (root / "MindBudget/AlternateStore.swift").write_text(
+            "ModelConfiguration()\nModelContainer(for: AlternateSchema.self)\n",
+            encoding="utf-8",
+        )
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("alternate production SwiftData construction fixture accepted")
+        (root / "MindBudget/AlternateStore.swift").unlink()
+
         (root / "MindBudget/Sync.swift").unlink()
         (root / "MindBudget/App.entitlements").write_text(
             "<key>com.apple.developer.icloud-container-identifiers</key>\n",
             encoding="utf-8",
         )
-        (data / "DataController.swift").write_text(
-            "ModelConfiguration(\n cloudKitDatabase: .none\n)\n",
+        data_controller.write_text(
+            "ModelConfiguration(\n cloudKitDatabase: .none\n)\nModelContainer(for: Schema.self)\n",
             encoding="utf-8",
         )
         if validate_swiftdata_boundary(root):
             raise AssertionError("iCloud-entitlement explicit-.none fixture rejected")
+
+        data_controller.unlink()
+        missing_errors = validate_swiftdata_boundary(root)
+        if not missing_errors or "missing primary SwiftData construction owner" not in missing_errors[0]:
+            raise AssertionError("missing DataController did not fail with a closed diagnostic")
 
 
 def main() -> int:

@@ -803,11 +803,12 @@ review/CI/merge gates and closing COM-C4A. This is append-only closeout evidence
 the accepted recovery or money boundary. C4B remains blocked pending an accepted CloudKit
 architecture and explicit owner instruction.
 
-## DEC-COM-028 — Proposed Free iCloud custom-record architecture
+## DEC-COM-028 — Accepted Free iCloud custom-record architecture
 
-- Status/date: **Proposed — 2026-08-21; pending owner and independent review**
+- Status/date: **Accepted — 2026-08-21 after owner acceptance, independent review, green GitHub
+  Actions run `32434148439`, and PR #57 merge `90a1e66`**
 - Requirements: REQ-ICLOUD-001, REQ-RECEIPT-PRIVACY-001, REQ-MONEY-001
-- Decision candidate: Use `CKSyncEngine` only with one custom zone in the current person's private
+- Decision: Use `CKSyncEngine` only with one custom zone in the current person's private
   CloudKit database. Sync is Free, default off, and not initialized before explicit opt-in. The
   app owns typed/versioned custom envelopes, canonical record names, a durable transactional
   outbox, a validated inbox/shadow, and logical tombstones. Full allow-listed user fields are stored
@@ -831,7 +832,7 @@ architecture and explicit owner instruction.
   accepted deterministic origin companion, never delete an edited expense automatically. Receipt
   images/OCR/intermediates, recovery artifacts, logs, StoreKit, notification, and configuration
   caches never enter CloudKit.
-- Account/deletion candidate: Account change pauses transfer and requires new explicit consent;
+- Account/deletion rule: Account change pauses transfer and requires new explicit consent;
   local writes never use an online lease. Same-record logical tombstones prevent stale resurrection
   after reinstall/full fetch and remain until C4B-03 proves safe compaction. Disable keeps local
   data and does not silently delete cloud data. C4B-03 owns the required cloud-wide deletion
@@ -840,9 +841,19 @@ architecture and explicit owner instruction.
   business IDs; direct delegate writes into SwiftData; immediate physical deletes that permit
   resurrection; relying on engine state as the unsent-write authority; managed model mirroring; and
   a timing-based online write lease.
-- Environment candidate: one uncreated/unaccepted `iCloud.com.xdgf558.MindBudget` container, with
-  provisioning-selected Development/Production environments and proposed `MindBudget.Sync.v1`
-  private custom zone containing proposed `MindBudgetEnvelopeV1` records.
+- Environment: one accepted but still uncreated/unprovisioned `iCloud.com.xdgf558.MindBudget` container, with
+  provisioning-selected Development/Production environments and accepted `MindBudget.Sync.v1`
+  private custom zone containing accepted `MindBudgetEnvelopeV1` records.
   Encrypted-key reset pauses and requires explicit recovery; it never auto-purges/reuploads.
-- Not yet decided/evidenced: dashboard roles/schema, Development/Production provisioning/deployment,
-  exact opt-in disclosure wording, physical-device account transitions, and multi-device convergence.
+- Accepted C4B-02 inputs: occurrence claims use only the canonical lower-case UUID + calendar-year/
+  month grammar and reject slash-bearing caller strings; genesis is revision 1 with no parent;
+  every later revision names the last accepted semantic digest. C4B-02 durably quarantines without
+  an automatic winner; C4B-03 owns keep-local/accept-cloud/explicit tombstone resolution. The exact
+  bilingual opt-in disclosure and container identifier are frozen in `ICLOUD_SYNC_CONTRACT.md`.
+- Not yet evidenced: dashboard roles/schema, Development/Production provisioning/deployment,
+  physical-device account transitions, multi-device convergence, and the C4B-03 resolution UI.
+- Acceptance evidence: reviewed head `093535f` passed every step of GitHub Actions run
+  `32434148439`; PR #57 merged to `main` as `90a1e66` on 2026-08-21. This accepts the architecture,
+  not a container creation, entitlement, CloudKit request, deployment, runtime implementation, or
+  distribution action. C4B-02 remains blocked pending prerequisite review/merge and explicit owner
+  instruction.

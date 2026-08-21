@@ -695,3 +695,25 @@ Local C4B-01 design validation passed the money, network-egress, commercializati
 StoreKit-catalog gates; the new parser self-test/repository check, Python AST syntax check, shell
 syntax check, and `git diff --check` also passed. A full runtime suite is intentionally not claimed:
 this candidate changes no runtime source, schema, entitlement, or container.
+
+## COM-C4B-01 closeout and C4B-02 prerequisite verification
+
+Status: **C4B-01 Done; C4B-02 prerequisite maintenance pending independent review.**
+
+Reviewed C4B-01 head `093535f` passed every step of GitHub Actions run `32434148439`; PR #57
+merged to `main` as `90a1e66` on 2026-08-21. The accepted DEC-COM-028 evidence remains design-only:
+no CloudKit container, entitlement, import, engine, request, schema, Dashboard action, deployment,
+or distribution was added.
+
+The prerequisite checker now reads each production Swift source once per validation pass, reports a
+missing `DataController` as a closed diagnostic, normalizes whitespace, scans all
+`MindBudget/**/*.swift` `ModelConfiguration` owners, rejects explicit `.automatic`/private managed
+CloudKit selection, and requires production `ModelContainer` construction to remain centralized.
+Its self-test proves compact `.none`, partial hardening, `.automatic`, private managed storage,
+alternate production construction, entitlement-triggered hardening, and missing-owner cases.
+
+Local prerequisite verification passed the money, network-egress, commercialization-document,
+StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and
+`git diff --check` gates. No Xcode runtime suite is claimed because this closeout changes only
+documentation and a static Python gate; hosted CI and independent review remain required before
+the prerequisite item closes or C4B-02 runtime work can start.

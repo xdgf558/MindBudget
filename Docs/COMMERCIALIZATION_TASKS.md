@@ -22,8 +22,9 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4B-01 design candidate is complete pending owner and independent review.
-  COM-C4A is Done; C4B-02 and C4B-03 remain blocked.** Reviewed C4A-03
+- Active phase: **COM-C4B-01 is Done through PR #57 (`90a1e66`); C4B-02 prerequisite
+  maintenance is pending independent review, while C4B-02 runtime and C4B-03 remain blocked.**
+  Reviewed C4B-01 head `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
   COM-C4A. C4A-02 remains Done through PR #53 (`c905415`). COM-C3 is Done; C3-04 passed independent
   review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
@@ -383,12 +384,20 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 
 ## COM-C4B — Free iCloud sync
 
-Status: **C4B-01 proposed architecture candidate complete pending independent review and owner acceptance.**
+Status: **In Progress.**
 
-- [~] **C4B-01 — Sync data design.** Candidate: default-off Free custom versioned records in one
+C4B-01 is Done through PR #57 (`90a1e66`). C4B-02 prerequisite maintenance is pending
+independent review; runtime C4B-02 and C4B-03 remain blocked.
+
+- [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
-  CloudKit entitlement. `ICLOUD_SYNC_CONTRACT.md` inventories all V5 owners and marks this design
-  Proposed through DEC-COM-028 until owner/independent review.
+  CloudKit entitlement. `ICLOUD_SYNC_CONTRACT.md` inventories all V5 owners. Reviewed head
+  `093535f` passed GitHub Actions run `32434148439`; PR #57 merged as `90a1e66`, accepting
+  DEC-COM-028.
+- [~] **C4B-02 prerequisites — Contract and static gate.** Pin the occurrence-key grammar,
+  revision-1 genesis, accepted-parent ancestry, no-winner quarantine handoff, exact container/
+  bilingual disclosure inputs, and repository-wide SwiftData `.none`/centralized-container gate.
+  This item creates no CloudKit runtime behavior.
 - [B] **C4B-02 — Sync implementation.** Implement the accepted Free custom-record path, multi-device reconciliation,
   offline retry, quota/iCloud-disabled handling, and allow-listed diagnostics. Receipt images and
   local intermediate files never enter CloudKit.

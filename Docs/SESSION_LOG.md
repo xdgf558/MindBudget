@@ -4950,3 +4950,21 @@ C4B-03 remain blocked pending owner acceptance and independent review.
 
 The four static gates, new contract-parser self-test, Python AST/shell syntax checks, and
 `git diff --check` passed. No full runtime validation was run because C4B-01 changes no runtime code.
+
+## 2026-08-21 — Session 144 — Close COM-C4B-01 and freeze C4B-02 prerequisites
+
+Reviewed C4B-01 head `093535f` passed GitHub Actions run `32434148439`; PR #57 merged to `main`
+as `90a1e66`. The owner accepted the reviewed custom-record/private-zone architecture, so the
+detailed DEC-COM-028 is Accepted and C4B-01 is Done.
+
+The prerequisite-only follow-up pins the occurrence-key grammar, revision-1/no-parent genesis,
+accepted-parent ancestry, durable no-winner quarantine handoff, exact future container/disclosure
+inputs, and repository-wide explicit SwiftData non-mirroring gate. The checker now covers every
+production Swift source and alternate `ModelContainer` construction, with clear missing-owner and
+managed `.automatic`/private self-tests. No Swift runtime, schema, container, entitlement, request,
+Dashboard, deployment, version, Archive/upload, tester, review, or distribution behavior changed.
+
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` passed. C4B-02 runtime and C4B-03
+remain blocked until this prerequisite change passes independent review/CI/merge and the owner
+explicitly starts implementation.

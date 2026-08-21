@@ -2,24 +2,29 @@
 
 ## Status
 
-Status: **C4B-01 proposed architecture candidate complete pending independent review and owner acceptance.**
+Status: **In Progress.**
+
+C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
+`32434148439`, and PR #57 merge `90a1e66`. C4B-02 prerequisite maintenance is pending review.
 
 ## Input gate
 
-This packet is limited to C4B-01 design. It does not create an iCloud container, enable iCloud/
+PR #57 closed C4B-01 design. This prerequisite closeout does not create an iCloud container, enable iCloud/
 CloudKit/push/background entitlements, alter `ModelConfiguration`, introduce a `CloudKit` import,
 create a network request, change SwiftData schema, deploy a CloudKit environment, or authorize
-release/distribution. The owner started the design phase only; DEC-COM-028 remains Proposed until
-owner acceptance and independent review.
+release/distribution. DEC-COM-028 is Accepted as architecture after owner acceptance, independent
+review, green CI, and merge; runtime implementation still requires an explicit owner start.
 
-The normative candidate is `ICLOUD_SYNC_CONTRACT.md`. It selects custom versioned records and
+The normative accepted design is `ICLOUD_SYNC_CONTRACT.md`. It selects custom versioned records and
 `CKSyncEngine` in a private custom zone, preserving the primary SwiftData store as explicitly
-non-mirrored. C4B-02 cannot start until the owner accepts the decision and names the required
-environment/container/disclosure inputs.
+non-mirrored. This maintenance packet pins the recurring-claim grammar, genesis ancestry,
+quarantine handoff, exact container/disclosure inputs, and repository-wide SwiftData static gate
+before C4B-02 runtime work may start.
 
 ## C4B-01 — Sync data design
 
-Status: **Proposed architecture candidate complete pending independent review and owner acceptance.**
+Status: **Done after independent review, GitHub Actions run `32434148439`, and PR #57 merge
+`90a1e66`.**
 
 ### Deliverables
 
@@ -33,7 +38,7 @@ Status: **Proposed architecture candidate complete pending independent review an
   attachments/OCR/recovery/security artifacts, encryption/key-reset behavior, and one-container
   Development/Production separation.
 
-### Candidate evidence
+### Accepted evidence
 
 - Apple primary documentation for `CKSyncEngine`, custom-record changes, managed-model
   compatibility, and `ModelConfiguration.CloudKitDatabase` is cited in the sync contract.
@@ -41,10 +46,22 @@ Status: **Proposed architecture candidate complete pending independent review an
   import/entitlement unless every primary local `ModelConfiguration` explicitly uses `.none`.
 - C4B-01 claims no verified container, account, Dashboard, quota, push, multi-device, or deployment
   behavior.
+- Reviewed head `093535f` passed every step of GitHub Actions run `32434148439`; PR #57 merged as
+  `90a1e66` on 2026-08-21.
 
 ## C4B-02 — Sync implementation
 
-Status: **Blocked pending accepted DEC-COM-028, owner container/disclosure inputs, and C4B-01 independent review.**
+Status: **Blocked.**
+
+Runtime implementation is blocked pending review/merge of the C4B-02 prerequisite contract and
+explicit owner instruction to begin it.
+
+Before runtime implementation, the accepted contract requires: the canonical occurrence-key
+parser/formatter with no `/`-bearing caller input; revision-1/no-parent genesis and exact accepted
+parent ancestry thereafter; durable quarantine without an automatic winner; the exact bilingual
+opt-in disclosure and container identifier; and a repository-wide production SwiftData gate that
+centralizes `ModelContainer` construction and requires `.none` on every `ModelConfiguration`
+before any CloudKit import/entitlement.
 
 Implement only the accepted custom-record adapter/outbox/staging/status surface and explicit local
 store hardening. All local mutations and sync outbox/tombstone creation must be one

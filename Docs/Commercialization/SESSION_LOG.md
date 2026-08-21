@@ -1761,3 +1761,24 @@ owner acceptance and independent review.
 
 The money, network-egress, commercialization-document (including the new contract parser/self-test),
 and StoreKit-catalog gates passed, as did Python AST and shell syntax checks and `git diff --check`.
+
+## 2026-08-21 — Session 61 — Close C4B-01 and prepare the C4B-02 contract gate
+
+Reviewed C4B-01 head `093535f` passed every step of GitHub Actions run `32434148439`; PR #57
+merged to `main` as `90a1e66`. The owner accepted the reviewed architecture and the review's
+precondition decisions, so DEC-COM-028 and C4B-01 are now Accepted/Done. This is architecture
+acceptance only: no container, entitlement, CloudKit import, request, schema, engine, Dashboard
+action, deployment, or distribution action occurred.
+
+The C4B-02 prerequisite contract now freezes the existing recurring occurrence-key serializer as
+canonical lower-case UUID + persisted-calendar year/month and rejects slash/control/caller inputs;
+defines genesis as revision 1 with no parent and later revisions as exact descendants of the last
+accepted semantic digest; and keeps durable quarantine non-authoritative with user resolution in
+C4B-03. It also records the exact future container identifier and bilingual opt-in disclosure.
+
+The static gate now scans every production Swift source, normalizes `.none` spacing, keeps
+`ModelContainer` construction centralized, and explicitly tests missing owner, partial hardening,
+managed `.automatic`/private storage, alternate construction, and entitlement/import triggers.
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` passed. C4B-02 runtime and C4B-03
+remain blocked pending independent review/merge of this prerequisite work and explicit owner start.

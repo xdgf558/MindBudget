@@ -27,14 +27,16 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `31918968478`; PR #40 merged it as `9448ca9` on 2026-08-16, closing COM-C3.
 - COM-C4A is Done. C4A-01 closed through PR #51 (`bcd56a3`), and C4A-02 closed through PR #53
   (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
-  merged it as `77292c6`, closing C4A-03 and COM-C4A. The owner started C4B-01 design only.
-  Its custom-record/private-zone `CKSyncEngine` candidate is Proposed in DEC-COM-028 pending
-  owner/independent review; C4B-02/03 remain blocked. The audit confirms that V1–V4 authoritative amounts
+  merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B-01 is Done: reviewed head `093535f`
+  passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
+  `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02 prerequisite
+  contract/gate maintenance is pending independent review; runtime C4B-02/03 remain blocked. The
+  audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in
   `COM_C4A_EXECUTION_PACKET.md`.
-- C4B-01's candidate keeps all budgeting paths local-first and Free/default-off. It inventories 16
+- C4B-01's accepted architecture keeps all budgeting paths local-first and Free/default-off. It inventories 16
   V5 tables (the prior 15-table audit predates V5's merchant companion), selects only
   authoritative user facts for versioned private-zone envelopes, and retains Merchant,
   MerchantAccountingContext, SpendingInsight, and ReminderEvent locally. The app will pin every
@@ -232,8 +234,10 @@ an exact centralized adapter exception is implemented.
 - Stable IDs, tombstones, conflict rules, account/quota/offline behavior, container environments,
   and local/cloud deletion must be accepted before COM-C4B implementation.
 - Receipt images and local intermediate files are excluded.
-- The sync architecture is still `UNVERIFIED`; COM-C0B records the decision criteria but does not
-  create a container.
+- The C4B-01 architecture is Accepted, while all runtime/container/provisioning behavior remains
+  unimplemented and unverified. C4B-02 prerequisites pin occurrence identity, lineage genesis,
+  quarantine ownership, disclosure, and repository-wide SwiftData non-mirroring before any
+  container or entitlement work.
 
 ## Receipt and local Pro boundary
 
