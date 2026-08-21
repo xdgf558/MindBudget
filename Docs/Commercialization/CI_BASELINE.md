@@ -705,12 +705,17 @@ merged to `main` as `90a1e66` on 2026-08-21. The accepted DEC-COM-028 evidence r
 no CloudKit container, entitlement, import, engine, request, schema, Dashboard action, deployment,
 or distribution was added.
 
-The prerequisite checker now reads each production Swift source once per validation pass, reports a
-missing `DataController` as a closed diagnostic, normalizes whitespace, scans all
-`MindBudget/**/*.swift` `ModelConfiguration` owners, rejects explicit `.automatic`/private managed
-CloudKit selection, and requires production `ModelContainer` construction to remain centralized.
-Its self-test proves compact `.none`, partial hardening, `.automatic`, private managed storage,
-alternate production construction, entitlement-triggered hardening, and missing-owner cases.
+The prerequisite checker now tokenizes each production Swift source while excluding comments and
+normal/raw single-line or multiline string literal text (but retaining interpolation code), reports
+a missing `DataController` as a closed diagnostic, scans all `MindBudget/**/*.swift`
+`ModelConfiguration` constructions, rejects aliases, direct/contextual `.init`, and metatype
+`.self` bypasses, requires top-level `.none` inside every individual real configuration call,
+rejects explicit
+`.automatic`/private managed CloudKit selection, and centralizes construction without rejecting
+ordinary `ModelContainer` parameter/reference types outside `DataController`. Its self-test proves
+compact `.none`, partial hardening, `.automatic`, private managed storage, alternate production
+construction, direct/contextual `.init`, metatype escape, aliases, fake comment/string or nested-code
+`.none`, entitlement-triggered hardening, and missing-owner cases.
 
 Local prerequisite verification passed the money, network-egress, commercialization-document,
 StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and
@@ -721,6 +726,7 @@ the C4B-02P item closes or C4B-02 runtime work can start.
 Review remediation promotes the sole active prerequisite item to the recognized
 `C4B-02P` subphase in `COM_C4B_EXECUTION_PACKET.md`, with its own direct pending-review Status.
 The existing `--require-all-status` parser now rejects a missing or conflicting C4B-02P Status;
-C4B-02 runtime remains a separate Blocked phase. Lexical comment/string false positives and the
-pre-existing generic nested-heading deletion/format-drift limits remain documented P3 maintenance
-items rather than being folded into this phase-state repair.
+C4B-02 runtime remains a separate Blocked phase. The later review remediation changes C4B-02P from
+the optional/parallel `[~]` marker to mandatory pending `[ ]` in both task maps and closes the
+comment/string counting bypass. The pre-existing generic nested-heading deletion/format-drift limits
+remain documented P3 maintenance items.

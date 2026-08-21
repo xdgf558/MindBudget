@@ -1795,3 +1795,26 @@ pending-independent-review Status. The task maps reference the same identifier, 
 runtime remains separately Blocked. The parser's known whole-nested-heading deletion/format-drift
 limit and fail-safe lexical comment/string noise are not expanded in this narrow remediation.
 Commercialization-document validation and `git diff --check` passed before the full static rerun.
+
+## 2026-08-21 — Session 63 — Close C4B-02P SwiftData static-gate bypasses
+
+The follow-up independent review found a real P1: counting `ModelConfiguration(` and `.none` text
+was vulnerable to direct `.init`, contextual initializer, alias, and comment/string fixtures. The
+gate now tokenizes Swift code conservatively, excluding nested comments and normal/raw single-line
+or multiline literal text while preserving code in interpolation. It validates `.none` only as a
+top-level argument of each real direct `ModelConfiguration` call, rejects aliases, direct or
+contextual `.init`, and `Type.self` escapes, and keeps construction centralized without rejecting
+the existing legitimate `ModelContainer` parameter reference in the integrity inventory.
+
+The self-test covers direct and contextual configuration/container initializers, return-style
+contextual initialization, aliases, metatype indirection, fake `.none` in comments, normal/raw/
+multiline strings and nested code, interpolation construction, alternate construction, managed
+selection, entitlement/import activation, and missing owner. C4B-02P is mandatory on C4B-02's
+critical path, so both task maps now mark it `[ ]` rather than optional/parallel `[~]`; its packet
+Status remains implementation complete pending independent review, while C4B-02 runtime remains
+Blocked.
+
+The money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` gates passed locally. This is
+still documentation/static-gate maintenance only: no runtime Swift, schema, CloudKit container,
+entitlement, request, deployment, Archive/upload, tester, review, or distribution behavior changed.

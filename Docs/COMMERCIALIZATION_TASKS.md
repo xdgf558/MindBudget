@@ -394,7 +394,7 @@ independent review; runtime C4B-02 and C4B-03 remain blocked.
   CloudKit entitlement. `ICLOUD_SYNC_CONTRACT.md` inventories all V5 owners. Reviewed head
   `093535f` passed GitHub Actions run `32434148439`; PR #57 merged as `90a1e66`, accepting
   DEC-COM-028.
-- [~] **C4B-02P — Prerequisite contract and static gate.** Pin the occurrence-key grammar,
+- [ ] **C4B-02P — Prerequisite contract and static gate.** Pin the occurrence-key grammar,
   revision-1 genesis, accepted-parent ancestry, no-winner quarantine handoff, exact container/
   bilingual disclosure inputs, and repository-wide SwiftData `.none`/centralized-container gate.
   This item creates no CloudKit runtime behavior.

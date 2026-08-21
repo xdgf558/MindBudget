@@ -4979,3 +4979,27 @@ recognized `C4B-02P` packet subphase with its own pending-review Status, so the 
 No runtime Swift, schema, container, entitlement, request, deployment, version, or distribution
 behavior changed. The known generic nested-heading deletion/format-drift limitation and fail-safe
 lexical comment/string noise remain deferred P3 maintenance rather than expanding this repair.
+
+## 2026-08-21 — Session 146 — Close C4B-02P SwiftData-gate bypasses
+
+Independent review correctly found that the prerequisite gate counted source substrings, allowing
+`ModelConfiguration.init`/`ModelContainer.init`, contextual `.init`, type aliases, or comment and
+string text to evade or spoof the per-configuration `.none` requirement once a CloudKit import or
+iCloud entitlement appears. The checker now uses a small conservative Swift lexer: it excludes
+nested comments and normal/raw, single-line/multiline string literal text while retaining real
+interpolation expressions. Every real `ModelConfiguration` direct call in `DataController` must
+carry a top-level `cloudKitDatabase: .none`; aliases, direct/contextual `.init`, and metatype
+`.self` escapes are rejected. `ModelContainer` construction remains centralized without banning
+ordinary parameter/reference types such as the existing integrity-inventory input.
+
+The deterministic self-test now proves the exact bypass fixtures, including direct and contextual
+initializers, aliases, fake `.none` in comments/normal/raw/multiline strings, nested-code fake
+`.none`, interpolation construction, metatype indirection, alternate construction, and missing
+owner. C4B-02P is a mandatory active prerequisite, so both task maps now use `[ ]`, not the
+optional/parallel `[~]`; its packet Status remains pending independent review and C4B-02 runtime
+remains Blocked. No runtime Swift, schema, container, entitlement, request, deployment, Archive,
+tester, or distribution behavior changed.
+
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` all passed locally. Hosted CI,
+independent review, and merge remain required before C4B-02P can close.

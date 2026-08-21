@@ -370,7 +370,7 @@ prerequisite maintenance pending independent review; C4B-02 runtime/C4B-03 block
   `32434148439`, and PR #57 merge `90a1e66`: custom private-zone `CKSyncEngine`
   envelopes, default-off/local-first semantics, stable IDs/tombstones/conflict order, explicit
   SwiftData `.none` guard, and permanently excluded attachments/OCR/recovery artifacts.
-- [~] Finish C4B-02P prerequisites without runtime CloudKit changes: canonical occurrence identity,
+- [ ] Finish C4B-02P prerequisites without runtime CloudKit changes: canonical occurrence identity,
   revision-1/no-parent genesis, accepted-parent ancestry, durable no-winner quarantine handoff,
   exact future container/disclosure inputs, and repository-wide SwiftData construction checks.
   C4B-02/03 runtime, containers, entitlements, Dashboard deployment, and distribution stay blocked.
