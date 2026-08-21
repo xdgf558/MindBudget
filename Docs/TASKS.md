@@ -225,8 +225,8 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C3 and C4A-01/C4A-02 Done; C4A-03 implementation complete pending
-independent review
+Status: COM-C0A through COM-C4A Done; C4B blocked pending an accepted CloudKit architecture and
+explicit owner instruction
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -363,3 +363,6 @@ independent review
   anomaly handling, and Delete All artifact boundary. Independent review and GitHub Actions run
   `32375823770` passed; PR #53 merged the result as `c905415` on 2026-08-20. The owner then
   explicitly started C4A-03's recovery/currency matrix; keep it limited to that active packet.
+- [x] Close C4A-03 and COM-C4A after independent review, green GitHub Actions run `32406654986`,
+  and PR #55 merge `77292c6`. Keep C4B blocked until its CloudKit architecture is accepted and the
+  owner explicitly starts it; do not infer iCloud or distribution authority from this closeout.

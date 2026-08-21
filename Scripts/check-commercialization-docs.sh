@@ -414,7 +414,9 @@ for c4a01_contract in \
   'undocumented persistent-store metadata' \
   'normal cold start never copies the store' \
   'USD, JPY, and KWD' \
-  'C4A-03 implementation is complete pending independent review' \
+  'C4A-03 is Done through PR #55' \
+  '32406654986' \
+  '77292c6' \
   'DEC-COM-025'; do
   if ! grep -Fqi "${c4a01_contract}" \
       Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
@@ -424,6 +426,18 @@ for c4a01_contract in \
     exit 1
   fi
 done
+
+if grep -Fq 'C4A-03 implementation is complete pending independent review' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/CI_BASELINE.md \
+    Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md; then
+  echo "Current COM-C4A state still describes C4A-03 as pending review" >&2
+  exit 1
+fi
 
 for c4a_release_anchor in '0.9.8 (9)' 'dda1eb09-5d8b-43c6-a2fd-ea910fa422ac'; do
   if ! grep -Fq "${c4a_release_anchor}" \

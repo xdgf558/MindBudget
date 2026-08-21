@@ -794,3 +794,11 @@ context.
   transition paths while rejecting them only during recovery; treating signed insight values as
   persisted source-ledger amounts; using a timing-dependent `Task.yield()` failure test; adding an
   in-app destructive reset; or changing V1–V4 schema hashes.
+
+### Closeout evidence — 2026-08-21
+
+Reviewed head `138c240` passed GitHub Actions run `32406654986`, including the complete Build and
+test job and report upload. PR #55 merged C4A-03 to `main` as `77292c6`, satisfying DEC-COM-027's
+review/CI/merge gates and closing COM-C4A. This is append-only closeout evidence, not a change to
+the accepted recovery or money boundary. C4B remains blocked pending an accepted CloudKit
+architecture and explicit owner instruction.

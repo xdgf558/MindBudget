@@ -13,8 +13,9 @@ current implementation; the owner-held specification remains frozen through the 
 Status: **Done after independent review, green CI, and PR #51 merge `bcd56a3`.**
 
 C4A-02 is Done after independent review, GitHub Actions run `32375823770`, and PR #53 merge
-`c905415`. C4A-03 implementation is complete pending independent review, hosted green CI, and
-merge.
+`c905415`. C4A-03 is Done through PR #55 (`77292c6`) after independent review and green GitHub
+Actions run `32406654986`, closing COM-C4A. C4B remains blocked pending an accepted CloudKit
+architecture and explicit owner instruction.
 
 ### Audit result
 
@@ -123,7 +124,8 @@ recovery artifact that can contain local data, including that report.
 
 ### C4A-03 — Recovery and currency matrix
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, GitHub Actions run `32406654986`, and PR #55 merge
+`77292c6`.**
 
 C4A-03's C4A-02 prerequisite is satisfied and the owner has explicitly started this matrix. This
 packet must prove:
@@ -154,14 +156,16 @@ cases at `/private/tmp/MindBudget-C4A03-Focused4.xcresult`. The generic Release 
 strict Dashboard performance suite passed 10/10 in isolation, and the final wall-clock-excluded
 full validation produced 441 results: 434 passed, 7 explicit runtime/opt-in skips, and 0 failed,
 including 17/17 UI tests and every selected coverage threshold, at
-`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. Independent review, hosted CI, and merge
-evidence remain exit gates.
+`/private/tmp/MindBudget-C4A03-FullFinal.xcresult`. Reviewed head `138c240` then passed every step
+of GitHub Actions run `32406654986`, including the complete Build and test job and report upload;
+PR #55 merged it to `main` as `77292c6`, satisfying the remaining C4A-03 and COM-C4A exit gates.
 
 ## Stop conditions
 
 - C4A-02 is Done through PR #53 (`c905415`) after independent review and green CI.
-- C4A-03 is the sole active COM-C4A subphase. It must not enter C4B/C4C or alter the
-  owner-confirmed retry-only/reinstall recovery boundary.
+- C4A-03 is Done through PR #55 (`77292c6`), and COM-C4A is closed. C4B/C4C remain blocked; this
+  closeout must not implement iCloud or alter the owner-confirmed retry-only/reinstall recovery
+  boundary.
 - No iCloud, telemetry, receipt, Watch, backend, cloud-AI, formal economics, Production deployment,
   tester assignment, Beta review, App Store submission, or public distribution is authorized.
 - App Store Connect transport acceptance of 0.9.8 (9) is historical release evidence only and

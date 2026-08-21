@@ -22,9 +22,10 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4A. C4A-01 and C4A-02 are Done; C4A-03 implementation is complete pending
-  independent review.** C4A-02 passed independent review and GitHub Actions run `32375823770`, then
-  merged through PR #53 as `c905415` on 2026-08-20. COM-C3 is Done; C3-04 passed independent
+- Active phase: **No COM implementation phase is active. COM-C4A is Done; C4B remains blocked
+  pending an accepted CloudKit architecture and explicit owner instruction.** Reviewed C4A-03
+  head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
+  COM-C4A. C4A-02 remains Done through PR #53 (`c905415`). COM-C3 is Done; C3-04 passed independent
   review and GitHub Actions run `31918968478`, then merged through PR #40 as `9448ca9` on
   2026-08-16. C3-03A and C3-03B
   remain Done through PR #36 (`1ebb36c`) and PR #38 (`db7926d`). The owner
@@ -344,7 +345,8 @@ no deferred or incomplete product is advertised.
 
 ## COM-C4A — Money migration delta
 
-Status: **In Progress.**
+Status: **Done — C4A-01 through C4A-03 passed their owning gates; PR #55 merged C4A-03 as
+`77292c6`.**
 
 The current app already has an `Int64` minor-unit `Money` model, currency exponents, exact parsers,
 versioned SwiftData migrations, and a floating-point gate. This phase must begin with a delta audit;
@@ -369,7 +371,8 @@ Status: **Done after independent review, GitHub Actions run `32375823770`, and P
 
 ### C4A-03 — Recovery and currency matrix
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review, GitHub Actions run `32406654986`, and PR #55 merge
+`77292c6`.**
 
 - [x] Prove idempotence, interruption rollback,
   anomalies-not-zero, `Int64` boundaries, USD/JPY/KWD, negative values, and existing money gates.
@@ -380,7 +383,7 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 
 ## COM-C4B — Free iCloud sync
 
-Status: **Blocked by COM-C4A and accepted CloudKit architecture.**
+Status: **Blocked pending an accepted CloudKit architecture and explicit owner instruction.**
 
 - [B] **C4B-01 — Sync data design.** Define opt-in semantics, stable IDs, tombstones, conflict
   rules, local attachment separation, containers/environments, deletion, and schema migration.
