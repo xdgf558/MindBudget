@@ -695,3 +695,47 @@ Local C4B-01 design validation passed the money, network-egress, commercializati
 StoreKit-catalog gates; the new parser self-test/repository check, Python AST syntax check, shell
 syntax check, and `git diff --check` also passed. A full runtime suite is intentionally not claimed:
 this candidate changes no runtime source, schema, entitlement, or container.
+
+## COM-C4B-01 closeout and C4B-02P prerequisite verification
+
+Status: **C4B-01 Done; C4B-02P prerequisite maintenance pending independent review.**
+
+Reviewed C4B-01 head `093535f` passed every step of GitHub Actions run `32434148439`; PR #57
+merged to `main` as `90a1e66` on 2026-08-21. The accepted DEC-COM-028 evidence remains design-only:
+no CloudKit container, entitlement, import, engine, request, schema, Dashboard action, deployment,
+or distribution was added.
+
+The prerequisite checker now tokenizes each production Swift source while excluding comments and
+normal/raw single-line or multiline string literal text (but retaining interpolation code), reports
+a missing `DataController` as a closed diagnostic, scans all `MindBudget/**/*.swift`
+`ModelConfiguration` constructions, applies delimiter-specific raw-string escape rules, recognizes
+direct and selective CloudKit imports, and rejects aliases and metatype `.self` bypasses. Every
+production `.init(...)` is checked against an exact path/receiver/argument-label/count allowance,
+closing cross-file contextual inference without rejecting the current reviewed initializers.
+Initializer function values have a separate exact path/receiver/count allowance, so bare
+`ModelConfiguration.init`/`ModelContainer.init` cannot escape into an indirect factory. SwiftUI's
+container modifier has one exact allowance: the existing unlabeled attachment of
+`environment.dataController.container` in `MindBudgetApp`; View/Scene `modelContainer(for:)`,
+implicit-self variants, extra calls, and method references fail. The checker requires top-level
+`.none` inside every individual real configuration call, rejects explicit `.automatic`/private
+managed CloudKit selection, and centralizes construction without rejecting ordinary
+`ModelContainer` parameter/reference types outside `DataController`. Its self-test proves compact
+`.none`, partial hardening, `.automatic`, private managed storage, alternate production
+construction, direct/same-file/cross-file contextual `.init`, initializer function values,
+metatype escape, SwiftUI View/Scene/implicit-self modifier construction, aliases, fake comment/
+string or nested-code `.none`, raw trailing-backslash termination, every supported selective import
+kind, entitlement-triggered hardening, and missing-owner cases.
+
+Local prerequisite verification passed the money, network-egress, commercialization-document,
+StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and
+`git diff --check` gates. No Xcode runtime suite is claimed because this closeout changes only
+documentation and a static Python gate; hosted CI and independent review remain required before
+the C4B-02P item closes or C4B-02 runtime work can start.
+
+Review remediation promotes the sole active prerequisite item to the recognized
+`C4B-02P` subphase in `COM_C4B_EXECUTION_PACKET.md`, with its own direct pending-review Status.
+The existing `--require-all-status` parser now rejects a missing or conflicting C4B-02P Status;
+C4B-02 runtime remains a separate Blocked phase. The later review remediation changes C4B-02P from
+the optional/parallel `[~]` marker to mandatory pending `[ ]` in both task maps and closes the
+comment/string counting bypass. The pre-existing generic nested-heading deletion/format-drift limits
+remain documented P3 maintenance items.

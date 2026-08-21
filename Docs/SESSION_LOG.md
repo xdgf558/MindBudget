@@ -4950,3 +4950,101 @@ C4B-03 remain blocked pending owner acceptance and independent review.
 
 The four static gates, new contract-parser self-test, Python AST/shell syntax checks, and
 `git diff --check` passed. No full runtime validation was run because C4B-01 changes no runtime code.
+
+## 2026-08-21 — Session 144 — Close COM-C4B-01 and freeze C4B-02 prerequisites
+
+Reviewed C4B-01 head `093535f` passed GitHub Actions run `32434148439`; PR #57 merged to `main`
+as `90a1e66`. The owner accepted the reviewed custom-record/private-zone architecture, so the
+detailed DEC-COM-028 is Accepted and C4B-01 is Done.
+
+The prerequisite-only follow-up pins the occurrence-key grammar, revision-1/no-parent genesis,
+accepted-parent ancestry, durable no-winner quarantine handoff, exact future container/disclosure
+inputs, and repository-wide explicit SwiftData non-mirroring gate. The checker now covers every
+production Swift source and alternate `ModelContainer` construction, with clear missing-owner and
+managed `.automatic`/private self-tests. No Swift runtime, schema, container, entitlement, request,
+Dashboard, deployment, version, Archive/upload, tester, review, or distribution behavior changed.
+
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` passed. C4B-02 runtime and C4B-03
+remain blocked until this prerequisite change passes independent review/CI/merge and the owner
+explicitly starts implementation.
+
+## 2026-08-21 — Session 145 — Promote C4B-02P into the protected packet state map
+
+PR #58 review confirmed the prerequisite decisions and static gate, then identified that the
+active prerequisite checklist item lacked a heading-bound Status. The remediation introduces the
+recognized `C4B-02P` packet subphase with its own pending-review Status, so the existing
+`--require-all-status` validation covers it. C4B-02 runtime remains a separate Blocked phase.
+
+No runtime Swift, schema, container, entitlement, request, deployment, version, or distribution
+behavior changed. The known generic nested-heading deletion/format-drift limitation and fail-safe
+lexical comment/string noise remain deferred P3 maintenance rather than expanding this repair.
+
+## 2026-08-21 — Session 146 — Close C4B-02P SwiftData-gate bypasses
+
+Independent review correctly found that the prerequisite gate counted source substrings, allowing
+`ModelConfiguration.init`/`ModelContainer.init`, contextual `.init`, type aliases, or comment and
+string text to evade or spoof the per-configuration `.none` requirement once a CloudKit import or
+iCloud entitlement appears. The checker now uses a small conservative Swift lexer: it excludes
+nested comments and normal/raw, single-line/multiline string literal text while retaining real
+interpolation expressions. Every real `ModelConfiguration` direct call in `DataController` must
+carry a top-level `cloudKitDatabase: .none`; aliases, direct/contextual `.init`, and metatype
+`.self` escapes are rejected. `ModelContainer` construction remains centralized without banning
+ordinary parameter/reference types such as the existing integrity-inventory input.
+
+The deterministic self-test now proves the exact bypass fixtures, including direct and contextual
+initializers, aliases, fake `.none` in comments/normal/raw/multiline strings, nested-code fake
+`.none`, interpolation construction, metatype indirection, alternate construction, and missing
+owner. C4B-02P is a mandatory active prerequisite, so both task maps now use `[ ]`, not the
+optional/parallel `[~]`; its packet Status remains pending independent review and C4B-02 runtime
+remains Blocked. No runtime Swift, schema, container, entitlement, request, deployment, Archive,
+tester, or distribution behavior changed.
+
+Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
+self-test/repository check, Python syntax, and `git diff --check` all passed locally. Hosted CI,
+independent review, and merge remain required before C4B-02P can close.
+
+## 2026-08-21 — Session 147 — Close raw-string, cross-file init, and selective-import escapes
+
+The follow-up review correctly reproduced three remaining static-gate gaps. The raw-string scanner
+treated an ordinary backslash like a non-raw escape and could swallow the closing quote plus later
+Swift code. A bare `.init` could receive `ModelContainer` context from a declaration in another
+file, defeating the same-file protected-type heuristic. Selective imports such as
+`import class CloudKit.CKSyncEngine` did not match the direct-import trigger.
+
+The lexer now applies Swift raw delimiters exactly: only a backslash followed by the opening number
+of hashes starts a raw escape or interpolation. Instead of attempting local type inference, the
+checker inventories every real production `.init(...)` repository-wide and permits only the 11
+existing reviewed calls by exact path, receiver, top-level argument labels, and maximum count.
+Direct and all supported selective CloudKit import kinds activate hardening. Comments and all
+literal text remain excluded, while string-interpolation code remains visible.
+
+New fixtures place a default configuration/container after a raw string ending in a literal
+backslash, split a `ModelContainer` sink and inferred `.init` across two files, and exercise every
+selective-import kind. Targeted self-test, repository scan, and Python syntax passed. No runtime
+Swift, schema, container, entitlement, request, deployment, Archive/upload, tester, review, or
+distribution behavior changed. C4B-02P stays pending independent review and C4B-02 stays Blocked.
+The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
+self/repository, Python syntax, and `git diff --check` rerun also passed.
+
+## 2026-08-21 — Session 148 — Guard initializer values and SwiftUI-created containers
+
+The next review correctly identified that `.init(...)` call scanning did not cover an initializer
+stored as a function value, and that SwiftUI's `modelContainer(for:)` can create a persistent
+container without a `ModelContainer(...)` token. Both shapes violated the centralized primary-store
+boundary once future iCloud capability hardening activates.
+
+Unapplied `.init` references now have their own exact repository allowance for the currently
+reviewed `Date`, `Set`, `String`, and recovery-deleter function values; an unapproved
+`ModelConfiguration.init` or `ModelContainer.init` reference fails before it can be called
+indirectly. SwiftUI modifier calls are also path/label/count-bound. Only the existing unlabeled
+`.modelContainer(environment.dataController.container)` call in `MindBudgetApp.swift` remains
+valid; View, Scene, implicit-self, extra, `for:`-creating, and modifier-reference forms fail.
+
+Deterministic fixtures cover both SwiftData initializer values, both SwiftUI surfaces, implicit
+self, modifier reference, and the accepted existing-container call. No runtime Swift, schema,
+container, entitlement, request, deployment, Archive/upload, tester, review, or distribution
+behavior changed. C4B-02P remains pending independent review and C4B-02 remains Blocked.
+
+The final money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud
+self/repository, Python syntax, and `git diff --check` rerun passed.

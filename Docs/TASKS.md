@@ -225,8 +225,8 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C4A Done; C4B-01 design candidate pending owner/independent review;
-C4B-02/03 blocked
+Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P
+prerequisite maintenance pending independent review; C4B-02 runtime/C4B-03 blocked
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -366,8 +366,11 @@ C4B-02/03 blocked
 - [x] Close C4A-03 and COM-C4A after independent review, green GitHub Actions run `32406654986`,
   and PR #55 merge `77292c6`. Keep C4B blocked until its CloudKit architecture is accepted and the
   owner explicitly starts it; do not infer iCloud or distribution authority from this closeout.
-- [~] Produce C4B-01's proposed Free iCloud design only: custom private-zone `CKSyncEngine`
+- [x] Close C4B-01 after owner acceptance, independent review, green GitHub Actions run
+  `32434148439`, and PR #57 merge `90a1e66`: custom private-zone `CKSyncEngine`
   envelopes, default-off/local-first semantics, stable IDs/tombstones/conflict order, explicit
-  SwiftData `.none` guard, and permanently excluded attachments/OCR/recovery artifacts. It remains
-  nonbinding until owner/independent review; C4B-02/03, containers, entitlements, implementation,
-  Dashboard deployment, and distribution stay blocked.
+  SwiftData `.none` guard, and permanently excluded attachments/OCR/recovery artifacts.
+- [ ] Finish C4B-02P prerequisites without runtime CloudKit changes: canonical occurrence identity,
+  revision-1/no-parent genesis, accepted-parent ancestry, durable no-winner quarantine handoff,
+  exact future container/disclosure inputs, and repository-wide SwiftData construction checks.
+  C4B-02/03 runtime, containers, entitlements, Dashboard deployment, and distribution stay blocked.
