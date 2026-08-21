@@ -4968,3 +4968,14 @@ Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iClou
 self-test/repository check, Python syntax, and `git diff --check` passed. C4B-02 runtime and C4B-03
 remain blocked until this prerequisite change passes independent review/CI/merge and the owner
 explicitly starts implementation.
+
+## 2026-08-21 — Session 145 — Promote C4B-02P into the protected packet state map
+
+PR #58 review confirmed the prerequisite decisions and static gate, then identified that the
+active prerequisite checklist item lacked a heading-bound Status. The remediation introduces the
+recognized `C4B-02P` packet subphase with its own pending-review Status, so the existing
+`--require-all-status` validation covers it. C4B-02 runtime remains a separate Blocked phase.
+
+No runtime Swift, schema, container, entitlement, request, deployment, version, or distribution
+behavior changed. The known generic nested-heading deletion/format-drift limitation and fail-safe
+lexical comment/string noise remain deferred P3 maintenance rather than expanding this repair.

@@ -7,8 +7,8 @@ Status: **C4B-01 Done after owner acceptance, independent review, green GitHub A
 
 This is the Accepted design contract, not authorization by itself to create a CloudKit container,
 add an entitlement, ship a request, migrate SwiftData, deploy a schema, or change local-only
-behavior. C4B-02 remains blocked until its prerequisite contract/gate change is reviewed and
-merged and the owner explicitly starts runtime implementation.
+behavior. C4B-02 remains blocked until C4B-02P is reviewed and merged and the owner explicitly
+starts runtime implementation.
 
 ## Scope and authority
 
@@ -190,7 +190,7 @@ documents the entitlement-selected environment and that deployment copies a test
 schema to Production without copying records. C4B-01 adds neither entitlement nor schema.
 Sources: [CKContainer](https://developer.apple.com/documentation/cloudkit/ckcontainer) and
 [Deploying an iCloud Container’s Schema](https://developer.apple.com/documentation/cloudkit/deploying-an-icloud-container-s-schema).
-C4B-02 runtime implementation starts only after this prerequisite closeout is reviewed/merged and
+C4B-02 runtime implementation starts only after C4B-02P is reviewed/merged and
 the owner gives explicit implementation instruction. Team/roles and account matrix remain
 operational inputs. Neutral
 quota wording must say local data and edits remain safe and sync resumes after iCloud space/account

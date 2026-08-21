@@ -696,9 +696,9 @@ StoreKit-catalog gates; the new parser self-test/repository check, Python AST sy
 syntax check, and `git diff --check` also passed. A full runtime suite is intentionally not claimed:
 this candidate changes no runtime source, schema, entitlement, or container.
 
-## COM-C4B-01 closeout and C4B-02 prerequisite verification
+## COM-C4B-01 closeout and C4B-02P prerequisite verification
 
-Status: **C4B-01 Done; C4B-02 prerequisite maintenance pending independent review.**
+Status: **C4B-01 Done; C4B-02P prerequisite maintenance pending independent review.**
 
 Reviewed C4B-01 head `093535f` passed every step of GitHub Actions run `32434148439`; PR #57
 merged to `main` as `90a1e66` on 2026-08-21. The accepted DEC-COM-028 evidence remains design-only:
@@ -716,4 +716,11 @@ Local prerequisite verification passed the money, network-egress, commercializat
 StoreKit-catalog (13/13), iCloud contract self-test/repository check, Python bytecode syntax, and
 `git diff --check` gates. No Xcode runtime suite is claimed because this closeout changes only
 documentation and a static Python gate; hosted CI and independent review remain required before
-the prerequisite item closes or C4B-02 runtime work can start.
+the C4B-02P item closes or C4B-02 runtime work can start.
+
+Review remediation promotes the sole active prerequisite item to the recognized
+`C4B-02P` subphase in `COM_C4B_EXECUTION_PACKET.md`, with its own direct pending-review Status.
+The existing `--require-all-status` parser now rejects a missing or conflicting C4B-02P Status;
+C4B-02 runtime remains a separate Blocked phase. Lexical comment/string false positives and the
+pre-existing generic nested-heading deletion/format-drift limits remain documented P3 maintenance
+items rather than being folded into this phase-state repair.

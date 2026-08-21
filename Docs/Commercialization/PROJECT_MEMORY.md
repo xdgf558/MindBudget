@@ -29,7 +29,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
   merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B-01 is Done: reviewed head `093535f`
   passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
-  `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02 prerequisite
+  `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02P prerequisite
   contract/gate maintenance is pending independent review; runtime C4B-02/03 remain blocked. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -235,7 +235,7 @@ an exact centralized adapter exception is implemented.
   and local/cloud deletion must be accepted before COM-C4B implementation.
 - Receipt images and local intermediate files are excluded.
 - The C4B-01 architecture is Accepted, while all runtime/container/provisioning behavior remains
-  unimplemented and unverified. C4B-02 prerequisites pin occurrence identity, lineage genesis,
+  unimplemented and unverified. C4B-02P prerequisites pin occurrence identity, lineage genesis,
   quarantine ownership, disclosure, and repository-wide SwiftData non-mirroring before any
   container or entitlement work.
 

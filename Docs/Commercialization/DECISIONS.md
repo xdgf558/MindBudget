@@ -845,7 +845,7 @@ architecture and explicit owner instruction.
   provisioning-selected Development/Production environments and accepted `MindBudget.Sync.v1`
   private custom zone containing accepted `MindBudgetEnvelopeV1` records.
   Encrypted-key reset pauses and requires explicit recovery; it never auto-purges/reuploads.
-- Accepted C4B-02 inputs: occurrence claims use only the canonical lower-case UUID + calendar-year/
+- Accepted C4B-02P inputs: occurrence claims use only the canonical lower-case UUID + calendar-year/
   month grammar and reject slash-bearing caller strings; genesis is revision 1 with no parent;
   every later revision names the last accepted semantic digest. C4B-02 durably quarantines without
   an automatic winner; C4B-03 owns keep-local/accept-cloud/explicit tombstone resolution. The exact

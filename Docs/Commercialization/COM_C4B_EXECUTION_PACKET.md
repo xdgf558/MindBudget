@@ -5,7 +5,7 @@
 Status: **In Progress.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
-`32434148439`, and PR #57 merge `90a1e66`. C4B-02 prerequisite maintenance is pending review.
+`32434148439`, and PR #57 merge `90a1e66`. C4B-02P prerequisite maintenance is pending review.
 
 ## Input gate
 
@@ -53,8 +53,12 @@ Status: **Done after independent review, GitHub Actions run `32434148439`, and P
 
 Status: **Blocked.**
 
-Runtime implementation is blocked pending review/merge of the C4B-02 prerequisite contract and
+Runtime implementation is blocked pending review/merge of C4B-02P and
 explicit owner instruction to begin it.
+
+### C4B-02P — Prerequisite contract and static gate
+
+Status: **Implementation complete pending independent review.**
 
 Before runtime implementation, the accepted contract requires: the canonical occurrence-key
 parser/formatter with no `/`-bearing caller input; revision-1/no-parent genesis and exact accepted
@@ -62,6 +66,8 @@ parent ancestry thereafter; durable quarantine without an automatic winner; the 
 opt-in disclosure and container identifier; and a repository-wide production SwiftData gate that
 centralizes `ModelContainer` construction and requires `.none` on every `ModelConfiguration`
 before any CloudKit import/entitlement.
+
+### Runtime implementation boundary
 
 Implement only the accepted custom-record adapter/outbox/staging/status surface and explicit local
 store hardening. All local mutations and sync outbox/tombstone creation must be one

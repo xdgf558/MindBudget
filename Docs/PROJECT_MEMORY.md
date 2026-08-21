@@ -56,7 +56,7 @@ COM-C4A is Done. C4A-01 closed through PR #51 (`bcd56a3`), and C4A-02 closed thr
 (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
 merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B-01 is Done: reviewed head `093535f`
 passed GitHub Actions run `32434148439`, and PR #57 merged the accepted custom-record/private-zone
-`CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02 prerequisite contract/
+`CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. C4B-02P prerequisite contract/
 gate maintenance is pending independent review; runtime C4B-02 and C4B-03 remain blocked. The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

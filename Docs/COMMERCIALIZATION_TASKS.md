@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4B-01 is Done through PR #57 (`90a1e66`); C4B-02 prerequisite
+- Active phase: **COM-C4B-01 is Done through PR #57 (`90a1e66`); C4B-02P prerequisite
   maintenance is pending independent review, while C4B-02 runtime and C4B-03 remain blocked.**
   Reviewed C4B-01 head `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -386,7 +386,7 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 
 Status: **In Progress.**
 
-C4B-01 is Done through PR #57 (`90a1e66`). C4B-02 prerequisite maintenance is pending
+C4B-01 is Done through PR #57 (`90a1e66`). C4B-02P prerequisite maintenance is pending
 independent review; runtime C4B-02 and C4B-03 remain blocked.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
@@ -394,7 +394,7 @@ independent review; runtime C4B-02 and C4B-03 remain blocked.
   CloudKit entitlement. `ICLOUD_SYNC_CONTRACT.md` inventories all V5 owners. Reviewed head
   `093535f` passed GitHub Actions run `32434148439`; PR #57 merged as `90a1e66`, accepting
   DEC-COM-028.
-- [~] **C4B-02 prerequisites — Contract and static gate.** Pin the occurrence-key grammar,
+- [~] **C4B-02P — Prerequisite contract and static gate.** Pin the occurrence-key grammar,
   revision-1 genesis, accepted-parent ancestry, no-winner quarantine handoff, exact container/
   bilingual disclosure inputs, and repository-wide SwiftData `.none`/centralized-container gate.
   This item creates no CloudKit runtime behavior.

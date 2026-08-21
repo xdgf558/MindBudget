@@ -1782,3 +1782,16 @@ managed `.automatic`/private storage, alternate construction, and entitlement/im
 Money, network-egress, commercialization-document, StoreKit-catalog 13/13, iCloud contract
 self-test/repository check, Python syntax, and `git diff --check` passed. C4B-02 runtime and C4B-03
 remain blocked pending independent review/merge of this prerequisite work and explicit owner start.
+
+## 2026-08-21 — Session 62 — Protect the active C4B-02 prerequisite subphase
+
+Independent review found no new P1/P2 design issue and confirmed that the prior occurrence-key,
+lineage, quarantine, and SwiftData-gate findings were closed. It correctly noted that the sole
+active prerequisite item was only a checklist bullet and therefore had no direct `Status` under
+the packet's `--require-all-status` parser.
+
+The item is now the explicit `C4B-02P` packet subphase with a direct implementation-complete/
+pending-independent-review Status. The task maps reference the same identifier, while C4B-02
+runtime remains separately Blocked. The parser's known whole-nested-heading deletion/format-drift
+limit and fail-safe lexical comment/string noise are not expanded in this narrow remediation.
+Commercialization-document validation and `git diff --check` passed before the full static rerun.
