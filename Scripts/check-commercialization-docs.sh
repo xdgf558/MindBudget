@@ -31,6 +31,8 @@ required_files=(
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
+  Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
 
@@ -55,12 +57,20 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
-  Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
+
+# C4B uses a small structural parser rather than another phase-specific collection of prose
+# comparisons. It verifies the required contract declarations and makes a future CloudKit
+# import/entitlement fail unless DataController's primary local stores are explicitly `.none`.
+python3 -B Scripts/check_icloud_sync_contract.py --self-test
+python3 -B Scripts/check_icloud_sync_contract.py
 
 SOURCE_SHA="$(
   sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |

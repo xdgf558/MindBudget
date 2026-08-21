@@ -54,8 +54,9 @@ a 7-day StoreKit-eligible trial, and initial HKG/USA/SGP/TWN runtime coverage. T
 controls rather than final launch economics.
 COM-C4A is Done. C4A-01 closed through PR #51 (`bcd56a3`), and C4A-02 closed through PR #53
 (`c905415`). Reviewed C4A-03 head `138c240` passed GitHub Actions run `32406654986`; PR #55
-merged it as `77292c6`, closing C4A-03 and COM-C4A. C4B remains blocked pending an accepted
-CloudKit architecture and explicit owner instruction. The C4A audit
+merged it as `77292c6`, closing C4A-03 and COM-C4A. The owner started C4B-01 design only. Its
+custom-record/private-zone `CKSyncEngine` architecture candidate is Proposed in DEC-COM-028 pending
+owner and independent review; C4B-02/03 remain blocked. The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
 backup/journal/integrity boundary plus explicit currency ownership for the rebuildable merchant
