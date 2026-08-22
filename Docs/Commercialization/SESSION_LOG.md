@@ -2173,3 +2173,8 @@ catalog 13/13, iCloud contract self-test/repository, Python syntax, shell syntax
 The first Python compile-only attempt hit Apple's unwritable default bytecode cache, and the same
 check passed with a task-specific `/private/tmp` cache. No runtime suite was rerun for this
 documentation-only calibration; hosted CI remains the PR merge gate.
+
+Independent review of PR #62 found no P1/P2 issue and recommended approval after hosted CI. The
+optional P3 status polish was accepted: the iCloud contract's current Status and introduction now
+name PR #61 (`0f749ce`) and use present tense for the merged entitlement/operational surfaces.
+Historical evidence sections remain append-only and were not rewritten.

@@ -5329,3 +5329,8 @@ contract and then passed. An initial Python compile-only check could not write A
 cache outside the workspace; the identical check passed with a task-specific `/private/tmp`
 bytecode cache. Neither environment result is product evidence, and no runtime suite was rerun for
 this documentation-only change; hosted CI remains the PR merge gate.
+
+PR #62 independent review found no P1/P2 issue and recommended approval after hosted CI. The
+optional current-status cleanup was applied to `ICLOUD_SYNC_CONTRACT.md`: its opening now records
+PR #61 (`0f749ce`) and describes the already merged entitlement/operational surfaces in present
+tense. Older decision and CI sections remain chronological evidence and were not back-edited.
