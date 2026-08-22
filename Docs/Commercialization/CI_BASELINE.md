@@ -992,3 +992,25 @@ were explicit skips and made no network request. Minimum selected coverage remai
 87.60% against the required 85%. `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1` preserved the previously
 recorded loaded-host decision and does not manufacture a new strict performance result. Hosted CI
 on the pushed remediation head remains a separate merge gate.
+
+### PR #61 reviewed product merge — 2026-08-22
+
+Independent rereview approved exact head `f49de948b88c9fc42aff996b6e90fd835742ca41`. GitHub Actions
+run `32571676058` completed successfully on that same head, with `Build and test` green after
+19m36s. PR #61 then merged it to `main` as
+`0f749ce18b877969248fb3e4e7c0b28df21139af` at 2026-08-22 12:17:31 UTC. This closes the product
+code's review, hosted-CI, and merge gates.
+
+C4B-03 is not Done. The owner temporarily deferred a same-iCloud-account two-device rerun because
+that test arrangement is currently unavailable. The earlier different-account attempt and this
+deferral remain an explicit evidence gap, not a pass, product failure, permanent waiver, or basis
+for unblocking C4C. Physical account/offline/quota/background-push, distribution signing, and
+owner-authorized Production deployment/release evidence remain open.
+
+The post-merge documentation calibration changes no runtime source. Money, network-egress,
+commercialization-document, StoreKit catalog 13/13, iCloud contract self-test/repository, Python
+syntax, shell syntax, and diff checks pass locally. A first document-gate run rejected its own old
+exact status anchor and a first Python compile-only check hit the host's unwritable default cache;
+both passed after the contract phrase was calibrated and bytecode cache was scoped to
+`/private/tmp`. No new simulator, physical, CloudKit, Production, Archive, or release evidence is
+inferred from this documentation-only validation.

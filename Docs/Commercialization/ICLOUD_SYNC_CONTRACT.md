@@ -2,13 +2,15 @@
 
 ## Status
 
-Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 In Progress after PR #60 merge `7138a9c`.**
+Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 product capability merged through PR #61
+`0f749ce`; C4B-03 remains In Progress for operational and release evidence.**
 
 This is the Accepted design and implementation contract. PR #58 merged the prerequisites as
 `6f5fded`; reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59 merged
-it as `211dff2`. PR #60 (`7138a9c`) closed the documentation gate. C4B-03 may add the exact
-entitlement and operational surfaces, but neither a locally signed build nor source configuration
-authorizes Production schema deployment or distribution by itself.
+it as `211dff2`. PR #60 (`7138a9c`) closed the documentation gate. Reviewed C4B-03 product head
+`f49de94` passed GitHub Actions run `32571676058`, and PR #61 merged the exact entitlement and
+operational surfaces as `0f749ce`. Neither the merged source nor a locally signed build authorizes
+Production schema deployment or distribution by itself.
 
 ## Scope and authority
 
@@ -298,6 +300,9 @@ gap, not a pass or a product failure. A final 33/33 cleanup run confirms only th
 Development zone is empty after the interrupted attempt. An ordinary simulator run then passed 36
 results—33 deterministic passes and three physical-only skips—at
 `/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`, proving the harness stays opt-in.
+On 2026-08-22 the owner temporarily deferred a same-account rerun because the required account
+arrangement is not currently available. This scheduling decision neither satisfies nor removes the
+multi-device convergence/conflict evidence requirement, and it cannot close C4B-03 or unblock C4C.
 
 ## Unknowns and required evidence
 
@@ -311,4 +316,5 @@ results—33 deterministic passes and three physical-only skips—at
   visibility. None is an exported ledger or attachment channel.
 - The owner accepted the exact identifier, disclosure scope/copy, genesis rule, and quarantine
   responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
-  roles and test Apple IDs remain C4B-03 operational evidence inputs.
+  roles and test Apple IDs remain C4B-03 operational evidence inputs. Same-account multi-device
+  evidence is temporarily deferred, not passed or permanently waived.

@@ -2146,3 +2146,35 @@ compilation, 461 unit-test results across 27 suites, 17/17 UI tests, and all sel
 thresholds; minimum selected coverage was 87.60% against 85%. The loaded-host wall-clock skip and
 external C4B-03 evidence gaps remain unchanged, so the phase is still In Progress pending hosted
 CI, re-review, merge, and the unwaived release gates.
+
+## 2026-08-22 — Session 78 — Record PR #61 product merge and defer unavailable dual-device proof
+
+Exact reviewed head `f49de948b88c9fc42aff996b6e90fd835742ca41` passed GitHub Actions run
+`32571676058`; `Build and test` completed successfully after 19m36s. PR #61 merged that head to
+`main` as `0f749ce18b877969248fb3e4e7c0b28df21139af` at 2026-08-22 12:17:31 UTC. The C4B-03 product
+capability is now merged, so product review, hosted CI, and merge are no longer open evidence.
+
+The connected physical devices use different iCloud Apple Accounts and cannot exercise one private
+database. Because a same-account arrangement is not currently available, the owner asked to skip
+that rerun for now. DEC-COM-038 preserves this as a temporary evidence deferral. It is not a pass,
+product failure, permanent waiver, release authorization, or permission to close C4B-03/COM-C4B.
+The opt-in harness remains for a future same-account run. C4C and distribution remain blocked;
+physical account/offline/quota/background-push, distribution signing, and owner-authorized
+Production deployment/release evidence stay open.
+
+This calibration changes documentation/static gates only. No Swift, Schema, entitlement, container,
+CloudKit record, Dashboard environment, Production deployment, Archive, upload, tester, or release
+action changed. Final static validation is recorded after the document gate is updated.
+
+Final static validation passes: money, network egress, commercialization documentation, StoreKit
+catalog 13/13, iCloud contract self-test/repository, Python syntax, shell syntax, and
+`git diff --check`. The first document run failed closed on the superseded exact phrase
+`C4B-03 is In Progress`; after updating that contract anchor to `remains In Progress`, it passed.
+The first Python compile-only attempt hit Apple's unwritable default bytecode cache, and the same
+check passed with a task-specific `/private/tmp` cache. No runtime suite was rerun for this
+documentation-only calibration; hosted CI remains the PR merge gate.
+
+Independent review of PR #62 found no P1/P2 issue and recommended approval after hosted CI. The
+optional P3 status polish was accepted: the iCloud contract's current Status and introduction now
+name PR #61 (`0f749ce`) and use present tense for the merged entitlement/operational surfaces.
+Historical evidence sections remain append-only and were not rewritten.

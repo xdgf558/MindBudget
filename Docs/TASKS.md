@@ -226,8 +226,9 @@ Status: Done
 
 ## Commercialization and Pro development — separate COM track
 Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
-through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 In Progress after
-PR #60 (`7138a9c`) closed the reviewed documentation gate with green run `32494429474`
+through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 product capability
+merged through PR #61 (`0f749ce`) after reviewed head `f49de94` passed run `32571676058`, while the
+phase remains In Progress for operational/release evidence
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -392,12 +393,16 @@ PR #60 (`7138a9c`) closed the reviewed documentation gate with green run `324944
   owner-authorized physical Development
   suite passed 33/33 with a real zone create/send/fetch/disable/confirmed-reimport/delete lifecycle
   and local preservation. Read-only Dashboard inspection confirms the exact encrypted Development
-  record shape and that Production has no app record type or deployed schema. Physical multi-device/
-  account/quota/offline/push, distribution signing, Production deployment, review, hosted CI, and
-  merge remain pending. The signed two-device harness did not converge because the devices use
-  different iCloud Apple Accounts; the owner stopped that attempt, and it is not counted as pass
-  evidence. A subsequent 33/33 cleanup run confirmed the fixed Development zone is empty.
-  PR #61 review remediation now republishes the retained-cloud marker immediately after local
+  record shape and that Production has no app record type or deployed schema. Physical account/
+  quota/offline/push, distribution signing, and Production deployment remain pending. The signed
+  two-device harness did not converge because the devices use different iCloud Apple Accounts;
+  the owner stopped that attempt and on 2026-08-22 temporarily deferred a same-account rerun. It is
+  not counted as a pass or permanent waiver. A subsequent 33/33 cleanup run confirmed the fixed
+  Development zone is empty. PR #61 republishes the retained-cloud marker immediately after local
   Delete All, keeps the reimport/cloud-delete UI accurate in the same session, displays closed
-  deletion retry reasons, and leaves incomplete cloud conflicts unresolvable. The focused
-  CloudSync/Phase 6 run passes 52 cases; rereview and current-head CI remain pending.
+  deletion retry reasons, and leaves incomplete cloud conflicts unresolvable. Focused CloudSync/
+  Phase 6 passed 52 cases; the final full run passed 461 unit results and 17/17 UI tests. Reviewed
+  head `f49de94` passed GitHub Actions run `32571676058`, and PR #61 merged as `0f749ce`.
+- [x] Calibrate the C4B-03 product merge without closing the evidence phase: record PR #61,
+  `0f749ce`, green run `32571676058`, and the owner's temporary deferral of same-account two-device
+  evidence while retaining C4B-03 In Progress and C4C blocked.

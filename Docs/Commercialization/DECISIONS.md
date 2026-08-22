@@ -1118,3 +1118,26 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   to repair the UI; letting the first Enable tap fail silently; allowing Disable to abandon a
   pending zone deletion; resolving a content-free conflict; uploading every tombstone before the
   stronger whole-zone delete; or rewriting historical phase evidence as if it had never been true.
+
+## DEC-COM-038 — Defer same-account two-device evidence without closing C4B-03
+
+- Status/date: **Accepted owner scheduling boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-036/037
+- Context: Reviewed C4B-03 product head `f49de94` passed GitHub Actions run `32571676058`, and PR
+  #61 merged it to `main` as `0f749ce`. The only prepared two-device attempt used different iCloud
+  Apple Accounts, so the devices addressed different private databases. A same-account device
+  arrangement is not currently available, and the owner requested that this verification be
+  skipped for now.
+- Decision: Defer the same-account two-device convergence/conflict run. Preserve the opt-in harness
+  and the earlier different-account non-pass, but do not schedule another attempt in the current
+  task. This is a temporary evidence deferral only: it is not a convergence pass, product failure,
+  permanent waiver, release authorization, or permission to mark C4B-03/COM-C4B Done.
+- Consequences: PR #61 closes the product code's independent-review, hosted-CI, and merge gates.
+  C4B-03 and COM-C4B remain In Progress; C4C and distribution remain blocked. Physical account,
+  offline, quota, and background-push evidence plus distribution signing and explicitly authorized
+  Production deployment/release evidence remain open. A future same-account run may close the
+  deferred evidence without changing the product contract.
+- Alternatives rejected: Relabeling the different-account attempt as convergence; deleting the
+  harness; silently removing multi-device evidence from the exit gate; treating temporary
+  unavailability as a permanent waiver; marking C4B-03 Done because product code reached `main`;
+  or entering C4C while COM-C4B remains open.

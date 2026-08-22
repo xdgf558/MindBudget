@@ -470,7 +470,7 @@ for c4b02_closeout_anchor in \
 done
 
 for c4b03_entry_anchor in \
-  'C4B-03 is In Progress' \
+  'C4B-03 remains In Progress' \
   '32494429474' \
   '7138a9c' \
   'DEC-COM-032'; do
@@ -489,6 +489,46 @@ for c4b03_entry_anchor in \
     exit 1
   fi
 done
+
+# PR #61 closed the product review/CI/merge gates, but not C4B-03's operational evidence phase.
+# These anchors deliberately require both sides of that distinction and the owner's temporary
+# same-account test deferral without allowing it to masquerade as convergence or a permanent waiver.
+for c4b03_product_merge_anchor in \
+  'f49de94' \
+  '32571676058' \
+  '0f749ce' \
+  'C4B-03 remains In Progress' \
+  'temporarily deferred' \
+  'not a pass' \
+  'DEC-COM-038'; do
+  if ! grep -Fq "${c4b03_product_merge_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+      Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md; then
+    echo "C4B-03 reviewed product merge/evidence deferral is missing: ${c4b03_product_merge_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'rereview and (the )?current-head CI remain|rereview and the current head.s hosted CI remain|Physical multi-device/account/quota/offline/push, Production deployment, distribution signing, review, hosted CI, and merge remain open|review, hosted CI, and merge remain pending' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+    Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current COM-C4B state still describes the merged PR #61 product head as pending review/CI/merge" >&2
+  exit 1
+fi
 
 for c4b03_local_evidence_anchor in \
   'DEC-COM-033' \
