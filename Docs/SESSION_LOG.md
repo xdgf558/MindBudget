@@ -5299,3 +5299,33 @@ across 27 suites, 17/17 UI tests, and every selected coverage threshold at
 the wall-clock benchmark remained intentionally skipped under the already recorded loaded-host
 policy. C4B-03 stays In Progress for hosted CI, re-review, merge, and the external evidence gates
 that the owner did not waive.
+
+## 2026-08-22 — Session 161 — Calibrate the reviewed C4B-03 product merge without closing evidence
+
+Reviewed C4B-03 product head `f49de948b88c9fc42aff996b6e90fd835742ca41` passed GitHub Actions
+run `32571676058`; its only `Build and test` check completed successfully after 19m36s. PR #61 then
+merged that exact head to `main` as `0f749ce18b877969248fb3e4e7c0b28df21139af`. The product's
+conflict/deletion/reimport/recovery capability is therefore in `main`, and its independent-review,
+hosted-CI, and merge gates are closed.
+
+The owner requested that same-iCloud-account two-device convergence/conflict verification be
+skipped for now because that account arrangement is unavailable. DEC-COM-038 records a temporary
+evidence deferral, not a pass, product failure, permanent waiver, release authorization, or phase
+exit. The earlier different-account attempt remains a non-pass and the opt-in harness remains
+available. C4B-03 and COM-C4B stay In Progress; C4C and distribution stay blocked. Physical
+account/offline/quota/background-push, distribution signing, and explicitly authorized Production
+deployment/release evidence remain open.
+
+This session changes documentation and its static contract only. It changes no Swift, Schema,
+entitlement, container, CloudKit record, Dashboard environment, Production deployment, Archive,
+upload, tester assignment, or release state. The owning validation is recorded after the final
+document gate run below.
+
+Money, network-egress, commercialization-document, StoreKit catalog 13/13, iCloud contract
+self-test/repository, Python syntax, shell syntax, and `git diff --check` all pass. The first
+commercialization-document run correctly rejected the old exact `C4B-03 is In Progress` anchor
+after the calibrated prose moved to `remains In Progress`; the gate was updated to the current
+contract and then passed. An initial Python compile-only check could not write Apple's default
+cache outside the workspace; the identical check passed with a task-specific `/private/tmp`
+bytecode cache. Neither environment result is product evidence, and no runtime suite was rerun for
+this documentation-only change; hosted CI remains the PR merge gate.

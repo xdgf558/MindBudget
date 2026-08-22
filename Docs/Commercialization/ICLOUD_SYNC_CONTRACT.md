@@ -298,6 +298,9 @@ gap, not a pass or a product failure. A final 33/33 cleanup run confirms only th
 Development zone is empty after the interrupted attempt. An ordinary simulator run then passed 36
 results—33 deterministic passes and three physical-only skips—at
 `/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`, proving the harness stays opt-in.
+On 2026-08-22 the owner temporarily deferred a same-account rerun because the required account
+arrangement is not currently available. This scheduling decision neither satisfies nor removes the
+multi-device convergence/conflict evidence requirement, and it cannot close C4B-03 or unblock C4C.
 
 ## Unknowns and required evidence
 
@@ -311,4 +314,5 @@ results—33 deterministic passes and three physical-only skips—at
   visibility. None is an exported ledger or attachment channel.
 - The owner accepted the exact identifier, disclosure scope/copy, genesis rule, and quarantine
   responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
-  roles and test Apple IDs remain C4B-03 operational evidence inputs.
+  roles and test Apple IDs remain C4B-03 operational evidence inputs. Same-account multi-device
+  evidence is temporarily deferred, not passed or permanently waived.

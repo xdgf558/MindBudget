@@ -2583,3 +2583,18 @@ Consequences: The same-session Delete All path cannot silently hide a retained c
 an unconfirmed Enable. Focused CloudSync/Phase 6 tests pass 52 cases with only the three physical-
 only probes skipped. C4B-03 remains In Progress pending rereview, hosted CI, and its documented
 external lifecycle/release gates.
+
+---
+
+## 2026-08-22 — Defer same-account two-device evidence without claiming closure
+
+Context: Reviewed C4B-03 product head `f49de94` passed GitHub Actions run `32571676058`, and PR #61
+merged it to `main` as `0f749ce`. The prepared physical devices use different iCloud Apple
+Accounts, while a same-account arrangement is not currently available.
+
+Decision: Detailed ownership is DEC-COM-038. The owner temporarily defers the same-account
+convergence/conflict rerun. The harness and evidence requirement remain; the deferral is not a pass,
+product failure, permanent waiver, or release authorization.
+
+Consequences: Product review/CI/merge is closed, but C4B-03 and COM-C4B remain In Progress. C4C and
+distribution remain blocked while the other physical and release evidence gates stay open.

@@ -25,7 +25,8 @@ detailed phase checklists; it added no paid product behavior.
 - Active phase: **COM-C4B is In Progress. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
-  `32494429474`; C4B-03 is In Progress under the owner's formal entry.**
+  `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
+  and PR #61 merged it as `0f749ce`; C4B-03 remains In Progress for evidence closure.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -392,7 +393,9 @@ Status: **In Progress.**
 C4B-01 is Done through PR #57 (`90a1e66`), and C4B-02P is Done through PR #58 (`6f5fded`).
 C4B-02 is Done through PR #59 (`211dff2`) after reviewed head `0024507` passed GitHub Actions run
 `32490174014`. Reviewed closeout head `b9944cd` passed GitHub Actions run `32494429474`, and PR #60
-merged it as `7138a9c`; C4B-03 is In Progress under the owner's formal entry.
+merged it as `7138a9c`. Reviewed C4B-03 product head `f49de94` passed GitHub Actions run
+`32571676058`, and PR #61 merged the accepted product capability as `0f749ce`; C4B-03 remains In
+Progress because its operational/release evidence is not closed.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -422,12 +425,15 @@ merged it as `7138a9c`; C4B-03 is In Progress under the owner's formal entry.
   preservation. Read-only Dashboard inspection confirms one encrypted Development app field and no
   Production app record type or deployed schema. A prepared two-device run was stopped after
   distinct iCloud-account fingerprints proved that the devices address different private
-  databases; it is not claimed as a pass. Physical multi-device/account/quota/offline/push,
-  Production deployment, distribution signing, review, hosted CI, and merge remain open.
-  PR #61 review remediation now preserves the retained-copy marker in the same session after local
+  databases. On 2026-08-22 the owner temporarily deferred a same-account rerun; it is not a pass,
+  product failure, permanent waiver, or authorization to close C4B-03. Physical account/quota/
+  offline/push, Production deployment, and distribution signing remain open.
+  PR #61 preserves the retained-copy marker in the same session after local
   Delete All, requires confirmed reimport before Enable, exposes closed cloud-deletion retry
   reasons, and keeps incomplete conflict candidates quarantined. Focused CloudSync/Phase 6 tests
-  pass 52 cases; rereview and the current head's hosted CI remain open.
+  passed 52 cases; the accepted exact-head full run passed 461 unit results, 17/17 UI, Release,
+  and coverage. Independent rereview approved the product head, Actions run `32571676058` passed,
+  and PR #61 merged it as `0f749ce`.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.

@@ -84,7 +84,12 @@ models and sync metadata are cleared, the service immediately republishes `.disa
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed
 reimport. Pending cloud deletion now gives closed retry guidance, and incomplete cloud conflict
 candidates remain quarantined without an action. The focused CloudSync/Phase 6 run passed 52 tests
-with only the three physical probes skipped; rereview and current-head hosted CI remain open.
+with only the three physical probes skipped; the exact-head full run passed 461 unit results,
+17/17 UI, Release, and coverage. Independent rereview approved head `f49de94`, GitHub Actions run
+`32571676058` passed, and PR #61 merged the product capability to `main` as `0f749ce`.
+The owner temporarily deferred the unavailable same-iCloud-account two-device rerun on 2026-08-22.
+That evidence remains unproven and is not recorded as a pass, permanent waiver, or phase exit;
+C4B-03 and COM-C4B remain In Progress, and C4C remains blocked.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
