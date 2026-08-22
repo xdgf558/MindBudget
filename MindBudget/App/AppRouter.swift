@@ -306,12 +306,38 @@ final class AppSession: ObservableObject {
         await cloudSyncService?.setEnabled(enabled)
     }
 
+    func setCloudSyncEnabled(_ enabled: Bool, reimportConfirmed: Bool) async {
+        await cloudSyncService?.setEnabled(enabled, reimportConfirmed: reimportConfirmed)
+    }
+
     func retryCloudSync() async {
         await cloudSyncService?.retry()
     }
 
     func refreshCloudSyncOnSceneActivation() async {
         await cloudSyncService?.sceneDidBecomeActive()
+    }
+
+    func cloudSyncConflicts() async -> [CloudSyncConflictSummary] {
+        await cloudSyncService?.conflicts() ?? []
+    }
+
+    func resolveCloudSyncConflict(
+        recordName: String,
+        resolution: CloudSyncConflictResolution
+    ) async -> Bool {
+        await cloudSyncService?.resolveConflict(
+            recordName: recordName,
+            resolution: resolution
+        ) ?? false
+    }
+
+    func deleteCloudSyncData() async -> CloudSyncCloudDeletionOutcome {
+        await cloudSyncService?.deleteCloudData() ?? .failed(.transportFailed)
+    }
+
+    func recoverCloudSyncFromLocalData() async -> Bool {
+        await cloudSyncService?.recoverFromTrustBoundary(.rebuildCloudFromLocal) ?? false
     }
 
     @discardableResult
@@ -667,6 +693,11 @@ final class AppSession: ObservableObject {
         privacyDeletionState = .inProgress(.deletingLocalData)
         do {
             try await dataActor.deleteAllUserData()
+            if let cloudSyncService {
+                await cloudSyncService.refreshAfterLocalDataDeletion()
+            } else {
+                cloudSyncSnapshot = .disabled
+            }
             try await migrationRecoveryArtifactDeleter.deleteRecoveryArtifacts()
             guard try await privacyDeletionVerifier.isDeletionComplete(in: dataActor) else {
                 privacyDeletionState = .failed(.deletingLocalData)
@@ -690,7 +721,6 @@ final class AppSession: ObservableObject {
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
-        cloudSyncSnapshot = .disabled
         return true
     }
 

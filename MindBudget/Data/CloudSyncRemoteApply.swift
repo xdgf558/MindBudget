@@ -237,7 +237,7 @@ extension DataActor {
 
         let acceptedRevision = metadata?.acceptedRevision ?? 0
         let acceptedDigest = metadata?.acceptedSemanticDigest
-        guard envelope.revision == acceptedRevision + 1,
+        guard envelope.revision == (try CloudSyncCodec.nextRevision(after: acceptedRevision)),
               (envelope.revision == 1 && envelope.parentSemanticDigest == nil)
                 || (envelope.revision > 1 && envelope.parentSemanticDigest == acceptedDigest) else {
             throw CloudSyncValidationError.invalidLineage
@@ -330,6 +330,147 @@ extension DataActor {
         )
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
+    }
+
+    func cloudSyncConflictSummaries() throws -> [CloudSyncConflictSummary] {
+        let quarantined = try modelContext.fetch(
+            FetchDescriptor<CloudSyncInboxItem>(
+                predicate: #Predicate { $0.statusRaw == "quarantined" },
+                sortBy: [
+                    SortDescriptor(\CloudSyncInboxItem.recordName),
+                    SortDescriptor(\CloudSyncInboxItem.receivedAt, order: .reverse)
+                ]
+            )
+        )
+        var seen: Set<String> = []
+        var summaries: [CloudSyncConflictSummary] = []
+        for item in quarantined where seen.insert(item.recordName).inserted {
+            let localEnvelope = try cloudSyncOutbox(recordName: item.recordName).flatMap {
+                try? CloudSyncCodec.decodeEnvelope($0.envelopeData)
+            }
+            let cloudEnvelope = item.envelopeData.flatMap {
+                try? CloudSyncCodec.decodeEnvelope($0)
+            }
+            let reason = item.reasonRaw.flatMap { CloudSyncReasonCode(rawValue: $0) }
+                ?? .malformedRecord
+            let entityType = cloudEnvelope?.entityType
+                ?? localEnvelope?.entityType
+                ?? item.recordName.split(separator: "/", maxSplits: 1).first
+                    .flatMap { CloudSyncEntityType(rawValue: String($0)) }
+            let canResolve = reason == .divergentConflict
+                && localEnvelope?.recordName == item.recordName
+                && cloudEnvelope?.recordName == item.recordName
+                && item.encodedSystemFields != nil
+            summaries.append(
+                CloudSyncConflictSummary(
+                    recordName: item.recordName,
+                    entityType: entityType,
+                    reason: reason,
+                    localOperation: localEnvelope?.operation,
+                    cloudOperation: cloudEnvelope?.operation,
+                    canResolve: canResolve
+                )
+            )
+        }
+        return summaries
+    }
+
+    /// Resolves only a verified two-candidate lineage. Choosing local authors a new descendant of
+    /// the accepted CloudKit candidate, while choosing cloud applies that exact candidate. There
+    /// is no clock/device winner, and an unparseable or physical-deletion quarantine stays closed.
+    func resolveCloudSyncConflict(
+        recordName: String,
+        resolution: CloudSyncConflictResolution,
+        at date: Date = Date()
+    ) throws {
+        do {
+            let quarantined = try modelContext.fetch(
+                FetchDescriptor<CloudSyncInboxItem>(
+                    predicate: #Predicate {
+                        $0.recordName == recordName && $0.statusRaw == "quarantined"
+                    },
+                    sortBy: [SortDescriptor(\CloudSyncInboxItem.receivedAt, order: .reverse)]
+                )
+            )
+            guard let cloudItem = quarantined.first(where: {
+                $0.reasonRaw == CloudSyncReasonCode.divergentConflict.rawValue
+                    && $0.envelopeData != nil
+                    && $0.encodedSystemFields != nil
+            }),
+                  let cloudData = cloudItem.envelopeData,
+                  let encodedSystemFields = cloudItem.encodedSystemFields,
+                  let localOutbox = try cloudSyncOutbox(recordName: recordName) else {
+                throw CloudSyncApplicationError.validationFailed
+            }
+            let cloudEnvelope = try CloudSyncCodec.decodeEnvelope(cloudData)
+            let localEnvelope = try CloudSyncCodec.decodeEnvelope(localOutbox.envelopeData)
+            guard cloudEnvelope.recordName == recordName,
+                  localEnvelope.recordName == recordName,
+                  cloudEnvelope.entityType == localEnvelope.entityType,
+                  cloudEnvelope.revision == localEnvelope.revision,
+                  cloudEnvelope.parentSemanticDigest == localEnvelope.parentSemanticDigest,
+                  cloudEnvelope.semanticDigest != localEnvelope.semanticDigest else {
+                throw CloudSyncApplicationError.validationFailed
+            }
+
+            let existingMetadata = try cloudSyncMetadata(recordName: recordName)
+            let metadata = existingMetadata ?? CloudSyncRecordMetadata(
+                recordName: recordName,
+                entityTypeRaw: cloudEnvelope.entityType.rawValue,
+                acceptedRevision: 0,
+                acceptedSemanticDigest: nil,
+                acceptedOperationRaw: nil,
+                encodedSystemFields: nil,
+                stateRaw: CloudSyncRecordState.pending.rawValue,
+                updatedAt: date
+            )
+            if existingMetadata == nil { modelContext.insert(metadata) }
+
+            switch resolution {
+            case .keepLocal:
+                let identity = try CloudSyncCodec.identity(from: recordName)
+                let descendantRevision = try CloudSyncCodec.nextRevision(
+                    after: cloudEnvelope.revision
+                )
+                let descendant = try CloudSyncCodec.makeEnvelope(
+                    payload: localEnvelope.payload,
+                    entityType: localEnvelope.entityType,
+                    identity: identity,
+                    operation: localEnvelope.operation,
+                    revision: descendantRevision,
+                    parentSemanticDigest: cloudEnvelope.semanticDigest,
+                    modifiedAt: date
+                )
+                localOutbox.envelopeData = try CloudSyncCodec.encodeEnvelope(descendant)
+                localOutbox.semanticDigest = descendant.semanticDigest
+                localOutbox.statusRaw = CloudSyncOutboxStatus.pending.rawValue
+                localOutbox.attemptCount = 0
+                localOutbox.updatedAt = date
+            case .useCloud:
+                let previousSuppression = isApplyingCloudSyncMutation
+                isApplyingCloudSyncMutation = true
+                defer { isApplyingCloudSyncMutation = previousSuppression }
+                try applyCloudSyncMutation(cloudEnvelope)
+                modelContext.delete(localOutbox)
+            }
+
+            metadata.entityTypeRaw = cloudEnvelope.entityType.rawValue
+            metadata.acceptedRevision = cloudEnvelope.revision
+            metadata.acceptedSemanticDigest = cloudEnvelope.semanticDigest
+            metadata.acceptedOperationRaw = cloudEnvelope.operation.rawValue
+            metadata.encodedSystemFields = encodedSystemFields
+            metadata.stateRaw = resolution == .keepLocal
+                ? CloudSyncRecordState.pending.rawValue
+                : CloudSyncRecordState.accepted.rawValue
+            metadata.updatedAt = date
+            for item in quarantined { modelContext.delete(item) }
+            try modelContext.save()
+            if resolution == .keepLocal { CloudSyncLocalChangeSignal.post() }
+            CloudSyncRemoteApplicationSignal.post()
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
     }
 
     private func applyCloudSyncMutation(_ envelope: CloudSyncEnvelope) throws {

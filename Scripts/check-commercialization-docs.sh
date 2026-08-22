@@ -452,8 +452,7 @@ fi
 for c4b02_closeout_anchor in \
   'C4B-02 is Done through PR #59' \
   '32490174014' \
-  '211dff2' \
-  'C4B-03 remains blocked pending this documentation closeout review/CI/merge'; do
+  '211dff2'; do
   if ! grep -Fq "${c4b02_closeout_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -469,6 +468,113 @@ for c4b02_closeout_anchor in \
     exit 1
   fi
 done
+
+for c4b03_entry_anchor in \
+  'C4B-03 is In Progress' \
+  '32494429474' \
+  '7138a9c' \
+  'DEC-COM-032'; do
+  if ! grep -Fq "${c4b03_entry_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+      Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md; then
+    echo "C4B-03 formal-entry evidence is missing: ${c4b03_entry_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_local_evidence_anchor in \
+  'DEC-COM-033' \
+  '/private/tmp/MindBudget-C4B03-Full1.xcresult' \
+  '456/456 unit tests' \
+  '17/17 UI tests'; do
+  if ! grep -Fq "${c4b03_local_evidence_anchor}" \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/SESSION_LOG.md; then
+    echo "C4B-03 local validation evidence is missing: ${c4b03_local_evidence_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_background_anchor in \
+  'MindBudget/Resources/MindBudgetInfo.plist' \
+  'UIBackgroundModes = [remote-notification]'; do
+  if ! grep -Fq "${c4b03_background_anchor}" \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/SESSION_LOG.md; then
+    echo "C4B-03 background-delivery evidence is missing: ${c4b03_background_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_physical_anchor in \
+  'DEC-COM-034' \
+  '/private/tmp/MindBudget-C4B03-PhysicalCloudKit4.xcresult' \
+  'All 33 tests passed' \
+  '9.358 seconds' \
+  'MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS'; do
+  if ! grep -Fq "${c4b03_physical_anchor}" \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/SESSION_LOG.md; then
+    echo "C4B-03 physical Development evidence is missing: ${c4b03_physical_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_dashboard_anchor in \
+  '/private/tmp/MindBudget-C4B03-PostPhysical-Sim.xcresult' \
+  '/private/tmp/MindBudget-C4B03-Dashboard-Development-Envelope.png' \
+  '/private/tmp/MindBudget-C4B03-Dashboard-Production-NoTypes.png' \
+  'MindBudgetEnvelopeV1' \
+  'ENCRYPTED BYTES' \
+  'Deploy Schema Changes'; do
+  if ! grep -Fq "${c4b03_dashboard_anchor}" \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/SESSION_LOG.md; then
+    echo "C4B-03 Dashboard/read-back evidence is missing: ${c4b03_dashboard_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_final_validation_anchor in \
+  'DEC-COM-035' \
+  '/private/tmp/MindBudget-C4B03-FinalWithoutWallClock.xcresult' \
+  '/private/tmp/MindBudget-C4B03-PseudoLong-Isolated.xcresult' \
+  '/private/tmp/MindBudget-C4B03-LineageBound.xcresult' \
+  'incomplete result directory and is **not** accepted as a green bundle' \
+  'passed 1/1 in 23.625 seconds' \
+  '33 deterministic'; do
+  if ! grep -Fq "${c4b03_final_validation_anchor}" \
+      Docs/Commercialization/CI_BASELINE.md \
+      Docs/Commercialization/SESSION_LOG.md; then
+    echo "C4B-03 final-validation disposition is missing: ${c4b03_final_validation_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C4B-03 (remains )?blocked pending (this )?(documentation )?closeout|C4B-03 blocked pending closeout' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+    Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/CI_BASELINE.md; then
+  echo "Current COM-C4B state still describes C4B-03 as blocked by the merged closeout" >&2
+  exit 1
+fi
 
 if grep -Eq 'C4B-02 implementation (is )?complete pending independent review|C4B-02 remains pending (final re-review|independent review)|Final re-review, hosted CI, and merge remain required' \
     Docs/COMMERCIALIZATION_TASKS.md \

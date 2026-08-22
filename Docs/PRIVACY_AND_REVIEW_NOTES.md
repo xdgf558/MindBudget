@@ -43,14 +43,30 @@ names the current stage. After deletion, the app re-queries every current model 
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
 
-In the unreleased C4B-02 source, this action remains explicitly local-only. It stops the sync
-adapter and clears local facts plus local sync metadata, but it does not author cloud tombstones or
-delete an iCloud zone. The Settings surface and confirmation copy warn that existing iCloud copies
-remain and may be imported if sync is enabled again. A separately confirmed cloud-wide deletion
-and confirmed reimport choice remain C4B-03 gates.
+The unreleased C4B-03 source keeps Delete All explicitly local-only. It stops sync and clears local
+facts plus local sync metadata while retaining a device marker that an iCloud copy may exist. A
+later Enable requires a separate reimport confirmation. The marker is republished immediately
+after local deletion in the same app session, so Settings cannot hide the retained copy or silently
+send an unconfirmed enable request. Settings also provides an independent,
+destructive “Delete data from iCloud” action: after confirmation it deletes the whole app-owned
+private custom zone, preserves local facts, remains durably pending through interruption, and
+clears the marker only after CloudKit confirms deletion. It records durable local tombstone intent
+before the request, but whole-zone absence is the final postcondition; it does not first upload
+every tombstone. Pending deletion names a closed account/network/quota/failure reason and remains
+safe to retry without reuploading local facts. Normal sync uses logical tombstones rather than
+physically deleting individual records. Conflict review exposes only the fact type and keep/delete
+operation, never the amount, merchant, note, reflection, or other record content. Resolution is
+offered only for two complete verified candidates; an incomplete candidate stays quarantined.
 
-Future commercialization channels are not part of the current 0.9.x claim. Before an optional
-Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
+These statements describe unreleased source and deterministic local tests. The exact Development
+and Production entitlement files exist, Development provisioning accepted the exact container, one
+owner-authorized physical Development lifecycle passed, and read-only Dashboard inspection
+confirmed the encrypted Development record shape plus absence of a Production app schema. Physical
+multi-device/account/quota/offline/background-push evidence, a distribution-signed binary,
+Production schema deployment, and release authorization are not claimed.
+
+Future commercialization channels are not part of the currently uploaded 0.9.8 claim. Before the
+optional Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
 must add current bilingual disclosure, App Privacy answers, channel-specific revoke/delete
 behavior, and signed release evidence. No forward-looking permission changes the current binary's
 local-only data handling.

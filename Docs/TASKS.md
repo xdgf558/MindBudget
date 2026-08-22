@@ -226,8 +226,8 @@ Status: Done
 
 ## Commercialization and Pro development — separate COM track
 Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
-through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 blocked pending the
-C4B-02 documentation closeout review/CI/merge and formal entry
+through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 In Progress after
+PR #60 (`7138a9c`) closed the reviewed documentation gate with green run `32494429474`
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -381,6 +381,23 @@ C4B-02 documentation closeout review/CI/merge and formal entry
   facts, logical tombstones, no-winner quarantine, account/key-reset pause, Settings consent, and
   local-first failure isolation. C4B-03 still owns entitlement/container provisioning, Dashboard,
   physical multi-device convergence, conflict resolution UI, cloud-wide deletion, and release.
-- [ ] Close the C4B-02 documentation state after PR #59, then formally enter C4B-03 under the
-  owner's explicit instruction. Do not add entitlement/container/Dashboard/deletion behavior in
-  the closeout PR.
+- [x] Close the C4B-02 documentation state after PR #59. Reviewed head `b9944cd` passed GitHub
+  Actions run `32494429474`; PR #60 merged it as `7138a9c`, satisfying formal C4B-03 entry.
+- [ ] Complete C4B-03 lifecycle/deletion/release evidence. Source now includes explicit conflict
+  resolution, durable cloud-zone deletion, retained-copy reimport confirmation, sticky trust
+  recovery, and exact Development/Production entitlements. Deterministic tests and signed local
+  build/archive evidence pass; corrected full local validation passed 456 unit tests, 17 UI tests,
+  strict Dashboard performance, Release, and coverage. Exact-head validation then passed 460 unit
+  results, 17/17 UI, Release, and coverage with the wall-clock benchmark explicitly skipped. The
+  owner-authorized physical Development
+  suite passed 33/33 with a real zone create/send/fetch/disable/confirmed-reimport/delete lifecycle
+  and local preservation. Read-only Dashboard inspection confirms the exact encrypted Development
+  record shape and that Production has no app record type or deployed schema. Physical multi-device/
+  account/quota/offline/push, distribution signing, Production deployment, review, hosted CI, and
+  merge remain pending. The signed two-device harness did not converge because the devices use
+  different iCloud Apple Accounts; the owner stopped that attempt, and it is not counted as pass
+  evidence. A subsequent 33/33 cleanup run confirmed the fixed Development zone is empty.
+  PR #61 review remediation now republishes the retained-cloud marker immediately after local
+  Delete All, keeps the reimport/cloud-delete UI accurate in the same session, displays closed
+  deletion retry reasons, and leaves incomplete cloud conflicts unresolvable. The focused
+  CloudSync/Phase 6 run passes 52 cases; rereview and current-head CI remain pending.

@@ -83,8 +83,15 @@ extension DataActor {
             let wasPausedForRemoteZoneDeletion =
                 control.statusRaw == CloudSyncStatus.pausedRemoteZoneDeleted.rawValue
                     || control.lastReasonRaw == CloudSyncReasonCode.remoteZoneDeleted.rawValue
+            let isDeletingCloudData =
+                control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue
             if existingControl == nil {
                 modelContext.insert(control)
+            }
+            // Cloud-wide deletion is a durable privacy operation. A generic enable/disable tap
+            // cannot turn it back into ordinary sync or silently abandon the pending zone delete.
+            if isDeletingCloudData {
+                return try cloudSyncSnapshot()
             }
             // An encrypted-key reset needs a separately accepted recovery decision owned by
             // C4B-03. The generic enable disclosure must never silently purge or reupload data.
@@ -150,15 +157,21 @@ extension DataActor {
             return false
         }
         if let accepted = control.accountIdentifierHash, accepted != identifierHash {
-            control.statusRaw = CloudSyncStatus.pausedAccountChanged.rawValue
+            let isDeletingCloudData =
+                control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue
+            if !isDeletingCloudData {
+                control.statusRaw = CloudSyncStatus.pausedAccountChanged.rawValue
+            }
             control.lastReasonRaw = CloudSyncReasonCode.accountChanged.rawValue
             control.updatedAt = date
             try modelContext.save()
             return false
         }
         control.accountIdentifierHash = identifierHash
-        control.statusRaw = CloudSyncStatus.ready.rawValue
-        control.lastReasonRaw = nil
+        if control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue {
+            control.statusRaw = CloudSyncStatus.ready.rawValue
+            control.lastReasonRaw = nil
+        }
         control.updatedAt = date
         try modelContext.save()
         return true
@@ -177,10 +190,102 @@ extension DataActor {
         if currentStatus.isStickyPause {
             return
         }
+        if currentStatus == .deletingCloudData, status != .deletingCloudData {
+            return
+        }
         control.statusRaw = status.rawValue
         control.lastReasonRaw = reason?.rawValue
         control.updatedAt = date
         try modelContext.save()
+    }
+
+    /// Begins the separately confirmed cloud-wide deletion operation. The local ledger remains
+    /// available; durable logical tombstones record the person's deletion intent before any
+    /// CloudKit call, and the accepted custom zone is the final privacy deletion boundary.
+    func beginCloudDeletion(at date: Date = Date()) throws -> CloudSyncSnapshot {
+        do {
+            let existingControl = try fetchCloudSyncControl()
+            let control = existingControl ?? CloudSyncControl(
+                id: Self.cloudSyncControlID,
+                isEnabled: true,
+                statusRaw: CloudSyncStatus.deletingCloudData.rawValue,
+                accountIdentifierHash: nil,
+                consentVersion: Self.cloudSyncConsentVersion,
+                lastReasonRaw: nil,
+                updatedAt: date
+            )
+            if existingControl == nil { modelContext.insert(control) }
+            control.isEnabled = true
+            control.statusRaw = CloudSyncStatus.deletingCloudData.rawValue
+            control.lastReasonRaw = nil
+            control.updatedAt = date
+            modelContext.processPendingChanges()
+            _ = try stageAllCloudTombstones(at: date)
+            try modelContext.save()
+            CloudSyncLocalChangeSignal.post()
+            return try cloudSyncSnapshot()
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
+    }
+
+    func cloudDeletionIsPending() throws -> Bool {
+        try fetchCloudSyncControl()?.statusRaw == CloudSyncStatus.deletingCloudData.rawValue
+    }
+
+    /// Transport failures during a cloud delete remain reasons attached to the durable deletion
+    /// state. They may never replace it with an ordinary retry state that could recreate the zone.
+    func updateCloudDeletionReason(
+        _ reason: CloudSyncReasonCode,
+        at date: Date = Date()
+    ) throws {
+        guard let control = try fetchCloudSyncControl(),
+              control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue else { return }
+        control.lastReasonRaw = reason.rawValue
+        control.updatedAt = date
+        try modelContext.save()
+    }
+
+    /// Called only after CloudKit confirms that the entire accepted private zone is absent. It
+    /// clears transport ancestry and disables sync while preserving every local business fact.
+    func completeCloudDeletion(at date: Date = Date()) throws {
+        guard let control = try fetchCloudSyncControl(),
+              control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue else { return }
+        try deleteCloudSyncAccountScopedState()
+        control.isEnabled = false
+        control.statusRaw = CloudSyncStatus.disabled.rawValue
+        control.accountIdentifierHash = nil
+        control.lastReasonRaw = nil
+        control.updatedAt = date
+        try modelContext.save()
+    }
+
+    /// A sticky trust-boundary pause is cleared only by this explicit C4B-03 decision. Generic
+    /// retry/enable remains incapable of reuploading. The current local ledger is staged as a new
+    /// genesis only after the person confirms rebuilding the private cloud copy.
+    func recoverCloudSyncFromLocalAuthority(at date: Date = Date()) throws -> CloudSyncSnapshot {
+        do {
+            guard let control = try fetchCloudSyncControl(),
+                  (CloudSyncStatus(rawValue: control.statusRaw) ?? .failed).isStickyPause else {
+                return try cloudSyncSnapshot()
+            }
+            try deleteCloudSyncAccountScopedState()
+            control.isEnabled = true
+            control.statusRaw = CloudSyncStatus.starting.rawValue
+            control.accountIdentifierHash = nil
+            control.lastReasonRaw = nil
+            control.consentVersion = Self.cloudSyncConsentVersion
+            control.updatedAt = date
+            modelContext.processPendingChanges()
+            _ = try stageAllCurrentFacts(at: date)
+            try modelContext.save()
+            CloudSyncLocalChangeSignal.post()
+            return try cloudSyncSnapshot()
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
     }
 
     /// A successful transport pass may finish after an account/key-reset event was delivered.
@@ -366,6 +471,62 @@ extension DataActor {
     }
 
     private func stageAllCurrentFacts(at date: Date) throws -> Bool {
+        let models = try allCloudSyncBusinessModels()
+        var staged = false
+        for model in models {
+            if let projection = try cloudSyncProjection(for: model, operation: .upsert) {
+                staged = try stageCloudSyncProjection(projection, at: date) || staged
+            }
+        }
+        return staged
+    }
+
+    private func stageAllCloudTombstones(at date: Date) throws -> Bool {
+        var projections: [String: CloudSyncMutationProjection] = [:]
+        for model in try allCloudSyncBusinessModels() {
+            if let projection = try cloudSyncProjection(for: model, operation: .tombstone) {
+                projections[try projection.recordName] = projection
+            }
+        }
+        // A fact already deleted locally can still exist in the private zone. Retain every known
+        // accepted/outbox identity in the deletion plan so the durable intent describes the full
+        // local sync history before the zone itself is removed.
+        let knownMetadata = try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>())
+        for metadata in knownMetadata {
+            guard projections[metadata.recordName] == nil,
+                  let entityType = CloudSyncEntityType(rawValue: metadata.entityTypeRaw),
+                  let identity = try? CloudSyncCodec.identity(from: metadata.recordName) else {
+                continue
+            }
+            let projection = CloudSyncMutationProjection(
+                entityType: entityType,
+                identity: identity,
+                operation: .tombstone,
+                payload: nil
+            )
+            projections[metadata.recordName] = projection
+        }
+
+        var staged = false
+        for projection in projections.values {
+            let recordName = try projection.recordName
+            staged = try stageCloudSyncProjection(projection, at: date) || staged
+            // Global deletion is an explicit resolution of every per-record conflict. The zone
+            // delete remains the final authority, but no previously blocked outbox may hide the
+            // durable tombstone intent from the pending-operation surface.
+            if let outbox = try fetchCloudSyncOutbox(recordName: recordName) {
+                outbox.statusRaw = CloudSyncOutboxStatus.pending.rawValue
+                outbox.updatedAt = date
+            }
+            if let metadata = try fetchCloudSyncMetadata(recordName: recordName) {
+                metadata.stateRaw = CloudSyncRecordState.pending.rawValue
+                metadata.updatedAt = date
+            }
+        }
+        return staged
+    }
+
+    private func allCloudSyncBusinessModels() throws -> [any PersistentModel] {
         var models: [any PersistentModel] = []
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<Expense>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<Income>()))
@@ -379,13 +540,7 @@ extension DataActor {
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<WishItem>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<CoolingOffPlan>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<ReflectionLog>()))
-        var staged = false
-        for model in models {
-            if let projection = try cloudSyncProjection(for: model, operation: .upsert) {
-                staged = try stageCloudSyncProjection(projection, at: date) || staged
-            }
-        }
-        return staged
+        return models
     }
 
     private func stageCloudSyncProjection(
@@ -396,7 +551,8 @@ extension DataActor {
         let metadata = try fetchCloudSyncMetadata(recordName: recordName)
         let existingOutbox = try fetchCloudSyncOutbox(recordName: recordName)
         let existingEnvelope = try existingOutbox.map { try CloudSyncCodec.decodeEnvelope($0.envelopeData) }
-        let revision = existingEnvelope?.revision ?? ((metadata?.acceptedRevision ?? 0) + 1)
+        let revision = try existingEnvelope?.revision
+            ?? CloudSyncCodec.nextRevision(after: metadata?.acceptedRevision ?? 0)
         let parent = existingEnvelope?.parentSemanticDigest ?? metadata?.acceptedSemanticDigest
         let envelope = try CloudSyncCodec.makeEnvelope(
             payload: projection.payload,

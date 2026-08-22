@@ -63,7 +63,8 @@ struct Phase11FreeTierTests {
                 "MindBudget",
                 schema: schema,
                 url: storeURL,
-                allowsSave: true
+                allowsSave: true,
+                cloudKitDatabase: .none
             )
             let container = try ModelContainer(for: schema, configurations: [configuration])
             let context = ModelContext(container)
@@ -414,7 +415,8 @@ struct Phase11FreeTierTests {
                 "MindBudget",
                 schema: schema,
                 url: storeURL,
-                allowsSave: true
+                allowsSave: true,
+                cloudKitDatabase: .none
             )
             let container = try ModelContainer(for: schema, configurations: [configuration])
             let context = ModelContext(container)
@@ -462,7 +464,8 @@ struct Phase11FreeTierTests {
                 "MindBudget",
                 schema: schema,
                 url: storeURL,
-                allowsSave: true
+                allowsSave: true,
+                cloudKitDatabase: .none
             )
             let container = try ModelContainer(for: schema, configurations: [configuration])
             let context = ModelContext(container)

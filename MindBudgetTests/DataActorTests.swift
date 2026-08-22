@@ -1127,7 +1127,13 @@ struct C4A03RecoveryAndCurrencyMatrixTests {
         }
 
         let schema = Schema(versionedSchema: SchemaV4.self)
-        let configuration = ModelConfiguration("MindBudget", schema: schema, url: storeURL, allowsSave: true)
+        let configuration = ModelConfiguration(
+            "MindBudget",
+            schema: schema,
+            url: storeURL,
+            allowsSave: true,
+            cloudKitDatabase: .none
+        )
         let legacyContainer = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(legacyContainer)
         let recovered = try #require(try context.fetch(FetchDescriptor<Expense>()).first { $0.id == expenseID })
@@ -1390,7 +1396,13 @@ struct C4A03RecoveryAndCurrencyMatrixTests {
         case .v3: schema = Schema(versionedSchema: SchemaV3.self)
         case .v4: schema = Schema(versionedSchema: SchemaV4.self)
         }
-        let configuration = ModelConfiguration("MindBudget", schema: schema, url: storeURL, allowsSave: true)
+        let configuration = ModelConfiguration(
+            "MindBudget",
+            schema: schema,
+            url: storeURL,
+            allowsSave: true,
+            cloudKitDatabase: .none
+        )
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
         let expenseID = UUID()

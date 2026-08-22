@@ -2,13 +2,14 @@
 
 ## Status
 
-Status: **In Progress.**
+Status: **In Progress — C4B-03 formally entered after PR #60 merged the reviewed closeout.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
 `32434148439`, and PR #57 merge `90a1e66`. C4B-02P is Done after independent review, green
 GitHub Actions run `32454490080`, and PR #58 merge `6f5fded`. C4B-02 is Done after reviewed head
-`0024507` passed GitHub Actions run `32490174014` and PR #59 merged as `211dff2`. C4B-03 remains
-blocked pending this documentation closeout review/CI/merge and formal entry.
+`0024507` passed GitHub Actions run `32490174014` and PR #59 merged as `211dff2`. Reviewed closeout
+head `b9944cd` passed GitHub Actions run `32494429474`; PR #60 merged it as `7138a9c`. The owner
+then formally entered C4B-03.
 
 ## Input gate
 
@@ -62,8 +63,8 @@ Schema V6 adds five app-owned sync metadata models without changing financial au
 primary `ModelConfiguration` is explicitly `.none`. The implementation stages local fact and
 outbox/tombstone in one `ModelContext` transaction, puts fetched records in a durable inbox before
 topological `DataActor` application, and exposes only closed local-first status/retry controls.
-The adapter uses only the accepted private database/custom zone/record type and one encrypted
-envelope field; no entitlement or deployed container is claimed.
+The C4B-02 adapter used only the accepted private database/custom zone/record type and one encrypted
+envelope field; that source phase claimed no entitlement or deployed container.
 
 Independent-review remediation makes all three trust-boundary pauses sticky against delayed
 status/account callbacks, maps both database-deletion events and `zoneNotFound` CKErrors to the
@@ -113,27 +114,51 @@ cross-account merge, online write leases, and automatic enablement are prohibite
   server-save conflict quarantine, and a sticky no-reupload pause after remote zone deletion/purge.
 - Static verification enforces the exact 12-type allow-list, runtime anchors, private database,
   no physical `deleteRecord`, no public/shared database, no `CKAsset`, no iCloud entitlement in
-  this packet, repository-wide `.none`, and centralized container construction.
+  the C4B-02 source phase, repository-wide `.none`, and centralized container construction.
 - Reviewed remediation head `0024507` passed every step of GitHub Actions run `32490174014`; PR #59
   merged the accepted C4B-02 source to `main` as `211dff2` on 2026-08-21. C4B-03 evidence cannot
   be inferred from simulator fakes, hosted CI, or this source-only adapter.
 
 ## C4B-03 — Lifecycle and deletion
 
-Status: **Blocked pending the C4B-02 documentation closeout review/CI/merge and formal entry.**
+Status: **In Progress after formal owner entry.**
 
-Own physical-device/multi-device lifecycle, CloudKit Dashboard, conflict/tombstone/deletion,
-environment-isolation, privacy disclosure, and release evidence. C4B-02 unit fakes cannot close
-these claims.
+The source candidate now owns explicit keep-local/use-iCloud conflict resolution without exposing
+record content, durable whole-zone cloud deletion while preserving local facts, retained-copy
+reimport confirmation, and explicit sticky trust recovery. Debug selects Development while Release
+selects Production for the exact container; both use the checked source-plist
+`remote-notification` background mode. Deterministic local tests and signed configuration evidence
+are supplemented by one owner-authorized physical Development private-database lifecycle pass.
+Read-only Dashboard inspection confirms the Development encrypted-envelope shape and that
+Production has no app record type or deployed schema. Physical multi-device/account/quota/offline
+and background-push evidence, distribution signing, Production deployment, and Production-release
+claims remain open. A signed two-device harness was prepared, but the connected devices use
+different iCloud Apple Accounts and therefore different private databases. The owner stopped that
+attempt rather than changing accounts; it is recorded as not executed to convergence, not passed.
+Local Delete All now republishes the retained-copy marker immediately in the same app session, so
+Settings continues to show cloud deletion and requires the reimport disclosure before Enable can
+start transport. Cloud-wide deletion stages durable local tombstone intent, then treats whole-zone
+absence as the final privacy boundary without first uploading each tombstone. An incomplete cloud
+conflict candidate remains visible but has no unsafe resolution action.
 
 ## Tests
 
 C4B-01 ran documentation and static-boundary checks only. C4B-02 adds deterministic envelope,
 outbox, conflict, malformed-record, local-failure-isolation, account, and full allow-list tests
 without enabling Development.
-C4B-03 must add opt-in/account/offline/quota/disable/delete/re-enable/multi-device physical-device
-evidence and separate Dashboard checks for Development and Production. The owner has authorized
-formal C4B-03 entry only after this C4B-02 closeout merges.
+C4B-03 first passed the 32-test focused sync suite and now passes 33 deterministic sync cases after
+adding the saturated-lineage failure boundary, plus the corrected 45-test migration/free-tier
+regression, generated-plist verification, an accepted earlier strict Dashboard result, and the
+exact-head `Scripts/validate.sh` run (460 unit results, 17/17 UI, Release, and coverage; wall-clock
+benchmark explicitly skipped after loaded-host non-passes), signed Development configuration, and
+a local Release archive. The owner-authorized physical suite then passed 33/33 on a final iPhone, including
+real Development zone create, private encrypted send/fetch, disable, confirmed reimport, whole-zone
+delete, and local-fact preservation. Read-only Dashboard checks then confirmed the single encrypted
+Development app field and the absence of the app record type in Production. It must still add
+account/offline/quota/background-push evidence. The current two-device attempt was explicitly
+stopped after distinct iCloud-account fingerprints proved the private databases could not
+converge; the harness remains opt-in, but no multi-device result is claimed.
+Production schema deployment is an explicit owner gate and is not inferred from a Release archive.
 
 ## Stop conditions
 

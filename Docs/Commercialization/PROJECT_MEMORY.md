@@ -32,17 +32,42 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `CKSyncEngine` architecture as `90a1e66`. DEC-COM-028 is Accepted. Reviewed C4B-02P head
   `0fece3a` passed GitHub Actions run `32454490080`, and PR #58 merged the prerequisites as
   `6f5fded`. Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59
-  merged it as `211dff2`; C4B-02 is Done. C4B-03 remains blocked pending this documentation
-  closeout review/CI/merge; the owner has authorized formal entry only afterward.
+  merged it as `211dff2`; C4B-02 is Done. Reviewed closeout head `b9944cd` passed GitHub Actions
+  run `32494429474`, and PR #60 merged it as `7138a9c`; C4B-03 is formally In Progress.
   Schema V6 adds only five local sync metadata models. The implemented path is Free/default-off,
   explicitly non-mirrored, private-database/custom-zone only, stages each local fact and outbox in
   one transaction, validates remote facts through a durable inbox and `DataActor`, and preserves
   local authority for account, quota, network, malformed-data, conflict, and encrypted-key-reset
   failure. DEC-COM-031 makes all account/key-reset/zone-loss pauses sticky against delayed
   callbacks, quarantines invalid allocations and divergent recurring claims, requires parent-owned
-  upsert keys, and records Delete All as local-only until C4B-03. No entitlement, provisioned
-  container, Dashboard schema, verified request, physical
-  multi-device, cloud-wide deletion, or release evidence is claimed. The
+  upsert keys, and records the pre-C4B-03 Delete All boundary as local-only. C4B-03 source now adds
+  exact Development/Production entitlement files, explicit no-content conflict resolution,
+  durable whole-zone cloud deletion with local-fact preservation, retained-copy reimport
+  confirmation, and explicit sticky recovery. Development provisioning accepted the exact
+  container in a signed local build. The checked source plist supplies only
+  `remote-notification`, entitled test stores explicitly remain non-mirrored, and corrected full
+  local validation passed 456 unit tests, 17 UI tests, strict Dashboard performance, Release, and
+  coverage at `/private/tmp/MindBudget-C4B03-Full1.xcresult`. The exact-head validation later
+  passed Release, 460 unit results, 17/17 UI, and coverage at
+  `/private/tmp/MindBudget-C4B03-ExactHeadFull2.xcresult`; its wall-clock benchmark was explicitly
+  skipped after loaded-host non-passes, so the earlier strict result remains separate evidence.
+  The owner-authorized physical
+  Development suite then passed 33/33 at
+  `/private/tmp/MindBudget-C4B03-PhysicalCloudKit4.xcresult`, including one real custom-zone
+  create/send/fetch/disable/confirmed-reimport/whole-zone-delete lifecycle while preserving the
+  local expense. Read-only Dashboard inspection confirms the Development `MindBudgetEnvelopeV1`
+  has exactly one app field (`envelope`, `ENCRYPTED BYTES`, no index) and Production has no app
+  record type or deployed schema. A compile-time two-device harness was signed for two physical
+  iPhones, but one-way account fingerprints confirmed that they use different iCloud Apple
+  Accounts and therefore different private databases. The owner stopped the attempt without
+  switching accounts; no convergence pass is claimed. A follow-up 33/33 cleanup run at
+  `/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult` confirms only that the fixed
+  Development zone is clean. Physical multi-device/account/quota/offline/push,
+  distribution-signing, Production deployment, and release evidence remain open. PR #61 review
+  remediation now makes the service republish the retained-copy marker immediately after local
+  Delete All, drives reimport/cloud-delete UI from that one snapshot, exposes closed deletion retry
+  reasons, and keeps incomplete cloud candidates quarantined. The focused CloudSync/Phase 6 run
+  passed 52 tests with only three physical-only skips; rereview and current-head CI remain open. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
@@ -359,7 +384,8 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: pass review/CI/merge for this C4B-02 documentation closeout, then formally
-enter C4B-03 under the owner's explicit instruction. Keep C4C, container provisioning, Dashboard
-deployment, physical multi-device work, cloud-wide deletion, and distribution blocked until their
-own accepted C4B-03 gates authorize each action.
+Next suggested task: finish only C4B-03. Exercise the remaining physical account/offline/quota/
+background-push behavior and keep the stopped, different-account two-device attempt disclosed as
+an unproven evidence item. Keep C4C and distribution blocked. Production schema
+deployment remains an explicit owner decision and must not be inferred from the read-only Dashboard
+inspection or local Release archive.

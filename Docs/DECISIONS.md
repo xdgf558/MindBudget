@@ -2477,3 +2477,109 @@ Consequences: The merged custom-record runtime remains default-off, local-author
 only without an iCloud entitlement or provisioned environment. No Dashboard deployment, verified
 CloudKit request, physical multi-device claim, conflict-resolution UX, cloud-wide deletion,
 Archive, upload, tester, or distribution authority is inferred.
+
+---
+
+## 2026-08-22 — Enter C4B-03 with explicit conflict, deletion, and environment boundaries
+
+Context: PR #60 merged the reviewed C4B-02 closeout as `7138a9c` after green GitHub Actions run
+`32494429474`; the owner then formally entered C4B-03.
+
+Decision: Detailed ownership is DEC-COM-032. C4B-03 uses separate exact Development and Production
+entitlement files for one private CloudKit container. Unresolved records never receive an automatic
+winner; the user may explicitly keep the local fact or accept the iCloud candidate. A separately
+confirmed cloud deletion removes the entire app-owned custom zone while keeping local facts, and a
+durable retained-copy marker requires confirmed reimport after local-only deletion. Sticky account,
+key-reset, or zone-loss pauses can be cleared only through the explicit recovery surface.
+
+Consequences: Signed local build/archive evidence proves configuration selection only. It does not
+prove a real CloudKit request, Dashboard schema/deployment, physical multi-device convergence,
+distribution signing, Production schema deployment, or release readiness. Those remain C4B-03
+gates; Production schema deployment requires explicit owner acceptance.
+
+---
+
+## 2026-08-22 — Make CloudKit background delivery and test-store isolation explicit
+
+Context: Adding the exact C4B-03 entitlement made six legacy migration fixtures expose their
+implicit SwiftData `.automatic` default, and the first generated app plist did not contain the
+remote-notification background mode despite a build-setting-only attempt.
+
+Decision: Detailed ownership is DEC-COM-033. MindBudget uses a checked source plist containing
+exactly `UIBackgroundModes = [remote-notification]`; both configurations reference it while their
+separate entitlement files keep Development and Production isolated. Every test-store
+`ModelConfiguration`, like production, must explicitly choose `cloudKitDatabase: .none`.
+
+Consequences: The corrected focused regression passed 45/45 and the complete local validation
+passed 456 unit tests, 17 UI tests, strict Dashboard performance, Release compilation, static
+contracts, and coverage. These are local implementation facts only; real CloudKit/Dashboard,
+physical multi-device, distribution, Production deployment, review, CI, and merge remain open.
+
+---
+
+## 2026-08-22 — Require an explicit compile-time opt-in for destructive CloudKit evidence
+
+Context: The owner explicitly authorized one real test that deletes the fixed private Development
+zone. The first physical build exposed a test-isolation compile error, and two subsequent
+function-level Swift Testing filters produced green zero-test results; none was accepted.
+
+Decision: Detailed ownership is DEC-COM-034. The destructive test is enabled only by the explicit
+`MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS` Swift compilation condition and must report a nonzero exact
+test total. Ordinary simulator, CI, and physical test runs keep it disabled.
+
+Consequences: The final physical Development run passed 33/33, including real custom-zone create,
+encrypted send/fetch, disable, confirmed reimport, whole-zone delete, and local-expense
+preservation. This does not prove Dashboard, offline/quota/account, background push, multi-device,
+distribution signing, Production deployment, review, CI, merge, or release.
+
+---
+
+## 2026-08-22 — Fail closed at the CloudKit lineage revision ceiling
+
+Context: Final C4B-03 source review found unchecked child-revision arithmetic in local staging,
+remote acceptance, and explicit conflict resolution.
+
+Decision: Detailed ownership is DEC-COM-035. A single throwing helper now advances revision
+lineage and rejects negative ancestry or any attempt to advance `Int64.max`.
+
+Consequences: Exhausted or malformed private ancestry cannot crash or wrap the process. The
+exact-head CloudSync suite passed 33 deterministic cases with the destructive physical case
+explicitly skipped. Full exact-head UI/coverage, external lifecycle gates, review, hosted CI, and
+merge remain open.
+
+---
+
+## 2026-08-22 — Stop the different-account two-device evidence attempt without claiming a pass
+
+Context: Two physical iPhones were paired, signed, placed in Developer Mode, and prepared with a
+compile-time opt-in convergence harness. Non-content one-way fingerprints then proved that the
+devices use different iCloud Apple Accounts, so their private CloudKit databases cannot exchange
+the test record.
+
+Decision: Detailed ownership is DEC-COM-036. The owner declined an account switch and stopped the
+attempt. Keep the harness for future evidence, disclose the gap, and do not treat the run as a
+product failure, a pass, or a release waiver.
+
+Consequences: A subsequent 33/33 cleanup run proves the fixed Development zone is clean, not that
+two devices converged. C4B-03 remains In Progress with the other external, review, hosted-CI, and
+merge gates open.
+
+---
+
+## 2026-08-22 — Preserve retained-iCloud authority after local Delete All
+
+Context: Independent review of PR #61 found that local Delete All preserved the separate retained-
+cloud preference but overwrote `AppSession` presentation with a marker-free `.disabled` snapshot,
+temporarily hiding the cloud-delete action and reimport disclosure.
+
+Decision: Detailed ownership is DEC-COM-037. The sync service now republishes the disabled local
+control state combined with the durable retained-copy marker immediately after local deletion.
+Settings uses that one snapshot for reimport confirmation, cloud-delete visibility, and closed
+reason-specific retry guidance. Incomplete cloud conflict candidates remain quarantined without an
+unsafe resolution action, and whole-zone absence—not pre-upload of every tombstone—is the final
+cloud-deletion postcondition.
+
+Consequences: The same-session Delete All path cannot silently hide a retained cloud copy or issue
+an unconfirmed Enable. Focused CloudSync/Phase 6 tests pass 52 cases with only the three physical-
+only probes skipped. C4B-03 remains In Progress pending rereview, hosted CI, and its documented
+external lifecycle/release gates.

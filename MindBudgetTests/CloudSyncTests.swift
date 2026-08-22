@@ -8,10 +8,23 @@ import Testing
 @MainActor
 struct CloudSyncTests {
     @Test
+    func lineageRevisionAdvancementFailsClosedInsteadOfOverflowing() throws {
+        #expect(try CloudSyncCodec.nextRevision(after: 0) == 1)
+        #expect(try CloudSyncCodec.nextRevision(after: Int64.max - 1) == Int64.max)
+        #expect(throws: CloudSyncValidationError.self) {
+            try CloudSyncCodec.nextRevision(after: Int64.max)
+        }
+    }
+
+    @Test
     func defaultOffDoesNotConstructACloudKitAdapter() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let probe = CloudSyncAdapterProbe()
-        let service = CloudSyncService(dataActor: actor) { _ in probe.makeAdapter() }
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+        )
 
         await service.start()
 
@@ -29,7 +42,11 @@ struct CloudSyncTests {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
         let probe = CloudSyncAdapterProbe()
-        let service = CloudSyncService(dataActor: actor) { _ in probe.makeAdapter() }
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+        )
         await service.start()
 
         await service.retry()
@@ -958,14 +975,554 @@ struct CloudSyncTests {
         )
 
         let snapshot = try await actor.cloudSyncSnapshot()
+        let summary = try #require(try await actor.cloudSyncConflictSummaries().first)
         #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
         #expect(snapshot.pendingCount == 0)
         #expect(snapshot.quarantinedCount == 1)
+        #expect(!summary.canResolve)
+        #expect(summary.localOperation == .upsert)
+        #expect(summary.cloudOperation == nil)
+        await #expect(throws: CloudSyncApplicationError.self) {
+            try await actor.resolveCloudSyncConflict(
+                recordName: recordName,
+                resolution: .keepLocal,
+                at: fixedDate.addingTimeInterval(1)
+            )
+        }
+        #expect(try await actor.cloudSyncSnapshot().quarantinedCount == 1)
         #expect(try await actor.fetchExpenseSummaries().first?.amount.minorUnits == 1_234)
     }
 
+    @Test
+    func explicitConflictResolutionAuthorsADescendantOrAcceptsTheCloudCandidate() async throws {
+        for resolution in [CloudSyncConflictResolution.keepLocal, .useCloud] {
+            let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+            _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+            let original = makeExpense(amountMinorUnits: 1_000)
+            _ = try await actor.createExpense(original)
+            let recordName = "expense/\(original.id.uuidString.lowercased())"
+            let first = try #require(try await actor.pendingCloudSyncRecord(named: recordName))
+            let firstEnvelope = try CloudSyncCodec.decodeEnvelope(first.envelopeData)
+            try await actor.acknowledgeCloudSyncRecord(
+                recordName: recordName,
+                encodedSystemFields: Data([1]),
+                at: fixedDate
+            )
+            _ = try await actor.updateExpense(
+                id: original.id,
+                with: makeExpense(
+                    id: original.id,
+                    amountMinorUnits: 2_000,
+                    updatedAt: fixedDate.addingTimeInterval(1)
+                )
+            )
+
+            var remoteFields = try #require(firstEnvelope.payload?.fields)
+            remoteFields["amount"] = .integer(3_000)
+            remoteFields["updatedAt"] = .unsigned(
+                fixedDate.addingTimeInterval(2).cloudSyncBits
+            )
+            let remote = try CloudSyncCodec.makeEnvelope(
+                payload: CloudSyncPayload(
+                    entityType: .expense,
+                    identity: original.id.uuidString.lowercased(),
+                    fields: remoteFields
+                ),
+                entityType: .expense,
+                identity: original.id.uuidString.lowercased(),
+                operation: .upsert,
+                revision: 2,
+                parentSemanticDigest: firstEnvelope.semanticDigest,
+                modifiedAt: fixedDate.addingTimeInterval(2)
+            )
+            try await actor.ingestCloudSyncRecords(
+                [CloudSyncRemoteRecord(
+                    recordName: recordName,
+                    envelopeData: try CloudSyncCodec.encodeEnvelope(remote),
+                    encodedSystemFields: Data([2]),
+                    wasPhysicallyDeleted: false
+                )],
+                receivedAt: fixedDate.addingTimeInterval(2)
+            )
+
+            let summary = try #require(try await actor.cloudSyncConflictSummaries().first)
+            #expect(summary.canResolve)
+            #expect(summary.localOperation == .upsert)
+            #expect(summary.cloudOperation == .upsert)
+            try await actor.resolveCloudSyncConflict(
+                recordName: recordName,
+                resolution: resolution,
+                at: fixedDate.addingTimeInterval(3)
+            )
+
+            #expect(try await actor.cloudSyncSnapshot().quarantinedCount == 0)
+            let amount = try await actor.fetchExpenseSummaries().first?.amount.minorUnits
+            if resolution == .keepLocal {
+                #expect(amount == 2_000)
+                let pending = try #require(
+                    try await actor.pendingCloudSyncRecord(named: recordName)
+                )
+                let descendant = try CloudSyncCodec.decodeEnvelope(pending.envelopeData)
+                #expect(descendant.revision == 3)
+                #expect(descendant.parentSemanticDigest == remote.semanticDigest)
+            } else {
+                #expect(amount == 3_000)
+                #expect(try await actor.pendingCloudSyncRecord(named: recordName) == nil)
+            }
+        }
+    }
+
+    @Test
+    func explicitConflictResolutionNeverSilentlyChoosesBetweenKeepingAndDeleting() async throws {
+        for resolution in [CloudSyncConflictResolution.keepLocal, .useCloud] {
+            let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+            _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+            let expense = makeExpense(amountMinorUnits: 1_000)
+            _ = try await actor.createExpense(expense)
+            let recordName = "expense/\(expense.id.uuidString.lowercased())"
+            let first = try #require(try await actor.pendingCloudSyncRecord(named: recordName))
+            let firstEnvelope = try CloudSyncCodec.decodeEnvelope(first.envelopeData)
+            try await actor.acknowledgeCloudSyncRecord(
+                recordName: recordName,
+                encodedSystemFields: Data([1]),
+                at: fixedDate
+            )
+            _ = try await actor.updateExpense(
+                id: expense.id,
+                with: makeExpense(
+                    id: expense.id,
+                    amountMinorUnits: 2_000,
+                    updatedAt: fixedDate.addingTimeInterval(1)
+                )
+            )
+            let remoteTombstone = try CloudSyncCodec.makeEnvelope(
+                payload: nil,
+                entityType: .expense,
+                identity: expense.id.uuidString.lowercased(),
+                operation: .tombstone,
+                revision: 2,
+                parentSemanticDigest: firstEnvelope.semanticDigest,
+                modifiedAt: fixedDate.addingTimeInterval(2)
+            )
+            try await actor.ingestCloudSyncRecords(
+                [CloudSyncRemoteRecord(
+                    recordName: recordName,
+                    envelopeData: try CloudSyncCodec.encodeEnvelope(remoteTombstone),
+                    encodedSystemFields: Data([2]),
+                    wasPhysicallyDeleted: false
+                )],
+                receivedAt: fixedDate.addingTimeInterval(2)
+            )
+
+            let summary = try #require(try await actor.cloudSyncConflictSummaries().first)
+            #expect(summary.localOperation == .upsert)
+            #expect(summary.cloudOperation == .tombstone)
+            try await actor.resolveCloudSyncConflict(
+                recordName: recordName,
+                resolution: resolution,
+                at: fixedDate.addingTimeInterval(3)
+            )
+
+            if resolution == .keepLocal {
+                #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+                let pending = try #require(
+                    try await actor.pendingCloudSyncRecord(named: recordName)
+                )
+                let descendant = try CloudSyncCodec.decodeEnvelope(pending.envelopeData)
+                #expect(descendant.operation == .upsert)
+                #expect(descendant.revision == 3)
+                #expect(descendant.parentSemanticDigest == remoteTombstone.semanticDigest)
+            } else {
+                #expect(try await actor.fetchExpenseSummaries().isEmpty)
+                #expect(try await actor.pendingCloudSyncRecord(named: recordName) == nil)
+            }
+        }
+    }
+
+    @Test
+    @MainActor
+    func retainedCloudCopyRequiresExplicitReimportConfirmation() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let probe = CloudSyncAdapterProbe()
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: retention
+        )
+
+        await service.setEnabled(true)
+        #expect(!service.snapshot.isEnabled)
+        #expect(service.snapshot.cloudCopyMayExist)
+        #expect(probe.creationCount == 0)
+
+        await service.setEnabled(true, reimportConfirmed: true)
+        #expect(service.snapshot.isEnabled)
+        #expect(probe.creationCount == 1)
+    }
+
+    @Test
+    func cloudDeletionGuidanceExposesClosedRetryReasonsWithoutReuploadPromises() {
+        func snapshot(reason: CloudSyncReasonCode?) -> CloudSyncSnapshot {
+            CloudSyncSnapshot(
+                isEnabled: true,
+                status: .deletingCloudData,
+                reason: reason,
+                pendingCount: 1,
+                quarantinedCount: 0,
+                cloudCopyMayExist: true
+            )
+        }
+
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: nil)
+        ) == .pending)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .networkUnavailable)
+        ) == .network)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .noAccount)
+        ) == .account)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .quotaExceeded)
+        ) == .quota)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .transportFailed)
+        ) == .failed)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(for: .disabled) == nil)
+    }
+
+    @Test
+    @MainActor
+    func enabledPreMarkerStateConservativelyRecordsThatACloudCopyMayExist() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in TestCloudSyncAdapter() },
+            retentionStore: retention
+        )
+
+        await service.start()
+
+        #expect(retention.cloudCopyMayExist)
+        #expect(service.snapshot.cloudCopyMayExist)
+    }
+
+    @Test
+    @MainActor
+    func cloudWideDeleteKeepsLocalFactsAndClearsOnlyAfterZoneConfirmation() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let expense = makeExpense(amountMinorUnits: 4_200)
+        _ = try await actor.createExpense(expense)
+        let probe = CloudSyncAdapterProbe()
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        probe.adapter.deleteHandler = {
+            try? await actor.completeCloudDeletion()
+            return .deleted
+        }
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: retention
+        )
+
+        let outcome = await service.deleteCloudData()
+
+        #expect(outcome == .deleted)
+        #expect(probe.adapter.deleteCloudDataCount == 1)
+        #expect(!retention.cloudCopyMayExist)
+        #expect(!service.snapshot.isEnabled)
+        #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+    }
+
+    @Test
+    @MainActor
+    func offlineCloudDeleteRemainsDurableAndStickyRecoveryRequiresExplicitAction() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let expense = makeExpense(amountMinorUnits: 5_500)
+        _ = try await actor.createExpense(expense)
+        let probe = CloudSyncAdapterProbe()
+        probe.adapter.deletionOutcome = .pending(.networkUnavailable)
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: retention
+        )
+
+        #expect(await service.deleteCloudData() == .pending(.networkUnavailable))
+        #expect(service.snapshot.status == .deletingCloudData)
+        #expect(service.snapshot.cloudCopyMayExist)
+        let pending = try await actor.pendingCloudSyncRecordNames()
+        #expect(pending == ["expense/\(expense.id.uuidString.lowercased())"])
+        let tombstone = try #require(
+            try await actor.pendingCloudSyncRecord(named: pending[0])
+        )
+        #expect(try CloudSyncCodec.decodeEnvelope(tombstone.envelopeData).operation == .tombstone)
+
+        // A generic enable/disable cannot abandon the pending privacy operation.
+        _ = try await actor.setCloudSyncEnabled(false, at: fixedDate.addingTimeInterval(1))
+        #expect(try await actor.cloudSyncSnapshot().status == .deletingCloudData)
+
+        // A new service instance resumes the durable privacy operation; it does not recreate the
+        // zone or abandon deletion merely because the original process ended while offline.
+        await service.stop()
+        let resumedProbe = CloudSyncAdapterProbe()
+        resumedProbe.adapter.deleteHandler = {
+            try? await actor.completeCloudDeletion()
+            return .deleted
+        }
+        let resumedService = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in resumedProbe.makeAdapter() },
+            retentionStore: retention
+        )
+        await resumedService.start()
+        #expect(resumedProbe.adapter.deleteCloudDataCount == 1)
+        #expect(!resumedService.snapshot.isEnabled)
+        #expect(!retention.cloudCopyMayExist)
+        #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+    }
+
+    @Test
+    @MainActor
+    func stickyPauseRebuildsCloudOnlyAfterTheExplicitRecoveryDecision() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let expense = makeExpense(amountMinorUnits: 6_600)
+        _ = try await actor.createExpense(expense)
+        try await actor.updateCloudSyncStatus(
+            .pausedEncryptedDataReset,
+            reason: .encryptedDataReset,
+            at: fixedDate
+        )
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        )
+        await service.start()
+        #expect(probe.creationCount == 0)
+
+        #expect(await service.recoverFromTrustBoundary(.rebuildCloudFromLocal))
+        #expect(probe.creationCount == 1)
+        #expect(try await actor.pendingCloudSyncRecordNames() == [
+            "expense/\(expense.id.uuidString.lowercased())"
+        ])
+    }
+
+    @Test(.enabled(if: Self.runsPhysicalCloudKitRuntimeTests))
+    @MainActor
+    func physicalDevelopmentCloudKitRoundTripPreservesLocalFactsAndDeletesTheZone() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let expense = makeExpense(amountMinorUnits: 4_203, merchantName: "C4B03 runtime probe")
+        _ = try await actor.createExpense(expense)
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+        let service = CloudSyncService(dataActor: actor, retentionStore: retention)
+
+        await service.setEnabled(true)
+        #expect(service.snapshot.status == .ready)
+        #expect(service.snapshot.isEnabled)
+        #expect(retention.cloudCopyMayExist)
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+
+        await service.setEnabled(false)
+        #expect(!service.snapshot.isEnabled)
+        #expect(retention.cloudCopyMayExist)
+
+        await service.setEnabled(true, reimportConfirmed: true)
+        #expect(service.snapshot.status == .ready)
+        #expect(service.snapshot.isEnabled)
+
+        let deletion = await service.deleteCloudData()
+        #expect(deletion == .deleted)
+        #expect(!service.snapshot.isEnabled)
+        #expect(!retention.cloudCopyMayExist)
+        #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+
+        await service.stop()
+    }
+
+    @Test(.enabled(if: Self.runsPhysicalCloudKitMultiDevicePrimary))
+    @MainActor
+    func physicalMultiDevicePrimarySeedsObservesTheRemoteUpdateAndDeletesTheZone() async throws {
+        print("C4B03 multi-device primary account fingerprint: \(try await physicalCloudKitAccountFingerprint())")
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let service = CloudSyncService(dataActor: actor, retentionStore: retention)
+
+        // Make an interrupted evidence run repeatable. Only this accepted fixed Development zone
+        // is removed; the local in-memory authority and Production environment are untouched.
+        #expect(await service.deleteCloudData() == .deleted)
+
+        let expense = makeExpense(
+            id: Self.multiDeviceExpenseID,
+            amountMinorUnits: Self.multiDeviceSeedAmount,
+            merchantName: "C4B03 primary device",
+            updatedAt: fixedDate
+        )
+        _ = try await actor.createExpense(expense)
+
+        await service.setEnabled(true)
+        #expect(service.snapshot.status == .ready)
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+
+        let observedSecondaryUpdate = try await waitForPhysicalCloudExpense(
+            id: Self.multiDeviceExpenseID,
+            amountMinorUnits: Self.multiDeviceUpdatedAmount,
+            using: service,
+            actor: actor
+        )
+        let localFactsBeforeDeletion = try await actor.fetchExpenseSummaries()
+
+        // The fixed Development zone is test-owned. The primary device is the sole cleanup owner
+        // so the secondary cannot race zone deletion with the primary's final fetch.
+        let deletion = await service.deleteCloudData()
+
+        #expect(observedSecondaryUpdate)
+        #expect(localFactsBeforeDeletion.first(where: { $0.id == Self.multiDeviceExpenseID })?.amount.minorUnits
+            == Self.multiDeviceUpdatedAmount)
+        #expect(deletion == .deleted)
+        #expect(!retention.cloudCopyMayExist)
+        #expect(try await actor.fetchExpenseSummaries().first(where: {
+            $0.id == Self.multiDeviceExpenseID
+        })?.amount.minorUnits == Self.multiDeviceUpdatedAmount)
+        await service.stop()
+    }
+
+    @Test(.enabled(if: Self.runsPhysicalCloudKitMultiDeviceSecondary))
+    @MainActor
+    func physicalMultiDeviceSecondaryImportsTheSeedAndPublishesAnUpdate() async throws {
+        print("C4B03 multi-device secondary account fingerprint: \(try await physicalCloudKitAccountFingerprint())")
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+        let service = CloudSyncService(dataActor: actor, retentionStore: retention)
+
+        await service.setEnabled(true)
+        let importedPrimarySeed = try await waitForPhysicalCloudExpense(
+            id: Self.multiDeviceExpenseID,
+            amountMinorUnits: Self.multiDeviceSeedAmount,
+            using: service,
+            actor: actor
+        )
+        #expect(importedPrimarySeed)
+
+        if importedPrimarySeed {
+            let update = makeExpense(
+                id: Self.multiDeviceExpenseID,
+                amountMinorUnits: Self.multiDeviceUpdatedAmount,
+                merchantName: "C4B03 secondary device",
+                updatedAt: fixedDate.addingTimeInterval(60)
+            )
+            _ = try await actor.updateExpense(id: Self.multiDeviceExpenseID, with: update)
+            await service.retry()
+            let published = try await waitForPhysicalCloudOutboxToDrain(
+                using: service,
+                actor: actor
+            )
+            #expect(published)
+            #expect(service.snapshot.status == .ready)
+        }
+
+        await service.stop()
+    }
+
+    private nonisolated static var runsPhysicalCloudKitRuntimeTests: Bool {
+#if targetEnvironment(simulator)
+        false
+#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS
+        true
+#else
+        false
+#endif
+    }
+
+    private nonisolated static var runsPhysicalCloudKitMultiDevicePrimary: Bool {
+#if targetEnvironment(simulator)
+        false
+#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_MULTI_DEVICE_PRIMARY
+        true
+#else
+        false
+#endif
+    }
+
+    private nonisolated static var runsPhysicalCloudKitMultiDeviceSecondary: Bool {
+#if targetEnvironment(simulator)
+        false
+#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_MULTI_DEVICE_SECONDARY
+        true
+#else
+        false
+#endif
+    }
+
+    private nonisolated static let multiDeviceExpenseID = UUID(
+        uuidString: "c4b03000-0000-4000-8000-000000000203"
+    )!
+    private nonisolated static let multiDeviceSeedAmount: Int64 = 4_203
+    private nonisolated static let multiDeviceUpdatedAmount: Int64 = 8_406
+
     private var fixedDate: Date {
         Date(timeIntervalSince1970: 1_784_851_200)
+    }
+
+    private func waitForPhysicalCloudExpense(
+        id: UUID,
+        amountMinorUnits: Int64,
+        using service: CloudSyncService,
+        actor: DataActor,
+        timeout: Duration = .seconds(120)
+    ) async throws -> Bool {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while clock.now < deadline {
+            try Task.checkCancellation()
+            await service.retry()
+            if try await actor.fetchExpenseSummaries().contains(where: {
+                $0.id == id && $0.amount.minorUnits == amountMinorUnits
+            }) {
+                return true
+            }
+            try await clock.sleep(for: .seconds(2))
+        }
+        return false
+    }
+
+    private func physicalCloudKitAccountFingerprint() async throws -> String {
+        let container = CKContainer(identifier: CKSyncEngineAdapter.containerIdentifier)
+        let status = try await container.accountStatus()
+        guard status == .available else {
+            throw CloudSyncValidationError.invalidIdentity
+        }
+        let recordID = try await container.userRecordID()
+        return String(CloudSyncCodec.digestHex(Data(recordID.recordName.utf8)).prefix(16))
+    }
+
+    private func waitForPhysicalCloudOutboxToDrain(
+        using service: CloudSyncService,
+        actor: DataActor,
+        timeout: Duration = .seconds(60)
+    ) async throws -> Bool {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while clock.now < deadline {
+            try Task.checkCancellation()
+            await service.retry()
+            if try await actor.pendingCloudSyncRecordNames().isEmpty,
+               service.snapshot.status == .ready {
+                return true
+            }
+            try await clock.sleep(for: .seconds(1))
+        }
+        return false
     }
 
     private func makeExpense(
@@ -1040,7 +1597,7 @@ struct CloudSyncTests {
 }
 
 @MainActor
-private final class CloudSyncAdapterProbe {
+final class CloudSyncAdapterProbe {
     let adapter = TestCloudSyncAdapter()
     private(set) var creationCount = 0
 
@@ -1051,14 +1608,31 @@ private final class CloudSyncAdapterProbe {
 }
 
 @MainActor
-private final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
+final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
     var onStatusChange: (@MainActor @Sendable () async -> Void)?
     private(set) var startCount = 0
     private(set) var synchronizeCount = 0
+    private(set) var deleteCloudDataCount = 0
+    var deletionOutcome = CloudSyncCloudDeletionOutcome.deleted
+    var deleteHandler: (@MainActor () async -> CloudSyncCloudDeletionOutcome)?
 
     func start() async { startCount += 1 }
     func synchronize() async { synchronizeCount += 1 }
+    func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
+        deleteCloudDataCount += 1
+        if let deleteHandler { return await deleteHandler() }
+        return deletionOutcome
+    }
     func stop() async {}
+}
+
+@MainActor
+final class TestCloudSyncRetentionStore: CloudSyncRetentionPersisting {
+    var cloudCopyMayExist: Bool
+
+    init(cloudCopyMayExist: Bool) {
+        self.cloudCopyMayExist = cloudCopyMayExist
+    }
 }
 
 private struct CloudSyncFactSeed: Sendable {

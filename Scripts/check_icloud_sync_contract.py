@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from dataclasses import dataclass
+import plistlib
 import re
 import tempfile
 from pathlib import Path
@@ -153,6 +154,12 @@ REQUIRED_RUNTIME_ANCHORS = {
         "container.privateCloudDatabase",
         "configuration.automaticallySync = false",
         "record.encryptedValues[Self.encryptedEnvelopeKey]",
+        "deleteRecordZone(withID: zoneID)",
+        "recoverFromTrustBoundary",
+        "refreshAfterLocalDataDeletion",
+    ),
+    "MindBudget/App/AppRouter.swift": (
+        "await cloudSyncService.refreshAfterLocalDataDeletion()",
     ),
     "MindBudget/Data/DataController.swift": (
         "Schema(versionedSchema: SchemaV6.self)",
@@ -165,10 +172,37 @@ REQUIRED_RUNTIME_ANCHORS = {
     ),
     "MindBudget/Data/CloudSyncRemoteApply.swift": (
         "applyPendingCloudSyncInbox",
+        "resolveCloudSyncConflict",
         "CloudSyncInboxStatus.quarantined",
         "CloudSyncOperation.tombstone",
     ),
+    "MindBudget/Features/Settings/SettingsView.swift": (
+        "CloudSyncConflictListView",
+        "deleteCloudSyncData",
+        "recoverCloudSyncFromLocalData",
+        "CloudSyncSettingsPresentation.requiresReimportConfirmation",
+        "CloudSyncSettingsPresentation.cloudDeletionGuidance",
+    ),
+    "MindBudgetTests/CloudSyncTests.swift": (
+        "@Test(.enabled(if: Self.runsPhysicalCloudKitRuntimeTests))",
+        "physicalDevelopmentCloudKitRoundTripPreservesLocalFactsAndDeletesTheZone",
+        "#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS",
+        "let deletion = await service.deleteCloudData()",
+        "serverSaveConflictLeavesTheOutboxBlockedAndTheRemoteCandidateQuarantined",
+    ),
+    "MindBudgetTests/Phase6FeatureTests.swift": (
+        "CloudSyncSettingsPresentation.showsCloudDeletionAction",
+        "await session.setCloudSyncEnabled(true, reimportConfirmed: true)",
+    ),
 }
+
+EXPECTED_CLOUDKIT_ENTITLEMENTS = {
+    "MindBudget/MindBudgetDebug.entitlements": ("development", "Development"),
+    "MindBudget/MindBudgetRelease.entitlements": ("production", "Production"),
+}
+EXPECTED_CLOUDKIT_CONTAINER = "iCloud.com.xdgf558.MindBudget"
+EXPECTED_INFO_PLIST = "MindBudget/Resources/MindBudgetInfo.plist"
+EXPECTED_INFO_PLIST_BUILD_SETTING = f"INFOPLIST_FILE = {EXPECTED_INFO_PLIST};"
 
 
 @dataclass(frozen=True)
@@ -708,11 +742,25 @@ def validate_swiftdata_boundary(project_root: Path) -> list[str]:
 
     if total_configurations == 0:
         errors.append("CloudKit capability/import found no explicit primary ModelConfiguration")
+
+    # The app target's CloudKit entitlement is also present while hosted unit tests construct
+    # legacy-schema stores. Those fixtures must opt out explicitly or SwiftData's `.automatic`
+    # default can activate managed mirroring and invalidate the migration evidence itself.
+    tests_root = project_root / "MindBudgetTests"
+    if tests_root.is_dir():
+        for file in tests_root.rglob("*.swift"):
+            tokens = _swift_code_tokens(file.read_text(encoding="utf-8"))
+            for configuration in _direct_construction_indices(tokens, "ModelConfiguration"):
+                if not _configuration_explicitly_disables_cloudkit(tokens, configuration + 1):
+                    errors.append(
+                        f"{file}: entitled test-host ModelConfiguration fixtures must explicitly "
+                        "use cloudKitDatabase: .none"
+                    )
     return errors
 
 
 def validate_custom_sync_runtime(project_root: Path) -> list[str]:
-    """Keep the accepted C4B-02 custom-record boundary structural and fail closed."""
+    """Keep the accepted custom-record runtime and C4B-03 capability boundary fail closed."""
 
     errors: list[str] = []
     source_text: dict[str, str] = {}
@@ -748,19 +796,82 @@ def validate_custom_sync_runtime(project_root: Path) -> list[str]:
         ".deleteRecord(",
     ):
         if forbidden in combined_runtime:
+            errors.append(f"custom sync runtime contains forbidden transport shape {forbidden!r}")
+
+    errors.extend(validate_cloudkit_entitlements(project_root))
+    return errors
+
+
+def validate_cloudkit_entitlements(project_root: Path) -> list[str]:
+    """Require exact environment-separated CloudKit and push capabilities for the app target."""
+
+    errors: list[str] = []
+    expected_paths = {project_root / relative for relative in EXPECTED_CLOUDKIT_ENTITLEMENTS}
+    for relative, (push_environment, cloud_environment) in EXPECTED_CLOUDKIT_ENTITLEMENTS.items():
+        path = project_root / relative
+        if not path.is_file():
+            errors.append(f"{path}: missing exact C4B-03 entitlement file")
+            continue
+        try:
+            with path.open("rb") as stream:
+                values = plistlib.load(stream)
+        except (OSError, plistlib.InvalidFileException) as error:
+            errors.append(f"{path}: invalid entitlement plist: {error}")
+            continue
+
+        expected = {
+            "aps-environment": push_environment,
+            "com.apple.developer.icloud-container-environment": cloud_environment,
+            "com.apple.developer.icloud-container-identifiers": [EXPECTED_CLOUDKIT_CONTAINER],
+            "com.apple.developer.icloud-services": ["CloudKit"],
+        }
+        if values != expected:
             errors.append(
-                f"C4B-02 custom sync runtime contains forbidden transport shape {forbidden!r}"
+                f"{path}: entitlements must be exactly the reviewed {cloud_environment} "
+                "private-CloudKit and push capability set"
             )
 
-    # C4B-02 implements and tests the default-off custom-record runtime but does not authorize
-    # provisioning. C4B-03 must deliberately replace this guard when its container/environment
-    # evidence packet is accepted.
-    for entitlement in project_root.rglob("*.entitlements"):
-        text = entitlement.read_text(encoding="utf-8")
+    for path in project_root.rglob("*.entitlements"):
+        if path in expected_paths:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as error:
+            errors.append(f"{path}: cannot inspect entitlement file: {error}")
+            continue
         if "com.apple.developer.icloud-container-identifiers" in text:
+            errors.append(f"{path}: unapproved additional iCloud container entitlement owner")
+
+    project = project_root / "MindBudget.xcodeproj/project.pbxproj"
+    if not project.is_file():
+        errors.append(f"{project}: missing project capability wiring")
+    else:
+        project_text = project.read_text(encoding="utf-8")
+        for relative in EXPECTED_CLOUDKIT_ENTITLEMENTS:
+            anchor = f"CODE_SIGN_ENTITLEMENTS = {relative};"
+            if project_text.count(anchor) != 1:
+                errors.append(f"{project}: expected exactly one build setting {anchor!r}")
+        if project_text.count(EXPECTED_INFO_PLIST_BUILD_SETTING) != 2:
             errors.append(
-                f"{entitlement}: C4B-02 does not authorize an iCloud container entitlement"
+                f"{project}: Debug and Release must each reference the exact source plist "
+                f"{EXPECTED_INFO_PLIST_BUILD_SETTING!r}"
             )
+
+    info_plist = project_root / EXPECTED_INFO_PLIST
+    if not info_plist.is_file():
+        errors.append(f"{info_plist}: missing app background-mode source plist")
+    else:
+        try:
+            with info_plist.open("rb") as stream:
+                values = plistlib.load(stream)
+        except (OSError, plistlib.InvalidFileException) as error:
+            errors.append(f"{info_plist}: invalid source plist: {error}")
+        else:
+            if values != {"UIBackgroundModes": ["remote-notification"]}:
+                errors.append(
+                    f"{info_plist}: must contain exactly the reviewed remote-notification "
+                    "background mode"
+                )
     return errors
 
 
@@ -783,6 +894,50 @@ def self_test() -> None:
         if not validate_contract(contract):
             raise AssertionError("missing contract sections were accepted")
 
+        (root / "MindBudget").mkdir()
+        project = root / "MindBudget.xcodeproj"
+        project.mkdir()
+        project.joinpath("project.pbxproj").write_text(
+            "\n".join(
+                f"CODE_SIGN_ENTITLEMENTS = {relative};\n"
+                f"{EXPECTED_INFO_PLIST_BUILD_SETTING}"
+                for relative in EXPECTED_CLOUDKIT_ENTITLEMENTS
+            ),
+            encoding="utf-8",
+        )
+        info_plist = root / EXPECTED_INFO_PLIST
+        info_plist.parent.mkdir(parents=True)
+        info_plist.write_bytes(
+            plistlib.dumps({"UIBackgroundModes": ["remote-notification"]})
+        )
+        for relative, (push_environment, cloud_environment) in EXPECTED_CLOUDKIT_ENTITLEMENTS.items():
+            path = root / relative
+            path.write_bytes(
+                plistlib.dumps({
+                    "aps-environment": push_environment,
+                    "com.apple.developer.icloud-container-environment": cloud_environment,
+                    "com.apple.developer.icloud-container-identifiers": [EXPECTED_CLOUDKIT_CONTAINER],
+                    "com.apple.developer.icloud-services": ["CloudKit"],
+                })
+            )
+        if validate_cloudkit_entitlements(root):
+            raise AssertionError("exact environment-separated entitlement fixture rejected")
+        release_path = root / "MindBudget/MindBudgetRelease.entitlements"
+        release_values = plistlib.loads(release_path.read_bytes())
+        release_values["com.apple.developer.icloud-container-environment"] = "Development"
+        release_path.write_bytes(plistlib.dumps(release_values))
+        if not validate_cloudkit_entitlements(root):
+            raise AssertionError("Release entitlement with Development environment accepted")
+        release_values["com.apple.developer.icloud-container-environment"] = "Production"
+        release_path.write_bytes(plistlib.dumps(release_values))
+        project_fixture = project / "project.pbxproj"
+        info_plist.write_bytes(plistlib.dumps({"UIBackgroundModes": ["audio"]}))
+        if not validate_cloudkit_entitlements(root):
+            raise AssertionError("incorrect remote-notification background mode accepted")
+        info_plist.write_bytes(
+            plistlib.dumps({"UIBackgroundModes": ["remote-notification"]})
+        )
+
         data = root / "MindBudget/Data"
         data.mkdir(parents=True)
         data_controller = data / "DataController.swift"
@@ -793,6 +948,16 @@ def self_test() -> None:
         (root / "MindBudget/Sync.swift").write_text("import CloudKit\n", encoding="utf-8")
         if validate_swiftdata_boundary(root):
             raise AssertionError("explicit .none fixture rejected")
+
+        tests = root / "MindBudgetTests"
+        tests.mkdir()
+        fixture = tests / "LegacyMigrationTests.swift"
+        fixture.write_text("ModelConfiguration()\n", encoding="utf-8")
+        if not validate_swiftdata_boundary(root):
+            raise AssertionError("entitled test-host automatic ModelConfiguration fixture accepted")
+        fixture.write_text("ModelConfiguration(cloudKitDatabase: .none)\n", encoding="utf-8")
+        if validate_swiftdata_boundary(root):
+            raise AssertionError("entitled test-host explicit-.none fixture rejected")
 
         for import_kind in sorted(SWIFT_IMPORT_KINDS):
             (root / "MindBudget/Sync.swift").write_text(
