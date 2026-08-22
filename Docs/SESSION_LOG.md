@@ -5352,3 +5352,8 @@ runtime, CloudKit, Production, signing, upload, tester, or release action.
 Money, network-egress, commercialization-document, StoreKit catalog 13/13, iCloud contract
 self-test/repository, Python syntax, shell syntax, and `git diff --check` all pass. No runtime suite
 is rerun for this documentation-only calibration; hosted CI remains the PR merge gate.
+
+PR #63 independent review found no P1/P2 issue and recommended approval after hosted CI. The
+optional task-history polish was applied: the completed PR #62 item now explicitly says its
+temporary deferral was the then-current state and is superseded by DEC-COM-039. Historical decision
+and CI evidence remains chronological and was not rewritten.

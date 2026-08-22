@@ -408,7 +408,8 @@ operational/release gate
   head `f49de94` passed GitHub Actions run `32571676058`, and PR #61 merged as `0f749ce`.
 - [x] Calibrate the C4B-03 product merge without closing the evidence phase: record PR #61,
   `0f749ce`, green run `32571676058`, and the owner's temporary deferral of same-account two-device
-  evidence while retaining C4B-03 In Progress and C4C blocked.
+  evidence while retaining C4B-03 In Progress and C4C blocked. This records PR #62's then-current
+  state and is superseded by DEC-COM-039 below.
 - [x] Supersede that temporary boundary after PR #62 (`0128682`, green run `32573992659`): permanently
   waive only the physical same-account two-device evidence gate under DEC-COM-039, retain the
   non-pass history and deterministic conflict contract, and keep every other C4B-03/release gate.

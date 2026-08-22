@@ -2198,3 +2198,8 @@ Final static validation passes: money, network egress, commercialization documen
 catalog 13/13, iCloud contract self-test/repository, Python syntax, shell syntax, and
 `git diff --check`. No runtime suite is rerun for this documentation-only scope; hosted CI remains
 the PR merge gate.
+
+Independent review of PR #63 found no P1/P2 issue and recommended approval after hosted CI. The
+optional P3 task-history clarification was accepted: `Docs/TASKS.md` now labels PR #62's temporary
+deferral text as a time-boxed state superseded by DEC-COM-039. DEC-COM-038 and other historical
+decision/evidence entries remain append-only.
