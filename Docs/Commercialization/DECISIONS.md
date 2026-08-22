@@ -1141,3 +1141,26 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   harness; silently removing multi-device evidence from the exit gate; treating temporary
   unavailability as a permanent waiver; marking C4B-03 Done because product code reached `main`;
   or entering C4C while COM-C4B remains open.
+
+## DEC-COM-039 — Permanently waive the physical same-account two-device evidence gate
+
+- Status/date: **Accepted owner evidence-scope override — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-036/037/038
+- Context: DEC-COM-038 temporarily deferred the physical same-iCloud-account two-device
+  convergence/conflict run because the available devices addressed different private databases.
+  The owner has now explicitly made that evidence deferral permanent. Reviewed documentation head
+  `0350415` passed GitHub Actions run `32573992659`, and PR #62 merged the preceding calibration as
+  `0128682` before this scope decision.
+- Decision: Permanently remove the physical same-account two-device convergence/conflict run from
+  the C4B-03 and COM-C4B exit evidence. Preserve the stopped different-account attempt as a
+  non-pass, and retain the compile-time opt-in harness as an optional diagnostic, not a required
+  gate. The waiver applies only to that physical evidence item; it does not waive the product's
+  deterministic multi-device lineage/conflict semantics or permit an automatic financial winner.
+- Consequences: No same-account physical run is required to close C4B-03. This is a waiver, not a
+  convergence pass or product-failure finding. C4B-03 and COM-C4B remain In Progress because
+  physical account/offline/quota/background-push evidence, distribution signing, and explicitly
+  authorized Production deployment/release evidence remain open. C4C and distribution remain
+  blocked until their existing gates are closed.
+- Alternatives rejected: Fabricating a pass; erasing the different-account attempt or DEC-COM-038;
+  deleting the opt-in harness; weakening deterministic conflict/no-winner behavior; expanding the
+  waiver to account/offline/quota/push or release evidence; or marking C4B-03 Done immediately.

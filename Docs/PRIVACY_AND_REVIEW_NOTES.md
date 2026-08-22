@@ -63,10 +63,11 @@ reviewed head `f49de94` passed GitHub Actions run `32571676058`, plus determinis
 exact Development and Production entitlement files exist, Development provisioning accepted the
 exact container, one owner-authorized physical Development lifecycle passed, and read-only
 Dashboard inspection confirmed the encrypted Development record shape plus absence of a Production
-app schema. The owner temporarily deferred a same-account two-device rerun because that arrangement
-is unavailable; it is not a convergence pass or permanent waiver. Physical account/quota/offline/
-background-push evidence, a distribution-signed binary, Production schema deployment, and release
-authorization are not claimed. C4B-03 remains In Progress and C4C remains blocked.
+app schema. DEC-COM-039 permanently waives only the physical same-account two-device evidence item;
+the stopped different-account attempt is not a convergence pass, and deterministic conflict/
+no-winner behavior remains required. Physical account/quota/offline/background-push evidence, a
+distribution-signed binary, Production schema deployment, and release authorization are not
+claimed. C4B-03 remains In Progress and C4C remains blocked.
 
 Future commercialization channels are not part of the currently uploaded 0.9.8 claim. Before the
 optional Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase

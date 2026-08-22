@@ -1014,3 +1014,21 @@ exact status anchor and a first Python compile-only check hit the host's unwrita
 both passed after the contract phrase was calibrated and bytecode cache was scoped to
 `/private/tmp`. No new simulator, physical, CloudKit, Production, Archive, or release evidence is
 inferred from this documentation-only validation.
+
+### PR #62 calibration merge and owner evidence waiver — 2026-08-22
+
+Reviewed calibration head `0350415e7d79ef20901a05fcc2424be860ff6f9a` passed GitHub Actions run
+`32573992659`; its `Build and test` check completed successfully. PR #62 merged it to `main` as
+`0128682838ee9bf89cd071307f8355a97109cb59` at 2026-08-22 13:14:29 UTC.
+
+After that merge, the owner permanently waived the physical same-iCloud-account two-device
+convergence/conflict evidence gate. DEC-COM-039 records the scope: the stopped different-account
+attempt is still not a pass, deterministic multi-device conflict/no-winner behavior remains
+required, and the opt-in harness remains available. The waiver does not close C4B-03; physical
+account/offline/quota/background-push, distribution signing, and owner-authorized Production/
+release evidence remain open.
+
+The permanent-waiver calibration changes documentation and its static gate only. Money,
+network-egress, commercialization-document, StoreKit catalog 13/13, iCloud contract self-test/
+repository, Python syntax, shell syntax, and diff checks pass locally. No runtime, simulator,
+physical, CloudKit, Production, archive, upload, tester, or release evidence is created.

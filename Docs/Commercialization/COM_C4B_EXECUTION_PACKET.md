@@ -3,7 +3,7 @@
 ## Status
 
 Status: **In Progress — PR #61 merged the reviewed C4B-03 product capability; operational and
-release evidence remains open.**
+release evidence remains open, with physical same-account two-device evidence permanently waived.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
 `32434148439`, and PR #57 merge `90a1e66`. C4B-02P is Done after independent review, green
@@ -12,7 +12,9 @@ GitHub Actions run `32454490080`, and PR #58 merge `6f5fded`. C4B-02 is Done aft
 head `b9944cd` passed GitHub Actions run `32494429474`; PR #60 merged it as `7138a9c`. The owner
 then formally entered C4B-03. Reviewed product head `f49de94` passed GitHub Actions run
 `32571676058`, and PR #61 merged it as `0f749ce`. That closes product review/CI/merge, not the
-phase's remaining physical and release evidence.
+phase's remaining physical and release evidence. Reviewed calibration head `0350415` later passed
+run `32573992659`, and PR #62 merged it as `0128682`. DEC-COM-039 then permanently waived only the
+physical same-account two-device evidence item.
 
 ## Input gate
 
@@ -137,9 +139,9 @@ Production has no app record type or deployed schema. Physical account/quota/off
 background-push evidence, distribution signing, Production deployment, and Production-release
 claims remain open. A signed two-device harness was prepared, but the connected devices use
 different iCloud Apple Accounts and therefore different private databases. The owner stopped that
-attempt rather than changing accounts. On 2026-08-22 the owner temporarily deferred a same-account
-rerun because it is not currently available. Both facts are recorded as unproven evidence—not a
-pass, product failure, permanent waiver, or C4B-03 exit.
+attempt rather than changing accounts. DEC-COM-039 permanently waives a same-account physical rerun
+as an exit-evidence item. The stopped attempt is still not a pass or product-failure finding, and
+the waiver does not weaken deterministic multi-device conflict/no-winner behavior.
 Local Delete All now republishes the retained-copy marker immediately in the same app session, so
 Settings continues to show cloud deletion and requires the reimport disclosure before Enable can
 start transport. Cloud-wide deletion stages durable local tombstone intent, then treats whole-zone
@@ -162,9 +164,11 @@ delete, and local-fact preservation. Read-only Dashboard checks then confirmed t
 Development app field and the absence of the app record type in Production. It must still add
 account/offline/quota/background-push evidence. The current two-device attempt was explicitly
 stopped after distinct iCloud-account fingerprints proved the private databases could not
-converge; the harness remains opt-in, the owner temporarily deferred a same-account rerun, and no
-multi-device result or permanent waiver is claimed. Independent rereview approved head `f49de94`,
-GitHub Actions run `32571676058` passed, and PR #61 merged the product capability as `0f749ce`.
+converge; the harness remains opt-in and no multi-device result is claimed. DEC-COM-039 permanently
+waives that physical evidence item without weakening deterministic coverage. Independent rereview
+approved head `f49de94`, GitHub Actions run `32571676058` passed, and PR #61 merged the product
+capability as `0f749ce`. Reviewed calibration head `0350415` passed run `32573992659`, and PR #62
+merged it as `0128682`.
 Production schema deployment is an explicit owner gate and is not inferred from a Release archive.
 
 ## Stop conditions
@@ -175,4 +179,5 @@ conflict resolution, attachment/OCR transfer, or Production deployment without a
 review/CI/merge is satisfied through PR #59 (`211dff2`); no entitlement, deployed environment,
 cloud-delete, or multi-device claim is valid before C4B-03 evidence.
 PR #61 (`0f749ce`) satisfies product review/CI/merge only. C4B-03 remains In Progress, C4C remains
-blocked, and the deferred same-account rerun cannot be cited as convergence evidence.
+blocked, and the permanently waived same-account physical run cannot be cited as convergence
+evidence or used to waive any other operational/release gate.

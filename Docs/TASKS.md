@@ -227,8 +227,10 @@ Status: Done
 ## Commercialization and Pro development — separate COM track
 Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
 through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 product capability
-merged through PR #61 (`0f749ce`) after reviewed head `f49de94` passed run `32571676058`, while the
-phase remains In Progress for operational/release evidence
+merged through PR #61 (`0f749ce`) after reviewed head `f49de94` passed run `32571676058`; PR #62
+merged the reviewed calibration as `0128682` after run `32573992659`; DEC-COM-039 permanently
+waives only same-account physical evidence while the phase remains In Progress for every other
+operational/release gate
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -395,10 +397,11 @@ phase remains In Progress for operational/release evidence
   and local preservation. Read-only Dashboard inspection confirms the exact encrypted Development
   record shape and that Production has no app record type or deployed schema. Physical account/
   quota/offline/push, distribution signing, and Production deployment remain pending. The signed
-  two-device harness did not converge because the devices use different iCloud Apple Accounts;
-  the owner stopped that attempt and on 2026-08-22 temporarily deferred a same-account rerun. It is
-  not counted as a pass or permanent waiver. A subsequent 33/33 cleanup run confirmed the fixed
-  Development zone is empty. PR #61 republishes the retained-cloud marker immediately after local
+  two-device harness did not converge because the devices use different iCloud Apple Accounts.
+  DEC-COM-039 permanently waives the physical same-account rerun as an exit-evidence item without
+  calling the stopped attempt a pass or weakening deterministic conflict/no-winner behavior. A
+  subsequent 33/33 cleanup run confirmed the fixed Development zone is empty. PR #61 republishes
+  the retained-cloud marker immediately after local
   Delete All, keeps the reimport/cloud-delete UI accurate in the same session, displays closed
   deletion retry reasons, and leaves incomplete cloud conflicts unresolvable. Focused CloudSync/
   Phase 6 passed 52 cases; the final full run passed 461 unit results and 17/17 UI tests. Reviewed
@@ -406,3 +409,6 @@ phase remains In Progress for operational/release evidence
 - [x] Calibrate the C4B-03 product merge without closing the evidence phase: record PR #61,
   `0f749ce`, green run `32571676058`, and the owner's temporary deferral of same-account two-device
   evidence while retaining C4B-03 In Progress and C4C blocked.
+- [x] Supersede that temporary boundary after PR #62 (`0128682`, green run `32573992659`): permanently
+  waive only the physical same-account two-device evidence gate under DEC-COM-039, retain the
+  non-pass history and deterministic conflict contract, and keep every other C4B-03/release gate.
