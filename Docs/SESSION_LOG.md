@@ -5275,3 +5275,27 @@ unit-test results across 27 suites, 17/17 UI tests, and all selected coverage th
 benchmark after the previously documented loaded-host non-passes, so it does not manufacture a new
 strict performance claim. C4B-03 remains In Progress for external evidence, review, hosted CI, and
 merge.
+
+## 2026-08-22 — Session 160 — Preserve retained-cloud authority after local Delete All
+
+PR #61 review found a same-session authority mismatch: local Delete All correctly retained the
+durable `cloudCopyMayExist` marker, but `AppSession` then published literal `.disabled` and hid the
+reimport disclosure and cloud-delete action. DEC-COM-037 removes that synthetic snapshot. The
+service now republishes disabled local control combined with the retained-copy marker immediately
+after local deletion; unconfirmed Enable remains closed without constructing a CloudKit adapter,
+while confirmed reimport can enable transport. Settings also provides closed, localized retry
+guidance for durable cloud deletion and keeps content-free conflicts quarantined without offering
+an unsafe keep/use choice.
+
+The focused CloudSync + Phase 6 run passed 52 results with zero failures and three explicit
+physical-only skips at
+`/private/tmp/MindBudget-C4B03-ReviewRemediation-Focused1.xcresult`. A first full-validation attempt
+inside the filesystem sandbox passed the static checks but could not connect to CoreSimulator or
+write DerivedData and is retained as an environment non-pass, not product evidence. The accepted
+outside-sandbox run passed every static contract, Release compilation, all 461 unit-test results
+across 27 suites, 17/17 UI tests, and every selected coverage threshold at
+`/private/tmp/MindBudget-C4B03-ReviewRemediation-Full2.xcresult`; minimum selected coverage was
+87.60% against the required 85%. The three physical CloudKit tests remained explicit skips, and
+the wall-clock benchmark remained intentionally skipped under the already recorded loaded-host
+policy. C4B-03 stays In Progress for hosted CI, re-review, merge, and the external evidence gates
+that the owner did not waive.

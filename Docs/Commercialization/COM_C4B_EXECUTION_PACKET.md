@@ -63,8 +63,8 @@ Schema V6 adds five app-owned sync metadata models without changing financial au
 primary `ModelConfiguration` is explicitly `.none`. The implementation stages local fact and
 outbox/tombstone in one `ModelContext` transaction, puts fetched records in a durable inbox before
 topological `DataActor` application, and exposes only closed local-first status/retry controls.
-The adapter uses only the accepted private database/custom zone/record type and one encrypted
-envelope field; no entitlement or deployed container is claimed.
+The C4B-02 adapter used only the accepted private database/custom zone/record type and one encrypted
+envelope field; that source phase claimed no entitlement or deployed container.
 
 Independent-review remediation makes all three trust-boundary pauses sticky against delayed
 status/account callbacks, maps both database-deletion events and `zoneNotFound` CKErrors to the
@@ -114,7 +114,7 @@ cross-account merge, online write leases, and automatic enablement are prohibite
   server-save conflict quarantine, and a sticky no-reupload pause after remote zone deletion/purge.
 - Static verification enforces the exact 12-type allow-list, runtime anchors, private database,
   no physical `deleteRecord`, no public/shared database, no `CKAsset`, no iCloud entitlement in
-  this packet, repository-wide `.none`, and centralized container construction.
+  the C4B-02 source phase, repository-wide `.none`, and centralized container construction.
 - Reviewed remediation head `0024507` passed every step of GitHub Actions run `32490174014`; PR #59
   merged the accepted C4B-02 source to `main` as `211dff2` on 2026-08-21. C4B-03 evidence cannot
   be inferred from simulator fakes, hosted CI, or this source-only adapter.
@@ -135,6 +135,11 @@ and background-push evidence, distribution signing, Production deployment, and P
 claims remain open. A signed two-device harness was prepared, but the connected devices use
 different iCloud Apple Accounts and therefore different private databases. The owner stopped that
 attempt rather than changing accounts; it is recorded as not executed to convergence, not passed.
+Local Delete All now republishes the retained-copy marker immediately in the same app session, so
+Settings continues to show cloud deletion and requires the reimport disclosure before Enable can
+start transport. Cloud-wide deletion stages durable local tombstone intent, then treats whole-zone
+absence as the final privacy boundary without first uploading each tombstone. An incomplete cloud
+conflict candidate remains visible but has no unsafe resolution action.
 
 ## Tests
 

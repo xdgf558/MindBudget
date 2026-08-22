@@ -177,6 +177,50 @@ struct SettingsView: View {
     }
 }
 
+enum CloudSyncDeletionGuidance: Equatable {
+    case pending
+    case network
+    case account
+    case quota
+    case failed
+
+    var localizedKey: LocalizedStringKey {
+        switch self {
+        case .pending: "settings.icloudSync.deleteCloud.guidance.pending"
+        case .network: "settings.icloudSync.deleteCloud.guidance.network"
+        case .account: "settings.icloudSync.deleteCloud.guidance.account"
+        case .quota: "settings.icloudSync.deleteCloud.guidance.quota"
+        case .failed: "settings.icloudSync.deleteCloud.guidance.failed"
+        }
+    }
+}
+
+enum CloudSyncSettingsPresentation {
+    static func requiresReimportConfirmation(_ snapshot: CloudSyncSnapshot) -> Bool {
+        snapshot.cloudCopyMayExist
+    }
+
+    static func showsCloudDeletionAction(_ snapshot: CloudSyncSnapshot) -> Bool {
+        snapshot.cloudCopyMayExist
+    }
+
+    static func cloudDeletionGuidance(
+        for snapshot: CloudSyncSnapshot
+    ) -> CloudSyncDeletionGuidance? {
+        guard snapshot.status == .deletingCloudData else { return nil }
+        switch snapshot.reason {
+        case nil: return .pending
+        case .networkUnavailable, .serviceUnavailable: return .network
+        case .noAccount, .accountChanged: return .account
+        case .quotaExceeded: return .quota
+        case .encryptedDataReset, .remoteZoneDeleted, .malformedRecord, .unsupportedSchema,
+             .invalidIdentity, .invalidLineage, .divergentConflict, .missingParent,
+             .physicalDeletion, .localValidationFailed, .transportFailed:
+            return .failed
+        }
+    }
+}
+
 private struct CloudSyncSettingsView: View {
     @ObservedObject var session: AppSession
     @Environment(\.mindBudgetTheme) private var theme
@@ -216,6 +260,13 @@ private struct CloudSyncSettingsView: View {
                     }
                     .accessibilityIdentifier("settings.icloudSync.conflicts")
                 }
+                if let guidance = CloudSyncSettingsPresentation.cloudDeletionGuidance(
+                    for: session.cloudSyncSnapshot
+                ) {
+                    Text(guidance.localizedKey)
+                        .foregroundStyle(theme.attentionText)
+                        .accessibilityIdentifier("settings.icloudSync.deleteCloud.guidance")
+                }
             } footer: {
                 Text("settings.icloudSync.disclosure")
             }
@@ -227,10 +278,12 @@ private struct CloudSyncSettingsView: View {
                     }
                     .disabled(isWorking)
 
-                    Button("settings.icloudSync.disable", role: .destructive) {
-                        Task { await perform { await session.setCloudSyncEnabled(false) } }
+                    if session.cloudSyncSnapshot.status != .deletingCloudData {
+                        Button("settings.icloudSync.disable", role: .destructive) {
+                            Task { await perform { await session.setCloudSyncEnabled(false) } }
+                        }
+                        .disabled(isWorking)
                     }
-                    .disabled(isWorking)
                 } else if !isTrustBoundaryPaused {
                     Button("settings.icloudSync.enable") {
                         showsEnableConfirmation = true
@@ -247,7 +300,9 @@ private struct CloudSyncSettingsView: View {
                     .accessibilityIdentifier("settings.icloudSync.recovery.rebuild")
                 }
 
-                if session.cloudSyncSnapshot.cloudCopyMayExist {
+                if CloudSyncSettingsPresentation.showsCloudDeletionAction(
+                    session.cloudSyncSnapshot
+                ) {
                     Button("settings.icloudSync.deleteCloud", role: .destructive) {
                         showsCloudDeletionConfirmation = true
                     }
@@ -271,7 +326,8 @@ private struct CloudSyncSettingsView: View {
                     await perform {
                         await session.setCloudSyncEnabled(
                             true,
-                            reimportConfirmed: session.cloudSyncSnapshot.cloudCopyMayExist
+                            reimportConfirmed: CloudSyncSettingsPresentation
+                                .requiresReimportConfirmation(session.cloudSyncSnapshot)
                         )
                     }
                 }
@@ -279,7 +335,9 @@ private struct CloudSyncSettingsView: View {
             Button("common.cancel", role: .cancel) {}
         } message: {
             Text(
-                session.cloudSyncSnapshot.cloudCopyMayExist
+                CloudSyncSettingsPresentation.requiresReimportConfirmation(
+                    session.cloudSyncSnapshot
+                )
                     ? "settings.icloudSync.reimport.message"
                     : "settings.icloudSync.disclosure"
             )

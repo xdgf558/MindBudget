@@ -1085,3 +1085,36 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Treating different private databases as a convergence test; publishing
   raw iCloud record names; forcing an Apple Account change after the owner declined; deleting the
   reusable harness; or treating a cleanup pass as multi-device evidence.
+
+## DEC-COM-037 — Keep retained-cloud authority visible after local deletion
+
+- Status/date: **Accepted review-remediation boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/032
+- Context: Independent review found that local Delete All correctly preserved the durable
+  `cloudCopyMayExist` preference but then replaced the current `AppSession` snapshot with the
+  literal `.disabled`, whose marker is false. Until a later scene refresh, Settings hid the cloud
+  deletion action, showed the ordinary Enable disclosure, and sent an unconfirmed enable request
+  that the service correctly rejected without explanation.
+- Decision: `AppSession` never synthesizes a cloud-sync snapshot after local deletion. Once the
+  local store is cleared, `CloudSyncService` reloads the now-disabled control state, combines it
+  with the independent retained-copy marker, and publishes that authoritative snapshot in the
+  same session. Settings derives both the reimport confirmation and cloud-delete visibility from
+  that snapshot. An unconfirmed enable remains fail-closed; confirmed reimport may start transfer.
+- Deletion/conflict clarification: A cloud-wide deletion first persists local tombstone intent,
+  but confirmed whole-zone absence is the final privacy postcondition and does not wait to upload
+  each tombstone. Pending deletion displays a closed network/account/quota/failure reason plus a
+  safe Retry explanation and hides the ineffective ordinary Disable action. Keep-local/use-iCloud
+  conflict actions require two verified candidates and reusable CloudKit system fields; an
+  incomplete server conflict remains quarantined without changing local facts.
+- Environment clarification: The current authority is the provisioned exact container with
+  Development Debug and Production Release entitlements plus the checked remote-notification
+  plist. Earlier “no entitlement/unprovisioned constant” statements are explicitly time-boxed to
+  C4B-01/C4B-02; Production still has no deployed app schema or distribution authorization.
+- Evidence: The focused CloudSync + Phase 6 run passed 52 tests across two suites at
+  `/private/tmp/MindBudget-C4B03-ReviewRemediation-Focused1.xcresult`; the three destructive/
+  multi-device physical cases were explicit skips. Hosted CI and independent rereview remain
+  required.
+- Alternatives rejected: Clearing the durable marker with local facts; relying on scene activation
+  to repair the UI; letting the first Enable tap fail silently; allowing Disable to abandon a
+  pending zone deletion; resolving a content-free conflict; uploading every tombstone before the
+  stronger whole-zone delete; or rewriting historical phase evidence as if it had never been true.

@@ -45,17 +45,25 @@ operation or verification fails; a partial failure is never reported as complete
 
 The unreleased C4B-03 source keeps Delete All explicitly local-only. It stops sync and clears local
 facts plus local sync metadata while retaining a device marker that an iCloud copy may exist. A
-later Enable requires a separate reimport confirmation. Settings also provides an independent,
+later Enable requires a separate reimport confirmation. The marker is republished immediately
+after local deletion in the same app session, so Settings cannot hide the retained copy or silently
+send an unconfirmed enable request. Settings also provides an independent,
 destructive “Delete data from iCloud” action: after confirmation it deletes the whole app-owned
 private custom zone, preserves local facts, remains durably pending through interruption, and
-clears the marker only after CloudKit confirms deletion. Normal sync uses logical tombstones rather
-than physically deleting individual records. Conflict review exposes only the fact type and
-keep/delete operation, never the amount, merchant, note, reflection, or other record content.
+clears the marker only after CloudKit confirms deletion. It records durable local tombstone intent
+before the request, but whole-zone absence is the final postcondition; it does not first upload
+every tombstone. Pending deletion names a closed account/network/quota/failure reason and remains
+safe to retry without reuploading local facts. Normal sync uses logical tombstones rather than
+physically deleting individual records. Conflict review exposes only the fact type and keep/delete
+operation, never the amount, merchant, note, reflection, or other record content. Resolution is
+offered only for two complete verified candidates; an incomplete candidate stays quarantined.
 
 These statements describe unreleased source and deterministic local tests. The exact Development
-and Production entitlement files exist and Development provisioning accepted the exact container,
-but no real CloudKit request, Dashboard schema/deployment, physical multi-device lifecycle,
-distribution-signed binary, Production schema deployment, or release authorization is yet claimed.
+and Production entitlement files exist, Development provisioning accepted the exact container, one
+owner-authorized physical Development lifecycle passed, and read-only Dashboard inspection
+confirmed the encrypted Development record shape plus absence of a Production app schema. Physical
+multi-device/account/quota/offline/background-push evidence, a distribution-signed binary,
+Production schema deployment, and release authorization are not claimed.
 
 Future commercialization channels are not part of the currently uploaded 0.9.8 claim. Before the
 optional Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase

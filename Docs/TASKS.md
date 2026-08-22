@@ -397,3 +397,7 @@ PR #60 (`7138a9c`) closed the reviewed documentation gate with green run `324944
   merge remain pending. The signed two-device harness did not converge because the devices use
   different iCloud Apple Accounts; the owner stopped that attempt, and it is not counted as pass
   evidence. A subsequent 33/33 cleanup run confirmed the fixed Development zone is empty.
+  PR #61 review remediation now republishes the retained-cloud marker immediately after local
+  Delete All, keeps the reimport/cloud-delete UI accurate in the same session, displays closed
+  deletion retry reasons, and leaves incomplete cloud conflicts unresolvable. The focused
+  CloudSync/Phase 6 run passes 52 cases; rereview and current-head CI remain pending.

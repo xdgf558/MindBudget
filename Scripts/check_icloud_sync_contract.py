@@ -156,6 +156,10 @@ REQUIRED_RUNTIME_ANCHORS = {
         "record.encryptedValues[Self.encryptedEnvelopeKey]",
         "deleteRecordZone(withID: zoneID)",
         "recoverFromTrustBoundary",
+        "refreshAfterLocalDataDeletion",
+    ),
+    "MindBudget/App/AppRouter.swift": (
+        "await cloudSyncService.refreshAfterLocalDataDeletion()",
     ),
     "MindBudget/Data/DataController.swift": (
         "Schema(versionedSchema: SchemaV6.self)",
@@ -176,12 +180,19 @@ REQUIRED_RUNTIME_ANCHORS = {
         "CloudSyncConflictListView",
         "deleteCloudSyncData",
         "recoverCloudSyncFromLocalData",
+        "CloudSyncSettingsPresentation.requiresReimportConfirmation",
+        "CloudSyncSettingsPresentation.cloudDeletionGuidance",
     ),
     "MindBudgetTests/CloudSyncTests.swift": (
         "@Test(.enabled(if: Self.runsPhysicalCloudKitRuntimeTests))",
         "physicalDevelopmentCloudKitRoundTripPreservesLocalFactsAndDeletesTheZone",
         "#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS",
         "let deletion = await service.deleteCloudData()",
+        "serverSaveConflictLeavesTheOutboxBlockedAndTheRemoteCandidateQuarantined",
+    ),
+    "MindBudgetTests/Phase6FeatureTests.swift": (
+        "CloudSyncSettingsPresentation.showsCloudDeletionAction",
+        "await session.setCloudSyncEnabled(true, reimportConfirmed: true)",
     ),
 }
 

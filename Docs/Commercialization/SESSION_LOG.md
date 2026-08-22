@@ -2121,3 +2121,28 @@ The final current-source validation then passed every static contract, Release c
 physical CloudKit cases were explicit skips. The wall-clock benchmark was intentionally skipped
 after the loaded-host non-passes already recorded in Session 74; no new strict timing result is
 claimed, and the earlier accepted strict Dashboard pass remains separate regression evidence.
+
+## 2026-08-22 — Session 77 — Close PR #61 retained-copy review findings
+
+Independent review identified that the local-only Delete All path preserved the durable
+`cloudCopyMayExist` retention marker but replaced the current session snapshot with literal
+`.disabled`. That temporarily hid the cloud-delete control, selected the ordinary Enable
+disclosure, and then let the service silently reject unconfirmed reimport. DEC-COM-037 makes the
+service the post-deletion snapshot authority: it republishes disabled local control with retained
+cloud-copy knowledge in the same session. The regression proves cloud deletion remains visible,
+ordinary Enable constructs no adapter, and explicit reimport confirmation enables transport.
+
+The same remediation adds localized network/account/quota/failure guidance while cloud deletion is
+sticky, prevents ordinary Disable during that state, and pins content-free conflict quarantine as
+non-resolvable and non-mutating. The current contract now distinguishes durable local tombstone
+intent from whole-zone deletion, and time-boxes the old no-entitlement wording to C4B-01/C4B-02.
+
+The focused run passed 52 results at
+`/private/tmp/MindBudget-C4B03-ReviewRemediation-Focused1.xcresult`, including three explicit
+physical-only skips. An initial sandboxed full run is an environment non-pass because CoreSimulator
+was unavailable and DerivedData writes were denied. The accepted full run at
+`/private/tmp/MindBudget-C4B03-ReviewRemediation-Full2.xcresult` passed every static gate, Release
+compilation, 461 unit-test results across 27 suites, 17/17 UI tests, and all selected coverage
+thresholds; minimum selected coverage was 87.60% against 85%. The loaded-host wall-clock skip and
+external C4B-03 evidence gaps remain unchanged, so the phase is still In Progress pending hosted
+CI, re-review, merge, and the unwaived release gates.

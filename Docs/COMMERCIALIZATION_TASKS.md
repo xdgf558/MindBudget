@@ -424,6 +424,10 @@ merged it as `7138a9c`; C4B-03 is In Progress under the owner's formal entry.
   distinct iCloud-account fingerprints proved that the devices address different private
   databases; it is not claimed as a pass. Physical multi-device/account/quota/offline/push,
   Production deployment, distribution signing, review, hosted CI, and merge remain open.
+  PR #61 review remediation now preserves the retained-copy marker in the same session after local
+  Delete All, requires confirmed reimport before Enable, exposes closed cloud-deletion retry
+  reasons, and keeps incomplete conflict candidates quarantined. Focused CloudSync/Phase 6 tests
+  pass 52 cases; rereview and the current head's hosted CI remain open.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.

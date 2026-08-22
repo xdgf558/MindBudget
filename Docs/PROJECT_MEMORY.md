@@ -79,6 +79,12 @@ delete lifecycle while preserving the local expense. Read-only Dashboard inspect
 single encrypted Development app field and that Production has no app record type or deployed
 schema. These are unreleased implementation facts: physical multi-device/account/quota/offline/
 push, distribution signing, Production schema deployment, and release authority remain unproven.
+PR #61 review remediation removes the same-session Delete All presentation split: after local
+models and sync metadata are cleared, the service immediately republishes `.disabled` together
+with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed
+reimport. Pending cloud deletion now gives closed retry guidance, and incomplete cloud conflict
+candidates remain quarantined without an action. The focused CloudSync/Phase 6 run passed 52 tests
+with only the three physical probes skipped; rereview and current-head hosted CI remain open.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

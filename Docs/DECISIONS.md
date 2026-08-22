@@ -2563,3 +2563,23 @@ product failure, a pass, or a release waiver.
 Consequences: A subsequent 33/33 cleanup run proves the fixed Development zone is clean, not that
 two devices converged. C4B-03 remains In Progress with the other external, review, hosted-CI, and
 merge gates open.
+
+---
+
+## 2026-08-22 — Preserve retained-iCloud authority after local Delete All
+
+Context: Independent review of PR #61 found that local Delete All preserved the separate retained-
+cloud preference but overwrote `AppSession` presentation with a marker-free `.disabled` snapshot,
+temporarily hiding the cloud-delete action and reimport disclosure.
+
+Decision: Detailed ownership is DEC-COM-037. The sync service now republishes the disabled local
+control state combined with the durable retained-copy marker immediately after local deletion.
+Settings uses that one snapshot for reimport confirmation, cloud-delete visibility, and closed
+reason-specific retry guidance. Incomplete cloud conflict candidates remain quarantined without an
+unsafe resolution action, and whole-zone absence—not pre-upload of every tombstone—is the final
+cloud-deletion postcondition.
+
+Consequences: The same-session Delete All path cannot silently hide a retained cloud copy or issue
+an unconfirmed Enable. Focused CloudSync/Phase 6 tests pass 52 cases with only the three physical-
+only probes skipped. C4B-03 remains In Progress pending rereview, hosted CI, and its documented
+external lifecycle/release gates.

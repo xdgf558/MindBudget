@@ -975,9 +975,21 @@ struct CloudSyncTests {
         )
 
         let snapshot = try await actor.cloudSyncSnapshot()
+        let summary = try #require(try await actor.cloudSyncConflictSummaries().first)
         #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
         #expect(snapshot.pendingCount == 0)
         #expect(snapshot.quarantinedCount == 1)
+        #expect(!summary.canResolve)
+        #expect(summary.localOperation == .upsert)
+        #expect(summary.cloudOperation == nil)
+        await #expect(throws: CloudSyncApplicationError.self) {
+            try await actor.resolveCloudSyncConflict(
+                recordName: recordName,
+                resolution: .keepLocal,
+                at: fixedDate.addingTimeInterval(1)
+            )
+        }
+        #expect(try await actor.cloudSyncSnapshot().quarantinedCount == 1)
         #expect(try await actor.fetchExpenseSummaries().first?.amount.minorUnits == 1_234)
     }
 
@@ -1147,6 +1159,37 @@ struct CloudSyncTests {
         await service.setEnabled(true, reimportConfirmed: true)
         #expect(service.snapshot.isEnabled)
         #expect(probe.creationCount == 1)
+    }
+
+    @Test
+    func cloudDeletionGuidanceExposesClosedRetryReasonsWithoutReuploadPromises() {
+        func snapshot(reason: CloudSyncReasonCode?) -> CloudSyncSnapshot {
+            CloudSyncSnapshot(
+                isEnabled: true,
+                status: .deletingCloudData,
+                reason: reason,
+                pendingCount: 1,
+                quarantinedCount: 0,
+                cloudCopyMayExist: true
+            )
+        }
+
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: nil)
+        ) == .pending)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .networkUnavailable)
+        ) == .network)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .noAccount)
+        ) == .account)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .quotaExceeded)
+        ) == .quota)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(
+            for: snapshot(reason: .transportFailed)
+        ) == .failed)
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(for: .disabled) == nil)
     }
 
     @Test
@@ -1554,7 +1597,7 @@ struct CloudSyncTests {
 }
 
 @MainActor
-private final class CloudSyncAdapterProbe {
+final class CloudSyncAdapterProbe {
     let adapter = TestCloudSyncAdapter()
     private(set) var creationCount = 0
 
@@ -1565,7 +1608,7 @@ private final class CloudSyncAdapterProbe {
 }
 
 @MainActor
-private final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
+final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
     var onStatusChange: (@MainActor @Sendable () async -> Void)?
     private(set) var startCount = 0
     private(set) var synchronizeCount = 0
@@ -1584,7 +1627,7 @@ private final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
 }
 
 @MainActor
-private final class TestCloudSyncRetentionStore: CloudSyncRetentionPersisting {
+final class TestCloudSyncRetentionStore: CloudSyncRetentionPersisting {
     var cloudCopyMayExist: Bool
 
     init(cloudCopyMayExist: Bool) {

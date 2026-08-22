@@ -32,6 +32,7 @@ protocol CloudSyncServicing: AnyObject {
     func setEnabled(_ enabled: Bool, reimportConfirmed: Bool) async
     func retry() async
     func sceneDidBecomeActive() async
+    func refreshAfterLocalDataDeletion() async
     func conflicts() async -> [CloudSyncConflictSummary]
     func resolveConflict(recordName: String, resolution: CloudSyncConflictResolution) async -> Bool
     func deleteCloudData() async -> CloudSyncCloudDeletionOutcome
@@ -121,6 +122,14 @@ final class CloudSyncService: CloudSyncServicing {
     func sceneDidBecomeActive() async {
         await reloadSnapshot()
         await synchronizeAdapterIfPermitted()
+    }
+
+    /// Local Delete All removes the persisted sync control row but deliberately retains the
+    /// separate cloud-copy marker. Publish that combined state immediately so the current session
+    /// cannot hide a retained private copy or bypass the required reimport confirmation.
+    func refreshAfterLocalDataDeletion() async {
+        await stopAdapter()
+        await reloadSnapshot()
     }
 
     func conflicts() async -> [CloudSyncConflictSummary] {

@@ -959,3 +959,36 @@ two-device convergence and conflict resolution (the owner stopped the current di
 attempt without treating it as passed); push/background-delivery observation; a true
 distribution-signed Archive; Production schema deployment; independent review; hosted CI; and
 merge. Production schema deployment requires explicit owner acceptance.
+
+### PR #61 review remediation — 2026-08-22
+
+Independent review found that the local Delete All path preserved the UserDefaults retention
+marker but replaced the current `AppSession` snapshot with literal `.disabled`, temporarily hiding
+both the reimport disclosure and cloud-delete action. The remediation removes that synthetic state:
+after the local store is cleared, `CloudSyncService.refreshAfterLocalDataDeletion()` publishes the
+disabled local control combined with the retained-copy marker. The AppSession regression verifies
+that ordinary Enable remains rejected without constructing an adapter, confirmed reimport enables
+transport, and the cloud-delete presentation remains available in the same session.
+
+The same focused run also verifies closed network/account/quota/failure guidance for durable cloud
+deletion and that a content-free server conflict cannot expose either resolution action or mutate
+the local fact. Cloud-wide deletion documentation now distinguishes durable local tombstone intent
+from the stronger final whole-zone absence postcondition, and the environment contract distinguishes
+historical C4B-01/C4B-02 no-entitlement state from current C4B-03 entitlements.
+
+The exact focused command completed 52 tests in `CloudSyncTests` and `Phase6FeatureTests` with zero
+failures at `/private/tmp/MindBudget-C4B03-ReviewRemediation-Focused1.xcresult`; the three physical-
+only CloudKit cases were explicit skips. Static/full validation and hosted CI are recorded
+separately and remain required for the new review head.
+
+The first `Scripts/validate.sh` attempt for this head ran inside the filesystem sandbox. Its static
+checks passed, but CoreSimulator was unavailable and DerivedData writes were denied, so the Release
+build stopped and that attempt is an environment non-pass rather than product evidence.
+
+The accepted rerun outside that sandbox passed every static contract, Release compilation, 461
+unit-test results across 27 suites, 17/17 UI tests, and every selected coverage threshold at
+`/private/tmp/MindBudget-C4B03-ReviewRemediation-Full2.xcresult`. The three physical CloudKit cases
+were explicit skips and made no network request. Minimum selected coverage remained CSVExporter at
+87.60% against the required 85%. `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1` preserved the previously
+recorded loaded-host decision and does not manufacture a new strict performance result. Hosted CI
+on the pushed remediation head remains a separate merge gate.

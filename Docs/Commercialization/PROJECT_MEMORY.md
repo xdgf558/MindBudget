@@ -63,7 +63,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   switching accounts; no convergence pass is claimed. A follow-up 33/33 cleanup run at
   `/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult` confirms only that the fixed
   Development zone is clean. Physical multi-device/account/quota/offline/push,
-  distribution-signing, Production deployment, and release evidence remain open. The
+  distribution-signing, Production deployment, and release evidence remain open. PR #61 review
+  remediation now makes the service republish the retained-copy marker immediately after local
+  Delete All, drives reimport/cloud-delete UI from that one snapshot, exposes closed deletion retry
+  reasons, and keeps incomplete cloud candidates quarantined. The focused CloudSync/Phase 6 run
+  passed 52 tests with only three physical-only skips; rereview and current-head CI remain open. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for

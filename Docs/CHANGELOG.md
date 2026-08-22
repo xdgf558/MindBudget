@@ -7,6 +7,9 @@
   zone while keeping local facts, confirming reimport after a local-only reset, and rebuilding
   sync only after a trust-boundary warning. Cloud sync remains Free, default off, and unreleased;
   real multi-device and Production deployment gates are not yet satisfied.
+- Kept the retained-iCloud-copy warning and cloud-deletion action visible immediately after local
+  Delete All, and added reason-specific retry guidance while a separately confirmed cloud deletion
+  is waiting for network, account, quota, or service recovery.
 - Hardened the unreleased optional iCloud sync path so encrypted-key reset, missing-zone, and
   account-change pauses cannot be reopened by late retry callbacks; invalid allocations and
   divergent recurring claims now quarantine without changing local facts.
@@ -24,8 +27,9 @@ summary for the corresponding TestFlight “What to Test” or App Store “What
   private-database custom records while local reads and writes remain authoritative. Turning sync
   off keeps local data and the cloud copy; account changes, encrypted-key reset, malformed data,
   quota, network failure, and unresolved conflicts pause or defer transfer without blocking local
-  use. This source intentionally has no iCloud entitlement, provisioned container, Dashboard
-  deployment, cloud-wide deletion flow, or distribution authorization yet.
+  use. The current C4B-03 source now carries exact Development/Production entitlements and a
+  separately confirmed whole-zone deletion flow; Production schema deployment, distribution
+  authorization, and the remaining physical lifecycle gates are still absent.
 - Budget plans and category limits now reject values above MindBudget's documented safe minor-unit
   maximum consistently at entry and while opening an existing store. Existing invalid records are
   preserved for recovery rather than being silently changed to zero.

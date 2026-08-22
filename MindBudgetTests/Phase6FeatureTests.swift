@@ -439,6 +439,13 @@ struct Phase6FeatureTests {
         let notificationScheduler = TestDeletionNotificationScheduler(recorder: recorder)
         let indexCleaner = TestSearchIndexCleaner(recorder: recorder)
         let recoveryCleaner = TestMigrationRecoveryArtifactDeleter(recorder: recorder)
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let cloudSyncProbe = CloudSyncAdapterProbe()
+        let cloudSyncService = CloudSyncService(
+            dataActor: controller.dataActor,
+            adapterFactory: { _ in cloudSyncProbe.makeAdapter() },
+            retentionStore: retention
+        )
         let settings = testSettings()
         settings.firstLaunchCompleted = true
         settings.currencyCode = "USD"
@@ -448,7 +455,8 @@ struct Phase6FeatureTests {
             dataActor: controller.dataActor,
             notificationScheduler: notificationScheduler,
             searchIndexCleaner: indexCleaner,
-            migrationRecoveryArtifactDeleter: recoveryCleaner
+            migrationRecoveryArtifactDeleter: recoveryCleaner,
+            cloudSyncService: cloudSyncService
         )
 
         #expect(await session.deleteAllData(settings: settings))
@@ -462,6 +470,30 @@ struct Phase6FeatureTests {
         #expect(!settings.enableLocalNotifications)
         #expect(!settings.enableAIEnhancement)
         #expect(session.privacyDeletionState == .completed)
+        #expect(session.cloudSyncSnapshot == CloudSyncSnapshot(
+            isEnabled: false,
+            status: .disabled,
+            reason: nil,
+            pendingCount: 0,
+            quarantinedCount: 0,
+            cloudCopyMayExist: true
+        ))
+        #expect(CloudSyncSettingsPresentation.requiresReimportConfirmation(
+            session.cloudSyncSnapshot
+        ))
+        #expect(CloudSyncSettingsPresentation.showsCloudDeletionAction(
+            session.cloudSyncSnapshot
+        ))
+
+        await session.setCloudSyncEnabled(true)
+        #expect(!session.cloudSyncSnapshot.isEnabled)
+        #expect(session.cloudSyncSnapshot.cloudCopyMayExist)
+        #expect(cloudSyncProbe.creationCount == 0)
+
+        await session.setCloudSyncEnabled(true, reimportConfirmed: true)
+        #expect(session.cloudSyncSnapshot.isEnabled)
+        #expect(session.cloudSyncSnapshot.cloudCopyMayExist)
+        #expect(cloudSyncProbe.creationCount == 1)
     }
 
     @Test

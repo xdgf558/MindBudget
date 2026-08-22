@@ -40,8 +40,8 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring claim `<type>/<occurrenceKey>`, where the only accepted occurrence key is lower-case UUID + `:` + signed base-10 calendar year + `-` + two-digit month; `/`, `%`, controls, and caller strings are rejected |
 | Envelope | Closed `schemaVersion`, canonical `recordName`, `entityType`, `operation` (`upsert` or `tombstone`), per-record-lineage `revision`, informational `modifiedAt`, `parentSemanticDigest`, `semanticDigest`, and encrypted typed payload; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
-| Deletion | Logical tombstone has the same record name and participates in ordering; retain until C4B-03 proves compaction safety |
-| Environment | One accepted exact future container identifier `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
+| Deletion | Normal sync retains same-name logical tombstones indefinitely; separately confirmed cloud-wide deletion records local tombstone intent and then uses whole-zone absence as the final privacy postcondition |
+| Environment | One provisioned container `iCloud.com.xdgf558.MindBudget`; Debug selects Development and development push, Release selects Production and production push, and the same-named private custom zone remains environment-isolated; Production has no deployed app schema yet |
 | Background delivery | The app source plist contains exactly `UIBackgroundModes = [remote-notification]`; Debug and Release both reference it while their separate entitlement files retain Development/Production isolation |
 | Encryption | Typed ledger/note/reflection payload and semantic digest are one encrypted `Data` field in `CKRecord.encryptedValues`; only non-content routing metadata is unencrypted and no content field is indexed |
 | Attachments | Receipt images, OCR text/geometry, local intermediates, recovery artifacts, logs, StoreKit data, notification state, and config cache never enter CloudKit |
@@ -156,6 +156,10 @@ by wall clock, device identity, or last-writer-wins: both candidates enter durab
 the current valid local fact remains visible, and that record's transfer pauses for explicit
 resolution/visibility owned by C4B-03. A logical tombstone uses the same record name, rather than
 an immediate `CKRecord` delete, so reinstall/re-enable/full fetch cannot resurrect stale facts.
+Interactive keep-local/use-iCloud resolution is available only when both candidate envelopes decode,
+name the same lineage, and the CloudKit candidate includes reusable encoded system fields. A
+content-free server conflict, malformed envelope, or physical deletion remains quarantined with no
+destructive in-app shortcut; it cannot replace or delete the last valid local fact.
 `CKSyncEngine` account-change handling clears its pending state; MindBudget's durable outbox must
 remain separate, pause on account change, and require re-consent before any new-account upload.
 Remote fetched changes first enter a durable inbox/shadow. The app validates and topologically
@@ -193,24 +197,35 @@ The current Delete All action is explicitly local-only: it stops the adapter, re
 and local sync metadata, and does not write cloud tombstones or delete the private zone. Existing
 iCloud copies can therefore be imported if sync is enabled again. Settings and both confirmation
 steps disclose that boundary. C4B-03 must offer an explicit distinction between local delete,
-required cloud-wide delete, and disable while retaining cloud copy. Cloud-wide delete writes durable
-tombstones and reports pending completion while offline; local deletion remains available even if
-cloud deletion cannot start. Re-enable after local-only deletion needs confirmation before import.
+required cloud-wide delete, and disable while retaining cloud copy. Cloud-wide delete first records
+durable local tombstone intent and reports pending completion while offline, but it does not need to
+upload every tombstone before deletion: confirmed absence of the entire accepted custom zone is the
+final privacy postcondition. Local deletion remains available even if cloud deletion cannot start.
+Re-enable after local-only deletion needs confirmation before import, and the retained-copy marker
+must remain visible in the same app session rather than waiting for a later scene refresh.
 
 ## Environment and deployment boundary
 
-The accepted future identifier is `iCloud.com.xdgf558.MindBudget`, but it has not been created,
-provisioned, or deployed.
-One CloudKit container has strictly separate Development and Production environments selected by
-the provisioning entitlement, and each environment uses the same-named private custom zone. Apple
-documents the entitlement-selected environment and that deployment copies a tested Development
-schema to Production without copying records. C4B-01 adds neither entitlement nor schema.
+The current C4B-03 source uses the provisioned container `iCloud.com.xdgf558.MindBudget`. Debug
+selects the Development CloudKit environment plus development push through
+`MindBudgetDebug.entitlements`; Release selects Production plus production push through
+`MindBudgetRelease.entitlements`. Both configurations use the checked source plist whose only
+background mode is `remote-notification`. The environments never exchange records, the primary
+SwiftData store remains explicitly `.none`, and no public/shared database is permitted. Read-only
+Dashboard inspection confirmed the accepted encrypted record shape in Development and no app
+record type or deployed schema in Production. Production deployment and distribution remain
+separate owner gates.
+
+Historically, C4B-01 added neither entitlement nor schema, and C4B-02 kept the exact identifier as
+an unprovisioned source constant. Those phase-scoped facts are retained as entry history, not as a
+description of the current C4B-03 branch. Apple documents the entitlement-selected environment and
+that deployment copies a tested Development schema to Production without copying records.
 Sources: [CKContainer](https://developer.apple.com/documentation/cloudkit/ckcontainer) and
 [Deploying an iCloud Container’s Schema](https://developer.apple.com/documentation/cloudkit/deploying-an-icloud-container-s-schema).
 C4B-02P passed independent review and merged through PR #58 as `6f5fded`; the owner then explicitly
-started C4B-02. The exact identifier now exists only as an unprovisioned source constant: no iCloud
-entitlement, Dashboard container/schema, or verified request is added here. Team/roles and account
-matrix remain C4B-03 operational inputs. Neutral
+started C4B-02. At that phase's close, no iCloud entitlement, Dashboard container/schema, or
+verified request had been added. Team/roles and account matrix then became C4B-03 operational
+inputs. Neutral
 quota wording must say local data and edits remain safe and sync resumes after iCloud space/account
 availability; it must not promise a time or amount.
 
@@ -286,9 +301,10 @@ results—33 deterministic passes and three physical-only skips—at
 
 ## Unknowns and required evidence
 
-- The exact container identifier is present only as an unprovisioned source constant. No actual
-  container, entitlement, Dashboard schema, quota, push, physical account transition, request, or
-  multi-device convergence is claimed verified in C4B-02.
+- At the C4B-02 handoff, the exact container identifier was present only as an unprovisioned source
+  constant; that phase claimed no container, entitlement, Dashboard schema, quota, push, physical
+  account transition, request, or multi-device convergence. The current C4B-03 authority is the
+  environment boundary above.
 - Schema V6 keeps engine state, outbox, inbox, control, and encoded system fields in the same local
   protected store as explicit non-authoritative metadata. Applied inbox content is removed after
   accepted lineage metadata is committed; unresolved/quarantined content remains local for C4B-03

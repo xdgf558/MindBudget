@@ -693,6 +693,11 @@ final class AppSession: ObservableObject {
         privacyDeletionState = .inProgress(.deletingLocalData)
         do {
             try await dataActor.deleteAllUserData()
+            if let cloudSyncService {
+                await cloudSyncService.refreshAfterLocalDataDeletion()
+            } else {
+                cloudSyncSnapshot = .disabled
+            }
             try await migrationRecoveryArtifactDeleter.deleteRecoveryArtifacts()
             guard try await privacyDeletionVerifier.isDeletionComplete(in: dataActor) else {
                 privacyDeletionState = .failed(.deletingLocalData)
@@ -716,7 +721,6 @@ final class AppSession: ObservableObject {
         wishlistNavigationPath = []
         dataDidChange()
         privacyDeletionState = .completed
-        cloudSyncSnapshot = .disabled
         return true
     }
 
