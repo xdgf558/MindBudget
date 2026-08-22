@@ -3,14 +3,39 @@ import CryptoKit
 import Foundation
 
 @MainActor
+protocol CloudSyncRetentionPersisting: AnyObject {
+    var cloudCopyMayExist: Bool { get set }
+}
+
+@MainActor
+final class UserDefaultsCloudSyncRetentionStore: CloudSyncRetentionPersisting {
+    private static let storageKey = "cloudSyncCloudCopyMayExist"
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    var cloudCopyMayExist: Bool {
+        get { defaults.bool(forKey: Self.storageKey) }
+        set { defaults.set(newValue, forKey: Self.storageKey) }
+    }
+}
+
+@MainActor
 protocol CloudSyncServicing: AnyObject {
     var snapshot: CloudSyncSnapshot { get }
     var onSnapshotChange: (@MainActor @Sendable (CloudSyncSnapshot) -> Void)? { get set }
 
     func start() async
     func setEnabled(_ enabled: Bool) async
+    func setEnabled(_ enabled: Bool, reimportConfirmed: Bool) async
     func retry() async
     func sceneDidBecomeActive() async
+    func conflicts() async -> [CloudSyncConflictSummary]
+    func resolveConflict(recordName: String, resolution: CloudSyncConflictResolution) async -> Bool
+    func deleteCloudData() async -> CloudSyncCloudDeletionOutcome
+    func recoverFromTrustBoundary(_ recovery: CloudSyncTrustBoundaryRecovery) async -> Bool
     func stop() async
 }
 
@@ -20,6 +45,7 @@ final class CloudSyncService: CloudSyncServicing {
 
     private let dataActor: DataActor
     private let adapterFactory: AdapterFactory
+    private let retentionStore: any CloudSyncRetentionPersisting
     private var adapter: (any CloudSyncEngineAdapting)?
     private var adapterOperationTask: Task<Void, Never>?
     private var adapterOperationToken: UUID?
@@ -31,10 +57,20 @@ final class CloudSyncService: CloudSyncServicing {
 
     init(
         dataActor: DataActor,
-        adapterFactory: @escaping AdapterFactory = { CKSyncEngineAdapter(dataActor: $0) }
+        adapterFactory: @escaping AdapterFactory = { CKSyncEngineAdapter(dataActor: $0) },
+        retentionStore: any CloudSyncRetentionPersisting = UserDefaultsCloudSyncRetentionStore()
     ) {
         self.dataActor = dataActor
         self.adapterFactory = adapterFactory
+        self.retentionStore = retentionStore
+        snapshot = CloudSyncSnapshot(
+            isEnabled: false,
+            status: .disabled,
+            reason: nil,
+            pendingCount: 0,
+            quarantinedCount: 0,
+            cloudCopyMayExist: retentionStore.cloudCopyMayExist
+        )
     }
 
     deinit {
@@ -51,8 +87,20 @@ final class CloudSyncService: CloudSyncServicing {
     }
 
     func setEnabled(_ enabled: Bool) async {
+        await setEnabled(enabled, reimportConfirmed: false)
+    }
+
+    func setEnabled(_ enabled: Bool, reimportConfirmed: Bool) async {
+        if enabled, retentionStore.cloudCopyMayExist, !reimportConfirmed {
+            await reloadSnapshot()
+            return
+        }
         do {
             snapshot = try await dataActor.setCloudSyncEnabled(enabled)
+            if enabled, snapshot.isEnabled {
+                retentionStore.cloudCopyMayExist = true
+            }
+            snapshot = snapshotWithRetention(snapshot)
             publishSnapshot()
             if snapshot.isEnabled {
                 installSignalObserversIfNeeded()
@@ -75,6 +123,56 @@ final class CloudSyncService: CloudSyncServicing {
         await synchronizeAdapterIfPermitted()
     }
 
+    func conflicts() async -> [CloudSyncConflictSummary] {
+        (try? await dataActor.cloudSyncConflictSummaries()) ?? []
+    }
+
+    func resolveConflict(
+        recordName: String,
+        resolution: CloudSyncConflictResolution
+    ) async -> Bool {
+        do {
+            try await dataActor.resolveCloudSyncConflict(
+                recordName: recordName,
+                resolution: resolution
+            )
+            await reloadSnapshot()
+            await synchronizeAdapterIfPermitted()
+            return true
+        } catch {
+            await publishFailure(.localValidationFailed)
+            return false
+        }
+    }
+
+    func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
+        do {
+            snapshot = snapshotWithRetention(try await dataActor.beginCloudDeletion())
+            retentionStore.cloudCopyMayExist = true
+            publishSnapshot()
+            return await continueCloudDeletion()
+        } catch {
+            await publishFailure(.localValidationFailed)
+            return .failed(.localValidationFailed)
+        }
+    }
+
+    func recoverFromTrustBoundary(_ recovery: CloudSyncTrustBoundaryRecovery) async -> Bool {
+        guard recovery == .rebuildCloudFromLocal else { return false }
+        do {
+            await stopAdapter()
+            snapshot = snapshotWithRetention(try await dataActor.recoverCloudSyncFromLocalAuthority())
+            guard snapshot.isEnabled, snapshot.status == .starting else { return false }
+            retentionStore.cloudCopyMayExist = true
+            publishSnapshot()
+            await synchronizeAdapterIfPermitted()
+            return true
+        } catch {
+            await publishFailure(.localValidationFailed)
+            return false
+        }
+    }
+
     func stop() async {
         localChangeTask?.cancel()
         localChangeTask = nil
@@ -85,6 +183,10 @@ final class CloudSyncService: CloudSyncServicing {
 
     private func synchronizeAdapterIfPermitted() async {
         guard snapshot.permitsCloudTransport else { return }
+        if snapshot.status == .deletingCloudData {
+            _ = await continueCloudDeletion()
+            return
+        }
         if let adapterOperationTask {
             await adapterOperationTask.value
             return
@@ -123,6 +225,26 @@ final class CloudSyncService: CloudSyncServicing {
         adapter = nil
     }
 
+    private func continueCloudDeletion() async -> CloudSyncCloudDeletionOutcome {
+        if adapter == nil {
+            let created = adapterFactory(dataActor)
+            created.onStatusChange = { [weak self] in
+                guard let self else { return }
+                await self.reloadSnapshot()
+            }
+            adapter = created
+        }
+        let outcome = await adapter?.deleteCloudData()
+            ?? .failed(.transportFailed)
+        if outcome == .deleted {
+            retentionStore.cloudCopyMayExist = false
+            await adapter?.stop()
+            adapter = nil
+        }
+        await reloadSnapshot()
+        return outcome
+    }
+
     private func installSignalObserversIfNeeded() {
         if localChangeTask == nil {
             localChangeTask = Task { [weak self] in
@@ -149,7 +271,12 @@ final class CloudSyncService: CloudSyncServicing {
 
     private func reloadSnapshot() async {
         do {
-            snapshot = try await dataActor.cloudSyncSnapshot()
+            let persisted = try await dataActor.cloudSyncSnapshot()
+            // C4B-02 builds can already have an enabled control row but predate the separate
+            // retention marker. Conservatively infer that a cloud copy may exist whenever sync is
+            // enabled; only a confirmed whole-zone delete is allowed to clear this marker.
+            if persisted.isEnabled { retentionStore.cloudCopyMayExist = true }
+            snapshot = snapshotWithRetention(persisted)
             publishSnapshot()
         } catch {
             snapshot = CloudSyncSnapshot(
@@ -157,7 +284,8 @@ final class CloudSyncService: CloudSyncServicing {
                 status: .failed,
                 reason: .localValidationFailed,
                 pendingCount: snapshot.pendingCount,
-                quarantinedCount: snapshot.quarantinedCount
+                quarantinedCount: snapshot.quarantinedCount,
+                cloudCopyMayExist: retentionStore.cloudCopyMayExist
             )
             publishSnapshot()
         }
@@ -171,6 +299,17 @@ final class CloudSyncService: CloudSyncServicing {
     private func publishSnapshot() {
         onSnapshotChange?(snapshot)
     }
+
+    private func snapshotWithRetention(_ value: CloudSyncSnapshot) -> CloudSyncSnapshot {
+        CloudSyncSnapshot(
+            isEnabled: value.isEnabled,
+            status: value.status,
+            reason: value.reason,
+            pendingCount: value.pendingCount,
+            quarantinedCount: value.quarantinedCount,
+            cloudCopyMayExist: retentionStore.cloudCopyMayExist
+        )
+    }
 }
 
 private extension CloudSyncSnapshot {
@@ -180,7 +319,7 @@ private extension CloudSyncSnapshot {
         case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
             return false
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
-             .accountUnavailable, .quotaExceeded, .failed:
+             .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
             return true
         }
     }
@@ -191,6 +330,7 @@ protocol CloudSyncEngineAdapting: AnyObject {
     var onStatusChange: (@MainActor @Sendable () async -> Void)? { get set }
     func start() async
     func synchronize() async
+    func deleteCloudData() async -> CloudSyncCloudDeletionOutcome
     func stop() async
 }
 
@@ -269,6 +409,47 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             await handle(error)
         }
         await notifyStatusChange()
+    }
+
+    @MainActor
+    func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
+        if let engine = await lifecycle.engine { await engine.cancelOperations() }
+        await lifecycle.setEngine(nil)
+        guard let accountFailure = await deletionAccountFailure() else {
+            do {
+                _ = try await container.privateCloudDatabase.deleteRecordZone(withID: zoneID)
+                try await dataActor.completeCloudDeletion()
+                await notifyStatusChange()
+                return .deleted
+            } catch let error as CKError where error.code == .zoneNotFound {
+                // The explicit operation's postcondition is already true. This is distinct from
+                // an unsolicited zoneNotFound, which remains a sticky trust-boundary pause.
+                try? await dataActor.completeCloudDeletion()
+                await notifyStatusChange()
+                return .deleted
+            } catch {
+                let resolution = Self.statusResolution(for: error)
+                try? await dataActor.updateCloudDeletionReason(resolution.reason)
+                await notifyStatusChange()
+                switch resolution.reason {
+                case .noAccount, .accountChanged, .networkUnavailable, .quotaExceeded,
+                     .serviceUnavailable:
+                    return .pending(resolution.reason)
+                case .encryptedDataReset, .remoteZoneDeleted:
+                    // An explicit delete is complete when the accepted zone is absent.
+                    try? await dataActor.completeCloudDeletion()
+                    await notifyStatusChange()
+                    return .deleted
+                case .malformedRecord, .unsupportedSchema, .invalidIdentity, .invalidLineage,
+                     .divergentConflict, .missingParent, .physicalDeletion,
+                     .localValidationFailed, .transportFailed:
+                    return .failed(resolution.reason)
+                }
+            }
+        }
+        try? await dataActor.updateCloudDeletionReason(accountFailure)
+        await notifyStatusChange()
+        return .pending(accountFailure)
     }
 
     @MainActor
@@ -377,6 +558,19 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
         } catch {
             await handle(error)
             return false
+        }
+    }
+
+    private func deletionAccountFailure() async -> CloudSyncReasonCode? {
+        do {
+            guard try await container.accountStatus() == .available else { return .noAccount }
+            let userRecordID = try await container.userRecordID()
+            let identifierHash = CloudSyncCodec.digestHex(Data(userRecordID.recordName.utf8))
+            return try await dataActor.bindCloudSyncAccount(identifierHash: identifierHash)
+                ? nil
+                : .accountChanged
+        } catch {
+            return Self.statusResolution(for: error).reason
         }
     }
 

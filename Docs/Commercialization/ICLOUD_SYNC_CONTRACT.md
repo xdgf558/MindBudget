@@ -2,14 +2,13 @@
 
 ## Status
 
-Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 remains blocked pending closeout merge and
-formal entry.**
+Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 In Progress after PR #60 merge `7138a9c`.**
 
-This is the Accepted design and implementation contract, not authorization by itself to create or
-provision a CloudKit container, add an entitlement, deploy a Dashboard schema, prove a real request,
-or distribute the feature. PR #58 merged the prerequisites as `6f5fded`; reviewed C4B-02 head
-`0024507` then passed GitHub Actions run `32490174014`, and PR #59 merged it as `211dff2`.
-C4B-03 remains the operational/deletion/release gate.
+This is the Accepted design and implementation contract. PR #58 merged the prerequisites as
+`6f5fded`; reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59 merged
+it as `211dff2`. PR #60 (`7138a9c`) closed the documentation gate. C4B-03 may add the exact
+entitlement and operational surfaces, but neither a locally signed build nor source configuration
+authorizes Production schema deployment or distribution by itself.
 
 ## Scope and authority
 
@@ -43,9 +42,10 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
 | Deletion | Logical tombstone has the same record name and participates in ordering; retain until C4B-03 proves compaction safety |
 | Environment | One accepted exact future container identifier `iCloud.com.xdgf558.MindBudget`, not created here; entitlement-selected Development/Production environments and same-named private custom zone remain strictly separate |
+| Background delivery | The app source plist contains exactly `UIBackgroundModes = [remote-notification]`; Debug and Release both reference it while their separate entitlement files retain Development/Production isolation |
 | Encryption | Typed ledger/note/reflection payload and semantic digest are one encrypted `Data` field in `CKRecord.encryptedValues`; only non-content routing metadata is unencrypted and no content field is indexed |
 | Attachments | Receipt images, OCR text/geometry, local intermediates, recovery artifacts, logs, StoreKit data, notification state, and config cache never enter CloudKit |
-| Managed SwiftData sync | Every production `ModelConfiguration` across `MindBudget/**/*.swift` must explicitly use `cloudKitDatabase: .none`, and `ModelContainer` construction remains centralized in `DataController`, before any CloudKit entitlement/import |
+| Managed SwiftData sync | Every production `ModelConfiguration` across `MindBudget/**/*.swift` and every local test-store configuration across `MindBudgetTests/**/*.swift` must explicitly use `cloudKitDatabase: .none`; production `ModelContainer` construction remains centralized in `DataController`, before any CloudKit entitlement/import |
 | Disable/delete | Disable cancels transfer and retains local facts; remote deletion is separately confirmed and never silently implied |
 
 ## Why this architecture
@@ -261,6 +261,28 @@ opt-out, no account, offline, quota, duplicate delivery, account change, and att
 C4B-03 owns physical-device/multi-device lifecycle, Dashboard evidence, conflict/tombstone/delete
 retention, Development/Production isolation, disclosure, and release approval. Unit fakes alone
 cannot close C4B-03 claims.
+
+C4B-03 local validation includes 33 deterministic sync cases, a 45-test migration/free-
+tier regression after entitlement hardening, generated-plist verification for
+`remote-notification`, an accepted isolated strict Dashboard benchmark, and an exact-head full run
+with 460 unit results, 17/17 UI tests, and the selected coverage gate. The exact-head full run
+explicitly skipped the wall-clock benchmark after loaded-host non-passes rather than claiming a new
+strict result. A separately owner-authorized compile-time opt-in test adds one real
+physical Development private-database lifecycle case: zone create, encrypted record send/fetch,
+disable, confirmed reimport, whole-zone delete, and local-fact preservation. That single-device
+case is joined by read-only Dashboard evidence that Development contains only the accepted
+encrypted envelope field and Production contains no app record type. It does not replace
+offline/quota/account transitions, multi-device convergence/conflict evidence, distribution
+signing, or the owner-gated Production schema deployment.
+
+The optional two-device harness requires both physical devices to address the same iCloud private
+database. The prepared devices were otherwise signed and ready, but irreversible one-way account
+fingerprints differed, so their private databases could not exchange the fixed test record. The
+owner stopped the attempt without switching accounts. The test is therefore an explicit evidence
+gap, not a pass or a product failure. A final 33/33 cleanup run confirms only that the fixed
+Development zone is empty after the interrupted attempt. An ordinary simulator run then passed 36
+results—33 deterministic passes and three physical-only skips—at
+`/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`, proving the harness stays opt-in.
 
 ## Unknowns and required evidence
 

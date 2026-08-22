@@ -181,6 +181,8 @@ private struct CloudSyncSettingsView: View {
     @ObservedObject var session: AppSession
     @Environment(\.mindBudgetTheme) private var theme
     @State private var showsEnableConfirmation = false
+    @State private var showsCloudDeletionConfirmation = false
+    @State private var showsTrustRecoveryConfirmation = false
     @State private var isWorking = false
 
     var body: some View {
@@ -204,10 +206,15 @@ private struct CloudSyncSettingsView: View {
                     )
                 }
                 if session.cloudSyncSnapshot.quarantinedCount > 0 {
-                    LabeledContent(
-                        "settings.icloudSync.needsReview",
-                        value: String(session.cloudSyncSnapshot.quarantinedCount)
-                    )
+                    NavigationLink {
+                        CloudSyncConflictListView(session: session)
+                    } label: {
+                        LabeledContent(
+                            "settings.icloudSync.needsReview",
+                            value: String(session.cloudSyncSnapshot.quarantinedCount)
+                        )
+                    }
+                    .accessibilityIdentifier("settings.icloudSync.conflicts")
                 }
             } footer: {
                 Text("settings.icloudSync.disclosure")
@@ -224,12 +231,28 @@ private struct CloudSyncSettingsView: View {
                         Task { await perform { await session.setCloudSyncEnabled(false) } }
                     }
                     .disabled(isWorking)
-                } else {
+                } else if !isTrustBoundaryPaused {
                     Button("settings.icloudSync.enable") {
                         showsEnableConfirmation = true
                     }
                     .disabled(isWorking)
                     .accessibilityIdentifier("settings.icloudSync.enable")
+                }
+
+                if isTrustBoundaryPaused {
+                    Button("settings.icloudSync.recovery.rebuild") {
+                        showsTrustRecoveryConfirmation = true
+                    }
+                    .disabled(isWorking)
+                    .accessibilityIdentifier("settings.icloudSync.recovery.rebuild")
+                }
+
+                if session.cloudSyncSnapshot.cloudCopyMayExist {
+                    Button("settings.icloudSync.deleteCloud", role: .destructive) {
+                        showsCloudDeletionConfirmation = true
+                    }
+                    .disabled(isWorking || session.cloudSyncSnapshot.status == .deletingCloudData)
+                    .accessibilityIdentifier("settings.icloudSync.deleteCloud")
                 }
             } footer: {
                 Text("settings.icloudSync.disable.footer")
@@ -244,11 +267,46 @@ private struct CloudSyncSettingsView: View {
             titleVisibility: .visible
         ) {
             Button("settings.icloudSync.confirm.enable") {
-                Task { await perform { await session.setCloudSyncEnabled(true) } }
+                Task {
+                    await perform {
+                        await session.setCloudSyncEnabled(
+                            true,
+                            reimportConfirmed: session.cloudSyncSnapshot.cloudCopyMayExist
+                        )
+                    }
+                }
             }
             Button("common.cancel", role: .cancel) {}
         } message: {
-            Text("settings.icloudSync.disclosure")
+            Text(
+                session.cloudSyncSnapshot.cloudCopyMayExist
+                    ? "settings.icloudSync.reimport.message"
+                    : "settings.icloudSync.disclosure"
+            )
+        }
+        .confirmationDialog(
+            "settings.icloudSync.deleteCloud.confirm.title",
+            isPresented: $showsCloudDeletionConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("settings.icloudSync.deleteCloud.confirm.action", role: .destructive) {
+                Task { await perform { _ = await session.deleteCloudSyncData() } }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("settings.icloudSync.deleteCloud.confirm.message")
+        }
+        .confirmationDialog(
+            "settings.icloudSync.recovery.confirm.title",
+            isPresented: $showsTrustRecoveryConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("settings.icloudSync.recovery.confirm.action", role: .destructive) {
+                Task { await perform { _ = await session.recoverCloudSyncFromLocalData() } }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("settings.icloudSync.recovery.confirm.message")
         }
         .accessibilityIdentifier("settings.icloudSync.view")
     }
@@ -264,6 +322,7 @@ private struct CloudSyncSettingsView: View {
         case .pausedAccountChanged: "settings.icloudSync.status.accountChanged"
         case .pausedEncryptedDataReset: "settings.icloudSync.status.encryptedReset"
         case .pausedRemoteZoneDeleted: "settings.icloudSync.status.remoteZoneDeleted"
+        case .deletingCloudData: "settings.icloudSync.status.deletingCloudData"
         case .failed: "settings.icloudSync.status.failed"
         }
     }
@@ -273,8 +332,18 @@ private struct CloudSyncSettingsView: View {
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork:
             false
         case .accountUnavailable, .quotaExceeded, .pausedAccountChanged,
-             .pausedEncryptedDataReset, .pausedRemoteZoneDeleted, .failed:
+             .pausedEncryptedDataReset, .pausedRemoteZoneDeleted, .deletingCloudData, .failed:
             true
+        }
+    }
+
+    private var isTrustBoundaryPaused: Bool {
+        switch session.cloudSyncSnapshot.status {
+        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
+            true
+        case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
+             .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
+            false
         }
     }
 
@@ -283,6 +352,145 @@ private struct CloudSyncSettingsView: View {
         isWorking = true
         await operation()
         isWorking = false
+    }
+}
+
+private struct CloudSyncConflictListView: View {
+    @ObservedObject var session: AppSession
+    @Environment(\.mindBudgetTheme) private var theme
+    @State private var conflicts: [CloudSyncConflictSummary] = []
+    @State private var selectedConflict: CloudSyncConflictSummary?
+    @State private var selectedResolution: CloudSyncConflictResolution?
+    @State private var isWorking = false
+
+    var body: some View {
+        List {
+            if conflicts.isEmpty {
+                ContentUnavailableView(
+                    "settings.icloudSync.conflicts.empty.title",
+                    systemImage: "checkmark.icloud",
+                    description: Text("settings.icloudSync.conflicts.empty.message")
+                )
+            } else {
+                ForEach(conflicts) { conflict in
+                    Section {
+                        LabeledContent("settings.icloudSync.conflicts.type") {
+                            Text(entityName(conflict.entityType))
+                        }
+                        LabeledContent("settings.icloudSync.conflicts.local") {
+                            Text(operationName(conflict.localOperation))
+                        }
+                        LabeledContent("settings.icloudSync.conflicts.cloud") {
+                            Text(operationName(conflict.cloudOperation))
+                        }
+
+                        if conflict.canResolve {
+                            Button("settings.icloudSync.conflicts.keepLocal") {
+                                prepare(conflict, resolution: .keepLocal)
+                            }
+                            .disabled(isWorking)
+
+                            Button("settings.icloudSync.conflicts.useCloud") {
+                                prepare(conflict, resolution: .useCloud)
+                            }
+                            .disabled(isWorking)
+                        } else {
+                            Text("settings.icloudSync.conflicts.unavailable")
+                                .foregroundStyle(theme.attentionText)
+                        }
+                    } footer: {
+                        Text("settings.icloudSync.conflicts.privacy")
+                    }
+                }
+            }
+        }
+        .settingsListPresentation()
+        .navigationTitle("settings.icloudSync.conflicts.title")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await reload() }
+        .confirmationDialog(
+            "settings.icloudSync.conflicts.confirm.title",
+            isPresented: confirmationIsPresented,
+            titleVisibility: .visible
+        ) {
+            Button(confirmActionKey, role: selectedResolution == .useCloud ? .destructive : nil) {
+                Task { await applySelection() }
+            }
+            Button("common.cancel", role: .cancel) { clearSelection() }
+        } message: {
+            Text("settings.icloudSync.conflicts.confirm.message")
+        }
+        .accessibilityIdentifier("settings.icloudSync.conflicts.view")
+    }
+
+    private var confirmationIsPresented: Binding<Bool> {
+        Binding(
+            get: { selectedConflict != nil && selectedResolution != nil },
+            set: { if !$0 { clearSelection() } }
+        )
+    }
+
+    private var confirmActionKey: LocalizedStringKey {
+        selectedResolution == .useCloud
+            ? "settings.icloudSync.conflicts.useCloud"
+            : "settings.icloudSync.conflicts.keepLocal"
+    }
+
+    private func prepare(
+        _ conflict: CloudSyncConflictSummary,
+        resolution: CloudSyncConflictResolution
+    ) {
+        selectedConflict = conflict
+        selectedResolution = resolution
+    }
+
+    @MainActor
+    private func applySelection() async {
+        guard !isWorking, let selectedConflict, let selectedResolution else { return }
+        isWorking = true
+        _ = await session.resolveCloudSyncConflict(
+            recordName: selectedConflict.recordName,
+            resolution: selectedResolution
+        )
+        clearSelection()
+        await reload()
+        isWorking = false
+    }
+
+    @MainActor
+    private func reload() async {
+        conflicts = await session.cloudSyncConflicts()
+    }
+
+    private func clearSelection() {
+        selectedConflict = nil
+        selectedResolution = nil
+    }
+
+    private func entityName(_ entity: CloudSyncEntityType?) -> LocalizedStringKey {
+        switch entity {
+        case .expense: "settings.icloudSync.conflicts.entity.expense"
+        case .income: "settings.icloudSync.conflicts.entity.income"
+        case .savingsGoal: "settings.icloudSync.conflicts.entity.savingsGoal"
+        case .budgetPlan: "settings.icloudSync.conflicts.entity.budgetPlan"
+        case .budgetPlanSemantics: "settings.icloudSync.conflicts.entity.budgetPlanSemantics"
+        case .categoryBudget: "settings.icloudSync.conflicts.entity.categoryBudget"
+        case .incomeAllocation: "settings.icloudSync.conflicts.entity.incomeAllocation"
+        case .wishItem: "settings.icloudSync.conflicts.entity.wishlistItem"
+        case .coolingOffPlan: "settings.icloudSync.conflicts.entity.coolingOffPlan"
+        case .reflectionLog: "settings.icloudSync.conflicts.entity.reflectionLog"
+        case .recurringRule: "settings.icloudSync.conflicts.entity.recurringRule"
+        case .recurringOccurrence: "settings.icloudSync.conflicts.entity.recurringOccurrence"
+        case nil: "settings.icloudSync.conflicts.entity.unknown"
+        }
+    }
+
+    private func operationName(_ operation: CloudSyncOperation?) -> LocalizedStringKey {
+        switch operation {
+        case .upsert: "settings.icloudSync.conflicts.operation.keep"
+        case .tombstone: "settings.icloudSync.conflicts.operation.delete"
+        case nil: "settings.icloudSync.conflicts.operation.unknown"
+        }
     }
 }
 

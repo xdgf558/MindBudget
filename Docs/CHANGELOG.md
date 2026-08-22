@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added the unreleased C4B-03 controls for reviewing iCloud conflicts without revealing record
+  content, explicitly choosing the local or iCloud candidate, deleting the app's private iCloud
+  zone while keeping local facts, confirming reimport after a local-only reset, and rebuilding
+  sync only after a trust-boundary warning. Cloud sync remains Free, default off, and unreleased;
+  real multi-device and Production deployment gates are not yet satisfied.
 - Hardened the unreleased optional iCloud sync path so encrypted-key reset, missing-zone, and
   account-change pauses cannot be reopened by late retry callbacks; invalid allocations and
   divergent recurring claims now quarantine without changing local facts.

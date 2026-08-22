@@ -24,7 +24,8 @@ detailed phase checklists; it added no paid product behavior.
 
 - Active phase: **COM-C4B is In Progress. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
-  (`211dff2`). C4B-03 remains blocked pending this closeout review/CI/merge and formal entry.**
+  (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
+  `32494429474`; C4B-03 is In Progress under the owner's formal entry.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -390,8 +391,8 @@ Status: **In Progress.**
 
 C4B-01 is Done through PR #57 (`90a1e66`), and C4B-02P is Done through PR #58 (`6f5fded`).
 C4B-02 is Done through PR #59 (`211dff2`) after reviewed head `0024507` passed GitHub Actions run
-`32490174014`. C4B-03 remains blocked pending this documentation closeout review/CI/merge and
-formal entry.
+`32490174014`. Reviewed closeout head `b9944cd` passed GitHub Actions run `32494429474`, and PR #60
+merged it as `7138a9c`; C4B-03 is In Progress under the owner's formal entry.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -409,9 +410,20 @@ formal entry.
   consent, and a private-database `CKSyncEngine` adapter. No entitlement, container provisioning,
   Dashboard deployment, public/shared database, receipt image, or local intermediate transfer is
   claimed.
-- [B] **C4B-03 — Lifecycle and deletion.** Verify enable/disable/re-enable, entitlement changes,
-  local/cloud Delete All, conflict visibility, duplicate prevention, and failure isolation. The
-  owner authorized formal entry after this C4B-02 closeout merges; no C4B-03 work starts earlier.
+- [ ] **C4B-03 — Lifecycle and deletion.** Implement and verify enable/disable/re-enable,
+  entitlement changes, local/cloud Delete All, conflict visibility, duplicate prevention, and
+  failure isolation. The local implementation, conflict/deletion/reimport/recovery UI, exact
+  Development/Production entitlement split, deterministic 33-test suite, and signed build/archive
+  evidence are present. Corrected full local validation passed 456 unit tests, 17 UI tests, strict
+  Dashboard performance, Release, and coverage; an exact-head follow-up passed 460 unit results,
+  17/17 UI, Release, and coverage with the wall-clock benchmark explicitly skipped. The
+  owner-authorized physical Development suite
+  passed 33/33, including real zone create/send/fetch/disable/confirmed-reimport/delete with local
+  preservation. Read-only Dashboard inspection confirms one encrypted Development app field and no
+  Production app record type or deployed schema. A prepared two-device run was stopped after
+  distinct iCloud-account fingerprints proved that the devices address different private
+  databases; it is not claimed as a pass. Physical multi-device/account/quota/offline/push,
+  Production deployment, distribution signing, review, hosted CI, and merge remain open.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.

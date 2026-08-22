@@ -63,6 +63,7 @@ enum CloudSyncStatus: String, Codable, Equatable, Sendable {
     case pausedAccountChanged
     case pausedEncryptedDataReset
     case pausedRemoteZoneDeleted
+    case deletingCloudData
     case failed
 
     /// These states represent a changed trust boundary, not a retryable transport condition.
@@ -73,7 +74,7 @@ enum CloudSyncStatus: String, Codable, Equatable, Sendable {
         case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
             true
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
-             .accountUnavailable, .quotaExceeded, .failed:
+             .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
             false
         }
     }
@@ -121,14 +122,60 @@ struct CloudSyncSnapshot: Equatable, Sendable {
     let reason: CloudSyncReasonCode?
     let pendingCount: Int
     let quarantinedCount: Int
+    let cloudCopyMayExist: Bool
+
+    init(
+        isEnabled: Bool,
+        status: CloudSyncStatus,
+        reason: CloudSyncReasonCode?,
+        pendingCount: Int,
+        quarantinedCount: Int,
+        cloudCopyMayExist: Bool = false
+    ) {
+        self.isEnabled = isEnabled
+        self.status = status
+        self.reason = reason
+        self.pendingCount = pendingCount
+        self.quarantinedCount = quarantinedCount
+        self.cloudCopyMayExist = cloudCopyMayExist
+    }
 
     static let disabled = CloudSyncSnapshot(
         isEnabled: false,
         status: .disabled,
         reason: nil,
         pendingCount: 0,
-        quarantinedCount: 0
+        quarantinedCount: 0,
+        cloudCopyMayExist: false
     )
+}
+
+enum CloudSyncConflictResolution: Equatable, Sendable {
+    case keepLocal
+    case useCloud
+}
+
+struct CloudSyncConflictSummary: Identifiable, Equatable, Sendable {
+    var id: String { recordName }
+
+    let recordName: String
+    let entityType: CloudSyncEntityType?
+    let reason: CloudSyncReasonCode
+    let localOperation: CloudSyncOperation?
+    let cloudOperation: CloudSyncOperation?
+    let canResolve: Bool
+}
+
+enum CloudSyncCloudDeletionOutcome: Equatable, Sendable {
+    case deleted
+    case pending(CloudSyncReasonCode)
+    case failed(CloudSyncReasonCode)
+}
+
+enum CloudSyncTrustBoundaryRecovery: Equatable, Sendable {
+    /// Explicitly accepts this device's current local facts as the source for a newly created
+    /// private zone after an account switch, encrypted-key reset, or externally deleted zone.
+    case rebuildCloudFromLocal
 }
 
 /// Closed recurring identity shared by the recurrence engine and CloudKit record-name builder.
@@ -300,6 +347,16 @@ private struct CloudSyncSemanticDocument: Codable {
 }
 
 enum CloudSyncCodec {
+    /// Advances lineage without allowing a corrupted/private record at `Int64.max` to trap the
+    /// process. Exhausted ancestry is invalid and stays quarantined rather than wrapping or
+    /// inventing another revision.
+    static func nextRevision(after revision: Int64) throws -> Int64 {
+        guard revision >= 0 else { throw CloudSyncValidationError.invalidLineage }
+        let (next, overflow) = revision.addingReportingOverflow(1)
+        guard !overflow, next > 0 else { throw CloudSyncValidationError.invalidLineage }
+        return next
+    }
+
     static func makeEnvelope(
         payload: CloudSyncPayload?,
         entityType: CloudSyncEntityType,

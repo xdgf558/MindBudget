@@ -956,3 +956,132 @@ review, hosted-CI, and merge conditions. C4B-02 is Done. This evidence does not 
 entitlement, provision a container, deploy a Dashboard schema/environment, prove a real CloudKit
 request or physical multi-device lifecycle, delete cloud data, or distribute the feature. The
 owner authorized formal C4B-03 entry only after this documentation closeout passes review/CI/merge.
+
+## DEC-COM-032 — Own C4B-03 conflict, deletion, retention, and environment isolation
+
+- Status/date: **Accepted implementation boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/029/031
+- Entry evidence: Reviewed closeout head `b9944cd` passed GitHub Actions run `32494429474`; PR #60
+  merged it as `7138a9c`, satisfying the owner's formal-entry condition.
+- Environment decision: Debug selects `MindBudgetDebug.entitlements` with Development CloudKit and
+  development push; Release selects `MindBudgetRelease.entitlements` with Production CloudKit and
+  production push. Both name only `iCloud.com.xdgf558.MindBudget` and CloudKit. The primary
+  SwiftData store remains explicitly `.none`; no managed mirroring, public/shared database, or
+  second container is allowed.
+- Conflict decision: Quarantine remains no-winner. The conflict list exposes only the fact type and
+  keep/delete operation, never note, merchant, amount, or other record content. “Keep local” authors
+  a new descendant; “Use iCloud” applies the exact verified remote candidate. A malformed or
+  physical-deletion quarantine has no destructive resolution shortcut.
+- Deletion decision: Normal records retain same-name logical tombstones indefinitely. Explicit
+  cloud-wide deletion is a separate destructive confirmation that calls
+  `CKDatabase.deleteRecordZone(withID:)`, keeps local business facts, and durably remains pending
+  through network/account/quota interruption. Only confirmed whole-zone deletion clears the local
+  “cloud copy may exist” marker. Local Delete All keeps that marker; a later enable requires an
+  explicit reimport confirmation so retained remote facts never silently return.
+- Recovery decision: Account change, encrypted-data-key reset, and remote-zone loss stay sticky.
+  Ordinary Enable/Retry is hidden or rejected. Explicit rebuild clears only sync ancestry and
+  re-stages current local facts after the user accepts that the current iCloud account may already
+  hold a copy and divergence will return to quarantine rather than be auto-merged.
+- Release boundary: A signed Development build and local Release archive may prove source/profile
+  selection. They do not prove a real request, Dashboard schema, Production deployment,
+  distribution signing, physical multi-device convergence, quota/account lifecycle, or release.
+  Production schema deployment is one-way operational state and requires a separate explicit owner
+  confirmation.
+- Alternatives rejected: Per-record physical deletion during normal sync; automatic LWW/replica
+  winner; deleting local facts as a side effect of cloud deletion; clearing retained-copy state
+  before zone confirmation; treating a Release archive as Production deployment; or letting generic
+  retry clear a trust-boundary pause.
+
+## DEC-COM-033 — Keep background CloudKit delivery and every SwiftData test store explicit
+
+- Status/date: **Accepted implementation boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/029/031/032
+- Decision: The app-owned source plist contains exactly `UIBackgroundModes = [remote-notification]`
+  and both Debug and Release reference it. Environment selection remains exclusively in the two
+  exact entitlement files; the source plist cannot collapse Development and Production isolation.
+  Because the test host is now entitled, every `ModelConfiguration` used by a local test store must
+  explicitly select `cloudKitDatabase: .none`, just like production. The repository gate parses the
+  plist, checks both build-setting references, rejects alternate background modes, and scans test
+  fixtures for the same non-mirroring boundary.
+- Evidence: The entitlement first made six legacy migration fixtures fail because their default
+  `.automatic` configuration became observable. That run remains a non-pass. After every fixture
+  declared `.none`, the focused migration/free-tier regression passed 45/45 at
+  `/private/tmp/MindBudget-C4B03-Regression2.xcresult`. A fresh Debug build's generated plist was
+  read back with the exact remote-notification array. The corrected complete validation passed
+  Release compilation, static contracts, the isolated strict Dashboard benchmark, 456/456 unit
+  tests, 17/17 UI tests, and coverage at `/private/tmp/MindBudget-C4B03-Full1.xcresult`.
+- Boundary: This proves local configuration and regression safety only. It does not prove a real
+  push, CloudKit request, Dashboard environment, physical account/multi-device lifecycle,
+  distribution signing, Production schema deployment, review, hosted CI, merge, or release.
+- Alternatives rejected: Relying on generated-plist build settings that do not materialize in the
+  final app; letting the entitled test host infer `.automatic`; disabling the entitlement in tests
+  to hide the production-like default; or treating a successful local build as remote evidence.
+
+## DEC-COM-034 — Keep destructive CloudKit runtime evidence explicitly opt-in
+
+- Status/date: **Accepted implementation and evidence boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/029/031/032/033
+- Decision: The test that contacts the real private Development database and deletes the fixed
+  `MindBudget.Sync.v1` zone is disabled in every ordinary build. It compiles as enabled only when
+  the explicit `MINDBUDGET_PHYSICAL_CLOUDKIT_TESTS` Swift condition is supplied on a physical
+  device. A process environment variable is not used because Xcode does not forward the invoking
+  shell's value into the device test process. Function-level `-only-testing` is also not accepted
+  as evidence on this toolchain because it can discover the Swift Testing suite while executing
+  zero functions; evidence must report a nonzero exact total.
+- Owner authorization: The owner explicitly accepted that the fixed Development zone and any
+  existing Development records would be irrecoverably deleted by this probe. No Production
+  environment action was authorized.
+- Evidence: Final Xcode 26.6 (`17F113`) ran the complete `CloudSyncTests` suite on physical
+  `拉沙的iPhone` (`iPhone Air`), final iOS 26.6.1 (`23G82`). All 33 tests passed; the real case
+  took 9.358 seconds and exercised custom-zone creation, encrypted private-record send/fetch,
+  disable, confirmed reimport, whole-zone deletion, and local-expense preservation. Evidence:
+  `/private/tmp/MindBudget-C4B03-PhysicalCloudKit4.xcresult`.
+- Non-passes retained: The first result failed compilation because a suite-isolated test condition
+  was not `nonisolated`; the next two exact-function filters executed zero tests. None is counted
+  as CloudKit evidence.
+- Boundary: This closes one single-device Development request/deletion case only. It does not
+  close Dashboard inspection, push/background observation, offline/quota/account transition,
+  multi-device convergence/conflict, distribution signing, Production schema deployment, review,
+  hosted CI, merge, or release.
+- Alternatives rejected: Enabling destructive tests for every physical run; silently trusting a
+  zero-test green result; using Production; preserving the Development zone after the deletion
+  contract was explicitly under test; or treating one device as multi-device evidence.
+
+## DEC-COM-035 — Fail closed when CloudKit lineage revision space is exhausted
+
+- Status/date: **Accepted implementation boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/029/031/032
+- Decision: Every transition to a child CloudKit envelope uses one checked revision helper.
+  Revision zero may advance to genesis revision one, and `Int64.max - 1` may advance to
+  `Int64.max`; attempting to advance `Int64.max`, or any negative persisted ancestry, throws the
+  closed `invalidLineage` error. Local staging, remote acceptance, and explicit conflict
+  resolution all share this helper.
+- Consequence: A malformed or exhausted private record cannot crash the process through signed
+  integer overflow, wrap ancestry, or invent a winner. The affected record remains local and
+  failed closed for explicit support/recovery; normal budgeting facts are not rewritten.
+- Evidence: The focused exact-head run passed 34 results—33 deterministic cases and one explicit
+  physical-test skip—with zero failures at
+  `/private/tmp/MindBudget-C4B03-LineageBound.xcresult`.
+- Alternatives rejected: Unchecked `+ 1`; wrapping revision arithmetic; accepting a negative
+  revision; resetting exhausted ancestry automatically; or treating wall-clock/device identity as
+  a replacement conflict winner.
+
+## DEC-COM-036 — Record the stopped cross-account device run as an evidence gap
+
+- Status/date: **Accepted evidence boundary — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/032/034
+- Context: The signed two-device harness was prepared on two paired, Developer-Mode iPhones. After
+  local-network permission was enabled, one-way non-content fingerprints proved that the devices
+  use different iCloud Apple Accounts and therefore address different private CloudKit databases.
+- Decision: The owner declined an account switch and explicitly stopped the current two-device
+  convergence attempt. Keep the compile-time opt-in harness for a future same-account run, but do
+  not relabel the stopped run as passed, failed product behavior, or a release waiver. C4B-03
+  remains In Progress and its final evidence assessment must disclose this unproven item.
+- Cleanup evidence: The interrupted run's fixed Development zone was removed. The first cleanup
+  surfaced the leftover seed and is retained as a non-pass; the second passed 33/33 at
+  `/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult`, proving only that the test zone is
+  clean. The ordinary simulator configuration then passed 36 results—33 deterministic and three
+  physical-only skips—at `/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`.
+- Alternatives rejected: Treating different private databases as a convergence test; publishing
+  raw iCloud record names; forcing an Apple Account change after the owner declined; deleting the
+  reusable harness; or treating a cleanup pass as multi-device evidence.

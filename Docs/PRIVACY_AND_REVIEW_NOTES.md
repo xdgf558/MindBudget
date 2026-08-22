@@ -43,14 +43,22 @@ names the current stage. After deletion, the app re-queries every current model 
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
 
-In the unreleased C4B-02 source, this action remains explicitly local-only. It stops the sync
-adapter and clears local facts plus local sync metadata, but it does not author cloud tombstones or
-delete an iCloud zone. The Settings surface and confirmation copy warn that existing iCloud copies
-remain and may be imported if sync is enabled again. A separately confirmed cloud-wide deletion
-and confirmed reimport choice remain C4B-03 gates.
+The unreleased C4B-03 source keeps Delete All explicitly local-only. It stops sync and clears local
+facts plus local sync metadata while retaining a device marker that an iCloud copy may exist. A
+later Enable requires a separate reimport confirmation. Settings also provides an independent,
+destructive “Delete data from iCloud” action: after confirmation it deletes the whole app-owned
+private custom zone, preserves local facts, remains durably pending through interruption, and
+clears the marker only after CloudKit confirms deletion. Normal sync uses logical tombstones rather
+than physically deleting individual records. Conflict review exposes only the fact type and
+keep/delete operation, never the amount, merchant, note, reflection, or other record content.
 
-Future commercialization channels are not part of the current 0.9.x claim. Before an optional
-Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
+These statements describe unreleased source and deterministic local tests. The exact Development
+and Production entitlement files exist and Development provisioning accepted the exact container,
+but no real CloudKit request, Dashboard schema/deployment, physical multi-device lifecycle,
+distribution-signed binary, Production schema deployment, or release authorization is yet claimed.
+
+Future commercialization channels are not part of the currently uploaded 0.9.8 claim. Before the
+optional Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase
 must add current bilingual disclosure, App Privacy answers, channel-specific revoke/delete
 behavior, and signed release evidence. No forward-looking permission changes the current binary's
 local-only data handling.

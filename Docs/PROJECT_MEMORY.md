@@ -65,11 +65,20 @@ default-off private custom-record path has transactional outbox/inbox, 12 allow-
 logical tombstones, no-winner quarantine, account/key-reset pauses, and localized Settings consent.
 DEC-COM-031 closes the review gaps: destructive `zoneNotFound` errors and external remote-zone
 deletion/purge enter sticky pauses that delayed callbacks cannot reopen; invalid allocations and
-divergent recurring claims quarantine; parent-owned upserts require their parent key; and Delete
-All remains explicitly local-only until C4B-03 owns cloud-wide deletion/reimport.
-No entitlement, provisioned container, Dashboard deployment, verified CloudKit request,
-multi-device evidence, cloud-wide deletion, or release authority is claimed. C4B-03 remains blocked
-pending this closeout review/CI/merge; the owner has authorized formal entry only afterward.
+divergent recurring claims quarantine; parent-owned upserts require their parent key. Local Delete
+All remains distinct from the confirmed cloud-wide delete flow.
+PR #60's reviewed head `b9944cd` passed GitHub Actions run `32494429474` and merged as `7138a9c`,
+so C4B-03 is formally In Progress. The source candidate now adds exact Development/Production
+CloudKit entitlements, explicit conflict resolution, durable whole-zone cloud deletion that keeps
+local facts, retained-copy reimport confirmation, and explicit sticky trust recovery. The exact
+remote-notification source plist, non-mirrored entitled test fixtures, 32 focused sync tests, 45
+migration/free-tier regressions, and complete local validation (456 unit, 17 UI, strict Dashboard
+performance, Release, and coverage) are green. The owner-authorized physical Development suite
+also passed 33/33 and completed a real private-zone create/send/fetch/disable/confirmed-reimport/
+delete lifecycle while preserving the local expense. Read-only Dashboard inspection confirms the
+single encrypted Development app field and that Production has no app record type or deployed
+schema. These are unreleased implementation facts: physical multi-device/account/quota/offline/
+push, distribution signing, Production schema deployment, and release authority remain unproven.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

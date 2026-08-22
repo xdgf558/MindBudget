@@ -815,3 +815,147 @@ This closes C4B-02 source/review/CI/merge only. No iCloud entitlement, provision
 Dashboard schema/environment deployment, verified CloudKit request, physical multi-device/account/
 quota evidence, conflict-resolution UI, cloud-wide deletion, Archive, upload, tester, or
 distribution evidence is inferred. C4B-03 remains separately gated.
+
+## COM-C4B-03 implementation evidence in progress
+
+Reviewed closeout head `b9944cd` passed every step of GitHub Actions run `32494429474`; PR #60
+merged it as `7138a9c` on 2026-08-22, satisfying the owner's formal-entry condition.
+
+The current deterministic `CloudSyncTests` suite passed 32/32 with zero failures or skips at
+`/private/tmp/MindBudget-C4B03-Focused3.xcresult`. The added cases prove that explicit keep-local
+and use-iCloud resolutions author the accepted result without automatic winner selection; a
+tombstone/upsert conflict remains explicit; retained cloud state requires confirmed reimport;
+pre-marker enabled state conservatively creates the marker; whole-zone deletion keeps local facts
+and clears the marker only after confirmation; interrupted deletion survives process recreation;
+and explicit sticky recovery re-stages local authority without generic retry.
+
+Unsigned simulator `build-for-testing` passed after the localized Settings conflict/deletion/
+reimport/recovery surface was added. A generic signed Debug device build also succeeded at
+`/private/tmp/MindBudget-C4B03-GenericSigned1.xcresult`; its signed app selected the exact
+Development CloudKit container and development push entitlement under team `2AM5S7BM2N`. This
+initially proved only that Development provisioning accepted the exact container; the later
+physical request and read-only Dashboard evidence below close those separate gates.
+
+A local Release archive succeeded at `/private/tmp/MindBudget-C4B03-Release1.xcresult` and
+`/private/tmp/MindBudget-C4B03-Release1.xcarchive`. Its requested/signed CloudKit container
+environment is Production and exact container/service values match the Release entitlement file.
+Automatic signing nevertheless used an Apple Development identity/profile, so the embedded push
+entitlement is development and this archive is not distribution-signing or Production-deployment
+evidence. A direct physical-device build attempt was not executed because the previously visible
+iPhone disconnected from Xcode before destination selection; it is retained as an environment
+non-pass at that point, not a source failure. The device later reconnected for the accepted pass
+below.
+
+Adding the entitlement exposed six legacy migration fixtures whose local-only
+`ModelConfiguration` values had relied on the SDK's `.automatic` default. That first full
+validation attempt is retained as a non-pass: the entitled test host made the missing explicit
+`.none` observable. All test-store fixtures now state `cloudKitDatabase: .none`, and the iCloud
+static gate enforces that boundary across both production and test Swift sources. The corrected
+focused migration/free-tier regression passed 45/45 at
+`/private/tmp/MindBudget-C4B03-Regression2.xcresult`.
+
+The app now supplies `UIBackgroundModes = [remote-notification]` through the checked source plist
+`MindBudget/Resources/MindBudgetInfo.plist`; the generated Debug app plist was read back from a
+fresh build and contained that exact array. The repository gate parses the plist, verifies the
+Debug/Release build-setting references, rejects alternate background modes, and continues to
+require the exact environment-specific entitlement files.
+
+The corrected owning `Scripts/validate.sh` run passed on Xcode 26.6 / iOS 26.4.1 at
+`/private/tmp/MindBudget-C4B03-Full1.xcresult`: Release compilation, all static contracts, the
+isolated strict 10,000-row Dashboard benchmark, 456/456 unit tests across 27 suites, 17/17 UI tests,
+and every selected coverage threshold. The lowest selected coverage was CSVExporter at 87.60%,
+above the required 85%. This closes the local full-validation gate only.
+
+The owner explicitly authorized one destructive opt-in test against the app's fixed Development
+zone. Final Xcode 26.6 (`17F113`) then ran the complete `CloudSyncTests` suite on the physical
+`拉沙的iPhone` (`iPhone Air`) with final iOS 26.6.1 (`23G82`). All 33 tests passed with zero
+failures in `/private/tmp/MindBudget-C4B03-PhysicalCloudKit4.xcresult`; the real CloudKit case took
+9.358 seconds. It created the custom zone through the production `CKSyncEngine` adapter, sent and
+fetched the private encrypted envelope, disabled without forgetting that a cloud copy could exist,
+required explicit reimport confirmation, deleted the whole Development zone, and proved the local
+expense remained. The destructive test is compile-time opt-in and is skipped by ordinary local,
+CI, simulator, and physical-device test runs. The first physical result bundle is retained as a
+compiler non-pass; two later function-level filters executed zero Swift Testing cases and are not
+counted as evidence.
+
+The ordinary simulator configuration was then rerun without the opt-in compilation condition at
+`/private/tmp/MindBudget-C4B03-PostPhysical-Sim.xcresult`: 32 deterministic cases passed, the one
+destructive physical case was explicitly skipped, and no failure occurred. This proves the real
+probe did not accidentally make the destructive path part of ordinary simulator or CI execution.
+
+Read-only CloudKit Dashboard inspection for team `2AM5S7BM2N` and exact container
+`iCloud.com.xdgf558.MindBudget` confirmed that Development has one app record type,
+`MindBudgetEnvelopeV1`, with six system metadata fields plus exactly one app field,
+`envelope` (`ENCRYPTED BYTES`), and no single-field index. The destructive probe had removed the
+custom `MindBudget.Sync.v1` Development zone. Production contains only the system `Users` record
+type; `MindBudgetEnvelopeV1` is absent and `Deploy Schema Changes` is disabled. Screenshots:
+`/private/tmp/MindBudget-C4B03-Dashboard-Development-Envelope.png` and
+`/private/tmp/MindBudget-C4B03-Dashboard-Production-NoTypes.png`. No schema, role, permission,
+record, or environment mutation was performed, and Production deployment remains an explicit
+owner gate.
+
+A final current-source simulator validation then rebuilt Release, reran every static contract,
+and completed all 457 unit-test results without a failure; the 32 deterministic cloud-sync cases
+passed and the compile-time physical-zone case remained explicitly skipped. The 17-test UI run
+passed 16 test cases, but the pseudo-long-text case failed four downstream reachability assertions
+after its budget-save transition did not reach Dashboard. Xcode then hung while finalizing failure
+diagnostics/coverage, so `/private/tmp/MindBudget-C4B03-FinalWithoutWallClock.xcresult` is an
+incomplete result directory and is **not** accepted as a green bundle. The exact failed case was
+immediately rerun alone on the same iOS 26.5 simulator and passed 1/1 in 23.625 seconds with zero
+failures at `/private/tmp/MindBudget-C4B03-PseudoLong-Isolated.xcresult`; this supports an
+environmental long-run transition miss, but does not erase the integrated non-pass. Two isolated
+strict Dashboard attempts under the same loaded host measured 0.870945 and 0.752715 seconds against
+the 0.5-second local signal; the latter is retained at
+`/private/tmp/MindBudget-C4B03-PerformanceFinal.xcresult`. Neither is claimed as a performance
+pass. The earlier accepted `/private/tmp/MindBudget-C4B03-Full1.xcresult` remains prior full-suite
+regression context, not an exact-head substitute: it passed the strict benchmark, 456/456 units,
+17/17 UI, and coverage before the final lineage-overflow hardening below.
+
+Final source review found that advancing an already accepted or conflicted lineage at `Int64.max`
+could trap on integer overflow. DEC-COM-035 centralizes revision advancement as a throwing,
+fail-closed operation used by staging, remote acceptance, and explicit conflict resolution. The
+exact-head simulator run rebuilt the app and passed 34 `CloudSyncTests` results: 33 deterministic
+passes plus the one compile-time physical case explicitly skipped, with zero failures at
+`/private/tmp/MindBudget-C4B03-LineageBound.xcresult`. The later exact-head full result below closes
+the local UI/coverage gap; hosted CI remains a separate gate.
+
+A separate compile-time opt-in two-device harness was then built and signed for physical
+`拉沙的iPhone` (iPhone Air, iOS 26.6.1 `23G82`) and `Xiao li的 iPhone (2)` (iPhone 16, iOS
+26.5.2 `23F84`). The second device was paired, registered to team `2AM5S7BM2N`, placed in
+Developer Mode, and granted the app's local-network permission. Initial attempts were non-passes
+while that permission was denied. After permission was enabled, non-content one-way account
+fingerprints proved that the devices were signed into different iCloud Apple Accounts. Because a
+private CloudKit database is scoped to its
+iCloud account, these devices cannot observe one another's private-zone records. The owner chose
+not to switch accounts and explicitly stopped this two-device evidence attempt. No convergence or
+conflict pass is claimed, and the compile-time harness remains only a future evidence tool.
+
+The interrupted primary attempt left one Development seed in the fixed test zone. The first
+cleanup run imported that seed and therefore failed an older local-only count assertion before its
+whole-zone cleanup completed; it is retained as a non-pass at
+`/private/tmp/MindBudget-C4B03-PostMultiCleanup.xcresult`. A second cleanup run against the now-empty
+zone passed 33/33 with zero failures at
+`/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult`, confirming that the fixed Development
+zone is clean. This is cleanup evidence only, not two-device convergence evidence.
+
+The ordinary simulator configuration was then rebuilt without any physical-device compilation
+condition. Its 36 results contain 33 deterministic passes and three explicit skips for the
+single-device, multi-device-primary, and multi-device-secondary physical cases, with zero failures
+at `/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`. The retained harness therefore cannot
+contact CloudKit during ordinary simulator or hosted-CI execution.
+
+The final current-source `Scripts/validate.sh` run passed at
+`/private/tmp/MindBudget-C4B03-ExactHeadFull2.xcresult`: every static contract, Release
+compilation, 460 unit-test results across 27 suites, 17/17 UI tests, and all selected coverage
+thresholds. The three physical CloudKit cases were explicit skips; no remote request occurred. The
+minimum selected coverage remained CSVExporter at 87.60% against the required 85%. This run used
+the documented `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1` path after two loaded-host strict attempts
+had already been recorded as non-passes. It therefore does not claim a new exact-head wall-clock
+result; the earlier accepted strict pass in `MindBudget-C4B03-Full1.xcresult` remains separate
+Dashboard regression evidence because the later production changes are confined to CloudSync.
+
+Still pending: physical offline/quota/account transitions;
+two-device convergence and conflict resolution (the owner stopped the current different-account
+attempt without treating it as passed); push/background-delivery observation; a true
+distribution-signed Archive; Production schema deployment; independent review; hosted CI; and
+merge. Production schema deployment requires explicit owner acceptance.
