@@ -77,8 +77,9 @@ performance, Release, and coverage) are green. The owner-authorized physical Dev
 also passed 33/33 and completed a real private-zone create/send/fetch/disable/confirmed-reimport/
 delete lifecycle while preserving the local expense. Read-only Dashboard inspection confirms the
 single encrypted Development app field and that Production has no app record type or deployed
-schema. These are unreleased implementation facts: physical multi-device/account/quota/offline/
-push, distribution signing, Production schema deployment, and release authority remain unproven.
+schema. These are unreleased implementation facts: physical account/quota/offline/push,
+distribution signing, Production schema deployment, and release authority remain unproven; the
+physical same-account two-device evidence item is separately waived under DEC-COM-039 below.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed
@@ -86,10 +87,12 @@ reimport. Pending cloud deletion now gives closed retry guidance, and incomplete
 candidates remain quarantined without an action. The focused CloudSync/Phase 6 run passed 52 tests
 with only the three physical probes skipped; the exact-head full run passed 461 unit results,
 17/17 UI, Release, and coverage. Independent rereview approved head `f49de94`, GitHub Actions run
-`32571676058` passed, and PR #61 merged the product capability to `main` as `0f749ce`.
-The owner temporarily deferred the unavailable same-iCloud-account two-device rerun on 2026-08-22.
-That evidence remains unproven and is not recorded as a pass, permanent waiver, or phase exit;
-C4B-03 and COM-C4B remain In Progress, and C4C remains blocked.
+`32571676058` passed, and PR #61 merged the product capability to `main` as `0f749ce`. Reviewed
+documentation head `0350415` passed run `32573992659`, and PR #62 merged it as `0128682`.
+DEC-COM-039 permanently waives only the physical same-iCloud-account two-device evidence gate. The
+stopped different-account attempt remains a non-pass, and deterministic conflict/no-winner behavior
+remains required. C4B-03 and COM-C4B stay In Progress for account/offline/quota/background-push,
+distribution signing, and authorized Production/release evidence; C4C remains blocked.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

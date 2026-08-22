@@ -62,17 +62,20 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   Accounts and therefore different private databases. The owner stopped the attempt without
   switching accounts; no convergence pass is claimed. A follow-up 33/33 cleanup run at
   `/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult` confirms only that the fixed
-  Development zone is clean. Physical multi-device/account/quota/offline/push,
-  distribution-signing, Production deployment, and release evidence remain open. PR #61 review
+  Development zone is clean. Physical account/quota/offline/push, distribution-signing,
+  Production deployment, and release evidence remain open; the physical same-account two-device
+  item is separately waived under DEC-COM-039. PR #61 review
   remediation now makes the service republish the retained-copy marker immediately after local
   Delete All, drives reimport/cloud-delete UI from that one snapshot, exposes closed deletion retry
   reasons, and keeps incomplete cloud candidates quarantined. The focused CloudSync/Phase 6 run
   passed 52 tests with only three physical-only skips; the exact-head full run passed 461 unit
   results, 17/17 UI, Release, and coverage. Independent rereview approved head `f49de94`, GitHub
   Actions run `32571676058` passed, and PR #61 merged the product capability as `0f749ce`. On
-  2026-08-22 the owner temporarily deferred a same-account two-device rerun because it is not
-  currently available; this remains an unproven evidence gap, not a pass, permanent waiver, or
-  C4B-03 exit. The audit confirms that V1–V4 authoritative amounts
+  2026-08-22 reviewed calibration head `0350415` passed Actions run `32573992659`, and PR #62 merged
+  it as `0128682`. DEC-COM-039 permanently waives only the physical same-account two-device evidence
+  gate. The stopped different-account attempt remains a non-pass, while deterministic conflict/
+  no-winner behavior remains required. C4B-03 stays In Progress for every other evidence gate. The
+  audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
   the rebuildable merchant aggregate cache. The exact plan and matrix live in
@@ -389,7 +392,8 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 submission, or Production deployment followed.
 
 Next suggested task: finish only C4B-03. Exercise the remaining physical account/offline/quota/
-background-push behavior and keep both the stopped different-account attempt and owner-deferred
-same-account rerun disclosed as unproven evidence. Keep C4C and distribution blocked. Production schema
+background-push behavior. Keep the stopped different-account attempt disclosed as a non-pass and
+the same-account physical evidence item disclosed as permanently waived under DEC-COM-039. Keep
+C4C and distribution blocked. Production schema
 deployment remains an explicit owner decision and must not be inferred from the read-only Dashboard
 inspection or local Release archive.

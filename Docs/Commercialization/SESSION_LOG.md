@@ -2178,3 +2178,28 @@ Independent review of PR #62 found no P1/P2 issue and recommended approval after
 optional P3 status polish was accepted: the iCloud contract's current Status and introduction now
 name PR #61 (`0f749ce`) and use present tense for the merged entitlement/operational surfaces.
 Historical evidence sections remain append-only and were not rewritten.
+
+## 2026-08-22 — Session 79 — Permanently waive only same-account physical evidence
+
+The owner superseded DEC-COM-038's temporary deferral and permanently waived the physical
+same-iCloud-account two-device convergence/conflict evidence gate. DEC-COM-039 records that this is
+not a pass or product-failure finding. The stopped different-account attempt remains historical
+non-pass evidence, deterministic lineage/conflict/no-winner coverage remains mandatory, and the
+compile-time physical harness remains an optional diagnostic.
+
+The preceding calibration is now independently closed: reviewed head `0350415` passed GitHub
+Actions run `32573992659`, and PR #62 merged it as `0128682`. The permanent waiver removes only the
+same-account physical run from C4B-03/COM-C4B exit evidence. Physical account/offline/quota/
+background-push evidence, distribution signing, Production deployment/release authorization, C4C,
+and distribution remain open or blocked exactly as before. This session changes documentation and
+its static contract only; it performs no CloudKit, Production, archive, upload, or release action.
+
+Final static validation passes: money, network egress, commercialization documentation, StoreKit
+catalog 13/13, iCloud contract self-test/repository, Python syntax, shell syntax, and
+`git diff --check`. No runtime suite is rerun for this documentation-only scope; hosted CI remains
+the PR merge gate.
+
+Independent review of PR #63 found no P1/P2 issue and recommended approval after hosted CI. The
+optional P3 task-history clarification was accepted: `Docs/TASKS.md` now labels PR #62's temporary
+deferral text as a time-boxed state superseded by DEC-COM-039. DEC-COM-038 and other historical
+decision/evidence entries remain append-only.

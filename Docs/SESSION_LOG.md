@@ -5334,3 +5334,26 @@ PR #62 independent review found no P1/P2 issue and recommended approval after ho
 optional current-status cleanup was applied to `ICLOUD_SYNC_CONTRACT.md`: its opening now records
 PR #61 (`0f749ce`) and describes the already merged entitlement/operational surfaces in present
 tense. Older decision and CI sections remain chronological evidence and were not back-edited.
+
+## 2026-08-22 — Session 162 — Make the same-account physical evidence waiver permanent
+
+The owner permanently waived the physical same-iCloud-account two-device convergence/conflict
+evidence requirement. DEC-COM-039 supersedes DEC-COM-038's temporary scheduling boundary without
+rewriting it: the unexecuted run is not a pass, the different-account attempt remains a non-pass,
+and deterministic conflict/no-automatic-winner behavior remains part of the product contract. The
+opt-in physical harness stays available but is no longer an exit gate.
+
+Reviewed documentation head `0350415` passed GitHub Actions run `32573992659`, and PR #62 merged it
+as `0128682` before this new owner decision. C4B-03/COM-C4B remain In Progress for account/offline/
+quota/background-push, distribution signing, and authorized Production/release evidence. C4C and
+distribution remain blocked. This is documentation/static-contract work only and performs no
+runtime, CloudKit, Production, signing, upload, tester, or release action.
+
+Money, network-egress, commercialization-document, StoreKit catalog 13/13, iCloud contract
+self-test/repository, Python syntax, shell syntax, and `git diff --check` all pass. No runtime suite
+is rerun for this documentation-only calibration; hosted CI remains the PR merge gate.
+
+PR #63 independent review found no P1/P2 issue and recommended approval after hosted CI. The
+optional task-history polish was applied: the completed PR #62 item now explicitly says its
+temporary deferral was the then-current state and is superseded by DEC-COM-039. Historical decision
+and CI evidence remains chronological and was not rewritten.

@@ -26,7 +26,9 @@ detailed phase checklists; it added no paid product behavior.
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
   `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
-  and PR #61 merged it as `0f749ce`; C4B-03 remains In Progress for evidence closure.**
+  and PR #61 merged it as `0f749ce`. Reviewed calibration head `0350415` passed run `32573992659`,
+  and PR #62 merged it as `0128682`. DEC-COM-039 permanently waives only the physical same-account
+  two-device evidence gate; C4B-03 remains In Progress for every other evidence item.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -395,7 +397,9 @@ C4B-02 is Done through PR #59 (`211dff2`) after reviewed head `0024507` passed G
 `32490174014`. Reviewed closeout head `b9944cd` passed GitHub Actions run `32494429474`, and PR #60
 merged it as `7138a9c`. Reviewed C4B-03 product head `f49de94` passed GitHub Actions run
 `32571676058`, and PR #61 merged the accepted product capability as `0f749ce`; C4B-03 remains In
-Progress because its operational/release evidence is not closed.
+Progress because its operational/release evidence is not closed. Reviewed calibration head
+`0350415` passed run `32573992659`, and PR #62 merged it as `0128682`; DEC-COM-039 permanently
+waives only the physical same-account two-device evidence item.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -425,15 +429,17 @@ Progress because its operational/release evidence is not closed.
   preservation. Read-only Dashboard inspection confirms one encrypted Development app field and no
   Production app record type or deployed schema. A prepared two-device run was stopped after
   distinct iCloud-account fingerprints proved that the devices address different private
-  databases. On 2026-08-22 the owner temporarily deferred a same-account rerun; it is not a pass,
-  product failure, permanent waiver, or authorization to close C4B-03. Physical account/quota/
-  offline/push, Production deployment, and distribution signing remain open.
+  databases. DEC-COM-039 now permanently waives the physical same-account rerun as an exit-evidence
+  item; the stopped attempt is still not a convergence pass or product failure, and deterministic
+  conflict/no-winner behavior remains required. Physical account/quota/offline/push, Production
+  deployment, and distribution signing remain open.
   PR #61 preserves the retained-copy marker in the same session after local
   Delete All, requires confirmed reimport before Enable, exposes closed cloud-deletion retry
   reasons, and keeps incomplete conflict candidates quarantined. Focused CloudSync/Phase 6 tests
   passed 52 cases; the accepted exact-head full run passed 461 unit results, 17/17 UI, Release,
   and coverage. Independent rereview approved the product head, Actions run `32571676058` passed,
-  and PR #61 merged it as `0f749ce`.
+  and PR #61 merged it as `0f749ce`. Reviewed documentation head `0350415` then passed Actions run
+  `32573992659`, and PR #62 merged that calibration as `0128682`.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.

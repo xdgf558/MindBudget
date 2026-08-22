@@ -3,7 +3,8 @@
 ## Status
 
 Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 product capability merged through PR #61
-`0f749ce`; C4B-03 remains In Progress for operational and release evidence.**
+`0f749ce`; PR #62 merged its reviewed calibration as `0128682`; C4B-03 remains In Progress for
+operational and release evidence other than the permanently waived physical same-account run.**
 
 This is the Accepted design and implementation contract. PR #58 merged the prerequisites as
 `6f5fded`; reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59 merged
@@ -275,9 +276,11 @@ availability; it must not promise a time or amount.
 C4B-02 owns explicit `.none` primary-store hardening before entitlement, private-zone
 `CKSyncEngine` adapter, envelopes/outbox/staging, local status UI, and diagnostics. It must prove
 opt-out, no account, offline, quota, duplicate delivery, account change, and attachment exclusion.
-C4B-03 owns physical-device/multi-device lifecycle, Dashboard evidence, conflict/tombstone/delete
-retention, Development/Production isolation, disclosure, and release approval. Unit fakes alone
-cannot close C4B-03 claims.
+C4B-03 owns physical-device lifecycle, Dashboard evidence, conflict/tombstone/delete retention,
+Development/Production isolation, disclosure, and release approval. Deterministic multi-device
+lineage/conflict/no-winner behavior remains required, while DEC-COM-039 permanently waives only the
+physical same-account two-device run as exit evidence. Unit fakes alone cannot close other C4B-03
+claims.
 
 C4B-03 local validation includes 33 deterministic sync cases, a 45-test migration/free-
 tier regression after entitlement hardening, generated-plist verification for
@@ -289,8 +292,8 @@ physical Development private-database lifecycle case: zone create, encrypted rec
 disable, confirmed reimport, whole-zone delete, and local-fact preservation. That single-device
 case is joined by read-only Dashboard evidence that Development contains only the accepted
 encrypted envelope field and Production contains no app record type. It does not replace
-offline/quota/account transitions, multi-device convergence/conflict evidence, distribution
-signing, or the owner-gated Production schema deployment.
+offline/quota/account transitions, distribution signing, or the owner-gated Production schema
+deployment.
 
 The optional two-device harness requires both physical devices to address the same iCloud private
 database. The prepared devices were otherwise signed and ready, but irreversible one-way account
@@ -300,9 +303,10 @@ gap, not a pass or a product failure. A final 33/33 cleanup run confirms only th
 Development zone is empty after the interrupted attempt. An ordinary simulator run then passed 36
 results—33 deterministic passes and three physical-only skips—at
 `/private/tmp/MindBudget-C4B03-PostMultiDefault.xcresult`, proving the harness stays opt-in.
-On 2026-08-22 the owner temporarily deferred a same-account rerun because the required account
-arrangement is not currently available. This scheduling decision neither satisfies nor removes the
-multi-device convergence/conflict evidence requirement, and it cannot close C4B-03 or unblock C4C.
+DEC-COM-038 initially deferred a same-account rerun. DEC-COM-039 now permanently removes that
+physical run from the C4B-03/COM-C4B exit evidence. The waiver does not convert the stopped attempt
+into a pass, remove deterministic conflict/no-winner requirements, authorize Production/release,
+or waive any other physical evidence item.
 
 ## Unknowns and required evidence
 
@@ -316,5 +320,5 @@ multi-device convergence/conflict evidence requirement, and it cannot close C4B-
   visibility. None is an exported ledger or attachment channel.
 - The owner accepted the exact identifier, disclosure scope/copy, genesis rule, and quarantine
   responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
-  roles and test Apple IDs remain C4B-03 operational evidence inputs. Same-account multi-device
-  evidence is temporarily deferred, not passed or permanently waived.
+  roles and test Apple IDs remain C4B-03 operational evidence inputs. Physical same-account
+  multi-device evidence is permanently waived under DEC-COM-039 and is not recorded as passed.

@@ -2598,3 +2598,19 @@ product failure, permanent waiver, or release authorization.
 
 Consequences: Product review/CI/merge is closed, but C4B-03 and COM-C4B remain In Progress. C4C and
 distribution remain blocked while the other physical and release evidence gates stay open.
+
+---
+
+## 2026-08-22 — Permanently waive physical same-account two-device evidence only
+
+Context: DEC-COM-038 temporarily deferred the physical same-iCloud-account convergence/conflict
+run. The owner has now made that specific evidence deferral permanent. The preceding documentation
+calibration passed GitHub Actions run `32573992659` at head `0350415` and merged through PR #62 as
+`0128682`.
+
+Decision: Detailed ownership is DEC-COM-039. Remove only the physical same-account two-device run
+from the C4B-03/COM-C4B exit evidence. Do not call the unexecuted run a pass, and retain the
+deterministic conflict/no-winner contract plus the optional physical harness.
+
+Consequences: C4B-03 remains In Progress for account/offline/quota/background-push, distribution
+signing, and owner-authorized Production/release evidence. C4C and distribution remain blocked.
