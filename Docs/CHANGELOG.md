@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Corrected the unreleased, opted-in iCloud path so Apple's sync engine can respond to its private-
+  database subscription and silent background notifications. Explicit foreground Retry remains
+  available, and automatic scheduling still cannot bypass consent, local authority, conflict
+  quarantine, or sticky recovery pauses.
 - Added the unreleased C4B-03 controls for reviewing iCloud conflicts without revealing record
   content, explicitly choosing the local or iCloud candidate, deleting the app's private iCloud
   zone while keeping local facts, confirming reimport after a local-only reset, and rebuilding

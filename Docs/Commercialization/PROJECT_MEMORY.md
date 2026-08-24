@@ -62,9 +62,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   Accounts and therefore different private databases. The owner stopped the attempt without
   switching accounts; no convergence pass is claimed. A follow-up 33/33 cleanup run at
   `/private/tmp/MindBudget-C4B03-PostMultiCleanup2.xcresult` confirms only that the fixed
-  Development zone is clean. Physical account/quota/offline/push, distribution-signing,
+  Development zone is clean. Physical account/quota/offline, distribution-signing,
   Production deployment, and release evidence remain open; the physical same-account two-device
-  item is separately waived under DEC-COM-039. PR #61 review
+  item is separately waived under DEC-COM-039, and the physical background-push observation is
+  separately waived without a pass under DEC-COM-042. PR #61 review
   remediation now makes the service republish the retained-copy marker immediately after local
   Delete All, drives reimport/cloud-delete UI from that one snapshot, exposes closed deletion retry
   reasons, and keeps incomplete cloud candidates quarantined. The focused CloudSync/Phase 6 run
@@ -74,7 +75,17 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   2026-08-22 reviewed calibration head `0350415` passed Actions run `32573992659`, and PR #62 merged
   it as `0128682`. DEC-COM-039 permanently waives only the physical same-account two-device evidence
   gate. The stopped different-account attempt remains a non-pass, while deterministic conflict/
-  no-winner behavior remains required. C4B-03 stays In Progress for every other evidence gate. The
+  no-winner behavior remains required. Reviewed waiver head `7b23490` passed run `32576885537`, and
+  PR #63 merged it as `1a14df9`. DEC-COM-040 corrects the opted-in production engine from disabled
+  to enabled Apple automatic scheduling after the background-push evidence audit exposed the
+  mismatch. Its 38-result focused regression is green with three physical-only skips, and the
+  corrected 38-result Development physical rerun passes with only the two permanently waived
+  multi-device roles skipped. DEC-COM-041 then fixed delegate-task reentrancy and limited zone
+  creation to transport genesis; its final focused simulator run passed 37 tests with four
+  physical-only skips. Nine inspected background-push probe bundles produced zero passes.
+  DEC-COM-042 permanently waives only that physical observation and records it as not passed.
+  C4B-03 stays In Progress for physical account/offline/quota, distribution signing, and
+  authorized Production deployment/release evidence. The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
   is a recoverable pre-open backup/journal/validation boundary plus explicit currency ownership for
@@ -391,9 +402,11 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: finish only C4B-03. Exercise the remaining physical account/offline/quota/
-background-push behavior. Keep the stopped different-account attempt disclosed as a non-pass and
+Next suggested task: finish only C4B-03. Exercise or explicitly disposition the remaining physical
+account/offline/quota evidence. Keep the stopped
+different-account attempt disclosed as a non-pass and
 the same-account physical evidence item disclosed as permanently waived under DEC-COM-039. Keep
-C4C and distribution blocked. Production schema
+the physical background-push observation disclosed as permanently waived and not passed under
+DEC-COM-042. Keep C4C and distribution blocked. Production schema
 deployment remains an explicit owner decision and must not be inferred from the read-only Dashboard
 inspection or local Release archive.

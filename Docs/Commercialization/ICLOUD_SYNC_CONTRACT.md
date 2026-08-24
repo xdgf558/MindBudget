@@ -3,14 +3,17 @@
 ## Status
 
 Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 product capability merged through PR #61
-`0f749ce`; PR #62 merged its reviewed calibration as `0128682`; C4B-03 remains In Progress for
-operational and release evidence other than the permanently waived physical same-account run.**
+`0f749ce`; PR #62 merged its reviewed calibration as `0128682`; PR #63 merged the narrow evidence
+waiver as `1a14df9`; C4B-03 remains In Progress for operational and release evidence other than
+the permanently waived physical same-account and physical background-push observations; neither is
+recorded as passed.**
 
 This is the Accepted design and implementation contract. PR #58 merged the prerequisites as
 `6f5fded`; reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59 merged
 it as `211dff2`. PR #60 (`7138a9c`) closed the documentation gate. Reviewed C4B-03 product head
 `f49de94` passed GitHub Actions run `32571676058`, and PR #61 merged the exact entitlement and
-operational surfaces as `0f749ce`. Neither the merged source nor a locally signed build authorizes
+operational surfaces as `0f749ce`. Reviewed waiver head `7b23490` passed run `32576885537`, and PR
+#63 merged it as `1a14df9`. Neither the merged source nor a locally signed build authorizes
 Production schema deployment or distribution by itself.
 
 ## Scope and authority
@@ -45,7 +48,7 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
 | Deletion | Normal sync retains same-name logical tombstones indefinitely; separately confirmed cloud-wide deletion records local tombstone intent and then uses whole-zone absence as the final privacy postcondition |
 | Environment | One provisioned container `iCloud.com.xdgf558.MindBudget`; Debug selects Development and development push, Release selects Production and production push, and the same-named private custom zone remains environment-isolated; Production has no deployed app schema yet |
-| Background delivery | The app source plist contains exactly `UIBackgroundModes = [remote-notification]`; Debug and Release both reference it while their separate entitlement files retain Development/Production isolation |
+| Background delivery | The app source plist contains exactly `UIBackgroundModes = [remote-notification]`; Debug and Release both reference it while their separate entitlement files retain Development/Production isolation; an opted-in production `CKSyncEngine` keeps `automaticallySync = true` with the fixed private-database subscription ID, while explicit foreground retry remains available |
 | Encryption | Typed ledger/note/reflection payload and semantic digest are one encrypted `Data` field in `CKRecord.encryptedValues`; only non-content routing metadata is unencrypted and no content field is indexed |
 | Attachments | Receipt images, OCR text/geometry, local intermediates, recovery artifacts, logs, StoreKit data, notification state, and config cache never enter CloudKit |
 | Managed SwiftData sync | Every production `ModelConfiguration` across `MindBudget/**/*.swift` and every local test-store configuration across `MindBudgetTests/**/*.swift` must explicitly use `cloudKitDatabase: .none`; production `ModelContainer` construction remains centralized in `DataController`, before any CloudKit entitlement/import |
@@ -213,8 +216,13 @@ The current C4B-03 source uses the provisioned container `iCloud.com.xdgf558.Min
 selects the Development CloudKit environment plus development push through
 `MindBudgetDebug.entitlements`; Release selects Production plus production push through
 `MindBudgetRelease.entitlements`. Both configurations use the checked source plist whose only
-background mode is `remote-notification`. The environments never exchange records, the primary
-SwiftData store remains explicitly `.none`, and no public/shared database is permitted. Read-only
+background mode is `remote-notification`. An opted-in runtime keeps Apple's `CKSyncEngine`
+automatic scheduling enabled so its private-database subscription and silent notification can
+schedule remote fetches; explicit start, scene-activation, and Retry passes remain bounded manual
+entry points rather than substitutes for background delivery. Automatic scheduling never creates
+an adapter before consent, reopens a sticky trust-boundary pause, changes local authority, or
+bypasses inbox/quarantine rules. The environments never exchange records, the primary SwiftData
+store remains explicitly `.none`, and no public/shared database is permitted. Read-only
 Dashboard inspection confirmed the accepted encrypted record shape in Development and no app
 record type or deployed schema in Production. Production deployment and distribution remain
 separate owner gates.
@@ -295,6 +303,32 @@ encrypted envelope field and Production contains no app record type. It does not
 offline/quota/account transitions, distribution signing, or the owner-gated Production schema
 deployment.
 
+Evidence-closure audit found that the merged adapter had explicitly disabled
+`CKSyncEngine.Configuration.automaticallySync`, which made its checked background mode and push
+entitlement insufficient for real background delivery. DEC-COM-040 corrects production scheduling
+to `true` and pins the assignment in the static contract. The focused simulator regression at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Focused1.xcresult` passed all 38 selected results: 35
+deterministic passes and three explicit physical-only skips. This proves the source/configuration
+boundary and regression safety; it is not physical background-push evidence.
+
+The corrected configuration also passed 38/38 selected results on an iPhone Air in the Development
+environment at `/private/tmp/MindBudget-C4B03-AutomaticSync-Physical2.xcresult`: 36 passes, the two
+permanently waived multi-device roles explicitly skipped, and zero failures. The real lifecycle
+repeated zone create/send/fetch/disable/confirmed-reimport/whole-zone-delete with local-fact
+preservation, and runtime diagnostics showed background-task registration. No independent remote
+mutation arrived while the app was backgrounded, so the result does not close silent-push evidence.
+
+The assisted background-delivery probe produced nine inspected result packages from
+`MindBudget-C4B03-BackgroundPush6.xcresult` through
+`MindBudget-C4B03-BackgroundPush14.xcresult`. None observed an independent Development mutation
+arrive while the app remained backgrounded; the evidence count is zero passes. DEC-COM-041 keeps
+delegate cancellation outside the serialized callback task, clears only the matching engine, and
+allows fixed-zone creation only when no accepted serialization exists. The final focused simulator
+run passed 37 tests with four physical-only skips at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Focused6.xcresult`. DEC-COM-042 permanently waives only
+the physical background/silent-push observation from exit evidence, preserves all nine bundles as
+non-pass evidence, and leaves the opt-in harness available only as a diagnostic.
+
 The optional two-device harness requires both physical devices to address the same iCloud private
 database. The prepared devices were otherwise signed and ready, but irreversible one-way account
 fingerprints differed, so their private databases could not exchange the fixed test record. The
@@ -322,3 +356,8 @@ or waive any other physical evidence item.
   responsibility split above. Cloud-wide Delete All is required for COM-C4B completion; Dashboard
   roles and test Apple IDs remain C4B-03 operational evidence inputs. Physical same-account
   multi-device evidence is permanently waived under DEC-COM-039 and is not recorded as passed.
+- Automatic scheduling remains a required production configuration under DEC-COM-040. The
+  physical Development silent-push observation is permanently waived under DEC-COM-042 and is
+  explicitly not passed; simulator/static assertions prove only the implementation boundary.
+- Physical account/offline/quota, distribution signing, and owner-authorized Production deployment/
+  release evidence remain open. Neither physical-evidence waiver expands to those gates.

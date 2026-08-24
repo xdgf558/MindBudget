@@ -2614,3 +2614,55 @@ deterministic conflict/no-winner contract plus the optional physical harness.
 
 Consequences: C4B-03 remains In Progress for account/offline/quota/background-push, distribution
 signing, and owner-authorized Production/release evidence. C4C and distribution remain blocked.
+
+---
+
+## 2026-08-22 — Restore production CKSyncEngine background scheduling
+
+Context: While beginning the unwaived C4B-03 operational evidence, the remaining background-push
+probe exposed that the merged adapter explicitly disabled `CKSyncEngine` automatic scheduling.
+Checked push/background capabilities and foreground manual refresh cannot by themselves prove or
+provide silent-push-driven delivery.
+
+Decision: Detailed ownership is DEC-COM-040. After explicit sync opt-in, production engines keep
+Apple's automatic scheduler enabled and retain the fixed subscription ID. Explicit foreground
+Retry remains, while consent, local authority, quarantine, deletion, and sticky-pause behavior are
+unchanged.
+
+Consequences: Focused deterministic regression is green, but physical background-push evidence is
+still open. This correction does not authorize Production schema deployment, distribution, or a
+C4B-03/COM-C4B Done state.
+
+---
+
+## 2026-08-24 — Preserve CloudKit trust boundaries while automatic scheduling is enabled
+
+Context: The physical background-delivery probe exposed delegate reentrancy during sticky-pause
+cancellation and unconditional custom-zone creation for a transport restored from accepted engine
+serialization.
+
+Decision: Detailed ownership is DEC-COM-041. Delegate-triggered engine cancellation leaves the
+serialized callback task and clears only the matching engine. Only a newly consented transport with
+no accepted ancestry creates the fixed custom zone; restored transports fetch first and preserve
+remote-zone-loss/encrypted-reset as sticky authority.
+
+Consequences: Deterministic and static gates pin the correction. It is runtime safety evidence, not
+a physical background-push pass, Production authorization, or release evidence.
+
+---
+
+## 2026-08-24 — Permanently waive physical background-push evidence without a pass
+
+Context: Nine inspected result packages from `MindBudget-C4B03-BackgroundPush6.xcresult` through
+`MindBudget-C4B03-BackgroundPush14.xcresult` contain no independently observed Development mutation
+delivered while the app remained backgrounded. The owner has explicitly removed that physical
+observation from the exit evidence.
+
+Decision: Detailed ownership is DEC-COM-042. Permanently waive only the physical background/silent-
+push observation for C4B-03/COM-C4B. Record zero passes, keep the attempts as non-pass evidence, and
+retain the opt-in harness only as an optional diagnostic.
+
+Consequences: Automatic scheduling, the fixed subscription, checked entitlements/background mode,
+deterministic coverage, and every fail-closed boundary remain required. Physical account/offline/
+quota, distribution signing, and owner-authorized Production/release evidence remain open;
+C4B-03/COM-C4B remain In Progress and C4C remains blocked.

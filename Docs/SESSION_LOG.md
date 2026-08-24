@@ -5357,3 +5357,108 @@ PR #63 independent review found no P1/P2 issue and recommended approval after ho
 optional task-history polish was applied: the completed PR #62 item now explicitly says its
 temporary deferral was the then-current state and is superseded by DEC-COM-039. Historical decision
 and CI evidence remains chronological and was not rewritten.
+
+## 2026-08-22 — Session 163 — Begin unwaived C4B-03 evidence and repair automatic scheduling
+
+The owner started the remaining C4B-03 work after permanently waiving only same-account physical
+two-device evidence. Main was already synchronized at PR #63 merge
+`1a14df96d40d3248190d55861f88327407ea8f77`. GitHub confirms reviewed head `7b23490` passed Actions
+run `32576885537` before that merge. C4B-03 remains In Progress; the work is combined with this
+post-merge calibration rather than creating another documentation-only packet first.
+
+The evidence inventory found a real background-delivery blocker: the production adapter set
+`CKSyncEngine.Configuration.automaticallySync` to `false`. The existing checked
+`remote-notification` plist, environment-specific push entitlement, and stable subscription ID
+therefore could not make background push trigger automatic fetch/send. DEC-COM-040 changes the
+opted-in production engine to automatic scheduling while retaining explicit foreground Retry and
+every consent/local-authority/quarantine/sticky-pause boundary. The iCloud static contract now pins
+the assignment to the production-true policy.
+
+The focused CloudSync suite passed 38 selected results at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Focused1.xcresult`: 35 deterministic passes, three
+physical-only skips, and zero failures. The iCloud contract self-test/repository scan, Python
+syntax, and `git diff --check` also pass. This is regression/configuration evidence, not a physical
+silent-push observation.
+
+Read-only inventory found one usable paired physical Development iPhone and Apple Development
+identities, but no Apple Distribution identity. Distribution signing therefore remains open. No
+Production schema/deployment/release action was attempted. No supported non-destructive way to
+force a real private-database quota-exceeded state was found, so filling a person's iCloud storage
+is explicitly rejected as fabricated/destructive evidence; quota remains an owner evidence-boundary
+decision or requires a legitimately quota-limited test account.
+
+The exact-head full validation subsequently passed at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Full1.xcresult`: every static contract, Release, 462
+unit-test results across 27 suites, 17/17 UI tests, and all selected coverage thresholds.
+`xcresulttool` reports 479 combined results with zero failures, 469 passes, and ten explicit skips;
+minimum selected coverage remains CSVExporter at 87.60% against the required 85%. The wall-clock
+benchmark stayed explicitly skipped under the accepted loaded-host boundary, so no new strict
+performance claim is made. A Development physical rerun was prepared but could not start because
+Xcode reported the paired iPhone unavailable while browsing the local network and requested an
+unlocked attached device. This is an environment non-pass, not CloudKit, push, account, offline,
+or quota evidence.
+
+Next suggested task: install the corrected Development build and execute only safe account/offline/
+background-push probes with user-assisted device state changes. Keep physical quota, distribution
+signing, and Production/release gates open unless their separate prerequisites become available.
+
+## 2026-08-23 — Session 164 — Re-run corrected Development lifecycle on device
+
+The owner reattached and unlocked `拉沙的iPhone`; Xcode then reported it available over USB. The
+exact opt-in Development command passed all 38 selected `CloudSyncTests` at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Physical2.xcresult`: 36 passes, the two permanently
+waived multi-device roles explicitly skipped, and zero failures on iPhone Air / iOS 26.6.1. The
+real private-database case created the fixed Development zone, sent and fetched the encrypted
+envelope, disabled sync, required confirmed reimport, deleted the whole test zone, and preserved
+the local expense. Production remained untouched.
+
+The runtime registered `CKSyncEngine` background tasks after automatic scheduling was enabled.
+Disable/re-enable in the same process also produced Apple's duplicate-registration diagnostic;
+Apple's sample permits engine reinitialization, and the explicit lifecycle completed. No
+independent remote mutation arrived while the app was backgrounded, so this is not labeled a
+silent-push pass. Physical account transition/offline/quota, distribution signing, and authorized
+Production/release evidence remain open.
+
+## 2026-08-24 — Session 165 — Permanently waive physical background-push evidence without a pass
+
+The owner permanently waived only the C4B-03 physical background/silent-push observation and
+explicitly required that it not be recorded as passed. DEC-COM-042 records the narrow evidence-
+scope override. Nine inspected local result packages, `MindBudget-C4B03-BackgroundPush6.xcresult`
+through `MindBudget-C4B03-BackgroundPush14.xcresult`, contain zero qualifying background-delivery
+passes. They remain non-pass evidence; the compile-time probe remains an optional diagnostic.
+
+The probe sequence nevertheless exposed runtime trust-boundary defects. DEC-COM-041 moves delegate-
+triggered cancellation out of the serialized `CKSyncEngineDelegate` callback task, clears only the
+matching engine, and permits custom-zone creation only for a newly consented transport without
+accepted serialization. The exact focused simulator suite after the final correction passed 37
+tests with four physical-only skips and zero failures at
+`/private/tmp/MindBudget-C4B03-AutomaticSync-Focused6.xcresult`.
+
+The final physical probe reached READY but was canceled after the CloudKit Console was found to be
+acting as the wrong account; no external deletion or silent-push delivery was observed. Production
+was untouched. Because ordinary cleanup did not finish, the fixed Development test zone/record is
+conservatively treated as potentially remaining, not claimed clean. Automatic scheduling, checked
+capabilities, deterministic coverage, local authority, quarantine, and sticky recovery remain
+mandatory. Physical account/offline/quota, distribution signing, and authorized Production/release
+evidence remain open; C4B-03/COM-C4B remain In Progress and C4C remains blocked.
+
+Next suggested task: validate and independently review this exact correction/evidence-waiver head.
+
+Exact-head validation then found and corrected an XCTest-only query instability: SwiftUI can expose
+the quick-add action as either a `Button` or `DisclosureTriangle`, and can attach the same stable
+identifier to nested nodes. The UI harness now searches across element types and selects the first
+matching identifier. The English/Chinese category legend, Insights, and manual expense/income flows
+passed 4/4 at `/private/tmp/MindBudget-C4B03-Waiver-UIRerun5.xcresult`.
+
+After a simulator cold boot, the full validation entry passed at
+`/private/tmp/MindBudget-C4B03-Waiver-Full4.xcresult`: all static contracts, Release compilation,
+465 unit-test results, 17/17 UI tests, and every selected coverage threshold passed. The result
+summary contains 482 logical results, zero failures, 471 passes, and eleven explicit skips; minimum
+selected coverage is CSVExporter at 87.60%. Earlier transient and simulator-polluted full-run
+attempts remain non-green diagnostics and were not promoted to evidence. The strict wall-clock
+benchmark was explicitly skipped, so no new performance claim is made.
+
+DEC-COM-042 remains unchanged: physical background/silent-push observation has zero passes and is
+permanently waived, not passed. C4B-03/COM-C4B remain In Progress; account/offline/quota,
+distribution signing, and authorized Production deployment/release evidence remain open, and C4C
+remains blocked.

@@ -77,9 +77,10 @@ performance, Release, and coverage) are green. The owner-authorized physical Dev
 also passed 33/33 and completed a real private-zone create/send/fetch/disable/confirmed-reimport/
 delete lifecycle while preserving the local expense. Read-only Dashboard inspection confirms the
 single encrypted Development app field and that Production has no app record type or deployed
-schema. These are unreleased implementation facts: physical account/quota/offline/push,
+schema. These are unreleased implementation facts: physical account/quota/offline,
 distribution signing, Production schema deployment, and release authority remain unproven; the
-physical same-account two-device evidence item is separately waived under DEC-COM-039 below.
+physical same-account two-device evidence item is separately waived under DEC-COM-039 below, and
+the physical background-push observation is separately waived without a pass under DEC-COM-042.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed
@@ -91,8 +92,17 @@ with only the three physical probes skipped; the exact-head full run passed 461 
 documentation head `0350415` passed run `32573992659`, and PR #62 merged it as `0128682`.
 DEC-COM-039 permanently waives only the physical same-iCloud-account two-device evidence gate. The
 stopped different-account attempt remains a non-pass, and deterministic conflict/no-winner behavior
-remains required. C4B-03 and COM-C4B stay In Progress for account/offline/quota/background-push,
-distribution signing, and authorized Production/release evidence; C4C remains blocked.
+remains required. Reviewed waiver head `7b23490` passed GitHub Actions run `32576885537`, and PR #63
+merged it as `1a14df9`. The subsequent evidence audit found production `CKSyncEngine` automatic
+scheduling disabled despite the checked push/background capabilities. DEC-COM-040 corrects the
+opted-in engine to `automaticallySync = true`; 38 focused results pass with three physical-only
+skips, and the corrected 38-result Development physical rerun passes with only the two permanently
+waived multi-device roles skipped. DEC-COM-041 also removes delegate reentrancy and restricts custom-
+zone creation to transport genesis; its final focused simulator run passed 37 tests with four
+physical-only skips. Nine physical background-push result bundles contain zero passes. DEC-COM-042
+permanently waives only that physical observation and records it as not passed. C4B-03 and COM-C4B
+stay In Progress for account/offline/quota, distribution signing, and authorized Production/release
+evidence; C4C remains blocked.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration
