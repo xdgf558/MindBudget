@@ -2308,3 +2308,29 @@ skipped, so no new strict performance claim is made.
 This validation does not convert the physical background-push waiver into a pass. That pass count
 remains zero. C4B-03/COM-C4B remain In Progress with account/offline/quota, distribution signing,
 and authorized Production deployment/release evidence open; C4C remains blocked.
+
+## 2026-08-24 — Session 166 — Close C4B-03 with explicit non-pass and release ownership
+
+GitHub confirms reviewed final correction head `f1f37db` passed Actions run `32726507493`; PR #64
+merged it to `main` as `4f6d7fe`. Read-only closeout inventory found one paired physical iPhone
+available, no valid local Distribution codesigning identity, and no deployed Production app schema.
+No Production, Archive/upload, tester, review, or release action was attempted.
+
+The owner accepted DEC-COM-043. Physical account-switch, offline, and quota observations are now
+permanently waived and explicitly not passed, alongside the separately scoped same-account and
+background-push non-passes. Deterministic local-first/fail-closed account, offline, quota, retry,
+sticky-pause, conflict, deletion, and reimport coverage remains required and unchanged. Distribution
+signing and explicitly authorized Production schema/deployment/release proof are not waived; they
+move to COM-C6/COM-C12 and must close before their respective distribution/formal-release exits.
+
+C4B-03 and COM-C4B are Done, and C4C is unblocked with C4C-01 next. StoreKit authority and local
+Pro behavior remain independent of iCloud evidence. This documentation-only closeout adds no
+runtime, entitlement, schema, network, version, Archive, upload, tester, or release change.
+
+The complete local validation entry then passed on this documentation-only head: all static
+contracts, Release compilation, 465 unit-test results across 27 suites, 17/17 UI tests, and every
+selected core-service coverage threshold. CSVExporter was the minimum selected result at 87.60%
+against the required 85%. Four physical-only CloudSync probes remained explicit skips, so the run
+does not relabel any owner-waived observation as passed. A first sandboxed attempt lacked access to
+CoreSimulator/DerivedData and is recorded only as an environment non-pass; the unrestricted rerun
+is the accepted local closeout evidence.

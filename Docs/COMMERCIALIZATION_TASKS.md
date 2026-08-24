@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4B is In Progress. C4B-01 is Done through PR #57 (`90a1e66`),
+- Active phase: **COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
   `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
@@ -31,8 +31,11 @@ detailed phase checklists; it added no paid product behavior.
   PR #63 merged it as `1a14df9`. DEC-COM-039 permanently waives only the physical same-account
   two-device evidence gate; DEC-COM-040 restores opted-in automatic background scheduling;
   DEC-COM-041 preserves delegate/zone trust boundaries; and DEC-COM-042 permanently waives only
-  the physical background-push observation without recording a pass. C4B-03 remains In Progress
-  for every other unwaived evidence item.**
+  the physical background-push observation without recording a pass. Reviewed final correction
+  head `f1f37db` passed Actions run `32726507493`, and PR #64 merged it as `4f6d7fe`.
+  DEC-COM-043 permanently waives the physical account-switch/offline/quota observations without
+  recording passes and returns Distribution signing plus Production schema/deployment/release
+  proof to COM-C6/COM-C12. C4B-03 and COM-C4B are Done; COM-C4C is unblocked.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -394,17 +397,19 @@ Exit gate: accepted plan and full money/migration test matrix pass with a rehear
 
 ## COM-C4B — Free iCloud sync
 
-Status: **In Progress.**
+Status: **Done after the reviewed PR #64 merge `4f6d7fe`, green Actions run `32726507493`, and
+the owner-approved DEC-COM-043 evidence disposition.**
 
 C4B-01 is Done through PR #57 (`90a1e66`), and C4B-02P is Done through PR #58 (`6f5fded`).
 C4B-02 is Done through PR #59 (`211dff2`) after reviewed head `0024507` passed GitHub Actions run
 `32490174014`. Reviewed closeout head `b9944cd` passed GitHub Actions run `32494429474`, and PR #60
 merged it as `7138a9c`. Reviewed C4B-03 product head `f49de94` passed GitHub Actions run
-`32571676058`, and PR #61 merged the accepted product capability as `0f749ce`; C4B-03 remains In
-Progress because its operational/release evidence is not closed. Reviewed calibration head
+`32571676058`, and PR #61 merged the accepted product capability as `0f749ce`. Reviewed calibration head
 `0350415` passed run `32573992659`, and PR #62 merged it as `0128682`; DEC-COM-039 permanently
 waives only the physical same-account two-device evidence item. Reviewed waiver head `7b23490`
-passed run `32576885537`, and PR #63 merged it as `1a14df9`.
+passed run `32576885537`, and PR #63 merged it as `1a14df9`. Reviewed final correction head
+`f1f37db` passed run `32726507493`, and PR #64 merged it as `4f6d7fe`. DEC-COM-043 closes the
+remaining evidence ownership without changing runtime behavior or authorizing Production/release.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -422,7 +427,7 @@ passed run `32576885537`, and PR #63 merged it as `1a14df9`.
   consent, and a private-database `CKSyncEngine` adapter. No entitlement, container provisioning,
   Dashboard deployment, public/shared database, receipt image, or local intermediate transfer is
   claimed.
-- [ ] **C4B-03 — Lifecycle and deletion.** Implement and verify enable/disable/re-enable,
+- [x] **C4B-03 — Lifecycle and deletion.** Implement and verify enable/disable/re-enable,
   entitlement changes, local/cloud Delete All, conflict visibility, duplicate prevention, and
   failure isolation. The local implementation, conflict/deletion/reimport/recovery UI, exact
   Development/Production entitlement split, deterministic 33-test suite, and signed build/archive
@@ -436,8 +441,7 @@ passed run `32576885537`, and PR #63 merged it as `1a14df9`.
   distinct iCloud-account fingerprints proved that the devices address different private
   databases. DEC-COM-039 now permanently waives the physical same-account rerun as an exit-evidence
   item; the stopped attempt is still not a convergence pass or product failure, and deterministic
-  conflict/no-winner behavior remains required. Physical account/quota/offline, Production
-  deployment, and distribution signing remain open. DEC-COM-042 separately makes the physical
+  conflict/no-winner behavior remains required. DEC-COM-042 separately makes the physical
   background/silent-push observation permanently waived, not passed; the nine inspected probe
   bundles contain zero background-delivery passes and remain non-pass evidence.
   Evidence audit found the production engine's automatic scheduler disabled; DEC-COM-040 restores
@@ -455,14 +459,18 @@ passed run `32576885537`, and PR #63 merged it as `1a14df9`.
   passed 52 cases; the accepted exact-head full run passed 461 unit results, 17/17 UI, Release,
   and coverage. Independent rereview approved the product head, Actions run `32571676058` passed,
   and PR #61 merged it as `0f749ce`. Reviewed documentation head `0350415` then passed Actions run
-  `32573992659`, and PR #62 merged that calibration as `0128682`.
+  `32573992659`, and PR #62 merged that calibration as `0128682`. The final trust-boundary
+  correction passed reviewed head `f1f37db` and Actions run `32726507493`; PR #64 merged it as
+  `4f6d7fe`. DEC-COM-043 permanently waives the physical account-switch/offline/quota observations
+  as non-passes while preserving deterministic failure coverage, and assigns Distribution signing
+  plus Production schema/deployment/release proof to COM-C6/COM-C12.
 
 Exit gate: Free users can sync safely; CloudKit failure never blocks local use; deletion and
 retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **Blocked by COM-C4B.**
+Status: **In Progress — entered after PR #64 (`4f6d7fe`) closed COM-C4B; begin C4C-01 only.**
 
 - [B] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.

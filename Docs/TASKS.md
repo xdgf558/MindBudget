@@ -225,15 +225,18 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C4A Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
+Status: COM-C0A through COM-C4B Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
 through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 product capability
 merged through PR #61 (`0f749ce`) after reviewed head `f49de94` passed run `32571676058`; PR #62
 merged the reviewed calibration as `0128682` after run `32573992659`; DEC-COM-039 permanently
 waives only same-account physical evidence; reviewed waiver head `7b23490` passed run
 `32576885537` and PR #63 merged it as `1a14df9`; DEC-COM-040 restores opted-in automatic engine
 scheduling, DEC-COM-041 preserves delegate/zone trust boundaries, and DEC-COM-042 permanently
-waives only physical background-push observation without a pass; the phase remains In Progress for
-every other unwaived operational/release gate
+waives only physical background-push observation without a pass. Reviewed final head `f1f37db`
+passed run `32726507493`, and PR #64 merged it as `4f6d7fe`. DEC-COM-043 permanently waives the
+remaining physical account-switch/offline/quota observations as non-passes and assigns
+Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. C4C is
+unblocked; no release action is authorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -389,7 +392,7 @@ every other unwaived operational/release gate
   physical multi-device convergence, conflict resolution UI, cloud-wide deletion, and release.
 - [x] Close the C4B-02 documentation state after PR #59. Reviewed head `b9944cd` passed GitHub
   Actions run `32494429474`; PR #60 merged it as `7138a9c`, satisfying formal C4B-03 entry.
-- [ ] Complete C4B-03 lifecycle/deletion/release evidence. Source now includes explicit conflict
+- [x] Complete C4B-03 lifecycle/deletion evidence. Source now includes explicit conflict
   resolution, durable cloud-zone deletion, retained-copy reimport confirmation, sticky trust
   recovery, and exact Development/Production entitlements. Deterministic tests and signed local
   build/archive evidence pass; corrected full local validation passed 456 unit tests, 17 UI tests,
@@ -399,7 +402,8 @@ every other unwaived operational/release gate
   suite passed 33/33 with a real zone create/send/fetch/disable/confirmed-reimport/delete lifecycle
   and local preservation. Read-only Dashboard inspection confirms the exact encrypted Development
   record shape and that Production has no app record type or deployed schema. Physical account/
-  quota/offline, distribution signing, and Production deployment remain pending. The signed
+  quota/offline observations were not passed, and Distribution signing plus Production deployment
+  were not performed; DEC-COM-043 gives those gaps their final ownership below. The signed
   two-device harness did not converge because the devices use different iCloud Apple Accounts.
   DEC-COM-039 permanently waives the physical same-account rerun as an exit-evidence item without
   calling the stopped attempt a pass or weakening deterministic conflict/no-winner behavior. A
@@ -429,3 +433,8 @@ every other unwaived operational/release gate
   background-push result bundles contain zero passes; permanently waive only that physical
   observation, keep it labeled not passed, retain the optional probe, and preserve every source,
   deterministic, account/offline/quota, distribution, and Production/release gate.
+- [x] Close C4B-03 and COM-C4B after reviewed final head `f1f37db`, green Actions run
+  `32726507493`, and PR #64 merge `4f6d7fe`. Under DEC-COM-043, record physical account-switch,
+  offline, and quota observations as permanently waived non-passes; retain deterministic failure
+  coverage; and move Distribution signing plus Production schema/deployment/release proof to
+  COM-C6/COM-C12 without authorizing those actions. Unblock C4C-01.

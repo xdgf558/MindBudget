@@ -490,9 +490,8 @@ for c4b03_entry_anchor in \
   fi
 done
 
-# PR #61 closed the product review/CI/merge gates and PR #62 closed its documentation calibration,
-# but neither closed C4B-03's remaining operational/release evidence. DEC-COM-039 permanently
-# waives only the physical same-account run without turning it into convergence evidence.
+# PR #64 closes the reviewed C4B runtime correction. DEC-COM-043 closes C4B's evidence scope
+# without turning any physical waiver into a pass or weakening the later release gates.
 for c4b03_product_merge_anchor in \
   'f49de94' \
   '32571676058' \
@@ -503,10 +502,15 @@ for c4b03_product_merge_anchor in \
   '7b23490' \
   '32576885537' \
   '1a14df9' \
-  'C4B-03 remains In Progress' \
+  'f1f37db' \
+  '32726507493' \
+  '4f6d7fe' \
+  'C4B-03 and COM-C4B are Done' \
+  'COM-C4B is Done' \
   'permanently waive' \
   'not a pass' \
-  'DEC-COM-039'; do
+  'DEC-COM-039' \
+  'DEC-COM-043'; do
   if ! grep -Fq "${c4b03_product_merge_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -519,6 +523,28 @@ for c4b03_product_merge_anchor in \
       Docs/Commercialization/CI_BASELINE.md \
       Docs/Commercialization/DECISIONS.md; then
     echo "C4B-03 reviewed merge/permanent evidence waiver is missing: ${c4b03_product_merge_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c4b03_closeout_anchor in \
+  'physical account-switch/offline/quota observations' \
+  'not passed' \
+  'Distribution signing' \
+  'Production schema/deployment/release' \
+  'COM-C6/COM-C12' \
+  'C4C is unblocked'; do
+  if ! grep -Fq "${c4b03_closeout_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+      Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/DECISIONS.md; then
+    echo "C4B-03 final evidence/release disposition is missing: ${c4b03_closeout_anchor}" >&2
     exit 1
   fi
 done
@@ -597,7 +623,8 @@ done
 
 # DEC-COM-042 permanently removes only the physical background-push observation from exit
 # evidence. Current-state documents must not drift back to describing it as open or passed; the
-# source/deterministic boundary and every other operational/release gate remain mandatory.
+# source/deterministic boundary remains mandatory, while DEC-COM-043 separately owns final
+# account/offline/quota and release-gate disposition.
 for stale_c4b03_background_phrase in \
   'physical background-push observation remains open' \
   'silent-push evidence remains open' \

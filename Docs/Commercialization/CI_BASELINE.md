@@ -1144,3 +1144,28 @@ harness only. It does not change DEC-COM-042: physical background/silent-push ob
 passes and is permanently waived rather than passed. Physical account/offline/quota, distribution
 signing, and explicitly authorized Production deployment/release evidence remain open; C4B-03 and
 COM-C4B remain In Progress, and C4C remains blocked.
+
+### C4B-03 final merge and evidence disposition — 2026-08-24
+
+Reviewed correction head `f1f37db` passed every step of GitHub Actions run `32726507493`; PR #64
+merged it to `main` as `4f6d7fe`. This is the final runtime source evidence for C4B-03. The
+preceding 482-result exact-head validation, one successful physical Development zone lifecycle,
+read-only Dashboard environment/shape check, and deterministic account/offline/quota/conflict/
+deletion coverage remain the accepted technical evidence.
+
+Closeout inventory found one paired physical iPhone available and no valid local Distribution
+codesigning identity. Production still has no deployed app schema, and no Production, Archive,
+upload, tester, or release action was attempted. Under owner-approved DEC-COM-043, physical
+account-switch/offline/quota observations join the earlier same-account and background-push items
+as permanently waived non-passes. Distribution signing and explicitly authorized Production
+schema/deployment/release proof move to COM-C6/COM-C12 and remain mandatory there. This evidence
+ownership closes C4B-03/COM-C4B and unblocks C4C without creating a physical pass or release claim.
+
+The documentation-only closeout head passed `Scripts/validate.sh` locally after an initial
+sandbox-only CoreSimulator/DerivedData access failure was excluded as environment evidence. The
+accepted rerun passed every static contract, Release compilation, 465 unit-test results across 27
+suites, 17/17 UI tests, and every selected core-service coverage threshold. Four physical-only
+CloudSync probes remained explicit skips; the minimum selected coverage was CSVExporter at 87.60%
+against the required 85%. The validation script's ephemeral result bundle was
+`mindbudget-validation.D9L30N/MindBudget.xcresult` during the run and was removed by its normal
+temporary-directory cleanup after success.

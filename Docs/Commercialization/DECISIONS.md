@@ -1256,3 +1256,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   packages; disabling automatic scheduling after waiving its physical observation; broadening the
   waiver to account/offline/quota or release evidence; deleting deterministic coverage; or marking
   C4B-03/COM-C4B Done in this decision.
+
+## DEC-COM-043 — Close C4B with non-pass physical dispositions and retain release gates
+
+- Status/date: **Accepted owner evidence-scope and phase-ownership decision — 2026-08-24**
+- Requirements: REQ-ICLOUD-001; DEC-COM-039/040/041/042; COM-C4B/COM-C6/COM-C12
+- Context: Reviewed final correction head `f1f37db` passed GitHub Actions run `32726507493`, and
+  PR #64 merged it as `4f6d7fe`. The C4B product has deterministic account-change, offline,
+  quota, retry, sticky-pause, local-authority, conflict, deletion, and reimport coverage; a signed
+  physical Development lifecycle also passed. Physical same-account two-device and background-push
+  observations were already permanently waived without passes. The remaining physical account-
+  switch/offline/quota observations are unavailable or unsafe to force, the local keychain has no
+  valid Distribution identity, and Production has no deployed app schema. None of these gaps alters
+  StoreKit entitlement authority or local Pro behavior.
+- Decision: Permanently remove only the physical account-switch, offline, and quota observations
+  from the C4B-03/COM-C4B exit evidence. Record each as waived and not passed; retain all
+  deterministic local-first/fail-closed tests and closed product behavior. Reassign Distribution
+  signing and owner-authorized Production schema deployment, final-binary/traffic verification,
+  and release proof to COM-C6/COM-C12. Those release gates are not waived, and this decision does
+  not authorize any Production, Archive/upload, tester, review, or release action.
+- Consequences: C4B-03 and COM-C4B are Done, and COM-C4C is unblocked. The five physical evidence
+  dispositions—same-account two-device, background push, account switch, offline, and quota—remain
+  non-passes and cannot be cited as successful physical validation. Free iCloud sync stays
+  default-off and local-first; StoreKit purchase/restore/entitlement authority remains independent.
+  COM-C6/COM-C12 must still obtain the appropriate signing identity, explicitly authorized
+  Production schema/deployment evidence, and their full distribution/release proof before those
+  exits can close.
+- Alternatives rejected: Fabricating physical passes; weakening deterministic coverage; treating
+  a missing signing identity or undeployed Production schema as complete; deploying Production to
+  unblock local receipt work; allowing an iCloud failure to affect StoreKit or local Pro; or
+  waiving later distribution/release gates.
