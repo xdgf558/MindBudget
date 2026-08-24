@@ -5462,3 +5462,24 @@ DEC-COM-042 remains unchanged: physical background/silent-push observation has z
 permanently waived, not passed. C4B-03/COM-C4B remain In Progress; account/offline/quota,
 distribution signing, and authorized Production deployment/release evidence remain open, and C4C
 remains blocked.
+
+## 2026-08-24 — Close C4B-03 and move release proof to its owning phases
+
+GitHub confirms reviewed final head `f1f37db` passed Actions run `32726507493`, and PR #64 merged
+it as `4f6d7fe`. The owner accepted DEC-COM-043 after confirming that the remaining iCloud physical
+observations do not control StoreKit entitlement or local Pro access. Physical account switch,
+offline, and quota are permanently waived as non-passes; deterministic local-first/fail-closed
+coverage remains mandatory. Distribution signing and Production schema/deployment/release proof
+move to COM-C6/COM-C12 and remain required there. No Production or distribution action occurred.
+
+C4B-03 and COM-C4B are Done. C4C is unblocked, with C4C-01 as the next implementation packet.
+This session changes durable phase/evidence ownership only and introduces no runtime or user-visible
+behavior, so no changelog entry is required.
+
+The closeout branch then passed the complete local validation entry: every static contract, Release
+compilation, 465 unit-test results across 27 suites, 17/17 UI tests, and all selected core-service
+coverage thresholds. The lowest selected coverage was CSVExporter at 87.60% against the required
+85%. Four physical-only CloudSync probes remained explicit skips; this run does not convert any
+owner-waived physical observation into a pass. The first sandboxed validation attempt could not
+access CoreSimulator/DerivedData and is retained only as an environment non-pass; the unrestricted
+rerun above is the accepted local closeout evidence.

@@ -77,10 +77,10 @@ performance, Release, and coverage) are green. The owner-authorized physical Dev
 also passed 33/33 and completed a real private-zone create/send/fetch/disable/confirmed-reimport/
 delete lifecycle while preserving the local expense. Read-only Dashboard inspection confirms the
 single encrypted Development app field and that Production has no app record type or deployed
-schema. These are unreleased implementation facts: physical account/quota/offline,
-distribution signing, Production schema deployment, and release authority remain unproven; the
-physical same-account two-device evidence item is separately waived under DEC-COM-039 below, and
-the physical background-push observation is separately waived without a pass under DEC-COM-042.
+schema. These are unreleased implementation facts. The physical same-account, background-push,
+account-switch, offline, and quota observations are permanently waived non-passes under
+DEC-COM-039/042/043; deterministic failure behavior remains required. Distribution signing,
+Production schema deployment, and release authority remain COM-C6/COM-C12 gates.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed
@@ -100,9 +100,13 @@ skips, and the corrected 38-result Development physical rerun passes with only t
 waived multi-device roles skipped. DEC-COM-041 also removes delegate reentrancy and restricts custom-
 zone creation to transport genesis; its final focused simulator run passed 37 tests with four
 physical-only skips. Nine physical background-push result bundles contain zero passes. DEC-COM-042
-permanently waives only that physical observation and records it as not passed. C4B-03 and COM-C4B
-stay In Progress for account/offline/quota, distribution signing, and authorized Production/release
-evidence; C4C remains blocked.
+permanently waives only that physical observation and records it as not passed. Reviewed final
+correction head `f1f37db` passed GitHub Actions run `32726507493`, and PR #64 merged it as
+`4f6d7fe`. Under owner-approved DEC-COM-043, physical account-switch/offline/quota observations are
+permanently waived and explicitly not passed, while deterministic local-first/fail-closed coverage
+remains mandatory. Distribution signing and Production schema/deployment/release proof move to
+COM-C6/COM-C12 and are not waived or authorized here. C4B-03 and COM-C4B are Done; C4C is
+unblocked, with C4C-01 next.
 The C4A audit
 found no V1–V4 floating-point amount conversion to perform:
 authoritative amounts are already `Int64` minor units. The missing delta is a recoverable migration

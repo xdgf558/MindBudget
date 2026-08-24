@@ -67,7 +67,10 @@ app schema. DEC-COM-039 permanently waives only the physical same-account two-de
 the stopped different-account attempt is not a convergence pass, and deterministic conflict/
 no-winner behavior remains required. Physical account/quota/offline/background-push evidence, a
 distribution-signed binary, Production schema deployment, and release authorization are not
-claimed. C4B-03 remains In Progress and C4C remains blocked.
+claimed. DEC-COM-042/043 permanently waive the named physical background/account/offline/quota
+observations as non-passes; deterministic protections remain required. Reviewed final head
+`f1f37db` passed run `32726507493`, and PR #64 merged it as `4f6d7fe`. C4B-03/COM-C4B are Done and
+C4C is unblocked, while Distribution and Production/release evidence remain COM-C6/COM-C12 gates.
 
 Future commercialization channels are not part of the currently uploaded 0.9.8 claim. Before the
 optional Free iCloud, first-party telemetry, or consented cloud-AI channel can ship, its owning COM phase

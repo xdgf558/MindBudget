@@ -2666,3 +2666,20 @@ Consequences: Automatic scheduling, the fixed subscription, checked entitlements
 deterministic coverage, and every fail-closed boundary remain required. Physical account/offline/
 quota, distribution signing, and owner-authorized Production/release evidence remain open;
 C4B-03/COM-C4B remain In Progress and C4C remains blocked.
+
+---
+
+## 2026-08-24 — Close COM-C4B without weakening later release gates
+
+Context: Reviewed final C4B correction head `f1f37db` passed GitHub Actions run `32726507493`, and
+PR #64 merged it as `4f6d7fe`. The remaining gaps are physical evidence availability and release-
+stage credentials/deployment, not StoreKit entitlement or local Pro correctness.
+
+Decision: Detailed ownership is DEC-COM-043. Permanently waive the physical account-switch,
+offline, and quota observations as non-passes while preserving deterministic local-first and
+fail-closed coverage. Move Distribution signing and explicitly authorized Production schema/
+deployment/release proof to COM-C6/COM-C12; do not waive or execute those release actions here.
+
+Consequences: C4B-03 and COM-C4B are Done, and COM-C4C receipt work is unblocked. No waived
+physical observation may be cited as passed, no Production action occurred, and StoreKit authority
+remains independent of iCloud evidence.

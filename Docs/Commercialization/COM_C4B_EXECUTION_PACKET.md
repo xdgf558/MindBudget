@@ -2,9 +2,8 @@
 
 ## Status
 
-Status: **In Progress — PR #61 merged the reviewed C4B-03 product capability; operational and
-release evidence remains open, with physical same-account two-device and physical background-push
-observations permanently waived but not passed.**
+Status: **Done after reviewed final head `f1f37db`, green GitHub Actions run `32726507493`, PR #64
+merge `4f6d7fe`, and the owner-approved DEC-COM-043 evidence/release-gate disposition.**
 
 C4B-01 is Done after owner acceptance, independent review, green GitHub Actions run
 `32434148439`, and PR #57 merge `90a1e66`. C4B-02P is Done after independent review, green
@@ -17,6 +16,11 @@ phase's remaining physical and release evidence. Reviewed calibration head `0350
 run `32573992659`, and PR #62 merged it as `0128682`. DEC-COM-039 then permanently waived only the
 physical same-account two-device evidence item. Reviewed waiver head `7b23490` passed run
 `32576885537`, and PR #63 merged that exact scope decision as `1a14df9`.
+The final trust-boundary correction passed independent review and GitHub Actions run `32726507493`
+at head `f1f37db`; PR #64 merged it as `4f6d7fe`. DEC-COM-043 permanently waives the remaining
+physical account-switch/offline/quota observations without recording passes, while retaining
+deterministic coverage and moving Distribution signing plus Production schema/deployment/release
+proof to COM-C6/COM-C12.
 
 ## Input gate
 
@@ -128,7 +132,7 @@ cross-account merge, online write leases, and automatic enablement are prohibite
 
 ## C4B-03 — Lifecycle and deletion
 
-Status: **In Progress after reviewed product merge PR #61 (`0f749ce`); evidence closure pending.**
+Status: **Done after reviewed PR #64 merge `4f6d7fe`, green run `32726507493`, and DEC-COM-043.**
 
 The merged product capability owns explicit keep-local/use-iCloud conflict resolution without exposing
 record content, durable whole-zone cloud deletion while preserving local facts, retained-copy
@@ -139,9 +143,8 @@ engine to keep Apple's automatic scheduling enabled; explicit foreground retry r
 Deterministic local tests and signed configuration evidence
 are supplemented by one owner-authorized physical Development private-database lifecycle pass.
 Read-only Dashboard inspection confirms the Development encrypted-envelope shape and that
-Production has no app record type or deployed schema. Physical account/quota/offline evidence,
-distribution signing, Production deployment, and Production-release claims remain open. A signed
-two-device harness was prepared, but the connected devices use
+Production has no app record type or deployed schema. A signed two-device harness was prepared,
+but the connected devices use
 different iCloud Apple Accounts and therefore different private databases. The owner stopped that
 attempt rather than changing accounts. DEC-COM-039 permanently waives a same-account physical rerun
 as an exit-evidence item. The stopped attempt is still not a pass or product-failure finding, and
@@ -150,6 +153,12 @@ DEC-COM-042 likewise permanently waives only the physical background/silent-push
 nine inspected probe bundles produced zero delivery passes. Those attempts remain non-pass evidence;
 automatic scheduling, the fixed subscription, checked capabilities, and deterministic transport
 boundaries remain required.
+DEC-COM-043 applies the same honest boundary to physical account switch, offline, and quota:
+those observations are permanently waived and not passed, while deterministic failure isolation,
+local-write continuity, closed reasons, sticky account change, and retry behavior remain mandatory.
+Distribution signing and Production schema/deployment/release evidence are not waived; they are
+release evidence owned by COM-C6/COM-C12 and remain mandatory before their respective distribution
+or formal-release exits.
 Local Delete All now republishes the retained-copy marker immediately in the same app session, so
 Settings continues to show cloud deletion and requires the reimport disclosure before Enable can
 start transport. Cloud-wide deletion stages durable local tombstone intent, then treats whole-zone
@@ -169,8 +178,8 @@ benchmark explicitly skipped after loaded-host non-passes), signed Development c
 a local Release archive. The owner-authorized physical suite then passed 33/33 on a final iPhone, including
 real Development zone create, private encrypted send/fetch, disable, confirmed reimport, whole-zone
 delete, and local-fact preservation. Read-only Dashboard checks then confirmed the single encrypted
-Development app field and the absence of the app record type in Production. It must still add
-account/offline/quota evidence. The current two-device attempt was explicitly
+Development app field and the absence of the app record type in Production. The current two-device
+attempt was explicitly
 stopped after distinct iCloud-account fingerprints proved the private databases could not
 converge; the harness remains opt-in and no multi-device result is claimed. DEC-COM-039 permanently
 waives that physical evidence item without weakening deterministic coverage. Independent rereview
@@ -197,6 +206,10 @@ at `/private/tmp/MindBudget-C4B03-AutomaticSync-Focused6.xcresult`. DEC-COM-042 
 only the physical observation, records zero passes, and retains the harness as optional diagnostic
 evidence.
 Production schema deployment is an explicit owner gate and is not inferred from a Release archive.
+The final reviewed correction head `f1f37db` passed Actions run `32726507493`, and PR #64 merged it
+as `4f6d7fe`. DEC-COM-043 closes C4B-03 by permanently waiving the three remaining physical
+account-switch/offline/quota observations as non-passes and reassigning Distribution signing plus
+Production deployment/release proof to COM-C6/COM-C12. No Production action or release occurred.
 
 ## Stop conditions
 
@@ -205,8 +218,7 @@ enablement, a Pro gate, public/shared database, generated CloudKit identity, aut
 conflict resolution, attachment/OCR transfer, or Production deployment without acceptance. C4B-02
 review/CI/merge is satisfied through PR #59 (`211dff2`); no entitlement, deployed environment,
 cloud-delete, or multi-device claim is valid before C4B-03 evidence.
-PR #61 (`0f749ce`) satisfies product review/CI/merge only. C4B-03 remains In Progress, C4C remains
-blocked, and the permanently waived same-account physical run cannot be cited as convergence
-evidence. The separately waived physical background-push observation cannot be cited as a pass.
-Neither waiver extends to account/offline/quota, distribution signing, Production deployment, or
-release.
+PR #64 (`4f6d7fe`) closes the reviewed runtime source on green run `32726507493`. None of the
+physical evidence waivers may be cited as a pass. DEC-COM-043 does not authorize Distribution,
+Production schema deployment, TestFlight assignment, or release; those actions remain separately
+gated in COM-C6/COM-C12. C4C may now begin without changing that release boundary.

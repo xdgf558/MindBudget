@@ -2,19 +2,18 @@
 
 ## Status
 
-Status: **C4B-01, C4B-02P, and C4B-02 Done; C4B-03 product capability merged through PR #61
-`0f749ce`; PR #62 merged its reviewed calibration as `0128682`; PR #63 merged the narrow evidence
-waiver as `1a14df9`; C4B-03 remains In Progress for operational and release evidence other than
-the permanently waived physical same-account and physical background-push observations; neither is
-recorded as passed.**
+Status: **COM-C4B and C4B-01 through C4B-03 are Done. Reviewed final head `f1f37db` passed GitHub
+Actions run `32726507493`, PR #64 merged it as `4f6d7fe`, and DEC-COM-043 closes the evidence scope
+without recording any waived physical observation as passed or authorizing Production/release.**
 
 This is the Accepted design and implementation contract. PR #58 merged the prerequisites as
 `6f5fded`; reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`, and PR #59 merged
 it as `211dff2`. PR #60 (`7138a9c`) closed the documentation gate. Reviewed C4B-03 product head
 `f49de94` passed GitHub Actions run `32571676058`, and PR #61 merged the exact entitlement and
 operational surfaces as `0f749ce`. Reviewed waiver head `7b23490` passed run `32576885537`, and PR
-#63 merged it as `1a14df9`. Neither the merged source nor a locally signed build authorizes
-Production schema deployment or distribution by itself.
+#63 merged it as `1a14df9`. Reviewed final correction head `f1f37db` passed run `32726507493`, and
+PR #64 merged it as `4f6d7fe`. Neither the merged source nor a locally signed build authorizes
+Production schema deployment or distribution by itself; those proofs remain COM-C6/COM-C12 gates.
 
 ## Scope and authority
 
@@ -286,9 +285,10 @@ C4B-02 owns explicit `.none` primary-store hardening before entitlement, private
 opt-out, no account, offline, quota, duplicate delivery, account change, and attachment exclusion.
 C4B-03 owns physical-device lifecycle, Dashboard evidence, conflict/tombstone/delete retention,
 Development/Production isolation, disclosure, and release approval. Deterministic multi-device
-lineage/conflict/no-winner behavior remains required, while DEC-COM-039 permanently waives only the
-physical same-account two-device run as exit evidence. Unit fakes alone cannot close other C4B-03
-claims.
+lineage/conflict/no-winner behavior remains required. DEC-COM-039, DEC-COM-042, and DEC-COM-043
+permanently waive only their named physical observations and never convert them into passes.
+Deterministic failure isolation remains required, and Production/distribution proof remains owned
+by COM-C6/COM-C12.
 
 C4B-03 local validation includes 33 deterministic sync cases, a 45-test migration/free-
 tier regression after entitlement hardening, generated-plist verification for
@@ -299,9 +299,9 @@ strict result. A separately owner-authorized compile-time opt-in test adds one r
 physical Development private-database lifecycle case: zone create, encrypted record send/fetch,
 disable, confirmed reimport, whole-zone delete, and local-fact preservation. That single-device
 case is joined by read-only Dashboard evidence that Development contains only the accepted
-encrypted envelope field and Production contains no app record type. It does not replace
-offline/quota/account transitions, distribution signing, or the owner-gated Production schema
-deployment.
+encrypted envelope field and Production contains no app record type. DEC-COM-043 permanently
+waives the physical offline/quota/account observations as non-passes; deterministic coverage
+continues to prove their local-first and fail-closed behavior.
 
 Evidence-closure audit found that the merged adapter had explicitly disabled
 `CKSyncEngine.Configuration.automaticallySync`, which made its checked background mode and push
@@ -359,5 +359,9 @@ or waive any other physical evidence item.
 - Automatic scheduling remains a required production configuration under DEC-COM-040. The
   physical Development silent-push observation is permanently waived under DEC-COM-042 and is
   explicitly not passed; simulator/static assertions prove only the implementation boundary.
-- Physical account/offline/quota, distribution signing, and owner-authorized Production deployment/
-  release evidence remain open. Neither physical-evidence waiver expands to those gates.
+- Physical account-switch/offline/quota observations are permanently waived under DEC-COM-043 and
+  explicitly not passed. Their deterministic local-first, sticky-pause, closed-reason, and retry
+  coverage remains mandatory.
+- Distribution signing and owner-authorized Production schema/deployment/release evidence are not
+  waived. DEC-COM-043 assigns them to COM-C6/COM-C12, where they remain mandatory before the
+  relevant distribution or formal-release exit.
