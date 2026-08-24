@@ -152,7 +152,12 @@ REQUIRED_RUNTIME_ANCHORS = {
         'zoneName = "MindBudget.Sync.v1"',
         'recordType = "MindBudgetEnvelopeV1"',
         "container.privateCloudDatabase",
-        "configuration.automaticallySync = false",
+        "configuration.automaticallySync = Self.automaticallySync",
+        "nonisolated static let automaticallySync = true",
+        "Task.detached(operation: operation)",
+        "clearEngine(ifMatching: engine)",
+        "requiresGenesisZoneCreation(hasSerializedState: serialization != nil)",
+        "privateCloudDatabase.save(CKRecordZone(zoneID: zoneID))",
         "record.encryptedValues[Self.encryptedEnvelopeKey]",
         "deleteRecordZone(withID: zoneID)",
         "recoverFromTrustBoundary",
@@ -794,6 +799,11 @@ def validate_custom_sync_runtime(project_root: Path) -> list[str]:
         "sharedCloudDatabase",
         "CKAsset(",
         ".deleteRecord(",
+        # CKSyncEngine delegate callbacks are serialized. Awaiting an engine operation through the
+        # callback parameter can synchronously re-enter the delegate and is a CloudKit client bug;
+        # sticky-pause cancellation must use the reviewed detached-operation seam instead.
+        "syncEngine.cancelOperations()",
+        "pendingDatabaseChanges: [.saveZone",
     ):
         if forbidden in combined_runtime:
             errors.append(f"custom sync runtime contains forbidden transport shape {forbidden!r}")

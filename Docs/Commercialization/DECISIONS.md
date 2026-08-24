@@ -1164,3 +1164,95 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Fabricating a pass; erasing the different-account attempt or DEC-COM-038;
   deleting the opt-in harness; weakening deterministic conflict/no-winner behavior; expanding the
   waiver to account/offline/quota/push or release evidence; or marking C4B-03 Done immediately.
+
+## DEC-COM-040 — Keep production CKSyncEngine automatic scheduling enabled
+
+- Status/date: **Accepted C4B-03 correction — 2026-08-22**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/032/033/034/039
+- Context: C4B-03 evidence closure audited the remaining physical background-push gate and found
+  that the merged adapter set `CKSyncEngine.Configuration.automaticallySync` to `false`. The app
+  had the exact remote-notification background mode, environment-specific push entitlement, and
+  stable subscription ID, but an engine configured this way requires callers to initiate fetches
+  and sends manually. Foreground/scene Retry therefore could not prove or provide automatic
+  background delivery. Apple's
+  [`automaticallySync`](https://developer.apple.com/documentation/cloudkit/cksyncengineconfiguration/automaticallysync)
+  contract and its
+  [SyncEngine sample](https://github.com/apple/sample-cloudkit-sync-engine) reserve `false` for
+  explicit manual control/testing and keep production automatic scheduling on. Reviewed waiver
+  head `7b23490` passed GitHub Actions run `32576885537`, and
+  PR #63 merged as `1a14df9` before this runtime correction began.
+- Decision: Every production `CKSyncEngine` created after explicit opt-in must set
+  `automaticallySync = true` and retain the fixed private-database subscription ID. Explicit start,
+  scene-activation, and Retry passes remain available for bounded immediate work, but they do not
+  substitute for or disable Apple's indeterminate scheduling. Default-off adapter construction,
+  local fact/outbox authority, durable inbox validation, no-winner quarantine, whole-zone delete,
+  and sticky account/key-reset/zone-loss pauses are unchanged; stopping or entering a sticky pause
+  still cancels and releases the engine.
+- Consequences: The source and static contract can now support a real silent-push observation.
+  The focused simulator run at
+  `/private/tmp/MindBudget-C4B03-AutomaticSync-Focused1.xcresult` passed 38 selected results: 35
+  deterministic passes and three physical-only skips. The follow-up opt-in Development run at
+  `/private/tmp/MindBudget-C4B03-AutomaticSync-Physical2.xcresult` passed 36 results and explicitly
+  skipped only the two permanently waived multi-device roles; its real case repeated the fixed-zone
+  lifecycle and local preservation with automatic scheduling enabled. Neither run independently
+  mutates the server while the app is backgrounded, so neither is physical silent-push evidence.
+  C4B-03 stays In Progress for physical account/offline/quota/background-push, distribution
+  signing, and explicitly authorized Production/release evidence.
+- Alternatives rejected: Keeping automatic scheduling off and relabeling scene activation as
+  background push; inventing a custom push handler beside `CKSyncEngine`; enabling an adapter before
+  consent; weakening sticky pauses so a push can recreate a rejected zone; removing explicit Retry;
+  or treating a source-level boolean as completed physical delivery evidence.
+
+## DEC-COM-041 — Keep delegate cancellation and zone genesis outside accepted ancestry
+
+- Status/date: **Accepted C4B-03 trust-boundary correction — 2026-08-24**
+- Requirements: REQ-ICLOUD-001; DEC-COM-028/031/032/040
+- Context: The physical background-delivery probe exposed two runtime boundaries that deterministic
+  lifecycle coverage had not forced. First, awaiting an engine operation from the serialized
+  `CKSyncEngineDelegate` callback task can re-enter that same callback and trigger CloudKit's client-
+  misuse failure. Second, unconditionally queuing `saveZone` for an engine restored from accepted
+  serialization can race the first fetch and recreate a remotely deleted zone before the sticky
+  remote-zone-loss authority is observed. Both defects affect trust-boundary handling independently
+  of whether a physical silent push can be captured.
+- Decision: Delegate-triggered engine cancellation is scheduled from a detached task and clears
+  only the same engine instance, so a late cancellation cannot discard an explicitly rebuilt
+  replacement. The fixed private zone is created directly only for a newly consented transport with
+  no accepted serialized ancestry. A restored transport fetches first; a missing, purged, deleted,
+  or encrypted-key-reset zone remains a sticky pause and is never recreated automatically.
+- Consequences: Deterministic tests pin automatic scheduling, detached delegate context, and the
+  genesis-only creation predicate. The static iCloud gate rejects inline delegate cancellation and
+  queued unconditional zone creation. The exact simulator CloudSync run after the final source
+  correction passed 37 tests with four physical-only skips at
+  `/private/tmp/MindBudget-C4B03-AutomaticSync-Focused6.xcresult`. This correction does not prove
+  physical background delivery or authorize Production, distribution, or release.
+- Alternatives rejected: Calling `cancelOperations()` inline from the delegate; clearing whichever
+  engine happens to be current after a delayed task; recreating the custom zone for every restored
+  engine; treating a missing accepted zone as ordinary transport failure; or weakening the sticky
+  recovery contract to make the probe easier to pass.
+
+## DEC-COM-042 — Permanently waive physical background-push evidence without recording a pass
+
+- Status/date: **Accepted owner evidence-scope override — 2026-08-24**
+- Requirements: REQ-ICLOUD-001; DEC-COM-039/040/041
+- Context: Nine local result packages, `MindBudget-C4B03-BackgroundPush6.xcresult` through
+  `MindBudget-C4B03-BackgroundPush14.xcresult`, were inspected. The attempts exposed and drove the
+  DEC-COM-041 runtime corrections, but none observed an independently initiated Development
+  mutation reaching the app while it remained backgrounded. Some attempts timed out before an
+  external mutation, one failed before readiness because of the device network proxy, one could not
+  launch because device trust was absent, one selected zero tests, and the final exact probe was
+  canceled after the CloudKit Console was found to be acting as the wrong account. The evidence
+  count is therefore zero physical background-push passes.
+- Decision: Permanently remove only the physical Development background/silent-push observation
+  from the C4B-03 and COM-C4B exit evidence. Preserve all attempt bundles as non-pass evidence and
+  retain the compile-time opt-in probe as an optional diagnostic. This waiver must always be
+  described as “not passed” and must never be converted into a delivery or convergence claim.
+- Consequences: A physical background-push run is no longer required to close C4B-03. Production
+  `automaticallySync = true`, the fixed subscription identifier, exact entitlements/background mode,
+  detached delegate safety, genesis-only zone creation, local authority, durable inbox/outbox,
+  quarantine, and sticky recovery remain mandatory. Physical account/offline/quota evidence,
+  distribution signing, and explicitly authorized Production deployment/release evidence remain
+  open; C4B-03 and COM-C4B remain In Progress and C4C remains blocked.
+- Alternatives rejected: Calling any attempt a pass; erasing or combining the nine non-pass result
+  packages; disabling automatic scheduling after waiving its physical observation; broadening the
+  waiver to account/offline/quota or release evidence; deleting deterministic coverage; or marking
+  C4B-03/COM-C4B Done in this decision.

@@ -4,9 +4,36 @@ import SwiftData
 import Testing
 @testable import MindBudget
 
+private enum CloudSyncDelegateTaskContext {
+    @TaskLocal static var isHandlingEvent = false
+}
+
 @Suite(.serialized)
 @MainActor
 struct CloudSyncTests {
+    @Test
+    func productionCloudSyncKeepsAppleBackgroundSchedulingEnabled() {
+        #expect(CKSyncEngineAdapter.automaticallySync)
+        #expect(CKSyncEngineAdapter.subscriptionID == "MindBudget.Sync.v1.subscription")
+    }
+
+    @Test
+    func delegateEngineOperationsDiscardTheSerializedCallbackTaskContext() async {
+        let operation = CloudSyncDelegateTaskContext.$isHandlingEvent.withValue(true) {
+            CKSyncEngineAdapter.schedulePostDelegateEngineOperation {
+                #expect(!CloudSyncDelegateTaskContext.isHandlingEvent)
+            }
+        }
+
+        await operation.value
+    }
+
+    @Test
+    func onlyANewTransportGenesisMayCreateThePrivateZone() {
+        #expect(CKSyncEngineAdapter.requiresGenesisZoneCreation(hasSerializedState: false))
+        #expect(!CKSyncEngineAdapter.requiresGenesisZoneCreation(hasSerializedState: true))
+    }
+
     @Test
     func lineageRevisionAdvancementFailsClosedInsteadOfOverflowing() throws {
         #expect(try CloudSyncCodec.nextRevision(after: 0) == 1)
@@ -1350,6 +1377,75 @@ struct CloudSyncTests {
         await service.stop()
     }
 
+    @Test(.enabled(if: Self.runsPhysicalCloudKitBackgroundPush))
+    @MainActor
+    func physicalBackgroundPushFetchesAnExternalDeletionWithoutForegroundRetry() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let service = CloudSyncService(dataActor: actor, retentionStore: retention)
+
+        // Make a stopped probe repeatable. This removes only the fixed Development test zone; the
+        // Production environment and the in-memory local authority are never addressed.
+        let initialCleanup = await service.deleteCloudData()
+        #expect(initialCleanup == .deleted)
+        guard initialCleanup == .deleted else {
+            await service.stop()
+            return
+        }
+
+        let expense = makeExpense(
+            id: Self.backgroundPushExpenseID,
+            amountMinorUnits: 4_204,
+            merchantName: "C4B03 background push probe",
+            updatedAt: fixedDate
+        )
+        _ = try await actor.createExpense(expense)
+        await service.setEnabled(true)
+        let reachedReady = service.snapshot.status == .ready
+        let emptiedOutbox = try await actor.pendingCloudSyncRecordNames().isEmpty
+        #expect(reachedReady)
+        #expect(emptiedOutbox)
+        guard reachedReady, emptiedOutbox else {
+            _ = await service.deleteCloudData()
+            await service.stop()
+            return
+        }
+
+        let recordName = "expense/\(Self.backgroundPushExpenseID.uuidString.lowercased())"
+        print("C4B03 background-push READY record=\(recordName)")
+        print("C4B03 background-push now requires an external Development deletion while the app is backgrounded")
+
+        // Deliberately do not call service.retry(), synchronize(), or sceneDidBecomeActive(). The
+        // only accepted success path is CKSyncEngine's subscription/notification scheduler fetching
+        // the external physical deletion and quarantining it without mutating the local fact.
+        let clock = ContinuousClock()
+        // This opt-in proof includes an owner-assisted CloudKit Console deletion. Allow enough
+        // time for the Console's separate "Act As iCloud Account" authentication without turning
+        // authentication latency into a false background-delivery failure.
+        let deadline = clock.now.advanced(by: .seconds(600))
+        var observedExternalDeletion = false
+        while clock.now < deadline {
+            try Task.checkCancellation()
+            let snapshot = try await actor.cloudSyncSnapshot()
+            if snapshot.quarantinedCount == 1 {
+                observedExternalDeletion = true
+                break
+            }
+            try await clock.sleep(for: .seconds(1))
+        }
+
+        let localExpense = try await actor.fetchExpenseSummaries().first(where: {
+            $0.id == Self.backgroundPushExpenseID
+        })
+        let cleanup = await service.deleteCloudData()
+        await service.stop()
+
+        #expect(observedExternalDeletion)
+        #expect(localExpense?.amount.minorUnits == 4_204)
+        #expect(cleanup == .deleted)
+        #expect(!retention.cloudCopyMayExist)
+    }
+
     @Test(.enabled(if: Self.runsPhysicalCloudKitMultiDevicePrimary))
     @MainActor
     func physicalMultiDevicePrimarySeedsObservesTheRemoteUpdateAndDeletesTheZone() async throws {
@@ -1454,6 +1550,16 @@ struct CloudSyncTests {
 #endif
     }
 
+    private nonisolated static var runsPhysicalCloudKitBackgroundPush: Bool {
+#if targetEnvironment(simulator)
+        false
+#elseif MINDBUDGET_PHYSICAL_CLOUDKIT_BACKGROUND_PUSH
+        true
+#else
+        false
+#endif
+    }
+
     private nonisolated static var runsPhysicalCloudKitMultiDeviceSecondary: Bool {
 #if targetEnvironment(simulator)
         false
@@ -1466,6 +1572,9 @@ struct CloudSyncTests {
 
     private nonisolated static let multiDeviceExpenseID = UUID(
         uuidString: "c4b03000-0000-4000-8000-000000000203"
+    )!
+    private nonisolated static let backgroundPushExpenseID = UUID(
+        uuidString: "c4b03000-0000-4000-8000-000000000204"
     )!
     private nonisolated static let multiDeviceSeedAmount: Int64 = 4_203
     private nonisolated static let multiDeviceUpdatedAmount: Int64 = 8_406

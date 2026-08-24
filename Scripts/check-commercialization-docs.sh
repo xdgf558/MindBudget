@@ -500,6 +500,9 @@ for c4b03_product_merge_anchor in \
   '0350415' \
   '32573992659' \
   '0128682' \
+  '7b23490' \
+  '32576885537' \
+  '1a14df9' \
   'C4B-03 remains In Progress' \
   'permanently waive' \
   'not a pass' \
@@ -572,12 +575,46 @@ done
 
 for c4b03_background_anchor in \
   'MindBudget/Resources/MindBudgetInfo.plist' \
-  'UIBackgroundModes = [remote-notification]'; do
+  'UIBackgroundModes = [remote-notification]' \
+  'automaticallySync = true' \
+  'DEC-COM-040' \
+  'DEC-COM-041' \
+  'DEC-COM-042' \
+  '/private/tmp/MindBudget-C4B03-AutomaticSync-Focused1.xcresult' \
+  '/private/tmp/MindBudget-C4B03-AutomaticSync-Physical2.xcresult' \
+  '/private/tmp/MindBudget-C4B03-AutomaticSync-Focused6.xcresult' \
+  'MindBudget-C4B03-BackgroundPush14.xcresult' \
+  'zero physical background-push passes' \
+  'not passed'; do
   if ! grep -Fq "${c4b03_background_anchor}" \
       Docs/Commercialization/CI_BASELINE.md \
       Docs/Commercialization/DECISIONS.md \
       Docs/Commercialization/SESSION_LOG.md; then
     echo "C4B-03 background-delivery evidence is missing: ${c4b03_background_anchor}" >&2
+    exit 1
+  fi
+done
+
+# DEC-COM-042 permanently removes only the physical background-push observation from exit
+# evidence. Current-state documents must not drift back to describing it as open or passed; the
+# source/deterministic boundary and every other operational/release gate remain mandatory.
+for stale_c4b03_background_phrase in \
+  'physical background-push observation remains open' \
+  'silent-push evidence remains open' \
+  'Real background-push evidence is still open' \
+  'Real background-push delivery is not yet proven' \
+  'account/offline/quota/background-push' \
+  'offline/quota/account/push'; do
+  if grep -Fq "${stale_c4b03_background_phrase}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+      Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "Current C4B-03 state still describes permanently waived physical background-push evidence as open: ${stale_c4b03_background_phrase}" >&2
     exit 1
   fi
 done

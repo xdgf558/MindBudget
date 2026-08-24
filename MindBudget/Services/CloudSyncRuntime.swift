@@ -350,6 +350,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
     nonisolated static let recordType = "MindBudgetEnvelopeV1"
     nonisolated static let subscriptionID = "MindBudget.Sync.v1.subscription"
     nonisolated static let encryptedEnvelopeKey = "envelope"
+    /// Production engines keep Apple's indeterminate background scheduler enabled so a private-
+    /// database subscription or silent push can fetch remote changes while explicit foreground
+    /// retry remains available. This is scheduling authority only: local facts, the durable
+    /// outbox, quarantine, and sticky trust-boundary pauses remain authoritative.
+    nonisolated static let automaticallySync = true
 
     private let dataActor: DataActor
     private let container: CKContainer
@@ -372,23 +377,28 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             let serialization = try await dataActor.cloudSyncEngineStateData().flatMap {
                 try JSONDecoder().decode(CKSyncEngine.State.Serialization.self, from: $0)
             }
+            // A zone may be created only for a new, explicitly consented transport genesis. An
+            // existing serialized state proves prior ancestry, so recreating its missing zone
+            // before fetching would erase the remote-deletion trust boundary. Genesis creation is
+            // completed before the automatically scheduled engine exists, avoiding a fetch racing
+            // the initial saveZone operation and misclassifying our own confirmed rebuild.
+            if Self.requiresGenesisZoneCreation(hasSerializedState: serialization != nil) {
+                _ = try await container.privateCloudDatabase.save(CKRecordZone(zoneID: zoneID))
+            }
             var configuration = CKSyncEngine.Configuration(
                 database: container.privateCloudDatabase,
                 stateSerialization: serialization,
                 delegate: self
             )
-            configuration.automaticallySync = false
+            configuration.automaticallySync = Self.automaticallySync
             configuration.subscriptionID = Self.subscriptionID
             let engine = CKSyncEngine(configuration)
             await lifecycle.setEngine(engine)
-            engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: zoneID))])
             try await addPendingOutboxChanges(to: engine)
             try await dataActor.updateCloudSyncStatus(.syncing, reason: nil)
             await notifyStatusChange()
-            // A new engine may still need to create its custom zone. Send database changes before
-            // the first fetch so a zone-not-found response cannot prevent that creation forever.
-            try await engine.sendChanges()
             try await engine.fetchChanges()
+            try await engine.sendChanges()
             try await dataActor.completeCloudSyncPass()
         } catch {
             await handle(error)
@@ -484,8 +494,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                         pause.status,
                         reason: pause.reason
                     )
-                    await syncEngine.cancelOperations()
-                    await lifecycle.setEngine(nil)
+                    cancelEngineAfterDelegateCallback(syncEngine)
                 }
             case .fetchedRecordZoneChanges(let changes):
                 try await ingest(changes)
@@ -493,10 +502,12 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                 try await acknowledge(changes, syncEngine: syncEngine)
             case .sentDatabaseChanges(let changes):
                 for failure in changes.failedZoneSaves {
-                    await handle(failure.error)
+                    await handle(failure.error, delegateEngine: syncEngine)
                 }
             case .didFetchRecordZoneChanges(let event):
-                if let error = event.error { await handle(error) }
+                if let error = event.error {
+                    await handle(error, delegateEngine: syncEngine)
+                }
             case .willFetchChanges, .willFetchRecordZoneChanges, .didFetchChanges,
                  .willSendChanges, .didSendChanges:
                 break
@@ -504,7 +515,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                 try await dataActor.updateCloudSyncStatus(.failed, reason: .transportFailed)
             }
         } catch {
-            await handle(error)
+            await handle(error, delegateEngine: syncEngine)
         }
         await notifyStatusChange()
     }
@@ -652,7 +663,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                 )
                 try await quarantineServerRecordConflict(failure)
             } else {
-                await handle(failure.error)
+                await handle(failure.error, delegateEngine: syncEngine)
             }
         }
     }
@@ -710,18 +721,45 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             accepted = false
         }
         if !accepted {
-            await syncEngine.cancelOperations()
-            await lifecycle.setEngine(nil)
+            cancelEngineAfterDelegateCallback(syncEngine)
         }
     }
 
-    private func handle(_ error: Error) async {
+    private func handle(_ error: Error, delegateEngine: CKSyncEngine? = nil) async {
         let resolution = Self.statusResolution(for: error)
         try? await dataActor.updateCloudSyncStatus(resolution.status, reason: resolution.reason)
         if resolution.status.isStickyPause {
-            if let engine = await lifecycle.engine { await engine.cancelOperations() }
-            await lifecycle.setEngine(nil)
+            if let delegateEngine {
+                cancelEngineAfterDelegateCallback(delegateEngine)
+            } else {
+                if let engine = await lifecycle.engine { await engine.cancelOperations() }
+                await lifecycle.setEngine(nil)
+            }
         }
+    }
+
+    /// CKSyncEngine serializes delegate events and rejects awaiting an engine method from inside a
+    /// delegate callback when that method can call the delegate again. A detached task removes the
+    /// callback task context before cancellation. Identity-checked clearing prevents a late
+    /// cancellation from discarding a replacement engine created by an explicit recovery action.
+    private func cancelEngineAfterDelegateCallback(_ engine: CKSyncEngine) {
+        Self.schedulePostDelegateEngineOperation { [lifecycle] in
+            await engine.cancelOperations()
+            await lifecycle.clearEngine(ifMatching: engine)
+        }
+    }
+
+    @discardableResult
+    nonisolated static func schedulePostDelegateEngineOperation(
+        _ operation: @escaping @Sendable () async -> Void
+    ) -> Task<Void, Never> {
+        Task.detached(operation: operation)
+    }
+
+    /// Only a transport with no accepted serialized ancestry may create the fixed custom zone.
+    /// Existing ancestry must fetch first so remote deletion or encrypted-key reset stays sticky.
+    nonisolated static func requiresGenesisZoneCreation(hasSerializedState: Bool) -> Bool {
+        !hasSerializedState
     }
 
     /// CloudKit may report a destructive encrypted-key reset as `zoneNotFound` plus
@@ -789,5 +827,10 @@ private actor CKSyncEngineAdapterLifecycle {
 
     func setEngine(_ engine: CKSyncEngine?) {
         self.engine = engine
+    }
+
+    func clearEngine(ifMatching candidate: CKSyncEngine) {
+        guard engine === candidate else { return }
+        engine = nil
     }
 }

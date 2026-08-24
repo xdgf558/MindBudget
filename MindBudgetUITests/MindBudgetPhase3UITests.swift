@@ -162,9 +162,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(paceTrack.exists)
         XCTAssertFalse((paceTrack.value as? String ?? "").isEmpty)
         app.buttons["dashboard.empty.addEntry"].tap()
-        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
-        let addIncomeFromEmptyState = app.buttons.matching(identifier: "entry.add.income").firstMatch
-        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        let addExpense = firstElement("entry.add.expense", in: app)
+        let addIncomeFromEmptyState = firstElement("entry.add.income", in: app)
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 5))
         XCTAssertTrue(addIncomeFromEmptyState.exists)
         addExpense.tap()
 
@@ -194,8 +194,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         )
         XCTAssertEqual(XCTWaiter.wait(for: [dailyAmountChanged], timeout: 5), .completed)
         app.buttons["dashboard.quickAdd"].tap()
-        let addIncome = app.buttons.matching(identifier: "entry.add.income").firstMatch
-        XCTAssertTrue(addIncome.waitForExistence(timeout: 2))
+        let addIncome = firstElement("entry.add.income", in: app)
+        XCTAssertTrue(addIncome.waitForExistence(timeout: 5))
         addIncome.tap()
         XCTAssertTrue(element("income.form", in: app).waitForExistence(timeout: 5))
         for key in ["5", "0", "0"] {
@@ -287,8 +287,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["tab.dashboard"].tap()
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["dashboard.quickAdd"].tap()
-        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
-        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        let addExpense = firstElement("entry.add.expense", in: app)
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 5))
         addExpense.tap()
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
         for key in ["1", "2", ".", "3", "4"] {
@@ -736,8 +736,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
     private func recordExpense(in app: XCUIApplication, category: String) {
         app.buttons["dashboard.quickAdd"].tap()
-        let addExpense = app.buttons.matching(identifier: "entry.add.expense").firstMatch
-        XCTAssertTrue(addExpense.waitForExistence(timeout: 2))
+        // SwiftUI can expose this Menu action as either a Button or a DisclosureTriangle across
+        // repeated UI-test launches. The stable contract is its accessibility identifier.
+        let addExpense = firstElement("entry.add.expense", in: app)
+        XCTAssertTrue(addExpense.waitForExistence(timeout: 5))
         addExpense.tap()
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 3))
         element("expense.keypad.1", in: app).tap()
@@ -803,5 +805,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
     private func element(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
         app.descendants(matching: .any)[identifier]
+    }
+
+    @MainActor
+    private func firstElement(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
 }

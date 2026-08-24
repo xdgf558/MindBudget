@@ -27,8 +27,12 @@ detailed phase checklists; it added no paid product behavior.
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
   `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
   and PR #61 merged it as `0f749ce`. Reviewed calibration head `0350415` passed run `32573992659`,
-  and PR #62 merged it as `0128682`. DEC-COM-039 permanently waives only the physical same-account
-  two-device evidence gate; C4B-03 remains In Progress for every other evidence item.**
+  and PR #62 merged it as `0128682`. Reviewed waiver head `7b23490` passed run `32576885537`, and
+  PR #63 merged it as `1a14df9`. DEC-COM-039 permanently waives only the physical same-account
+  two-device evidence gate; DEC-COM-040 restores opted-in automatic background scheduling;
+  DEC-COM-041 preserves delegate/zone trust boundaries; and DEC-COM-042 permanently waives only
+  the physical background-push observation without recording a pass. C4B-03 remains In Progress
+  for every other unwaived evidence item.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -399,7 +403,8 @@ merged it as `7138a9c`. Reviewed C4B-03 product head `f49de94` passed GitHub Act
 `32571676058`, and PR #61 merged the accepted product capability as `0f749ce`; C4B-03 remains In
 Progress because its operational/release evidence is not closed. Reviewed calibration head
 `0350415` passed run `32573992659`, and PR #62 merged it as `0128682`; DEC-COM-039 permanently
-waives only the physical same-account two-device evidence item.
+waives only the physical same-account two-device evidence item. Reviewed waiver head `7b23490`
+passed run `32576885537`, and PR #63 merged it as `1a14df9`.
 
 - [x] **C4B-01 — Sync data design.** Accepted: default-off Free custom versioned records in one
   private custom zone using `CKSyncEngine`; explicit SwiftData `.none` hardening precedes any
@@ -431,8 +436,19 @@ waives only the physical same-account two-device evidence item.
   distinct iCloud-account fingerprints proved that the devices address different private
   databases. DEC-COM-039 now permanently waives the physical same-account rerun as an exit-evidence
   item; the stopped attempt is still not a convergence pass or product failure, and deterministic
-  conflict/no-winner behavior remains required. Physical account/quota/offline/push, Production
-  deployment, and distribution signing remain open.
+  conflict/no-winner behavior remains required. Physical account/quota/offline, Production
+  deployment, and distribution signing remain open. DEC-COM-042 separately makes the physical
+  background/silent-push observation permanently waived, not passed; the nine inspected probe
+  bundles contain zero background-delivery passes and remain non-pass evidence.
+  Evidence audit found the production engine's automatic scheduler disabled; DEC-COM-040 restores
+  `automaticallySync = true` after explicit opt-in. The 38-result focused suite passes with three
+  physical-only skips, and exact-head full validation passes 462 unit results, 17/17 UI, Release,
+  and coverage with zero failures. These are regression results rather than a physical push
+  observation. The corrected Development physical suite also passes 38/38 selected results with
+  only the two permanently waived multi-device roles skipped; it renews the real zone lifecycle,
+  not an independent background-push observation. DEC-COM-041 additionally moves delegate-triggered
+  cancellation outside the serialized callback task and permits zone creation only at transport
+  genesis; the final focused simulator run passes 37 tests with four physical-only skips.
   PR #61 preserves the retained-copy marker in the same session after local
   Delete All, requires confirmed reimport before Enable, exposes closed cloud-deletion retry
   reasons, and keeps incomplete conflict candidates quarantined. Focused CloudSync/Phase 6 tests
