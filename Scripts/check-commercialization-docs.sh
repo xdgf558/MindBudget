@@ -127,6 +127,38 @@ if [[ -n "${c4c01_early_receipt_surface}" ]]; then
   exit 1
 fi
 
+# C4C-01 is closed only by the reviewed exact head, hosted CI, and merge. The next packet still
+# requires an explicit owner entry and may not be inferred from this documentation closeout.
+for c4c01_closeout_anchor in \
+  'd203308' \
+  '32845307426' \
+  '8611022' \
+  'C4C-01 is Done' \
+  'C4C-02 remains blocked pending explicit owner entry'; do
+  if ! grep -Fq "${c4c01_closeout_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/CI_BASELINE.md; then
+    echo "C4C-01 reviewed merge closeout is missing: ${c4c01_closeout_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C4C-01 (independent review and hosted CI pending|implementation (is )?pending independent review|remains pending (independent review|hosted CI|merge))' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C4C-01 as pending review/CI/merge" >&2
+  exit 1
+fi
+
 SOURCE_SHA="$(
   sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |
     head -n 1

@@ -35,8 +35,9 @@ detailed phase checklists; it added no paid product behavior.
   head `f1f37db` passed Actions run `32726507493`, and PR #64 merged it as `4f6d7fe`.
   DEC-COM-043 permanently waives the physical account-switch/offline/quota observations without
   recording passes and returns Distribution signing plus Production schema/deployment/release
-  proof to COM-C6/COM-C12. C4B-03 and COM-C4B are Done; C4C-01 is the only active COM-C4C
-  packet and its implementation is pending independent review.**
+  proof to COM-C6/COM-C12. C4B-03 and COM-C4B are Done. Reviewed C4C-01 head `d203308`
+  passed Actions run `32845307426`, and PR #66 merged it as `8611022`. C4C-01 is Done;
+  C4C-02 remains blocked pending explicit owner entry.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -471,9 +472,10 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **In Progress — C4C-01 independent review and hosted CI pending.**
+Status: **In Progress — C4C-01 closed through PR #66 (`8611022`); explicit owner entry is required
+before C4C-02 begins.**
 
-- [ ] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
+- [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
 - [B] **C4C-02 — Image acquisition and lifecycle.** Add camera/DataScanner/PHPicker capability
   gates, orientation/perspective/downsampling/pixel limits, cancellation, memory/background, and

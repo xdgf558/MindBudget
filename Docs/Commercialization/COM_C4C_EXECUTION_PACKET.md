@@ -2,13 +2,14 @@
 
 ## Status
 
-Status: **In Progress — C4C-01 independent review and hosted CI pending.**
+Status: **In Progress — C4C-01 closed through PR #66 (`8611022`); explicit owner entry is required
+before C4C-02 begins.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
-PR #65 (`f5ab156`). C4C-01 is the only active packet. This source candidate adds no camera/photo
-permission, Vision/VisionKit/PhotosUI import, receipt image, OCR, temporary image file, receipt
-persistence, iCloud receipt field, model prompt, network channel, Production action, or release
-authority.
+PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
+PR #66 merged it as `8611022`. This merged packet adds no camera/photo permission,
+Vision/VisionKit/PhotosUI import, receipt image, OCR, temporary image file, receipt persistence,
+iCloud receipt field, model prompt, network channel, Production action, or release authority.
 
 ## Input gate
 
@@ -26,7 +27,8 @@ authority.
 
 ## C4C-01 — Premium seams and evidence
 
-Status: **In Progress — independent review and hosted CI pending.**
+Status: **Done after independent review, green GitHub Actions run `32845307426`, and PR #66 merge
+`8611022`.**
 
 ### Accepted implementation
 
@@ -80,9 +82,18 @@ Status: **In Progress — independent review and hosted CI pending.**
   reports 485 logical results, zero failures, 474 passes, and eleven explicit skips; the four
   physical-only CloudKit probes remain skips and are unrelated to C4C-01.
 
+### Review closeout
+
+- Independent review found no P1/P2 issue. The non-blocking invariant note remains explicit:
+  generation currently uses `RuleEvidence.measured(...) ?? .exact` only after detectors establish
+  `supportingSampleCount <= sampleCount`. A future refactor must expose any violation with a debug
+  assertion and fail-closed behavior rather than treating an invalid ratio as genuine 1/1 evidence.
+- The terms confidence/置信度 remain the approved integer-ratio presentation vocabulary from
+  `COPY_GUIDELINES.md`; neither term represents statistical probability or model certainty.
+
 ## C4C-02 — Image acquisition and lifecycle
 
-Status: **Blocked by reviewed C4C-01 merge and explicit owner entry.**
+Status: **Blocked pending explicit owner entry after the reviewed C4C-01 merge.**
 
 Own camera/DataScanner/photo-picker capability, orientation/perspective/downsampling/pixel limits,
 cancellation, memory/background behavior, and temporary-file cleanup. It may not implement OCR or
