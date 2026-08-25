@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added a Pro evidence line to locally calculated spending-pattern cards, showing the supporting
+  and total sample counts plus an integer confidence ratio. Existing 30-day Insights and basic
+  spending reminders remain Free, and no receipt image, OCR, or server processing was added.
 - Corrected the unreleased, opted-in iCloud path so Apple's sync engine can respond to its private-
   database subscription and silent background notifications. Explicit foreground Retry remains
   available, and automatic scheduling still cannot bypass consent, local authority, conflict

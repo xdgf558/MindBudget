@@ -438,3 +438,7 @@ unblocked; no release action is authorized.
   offline, and quota observations as permanently waived non-passes; retain deterministic failure
   coverage; and move Distribution signing plus Production schema/deployment/release proof to
   COM-C6/COM-C12 without authorizing those actions. Unblock C4C-01.
+- [ ] Complete C4C-01 review/CI/merge for the central local-Pro seams and deterministic rule
+  evidence. Preserve the existing 30-day Insights and basic reminder/review experience as Free;
+  expose only the new integer sample/confidence line through `advancedLocalInsights`; keep receipt
+  product scope off and C4C-02 through C4C-05 blocked.

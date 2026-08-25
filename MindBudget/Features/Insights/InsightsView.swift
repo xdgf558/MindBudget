@@ -756,6 +756,21 @@ struct InsightsView: View {
                         .font(.headline)
                     Text(wording.body)
                         .foregroundStyle(.secondary)
+                    if premiumEntryAccess.permitsAdvancedLocalInsights,
+                       let evidence = insight.evidence {
+                        Text(
+                            LocalizedCatalog.format(
+                                "insights.ruleEvidence",
+                                locale: locale,
+                                evidence.supportingSampleCount,
+                                evidence.sampleCount,
+                                evidence.confidenceBasisPoints / 100
+                            )
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("insights.ruleEvidence")
+                    }
                     Button("insights.card.dismiss") {
                         Task {
                             await viewModel.dismiss(

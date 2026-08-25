@@ -86,14 +86,28 @@ final class LiveFeatureAccessAuthority: FeatureAccessChecking, @unchecked Sendab
 /// The no-argument initializer is exact Free; the only way to create an allowed snapshot is an
 /// injected `FeatureAccessChecking` authority owned by Commerce.
 struct ExistingPremiumEntryAccess: Equatable, Sendable {
+    private let advancedLocalInsightsDecision: FeatureAccessDecision
     private let appleOnDeviceAIDecision: FeatureAccessDecision
     private let customCoolingOffDecision: FeatureAccessDecision
+    private let purchasePreflightDecision: FeatureAccessDecision
+    private let postPurchaseReviewDecision: FeatureAccessDecision
+    private let receiptScanDecision: FeatureAccessDecision
+    private let receiptImportDecision: FeatureAccessDecision
     private let advancedSiriDecision: FeatureAccessDecision
 
     init(featureAccess: any FeatureAccessChecking = FeatureAccessService()) {
+        advancedLocalInsightsDecision = featureAccess.decision(for: .advancedLocalInsights)
         appleOnDeviceAIDecision = featureAccess.decision(for: .appleOnDeviceAI)
         customCoolingOffDecision = featureAccess.decision(for: .customCoolingOffPeriod)
+        purchasePreflightDecision = featureAccess.decision(for: .purchasePreflight)
+        postPurchaseReviewDecision = featureAccess.decision(for: .postPurchaseReview)
+        receiptScanDecision = featureAccess.decision(for: .receiptScan)
+        receiptImportDecision = featureAccess.decision(for: .receiptImport)
         advancedSiriDecision = featureAccess.decision(for: .advancedSiri)
+    }
+
+    var permitsAdvancedLocalInsights: Bool {
+        advancedLocalInsightsDecision.isAllowed
     }
 
     func enablesAppleOnDeviceAI(userEnabled: Bool) -> Bool {
@@ -108,9 +122,46 @@ struct ExistingPremiumEntryAccess: Equatable, Sendable {
         customCoolingOffDecision.isAllowed
     }
 
+    var permitsPurchasePreflight: Bool {
+        purchasePreflightDecision.isAllowed
+    }
+
+    var permitsPostPurchaseReview: Bool {
+        postPurchaseReviewDecision.isAllowed
+    }
+
+    /// Resolves the future receipt pipeline's local execution floor without touching an image.
+    ///
+    /// A local model can only enhance a deterministic parser; it can never be the sole available
+    /// path. The product-scope switch remains false through C4C-01, so no receipt entry is exposed
+    /// before the owning acquisition phase.
+    func receiptRecognitionBaseline(
+        productScopeEnabled: Bool,
+        localModelAvailable: Bool
+    ) -> LocalReceiptRecognitionBaseline {
+        guard productScopeEnabled,
+              receiptScanDecision.isAllowed,
+              receiptImportDecision.isAllowed else {
+            return .unavailable
+        }
+        return localModelAvailable && appleOnDeviceAIDecision.isAllowed
+            ? .deterministicWithOnDeviceModel
+            : .deterministic
+    }
+
     var permitsAdvancedSiri: Bool {
         advancedSiriDecision.isAllowed
     }
+}
+
+/// The only execution tiers that the local receipt pipeline may select in later C4C packets.
+///
+/// Both usable tiers include a deterministic parser. There is deliberately no model-only case,
+/// remote-model case, or implicit entitlement fallback.
+enum LocalReceiptRecognitionBaseline: Equatable, Sendable {
+    case unavailable
+    case deterministic
+    case deterministicWithOnDeviceModel
 }
 
 #if DEBUG

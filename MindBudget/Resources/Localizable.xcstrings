@@ -4592,6 +4592,7 @@
     "insights.chart.date": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Date"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"日期"}}}},
     "insights.chart.amount": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Amount"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"金额"}}}},
     "insights.cards.title": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Patterns to review"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"可以回看的模式"}}}},
+    "insights.ruleEvidence": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Evidence: %1$lld of %2$lld samples · %3$lld%% confidence"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"证据：%1$lld / %2$lld 个样本 · 置信度 %3$lld%%"}}}},
     "insights.card.dismiss": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Dismiss"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"暂不显示"}}}},
     "insights.disclaimer": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Calculated on this device from your records. Informational only, not financial advice."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"内容仅根据本机记录计算，仅供参考，不构成财务建议。"}}}},
     "settings.remindersAndNotifications.title": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Reminders and notifications"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"提醒与通知"}}}},

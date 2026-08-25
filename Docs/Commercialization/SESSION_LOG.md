@@ -2334,3 +2334,35 @@ against the required 85%. Four physical-only CloudSync probes remained explicit 
 does not relabel any owner-waived observation as passed. A first sandboxed attempt lacked access to
 CoreSimulator/DerivedData and is recorded only as an environment non-pass; the unrestricted rerun
 is the accepted local closeout evidence.
+
+## 2026-08-25 — C4C-01 premium seams, deterministic evidence, and receipt baseline
+
+The owner explicitly entered C4C-01. The source audit found no receipt acquisition/OCR/persistence
+path and confirmed `FeatureFlags.enableReceiptImport` remains false. It also found DEC-COM-014's
+durable boundary: current 30-day Insights and basic deterministic reminder/review behavior are
+Free, so C4C-01 cannot monetize them by relabeling the existing UI.
+
+DEC-COM-044 keeps that baseline and makes the advanced increment independently testable. The
+Commerce snapshot now covers the accepted advanced local and future receipt seams. New detector
+results carry integer supporting/total samples plus a basis-point support ratio; persistence uses
+three reserved typed payload keys, strips them from normal presentation payload on read, accepts
+legacy absence, and rejects partial or inconsistent evidence. The Insights card shows the evidence
+line only when central `advancedLocalInsights` access allows it.
+
+`LocalReceiptRecognitionBaseline` has no model-only case: usable local-model capability always
+includes a deterministic fallback, and missing scope/rights returns unavailable. SPEC-015 is
+implemented as two exact future Vision path exceptions that reject money vocabulary. C4C-02
+through C4C-05 remain blocked, and no image/content/network/release behavior was introduced.
+
+The final focused entitlement/rule/Free matrix passed 92/92. A prior diagnostic run found one
+overstated test-only expectation that the same rule used for an interrupting reminder must also
+remain as an inline card; the accepted Free regression instead proves reminder presentation,
+manual save, reminder history, and the durable review row. Existing tests run under exact Free
+without a Pro injection.
+
+The complete validation entry passed at `/private/tmp/MindBudget-C4C01-Full.xcresult`: all static
+contracts, Release compilation, the strict wall-clock stage, 468 unit results across 27 suites,
+17/17 UI tests, and all selected coverage thresholds passed. `xcresulttool` reports 485 logical
+results, zero failures, 474 passes, and eleven explicit skips. The four physical-only CloudKit
+probes remain intentional skips and do not belong to this packet. Minimum selected coverage is
+CSVExporter at 87.60%. No physical, Production, Archive/upload, tester, or release action occurred.

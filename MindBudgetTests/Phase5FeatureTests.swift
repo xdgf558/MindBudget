@@ -402,6 +402,23 @@ struct Phase5FeatureTests {
         #expect(types.contains(.impulseCluster))
         #expect(types.contains(.imageRelatedIncrease))
         #expect(types.contains(.coolingOffSuccess))
+        #expect(drafts.allSatisfy { $0.evidence != nil })
+        #expect(
+            drafts.first { $0.type == .repeatedStressSpending }?.evidence
+                == RuleEvidence(
+                    sampleCount: 4,
+                    supportingSampleCount: 3,
+                    confidenceBasisPoints: 7_500
+                )
+        )
+        #expect(
+            drafts.first { $0.type == .imageRelatedIncrease }?.evidence
+                == RuleEvidence(
+                    sampleCount: 2,
+                    supportingSampleCount: 2,
+                    confidenceBasisPoints: 10_000
+                )
+        )
     }
 
     @Test
@@ -1026,6 +1043,7 @@ struct Phase5FeatureTests {
                 titleKey: draft.titleKey,
                 bodyKey: draft.bodyKey,
                 payload: draft.payload,
+                evidence: draft.evidence,
                 relatedCategory: draft.relatedCategory,
                 relatedEmotionTag: draft.relatedEmotionTag,
                 periodStart: draft.periodStart,
@@ -1114,6 +1132,49 @@ struct Phase5FeatureTests {
         #expect(active.isEmpty)
         #expect(all.count == 1)
         #expect(all.first?.isDismissed == true)
+    }
+
+    @Test
+    func generatedRuleEvidenceRoundTripsWithoutChangingTheInsightPayload() async throws {
+        let context = try makeContext()
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let draft = try #require(
+            detector.evaluatePotentialPurchase(
+                candidate: candidate(amount: 30_000),
+                expenses: [],
+                snapshot: context.snapshot,
+                categoryBudgets: context.categoryBudgets,
+                historicalCycles: [],
+                config: context.config,
+                now: context.now,
+                calendar: calendar
+            ).first { $0.type == .highSinglePurchase }
+        )
+
+        _ = try await actor.upsertSpendingInsights([draft], createdAt: context.now)
+        let stored = try #require(try await actor.fetchSpendingInsightSummaries().first)
+
+        #expect(stored.evidence == .exact)
+        #expect(stored.payload == draft.payload)
+        #expect(stored.payload[RuleEvidencePayload.sampleCountKey] == nil)
+    }
+
+    @Test
+    func incompleteOrInconsistentStoredRuleEvidenceFailsClosed() {
+        #expect(throws: DataValidationError.invalidSpendingInsight) {
+            try RuleEvidencePayload.decoded(
+                from: [RuleEvidencePayload.sampleCountKey: .integer(3)]
+            )
+        }
+        #expect(throws: DataValidationError.invalidSpendingInsight) {
+            try RuleEvidencePayload.decoded(
+                from: [
+                    RuleEvidencePayload.sampleCountKey: .integer(4),
+                    RuleEvidencePayload.supportingSampleCountKey: .integer(3),
+                    RuleEvidencePayload.confidenceBasisPointsKey: .basisPoints(9_000),
+                ]
+            )
+        }
     }
 
     @Test
@@ -1237,6 +1298,57 @@ struct Phase5FeatureTests {
         #expect(events.count == 1)
         #expect(events.first?.response == nil)
         #expect(viewModel.error == nil)
+    }
+
+    @Test @MainActor
+    func exactFreeRetainsTheExistingBasicReminderAndReviewBaseline() async throws {
+        let context = try makeContext()
+        let actor = try await configuredActor(for: context)
+        let viewModel = ExpenseFormViewModel(existingExpense: nil, now: context.now)
+        viewModel.amountText = "300"
+        await viewModel.loadContext(
+            dataActor: actor,
+            currencyCode: "USD",
+            cycleStartDay: 1,
+            calendar: calendar,
+            referenceDate: context.now,
+            locale: Locale(identifier: "en_US"),
+            ruleConfiguration: context.config,
+            preferences: preferences()
+        )
+
+        let result = await viewModel.submit(
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            premiumEntryAccess: ExistingPremiumEntryAccess(),
+            locale: Locale(identifier: "en_US"),
+            now: context.now,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 1,
+            calendar: calendar
+        )
+
+        guard case let .reminder(presentation) = result else {
+            Issue.record("The accepted Free baseline must retain its basic reminder")
+            return
+        }
+        let saved = await viewModel.continueAfterReminder(
+            eventID: presentation.id,
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: context.now,
+            timeZone: TimeZone(identifier: "UTC")!,
+            cycleStartDay: 1,
+            calendar: calendar
+        )
+
+        #expect(saved)
+        #expect(try await actor.fetchExpenseSummaries().count == 1)
+        #expect(try await actor.fetchReminderEventSummaries().count == 1)
+        #expect(try await actor.fetchSpendingInsightSummaries().isEmpty == false)
     }
 
     @Test @MainActor

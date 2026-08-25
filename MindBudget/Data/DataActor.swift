@@ -1418,7 +1418,9 @@ actor DataActor {
                       draft.periodStart < draft.periodEnd else {
                     throw DataValidationError.invalidSpendingInsight
                 }
-                let payloadData = try SettingsCodec.encode(draft.payload)
+                let payloadData = try SettingsCodec.encode(
+                    RuleEvidencePayload.persistedPayload(for: draft)
+                )
                 guard let payloadJSON = String(data: payloadData, encoding: .utf8) else {
                     throw DataValidationError.invalidSpendingInsight
                 }
@@ -2891,15 +2893,16 @@ actor DataActor {
         guard let payloadData = insight.payloadJSON.data(using: .utf8) else {
             throw DataValidationError.invalidSpendingInsight
         }
-        let payload: [String: InsightValue]
+        let persistedPayload: [String: InsightValue]
         do {
-            payload = try SettingsCodec.decode(
+            persistedPayload = try SettingsCodec.decode(
                 [String: InsightValue].self,
                 from: payloadData
             )
         } catch {
             throw DataValidationError.invalidSpendingInsight
         }
+        let decoded = try RuleEvidencePayload.decoded(from: persistedPayload)
         return SpendingInsightSummary(
             id: insight.id,
             dedupeKey: insight.dedupeKey,
@@ -2919,7 +2922,8 @@ actor DataActor {
             ),
             titleKey: insight.titleKey,
             bodyKey: insight.bodyKey,
-            payload: payload,
+            payload: decoded.payload,
+            evidence: decoded.evidence,
             relatedCategory: try persistedEnumIfPresent(
                 ExpenseCategory.self,
                 rawValue: insight.relatedCategoryRaw,
