@@ -66,6 +66,7 @@ private struct ConfiguredAppView: View {
             trialLifecycleScheduler: environment.trialLifecycleScheduler,
             publicConfigurationService: environment.publicConfigurationService,
             cloudSyncService: environment.cloudSyncService,
+            receiptImageLifecycle: environment.receiptImageLifecycle,
             appLockInitiallyEnabled: settings.requireFaceID
         )
         .modelContainer(environment.dataController.container)

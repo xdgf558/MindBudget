@@ -65,3 +65,6 @@ build 9 on 2026-08-17 as delivery `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. Those 
 not deploy Production, assign TestFlight users, submit Beta App Review, or authorize App Store release. With
 Production undeployed, the optional trigger resolves to the conservative built-in `false`;
 permanent subscription controls and StoreKit authority do not depend on this row.
+The C4C-02 image-acquisition candidate adds Apple camera/DataScanner/PHPicker and local
+Vision/Core Image processing only. It creates no URLSession/HTTP(S), endpoint, prompt, model,
+telemetry, iCloud receipt field, or other app-owned egress; receipt product scope remains disabled.

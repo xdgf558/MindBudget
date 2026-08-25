@@ -2,14 +2,15 @@
 
 ## Status
 
-Status: **In Progress — C4C-01 closed through PR #66 (`8611022`); explicit owner entry is required
-before C4C-02 begins.**
+Status: **In Progress — active subpacket C4C-02.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
-PR #66 merged it as `8611022`. This merged packet adds no camera/photo permission,
-Vision/VisionKit/PhotosUI import, receipt image, OCR, temporary image file, receipt persistence,
-iCloud receipt field, model prompt, network channel, Production action, or release authority.
+PR #66 merged it as `8611022`; documentation closeout head `55a321c` passed Actions run
+`32850616400`, and PR #67 merged it as `bdb94d9`. The owner then explicitly entered C4C-02.
+C4C-02 adds bounded camera/photo-picker acquisition infrastructure and one protected temporary
+image lifecycle, but no customer entry, OCR result, receipt persistence, iCloud receipt field,
+model prompt, network channel, Production action, or release authority.
 
 ## Input gate
 
@@ -93,11 +94,54 @@ Status: **Done after independent review, green GitHub Actions run `32845307426`,
 
 ## C4C-02 — Image acquisition and lifecycle
 
-Status: **Blocked pending explicit owner entry after the reviewed C4C-01 merge.**
+Status: **Implementation complete pending independent review, hosted CI on the reviewed head, and
+merge.**
 
 Own camera/DataScanner/photo-picker capability, orientation/perspective/downsampling/pixel limits,
 cancellation, memory/background behavior, and temporary-file cleanup. It may not implement OCR or
 persistence.
+
+### Accepted implementation candidate
+
+- `ReceiptImageAcquisitionCapability` resolves the product-scope switch, central Pro receipt tier,
+  camera authorization, DataScanner support, and current scanner availability before any system
+  surface is created. Product scope remains disabled, so the merged app exposes no receipt entry
+  and cannot request camera access. The permission request method is reserved for a later explicit
+  camera-source action.
+- The system adapter limits PHPicker to one image and requires no broad Photo Library permission.
+  It reads the provider's temporary file with `FileHandle` only through the source-byte cap plus
+  one sentinel byte, so an oversized selection is rejected before the whole representation is
+  materialized. DataScanner is configured as a camera surface with no delegate and no recognized
+  item crossing the adapter. Its recognized-data placeholder is barcode-only; no text recognition
+  request or OCR result consumer exists in C4C-02.
+- Source input is capped at 48 MiB and 64,000,000 metadata pixels before decode. ImageIO applies
+  EXIF orientation while thumbnail-decoding to a 4,096-pixel maximum edge. A prepared image may
+  contain at most 12,000,000 pixels and 8 MiB of JPEG bytes. All multiplications are overflow-
+  checked; invalid, corrupt, zero-size, over-limit, or unencodable input fails closed.
+- `VNDetectRectanglesRequest` is isolated to `ReceiptVisionObservation.swift`; it emits normalized
+  geometry only. Core Image may apply perspective correction, but no text/field is detected. The
+  two exact SPEC-015 files contain only non-money geometry/confidence floating point and are still
+  rejected by the money gate if money vocabulary appears.
+- `ReceiptImageLifecycle` permits only one generation and one prepared artifact. A replacement or
+  caller cancellation cancels the older processing task; a generation check prevents late work
+  from committing. Only the bounded prepared JPEG reaches the fixed temporary directory—never the
+  source bytes. The directory is excluded from backup and uses complete file protection.
+- Startup removes crash-orphaned bytes once. Cancel, background/inactive transition, memory
+  warning, Delete All, downstream release, and AppSession teardown share the same idempotent
+  cleanup boundary. SwiftUI task recreation cannot clear a later active artifact.
+
+### Verification candidate
+
+- Ten focused tests cover product/Pro/permission/hardware availability, corrupt/byte/pixel-limit
+  failures, orientation/downsampling bounds, perspective geometry rejection, deterministic
+  lifecycle and caller cancellation while processing is suspended, startup orphan removal, and
+  repeated proof that only prepared bytes exist before cleanup.
+  `/private/tmp/MindBudget-C4C02-Focused5.xcresult` passed 10/10 on iPhone 17 Pro, iOS 26.5.
+- A generic iOS Simulator compile passed after strict-concurrency correction. The money and release-
+  readiness gates passed. Full local validation and hosted CI remain merge gates and will be
+  recorded without creating physical, OCR, accuracy, Production, or release evidence.
+- C4C-03 remains blocked. This packet does not inspect recognized text, redact receipt content,
+  produce structured fields, validate money, persist a draft, or enable `enableReceiptImport`.
 
 ## C4C-03 — OCR and pre-model privacy
 
@@ -122,7 +166,7 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 
 ## Exit and stop conditions
 
-C4C-01 may be marked Done only after independent review, green hosted CI on the reviewed head, and
-merge. That closes only premium seams/evidence. It does not enable receipt import, satisfy either
-receipt Requirement, enter C4C-02 automatically, close COM-C4C, unblock COM-C5, deploy Production,
-or authorize Archive/upload/tester/review/distribution actions.
+Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
+head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure. It does not enable
+receipt import, satisfy either receipt Requirement, enter C4C-03 automatically, close COM-C4C,
+unblock COM-C5, deploy Production, or authorize Archive/upload/tester/review/distribution actions.

@@ -75,15 +75,16 @@ python3 -B "${PHASE_STATE_CHECKER}" \
 python3 -B Scripts/check_icloud_sync_contract.py --self-test
 python3 -B Scripts/check_icloud_sync_contract.py
 
-# C4C-01 establishes only premium/evidence seams. Receipt acquisition and OCR remain structurally
-# absent until their owning packets, while SPEC-015 is enforced by the dedicated money gate.
+# C4C-01 established premium/evidence seams. C4C-02 owns only bounded system image acquisition,
+# geometry normalization, one protected temporary artifact, and deterministic teardown. OCR,
+# field extraction, persistence, and a customer entry remain structurally absent.
 for c4c01_contract in \
   'DEC-COM-044' \
   'existing 30-day Insights' \
   'supportingSampleCount / sampleCount' \
   '`LocalReceiptRecognitionBaseline`' \
   '`FeatureFlags.enableReceiptImport` remains false' \
-  'C4C-02 through C4C-05 remain blocked'; do
+  'Status: **Done after independent review'; do
   if ! grep -Fq "${c4c01_contract}" \
       Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
       Docs/Commercialization/DECISIONS.md \
@@ -112,29 +113,70 @@ for c4c01_source_anchor in \
 done
 
 grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
-  echo "C4C-01 must keep receipt product scope disabled" >&2
+  echo "C4C-02 must keep the customer receipt entry disabled" >&2
   exit 1
 }
 
-c4c01_early_receipt_surface="$({
-  grep -RInE \
-    '^[[:space:]]*import[[:space:]]+(Vision|VisionKit|PhotosUI)([^[:alnum:]_]|$)|NSCameraUsageDescription|NSPhotoLibraryUsageDescription' \
-    MindBudget Config MindBudget.xcodeproj
+for c4c02_source_anchor in \
+  'maximumSourcePixels: 64_000_000' \
+  'maximumPreparedEdge: 4_096' \
+  'maximumPreparedPixels: 12_000_000' \
+  'maximumPreparedBytes: 8 * 1_024 * 1_024' \
+  'FileProtectionType.complete' \
+  'isExcludedFromBackup = true' \
+  'func discardTemporaryImage() async' \
+  'DataScannerViewController.isSupported' \
+  'PHPickerConfiguration(photoLibrary: .shared())' \
+  'provider.loadFileRepresentation(' \
+  'handle.read(upToCount: readLimit.partialValue)' \
+  'requestCameraAuthorization() async'; do
+  if ! grep -RFq "${c4c02_source_anchor}" \
+      MindBudget/Services/ReceiptRecognition \
+      MindBudget/App/AppRouter.swift; then
+    echo "C4C-02 bounded acquisition/lifecycle source contract is missing: ${c4c02_source_anchor}" >&2
+    exit 1
+  fi
+done
+
+c4c02_unowned_import="$({
+  grep -RInE '^[[:space:]]*(@preconcurrency[[:space:]]+)?import[[:space:]]+(Vision|VisionKit|PhotosUI)([^[:alnum:]_]|$)' MindBudget \
+    | grep -vE 'MindBudget/Services/ReceiptRecognition/(ReceiptVisionObservation|ReceiptSystemImageAcquisition)\.swift:'
 } 2>/dev/null || true)"
-if [[ -n "${c4c01_early_receipt_surface}" ]]; then
-  echo "C4C-01 must not add image acquisition, OCR imports, or receipt permissions:" >&2
-  echo "${c4c01_early_receipt_surface}" >&2
+if [[ -n "${c4c02_unowned_import}" ]]; then
+  echo "C4C-02 image frameworks escaped their exact reviewed adapter files:" >&2
+  echo "${c4c02_unowned_import}" >&2
   exit 1
 fi
 
-# C4C-01 is closed only by the reviewed exact head, hosted CI, and merge. The next packet still
-# requires an explicit owner entry and may not be inferred from this documentation closeout.
+if grep -RInE 'VNRecognizeTextRequest|VNRecognizedText|DataScannerViewControllerDelegate|recognizedItems' \
+    MindBudget/Services/ReceiptRecognition; then
+  echo "C4C-02 must not implement or consume OCR results" >&2
+  exit 1
+fi
+if grep -RInE '(^|[^[:alnum:]_])(SwiftData|DataActor|ModelContext|CloudSync)([^[:alnum:]_]|$)' \
+    MindBudget/Services/ReceiptRecognition; then
+  echo "C4C-02 receipt images must not enter persistence or cloud-sync paths" >&2
+  exit 1
+fi
+if grep -Rq 'NSPhotoLibraryUsageDescription' MindBudget Config MindBudget.xcodeproj; then
+  echo "C4C-02 uses PHPicker and must not request broad Photo Library permission" >&2
+  exit 1
+fi
+[[ "$(grep -o 'INFOPLIST_KEY_NSCameraUsageDescription = "Use the camera to capture a receipt for local processing."' MindBudget.xcodeproj/project.pbxproj | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "C4C-02 camera purpose string must exist in Debug and Release" >&2
+  exit 1
+}
+
+# C4C-01 is closed only by the reviewed exact head, hosted CI, source merge, and documentation
+# closeout. C4C-02 additionally requires the owner's explicit entry; source work may not infer it.
 for c4c01_closeout_anchor in \
   'd203308' \
   '32845307426' \
   '8611022' \
+  '32850616400' \
+  'bdb94d9' \
   'C4C-01 is Done' \
-  'C4C-02 remains blocked pending explicit owner entry'; do
+  'owner then explicitly entered C4C-02'; do
   if ! grep -Fq "${c4c01_closeout_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -156,6 +198,16 @@ if grep -Eq 'C4C-01 (independent review and hosted CI pending|implementation (is
     Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md; then
   echo "Current commercialization state still describes C4C-01 as pending review/CI/merge" >&2
+  exit 1
+fi
+
+if grep -Eq 'C4C-02 (remains |is )?blocked|C4C-02 through C4C-05 remain blocked' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C4C-02 as blocked after owner entry" >&2
   exit 1
 fi
 

@@ -2390,3 +2390,29 @@ selected result at 87.60% against the required 85%. Four physical-only CloudKit 
 explicit skips. The validation script's ephemeral result bundle was
 `mindbudget-validation.lhbQJj/MindBudget.xcresult` during the run and was removed by normal
 temporary-directory cleanup after success.
+
+## 2026-08-25 — C4C-02 bounded acquisition and image-lifecycle candidate
+
+PR #67's reviewed C4C-01 documentation merge `bdb94d9` is the source baseline, and the owner
+explicitly entered C4C-02. DEC-COM-045 keeps the receipt product flag off while adding exact
+infrastructure for later use: source/Pro/permission/hardware capability, explicit camera permission,
+single-image PHPicker, DataScanner without result consumption, bounded ImageIO normalization,
+geometry-only rectangle/perspective correction, and a one-generation protected temporary store.
+
+The processor rejects empty, corrupt, overflowed, over-48-MiB, and over-64-million-pixel sources;
+normalizes to a 4,096-pixel edge; and rejects prepared output above 12 million pixels or 8 MiB.
+Original bytes never reach the temporary store. Generation checks and cancellation handlers prevent
+late commits, and startup orphan cleanup plus background/inactive, memory-warning, Delete All, and
+session teardown all use the same idempotent removal boundary. English and Simplified Chinese
+camera-purpose strings are present, while broad Photos permission is structurally forbidden.
+
+Focused result `/private/tmp/MindBudget-C4C02-Focused5.xcresult` passed 10/10 on iPhone 17 Pro,
+iOS 26.5 (`23F77`). Full local validation passed all static contracts, Release compilation, strict
+wall-clock testing, 478 unit results across 28 suites, 17/17 UI tests, and every selected coverage
+threshold; CSVExporter remained the minimum at 87.60%. Four physical-only CloudKit probes remained
+explicit skips. The full result path was ephemeral and removed by `Scripts/validate.sh` cleanup.
+
+No OCR recognized item, receipt field, persistence, schema, iCloud receipt data, content logging,
+model prompt, egress, customer entry, Production, distribution, or release action exists in this
+candidate. C4C-03 remains blocked pending independent review, green hosted CI, merge, and a separate
+owner entry. There is no enabled user-visible behavior change, so no changelog entry is required.

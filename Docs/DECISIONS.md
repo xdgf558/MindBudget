@@ -2701,3 +2701,20 @@ off.
 
 Consequences: C4C-01 adds advanced evidence and future seams without taking away a shipped Free
 capability or adding image/OCR/persistence/network behavior. C4C-02 through C4C-05 remain blocked.
+
+---
+
+## 2026-08-25 — Bound receipt acquisition before any OCR or persistence
+
+Context: After C4C-01 closed through PR #67 (`bdb94d9`), the owner explicitly entered C4C-02.
+This subpacket owns image acquisition and lifecycle only; enabling a customer receipt flow or
+starting OCR would work ahead of the accepted phase boundary.
+
+Decision: Detailed ownership is DEC-COM-045. Keep receipt product scope off while adding a
+Pro/capability resolver, one-image PHPicker and DataScanner camera adapters, bounded ImageIO
+orientation/downsampling, geometry-only perspective correction, one protected temporary prepared
+JPEG, and deterministic cancellation/cleanup.
+
+Consequences: No source image is persisted, backed up, synced, logged, or sent over a network. No
+OCR result, structured field, receipt draft, schema, model prompt, or customer entry exists in
+C4C-02. C4C-03 remains blocked until this candidate passes review, hosted CI, and merge.

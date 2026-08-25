@@ -78,6 +78,7 @@ struct AppEnvironment {
     let trialLifecycleScheduler: any TrialLifecycleScheduling
     let publicConfigurationService: any PublicConfigurationServicing
     let cloudSyncService: any CloudSyncServicing
+    let receiptImageLifecycle: any ReceiptImageLifecycleHandling
 
     static func live() throws -> AppEnvironment {
         #if DEBUG
@@ -122,6 +123,7 @@ struct AppEnvironment {
         let trialLifecycleScheduler = TrialLifecycleScheduler()
         let publicConfigurationService = PublicConfigurationServiceFactory.live()
         let cloudSyncService = CloudSyncService(dataActor: dataController.dataActor)
+        let receiptImageLifecycle = ReceiptImageLifecycle()
         let intentService = MindBudgetIntentService(
             dataActor: dataController.dataActor,
             preferencesProvider: UserDefaultsSystemIntegrationPreferencesProvider(
@@ -144,7 +146,8 @@ struct AppEnvironment {
             entitlementStore: entitlementStore,
             trialLifecycleScheduler: trialLifecycleScheduler,
             publicConfigurationService: publicConfigurationService,
-            cloudSyncService: cloudSyncService
+            cloudSyncService: cloudSyncService,
+            receiptImageLifecycle: receiptImageLifecycle
         )
     }
 }

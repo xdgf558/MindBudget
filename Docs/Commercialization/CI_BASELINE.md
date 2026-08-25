@@ -1202,3 +1202,23 @@ Release compilation, the strict Dashboard wall-clock stage, 468 unit-test result
 suites, 17/17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was
 the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
 remained explicit skips; this validation creates no new physical or release claim.
+
+### C4C-02 bounded image lifecycle candidate — 2026-08-25
+
+The final focused C4C-02 run passed 10/10 at
+`/private/tmp/MindBudget-C4C02-Focused5.xcresult` on iPhone 17 Pro, iOS 26.5 (`23F77`). The suite
+covers capability fail-closed decisions, encoded-byte and decoded-pixel limits, corrupt input,
+EXIF orientation/downsampling, perspective geometry boundaries, lifecycle and caller cancellation,
+startup orphan cleanup, and repeated proof that only prepared bytes survive until explicit cleanup.
+
+The complete local `Scripts/validate.sh` entry passed all static contracts, Release compilation,
+the strict Dashboard wall-clock stage, 478 unit-test results across 28 suites, 17/17 UI tests, and
+every selected core-service coverage threshold. Four physical-only CloudKit probes remained
+explicit skips. CSVExporter was the minimum selected coverage result at 87.60% against the required
+85%. The full bundle path was
+`mindbudget-validation.e1BLKF/MindBudget.xcresult` during execution and was removed by the script's
+normal temporary-directory cleanup after success.
+
+This is simulator and deterministic lifecycle evidence only. It makes no OCR/accuracy, 20-image
+resource-stability, physical-device, Production, Archive/upload, tester, review, or release claim.
+Hosted CI on the reviewed PR head remains the merge gate.

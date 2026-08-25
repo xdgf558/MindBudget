@@ -208,6 +208,13 @@ does not label a person based on those tags.
 - C4C-01 adds only local integer rule evidence and closed future receipt capability tiers. The
   sample/confidence line is computed from local counts, and `enableReceiptImport` remains false;
   there is still no receipt image, OCR, temporary receipt file, prompt, cloud field, or egress.
+- C4C-02 adds a dormant, centrally gated system-image adapter while the customer entry remains
+  disabled. PHPicker uses one-image selection and does not request broad Photo Library access.
+  Camera permission can be requested only after a future explicit camera-source action. Source
+  bytes are never written; one bounded prepared JPEG may exist in a completely protected,
+  non-backed-up temporary directory and is removed on startup, cancellation, background/inactive,
+  memory warning, Delete All, or teardown. C4C-02 does not expose OCR results or persist receipt
+  content.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

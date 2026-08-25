@@ -36,6 +36,24 @@
           }
         }
       }
+    },
+    "NSCameraUsageDescription" : {
+      "comment" : "Explains why camera access is requested after the owner explicitly chooses receipt capture.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the camera to capture a receipt for local processing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用相机拍摄收据，并仅在本机处理图像。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
