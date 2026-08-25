@@ -87,12 +87,13 @@ merged it as `bdb94d9`. The merged packet extends the Commerce snapshot to the a
 seams, keeps the existing 30-day Insights and basic reminder/review experience Free, and gates only
 the new integer sample/confidence evidence line as advanced local insight value. It also defines a
 pure unavailable/deterministic/local-model-with-deterministic-fallback receipt baseline while
-`enableReceiptImport` remains false. The owner has now explicitly entered C4C-02. Its implementation
-candidate adds only bounded DataScanner/PHPicker acquisition, EXIF orientation/downsampling,
+`enableReceiptImport` remains false. The owner explicitly entered C4C-02. Its reviewed implementation
+adds only bounded DataScanner/PHPicker acquisition, EXIF orientation/downsampling,
 geometry-only perspective correction, one protected non-backed-up temporary JPEG, and deterministic
 cleanup on cancellation/background/memory/Delete All. It adds no customer entry, OCR result,
-receipt persistence, schema, iCloud field, model prompt, or network channel. C4C-02 awaits
-independent review, hosted CI, and merge; C4C-03 through C4C-05 remain blocked.
+receipt persistence, schema, iCloud field, model prompt, or network channel. Reviewed head
+`43c3a35` passed GitHub Actions run `32860643712`, and PR #68 merged it as `4ca8f1c`; C4C-02 is
+Done. C4C-03 through C4C-05 remain blocked pending a separate explicit owner entry.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

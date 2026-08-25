@@ -238,9 +238,9 @@ remaining physical account-switch/offline/quota observations as non-passes and a
 Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. C4C is
 unblocked. Reviewed C4C-01 head `d203308` passed Actions run `32845307426`, and PR #66 merged it
 as `8611022`; PR #67 (`bdb94d9`) closed its documentation after run `32850616400`. C4C-01 is Done.
-The owner explicitly entered C4C-02; implementation is complete pending independent review, hosted
-CI, and merge, while C4C-03 remains blocked. No release action is
-authorized.
+The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actions run
+`32860643712`, and PR #68 merged it as `4ca8f1c`; C4C-02 is Done while C4C-03 remains blocked
+pending a separate explicit owner entry. No release action is authorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -449,8 +449,12 @@ authorized.
   Actions run `32845307426`, and PR #66 merged it as `8611022`.
 - [x] Close C4C-01 documentation through reviewed PR #67 (`bdb94d9`) after green Actions run
   `32850616400`, without entering receipt image work automatically.
-- [ ] Complete C4C-02 image acquisition/lifecycle review, hosted CI, and merge. The candidate owns
+- [x] Complete C4C-02 image acquisition/lifecycle review, hosted CI, and merge. Reviewed head
+  `43c3a35` passed GitHub Actions run `32860643712`, and PR #68 merged it as `4ca8f1c`. The packet owns
   exact product/Pro/permission/hardware gates, one-image DataScanner/PHPicker adapters, bounded
   orientation/perspective/downsampling, one protected non-backed-up temporary JPEG, and teardown
   on cancellation/background/memory/Delete All. Receipt entry remains disabled; OCR, receipt
   persistence, model/network content, C4C-03, Production, and release actions remain out of scope.
+- [ ] Complete the C4C-02 documentation closeout through independent review, green hosted CI, and
+  merge. The closeout records DEC-COM-046, preserves the three non-blocking review observations as
+  later UI/evaluation work, and must not enter C4C-03 automatically.

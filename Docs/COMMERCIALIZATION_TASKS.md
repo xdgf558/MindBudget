@@ -38,8 +38,9 @@ detailed phase checklists; it added no paid product behavior.
   proof to COM-C6/COM-C12. C4B-03 and COM-C4B are Done. Reviewed C4C-01 head `d203308`
   passed Actions run `32845307426`, and PR #66 merged it as `8611022`; PR #67 (`bdb94d9`)
   closed its documentation after green run `32850616400`. C4C-01 is Done. The owner explicitly
-  entered C4C-02; implementation is complete pending independent review, hosted CI, and merge.
-  C4C-03 through C4C-05 remain blocked.**
+  entered C4C-02. Reviewed head `43c3a35` passed Actions run `32860643712`, and PR #68 merged
+  it as `4ca8f1c`. C4C-02 is Done. C4C-03 through C4C-05 remain blocked pending a separate
+  explicit owner entry.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -474,14 +475,14 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **In Progress — active subpacket C4C-02.**
+Status: **In Progress — awaiting explicit owner entry for C4C-03.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
-- [ ] **C4C-02 — Image acquisition and lifecycle.** Implementation complete pending independent
-  review, hosted CI, and merge: camera/DataScanner/PHPicker capability
-  gates, orientation/perspective/downsampling/pixel limits, cancellation, memory/background, and
-  temporary-file cleanup.
+- [x] **C4C-02 — Image acquisition and lifecycle.** Done after reviewed head `43c3a35`, green
+  GitHub Actions run `32860643712`, and PR #68 merge `4ca8f1c`: camera/DataScanner/PHPicker
+  capability gates, orientation/perspective/downsampling/pixel limits, cancellation,
+  memory/background, and temporary-file cleanup.
 - [B] **C4C-03 — OCR and pre-model privacy.** Preserve OCR geometry/order/confidence and remove
   card numbers, last-four patterns, and authorization codes before any model boundary.
 - [B] **C4C-04 — Structured extraction and validation.** Add deterministic fallback, core-field

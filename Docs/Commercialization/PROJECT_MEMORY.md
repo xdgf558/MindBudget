@@ -91,9 +91,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   release gates are not waived or authorized here. C4B-03 and COM-C4B are Done. Reviewed C4C-01
   head `d203308` passed GitHub Actions run `32845307426`, and PR #66 merged it as `8611022`.
   Reviewed closeout head `55a321c` passed run `32850616400`, and PR #67 merged it as `bdb94d9`.
-  C4C-01 is Done. The owner explicitly entered C4C-02; its bounded image acquisition/lifecycle
-  implementation is complete pending independent review, hosted CI, and merge. Later C4C packets
-  remain blocked.
+  C4C-01 is Done. The owner explicitly entered C4C-02; reviewed head `43c3a35` passed GitHub
+  Actions run `32860643712`, and PR #68 merged the bounded image acquisition/lifecycle substrate
+  as `4ca8f1c`. C4C-02 is Done. Later C4C packets remain blocked pending a separate explicit
+  owner entry.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -416,8 +417,8 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: complete independent review, hosted CI, and merge for C4C-02, then enter
-C4C-03 only after a separate explicit owner instruction. C4C-02 implements only
+Next suggested task: enter C4C-03 only after a separate explicit owner instruction. C4C-02 is
+Done through reviewed PR #68 (`4ca8f1c`) and implements only
 bounded camera/photo-picker acquisition, geometry normalization, one protected temporary artifact,
 and deterministic cleanup; it does not implement OCR, persistence, model/network content, or a
 customer entry.

@@ -1360,3 +1360,28 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   consuming DataScanner/Vision text results; starting local-model or network processing; treating
   temporary-file cleanup as best-effort UI work; or claiming C4C-05 resource stability from this
   smaller lifecycle regression.
+
+## DEC-COM-046 — Close C4C-02 without entering OCR work
+
+- Status/date: **Accepted reviewed-merge closeout — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; DEC-COM-045
+- Context: Independent review found no P1/P2 issue on exact head `43c3a35`. GitHub Actions run
+  `32860643712` completed successfully on that head, and PR #68 merged the bounded acquisition and
+  image-lifecycle substrate to `main` as `4ca8f1c`. The receipt product flag remains off, so this
+  merge adds no enabled customer surface or permission prompt.
+- Decision: Mark C4C-02 Done on the reviewed source/CI/merge evidence only. Preserve the exact
+  acquisition, resource-limit, one-artifact, and cleanup boundaries from DEC-COM-045. Do not infer
+  owner entry into C4C-03, OCR accuracy, physical system-adapter behavior, 20-image resource
+  stability, receipt persistence, Production action, or release authority from this merge.
+- Review follow-up: When a later UI consumes DataScanner availability, replace the current
+  generation-oriented `.superseded` error for `isAvailable == false` with a dedicated temporary-
+  availability error and corresponding presentation. Physical DataScanner/PHPicker behavior and
+  the 20-image stability matrix remain C4C-05 evidence. Non-money image compression-quality
+  floating-point literals do not widen SPEC-015 or authorize floating-point money.
+- Consequences: C4C-02 is Done; C4C-03 through C4C-05 remain blocked pending separate owner entry
+  and predecessor completion. `enableReceiptImport` remains false. No source or prepared receipt
+  bytes enter SwiftData, CloudKit, backup, logs, a model prompt, or any network channel.
+- Alternatives rejected: Fixing a non-blocking dormant-adapter error taxonomy by expanding the
+  reviewed C4C-02 source after merge; treating infrastructure existence as physical evidence;
+  treating image-quality floats as money-policy exceptions; entering OCR automatically; or marking
+  either active receipt Requirement or COM-C4C complete.

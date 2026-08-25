@@ -1222,3 +1222,18 @@ normal temporary-directory cleanup after success.
 This is simulator and deterministic lifecycle evidence only. It makes no OCR/accuracy, 20-image
 resource-stability, physical-device, Production, Archive/upload, tester, review, or release claim.
 Hosted CI on the reviewed PR head remains the merge gate.
+
+### C4C-02 reviewed merge and documentation closeout — 2026-08-26
+
+Independent review found no P1/P2 issue on exact source head `43c3a35`. GitHub Actions run
+`32860643712` completed successfully on that head, and PR #68 merged it to `main` as `4ca8f1c`.
+This closes only C4C-02; receipt import stays disabled, and C4C-03 requires separate owner entry.
+
+The documentation-only closeout branch then passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 478 unit-test results across 28
+suites, 17/17 UI tests, and every selected coverage threshold passed. CSVExporter remained the
+minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips. The result bundle was
+`mindbudget-validation.iJejGl/MindBudget.xcresult` during execution and was removed by normal
+temporary-directory cleanup. This evidence adds no physical, OCR/accuracy, Production,
+Archive/upload, tester, distribution, or release claim.
