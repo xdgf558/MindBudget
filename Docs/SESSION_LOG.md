@@ -5483,3 +5483,35 @@ coverage thresholds. The lowest selected coverage was CSVExporter at 87.60% agai
 owner-waived physical observation into a pass. The first sandboxed validation attempt could not
 access CoreSimulator/DerivedData and is retained only as an environment non-pass; the unrestricted
 rerun above is the accepted local closeout evidence.
+
+## 2026-08-25 — Enter C4C-01 without taking away the Free insight baseline
+
+The owner entered C4C-01 after COM-C4B closeout. The audit confirmed that the Commerce vocabulary
+already contains the future local-Pro seams, while DEC-COM-014 explicitly keeps the current
+30-day Insights and basic deterministic reminder/review experience Free.
+
+The implementation candidate extends the immutable Commerce snapshot for advanced local insight
+evidence, future purchase-preflight/post-purchase variants, and receipt scan/import without gating
+the current Free detector or reminders. Every newly generated rule carries supporting/total sample
+counts and an exact basis-point support ratio. The evidence reuses reserved typed payload keys, is
+separated on read, remains optional for legacy rows, and fails closed when partial or inconsistent.
+Only Pro sees the new evidence line.
+
+A pure receipt baseline defines unavailable, deterministic, and on-device-model-enhanced-with-
+deterministic-fallback tiers while `enableReceiptImport` stays false. The money gate now reserves
+only two exact future Vision geometry/observation paths and rejects money vocabulary inside them.
+No camera, photo picker, OCR, image, receipt persistence, schema, model prompt, iCloud field,
+network channel, or release action was added. Focused entitlement/rule tests passed 58/58 before
+the Free-boundary correction; final focused and complete validation are recorded separately.
+
+The final focused matrix passed 92/92 after removing all temporary Pro injection from pre-existing
+reminder tests. One preceding diagnostic run failed only because the new Free regression expected
+the already-interrupting rule to also remain as an inline card; the accepted assertion instead
+checks the durable reminder and Insights row, matching the existing product contract.
+
+The complete validation entry then passed at `/private/tmp/MindBudget-C4C01-Full.xcresult`: all
+static contracts, Release compilation, the strict wall-clock stage, 468 unit results across 27
+suites, 17/17 UI tests, and every selected coverage threshold passed. `xcresulttool` reports 485
+logical results, zero failures, 474 passes, and eleven explicit skips. Four physical-only CloudKit
+probes remain intentional skips; no physical, Production, Archive/upload, tester, or release claim
+is created. CSVExporter was the lowest selected coverage result at 87.60% against the required 85%.

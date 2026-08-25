@@ -42,6 +42,9 @@ Phase 5 templates are the mandatory offline fallback. A purchase sheet shows one
 highest-severity message and 2–4 actions; Continue Purchase is the primary action, never a
 punitive secondary escape. Informational insights and minimal tone remain noninterrupting.
 Disabling check-ins suppresses presentation only and must not erase factual local insights.
+When advanced rule evidence is shown, label the supporting and total sample counts together with
+the integer confidence ratio. Do not describe that ratio as a probability, prediction, diagnosis,
+or guarantee; it is only the reproducible share of samples supporting the deterministic rule.
 
 ## Lock-screen notifications
 

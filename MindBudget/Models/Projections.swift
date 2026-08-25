@@ -220,6 +220,7 @@ struct SpendingInsightSummary: Equatable, Identifiable, Sendable {
     let titleKey: String
     let bodyKey: String
     let payload: [String: InsightValue]
+    let evidence: RuleEvidence?
     let relatedCategory: ExpenseCategory?
     let relatedEmotionTag: EmotionTag?
     let periodStart: Date

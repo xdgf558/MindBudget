@@ -1286,3 +1286,40 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   a missing signing identity or undeployed Production schema as complete; deploying Production to
   unblock local receipt work; allowing an iCloud failure to affect StoreKit or local Pro; or
   waiving later distribution/release gates.
+
+## DEC-COM-044 — Add advanced rule evidence without taking away the Free baseline
+
+- Status/date: **Accepted C4C-01 implementation decision — 2026-08-25**
+- Requirements: REQ-ENTITLEMENT-001; REQ-RECEIPT-PIPELINE-001;
+  REQ-RECEIPT-PRIVACY-001; SPEC-010/015; DEC-COM-014
+- Context: C4C-01 requires central premium seams, rule sample/confidence evidence, and local-model/
+  deterministic baselines. The entitlement vocabulary already reserves advanced local insights,
+  purchase-preflight/post-purchase variants, receipt scan/import, and Apple on-device AI for Pro.
+  DEC-COM-014 separately guarantees the current five-item wishlist, 30-day Insights, deterministic
+  templates, and basic reminder/review behavior to Free, so C4C-01 cannot implement its advanced
+  layer by locking those existing paths.
+- Decision: Extend `ExistingPremiumEntryAccess` with immutable decisions for advanced local
+  insight evidence, future purchase-preflight/post-purchase variants, receipt scan, and receipt
+  import. Keep existing deterministic insight generation, reminder presentation, and durable
+  review rows Free. Every new detector-produced rule carries `sampleCount`,
+  `supportingSampleCount`, and `confidenceBasisPoints`; confidence is the exact supporting/total
+  ratio truncated to integer basis points, not a probability or model score. Persist the evidence
+  inside the existing typed JSON payload under three reserved keys, separate it on read, accept
+  legacy rows with no triple, and fail closed on partial/inconsistent triples. Show the evidence
+  line only when the central `advancedLocalInsights` decision allows it.
+- Receipt baseline: Define only `.unavailable`, `.deterministic`, and
+  `.deterministicWithOnDeviceModel`. Both usable tiers require deterministic extraction; there is
+  no model-only or remote-model tier. Product scope remains disabled, and this packet adds no image,
+  OCR, temporary file, receipt persistence, prompt, or egress. SPEC-015's future float exception is
+  limited to the exact `ReceiptGeometry.swift` and `ReceiptVisionObservation.swift` paths and
+  rejects money vocabulary there.
+- Consequences: Exact Free retains its existing user value. Pro gains independently recomputable
+  evidence presentation, while entitlement removal merely hides that evidence and does not delete
+  financial or derived local rows. Missing local-model capability will fall back deterministically
+  after a later packet opens receipt product scope. C4C-02 through C4C-05 remain blocked until
+  C4C-01 passes independent review, hosted CI, merge, and explicit owner entry.
+- Alternatives rejected: Making the current Insights/reminder experience paid; computing confidence
+  with `Double`/`Float`; treating the ratio as statistical certainty; adding a model-only receipt
+  tier; enabling `FeatureFlags.enableReceiptImport`; adding camera/OCR/persistence early; accepting
+  partial evidence metadata; or widening the Vision float exception by directory or filename
+  pattern.

@@ -32,6 +32,7 @@ required_files=(
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
@@ -58,19 +59,73 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
-  Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
 
 # C4B uses a small structural parser rather than another phase-specific collection of prose
 # comparisons. It verifies the required contract declarations and makes a future CloudKit
 # import/entitlement fail unless DataController's primary local stores are explicitly `.none`.
 python3 -B Scripts/check_icloud_sync_contract.py --self-test
 python3 -B Scripts/check_icloud_sync_contract.py
+
+# C4C-01 establishes only premium/evidence seams. Receipt acquisition and OCR remain structurally
+# absent until their owning packets, while SPEC-015 is enforced by the dedicated money gate.
+for c4c01_contract in \
+  'DEC-COM-044' \
+  'existing 30-day Insights' \
+  'supportingSampleCount / sampleCount' \
+  '`LocalReceiptRecognitionBaseline`' \
+  '`FeatureFlags.enableReceiptImport` remains false' \
+  'C4C-02 through C4C-05 remain blocked'; do
+  if ! grep -Fq "${c4c01_contract}" \
+      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "C4C-01 premium/evidence contract is missing: ${c4c01_contract}" >&2
+    exit 1
+  fi
+done
+
+for c4c01_source_anchor in \
+  'var permitsAdvancedLocalInsights: Bool' \
+  'var permitsPurchasePreflight: Bool' \
+  'var permitsPostPurchaseReview: Bool' \
+  'enum LocalReceiptRecognitionBaseline' \
+  'struct RuleEvidence: Equatable, Sendable' \
+  'RuleEvidencePayload.persistedPayload(for: draft)' \
+  'premiumEntryAccess.permitsAdvancedLocalInsights'; do
+  if ! grep -Fq "${c4c01_source_anchor}" \
+      MindBudget/Commerce/FeatureAccessService.swift \
+      MindBudget/Services/SpendingPatternDetector.swift \
+      MindBudget/Data/DataActor.swift \
+      MindBudget/Features/Insights/InsightsView.swift; then
+    echo "C4C-01 source contract is missing: ${c4c01_source_anchor}" >&2
+    exit 1
+  fi
+done
+
+grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
+  echo "C4C-01 must keep receipt product scope disabled" >&2
+  exit 1
+}
+
+c4c01_early_receipt_surface="$({
+  grep -RInE \
+    '^[[:space:]]*import[[:space:]]+(Vision|VisionKit|PhotosUI)([^[:alnum:]_]|$)|NSCameraUsageDescription|NSPhotoLibraryUsageDescription' \
+    MindBudget Config MindBudget.xcodeproj
+} 2>/dev/null || true)"
+if [[ -n "${c4c01_early_receipt_surface}" ]]; then
+  echo "C4C-01 must not add image acquisition, OCR imports, or receipt permissions:" >&2
+  echo "${c4c01_early_receipt_surface}" >&2
+  exit 1
+fi
 
 SOURCE_SHA="$(
   sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |

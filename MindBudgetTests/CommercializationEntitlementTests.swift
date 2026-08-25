@@ -164,13 +164,43 @@ struct CommercializationEntitlementTests {
         )
 
         #expect(freeEntries.enablesAppleOnDeviceAI(userEnabled: true) == false)
+        #expect(freeEntries.permitsAdvancedLocalInsights == false)
         #expect(freeEntries.offersCustomCoolingOffDurations == false)
+        #expect(freeEntries.permitsPurchasePreflight == false)
+        #expect(freeEntries.permitsPostPurchaseReview == false)
         #expect(freeEntries.permitsAdvancedSiri == false)
+        #expect(
+            freeEntries.receiptRecognitionBaseline(
+                productScopeEnabled: true,
+                localModelAvailable: true
+            ) == .unavailable
+        )
 
         #expect(subscribedEntries.enablesAppleOnDeviceAI(userEnabled: false) == false)
         #expect(subscribedEntries.enablesAppleOnDeviceAI(userEnabled: true))
+        #expect(subscribedEntries.permitsAdvancedLocalInsights)
         #expect(subscribedEntries.offersCustomCoolingOffDurations)
+        #expect(subscribedEntries.permitsPurchasePreflight)
+        #expect(subscribedEntries.permitsPostPurchaseReview)
         #expect(subscribedEntries.permitsAdvancedSiri)
+        #expect(
+            subscribedEntries.receiptRecognitionBaseline(
+                productScopeEnabled: false,
+                localModelAvailable: true
+            ) == .unavailable
+        )
+        #expect(
+            subscribedEntries.receiptRecognitionBaseline(
+                productScopeEnabled: true,
+                localModelAvailable: false
+            ) == .deterministic
+        )
+        #expect(
+            subscribedEntries.receiptRecognitionBaseline(
+                productScopeEnabled: true,
+                localModelAvailable: true
+            ) == .deterministicWithOnDeviceModel
+        )
     }
 
     @Test
@@ -212,7 +242,10 @@ struct CommercializationEntitlementTests {
         let freeSession = AppSession(dataActor: controller.dataActor)
 
         #expect(freeSession.existingPremiumEntryAccess.offersAppleOnDeviceAI == false)
+        #expect(freeSession.existingPremiumEntryAccess.permitsAdvancedLocalInsights == false)
         #expect(freeSession.existingPremiumEntryAccess.offersCustomCoolingOffDurations == false)
+        #expect(freeSession.existingPremiumEntryAccess.permitsPurchasePreflight == false)
+        #expect(freeSession.existingPremiumEntryAccess.permitsPostPurchaseReview == false)
         #expect(freeSession.existingPremiumEntryAccess.permitsAdvancedSiri == false)
 
         #if DEBUG
@@ -223,7 +256,10 @@ struct CommercializationEntitlementTests {
             )
         )
         #expect(debugSession.existingPremiumEntryAccess.offersAppleOnDeviceAI)
+        #expect(debugSession.existingPremiumEntryAccess.permitsAdvancedLocalInsights)
         #expect(debugSession.existingPremiumEntryAccess.offersCustomCoolingOffDurations)
+        #expect(debugSession.existingPremiumEntryAccess.permitsPurchasePreflight)
+        #expect(debugSession.existingPremiumEntryAccess.permitsPostPurchaseReview)
         #expect(debugSession.existingPremiumEntryAccess.permitsAdvancedSiri)
         #endif
     }

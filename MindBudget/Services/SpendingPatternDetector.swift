@@ -7,6 +7,101 @@ enum InsightValue: Codable, Equatable, Sendable {
     case category(ExpenseCategory)
 }
 
+/// Integer-only evidence attached to every newly generated deterministic rule result.
+///
+/// `confidenceBasisPoints` is the exact supporting-sample ratio, not a statistical probability
+/// or an AI score. Keeping both counts makes the displayed percentage independently verifiable.
+struct RuleEvidence: Equatable, Sendable {
+    let sampleCount: Int
+    let supportingSampleCount: Int
+    let confidenceBasisPoints: Int
+
+    init?(
+        sampleCount: Int,
+        supportingSampleCount: Int,
+        confidenceBasisPoints: Int
+    ) {
+        guard sampleCount > 0,
+              (0...sampleCount).contains(supportingSampleCount),
+              (0...10_000).contains(confidenceBasisPoints),
+              confidenceBasisPoints == Self.confidenceBasisPoints(
+                supportingSampleCount: supportingSampleCount,
+                sampleCount: sampleCount
+              ) else {
+            return nil
+        }
+        self.sampleCount = sampleCount
+        self.supportingSampleCount = supportingSampleCount
+        self.confidenceBasisPoints = confidenceBasisPoints
+    }
+
+    static func measured(sampleCount: Int, supportingSampleCount: Int) -> RuleEvidence? {
+        guard sampleCount > 0, (0...sampleCount).contains(supportingSampleCount) else {
+            return nil
+        }
+        return RuleEvidence(
+            sampleCount: sampleCount,
+            supportingSampleCount: supportingSampleCount,
+            confidenceBasisPoints: confidenceBasisPoints(
+                supportingSampleCount: supportingSampleCount,
+                sampleCount: sampleCount
+            )
+        )
+    }
+
+    static let exact = RuleEvidence(
+        sampleCount: 1,
+        supportingSampleCount: 1,
+        confidenceBasisPoints: 10_000
+    )!
+
+    private static func confidenceBasisPoints(
+        supportingSampleCount: Int,
+        sampleCount: Int
+    ) -> Int {
+        let ratio = Decimal(supportingSampleCount) * Decimal(10_000) / Decimal(sampleCount)
+        return NSDecimalNumber(decimal: ratio).intValue
+    }
+}
+
+enum RuleEvidencePayload {
+    static let sampleCountKey = "__ruleEvidenceSampleCount"
+    static let supportingSampleCountKey = "__ruleEvidenceSupportingSampleCount"
+    static let confidenceBasisPointsKey = "__ruleEvidenceConfidenceBasisPoints"
+
+    static func persistedPayload(for draft: InsightDraft) -> [String: InsightValue] {
+        guard let evidence = draft.evidence else { return draft.payload }
+        var payload = draft.payload
+        payload[sampleCountKey] = .integer(evidence.sampleCount)
+        payload[supportingSampleCountKey] = .integer(evidence.supportingSampleCount)
+        payload[confidenceBasisPointsKey] = .basisPoints(evidence.confidenceBasisPoints)
+        return payload
+    }
+
+    static func decoded(
+        from persistedPayload: [String: InsightValue]
+    ) throws -> (payload: [String: InsightValue], evidence: RuleEvidence?) {
+        var payload = persistedPayload
+        let sample = payload.removeValue(forKey: sampleCountKey)
+        let supporting = payload.removeValue(forKey: supportingSampleCountKey)
+        let confidence = payload.removeValue(forKey: confidenceBasisPointsKey)
+        guard sample != nil || supporting != nil || confidence != nil else {
+            return (payload, nil)
+        }
+        guard case let .integer(sampleCount) = sample,
+              case let .integer(supportingSampleCount) = supporting,
+              case let .basisPoints(confidenceBasisPoints) = confidence,
+              let evidence = RuleEvidence(
+                sampleCount: sampleCount,
+                supportingSampleCount: supportingSampleCount,
+                confidenceBasisPoints: confidenceBasisPoints
+              ) else {
+            throw DataValidationError.invalidSpendingInsight
+        }
+        return (payload, evidence)
+    }
+}
+
 struct CycleAggregate: Equatable, Sendable {
     let periodStart: Date
     let periodEnd: Date
@@ -39,11 +134,36 @@ struct InsightDraft: Equatable, Sendable {
     let severity: InsightSeverity
     let dedupeKey: String
     let payload: [String: InsightValue]
+    let evidence: RuleEvidence?
     let throttleMetadata: ReminderThrottleMetadata
     let relatedCategory: ExpenseCategory?
     let relatedEmotionTag: EmotionTag?
     let periodStart: Date
     let periodEnd: Date
+
+    init(
+        type: SpendingInsightType,
+        severity: InsightSeverity,
+        dedupeKey: String,
+        payload: [String: InsightValue],
+        evidence: RuleEvidence? = nil,
+        throttleMetadata: ReminderThrottleMetadata,
+        relatedCategory: ExpenseCategory?,
+        relatedEmotionTag: EmotionTag?,
+        periodStart: Date,
+        periodEnd: Date
+    ) {
+        self.type = type
+        self.severity = severity
+        self.dedupeKey = dedupeKey
+        self.payload = payload
+        self.evidence = evidence
+        self.throttleMetadata = throttleMetadata
+        self.relatedCategory = relatedCategory
+        self.relatedEmotionTag = relatedEmotionTag
+        self.periodStart = periodStart
+        self.periodEnd = periodEnd
+    }
 
     var titleKey: String { "insight.\(type.rawValue).title" }
     var bodyKey: String { "insight.\(type.rawValue).body" }
@@ -124,9 +244,11 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                     value: -config.lateNightWindowDays,
                     to: latest.spentAt
                 ) ?? latest.spentAt
-                let count = expenses.filter {
+                let windowExpenses = expenses.filter {
                     windowStart <= $0.spentAt && $0.spentAt <= latest.spentAt
-                        && isLateNight($0, config: config, calendar: calendar)
+                }
+                let count = windowExpenses.filter {
+                    isLateNight($0, config: config, calendar: calendar)
                 }.count
                 if count >= config.lateNightMinimumCount {
                     drafts.append(
@@ -134,6 +256,10 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                             type: .lateNightSpending,
                             severity: .gentle,
                             payload: ["count": .integer(count)],
+                            evidence: RuleEvidence.measured(
+                                sampleCount: windowExpenses.count,
+                                supportingSampleCount: count
+                            ) ?? .exact,
                             snapshot: snapshot
                         )
                     )
@@ -157,17 +283,21 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             }
         }
 
-        let skippedCount = coolingOffOutcomes.filter {
-            $0.outcome == .skipped
-                && snapshot.cycle.start <= $0.outcomeRecordedAt
+        let currentCycleOutcomes = coolingOffOutcomes.filter {
+            snapshot.cycle.start <= $0.outcomeRecordedAt
                 && $0.outcomeRecordedAt < snapshot.cycle.end
-        }.count
+        }
+        let skippedCount = currentCycleOutcomes.filter { $0.outcome == .skipped }.count
         if skippedCount > 0 {
             drafts.append(
                 draft(
                     type: .coolingOffSuccess,
                     severity: .info,
                     payload: ["count": .integer(skippedCount)],
+                    evidence: RuleEvidence.measured(
+                        sampleCount: currentCycleOutcomes.count,
+                        supportingSampleCount: skippedCount
+                    ) ?? .exact,
                     snapshot: snapshot
                 )
             )
@@ -232,9 +362,11 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                 value: -config.lateNightWindowDays,
                 to: now
             ) ?? now
-            let existingCount = expenses.filter {
+            let windowExpenses = expenses.filter {
                 windowStart <= $0.spentAt && $0.spentAt <= now
-                    && isLateNight($0, config: config, calendar: calendar)
+            }
+            let existingCount = windowExpenses.filter {
+                isLateNight($0, config: config, calendar: calendar)
             }.count
             let count = existingCount + 1
             if count >= config.lateNightMinimumCount {
@@ -243,6 +375,10 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                         type: .lateNightSpending,
                         severity: .gentle,
                         payload: ["count": .integer(count)],
+                        evidence: RuleEvidence.measured(
+                            sampleCount: windowExpenses.count + 1,
+                            supportingSampleCount: count
+                        ) ?? .exact,
                         snapshot: snapshot
                     )
                 )
@@ -311,15 +447,21 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             value: -config.stressWindowDays,
             to: now
         ) ?? now
-        let stressCount = expenses.filter {
-            stressWindowStart <= $0.spentAt && $0.spentAt <= now && isStressRelated($0)
-        }.count + (candidate.map { isStressRelated($0) } == true ? 1 : 0)
+        let stressWindowExpenses = expenses.filter {
+            stressWindowStart <= $0.spentAt && $0.spentAt <= now
+        }
+        let stressCount = stressWindowExpenses.filter(isStressRelated).count
+            + (candidate.map { isStressRelated($0) } == true ? 1 : 0)
         if stressCount >= config.stressMinimumCount {
             drafts.append(
                 draft(
                     type: .repeatedStressSpending,
                     severity: .gentle,
                     payload: ["count": .integer(stressCount)],
+                    evidence: RuleEvidence.measured(
+                        sampleCount: stressWindowExpenses.count + (candidate == nil ? 0 : 1),
+                        supportingSampleCount: stressCount
+                    ) ?? .exact,
                     snapshot: snapshot,
                     relatedEmotionTag: .stressed
                 )
@@ -331,15 +473,21 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             value: -config.impulseWindowHours,
             to: now
         ) ?? now
-        let impulseCount = expenses.filter {
-            impulseWindowStart <= $0.spentAt && $0.spentAt <= now && isImpulseRelated($0)
-        }.count + (candidate.map { isImpulseRelated($0) } == true ? 1 : 0)
+        let impulseWindowExpenses = expenses.filter {
+            impulseWindowStart <= $0.spentAt && $0.spentAt <= now
+        }
+        let impulseCount = impulseWindowExpenses.filter(isImpulseRelated).count
+            + (candidate.map { isImpulseRelated($0) } == true ? 1 : 0)
         if impulseCount >= config.impulseMinimumCount {
             drafts.append(
                 draft(
                     type: .impulseCluster,
                     severity: .caution,
                     payload: ["count": .integer(impulseCount)],
+                    evidence: RuleEvidence.measured(
+                        sampleCount: impulseWindowExpenses.count + (candidate == nil ? 0 : 1),
+                        supportingSampleCount: impulseCount
+                    ) ?? .exact,
                     snapshot: snapshot,
                     relatedEmotionTag: .impulse
                 )
@@ -384,6 +532,12 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
                             ),
                             "change": .basisPoints(changeBasisPoints ?? 0)
                         ],
+                        evidence: RuleEvidence.measured(
+                            sampleCount: baseline.count,
+                            supportingSampleCount: baseline.filter {
+                                $0.imageRelatedMinorUnits > 0
+                            }.count
+                        ) ?? .exact,
                         snapshot: snapshot,
                         relatedEmotionTag: .imageBoost
                     )
@@ -416,6 +570,7 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
         type: SpendingInsightType,
         severity: InsightSeverity,
         payload: [String: InsightValue],
+        evidence: RuleEvidence = .exact,
         snapshot: BudgetSnapshot,
         scopeKey: String? = nil,
         categoryRiskBasisPoints: Int? = nil,
@@ -429,6 +584,7 @@ struct SpendingPatternDetector: SpendingPatternDetecting, Sendable {
             dedupeKey: "\(type.rawValue):\(periodKey(snapshot.cycle)):" +
                 "\(relatedCategory?.rawValue ?? "global")",
             payload: payload,
+            evidence: evidence,
             throttleMetadata: ReminderThrottleMetadata(
                 scopeKey: resolvedScope,
                 categoryRiskBasisPoints: categoryRiskBasisPoints

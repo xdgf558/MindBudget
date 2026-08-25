@@ -1169,3 +1169,18 @@ CloudSync probes remained explicit skips; the minimum selected coverage was CSVE
 against the required 85%. The validation script's ephemeral result bundle was
 `mindbudget-validation.D9L30N/MindBudget.xcresult` during the run and was removed by its normal
 temporary-directory cleanup after success.
+
+### C4C-01 premium seams and rule evidence candidate — 2026-08-25
+
+The final focused entitlement, rule-evidence, persistence, and exact-Free regression matrix passed
+92/92. One earlier diagnostic run exposed an overstated test-only inline-card expectation; the
+accepted regression proves the existing interrupting reminder, manual save, reminder history, and
+durable Insights row without injecting Pro into existing tests.
+
+The complete local validation entry passed at `/private/tmp/MindBudget-C4C01-Full.xcresult`: every
+static contract, Release compilation, strict wall-clock stage, 468 unit-test results across 27
+suites, 17/17 UI tests, and all selected core-service coverage thresholds passed. `xcresulttool`
+reports 485 logical results, zero failures, 474 passes, and eleven explicit skips on iPhone 17 Pro,
+iOS 26.5 (`23F77`). The four physical-only CloudKit probes remain intentional skips and create no
+C4C-01 physical claim. CSVExporter is the minimum selected coverage result at 87.60% against the
+required 85%.

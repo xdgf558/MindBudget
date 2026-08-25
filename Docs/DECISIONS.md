@@ -2683,3 +2683,21 @@ deployment/release proof to COM-C6/COM-C12; do not waive or execute those releas
 Consequences: C4B-03 and COM-C4B are Done, and COM-C4C receipt work is unblocked. No waived
 physical observation may be cited as passed, no Production action occurred, and StoreKit authority
 remains independent of iCloud evidence.
+
+---
+
+## 2026-08-25 — Preserve the Free baseline while adding C4C-01 rule evidence
+
+Context: C4C-01 must centralize accepted local-Pro seams and expose rule sample/confidence, while
+DEC-COM-014 explicitly keeps the existing 30-day Insights and basic deterministic reminder/review
+experience Free.
+
+Decision: Detailed ownership is DEC-COM-044. Keep every existing deterministic insight/reminder
+body available to Free. Add integer supporting/total sample counts and a reproducible basis-point
+support ratio to new rule rows; show that evidence line only through the central
+`advancedLocalInsights` decision. Define future receipt execution as unavailable, deterministic,
+or local-model enhanced with a mandatory deterministic fallback, while receipt product scope stays
+off.
+
+Consequences: C4C-01 adds advanced evidence and future seams without taking away a shipped Free
+capability or adding image/OCR/persistence/network behavior. C4C-02 through C4C-05 remain blocked.

@@ -205,6 +205,9 @@ does not label a person based on those tags.
 - Cooling-off lock-screen content contains the user-entered wishlist item name and neutral
   review copy, but never its amount or notes. Quiet hours defer rather than discard it.
 - V1 has no receipt, photo, or document import and requests no photo-library access.
+- C4C-01 adds only local integer rule evidence and closed future receipt capability tiers. The
+  sample/confidence line is computed from local counts, and `enableReceiptImport` remains false;
+  there is still no receipt image, OCR, temporary receipt file, prompt, cloud field, or egress.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and
