@@ -90,7 +90,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. Those
   release gates are not waived or authorized here. C4B-03 and COM-C4B are Done. Reviewed C4C-01
   head `d203308` passed GitHub Actions run `32845307426`, and PR #66 merged it as `8611022`.
-  C4C-01 is Done; C4C-02 awaits explicit owner entry, and later C4C packets remain blocked.
+  Reviewed closeout head `55a321c` passed run `32850616400`, and PR #67 merged it as `bdb94d9`.
+  C4C-01 is Done. The owner explicitly entered C4C-02; its bounded image acquisition/lifecycle
+  implementation is complete pending independent review, hosted CI, and merge. Later C4C packets
+  remain blocked.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -413,8 +416,11 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: enter C4C-02 only after an explicit owner instruction, then implement only
-image acquisition and lifecycle without OCR or persistence. Keep every C4B physical waiver
-disclosed as a non-pass under DEC-COM-039/042/043. Distribution signing and Production schema
-deployment remain explicit owner decisions and must not be inferred from the read-only Dashboard
-inspection or local Release archive.
+Next suggested task: complete independent review, hosted CI, and merge for C4C-02, then enter
+C4C-03 only after a separate explicit owner instruction. C4C-02 implements only
+bounded camera/photo-picker acquisition, geometry normalization, one protected temporary artifact,
+and deterministic cleanup; it does not implement OCR, persistence, model/network content, or a
+customer entry.
+Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
+signing and Production schema deployment remain explicit owner decisions and must not be inferred
+from the read-only Dashboard inspection or local Release archive.

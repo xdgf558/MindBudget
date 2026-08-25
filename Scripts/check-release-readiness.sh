@@ -132,6 +132,24 @@ for locale in en zh-Hans; do
     exit 1
   }
 done
+[[ "$(grep -o 'INFOPLIST_KEY_NSCameraUsageDescription = "Use the camera to capture a receipt for local processing."' "${PROJECT_FILE}" | wc -l | tr -d ' ')" == "2" ]] || {
+  echo "MindBudget app target must include the camera purpose string in Debug and Release" >&2
+  exit 1
+}
+for locale in en zh-Hans; do
+  camera_purpose="$(
+    plutil -extract "strings.NSCameraUsageDescription.localizations.${locale}.stringUnit.value" \
+      raw -o - "${INFO_PLIST_CATALOG}"
+  )"
+  [[ -n "${camera_purpose}" ]] || {
+    echo "Missing localized camera purpose for ${locale}" >&2
+    exit 1
+  }
+done
+if grep -Fq 'NSPhotoLibraryUsageDescription' "${PROJECT_FILE}" "${INFO_PLIST_CATALOG}"; then
+  echo "PHPicker must not add broad Photo Library permission" >&2
+  exit 1
+fi
 if grep -q 'DEVELOPMENT_TEAM' "${PROJECT_FILE}"; then
   echo "Do not hardcode an Apple Developer team in the shared project" >&2
   exit 1

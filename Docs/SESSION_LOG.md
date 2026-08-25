@@ -5532,3 +5532,29 @@ Release compilation, the strict Dashboard wall-clock stage, 468 unit-test result
 suites, 17/17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was
 the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
 remained explicit skips, so this run creates no new physical or release evidence.
+
+## 2026-08-25 — Enter C4C-02 with a bounded receipt image lifecycle
+
+After C4C-01 documentation merged through PR #67 as `bdb94d9`, the owner explicitly entered
+C4C-02. DEC-COM-045 adds only the acquisition and image-lifecycle substrate: a pure product/Pro/
+permission/hardware capability resolver, one-image PHPicker and DataScanner camera adapters,
+bounded ImageIO orientation/downsampling, geometry-only Vision/Core Image perspective correction,
+one protected and backup-excluded prepared JPEG, and deterministic startup/cancel/background/
+memory/Delete-All/session cleanup.
+
+`FeatureFlags.enableReceiptImport` remains false, so there is no customer entry and the new camera
+purpose string cannot be prompted by this build. No broad Photos permission, OCR result, structured
+field, receipt persistence, schema, iCloud field, model prompt, network channel, Production action,
+Archive/upload, tester, review, or release action was added. C4C-03 through C4C-05 remain blocked.
+
+The final focused result `/private/tmp/MindBudget-C4C02-Focused5.xcresult` passed 10/10 on iPhone
+17 Pro, iOS 26.5. It directly covers source-byte and source-pixel limits, corrupt input, EXIF
+orientation/downsampling, geometry rejection, lifecycle and caller cancellation at an injected
+suspension point, startup crash-orphan removal, and repeated prepared-only temporary teardown.
+
+The complete local `Scripts/validate.sh` entry then passed: every static contract, Release
+compilation, strict Dashboard wall-clock stage, 478 unit-test results across 28 suites, 17/17 UI
+tests, and every selected core-service coverage threshold. Four physical-only CloudKit probes
+remained explicit skips, and CSVExporter was the minimum selected coverage at 87.60% against the
+required 85%. The validation bundle was ephemeral and removed by the script after success. This
+candidate changes no enabled user-visible behavior, so `CHANGELOG.md` is intentionally unchanged.

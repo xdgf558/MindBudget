@@ -82,13 +82,17 @@ account-switch, offline, and quota observations are permanently waived non-passe
 DEC-COM-039/042/043; deterministic failure behavior remains required. Distribution signing,
 Production schema deployment, and release authority remain COM-C6/COM-C12 gates.
 C4C-01 is Done. Reviewed head `d203308` passed GitHub Actions run `32845307426`, and PR #66
-merged it as `8611022`. The merged packet extends the Commerce snapshot to the accepted local-Pro
+merged it as `8611022`; reviewed documentation head `55a321c` passed run `32850616400`, and PR #67
+merged it as `bdb94d9`. The merged packet extends the Commerce snapshot to the accepted local-Pro
 seams, keeps the existing 30-day Insights and basic reminder/review experience Free, and gates only
 the new integer sample/confidence evidence line as advanced local insight value. It also defines a
 pure unavailable/deterministic/local-model-with-deterministic-fallback receipt baseline while
-`enableReceiptImport` remains false. No image, camera, OCR, receipt persistence, schema, iCloud
-field, model prompt, or network channel is added. C4C-02 is next but remains blocked pending
-explicit owner entry; C4C-03 through C4C-05 remain blocked by their predecessors.
+`enableReceiptImport` remains false. The owner has now explicitly entered C4C-02. Its implementation
+candidate adds only bounded DataScanner/PHPicker acquisition, EXIF orientation/downsampling,
+geometry-only perspective correction, one protected non-backed-up temporary JPEG, and deterministic
+cleanup on cancellation/background/memory/Delete All. It adds no customer entry, OCR result,
+receipt persistence, schema, iCloud field, model prompt, or network channel. C4C-02 awaits
+independent review, hosted CI, and merge; C4C-03 through C4C-05 remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

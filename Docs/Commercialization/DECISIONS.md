@@ -1323,3 +1323,40 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   tier; enabling `FeatureFlags.enableReceiptImport`; adding camera/OCR/persistence early; accepting
   partial evidence metadata; or widening the Vision float exception by directory or filename
   pattern.
+
+## DEC-COM-045 — Bound receipt image acquisition before OCR and persistence
+
+- Status/date: **Accepted C4C-02 implementation decision — 2026-08-25**
+- Requirements: REQ-ENTITLEMENT-001; REQ-RECEIPT-PIPELINE-001;
+  REQ-RECEIPT-PRIVACY-001; SPEC-015; DEC-COM-044
+- Context: Reviewed C4C-01 source merged through PR #66 and its closeout merged through PR #67
+  (`bdb94d9`). The owner then explicitly entered C4C-02. This subpacket owns source selection,
+  permission/hardware availability, orientation, perspective geometry, resource limits,
+  cancellation, and temporary cleanup. OCR, extraction, validation, confirmation, and receipt
+  persistence belong to later subpackets and cannot be inferred from image acquisition.
+- Decision: Keep `FeatureFlags.enableReceiptImport` false and require both future product scope and
+  the central Pro receipt baseline before any acquisition surface can be available. Use PHPicker
+  for a single image without broad Photo Library permission and DataScanner as a camera surface
+  without a delegate or recognized-item consumer. Request camera permission only after a future
+  explicit camera-source action. Reject empty, corrupt, overflowed, over-48-MiB, or over-64-million-
+  pixel source input; use ImageIO to apply orientation while thumbnail-decoding to a 4,096-pixel
+  edge; cap the prepared image at 12 million pixels and 8 MiB. Restrict Vision to normalized
+  rectangle geometry and Core Image perspective correction in the exact SPEC-015 files. Keep only
+  one prepared JPEG in one file-protected, backup-excluded temporary directory. Caller/lifecycle
+  cancellation, replacement, startup orphan cleanup, background/inactive transitions, memory
+  pressure, Delete All, and AppSession teardown all converge on idempotent removal.
+- Consequences: Source bytes never enter the temporary store; prepared bytes are never SwiftData,
+  iCloud, analytics, logs, model input, or network payload in this packet. `NSCameraUsageDescription`
+  exists in English and Simplified Chinese, but the disabled product scope means this build has no
+  receipt customer entry and cannot initiate the prompt. PHPicker uses a temporary file
+  representation and materializes no more than the source-byte limit plus one sentinel byte.
+  Ten focused tests pass at
+  `/private/tmp/MindBudget-C4C02-Focused5.xcresult`, including source-pixel rejection, caller and
+  lifecycle cancellation, startup crash-orphan cleanup, and repeated prepared-only teardown.
+  C4C-03 remains blocked pending reviewed merge and a separate owner entry.
+- Alternatives rejected: Enabling receipt import with acquisition alone; requesting camera access
+  at launch; requesting broad Photos permission; decoding unbounded full-resolution images;
+  retaining original source bytes; storing receipt images in SwiftData, app backup, or iCloud;
+  consuming DataScanner/Vision text results; starting local-model or network processing; treating
+  temporary-file cleanup as best-effort UI work; or claiming C4C-05 resource stability from this
+  smaller lifecycle regression.

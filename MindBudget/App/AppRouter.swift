@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 @preconcurrency import CoreSpotlight
 
 private struct ExistingPremiumEntryAccessEnvironmentKey: EnvironmentKey {
@@ -51,6 +52,7 @@ final class AppSession: ObservableObject {
     private let publicConfigurationService: (any PublicConfigurationServicing)?
     private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
     private let cloudSyncService: (any CloudSyncServicing)?
+    private let receiptImageLifecycle: any ReceiptImageLifecycleHandling
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -130,6 +132,7 @@ final class AppSession: ObservableObject {
         publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling =
             SystemPublicConfigurationExpirationScheduler(),
         cloudSyncService: (any CloudSyncServicing)? = nil,
+        receiptImageLifecycle: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle(),
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -147,6 +150,7 @@ final class AppSession: ObservableObject {
         self.publicConfigurationService = publicConfigurationService
         self.publicConfigurationExpirationScheduler = publicConfigurationExpirationScheduler
         self.cloudSyncService = cloudSyncService
+        self.receiptImageLifecycle = receiptImageLifecycle
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
         if let cloudSyncService {
@@ -160,6 +164,8 @@ final class AppSession: ObservableObject {
     deinit {
         publicConfigurationRefreshTask?.cancel()
         publicConfigurationExpiryTask?.cancel()
+        let receiptImageLifecycle = receiptImageLifecycle
+        Task { await receiptImageLifecycle.discardTemporaryImage() }
     }
 
     func startCommerceLifecycle() async {
@@ -302,6 +308,10 @@ final class AppSession: ObservableObject {
         await cloudSyncService?.start()
     }
 
+    func startReceiptImageLifecycle() async {
+        await receiptImageLifecycle.start()
+    }
+
     func setCloudSyncEnabled(_ enabled: Bool) async {
         await cloudSyncService?.setEnabled(enabled)
     }
@@ -316,6 +326,10 @@ final class AppSession: ObservableObject {
 
     func refreshCloudSyncOnSceneActivation() async {
         await cloudSyncService?.sceneDidBecomeActive()
+    }
+
+    func discardReceiptImageWork() async {
+        await receiptImageLifecycle.discardTemporaryImage()
     }
 
     func cloudSyncConflicts() async -> [CloudSyncConflictSummary] {
@@ -673,6 +687,7 @@ final class AppSession: ObservableObject {
 
     @discardableResult
     func deleteAllData(settings: SettingsStore) async -> Bool {
+        await receiptImageLifecycle.discardTemporaryImage()
         await cloudSyncService?.stop()
         privacyDeletionState = .inProgress(.cancellingNotifications)
         do {
@@ -752,6 +767,7 @@ struct AppRouter: View {
         trialLifecycleScheduler: any TrialLifecycleScheduling = NoopTrialLifecycleScheduler(),
         publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         cloudSyncService: (any CloudSyncServicing)? = nil,
+        receiptImageLifecycle: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle(),
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -769,6 +785,7 @@ struct AppRouter: View {
                 trialLifecycleScheduler: trialLifecycleScheduler,
                 publicConfigurationService: publicConfigurationService,
                 cloudSyncService: cloudSyncService,
+                receiptImageLifecycle: receiptImageLifecycle,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -839,6 +856,11 @@ struct AppRouter: View {
             await session.startCloudSyncLifecycle()
         }
         .task {
+            // Clears only crash-orphaned C4C-02 temporary bytes. The actor is idempotent so a
+            // SwiftUI task recreation cannot erase a later active import.
+            await session.startReceiptImageLifecycle()
+        }
+        .task {
             await session.startCommerceLifecycle()
             await session.reconcileTrialLifecycle(
                 settings: settings,
@@ -851,6 +873,11 @@ struct AppRouter: View {
             )
             await session.prepare(settings: settings, calendar: calendar)
             await session.observeIntentNavigation()
+        }
+        .onReceive(NotificationCenter.default.publisher(
+            for: UIApplication.didReceiveMemoryWarningNotification
+        )) { _ in
+            Task { await session.discardReceiptImageWork() }
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -872,9 +899,11 @@ struct AppRouter: View {
             case .inactive, .background:
                 session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
+                Task { await session.discardReceiptImageWork() }
             @unknown default:
                 session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
+                Task { await session.discardReceiptImageWork() }
             }
         }
         .onChange(of: settings.requireFaceID) { _, _ in

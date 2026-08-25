@@ -89,6 +89,20 @@ struct LocalizationTests {
                 table: "InfoPlist"
             ) == "使用面容 ID 保护你保存在本机的预算记录。"
         )
+        #expect(
+            english.localizedString(
+                forKey: "NSCameraUsageDescription",
+                value: nil,
+                table: "InfoPlist"
+            ) == "Use the camera to capture a receipt for local processing."
+        )
+        #expect(
+            chinese.localizedString(
+                forKey: "NSCameraUsageDescription",
+                value: nil,
+                table: "InfoPlist"
+            ) == "使用相机拍摄收据，并仅在本机处理图像。"
+        )
     }
 
     @Test
