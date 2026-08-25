@@ -5515,3 +5515,20 @@ suites, 17/17 UI tests, and every selected coverage threshold passed. `xcresultt
 logical results, zero failures, 474 passes, and eleven explicit skips. Four physical-only CloudKit
 probes remain intentional skips; no physical, Production, Archive/upload, tester, or release claim
 is created. CSVExporter was the lowest selected coverage result at 87.60% against the required 85%.
+
+## 2026-08-25 — Close C4C-01 after independent review and green CI
+
+Independent review found no P1/P2 issue on exact head `d203308`. GitHub Actions run `32845307426`
+completed successfully on that head, and PR #66 merged it to `main` as `8611022`. C4C-01 is Done;
+C4C-02 remains blocked pending an explicit owner instruction.
+
+The optional review note about `RuleEvidence.measured(...) ?? .exact` is retained in the C4C
+execution packet: a future invariant violation must be surfaced rather than disguised as 1/1
+evidence. No behavior is changed in this closeout. There is no new image/OCR/persistence/network,
+Production, Archive/upload, tester, or release action, so no changelog entry is required.
+
+The documentation-only closeout branch then passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 468 unit-test results across 27
+suites, 17/17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was
+the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips, so this run creates no new physical or release evidence.

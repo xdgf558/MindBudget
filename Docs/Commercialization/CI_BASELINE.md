@@ -1184,3 +1184,21 @@ reports 485 logical results, zero failures, 474 passes, and eleven explicit skip
 iOS 26.5 (`23F77`). The four physical-only CloudKit probes remain intentional skips and create no
 C4C-01 physical claim. CSVExporter is the minimum selected coverage result at 87.60% against the
 required 85%.
+
+### C4C-01 reviewed merge closeout — 2026-08-25
+
+Independent review found no P1/P2 issue on exact head `d203308`. GitHub Actions run `32845307426`
+then completed successfully on that same head, including every static contract and the hosted Xcode
+Build and test job. PR #66 merged the reviewed source to `main` as `8611022` at 2026-08-25
+12:29:19 UTC.
+
+This closes C4C-01 only. The existing local evidence above remains the owning behavioral proof;
+the hosted run provides reviewed-head CI provenance rather than a new physical, Production,
+Archive/upload, tester, or release claim. Receipt import remains disabled, and C4C-02 requires an
+explicit owner entry before image acquisition work may begin.
+
+The documentation-only closeout branch also passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 468 unit-test results across 27
+suites, 17/17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was
+the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips; this validation creates no new physical or release claim.

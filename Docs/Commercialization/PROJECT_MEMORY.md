@@ -88,8 +88,9 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   merged it as `4f6d7fe`. DEC-COM-043 permanently waives physical account-switch/offline/quota
   observations as non-passes while retaining deterministic failure coverage, and assigns
   Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. Those
-  release gates are not waived or authorized here. C4B-03 and COM-C4B are Done; C4C-01 is active
-  with its implementation pending independent review, and later C4C packets remain blocked.
+  release gates are not waived or authorized here. C4B-03 and COM-C4B are Done. Reviewed C4C-01
+  head `d203308` passed GitHub Actions run `32845307426`, and PR #66 merged it as `8611022`.
+  C4C-01 is Done; C4C-02 awaits explicit owner entry, and later C4C packets remain blocked.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -412,8 +413,8 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the C4C-01 premium-seams/evidence source candidate, then
-require green hosted CI and merge before any C4C-02 entry. Keep every C4B physical waiver disclosed
-as a non-pass under DEC-COM-039/042/043. Distribution signing and Production schema deployment
-remain explicit owner decisions and must not be inferred from the read-only Dashboard inspection
-or local Release archive.
+Next suggested task: enter C4C-02 only after an explicit owner instruction, then implement only
+image acquisition and lifecycle without OCR or persistence. Keep every C4B physical waiver
+disclosed as a non-pass under DEC-COM-039/042/043. Distribution signing and Production schema
+deployment remain explicit owner decisions and must not be inferred from the read-only Dashboard
+inspection or local Release archive.

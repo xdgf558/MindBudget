@@ -236,7 +236,9 @@ waives only physical background-push observation without a pass. Reviewed final 
 passed run `32726507493`, and PR #64 merged it as `4f6d7fe`. DEC-COM-043 permanently waives the
 remaining physical account-switch/offline/quota observations as non-passes and assigns
 Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. C4C is
-unblocked; no release action is authorized.
+unblocked. Reviewed C4C-01 head `d203308` passed Actions run `32845307426`, and PR #66 merged it
+as `8611022`; C4C-01 is Done and C4C-02 awaits explicit owner entry. No release action is
+authorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -438,7 +440,8 @@ unblocked; no release action is authorized.
   offline, and quota observations as permanently waived non-passes; retain deterministic failure
   coverage; and move Distribution signing plus Production schema/deployment/release proof to
   COM-C6/COM-C12 without authorizing those actions. Unblock C4C-01.
-- [ ] Complete C4C-01 review/CI/merge for the central local-Pro seams and deterministic rule
+- [x] Complete C4C-01 review/CI/merge for the central local-Pro seams and deterministic rule
   evidence. Preserve the existing 30-day Insights and basic reminder/review experience as Free;
   expose only the new integer sample/confidence line through `advancedLocalInsights`; keep receipt
-  product scope off and C4C-02 through C4C-05 blocked.
+  product scope off and C4C-02 through C4C-05 blocked. Reviewed head `d203308` passed GitHub
+  Actions run `32845307426`, and PR #66 merged it as `8611022`.

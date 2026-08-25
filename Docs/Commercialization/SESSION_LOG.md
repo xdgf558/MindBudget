@@ -2366,3 +2366,27 @@ contracts, Release compilation, the strict wall-clock stage, 468 unit results ac
 results, zero failures, 474 passes, and eleven explicit skips. The four physical-only CloudKit
 probes remain intentional skips and do not belong to this packet. Minimum selected coverage is
 CSVExporter at 87.60%. No physical, Production, Archive/upload, tester, or release action occurred.
+
+## 2026-08-25 — Close C4C-01 after reviewed merge
+
+Independent review found no P1/P2 issue on head `d203308`. The review retained one non-blocking
+maintenance note: if a future detector refactor violates `supportingSampleCount <= sampleCount`,
+the evidence path must expose that invariant failure rather than silently presenting exact 1/1
+evidence. The current detector inputs satisfy the invariant, and the accepted integer confidence
+wording remains explicitly non-probabilistic.
+
+GitHub Actions run `32845307426` completed successfully on the reviewed head. PR #66 then merged
+the C4C-01 source to `main` as `8611022` on 2026-08-25. C4C-01 is Done. C4C-02 is next but remains
+blocked until explicit owner entry; C4C-03 through C4C-05 remain blocked by their predecessors.
+
+This documentation-only closeout adds no runtime, image permission, OCR, receipt persistence,
+schema, network, Production, Archive/upload, tester, or release change. `enableReceiptImport`
+remains false, so no receipt customer entry exists.
+
+The closeout branch passed the complete local validation entry: every static contract, Release
+compilation, the strict Dashboard wall-clock stage, 468 unit-test results across 27 suites, 17/17
+UI tests, and all selected core-service coverage thresholds passed. CSVExporter was the minimum
+selected result at 87.60% against the required 85%. Four physical-only CloudKit probes remained
+explicit skips. The validation script's ephemeral result bundle was
+`mindbudget-validation.lhbQJj/MindBudget.xcresult` during the run and was removed by normal
+temporary-directory cleanup after success.
