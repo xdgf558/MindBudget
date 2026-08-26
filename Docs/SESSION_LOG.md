@@ -5579,3 +5579,35 @@ suites, 17/17 UI tests, and every selected core-service coverage threshold passe
 the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
 remained explicit skips. The ephemeral result bundle
 `mindbudget-validation.iJejGl/MindBudget.xcresult` was removed by normal script cleanup.
+
+## 2026-08-26 — Enter C4C-03 with local OCR privacy before any model boundary
+
+C4C-02 documentation head `4ab0daf` passed GitHub Actions run `32911659905`, and PR #69 merged
+that closeout to `main` as `3e1c5c9`. The owner then explicitly entered C4C-03. DEC-COM-047 keeps
+the receipt product flag off and adds only a local OCR/privacy substrate: accurate Vision text
+recognition in one adapter, deterministic normalized reading order, retained non-money confidence,
+and a mandatory sensitive-text filter whose safe wrapper cannot be constructed outside its file.
+
+The filter replaces card-number, English/Chinese labelled or masked last-four, and labelled
+authorization-code spans with `[redacted]`. It accepts no more than 256 observations, 512 UTF-8
+bytes per line, and 16 KiB per filtered document. Invalid normalized geometry, invalid confidence,
+filter failure, or overflow rejects the document. Raw recognition text, even when filtered, has no
+current model, persistence, CloudKit, log, telemetry, or network consumer.
+
+The first focused attempt, `/private/tmp/MindBudget-C4C03-Focused1.xcresult`, failed during test
+compilation because a throwing filter call was embedded directly in `#require`; it executed no
+test and is not pass evidence. After separating the throwing call from the optional assertion,
+`/private/tmp/MindBudget-C4C03-Focused4.A42MrA/MindBudget.xcresult` passed 7/7. The cases cover English/Chinese and
+full-width sensitive forms, ordinary text, control normalization, deterministic sorting/ties,
+metadata retention, and fail-closed policy/count/byte/geometry/confidence limits. Receipt field accuracy,
+physical OCR, 60+ fixtures, 20-image stability, confirmation/persistence, C4C-04/C4C-05,
+Production, distribution, and release remain out of scope. With the customer feature still
+disabled, `CHANGELOG.md` is unchanged.
+
+The complete validation subsequently passed all static contracts, Release compilation, the strict
+Dashboard wall-clock stage, 485 unit-test results across 29 suites, all 17 UI tests, and every
+selected core-service coverage threshold. CSVExporter was the minimum selected result at 87.60%
+against the required 85%. Four physical-only CloudKit probes remained explicit skips; normal script
+cleanup removed the ephemeral `mindbudget-validation.dcltId/MindBudget.xcresult` bundle. An earlier
+sandboxed invocation passed static checks but could not access CoreSimulator/DerivedData and ended
+before an Xcode test result existed, so it is excluded as environment non-pass evidence.

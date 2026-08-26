@@ -2734,3 +2734,20 @@ to the later UI/evaluation packets instead of expanding the reviewed merge.
 Consequences: The acquisition/lifecycle substrate is merged, but no OCR, receipt field,
 persistence, model/network content, permission prompt, Production action, or release authority is
 created. COM-C4C and both receipt Requirements remain active.
+
+---
+
+## 2026-08-26 — Enter C4C-03 with a mandatory local OCR privacy boundary
+
+Context: C4C-02 source and documentation are merged through PR #68 (`4ca8f1c`) and PR #69
+(`3e1c5c9`). The owner explicitly entered C4C-03, whose accepted ownership stops before structured
+receipt extraction, money validation, confirmation, persistence, and UI.
+
+Decision: Detailed ownership is DEC-COM-047. Confine raw Vision-recognized text to one adapter and
+require card-number, labelled/masked last-four, and authorization-code removal before the only
+outward OCR line type can be formed. Preserve normalized geometry/order/confidence on that filtered
+line, cap all text inputs, and fail closed for invalid metadata, overflow, or filter failure.
+
+Consequences: The candidate creates a deterministic local pre-model privacy boundary without a
+model or network call. `enableReceiptImport` remains false; C4C-04/C4C-05, persistence, Production,
+and release stay blocked pending their own accepted phases.

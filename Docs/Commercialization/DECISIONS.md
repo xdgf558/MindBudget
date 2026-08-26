@@ -1385,3 +1385,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   reviewed C4C-02 source after merge; treating infrastructure existence as physical evidence;
   treating image-quality floats as money-policy exceptions; entering OCR automatically; or marking
   either active receipt Requirement or COM-C4C complete.
+
+## DEC-COM-047 — Make privacy-filtered local text the only OCR output
+
+- Status/date: **Accepted C4C-03 implementation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; SPEC-015;
+  DEC-COM-044/045/046
+- Context: C4C-02 documentation head `4ab0daf` passed GitHub Actions run `32911659905`, and PR #69
+  merged that closeout as `3e1c5c9`. The owner then explicitly entered C4C-03. This packet owns
+  local OCR geometry/order/confidence and mandatory pre-model sensitive-pattern removal, not field
+  extraction, money interpretation, confirmation, persistence, a customer surface, or release.
+- Decision: Confine `VNRecognizeTextRequest`, recognized candidates, and raw strings to the exact
+  `ReceiptVisionObservation.swift` adapter and its immediately invoked privacy pipeline. Permit an
+  output line only with `ReceiptModelSafeText`, whose constructor is file-private to the filter.
+  Replace 13–19 Unicode-digit card shapes with common separators, English or Chinese labelled/
+  masked last-four shapes, and labelled authorization/approval codes with `[redacted]`; do not
+  require Luhn validity. Retain normalized bounds and confidence on the filtered line. Order by a
+  fixed normalized vertical band, then horizontal origin, source index, and stable input index.
+  Cap input at 256 observations, 512 UTF-8 bytes per line, and 16 KiB per filtered document.
+  Reject the whole document for invalid geometry/confidence, capacity overflow, or filter failure.
+- Consequences: Raw recognized receipt text has no type path to models, SwiftData, CloudKit, logs,
+  or egress. Over-redaction is preferred to allowing a plausible payment credential. Empty lines
+  may disappear only after control/whitespace normalization; a sensitive-only line remains as a
+  marker so geometry/order evidence is not silently removed. Seven deterministic tests cover the
+  accepted patterns, stable order, retained metadata, and fail-closed limits. The product flag
+  remains false, and C4C-04/C4C-05 remain blocked.
+- Alternatives rejected: Returning raw OCR plus a caller instruction to redact; making safe text a
+  public/internal memberwise initializer; relying on Luhn validity after OCR; silently truncating
+  an over-limit document; using unstable collection order; persisting an intermediate; sending
+  OCR to a remote model; enabling receipt import; or claiming C4C-04/C4C-05 accuracy/confirmation
+  evidence from this infrastructure packet.

@@ -24,6 +24,41 @@ struct ReceiptQuadrilateral: Equatable, Sendable {
     }
 }
 
+/// Normalized Vision-space bounds retained with a privacy-filtered OCR line.
+struct ReceiptNormalizedBounds: Equatable, Sendable {
+    let minX: CGFloat
+    let minY: CGFloat
+    let width: CGFloat
+    let height: CGFloat
+
+    init(rect: CGRect) {
+        minX = rect.minX
+        minY = rect.minY
+        width = rect.width
+        height = rect.height
+    }
+
+    init(minX: CGFloat, minY: CGFloat, width: CGFloat, height: CGFloat) {
+        self.minX = minX
+        self.minY = minY
+        self.width = width
+        self.height = height
+    }
+
+    var maxX: CGFloat { minX + width }
+    var maxY: CGFloat { minY + height }
+    var midY: CGFloat { minY + height / 2 }
+
+    var isNormalized: Bool {
+        minX >= 0
+            && minY >= 0
+            && width > 0
+            && height > 0
+            && maxX <= 1
+            && maxY <= 1
+    }
+}
+
 struct ReceiptRectangleDetectionPolicy: Equatable, Sendable {
     let minimumConfidence: Float
     let minimumAspectRatio: Float

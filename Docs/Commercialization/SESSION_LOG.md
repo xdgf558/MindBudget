@@ -2435,3 +2435,33 @@ suites, 17/17 UI tests, and every selected coverage threshold passed. CSVExporte
 selected result at 87.60%. Four physical-only CloudKit probes remained explicit skips. The
 ephemeral bundle `mindbudget-validation.iJejGl/MindBudget.xcresult` was removed by normal cleanup.
 No Production, Archive/upload, tester, review, distribution, or release action occurred.
+
+## 2026-08-26 — C4C-03 local OCR and pre-model privacy candidate
+
+Reviewed C4C-02 documentation head `4ab0daf` passed GitHub Actions run `32911659905`, and PR #69
+merged it as `3e1c5c9`. The owner explicitly entered C4C-03 afterward. DEC-COM-047 confines raw
+`VNRecognizeTextRequest` candidates to `ReceiptVisionObservation.swift` and its immediate privacy
+pipeline. Only a `ReceiptModelSafeText` line can emerge; its initializer is file-private to the
+mandatory card-number/last-four/authorization-code filter.
+
+The pipeline retains normalized geometry and non-money confidence, orders fixed vertical bands
+top-to-bottom and then left-to-right with stable tie breakers, and rejects invalid metadata or
+bounded-input overflow. Its 256-observation, 512-byte-line, and 16-KiB-document limits cannot
+silently truncate. The customer flag stays false, and no structured receipt field, persistence,
+model call, HTTP(S), telemetry, iCloud field, Production, or release action exists.
+
+Focused attempt `/private/tmp/MindBudget-C4C03-Focused1.xcresult` failed at test compilation due to
+throwing-expression placement inside `#require`; it ran no test and is excluded. Corrected bundle
+`/private/tmp/MindBudget-C4C03-Focused4.A42MrA/MindBudget.xcresult` passed 7/7 across accepted sensitive patterns,
+ordinary text, normalization, deterministic order/ties, metadata retention, and failure limits,
+including an unsafe reading-band policy.
+The complete validation then passed all static contracts, Release compilation, the strict Dashboard
+wall-clock stage, 485 unit-test results across 29 suites, 17/17 UI tests, and every selected
+core-service coverage threshold. CSVExporter was the minimum selected result at 87.60% against the
+required 85%. Four physical-only CloudKit probes remained explicit skips, and the ephemeral
+`mindbudget-validation.dcltId/MindBudget.xcresult` bundle was removed by normal cleanup. The
+preceding sandboxed invocation could not access CoreSimulator/DerivedData and stopped before an
+Xcode test result existed; it is excluded as environment non-pass evidence.
+C4C-04/C4C-05, physical OCR/accuracy, 60+ fixtures, 20-image stability, confirmation/persistence,
+Production, distribution, and release remain blocked. `CHANGELOG.md` is unchanged because no
+enabled customer behavior changed.

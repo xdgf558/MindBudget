@@ -1237,3 +1237,35 @@ remained explicit skips. The result bundle was
 `mindbudget-validation.iJejGl/MindBudget.xcresult` during execution and was removed by normal
 temporary-directory cleanup. This evidence adds no physical, OCR/accuracy, Production,
 Archive/upload, tester, distribution, or release claim.
+
+Documentation head `4ab0daf` subsequently passed GitHub Actions run `32911659905`, and PR #69
+merged the C4C-02 closeout to `main` as `3e1c5c9`. That documentation merge is predecessor evidence
+only; it did not enter C4C-03 automatically.
+
+### C4C-03 local OCR/privacy candidate — 2026-08-26
+
+After the owner's explicit C4C-03 entry, the first focused attempt at
+`/private/tmp/MindBudget-C4C03-Focused1.xcresult` failed at test compilation because a throwing
+filter call was placed directly inside a Testing `#require` macro. It executed no C4C-03 test and
+is excluded from pass evidence. The test separated the throwing call from the optional requirement
+without changing production behavior.
+
+The final focused run at `/private/tmp/MindBudget-C4C03-Focused4.A42MrA/MindBudget.xcresult` passed 7/7 tests in
+one suite on iPhone 17 Pro, iOS 26.5. It covers English and Chinese card/last-four/authorization
+patterns, full-width digits, ordinary-text preservation, control normalization, deterministic
+reading order and tie breaks, geometry/confidence retention, and fail-closed policy/count/line/
+document/geometry/confidence limits. This is deterministic privacy-boundary evidence, not receipt-field
+accuracy, physical DataScanner/PHPicker/OCR, 60+ fixture, 20-image stability, Production, Archive,
+upload, tester, review, distribution, or release evidence.
+
+The complete validation then passed every static contract, Release compilation, the strict
+Dashboard wall-clock stage, 485 unit-test results across 29 suites, all 17 UI tests, and every
+selected core-service coverage threshold. CSVExporter was the minimum selected result at 87.60%
+against the required 85%. Four physical-only CloudKit probes remained explicit skips. The ephemeral
+result bundle `mindbudget-validation.dcltId/MindBudget.xcresult` was removed by normal script cleanup.
+Independent review and hosted CI remain merge gates for this candidate.
+
+An immediately preceding sandboxed invocation passed the static contracts but could not access
+CoreSimulator or the user DerivedData directory and stopped before an Xcode test result existed. It
+is environment non-pass evidence and is excluded; the identical outside-sandbox rerun above is the
+accepted complete validation.

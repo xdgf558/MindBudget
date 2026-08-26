@@ -75,9 +75,9 @@ python3 -B "${PHASE_STATE_CHECKER}" \
 python3 -B Scripts/check_icloud_sync_contract.py --self-test
 python3 -B Scripts/check_icloud_sync_contract.py
 
-# C4C-01 established premium/evidence seams. C4C-02 owns only bounded system image acquisition,
-# geometry normalization, one protected temporary artifact, and deterministic teardown. OCR,
-# field extraction, persistence, and a customer entry remain structurally absent.
+# C4C-01 established premium/evidence seams. C4C-02 owns bounded system image acquisition and
+# temporary lifecycle. C4C-03 adds local OCR only through the mandatory sensitive-text boundary;
+# field extraction, persistence, model use, and a customer entry remain structurally absent.
 for c4c01_contract in \
   'DEC-COM-044' \
   'existing 30-day Insights' \
@@ -148,9 +148,9 @@ if [[ -n "${c4c02_unowned_import}" ]]; then
   exit 1
 fi
 
-if grep -RInE 'VNRecognizeTextRequest|VNRecognizedText|DataScannerViewControllerDelegate|recognizedItems' \
+if grep -RInE 'DataScannerViewControllerDelegate|recognizedItems' \
     MindBudget/Services/ReceiptRecognition; then
-  echo "C4C-02 must not implement or consume OCR results" >&2
+  echo "C4C-03 must not consume live DataScanner recognition callbacks" >&2
   exit 1
 fi
 if grep -RInE '(^|[^[:alnum:]_])(SwiftData|DataActor|ModelContext|CloudSync)([^[:alnum:]_]|$)' \
@@ -167,8 +167,56 @@ fi
   exit 1
 }
 
+for c4c03_source_anchor in \
+  'let maximumObservationCount: Int' \
+  'maximumObservationCount: 256' \
+  'maximumObservationBytes: 512' \
+  'maximumDocumentBytes: 16 * 1_024' \
+  'let text: ReceiptModelSafeText' \
+  'fileprivate init(storage:' \
+  'static let replacementToken = "[redacted]"' \
+  'case paymentCardNumber' \
+  'case paymentCardLastFour' \
+  'case authorizationCode' \
+  'let request = VNRecognizeTextRequest()' \
+  'request.automaticallyDetectsLanguage = true' \
+  'ReceiptOCRPrivacyPipeline(' \
+  'return lhs.stableIndex < rhs.stableIndex'; do
+  if ! grep -RFq "${c4c03_source_anchor}" \
+      MindBudget/Services/ReceiptRecognition; then
+    echo "C4C-03 local OCR/privacy source contract is missing: ${c4c03_source_anchor}" >&2
+    exit 1
+  fi
+done
+
+c4c03_unowned_raw_ocr="$({
+  grep -RInE 'VNRecognizeTextRequest|VNRecognizedText|ReceiptVisionTextObservation' MindBudget \
+    | grep -vE 'MindBudget/Services/ReceiptRecognition/ReceiptVisionObservation\.swift:'
+} 2>/dev/null || true)"
+if [[ -n "${c4c03_unowned_raw_ocr}" ]]; then
+  echo "C4C-03 raw OCR escaped its exact reviewed Vision adapter:" >&2
+  echo "${c4c03_unowned_raw_ocr}" >&2
+  exit 1
+fi
+
+c4c03_unowned_safe_ocr="$({
+  grep -RInE 'ReceiptOCRDocument|ReceiptModelSafeText' MindBudget \
+    | grep -vE 'MindBudget/Services/ReceiptRecognition/(ReceiptVisionObservation|ReceiptSensitiveTextFilter)\.swift:'
+} 2>/dev/null || true)"
+if [[ -n "${c4c03_unowned_safe_ocr}" ]]; then
+  echo "C4C-03 filtered OCR escaped the dormant receipt boundary before C4C-04:" >&2
+  echo "${c4c03_unowned_safe_ocr}" >&2
+  exit 1
+fi
+
+if grep -RInE '(^|[^[:alnum:]_])(URLSession|AIAdviceGenerator|AskMindBudgetService|PublicConfigurationTransport)([^[:alnum:]_]|$)' \
+    MindBudget/Services/ReceiptRecognition; then
+  echo "C4C-03 local receipt processing must not gain a model or network channel" >&2
+  exit 1
+fi
+
 # C4C-01 is closed only by the reviewed exact head, hosted CI, source merge, and documentation
-# closeout. C4C-02 additionally requires the owner's explicit entry; source work may not infer it.
+# closeout. Every later subphase additionally requires the owner's explicit entry.
 for c4c01_closeout_anchor in \
   'd203308' \
   '32845307426' \
@@ -211,14 +259,17 @@ if grep -Eq 'C4C-02 (remains |is )?blocked|C4C-02 through C4C-05 remain blocked'
   exit 1
 fi
 
-# C4C-02 is closed only by the independently reviewed exact head, hosted CI, and source merge.
-# The closeout must not enable the receipt entry or infer owner entry into C4C-03.
+# C4C-02 is closed only by independently reviewed source and documentation heads plus their green
+# hosted runs and merges. The owner subsequently entered C4C-03; the customer entry stays off.
 for c4c02_closeout_anchor in \
   '43c3a35' \
   '32860643712' \
   '4ca8f1c' \
+  '4ab0daf' \
+  '32911659905' \
+  '3e1c5c9' \
   'C4C-02 is Done' \
-  'C4C-03 remains blocked'; do
+  'owner explicitly entered C4C-03'; do
   if ! grep -Fq "${c4c02_closeout_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -243,8 +294,18 @@ if grep -Eq 'C4C-02 (implementation (is )?complete pending independent review|aw
   exit 1
 fi
 
+if grep -Eq 'C4C-03 (remains |is )?blocked|C4C-03 through C4C-05 remain blocked|awaiting explicit owner entry for C4C-03' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C4C-03 as blocked after owner entry" >&2
+  exit 1
+fi
+
 grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
-  echo "C4C-02 closeout must not enable receipt import" >&2
+  echo "C4C-03 must not enable receipt import" >&2
   exit 1
 }
 
