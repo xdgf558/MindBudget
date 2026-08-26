@@ -2,16 +2,18 @@
 
 ## Status
 
-Status: **In Progress — awaiting explicit owner entry for C4C-03.**
+Status: **C4C-03 implementation complete pending independent review and hosted CI.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
 PR #66 merged it as `8611022`; documentation closeout head `55a321c` passed Actions run
 `32850616400`, and PR #67 merged it as `bdb94d9`. The owner then explicitly entered C4C-02.
 Reviewed C4C-02 head `43c3a35` passed Actions run `32860643712`, and PR #68 merged it as
-`4ca8f1c`. C4C-02 is Done. It adds bounded camera/photo-picker acquisition infrastructure and one
-protected temporary image lifecycle, but no customer entry, OCR result, receipt persistence,
-iCloud receipt field, model prompt, network channel, Production action, or release authority.
+`4ca8f1c`. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged that closeout
+as `3e1c5c9`. C4C-02 is Done. The owner then explicitly entered C4C-03. The current candidate adds
+a bounded local OCR/privacy boundary, but no customer entry, structured receipt field,
+persistence, iCloud receipt field, model prompt, network channel, Production action, or release
+authority.
 
 ## Input gate
 
@@ -143,20 +145,63 @@ persistence.
   every selected coverage threshold. CSVExporter was the minimum selected result at 87.60%.
 - Independent review found no P1/P2 issue. Reviewed head `43c3a35` passed hosted GitHub Actions run
   `32860643712`, and PR #68 merged it to `main` as `4ca8f1c` on 2026-08-26 Singapore time.
+- Documentation head `4ab0daf` passed hosted run `32911659905`, and PR #69 merged the closeout as
+  `3e1c5c9` before the owner explicitly entered C4C-03.
 - The review retained three non-blocking boundaries: scanner temporary-unavailability should gain
   a dedicated error when an actual UI consumes it; the system adapters remain dormant until a
   later packet creates a customer surface and physical evidence remains C4C-05 work; non-money
   image-quality floating-point literals do not widen the money exception.
-- C4C-03 remains blocked pending a separate explicit owner entry. This packet does not inspect
-  recognized text, redact receipt content, produce structured fields, validate money, persist a
-  draft, or enable `enableReceiptImport`.
+- C4C-02 did not enter OCR automatically. The later owner instruction entered C4C-03 only; the
+  product flag remains off and C4C-04/C4C-05 remain blocked.
 
 ## C4C-03 — OCR and pre-model privacy
 
-Status: **Blocked pending explicit owner entry after C4C-02.**
+Status: **Implementation complete pending independent review and hosted CI.**
 
 Own local OCR geometry/order/confidence and removal of card numbers, last-four patterns, and
 authorization codes before any model boundary.
+
+### Accepted candidate boundary
+
+- `VNRecognizeTextRequest` remains confined to `ReceiptVisionObservation.swift`, runs locally at
+  accurate recognition, and automatically detects language. The adapter converts Vision output
+  to normalized bounds, source index, and confidence without logging or publishing raw text.
+- A raw observation may exist only inside the exact Vision adapter and the immediately invoked
+  privacy pipeline. The only outward line type contains `ReceiptModelSafeText`, whose initializer
+  is file-private to `ReceiptSensitiveTextFilter.swift`; another production file cannot construct
+  a supposedly safe value from unfiltered text.
+- The filter removes 13–19 Unicode-digit card-number shapes with common printed separators,
+  explicitly labelled or masked last-four shapes in English and Simplified/Traditional Chinese,
+  and labelled authorization/approval codes. Each removed span becomes the stable non-content
+  marker `[redacted]`, preserving the line's geometry, order, and confidence without preserving
+  the secret value. It intentionally does not require Luhn validity, so an OCR error over-redacts
+  rather than allowing a plausible card value through.
+- Observations are capped at 256, each input/output line at 512 UTF-8 bytes, and the filtered
+  document at 16 KiB. Invalid normalized geometry, non-finite/out-of-range confidence, count/byte
+  overflow, or filter failure rejects the complete document instead of emitting partial authority.
+  Empty/control-only lines are omitted after control and whitespace normalization.
+- Reading order is deterministic: normalized vertical midpoint is placed in a fixed 0.025-height
+  band from top to bottom, then horizontal origin, Vision source index, and original array index
+  break ties from left to right. No task scheduling or collection instability selects the order.
+
+### Verification and stop conditions
+
+- Seven focused tests at `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult` cover English, Simplified/
+  Traditional Chinese, full-width digits, separated and masked card forms, authorization codes,
+  the full-card-before-last-four ordering regression, ordinary text preservation, control
+  normalization, deterministic ordering and tie-breaking, geometry/confidence retention, and
+  fail-closed policy/count/line/document/geometry/confidence limits.
+- The complete local validation passed every static contract, Release compilation, the strict
+  Dashboard wall-clock stage, 485 unit-test results across 29 suites, all 17 UI tests, and every
+  selected core-service coverage threshold. CSVExporter was the minimum selected result at 87.60%
+  against the required 85%; four physical-only CloudKit probes remained explicit skips.
+- Static contracts allow raw Vision OCR symbols only in the exact adapter, allow filtered OCR
+  types only inside the dormant receipt-recognition directory, retain the two exact non-money
+  floating-point files, and reject any receipt model/network/persistence expansion.
+- `FeatureFlags.enableReceiptImport` remains false. This candidate adds no customer surface,
+  permission prompt, SwiftData/CloudKit field, model call, HTTP(S), telemetry, receipt accuracy
+  claim, physical OCR claim, Production action, or distribution authority. C4C-04 and C4C-05 stay
+  blocked until this exact source passes independent review, green hosted CI, and merge.
 
 ## C4C-04 — Structured extraction and validation
 

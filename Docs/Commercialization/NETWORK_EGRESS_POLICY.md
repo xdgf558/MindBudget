@@ -69,3 +69,8 @@ The C4C-02 implementation merged through PR #68 (`4ca8f1c`) adds Apple
 camera/DataScanner/PHPicker and local
 Vision/Core Image processing only. It creates no URLSession/HTTP(S), endpoint, prompt, model,
 telemetry, iCloud receipt field, or other app-owned egress; receipt product scope remains disabled.
+After PR #69 merged the C4C-02 closeout as `3e1c5c9`, the owner explicitly entered C4C-03. Its
+candidate adds only a local `VNRecognizeTextRequest` and mandatory in-process sensitive-text
+filter. Raw OCR cannot leave the exact adapter/privacy pipeline, and even the filtered document has
+no model, persistence, CloudKit, telemetry, URLSession, HTTP(S), endpoint, or other egress consumer.
+Receipt product scope remains disabled.

@@ -93,7 +93,12 @@ geometry-only perspective correction, one protected non-backed-up temporary JPEG
 cleanup on cancellation/background/memory/Delete All. It adds no customer entry, OCR result,
 receipt persistence, schema, iCloud field, model prompt, or network channel. Reviewed head
 `43c3a35` passed GitHub Actions run `32860643712`, and PR #68 merged it as `4ca8f1c`; C4C-02 is
-Done. C4C-03 through C4C-05 remain blocked pending a separate explicit owner entry.
+Done. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged its closeout as
+`3e1c5c9`. The owner explicitly entered C4C-03. Its candidate confines raw Vision OCR to one local
+adapter, removes card-number, labelled/masked last-four, and authorization-code patterns before a
+file-private model-safe type can be formed, retains deterministic normalized geometry/order/
+confidence, and rejects invalid or over-limit documents. `enableReceiptImport` remains false;
+C4C-04/C4C-05, persistence, model/network use, Production, and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

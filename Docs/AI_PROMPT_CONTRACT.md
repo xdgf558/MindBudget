@@ -21,6 +21,11 @@
     the allow-listed aggregate counts below.
 11. Income rows, sources, and notes are not model facts in V1. Recording income never widens an
     advice, summary, or Ask context; only the user-configured budget remains authoritative there.
+12. Raw receipt OCR is never a model fact. C4C-03 creates no model call and permits only
+    `ReceiptModelSafeText` after mandatory card-number, labelled/masked last-four, and
+    authorization-code removal to leave the local Vision privacy pipeline. Any future local-model
+    receipt consumer must accept that safe wrapper rather than a raw recognized string; remote
+    receipt OCR remains forbidden.
 
 ## Redacted advice context
 

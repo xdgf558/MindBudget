@@ -239,8 +239,10 @@ Distribution signing plus Production schema/deployment/release proof to COM-C6/C
 unblocked. Reviewed C4C-01 head `d203308` passed Actions run `32845307426`, and PR #66 merged it
 as `8611022`; PR #67 (`bdb94d9`) closed its documentation after run `32850616400`. C4C-01 is Done.
 The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actions run
-`32860643712`, and PR #68 merged it as `4ca8f1c`; C4C-02 is Done while C4C-03 remains blocked
-pending a separate explicit owner entry. No release action is authorized.
+`32860643712`, and PR #68 merged it as `4ca8f1c`; documentation head `4ab0daf` passed run
+`32911659905`, and PR #69 merged the closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly
+entered C4C-03; its implementation is pending independent review and hosted CI. No customer entry,
+later receipt stage, Production, or release action is authorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -455,6 +457,10 @@ pending a separate explicit owner entry. No release action is authorized.
   orientation/perspective/downsampling, one protected non-backed-up temporary JPEG, and teardown
   on cancellation/background/memory/Delete All. Receipt entry remains disabled; OCR, receipt
   persistence, model/network content, C4C-03, Production, and release actions remain out of scope.
-- [ ] Complete the C4C-02 documentation closeout through independent review, green hosted CI, and
-  merge. The closeout records DEC-COM-046, preserves the three non-blocking review observations as
-  later UI/evaluation work, and must not enter C4C-03 automatically.
+- [x] Complete the C4C-02 documentation closeout. Reviewed head `4ab0daf` passed GitHub Actions run
+  `32911659905`, and PR #69 merged it as `3e1c5c9` without entering C4C-03 automatically.
+- [ ] Complete C4C-03 independent review, hosted CI, and merge after the owner's explicit entry.
+  The source candidate runs local Vision OCR only inside one reviewed adapter, forms output only
+  after mandatory card-number/last-four/authorization-code removal, preserves deterministic
+  normalized geometry/order/confidence, and fails closed on invalid or bounded-input failures.
+  `enableReceiptImport` stays false; C4C-04/C4C-05 and every release action remain blocked.

@@ -215,6 +215,13 @@ does not label a person based on those tags.
   non-backed-up temporary directory and is removed on startup, cancellation, background/inactive,
   memory warning, Delete All, or teardown. C4C-02 does not expose OCR results or persist receipt
   content.
+- C4C-03 adds dormant local Vision OCR infrastructure without enabling the receipt entry. Raw
+  recognized text is confined to one adapter and cannot be returned as a model-safe value. Before
+  any line may leave the privacy pipeline, the app removes card-number shapes, labelled/masked
+  last-four shapes, and labelled authorization codes and replaces each sensitive span with a
+  non-content marker. Invalid geometry/confidence, filter failure, or count/byte overflow rejects
+  the document. No receipt text is logged, persisted, synced, sent to a model, or sent over a
+  network; structured extraction and confirmation remain later phases.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and
