@@ -1269,3 +1269,10 @@ An immediately preceding sandboxed invocation passed the static contracts but co
 CoreSimulator or the user DerivedData directory and stopped before an Xcode test result existed. It
 is environment non-pass evidence and is excluded; the identical outside-sandbox rerun above is the
 accepted complete validation.
+
+Independent review of PR #70 found no P1/P2 issue and identified one optional ordering-regression
+hardening item. The review fix documents that the complete-card rule must precede the labelled
+last-four rule and adds a labelled, separated sixteen-digit regression case that would expose the
+twelve-digit remainder if those rules were reordered. The exact review-fix source passed 7/7 focused
+tests at `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. The production
+patterns and phase scope are unchanged; hosted CI on the new exact head remains the merge gate.

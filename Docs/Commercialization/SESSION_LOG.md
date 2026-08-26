@@ -2465,3 +2465,12 @@ Xcode test result existed; it is excluded as environment non-pass evidence.
 C4C-04/C4C-05, physical OCR/accuracy, 60+ fixtures, 20-image stability, confirmation/persistence,
 Production, distribution, and release remain blocked. `CHANGELOG.md` is unchanged because no
 enabled customer behavior changed.
+
+Independent review of PR #70 found no P1/P2 issue. Before merge, the owner accepted the optional
+P3 ordering hardening: the rule array now states that a complete PAN must be removed before a
+labelled last-four rule can consume its first group, and the sensitive-pattern table includes a
+labelled, separated sixteen-digit case that fails if reordering leaves a twelve-digit remainder.
+The exact review-fix source passed 7/7 at
+`/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. No production pattern,
+customer surface, model/network boundary, or phase status changed; green hosted CI on the new head
+remains required before merge.

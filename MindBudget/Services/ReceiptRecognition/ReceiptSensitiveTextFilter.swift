@@ -83,6 +83,9 @@ struct ReceiptSensitiveTextFilter {
     }
 
     private var rules: [Rule] {
+        // Ordering is part of the privacy contract. A complete PAN must be removed before a
+        // labelled last-four rule can consume its first group and leave only twelve digits,
+        // which would fall below the PAN rule's thirteen-digit lower bound.
         [
             Rule(
                 kind: .paymentCardNumber,

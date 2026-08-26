@@ -14,6 +14,11 @@ struct ReceiptOCRPrivacyTests {
                 [.paymentCardNumber]
             ),
             (
+                "Card No. 4111 1111 1111 1111",
+                "Card No. [redacted]",
+                [.paymentCardNumber]
+            ),
+            (
                 "卡号：４１１１-１１１１-１１１１-１１１１",
                 "卡号：[redacted]",
                 [.paymentCardNumber]

@@ -186,11 +186,11 @@ authorization codes before any model boundary.
 
 ### Verification and stop conditions
 
-- Seven focused tests at `/private/tmp/MindBudget-C4C03-Focused4.A42MrA/MindBudget.xcresult` cover English, Simplified/
+- Seven focused tests at `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult` cover English, Simplified/
   Traditional Chinese, full-width digits, separated and masked card forms, authorization codes,
-  ordinary text preservation, control normalization, deterministic ordering and tie-breaking,
-  geometry/confidence retention, and fail-closed policy/count/line/document/geometry/confidence
-  limits.
+  the full-card-before-last-four ordering regression, ordinary text preservation, control
+  normalization, deterministic ordering and tie-breaking, geometry/confidence retention, and
+  fail-closed policy/count/line/document/geometry/confidence limits.
 - The complete local validation passed every static contract, Release compilation, the strict
   Dashboard wall-clock stage, 485 unit-test results across 29 suites, all 17 UI tests, and every
   selected core-service coverage threshold. CSVExporter was the minimum selected result at 87.60%

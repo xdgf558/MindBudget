@@ -5611,3 +5611,10 @@ against the required 85%. Four physical-only CloudKit probes remained explicit s
 cleanup removed the ephemeral `mindbudget-validation.dcltId/MindBudget.xcresult` bundle. An earlier
 sandboxed invocation passed static checks but could not access CoreSimulator/DerivedData and ended
 before an Xcode test result existed, so it is excluded as environment non-pass evidence.
+
+PR #70 independent review found no P1/P2 issue and requested one optional pre-merge ordering
+regression. The fix documents the complete-card-before-last-four rule invariant and adds a labelled,
+separated sixteen-digit case that would expose the twelve-digit remainder if future code reordered
+those rules. The exact review-fix source passed 7/7 focused tests at
+`/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. This changes no
+production matching shape or enabled behavior; hosted CI on the new head remains the merge gate.
