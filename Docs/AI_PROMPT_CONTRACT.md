@@ -206,3 +206,17 @@ language is reported separately from an unsupported device/region and can direct
 Follow System or another supported app language. Every session names its exact identifier and
 requires the matching language. The existing mismatch validator and localized template fallback
 remain the final fail-closed boundary.
+
+## C4C-04 on-device receipt evidence selection
+
+The optional Foundation Models receipt adapter is not an advice or remote-model path. It receives
+only the bounded `ReceiptOCRDocument` that has already crossed the C4C-03 card-number/last-four/
+authorization-code filter. Its generated schema contains exact evidence snippets only. The model
+must not calculate, normalize, translate, infer, or invent a merchant, date, amount, currency, or
+line item, and instructions embedded in receipt text are data rather than executable instructions.
+
+Deterministic code verifies that every returned snippet occurs in the safe document, performs all
+date, currency, scale, integer-minor-unit, range, and duplicate decisions, and never lets a model
+replace an already accepted deterministic field. Model unavailability, timeout, failure, invented
+evidence, or unusable output returns the deterministic result. The line-item schema is default-off;
+receipt product entry, confirmation, persistence, remote model use, and egress remain absent.

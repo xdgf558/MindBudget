@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: **In Progress — awaiting explicit owner entry for C4C-04.**
+Status: **Pending independent review for the C4C-04 candidate.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -12,9 +12,11 @@ Reviewed C4C-02 head `43c3a35` passed Actions run `32860643712`, and PR #68 merg
 `4ca8f1c`. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged that closeout
 as `3e1c5c9`. C4C-02 is Done. The owner then explicitly entered C4C-03. Reviewed head `92ed3a7`
 passed GitHub Actions run `32921913143`, and PR #70 merged the bounded
-local OCR/privacy boundary as `d294cfb`. C4C-03 is Done, but there is still no customer entry,
-structured receipt field, persistence, iCloud receipt field, model prompt, network channel,
-Production action, or release authority. C4C-04 requires a separate explicit owner entry.
+local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its documentation closeout
+as `08fb718`, and the owner then explicitly entered C4C-04. The C4C-04 candidate creates only
+ephemeral structured candidates and one optional on-device-model evidence selector; there is still
+no customer entry, persistence, iCloud receipt field, remote model, network channel, Production
+action, or release authority.
 
 ## Input gate
 
@@ -152,8 +154,9 @@ persistence.
   a dedicated error when an actual UI consumes it; the system adapters remain dormant until a
   later packet creates a customer surface and physical evidence remains C4C-05 work; non-money
   image-quality floating-point literals do not widen the money exception.
-- C4C-02 did not enter OCR automatically. The later owner instruction entered C4C-03 only; the
-  product flag remains off and C4C-04/C4C-05 remain blocked.
+- C4C-02 did not enter OCR automatically. The later owner instruction entered C4C-03 only; at that
+  decision's time the product flag stayed off and C4C-04/C4C-05 remained blocked. The current
+  C4C-04 entry is recorded separately below.
 
 ## C4C-03 — OCR and pre-model privacy
 
@@ -210,15 +213,37 @@ authorization codes before any model boundary.
   digits are not a 13–19 digit PAN shape; spaced mask formats belong in the C4C-05 fixture matrix;
   regex caching is optional bounded optimization; and an actual C4C-04 caller must execute Vision
   work away from the main actor. None is receipt accuracy or physical evidence.
-- C4C-04 and C4C-05 stay blocked. This reviewed merge does not infer owner entry into structured
-  extraction, confirmation/evaluation, Production, distribution, or release work.
+- The owner separately entered C4C-04 after the reviewed C4C-03 documentation merge. C4C-05 stays
+  blocked; the C4C-03 merge itself did not infer that later entry or authorize confirmation/
+  evaluation, Production, distribution, or release work.
 
 ## C4C-04 — Structured extraction and validation
 
-Status: **Blocked pending explicit owner entry after C4C-03.**
+Status: **Pending independent review, green hosted CI, and merge.**
 
 Own deterministic extraction fallback, optional local-model enhancement, core-field generation,
 exact amount/date/currency/scale/duplicate validation, and the default-off line-item experiment.
+
+Accepted implementation boundary:
+
+- Deterministic extraction always runs first and remains authoritative. It emits explicit
+  missing/rejected states; it never converts an uncertain or absent amount into zero.
+- The optional Foundation Models adapter receives only `ReceiptOCRDocument` text that already
+  crossed C4C-03 privacy filtering. It may select exact contiguous evidence snippets only.
+  Deterministic code verifies snippet provenance and performs all merchant/date/currency/scale/
+  minor-unit/range/duplicate decisions. Timeout, unavailability, invalid evidence/output, or model
+  failure returns the deterministic result.
+- Money parsing uses supported ISO currency exponents and integer minor units only. Dates use the
+  supplied `Calendar`, time zone, locale punctuation, and explicit month/day order. Duplicate
+  detection requires exact normalized merchant, calendar date, amount, and currency agreement.
+- The line-item experiment is structurally present but defaults off. All structured output remains
+  ephemeral; there is no UI, confirmation, persistence, logging, iCloud field, or network path.
+- The 16-test focused suite covers deterministic core fields, locale punctuation, USD/JPY/KWD
+  scale, mismatch/range rejection, missing/ambiguous/invalid values, exact duplicates, model
+  provenance/precedence/fallback, default-off line items, and unavailable/invalid contexts.
+- The C4C-03 carryover remains: the future C4C-05 integration caller must run Vision recognition
+  away from the main actor. C4C-04 begins after an already-safe `ReceiptOCRDocument` and does not
+  create a Vision caller.
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
@@ -230,8 +255,8 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 ## Exit and stop conditions
 
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, and C4C-03 closes only
-the local OCR/pre-model privacy boundary. Neither merge enables receipt import, satisfies either
-receipt Requirement, enters its successor automatically, closes COM-C4C, unblocks COM-C5, deploys
-Production, or authorizes Archive/upload/tester/review/distribution actions. C4C-04 remains blocked
-until a separate explicit owner entry.
+head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, C4C-03 closes only the
+local OCR/pre-model privacy boundary, and C4C-04 closes only ephemeral structured extraction and
+validation after its reviewed merge. None enables receipt import, satisfies either receipt
+Requirement, enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys Production,
+or authorizes Archive/upload/tester/review/distribution actions. C4C-05 remains blocked.

@@ -5648,3 +5648,33 @@ scope: C4C-04 remains blocked and `enableReceiptImport` remains false.
 All four required static gates and `git diff --check` passed after this wording-only review fix.
 Hosted CI on the new exact PR head remains the merge gate; the earlier complete local validation
 continues to be the runtime evidence because this follow-up changes documentation only.
+
+## 2026-08-26 — Enter C4C-04 structured extraction and validation
+
+After PR #71 merged the C4C-03 documentation closeout as `08fb718`, the owner explicitly entered
+C4C-04. The candidate adds an ephemeral deterministic structured extractor for merchant, calendar
+date, and exact minor-unit total; typed missing/ambiguous/invalid/currency/scale/range states; exact
+duplicate matching; and a production-default-off line-item experiment. An optional Foundation
+Models adapter runs on device and receives only the already privacy-filtered `ReceiptOCRDocument`.
+It may select exact evidence snippets, but deterministic code re-verifies provenance, cannot let it
+override an accepted deterministic field, and performs every field interpretation. Model absence,
+timeout, invalid evidence/output, or error returns the deterministic result.
+
+The final focused C4C-04 suite passed 16/16 at
+`/private/tmp/MindBudget-C4C04-FocusedFinal.xcresult` on iPhone 17 Pro, iOS 26.5, including
+USD/JPY/KWD exponent
+and locale punctuation, invalid scale/currency/range/date, missing/ambiguous values, exact duplicate
+identity, model precedence/provenance/fallback/timeout, and default-off line items. All four static
+gates and `git diff --check` passed before the full validation entry. `enableReceiptImport` remains
+false; no UI, confirmation, persistence, iCloud field, logging, network, Production, or release
+action was added. C4C-05 remains blocked, and `CHANGELOG.md` is unchanged because no customer-
+visible behavior is enabled.
+
+The exact C4C-04 candidate then passed `Scripts/validate.sh`: every static contract, Release
+compilation, the strict Dashboard wall-clock stage, 501 unit-test results across 30 suites, all
+17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was the
+minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips. The ephemeral result bundle
+`mindbudget-validation.hAXTHp/MindBudget.xcresult` was removed by normal script cleanup. This is
+simulator and deterministic extraction evidence only; it does not advance any C4C-05 physical,
+accuracy, persistence, Production, distribution, or release gate.

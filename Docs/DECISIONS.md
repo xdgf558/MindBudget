@@ -2769,3 +2769,20 @@ their accepted later packets rather than expanding this reviewed merge.
 Consequences: No structured receipt field, money interpretation, persistence, model/network
 content, customer entry, Production action, distribution, or release authority is created by this
 closeout. COM-C4C and both receipt Requirements remain active.
+
+---
+
+## 2026-08-26 — Enter C4C-04 with deterministic structured-field authority
+
+Context: C4C-03 and its documentation closeout are merged through PR #70 (`d294cfb`) and PR #71
+(`08fb718`). The owner explicitly entered C4C-04, which stops before customer UI, confirmation,
+persistence, accuracy/resource evaluation, Production, and release.
+
+Decision: Detailed ownership is DEC-COM-049. Always run deterministic extraction first. Permit an
+optional on-device model to select only exact snippets from the C4C-03-filtered document, then
+verify provenance and perform every date/currency/scale/minor-unit/range/duplicate decision in
+deterministic Swift. Model failure returns the deterministic result; line items default off.
+
+Consequences: C4C-04 can build and test ephemeral structured candidates without creating a receipt
+entry, storing content, adding egress, or entering C4C-05. Missing or uncertain values remain
+explicit and cannot be invented as zero.

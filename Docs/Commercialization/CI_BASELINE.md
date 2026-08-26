@@ -1296,3 +1296,29 @@ compilation, the strict Dashboard wall-clock stage, 485 unit-test results across
 minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
 remained explicit skips. The ephemeral result bundle
 `mindbudget-validation.IyfM8i/MindBudget.xcresult` was removed by normal script cleanup.
+
+### C4C-04 structured extraction candidate — 2026-08-26
+
+After explicit owner entry, the final focused command targeting
+`MindBudgetTests/ReceiptStructuredExtractionTests` passed 16/16 at
+`/private/tmp/MindBudget-C4C04-FocusedFinal.xcresult` on iPhone 17 Pro, iOS 26.5. The
+suite covers deterministic core extraction; locale-aware integer USD/JPY/KWD parsing; typed
+date/currency/scale/range/missing/ambiguous failures; exact duplicate matching; on-device-model
+evidence provenance, precedence, unavailable/error/timeout fallback; and the production-default-off
+line-item experiment. A first compiled run exposed and corrected the JPY grouping/locale branch;
+the corrected suite is the accepted focused evidence.
+
+This is deterministic simulator evidence only. It is not the C4C-05 60-plus receipt/non-receipt
+accuracy matrix, physical DataScanner/PHPicker/Vision evidence, 20-image resource stability,
+confirmation/persistence proof, Production, Archive/upload, tester, distribution, or release
+evidence. The complete repository validation and hosted CI on the independently reviewed head
+remain merge gates.
+
+The exact candidate passed `Scripts/validate.sh`: all static contracts, Release compilation, the
+strict Dashboard wall-clock stage, 501 unit-test results across 30 suites, 17/17 UI tests, and all
+selected core-service coverage thresholds passed. CSVExporter was the minimum selected result at
+87.60% against the required 85%. Four physical-only CloudKit probes were explicit skips. The
+ephemeral bundle was `mindbudget-validation.hAXTHp/MindBudget.xcresult` during execution and was
+removed by normal script cleanup. Hosted CI on the independently reviewed head remains the merge
+gate; this evidence makes no C4C-05 physical, fixture-accuracy, resource-stability, persistence,
+Production, Archive/upload, tester, distribution, or release claim.

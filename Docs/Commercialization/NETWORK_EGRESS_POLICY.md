@@ -74,4 +74,8 @@ reviewed implementation adds only a local `VNRecognizeTextRequest` and mandatory
 sensitive-text filter. Exact head `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it
 as `d294cfb`. Raw OCR cannot leave the exact adapter/privacy pipeline, and even the filtered
 document has no model, persistence, CloudKit, telemetry, URLSession, HTTP(S), endpoint, or other
-egress consumer. Receipt product scope remains disabled, and C4C-04 is not entered by this merge.
+egress consumer. Receipt product scope remains disabled. After PR #71 merged the C4C-03 closeout as
+`08fb718`, the owner explicitly entered C4C-04. Its optional Foundation Models adapter is strictly
+on-device, receives only the already privacy-filtered `ReceiptOCRDocument`, and has no URLSession,
+HTTP(S), endpoint, telemetry, CloudKit, or remote-model path. Structured results remain ephemeral;
+C4C-05 confirmation/persistence and every release action remain blocked.
