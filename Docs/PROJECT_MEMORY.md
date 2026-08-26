@@ -94,11 +94,12 @@ cleanup on cancellation/background/memory/Delete All. It adds no customer entry,
 receipt persistence, schema, iCloud field, model prompt, or network channel. Reviewed head
 `43c3a35` passed GitHub Actions run `32860643712`, and PR #68 merged it as `4ca8f1c`; C4C-02 is
 Done. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged its closeout as
-`3e1c5c9`. The owner explicitly entered C4C-03. Its candidate confines raw Vision OCR to one local
-adapter, removes card-number, labelled/masked last-four, and authorization-code patterns before a
-file-private model-safe type can be formed, retains deterministic normalized geometry/order/
-confidence, and rejects invalid or over-limit documents. `enableReceiptImport` remains false;
-C4C-04/C4C-05, persistence, model/network use, Production, and release remain blocked.
+`3e1c5c9`. The owner explicitly entered C4C-03. Reviewed head `92ed3a7` passed GitHub Actions run
+`32921913143`, and PR #70 merged it as `d294cfb`; C4C-03 is Done. Raw Vision OCR stays inside one
+local adapter, mandatory card-number/last-four/authorization-code removal precedes the file-private
+model-safe type, deterministic normalized geometry/order/confidence is retained, and invalid or
+over-limit documents fail closed. `enableReceiptImport` remains false; C4C-04/C4C-05, persistence,
+model/network use, Production, and release remain blocked pending separate authority.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

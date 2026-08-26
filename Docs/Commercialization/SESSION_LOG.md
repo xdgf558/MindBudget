@@ -2474,3 +2474,25 @@ The exact review-fix source passed 7/7 at
 `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. No production pattern,
 customer surface, model/network boundary, or phase status changed; green hosted CI on the new head
 remains required before merge.
+
+## 2026-08-26 — C4C-03 reviewed merge closeout
+
+Independent review found no P1/P2 issue on exact source head `92ed3a7`. The accepted P3 ordering
+hardening records that the complete-card rule must precede the labelled-last-four rule and adds a
+labelled separated sixteen-digit regression case. GitHub Actions run `32921913143` completed
+successfully on that exact head, and PR #70 merged the local OCR/privacy substrate to `main` as
+`d294cfb`.
+
+DEC-COM-048 closes C4C-03 only. Receipt import remains disabled; C4C-04/C4C-05 remain blocked until
+separate explicit owner entry and predecessor completion. The review's remaining P3 observations
+stay bounded: continuous 20-plus-digit strings are outside the accepted 13–19 digit PAN shape,
+spaced-mask forms belong in the C4C-05 fixture matrix, regex caching is an optional optimization,
+and a future C4C-04 caller must execute Vision away from the main actor. No structured receipt
+field, persistence, model/network use, Production, distribution, or release action occurred.
+
+The documentation-only closeout branch passed the complete repository validation entry: every
+static contract, Release compilation, the strict Dashboard wall-clock stage, 485 unit-test results
+across 29 suites, all 17 UI tests, and every selected core-service coverage threshold passed.
+CSVExporter remained the minimum selected coverage result at 87.60% against the required 85%.
+Four physical-only CloudKit probes remained explicit skips. Normal cleanup removed the ephemeral
+`mindbudget-validation.IyfM8i/MindBudget.xcresult` bundle after success.

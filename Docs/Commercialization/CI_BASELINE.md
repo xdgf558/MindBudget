@@ -1276,3 +1276,23 @@ last-four rule and adds a labelled, separated sixteen-digit regression case that
 twelve-digit remainder if those rules were reordered. The exact review-fix source passed 7/7 focused
 tests at `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. The production
 patterns and phase scope are unchanged; hosted CI on the new exact head remains the merge gate.
+
+### C4C-03 reviewed merge and documentation closeout — 2026-08-26
+
+Exact source head `92ed3a7` passed independent review without a P1/P2 issue. GitHub Actions run
+`32921913143` completed successfully on that exact head, and PR #70 merged the bounded local
+OCR/privacy substrate to `main` as `d294cfb`. The accepted ordering regression is included in that
+reviewed head. This evidence closes C4C-03 only: `enableReceiptImport` remains false, and C4C-04
+still requires a separate explicit owner instruction.
+
+The documentation closeout itself adds no physical OCR, receipt-field accuracy, 60-plus-fixture,
+20-image resource-stability, confirmation/persistence, Production, Archive/upload, tester,
+distribution, or release evidence. Its complete local validation result is recorded below after
+the exact closeout source has passed the repository's full validation entry.
+
+That documentation-only source passed `Scripts/validate.sh`: every static contract, Release
+compilation, the strict Dashboard wall-clock stage, 485 unit-test results across 29 suites, all
+17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was the
+minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips. The ephemeral result bundle
+`mindbudget-validation.IyfM8i/MindBudget.xcresult` was removed by normal script cleanup.
