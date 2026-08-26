@@ -94,9 +94,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   C4C-01 is Done. The owner explicitly entered C4C-02; reviewed head `43c3a35` passed GitHub
   Actions run `32860643712`, and PR #68 merged the bounded image acquisition/lifecycle substrate
   as `4ca8f1c`. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged its
-  closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03; its candidate owns
-  only local OCR geometry/order/confidence plus mandatory card/last-four/authorization-code
-  removal. C4C-04/C4C-05 and the customer entry remain blocked.
+  closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03; reviewed head
+  `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged the local OCR/privacy
+  boundary as `d294cfb`. C4C-03 is Done. C4C-04/C4C-05 and the customer entry remain blocked
+  pending separate authority.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -419,10 +420,10 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the C4C-03 local OCR/privacy candidate. Raw Vision text
-is confined to one adapter, only `ReceiptModelSafeText` may leave its privacy pipeline, and
-count/byte/geometry/confidence failures reject the complete document. Product scope remains off;
-there is no structured extraction, persistence, model/network use, or customer entry.
+Next suggested task: after this C4C-03 documentation closeout passes independent review, green
+hosted CI, and merge, wait for an explicit owner instruction before entering C4C-04. Do not infer
+that entry from the closeout. Product scope remains off; there is no structured extraction,
+persistence, model/network use, or customer entry.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred
 from the read-only Dashboard inspection or local Release archive.

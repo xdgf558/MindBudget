@@ -40,8 +40,9 @@ detailed phase checklists; it added no paid product behavior.
   closed its documentation after green run `32850616400`. C4C-01 is Done. The owner explicitly
   entered C4C-02. Reviewed head `43c3a35` passed Actions run `32860643712`, and PR #68 merged
   it as `4ca8f1c`; documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged the
-  closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03; its local OCR/privacy
-  implementation is pending independent review and hosted CI while C4C-04/C4C-05 remain blocked.**
+  closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03. Reviewed head
+  `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done;
+  C4C-04/C4C-05 remain blocked pending a separate explicit owner entry.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -476,7 +477,7 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **C4C-03 implementation complete pending independent review and hosted CI.**
+Status: **In Progress — awaiting explicit owner entry for C4C-04.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -484,12 +485,10 @@ Status: **C4C-03 implementation complete pending independent review and hosted C
   GitHub Actions run `32860643712`, and PR #68 merge `4ca8f1c`: camera/DataScanner/PHPicker
   capability gates, orientation/perspective/downsampling/pixel limits, cancellation,
   memory/background, and temporary-file cleanup.
-- [ ] **C4C-03 — OCR and pre-model privacy.** The owner explicitly entered this packet after PR
-  #69 merged the C4C-02 closeout as `3e1c5c9`. The implementation confines raw Vision text to one
-  adapter, preserves deterministic geometry/order/confidence only on `ReceiptModelSafeText`,
-  removes card numbers, labelled/masked last-four patterns, and authorization codes, and fails
-  closed on invalid geometry/confidence or bounded-input overflow. Independent review, hosted CI,
-  and merge remain open; the customer entry stays disabled.
+- [x] **C4C-03 — OCR and pre-model privacy.** Done after reviewed head `92ed3a7`, green GitHub
+  Actions run `32921913143`, and PR #70 merge `d294cfb`: raw Vision text stays inside one adapter,
+  only privacy-filtered `ReceiptModelSafeText` may emerge with deterministic geometry/order/
+  confidence, and invalid or over-limit documents fail closed. The customer entry stays disabled.
 - [B] **C4C-04 — Structured extraction and validation.** Add deterministic fallback, core-field
   generation, exact amount/date/currency/scale/duplicate validation, and experimental line-item
   switch defaulting off until accepted.

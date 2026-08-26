@@ -1415,3 +1415,29 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   an over-limit document; using unstable collection order; persisting an intermediate; sending
   OCR to a remote model; enabling receipt import; or claiming C4C-04/C4C-05 accuracy/confirmation
   evidence from this infrastructure packet.
+
+## DEC-COM-048 — Close C4C-03 without entering structured extraction
+
+- Status/date: **Accepted reviewed-merge closeout — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; DEC-COM-047
+- Context: Independent review found no P1/P2 issue on exact source head `92ed3a7`. The accepted
+  P3 ordering hardening documented that complete-card removal must precede labelled-last-four
+  removal and added a regression fixture that exposes any future reordering. GitHub Actions run
+  `32921913143` completed successfully on that exact head, and PR #70 merged the bounded local
+  OCR/privacy substrate to `main` as `d294cfb`.
+- Decision: Mark C4C-03 Done on the reviewed source, green hosted CI, and merge evidence only. Do
+  not infer entry into C4C-04, receipt-field accuracy, confirmation, persistence, physical OCR,
+  resource stability, Production action, or release authority. Preserve the rule-order invariant
+  and the exact raw-text confinement and fail-closed limits from DEC-COM-047.
+- Review follow-up: A continuous 20-plus-digit value remains outside the accepted 13–19 digit PAN
+  shape. Spaced-mask variants belong in the C4C-05 60-plus-fixture evaluation before any matcher
+  expansion. Regex caching remains an optional bounded optimization. A future C4C-04 caller must
+  run Vision recognition away from the main actor.
+- Consequences: C4C-03 is Done. `enableReceiptImport` remains false, and C4C-04/C4C-05 remain
+  blocked pending separate explicit owner entry and predecessor completion. No structured receipt
+  field, money interpretation, persistence, model/network content, customer entry, Production,
+  distribution, or release behavior is authorized by this closeout.
+- Alternatives rejected: Entering C4C-04 automatically after merge; broadening sensitive-pattern
+  matching without fixture evidence; treating deterministic privacy tests as receipt-accuracy or
+  physical-system evidence; enabling the dormant product flag; or marking COM-C4C or either active
+  receipt Requirement complete.

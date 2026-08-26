@@ -2751,3 +2751,21 @@ line, cap all text inputs, and fail closed for invalid metadata, overflow, or fi
 Consequences: The candidate creates a deterministic local pre-model privacy boundary without a
 model or network call. `enableReceiptImport` remains false; C4C-04/C4C-05, persistence, Production,
 and release stay blocked pending their own accepted phases.
+
+---
+
+## 2026-08-26 — Close C4C-03 without entering structured receipt extraction
+
+Context: Independent review found no P1/P2 issue on exact source head `92ed3a7`. The accepted
+ordering-regression hardening passed its focused suite, GitHub Actions run `32921913143` completed
+successfully on that exact head, and PR #70 merged the bounded local OCR/privacy substrate as
+`d294cfb`.
+
+Decision: Detailed ownership is DEC-COM-048. Mark C4C-03 Done while keeping receipt import disabled
+and C4C-04 blocked until a separate explicit owner instruction. Carry spaced-mask fixture
+evaluation, optional regex caching, physical/resource evidence, and off-main-actor Vision wiring to
+their accepted later packets rather than expanding this reviewed merge.
+
+Consequences: No structured receipt field, money interpretation, persistence, model/network
+content, customer entry, Production action, distribution, or release authority is created by this
+closeout. COM-C4C and both receipt Requirements remain active.

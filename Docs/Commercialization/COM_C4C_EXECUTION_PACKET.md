@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: **C4C-03 implementation complete pending independent review and hosted CI.**
+Status: **In Progress — awaiting explicit owner entry for C4C-04.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -10,10 +10,11 @@ PR #66 merged it as `8611022`; documentation closeout head `55a321c` passed Acti
 `32850616400`, and PR #67 merged it as `bdb94d9`. The owner then explicitly entered C4C-02.
 Reviewed C4C-02 head `43c3a35` passed Actions run `32860643712`, and PR #68 merged it as
 `4ca8f1c`. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged that closeout
-as `3e1c5c9`. C4C-02 is Done. The owner then explicitly entered C4C-03. The current candidate adds
-a bounded local OCR/privacy boundary, but no customer entry, structured receipt field,
-persistence, iCloud receipt field, model prompt, network channel, Production action, or release
-authority.
+as `3e1c5c9`. C4C-02 is Done. The owner then explicitly entered C4C-03. Reviewed head `92ed3a7`
+passed GitHub Actions run `32921913143`, and PR #70 merged the bounded
+local OCR/privacy boundary as `d294cfb`. C4C-03 is Done, but there is still no customer entry,
+structured receipt field, persistence, iCloud receipt field, model prompt, network channel,
+Production action, or release authority. C4C-04 requires a separate explicit owner entry.
 
 ## Input gate
 
@@ -156,12 +157,13 @@ persistence.
 
 ## C4C-03 — OCR and pre-model privacy
 
-Status: **Implementation complete pending independent review and hosted CI.**
+Status: **Done after independent review, green GitHub Actions run `32921913143`, and PR #70 merge
+`d294cfb`.**
 
 Own local OCR geometry/order/confidence and removal of card numbers, last-four patterns, and
 authorization codes before any model boundary.
 
-### Accepted candidate boundary
+### Accepted implementation boundary
 
 - `VNRecognizeTextRequest` remains confined to `ReceiptVisionObservation.swift`, runs locally at
   accurate recognition, and automatically detects language. The adapter converts Vision output
@@ -200,12 +202,20 @@ authorization codes before any model boundary.
   floating-point files, and reject any receipt model/network/persistence expansion.
 - `FeatureFlags.enableReceiptImport` remains false. This candidate adds no customer surface,
   permission prompt, SwiftData/CloudKit field, model call, HTTP(S), telemetry, receipt accuracy
-  claim, physical OCR claim, Production action, or distribution authority. C4C-04 and C4C-05 stay
-  blocked until this exact source passes independent review, green hosted CI, and merge.
+  claim, physical OCR claim, Production action, or distribution authority.
+- Independent review found no P1/P2 issue. The one accepted P3 hardening documents and tests the
+  complete-card-before-last-four rule order; exact review-fix head `92ed3a7` passed hosted run
+  `32921913143`, and PR #70 merged it as `d294cfb` on 2026-08-26 Singapore time.
+- The remaining non-blocking observations stay at their later boundaries: 20-plus uninterrupted
+  digits are not a 13–19 digit PAN shape; spaced mask formats belong in the C4C-05 fixture matrix;
+  regex caching is optional bounded optimization; and an actual C4C-04 caller must execute Vision
+  work away from the main actor. None is receipt accuracy or physical evidence.
+- C4C-04 and C4C-05 stay blocked. This reviewed merge does not infer owner entry into structured
+  extraction, confirmation/evaluation, Production, distribution, or release work.
 
 ## C4C-04 — Structured extraction and validation
 
-Status: **Blocked by C4C-03.**
+Status: **Blocked pending explicit owner entry after C4C-03.**
 
 Own deterministic extraction fallback, optional local-model enhancement, core-field generation,
 exact amount/date/currency/scale/duplicate validation, and the default-off line-item experiment.
@@ -220,6 +230,8 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 ## Exit and stop conditions
 
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure. It does not enable
-receipt import, satisfy either receipt Requirement, enter C4C-03 automatically, close COM-C4C,
-unblock COM-C5, deploy Production, or authorize Archive/upload/tester/review/distribution actions.
+head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, and C4C-03 closes only
+the local OCR/pre-model privacy boundary. Neither merge enables receipt import, satisfies either
+receipt Requirement, enters its successor automatically, closes COM-C4C, unblocks COM-C5, deploys
+Production, or authorizes Archive/upload/tester/review/distribution actions. C4C-04 remains blocked
+until a separate explicit owner entry.

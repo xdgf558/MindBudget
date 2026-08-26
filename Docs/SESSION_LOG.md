@@ -5618,3 +5618,33 @@ separated sixteen-digit case that would expose the twelve-digit remainder if fut
 those rules. The exact review-fix source passed 7/7 focused tests at
 `/private/tmp/MindBudget-C4C03-ReviewFix-Focused5.hKVLun/MindBudget.xcresult`. This changes no
 production matching shape or enabled behavior; hosted CI on the new head remains the merge gate.
+
+## 2026-08-26 — Close C4C-03 after reviewed merge without entering extraction
+
+Exact source head `92ed3a7` passed independent review without a P1/P2 issue. The accepted P3
+hardening documents the complete-card-before-last-four rule order and adds a labelled separated
+sixteen-digit regression fixture. GitHub Actions run `32921913143` completed successfully on that
+exact head, and PR #70 merged the bounded local OCR/privacy substrate to `main` as `d294cfb`.
+
+DEC-COM-048 marks only C4C-03 Done. `enableReceiptImport` remains false, and C4C-04/C4C-05 remain
+blocked pending separate explicit owner entry and predecessor completion. Continuous 20-plus-digit
+values stay outside the accepted PAN shape; spaced-mask variants remain C4C-05 fixture work; regex
+caching is optional; and a future C4C-04 caller must run Vision away from the main actor. This
+documentation closeout changes no enabled customer behavior, so `CHANGELOG.md` is unchanged.
+
+The documentation-only closeout branch then passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 485 unit-test results across 29
+suites, all 17 UI tests, and every selected core-service coverage threshold passed. CSVExporter
+was the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit
+probes remained explicit skips. The ephemeral result bundle
+`mindbudget-validation.IyfM8i/MindBudget.xcresult` was removed by normal script cleanup.
+
+PR #71 review found no P1/P2 issue and requested two current-state clarity fixes before merge. The
+commercial project memory now points forward to C4C-04 while explicitly waiting for separate owner
+entry, and the execution packet's exit conditions describe the accepted C4C-03 local OCR/privacy
+boundary instead of stopping at the older C4C-02 wording. This changes no phase status or runtime
+scope: C4C-04 remains blocked and `enableReceiptImport` remains false.
+
+All four required static gates and `git diff --check` passed after this wording-only review fix.
+Hosted CI on the new exact PR head remains the merge gate; the earlier complete local validation
+continues to be the runtime evidence because this follow-up changes documentation only.
