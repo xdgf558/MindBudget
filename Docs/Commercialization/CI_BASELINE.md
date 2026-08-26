@@ -1339,3 +1339,27 @@ physical-only CloudKit probes were explicit skips. The ephemeral result bundle w
 script cleanup. Hosted CI on the replacement exact head remains required before merge; this
 review remediation does not advance C4C-05 or any physical, accuracy, persistence, Production,
 distribution, or release gate.
+
+### C4C-04 reviewed merge and documentation closeout — 2026-08-26
+
+Independent rereview approved exact remediation head `f2d249d`. GitHub Actions run `32946104780`
+completed successfully on that exact head in 19m39s, and PR #72 merged it to `main` as `e6316fa`.
+The reviewed head contains the 17/17 focused fail-closed regressions and the complete local
+validation result recorded above. This closes C4C-04 implementation/review/CI/merge only.
+
+`enableReceiptImport` remains false, all structured candidates remain ephemeral, and C4C-05
+remains blocked pending separate explicit owner entry. This documentation closeout adds no
+physical acquisition/OCR, receipt/non-receipt accuracy, 20-image resource stability,
+confirmation-before-persistence, Production, Archive/upload, tester, distribution, or release
+evidence.
+
+The exact documentation-only closeout source then passed `Scripts/validate.sh`: every static
+contract, Release compilation, the strict Dashboard wall-clock stage, 502 unit-test results
+across 30 suites (491 passed and 11 explicit physical-only skips), all 17 UI tests, and every
+selected core-service coverage threshold passed. CSVExporter remained the minimum selected
+result at 87.60% against the required 85%. The original ephemeral bundle was
+`mindbudget-validation.TbfLO2/MindBudget.xcresult`; normal script cleanup removed it after the
+run. A read-only mirror at `/private/tmp/MindBudget-C4C04-closeout-final.xcresult` parsed as
+`Passed` with zero failures and independently passed `Scripts/check-coverage.sh`. This remains
+documentation-closeout evidence only; independent review, green hosted CI, and merge are still
+required.

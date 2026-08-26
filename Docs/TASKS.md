@@ -242,9 +242,9 @@ The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actio
 `32860643712`, and PR #68 merged it as `4ca8f1c`; documentation head `4ab0daf` passed run
 `32911659905`, and PR #69 merged the closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly
 entered C4C-03. Reviewed head `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged
-it as `d294cfb`; C4C-03 is Done. The owner explicitly entered C4C-04; its implementation is
-complete pending independent review, hosted CI, and merge. No customer entry, C4C-05 work,
-Production, or release action is authorized.
+it as `d294cfb`; C4C-03 is Done. The owner explicitly entered C4C-04. Reviewed remediation head
+`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; C4C-04 is
+Done. No customer entry, C4C-05 work, Production, or release action is authorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -469,7 +469,10 @@ Production, or release action is authorized.
   `d294cfb`. `enableReceiptImport` stays false; C4C-04/C4C-05 and every release action remain blocked.
 - [x] Complete the C4C-03 documentation closeout through independent review, green hosted CI, and
   merge. PR #71 merged it as `08fb718`; the closeout itself did not enter C4C-04 automatically.
-- [ ] Complete C4C-04 independent review, green hosted CI, and merge after the owner's explicit
-  entry. The candidate owns deterministic structured extraction, optional exact-evidence-only
-  on-device-model supplementation, exact validation, and a default-off line-item experiment.
-  Receipt import remains disabled and C4C-05 remains blocked.
+- [x] Complete C4C-04 independent review, green hosted CI, and merge after the owner's explicit
+  entry. Reviewed remediation head `f2d249d` passed GitHub Actions run `32946104780`, and PR #72
+  merged it as `e6316fa`. Deterministic accepted/rejected fields remain final; the optional
+  on-device model may supplement only `.missing`; same-line amount parsing fails closed; receipt
+  import remains disabled and C4C-05 remains blocked.
+- [ ] Complete the C4C-04 documentation closeout through independent review, green hosted CI, and
+  merge. The closeout records DEC-COM-050 and must not enter C4C-05 automatically.

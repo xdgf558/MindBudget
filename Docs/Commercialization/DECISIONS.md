@@ -1469,3 +1469,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   currency or zero from missing evidence; fuzzy duplicate winners; enabling experimental line
   items by default; moving confirmation/persistence or the accuracy/resource matrix into C4C-04;
   sending receipt text to an existing advice/network service; or enabling receipt import.
+
+## DEC-COM-050 — Close C4C-04 without entering confirmation and evaluation
+
+- Status/date: **Accepted reviewed-merge closeout — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-049
+- Context: Initial independent review found no P1 issue and two P2 fail-closed inconsistencies:
+  one valid amount token could hide an invalid sibling on the same line, and optional-model output
+  could replace a deterministic rejection. Exact remediation head `f2d249d` makes any same-line
+  parse failure reject the amount and permits model supplementation only for deterministic
+  `.missing`. The 17-test focused suite and complete local validation passed. Independent rereview
+  approved that exact head, GitHub Actions run `32946104780` completed successfully, and PR #72
+  merged the bounded structured-extraction implementation to `main` as `e6316fa`.
+- Decision: Mark C4C-04 Done on the reviewed remediation source, green hosted CI, and merge
+  evidence only. Do not infer entry into C4C-05 or enable receipt import. Preserve deterministic
+  accepted/rejected authority, exact-evidence provenance, integer minor-unit interpretation, typed
+  missing/invalid states, default-off line items, and the no-persistence/no-egress boundary.
+- Review follow-up: C4C-05 must evaluate generic three-uppercase-letter currency markers and broad
+  `total` substring matching against its 60-plus receipt/non-receipt fixture matrix, run Vision
+  integration away from the main actor, and own physical acquisition/OCR, accuracy, 20-image
+  stability, customer confirmation, and persistence evidence. These observations are not C4C-04
+  failures and are not evidence that those later gates passed.
+- Consequences: C4C-04 is Done. `enableReceiptImport` remains false, all structured results remain
+  ephemeral, and C4C-05 remains blocked pending separate explicit owner entry. COM-C4C and both
+  receipt Requirements remain active. No Production, Archive/upload, tester, distribution, or
+  release action is authorized by this closeout.
+- Alternatives rejected: Entering C4C-05 automatically after merge; treating a deterministic
+  rejection as model-fillable; weakening same-line amount validation; calling simulator extraction
+  tests receipt accuracy or physical OCR evidence; enabling the product flag; persisting before
+  confirmation; or marking COM-C4C or either active receipt Requirement complete.

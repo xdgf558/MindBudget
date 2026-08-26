@@ -2786,3 +2786,20 @@ deterministic Swift. Model failure returns the deterministic result; line items 
 Consequences: C4C-04 can build and test ephemeral structured candidates without creating a receipt
 entry, storing content, adding egress, or entering C4C-05. Missing or uncertain values remain
 explicit and cannot be invented as zero.
+
+---
+
+## 2026-08-26 — Close C4C-04 without entering confirmation or persistence
+
+Context: Independent review found two fail-closed gaps after the initial candidate. Exact
+remediation head `f2d249d` closes both, passed independent rereview and GitHub Actions run
+`32946104780`, and PR #72 merged the bounded structured-extraction implementation as `e6316fa`.
+
+Decision: Detailed ownership is DEC-COM-050. Mark C4C-04 Done while keeping
+`enableReceiptImport` false and C4C-05 blocked until a separate explicit owner instruction.
+Deterministic `.accepted` and `.rejected` fields remain final; the optional on-device model may
+supplement only `.missing`; any invalid amount token rejects its same-line evidence.
+
+Consequences: No customer entry, confirmation, persistence, fixture-accuracy or physical OCR
+claim, Production action, distribution, or release authority is created by this closeout.
+COM-C4C and both receipt Requirements remain active.
