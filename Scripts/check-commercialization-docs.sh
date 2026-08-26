@@ -382,8 +382,41 @@ if grep -Eq 'C4C-04 (remains |is )?blocked|C4C-04/C4C-05 remain blocked|awaiting
   exit 1
 fi
 
+# C4C-04 is closed only by its reviewed fail-closed remediation head, exact green hosted run, and
+# merge. C4C-05 remains a separately owner-entered confirmation/evaluation packet.
+for c4c04_closeout_anchor in \
+  'f2d249d' \
+  '32946104780' \
+  'e6316fa' \
+  'C4C-04 is Done' \
+  'C4C-05 remains blocked' \
+  'DEC-COM-050'; do
+  if ! grep -Fq "${c4c04_closeout_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/CI_BASELINE.md; then
+    echo "C4C-04 reviewed merge closeout is missing: ${c4c04_closeout_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'Pending independent review for the C4C-04 candidate|C4C-04 (implementation (is )?complete pending (independent )?review|awaits independent review|pending review/CI/merge|remains pending (independent review|hosted CI|merge))' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C4C-04 as pending review/CI/merge" >&2
+  exit 1
+fi
+
 grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
-  echo "C4C-04 implementation must not enable receipt import" >&2
+  echo "C4C-04 closeout must not enable receipt import or enter C4C-05" >&2
   exit 1
 }
 

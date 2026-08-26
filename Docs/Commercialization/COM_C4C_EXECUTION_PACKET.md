@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: **Pending independent review for the C4C-04 candidate.**
+Status: **In Progress — awaiting explicit owner entry for C4C-05.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -13,10 +13,11 @@ Reviewed C4C-02 head `43c3a35` passed Actions run `32860643712`, and PR #68 merg
 as `3e1c5c9`. C4C-02 is Done. The owner then explicitly entered C4C-03. Reviewed head `92ed3a7`
 passed GitHub Actions run `32921913143`, and PR #70 merged the bounded
 local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its documentation closeout
-as `08fb718`, and the owner then explicitly entered C4C-04. The C4C-04 candidate creates only
-ephemeral structured candidates and one optional on-device-model evidence selector; there is still
-no customer entry, persistence, iCloud receipt field, remote model, network channel, Production
-action, or release authority.
+as `08fb718`, and the owner then explicitly entered C4C-04. Reviewed remediation head `f2d249d`
+passed GitHub Actions run `32946104780`, and PR #72 merged the bounded structured-extraction
+implementation as `e6316fa`. C4C-04 is Done. There is still no customer entry, persistence,
+iCloud receipt field, remote model, network channel, Production action, or release authority;
+C4C-05 requires a separate explicit owner entry.
 
 ## Input gate
 
@@ -219,7 +220,8 @@ authorization codes before any model boundary.
 
 ## C4C-04 — Structured extraction and validation
 
-Status: **Pending independent review, green hosted CI, and merge.**
+Status: **Done after independent rereview, green GitHub Actions run `32946104780`, and PR #72
+merge `e6316fa`.**
 
 Own deterministic extraction fallback, optional local-model enhancement, core-field generation,
 exact amount/date/currency/scale/duplicate validation, and the default-off line-item experiment.
@@ -246,9 +248,27 @@ Accepted implementation boundary:
   away from the main actor. C4C-04 begins after an already-safe `ReceiptOCRDocument` and does not
   create a Vision caller.
 
+### Review closeout
+
+- Independent review found no P1 issue and two P2 fail-closed inconsistencies. Same-line amount
+  evidence now rejects the field when any numeric token fails parsing, and optional-model
+  supplementation now applies only to deterministic `.missing`; deterministic `.accepted` and
+  `.rejected` remain final.
+- The exact remediation source passed 17/17 focused tests and the complete local validation entry:
+  502 unit-test results across 30 suites, 17/17 UI tests, Release compilation, the strict
+  Dashboard wall-clock stage, all static contracts, and every selected coverage threshold.
+- Independent rereview approved exact remediation head `f2d249d`. GitHub Actions run
+  `32946104780` completed successfully on that exact head, and PR #72 merged it to `main` as
+  `e6316fa` on 2026-08-26 Singapore time.
+- Remaining accuracy-shape observations stay with the C4C-05 fixture matrix: generic three-letter
+  uppercase markers and broad `total` label matching must be evaluated against real fixtures;
+  physical acquisition/OCR, off-main integration, confirmation-before-persistence, 60-plus
+  receipts/non-receipts, and 20-image stability remain unclaimed. No customer or release gate was
+  opened by this merge.
+
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Blocked by C4C-04.**
+Status: **Blocked pending explicit owner entry after C4C-04.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.

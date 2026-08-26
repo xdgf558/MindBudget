@@ -98,12 +98,13 @@ Done. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged i
 `32921913143`, and PR #70 merged it as `d294cfb`; C4C-03 is Done. Raw Vision OCR stays inside one
 local adapter, mandatory card-number/last-four/authorization-code removal precedes the file-private
 model-safe type, deterministic normalized geometry/order/confidence is retained, and invalid or
-over-limit documents fail closed. The owner explicitly entered C4C-04. Its candidate adds a
-deterministic structured extractor plus an optional on-device Foundation Models evidence selector;
-only exact snippets from the filtered document may supplement a missing/rejected deterministic
-field, and integer minor-unit/date/currency/scale/duplicate validation stays deterministic.
-`enableReceiptImport` remains false; C4C-05, confirmation/persistence, Production, and release
-remain blocked.
+over-limit documents fail closed. The owner explicitly entered C4C-04. Reviewed remediation head
+`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; C4C-04 is
+Done. Its deterministic structured extractor remains authoritative, while the optional on-device
+Foundation Models evidence selector may supplement only `.missing` with an exact snippet from the
+filtered document. Integer minor-unit/date/currency/scale/duplicate validation remains
+deterministic. `enableReceiptImport` remains false; C4C-05, confirmation/persistence, Production,
+and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

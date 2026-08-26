@@ -78,4 +78,6 @@ egress consumer. Receipt product scope remains disabled. After PR #71 merged the
 `08fb718`, the owner explicitly entered C4C-04. Its optional Foundation Models adapter is strictly
 on-device, receives only the already privacy-filtered `ReceiptOCRDocument`, and has no URLSession,
 HTTP(S), endpoint, telemetry, CloudKit, or remote-model path. Structured results remain ephemeral;
-C4C-05 confirmation/persistence and every release action remain blocked.
+reviewed remediation head `f2d249d` passed Actions run `32946104780`, and PR #72 merged it as
+`e6316fa`. C4C-04 is Done without adding egress. C4C-05 confirmation/persistence and every release
+action remain blocked pending separate owner authority.

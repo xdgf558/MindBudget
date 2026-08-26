@@ -5696,3 +5696,34 @@ probes remained explicit skips. The ephemeral result bundle
 `mindbudget-validation.5DL4A2/MindBudget.xcresult` was removed by normal script cleanup. Hosted CI
 on the pushed replacement head remains the merge gate; this evidence does not enter C4C-05 or
 claim physical receipt, accuracy, persistence, Production, distribution, or release readiness.
+
+## 2026-08-26 — Close C4C-04 after reviewed remediation merge without entering C4C-05
+
+Initial PR #72 review found no P1 issue and two P2 fail-closed inconsistencies. Exact remediation
+head `f2d249d` rejects a same-line amount when any numeric token fails parsing and restricts the
+optional on-device model to supplementing deterministic `.missing`; deterministic `.accepted` and
+`.rejected` remain final. The focused suite passed 17/17, and the complete local validation passed
+502 unit-test results across 30 suites, 17/17 UI tests, Release compilation, the strict Dashboard
+wall-clock stage, every static contract, and every selected coverage threshold.
+
+Independent rereview approved exact head `f2d249d`. GitHub Actions run `32946104780` completed
+successfully on that head in 19m39s, and PR #72 merged it to `main` as `e6316fa`. DEC-COM-050 marks
+only C4C-04 Done. Receipt import remains disabled, all structured candidates remain ephemeral, and
+C4C-05 remains blocked pending a separate explicit owner instruction. Generic uppercase currency
+markers, broad `total` matching, off-main Vision integration, physical OCR, 60-plus fixture
+accuracy, 20-image stability, confirmation, and persistence stay with C4C-05 and are not recorded
+as passed here. This documentation-only closeout changes no customer behavior, so `CHANGELOG.md`
+is unchanged.
+
+The documentation-only closeout source passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 502 unit-test results across 30
+suites (491 passed and 11 explicit physical-only skips), all 17 UI tests, and every selected
+core-service coverage threshold passed. CSVExporter remained the minimum selected result at
+87.60% against the required 85%. The script's ephemeral
+`mindbudget-validation.TbfLO2/MindBudget.xcresult` bundle was removed by normal cleanup; a
+read-only mirror at `/private/tmp/MindBudget-C4C04-closeout-final.xcresult` parsed as `Passed`
+with zero failures and independently passed the coverage gate.
+
+Independent review, green hosted CI, and merge remain required for this closeout branch. No
+Production, Archive/upload, tester, distribution, or release action is authorized, and this
+closeout does not enter C4C-05 automatically.
