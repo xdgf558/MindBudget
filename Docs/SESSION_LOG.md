@@ -5638,3 +5638,13 @@ suites, all 17 UI tests, and every selected core-service coverage threshold pass
 was the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit
 probes remained explicit skips. The ephemeral result bundle
 `mindbudget-validation.IyfM8i/MindBudget.xcresult` was removed by normal script cleanup.
+
+PR #71 review found no P1/P2 issue and requested two current-state clarity fixes before merge. The
+commercial project memory now points forward to C4C-04 while explicitly waiting for separate owner
+entry, and the execution packet's exit conditions describe the accepted C4C-03 local OCR/privacy
+boundary instead of stopping at the older C4C-02 wording. This changes no phase status or runtime
+scope: C4C-04 remains blocked and `enableReceiptImport` remains false.
+
+All four required static gates and `git diff --check` passed after this wording-only review fix.
+Hosted CI on the new exact PR head remains the merge gate; the earlier complete local validation
+continues to be the runtime evidence because this follow-up changes documentation only.

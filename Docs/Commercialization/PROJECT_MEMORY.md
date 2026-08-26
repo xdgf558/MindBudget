@@ -420,9 +420,10 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: complete the C4C-03 documentation closeout through independent review, green
-hosted CI, and merge. Enter C4C-04 only after a later explicit owner instruction. Product scope
-remains off; there is no structured extraction, persistence, model/network use, or customer entry.
+Next suggested task: after this C4C-03 documentation closeout passes independent review, green
+hosted CI, and merge, wait for an explicit owner instruction before entering C4C-04. Do not infer
+that entry from the closeout. Product scope remains off; there is no structured extraction,
+persistence, model/network use, or customer entry.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred
 from the read-only Dashboard inspection or local Release archive.

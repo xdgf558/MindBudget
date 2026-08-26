@@ -2496,3 +2496,14 @@ across 29 suites, all 17 UI tests, and every selected core-service coverage thre
 CSVExporter remained the minimum selected coverage result at 87.60% against the required 85%.
 Four physical-only CloudKit probes remained explicit skips. Normal cleanup removed the ephemeral
 `mindbudget-validation.IyfM8i/MindBudget.xcresult` bundle after success.
+
+PR #71 independent review found no P1/P2 issue and asked that the current-state memory point to the
+next forward boundary rather than to this already-open closeout, plus an optional packet exit-text
+refresh. Both are addressed: C4C-04 is the next forward packet but remains blocked until explicit
+owner entry, and the stop conditions now distinguish C4C-02 acquisition from C4C-03 local OCR/
+privacy. The product flag stays false and no phase, Production, distribution, or release authority
+changes.
+
+The money, network-egress, commercialization-document, and StoreKit-catalog gates plus
+`git diff --check` all passed after the review fix. Hosted CI on the replacement exact head remains
+required before merge; no new runtime or physical evidence is claimed.

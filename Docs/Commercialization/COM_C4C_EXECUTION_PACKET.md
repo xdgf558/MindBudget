@@ -230,6 +230,8 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 ## Exit and stop conditions
 
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure. It does not enable
-receipt import, satisfy either receipt Requirement, enter C4C-03 automatically, close COM-C4C,
-unblock COM-C5, deploy Production, or authorize Archive/upload/tester/review/distribution actions.
+head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, and C4C-03 closes only
+the local OCR/pre-model privacy boundary. Neither merge enables receipt import, satisfies either
+receipt Requirement, enters its successor automatically, closes COM-C4C, unblocks COM-C5, deploys
+Production, or authorizes Archive/upload/tester/review/distribution actions. C4C-04 remains blocked
+until a separate explicit owner entry.
