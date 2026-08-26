@@ -2803,3 +2803,21 @@ supplement only `.missing`; any invalid amount token rejects its same-line evide
 Consequences: No customer entry, confirmation, persistence, fixture-accuracy or physical OCR
 claim, Production action, distribution, or release authority is created by this closeout.
 COM-C4C and both receipt Requirements remain active.
+
+---
+
+## 2026-08-26 — Enter C4C-05 with review-before-save as the only receipt write boundary
+
+Context: PR #73 merged the C4C-04 documentation closeout as `2107723`, and the owner explicitly
+entered C4C-05. This packet owns the local customer entry, confirmation boundary, fixed evaluation
+matrix, resource stability, and physical acquisition/OCR evidence.
+
+Decision: Detailed ownership is DEC-COM-051. Expose receipt acquisition only to a verified Pro
+snapshot in the existing new-expense form. Keep source/prepared images, OCR, model evidence, and
+structured results ephemeral. Copy only accepted merchant/date/total values into editable fields;
+the existing explicit Save action remains the sole persistence boundary and creates an ordinary
+expense with non-content `receiptImport` provenance.
+
+Consequences: No schema, iCloud receipt field, network/remote-model path, log/telemetry content,
+Production action, or release authority is added. C4C-05 remains In Progress until physical
+DataScanner/PHPicker/OCR evidence, independent review, hosted CI, and merge close its gates.

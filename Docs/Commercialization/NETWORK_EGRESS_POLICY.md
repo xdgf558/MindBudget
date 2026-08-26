@@ -79,5 +79,9 @@ egress consumer. Receipt product scope remains disabled. After PR #71 merged the
 on-device, receives only the already privacy-filtered `ReceiptOCRDocument`, and has no URLSession,
 HTTP(S), endpoint, telemetry, CloudKit, or remote-model path. Structured results remain ephemeral;
 reviewed remediation head `f2d249d` passed Actions run `32946104780`, and PR #72 merged it as
-`e6316fa`. C4C-04 is Done without adding egress. C4C-05 confirmation/persistence and every release
-action remain blocked pending separate owner authority.
+`e6316fa`; PR #73 merged its closeout as `2107723`. The owner explicitly entered C4C-05. Its
+candidate enables only local verified-Pro acquisition, OCR, optional Apple on-device-model evidence
+selection, editable prefill, and the existing explicit local Save boundary. Receipt images/OCR/
+model evidence never enter CloudKit, URLSession, HTTP(S), telemetry, logs, or a remote model. The
+current accepted app-owned HTTP(S) set is unchanged. Physical acquisition/OCR, review, CI, and
+merge remain open, and every Production/distribution/release action remains blocked.

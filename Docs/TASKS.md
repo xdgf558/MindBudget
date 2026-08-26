@@ -243,8 +243,10 @@ The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actio
 `32911659905`, and PR #69 merged the closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly
 entered C4C-03. Reviewed head `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged
 it as `d294cfb`; C4C-03 is Done. The owner explicitly entered C4C-04. Reviewed remediation head
-`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; C4C-04 is
-Done. No customer entry, C4C-05 work, Production, or release action is authorized.
+`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; PR #73 merged
+the documentation closeout as `2107723`. C4C-04 is Done. The owner explicitly entered C4C-05;
+its local customer integration/evaluation candidate is In Progress. Production and release action
+remain unauthorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -448,8 +450,8 @@ Done. No customer entry, C4C-05 work, Production, or release action is authorize
   COM-C6/COM-C12 without authorizing those actions. Unblock C4C-01.
 - [x] Complete C4C-01 review/CI/merge for the central local-Pro seams and deterministic rule
   evidence. Preserve the existing 30-day Insights and basic reminder/review experience as Free;
-  expose only the new integer sample/confidence line through `advancedLocalInsights`; keep receipt
-  product scope off and C4C-02 through C4C-05 blocked. Reviewed head `d203308` passed GitHub
+  expose only the new integer sample/confidence line through `advancedLocalInsights`; at that
+  decision, keep receipt product scope off. Reviewed head `d203308` passed GitHub
   Actions run `32845307426`, and PR #66 merged it as `8611022`.
 - [x] Close C4C-01 documentation through reviewed PR #67 (`bdb94d9`) after green Actions run
   `32850616400`, without entering receipt image work automatically.
@@ -472,7 +474,12 @@ Done. No customer entry, C4C-05 work, Production, or release action is authorize
 - [x] Complete C4C-04 independent review, green hosted CI, and merge after the owner's explicit
   entry. Reviewed remediation head `f2d249d` passed GitHub Actions run `32946104780`, and PR #72
   merged it as `e6316fa`. Deterministic accepted/rejected fields remain final; the optional
-  on-device model may supplement only `.missing`; same-line amount parsing fails closed; receipt
-  import remains disabled and C4C-05 remains blocked.
-- [ ] Complete the C4C-04 documentation closeout through independent review, green hosted CI, and
-  merge. The closeout records DEC-COM-050 and must not enter C4C-05 automatically.
+  on-device model may supplement only `.missing`; same-line amount parsing fails closed. At that
+  merge, receipt import was disabled; the later explicit C4C-05 entry below supersedes that state.
+- [x] Complete the C4C-04 documentation closeout through independent review, green hosted CI, and
+  PR #73 merge `2107723`. The closeout records DEC-COM-050 and did not enter C4C-05 automatically.
+- [ ] Complete C4C-05 after explicit owner entry: expose the verified-Pro, local-only receipt
+  entry; keep image/OCR/model output ephemeral; apply accepted fields only to the editable expense
+  form; retain the existing explicit Save action as the sole persistence boundary; pass the 60+
+  fixed receipt/non-receipt, offline-tier, zero-leak, and 20-image matrix; obtain physical
+  acquisition/OCR evidence; then stop for independent review, green hosted CI, and merge.

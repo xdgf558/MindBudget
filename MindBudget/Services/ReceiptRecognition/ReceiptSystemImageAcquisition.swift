@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 import PhotosUI
+import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 import VisionKit
@@ -67,6 +68,7 @@ struct ReceiptImageAcquisitionCapability: Equatable, Sendable {
 
 @MainActor
 protocol ReceiptSystemImageAcquiring: AnyObject {
+    func capability(baseline: LocalReceiptRecognitionBaseline) -> ReceiptImageAcquisitionCapability
     func cameraAuthorization() -> ReceiptCameraAuthorization
     func requestCameraAuthorization() async -> ReceiptCameraAuthorization
     func makePhotoPicker() -> PHPickerViewController
@@ -79,6 +81,17 @@ protocol ReceiptSystemImageAcquiring: AnyObject {
 
 @MainActor
 final class ReceiptSystemImageAcquisition: ReceiptSystemImageAcquiring {
+    func capability(
+        baseline: LocalReceiptRecognitionBaseline
+    ) -> ReceiptImageAcquisitionCapability {
+        ReceiptImageAcquisitionCapability.resolve(
+            baseline: baseline,
+            cameraAuthorization: cameraAuthorization(),
+            dataScannerSupported: DataScannerViewController.isSupported,
+            dataScannerAvailable: DataScannerViewController.isAvailable
+        )
+    }
+
     func cameraAuthorization() -> ReceiptCameraAuthorization {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .notDetermined:
@@ -115,7 +128,7 @@ final class ReceiptSystemImageAcquisition: ReceiptSystemImageAcquiring {
             throw ReceiptImageLifecycleError.unsupportedImage
         }
         guard DataScannerViewController.isAvailable else {
-            throw ReceiptImageLifecycleError.superseded
+            throw ReceiptImageLifecycleError.temporarilyUnavailable
         }
         // C4C-02 uses DataScanner only as a bounded camera surface. No delegate is installed and
         // no recognized item crosses this adapter; OCR belongs exclusively to C4C-03.
@@ -162,6 +175,198 @@ final class ReceiptSystemImageAcquisition: ReceiptSystemImageAcquiring {
         )
         try Task.checkCancellation()
         return ReceiptImageInput(data: data, source: .photoPicker)
+    }
+}
+
+/// The picker stays inside the one reviewed PhotosUI adapter. It returns one bounded source to
+/// the local lifecycle and never requests broad Photo Library permission.
+struct ReceiptPhotoPickerView: UIViewControllerRepresentable {
+    let acquisition: any ReceiptSystemImageAcquiring
+    let selected: @MainActor (Result<ReceiptImageInput, Error>) -> Void
+    let cancelled: @MainActor () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(acquisition: acquisition, selected: selected, cancelled: cancelled)
+    }
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        let picker = acquisition.makePhotoPicker()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    @MainActor
+    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        private let acquisition: any ReceiptSystemImageAcquiring
+        private let selected: @MainActor (Result<ReceiptImageInput, Error>) -> Void
+        private let cancelled: @MainActor () -> Void
+
+        init(
+            acquisition: any ReceiptSystemImageAcquiring,
+            selected: @escaping @MainActor (Result<ReceiptImageInput, Error>) -> Void,
+            cancelled: @escaping @MainActor () -> Void
+        ) {
+            self.acquisition = acquisition
+            self.selected = selected
+            self.cancelled = cancelled
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            guard let result = results.first else {
+                cancelled()
+                return
+            }
+            Task {
+                do {
+                    selected(.success(try await acquisition.loadImage(from: result)))
+                } catch {
+                    selected(.failure(error))
+                }
+            }
+        }
+    }
+}
+
+/// The camera surface confines every VisionKit type to this adapter. The scanner performs no live
+/// recognition; an explicit shutter action captures one image for the same bounded local pipeline.
+struct ReceiptCameraCaptureView: UIViewControllerRepresentable {
+    let acquisition: any ReceiptSystemImageAcquiring
+    let locale: Locale
+    let captured: @MainActor (Result<ReceiptImageInput, Error>) -> Void
+    let cancelled: @MainActor () -> Void
+
+    func makeUIViewController(context: Context) -> ReceiptCameraCaptureController {
+        ReceiptCameraCaptureController(
+            acquisition: acquisition,
+            locale: locale,
+            captured: captured,
+            cancelled: cancelled
+        )
+    }
+
+    func updateUIViewController(_ uiViewController: ReceiptCameraCaptureController, context: Context) {}
+}
+
+@MainActor
+final class ReceiptCameraCaptureController: UIViewController {
+    private let acquisition: any ReceiptSystemImageAcquiring
+    private let locale: Locale
+    private let captured: @MainActor (Result<ReceiptImageInput, Error>) -> Void
+    private let cancelled: @MainActor () -> Void
+    private var scanner: DataScannerViewController?
+    private var isCapturing = false
+    private lazy var shutterButton = makeButton(
+        titleKey: "receipt.camera.capture",
+        systemImage: "camera.fill",
+        action: #selector(capture)
+    )
+
+    init(
+        acquisition: any ReceiptSystemImageAcquiring,
+        locale: Locale,
+        captured: @escaping @MainActor (Result<ReceiptImageInput, Error>) -> Void,
+        cancelled: @escaping @MainActor () -> Void
+    ) {
+        self.acquisition = acquisition
+        self.locale = locale
+        self.captured = captured
+        self.cancelled = cancelled
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is unavailable")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+        do {
+            let scanner = try acquisition.makeDataScanner()
+            self.scanner = scanner
+            addChild(scanner)
+            scanner.view.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(scanner.view)
+            scanner.didMove(toParent: self)
+
+            let cancelButton = makeButton(
+                titleKey: "common.cancel",
+                systemImage: "xmark",
+                action: #selector(cancel)
+            )
+            let controls = UIStackView(arrangedSubviews: [cancelButton, shutterButton])
+            controls.axis = .horizontal
+            controls.alignment = .center
+            controls.distribution = .fillEqually
+            controls.spacing = 16
+            controls.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(controls)
+
+            NSLayoutConstraint.activate([
+                scanner.view.topAnchor.constraint(equalTo: view.topAnchor),
+                scanner.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scanner.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                scanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                controls.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+                controls.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+                controls.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+                controls.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            ])
+        } catch {
+            captured(.failure(error))
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard let scanner else { return }
+        do {
+            try acquisition.startScanning(scanner)
+        } catch {
+            captured(.failure(error))
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        if let scanner { acquisition.stopScanning(scanner) }
+        super.viewWillDisappear(animated)
+    }
+
+    @objc private func capture() {
+        guard !isCapturing, let scanner else { return }
+        isCapturing = true
+        shutterButton.isEnabled = false
+        Task {
+            do {
+                captured(.success(try await acquisition.captureImage(from: scanner)))
+            } catch {
+                captured(.failure(error))
+            }
+            isCapturing = false
+            shutterButton.isEnabled = true
+        }
+    }
+
+    @objc private func cancel() {
+        cancelled()
+    }
+
+    private func makeButton(
+        titleKey: String,
+        systemImage: String,
+        action: Selector
+    ) -> UIButton {
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = LocalizedCatalog.string(titleKey, locale: locale)
+        configuration.image = UIImage(systemName: systemImage)
+        configuration.imagePadding = 8
+        configuration.cornerStyle = .capsule
+        let button = UIButton(configuration: configuration)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        return button
     }
 }
 

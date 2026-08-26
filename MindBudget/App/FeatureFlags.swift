@@ -8,8 +8,11 @@ enum FeatureFlags {
     static let enableSpotlightIndexing = true
     static let enableOnscreenAwareness = true
 
+    // C4C-05 opens the local-only Pro receipt entry. Entitlement, runtime capability,
+    // permission, confirmation, and privacy boundaries remain mandatory at each call site.
+    static let enableReceiptImport = true
+
     // V1 scope exclusions.
-    static let enableReceiptImport = false
     static let enableCSVImport = false
     static let enableDeveloperDiagnostics: Bool = {
         #if DEBUG

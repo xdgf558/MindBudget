@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: **In Progress — awaiting explicit owner entry for C4C-05.**
+Status: **In Progress — C4C-05 owner entry accepted; local implementation/evaluation candidate is
+in progress pending physical acquisition/OCR evidence, independent review, hosted CI, and merge.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -15,9 +16,10 @@ passed GitHub Actions run `32921913143`, and PR #70 merged the bounded
 local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its documentation closeout
 as `08fb718`, and the owner then explicitly entered C4C-04. Reviewed remediation head `f2d249d`
 passed GitHub Actions run `32946104780`, and PR #72 merged the bounded structured-extraction
-implementation as `e6316fa`. C4C-04 is Done. There is still no customer entry, persistence,
-iCloud receipt field, remote model, network channel, Production action, or release authority;
-C4C-05 requires a separate explicit owner entry.
+implementation as `e6316fa`; PR #73 merged its documentation closeout as `2107723`. C4C-04 is
+Done. The owner then explicitly entered C4C-05. The current candidate adds only a verified-Pro,
+local customer entry and confirmation/evaluation boundary; there is still no iCloud receipt field,
+remote model, network channel, Production action, or release authority.
 
 ## Input gate
 
@@ -268,16 +270,76 @@ Accepted implementation boundary:
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Blocked pending explicit owner entry after C4C-04.**
+Status: **In Progress after explicit owner entry; physical acquisition/OCR evidence, independent
+review, hosted CI, and merge remain pending.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.
 
+### Accepted candidate boundary
+
+- Only a verified Pro Commerce snapshot exposes `Scan a Receipt` inside the existing new-expense
+  form. Editing an existing expense, wishlist conversion, exact Free, and unavailable StoreKit
+  authority do not expose the entry.
+- Camera permission is requested only after an explicit camera choice; PHPicker remains one-image
+  and does not request broad Photo Library access. DataScanner captures one still image and exports
+  no recognized item. Unsupported, denied, temporarily unavailable, corrupt, over-limit, canceled,
+  or backgrounded work fails closed with a localized retry/manual-entry path.
+- Image preparation, accurate Vision OCR, sensitive-text filtering, and deterministic structured
+  extraction execute locally. Vision work runs off the main actor. The optional on-device model is
+  selected only when the existing user setting is on and the Apple system model is actually
+  available; otherwise the deterministic offline tier remains usable.
+- One bounded protected temporary JPEG exists only during processing and is discarded before a
+  result is presented. Source bytes, prepared images, raw/filtered OCR, model snippets, line items,
+  and duplicate evidence never enter SwiftData, iCloud, logs, telemetry, or a network channel.
+- Review may copy only accepted merchant/date/total fields into the editable expense form. This is
+  still ephemeral. Only the form's existing explicit Save action creates the `Expense`, preserving
+  existing exact-money, budget, duplicate-warning, reminder, and validation paths. Receipt-created
+  expenses carry only the non-content provenance value `receiptImport`.
+
+### Deterministic evaluation contract
+
+- A checked-in fixed matrix contains 60 supported receipts: 20 USD, 20 JPY, and 20 KWD examples.
+  Every case must exactly match merchant, calendar date, ISO currency, and integer minor units.
+  Ten fixed non-receipts—including `Totally`, generic `USA`/`THE`/`IBM`, list/note, subtotal-only,
+  and date-only shapes—must not produce an accepted total. These are deterministic contract
+  fixtures, not a population-wide OCR accuracy claim.
+- The privacy suite includes English/Chinese card, separated/full-width PAN, authorization code,
+  labelled last-four, continuous mask, and spaced-mask examples. Zero sensitive digits or codes may
+  reach `ReceiptModelSafeText`; any unsafe/unbounded input rejects the whole document.
+- The offline matrix keeps product-off and exact Free unavailable, verified Pro deterministic-only
+  usable, and verified Pro with an available/user-enabled local model enhanced without weakening
+  deterministic authority. Missing model capability never disables the deterministic tier.
+- Twenty sequential real JPEG decode/orientation/perspective/downsample/store/cleanup operations
+  must remain within the fixed byte/pixel limits, keep at most one artifact, and leave none after
+  each cleanup. This proves bounded lifecycle stability, not physical camera or public-receipt
+  accuracy.
+
+### Local validation evidence
+
+- `/private/tmp/MindBudget-C4C05-Focused.xcresult` passes 40/40 results across the four receipt
+  suites with zero failures or skips. It includes the fixed 60-receipt/10-nonreceipt matrix,
+  prefill-before-Save database proof, zero-leak regression, and 20-image lifecycle run.
+- `/private/tmp/MindBudget-C4C05-Full.xcresult` passes the complete repository entry: 508 unit-test
+  results (497 passed and 11 explicit opt-in/runtime skips), all 17 UI tests, Release compilation,
+  the strict 10,000-row Dashboard wall-clock stage, every static contract, and every selected
+  coverage threshold. CSVExporter is the minimum selected result at 87.60% against 85%.
+- Both are simulator/deterministic evidence only. Neither substitutes for the physical acquisition
+  and OCR evidence below.
+
+### Open evidence
+
+- Physical DataScanner capture, PHPicker selection, and resulting local OCR remain mandatory C4C-05
+  evidence and are not recorded as passed by the simulator matrix. Until that run, the candidate is
+  not ready to be marked implementation-complete or Done.
+- Independent review, hosted CI on the exact reviewed head, and merge are still required. C4C-05
+  does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter COM-C5.
+
 ## Exit and stop conditions
 
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, C4C-03 closes only the
-local OCR/pre-model privacy boundary, and C4C-04 closes only ephemeral structured extraction and
-validation after its reviewed merge. None enables receipt import, satisfies either receipt
-Requirement, enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys Production,
-or authorizes Archive/upload/tester/review/distribution actions. C4C-05 remains blocked.
+head, and merge. C4C-02 closes acquisition/lifecycle infrastructure, C4C-03 the local OCR/pre-model
+privacy boundary, C4C-04 ephemeral structured extraction, and C4C-05 the reviewed local customer
+confirmation/evaluation boundary. C4C-05 is not complete while physical acquisition/OCR evidence
+is open. Nothing here enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys
+Production, or authorizes Archive/upload/tester/review/distribution actions.

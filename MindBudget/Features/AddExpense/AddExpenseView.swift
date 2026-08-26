@@ -88,6 +88,8 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published private(set) var isSaving = false
     @Published private(set) var merchantSuggestions: [String] = []
     @Published private(set) var inlineInsight: InsightDraft?
+    @Published private(set) var importedReceiptDuplicateCount = 0
+    @Published private(set) var hasImportedReceipt = false
 
     let existingExpense: ExpenseDetail?
     let wishlistSeed: WishlistExpenseSeed?
@@ -162,6 +164,45 @@ final class ExpenseFormViewModel: ObservableObject {
     func deleteKeypadCharacter() {
         guard !amountText.isEmpty else { return }
         amountText.removeLast()
+    }
+
+    /// Applies only validated, privacy-filtered fields to the editable form. This method performs
+    /// no write; the existing explicit Save action remains the sole persistence boundary.
+    func applyReceiptImport(
+        _ result: ReceiptStructuredExtractionResult,
+        locale: Locale,
+        calendar: Calendar
+    ) {
+        var acceptedAnyField = false
+        if let merchant = result.fields.merchantName.acceptedValue {
+            merchantName = merchant
+            acceptedAnyField = true
+        }
+        if let amount = result.fields.total.acceptedValue {
+            amountText = MoneyInputParser().inputText(for: amount, locale: locale)
+            acceptedAnyField = true
+        }
+        if let receiptDate = result.fields.purchaseDate.acceptedValue {
+            var components = DateComponents()
+            components.calendar = calendar
+            components.timeZone = calendar.timeZone
+            components.year = receiptDate.year
+            components.month = receiptDate.month
+            components.day = receiptDate.day
+            components.hour = 12
+            if let date = calendar.date(from: components) {
+                spentAt = date
+                acceptedAnyField = true
+            }
+        }
+        guard acceptedAnyField else { return }
+        hasImportedReceipt = true
+        if case let .exactMatches(ids) = result.duplicateResolution {
+            importedReceiptDuplicateCount = ids.count
+        } else {
+            importedReceiptDuplicateCount = 0
+        }
+        error = nil
     }
 
     func loadContext(
@@ -574,7 +615,8 @@ final class ExpenseFormViewModel: ObservableObject {
             purchaseReason: purchaseReason,
             isPlanned: wishlistSeed == nil ? isPlanned : true,
             isRecurring: isRecurring,
-            source: existingSummary?.source ?? (wishlistSeed == nil ? .manual : .wishlistConversion),
+            source: existingSummary?.source
+                ?? (wishlistSeed != nil ? .wishlistConversion : (hasImportedReceipt ? .receiptImport : .manual)),
             allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false,
             recurrenceCalendarIdentifier: calendar.identifier
         )
@@ -719,10 +761,12 @@ struct AddExpenseView: View {
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
+    @Environment(\.receiptImageLifecycle) private var receiptImageLifecycle
     @StateObject private var viewModel: ExpenseFormViewModel
     @State private var showsContextFields = false
     @State private var showsDatePicker = false
     @State private var presentsWishlistConversion = false
+    @State private var presentsReceiptImport = false
     @State private var activeReminder: ExpenseReminderPresentation?
     @State private var opensWishlistAfterReminder = false
 
@@ -759,6 +803,22 @@ struct AddExpenseView: View {
                 }
 
                 amountEntry
+
+                if receiptRecognitionBaseline != .unavailable {
+                    Button {
+                        presentsReceiptImport = true
+                    } label: {
+                        Label("receipt.import.action", systemImage: "doc.viewfinder")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(MindBudgetSecondaryButtonStyle())
+                    .accessibilityIdentifier("expense.receiptImport")
+                }
+
+                if viewModel.hasImportedReceipt {
+                    importedReceiptNotice
+                }
+
                 keypad
 
                 if viewModel.showsReasonablenessWarning {
@@ -939,6 +999,51 @@ struct AddExpenseView: View {
                 }
             }
         }
+        .sheet(isPresented: $presentsReceiptImport) {
+            ReceiptImportView(
+                dataActor: dataActor,
+                lifecycle: receiptImageLifecycle,
+                baseline: receiptRecognitionBaseline,
+                currencyCode: accountingCurrencyCode
+            ) { result in
+                viewModel.applyReceiptImport(result, locale: locale, calendar: calendar)
+                presentsReceiptImport = false
+            }
+        }
+    }
+
+    private var receiptRecognitionBaseline: LocalReceiptRecognitionBaseline {
+        guard existingExpense == nil, wishlistSeed == nil else { return .unavailable }
+        return premiumEntryAccess.receiptRecognitionBaseline(
+            productScopeEnabled: FeatureFlags.enableReceiptImport,
+            localModelAvailable: settings.enableAIEnhancement
+                && ReceiptLocalModelAvailability.isAvailable
+        )
+    }
+
+    private var importedReceiptNotice: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("receipt.imported.title", systemImage: "checkmark.circle")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(theme.accentDeep)
+            Text("receipt.imported.detail")
+                .font(.footnote)
+                .foregroundStyle(theme.inkSecondary)
+            if viewModel.importedReceiptDuplicateCount > 0 {
+                Text(
+                    String.localizedStringWithFormat(
+                        LocalizedCatalog.string("receipt.duplicate.warning", locale: locale),
+                        viewModel.importedReceiptDuplicateCount
+                    )
+                )
+                .font(.footnote)
+                .foregroundStyle(theme.attentionText)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(theme.accentSoft, in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityIdentifier("expense.receiptImported")
     }
 
     private var amountEntry: some View {

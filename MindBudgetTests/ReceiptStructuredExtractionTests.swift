@@ -418,7 +418,7 @@ struct ReceiptStructuredExtractionTests {
         baseline: LocalReceiptRecognitionBaseline = .deterministic,
         model: any ReceiptLocalModelExtracting = UnavailableReceiptLocalModelExtractor(),
         lineItems: ReceiptLineItemExperiment = .production,
-        timeoutNanoseconds: UInt64 = 1_000_000_000
+        timeoutNanoseconds: UInt64 = 10_000_000_000
     ) -> ReceiptStructuredExtractionService {
         ReceiptStructuredExtractionService(
             baseline: baseline,

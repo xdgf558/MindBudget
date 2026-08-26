@@ -2586,3 +2586,35 @@ result at 87.60% against the required 85%. The script's ephemeral
 read-only mirror at `/private/tmp/MindBudget-C4C04-closeout-final.xcresult` parsed as `Passed`
 with zero failures and independently passed the coverage gate. Independent review, green hosted
 CI, and merge remain required for the closeout branch.
+
+## 2026-08-26 — C4C-05 verified-Pro local receipt candidate
+
+Goal: after explicit owner entry, connect the reviewed C4C-02/03/04 substrates to one local
+customer flow while proving that no unreviewed receipt field or intermediate can become durable.
+
+Completed candidate work: `enableReceiptImport` is true; immutable Commerce access still hides the
+entry from exact Free and unavailable authority. The new-expense form opens one local receipt
+sheet for explicit PHPicker or camera selection. Image preparation and accurate Vision OCR execute
+off-main; mandatory filtering precedes optional Apple on-device evidence selection; deterministic
+validation remains authoritative. The bounded temporary JPEG is discarded before review.
+Accepted merchant/date/total values only edit the form. The existing Save action alone writes an
+ordinary expense with source `receiptImport`; no receipt image/OCR/model/duplicate evidence enters
+SwiftData, CloudKit, logs, telemetry, or a network path.
+
+Evidence so far: the four focused receipt suites pass together on iPhone 17 Pro, iOS 26.5. The new
+matrix requires 60/60 exact supported USD/JPY/KWD fixtures and ten nonreceipts with zero accepted
+totals, includes `Totally` plus generic uppercase-code regressions and spaced-mask privacy, proves
+prefill leaves the database empty until Save, and processes 20 real JPEGs sequentially with one-or-
+zero protected artifacts and zero cleanup residue. These are deterministic/simulator gates only.
+Physical DataScanner capture, PHPicker selection, and resulting local OCR are still unproven, so
+C4C-05 remains In Progress. Independent review, hosted CI, and merge remain required;
+COM-C4C/receipt Requirements remain active, and Production/distribution remain blocked.
+
+The exact candidate then passed the complete local entry. Focused result
+`/private/tmp/MindBudget-C4C05-Focused.xcresult` reports 40/40 passed with no skip. Full result
+`/private/tmp/MindBudget-C4C05-Full.xcresult` reports 508 unit results (497 passed and 11 explicit
+opt-in/runtime skips), 17/17 UI tests, Release compilation, the strict 10,000-row Dashboard
+wall-clock stage, every static contract, and every selected coverage threshold; CSVExporter is the
+minimum selected result at 87.60% against 85%. The device inventory showed all three registered
+physical iPhones offline, so this run records no physical DataScanner, PHPicker, or OCR pass. That
+gate plus independent review, hosted CI, and merge remains open.

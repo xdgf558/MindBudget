@@ -95,6 +95,9 @@ ALLOWED_INITIALIZER_CALLS: dict[str, Counter[tuple[str | None, tuple[str, ...]]]
     "MindBudget/Services/CloudSyncRuntime.swift": Counter({
         ("super", ()): 1,
     }),
+    "MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift": Counter({
+        ("super", ("nibName", "bundle")): 1,
+    }),
     "MindBudget/Services/PrivacyRedactor.swift": Counter({
         ("Locale", ("identifier",)): 1,
     }),

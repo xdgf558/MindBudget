@@ -228,6 +228,15 @@ does not label a person based on those tags.
   provenance and field validation pass. Missing/uncertain values never become zero, model failure
   falls back to deterministic output, and line items remain default-off. No receipt field is shown,
   persisted, synced, logged, or sent over a network; confirmation/evaluation remains C4C-05.
+- C4C-05 enables the entry only for verified Pro access inside the existing new-expense form.
+  Camera permission follows an explicit camera choice; PHPicker remains one-image and requests no
+  broad library permission. One bounded protected prepared JPEG exists only while local Vision,
+  privacy filtering, and deterministic extraction run; it is deleted before review appears.
+  Source/prepared images, raw or filtered OCR, model snippets, and duplicate evidence are never
+  persisted, synced, logged, telemetered, or sent over a network. Applying accepted merchant/date/
+  total values only edits the form. Nothing is stored until the owner reviews those fields and taps
+  the form's existing Save action. The candidate is not release-ready while physical acquisition/
+  OCR evidence, independent review, hosted CI, and merge remain open.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

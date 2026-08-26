@@ -1499,3 +1499,44 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   rejection as model-fillable; weakening same-line amount validation; calling simulator extraction
   tests receipt accuracy or physical OCR evidence; enabling the product flag; persisting before
   confirmation; or marking COM-C4C or either active receipt Requirement complete.
+
+## DEC-COM-051 — Confirm locally, then reuse the existing expense Save boundary
+
+- Status/date: **Accepted C4C-05 implementation/evaluation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-044/045/046/047/048/049/050
+- Context: PR #73 merged the C4C-04 documentation closeout as `2107723`, and the owner explicitly
+  entered C4C-05. The predecessor packets already own bounded acquisition, local OCR/privacy, and
+  deterministic structured candidates. C4C-05 must create the customer boundary without making a
+  raw image, OCR line, model snippet, or unreviewed field durable.
+- Decision: Enable `enableReceiptImport` and expose `Scan a Receipt` only from the existing
+  new-expense form when the immutable Commerce snapshot grants both receipt rights. Camera
+  permission follows an explicit camera-source tap; PHPicker remains one-image and requests no
+  broad library permission. Run bounded image processing plus accurate Vision OCR off the main
+  actor, apply the C4C-03 privacy filter before any optional on-device model, and delete the one
+  protected temporary prepared JPEG before presenting a result. The optional Apple model is used
+  only when the existing user setting is enabled and runtime capability is available; otherwise
+  verified Pro keeps the deterministic offline tier. Review copies only accepted merchant/date/
+  total fields into the editable form and performs no write. The existing explicit Save action is
+  the sole persistence boundary, retaining current exact Money, budget, reminder, and validation
+  behavior. A saved imported expense stores only normal expense facts plus the closed non-content
+  source enum `receiptImport`; receipt image/OCR/model/duplicate evidence is never stored.
+- Evaluation: The checked-in deterministic matrix requires 60 exact supported receipts (20 each
+  USD/JPY/KWD) and ten nonreceipts with no accepted total. It specifically prevents generic
+  `USA`/`THE`/`IBM` from impersonating a supported currency and prevents `Totally` from matching
+  the `total` label. The zero-leak matrix adds spaced-mask last-four coverage. Twenty sequential
+  real JPEG lifecycle iterations must stay bounded, keep at most one artifact, and leave none.
+  These are deterministic contract gates, not a population-wide OCR accuracy claim.
+- Open evidence: Physical DataScanner capture, PHPicker selection, and resulting local OCR remain
+  mandatory and are not passed by simulator tests. Independent review, hosted CI on the reviewed
+  head, and merge remain required before C4C-05 can be Done.
+- Consequences: No SwiftData schema or CloudKit envelope changes. No URLSession, HTTP(S), remote
+  model, telemetry, receipt logging, Production, Archive/upload, tester, distribution, release, or
+  COM-C5 authority. Exact Free or unavailable StoreKit authority exposes no receipt entry. A
+  missing local model does not remove the deterministic Pro baseline.
+- Alternatives rejected: A receipt-specific direct writer; persistence when the review sheet is
+  accepted rather than when Save is tapped; storing a receipt draft/image/OCR for later; treating
+  model output or OCR as authority; blocking deterministic extraction when the model is absent;
+  broad Photo Library permission; remote OCR/model use; syncing receipt intermediates; counting a
+  generated/simulator fixture as physical evidence; or marking either receipt Requirement, C4C-05,
+  COM-C4C, or a release gate complete before review/CI/merge.

@@ -5727,3 +5727,31 @@ with zero failures and independently passed the coverage gate.
 Independent review, green hosted CI, and merge remain required for this closeout branch. No
 Production, Archive/upload, tester, distribution, or release action is authorized, and this
 closeout does not enter C4C-05 automatically.
+
+## 2026-08-26 — Enter C4C-05 local receipt confirmation and evaluation
+
+After PR #73 merged the C4C-04 documentation closeout as `2107723`, the owner explicitly entered
+C4C-05. The in-progress candidate enables the verified-Pro receipt entry only for a new manual
+expense. One explicit photo/camera choice enters the existing bounded lifecycle; accurate Vision
+OCR runs off the main actor, sensitive filtering precedes any optional Apple on-device model, and
+the temporary prepared JPEG is deleted before review. Missing model capability falls back to the
+deterministic Pro tier. No URLSession, remote model, schema, iCloud receipt field, or content log
+was added.
+
+Accepted fields only prefill the editable expense form. A dedicated integration test proves the
+database remains empty after review-prefill and gains one `receiptImport` expense only after the
+existing Save action. The checked-in evaluation adds 60 exact supported fixtures (USD/JPY/KWD),
+ten nonreceipts, generic-uppercase/`Totally` false-positive regressions, spaced-mask privacy
+coverage, and 20 sequential real-JPEG bounded lifecycle/cleanup iterations. The four focused
+receipt suites pass locally on iPhone 17 Pro, iOS 26.5. Physical DataScanner/PHPicker/OCR evidence,
+independent review, hosted CI, and merge remain open; none is recorded as passed here. Production
+and release actions remain unauthorized.
+
+The exact candidate subsequently passed the complete local entry. Focused result
+`/private/tmp/MindBudget-C4C05-Focused.xcresult` contains 40/40 passing tests with no skip. Full
+result `/private/tmp/MindBudget-C4C05-Full.xcresult` contains 508 unit-test results (497 passed and
+11 explicit opt-in/runtime skips), all 17 UI tests, Release compilation, the strict 10,000-row
+Dashboard benchmark, every static contract, and every selected coverage threshold; CSVExporter is
+the minimum selected result at 87.60% against 85%. The three registered physical iPhones were
+offline during this entry. These simulator results do not satisfy the still-mandatory physical
+DataScanner/PHPicker/OCR gate. Independent review, hosted CI, and merge also remain open.

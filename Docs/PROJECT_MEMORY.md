@@ -99,12 +99,19 @@ Done. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged i
 local adapter, mandatory card-number/last-four/authorization-code removal precedes the file-private
 model-safe type, deterministic normalized geometry/order/confidence is retained, and invalid or
 over-limit documents fail closed. The owner explicitly entered C4C-04. Reviewed remediation head
-`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; C4C-04 is
-Done. Its deterministic structured extractor remains authoritative, while the optional on-device
-Foundation Models evidence selector may supplement only `.missing` with an exact snippet from the
-filtered document. Integer minor-unit/date/currency/scale/duplicate validation remains
-deterministic. `enableReceiptImport` remains false; C4C-05, confirmation/persistence, Production,
-and release remain blocked.
+`f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; PR #73 merged
+its documentation closeout as `2107723`. C4C-04 is Done. Its deterministic structured extractor
+remains authoritative, while the optional on-device Foundation Models evidence selector may
+supplement only `.missing` with an exact snippet from the filtered document. Integer minor-unit/
+date/currency/scale/duplicate validation remains deterministic. The owner explicitly entered
+C4C-05. Its in-progress candidate enables only the verified-Pro local receipt entry, runs OCR off
+the main actor, deletes the temporary image before presentation, and copies accepted fields only
+into the editable expense form. The existing explicit Save action remains the sole persistence
+boundary. The deterministic 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally;
+the exact full validation passes 508 unit results (497 passed and 11 explicit skips), all 17 UI
+tests, Release, the strict Dashboard benchmark, and coverage. Physical DataScanner/PHPicker/OCR
+evidence, independent review, hosted CI, and merge remain open.
+Production and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

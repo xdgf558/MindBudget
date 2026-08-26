@@ -114,7 +114,7 @@ enum PaymentMethod: String, Codable, CaseIterable, Sendable, StringIdentified {
 }
 
 enum ExpenseSource: String, Codable, CaseIterable, Sendable, StringIdentified {
-    case manual, csvImport, siriIntent, shortcut, wishlistConversion
+    case manual, csvImport, siriIntent, shortcut, wishlistConversion, receiptImport
 }
 
 enum IncomeCategory: String, Codable, CaseIterable, Sendable, StringIdentified {

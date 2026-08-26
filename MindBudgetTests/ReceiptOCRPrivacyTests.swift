@@ -5,6 +5,17 @@ import Testing
 
 struct ReceiptOCRPrivacyTests {
     @Test
+    func spacedMaskedCardLastFourIsRedactedBeforeModelSafeTextExists() throws {
+        let document = try ReceiptOCRPrivacyPipeline().process([
+            observation("CARD * * * * 9876", sourceIndex: 0),
+            observation("TOTAL USD 12.34", sourceIndex: 1),
+        ])
+
+        #expect(document.lines.first?.text.value == "CARD \(ReceiptSensitiveTextFilter.replacementToken)")
+        #expect(document.lines.map(\.text.value).joined(separator: " ").contains("9876") == false)
+    }
+
+    @Test
     func filterRemovesCardValuesLastFourAndAuthorizationCodes() throws {
         let filter = ReceiptSensitiveTextFilter()
         let cases: [(String, String, Set<ReceiptSensitiveTextKind>)] = [

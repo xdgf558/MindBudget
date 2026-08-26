@@ -17,6 +17,7 @@ enum ReceiptImageLifecycleError: Error, Equatable, Sendable {
     case preparedImageTooLarge
     case encodingFailed
     case temporaryStorageFailed
+    case temporarilyUnavailable
     case superseded
 }
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an unreleased Pro receipt workflow to the new-expense form. A user can explicitly choose
+  one photo or camera capture, process it entirely on device, review accepted merchant/date/total
+  suggestions, and then use the existing Save action. Receipt images and recognized text are not
+  stored or synced; missing local AI capability falls back to deterministic local extraction.
 - Added a Pro evidence line to locally calculated spending-pattern cards, showing the supporting
   and total sample counts plus an integer confidence ratio. Existing 30-day Insights and basic
   spending reminders remain Free, and no receipt image, OCR, or server processing was added.

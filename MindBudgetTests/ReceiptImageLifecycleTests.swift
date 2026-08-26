@@ -264,6 +264,39 @@ struct ReceiptImageLifecycleTests {
         }
     }
 
+    @Test
+    func twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-C4C05-TwentyImages-\(UUID().uuidString)", isDirectory: true)
+        let lifecycle = ReceiptImageLifecycle(
+            processor: ReceiptImageProcessor(),
+            store: ReceiptTemporaryImageStore(directoryURL: root)
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        for index in 0..<20 {
+            let source = try jpeg(
+                width: 320 + index * 3,
+                height: 180 + index * 2,
+                orientation: index.isMultiple(of: 2) ? 1 : 6
+            )
+            let artifact = try await lifecycle.prepare(
+                ReceiptImageInput(data: source, source: .photoPicker)
+            )
+            let files = try FileManager.default.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: nil
+            )
+
+            #expect(artifact.pixelWidth <= ReceiptImageLifecyclePolicy.standard.maximumPreparedEdge)
+            #expect(artifact.pixelHeight <= ReceiptImageLifecyclePolicy.standard.maximumPreparedEdge)
+            #expect(files == [artifact.fileURL])
+
+            await lifecycle.discardTemporaryImage()
+            #expect(!FileManager.default.fileExists(atPath: root.path))
+        }
+    }
+
     private func expectLifecycleError(
         _ expected: ReceiptImageLifecycleError,
         operation: () async throws -> Void

@@ -1,4 +1,5 @@
 import CoreGraphics
+import ImageIO
 @preconcurrency import Vision
 
 enum ReceiptOCRPrivacyError: Error, Equatable, Sendable {
@@ -219,5 +220,40 @@ enum ReceiptVisionObservation {
 
     private static func normalized(_ point: CGPoint) -> ReceiptNormalizedPoint {
         ReceiptNormalizedPoint(x: point.x, y: point.y)
+    }
+}
+
+/// Executes the complete image-to-fields handoff away from the main actor. The prepared file is
+/// read locally, raw Vision text remains inside this adapter, and only privacy-filtered structured
+/// fields return to the customer surface.
+protocol ReceiptLocalProcessing: Sendable {
+    func process(
+        artifact: ReceiptTemporaryImageArtifact,
+        baseline: LocalReceiptRecognitionBaseline,
+        context: ReceiptExtractionContext
+    ) async throws -> ReceiptStructuredExtractionResult
+}
+
+struct ReceiptLocalProcessingService: ReceiptLocalProcessing, Sendable {
+    func process(
+        artifact: ReceiptTemporaryImageArtifact,
+        baseline: LocalReceiptRecognitionBaseline,
+        context: ReceiptExtractionContext
+    ) async throws -> ReceiptStructuredExtractionResult {
+        let document = try await Task.detached(priority: .userInitiated) {
+            try Task.checkCancellation()
+            guard let source = CGImageSourceCreateWithURL(artifact.fileURL as CFURL, nil),
+                  let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+                throw ReceiptImageLifecycleError.unsupportedImage
+            }
+            let document = try ReceiptVisionObservation.recognizedDocument(in: image)
+            try Task.checkCancellation()
+            return document
+        }.value
+        try Task.checkCancellation()
+        return try await ReceiptStructuredExtractionService(baseline: baseline).extract(
+            from: document,
+            context: context
+        )
     }
 }

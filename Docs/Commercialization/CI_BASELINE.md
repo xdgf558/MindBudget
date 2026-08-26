@@ -1363,3 +1363,35 @@ run. A read-only mirror at `/private/tmp/MindBudget-C4C04-closeout-final.xcresul
 `Passed` with zero failures and independently passed `Scripts/check-coverage.sh`. This remains
 documentation-closeout evidence only; independent review, green hosted CI, and merge are still
 required.
+
+### C4C-05 local confirmation/evaluation candidate — 2026-08-26
+
+After explicit owner entry, the local candidate enabled the verified-Pro receipt-import entry in
+the existing new-expense form. DataScanner capture and PHPicker selection feed a bounded temporary
+image into local Vision recognition and deterministic structured extraction off the main actor.
+Only accepted merchant, date, and total values may prefill the editable form; the existing Save
+action remains the sole SwiftData persistence boundary. Source/prepared images, OCR text, optional
+model evidence, and duplicate evidence remain ephemeral and have no network-egress path.
+
+The exact focused command covering `ReceiptImportIntegrationTests`, `ReceiptImageLifecycleTests`,
+`ReceiptOCRPrivacyTests`, and `ReceiptStructuredExtractionTests` passed 40/40 with zero failures
+and zero skips at `/private/tmp/MindBudget-C4C05-Focused.xcresult` on iPhone 17 Pro, iOS 26.5. The
+matrix includes 60 exact deterministic receipt fixtures (20 USD, 20 JPY, and 20 KWD), 10
+nonreceipt fixtures with no accepted total, review-prefill proof that SwiftData remains empty until
+the existing explicit Save action, receipt-source persistence after that action, and 20 sequential
+real-JPEG processing iterations with bounded pixels, at most one active temporary artifact, and
+zero residue after every iteration.
+
+The same local candidate passed the complete `Scripts/validate.sh` entry at
+`/private/tmp/MindBudget-C4C05-Full.xcresult`: all static contracts, Release compilation, the
+strict 10,000-row Dashboard wall-clock stage, 508 unit-test cases across 31 suites (497 passed and
+11 explicit physical-only skips), all 17 UI tests, and every selected core-service coverage
+threshold passed. CSVExporter was the minimum selected result at 87.60% against the required 85%.
+The result summary contains 525 logical results because parameterized cases are expanded by the
+result bundle; 514 passed and 11 were explicit physical-only skips.
+
+No attached physical device was online during this candidate run. DataScanner capture, PHPicker
+selection, and their resulting local Vision OCR therefore remain unexecuted physical evidence,
+not passes. Independent review, green hosted CI on the exact reviewed head, and merge also remain
+open. This entry does not mark C4C-05, COM-C4C, either receipt Requirement, Production,
+Archive/upload, tester, distribution, or release evidence Done.

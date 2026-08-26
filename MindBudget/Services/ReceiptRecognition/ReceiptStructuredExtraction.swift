@@ -338,10 +338,8 @@ struct ReceiptDeterministicExtractor: Sendable {
 
     private func isExplicitTotalLine(_ value: String) -> Bool {
         let folded = folded(value)
-        guard nonTotalLabels.allSatisfy({ !folded.contains($0) }) else { return false }
-        return totalLabels.contains { label in
-            folded.range(of: label) != nil
-        }
+        guard nonTotalLabels.allSatisfy({ !containsLabel($0, in: folded) }) else { return false }
+        return totalLabels.contains { containsLabel($0, in: folded) }
     }
 
     private func isMerchantCandidate(_ value: String) -> Bool {
@@ -369,12 +367,29 @@ struct ReceiptDeterministicExtractor: Sendable {
     }
 
     private func containsCurrencyMarker(_ value: String) -> Bool {
-        if value.range(of: #"\b[A-Z]{3}\b"#, options: .regularExpression) != nil {
-            return true
+        if let expression = try? NSRegularExpression(pattern: #"\b[A-Z]{3}\b"#) {
+            let range = NSRange(value.startIndex..<value.endIndex, in: value)
+            if expression.matches(in: value, range: range).contains(where: { match in
+                guard let range = Range(match.range, in: value) else { return false }
+                return Money.isSupported(String(value[range]))
+            }) {
+                return true
+            }
         }
         return value.unicodeScalars.contains { scalar in
             "$€£¥￥₹₩₫฿₱₪₺".unicodeScalars.contains(scalar)
         }
+    }
+
+    private func containsLabel(_ label: String, in value: String) -> Bool {
+        guard label.unicodeScalars.allSatisfy({ CharacterSet.lowercaseLetters.contains($0) || $0 == " " }) else {
+            return value.contains(label)
+        }
+        let escaped = NSRegularExpression.escapedPattern(for: label)
+        return value.range(
+            of: #"(?<![a-z])\#(escaped)(?![a-z])"#,
+            options: .regularExpression
+        ) != nil
     }
 
     private func folded(_ value: String) -> String {
