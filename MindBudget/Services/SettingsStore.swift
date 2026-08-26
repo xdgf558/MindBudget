@@ -82,6 +82,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage private var storedMaxDailyInterruptions: Int
     @AppStorage var indexMerchantNames: Bool
     @AppStorage var firstLaunchCompleted: Bool
+    @AppStorage var hasCompletedReceiptImport: Bool
     @AppStorage var budgetCycleStartDay: Int
     @Published var appSkinRaw: String {
         didSet {
@@ -125,6 +126,11 @@ final class SettingsStore: ObservableObject {
         _storedMaxDailyInterruptions = AppStorage(wrappedValue: 2, "maxDailyInterruptions", store: defaults)
         _indexMerchantNames = AppStorage(wrappedValue: false, "indexMerchantNames", store: defaults)
         _firstLaunchCompleted = AppStorage(wrappedValue: false, "firstLaunchCompleted", store: defaults)
+        _hasCompletedReceiptImport = AppStorage(
+            wrappedValue: false,
+            "hasCompletedReceiptImport",
+            store: defaults
+        )
         _budgetCycleStartDay = AppStorage(wrappedValue: 1, "budgetCycleStartDay", store: defaults)
         _categoryBucketOverridesJSON = AppStorage(wrappedValue: Data(), "categoryBucketOverridesJSON", store: defaults)
         _ruleConfigurationJSON = AppStorage(wrappedValue: Data(), "ruleConfigurationJSON", store: defaults)
@@ -290,6 +296,7 @@ final class SettingsStore: ObservableObject {
         reloadBucketOverrides()
         reloadRuleConfiguration()
         firstLaunchCompleted = false
+        hasCompletedReceiptImport = false
     }
 
     private func refreshConfigurationDiagnostic() {

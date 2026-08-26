@@ -86,3 +86,25 @@ Verify that the theme artwork is visibly present rather than reduced to a flat c
 quiet center and readability scrim keep all text and controls legible.
 Force-quit before launch-animation verification; background and foreground transitions must not
 replay it. Repeat with Reduce Motion enabled and verify that only opacity changes.
+
+## Receipt capture redesign
+
+C4C-05 uses the reviewed A implementation from the owner's receipt-capture handoff. The existing
+bounded `DataScannerViewController` remains the camera surface with system guidance disabled. An
+app-owned black overlay provides one dominant 72-point shutter, persistent local-only disclosure,
+three-state torch control, one-image PHPicker access, white breathing composition corners, preview
+confirmation, and accessible Reduce Motion/Dynamic Type adaptations. Because this path has no live
+frame or rectangle delegate, the corners never turn green and the copy never claims alignment,
+edge locking, automatic cropping, or perspective correction before capture.
+
+The old source-choice, full-screen processing, and full-screen result sequence is replaced by:
+first-use privacy explanation → camera → image preview → existing expense form. Recognition runs in
+the form with an inline status row and navigation-edge progress indicator. Accepted fields remain
+editable, the review result is an inline card, and failure leaves the manual form available. Save
+is the only persistence boundary; cancel or background cancellation discards temporary work.
+
+The camera's Photos affordance stays a generic icon because displaying the most recent asset would
+require broad Photo Library access that the existing PHPicker privacy contract deliberately avoids.
+The visual long-receipt slot is noninteractive and announces that section capture is unavailable;
+multi-image stitching and original-image expansion have no accepted interaction design and remain
+separate future work.

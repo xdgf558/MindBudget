@@ -485,3 +485,7 @@ unauthorized.
   fixed receipt/non-receipt, offline-tier, zero-leak, and 20-image matrix. Physical iOS 26.6.1
   DataScanner/PHPicker/OCR evidence and cancel-versus-Save persistence evidence passed on
   2026-08-26; independent review, green hosted CI, and merge remain open.
+  The owner-requested capture redesign is included under DEC-COM-053: first-use privacy explanation,
+  one-primary-action camera overlay, preview confirmation, form-inline processing/review/failure,
+  generation-safe cancellation, and AX/Reduce Motion adaptations. It deliberately uses the A path:
+  no live edge/alignment claim, no broad Photos permission, and no unreviewed long-receipt stitching.

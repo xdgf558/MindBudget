@@ -19,6 +19,20 @@ struct SettingsStoreTests {
         #expect(store.requireFaceID == false)
         #expect(store.enableAskMindBudget)
         #expect(store.preferencesSnapshot.maxDailyInterruptions == 2)
+        #expect(!store.hasCompletedReceiptImport)
+    }
+
+    @Test
+    func successfulReceiptIntroductionStatePersistsAndResetsWithLocalData() {
+        let fixture = isolatedDefaults()
+        defer { fixture.cleanup() }
+        let store = SettingsStore(defaults: fixture.defaults)
+
+        store.hasCompletedReceiptImport = true
+        #expect(SettingsStore(defaults: fixture.defaults).hasCompletedReceiptImport)
+
+        store.resetAfterDataDeletion()
+        #expect(!store.hasCompletedReceiptImport)
     }
 
     @Test

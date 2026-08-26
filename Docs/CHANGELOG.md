@@ -6,6 +6,9 @@
   one photo or camera capture, process it entirely on device, review accepted merchant/date/total
   suggestions, and then use the existing Save action. Receipt images and recognized text are not
   stored or synced; missing local AI capability falls back to deterministic local extraction.
+- Redesigned that unreleased receipt flow around one clear camera shutter, a local-only badge,
+  photo preview, and inline form progress/review/retry states. The form stays usable after a failed
+  read, while cancellation and backgrounding prevent a late recognition result from being applied.
 - Corrected the unreleased receipt flow for full-resolution iPhone photos and harmless sub-percent
   Vision bounding-box drift. Ordinary paper invoices can now reach review without relaxing image
   limits or guessing an uncertain amount.

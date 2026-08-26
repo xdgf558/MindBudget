@@ -1419,3 +1419,23 @@ Dashboard wall-clock stage, all static contracts, and all selected coverage thre
 result-bundle summary contains 527 logical results after the 17 UI cases and parameterized-test
 expansion are included: 516 passed, 11 skipped, and zero failed. CSVExporter remained the minimum
 selected coverage result at 87.60% against 85%.
+
+### C4C-05 receipt capture redesign candidate — 2026-08-27
+
+DEC-COM-053 implements the owner's redesign through recommended option A. The app target and the
+focused receipt-import, image-lifecycle, OCR-privacy, structured-extraction, localization, and
+settings suites compile and pass on iPhone 17 Pro simulator under Xcode 27 beta 6. The source uses
+DataScanner with guidance disabled and contains no live DataScanner delegate or new rectangle-frame
+pipeline; the custom frame remains white and makes no automatic-crop claim.
+
+This focused evidence covers the redesigned acquisition state, generation cancellation, manual
+amount Save release, fail-closed inline error mapping, first-use preference persistence/reset, and
+the unchanged receipt privacy/extraction boundaries. It is not new physical receipt evidence and
+does not supersede the recorded iOS 26.6.1 DataScanner/PHPicker/OCR observations.
+
+The exact redesigned source then passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult`: all static contracts, Release compilation,
+the strict 10,000-row Dashboard wall-clock stage, 514 unit-test results across 31 suites, all 17 UI
+tests, and every selected coverage threshold. The result summary contains 531 total tests, 520
+passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains the minimum selected
+coverage result at 87.60% against 85%. Independent review, hosted CI, and merge remain open.

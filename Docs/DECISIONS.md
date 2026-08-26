@@ -2839,3 +2839,21 @@ Consequences: Physical DataScanner and PHPicker paths now reach local review. Ca
 writes nothing; explicit Save produced exactly one imported expense; an uncertain total remained
 manual-review-only. This is not a broad accuracy claim. C4C-05 still requires independent review,
 green hosted CI, and merge before it can be Done.
+
+---
+
+## 2026-08-27 — Redesign receipt capture without fabricating live alignment
+
+Context: The owner supplied a replacement capture/review design after physical C4C-05 evaluation.
+Its full form assumes per-frame receipt-edge detection, which the accepted bounded DataScanner
+adapter does not expose.
+
+Decision: Detailed ownership is DEC-COM-053. Use the handoff's recommended option A: retain
+DataScanner, disable its system guidance, draw only an always-white framing aid, and do not claim an
+aligned state or automatic crop. Move recognition/progress/review/failure into the existing expense
+form while preserving the explicit Save boundary and all existing privacy constraints.
+
+Consequences: The customer receives the redesigned first-use, camera, preview, and inline-review
+journey without a new AVCapture/Vision frame pipeline, broad Photos permission, long-receipt
+stitching, persistence, egress, or release authority. C4C-05 remains In Progress pending review,
+hosted CI, and merge.

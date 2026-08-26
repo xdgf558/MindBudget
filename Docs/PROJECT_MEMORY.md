@@ -108,11 +108,19 @@ C4C-05. Its implementation/evaluation enables only the verified-Pro local receip
 the main actor, deletes the temporary image before presentation, and copies accepted fields only
 into the editable expense form. The existing explicit Save action remains the sole persistence
 boundary. The deterministic 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally;
-the exact final validation passes 510 unit results (499 passed and 11 explicit skips), all 17 UI
-tests, Release, the strict Dashboard benchmark, and coverage. Physical iOS 26.6.1 DataScanner and
+the pre-redesign exact validation passed 510 unit results (499 passed and 11 explicit skips), all 17
+UI tests, Release, the strict Dashboard benchmark, and coverage. Physical iOS 26.6.1 DataScanner and
 PHPicker paths now reach local Vision review; canceling after prefill writes nothing, while explicit
 Save produced exactly one receipt-import expense. An uncertain total remained manual-review-only.
-Independent review, hosted CI, and merge remain open.
+DEC-COM-053 subsequently applies the owner's capture redesign through the recommended bounded A
+path: DataScanner remains authoritative, its system guidance is disabled, and the custom white
+frame never claims live alignment or automatic crop. The flow now uses one primary shutter, an
+honest preview, and form-inline progress/review/failure while preserving user edits and explicit
+Save as the sole write. It adds no frame pipeline, broad Photos access, long-receipt stitching,
+persistence, or egress. Independent review, hosted CI, and merge remain open.
+The exact redesigned source passes 514 unit results, all 17 UI tests, Release, the strict Dashboard
+benchmark, every static contract, and coverage; its result summary reports 531 total, 520 passed,
+11 explicit skips, and zero failed.
 Production and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together

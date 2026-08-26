@@ -138,7 +138,7 @@ final class ReceiptSystemImageAcquisition: ReceiptSystemImageAcquiring {
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
-            isGuidanceEnabled: true,
+            isGuidanceEnabled: false,
             isHighlightingEnabled: false
         )
     }
@@ -233,46 +233,53 @@ struct ReceiptPhotoPickerView: UIViewControllerRepresentable {
 /// recognition; an explicit shutter action captures one image for the same bounded local pipeline.
 struct ReceiptCameraCaptureView: UIViewControllerRepresentable {
     let acquisition: any ReceiptSystemImageAcquiring
-    let locale: Locale
+    let flashMode: ReceiptCameraFlashMode
+    let captureRequestID: Int
+    let capturingChanged: @MainActor (Bool) -> Void
     let captured: @MainActor (Result<ReceiptImageInput, Error>) -> Void
-    let cancelled: @MainActor () -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeUIViewController(context: Context) -> ReceiptCameraCaptureController {
         ReceiptCameraCaptureController(
             acquisition: acquisition,
-            locale: locale,
-            captured: captured,
-            cancelled: cancelled
+            capturingChanged: capturingChanged,
+            captured: captured
         )
     }
 
-    func updateUIViewController(_ uiViewController: ReceiptCameraCaptureController, context: Context) {}
+    func updateUIViewController(
+        _ uiViewController: ReceiptCameraCaptureController,
+        context: Context
+    ) {
+        uiViewController.setFlashMode(flashMode)
+        guard captureRequestID != context.coordinator.lastCaptureRequestID else { return }
+        context.coordinator.lastCaptureRequestID = captureRequestID
+        guard captureRequestID > 0 else { return }
+        uiViewController.capture()
+    }
+
+    final class Coordinator {
+        var lastCaptureRequestID = 0
+    }
 }
 
 @MainActor
 final class ReceiptCameraCaptureController: UIViewController {
     private let acquisition: any ReceiptSystemImageAcquiring
-    private let locale: Locale
+    private let capturingChanged: @MainActor (Bool) -> Void
     private let captured: @MainActor (Result<ReceiptImageInput, Error>) -> Void
-    private let cancelled: @MainActor () -> Void
     private var scanner: DataScannerViewController?
     private var isCapturing = false
-    private lazy var shutterButton = makeButton(
-        titleKey: "receipt.camera.capture",
-        systemImage: "camera.fill",
-        action: #selector(capture)
-    )
 
     init(
         acquisition: any ReceiptSystemImageAcquiring,
-        locale: Locale,
-        captured: @escaping @MainActor (Result<ReceiptImageInput, Error>) -> Void,
-        cancelled: @escaping @MainActor () -> Void
+        capturingChanged: @escaping @MainActor (Bool) -> Void,
+        captured: @escaping @MainActor (Result<ReceiptImageInput, Error>) -> Void
     ) {
         self.acquisition = acquisition
-        self.locale = locale
+        self.capturingChanged = capturingChanged
         self.captured = captured
-        self.cancelled = cancelled
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -292,28 +299,11 @@ final class ReceiptCameraCaptureController: UIViewController {
             view.addSubview(scanner.view)
             scanner.didMove(toParent: self)
 
-            let cancelButton = makeButton(
-                titleKey: "common.cancel",
-                systemImage: "xmark",
-                action: #selector(cancel)
-            )
-            let controls = UIStackView(arrangedSubviews: [cancelButton, shutterButton])
-            controls.axis = .horizontal
-            controls.alignment = .center
-            controls.distribution = .fillEqually
-            controls.spacing = 16
-            controls.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(controls)
-
             NSLayoutConstraint.activate([
                 scanner.view.topAnchor.constraint(equalTo: view.topAnchor),
                 scanner.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 scanner.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 scanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                controls.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-                controls.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-                controls.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-                controls.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
             ])
         } catch {
             captured(.failure(error))
@@ -335,10 +325,10 @@ final class ReceiptCameraCaptureController: UIViewController {
         super.viewWillDisappear(animated)
     }
 
-    @objc private func capture() {
+    func capture() {
         guard !isCapturing, let scanner else { return }
         isCapturing = true
-        shutterButton.isEnabled = false
+        capturingChanged(true)
         Task {
             do {
                 captured(.success(try await acquisition.captureImage(from: scanner)))
@@ -346,27 +336,25 @@ final class ReceiptCameraCaptureController: UIViewController {
                 captured(.failure(error))
             }
             isCapturing = false
-            shutterButton.isEnabled = true
+            capturingChanged(false)
         }
     }
 
-    @objc private func cancel() {
-        cancelled()
-    }
-
-    private func makeButton(
-        titleKey: String,
-        systemImage: String,
-        action: Selector
-    ) -> UIButton {
-        var configuration = UIButton.Configuration.filled()
-        configuration.title = LocalizedCatalog.string(titleKey, locale: locale)
-        configuration.image = UIImage(systemName: systemImage)
-        configuration.imagePadding = 8
-        configuration.cornerStyle = .capsule
-        let button = UIButton(configuration: configuration)
-        button.addTarget(self, action: action, for: .touchUpInside)
-        return button
+    func setFlashMode(_ mode: ReceiptCameraFlashMode) {
+        guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
+        let requestedMode: AVCaptureDevice.TorchMode = switch mode {
+        case .automatic: .auto
+        case .on: .on
+        case .off: .off
+        }
+        guard device.isTorchModeSupported(requestedMode) else { return }
+        do {
+            try device.lockForConfiguration()
+            device.torchMode = requestedMode
+            device.unlockForConfiguration()
+        } catch {
+            // The camera remains usable without torch changes; no receipt content is involved.
+        }
     }
 }
 

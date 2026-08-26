@@ -5788,3 +5788,21 @@ result bundle reports 527 total logical results, 516 passed, 11 skipped, and zer
 and parameterized cases are included. CSVExporter remains the minimum selected coverage result at
 87.60% against 85%. The earlier sandboxed validation failure and transient Simulator Busy preflight
 were environmental non-passes; the clean rerun above is the candidate evidence.
+
+## 2026-08-27 — Rebuild the C4C-05 receipt journey from the owner handoff
+
+The owner paused submission and supplied `RECEIPT_CAPTURE_REDESIGN_HANDOFF.md`. DEC-COM-053 selects
+its recommended option A because the accepted DataScanner surface provides no live rectangle
+evidence. The implementation therefore uses an always-white framing aid and honest preview copy;
+it never shows the handoff's C-only green aligned state or promises automatic cropping.
+
+The first-use local-only explanation, one-primary-action camera overlay, torch control, PHPicker,
+capture preview, form-level progress, edit-preserving prefill, inline review/failure cards, and
+generation-safe cancellation are implemented. The existing Save action remains the only write.
+A recent-photo thumbnail was not added because it would broaden Photos access, and long-receipt
+stitching remains a disabled labelled slot because it has no reviewed product or processing
+contract. Focused compile/test evidence is recorded on the commercialization track; complete
+repository validation then passed at `/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult`:
+514 unit results, 17/17 UI tests, Release, the strict Dashboard benchmark, every static contract,
+and coverage passed. The result summary reports 531 total, 520 passed, 11 explicit skips, and zero
+failed. Independent review, hosted CI, and merge remain open.

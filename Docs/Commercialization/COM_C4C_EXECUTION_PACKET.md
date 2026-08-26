@@ -296,6 +296,18 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
   still ephemeral. Only the form's existing explicit Save action creates the `Expense`, preserving
   existing exact-money, budget, duplicate-warning, reminder, and validation paths. Receipt-created
   expenses carry only the non-content provenance value `receiptImport`.
+- The accepted capture redesign uses option A from the owner handoff: the bounded DataScanner
+  remains the source, system guidance is disabled, and a custom black overlay supplies one
+  dominant shutter, local-only disclosure, flash control, one-image PHPicker entry, and a preview
+  confirmation. There is no per-frame rectangle signal, so the white composition corners never
+  claim an aligned/green state or automatic crop.
+- Receipt processing now belongs to `ExpenseFormViewModel` under an explicit generation. The form
+  shows inline progress, review, and fail-closed recovery; a canceled or backgrounded generation
+  cannot apply a late result. Manual amount entry reopens Save, while the action itself cancels
+  outstanding recognition before using the existing write path.
+- Broad Photos access remains forbidden, so the camera shows a generic PHPicker icon rather than a
+  recent-library thumbnail. Long-receipt stitching and review-image expansion remain unimplemented
+  because their interaction designs are not accepted; the disabled slot states that limit.
 
 ### Deterministic evaluation contract
 
@@ -325,6 +337,11 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
   all 17 UI tests, Release compilation,
   the strict 10,000-row Dashboard wall-clock stage, every static contract, and every selected
   coverage threshold. CSVExporter is the minimum selected result at 87.60% against 85%.
+- `/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult` passes the exact DEC-COM-053 redesign
+  source: 514 unit-test results across 31 suites, all 17 UI tests, Release compilation, the strict
+  Dashboard wall-clock stage, every static contract, and every selected coverage threshold. Its
+  summary reports 531 total, 520 passed, 11 explicit skips, and zero failed; CSVExporter remains
+  the minimum selected coverage result at 87.60% against 85%.
 - Both are simulator/deterministic evidence only. Neither substitutes for the physical acquisition
   and OCR evidence below.
 

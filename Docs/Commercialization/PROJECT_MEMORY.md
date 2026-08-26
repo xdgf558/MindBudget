@@ -106,7 +106,15 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   editable form without writing, and reuses explicit Save as the sole persistence boundary. The
   fixed 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally. Physical iOS 26.6.1
   DataScanner/PHPicker acquisition and local OCR review now pass; cancel writes nothing and explicit
-  Save produced one imported expense. Independent review, hosted CI, and merge remain open.
+  Save produced one imported expense. DEC-COM-053 then applies the owner's redesigned journey via
+  bounded option A: DataScanner has no live rectangle authority, so the custom frame stays white and
+  no aligned/automatic-crop claim is shown. Capture preview and recognition/review/failure now live
+  around the existing expense form, preserving edits and the same explicit Save boundary without
+  adding broad Photos access, long-receipt stitching, persistence, or egress. Independent review,
+  hosted CI, and merge remain open.
+  The exact redesigned source passes 514 unit results, all 17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; its result summary reports 531 total,
+  520 passed, 11 explicit skips, and zero failed.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -429,14 +437,14 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: submit only the completed C4C-05 implementation/evaluation package for
-independent review, hosted CI, and merge. Physical DataScanner capture, PHPicker selection, local
-OCR review, cancel-without-write, and explicit-Save evidence are recorded as real iOS 26.6.1
-evidence, while the uncertain paper-invoice total remains a non-pass for automatic amount
-recognition. The complete final local validation already passes
-510 unit results (499 passed and 11 explicit skips), all 17 UI tests, Release, the strict Dashboard
-benchmark, and coverage. Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and
-do not enter COM-C5 automatically.
+Next suggested task: finish validating and submit only the redesigned C4C-05
+implementation/evaluation package for independent review, hosted CI, and merge. Physical
+DataScanner capture, PHPicker selection, local OCR review, cancel-without-write, and explicit-Save
+evidence are recorded as real iOS 26.6.1 evidence, while the uncertain paper-invoice total remains
+a non-pass for automatic amount recognition. DEC-COM-053 adds no new physical alignment evidence:
+the white frame is visual guidance only, and no live alignment or automatic-crop claim exists.
+Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and do not enter COM-C5
+automatically.
 Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain
 unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution

@@ -5,6 +5,111 @@ import Testing
 @Suite(.serialized)
 struct ReceiptImportIntegrationTests {
     @Test @MainActor
+    func cancellingARecognizingGenerationCannotApplyItsLateResult() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let processor = GatedReceiptLocalProcessor(result: acceptedReceiptResult())
+        let lifecycle = StubReceiptImageLifecycle()
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: TestFixtures.now,
+            receiptProcessor: processor
+        )
+        viewModel.amountText = "7.00"
+        viewModel.merchantName = "User Value"
+
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1, 2, 3]), source: .camera),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar
+        )
+        await processor.waitUntilEntered()
+        #expect(viewModel.receiptRecognitionPhase == .recognizing)
+        #expect(viewModel.blocksSaveForReceiptRecognition)
+
+        viewModel.cancelReceiptRecognition(lifecycle: lifecycle)
+        await processor.release()
+        await Task.yield()
+
+        #expect(viewModel.receiptRecognitionPhase == .none)
+        #expect(viewModel.amountText == "7.00")
+        #expect(viewModel.merchantName == "User Value")
+        #expect(!viewModel.hasImportedReceipt)
+    }
+
+    @Test @MainActor
+    func manualAmountEntryUnblocksSaveWhileRecognitionContinues() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let processor = GatedReceiptLocalProcessor(result: acceptedReceiptResult())
+        let lifecycle = StubReceiptImageLifecycle()
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: TestFixtures.now,
+            receiptProcessor: processor
+        )
+
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1]), source: .photoPicker),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar
+        )
+        await processor.waitUntilEntered()
+        #expect(viewModel.blocksSaveForReceiptRecognition)
+
+        viewModel.enterKeypad("9", decimalSeparator: ".")
+
+        #expect(!viewModel.blocksSaveForReceiptRecognition)
+        await processor.release()
+        for _ in 0..<100 where viewModel.receiptRecognitionPhase == .recognizing {
+            await Task.yield()
+        }
+        #expect(viewModel.amountText == "9")
+        #expect(viewModel.merchantName == "Late Receipt")
+        guard case .review = viewModel.receiptRecognitionPhase else {
+            Issue.record("The completed generation should enter inline review")
+            return
+        }
+        viewModel.cancelReceiptRecognition(lifecycle: lifecycle)
+    }
+
+    @Test @MainActor
+    func lifecycleFailureBecomesAnInlineFailClosedState() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let lifecycle = FailingReceiptImageLifecycle(error: .temporarilyUnavailable)
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: TestFixtures.now,
+            receiptProcessor: GatedReceiptLocalProcessor(result: acceptedReceiptResult())
+        )
+
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1]), source: .camera),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar
+        )
+
+        for _ in 0..<100 where viewModel.receiptRecognitionPhase == .recognizing {
+            await Task.yield()
+        }
+        #expect(
+            viewModel.receiptRecognitionPhase
+                == .failed(.cameraTemporarilyUnavailable)
+        )
+        #expect(!viewModel.hasImportedReceipt)
+    }
+
+    @Test @MainActor
     func recognizedFieldsRemainEphemeralUntilTheExistingSaveAction() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
@@ -250,4 +355,90 @@ struct ReceiptImportIntegrationTests {
             }
         )
     }
+
+    private func acceptedReceiptResult() -> ReceiptStructuredExtractionResult {
+        ReceiptStructuredExtractionResult(
+            fields: ReceiptCoreFields(
+                merchantName: .accepted("Late Receipt", source: .deterministic),
+                purchaseDate: .accepted(
+                    ReceiptCalendarDate(year: 2026, month: 8, day: 26),
+                    source: .deterministic
+                ),
+                total: .accepted(
+                    Money(minorUnits: 2_500, currencyCode: "USD"),
+                    source: .deterministic
+                )
+            ),
+            lineItems: [],
+            duplicateResolution: .noMatch,
+            execution: .deterministic
+        )
+    }
+}
+
+private actor GatedReceiptLocalProcessor: ReceiptLocalProcessing {
+    private let result: ReceiptStructuredExtractionResult
+    private var entered = false
+    private var entryWaiters: [CheckedContinuation<Void, Never>] = []
+    private var processingContinuation: CheckedContinuation<Void, Never>?
+
+    init(result: ReceiptStructuredExtractionResult) {
+        self.result = result
+    }
+
+    func process(
+        artifact: ReceiptTemporaryImageArtifact,
+        baseline: LocalReceiptRecognitionBaseline,
+        context: ReceiptExtractionContext
+    ) async throws -> ReceiptStructuredExtractionResult {
+        entered = true
+        let waiters = entryWaiters
+        entryWaiters.removeAll()
+        waiters.forEach { $0.resume() }
+        await withCheckedContinuation { continuation in
+            processingContinuation = continuation
+        }
+        return result
+    }
+
+    func waitUntilEntered() async {
+        guard !entered else { return }
+        await withCheckedContinuation { continuation in
+            entryWaiters.append(continuation)
+        }
+    }
+
+    func release() {
+        processingContinuation?.resume()
+        processingContinuation = nil
+    }
+}
+
+private struct StubReceiptImageLifecycle: ReceiptImageLifecycleHandling {
+    func start() async {}
+
+    func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact {
+        ReceiptTemporaryImageArtifact(
+            id: UUID(),
+            fileURL: URL(fileURLWithPath: "/private/tmp/receipt-ui-test.jpg"),
+            pixelWidth: 10,
+            pixelHeight: 20,
+            source: input.source,
+            correctedPerspective: false
+        )
+    }
+
+    func discardTemporaryImage() async {}
+}
+
+private struct FailingReceiptImageLifecycle: ReceiptImageLifecycleHandling {
+    let error: ReceiptImageLifecycleError
+
+    func start() async {}
+
+    func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact {
+        throw error
+    }
+
+    func discardTemporaryImage() async {}
 }

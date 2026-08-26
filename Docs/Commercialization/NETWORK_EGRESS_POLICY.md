@@ -85,4 +85,7 @@ selection, editable prefill, and the existing explicit local Save boundary. Rece
 model evidence never enter CloudKit, URLSession, HTTP(S), telemetry, logs, or a remote model. The
 current accepted app-owned HTTP(S) set is unchanged. Physical iOS 26.6.1 DataScanner/PHPicker/OCR
 and confirmation-boundary evidence passed without adding egress. Independent review, CI, and merge
-remain open, and every Production/distribution/release action remains blocked.
+remain open, and every Production/distribution/release action remains blocked. DEC-COM-053 changes
+only the local capture/review presentation: DataScanner remains bounded, the generic PHPicker icon
+does not request a recent-photo thumbnail or broad library access, recognition returns to the local
+expense form, and no live-frame detector, receipt content channel, telemetry, or endpoint is added.

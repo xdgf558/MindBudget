@@ -509,6 +509,13 @@ run on the reviewed head and merge remain required.**
 - Physical iOS 26.6.1 evidence covers DataScanner camera capture, one-image PHPicker selection,
   local Vision review, cancel-without-write, and exactly one explicit-Save write. An uncertain
   paper-invoice total remained manual-review-only rather than being guessed.
+- DEC-COM-053 folds the owner-supplied capture redesign into the same candidate without expanding
+  the receipt trust boundary: a custom overlay surrounds the bounded DataScanner surface, capture
+  must pass through preview, and processing/review/failure return inline to the expense form. The
+  A implementation exposes no live edge/aligned state, broad Photos access, or long-receipt stitch.
+- The exact redesigned source passes 514 unit results, 17/17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; the result summary reports 531 total,
+  520 passed, 11 explicit skips, and zero failed.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.

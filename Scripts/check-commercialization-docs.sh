@@ -417,6 +417,11 @@ fi
 for c4c05_source_anchor in \
   'static let enableReceiptImport = true' \
   'struct ReceiptImportView: View' \
+  'struct ReceiptCaptureOverlay: View' \
+  'struct ReceiptCapturePreviewView: View' \
+  'struct ReceiptReviewCard: View' \
+  'case recognizing' \
+  'hasCompletedReceiptImport' \
   'Task.detached(priority: .userInitiated)' \
   'the existing explicit Save action remains the sole persistence boundary' \
   'hasImportedReceipt ? .receiptImport : .manual' \
@@ -440,6 +445,8 @@ for c4c05_contract_anchor in \
   'C4C-05 implementation/evaluation' \
   'DEC-COM-051' \
   'DEC-COM-052' \
+  'DEC-COM-053' \
+  'recommended option A' \
   'existing explicit Save action' \
   '60 exact supported receipts' \
   'Physical iOS 26.6.1 DataScanner/PHPicker/OCR'; do
@@ -455,6 +462,27 @@ for c4c05_contract_anchor in \
     exit 1
   fi
 done
+
+if ! grep -Fq 'isGuidanceEnabled: false' \
+    MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift; then
+  echo "C4C-05 option A must keep DataScanner system guidance disabled under the custom frame" >&2
+  exit 1
+fi
+
+if grep -Eq 'DataScannerViewControllerDelegate|VNDetectRectanglesRequest' \
+    MindBudget/Features/AddExpense/ReceiptCaptureOverlay.swift \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift; then
+  echo "C4C-05 option A must not add an unreviewed live rectangle/frame-detection pipeline" >&2
+  exit 1
+fi
+
+if grep -Fq 'receipt.camera.guide.aligned' \
+    MindBudget/Features/AddExpense/ReceiptCaptureOverlay.swift \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift; then
+  echo "C4C-05 option A must not present an unsupported aligned camera state" >&2
+  exit 1
+fi
 
 if grep -Eq 'C4C-05 (remains |is )?blocked|awaiting explicit owner entry for C4C-05|Blocked pending explicit owner entry after C4C-04' \
     Docs/COMMERCIALIZATION_TASKS.md \

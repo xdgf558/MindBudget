@@ -1571,3 +1571,36 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Raising the source or prepared-pixel limits; accepting all Vision geometry;
   dropping the whole physical requirement; guessing the missing total; persisting on review; logging
   receipt content for diagnosis; or marking C4C-05/COM-C4C Done before review, CI, and merge.
+
+## DEC-COM-053 — Redesign receipt capture without implying unavailable live detection
+
+- Status/date: **Accepted C4C-05 presentation-remediation decision — 2026-08-27**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001;
+  DEC-COM-044/045/046/047/048/049/050/051/052
+- Context: Physical evaluation proved the bounded DataScanner/PHPicker/OCR boundary, but the
+  acquisition-to-review journey used several full-screen steps and did not give the user a clear
+  capture hierarchy. The owner supplied a UI/UX redesign handoff whose full alignment state assumes
+  per-frame rectangle detection. The accepted C4C-02 DataScanner adapter intentionally exposes no
+  frame or delegate, so claiming live alignment or automatic cropping would be false without a new
+  AVCapture/Vision privacy and performance surface.
+- Decision: Implement the handoff's recommended option A. Keep DataScanner as the bounded camera
+  authority with system guidance disabled, place one custom 72-point shutter beneath an always-white
+  breathing frame, and never show an aligned state or promise automatic cropping. Add the local-only
+  privacy badge, three-state torch control, PHPicker action, honest capture preview, and first-use
+  explanation. Move recognition back to the expense form under a generation-protected task, show
+  progress/failure/review inline, preserve user edits, and keep the existing explicit Save action as
+  the sole persistence boundary. The photo control remains a generic icon because a recent-photo
+  thumbnail would require broader library access. Long-receipt stitching remains a disabled,
+  accessibility-labelled visual slot because no reviewed interaction or processing contract exists.
+- Consequences: The redesign changes presentation and navigation only. It adds no camera frame
+  processing, live rectangle detector, automatic crop, broad Photos permission, schema, receipt
+  persistence, CloudKit field, network path, remote model, telemetry, or content log. Cancellation,
+  backgrounding, generation replacement, and Delete All continue to discard ephemeral receipt state.
+  Manual amount entry may release the temporary recognition Save gate, but a late recognition result
+  cannot overwrite a field changed after recognition began. C4C-05 remains In Progress pending
+  independent review, green hosted CI, and merge.
+- Alternatives rejected: Showing a fake green alignment state; presenting crop language when only
+  geometry correction after capture exists; adopting VNDocumentCamera and discarding the custom
+  hierarchy; creating AVCaptureSession plus VNDetectRectanglesRequest inside this packet; requesting
+  broad Photos access for a cosmetic thumbnail; implying that the disabled long-receipt slot performs
+  stitching; restoring a full-screen processing or review page; or persisting before explicit Save.

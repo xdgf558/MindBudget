@@ -2649,3 +2649,28 @@ result bundle reports 527 total logical results, 516 passed, 11 skipped, and zer
 and parameterized cases are included. CSVExporter remains the minimum selected coverage result at
 87.60% against 85%. A prior sandboxed attempt and transient Simulator Busy preflight remain
 environmental non-passes and are not counted as evidence.
+
+## 2026-08-27 — C4C-05 receipt capture and inline-review redesign
+
+After the owner paused PR submission and supplied the authoritative receipt UI handoff,
+DEC-COM-053 selected the recommended bounded option A. DataScanner remains the image-acquisition
+authority with guidance disabled; a custom black capture surface adds one white shutter, an
+always-white breathing frame, local-only badge, three-state torch, generic PHPicker control, and an
+honestly disabled long-receipt slot. No green aligned state, automatic-crop promise, live rectangle
+detection, AVCapture frame pipeline, or broad Photos permission was added.
+
+Capture now enters an explicit local preview and then returns to the expense form. Recognition owns
+a generation-protected form task; backgrounding, rescan, cancel, form dismissal, and replacement
+invalidate it and discard temporary image state. Accepted fields apply only when the corresponding
+form value is unchanged from recognition start. Progress, review, and failure are inline; manual
+amount entry releases the temporary recognition Save gate; explicit Save remains the only durable
+write. The first-use marker is local preference state and Delete All resets it.
+
+The app target and focused receipt/settings suites compile and pass on the iOS simulator. The exact
+redesigned source subsequently passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult`: all static contracts, Release compilation,
+the strict 10,000-row Dashboard wall-clock stage, 514 unit-test results across 31 suites, all 17 UI
+tests, and every selected coverage threshold. The result summary contains 531 total tests, 520
+passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains the minimum selected
+coverage result at 87.60% against 85%. No reviewed merge, C4C-05 Done, Production, distribution,
+or release claim is made here.
