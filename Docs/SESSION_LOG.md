@@ -5558,3 +5558,24 @@ tests, and every selected core-service coverage threshold. Four physical-only Cl
 remained explicit skips, and CSVExporter was the minimum selected coverage at 87.60% against the
 required 85%. The validation bundle was ephemeral and removed by the script after success. This
 candidate changes no enabled user-visible behavior, so `CHANGELOG.md` is intentionally unchanged.
+
+## 2026-08-26 — Close C4C-02 after reviewed merge without entering OCR
+
+Independent review found no P1/P2 issue on exact head `43c3a35`. GitHub Actions run `32860643712`
+completed successfully on that head, and PR #68 merged the bounded image acquisition/lifecycle
+substrate to `main` as `4ca8f1c`. C4C-02 is Done. `enableReceiptImport` remains false, and C4C-03
+through C4C-05 remain blocked pending a separate explicit owner instruction.
+
+DEC-COM-046 retains the three non-blocking review observations at their correct later boundaries:
+a dedicated DataScanner temporary-availability error belongs with an actual UI consumer;
+DataScanner/PHPicker physical behavior plus the 20-image stability matrix remain C4C-05 evidence;
+and non-money image-quality floating-point literals do not widen the money exception. No runtime,
+permission prompt, OCR, persistence, model/network content, Production, distribution, or release
+change is made by this documentation closeout, so `CHANGELOG.md` remains unchanged.
+
+The documentation-only closeout branch passed `Scripts/validate.sh`: every static contract,
+Release compilation, the strict Dashboard wall-clock stage, 478 unit-test results across 28
+suites, 17/17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was
+the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips. The ephemeral result bundle
+`mindbudget-validation.iJejGl/MindBudget.xcresult` was removed by normal script cleanup.

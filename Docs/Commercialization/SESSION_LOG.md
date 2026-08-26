@@ -2416,3 +2416,22 @@ No OCR recognized item, receipt field, persistence, schema, iCloud receipt data,
 model prompt, egress, customer entry, Production, distribution, or release action exists in this
 candidate. C4C-03 remains blocked pending independent review, green hosted CI, merge, and a separate
 owner entry. There is no enabled user-visible behavior change, so no changelog entry is required.
+
+## 2026-08-26 — C4C-02 reviewed merge closeout
+
+Independent review found no P1/P2 issue on exact head `43c3a35`. GitHub Actions run `32860643712`
+completed successfully on that head, and PR #68 merged it to `main` as `4ca8f1c`. DEC-COM-046
+therefore marks C4C-02 Done without enabling the receipt product flag or entering C4C-03.
+
+The review's three P3 observations remain bounded follow-up rather than source churn after merge:
+an actual UI consumer should give DataScanner temporary unavailability its own error; physical
+system-adapter behavior and the 20-image resource matrix belong to C4C-05; and compression-quality
+floating-point literals are non-money parameters, not a broader SPEC-015 exception. C4C-03 through
+C4C-05 remain blocked pending separate owner entry and predecessor completion.
+
+This documentation-only closeout passed the complete local validation entry: all static contracts,
+Release compilation, the strict Dashboard wall-clock stage, 478 unit-test results across 28
+suites, 17/17 UI tests, and every selected coverage threshold passed. CSVExporter was the minimum
+selected result at 87.60%. Four physical-only CloudKit probes remained explicit skips. The
+ephemeral bundle `mindbudget-validation.iJejGl/MindBudget.xcresult` was removed by normal cleanup.
+No Production, Archive/upload, tester, review, distribution, or release action occurred.

@@ -2718,3 +2718,19 @@ JPEG, and deterministic cancellation/cleanup.
 Consequences: No source image is persisted, backed up, synced, logged, or sent over a network. No
 OCR result, structured field, receipt draft, schema, model prompt, or customer entry exists in
 C4C-02. C4C-03 remains blocked until this candidate passes review, hosted CI, and merge.
+
+---
+
+## 2026-08-26 — Close C4C-02 without entering OCR work
+
+Context: Exact head `43c3a35` passed independent review without a P1/P2 issue and GitHub Actions
+run `32860643712`; PR #68 merged it to `main` as `4ca8f1c`.
+
+Decision: Detailed ownership is DEC-COM-046. Mark C4C-02 Done while keeping receipt import
+disabled and C4C-03 blocked until a separate explicit owner instruction. Carry the dormant
+DataScanner temporary-availability error taxonomy and physical adapter/resource-stability evidence
+to the later UI/evaluation packets instead of expanding the reviewed merge.
+
+Consequences: The acquisition/lifecycle substrate is merged, but no OCR, receipt field,
+persistence, model/network content, permission prompt, Production action, or release authority is
+created. COM-C4C and both receipt Requirements remain active.

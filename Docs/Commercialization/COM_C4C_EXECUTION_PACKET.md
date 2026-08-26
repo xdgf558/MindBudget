@@ -2,15 +2,16 @@
 
 ## Status
 
-Status: **In Progress — active subpacket C4C-02.**
+Status: **In Progress — awaiting explicit owner entry for C4C-03.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
 PR #66 merged it as `8611022`; documentation closeout head `55a321c` passed Actions run
 `32850616400`, and PR #67 merged it as `bdb94d9`. The owner then explicitly entered C4C-02.
-C4C-02 adds bounded camera/photo-picker acquisition infrastructure and one protected temporary
-image lifecycle, but no customer entry, OCR result, receipt persistence, iCloud receipt field,
-model prompt, network channel, Production action, or release authority.
+Reviewed C4C-02 head `43c3a35` passed Actions run `32860643712`, and PR #68 merged it as
+`4ca8f1c`. C4C-02 is Done. It adds bounded camera/photo-picker acquisition infrastructure and one
+protected temporary image lifecycle, but no customer entry, OCR result, receipt persistence,
+iCloud receipt field, model prompt, network channel, Production action, or release authority.
 
 ## Input gate
 
@@ -94,14 +95,14 @@ Status: **Done after independent review, green GitHub Actions run `32845307426`,
 
 ## C4C-02 — Image acquisition and lifecycle
 
-Status: **Implementation complete pending independent review, hosted CI on the reviewed head, and
-merge.**
+Status: **Done after independent review, green GitHub Actions run `32860643712`, and PR #68 merge
+`4ca8f1c`.**
 
 Own camera/DataScanner/photo-picker capability, orientation/perspective/downsampling/pixel limits,
 cancellation, memory/background behavior, and temporary-file cleanup. It may not implement OCR or
 persistence.
 
-### Accepted implementation candidate
+### Accepted implementation
 
 - `ReceiptImageAcquisitionCapability` resolves the product-scope switch, central Pro receipt tier,
   camera authorization, DataScanner support, and current scanner availability before any system
@@ -130,22 +131,29 @@ persistence.
   warning, Delete All, downstream release, and AppSession teardown share the same idempotent
   cleanup boundary. SwiftUI task recreation cannot clear a later active artifact.
 
-### Verification candidate
+### Verification and closeout
 
 - Ten focused tests cover product/Pro/permission/hardware availability, corrupt/byte/pixel-limit
   failures, orientation/downsampling bounds, perspective geometry rejection, deterministic
   lifecycle and caller cancellation while processing is suspended, startup orphan removal, and
   repeated proof that only prepared bytes exist before cleanup.
   `/private/tmp/MindBudget-C4C02-Focused5.xcresult` passed 10/10 on iPhone 17 Pro, iOS 26.5.
-- A generic iOS Simulator compile passed after strict-concurrency correction. The money and release-
-  readiness gates passed. Full local validation and hosted CI remain merge gates and will be
-  recorded without creating physical, OCR, accuracy, Production, or release evidence.
-- C4C-03 remains blocked. This packet does not inspect recognized text, redact receipt content,
-  produce structured fields, validate money, persist a draft, or enable `enableReceiptImport`.
+- The final complete local validation passed every static contract, Release compilation, the
+  strict Dashboard wall-clock stage, 478 unit-test results across 28 suites, 17/17 UI tests, and
+  every selected coverage threshold. CSVExporter was the minimum selected result at 87.60%.
+- Independent review found no P1/P2 issue. Reviewed head `43c3a35` passed hosted GitHub Actions run
+  `32860643712`, and PR #68 merged it to `main` as `4ca8f1c` on 2026-08-26 Singapore time.
+- The review retained three non-blocking boundaries: scanner temporary-unavailability should gain
+  a dedicated error when an actual UI consumes it; the system adapters remain dormant until a
+  later packet creates a customer surface and physical evidence remains C4C-05 work; non-money
+  image-quality floating-point literals do not widen the money exception.
+- C4C-03 remains blocked pending a separate explicit owner entry. This packet does not inspect
+  recognized text, redact receipt content, produce structured fields, validate money, persist a
+  draft, or enable `enableReceiptImport`.
 
 ## C4C-03 — OCR and pre-model privacy
 
-Status: **Blocked by C4C-02.**
+Status: **Blocked pending explicit owner entry after C4C-02.**
 
 Own local OCR geometry/order/confidence and removal of card numbers, last-four patterns, and
 authorization codes before any model boundary.
