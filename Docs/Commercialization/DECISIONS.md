@@ -1441,3 +1441,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   matching without fixture evidence; treating deterministic privacy tests as receipt-accuracy or
   physical-system evidence; enabling the dormant product flag; or marking COM-C4C or either active
   receipt Requirement complete.
+
+## DEC-COM-049 — Keep structured receipt authority deterministic
+
+- Status/date: **Accepted C4C-04 implementation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-044/045/046/047/048
+- Context: PR #71 merged the C4C-03 documentation closeout as `08fb718`, after which the owner
+  explicitly entered C4C-04. This packet owns only ephemeral structured extraction and exact
+  validation. C4C-05 still owns customer wiring, confirmation-before-persistence, the 60-plus
+  receipt/non-receipt fixture matrix, physical/resource evidence, and accuracy gates.
+- Decision: Run a deterministic extractor before any optional model work and keep every accepted
+  deterministic field authoritative. The optional Foundation Models adapter runs on device and
+  receives only the bounded `ReceiptOCRDocument` created after C4C-03 filtering. It may return only
+  exact contiguous evidence snippets. Deterministic code re-proves that provenance and alone
+  interprets merchant, calendar date, ISO currency, currency exponent, integer minor units, range,
+  and exact duplicate identity. Missing, ambiguous, invalid, mismatched, unsupported-scale, and
+  out-of-range states remain typed; none becomes zero. Model absence, timeout, error, invented
+  evidence, or unusable output returns the deterministic result. The line-item experiment defaults
+  off and has no production enablement path in this packet.
+- Consequences: The candidate has no UI, permission prompt, confirmation, persistence, SwiftData/
+  CloudKit field, logging, telemetry, remote model, or network path. The C4C-03 raw/safe-text type
+  boundary remains exact. A later C4C-05 integration must execute Vision recognition away from the
+  main actor and may persist nothing before explicit user confirmation. C4C-05 remains blocked.
+- Alternatives rejected: Letting a model produce normalized values or override deterministic
+  fields; treating model output as authority; accepting binary floating-point money; inferring
+  currency or zero from missing evidence; fuzzy duplicate winners; enabling experimental line
+  items by default; moving confirmation/persistence or the accuracy/resource matrix into C4C-04;
+  sending receipt text to an existing advice/network service; or enabling receipt import.

@@ -41,8 +41,9 @@ detailed phase checklists; it added no paid product behavior.
   entered C4C-02. Reviewed head `43c3a35` passed Actions run `32860643712`, and PR #68 merged
   it as `4ca8f1c`; documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged the
   closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03. Reviewed head
-  `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done;
-  C4C-04/C4C-05 remain blocked pending a separate explicit owner entry.**
+  `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done.
+  The owner explicitly entered C4C-04; its implementation is complete pending independent review,
+  green hosted CI, and merge. C4C-05 remains blocked.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -477,7 +478,7 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **In Progress — awaiting explicit owner entry for C4C-04.**
+Status: **Pending independent review for the C4C-04 candidate.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -489,9 +490,10 @@ Status: **In Progress — awaiting explicit owner entry for C4C-04.**
   Actions run `32921913143`, and PR #70 merge `d294cfb`: raw Vision text stays inside one adapter,
   only privacy-filtered `ReceiptModelSafeText` may emerge with deterministic geometry/order/
   confidence, and invalid or over-limit documents fail closed. The customer entry stays disabled.
-- [B] **C4C-04 — Structured extraction and validation.** Add deterministic fallback, core-field
-  generation, exact amount/date/currency/scale/duplicate validation, and experimental line-item
-  switch defaulting off until accepted.
+- [ ] **C4C-04 — Structured extraction and validation.** Implementation complete pending
+  independent review: deterministic extraction stays authoritative; an optional on-device model
+  may select only exact snippets from the already privacy-filtered document; exact amount/date/
+  currency/scale/duplicate validation remains deterministic; the line-item experiment defaults off.
 - [B] **C4C-05 — Mandatory confirmation and evaluation.** Persist nothing before confirmation;
   build at least 60 fixed receipts plus non-receipts; verify offline tiers, privacy zero leaks,
   accuracy, and 20-image memory stability.

@@ -222,6 +222,12 @@ does not label a person based on those tags.
   non-content marker. Invalid geometry/confidence, filter failure, or count/byte overflow rejects
   the document. No receipt text is logged, persisted, synced, sent to a model, or sent over a
   network; structured extraction and confirmation remain later phases.
+- C4C-04 adds dormant structured extraction without enabling receipt entry. Deterministic parsing
+  always runs first. The optional Foundation Models adapter runs on device and receives only the
+  already-filtered `ReceiptOCRDocument`; its exact-snippet output is untrusted until deterministic
+  provenance and field validation pass. Missing/uncertain values never become zero, model failure
+  falls back to deterministic output, and line items remain default-off. No receipt field is shown,
+  persisted, synced, logged, or sent over a network; confirmation/evaluation remains C4C-05.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

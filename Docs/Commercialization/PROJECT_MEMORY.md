@@ -96,8 +96,10 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   as `4ca8f1c`. Documentation head `4ab0daf` passed run `32911659905`, and PR #69 merged its
   closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03; reviewed head
   `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged the local OCR/privacy
-  boundary as `d294cfb`. C4C-03 is Done. C4C-04/C4C-05 and the customer entry remain blocked
-  pending separate authority.
+  boundary as `d294cfb`. C4C-03 is Done. The owner explicitly entered C4C-04; its candidate keeps
+  deterministic structured extraction authoritative and permits the on-device model to select
+  only exact evidence from the privacy-filtered document before deterministic validation.
+  C4C-05 and the customer entry remain blocked.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -420,10 +422,10 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: after this C4C-03 documentation closeout passes independent review, green
-hosted CI, and merge, wait for an explicit owner instruction before entering C4C-04. Do not infer
-that entry from the closeout. Product scope remains off; there is no structured extraction,
-persistence, model/network use, or customer entry.
+Next suggested task: finish C4C-04 independent review, green hosted CI, and merge. Do not enter
+C4C-05 automatically. Product scope remains off; structured fields are ephemeral candidate data,
+the optional model is on-device and receives only filtered text, and there is no confirmation,
+persistence, network use, or customer entry.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred
 from the read-only Dashboard inspection or local Release archive.
