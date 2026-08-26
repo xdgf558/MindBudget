@@ -99,12 +99,17 @@ struct ReceiptStructuredExtractionTests {
             ]),
             context: context(currency: "USD", locale: "en_US", order: .monthDayYear)
         )
+        let sameLineMixedValidity = try await service().extract(
+            from: document(["Store", "2026-08-26", "TOTAL USD 12.34 12.345"]),
+            context: context(currency: "USD", locale: "en_US", order: .monthDayYear)
+        )
 
         #expect(scale.fields.total == .rejected(.unsupportedScale))
         #expect(mismatch.fields.total == .rejected(.currencyMismatch))
         #expect(unsupported.fields.total == .rejected(.unsupportedCurrency))
         #expect(range.fields.total == .rejected(.amountOutOfRange))
         #expect(mixedValidity.fields.total == .rejected(.unsupportedScale))
+        #expect(sameLineMixedValidity.fields.total == .rejected(.unsupportedScale))
     }
 
     @Test
@@ -238,6 +243,32 @@ struct ReceiptStructuredExtractionTests {
                 )
         )
         #expect(result.execution == .deterministicWithOnDeviceModel)
+    }
+
+    @Test
+    func modelCannotReplaceADeterministicRejection() async throws {
+        let model = FixedReceiptModel(
+            candidates: ReceiptRawCandidates(
+                merchantEvidence: [],
+                dateEvidence: [],
+                totalEvidence: ["Payment USD 7.00"],
+                lineItemEvidence: []
+            )
+        )
+        let result = try await service(baseline: .deterministicWithOnDeviceModel, model: model)
+            .extract(
+                from: document([
+                    "Corner Shop",
+                    "2026-08-26",
+                    "TOTAL USD 5.00",
+                    "AMOUNT DUE USD 6.00",
+                    "Payment USD 7.00",
+                ]),
+                context: context(currency: "USD", locale: "en_US", order: .monthDayYear)
+            )
+
+        #expect(result.fields.total == .rejected(.ambiguousTotal))
+        #expect(result.execution == .deterministicFallback(.invalidOutput))
     }
 
     @Test

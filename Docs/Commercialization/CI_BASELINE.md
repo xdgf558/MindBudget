@@ -1299,7 +1299,7 @@ remained explicit skips. The ephemeral result bundle
 
 ### C4C-04 structured extraction candidate — 2026-08-26
 
-After explicit owner entry, the final focused command targeting
+After explicit owner entry, the pre-review focused command targeting
 `MindBudgetTests/ReceiptStructuredExtractionTests` passed 16/16 at
 `/private/tmp/MindBudget-C4C04-FocusedFinal.xcresult` on iPhone 17 Pro, iOS 26.5. The
 suite covers deterministic core extraction; locale-aware integer USD/JPY/KWD parsing; typed
@@ -1322,3 +1322,20 @@ ephemeral bundle was `mindbudget-validation.hAXTHp/MindBudget.xcresult` during e
 removed by normal script cleanup. Hosted CI on the independently reviewed head remains the merge
 gate; this evidence makes no C4C-05 physical, fixture-accuracy, resource-stability, persistence,
 Production, Archive/upload, tester, distribution, or release claim.
+
+PR #72 review remediation added two fail-closed regression shapes without broadening C4C-04. The
+focused `ReceiptStructuredExtractionTests` command passed 17/17 at
+`/private/tmp/MindBudget-C4C04-ReviewFix-Focused.xcresult` on iPhone 17 Pro, iOS 26.5. It proves
+that one invalid numeric token rejects the entire same-line total candidate and that an optional
+model cannot replace deterministic `.rejected`, while the existing missing-field supplement path
+still passes.
+
+The replacement exact source passed the complete `Scripts/validate.sh` entry: all static
+contracts, Release compilation, the strict Dashboard wall-clock stage, 502 unit-test results
+across 30 suites, all 17 UI tests, and every selected core-service coverage threshold passed.
+CSVExporter remained the minimum selected result at 87.60% against the required 85%. Four
+physical-only CloudKit probes were explicit skips. The ephemeral result bundle was
+`mindbudget-validation.5DL4A2/MindBudget.xcresult` during execution and was removed by normal
+script cleanup. Hosted CI on the replacement exact head remains required before merge; this
+review remediation does not advance C4C-05 or any physical, accuracy, persistence, Production,
+distribution, or release gate.

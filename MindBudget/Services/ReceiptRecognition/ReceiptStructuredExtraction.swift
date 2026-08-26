@@ -524,12 +524,16 @@ struct ReceiptCandidateValidator: Sendable {
         _ supplement: ReceiptFieldResolution<Value>,
         usedSupplement: inout Bool
     ) -> ReceiptFieldResolution<Value> {
-        if case .accepted = deterministic { return deterministic }
-        if case .accepted = supplement {
-            usedSupplement = true
-            return supplement
+        switch deterministic {
+        case .accepted, .rejected:
+            return deterministic
+        case .missing:
+            if case .accepted = supplement {
+                usedSupplement = true
+                return supplement
+            }
+            return deterministic
         }
-        return deterministic
     }
 }
 
@@ -702,6 +706,9 @@ struct ReceiptAmountParser: Sendable {
             } catch let failure as ParseFailure {
                 failures.append(failure)
             }
+        }
+        if let failure = failures.first {
+            throw failure
         }
         guard !values.isEmpty else { throw failures.first ?? ParseFailure.invalidAmount }
         return values

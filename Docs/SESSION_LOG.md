@@ -5660,7 +5660,7 @@ It may select exact evidence snippets, but deterministic code re-verifies proven
 override an accepted deterministic field, and performs every field interpretation. Model absence,
 timeout, invalid evidence/output, or error returns the deterministic result.
 
-The final focused C4C-04 suite passed 16/16 at
+The pre-review focused C4C-04 suite passed 16/16 at
 `/private/tmp/MindBudget-C4C04-FocusedFinal.xcresult` on iPhone 17 Pro, iOS 26.5, including
 USD/JPY/KWD exponent
 and locale punctuation, invalid scale/currency/range/date, missing/ambiguous values, exact duplicate
@@ -5678,3 +5678,21 @@ remained explicit skips. The ephemeral result bundle
 `mindbudget-validation.hAXTHp/MindBudget.xcresult` was removed by normal script cleanup. This is
 simulator and deterministic extraction evidence only; it does not advance any C4C-05 physical,
 accuracy, persistence, Production, distribution, or release gate.
+
+PR #72 independent review found no P1 issue and identified two P2 fail-closed inconsistencies. The
+review fix now rejects a total evidence line if any numeric token on that line fails parsing; a
+valid token can no longer hide an invalid-scale sibling. Candidate merging now allows the optional
+model to supplement only `.missing`; deterministic `.accepted` and `.rejected` resolutions remain
+authoritative. The focused review-fix suite passed 17/17 at
+`/private/tmp/MindBudget-C4C04-ReviewFix-Focused.xcresult`, including same-line mixed-validity and
+deterministic-rejection regression cases. C4C-05 matching heuristics remain deferred, the product
+flag stays false, and hosted CI on the replacement head remains the merge gate.
+
+The replacement exact source then passed the complete `Scripts/validate.sh` entry: every static
+contract, Release compilation, the strict Dashboard wall-clock stage, 502 unit-test results across
+30 suites, all 17 UI tests, and every selected core-service coverage threshold passed. CSVExporter
+was the minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit
+probes remained explicit skips. The ephemeral result bundle
+`mindbudget-validation.5DL4A2/MindBudget.xcresult` was removed by normal script cleanup. Hosted CI
+on the pushed replacement head remains the merge gate; this evidence does not enter C4C-05 or
+claim physical receipt, accuracy, persistence, Production, distribution, or release readiness.

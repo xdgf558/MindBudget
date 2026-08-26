@@ -238,9 +238,10 @@ Accepted implementation boundary:
   detection requires exact normalized merchant, calendar date, amount, and currency agreement.
 - The line-item experiment is structurally present but defaults off. All structured output remains
   ephemeral; there is no UI, confirmation, persistence, logging, iCloud field, or network path.
-- The 16-test focused suite covers deterministic core fields, locale punctuation, USD/JPY/KWD
+- The 17-test focused suite covers deterministic core fields, locale punctuation, USD/JPY/KWD
   scale, mismatch/range rejection, missing/ambiguous/invalid values, exact duplicates, model
-  provenance/precedence/fallback, default-off line items, and unavailable/invalid contexts.
+  provenance/precedence/fallback, same-line mixed-validity failure, deterministic rejection
+  authority, default-off line items, and unavailable/invalid contexts.
 - The C4C-03 carryover remains: the future C4C-05 integration caller must run Vision recognition
   away from the main actor. C4C-04 begins after an already-safe `ReceiptOCRDocument` and does not
   create a Vision caller.

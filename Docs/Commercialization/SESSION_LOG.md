@@ -2522,7 +2522,7 @@ snippets, and remains subordinate to deterministic provenance and field validati
 results survive model absence, timeout, invalid evidence/output, and model errors. No SwiftData,
 CloudKit, log, telemetry, URLSession, HTTP(S), remote model, or customer path was added.
 
-Evidence: the final focused C4C-04 suite passed 16/16 at
+Evidence: the pre-review focused C4C-04 suite passed 16/16 at
 `/private/tmp/MindBudget-C4C04-FocusedFinal.xcresult` on iPhone 17 Pro, iOS 26.5. It covers core fields,
 locale punctuation, USD/JPY/KWD exponents, invalid scale/currency/range/date, missing and ambiguous
 states without invented zero, exact duplicate identity, model provenance/precedence/fallback/
@@ -2539,3 +2539,21 @@ ephemeral `mindbudget-validation.hAXTHp/MindBudget.xcresult` bundle was removed 
 This result remains deterministic/simulator evidence and does not claim C4C-05 receipt accuracy,
 physical capture/OCR, 20-image stability, confirmation/persistence, Production, distribution, or
 release readiness.
+
+PR #72 review requested two P2 corrections without changing the accepted packet. First, numeric
+tokens within one total-evidence line now share the same fail-closed rule as separate evidence
+lines: any parse failure rejects the field. Second, model supplementation is restricted to a
+deterministic `.missing`; an `.accepted` or `.rejected` deterministic resolution is final. The
+exact review-fix source passed 17/17 focused tests at
+`/private/tmp/MindBudget-C4C04-ReviewFix-Focused.xcresult`. The new fixtures cover a valid and
+invalid-scale amount on one line plus an ambiguous deterministic total that a model attempts to
+replace. No C4C-05 matcher expansion, customer wiring, persistence, or feature enablement occurred.
+
+The replacement exact source then passed `Scripts/validate.sh`: every static contract, Release
+compilation, the strict Dashboard wall-clock stage, 502 unit-test results across 30 suites, all
+17 UI tests, and every selected core-service coverage threshold passed. CSVExporter was the
+minimum selected result at 87.60% against the required 85%. Four physical-only CloudKit probes
+remained explicit skips. The ephemeral `mindbudget-validation.5DL4A2/MindBudget.xcresult` bundle
+was removed by normal script cleanup. Hosted CI on the replacement head remains required before
+merge; C4C-05 stays blocked and no physical receipt, fixture-accuracy, persistence, Production,
+distribution, or release evidence is claimed.
