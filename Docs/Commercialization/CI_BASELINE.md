@@ -1395,3 +1395,27 @@ selection, and their resulting local Vision OCR therefore remain unexecuted phys
 not passes. Independent review, green hosted CI on the exact reviewed head, and merge also remain
 open. This entry does not mark C4C-05, COM-C4C, either receipt Requirement, Production,
 Archive/upload, tester, distribution, or release evidence Done.
+
+### C4C-05 physical remediation and manual evidence — 2026-08-26
+
+Physical device: `拉沙的iPhone`, iOS 26.6.1. Toolchain: Xcode 27 beta 6 (`27A5252f`). The first
+camera attempts failed closed; the non-content diagnostic was `ocr.invalidGeometry`. Remediation
+keeps the existing byte/pixel limits, derives a lower ImageIO thumbnail edge when the pixel ceiling
+requires it, and clamps only normalized Vision drift within 0.005. The exact focused simulator
+result `/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult` passed 21/21 across
+`ReceiptImageLifecycleTests` and `ReceiptOCRPrivacyTests`, including the 4032 x 3024 capture and
+bounded-versus-material geometry cases.
+
+After deployment, a DataScanner paper-invoice capture reached local Vision review. Merchant/date
+were accepted; total stayed manual-review-only. Apply followed by cancel created zero expenses. A
+separate one-image PHPicker path reached review and explicit Save created exactly one `$25.00`
+expense. This is physical acquisition/OCR and persistence-boundary evidence, not a broad accuracy
+claim. Independent review, hosted CI, and merge remain required.
+
+After those physical remediations, the exact final repository entry passed at
+`/private/tmp/MindBudget-C4C05-Final.xcresult`: 510 unit-test results across 31 suites (499 passed
+and 11 explicit physical/runtime skips), 17/17 UI tests, Release compilation, the strict 10,000-row
+Dashboard wall-clock stage, all static contracts, and all selected coverage thresholds. The
+result-bundle summary contains 527 logical results after the 17 UI cases and parameterized-test
+expansion are included: 516 passed, 11 skipped, and zero failed. CSVExporter remained the minimum
+selected coverage result at 87.60% against 85%.

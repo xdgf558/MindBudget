@@ -244,9 +244,10 @@ The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actio
 entered C4C-03. Reviewed head `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged
 it as `d294cfb`; C4C-03 is Done. The owner explicitly entered C4C-04. Reviewed remediation head
 `f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; PR #73 merged
-the documentation closeout as `2107723`. C4C-04 is Done. The owner explicitly entered C4C-05;
-its local customer integration/evaluation candidate is In Progress. Production and release action
-remain unauthorized.
+the documentation closeout as `2107723`. C4C-04 is Done. C4C-05 implementation/evaluation is
+complete, including physical DataScanner/PHPicker/OCR plus confirmation/persistence evidence, and
+awaits independent review, green hosted CI, and merge. Production and release action remain
+unauthorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -478,8 +479,9 @@ remain unauthorized.
   merge, receipt import was disabled; the later explicit C4C-05 entry below supersedes that state.
 - [x] Complete the C4C-04 documentation closeout through independent review, green hosted CI, and
   PR #73 merge `2107723`. The closeout records DEC-COM-050 and did not enter C4C-05 automatically.
-- [ ] Complete C4C-05 after explicit owner entry: expose the verified-Pro, local-only receipt
+- [ ] Complete C4C-05 review/CI/merge after implementation/evaluation: expose the verified-Pro, local-only receipt
   entry; keep image/OCR/model output ephemeral; apply accepted fields only to the editable expense
   form; retain the existing explicit Save action as the sole persistence boundary; pass the 60+
-  fixed receipt/non-receipt, offline-tier, zero-leak, and 20-image matrix; obtain physical
-  acquisition/OCR evidence; then stop for independent review, green hosted CI, and merge.
+  fixed receipt/non-receipt, offline-tier, zero-leak, and 20-image matrix. Physical iOS 26.6.1
+  DataScanner/PHPicker/OCR evidence and cancel-versus-Save persistence evidence passed on
+  2026-08-26; independent review, green hosted CI, and merge remain open.

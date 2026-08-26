@@ -1540,3 +1540,34 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   broad Photo Library permission; remote OCR/model use; syncing receipt intermediates; counting a
   generated/simulator fixture as physical evidence; or marking either receipt Requirement, C4C-05,
   COM-C4C, or a release gate complete before review/CI/merge.
+
+## DEC-COM-052 — Bound real-device image and Vision drift without accepting uncertain fields
+
+- Status/date: **Accepted C4C-05 physical-remediation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-045/047/049/051
+- Context: The first physical paper-invoice attempts on `拉沙的iPhone` exposed two fail-closed
+  interoperability defects. A common 4032 x 3024 capture stayed at source dimensions because the
+  4096 edge limit alone did not trigger ImageIO downsampling, then exceeded the separate 12-million
+  prepared-pixel limit. After that was fixed, local Vision returned a text observation whose
+  normalized bounding box drifted a fraction outside the documented unit square, causing the whole
+  document to reject as `ocr.invalidGeometry`.
+- Decision: Derive ImageIO's requested thumbnail edge from both the maximum edge and maximum
+  prepared-pixel contracts using checked integer arithmetic. Accept only finite positive Vision
+  geometry whose edges remain within 0.005 of the unit square, clamp that bounded drift, and keep
+  every larger or degenerate shape fail-closed. Log only closed non-content receipt reason codes;
+  never log an image, OCR text, merchant, amount, or other receipt-derived value.
+- Physical evidence: Under Xcode 27 beta 6 (`27A5252f`) on physical iOS 26.6.1, DataScanner camera
+  capture reached local review with accepted merchant/date while an uncertain total remained manual
+  review. Applying that review and canceling the expense form wrote nothing. A separate one-image
+  PHPicker selection reached review and produced exactly one `$25.00` expense only after explicit
+  Save. Focused remediation tests pass 21/21 at
+  `/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult`.
+- Consequences: The mandatory physical acquisition/OCR and confirmation boundary are evidenced.
+  This is not a claim that the uncertain paper-invoice amount was recognized, nor a population-wide
+  accuracy claim. C4C-05 stays In Progress pending independent review, green hosted CI on the
+  reviewed head, and merge. No Production, Archive/upload, tester, distribution, or release action
+  is authorized.
+- Alternatives rejected: Raising the source or prepared-pixel limits; accepting all Vision geometry;
+  dropping the whole physical requirement; guessing the missing total; persisting on review; logging
+  receipt content for diagnosis; or marking C4C-05/COM-C4C Done before review, CI, and merge.

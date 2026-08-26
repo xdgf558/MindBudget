@@ -104,13 +104,15 @@ its documentation closeout as `2107723`. C4C-04 is Done. Its deterministic struc
 remains authoritative, while the optional on-device Foundation Models evidence selector may
 supplement only `.missing` with an exact snippet from the filtered document. Integer minor-unit/
 date/currency/scale/duplicate validation remains deterministic. The owner explicitly entered
-C4C-05. Its in-progress candidate enables only the verified-Pro local receipt entry, runs OCR off
+C4C-05. Its implementation/evaluation enables only the verified-Pro local receipt entry, runs OCR off
 the main actor, deletes the temporary image before presentation, and copies accepted fields only
 into the editable expense form. The existing explicit Save action remains the sole persistence
 boundary. The deterministic 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally;
-the exact full validation passes 508 unit results (497 passed and 11 explicit skips), all 17 UI
-tests, Release, the strict Dashboard benchmark, and coverage. Physical DataScanner/PHPicker/OCR
-evidence, independent review, hosted CI, and merge remain open.
+the exact final validation passes 510 unit results (499 passed and 11 explicit skips), all 17 UI
+tests, Release, the strict Dashboard benchmark, and coverage. Physical iOS 26.6.1 DataScanner and
+PHPicker paths now reach local Vision review; canceling after prefill writes nothing, while explicit
+Save produced exactly one receipt-import expense. An uncertain total remained manual-review-only.
+Independent review, hosted CI, and merge remain open.
 Production and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together

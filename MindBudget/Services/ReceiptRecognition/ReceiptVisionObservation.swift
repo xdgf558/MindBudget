@@ -18,6 +18,23 @@ struct ReceiptOCRPolicy: Equatable, Sendable {
     let maximumDocumentBytes: Int
     let minimumTextHeight: Float
     let readingOrderRowBand: CGFloat
+    let geometryTolerance: CGFloat
+
+    init(
+        maximumObservationCount: Int,
+        maximumObservationBytes: Int,
+        maximumDocumentBytes: Int,
+        minimumTextHeight: Float,
+        readingOrderRowBand: CGFloat,
+        geometryTolerance: CGFloat = 0.005
+    ) {
+        self.maximumObservationCount = maximumObservationCount
+        self.maximumObservationBytes = maximumObservationBytes
+        self.maximumDocumentBytes = maximumDocumentBytes
+        self.minimumTextHeight = minimumTextHeight
+        self.readingOrderRowBand = readingOrderRowBand
+        self.geometryTolerance = geometryTolerance
+    }
 
     static let standard = ReceiptOCRPolicy(
         maximumObservationCount: 256,
@@ -34,7 +51,9 @@ struct ReceiptOCRPolicy: Equatable, Sendable {
               minimumTextHeight.isFinite,
               (0...1).contains(minimumTextHeight),
               readingOrderRowBand.isFinite,
-              (0.001...1).contains(readingOrderRowBand) else {
+              (0.001...1).contains(readingOrderRowBand),
+              geometryTolerance.isFinite,
+              (0...0.05).contains(geometryTolerance) else {
             throw ReceiptOCRPrivacyError.invalidPolicy
         }
     }
@@ -92,7 +111,9 @@ struct ReceiptOCRPrivacyPipeline {
         candidates.reserveCapacity(observations.count)
 
         for (stableIndex, observation) in observations.enumerated() {
-            guard observation.bounds.isNormalized else {
+            guard let normalizedBounds = observation.bounds.clampedToUnitSquare(
+                tolerance: policy.geometryTolerance
+            ) else {
                 throw ReceiptOCRPrivacyError.invalidGeometry(sourceIndex: observation.sourceIndex)
             }
             guard observation.confidence.isFinite,
@@ -129,7 +150,7 @@ struct ReceiptOCRPrivacyPipeline {
                 Candidate(
                     line: ReceiptOCRLine(
                         text: filtered,
-                        bounds: observation.bounds,
+                        bounds: normalizedBounds,
                         confidence: observation.confidence
                     ),
                     sourceIndex: observation.sourceIndex,

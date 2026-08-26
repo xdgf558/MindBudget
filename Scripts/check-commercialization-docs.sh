@@ -422,7 +422,9 @@ for c4c05_source_anchor in \
   'hasImportedReceipt ? .receiptImport : .manual' \
   'fixedReceiptMatrixCoversAtLeastSixtyExactReceiptsAndNonReceipts' \
   'twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact' \
-  'recognizedFieldsRemainEphemeralUntilTheExistingSaveAction'; do
+  'recognizedFieldsRemainEphemeralUntilTheExistingSaveAction' \
+  'fullResolutionIPhoneCaptureIsDownsampledToThePreparedPixelLimit' \
+  'pipelineClampsOnlyMinorVisionGeometryDrift'; do
   if ! grep -RFq "${c4c05_source_anchor}" \
       MindBudget/App/FeatureFlags.swift \
       MindBudget/Commerce/FeatureAccessService.swift \
@@ -435,11 +437,12 @@ for c4c05_source_anchor in \
 done
 
 for c4c05_contract_anchor in \
-  'C4C-05 owner entry accepted' \
+  'C4C-05 implementation/evaluation' \
   'DEC-COM-051' \
+  'DEC-COM-052' \
   'existing explicit Save action' \
   '60 exact supported receipts' \
-  'Physical DataScanner capture, PHPicker selection, and resulting local OCR remain'; do
+  'Physical iOS 26.6.1 DataScanner/PHPicker/OCR'; do
   if ! grep -Fq "${c4c05_contract_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -461,6 +464,17 @@ if grep -Eq 'C4C-05 (remains |is )?blocked|awaiting explicit owner entry for C4C
     Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md; then
   echo "Current commercialization state still describes C4C-05 as blocked after owner entry" >&2
+  exit 1
+fi
+
+if grep -Eq 'Physical DataScanner capture, PHPicker selection, and resulting local OCR remain|physical acquisition/OCR evidence.*pending' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes completed C4C-05 physical evidence as pending" >&2
   exit 1
 fi
 

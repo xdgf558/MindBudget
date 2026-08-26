@@ -2618,3 +2618,34 @@ wall-clock stage, every static contract, and every selected coverage threshold; 
 minimum selected result at 87.60% against 85%. The device inventory showed all three registered
 physical iPhones offline, so this run records no physical DataScanner, PHPicker, or OCR pass. That
 gate plus independent review, hosted CI, and merge remains open.
+
+## 2026-08-26 — C4C-05 physical acquisition, OCR, and Save-boundary evidence
+
+The owner connected `拉沙的iPhone` running iOS 26.6.1 to Xcode 27 beta 6 (`27A5252f`) and ran the
+verified-Pro local receipt flow. Initial paper-invoice capture attempts rejected safely. A closed
+`ReceiptImport` diagnostic reason code identified minor Vision geometry drift without logging any
+receipt-derived content; the same investigation found that a 4032 x 3024 capture could evade the
+edge-only thumbnail request and then exceed the separate prepared-pixel ceiling.
+
+DEC-COM-052 keeps the existing caps and field authority: ImageIO's thumbnail edge is now derived
+from both edge and pixel bounds, while only finite positive geometry within 0.005 of the unit square
+is clamped. Material drift still rejects. The remediation result
+`/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult` passes 21/21 image-lifecycle and OCR
+privacy tests.
+
+The remediated DataScanner camera flow reached local review on the same device. Merchant/date were
+accepted, while the uncertain total remained manual-review-only. Applying and then canceling wrote
+no expense. A separate one-image PHPicker flow reached review and produced exactly one `$25.00`
+expense only after explicit Save. This closes the mandatory physical DataScanner/PHPicker/local-OCR
+and confirmation evidence without claiming population-wide accuracy or a passed automatic amount
+for that invoice. Independent review, hosted CI, and merge remain open; C4C-05/COM-C4C and both
+receipt Requirements are not Done, and Production/distribution remain blocked.
+
+The same remediated candidate subsequently passed the exact complete repository entry at
+`/private/tmp/MindBudget-C4C05-Final.xcresult`: 510 unit-test results across 31 suites (499 passed
+and 11 explicit opt-in/runtime skips), 17/17 UI tests, Release compilation, the strict 10,000-row
+Dashboard wall-clock stage, every static contract, and every selected coverage threshold. The
+result bundle reports 527 total logical results, 516 passed, 11 skipped, and zero failed after UI
+and parameterized cases are included. CSVExporter remains the minimum selected coverage result at
+87.60% against 85%. A prior sandboxed attempt and transient Simulator Busy preflight remain
+environmental non-passes and are not counted as evidence.

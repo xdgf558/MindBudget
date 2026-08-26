@@ -101,11 +101,12 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   C4C-04 is Done. PR #73 merged its documentation closeout as `2107723`. Deterministic structured
   extraction remains authoritative, and the optional on-device model may supplement only
   `.missing` with exact evidence from the privacy-filtered document before deterministic
-  validation. The owner explicitly entered C4C-05. Its in-progress candidate exposes only the
+  validation. The owner explicitly entered C4C-05. Its implementation/evaluation exposes only the
   verified-Pro local entry, keeps image/OCR/model data ephemeral, applies accepted fields to the
   editable form without writing, and reuses explicit Save as the sole persistence boundary. The
-  fixed 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally; physical acquisition/
-  OCR, independent review, hosted CI, and merge remain open.
+  fixed 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally. Physical iOS 26.6.1
+  DataScanner/PHPicker acquisition and local OCR review now pass; cancel writes nothing and explicit
+  Save produced one imported expense. Independent review, hosted CI, and merge remain open.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -428,10 +429,12 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: finish only the active C4C-05 evidence package. Obtain and record physical
-DataScanner capture, PHPicker selection, and local OCR evidence without treating simulator fixtures
-as a physical pass, then stop for independent review. The complete local validation already passes
-508 unit results (497 passed and 11 explicit skips), all 17 UI tests, Release, the strict Dashboard
+Next suggested task: submit only the completed C4C-05 implementation/evaluation package for
+independent review, hosted CI, and merge. Physical DataScanner capture, PHPicker selection, local
+OCR review, cancel-without-write, and explicit-Save evidence are recorded as real iOS 26.6.1
+evidence, while the uncertain paper-invoice total remains a non-pass for automatic amount
+recognition. The complete final local validation already passes
+510 unit results (499 passed and 11 explicit skips), all 17 UI tests, Release, the strict Dashboard
 benchmark, and coverage. Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and
 do not enter COM-C5 automatically.
 Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain

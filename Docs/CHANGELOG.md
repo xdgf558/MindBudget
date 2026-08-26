@@ -6,6 +6,9 @@
   one photo or camera capture, process it entirely on device, review accepted merchant/date/total
   suggestions, and then use the existing Save action. Receipt images and recognized text are not
   stored or synced; missing local AI capability falls back to deterministic local extraction.
+- Corrected the unreleased receipt flow for full-resolution iPhone photos and harmless sub-percent
+  Vision bounding-box drift. Ordinary paper invoices can now reach review without relaxing image
+  limits or guessing an uncertain amount.
 - Added a Pro evidence line to locally calculated spending-pattern cards, showing the supporting
   and total sample counts plus an integer confidence ratio. Existing 30-day Insights and basic
   spending reminders remain Free, and no receipt image, OCR, or server processing was added.

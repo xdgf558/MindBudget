@@ -2821,3 +2821,21 @@ expense with non-content `receiptImport` provenance.
 Consequences: No schema, iCloud receipt field, network/remote-model path, log/telemetry content,
 Production action, or release authority is added. C4C-05 remains In Progress until physical
 DataScanner/PHPicker/OCR evidence, independent review, hosted CI, and merge close its gates.
+
+---
+
+## 2026-08-26 — Bound physical receipt drift without weakening field authority
+
+Context: Physical iOS 26.6.1 paper-receipt testing found that a 4032 x 3024 camera image narrowly
+exceeded the prepared-pixel ceiling without an ImageIO edge reduction, followed by a local Vision
+text box with sub-percent normalized-coordinate drift. Both failures correctly stopped the import
+but prevented an ordinary paper invoice from reaching review.
+
+Decision: Detailed ownership is DEC-COM-052. Derive the thumbnail edge from both edge and pixel
+limits, and clamp only finite, positive Vision bounds within 0.005 of the unit square. Larger drift
+still fails closed. Diagnostics may emit only a closed non-content reason code.
+
+Consequences: Physical DataScanner and PHPicker paths now reach local review. Cancel after prefill
+writes nothing; explicit Save produced exactly one imported expense; an uncertain total remained
+manual-review-only. This is not a broad accuracy claim. C4C-05 still requires independent review,
+green hosted CI, and merge before it can be Done.

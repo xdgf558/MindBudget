@@ -132,6 +132,28 @@ struct ReceiptImageLifecycleTests {
     }
 
     @Test
+    func fullResolutionIPhoneCaptureIsDownsampledToThePreparedPixelLimit() async throws {
+        let sourceData = try jpeg(width: 4_032, height: 3_024, orientation: 1)
+        let policy = ReceiptImageLifecyclePolicy.standard
+        let result = try await ReceiptImageProcessor().prepare(
+            ReceiptImageInput(data: sourceData, source: .camera),
+            policy: policy
+        )
+        let preparedPixels = result.pixelWidth.multipliedReportingOverflow(
+            by: result.pixelHeight
+        )
+
+        #expect(result.pixelWidth <= policy.maximumPreparedEdge)
+        #expect(result.pixelHeight <= policy.maximumPreparedEdge)
+        #expect(!preparedPixels.overflow)
+        #expect(
+            !preparedPixels.overflow
+                && preparedPixels.partialValue <= policy.maximumPreparedPixels
+        )
+        #expect(result.data.count <= policy.maximumPreparedBytes)
+    }
+
+    @Test
     func perspectiveCorrectionRejectsOutOfRangeGeometryAndAcceptsUnitSquare() throws {
         let image = try cgImage(width: 40, height: 20)
         let context = CIContext(options: [.cacheIntermediates: false])

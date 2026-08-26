@@ -254,6 +254,31 @@ struct ReceiptOCRPrivacyTests {
         }
     }
 
+    @Test
+    func pipelineClampsOnlyMinorVisionGeometryDrift() throws {
+        let document = try ReceiptOCRPrivacyPipeline().process([
+            observation(
+                "Top edge",
+                minX: -0.001,
+                minY: 0.95,
+                width: 0.4,
+                height: 0.052,
+                sourceIndex: 3
+            ),
+        ])
+        let bounds = try #require(document.lines.first?.bounds)
+
+        #expect(bounds.minX == 0)
+        #expect(bounds.maxY == 1)
+        #expect(bounds.isNormalized)
+
+        expectPrivacyError(.invalidGeometry(sourceIndex: 4)) {
+            _ = try ReceiptOCRPrivacyPipeline().process([
+                observation("Too far outside", minX: -0.006, sourceIndex: 4),
+            ])
+        }
+    }
+
     private func observation(
         _ text: String,
         minX: CGFloat = 0.1,

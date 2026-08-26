@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftUI
 
 enum ReceiptImportFailure: Equatable, Sendable {
@@ -71,6 +72,10 @@ final class ReceiptImportViewModel: ObservableObject {
     private let processor: any ReceiptLocalProcessing
     private let baseline: LocalReceiptRecognitionBaseline
     private let currencyCode: String
+    private let diagnosticLogger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "MindBudget",
+        category: "ReceiptImport"
+    )
     private var generation = 0
     private var operationTask: Task<Void, Never>?
 
@@ -207,6 +212,9 @@ final class ReceiptImportViewModel: ObservableObject {
     }
 
     private func failure(for error: Error) -> ReceiptImportFailure {
+        diagnosticLogger.notice(
+            "reason=\(self.diagnosticReason(for: error), privacy: .public)"
+        )
         guard let lifecycleError = error as? ReceiptImageLifecycleError else {
             return error is PersistedModelError
                 ? .localDataUnavailable
@@ -219,6 +227,47 @@ final class ReceiptImportViewModel: ObservableObject {
              .encodingFailed, .temporaryStorageFailed, .superseded:
             .unreadableImage
         }
+    }
+
+    /// Closed, non-content reason codes make physical failures diagnosable without logging an
+    /// image, OCR text, merchant, amount, or any other receipt-derived value.
+    private func diagnosticReason(for error: Error) -> String {
+        if let lifecycleError = error as? ReceiptImageLifecycleError {
+            return switch lifecycleError {
+            case .emptyInput: "image.emptyInput"
+            case .sourceTooLarge: "image.sourceTooLarge"
+            case .unsupportedImage: "image.unsupported"
+            case .invalidPixelDimensions: "image.invalidPixelDimensions"
+            case .preparedImageTooLarge: "image.preparedImageTooLarge"
+            case .encodingFailed: "image.encodingFailed"
+            case .temporaryStorageFailed: "image.temporaryStorageFailed"
+            case .temporarilyUnavailable: "image.temporarilyUnavailable"
+            case .superseded: "image.superseded"
+            }
+        }
+        if let privacyError = error as? ReceiptOCRPrivacyError {
+            return switch privacyError {
+            case .invalidPolicy: "ocr.invalidPolicy"
+            case .tooManyObservations: "ocr.tooManyObservations"
+            case .observationTooLarge: "ocr.observationTooLarge"
+            case .documentTooLarge: "ocr.documentTooLarge"
+            case .invalidGeometry: "ocr.invalidGeometry"
+            case .invalidConfidence: "ocr.invalidConfidence"
+            case .sensitiveTextRejected: "ocr.sensitiveTextRejected"
+            }
+        }
+        if let extractionError = error as? ReceiptStructuredExtractionError {
+            return switch extractionError {
+            case .unavailable: "extraction.unavailable"
+            case .invalidContext: "extraction.invalidContext"
+            case .modelUnavailable: "extraction.modelUnavailable"
+            case .timedOut: "extraction.timedOut"
+            }
+        }
+        if error is PersistedModelError {
+            return "storage.unavailable"
+        }
+        return "other.unclassified"
     }
 }
 

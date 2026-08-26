@@ -83,5 +83,6 @@ reviewed remediation head `f2d249d` passed Actions run `32946104780`, and PR #72
 candidate enables only local verified-Pro acquisition, OCR, optional Apple on-device-model evidence
 selection, editable prefill, and the existing explicit local Save boundary. Receipt images/OCR/
 model evidence never enter CloudKit, URLSession, HTTP(S), telemetry, logs, or a remote model. The
-current accepted app-owned HTTP(S) set is unchanged. Physical acquisition/OCR, review, CI, and
-merge remain open, and every Production/distribution/release action remains blocked.
+current accepted app-owned HTTP(S) set is unchanged. Physical iOS 26.6.1 DataScanner/PHPicker/OCR
+and confirmation-boundary evidence passed without adding egress. Independent review, CI, and merge
+remain open, and every Production/distribution/release action remains blocked.

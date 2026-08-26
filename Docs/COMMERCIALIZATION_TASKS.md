@@ -44,9 +44,9 @@ detailed phase checklists; it added no paid product behavior.
   `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done.
   The owner explicitly entered C4C-04. Reviewed remediation head `f2d249d` passed Actions run
   `32946104780`, and PR #72 merged it as `e6316fa`. PR #73 merged the C4C-04 documentation
-  closeout as `2107723`. C4C-04 is Done. The owner explicitly entered C4C-05; its local customer
-  integration and evaluation candidate is In Progress pending physical acquisition/OCR evidence,
-  independent review, hosted CI, and merge.**
+  closeout as `2107723`. C4C-04 is Done. C4C-05 implementation/evaluation is complete, including
+  physical DataScanner/PHPicker/OCR evidence, and is pending independent review, hosted CI, and
+  merge.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -481,8 +481,8 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **In Progress — C4C-05 owner entry accepted; local implementation/evaluation candidate is
-in progress pending physical acquisition/OCR evidence, independent review, hosted CI, and merge.**
+Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
+the reviewed head and merge remain required.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -501,11 +501,14 @@ in progress pending physical acquisition/OCR evidence, independent review, hoste
   duplicate validation remains deterministic; the line-item experiment defaults off.
 ### C4C-05 — Mandatory confirmation and evaluation
 
-Status: **In Progress after explicit owner entry; physical acquisition/OCR evidence, independent
-review, a successful hosted run, and merge are still outstanding.**
+Status: **Pending independent review — implementation/evaluation is complete; a successful hosted
+run on the reviewed head and merge remain required.**
 
 - Persist nothing before confirmation; build at least 60 fixed receipts plus non-receipts; verify
   offline tiers, privacy zero leaks, accuracy, and 20-image memory stability.
+- Physical iOS 26.6.1 evidence covers DataScanner camera capture, one-image PHPicker selection,
+  local Vision review, cancel-without-write, and exactly one explicit-Save write. An uncertain
+  paper-invoice total remained manual-review-only rather than being guessed.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.

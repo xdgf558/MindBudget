@@ -90,7 +90,10 @@ struct ReceiptImageProcessor: ReceiptImageProcessing, Sendable {
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: policy.maximumPreparedEdge,
+            kCGImageSourceThumbnailMaxPixelSize: try maximumThumbnailEdge(
+                sourceDimensions,
+                policy: policy
+            ),
             kCGImageSourceShouldCacheImmediately: true,
         ]
         guard let normalizedImage = CGImageSourceCreateThumbnailAtIndex(
@@ -142,6 +145,56 @@ struct ReceiptImageProcessor: ReceiptImageProcessing, Sendable {
         let result = dimensions.width.multipliedReportingOverflow(by: dimensions.height)
         guard !result.overflow else { throw ReceiptImageLifecycleError.invalidPixelDimensions }
         return result.partialValue
+    }
+
+    /// ImageIO accepts only a longest-edge thumbnail bound. Derive that edge from both reviewed
+    /// limits so a common full-resolution iPhone capture (for example 4032 x 3024) is reduced
+    /// before the prepared-pixel check instead of being rejected for narrowly exceeding it.
+    private func maximumThumbnailEdge(
+        _ dimensions: (width: Int, height: Int),
+        policy: ReceiptImageLifecyclePolicy
+    ) throws -> Int {
+        guard policy.maximumPreparedEdge > 0,
+              policy.maximumPreparedPixels > 0 else {
+            throw ReceiptImageLifecycleError.invalidPixelDimensions
+        }
+
+        let longEdge = max(dimensions.width, dimensions.height)
+        let shortEdge = min(dimensions.width, dimensions.height)
+        var lowerBound = 1
+        var upperBound = min(longEdge, policy.maximumPreparedEdge)
+        var acceptedEdge = 0
+
+        while lowerBound <= upperBound {
+            let candidate = lowerBound + (upperBound - lowerBound) / 2
+            let scaledShortNumerator = candidate.multipliedReportingOverflow(by: shortEdge)
+            guard !scaledShortNumerator.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+            let roundedNumerator = scaledShortNumerator.partialValue.addingReportingOverflow(
+                longEdge - 1
+            )
+            guard !roundedNumerator.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+            let scaledShortEdge = roundedNumerator.partialValue / longEdge
+            let pixels = candidate.multipliedReportingOverflow(by: scaledShortEdge)
+            guard !pixels.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+
+            if pixels.partialValue <= policy.maximumPreparedPixels {
+                acceptedEdge = candidate
+                lowerBound = candidate + 1
+            } else {
+                upperBound = candidate - 1
+            }
+        }
+
+        guard acceptedEdge > 0 else {
+            throw ReceiptImageLifecycleError.preparedImageTooLarge
+        }
+        return acceptedEdge
     }
 
     private func validatePreparedDimensions(

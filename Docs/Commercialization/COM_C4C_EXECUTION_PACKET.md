@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: **In Progress — C4C-05 owner entry accepted; local implementation/evaluation candidate is
-in progress pending physical acquisition/OCR evidence, independent review, hosted CI, and merge.**
+Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
+the reviewed head and merge remain required.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -270,8 +270,8 @@ Accepted implementation boundary:
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **In Progress after explicit owner entry; physical acquisition/OCR evidence, independent
-review, hosted CI, and merge remain pending.**
+Status: **Pending independent review — implementation/evaluation is complete; hosted CI on the
+reviewed head and merge remain required.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.
@@ -320,18 +320,31 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 - `/private/tmp/MindBudget-C4C05-Focused.xcresult` passes 40/40 results across the four receipt
   suites with zero failures or skips. It includes the fixed 60-receipt/10-nonreceipt matrix,
   prefill-before-Save database proof, zero-leak regression, and 20-image lifecycle run.
-- `/private/tmp/MindBudget-C4C05-Full.xcresult` passes the complete repository entry: 508 unit-test
-  results (497 passed and 11 explicit opt-in/runtime skips), all 17 UI tests, Release compilation,
+- `/private/tmp/MindBudget-C4C05-Final.xcresult` passes the complete repository entry after the
+  physical remediations: 510 unit-test results (499 passed and 11 explicit opt-in/runtime skips),
+  all 17 UI tests, Release compilation,
   the strict 10,000-row Dashboard wall-clock stage, every static contract, and every selected
   coverage threshold. CSVExporter is the minimum selected result at 87.60% against 85%.
 - Both are simulator/deterministic evidence only. Neither substitutes for the physical acquisition
   and OCR evidence below.
 
-### Open evidence
+### Physical evidence and remaining gates
 
-- Physical DataScanner capture, PHPicker selection, and resulting local OCR remain mandatory C4C-05
-  evidence and are not recorded as passed by the simulator matrix. Until that run, the candidate is
-  not ready to be marked implementation-complete or Done.
+- On 2026-08-26, `拉沙的iPhone` running iOS 26.6.1 under Xcode 27 beta 6 (`27A5252f`) completed
+  both mandatory physical acquisition paths. A DataScanner camera capture of a paper invoice
+  reached local Vision review with accepted merchant/date evidence while an uncertain total stayed
+  `needs manual review`. A separate one-image PHPicker selection reached review, applied only to
+  the editable form, and produced exactly one `$25.00` expense only after the existing Save action.
+  The preceding camera review was applied and then canceled without Save and produced no expense.
+- The physical run exposed two fail-closed interoperability defects before passing: a 4032 x 3024
+  iPhone capture narrowly exceeded the prepared-pixel limit without being downsampled, and Vision
+  returned a text box with sub-percent normalized-coordinate drift. The implementation now derives
+  ImageIO's thumbnail edge from both edge and pixel bounds and clamps only geometry within 0.005 of
+  the unit square. Larger drift remains rejected. Focused remediation evidence at
+  `/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult` passes 21/21 image-lifecycle and OCR
+  privacy tests, including both regression shapes.
+- This is a physical local acquisition/OCR and persistence-boundary pass, not a population-wide
+  receipt-field accuracy claim. The uncertain paper-invoice total was not guessed or accepted.
 - Independent review, hosted CI on the exact reviewed head, and merge are still required. C4C-05
   does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter COM-C5.
 
@@ -340,6 +353,6 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
 head, and merge. C4C-02 closes acquisition/lifecycle infrastructure, C4C-03 the local OCR/pre-model
 privacy boundary, C4C-04 ephemeral structured extraction, and C4C-05 the reviewed local customer
-confirmation/evaluation boundary. C4C-05 is not complete while physical acquisition/OCR evidence
-is open. Nothing here enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys
+confirmation/evaluation boundary. C4C-05 is not Done before independent review, green hosted CI on
+the reviewed head, and merge. Nothing here enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys
 Production, or authorizes Archive/upload/tester/review/distribution actions.
