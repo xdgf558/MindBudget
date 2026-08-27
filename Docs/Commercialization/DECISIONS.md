@@ -1769,3 +1769,26 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   incrementing transport backoff after a successful remote response; deleting local proof state
   after cleanup failure; assuming remote upload/delete is exactly-once; weakening static anchors;
   or using this fix to enter C5-02, add egress, Production, distribution, or release.
+
+## DEC-COM-059 — Close only the reviewed dormant C5-01 client
+
+- Status/date: **Accepted C5-01 reviewed-merge closeout — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057/058
+- Context: Independent review approved exact final PR #76 head `d937dc8`. GitHub Actions run
+  `33085630481` completed successfully on that head, and PR #76 merged to `main` as `68304ad`.
+  The reviewed implementation contains no production `TelemetryClient` construction, capture call,
+  URL, receiver, network transport, customer setting, or App Privacy change.
+- Decision: Mark C5-01 Done on that exact evidence. Keep COM-C5 In Progress. C5-02 is no longer
+  dependency-blocked by C5-01 but remains unopened pending a separate explicit owner instruction;
+  C5-03 and C5-04 remain blocked by their predecessors. Preserve `UnavailableTelemetryTransport`
+  as the only production default and preserve zero telemetry collection and egress until C5-02
+  accepts and implements its complete receiver/deletion/environment/monitoring/cost contract.
+- Consequences: C5-01's closed schema, encrypted bounded persistence, deletion-proof lifecycle,
+  serialization, batching/backoff, and fail-closed static gate are accepted as a dormant local
+  capability. The closeout is not endpoint, server TTL/deletion, capture, disclosure, App Privacy,
+  Production, distribution, or release evidence. REQ-R1-TELEMETRY-001 remains Active through later
+  COM-C5 and final-binary verification.
+- Alternatives rejected: Entering C5-02 automatically; treating the unavailable transport as a
+  deployed channel; describing local proof retention as server TTL/deletion evidence; adding a
+  provisional host, call site, customer control, or App Privacy answer in a closeout; marking
+  COM-C5 Done; or using the reviewed merge as Production, distribution, or release authority.

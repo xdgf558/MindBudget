@@ -49,8 +49,10 @@ detailed phase checklists; it added no paid product behavior.
   passed Actions run `33035427257`, and PR #74 merged it as `d751ff4` without a pre-merge rereview.
   PR #75's closeout review then read and accepted that exact maintenance delta post-merge, and PR
   #75 merged as `82ef0fa`. C4C-05 and COM-C4C are Done. A separate explicit owner entry opened
-  COM-C5 on 2026-08-27; C5-01 implementation is complete pending independent review, while C5-02 through
-  C5-04 remain blocked and there is still no live telemetry transport or collection.**
+  COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run
+  `33085630481`, and PR #76 merged it as `68304ad`. C5-01 is Done; C5-02 awaits separate explicit
+  owner entry, C5-03/C5-04 remain blocked, and there is still no live telemetry transport or
+  collection.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -542,9 +544,10 @@ Status: **In Progress.**
 
 ### C5-01 — Typed private client
 
-Status: **Implementation complete pending independent review, hosted CI, and merge.**
+Status: **Done after independent review of exact head `d937dc8`, green GitHub Actions run
+`33085630481`, and PR #76 merge `68304ad`.**
 
-- [ ] Fixed event/property allow-list, rotating pseudonymous ID, delete secret, opt-out/reset/delete,
+- [x] Fixed event/property allow-list, rotating pseudonymous ID, delete secret, opt-out/reset/delete,
   encrypted bounded queue, batching, backoff, and no content. The C5-01 app has no production client
   construction, call site, URL, or transport; collection and egress remain zero. Focused lifecycle
   tests pass 21/21 after PR #76 review remediation made corrupt-state local deletion unconditional
@@ -556,7 +559,7 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
 
 ### C5-02 — Minimal ingest and deletion
 
-Status: **Blocked by C5-01.**
+Status: **Blocked pending explicit owner entry after C5-01 closeout.**
 
 - [B] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
   environment separation, monitoring, cost limits, deletion-association non-retention, and the

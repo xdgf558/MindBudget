@@ -2946,3 +2946,18 @@ and proof deletion idempotent for exact retries.
 
 Consequences: Default-off now means no file/key/write even after an explicit Disable. C5-01 remains
 dormant and adds no collection, endpoint, disclosure, Production, distribution, or release action.
+
+---
+
+## 2026-08-28 — Close C5-01 on the reviewed dormant client merge
+
+Context: Independent review approved exact final PR #76 head `d937dc8`. GitHub Actions run
+`33085630481` completed successfully on that head, and PR #76 merged to `main` as `68304ad`.
+
+Decision: Detailed ownership is DEC-COM-059. Mark only C5-01 Done. Keep COM-C5 In Progress and
+require a separate explicit owner instruction before C5-02 may establish any receiver, endpoint,
+transport, capture call, customer control, or telemetry egress.
+
+Consequences: The reviewed client remains dormant and default-off, current telemetry collection
+and egress remain zero, and App Privacy answers do not change. C5-03/C5-04, Production,
+distribution, and release remain blocked.

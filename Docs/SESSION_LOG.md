@@ -5950,3 +5950,23 @@ validator removed its temporary `mindbudget-validation.g8bqhg/MindBudget.xcresul
 success, so that name is an execution pointer rather than a durable artifact. Hosted CI and merge
 remain required. The client remains dormant with no production
 construction, capture call, URL, transport, collection, or egress.
+
+## 2026-08-28 — Close C5-01 after reviewed PR #76 merge
+
+Independent review approved exact final head `d937dc8`. GitHub Actions run `33085630481` completed
+successfully on that head, and PR #76 merged the dormant typed telemetry client to `main` as
+`68304ad`. DEC-COM-059 closes only C5-01 on this evidence.
+
+The current app still has no production telemetry-client construction, capture call, URL,
+receiver, transport, customer setting, or App Privacy change. Collection and egress remain zero.
+C5-02 awaits a separate explicit owner instruction, C5-03/C5-04 remain blocked, and no Production,
+Archive/TestFlight/App Store, tester, distribution, or release action is authorized. This session
+changes documentation and its state gate only; it changes no Swift, schema, entitlement,
+persistence, or customer behavior.
+
+The closeout branch then passed `Scripts/validate.sh`: every static contract, Release compilation,
+the strict 10,000-row Dashboard benchmark, 538 unit tests across 32 suites, all 17 UI tests, and
+every selected coverage threshold passed. Four opt-in physical CloudKit probes were explicit
+skips, and `CSVExporter.swift` remained the minimum selected result at 87.60% against 85%. The
+validator removed its temporary `mindbudget-validation.k5zkq3/MindBudget.xcresult` bundle after
+success, so the name is an execution pointer rather than a durable artifact.

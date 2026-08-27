@@ -1573,3 +1573,27 @@ probes are explicit skips; `CSVExporter.swift` is the minimum selected result at
 after success, so the path is an execution pointer rather than a durable artifact. Hosted CI and
 merge remain required; this evidence does not authorize an endpoint, receiver, collection,
 Production, or distribution.
+
+### C5-01 reviewed merge and documentation closeout — 2026-08-28
+
+Independent review approved exact final PR #76 head `d937dc8`. GitHub Actions run `33085630481`
+completed successfully on that head, and PR #76 merged to `main` as `68304ad`. The reviewed source
+evidence remains the recorded 21/21 focused telemetry tests plus the exact-source full validation:
+every static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 538 unit
+tests across 32 suites, all 17 UI tests, and every selected coverage threshold passed; four opt-in
+physical CloudKit probes were explicit skips.
+
+This documentation-only closeout marks C5-01 Done without adding or accepting a production client
+construction, capture call, endpoint, receiver, transport, collection, customer control, App
+Privacy change, or telemetry egress. C5-02 awaits separate explicit owner entry, C5-03/C5-04 remain
+blocked, and COM-C5 remains In Progress. The closeout branch still requires its own independent
+review, green hosted CI, and merge.
+
+The documentation-only branch passed `Scripts/validate.sh`: every static contract, Release
+compilation, the strict 10,000-row Dashboard benchmark, 538 unit tests across 32 suites, all 17 UI
+tests, and every selected coverage threshold passed. Four opt-in physical CloudKit probes were
+explicit skips; `CSVExporter.swift` remained the minimum selected result at 87.60% against 85%.
+The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.k5zkq3/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Independent
+review, hosted CI, and merge remain required for this closeout.

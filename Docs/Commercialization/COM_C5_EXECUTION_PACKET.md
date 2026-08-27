@@ -7,7 +7,8 @@ Status: **In Progress.**
 The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C closed through PR #75
 (`82ef0fa`). This packet opens only C5-01. It does not accept a domain, create a live transport,
 enable collection, add a customer setting, deploy a receiver, change App Privacy answers, enter
-C5-02, or authorize Production/distribution.
+C5-02, or authorize Production/distribution. Exact final C5-01 head `d937dc8` passed GitHub Actions
+run `33085630481`, and PR #76 merged it as `68304ad`.
 
 ## Input gate
 
@@ -26,7 +27,8 @@ C5-02, or authorize Production/distribution.
 
 ## C5-01 — Typed private client
 
-Status: **Implementation complete pending independent review, hosted CI, and merge.**
+Status: **Done after independent review of exact head `d937dc8`, green GitHub Actions run
+`33085630481`, and PR #76 merge `68304ad`.**
 
 ### Closed schema
 
@@ -133,12 +135,13 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   compilation, the strict 10,000-row Dashboard wall-clock stage, 538 unit tests across 32 suites,
   all 17 UI tests, and every selected coverage threshold; four opt-in physical CloudKit probes are
   reported as skipped, and `CSVExporter.swift` remains the minimum selected coverage result at
-  87.60% against 85%. Hosted CI remains a merge gate. Neither run is presented as endpoint,
-  receiver, TTL, deletion-service, customer-control, App Privacy, or network evidence.
+  87.60% against 85%. Exact final head `d937dc8` then passed GitHub Actions run `33085630481`, and
+  PR #76 merged it as `68304ad`. Neither run nor merge is presented as endpoint, receiver, TTL,
+  deletion-service, customer-control, App Privacy, or network evidence.
 
 ## C5-02 — Minimal ingest and deletion
 
-Status: **Blocked by C5-01.**
+Status: **Blocked pending separate explicit owner entry after C5-01 closeout.**
 
 Own the independent serverless receiver, strict request-byte schema, environment separation,
 unknown/free-text rejection, real retention and deletion behavior, abuse/cost ceilings, monitoring,
