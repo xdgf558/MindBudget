@@ -1668,3 +1668,104 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   as persistence; persisting receipt images/OCR/model evidence; opening a network or CloudKit
   receipt channel; marking later release/privacy verification complete; entering COM-C5
   automatically; or using this closeout as telemetry, Production, TestFlight, or release authority.
+
+## DEC-COM-056 — Enter COM-C5 through a dormant, closed-schema C5-01 client
+
+- Status/date: **Accepted owner-entry and C5-01 implementation decision — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; REQ-RECEIPT-PRIVACY-001;
+  SPEC-009/012; DEC-COM-001/002/003/004/055
+- Context: PR #75 merged the reviewed C4C-05/COM-C4C closeout as `82ef0fa`, satisfying the
+  predecessor dependency. The owner then explicitly entered COM-C5. The first-party telemetry
+  domain, endpoint, receiver bytes, TTL, deletion service, monitoring, costs, customer disclosure,
+  App Privacy answers, and final-binary traffic are still unverified. Implementing a network adapter
+  or production capture calls in C5-01 would therefore make an unaccepted channel reachable.
+- Decision: Open only C5-01. Add a closed `TelemetryEvent` enum and exact upload/deletion envelope;
+  it has no arbitrary property dictionary or content field. Missing state is default-off and creates
+  no file/key/identity. A 30-day pseudonym generation owns a random deletion secret; reset rotates,
+  opt-out clears unsent events and retires that generation, and re-enable creates a different
+  pseudonym. Retain deletion proofs for a bounded 90-day local target while referenced; cap the
+  encrypted AES-GCM/file-protected/non-backed-up queue at 256 events and four identity generations;
+  send at most 20 events from one generation; serialize each local read/modify/write; use bounded
+  backoff; and treat corrupt persistence as sticky invalid. Only confirmed deletion may destroy
+  retained proofs. Keep `UnavailableTelemetryTransport` as the only production default and forbid
+  every production client construction/capture call, URL, endpoint, and network primitive in this
+  packet.
+- Consequences: The checked-in app continues to collect and transmit zero telemetry. No customer
+  control or disclosure is presented yet because there is no reachable client or receiver, and App
+  Privacy answers do not change. C5-01 can prove local type/persistence/concurrency/deletion
+  semantics but cannot claim real server TTL, deletion, unknown-field rejection, environment
+  isolation, monitoring, cost, capture audit, disclosure, or egress. C5-02 through C5-04 remain
+  blocked; COM-C6 and Production/distribution/release remain blocked.
+- Alternatives rejected: Embedding a provisional URL; accepting `[String: Any]` or caller-defined
+  properties; recording money, merchant, note, category, receipt/OCR/model evidence, StoreKit IDs,
+  or CloudKit envelopes; using an advertising/vendor/device/account identifier; reusing a pseudonym
+  after opt-out; deleting a failed proof; persisting plaintext or an unbounded queue; allowing
+  concurrent actor suspension to lose a capture; wiring dormant code into AppSession/Settings;
+  treating focused client tests as receiver/TTL/deletion evidence; entering C5-02 automatically; or
+  authorizing Production/release.
+
+## DEC-COM-057 — Preserve privacy deletion under corruption and scope pseudonym unlinkability
+
+- Status/date: **Accepted C5-01 independent-review remediation — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056
+- Context: Independent review found that sticky corrupt persistence correctly blocked collection
+  and overwrite but also made the encrypted file and device-only at-rest key impossible to delete.
+  It also found that the broad word “unlinkability” obscured a deliberate deletion-envelope
+  tradeoff: normal upload envelopes carry only one non-reused pseudonym, while one complete-delete
+  request groups every retained generation proof. The dormancy scan depended on `rg` inside a shell
+  conditional and therefore treated a missing tool as a clean scan, and the new gate had no positive
+  or negative fixture self-tests.
+- Decision: Keep corrupt state sticky for collection, opt-in, capture, and overwrite, but allow the
+  explicit privacy deletion to remove the unreadable file and at-rest key without parsing it. Return
+  `.deletedLocallyWithoutRemoteProofs`, restore an empty available state only after that local delete
+  succeeds, and never imply that unreadable remote proofs were exercised. Define unlinkability
+  narrowly and mechanically: ordinary upload envelopes never reuse or group pseudonyms across
+  opt-out/re-enable. A delete request intentionally groups the bounded retained proof set to avoid
+  partial deletion; C5-02 must process that association only for deletion and must not persist, log,
+  or reuse it. Keep identity-capacity enforcement only where a new identity is created. Record the
+  four-generation re-enable failure for C5-04 guidance and require C5-02 to decide and test in-flight
+  upload cancellation. Replace the dormancy scan with an explicitly fail-closed `grep` result model
+  and run positive/negative event, envelope, construction, and scan-failure fixtures on every gate
+  invocation.
+- Consequences: A malformed, oversized, unauthenticated, structurally invalid, or missing-key local
+  telemetry file can always be removed together with its local key, while the client truthfully
+  distinguishes that result from confirmed remote deletion. Normal uploads remain pseudonym-
+  separated; the deletion association is explicit, bounded, and reserved for later first-party
+  deletion processing. C5-01 remains dormant with zero collection and egress, and C5-02 through
+  C5-04 remain blocked.
+- Alternatives rejected: Blocking privacy deletion because content cannot be authenticated;
+  reporting corrupt local cleanup as remote deletion; claiming deletion-envelope unlinkability;
+  sending one proof per immediately adjacent request and pretending shared timing/connection
+  metadata cannot correlate them; accepting partial deletion state solely to avoid the grouped
+  request; discarding a retained proof to make re-enable succeed; letting a missing scan tool pass;
+  or using this remediation to add a live transport, customer setting, Production, or release.
+
+## DEC-COM-058 — Keep default-off storage-free and separate transport from persistence failure
+
+- Status/date: **Accepted C5-01 final review remediation — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057
+- Context: Final independent review found that calling `setCollectionEnabled(false)` on a missing
+  never-enabled state still committed `.disabled`, creating an encrypted file and device-only key
+  despite the default-off zero-write contract. It also identified a UTC default behind the stated
+  user-calendar lifecycle, a retry test that did not exercise capture, upload-result commit failure
+  being relabeled as transport failure, a remote-delete/local-cleanup retry that requires server
+  idempotency, and two existing tests omitted from the static gate anchors.
+- Decision: Make an already-disabled request return before persistence. Default `TelemetryPolicy`
+  to `Calendar.autoupdatingCurrent` and continue allowing deterministic injected calendars. Keep
+  transport failure as the only path that advances transport backoff; when a transport resolution
+  was received but local state cannot commit, return `.persistenceFailed` without changing the
+  prior local authority or inventing a transport retry. Require C5-02 event ingestion to deduplicate
+  event IDs and proof deletion to accept an identical retry, because remote success can precede a
+  failed local acknowledgement or cleanup. Exercise capture while backoff is active and make every
+  current telemetry test an explicit static-gate anchor.
+- Consequences: Merely reading, capturing while disabled, or repeating Disable on never-enabled
+  telemetry cannot create a file, key, identity, or write. Rotation/proof deadlines obey the user's
+  calendar and time zone without fixed-duration days. A local commit failure is observable without
+  being misdiagnosed as network instability, and the later C5-02 service contract must be
+  idempotent before any transport becomes reachable. C5-01 remains dormant with zero collection
+  and egress; C5-02 through C5-04 remain blocked.
+- Alternatives rejected: Persisting `.disabled` for symmetry; creating a key before affirmative
+  opt-in; keeping an undocumented UTC calendar; renaming a test without exercising capture;
+  incrementing transport backoff after a successful remote response; deleting local proof state
+  after cleanup failure; assuming remote upload/delete is exactly-once; weakening static anchors;
+  or using this fix to enter C5-02, add egress, Production, distribution, or release.

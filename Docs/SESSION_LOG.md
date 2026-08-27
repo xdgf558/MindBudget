@@ -5878,3 +5878,75 @@ all static contracts, Release compilation, the strict 10,000-row Dashboard wall-
 complete unit-test execution, all 17 UI tests, and every selected coverage threshold passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
 temporary result bundle was removed by the validator after the successful run.
+
+## 2026-08-27 — Enter COM-C5 and implement the dormant C5-01 typed telemetry client
+
+After PR #75 merged the C4C-05 closeout as `82ef0fa`, the owner explicitly entered COM-C5.
+DEC-COM-056 limits C5-01 to a dormant local capability: a closed typed event vocabulary, validated
+content-free envelopes, default-off collection, rotating unlinkable pseudonyms, retained deletion
+proofs, a bounded encrypted queue, serialized read/modify/write, generation-safe batching, and
+bounded retry. The app contains no production `TelemetryClient` construction, capture call, URL,
+receiver, or live transport, so current telemetry collection and network egress remain zero.
+C5-02 through C5-04 remain blocked.
+
+Thirteen deterministic telemetry tests pass on the simulator. The final test adds a gated transport
+lane that proves concurrent flushes cannot upload the same batch twice. A first full-validation attempt in the
+restricted environment could not connect to CoreSimulator and produced an empty bundle identifier;
+it stopped before trustworthy execution and is excluded as an environmental non-pass. The
+unrestricted rerun of `Scripts/validate.sh` passed every static contract, Release compilation, the
+strict 10,000-row Dashboard wall-clock stage, 530 unit tests across 32 suites, all 17 UI tests, and
+every selected coverage threshold. Four opt-in physical CloudKit probes were reported as skipped;
+`CSVExporter.swift` was the minimum selected coverage result at 87.60% against 85%. The validator
+removed its temporary result bundle after completion, so its path was an execution pointer rather
+than a durable artifact. Independent review, hosted CI, and merge remain open.
+
+## 2026-08-27 — Remediate C5-01 deletion and contract-gate review findings
+
+Independent review of PR #76 found that sticky corrupt telemetry state also blocked the only local
+file/key deletion path, and that the broad unlinkability wording did not disclose the grouped
+complete-delete envelope. DEC-COM-057 now keeps corrupt state fail-closed for collection and
+overwrite while allowing local file/key deletion with the distinct
+`.deletedLocallyWithoutRemoteProofs` result. Ordinary upload envelopes never reuse or group a prior
+pseudonym; the bounded complete-delete request intentionally groups retained proofs, and C5-02 must
+not persist, log, or reuse that association. C5-02 also owns the real transport's in-flight opt-out
+cancellation decision, while C5-04 owns truthful guidance when four retained generations block a
+new identity.
+
+The redundant capacity check was removed from retirement and remains only at identity creation.
+The dormancy scan no longer depends on `rg` inside a fail-open conditional: required tools and source
+roots are explicit, scan exit states distinguish clean from incomplete, and event, envelope,
+construction, and scan-failure fixtures run on every invocation. Seventeen deterministic telemetry
+tests pass, including corrupt protocol-state deletion, real encrypted-file/key deletion, explicit
+grouped proof coverage, and the four-generation fail-closed boundary. The owning unrestricted
+`Scripts/validate.sh` run then passed every static contract, Release compilation, the isolated
+strict 10,000-row Dashboard benchmark, 534 unit tests across 32 suites, all 17 UI tests, and every
+selected coverage threshold. Four physical CloudKit probes remained explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.OzAGSt/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Exact-head
+rereview, hosted CI, and merge remain open; no production client, collection, URL, transport, or
+egress was added.
+
+## 2026-08-27 — Close the C5-01 default-off persistence and failure-classification review
+
+Final PR #76 review found that explicitly disabling a missing never-enabled client still committed
+`.disabled`, which created the encrypted file and device-only key despite the zero-write default-off
+contract. DEC-COM-058 makes an already-disabled request return before persistence, defaults
+`TelemetryPolicy` to the user's autoupdating calendar, separates post-response local commit failure
+as `.persistenceFailed`, and requires C5-02 event/delete idempotency because remote success may
+precede failed local acknowledgement or cleanup.
+
+The retry regression now proves capture remains available during backoff; the static gate anchors
+the two previously omitted tests plus every new regression. Focused iOS 26.5 simulator execution
+passes 21/21 with no failure or skip, including a real encrypted-persistence assertion that repeated
+Disable creates neither file nor key, daylight-saving calendar behavior, local commit-failure
+classification, and an identical delete retry after local cleanup failure. A first full-validation
+attempt was blocked by restricted CoreSimulator and DerivedData access before trustworthy execution
+and is retained as an environmental non-pass. The unrestricted rerun passed every static contract,
+Release compilation, the isolated strict 10,000-row Dashboard benchmark, 538 unit tests across 32
+suites, all 17 UI tests, and every selected coverage threshold. Four physical CloudKit probes were
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator removed its temporary `mindbudget-validation.g8bqhg/MindBudget.xcresult` bundle after
+success, so that name is an execution pointer rather than a durable artifact. Hosted CI and merge
+remain required. The client remains dormant with no production
+construction, capture call, URL, transport, collection, or egress.

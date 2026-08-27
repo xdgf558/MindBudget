@@ -450,15 +450,23 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: wait for explicit owner instruction before entering COM-C5. C4C-05 and
-COM-C4C are Done after review of `8607356`, green Actions run `33035427257` on final head `81cd107`,
-PR #74 merge `d751ff4`, and PR #75's post-merge exact-delta review. Physical DataScanner/PHPicker/
-local-OCR and confirmation evidence remains bounded to the
-recorded iOS 26.6.1 observations; the uncertain paper-invoice total is still a non-pass for
-automatic amount recognition. DEC-COM-053/054 do not create live-alignment, automatic-crop,
-receipt persistence, egress, or release authority. Do not enter COM-C5 automatically.
-Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain
-unauthorized.
+Next suggested task: complete independent review, hosted CI, and merge for C5-01. The owner
+explicitly entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05 closeout as `82ef0fa`.
+DEC-COM-056 limits this packet to a dormant default-off client: fixed typed events, ordinary
+upload-envelope pseudonym non-reuse across opt-out/re-enable, encrypted bounded persistence,
+serialized local mutation, batch/backoff, and retained deletion proofs. DEC-COM-057 keeps
+corrupt-state file/key deletion available with no remote claim, explicitly records that one
+complete-delete request groups retained pseudonyms, assigns non-retention of that association and
+in-flight opt-out cancellation to C5-02, assigns the four-generation guidance to C5-04, and makes
+the static gate self-testing/fail-closed. DEC-COM-058 makes repeated Disable a zero-write no-op,
+uses the injected user calendar, separates `.persistenceFailed` from transport backoff, and requires
+C5-02 event/delete idempotency. There is no production client construction, event call
+site, URL, receiver, or network transport, so the current app still collects and transmits zero
+telemetry. Focused telemetry tests pass 21/21; exact-source full validation passes Release, the
+strict Dashboard benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected
+coverage gate. C5-02
+through C5-04 remain blocked. Production, Archive/TestFlight/App Store actions,
+remote receipt processing, receipt sync, and telemetry deployment remain unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred
 from the read-only Dashboard inspection or local Release archive.

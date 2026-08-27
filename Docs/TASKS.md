@@ -248,8 +248,10 @@ the documentation closeout as `2107723`. C4C-04 is Done. Independent review appr
 remediation head `8607356` and raised three nonblocking P3 observations. Maintenance head
 `81cd107` applied them, passed GitHub Actions run `33035427257`, and PR #74 merged it as `d751ff4`
 without a pre-merge rereview. PR #75's closeout review then accepted that exact delta post-merge.
-C4C-05 and COM-C4C are Done. COM-C5 awaits separate explicit owner entry; Production and release
-action remain unauthorized.
+C4C-05 and COM-C4C are Done through PR #75 (`82ef0fa`). A separate explicit owner entry opened COM-C5 on
+2026-08-27. C5-01 implementation is complete pending independent review; it adds no production
+capture call site, endpoint, or transport. C5-02 through C5-04, Production, and release remain
+blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -499,7 +501,19 @@ action remain unauthorized.
   retain their typed reason and recovery action, inactive scenes hide without destroying work, and
   temporary cleanup is scoped to the prepared artifact identity. If all accepted fields remain
   user-owned, the eventual explicit Save truthfully keeps manual provenance.
-- [ ] Complete the C4C-05/COM-C4C documentation closeout through independent review, green hosted
-  CI, and merge. Record DEC-COM-055 and the exact PR #74 evidence without entering COM-C5,
-  resolving its telemetry conflict, authorizing Production/distribution, or relabeling the
-  manual-review-only physical amount as recognized.
+- [x] Complete the C4C-05/COM-C4C documentation closeout through independent review, green hosted
+  CI, and PR #75 merge `82ef0fa`. Record DEC-COM-055 and the exact PR #74 evidence without
+  relabeling the manual-review-only physical amount as recognized.
+- [ ] Complete C5-01 independent review, hosted CI, and merge after the owner's explicit COM-C5
+  entry. Keep the implementation dormant and default-off: no production construction/capture call,
+  URL, receiver, customer setting, or transport. Require the closed event/envelope vocabulary,
+  upload-envelope pseudonym non-reuse, explicit grouped-delete association, retained deletion
+  proofs, corrupt-state local file/key deletion without a remote claim, encrypted bounded queue,
+  serialized mutation, batch/backoff, self-testing fail-closed static scanning, and
+  `UnavailableTelemetryTransport`. Record the four-generation re-enable boundary for C5-04 and
+  in-flight upload cancellation plus idempotent event/delete retries for C5-02. Repeated Disable on
+  missing state must create no file/key/write; lifecycle dates use the user calendar; local commit
+  failure cannot masquerade as transport backoff. Do not enter C5-02 or
+  authorize telemetry egress, Production, tester assignment, distribution, or release. Local
+  focused telemetry tests pass 21/21; exact-source validation passes Release, the strict Dashboard
+  benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.

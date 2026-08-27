@@ -33,6 +33,7 @@ required_files=(
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
@@ -60,6 +61,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
@@ -67,7 +69,8 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   Docs/Commercialization/COM_C3_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
-  Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
 
 # C4B uses a small structural parser rather than another phase-specific collection of prose
 # comparisons. It verifies the required contract declarations and makes a future CloudKit
@@ -1384,5 +1387,51 @@ if grep -Eq 'SPEC-015 (open|remains open)' \
   echo "Commercial memory still describes accepted SPEC-015 as open" >&2
   exit 1
 fi
+
+for c501_review_anchor in \
+  'DEC-COM-057' \
+  '.deletedLocallyWithoutRemoteProofs' \
+  'ordinary upload envelopes' \
+  'must not persist, log, or reuse' \
+  'in-flight opt-out cancellation' \
+  'four-generation re-enable' \
+  '17/17'; do
+  if ! grep -Fq "${c501_review_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-01 review-remediation contract is missing: ${c501_review_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c501_final_review_anchor in \
+  'DEC-COM-058' \
+  'repeated Disable' \
+  'Calendar.autoupdatingCurrent' \
+  '.persistenceFailed' \
+  'idempotent event acceptance' \
+  'proof deletion' \
+  '21/21'; do
+  if ! grep -Fq "${c501_final_review_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-01 final review-remediation contract is missing: ${c501_final_review_anchor}" >&2
+    exit 1
+  fi
+done
 
 echo "Commercialization documentation gate passed"

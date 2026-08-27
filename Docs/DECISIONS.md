@@ -2896,3 +2896,53 @@ pass.
 Consequences: The receipt Requirements remain Active for their later C6/C8/C12 verification.
 COM-C5 requires separate explicit owner entry and accepted first-party telemetry conflict
 resolution. No Production, Archive/upload, tester, distribution, or release action is authorized.
+
+---
+
+## 2026-08-27 — Enter COM-C5 through a dormant typed telemetry client
+
+Context: PR #75 merged the C4C-05/COM-C4C closeout as `82ef0fa`, and the owner explicitly entered
+COM-C5. No first-party telemetry domain, endpoint, receiver, TTL, deletion service, disclosure, or
+release evidence is accepted yet.
+
+Decision: Detailed ownership is DEC-COM-056. C5-01 adds only a closed event/envelope domain,
+rotating and opt-out-unlinkable pseudonyms, retained deletion proofs, AES-GCM bounded local state,
+serialized mutation, batching/backoff, and a deliberately unavailable transport. There is no
+production client construction, capture call, URL, endpoint, setting, or egress.
+
+Consequences: Current collection remains zero and App Privacy answers do not change. C5-02 through
+C5-04, Production, Archive/upload, tester assignment, distribution, and release remain blocked.
+
+---
+
+## 2026-08-27 — Keep corrupt telemetry locally deletable and qualify identity unlinkability
+
+Context: Independent review of C5-01 found that sticky corrupt persistence also blocked deletion,
+and that the deletion envelope intentionally grouped generations despite a broader unlinkability
+description.
+
+Decision: Detailed ownership is DEC-COM-057. Corrupt state remains unavailable for collection and
+overwrite but can always attempt local file/key deletion with a result that makes no remote claim.
+Pseudonym unlinkability is limited to ordinary upload envelopes; complete deletion deliberately
+groups retained proofs, and C5-02 may use that association only transiently for deletion. The static
+gate now self-tests and fails closed on missing tools, paths, or incomplete scans.
+
+Consequences: The privacy delete path no longer depends on readable telemetry state. C5-01 remains
+dormant and default-off; customer guidance, live transport cancellation, receiver behavior,
+Production, distribution, and release remain later explicit gates.
+
+---
+
+## 2026-08-27 — Keep never-enabled telemetry storage-free and separate local commit failure
+
+Context: Final C5-01 review found that repeating Disable on missing state still created encrypted
+persistence, and identified calendar, retry evidence, local-commit classification, idempotency, and
+static-anchor follow-ups.
+
+Decision: Detailed ownership is DEC-COM-058. An already-disabled request is a no-op; telemetry uses
+the injected user calendar with `Calendar.autoupdatingCurrent` as its default; post-response local
+commit failure is `.persistenceFailed`, not transport backoff; and C5-02 must make event acceptance
+and proof deletion idempotent for exact retries.
+
+Consequences: Default-off now means no file/key/write even after an explicit Disable. C5-01 remains
+dormant and adds no collection, endpoint, disclosure, Production, distribution, or release action.

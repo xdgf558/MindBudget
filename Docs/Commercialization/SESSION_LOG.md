@@ -2746,3 +2746,78 @@ every static contract, Release compilation, the strict 10,000-row Dashboard wall
 complete unit-test execution, all 17 UI tests, and all selected coverage thresholds passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
 validator removed its temporary result bundle after the successful run.
+
+## 2026-08-27 — C5-01 dormant typed telemetry client candidate
+
+The owner explicitly entered COM-C5 after the reviewed C4C-05 closeout merged through PR #75 as
+`82ef0fa`. DEC-COM-056 opens only C5-01. The implementation adds a closed `TelemetryEvent` enum and
+exact upload/delete envelopes, default-off state, cryptographically random rotating pseudonyms,
+opt-out unlinkability, retained deletion proofs, a four-generation ceiling, a 256-event encrypted
+queue, 20-event same-generation batches, serialized local mutation across actor suspension, bounded
+backoff, and sticky corrupt-state failure. AES-GCM state uses a device-only Keychain key, atomic
+read-back-verified persistence, file protection, backup exclusion, and a 256 KiB bound.
+
+The production tree intentionally contains no `TelemetryClient` construction, capture call, URL,
+receiver, or real transport. `UnavailableTelemetryTransport` is the only default, and the new
+static contract rejects schema drift, selected content/financial authority types, live egress, and
+production construction. Current collection and transmission therefore remain zero; no customer
+setting, App Privacy answer, endpoint, server TTL, or deletion-service claim is made. C5-02 through
+C5-04, Production, and distribution remain blocked.
+
+Focused simulator execution passes 13/13 deterministic telemetry tests, including a gated
+transport-lane regression that proves concurrent flushes cannot upload the same batch twice. The first owning
+validation attempt was sandbox-blocked from CoreSimulator before trustworthy execution and is an
+environmental non-pass. The unrestricted `Scripts/validate.sh` rerun passes all static contracts,
+Release compilation, the strict 10,000-row Dashboard wall-clock stage, 530 unit tests across 32
+suites, all 17 UI tests, and every selected coverage threshold. Four opt-in physical CloudKit
+probes are explicit skips; `CSVExporter.swift` remains the minimum selected coverage result at
+87.60% against 85%. The validator deleted its temporary result bundle after completion.
+Independent review, hosted CI, and merge remain required.
+
+## 2026-08-27 — PR #76 C5-01 deletion and gate remediation
+
+Independent review correctly identified that corrupt persistence made the encrypted file and
+device-only key impossible to clear, and that a grouped deletion request contradicted an
+unqualified unlinkability claim. DEC-COM-057 keeps corruption sticky for collection/overwrite but
+allows local file/key deletion without authenticated parsing, returning
+`.deletedLocallyWithoutRemoteProofs` rather than claiming remote deletion. Upload-envelope
+pseudonyms remain non-reused and ungrouped across opt-out/re-enable; complete deletion deliberately
+groups the retained proof set so C5-02 can avoid partial deletion, with a new prohibition on
+persisting, logging, or reusing that association.
+
+Identity retirement no longer performs the unrelated capacity check; creation alone owns it. The
+four-generation re-enable failure is recorded for C5-04 customer guidance, and in-flight upload
+cancellation remains an explicit C5-02 transport decision. `check-telemetry-contract.sh` replaces
+the fail-open `rg` conditional with a status-aware `grep` scan, verifies required tools/source roots,
+and runs positive/negative schema, envelope, construction, and incomplete-scan fixtures. Focused
+iOS 26.5 simulator execution passes 17/17 with no failure or skip, including an encrypted corrupt
+file plus at-rest-key deletion test. The owning unrestricted `Scripts/validate.sh` run then passed
+every static contract, Release compilation, the isolated strict 10,000-row Dashboard benchmark,
+534 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold. Four
+physical CloudKit probes remained explicit skips; `CSVExporter.swift` was the minimum selected
+result at 87.60% against 85%. The validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.OzAGSt/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Exact-head
+rereview, hosted CI, and merge remain required. C5-02 through C5-04 and all Production/distribution
+actions remain blocked.
+
+## 2026-08-27 — PR #76 final default-off and failure-classification remediation
+
+Final review found that calling `setCollectionEnabled(false)` on missing state still wrote an
+encrypted `.disabled` state and created the device-only key. DEC-COM-058 makes repeated Disable a
+true zero-write no-op, changes the default policy calendar from UTC to the user's
+`Calendar.autoupdatingCurrent`, returns `.persistenceFailed` when a remote upload resolution cannot
+be committed locally, and records the C5-02 requirement for idempotent event acceptance and proof
+deletion after local acknowledgement/cleanup failure.
+
+The retry test now captures successfully while transport backoff is active, and the telemetry gate
+anchors every current test including the two previously omitted names. Focused iOS 26.5 simulator
+execution passes 21/21 with no failure or skip. The restricted full-validation attempt lost
+CoreSimulator/DerivedData access before trustworthy execution and is an environmental non-pass.
+The unrestricted rerun passed every static contract, Release compilation, the isolated strict
+10,000-row Dashboard benchmark, 538 unit tests across 32 suites, all 17 UI tests, and every selected
+coverage threshold. Four physical CloudKit probes were explicit skips; `CSVExporter.swift` remained
+the minimum selected result at 87.60% against 85%. The validator removed its temporary
+`mindbudget-validation.g8bqhg/MindBudget.xcresult` bundle after success. Hosted CI and merge remain
+required. No production construction, call site, endpoint, transport, telemetry collection, or
+egress was added; C5-02 through C5-04 and Production/distribution remain blocked.
