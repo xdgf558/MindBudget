@@ -5851,12 +5851,15 @@ an environmental non-pass. The unrestricted rerun passes 76/76 tests across
 `Phase5FeatureTests` at `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. This maintenance
 does not change the C4C-05 scope, provenance decision, persistence boundary, or release authority.
 
-## 2026-08-27 — Close C4C-05 and COM-C4C after reviewed PR #74 merge
+## 2026-08-27 — Close C4C-05 and COM-C4C after PR #74 merge and exact-delta review
 
-Independent review approved exact final head `81cd107`. GitHub Actions run `33035427257` passed on
-that head in 26m06s, and PR #74 merged the verified-Pro local receipt-import implementation,
+Independent review approved remediation head `8607356` and raised three nonblocking P3
+observations. Final maintenance head `81cd107` applied them and passed GitHub Actions run
+`33035427257` in 26m06s; PR #74 then merged the verified-Pro local receipt-import implementation,
 physical evaluation remediations, owner-requested capture redesign, production-path review fixes,
-and bounded P3 maintenance to `main` as `d751ff4`.
+and bounded P3 maintenance to `main` as `d751ff4` without a pre-merge rereview. During PR #75's
+2026-08-27 closeout review, the independent reviewer read that exact maintenance delta and
+confirmed all three fixes correct.
 
 DEC-COM-055 records C4C-05 and COM-C4C as Done. The accepted evidence remains narrow: checked-in
 60-receipt/10-nonreceipt and 20-image matrices, zero-leak/privacy tests, complete local validation,
@@ -5870,7 +5873,7 @@ Production, or authorize Archive/upload/tester/distribution/release. The closeou
 requires independent review, green hosted CI, and merge.
 
 The documentation-only branch then passed `Scripts/validate.sh` at
-`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.dREbuh/MindBudget.xcresult`:
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.3SiQ1W/MindBudget.xcresult`:
 all static contracts, Release compilation, the strict 10,000-row Dashboard wall-clock stage, the
 complete unit-test execution, all 17 UI tests, and every selected coverage threshold passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The

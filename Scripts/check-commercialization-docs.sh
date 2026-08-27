@@ -504,32 +504,42 @@ for c4c05_contract_anchor in \
   fi
 done
 
-# C4C-05 and COM-C4C close only on the exact independently reviewed head, green hosted run, and
-# PR #74 merge. The closeout must preserve the uncertain physical total as a non-pass and must not
-# enter COM-C5 or authorize any release action.
-for c4c05_closeout_anchor in \
-  '81cd107' \
-  '33035427257' \
-  'd751ff4' \
-  'C4C-05 and COM-C4C are Done' \
-  'DEC-COM-055' \
-  'manual-review-only' \
-  'explicit owner entry'; do
-  if ! grep -Fq "${c4c05_closeout_anchor}" \
-      Docs/COMMERCIALIZATION_TASKS.md \
-      Docs/TASKS.md \
-      Docs/PROJECT_MEMORY.md \
-      Docs/Commercialization/PROJECT_MEMORY.md \
-      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
-      Docs/Commercialization/REQUIREMENTS_INDEX.md \
-      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
-      Docs/Commercialization/CI_BASELINE.md; then
-    echo "C4C-05 reviewed merge closeout is missing: ${c4c05_closeout_anchor}" >&2
-    exit 1
-  fi
+# C4C-05 and COM-C4C close on the chronologically exact record: pre-merge review of `8607356`,
+# final maintenance head `81cd107`, green hosted run, PR #74 merge without pre-merge rereview, and
+# post-merge exact-delta review during PR #75. Require the core provenance and scope boundary in
+# every current-state/evidence file rather than accepting an anchor from any one file in the set.
+c4c05_closeout_files=(
+  Docs/COMMERCIALIZATION_TASKS.md
+  Docs/TASKS.md
+  Docs/PROJECT_MEMORY.md
+  Docs/Commercialization/PROJECT_MEMORY.md
+  Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
+  Docs/Commercialization/REQUIREMENTS_INDEX.md
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md
+  Docs/Commercialization/CI_BASELINE.md
+)
+
+for c4c05_closeout_file in "${c4c05_closeout_files[@]}"; do
+  for c4c05_provenance_anchor in '8607356' '81cd107' '33035427257' 'd751ff4'; do
+    if ! grep -Fq "${c4c05_provenance_anchor}" "${c4c05_closeout_file}"; then
+      echo "C4C-05 provenance is missing ${c4c05_provenance_anchor} in ${c4c05_closeout_file}" >&2
+      exit 1
+    fi
+  done
+  for c4c05_scope_anchor in 'manual-review-only' 'explicit owner entry'; do
+    if ! grep -Fq "${c4c05_scope_anchor}" "${c4c05_closeout_file}"; then
+      echo "C4C-05 scope is missing ${c4c05_scope_anchor} in ${c4c05_closeout_file}" >&2
+      exit 1
+    fi
+  done
 done
 
-if grep -Eq 'C4C-05 (implementation/evaluation( plus capture redesign)? (is )?complete pending (independent )?review|remains In Progress|awaits independent review)|C4C-05/COM-C4C remain In Progress|Independent review, (green )?hosted CI, and merge remain open' \
+grep -Fq 'DEC-COM-055' Docs/Commercialization/DECISIONS.md || {
+  echo "C4C-05 reviewed merge closeout is missing DEC-COM-055" >&2
+  exit 1
+}
+
+if grep -Eq 'C4C-05 (implementation/evaluation( plus capture redesign)? (is )?complete pending (independent )?review|remains In Progress|awaits independent review)|C4C-05/COM-C4C remain In Progress' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \

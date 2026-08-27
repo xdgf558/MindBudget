@@ -1638,19 +1638,23 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   transient inactive transitions; allowing unscoped late cleanup; or recording `receiptImport`
   provenance when no recognized field contributed to the saved expense.
 
-## DEC-COM-055 — Close C4C-05 and COM-C4C on reviewed local evidence
+## DEC-COM-055 — Close C4C-05 and COM-C4C after post-merge exact-delta review
 
-- Status/date: **Accepted reviewed-merge closeout — 2026-08-27**
+- Status/date: **Accepted post-merge exact-delta closeout — 2026-08-27**
 - Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
   DEC-COM-051/052/053/054
-- Context: Independent review required the receipt flow to prove the actual production path,
+- Context: Independent review through remediation head `8607356` required the receipt flow to prove
+  the actual production path,
   persistent edit ownership, truthful typed failures, non-destructive inactive handling, and
   artifact-scoped cleanup. DEC-COM-054 closed those findings. Follow-up P3 maintenance then made
   recognition waits bounded, removed the orphaned unreadable-image string, and compiler-enforced
   the three receipt-prefill mutation boundaries. Exact final head `81cd107` passed 76/76 focused
   maintenance tests, retained the complete 522-unit/17-UI local evidence, passed GitHub Actions run
-  `33035427257`, and merged through PR #74 as `d751ff4` after independent approval.
-- Decision: Mark C4C-05 and COM-C4C Done on that exact review/CI/merge evidence. Preserve the local,
+  `33035427257`, and merged through PR #74 as `d751ff4` without pre-merge rereview. During PR #75's
+  2026-08-27 closeout review, the independent reviewer read that exact maintenance delta and
+  confirmed all three P3 fixes correct.
+- Decision: Mark C4C-05 and COM-C4C Done on the pre-merge review of `8607356`, final-head CI/merge,
+  and post-merge exact-delta review. Preserve the local,
   verified-Pro-only, explicit-Save, no-egress boundary. Record physical DataScanner/PHPicker/local-
   OCR and cancel-versus-Save evidence as passed, but keep the uncertain paper-invoice amount as a
   manual-review-only non-pass rather than broadening it into an accuracy claim.

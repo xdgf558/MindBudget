@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: **Done after reviewed C4C-05 head `81cd107`, green GitHub Actions run `33035427257`, and
-PR #74 merge `d751ff4`.**
+Status: **Done after review of `8607356`, green GitHub Actions run `33035427257` on final head
+`81cd107`, PR #74 merge `d751ff4`, and PR #75's post-merge exact-delta review.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -17,11 +17,13 @@ local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its docum
 as `08fb718`, and the owner then explicitly entered C4C-04. Reviewed remediation head `f2d249d`
 passed GitHub Actions run `32946104780`, and PR #72 merged the bounded structured-extraction
 implementation as `e6316fa`; PR #73 merged its documentation closeout as `2107723`. C4C-04 is
-Done. The owner then explicitly entered C4C-05. Independent review approved final head `81cd107`,
-GitHub Actions run `33035427257` passed on that exact head, and PR #74 merged the verified-Pro,
-local customer entry and confirmation/evaluation boundary as `d751ff4`. C4C-05 and COM-C4C are
-Done. There is still no iCloud receipt field, remote model, network channel, Production action, or
-release authority; COM-C5 requires separate explicit owner entry.
+Done. The owner then explicitly entered C4C-05. Independent review approved remediation head
+`8607356` and raised three nonblocking P3 observations. Maintenance head `81cd107` applied them,
+GitHub Actions run `33035427257` passed on that exact head, and PR #74 merged the verified-Pro local
+customer entry and confirmation/evaluation boundary as `d751ff4` without pre-merge rereview. PR
+#75's 2026-08-27 closeout review then read and accepted that exact maintenance delta post-merge.
+C4C-05 and COM-C4C are Done. There is still no iCloud receipt field, remote model, network channel,
+Production action, or release authority; COM-C5 requires separate explicit owner entry.
 
 ## Input gate
 
@@ -273,8 +275,8 @@ Accepted implementation boundary:
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Done after independent review, green GitHub Actions run `33035427257` on exact head
-`81cd107`, and PR #74 merge `d751ff4`.**
+Status: **Done after independent review of `8607356`, green GitHub Actions run `33035427257` on
+final head `81cd107`, PR #74 merge `d751ff4`, and post-merge exact-delta review in PR #75.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.
@@ -376,11 +378,14 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 - Initial independent review exposed production-path edit ownership, typed-failure, inactive-scene,
   and artifact-cleanup gaps. DEC-COM-054 closed them, the complete local validation passed 522 unit
   results plus 17/17 UI tests, and the final P3 maintenance suite passed 76/76 focused tests.
-- Independent review approved exact final head `81cd107`. GitHub Actions run `33035427257` passed
-  on that head in 26m06s, and PR #74 merged it to `main` as `d751ff4` on 2026-08-27 Singapore time.
+- Independent review approved remediation head `8607356` and raised three nonblocking P3
+  observations. Final maintenance head `81cd107` applied them, passed GitHub Actions run
+  `33035427257` in 26m06s, and PR #74 merged it to `main` as `d751ff4` on 2026-08-27 Singapore time
+  without pre-merge rereview. PR #75's closeout review subsequently read the exact maintenance
+  delta and confirmed all three fixes correct.
 - C4C-05 does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter
-  COM-C5. The uncertain physical paper-invoice total remains a recorded non-pass for automatic
-  amount recognition rather than a guessed success.
+  COM-C5. The uncertain physical paper-invoice total remains a manual-review-only non-pass for
+  automatic amount recognition rather than a guessed success.
 
 ## Exit and stop conditions
 

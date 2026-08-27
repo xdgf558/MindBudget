@@ -2881,10 +2881,14 @@ C4C-05 still requires independent rereview, green hosted CI, and merge.
 ## 2026-08-27 — Close C4C-05 and COM-C4C without entering telemetry
 
 Context: The production-path remediation and bounded P3 maintenance passed their focused and full
-local evidence. Independent review approved exact final head `81cd107`, GitHub Actions run
-`33035427257` completed successfully on that head, and PR #74 merged it as `d751ff4`.
+local evidence. Independent review approved remediation head `8607356` and raised three
+nonblocking P3 observations. Final maintenance head `81cd107` applied them, GitHub Actions run
+`33035427257` completed successfully on that head, and PR #74 merged it as `d751ff4` without a
+pre-merge rereview. During PR #75's 2026-08-27 closeout review, the independent reviewer read that
+exact delta and confirmed all three fixes correct.
 
-Decision: Detailed ownership is DEC-COM-055. Mark C4C-05 and COM-C4C Done while preserving the
+Decision: Detailed ownership is DEC-COM-055. Mark C4C-05 and COM-C4C Done on that complete,
+chronologically accurate review/CI/merge record while preserving the
 verified-Pro-only, local/offline, edit-preserving, explicit-Save, no-egress boundary. Keep the
 uncertain physical paper-invoice total recorded as manual-review-only, not an automatic-recognition
 pass.

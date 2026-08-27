@@ -2719,12 +2719,14 @@ A restricted CoreSimulator attempt failed before execution and is excluded. The 
 `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. C4C-05/COM-C4C remain In Progress pending
 rereview, hosted CI, and merge; Production/distribution remain blocked.
 
-## 2026-08-27 — C4C-05 reviewed merge and COM-C4C documentation closeout
+## 2026-08-27 — C4C-05 merge calibration and post-merge exact-delta closeout
 
-Independent review approved exact final head `81cd107`, including DEC-COM-054's production-path
-remediation and the follow-up P3 maintenance. GitHub Actions run `33035427257` completed
-successfully on that exact head in 26m06s, and PR #74 merged the verified-Pro local receipt flow to
-`main` as `d751ff4`.
+Independent review approved remediation head `8607356`, including DEC-COM-054's production-path
+changes, and raised three nonblocking P3 observations. Final maintenance head `81cd107` applied
+those observations and passed GitHub Actions run `33035427257` in 26m06s; PR #74 merged the
+verified-Pro local receipt flow to `main` as `d751ff4` without a pre-merge rereview. During PR #75's
+2026-08-27 closeout review, the independent reviewer read that exact maintenance delta and
+confirmed all three P3 fixes correct.
 
 DEC-COM-055 marks C4C-05 and COM-C4C Done on the reviewed merge, the recorded deterministic
 60-receipt/10-nonreceipt and 20-image matrices, zero-leak coverage, complete local validation, and
@@ -2739,7 +2741,7 @@ unauthorized. Independent review, green hosted CI, and merge remain required for
 branch.
 
 The closeout branch then passed `Scripts/validate.sh` at
-`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.dREbuh/MindBudget.xcresult`:
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.3SiQ1W/MindBudget.xcresult`:
 every static contract, Release compilation, the strict 10,000-row Dashboard wall-clock stage, the
 complete unit-test execution, all 17 UI tests, and all selected coverage thresholds passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The

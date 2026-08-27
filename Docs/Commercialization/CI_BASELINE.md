@@ -1472,17 +1472,19 @@ restricted attempt could not connect to CoreSimulator and is an environmental no
 persistence, egress, entitlement, or release boundary changed; hosted CI on the new exact head
 remains required.
 
-### C4C-05 reviewed merge and COM-C4C closeout — 2026-08-27
+### C4C-05 merge calibration and post-merge exact-delta closeout — 2026-08-27
 
-Independent review approved exact final head `81cd107`. That head includes DEC-COM-054's
-production-path remediation plus the bounded P3 maintenance: the recognition wait exits on
+Independent review approved remediation head `8607356` and raised three nonblocking P3
+observations. Final maintenance head `81cd107` applied them: the recognition wait exits on
 completion with an explicit timeout, unreadable-image copy uses the shared surface-neutral keys,
 and amount/merchant/date mutation is compiler-enforced through `private(set)` state and explicit
 user-input methods. The focused P3 suite passed 76/76 before hosted validation.
 
 GitHub Actions run `33035427257` completed successfully on exact head `81cd107` in 26m06s. PR #74
-then merged the reviewed C4C-05 implementation/evaluation and capture redesign to `main` as
-`d751ff4`. Together with the already-recorded 60-receipt/10-nonreceipt matrix, 20-image lifecycle,
+then merged the C4C-05 implementation/evaluation and capture redesign to `main` as `d751ff4`
+without a pre-merge rereview. During PR #75's 2026-08-27 closeout review, the independent reviewer
+read that exact maintenance delta and confirmed all three P3 fixes correct. Together with the
+already-recorded 60-receipt/10-nonreceipt matrix, 20-image lifecycle,
 zero-leak tests, complete 522-unit/17-UI local validation, and physical iOS 26.6.1 acquisition/
 confirmation observations, this closes C4C-05 and COM-C4C.
 
@@ -1494,7 +1496,7 @@ resolution. The documentation-only closeout still requires its own independent r
 hosted CI, and merge.
 
 The documentation-only closeout branch passed `Scripts/validate.sh` at
-`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.dREbuh/MindBudget.xcresult`.
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.3SiQ1W/MindBudget.xcresult`.
 All static contracts, Release compilation, the strict 10,000-row Dashboard wall-clock stage, the
 complete unit-test execution, all 17 UI tests, and every selected coverage threshold passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The

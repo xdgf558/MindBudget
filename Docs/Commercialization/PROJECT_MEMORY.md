@@ -120,11 +120,14 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   The exact review-remediated source passes 522 unit results, all 17 UI tests, Release, the strict
   Dashboard benchmark, every static contract, and coverage; its result summary reports 539 total,
   528 passed, 11 explicit skips, and zero failed.
-  Final maintenance head `81cd107` bounds the recognition wait, removes the orphaned unreadable key,
-  and enforces receipt-field mutation through `private(set)` plus explicit user-input methods; its
-  focused suite passed 76/76. Independent review approved that exact head, GitHub Actions run
-  `33035427257` passed, and PR #74 merged it as `d751ff4`. C4C-05 and COM-C4C are Done. The uncertain
-  physical paper-invoice total remains manual-review-only rather than a claimed automatic pass.
+  Independent review approved remediation head `8607356` and raised three nonblocking P3
+  observations. Final maintenance head `81cd107` bounds the recognition wait, removes the orphaned
+  unreadable key, and enforces receipt-field mutation through `private(set)` plus explicit user-input
+  methods; its focused suite and GitHub Actions run `33035427257` passed. PR #74 merged it as
+  `d751ff4` without pre-merge rereview. PR #75's 2026-08-27 closeout review then read and accepted
+  that exact maintenance delta post-merge. C4C-05 and COM-C4C are Done. The uncertain physical
+  paper-invoice total remains manual-review-only rather than a claimed automatic pass, and COM-C5
+  remains unopened pending explicit owner entry.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -448,8 +451,9 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 submission, or Production deployment followed.
 
 Next suggested task: wait for explicit owner instruction before entering COM-C5. C4C-05 and
-COM-C4C are Done through reviewed head `81cd107`, green Actions run `33035427257`, and PR #74 merge
-`d751ff4`. Physical DataScanner/PHPicker/local-OCR and confirmation evidence remains bounded to the
+COM-C4C are Done after review of `8607356`, green Actions run `33035427257` on final head `81cd107`,
+PR #74 merge `d751ff4`, and PR #75's post-merge exact-delta review. Physical DataScanner/PHPicker/
+local-OCR and confirmation evidence remains bounded to the
 recorded iOS 26.6.1 observations; the uncertain paper-invoice total is still a non-pass for
 automatic amount recognition. DEC-COM-053/054 do not create live-alignment, automatic-crop,
 receipt persistence, egress, or release authority. Do not enter COM-C5 automatically.

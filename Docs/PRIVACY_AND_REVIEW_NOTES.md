@@ -242,9 +242,11 @@ does not label a person based on those tags.
   recognition, while a real background transition cancels and removes only the matching artifact.
   Nothing is stored until the owner reviews those fields and taps the form's existing Save action.
   Physical acquisition/OCR and cancel-versus-Save evidence passed on iOS 26.6.1. Independent
-  review approved exact head `81cd107`, Actions run `33035427257` passed, and PR #74 merged it as
-  `d751ff4`. The pipeline is still not public-release authority: Production/final-binary privacy,
-  distribution, tester, and App Store gates remain later work.
+  review approved remediation head `8607356` and raised three nonblocking P3 observations. Final
+  maintenance head `81cd107` applied them, Actions run `33035427257` passed, and PR #74 merged it as
+  `d751ff4` without pre-merge rereview; PR #75's closeout review later accepted that exact delta.
+  The pipeline is still not public-release authority: COM-C5 requires explicit owner entry, while
+  Production/final-binary privacy, distribution, tester, and App Store gates remain later work.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

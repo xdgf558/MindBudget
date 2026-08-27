@@ -44,9 +44,12 @@ detailed phase checklists; it added no paid product behavior.
   `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done.
   The owner explicitly entered C4C-04. Reviewed remediation head `f2d249d` passed Actions run
   `32946104780`, and PR #72 merged it as `e6316fa`. PR #73 merged the C4C-04 documentation
-  closeout as `2107723`. C4C-04 is Done. Reviewed final C4C-05 head `81cd107` passed Actions run
-  `33035427257`, and PR #74 merged it as `d751ff4`. C4C-05 and COM-C4C are Done; COM-C5 awaits
-  separate explicit owner entry and its accepted first-party telemetry conflict resolution.**
+  closeout as `2107723`. C4C-04 is Done. Independent review approved remediation head `8607356`
+  and raised three nonblocking P3 observations. Final maintenance head `81cd107` applied them,
+  passed Actions run `33035427257`, and PR #74 merged it as `d751ff4` without a pre-merge rereview.
+  PR #75's closeout review then read and accepted that exact maintenance delta post-merge. C4C-05
+  and COM-C4C are Done; COM-C5 awaits separate explicit owner entry and its accepted first-party
+  telemetry conflict resolution.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -481,8 +484,8 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **Done after reviewed head `81cd107`, green GitHub Actions run `33035427257`, and PR #74
-merge `d751ff4`.**
+Status: **Done after pre-merge review of `8607356`, green GitHub Actions run `33035427257` on final
+head `81cd107`, PR #74 merge `d751ff4`, and post-merge exact-delta review during PR #75.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -501,8 +504,9 @@ merge `d751ff4`.**
   duplicate validation remains deterministic; the line-item experiment defaults off.
 ### C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Done after independent review, green GitHub Actions run `33035427257` on exact head
-`81cd107`, and PR #74 merge `d751ff4`.**
+Status: **Done after independent review of `8607356`, green GitHub Actions run `33035427257` on
+final head `81cd107`, PR #74 merge `d751ff4`, and post-merge review of that maintenance delta in
+PR #75.**
 
 - Persist nothing before confirmation; build at least 60 fixed receipts plus non-receipts; verify
   offline tiers, privacy zero leaks, accuracy, and 20-image memory stability.
@@ -523,8 +527,10 @@ Status: **Done after independent review, green GitHub Actions run `33035427257` 
   528 passed, 11 explicit skips, and zero failed.
 - The final P3 maintenance head makes the recognition wait bounded, removes the orphaned
   unreadable-image key, and enforces receipt-field mutation through `private(set)` plus explicit
-  user-input methods. Its 76/76 focused tests passed before independent approval. GitHub Actions
-  run `33035427257` then passed on exact head `81cd107`, and PR #74 merged it as `d751ff4`.
+  user-input methods. Its 76/76 focused tests and GitHub Actions run `33035427257` passed on exact
+  head `81cd107`, and PR #74 merged it as `d751ff4` without a pre-merge rereview. During PR #75's
+  2026-08-27 closeout review, the independent reviewer read that exact delta and confirmed all
+  three P3 fixes correct.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.
