@@ -1411,4 +1411,27 @@ for c501_review_anchor in \
   fi
 done
 
+for c501_final_review_anchor in \
+  'DEC-COM-058' \
+  'repeated Disable' \
+  'Calendar.autoupdatingCurrent' \
+  '.persistenceFailed' \
+  'idempotent event acceptance' \
+  'proof deletion' \
+  '21/21'; do
+  if ! grep -Fq "${c501_final_review_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-01 final review-remediation contract is missing: ${c501_final_review_anchor}" >&2
+    exit 1
+  fi
+done
+
 echo "Commercialization documentation gate passed"

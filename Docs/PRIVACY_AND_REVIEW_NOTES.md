@@ -87,7 +87,10 @@ C5-01 pseudonym separation applies to ordinary upload envelopes: opt-out/re-enab
 group the prior pseudonym there. A future complete-delete request intentionally groups the bounded
 retained proof set; C5-02 must process that association only to delete and must not persist, log, or
 reuse it. Corrupt encrypted state remains locally deletable together with its key, with a distinct
-result that does not claim remote deletion when authenticated proofs cannot be recovered.
+result that does not claim remote deletion when authenticated proofs cannot be recovered. Reading
+or repeatedly disabling never-enabled telemetry creates no file, Keychain key, identity, or write.
+C5-02 must make event acceptance and proof deletion idempotent because a remote success can precede
+a failed local acknowledgement or cleanup.
 C5-02 through C5-04 must still add and verify the real endpoint, TTL/deletion, explicit bilingual
 control/disclosure, data-flow/capture audit, and final-binary traffic before any telemetry may ship.
 

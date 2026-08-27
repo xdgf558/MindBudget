@@ -44,10 +44,14 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
 ### Identity, control, and deletion
 
 - Collection is missing-state default-off. Reading that state creates no key, file, identity, or
-  write. Capture while disabled returns `.disabled` and never changes persistence.
+  write. Capture while disabled returns `.disabled` and never changes persistence. Repeating
+  `setCollectionEnabled(false)` while already disabled is also a true no-op: it cannot create the
+  encrypted file, Keychain key, identity, or a write.
 - Enabling creates a cryptographically random 32-byte deletion secret plus a new UUID pseudonym.
   The deletion handle is SHA-256 of that secret; the raw secret is never part of an upload batch.
-- A generation rotates after 30 user-calendar days. Explicit reset also retires the current
+- A generation rotates after 30 user-calendar days using the injected user calendar/time zone;
+  the default is `Calendar.autoupdatingCurrent`, while deterministic tests inject a fixed calendar.
+  Explicit reset also retires the current
   generation. Opt-out immediately clears unsent events, retires the active generation for deletion
   proof only, and a later opt-in must create a different pseudonym. Ordinary upload envelopes never
   reuse or group pseudonyms across that disabled interval; this is the exact C5-01 unlinkability
@@ -62,7 +66,9 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   reveal to the first-party deletion processor that those pseudonyms share one deletion request;
   it is not described as cross-generation unlinkability. C5-02 must process that association only
   for deletion and must not persist, log, or reuse it. Failure keeps every proof and returns a
-  closed failure result. Only confirmed remote deletion removes readable retained proofs.
+  closed failure result. Only confirmed remote deletion removes readable retained proofs. Because
+  a remote delete can succeed before local file/key cleanup fails, C5-02 must make an identical
+  deletion request idempotent.
 - Corrupt persistence still blocks opt-in, capture, and overwrite, but never blocks local privacy
   deletion. Local deletion removes the unreadable encrypted file and at-rest key, restores an empty
   available state, and returns `.deletedLocallyWithoutRemoteProofs` so no remote deletion is
@@ -84,7 +90,11 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   event IDs; a concurrent capture cannot be lost. Delete retains the slot until its destructive
   result is known so another operation cannot create a generation that the deletion request omitted.
 - Retry is bounded exponential backoff with a six-hour ceiling; a server delay is clamped to 60
-  seconds through six hours. Disabled, unavailable, rejected, cancellation, persistence, or network
+  seconds through six hours. A transport failure alone advances transport backoff. If an upload
+  resolution arrives but its local acknowledgement/backoff state cannot commit, the client returns
+  `.persistenceFailed`, keeps the prior local authority, and does not relabel it as a network
+  failure. C5-02 must therefore deduplicate accepted event IDs when an acknowledgement cannot be
+  persisted. Disabled, unavailable, rejected, cancellation, persistence, or network
   outcomes never unlock/lock Pro, alter a budget, block expense entry, or become entitlement
   authority.
 
@@ -101,20 +111,26 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   paths, methods, request and response bytes, unknown-field rejection, authentication/abuse limit,
   real 90-day server TTL, proof deletion, monitoring, cost ceiling, and owner-reviewed disclosure are
   recorded together. It must also decide and test whether opt-out cancels an in-flight upload; the
-  dormant C5-01 client retains deletion proofs but has no live request to cancel.
+  dormant C5-01 client retains deletion proofs but has no live request to cancel. C5-02 requires
+  idempotent event acceptance and proof deletion endpoints for exact retries after local commit/cleanup
+  failures.
 
 ### Verification
 
-- Seventeen deterministic tests cover default-off zero-write, exact event JSON, app-version
-  rejection, upload-envelope pseudonym non-reuse, the four-generation re-enable boundary,
+- Twenty-one deterministic tests cover default-off zero-write including repeated disable against
+  real encrypted persistence, exact event JSON, app-version rejection, injected user-calendar
+  behavior across daylight-saving time, upload-envelope pseudonym non-reuse, the four-generation
+  re-enable boundary,
   concurrent mutation ordering, queue overflow, manual and automatic rotation, single-generation
   batching, concurrent capture during upload, concurrent-flush transport serialization, bounded
-  retry, explicit grouped deletion, deletion-proof retention/destruction, sticky corrupt
-  persistence, corrupt-state file/key deletion, and authenticated-encryption round trip.
-- Focused simulator execution passes 17/17. The self-testing static telemetry gate and repository
+  retry with capture still available during backoff, typed local-persistence failure after a remote
+  upload resolution, idempotent delete retry after local cleanup failure, explicit grouped deletion,
+  deletion-proof retention/destruction, sticky corrupt persistence, corrupt-state file/key deletion,
+  and authenticated-encryption round trip.
+- Focused simulator execution passes 21/21. The self-testing static telemetry gate and repository
   diff check pass.
   The owning unrestricted `Scripts/validate.sh` run also passes every static contract, Release
-  compilation, the strict 10,000-row Dashboard wall-clock stage, 534 unit tests across 32 suites,
+  compilation, the strict 10,000-row Dashboard wall-clock stage, 538 unit tests across 32 suites,
   all 17 UI tests, and every selected coverage threshold; four opt-in physical CloudKit probes are
   reported as skipped, and `CSVExporter.swift` remains the minimum selected coverage result at
   87.60% against 85%. Hosted CI remains a merge gate. Neither run is presented as endpoint,

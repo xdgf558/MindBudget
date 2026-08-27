@@ -2800,3 +2800,24 @@ result at 87.60% against 85%. The validator removed
 after success, so the path is an execution pointer rather than a durable artifact. Exact-head
 rereview, hosted CI, and merge remain required. C5-02 through C5-04 and all Production/distribution
 actions remain blocked.
+
+## 2026-08-27 — PR #76 final default-off and failure-classification remediation
+
+Final review found that calling `setCollectionEnabled(false)` on missing state still wrote an
+encrypted `.disabled` state and created the device-only key. DEC-COM-058 makes repeated Disable a
+true zero-write no-op, changes the default policy calendar from UTC to the user's
+`Calendar.autoupdatingCurrent`, returns `.persistenceFailed` when a remote upload resolution cannot
+be committed locally, and records the C5-02 requirement for idempotent event acceptance and proof
+deletion after local acknowledgement/cleanup failure.
+
+The retry test now captures successfully while transport backoff is active, and the telemetry gate
+anchors every current test including the two previously omitted names. Focused iOS 26.5 simulator
+execution passes 21/21 with no failure or skip. The restricted full-validation attempt lost
+CoreSimulator/DerivedData access before trustworthy execution and is an environmental non-pass.
+The unrestricted rerun passed every static contract, Release compilation, the isolated strict
+10,000-row Dashboard benchmark, 538 unit tests across 32 suites, all 17 UI tests, and every selected
+coverage threshold. Four physical CloudKit probes were explicit skips; `CSVExporter.swift` remained
+the minimum selected result at 87.60% against 85%. The validator removed its temporary
+`mindbudget-validation.g8bqhg/MindBudget.xcresult` bundle after success. Hosted CI and merge remain
+required. No production construction, call site, endpoint, transport, telemetry collection, or
+egress was added; C5-02 through C5-04 and Production/distribution remain blocked.

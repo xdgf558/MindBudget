@@ -157,7 +157,7 @@ struct TelemetryPolicy: Equatable, Sendable {
 
     let calendar: Calendar
 
-    init(calendar: Calendar = .telemetryUTC) {
+    init(calendar: Calendar = .autoupdatingCurrent) {
         self.calendar = calendar
     }
 
@@ -173,15 +173,6 @@ struct TelemetryPolicy: Equatable, Sendable {
         let boundedExponent = min(max(consecutiveFailures - 1, 0), 8)
         let seconds = min(60 * (1 << boundedExponent), Self.maximumRetryDelaySeconds)
         return calendar.date(byAdding: .second, value: seconds, to: date)
-    }
-}
-
-extension Calendar {
-    fileprivate static var telemetryUTC: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "en_US_POSIX")
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        return calendar
     }
 }
 
@@ -257,6 +248,7 @@ enum TelemetryFlushResult: Equatable, Sendable {
     case accepted(Int)
     case rejected(Int)
     case failed(Date?)
+    case persistenceFailed
     case unavailable
 }
 

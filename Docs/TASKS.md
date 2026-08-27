@@ -511,7 +511,9 @@ blocked.
   proofs, corrupt-state local file/key deletion without a remote claim, encrypted bounded queue,
   serialized mutation, batch/backoff, self-testing fail-closed static scanning, and
   `UnavailableTelemetryTransport`. Record the four-generation re-enable boundary for C5-04 and
-  in-flight upload cancellation for C5-02. Do not enter C5-02 or
+  in-flight upload cancellation plus idempotent event/delete retries for C5-02. Repeated Disable on
+  missing state must create no file/key/write; lifecycle dates use the user calendar; local commit
+  failure cannot masquerade as transport backoff. Do not enter C5-02 or
   authorize telemetry egress, Production, tester assignment, distribution, or release. Local
-  focused telemetry tests pass 17/17; complete validation passes 534 unit tests across 32 suites,
-  all 17 UI tests, Release, the strict Dashboard benchmark, every static contract, and coverage.
+  focused telemetry tests pass 21/21; exact-source validation passes Release, the strict Dashboard
+  benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.

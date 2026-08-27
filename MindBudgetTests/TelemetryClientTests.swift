@@ -18,7 +18,28 @@ struct TelemetryClientTests {
             retryNotBefore: nil,
             availability: .available
         ))
+        try await client.setCollectionEnabled(false, now: referenceDate)
         #expect(await persistence.writeCount == 0)
+    }
+
+    @Test
+    func disablingANeverEnabledEncryptedClientCreatesNoFileOrKey() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-Telemetry-Disabled-\(UUID().uuidString)", isDirectory: true)
+        let fileURL = directory.appendingPathComponent("queue.v1")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let keyProvider = TrackingTelemetryKeyProvider(startingKey: nil)
+        let persistence = EncryptedFileTelemetryPersistence(
+            fileURL: fileURL,
+            keyProvider: keyProvider
+        )
+        let client = try makeClient(persistence: persistence)
+
+        try await client.setCollectionEnabled(false, now: referenceDate)
+
+        #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
+        #expect(keyProvider.containsKey() == false)
+        #expect(await client.snapshot().collectionEnabled == false)
     }
 
     @Test
@@ -36,6 +57,27 @@ struct TelemetryClientTests {
             try TelemetryAppVersion("1.0 beta")
         }
         #expect(try TelemetryAppVersion("1.0.9").value == "1.0.9")
+    }
+
+    @Test
+    func policyUsesTheInjectedUserCalendarAcrossDaylightSavingTime() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "en_US_POSIX")
+        calendar.timeZone = try #require(TimeZone(identifier: "America/Los_Angeles"))
+        let start = try #require(calendar.date(from: DateComponents(
+            year: 2026,
+            month: 3,
+            day: 1,
+            hour: 12
+        )))
+        let policy = TelemetryPolicy(calendar: calendar)
+
+        let rotation = try #require(policy.identityRotationDate(after: start))
+        let expiration = try #require(policy.deletionProofExpirationDate(after: start))
+
+        #expect(rotation == calendar.date(byAdding: .day, value: 30, to: start))
+        #expect(expiration == calendar.date(byAdding: .day, value: 90, to: start))
+        #expect(rotation.timeIntervalSince(start) != TimeInterval(30 * 24 * 60 * 60))
     }
 
     @Test
@@ -214,7 +256,28 @@ struct TelemetryClientTests {
         }
         #expect(retryDate == laterDate(seconds: 60))
         #expect(await client.flush(now: laterDate(seconds: 30)) == .deferred(retryDate))
-        #expect(await client.snapshot().queuedEventCount == 1)
+        #expect(
+            try await client.capture(.receipt(.opened, .completed), at: laterDate(seconds: 30))
+                == .queued
+        )
+        #expect(await client.snapshot().queuedEventCount == 2)
+        #expect(await transport.uploads.count == 1)
+    }
+
+    @Test
+    func acceptedUploadWithLocalCommitFailureIsNotClassifiedAsTransportFailure() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let transport = RecordingTelemetryTransport()
+        let client = try makeClient(persistence: persistence, transport: transport)
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        #expect(try await client.capture(.appSessionStarted, at: referenceDate) == .queued)
+        await persistence.failNextWrite()
+
+        #expect(await client.flush(now: referenceDate) == .persistenceFailed)
+        let snapshot = await client.snapshot()
+        #expect(snapshot.queuedEventCount == 1)
+        #expect(snapshot.retryNotBefore == nil)
+        #expect(await transport.uploads.count == 1)
     }
 
     @Test
@@ -236,6 +299,25 @@ struct TelemetryClientTests {
         let request = try #require(await transport.deletions.first)
         #expect(request.proofs.count == 1)
         #expect(request.proofs[0].deletionSecret.count == 32)
+    }
+
+    @Test
+    func remoteDeleteCanRetryTheSameProofAfterLocalCleanupFails() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let transport = RecordingTelemetryTransport()
+        let client = try makeClient(persistence: persistence, transport: transport)
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        await persistence.failNextDelete()
+
+        guard case .failed = await client.deleteAllTelemetry(now: referenceDate) else {
+            Issue.record("Expected local cleanup failure after remote deletion")
+            return
+        }
+        #expect(await client.snapshot().retainedIdentityCount == 1)
+        #expect(await client.deleteAllTelemetry(now: laterDate(seconds: 60)) == .deletedRemotely)
+        let requests = await transport.deletions
+        #expect(requests.count == 2)
+        #expect(requests[0] == requests[1])
     }
 
     @Test
@@ -379,8 +461,16 @@ struct TelemetryClientTests {
             persistence: persistence,
             transport: transport,
             environment: .development,
-            appVersion: try TelemetryAppVersion("1.0.0")
+            appVersion: try TelemetryAppVersion("1.0.0"),
+            policy: TelemetryPolicy(calendar: testCalendar)
         )
+    }
+
+    private var testCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "en_US_POSIX")
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
     }
 
     private func makePersistedTelemetryState() -> TelemetryPersistedState {
@@ -413,6 +503,8 @@ private actor MemoryTelemetryPersistence: TelemetryPersisting {
     private(set) var writeCount = 0
     private(set) var deleteCount = 0
     private var readResult: TelemetryPersistenceRead?
+    private var shouldFailNextWrite = false
+    private var shouldFailNextDelete = false
 
     init(readResult: TelemetryPersistenceRead? = nil) {
         self.readResult = readResult
@@ -422,15 +514,31 @@ private actor MemoryTelemetryPersistence: TelemetryPersisting {
         readResult ?? currentState.map(TelemetryPersistenceRead.valid) ?? .missing
     }
 
-    func write(_ state: TelemetryPersistedState) {
+    func write(_ state: TelemetryPersistedState) throws {
+        if shouldFailNextWrite {
+            shouldFailNextWrite = false
+            throw StubPersistenceError.failed
+        }
         currentState = state
         writeCount += 1
     }
 
-    func delete() {
+    func delete() throws {
+        if shouldFailNextDelete {
+            shouldFailNextDelete = false
+            throw StubPersistenceError.failed
+        }
         currentState = nil
         readResult = nil
         deleteCount += 1
+    }
+
+    func failNextWrite() {
+        shouldFailNextWrite = true
+    }
+
+    func failNextDelete() {
+        shouldFailNextDelete = true
     }
 }
 
@@ -552,7 +660,13 @@ private struct FixedTelemetryKeyProvider: TelemetryAtRestKeyProviding {
 
 private final class TrackingTelemetryKeyProvider: TelemetryAtRestKeyProviding, @unchecked Sendable {
     private let lock = NSLock()
-    private var key: Data? = Data(SHA256.hash(data: Data("test-delete-key".utf8)))
+    private var key: Data?
+
+    init(
+        startingKey: Data? = Data(SHA256.hash(data: Data("test-delete-key".utf8)))
+    ) {
+        key = startingKey
+    }
 
     func read() -> Data? {
         lock.lock()
@@ -583,5 +697,9 @@ private final class TrackingTelemetryKeyProvider: TelemetryAtRestKeyProviding, @
 }
 
 private enum StubTransportError: Error {
+    case failed
+}
+
+private enum StubPersistenceError: Error {
     case failed
 }

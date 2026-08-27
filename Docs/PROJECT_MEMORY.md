@@ -141,9 +141,11 @@ C5-02 through C5-04, Production, and release remain blocked. PR #76 review remed
 corrupt persistence locally deletable without claiming remote deletion, limits unlinkability to
 ordinary upload envelopes, records grouped complete-delete association as an explicit C5-02
 non-retention boundary, and makes the static gate self-testing/fail-closed. Focused telemetry tests
-pass 17/17;
-the owning full validation passes 534 unit tests across 32 suites, all 17 UI tests, Release, the
-strict Dashboard benchmark, every static contract, and coverage.
+pass 21/21 after DEC-COM-058 also made repeated Disable storage-free, moved lifecycle dates to the
+user calendar, separated local commit failure from transport backoff, and recorded C5-02 ingest/
+delete idempotency. The exact remediated source passes full validation: Release compilation, the
+strict 10,000-row Dashboard benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every
+selected coverage threshold; four opt-in physical CloudKit probes remain explicit skips.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together
 with the retained-cloud marker, so Settings still shows cloud deletion and requires confirmed

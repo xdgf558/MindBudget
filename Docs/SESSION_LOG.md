@@ -5926,3 +5926,27 @@ selected coverage threshold. Four physical CloudKit probes remained explicit ski
 after success, so the path is an execution pointer rather than a durable artifact. Exact-head
 rereview, hosted CI, and merge remain open; no production client, collection, URL, transport, or
 egress was added.
+
+## 2026-08-27 — Close the C5-01 default-off persistence and failure-classification review
+
+Final PR #76 review found that explicitly disabling a missing never-enabled client still committed
+`.disabled`, which created the encrypted file and device-only key despite the zero-write default-off
+contract. DEC-COM-058 makes an already-disabled request return before persistence, defaults
+`TelemetryPolicy` to the user's autoupdating calendar, separates post-response local commit failure
+as `.persistenceFailed`, and requires C5-02 event/delete idempotency because remote success may
+precede failed local acknowledgement or cleanup.
+
+The retry regression now proves capture remains available during backoff; the static gate anchors
+the two previously omitted tests plus every new regression. Focused iOS 26.5 simulator execution
+passes 21/21 with no failure or skip, including a real encrypted-persistence assertion that repeated
+Disable creates neither file nor key, daylight-saving calendar behavior, local commit-failure
+classification, and an identical delete retry after local cleanup failure. A first full-validation
+attempt was blocked by restricted CoreSimulator and DerivedData access before trustworthy execution
+and is retained as an environmental non-pass. The unrestricted rerun passed every static contract,
+Release compilation, the isolated strict 10,000-row Dashboard benchmark, 538 unit tests across 32
+suites, all 17 UI tests, and every selected coverage threshold. Four physical CloudKit probes were
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator removed its temporary `mindbudget-validation.g8bqhg/MindBudget.xcresult` bundle after
+success, so that name is an execution pointer rather than a durable artifact. Hosted CI and merge
+remain required. The client remains dormant with no production
+construction, capture call, URL, transport, collection, or egress.

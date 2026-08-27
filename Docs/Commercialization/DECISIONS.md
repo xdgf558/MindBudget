@@ -1739,3 +1739,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   metadata cannot correlate them; accepting partial deletion state solely to avoid the grouped
   request; discarding a retained proof to make re-enable succeed; letting a missing scan tool pass;
   or using this remediation to add a live transport, customer setting, Production, or release.
+
+## DEC-COM-058 — Keep default-off storage-free and separate transport from persistence failure
+
+- Status/date: **Accepted C5-01 final review remediation — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057
+- Context: Final independent review found that calling `setCollectionEnabled(false)` on a missing
+  never-enabled state still committed `.disabled`, creating an encrypted file and device-only key
+  despite the default-off zero-write contract. It also identified a UTC default behind the stated
+  user-calendar lifecycle, a retry test that did not exercise capture, upload-result commit failure
+  being relabeled as transport failure, a remote-delete/local-cleanup retry that requires server
+  idempotency, and two existing tests omitted from the static gate anchors.
+- Decision: Make an already-disabled request return before persistence. Default `TelemetryPolicy`
+  to `Calendar.autoupdatingCurrent` and continue allowing deterministic injected calendars. Keep
+  transport failure as the only path that advances transport backoff; when a transport resolution
+  was received but local state cannot commit, return `.persistenceFailed` without changing the
+  prior local authority or inventing a transport retry. Require C5-02 event ingestion to deduplicate
+  event IDs and proof deletion to accept an identical retry, because remote success can precede a
+  failed local acknowledgement or cleanup. Exercise capture while backoff is active and make every
+  current telemetry test an explicit static-gate anchor.
+- Consequences: Merely reading, capturing while disabled, or repeating Disable on never-enabled
+  telemetry cannot create a file, key, identity, or write. Rotation/proof deadlines obey the user's
+  calendar and time zone without fixed-duration days. A local commit failure is observable without
+  being misdiagnosed as network instability, and the later C5-02 service contract must be
+  idempotent before any transport becomes reachable. C5-01 remains dormant with zero collection
+  and egress; C5-02 through C5-04 remain blocked.
+- Alternatives rejected: Persisting `.disabled` for symmetry; creating a key before affirmative
+  opt-in; keeping an undocumented UTC calendar; renaming a test without exercising capture;
+  incrementing transport backoff after a successful remote response; deleting local proof state
+  after cleanup failure; assuming remote upload/delete is exactly-once; weakening static anchors;
+  or using this fix to enter C5-02, add egress, Production, distribution, or release.

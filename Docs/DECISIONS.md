@@ -2930,3 +2930,19 @@ gate now self-tests and fails closed on missing tools, paths, or incomplete scan
 Consequences: The privacy delete path no longer depends on readable telemetry state. C5-01 remains
 dormant and default-off; customer guidance, live transport cancellation, receiver behavior,
 Production, distribution, and release remain later explicit gates.
+
+---
+
+## 2026-08-27 — Keep never-enabled telemetry storage-free and separate local commit failure
+
+Context: Final C5-01 review found that repeating Disable on missing state still created encrypted
+persistence, and identified calendar, retry evidence, local-commit classification, idempotency, and
+static-anchor follow-ups.
+
+Decision: Detailed ownership is DEC-COM-058. An already-disabled request is a no-op; telemetry uses
+the injected user calendar with `Calendar.autoupdatingCurrent` as its default; post-response local
+commit failure is `.persistenceFailed`, not transport backoff; and C5-02 must make event acceptance
+and proof deletion idempotent for exact retries.
+
+Consequences: Default-off now means no file/key/write even after an explicit Disable. C5-01 remains
+dormant and adds no collection, endpoint, disclosure, Production, distribution, or release action.

@@ -458,11 +458,14 @@ serialized local mutation, batch/backoff, and retained deletion proofs. DEC-COM-
 corrupt-state file/key deletion available with no remote claim, explicitly records that one
 complete-delete request groups retained pseudonyms, assigns non-retention of that association and
 in-flight opt-out cancellation to C5-02, assigns the four-generation guidance to C5-04, and makes
-the static gate self-testing/fail-closed. There is no production client construction, event call
+the static gate self-testing/fail-closed. DEC-COM-058 makes repeated Disable a zero-write no-op,
+uses the injected user calendar, separates `.persistenceFailed` from transport backoff, and requires
+C5-02 event/delete idempotency. There is no production client construction, event call
 site, URL, receiver, or network transport, so the current app still collects and transmits zero
-telemetry. Focused telemetry tests pass 17/17; the owning full validation passes 534 unit tests
-across 32 suites, all 17 UI tests, Release, the strict Dashboard benchmark, every static contract,
-and coverage. C5-02 through C5-04 remain blocked. Production, Archive/TestFlight/App Store actions,
+telemetry. Focused telemetry tests pass 21/21; exact-source full validation passes Release, the
+strict Dashboard benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected
+coverage gate. C5-02
+through C5-04 remain blocked. Production, Archive/TestFlight/App Store actions,
 remote receipt processing, receipt sync, and telemetry deployment remain unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred

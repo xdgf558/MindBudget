@@ -206,8 +206,10 @@ for contract in \
   'static let maximumIdentityGenerations = 4' \
   'static let identityRotationDays = 30' \
   'static let deletionProofRetentionDays = 90' \
+  'init(calendar: Calendar = .autoupdatingCurrent)' \
   'struct UnavailableTelemetryTransport: TelemetryTransporting' \
   'case deletedLocallyWithoutRemoteProofs' \
+  'case persistenceFailed' \
   'private var stateMutationInProgress = false' \
   'private var transportOperationInProgress = false' \
   'try retireCurrentIdentityForOptOut(in: &state, now: now)' \
@@ -222,15 +224,21 @@ done
 
 for test_contract in \
   'collectionIsDefaultOffAndDoesNotCreatePersistence' \
+  'disablingANeverEnabledEncryptedClientCreatesNoFileOrKey' \
   'fixedVocabularyEncodesOnlyClosedKeysAndValues' \
+  'policyUsesTheInjectedUserCalendarAcrossDaylightSavingTime' \
   'optOutClearsUnsentEventsAndReenableCannotReuseThePriorPseudonym' \
   'identityCapacityFailsClosedWithoutDiscardingDeletionProofs' \
   'concurrentCapturesSerializeReadModifyWriteWithoutLosingAnEvent' \
   'boundedQueueDropsOnlyTheOldestUnsentEvent' \
+  'resetRotatesPseudonymButRetainsDeletionProof' \
   'automaticRotationUsesCalendarDaysAndPreservesQueuedGeneration' \
   'uploadIsBoundedAndAcceptedIDsDoNotRemoveConcurrentCapture' \
   'concurrentFlushesShareOneTransportLaneAndCannotDuplicateABatch' \
+  'retryBackoffPreservesQueueAndDoesNotAffectCapture' \
+  'acceptedUploadWithLocalCommitFailureIsNotClassifiedAsTransportFailure' \
   'remoteDeleteFailureRetainsProofsAndSuccessDestroysLocalState' \
+  'remoteDeleteCanRetryTheSameProofAfterLocalCleanupFails' \
   'deletionRequestExplicitlyGroupsEveryRetainedGenerationForCompleteDeletion' \
   'corruptPersistenceIsStickyAndNeverOverwritten' \
   'corruptPersistenceCanBeDeletedLocallyWithoutClaimingRemoteDeletion' \

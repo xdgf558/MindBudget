@@ -547,11 +547,12 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
 - [ ] Fixed event/property allow-list, rotating pseudonymous ID, delete secret, opt-out/reset/delete,
   encrypted bounded queue, batching, backoff, and no content. The C5-01 app has no production client
   construction, call site, URL, or transport; collection and egress remain zero. Focused lifecycle
-  tests pass 17/17 after PR #76 review remediation made corrupt-state local deletion unconditional
+  tests pass 21/21 after PR #76 review remediation made corrupt-state local deletion unconditional
   without a remote claim, scoped pseudonym unlinkability to ordinary upload envelopes, documented
-  grouped complete-delete association, and made the dormancy gate self-testing/fail-closed. The
-  owning full validation passes 534 unit tests, all 17 UI tests, Release, the strict Dashboard
-  benchmark, every static contract, and coverage.
+  grouped complete-delete association, made repeated Disable storage-free, uses the user calendar,
+  separates local commit failure from transport backoff, and made the dormancy gate self-testing/
+  fail-closed. Exact-source full validation passes Release, the strict 10,000-row Dashboard
+  benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.
 
 ### C5-02 — Minimal ingest and deletion
 
@@ -559,7 +560,8 @@ Status: **Blocked by C5-01.**
 
 - [B] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
   environment separation, monitoring, cost limits, deletion-association non-retention, and the
-  explicit in-flight opt-out cancellation policy.
+  explicit in-flight opt-out cancellation policy. Event-ID acceptance and identical proof-deletion
+  retries must be idempotent before transport is reachable.
 
 ### C5-03 — Metrics and G1 evidence
 

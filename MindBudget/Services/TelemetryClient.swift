@@ -276,9 +276,10 @@ actor TelemetryClient {
                 try createIdentity(in: &state, now: now)
             }
         } else {
-            if state.collectionEnabled {
-                try retireCurrentIdentityForOptOut(in: &state, now: now)
-            }
+            // Missing state materializes only in memory. Repeating the default-off decision must
+            // not create an encrypted file, Keychain key, identity, or persistence write.
+            guard state.collectionEnabled else { return }
+            try retireCurrentIdentityForOptOut(in: &state, now: now)
             state.collectionEnabled = false
             state.queuedEvents.removeAll()
             state.consecutiveFailures = 0
@@ -367,50 +368,52 @@ actor TelemetryClient {
             events: events
         )
         releaseStateMutation()
+
+        let resolution: TelemetryTransportUploadResolution
         do {
-            let resolution = try await transport.upload(batch)
+            resolution = try await transport.upload(batch)
             try Task.checkCancellation()
-            await acquireStateMutation()
-            defer { releaseStateMutation() }
-            guard var current = self.state, current.collectionEnabled else { return .disabled }
-            let eventIDs = Set(events.map(\.id))
-            switch resolution {
-            case .accepted:
-                current.queuedEvents.removeAll { eventIDs.contains($0.id) }
-                current.consecutiveFailures = 0
-                current.retryNotBefore = nil
-                try await commit(current)
-                return .accepted(events.count)
-            case .rejected:
-                current.queuedEvents.removeAll { eventIDs.contains($0.id) }
-                current.consecutiveFailures = 0
-                current.retryNotBefore = nil
-                try await commit(current)
-                return .rejected(events.count)
-            case let .retryAfter(seconds):
-                current.consecutiveFailures += 1
-                let bounded = min(max(seconds, 60), TelemetryPolicy.maximumRetryDelaySeconds)
-                current.retryNotBefore = policy.calendar.date(
-                    byAdding: .second,
-                    value: bounded,
-                    to: now
-                )
-                try await commit(current)
-                return .failed(current.retryNotBefore)
-            }
         } catch is CancellationError {
             return .failed(nil)
         } catch {
-            await acquireStateMutation()
-            defer { releaseStateMutation() }
-            guard var current = self.state, current.collectionEnabled else { return .disabled }
+            return await recordTransportFailure(now: now)
+        }
+
+        await acquireStateMutation()
+        defer { releaseStateMutation() }
+        guard var current = self.state, current.collectionEnabled else { return .disabled }
+        let eventIDs = Set(events.map(\.id))
+        let result: TelemetryFlushResult
+        switch resolution {
+        case .accepted:
+            current.queuedEvents.removeAll { eventIDs.contains($0.id) }
+            current.consecutiveFailures = 0
+            current.retryNotBefore = nil
+            result = .accepted(events.count)
+        case .rejected:
+            current.queuedEvents.removeAll { eventIDs.contains($0.id) }
+            current.consecutiveFailures = 0
+            current.retryNotBefore = nil
+            result = .rejected(events.count)
+        case let .retryAfter(seconds):
             current.consecutiveFailures += 1
-            current.retryNotBefore = policy.retryDate(
-                after: now,
-                consecutiveFailures: current.consecutiveFailures
+            let bounded = min(max(seconds, 60), TelemetryPolicy.maximumRetryDelaySeconds)
+            current.retryNotBefore = policy.calendar.date(
+                byAdding: .second,
+                value: bounded,
+                to: now
             )
-            try? await commit(current)
-            return .failed(current.retryNotBefore)
+            result = .failed(current.retryNotBefore)
+        }
+        do {
+            try await commit(current)
+            return result
+        } catch is CancellationError {
+            return .failed(nil)
+        } catch {
+            // The transport resolution happened, but local acknowledgement/backoff did not
+            // commit. Do not relabel this as a network failure or persist a transport retry.
+            return .persistenceFailed
         }
     }
 
@@ -484,6 +487,25 @@ actor TelemetryClient {
             return nil
         }
         return state
+    }
+
+    private func recordTransportFailure(now: Date) async -> TelemetryFlushResult {
+        await acquireStateMutation()
+        defer { releaseStateMutation() }
+        guard var current = self.state, current.collectionEnabled else { return .disabled }
+        current.consecutiveFailures += 1
+        current.retryNotBefore = policy.retryDate(
+            after: now,
+            consecutiveFailures: current.consecutiveFailures
+        )
+        do {
+            try await commit(current)
+            return .failed(current.retryNotBefore)
+        } catch is CancellationError {
+            return .failed(nil)
+        } catch {
+            return .persistenceFailed
+        }
     }
 
     private func commit(_ state: TelemetryPersistedState) async throws {

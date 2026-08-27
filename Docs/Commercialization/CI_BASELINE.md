@@ -1549,3 +1549,27 @@ correctness subset was independently re-read from
 `/private/tmp/MindBudget-C501-ReviewRemediation-Units-Filtered-20260827.xcresult` as 534 tests in
 32 suites with no failure; that local path is likewise not durable release evidence. Exact-head
 rereview, hosted CI, and merge remain required.
+
+### C5-01 final default-off remediation — 2026-08-27
+
+The focused iOS 26.5 simulator command executes `TelemetryClientTests` and passes 21/21 with no
+failure or skip. The four added tests prove that repeated Disable against never-enabled encrypted
+persistence creates no file or key, an injected user calendar preserves civil-day behavior across
+daylight saving time, a remote upload response followed by local commit failure is typed as
+`.persistenceFailed` without transport backoff, and an identical remote-delete proof set is retried
+after local cleanup failure. The existing retry test now also captures and queues a second event
+while backoff is active.
+
+`Scripts/check-telemetry-contract.sh` passes with every current telemetry test anchored, including
+`resetRotatesPseudonymButRetainsDeletionProof` and
+`retryBackoffPreservesQueueAndDoesNotAffectCapture`. The first full-validation attempt could not
+access CoreSimulator or DerivedData in the restricted environment and is excluded as an
+environmental non-pass. The unrestricted `Scripts/validate.sh` rerun passes every static contract,
+Release compilation, the isolated strict 10,000-row Dashboard benchmark, 538 unit tests across 32
+suites, all 17 UI tests, and every selected coverage threshold. Four opt-in physical CloudKit
+probes are explicit skips; `CSVExporter.swift` is the minimum selected result at 87.60% against the
+85% floor. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.g8bqhg/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Hosted CI and
+merge remain required; this evidence does not authorize an endpoint, receiver, collection,
+Production, or distribution.
