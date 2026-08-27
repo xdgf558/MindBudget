@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
-the reviewed head and merge remain required.**
+Status: **Done after reviewed C4C-05 head `81cd107`, green GitHub Actions run `33035427257`, and
+PR #74 merge `d751ff4`.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -17,9 +17,11 @@ local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its docum
 as `08fb718`, and the owner then explicitly entered C4C-04. Reviewed remediation head `f2d249d`
 passed GitHub Actions run `32946104780`, and PR #72 merged the bounded structured-extraction
 implementation as `e6316fa`; PR #73 merged its documentation closeout as `2107723`. C4C-04 is
-Done. The owner then explicitly entered C4C-05. The current candidate adds only a verified-Pro,
-local customer entry and confirmation/evaluation boundary; there is still no iCloud receipt field,
-remote model, network channel, Production action, or release authority.
+Done. The owner then explicitly entered C4C-05. Independent review approved final head `81cd107`,
+GitHub Actions run `33035427257` passed on that exact head, and PR #74 merged the verified-Pro,
+local customer entry and confirmation/evaluation boundary as `d751ff4`. C4C-05 and COM-C4C are
+Done. There is still no iCloud receipt field, remote model, network channel, Production action, or
+release authority; COM-C5 requires separate explicit owner entry.
 
 ## Input gate
 
@@ -271,8 +273,8 @@ Accepted implementation boundary:
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Pending independent review — implementation/evaluation is complete; hosted CI on the
-reviewed head and merge remain required.**
+Status: **Done after independent review, green GitHub Actions run `33035427257` on exact head
+`81cd107`, and PR #74 merge `d751ff4`.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.
@@ -354,7 +356,7 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
 - Both are simulator/deterministic evidence only. Neither substitutes for the physical acquisition
   and OCR evidence below.
 
-### Physical evidence and remaining gates
+### Physical and reviewed-merge evidence
 
 - On 2026-08-26, `拉沙的iPhone` running iOS 26.6.1 under Xcode 27 beta 6 (`27A5252f`) completed
   both mandatory physical acquisition paths. A DataScanner camera capture of a paper invoice
@@ -371,14 +373,20 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
   privacy tests, including both regression shapes.
 - This is a physical local acquisition/OCR and persistence-boundary pass, not a population-wide
   receipt-field accuracy claim. The uncertain paper-invoice total was not guessed or accepted.
-- Independent review, hosted CI on the exact reviewed head, and merge are still required. C4C-05
-  does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter COM-C5.
+- Initial independent review exposed production-path edit ownership, typed-failure, inactive-scene,
+  and artifact-cleanup gaps. DEC-COM-054 closed them, the complete local validation passed 522 unit
+  results plus 17/17 UI tests, and the final P3 maintenance suite passed 76/76 focused tests.
+- Independent review approved exact final head `81cd107`. GitHub Actions run `33035427257` passed
+  on that head in 26m06s, and PR #74 merged it to `main` as `d751ff4` on 2026-08-27 Singapore time.
+- C4C-05 does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter
+  COM-C5. The uncertain physical paper-invoice total remains a recorded non-pass for automatic
+  amount recognition rather than a guessed success.
 
 ## Exit and stop conditions
 
-Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes acquisition/lifecycle infrastructure, C4C-03 the local OCR/pre-model
-privacy boundary, C4C-04 ephemeral structured extraction, and C4C-05 the reviewed local customer
-confirmation/evaluation boundary. C4C-05 is not Done before independent review, green hosted CI on
-the reviewed head, and merge. Nothing here enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys
-Production, or authorizes Archive/upload/tester/review/distribution actions.
+Each subpacket is Done only after independent review, green hosted CI on the reviewed head, and
+merge. C4C-02 closes acquisition/lifecycle infrastructure, C4C-03 the local OCR/pre-model privacy
+boundary, C4C-04 ephemeral structured extraction, and reviewed PR #74 (`d751ff4`) closes C4C-05's
+local customer confirmation/evaluation boundary. This satisfies COM-C4C's dependency gate only.
+It does not enter COM-C5, resolve the first-party telemetry conflict, deploy Production, or
+authorize Archive/upload/tester/review/distribution actions.

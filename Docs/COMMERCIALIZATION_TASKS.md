@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
+- Active phase: **COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
   `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
@@ -44,9 +44,9 @@ detailed phase checklists; it added no paid product behavior.
   `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done.
   The owner explicitly entered C4C-04. Reviewed remediation head `f2d249d` passed Actions run
   `32946104780`, and PR #72 merged it as `e6316fa`. PR #73 merged the C4C-04 documentation
-  closeout as `2107723`. C4C-04 is Done. C4C-05 implementation/evaluation is complete, including
-  physical DataScanner/PHPicker/OCR evidence, and is pending independent review, hosted CI, and
-  merge.**
+  closeout as `2107723`. C4C-04 is Done. Reviewed final C4C-05 head `81cd107` passed Actions run
+  `33035427257`, and PR #74 merged it as `d751ff4`. C4C-05 and COM-C4C are Done; COM-C5 awaits
+  separate explicit owner entry and its accepted first-party telemetry conflict resolution.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -74,8 +74,8 @@ detailed phase checklists; it added no paid product behavior.
   projection plus local renewal reminder/in-app fallback without inventing a trial length. It
   distinguishes the product carrying the active trial from the verified next-renewal product and
   keeps pending notification copy safe after the app process stops.
-  Receipt import, iCloud sync,
-  commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
+  Free iCloud sync and the verified-Pro local receipt-import pipeline are implemented through
+  COM-C4B/COM-C4C. Commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
 - Release boundary: uploaded builds remain immutable. Verified purchase/restore and
   purchase presentation are complete through COM-C3. On 2026-08-16 the owner authorized a
   traceable 0.9.7 (8) Archive and transport upload only. A later explicit owner instruction
@@ -481,8 +481,8 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
-the reviewed head and merge remain required.**
+Status: **Done after reviewed head `81cd107`, green GitHub Actions run `33035427257`, and PR #74
+merge `d751ff4`.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -501,8 +501,8 @@ the reviewed head and merge remain required.**
   duplicate validation remains deterministic; the line-item experiment defaults off.
 ### C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Pending independent review — implementation/evaluation is complete; a successful hosted
-run on the reviewed head and merge remain required.**
+Status: **Done after independent review, green GitHub Actions run `33035427257` on exact head
+`81cd107`, and PR #74 merge `d751ff4`.**
 
 - Persist nothing before confirmation; build at least 60 fixed receipts plus non-receipts; verify
   offline tiers, privacy zero leaks, accuracy, and 20-image memory stability.
@@ -521,13 +521,18 @@ run on the reviewed head and merge remain required.**
 - The exact review-remediated source passes 522 unit results, 17/17 UI tests, Release, the strict
   Dashboard benchmark, every static contract, and coverage; the result summary reports 539 total,
   528 passed, 11 explicit skips, and zero failed.
+- The final P3 maintenance head makes the recognition wait bounded, removes the orphaned
+  unreadable-image key, and enforces receipt-field mutation through `private(set)` plus explicit
+  user-input methods. Its 76/76 focused tests passed before independent approval. GitHub Actions
+  run `33035427257` then passed on exact head `81cd107`, and PR #74 merged it as `d751ff4`.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.
 
 ## COM-C5 — R1 first-party telemetry, metrics, and runbook
 
-Status: **Blocked by COM-C4C and accepted first-party telemetry conflict resolution.**
+Status: **Blocked pending explicit owner entry and accepted first-party telemetry conflict
+resolution; the predecessor dependency is satisfied.**
 
 - [B] **C5-01 — Typed private client.** Fixed event/property allow-list, rotating pseudonymous ID,
   delete key, opt-out/reset/delete, encrypted bounded queue, batching, backoff, and no content.

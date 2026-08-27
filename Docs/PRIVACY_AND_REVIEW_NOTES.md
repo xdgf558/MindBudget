@@ -204,7 +204,8 @@ does not label a person based on those tags.
   permission dialog.
 - Cooling-off lock-screen content contains the user-entered wishlist item name and neutral
   review copy, but never its amount or notes. Quiet hours defer rather than discard it.
-- V1 has no receipt, photo, or document import and requests no photo-library access.
+- The original V1 baseline had no receipt, photo, or document import and requested no photo-library
+  access. The later C4C-05 local Pro path uses one-image PHPicker without broad-library permission.
 - C4C-01 adds only local integer rule evidence and closed future receipt capability tiers. The
   sample/confidence line is computed from local counts, and `enableReceiptImport` remains false;
   there is still no receipt image, OCR, temporary receipt file, prompt, cloud field, or egress.
@@ -240,8 +241,10 @@ does not label a person based on those tags.
   reason-specific guidance. Inactive scenes cover the receipt UI without discarding the photo or
   recognition, while a real background transition cancels and removes only the matching artifact.
   Nothing is stored until the owner reviews those fields and taps the form's existing Save action.
-  The candidate is not release-ready while physical acquisition/
-  OCR evidence, independent review, hosted CI, and merge remain open.
+  Physical acquisition/OCR and cancel-versus-Save evidence passed on iOS 26.6.1. Independent
+  review approved exact head `81cd107`, Actions run `33035427257` passed, and PR #74 merged it as
+  `d751ff4`. The pipeline is still not public-release authority: Production/final-binary privacy,
+  distribution, tester, and App Store gates remain later work.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

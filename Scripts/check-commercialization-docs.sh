@@ -504,6 +504,53 @@ for c4c05_contract_anchor in \
   fi
 done
 
+# C4C-05 and COM-C4C close only on the exact independently reviewed head, green hosted run, and
+# PR #74 merge. The closeout must preserve the uncertain physical total as a non-pass and must not
+# enter COM-C5 or authorize any release action.
+for c4c05_closeout_anchor in \
+  '81cd107' \
+  '33035427257' \
+  'd751ff4' \
+  'C4C-05 and COM-C4C are Done' \
+  'DEC-COM-055' \
+  'manual-review-only' \
+  'explicit owner entry'; do
+  if ! grep -Fq "${c4c05_closeout_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/CI_BASELINE.md; then
+    echo "C4C-05 reviewed merge closeout is missing: ${c4c05_closeout_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C4C-05 (implementation/evaluation( plus capture redesign)? (is )?complete pending (independent )?review|remains In Progress|awaits independent review)|C4C-05/COM-C4C remain In Progress|Independent review, (green )?hosted CI, and merge remain open' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C4C-05/COM-C4C as pending review/CI/merge" >&2
+  exit 1
+fi
+
+if grep -Eq 'COM-C5 (is )?(In Progress|entered|Done)|owner explicitly entered COM-C5' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md; then
+  echo "C4C-05 closeout must not enter COM-C5 automatically" >&2
+  exit 1
+fi
+
 if ! grep -Fq 'isGuidanceEnabled: false' \
     MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift; then
   echo "C4C-05 option A must keep DataScanner system guidance disabled under the custom frame" >&2

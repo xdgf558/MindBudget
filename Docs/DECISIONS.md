@@ -2875,3 +2875,20 @@ Consequences: The explicit Save action remains the only writer. User edits canno
 even when changed back to their starting value, and stale cleanup cannot delete a newer generation.
 When no recognized field contributes to the form, a later Save remains correctly `.manual`.
 C4C-05 still requires independent rereview, green hosted CI, and merge.
+
+---
+
+## 2026-08-27 — Close C4C-05 and COM-C4C without entering telemetry
+
+Context: The production-path remediation and bounded P3 maintenance passed their focused and full
+local evidence. Independent review approved exact final head `81cd107`, GitHub Actions run
+`33035427257` completed successfully on that head, and PR #74 merged it as `d751ff4`.
+
+Decision: Detailed ownership is DEC-COM-055. Mark C4C-05 and COM-C4C Done while preserving the
+verified-Pro-only, local/offline, edit-preserving, explicit-Save, no-egress boundary. Keep the
+uncertain physical paper-invoice total recorded as manual-review-only, not an automatic-recognition
+pass.
+
+Consequences: The receipt Requirements remain Active for their later C6/C8/C12 verification.
+COM-C5 requires separate explicit owner entry and accepted first-party telemetry conflict
+resolution. No Production, Archive/upload, tester, distribution, or release action is authorized.

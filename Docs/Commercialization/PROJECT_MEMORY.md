@@ -110,8 +110,7 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   bounded option A: DataScanner has no live rectangle authority, so the custom frame stays white and
   no aligned/automatic-crop claim is shown. Capture preview and recognition/review/failure now live
   around the existing expense form, preserving edits and the same explicit Save boundary without
-  adding broad Photos access, long-receipt stitching, persistence, or egress. Independent review,
-  hosted CI, and merge remain open.
+  adding broad Photos access, long-receipt stitching, persistence, or egress.
   DEC-COM-054 closes the review findings against the actual production path. The dead unconditional
   prefill seam is gone; amount, merchant, and date use explicit per-generation edit ownership;
   typed failures preserve truthful titles/details and recovery actions; inactive scenes hide the
@@ -121,6 +120,11 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   The exact review-remediated source passes 522 unit results, all 17 UI tests, Release, the strict
   Dashboard benchmark, every static contract, and coverage; its result summary reports 539 total,
   528 passed, 11 explicit skips, and zero failed.
+  Final maintenance head `81cd107` bounds the recognition wait, removes the orphaned unreadable key,
+  and enforces receipt-field mutation through `private(set)` plus explicit user-input methods; its
+  focused suite passed 76/76. Independent review approved that exact head, GitHub Actions run
+  `33035427257` passed, and PR #74 merged it as `d751ff4`. C4C-05 and COM-C4C are Done. The uncertain
+  physical paper-invoice total remains manual-review-only rather than a claimed automatic pass.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -332,16 +336,16 @@ an exact centralized adapter exception is implemented.
 
 ## Receipt and local Pro boundary
 
-- Receipt import is not implemented. COM-C4C owns the five-stage acquisition → OCR → structured
-  extraction → deterministic validation → user confirmation pipeline.
-- C4C-01's source candidate adds only central local-Pro decisions, integer rule evidence, and a
-  pure receipt execution baseline. The existing 30-day Insights and basic deterministic reminders
-  remain Free under DEC-COM-014; only the new sample/confidence line is advanced local insight
-  presentation. `FeatureFlags.enableReceiptImport` remains false, so no receipt entry or content
-  path exists.
-- Core total/date/merchant fields are release-gated; line items remain experimental/default-off.
-- Nothing persists before user confirmation. OCR failure returns missing/uncertain fields, never
-  an invented zero.
+- COM-C4C's five-stage acquisition → OCR → structured extraction → deterministic validation → user
+  confirmation pipeline is implemented and reviewed through PR #74 (`d751ff4`). The customer entry
+  is local, verified-Pro-only, and uses the existing expense form's explicit Save as its sole write.
+- The existing 30-day Insights and basic deterministic reminders remain Free under DEC-COM-014;
+  only the new sample/confidence line is advanced local insight presentation. Receipt scan/import
+  decisions remain centralized in Commerce rather than feature-local entitlement checks.
+- Core total/date/merchant fields are implemented locally; line items remain experimental/default-
+  off. Production/distribution and later final-binary/privacy verification stay release-gated.
+- Nothing persists before explicit Save. OCR failure returns missing/uncertain fields, never an
+  invented zero; the uncertain physical paper-invoice total remains manual-review-only.
 - Vision geometry/confidence may require narrowly reviewed non-money floating point; the exact
   amount path remains under the money gate (SPEC-015).
 
@@ -443,17 +447,12 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: finish validating and submit only the redesigned C4C-05
-implementation/evaluation package for independent review, hosted CI, and merge. Physical
-DataScanner capture, PHPicker selection, local OCR review, cancel-without-write, and explicit-Save
-evidence are recorded as real iOS 26.6.1 evidence, while the uncertain paper-invoice total remains
-a non-pass for automatic amount recognition. DEC-COM-053 adds no new physical alignment evidence:
-the white frame is visual guidance only, and no live alignment or automatic-crop claim exists.
-DEC-COM-054 additionally makes the real production prefill path the tested boundary, protects all
-three editable fields by edit ownership rather than value equality, preserves typed failure
-guidance, masks inactive work, discards only on background, and scopes late cleanup by artifact ID.
-Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and do not enter COM-C5
-automatically.
+Next suggested task: wait for explicit owner instruction before entering COM-C5. C4C-05 and
+COM-C4C are Done through reviewed head `81cd107`, green Actions run `33035427257`, and PR #74 merge
+`d751ff4`. Physical DataScanner/PHPicker/local-OCR and confirmation evidence remains bounded to the
+recorded iOS 26.6.1 observations; the uncertain paper-invoice total is still a non-pass for
+automatic amount recognition. DEC-COM-053/054 do not create live-alignment, automatic-crop,
+receipt persistence, egress, or release authority. Do not enter COM-C5 automatically.
 Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain
 unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
