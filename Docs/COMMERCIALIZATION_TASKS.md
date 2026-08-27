@@ -43,7 +43,10 @@ detailed phase checklists; it added no paid product behavior.
   closeout as `3e1c5c9`. C4C-02 is Done. The owner explicitly entered C4C-03. Reviewed head
   `92ed3a7` passed Actions run `32921913143`, and PR #70 merged it as `d294cfb`. C4C-03 is Done.
   The owner explicitly entered C4C-04. Reviewed remediation head `f2d249d` passed Actions run
-  `32946104780`, and PR #72 merged it as `e6316fa`. C4C-04 is Done; C4C-05 remains blocked.**
+  `32946104780`, and PR #72 merged it as `e6316fa`. PR #73 merged the C4C-04 documentation
+  closeout as `2107723`. C4C-04 is Done. C4C-05 implementation/evaluation is complete, including
+  physical DataScanner/PHPicker/OCR evidence, and is pending independent review, hosted CI, and
+  merge.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -478,7 +481,8 @@ retained local attachments have verified behavior.
 
 ## COM-C4C — Local Pro and receipt recognition
 
-Status: **In Progress — awaiting explicit owner entry for C4C-05.**
+Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
+the reviewed head and merge remain required.**
 
 - [x] **C4C-01 — Premium seams and evidence.** Gate the accepted local Pro features centrally;
   expose rule sample/confidence; establish local-model and deterministic baselines.
@@ -495,9 +499,28 @@ Status: **In Progress — awaiting explicit owner entry for C4C-05.**
   extraction stays authoritative; an optional on-device model may supplement only `.missing` with
   an exact snippet from the already privacy-filtered document; exact amount/date/currency/scale/
   duplicate validation remains deterministic; the line-item experiment defaults off.
-- [B] **C4C-05 — Mandatory confirmation and evaluation.** Persist nothing before confirmation;
-  build at least 60 fixed receipts plus non-receipts; verify offline tiers, privacy zero leaks,
-  accuracy, and 20-image memory stability.
+### C4C-05 — Mandatory confirmation and evaluation
+
+Status: **Pending independent review — implementation/evaluation is complete; a successful hosted
+run on the reviewed head and merge remain required.**
+
+- Persist nothing before confirmation; build at least 60 fixed receipts plus non-receipts; verify
+  offline tiers, privacy zero leaks, accuracy, and 20-image memory stability.
+- Physical iOS 26.6.1 evidence covers DataScanner camera capture, one-image PHPicker selection,
+  local Vision review, cancel-without-write, and exactly one explicit-Save write. An uncertain
+  paper-invoice total remained manual-review-only rather than being guessed.
+- DEC-COM-053 folds the owner-supplied capture redesign into the same candidate without expanding
+  the receipt trust boundary: a custom overlay surrounds the bounded DataScanner surface, capture
+  must pass through preview, and processing/review/failure return inline to the expense form. The
+  A implementation exposes no live edge/aligned state, broad Photos access, or long-receipt stitch.
+- DEC-COM-054 closes the independent-review gaps on the production path: amount, merchant, and date
+  use explicit per-generation edit ownership rather than value equality; rejected/missing fields
+  and user-owned fields cannot be overwritten; typed acquisition/processing failures keep distinct
+  localized guidance; inactive scenes mask receipt work while only backgrounding discards it; and
+  artifact-ID cleanup prevents a canceled generation from deleting a newer prepared image.
+- The exact review-remediated source passes 522 unit results, 17/17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; the result summary reports 539 total,
+  528 passed, 11 explicit skips, and zero failed.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.

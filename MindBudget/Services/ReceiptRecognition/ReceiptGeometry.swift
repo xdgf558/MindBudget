@@ -57,6 +57,41 @@ struct ReceiptNormalizedBounds: Equatable, Sendable {
             && maxX <= 1
             && maxY <= 1
     }
+
+    /// Vision occasionally reports a text box a fraction outside its documented normalized
+    /// range after perspective correction. Clamp only that bounded numeric drift; materially
+    /// invalid geometry remains rejected by the privacy pipeline.
+    func clampedToUnitSquare(tolerance: CGFloat) -> ReceiptNormalizedBounds? {
+        guard tolerance.isFinite,
+              tolerance >= 0,
+              minX.isFinite,
+              minY.isFinite,
+              width.isFinite,
+              height.isFinite,
+              width > 0,
+              height > 0,
+              minX >= -tolerance,
+              minY >= -tolerance,
+              maxX <= 1 + tolerance,
+              maxY <= 1 + tolerance else {
+            return nil
+        }
+
+        let clampedMinX = max(0, minX)
+        let clampedMinY = max(0, minY)
+        let clampedMaxX = min(1, maxX)
+        let clampedMaxY = min(1, maxY)
+        guard clampedMaxX > clampedMinX,
+              clampedMaxY > clampedMinY else {
+            return nil
+        }
+        return ReceiptNormalizedBounds(
+            minX: clampedMinX,
+            minY: clampedMinY,
+            width: clampedMaxX - clampedMinX,
+            height: clampedMaxY - clampedMinY
+        )
+    }
 }
 
 struct ReceiptRectangleDetectionPolicy: Equatable, Sendable {

@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: **In Progress — awaiting explicit owner entry for C4C-05.**
+Status: **Pending independent review — C4C-05 implementation/evaluation is complete; hosted CI on
+the reviewed head and merge remain required.**
 
 COM-C4B closed through reviewed PR #64 (`4f6d7fe`) and the documentation closeout merged through
 PR #65 (`f5ab156`). Reviewed C4C-01 head `d203308` passed GitHub Actions run `32845307426`, and
@@ -15,9 +16,10 @@ passed GitHub Actions run `32921913143`, and PR #70 merged the bounded
 local OCR/privacy boundary as `d294cfb`. C4C-03 is Done. PR #71 merged its documentation closeout
 as `08fb718`, and the owner then explicitly entered C4C-04. Reviewed remediation head `f2d249d`
 passed GitHub Actions run `32946104780`, and PR #72 merged the bounded structured-extraction
-implementation as `e6316fa`. C4C-04 is Done. There is still no customer entry, persistence,
-iCloud receipt field, remote model, network channel, Production action, or release authority;
-C4C-05 requires a separate explicit owner entry.
+implementation as `e6316fa`; PR #73 merged its documentation closeout as `2107723`. C4C-04 is
+Done. The owner then explicitly entered C4C-05. The current candidate adds only a verified-Pro,
+local customer entry and confirmation/evaluation boundary; there is still no iCloud receipt field,
+remote model, network channel, Production action, or release authority.
 
 ## Input gate
 
@@ -133,9 +135,10 @@ persistence.
   caller cancellation cancels the older processing task; a generation check prevents late work
   from committing. Only the bounded prepared JPEG reaches the fixed temporary directory—never the
   source bytes. The directory is excluded from backup and uses complete file protection.
-- Startup removes crash-orphaned bytes once. Cancel, background/inactive transition, memory
-  warning, Delete All, downstream release, and AppSession teardown share the same idempotent
-  cleanup boundary. SwiftUI task recreation cannot clear a later active artifact.
+- Startup removes crash-orphaned bytes once. Cancel, a true background transition, memory warning,
+  Delete All, downstream release, and AppSession teardown share the same idempotent cleanup
+  boundary. An inactive transition masks the receipt surface but preserves capture/recognition work.
+  SwiftUI task recreation and late artifact-scoped cleanup cannot clear a newer active artifact.
 
 ### Verification and closeout
 
@@ -268,16 +271,114 @@ Accepted implementation boundary:
 
 ## C4C-05 — Mandatory confirmation and evaluation
 
-Status: **Blocked pending explicit owner entry after C4C-04.**
+Status: **Pending independent review — implementation/evaluation is complete; hosted CI on the
+reviewed head and merge remain required.**
 
 Own the no-persistence-before-confirmation proof, 60+ fixed receipts and non-receipts, offline tier
 matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stability.
 
+### Accepted candidate boundary
+
+- Only a verified Pro Commerce snapshot exposes `Scan a Receipt` inside the existing new-expense
+  form. Editing an existing expense, wishlist conversion, exact Free, and unavailable StoreKit
+  authority do not expose the entry.
+- Camera permission is requested only after an explicit camera choice; PHPicker remains one-image
+  and does not request broad Photo Library access. DataScanner captures one still image and exports
+  no recognized item. Unsupported, denied, temporarily unavailable, corrupt, over-limit, canceled,
+  or backgrounded work fails closed with a localized retry/manual-entry path.
+- Image preparation, accurate Vision OCR, sensitive-text filtering, and deterministic structured
+  extraction execute locally. Vision work runs off the main actor. The optional on-device model is
+  selected only when the existing user setting is on and the Apple system model is actually
+  available; otherwise the deterministic offline tier remains usable.
+- One bounded protected temporary JPEG exists only during processing and is discarded before a
+  result is presented. Source bytes, prepared images, raw/filtered OCR, model snippets, line items,
+  and duplicate evidence never enter SwiftData, iCloud, logs, telemetry, or a network channel.
+- Review may copy only accepted merchant/date/total fields into the editable expense form. This is
+  still ephemeral. Only the form's existing explicit Save action creates the `Expense`, preserving
+  existing exact-money, budget, duplicate-warning, reminder, and validation paths. Receipt-created
+  expenses carry only the non-content provenance value `receiptImport`.
+- The production application path records edit ownership independently for amount, merchant, and
+  date. Once edited during a recognition generation, a field remains user-owned even if its value
+  is changed back to the starting value. Rejected/missing suggestions never overwrite input. If no
+  accepted receipt field contributes to the form, a later explicit Save remains `.manual`.
+- The accepted capture redesign uses option A from the owner handoff: the bounded DataScanner
+  remains the source, system guidance is disabled, and a custom black overlay supplies one
+  dominant shutter, local-only disclosure, flash control, one-image PHPicker entry, and a preview
+  confirmation. There is no per-frame rectangle signal, so the white composition corners never
+  claim an aligned/green state or automatic crop.
+- Receipt processing now belongs to `ExpenseFormViewModel` under an explicit generation. The form
+  shows inline progress, review, and fail-closed recovery; a canceled or backgrounded generation
+  cannot apply a late result. Manual amount entry reopens Save, while the action itself cancels
+  outstanding recognition before using the existing write path.
+- Acquisition gates and processing failures retain typed, localized title/detail and recovery
+  behavior. Product-disabled and requires-Pro states never impersonate local-storage failure;
+  storage failure does not offer a useless retake. Inactive scenes show a privacy shield without
+  discarding work, while backgrounding cancels and removes the matching prepared artifact.
+- Broad Photos access remains forbidden, so the camera shows a generic PHPicker icon rather than a
+  recent-library thumbnail. Long-receipt stitching and review-image expansion remain unimplemented
+  because their interaction designs are not accepted; the disabled slot states that limit.
+
+### Deterministic evaluation contract
+
+- A checked-in fixed matrix contains 60 supported receipts: 20 USD, 20 JPY, and 20 KWD examples.
+  Every case must exactly match merchant, calendar date, ISO currency, and integer minor units.
+  Ten fixed non-receipts—including `Totally`, generic `USA`/`THE`/`IBM`, list/note, subtotal-only,
+  and date-only shapes—must not produce an accepted total. These are deterministic contract
+  fixtures, not a population-wide OCR accuracy claim.
+- The privacy suite includes English/Chinese card, separated/full-width PAN, authorization code,
+  labelled last-four, continuous mask, and spaced-mask examples. Zero sensitive digits or codes may
+  reach `ReceiptModelSafeText`; any unsafe/unbounded input rejects the whole document.
+- The offline matrix keeps product-off and exact Free unavailable, verified Pro deterministic-only
+  usable, and verified Pro with an available/user-enabled local model enhanced without weakening
+  deterministic authority. Missing model capability never disables the deterministic tier.
+- Twenty sequential real JPEG decode/orientation/perspective/downsample/store/cleanup operations
+  must remain within the fixed byte/pixel limits, keep at most one artifact, and leave none after
+  each cleanup. This proves bounded lifecycle stability, not physical camera or public-receipt
+  accuracy.
+
+### Local validation evidence
+
+- `/private/tmp/MindBudget-C4C05-Focused.xcresult` passes 40/40 results across the four receipt
+  suites with zero failures or skips. It includes the fixed 60-receipt/10-nonreceipt matrix,
+  prefill-before-Save database proof, zero-leak regression, and 20-image lifecycle run.
+- `/private/tmp/MindBudget-C4C05-Final.xcresult` passes the complete repository entry after the
+  physical remediations: 510 unit-test results (499 passed and 11 explicit opt-in/runtime skips),
+  all 17 UI tests, Release compilation,
+  the strict 10,000-row Dashboard wall-clock stage, every static contract, and every selected
+  coverage threshold. CSVExporter is the minimum selected result at 87.60% against 85%.
+- `/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult` passes the exact DEC-COM-053 redesign
+  source: 514 unit-test results across 31 suites, all 17 UI tests, Release compilation, the strict
+  Dashboard wall-clock stage, every static contract, and every selected coverage threshold. Its
+  summary reports 531 total, 520 passed, 11 explicit skips, and zero failed; CSVExporter remains
+  the minimum selected coverage result at 87.60% against 85%.
+- Both are simulator/deterministic evidence only. Neither substitutes for the physical acquisition
+  and OCR evidence below.
+
+### Physical evidence and remaining gates
+
+- On 2026-08-26, `拉沙的iPhone` running iOS 26.6.1 under Xcode 27 beta 6 (`27A5252f`) completed
+  both mandatory physical acquisition paths. A DataScanner camera capture of a paper invoice
+  reached local Vision review with accepted merchant/date evidence while an uncertain total stayed
+  `needs manual review`. A separate one-image PHPicker selection reached review, applied only to
+  the editable form, and produced exactly one `$25.00` expense only after the existing Save action.
+  The preceding camera review was applied and then canceled without Save and produced no expense.
+- The physical run exposed two fail-closed interoperability defects before passing: a 4032 x 3024
+  iPhone capture narrowly exceeded the prepared-pixel limit without being downsampled, and Vision
+  returned a text box with sub-percent normalized-coordinate drift. The implementation now derives
+  ImageIO's thumbnail edge from both edge and pixel bounds and clamps only geometry within 0.005 of
+  the unit square. Larger drift remains rejected. Focused remediation evidence at
+  `/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult` passes 21/21 image-lifecycle and OCR
+  privacy tests, including both regression shapes.
+- This is a physical local acquisition/OCR and persistence-boundary pass, not a population-wide
+  receipt-field accuracy claim. The uncertain paper-invoice total was not guessed or accepted.
+- Independent review, hosted CI on the exact reviewed head, and merge are still required. C4C-05
+  does not deploy Production, authorize Archive/TestFlight/App Store actions, or enter COM-C5.
+
 ## Exit and stop conditions
 
 Each subpacket may be marked Done only after independent review, green hosted CI on the reviewed
-head, and merge. C4C-02 closes only acquisition/lifecycle infrastructure, C4C-03 closes only the
-local OCR/pre-model privacy boundary, and C4C-04 closes only ephemeral structured extraction and
-validation after its reviewed merge. None enables receipt import, satisfies either receipt
-Requirement, enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys Production,
-or authorizes Archive/upload/tester/review/distribution actions. C4C-05 remains blocked.
+head, and merge. C4C-02 closes acquisition/lifecycle infrastructure, C4C-03 the local OCR/pre-model
+privacy boundary, C4C-04 ephemeral structured extraction, and C4C-05 the reviewed local customer
+confirmation/evaluation boundary. C4C-05 is not Done before independent review, green hosted CI on
+the reviewed head, and merge. Nothing here enters a successor automatically, closes COM-C4C, unblocks COM-C5, deploys
+Production, or authorizes Archive/upload/tester/review/distribution actions.

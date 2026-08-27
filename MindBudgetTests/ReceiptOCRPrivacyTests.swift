@@ -5,6 +5,17 @@ import Testing
 
 struct ReceiptOCRPrivacyTests {
     @Test
+    func spacedMaskedCardLastFourIsRedactedBeforeModelSafeTextExists() throws {
+        let document = try ReceiptOCRPrivacyPipeline().process([
+            observation("CARD * * * * 9876", sourceIndex: 0),
+            observation("TOTAL USD 12.34", sourceIndex: 1),
+        ])
+
+        #expect(document.lines.first?.text.value == "CARD \(ReceiptSensitiveTextFilter.replacementToken)")
+        #expect(document.lines.map(\.text.value).joined(separator: " ").contains("9876") == false)
+    }
+
+    @Test
     func filterRemovesCardValuesLastFourAndAuthorizationCodes() throws {
         let filter = ReceiptSensitiveTextFilter()
         let cases: [(String, String, Set<ReceiptSensitiveTextKind>)] = [
@@ -239,6 +250,31 @@ struct ReceiptOCRPrivacyTests {
         expectPrivacyError(.invalidConfidence(sourceIndex: 7)) {
             _ = try ReceiptOCRPrivacyPipeline().process([
                 observation("Impossible", confidence: 1.01, sourceIndex: 7),
+            ])
+        }
+    }
+
+    @Test
+    func pipelineClampsOnlyMinorVisionGeometryDrift() throws {
+        let document = try ReceiptOCRPrivacyPipeline().process([
+            observation(
+                "Top edge",
+                minX: -0.001,
+                minY: 0.95,
+                width: 0.4,
+                height: 0.052,
+                sourceIndex: 3
+            ),
+        ])
+        let bounds = try #require(document.lines.first?.bounds)
+
+        #expect(bounds.minX == 0)
+        #expect(bounds.maxY == 1)
+        #expect(bounds.isNormalized)
+
+        expectPrivacyError(.invalidGeometry(sourceIndex: 4)) {
+            _ = try ReceiptOCRPrivacyPipeline().process([
+                observation("Too far outside", minX: -0.006, sourceIndex: 4),
             ])
         }
     }

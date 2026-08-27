@@ -1245,7 +1245,7 @@ struct Phase5FeatureTests {
             now: context.now,
             reminderEventWriter: reminderWriter(failCreate: true)
         )
-        viewModel.amountText = "300"
+        viewModel.updateAmountTextFromUser("300")
         await loadContext(for: viewModel, actor: actor, context: context)
 
         let result = await submit(viewModel, actor: actor, context: context)
@@ -1271,7 +1271,7 @@ struct Phase5FeatureTests {
             now: context.now,
             reminderEventWriter: reminderWriter(failUpdate: true)
         )
-        viewModel.amountText = "300"
+        viewModel.updateAmountTextFromUser("300")
         await loadContext(for: viewModel, actor: actor, context: context)
 
         let result = await submit(viewModel, actor: actor, context: context)
@@ -1305,7 +1305,7 @@ struct Phase5FeatureTests {
         let context = try makeContext()
         let actor = try await configuredActor(for: context)
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: context.now)
-        viewModel.amountText = "300"
+        viewModel.updateAmountTextFromUser("300")
         await viewModel.loadContext(
             dataActor: actor,
             currencyCode: "USD",
@@ -1360,7 +1360,7 @@ struct Phase5FeatureTests {
         var savedCount = 0
         for _ in 0..<5 {
             let viewModel = ExpenseFormViewModel(existingExpense: nil, now: context.now)
-            viewModel.amountText = "300"
+            viewModel.updateAmountTextFromUser("300")
             await viewModel.loadContext(
                 dataActor: actor,
                 currencyCode: "USD",

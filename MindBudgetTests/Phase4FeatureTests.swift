@@ -8,7 +8,7 @@ struct Phase4FeatureTests {
     func expenseContextIsOptionalAndPersistsWhenSelected() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
-        viewModel.amountText = "12.34"
+        viewModel.updateAmountTextFromUser("12.34")
         viewModel.category = .coffee
         viewModel.emotionTag = .stressed
         viewModel.purchaseReason = .stressRelief

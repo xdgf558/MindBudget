@@ -1,4 +1,5 @@
 import CoreGraphics
+import ImageIO
 @preconcurrency import Vision
 
 enum ReceiptOCRPrivacyError: Error, Equatable, Sendable {
@@ -17,6 +18,23 @@ struct ReceiptOCRPolicy: Equatable, Sendable {
     let maximumDocumentBytes: Int
     let minimumTextHeight: Float
     let readingOrderRowBand: CGFloat
+    let geometryTolerance: CGFloat
+
+    init(
+        maximumObservationCount: Int,
+        maximumObservationBytes: Int,
+        maximumDocumentBytes: Int,
+        minimumTextHeight: Float,
+        readingOrderRowBand: CGFloat,
+        geometryTolerance: CGFloat = 0.005
+    ) {
+        self.maximumObservationCount = maximumObservationCount
+        self.maximumObservationBytes = maximumObservationBytes
+        self.maximumDocumentBytes = maximumDocumentBytes
+        self.minimumTextHeight = minimumTextHeight
+        self.readingOrderRowBand = readingOrderRowBand
+        self.geometryTolerance = geometryTolerance
+    }
 
     static let standard = ReceiptOCRPolicy(
         maximumObservationCount: 256,
@@ -33,7 +51,9 @@ struct ReceiptOCRPolicy: Equatable, Sendable {
               minimumTextHeight.isFinite,
               (0...1).contains(minimumTextHeight),
               readingOrderRowBand.isFinite,
-              (0.001...1).contains(readingOrderRowBand) else {
+              (0.001...1).contains(readingOrderRowBand),
+              geometryTolerance.isFinite,
+              (0...0.05).contains(geometryTolerance) else {
             throw ReceiptOCRPrivacyError.invalidPolicy
         }
     }
@@ -91,7 +111,9 @@ struct ReceiptOCRPrivacyPipeline {
         candidates.reserveCapacity(observations.count)
 
         for (stableIndex, observation) in observations.enumerated() {
-            guard observation.bounds.isNormalized else {
+            guard let normalizedBounds = observation.bounds.clampedToUnitSquare(
+                tolerance: policy.geometryTolerance
+            ) else {
                 throw ReceiptOCRPrivacyError.invalidGeometry(sourceIndex: observation.sourceIndex)
             }
             guard observation.confidence.isFinite,
@@ -128,7 +150,7 @@ struct ReceiptOCRPrivacyPipeline {
                 Candidate(
                     line: ReceiptOCRLine(
                         text: filtered,
-                        bounds: observation.bounds,
+                        bounds: normalizedBounds,
                         confidence: observation.confidence
                     ),
                     sourceIndex: observation.sourceIndex,
@@ -219,5 +241,40 @@ enum ReceiptVisionObservation {
 
     private static func normalized(_ point: CGPoint) -> ReceiptNormalizedPoint {
         ReceiptNormalizedPoint(x: point.x, y: point.y)
+    }
+}
+
+/// Executes the complete image-to-fields handoff away from the main actor. The prepared file is
+/// read locally, raw Vision text remains inside this adapter, and only privacy-filtered structured
+/// fields return to the customer surface.
+protocol ReceiptLocalProcessing: Sendable {
+    func process(
+        artifact: ReceiptTemporaryImageArtifact,
+        baseline: LocalReceiptRecognitionBaseline,
+        context: ReceiptExtractionContext
+    ) async throws -> ReceiptStructuredExtractionResult
+}
+
+struct ReceiptLocalProcessingService: ReceiptLocalProcessing, Sendable {
+    func process(
+        artifact: ReceiptTemporaryImageArtifact,
+        baseline: LocalReceiptRecognitionBaseline,
+        context: ReceiptExtractionContext
+    ) async throws -> ReceiptStructuredExtractionResult {
+        let document = try await Task.detached(priority: .userInitiated) {
+            try Task.checkCancellation()
+            guard let source = CGImageSourceCreateWithURL(artifact.fileURL as CFURL, nil),
+                  let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+                throw ReceiptImageLifecycleError.unsupportedImage
+            }
+            let document = try ReceiptVisionObservation.recognizedDocument(in: image)
+            try Task.checkCancellation()
+            return document
+        }.value
+        try Task.checkCancellation()
+        return try await ReceiptStructuredExtractionService(baseline: baseline).extract(
+            from: document,
+            context: context
+        )
     }
 }

@@ -132,6 +132,28 @@ struct ReceiptImageLifecycleTests {
     }
 
     @Test
+    func fullResolutionIPhoneCaptureIsDownsampledToThePreparedPixelLimit() async throws {
+        let sourceData = try jpeg(width: 4_032, height: 3_024, orientation: 1)
+        let policy = ReceiptImageLifecyclePolicy.standard
+        let result = try await ReceiptImageProcessor().prepare(
+            ReceiptImageInput(data: sourceData, source: .camera),
+            policy: policy
+        )
+        let preparedPixels = result.pixelWidth.multipliedReportingOverflow(
+            by: result.pixelHeight
+        )
+
+        #expect(result.pixelWidth <= policy.maximumPreparedEdge)
+        #expect(result.pixelHeight <= policy.maximumPreparedEdge)
+        #expect(!preparedPixels.overflow)
+        #expect(
+            !preparedPixels.overflow
+                && preparedPixels.partialValue <= policy.maximumPreparedPixels
+        )
+        #expect(result.data.count <= policy.maximumPreparedBytes)
+    }
+
+    @Test
     func perspectiveCorrectionRejectsOutOfRangeGeometryAndAcceptsUnitSquare() throws {
         let image = try cgImage(width: 40, height: 20)
         let context = CIContext(options: [.cacheIntermediates: false])
@@ -258,6 +280,65 @@ struct ReceiptImageLifecycleTests {
                     includingPropertiesForKeys: nil
                 ).count == 1
             )
+
+            await lifecycle.discardTemporaryImage()
+            #expect(!FileManager.default.fileExists(atPath: root.path))
+        }
+    }
+
+    @Test
+    func staleArtifactCleanupCannotDeleteANewerGeneration() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-C4C05-ArtifactIdentity-\(UUID().uuidString)", isDirectory: true)
+        let lifecycle = ReceiptImageLifecycle(
+            processor: ImmediateReceiptImageProcessor(),
+            store: ReceiptTemporaryImageStore(directoryURL: root)
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let first = try await lifecycle.prepare(
+            ReceiptImageInput(data: Data([1]), source: .camera)
+        )
+        let second = try await lifecycle.prepare(
+            ReceiptImageInput(data: Data([2]), source: .camera)
+        )
+
+        await lifecycle.discardTemporaryImage(matching: first.id)
+
+        #expect(FileManager.default.fileExists(atPath: second.fileURL.path))
+        #expect(try Data(contentsOf: second.fileURL) == ImmediateReceiptImageProcessor.output)
+
+        await lifecycle.discardTemporaryImage(matching: second.id)
+        #expect(!FileManager.default.fileExists(atPath: root.path))
+    }
+
+    @Test
+    func twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-C4C05-TwentyImages-\(UUID().uuidString)", isDirectory: true)
+        let lifecycle = ReceiptImageLifecycle(
+            processor: ReceiptImageProcessor(),
+            store: ReceiptTemporaryImageStore(directoryURL: root)
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        for index in 0..<20 {
+            let source = try jpeg(
+                width: 320 + index * 3,
+                height: 180 + index * 2,
+                orientation: index.isMultiple(of: 2) ? 1 : 6
+            )
+            let artifact = try await lifecycle.prepare(
+                ReceiptImageInput(data: source, source: .photoPicker)
+            )
+            let files = try FileManager.default.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: nil
+            )
+
+            #expect(artifact.pixelWidth <= ReceiptImageLifecyclePolicy.standard.maximumPreparedEdge)
+            #expect(artifact.pixelHeight <= ReceiptImageLifecyclePolicy.standard.maximumPreparedEdge)
+            #expect(files == [artifact.fileURL])
 
             await lifecycle.discardTemporaryImage()
             #expect(!FileManager.default.fileExists(atPath: root.path))

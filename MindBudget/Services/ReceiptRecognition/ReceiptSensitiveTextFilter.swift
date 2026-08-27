@@ -97,7 +97,7 @@ struct ReceiptSensitiveTextFilter {
             Rule(
                 kind: .paymentCardLastFour,
                 // English, Simplified/Traditional Chinese, and printed mask prefixes.
-                pattern: #"(?:(?:last\s*(?:4|four)|ends?\s*(?:in)?|ending\s*(?:in)?|card(?:\s*(?:no\.?|number))?|末\s*四\s*(?:位|码|碼)?|[后後]\s*四\s*(?:位|码|碼)?|尾\s*(?:号|號)|卡\s*(?:号|號))\s*[:#：-]?\s*|(?:[x*•·]{2,})[\s\-]*)[\p{N}]{4}(?![\p{N}])"#
+                pattern: #"(?:(?:last\s*(?:4|four)|ends?\s*(?:in)?|ending\s*(?:in)?|card(?:\s*(?:no\.?|number))?|末\s*四\s*(?:位|码|碼)?|[后後]\s*四\s*(?:位|码|碼)?|尾\s*(?:号|號)|卡\s*(?:号|號))\s*[:#：-]?\s*|(?:[x*•·](?:[\s\-]*[x*•·]){1,})[\s\-]*)[\p{N}]{4}(?![\p{N}])"#
             ),
             Rule(
                 kind: .authorizationCode,

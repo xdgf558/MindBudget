@@ -1499,3 +1499,141 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   rejection as model-fillable; weakening same-line amount validation; calling simulator extraction
   tests receipt accuracy or physical OCR evidence; enabling the product flag; persisting before
   confirmation; or marking COM-C4C or either active receipt Requirement complete.
+
+## DEC-COM-051 — Confirm locally, then reuse the existing expense Save boundary
+
+- Status/date: **Accepted C4C-05 implementation/evaluation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-044/045/046/047/048/049/050
+- Context: PR #73 merged the C4C-04 documentation closeout as `2107723`, and the owner explicitly
+  entered C4C-05. The predecessor packets already own bounded acquisition, local OCR/privacy, and
+  deterministic structured candidates. C4C-05 must create the customer boundary without making a
+  raw image, OCR line, model snippet, or unreviewed field durable.
+- Decision: Enable `enableReceiptImport` and expose `Scan a Receipt` only from the existing
+  new-expense form when the immutable Commerce snapshot grants both receipt rights. Camera
+  permission follows an explicit camera-source tap; PHPicker remains one-image and requests no
+  broad library permission. Run bounded image processing plus accurate Vision OCR off the main
+  actor, apply the C4C-03 privacy filter before any optional on-device model, and delete the one
+  protected temporary prepared JPEG before presenting a result. The optional Apple model is used
+  only when the existing user setting is enabled and runtime capability is available; otherwise
+  verified Pro keeps the deterministic offline tier. Review copies only accepted merchant/date/
+  total fields into the editable form and performs no write. The existing explicit Save action is
+  the sole persistence boundary, retaining current exact Money, budget, reminder, and validation
+  behavior. A saved imported expense stores only normal expense facts plus the closed non-content
+  source enum `receiptImport`; receipt image/OCR/model/duplicate evidence is never stored.
+- Evaluation: The checked-in deterministic matrix requires 60 exact supported receipts (20 each
+  USD/JPY/KWD) and ten nonreceipts with no accepted total. It specifically prevents generic
+  `USA`/`THE`/`IBM` from impersonating a supported currency and prevents `Totally` from matching
+  the `total` label. The zero-leak matrix adds spaced-mask last-four coverage. Twenty sequential
+  real JPEG lifecycle iterations must stay bounded, keep at most one artifact, and leave none.
+  These are deterministic contract gates, not a population-wide OCR accuracy claim.
+- Open evidence: Physical DataScanner capture, PHPicker selection, and resulting local OCR remain
+  mandatory and are not passed by simulator tests. Independent review, hosted CI on the reviewed
+  head, and merge remain required before C4C-05 can be Done.
+- Consequences: No SwiftData schema or CloudKit envelope changes. No URLSession, HTTP(S), remote
+  model, telemetry, receipt logging, Production, Archive/upload, tester, distribution, release, or
+  COM-C5 authority. Exact Free or unavailable StoreKit authority exposes no receipt entry. A
+  missing local model does not remove the deterministic Pro baseline.
+- Alternatives rejected: A receipt-specific direct writer; persistence when the review sheet is
+  accepted rather than when Save is tapped; storing a receipt draft/image/OCR for later; treating
+  model output or OCR as authority; blocking deterministic extraction when the model is absent;
+  broad Photo Library permission; remote OCR/model use; syncing receipt intermediates; counting a
+  generated/simulator fixture as physical evidence; or marking either receipt Requirement, C4C-05,
+  COM-C4C, or a release gate complete before review/CI/merge.
+
+## DEC-COM-052 — Bound real-device image and Vision drift without accepting uncertain fields
+
+- Status/date: **Accepted C4C-05 physical-remediation decision — 2026-08-26**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; REQ-MONEY-001;
+  DEC-COM-045/047/049/051
+- Context: The first physical paper-invoice attempts on `拉沙的iPhone` exposed two fail-closed
+  interoperability defects. A common 4032 x 3024 capture stayed at source dimensions because the
+  4096 edge limit alone did not trigger ImageIO downsampling, then exceeded the separate 12-million
+  prepared-pixel limit. After that was fixed, local Vision returned a text observation whose
+  normalized bounding box drifted a fraction outside the documented unit square, causing the whole
+  document to reject as `ocr.invalidGeometry`.
+- Decision: Derive ImageIO's requested thumbnail edge from both the maximum edge and maximum
+  prepared-pixel contracts using checked integer arithmetic. Accept only finite positive Vision
+  geometry whose edges remain within 0.005 of the unit square, clamp that bounded drift, and keep
+  every larger or degenerate shape fail-closed. Log only closed non-content receipt reason codes;
+  never log an image, OCR text, merchant, amount, or other receipt-derived value.
+- Physical evidence: Under Xcode 27 beta 6 (`27A5252f`) on physical iOS 26.6.1, DataScanner camera
+  capture reached local review with accepted merchant/date while an uncertain total remained manual
+  review. Applying that review and canceling the expense form wrote nothing. A separate one-image
+  PHPicker selection reached review and produced exactly one `$25.00` expense only after explicit
+  Save. Focused remediation tests pass 21/21 at
+  `/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult`.
+- Consequences: The mandatory physical acquisition/OCR and confirmation boundary are evidenced.
+  This is not a claim that the uncertain paper-invoice amount was recognized, nor a population-wide
+  accuracy claim. C4C-05 stays In Progress pending independent review, green hosted CI on the
+  reviewed head, and merge. No Production, Archive/upload, tester, distribution, or release action
+  is authorized.
+- Alternatives rejected: Raising the source or prepared-pixel limits; accepting all Vision geometry;
+  dropping the whole physical requirement; guessing the missing total; persisting on review; logging
+  receipt content for diagnosis; or marking C4C-05/COM-C4C Done before review, CI, and merge.
+
+## DEC-COM-053 — Redesign receipt capture without implying unavailable live detection
+
+- Status/date: **Accepted C4C-05 presentation-remediation decision — 2026-08-27**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001;
+  DEC-COM-044/045/046/047/048/049/050/051/052
+- Context: Physical evaluation proved the bounded DataScanner/PHPicker/OCR boundary, but the
+  acquisition-to-review journey used several full-screen steps and did not give the user a clear
+  capture hierarchy. The owner supplied a UI/UX redesign handoff whose full alignment state assumes
+  per-frame rectangle detection. The accepted C4C-02 DataScanner adapter intentionally exposes no
+  frame or delegate, so claiming live alignment or automatic cropping would be false without a new
+  AVCapture/Vision privacy and performance surface.
+- Decision: Implement the handoff's recommended option A. Keep DataScanner as the bounded camera
+  authority with system guidance disabled, place one custom 72-point shutter beneath an always-white
+  breathing frame, and never show an aligned state or promise automatic cropping. Add the local-only
+  privacy badge, three-state torch control, PHPicker action, honest capture preview, and first-use
+  explanation. Move recognition back to the expense form under a generation-protected task, show
+  progress/failure/review inline, preserve user edits, and keep the existing explicit Save action as
+  the sole persistence boundary. The photo control remains a generic icon because a recent-photo
+  thumbnail would require broader library access. Long-receipt stitching remains a disabled,
+  accessibility-labelled visual slot because no reviewed interaction or processing contract exists.
+- Consequences: The redesign changes presentation and navigation only. It adds no camera frame
+  processing, live rectangle detector, automatic crop, broad Photos permission, schema, receipt
+  persistence, CloudKit field, network path, remote model, telemetry, or content log. Cancellation,
+  backgrounding, generation replacement, and Delete All continue to discard ephemeral receipt state.
+  Manual amount entry may release the temporary recognition Save gate, but a late recognition result
+  cannot overwrite a field changed after recognition began. C4C-05 remains In Progress pending
+  independent review, green hosted CI, and merge.
+- Alternatives rejected: Showing a fake green alignment state; presenting crop language when only
+  geometry correction after capture exists; adopting VNDocumentCamera and discarding the custom
+  hierarchy; creating AVCaptureSession plus VNDetectRectanglesRequest inside this packet; requesting
+  broad Photos access for a cosmetic thumbnail; implying that the disabled long-receipt slot performs
+  stitching; restoring a full-screen processing or review page; or persisting before explicit Save.
+
+## DEC-COM-054 — Make edit ownership and artifact identity authoritative
+
+- Status/date: **Accepted C4C-05 independent-review remediation — 2026-08-27**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001;
+  DEC-COM-051/052/053
+- Context: Independent review found that two persistence/edit-preservation tests exercised an
+  unreachable unconditional prefill helper instead of the production recognition path. The live
+  path inferred ownership from value equality, so a user who changed a field and returned it to its
+  starting value could be overwritten by late recognition. The inline UI also discarded typed
+  failure reasons, acquisition gates impersonated local-storage failure, inactive scenes destroyed
+  captured work, and cleanup carried no artifact identity.
+- Decision: Remove the unconditional helper and drive the production generation through tests.
+  Track edit ownership separately for amount, merchant, and date; once edited, a field remains
+  user-owned for that recognition generation regardless of its final value. Copy only accepted,
+  non-user-owned fields, and keep explicit Save as the only writer. Preserve each closed failure as
+  a distinct localized title/detail plus a recovery action appropriate to that failure. A true
+  background transition cancels and discards receipt work; an inactive transition covers it with a
+  privacy shield and resumes on active. Give each prepared artifact an identity and allow late task
+  cleanup to remove only the matching artifact, never a replacement generation.
+- Consequences: Rejected/missing suggestions and any user-edited field cannot be overwritten by
+  late OCR. Product-disabled/requires-Pro are disclosed as access states, not storage faults, and a
+  local-data failure no longer suggests that taking another photo will repair storage. Tests now
+  prove the no-write-before-Save boundary through the same production method the app uses, protect
+  edit-then-return-to-starting-value for all three fields, and prove stale artifact cleanup cannot
+  delete a newer generation. If every accepted suggestion remains user-owned, recognition has not
+  contributed a field and the later explicit Save truthfully retains `.manual` provenance.
+  C4C-05 remains In Progress pending rereview, green hosted CI, and merge.
+- Alternatives rejected: Keeping a shorter unconditional internal API beside the guarded path;
+  using current value equality as a proxy for user intent; clearing edit ownership when a value
+  returns to its starting state; flattening all failures into one retake card; destroying work on
+  transient inactive transitions; allowing unscoped late cleanup; or recording `receiptImport`
+  provenance when no recognized field contributed to the saved expense.

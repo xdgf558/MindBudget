@@ -212,9 +212,10 @@ does not label a person based on those tags.
   disabled. PHPicker uses one-image selection and does not request broad Photo Library access.
   Camera permission can be requested only after a future explicit camera-source action. Source
   bytes are never written; one bounded prepared JPEG may exist in a completely protected,
-  non-backed-up temporary directory and is removed on startup, cancellation, background/inactive,
-  memory warning, Delete All, or teardown. C4C-02 does not expose OCR results or persist receipt
-  content.
+  non-backed-up temporary directory and is removed on startup, cancellation, a true background
+  transition, memory warning, Delete All, or teardown. C4C-05 later supersedes the inactive rule:
+  inactive scenes mask the receipt UI but preserve in-progress work. C4C-02 does not expose OCR
+  results or persist receipt content.
 - C4C-03 adds dormant local Vision OCR infrastructure without enabling the receipt entry. Raw
   recognized text is confined to one adapter and cannot be returned as a model-safe value. Before
   any line may leave the privacy pipeline, the app removes card-number shapes, labelled/masked
@@ -228,6 +229,19 @@ does not label a person based on those tags.
   provenance and field validation pass. Missing/uncertain values never become zero, model failure
   falls back to deterministic output, and line items remain default-off. No receipt field is shown,
   persisted, synced, logged, or sent over a network; confirmation/evaluation remains C4C-05.
+- C4C-05 enables the entry only for verified Pro access inside the existing new-expense form.
+  Camera permission follows an explicit camera choice; PHPicker remains one-image and requests no
+  broad library permission. One bounded protected prepared JPEG exists only while local Vision,
+  privacy filtering, and deterministic extraction run; it is deleted before review appears.
+  Source/prepared images, raw or filtered OCR, model snippets, and duplicate evidence are never
+  persisted, synced, logged, telemetered, or sent over a network. Applying accepted merchant/date/
+  total values only edits fields that were not user-edited during that recognition generation;
+  changing a value back does not surrender user ownership. Typed failures retain truthful
+  reason-specific guidance. Inactive scenes cover the receipt UI without discarding the photo or
+  recognition, while a real background transition cancels and removes only the matching artifact.
+  Nothing is stored until the owner reviews those fields and taps the form's existing Save action.
+  The candidate is not release-ready while physical acquisition/
+  OCR evidence, independent review, hosted CI, and merge remain open.
 - Siri and Spotlight integration require explicit opt-in.
 - The optional app lock is off by default. It checks Face ID availability before enabling, asks
   the owner to authenticate before either enabling or disabling, and locks on launch and

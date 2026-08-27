@@ -114,8 +114,8 @@ for c4c01_source_anchor in \
   fi
 done
 
-grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
-  echo "C4C-02 must keep the customer receipt entry disabled" >&2
+grep -Fq 'static let enableReceiptImport = true' MindBudget/App/FeatureFlags.swift || {
+  echo "C4C-05 must keep the reviewed local receipt entry enabled" >&2
   exit 1
 }
 
@@ -383,13 +383,12 @@ if grep -Eq 'C4C-04 (remains |is )?blocked|C4C-04/C4C-05 remain blocked|awaiting
 fi
 
 # C4C-04 is closed only by its reviewed fail-closed remediation head, exact green hosted run, and
-# merge. C4C-05 remains a separately owner-entered confirmation/evaluation packet.
+# merge. C4C-05 is a separately owner-entered confirmation/evaluation packet.
 for c4c04_closeout_anchor in \
   'f2d249d' \
   '32946104780' \
   'e6316fa' \
   'C4C-04 is Done' \
-  'C4C-05 remains blocked' \
   'DEC-COM-050'; do
   if ! grep -Fq "${c4c04_closeout_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
@@ -415,10 +414,144 @@ if grep -Eq 'Pending independent review for the C4C-04 candidate|C4C-04 (impleme
   exit 1
 fi
 
-grep -Fq 'static let enableReceiptImport = false' MindBudget/App/FeatureFlags.swift || {
-  echo "C4C-04 closeout must not enable receipt import or enter C4C-05" >&2
+for c4c05_source_anchor in \
+  'static let enableReceiptImport = true' \
+  'struct ReceiptImportView: View' \
+  'struct ReceiptCaptureOverlay: View' \
+  'struct ReceiptCapturePreviewView: View' \
+  'struct ReceiptReviewCard: View' \
+  'case recognizing' \
+  'hasCompletedReceiptImport' \
+  'Task.detached(priority: .userInitiated)' \
+  'the existing explicit Save action remains the sole persistence boundary' \
+  'hasImportedReceipt ? .receiptImport : .manual' \
+  'fixedReceiptMatrixCoversAtLeastSixtyExactReceiptsAndNonReceipts' \
+  'twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact' \
+  'recognizedFieldsRemainEphemeralUntilTheExistingSaveAction' \
+  'applyRecognizedReceiptRespectingUserEdits' \
+  'editedFieldsDuringReceiptRecognition' \
+  '@Published private(set) var amountText' \
+  '@Published private(set) var spentAt' \
+  '@Published private(set) var merchantName' \
+  'updateAmountTextFromUser' \
+  'editedFieldsStayUserOwnedEvenWhenChangedBackToTheirStartingValues' \
+  'case let .failed(failure):' \
+  'receipt.failure.unreadable.title' \
+  'receipt.failure.unreadable.detail' \
+  'case .productDisabled:' \
+  '.failed(.productDisabled)' \
+  'case .requiresPro:' \
+  '.failed(.requiresPro)' \
+  'discardTemporaryImage(matching artifactID: UUID)' \
+  'staleArtifactCleanupCannotDeleteANewerGeneration' \
+  'phase == .background' \
+  'ReceiptInactivePrivacyShield' \
+  'fullResolutionIPhoneCaptureIsDownsampledToThePreparedPixelLimit' \
+  'pipelineClampsOnlyMinorVisionGeometryDrift'; do
+  if ! grep -RFq "${c4c05_source_anchor}" \
+      MindBudget/App/FeatureFlags.swift \
+      MindBudget/Commerce/FeatureAccessService.swift \
+      MindBudget/Features/AddExpense \
+      MindBudget/Services/ReceiptRecognition \
+      MindBudgetTests; then
+    echo "C4C-05 customer confirmation/evaluation source contract is missing: ${c4c05_source_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Fq 'func applyReceiptImport(' \
+    MindBudget/Features/AddExpense/AddExpenseView.swift; then
+  echo "C4C-05 must not retain a dead unconditional receipt-prefill API beside the production edit-preserving path" >&2
   exit 1
-}
+fi
+
+if grep -Fq 'receipt.error.unreadable' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings || \
+   grep -Fq 'receipt.failure.inline.title' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings || \
+   grep -Fq 'receipt.failure.inline.detail' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings; then
+  echo "C4C-05 unreadable-image copy must use the shared non-surface-specific localized keys" >&2
+  exit 1
+fi
+
+for c4c05_contract_anchor in \
+  'C4C-05 implementation/evaluation' \
+  'DEC-COM-051' \
+  'DEC-COM-052' \
+  'DEC-COM-053' \
+  'DEC-COM-054' \
+  'recommended option A' \
+  'existing explicit Save action' \
+  'explicit per-generation edit ownership' \
+  'inactive scenes mask receipt work while only backgrounding discards it' \
+  'artifact-ID cleanup' \
+  '60 exact supported receipts' \
+  'Physical iOS 26.6.1 DataScanner/PHPicker/OCR'; do
+  if ! grep -Fq "${c4c05_contract_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "C4C-05 customer confirmation/evaluation contract is missing: ${c4c05_contract_anchor}" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'isGuidanceEnabled: false' \
+    MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift; then
+  echo "C4C-05 option A must keep DataScanner system guidance disabled under the custom frame" >&2
+  exit 1
+fi
+
+if grep -Eq 'DataScannerViewControllerDelegate|VNDetectRectanglesRequest' \
+    MindBudget/Features/AddExpense/ReceiptCaptureOverlay.swift \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Services/ReceiptRecognition/ReceiptSystemImageAcquisition.swift; then
+  echo "C4C-05 option A must not add an unreviewed live rectangle/frame-detection pipeline" >&2
+  exit 1
+fi
+
+if grep -Fq 'receipt.camera.guide.aligned' \
+    MindBudget/Features/AddExpense/ReceiptCaptureOverlay.swift \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift; then
+  echo "C4C-05 option A must not present an unsupported aligned camera state" >&2
+  exit 1
+fi
+
+if grep -Eq 'C4C-05 (remains |is )?blocked|awaiting explicit owner entry for C4C-05|Blocked pending explicit owner entry after C4C-04' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes C4C-05 as blocked after owner entry" >&2
+  exit 1
+fi
+
+if grep -Eq 'Physical DataScanner capture, PHPicker selection, and resulting local OCR remain|physical acquisition/OCR evidence.*pending' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+  echo "Current commercialization state still describes completed C4C-05 physical evidence as pending" >&2
+  exit 1
+fi
+
+if grep -Eq 'createExpense|updateExpense|ModelContext|URLSession' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift; then
+  echo "C4C-05 receipt review must not persist directly or gain a network channel" >&2
+  exit 1
+fi
 
 SOURCE_SHA="$(
   sed -n 's/^- SHA-256: `\([0-9a-f][0-9a-f]*\)`.*/\1/p' "${SOURCE_PROVENANCE}" |

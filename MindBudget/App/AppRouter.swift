@@ -7,10 +7,19 @@ private struct ExistingPremiumEntryAccessEnvironmentKey: EnvironmentKey {
     static let defaultValue = ExistingPremiumEntryAccess()
 }
 
+private struct ReceiptImageLifecycleEnvironmentKey: EnvironmentKey {
+    static let defaultValue: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle()
+}
+
 extension EnvironmentValues {
     var existingPremiumEntryAccess: ExistingPremiumEntryAccess {
         get { self[ExistingPremiumEntryAccessEnvironmentKey.self] }
         set { self[ExistingPremiumEntryAccessEnvironmentKey.self] = newValue }
+    }
+
+    var receiptImageLifecycle: any ReceiptImageLifecycleHandling {
+        get { self[ReceiptImageLifecycleEnvironmentKey.self] }
+        set { self[ReceiptImageLifecycleEnvironmentKey.self] = newValue }
     }
 }
 
@@ -52,7 +61,7 @@ final class AppSession: ObservableObject {
     private let publicConfigurationService: (any PublicConfigurationServicing)?
     private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
     private let cloudSyncService: (any CloudSyncServicing)?
-    private let receiptImageLifecycle: any ReceiptImageLifecycleHandling
+    let receiptImageLifecycle: any ReceiptImageLifecycleHandling
 
     @Published var revision = 0
     @Published var selectedTab: AppTab = .dashboard
@@ -843,6 +852,7 @@ struct AppRouter: View {
             }
         }
         .environment(\.existingPremiumEntryAccess, session.existingPremiumEntryAccess)
+        .environment(\.receiptImageLifecycle, session.receiptImageLifecycle)
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
@@ -896,7 +906,10 @@ struct AppRouter: View {
                         localizedReason: appLockReason
                     )
                 }
-            case .inactive, .background:
+            case .inactive:
+                session.cancelScenePublicConfigurationRefresh()
+                session.lockAppIfNeeded(settings: settings)
+            case .background:
                 session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
                 Task { await session.discardReceiptImageWork() }

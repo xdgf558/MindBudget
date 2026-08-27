@@ -98,9 +98,29 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged the local OCR/privacy
   boundary as `d294cfb`. C4C-03 is Done. The owner explicitly entered C4C-04; reviewed remediation
   head `f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`.
-  C4C-04 is Done. Deterministic structured extraction remains authoritative, and the optional
-  on-device model may supplement only `.missing` with exact evidence from the privacy-filtered
-  document before deterministic validation. C4C-05 and the customer entry remain blocked.
+  C4C-04 is Done. PR #73 merged its documentation closeout as `2107723`. Deterministic structured
+  extraction remains authoritative, and the optional on-device model may supplement only
+  `.missing` with exact evidence from the privacy-filtered document before deterministic
+  validation. The owner explicitly entered C4C-05. Its implementation/evaluation exposes only the
+  verified-Pro local entry, keeps image/OCR/model data ephemeral, applies accepted fields to the
+  editable form without writing, and reuses explicit Save as the sole persistence boundary. The
+  fixed 60-receipt/10-nonreceipt and 20-image lifecycle matrices pass locally. Physical iOS 26.6.1
+  DataScanner/PHPicker acquisition and local OCR review now pass; cancel writes nothing and explicit
+  Save produced one imported expense. DEC-COM-053 then applies the owner's redesigned journey via
+  bounded option A: DataScanner has no live rectangle authority, so the custom frame stays white and
+  no aligned/automatic-crop claim is shown. Capture preview and recognition/review/failure now live
+  around the existing expense form, preserving edits and the same explicit Save boundary without
+  adding broad Photos access, long-receipt stitching, persistence, or egress. Independent review,
+  hosted CI, and merge remain open.
+  DEC-COM-054 closes the review findings against the actual production path. The dead unconditional
+  prefill seam is gone; amount, merchant, and date use explicit per-generation edit ownership;
+  typed failures preserve truthful titles/details and recovery actions; inactive scenes hide the
+  receipt surface without destroying work; background still discards; and artifact-scoped cleanup
+  prevents a canceled generation from deleting its replacement. A Save with no recognized field
+  contribution correctly remains `.manual` provenance.
+  The exact review-remediated source passes 522 unit results, all 17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; its result summary reports 539 total,
+  528 passed, 11 explicit skips, and zero failed.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -423,11 +443,19 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: after this C4C-04 documentation closeout passes independent review, green
-hosted CI, and merge, wait for an explicit owner instruction before entering C4C-05. Do not infer
-that entry from the closeout. Product scope remains off; structured fields are ephemeral candidate
-data, the optional model is on-device and receives only filtered text, and there is no
-confirmation, persistence, network use, or customer entry.
+Next suggested task: finish validating and submit only the redesigned C4C-05
+implementation/evaluation package for independent review, hosted CI, and merge. Physical
+DataScanner capture, PHPicker selection, local OCR review, cancel-without-write, and explicit-Save
+evidence are recorded as real iOS 26.6.1 evidence, while the uncertain paper-invoice total remains
+a non-pass for automatic amount recognition. DEC-COM-053 adds no new physical alignment evidence:
+the white frame is visual guidance only, and no live alignment or automatic-crop claim exists.
+DEC-COM-054 additionally makes the real production prefill path the tested boundary, protects all
+three editable fields by edit ownership rather than value equality, preserves typed failure
+guidance, masks inactive work, discards only on background, and scopes late cleanup by artifact ID.
+Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and do not enter COM-C5
+automatically.
+Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain
+unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution
 signing and Production schema deployment remain explicit owner decisions and must not be inferred
 from the read-only Dashboard inspection or local Release archive.

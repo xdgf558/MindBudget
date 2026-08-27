@@ -17,6 +17,7 @@ enum ReceiptImageLifecycleError: Error, Equatable, Sendable {
     case preparedImageTooLarge
     case encodingFailed
     case temporaryStorageFailed
+    case temporarilyUnavailable
     case superseded
 }
 
@@ -89,7 +90,10 @@ struct ReceiptImageProcessor: ReceiptImageProcessing, Sendable {
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: policy.maximumPreparedEdge,
+            kCGImageSourceThumbnailMaxPixelSize: try maximumThumbnailEdge(
+                sourceDimensions,
+                policy: policy
+            ),
             kCGImageSourceShouldCacheImmediately: true,
         ]
         guard let normalizedImage = CGImageSourceCreateThumbnailAtIndex(
@@ -141,6 +145,56 @@ struct ReceiptImageProcessor: ReceiptImageProcessing, Sendable {
         let result = dimensions.width.multipliedReportingOverflow(by: dimensions.height)
         guard !result.overflow else { throw ReceiptImageLifecycleError.invalidPixelDimensions }
         return result.partialValue
+    }
+
+    /// ImageIO accepts only a longest-edge thumbnail bound. Derive that edge from both reviewed
+    /// limits so a common full-resolution iPhone capture (for example 4032 x 3024) is reduced
+    /// before the prepared-pixel check instead of being rejected for narrowly exceeding it.
+    private func maximumThumbnailEdge(
+        _ dimensions: (width: Int, height: Int),
+        policy: ReceiptImageLifecyclePolicy
+    ) throws -> Int {
+        guard policy.maximumPreparedEdge > 0,
+              policy.maximumPreparedPixels > 0 else {
+            throw ReceiptImageLifecycleError.invalidPixelDimensions
+        }
+
+        let longEdge = max(dimensions.width, dimensions.height)
+        let shortEdge = min(dimensions.width, dimensions.height)
+        var lowerBound = 1
+        var upperBound = min(longEdge, policy.maximumPreparedEdge)
+        var acceptedEdge = 0
+
+        while lowerBound <= upperBound {
+            let candidate = lowerBound + (upperBound - lowerBound) / 2
+            let scaledShortNumerator = candidate.multipliedReportingOverflow(by: shortEdge)
+            guard !scaledShortNumerator.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+            let roundedNumerator = scaledShortNumerator.partialValue.addingReportingOverflow(
+                longEdge - 1
+            )
+            guard !roundedNumerator.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+            let scaledShortEdge = roundedNumerator.partialValue / longEdge
+            let pixels = candidate.multipliedReportingOverflow(by: scaledShortEdge)
+            guard !pixels.overflow else {
+                throw ReceiptImageLifecycleError.invalidPixelDimensions
+            }
+
+            if pixels.partialValue <= policy.maximumPreparedPixels {
+                acceptedEdge = candidate
+                lowerBound = candidate + 1
+            } else {
+                upperBound = candidate - 1
+            }
+        }
+
+        guard acceptedEdge > 0 else {
+            throw ReceiptImageLifecycleError.preparedImageTooLarge
+        }
+        return acceptedEdge
     }
 
     private func validatePreparedDimensions(
@@ -255,6 +309,7 @@ actor ReceiptTemporaryImageStore: ReceiptTemporaryImageStoring {
 protocol ReceiptImageLifecycleHandling: Sendable {
     func start() async
     func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact
+    func discardTemporaryImage(matching artifactID: UUID) async
     func discardTemporaryImage() async
 }
 
@@ -265,6 +320,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
     private var hasStarted = false
     private var generation = 0
     private var processingTask: Task<ReceiptPreparedImageBytes, Error>?
+    private var currentArtifactID: UUID?
 
     init(
         processor: any ReceiptImageProcessing = ReceiptImageProcessor(),
@@ -281,6 +337,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
     func start() async {
         guard !hasStarted else { return }
         hasStarted = true
+        currentArtifactID = nil
         await store.removeAll()
     }
 
@@ -289,6 +346,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
         generation += 1
         let acceptedGeneration = generation
         processingTask?.cancel()
+        currentArtifactID = nil
         await store.removeAll()
 
         let processor = processor
@@ -309,18 +367,30 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
             }
             let artifact = try await store.replace(with: prepared)
             guard acceptedGeneration == generation, !Task.isCancelled else {
-                await store.removeAll()
                 throw ReceiptImageLifecycleError.superseded
             }
+            currentArtifactID = artifact.id
             processingTask = nil
             return artifact
         } catch {
             if acceptedGeneration == generation {
                 processingTask = nil
+                currentArtifactID = nil
                 await store.removeAll()
             }
             throw error
         }
+    }
+
+    /// A completed recognition generation may clean up only the artifact it received. A late
+    /// cancellation or processor completion must never remove a newer generation's image.
+    func discardTemporaryImage(matching artifactID: UUID) async {
+        guard currentArtifactID == artifactID else { return }
+        generation += 1
+        processingTask?.cancel()
+        processingTask = nil
+        currentArtifactID = nil
+        await store.removeAll()
     }
 
     /// Cancellation, backgrounding, memory pressure, and successful downstream handoff all use
@@ -329,6 +399,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
         generation += 1
         processingTask?.cancel()
         processingTask = nil
+        currentArtifactID = nil
         await store.removeAll()
     }
 }
@@ -339,6 +410,8 @@ struct NoopReceiptImageLifecycle: ReceiptImageLifecycleHandling, Sendable {
     func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact {
         throw ReceiptImageLifecycleError.superseded
     }
+
+    func discardTemporaryImage(matching artifactID: UUID) async {}
 
     func discardTemporaryImage() async {}
 }

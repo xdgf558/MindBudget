@@ -149,7 +149,7 @@ struct Phase3FeatureTests {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC")!
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: now)
-        viewModel.amountText = "1200"
+        viewModel.updateAmountTextFromUser("1200")
 
         await viewModel.loadContext(
             dataActor: actor,
@@ -176,9 +176,9 @@ struct Phase3FeatureTests {
     func manualExpenseSaveTrimsOptionalTextAndPersistsThroughDataActor() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
-        viewModel.amountText = "12.34"
+        viewModel.updateAmountTextFromUser("12.34")
         viewModel.category = .coffee
-        viewModel.merchantName = "  Corner Cafe  "
+        viewModel.updateMerchantNameFromUser("  Corner Cafe  ")
         viewModel.note = "  Morning coffee  "
         viewModel.isPlanned = true
 
@@ -219,7 +219,7 @@ struct Phase3FeatureTests {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC")!
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
-        viewModel.amountText = "600"
+        viewModel.updateAmountTextFromUser("600")
 
         await viewModel.loadContext(
             dataActor: actor,
@@ -252,7 +252,7 @@ struct Phase3FeatureTests {
         )
         let transitionDate = currentCycle.end.addingTimeInterval(86_400 * 10)
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: transitionDate)
-        viewModel.amountText = "12.34"
+        viewModel.updateAmountTextFromUser("12.34")
 
         await viewModel.loadContext(
             dataActor: actor,
@@ -296,7 +296,7 @@ struct Phase3FeatureTests {
             )
         )
         let viewModel = ExpenseFormViewModel(existingExpense: nil, now: now)
-        viewModel.amountText = "12.34"
+        viewModel.updateAmountTextFromUser("12.34")
 
         let saved = await viewModel.save(
             dataActor: actor,

@@ -2803,3 +2803,75 @@ supplement only `.missing`; any invalid amount token rejects its same-line evide
 Consequences: No customer entry, confirmation, persistence, fixture-accuracy or physical OCR
 claim, Production action, distribution, or release authority is created by this closeout.
 COM-C4C and both receipt Requirements remain active.
+
+---
+
+## 2026-08-26 — Enter C4C-05 with review-before-save as the only receipt write boundary
+
+Context: PR #73 merged the C4C-04 documentation closeout as `2107723`, and the owner explicitly
+entered C4C-05. This packet owns the local customer entry, confirmation boundary, fixed evaluation
+matrix, resource stability, and physical acquisition/OCR evidence.
+
+Decision: Detailed ownership is DEC-COM-051. Expose receipt acquisition only to a verified Pro
+snapshot in the existing new-expense form. Keep source/prepared images, OCR, model evidence, and
+structured results ephemeral. Copy only accepted merchant/date/total values into editable fields;
+the existing explicit Save action remains the sole persistence boundary and creates an ordinary
+expense with non-content `receiptImport` provenance.
+
+Consequences: No schema, iCloud receipt field, network/remote-model path, log/telemetry content,
+Production action, or release authority is added. C4C-05 remains In Progress until physical
+DataScanner/PHPicker/OCR evidence, independent review, hosted CI, and merge close its gates.
+
+---
+
+## 2026-08-26 — Bound physical receipt drift without weakening field authority
+
+Context: Physical iOS 26.6.1 paper-receipt testing found that a 4032 x 3024 camera image narrowly
+exceeded the prepared-pixel ceiling without an ImageIO edge reduction, followed by a local Vision
+text box with sub-percent normalized-coordinate drift. Both failures correctly stopped the import
+but prevented an ordinary paper invoice from reaching review.
+
+Decision: Detailed ownership is DEC-COM-052. Derive the thumbnail edge from both edge and pixel
+limits, and clamp only finite, positive Vision bounds within 0.005 of the unit square. Larger drift
+still fails closed. Diagnostics may emit only a closed non-content reason code.
+
+Consequences: Physical DataScanner and PHPicker paths now reach local review. Cancel after prefill
+writes nothing; explicit Save produced exactly one imported expense; an uncertain total remained
+manual-review-only. This is not a broad accuracy claim. C4C-05 still requires independent review,
+green hosted CI, and merge before it can be Done.
+
+---
+
+## 2026-08-27 — Redesign receipt capture without fabricating live alignment
+
+Context: The owner supplied a replacement capture/review design after physical C4C-05 evaluation.
+Its full form assumes per-frame receipt-edge detection, which the accepted bounded DataScanner
+adapter does not expose.
+
+Decision: Detailed ownership is DEC-COM-053. Use the handoff's recommended option A: retain
+DataScanner, disable its system guidance, draw only an always-white framing aid, and do not claim an
+aligned state or automatic crop. Move recognition/progress/review/failure into the existing expense
+form while preserving the explicit Save boundary and all existing privacy constraints.
+
+Consequences: The customer receives the redesigned first-use, camera, preview, and inline-review
+journey without a new AVCapture/Vision frame pipeline, broad Photos permission, long-receipt
+stitching, persistence, egress, or release authority. C4C-05 remains In Progress pending review,
+hosted CI, and merge.
+
+---
+
+## 2026-08-27 — Make receipt edit ownership and artifact cleanup explicit
+
+Context: Independent review found that the first C4C-05 redesign tested an unreachable
+unconditional prefill seam and used value equality to infer whether late recognition could replace
+a field. It also collapsed typed failures and destroyed receipt work on transient inactive scenes.
+
+Decision: Detailed ownership is DEC-COM-054. Delete the dead prefill API; test the production
+generation; track amount, merchant, and date edits independently of their current values; retain
+truthful failure-specific guidance; mask inactive receipt work but discard it on background; and
+scope late cleanup to the matching prepared-artifact identity.
+
+Consequences: The explicit Save action remains the only writer. User edits cannot be overwritten
+even when changed back to their starting value, and stale cleanup cannot delete a newer generation.
+When no recognized field contributes to the form, a later Save remains correctly `.manual`.
+C4C-05 still requires independent rereview, green hosted CI, and merge.

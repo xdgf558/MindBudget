@@ -5727,3 +5727,126 @@ with zero failures and independently passed the coverage gate.
 Independent review, green hosted CI, and merge remain required for this closeout branch. No
 Production, Archive/upload, tester, distribution, or release action is authorized, and this
 closeout does not enter C4C-05 automatically.
+
+## 2026-08-26 — Enter C4C-05 local receipt confirmation and evaluation
+
+After PR #73 merged the C4C-04 documentation closeout as `2107723`, the owner explicitly entered
+C4C-05. The in-progress candidate enables the verified-Pro receipt entry only for a new manual
+expense. One explicit photo/camera choice enters the existing bounded lifecycle; accurate Vision
+OCR runs off the main actor, sensitive filtering precedes any optional Apple on-device model, and
+the temporary prepared JPEG is deleted before review. Missing model capability falls back to the
+deterministic Pro tier. No URLSession, remote model, schema, iCloud receipt field, or content log
+was added.
+
+Accepted fields only prefill the editable expense form. A dedicated integration test proves the
+database remains empty after review-prefill and gains one `receiptImport` expense only after the
+existing Save action. The checked-in evaluation adds 60 exact supported fixtures (USD/JPY/KWD),
+ten nonreceipts, generic-uppercase/`Totally` false-positive regressions, spaced-mask privacy
+coverage, and 20 sequential real-JPEG bounded lifecycle/cleanup iterations. The four focused
+receipt suites pass locally on iPhone 17 Pro, iOS 26.5. Physical DataScanner/PHPicker/OCR evidence,
+independent review, hosted CI, and merge remain open; none is recorded as passed here. Production
+and release actions remain unauthorized.
+
+The exact candidate subsequently passed the complete local entry. Focused result
+`/private/tmp/MindBudget-C4C05-Focused.xcresult` contains 40/40 passing tests with no skip. Full
+result `/private/tmp/MindBudget-C4C05-Full.xcresult` contains 508 unit-test results (497 passed and
+11 explicit opt-in/runtime skips), all 17 UI tests, Release compilation, the strict 10,000-row
+Dashboard benchmark, every static contract, and every selected coverage threshold; CSVExporter is
+the minimum selected result at 87.60% against 85%. The three registered physical iPhones were
+offline during this entry. These simulator results do not satisfy the still-mandatory physical
+DataScanner/PHPicker/OCR gate. Independent review, hosted CI, and merge also remain open.
+
+## 2026-08-26 — Close the C4C-05 physical acquisition and confirmation evidence gap
+
+The owner connected `拉沙的iPhone` on iOS 26.6.1 and exercised both system acquisition surfaces
+under Xcode 27 beta 6 (`27A5252f`). The first paper-invoice camera attempts failed closed. A
+privacy-safe `ReceiptImport` reason-code logger identified `ocr.invalidGeometry` without emitting
+image, OCR, merchant, amount, or other receipt content. Investigation also found that 4032 x 3024
+captures could remain above the 12-million prepared-pixel ceiling because the independent 4096
+edge bound did not request a thumbnail reduction.
+
+The remediation derives ImageIO's thumbnail edge from both reviewed bounds and clamps only finite,
+positive Vision text geometry within 0.005 of the unit square. Material drift remains rejected.
+Focused `ReceiptImageLifecycleTests` plus `ReceiptOCRPrivacyTests` pass 21/21 at
+`/private/tmp/MindBudget-C4C05-PhysicalRemediation.xcresult`, including a full-resolution iPhone
+capture and both sides of the geometry tolerance.
+
+After deployment, the same physical camera flow reached local review. Merchant/date evidence was
+accepted; the uncertain total stayed `needs manual review` and was not guessed. Applying that
+review and canceling the expense form produced no new expense. A separate one-image PHPicker flow
+reached review, applied to the editable form, and produced exactly one `$25.00` expense only after
+explicit Save. These observations close the mandatory physical DataScanner/PHPicker/local-OCR and
+confirmation-boundary evidence, but do not claim broad receipt accuracy or successful automatic
+amount recognition for the paper invoice. C4C-05 remains In Progress pending independent review,
+green hosted CI on the reviewed head, and merge; Production and release remain unauthorized.
+
+The remediated candidate then passed the exact complete repository entry at
+`/private/tmp/MindBudget-C4C05-Final.xcresult`: 510 unit-test results across 31 suites (499 passed
+and 11 explicit opt-in/runtime skips), 17/17 UI tests, Release compilation, the strict 10,000-row
+Dashboard wall-clock stage, every static contract, and every selected coverage threshold. The
+result bundle reports 527 total logical results, 516 passed, 11 skipped, and zero failed after UI
+and parameterized cases are included. CSVExporter remains the minimum selected coverage result at
+87.60% against 85%. The earlier sandboxed validation failure and transient Simulator Busy preflight
+were environmental non-passes; the clean rerun above is the candidate evidence.
+
+## 2026-08-27 — Rebuild the C4C-05 receipt journey from the owner handoff
+
+The owner paused submission and supplied `RECEIPT_CAPTURE_REDESIGN_HANDOFF.md`. DEC-COM-053 selects
+its recommended option A because the accepted DataScanner surface provides no live rectangle
+evidence. The implementation therefore uses an always-white framing aid and honest preview copy;
+it never shows the handoff's C-only green aligned state or promises automatic cropping.
+
+The first-use local-only explanation, one-primary-action camera overlay, torch control, PHPicker,
+capture preview, form-level progress, edit-preserving prefill, inline review/failure cards, and
+generation-safe cancellation are implemented. The existing Save action remains the only write.
+A recent-photo thumbnail was not added because it would broaden Photos access, and long-receipt
+stitching remains a disabled labelled slot because it has no reviewed product or processing
+contract. Focused compile/test evidence is recorded on the commercialization track; complete
+repository validation then passed at `/private/tmp/MindBudget-C4C05-Redesign-Final2.xcresult`:
+514 unit results, 17/17 UI tests, Release, the strict Dashboard benchmark, every static contract,
+and coverage passed. The result summary reports 531 total, 520 passed, 11 explicit skips, and zero
+failed. Independent review, hosted CI, and merge remain open.
+
+## 2026-08-27 — Close C4C-05 receipt review gaps on the production path
+
+Independent review of PR #74 found that the no-write/edit-preservation tests were calling an
+unreachable unconditional prefill helper, while the production method inferred user ownership from
+value equality. The same review found that inline failures discarded their associated reason,
+product/Pro gates impersonated storage failure, transient inactive scenes destroyed captured work,
+and asynchronous cleanup did not identify the artifact it intended to remove.
+
+DEC-COM-054 removes the dead helper and tests the actual recognition generation. Amount, merchant,
+and date now carry explicit edit ownership for the whole generation, including when the user changes
+a value back to its starting value. Typed failures retain distinct localized titles, details, and
+appropriate recovery actions. Inactive scenes show a receipt privacy shield and preserve work;
+backgrounding still cancels and discards. Prepared-image cleanup is artifact-scoped, so an old task
+cannot delete a newer generation. No recognized field contribution continues to produce truthful
+`.manual` provenance after explicit Save.
+
+The app and test targets compile under final Xcode 26.6. Focused iOS 26.5 simulator execution under
+Xcode 27 beta 6 passes 22/22 tests in `ReceiptImportIntegrationTests` and
+`ReceiptImageLifecycleTests` at `/private/tmp/MindBudget-C4C05-ReviewFix-Focused2.xcresult`, with
+zero failures or skips. A separate Designed-for-iPhone-on-Mac attempt was rejected before execution
+because the provisioning profile did not include the Mac; it is an environmental non-pass and not
+evidence. The exact remediated source then passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-ReviewFix-Final.xcresult`: every static contract, Release
+compilation, the strict 10,000-row Dashboard wall-clock stage, 522 unit-test results across 31
+suites, all 17 UI tests, and every selected coverage threshold passed. The bundle reports 539
+logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains
+the minimum selected coverage result at 87.60% against 85%. Independent rereview, hosted CI, and
+merge remain open.
+
+## 2026-08-27 — Tighten C4C-05 review-maintenance seams
+
+The independent rereview raised three nonblocking maintainability observations. The bounded test
+wait now exits as soon as recognition completes and records an explicit timeout instead of using a
+`for ... where` filter. The unused `receipt.error.unreadable` catalog entry is removed, and the
+unreadable-image title/detail use shared `receipt.failure.unreadable.*` keys rather than keys named
+for only the inline surface. `amountText`, `merchantName`, and `spentAt` are now compiler-enforced
+`private(set)` values; tests and UI mutations use the same user-input methods that own edit tracking.
+
+The first focused attempt could not connect to CoreSimulator in the restricted environment and is
+an environmental non-pass. The unrestricted rerun passes 76/76 tests across
+`ReceiptImportIntegrationTests`, `Phase3FeatureTests`, `Phase4FeatureTests`, and
+`Phase5FeatureTests` at `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. This maintenance
+does not change the C4C-05 scope, provenance decision, persistence boundary, or release authority.

@@ -130,11 +130,11 @@ struct ExistingPremiumEntryAccess: Equatable, Sendable {
         postPurchaseReviewDecision.isAllowed
     }
 
-    /// Resolves the future receipt pipeline's local execution floor without touching an image.
+    /// Resolves the receipt pipeline's local execution floor without touching an image.
     ///
     /// A local model can only enhance a deterministic parser; it can never be the sole available
-    /// path. The product-scope switch remains false through C4C-01, so no receipt entry is exposed
-    /// before the owning acquisition phase.
+    /// path. C4C-05 exposes the entry only when this product gate and both verified Pro decisions
+    /// are allowed; an unavailable local model falls back to the deterministic tier.
     func receiptRecognitionBaseline(
         productScopeEnabled: Bool,
         localModelAvailable: Bool

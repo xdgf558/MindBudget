@@ -4,6 +4,18 @@ import Foundation
 import FoundationModels
 #endif
 
+enum ReceiptLocalModelAvailability {
+    static var isAvailable: Bool {
+        guard FeatureFlags.enableFoundationModels else { return false }
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *) {
+            return SystemLanguageModel.default.availability == .available
+        }
+        #endif
+        return false
+    }
+}
+
 /// Optional on-device enhancement for C4C-04.
 ///
 /// The model receives only text that already crossed the receipt privacy boundary. Its output is
