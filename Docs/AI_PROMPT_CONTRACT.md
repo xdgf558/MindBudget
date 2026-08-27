@@ -219,7 +219,7 @@ Deterministic code verifies that every returned snippet occurs in the safe docum
 date, currency, scale, integer-minor-unit, range, and duplicate decisions, and never lets a model
 replace an already accepted deterministic field. Model unavailability, timeout, failure, invented
 evidence, or unusable output returns the deterministic result. The line-item schema is default-off.
-The C4C-05 candidate may now invoke this adapter only after a verified-Pro user explicitly selects
+The merged C4C-05 flow may invoke this adapter only after a verified-Pro user explicitly selects
 one local receipt image and the C4C-03 filter succeeds. Model unavailability still selects the
 deterministic tier. Model output remains ephemeral evidence: it can only prefill a field that the
 deterministic pass marked `.missing`, and no data is stored until the user reviews the editable

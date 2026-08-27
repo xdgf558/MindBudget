@@ -117,7 +117,7 @@ path: DataScanner remains authoritative, its system guidance is disabled, and th
 frame never claims live alignment or automatic crop. The flow now uses one primary shutter, an
 honest preview, and form-inline progress/review/failure while preserving user edits and explicit
 Save as the sole write. It adds no frame pipeline, broad Photos access, long-receipt stitching,
-persistence, or egress. Independent review, hosted CI, and merge remain open.
+persistence, or egress.
 DEC-COM-054 closes the review findings on that exact production path: the unreachable unconditional
 prefill helper is removed; amount, merchant, and date use explicit per-generation edit ownership;
 typed failures keep distinct titles/details and recovery actions; inactive scenes receive a privacy
@@ -127,6 +127,14 @@ user-owned, explicit Save correctly records manual rather than receipt-import pr
 The exact review-remediated source passes 522 unit results, all 17 UI tests, Release, the strict
 Dashboard benchmark, every static contract, and coverage; its result summary reports 539 total,
 528 passed, 11 explicit skips, and zero failed.
+Independent review approved remediation head `8607356` and raised three nonblocking P3
+observations. Final maintenance head `81cd107` bounds the recognition wait, removes the orphaned
+unreadable-image key, and makes the three receipt-prefill values compiler-enforced `private(set)`
+state behind explicit user-input methods; its focused suite passed 76/76 and GitHub Actions run
+`33035427257` passed. PR #74 merged it as `d751ff4` without a pre-merge rereview. During PR #75's
+2026-08-27 closeout review, the independent reviewer read that exact delta and confirmed all three
+fixes correct. C4C-05 and COM-C4C are Done. The uncertain physical paper-invoice total remains an
+honest manual-review-only non-pass, and COM-C5 awaits separate explicit owner entry.
 Production and release remain blocked.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together

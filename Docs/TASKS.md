@@ -225,7 +225,7 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## Commercialization and Pro development — separate COM track
-Status: COM-C0A through COM-C4B Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
+Status: COM-C0A through COM-C4C Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
 through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 product capability
 merged through PR #61 (`0f749ce`) after reviewed head `f49de94` passed run `32571676058`; PR #62
 merged the reviewed calibration as `0128682` after run `32573992659`; DEC-COM-039 permanently
@@ -235,8 +235,8 @@ scheduling, DEC-COM-041 preserves delegate/zone trust boundaries, and DEC-COM-04
 waives only physical background-push observation without a pass. Reviewed final head `f1f37db`
 passed run `32726507493`, and PR #64 merged it as `4f6d7fe`. DEC-COM-043 permanently waives the
 remaining physical account-switch/offline/quota observations as non-passes and assigns
-Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. C4C is
-unblocked. Reviewed C4C-01 head `d203308` passed Actions run `32845307426`, and PR #66 merged it
+Distribution signing plus Production schema/deployment/release proof to COM-C6/COM-C12. Reviewed
+C4C-01 head `d203308` passed Actions run `32845307426`, and PR #66 merged it
 as `8611022`; PR #67 (`bdb94d9`) closed its documentation after run `32850616400`. C4C-01 is Done.
 The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actions run
 `32860643712`, and PR #68 merged it as `4ca8f1c`; documentation head `4ab0daf` passed run
@@ -244,10 +244,12 @@ The owner explicitly entered C4C-02. Reviewed head `43c3a35` passed GitHub Actio
 entered C4C-03. Reviewed head `92ed3a7` passed GitHub Actions run `32921913143`, and PR #70 merged
 it as `d294cfb`; C4C-03 is Done. The owner explicitly entered C4C-04. Reviewed remediation head
 `f2d249d` passed GitHub Actions run `32946104780`, and PR #72 merged it as `e6316fa`; PR #73 merged
-the documentation closeout as `2107723`. C4C-04 is Done. C4C-05 implementation/evaluation is
-complete, including physical DataScanner/PHPicker/OCR plus confirmation/persistence evidence, and
-awaits independent review, green hosted CI, and merge. Production and release action remain
-unauthorized.
+the documentation closeout as `2107723`. C4C-04 is Done. Independent review approved C4C-05
+remediation head `8607356` and raised three nonblocking P3 observations. Maintenance head
+`81cd107` applied them, passed GitHub Actions run `33035427257`, and PR #74 merged it as `d751ff4`
+without a pre-merge rereview. PR #75's closeout review then accepted that exact delta post-merge.
+C4C-05 and COM-C4C are Done. COM-C5 awaits separate explicit owner entry; Production and release
+action remain unauthorized.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -479,12 +481,15 @@ unauthorized.
   merge, receipt import was disabled; the later explicit C4C-05 entry below supersedes that state.
 - [x] Complete the C4C-04 documentation closeout through independent review, green hosted CI, and
   PR #73 merge `2107723`. The closeout records DEC-COM-050 and did not enter C4C-05 automatically.
-- [ ] Complete C4C-05 review/CI/merge after implementation/evaluation: expose the verified-Pro, local-only receipt
+- [x] Complete C4C-05 review/CI/merge after implementation/evaluation: expose the verified-Pro, local-only receipt
   entry; keep image/OCR/model output ephemeral; apply accepted fields only to the editable expense
   form; retain the existing explicit Save action as the sole persistence boundary; pass the 60+
   fixed receipt/non-receipt, offline-tier, zero-leak, and 20-image matrix. Physical iOS 26.6.1
   DataScanner/PHPicker/OCR evidence and cancel-versus-Save persistence evidence passed on
-  2026-08-26; independent review, green hosted CI, and merge remain open.
+  2026-08-26. Independent review approved remediation head `8607356` and supplied three
+  nonblocking P3 observations. Final maintenance head `81cd107` applied them, passed GitHub Actions
+  run `33035427257`, and PR #74 merged the implementation as `d751ff4` without pre-merge rereview;
+  PR #75's 2026-08-27 closeout review then confirmed the exact maintenance delta correct.
   The owner-requested capture redesign is included under DEC-COM-053: first-use privacy explanation,
   one-primary-action camera overlay, preview confirmation, form-inline processing/review/failure,
   generation-safe cancellation, and AX/Reduce Motion adaptations. It deliberately uses the A path:
@@ -494,3 +499,7 @@ unauthorized.
   retain their typed reason and recovery action, inactive scenes hide without destroying work, and
   temporary cleanup is scoped to the prepared artifact identity. If all accepted fields remain
   user-owned, the eventual explicit Save truthfully keeps manual provenance.
+- [ ] Complete the C4C-05/COM-C4C documentation closeout through independent review, green hosted
+  CI, and merge. Record DEC-COM-055 and the exact PR #74 evidence without entering COM-C5,
+  resolving its telemetry conflict, authorizing Production/distribution, or relabeling the
+  manual-review-only physical amount as recognized.

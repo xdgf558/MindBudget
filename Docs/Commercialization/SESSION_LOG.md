@@ -2718,3 +2718,31 @@ A restricted CoreSimulator attempt failed before execution and is excluded. The 
 26.5 simulator rerun passes 76/76 tests across the receipt integration and Phase 3/4/5 suites at
 `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. C4C-05/COM-C4C remain In Progress pending
 rereview, hosted CI, and merge; Production/distribution remain blocked.
+
+## 2026-08-27 — C4C-05 merge calibration and post-merge exact-delta closeout
+
+Independent review approved remediation head `8607356`, including DEC-COM-054's production-path
+changes, and raised three nonblocking P3 observations. Final maintenance head `81cd107` applied
+those observations and passed GitHub Actions run `33035427257` in 26m06s; PR #74 merged the
+verified-Pro local receipt flow to `main` as `d751ff4` without a pre-merge rereview. During PR #75's
+2026-08-27 closeout review, the independent reviewer read that exact maintenance delta and
+confirmed all three P3 fixes correct.
+
+DEC-COM-055 marks C4C-05 and COM-C4C Done on the reviewed merge, the recorded deterministic
+60-receipt/10-nonreceipt and 20-image matrices, zero-leak coverage, complete local validation, and
+physical iOS 26.6.1 DataScanner/PHPicker/local-OCR plus cancel-versus-Save evidence. The uncertain
+paper-invoice total remains manual-review-only and is not rewritten as an automatic-recognition or
+population-accuracy pass.
+
+This documentation-only closeout changes no Swift, schema, entitlement, egress, persistence, or
+customer behavior. COM-C5 remains unopened pending explicit owner entry and accepted first-party
+telemetry conflict resolution. Production, Archive/upload, tester, distribution, and release remain
+unauthorized. Independent review, green hosted CI, and merge remain required for this closeout
+branch.
+
+The closeout branch then passed `Scripts/validate.sh` at
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.3SiQ1W/MindBudget.xcresult`:
+every static contract, Release compilation, the strict 10,000-row Dashboard wall-clock stage, the
+complete unit-test execution, all 17 UI tests, and all selected coverage thresholds passed.
+`CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
+validator removed its temporary result bundle after the successful run.

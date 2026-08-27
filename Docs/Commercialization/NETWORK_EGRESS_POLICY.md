@@ -84,8 +84,13 @@ candidate enables only local verified-Pro acquisition, OCR, optional Apple on-de
 selection, editable prefill, and the existing explicit local Save boundary. Receipt images/OCR/
 model evidence never enter CloudKit, URLSession, HTTP(S), telemetry, logs, or a remote model. The
 current accepted app-owned HTTP(S) set is unchanged. Physical iOS 26.6.1 DataScanner/PHPicker/OCR
-and confirmation-boundary evidence passed without adding egress. Independent review, CI, and merge
-remain open, and every Production/distribution/release action remains blocked. DEC-COM-053 changes
+and confirmation-boundary evidence passed without adding egress. Independent review approved
+remediation head `8607356`; final maintenance head `81cd107` then passed GitHub Actions run
+`33035427257` and PR #74 merged it as `d751ff4` without pre-merge rereview. PR #75's post-merge
+closeout review accepted that exact delta. C4C-05 and COM-C4C are Done without changing the accepted
+app-owned HTTP(S) set, while COM-C5 still requires explicit owner entry and every Production/
+distribution/release action remains blocked. The uncertain physical amount remains
+manual-review-only rather than an automatic-recognition claim. DEC-COM-053 changes
 only the local capture/review presentation: DataScanner remains bounded, the generic PHPicker icon
 does not request a recent-photo thumbnail or broad library access, recognition returns to the local
 expense form, and no live-frame detector, receipt content channel, telemetry, or endpoint is added.
