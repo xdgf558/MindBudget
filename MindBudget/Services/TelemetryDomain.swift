@@ -234,6 +234,9 @@ struct TelemetryDeletionProof: Codable, Equatable, Sendable {
     let deletionSecret: Data
 }
 
+/// A bounded complete-delete request deliberately groups retained generations. Ordinary upload
+/// envelopes remain generation-isolated; C5-02 must use this association only for deletion and
+/// must not persist, log, or reuse it.
 struct TelemetryDeletionRequest: Codable, Equatable, Sendable {
     let schemaVersion: Int
     let environment: TelemetryEnvironment
@@ -259,6 +262,9 @@ enum TelemetryFlushResult: Equatable, Sendable {
 
 enum TelemetryDeletionResult: Equatable, Sendable {
     case deletedLocally
+    /// Corrupt local state was erased, but no remote deletion can be claimed because its proofs
+    /// could not be authenticated and recovered.
+    case deletedLocallyWithoutRemoteProofs
     case deletedRemotely
     case failed(Date?)
     case unavailable

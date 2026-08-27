@@ -507,8 +507,11 @@ blocked.
 - [ ] Complete C5-01 independent review, hosted CI, and merge after the owner's explicit COM-C5
   entry. Keep the implementation dormant and default-off: no production construction/capture call,
   URL, receiver, customer setting, or transport. Require the closed event/envelope vocabulary,
-  opt-out unlinkability, retained deletion proofs, encrypted bounded queue, serialized mutation,
-  batch/backoff, sticky corruption, and `UnavailableTelemetryTransport`. Do not enter C5-02 or
+  upload-envelope pseudonym non-reuse, explicit grouped-delete association, retained deletion
+  proofs, corrupt-state local file/key deletion without a remote claim, encrypted bounded queue,
+  serialized mutation, batch/backoff, self-testing fail-closed static scanning, and
+  `UnavailableTelemetryTransport`. Record the four-generation re-enable boundary for C5-04 and
+  in-flight upload cancellation for C5-02. Do not enter C5-02 or
   authorize telemetry egress, Production, tester assignment, distribution, or release. Local
-  focused telemetry tests pass 13/13; complete validation passes 530 unit tests across 32 suites,
+  focused telemetry tests pass 17/17; complete validation passes 534 unit tests across 32 suites,
   all 17 UI tests, Release, the strict Dashboard benchmark, every static contract, and coverage.

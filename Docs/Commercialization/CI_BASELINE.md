@@ -1523,3 +1523,29 @@ floor. The validator removed
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XVH9gD/MindBudget.xcresult`
 after success, so this path is an execution pointer rather than a durable artifact. Hosted CI on
 the eventual exact PR head remains required.
+
+### C5-01 independent-review remediation — 2026-08-27
+
+The focused iOS 26.5 simulator command executes `TelemetryClientTests` and passes 17/17 with no
+failure or skip. Four added tests cover the four-generation re-enable boundary, explicit grouping
+of every retained generation in the complete-delete request, deletion of sticky invalid protocol
+state without a remote claim, and deletion of both a corrupted encrypted file and its at-rest key.
+The existing corruption test continues to prove that opt-in/capture cannot overwrite invalid state.
+
+`Scripts/check-telemetry-contract.sh` passes after replacing the fail-open `rg` construction scan
+with a status-aware `grep` scan and adding positive/negative event-vocabulary, upload-envelope,
+production-construction, clean-tree, and missing-tree fixtures. The focused run is not endpoint,
+receiver, remote deletion, unlinkability beyond ordinary upload envelopes, customer-control,
+Production, or release evidence.
+
+The owning unrestricted `Scripts/validate.sh` run then passed every static contract, Release
+compilation, the isolated strict 10,000-row Dashboard benchmark, 534 unit tests across 32 suites,
+all 17 UI tests, and every selected coverage threshold. Four physical CloudKit probes remained
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.OzAGSt/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. The exact
+correctness subset was independently re-read from
+`/private/tmp/MindBudget-C501-ReviewRemediation-Units-Filtered-20260827.xcresult` as 534 tests in
+32 suites with no failure; that local path is likewise not durable release evidence. Exact-head
+rereview, hosted CI, and merge remain required.

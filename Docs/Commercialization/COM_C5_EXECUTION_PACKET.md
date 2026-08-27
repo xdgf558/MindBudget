@@ -49,14 +49,24 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   The deletion handle is SHA-256 of that secret; the raw secret is never part of an upload batch.
 - A generation rotates after 30 user-calendar days. Explicit reset also retires the current
   generation. Opt-out immediately clears unsent events, retires the active generation for deletion
-  proof only, and a later opt-in must create a different pseudonym rather than linking across the
-  disabled interval.
+  proof only, and a later opt-in must create a different pseudonym. Ordinary upload envelopes never
+  reuse or group pseudonyms across that disabled interval; this is the exact C5-01 unlinkability
+  boundary.
 - Retired proofs have a 90-day local expiration target and are pruned only after their generation
   has no queued event. At most four generations may coexist; capacity failure rejects new capture or
-  re-enable instead of discarding a still-required deletion proof.
-- Delete submits proofs for every retained generation. Failure keeps every proof and returns a
-  closed failure result. Only confirmed remote deletion removes the encrypted file and at-rest key;
-  a never-enabled/missing state may be deleted locally without a remote claim.
+  re-enable instead of discarding a still-required deletion proof. Four rapid opt-out/re-enable
+  cycles can therefore leave re-enable unavailable until a proof expires or Delete succeeds; C5-04
+  must provide closed, non-blaming guidance for that boundary.
+- Delete deliberately groups proofs for every retained generation in one bounded request so the
+  future service can delete the complete set without a partial-success state. This operation does
+  reveal to the first-party deletion processor that those pseudonyms share one deletion request;
+  it is not described as cross-generation unlinkability. C5-02 must process that association only
+  for deletion and must not persist, log, or reuse it. Failure keeps every proof and returns a
+  closed failure result. Only confirmed remote deletion removes readable retained proofs.
+- Corrupt persistence still blocks opt-in, capture, and overwrite, but never blocks local privacy
+  deletion. Local deletion removes the unreadable encrypted file and at-rest key, restores an empty
+  available state, and returns `.deletedLocallyWithoutRemoteProofs` so no remote deletion is
+  implied. A never-enabled/missing state may be deleted locally without a remote claim.
 
 ### Queue, persistence, and failure isolation
 
@@ -67,7 +77,8 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   Keychain key, protected until first unlock, excluded from backup, atomically written, and read back
   as the exact state before commit succeeds. The file and plaintext each remain bounded to 256 KiB.
 - A present but missing-key, malformed, oversized, unauthenticated, or structurally invalid file is
-  sticky invalid for the process. It cannot be overwritten by opt-in or capture.
+  sticky invalid for collection and mutation. It cannot be overwritten by opt-in or capture, while
+  the explicit local deletion path remains available.
 - Local read/modify/write transactions are explicitly serialized across actor suspension points.
   Upload releases that local mutation slot during transport, then removes only the exact submitted
   event IDs; a concurrent capture cannot be lost. Delete retains the slot until its destructive
@@ -83,22 +94,27 @@ Status: **Implementation complete pending independent review, hosted CI, and mer
   `noAcceptedEndpoint` failure and contains no URL or network framework.
 - `Scripts/check-telemetry-contract.sh` rejects a live endpoint/transport, a production client
   construction, event-schema drift, upload-envelope drift, selected financial/receipt/StoreKit/data
-  authority types, missing encryption/queue/rotation anchors, or missing lifecycle tests.
+  authority types, missing encryption/queue/rotation anchors, or missing lifecycle tests. Its
+  event/envelope/construction scans execute positive and negative fixtures first; missing tools,
+  missing source roots, or incomplete scans fail closed.
 - C5-02 must not replace the unavailable transport until its exact dev/staging/production domains,
   paths, methods, request and response bytes, unknown-field rejection, authentication/abuse limit,
   real 90-day server TTL, proof deletion, monitoring, cost ceiling, and owner-reviewed disclosure are
-  recorded together.
+  recorded together. It must also decide and test whether opt-out cancels an in-flight upload; the
+  dormant C5-01 client retains deletion proofs but has no live request to cancel.
 
 ### Verification
 
-- Thirteen deterministic tests cover default-off zero-write, exact event JSON, app-version rejection,
-  opt-out/re-enable unlinkability, concurrent mutation ordering, queue overflow, manual and automatic
-  rotation, single-generation batching, concurrent capture during upload, concurrent-flush transport
-  serialization, bounded retry, deletion proof retention/destruction, sticky corrupt persistence,
-  and authenticated-encryption round trip.
-- Focused simulator execution passes 13/13. The static telemetry gate and repository diff check pass.
+- Seventeen deterministic tests cover default-off zero-write, exact event JSON, app-version
+  rejection, upload-envelope pseudonym non-reuse, the four-generation re-enable boundary,
+  concurrent mutation ordering, queue overflow, manual and automatic rotation, single-generation
+  batching, concurrent capture during upload, concurrent-flush transport serialization, bounded
+  retry, explicit grouped deletion, deletion-proof retention/destruction, sticky corrupt
+  persistence, corrupt-state file/key deletion, and authenticated-encryption round trip.
+- Focused simulator execution passes 17/17. The self-testing static telemetry gate and repository
+  diff check pass.
   The owning unrestricted `Scripts/validate.sh` run also passes every static contract, Release
-  compilation, the strict 10,000-row Dashboard wall-clock stage, 530 unit tests across 32 suites,
+  compilation, the strict 10,000-row Dashboard wall-clock stage, 534 unit tests across 32 suites,
   all 17 UI tests, and every selected coverage threshold; four opt-in physical CloudKit probes are
   reported as skipped, and `CSVExporter.swift` remains the minimum selected coverage result at
   87.60% against 85%. Hosted CI remains a merge gate. Neither run is presented as endpoint,
@@ -110,8 +126,9 @@ Status: **Blocked by C5-01.**
 
 Own the independent serverless receiver, strict request-byte schema, environment separation,
 unknown/free-text rejection, real retention and deletion behavior, abuse/cost ceilings, monitoring,
-and the smallest reviewed client network adapter. It may not infer C5-03 metrics or C5-04 release
-approval.
+the smallest reviewed client network adapter, non-retention of deletion-request cross-generation
+association, and the explicit in-flight opt-out cancellation policy. It may not infer C5-03 metrics
+or C5-04 release approval.
 
 ## C5-03 — Metrics and G1 evidence
 
@@ -133,4 +150,5 @@ C5-01 may be Done only after exact-head independent review, green hosted CI, and
 not Done until C5-02 through C5-04 prove a content-free, optional, deletable, observable, and
 cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
-unaccepted domain, environment mixing, product-behavior dependency, or release claim.
+an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,
+product-behavior dependency, or release claim.

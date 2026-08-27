@@ -2773,3 +2773,30 @@ suites, all 17 UI tests, and every selected coverage threshold. Four opt-in phys
 probes are explicit skips; `CSVExporter.swift` remains the minimum selected coverage result at
 87.60% against 85%. The validator deleted its temporary result bundle after completion.
 Independent review, hosted CI, and merge remain required.
+
+## 2026-08-27 — PR #76 C5-01 deletion and gate remediation
+
+Independent review correctly identified that corrupt persistence made the encrypted file and
+device-only key impossible to clear, and that a grouped deletion request contradicted an
+unqualified unlinkability claim. DEC-COM-057 keeps corruption sticky for collection/overwrite but
+allows local file/key deletion without authenticated parsing, returning
+`.deletedLocallyWithoutRemoteProofs` rather than claiming remote deletion. Upload-envelope
+pseudonyms remain non-reused and ungrouped across opt-out/re-enable; complete deletion deliberately
+groups the retained proof set so C5-02 can avoid partial deletion, with a new prohibition on
+persisting, logging, or reusing that association.
+
+Identity retirement no longer performs the unrelated capacity check; creation alone owns it. The
+four-generation re-enable failure is recorded for C5-04 customer guidance, and in-flight upload
+cancellation remains an explicit C5-02 transport decision. `check-telemetry-contract.sh` replaces
+the fail-open `rg` conditional with a status-aware `grep` scan, verifies required tools/source roots,
+and runs positive/negative schema, envelope, construction, and incomplete-scan fixtures. Focused
+iOS 26.5 simulator execution passes 17/17 with no failure or skip, including an encrypted corrupt
+file plus at-rest-key deletion test. The owning unrestricted `Scripts/validate.sh` run then passed
+every static contract, Release compilation, the isolated strict 10,000-row Dashboard benchmark,
+534 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold. Four
+physical CloudKit probes remained explicit skips; `CSVExporter.swift` was the minimum selected
+result at 87.60% against 85%. The validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.OzAGSt/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Exact-head
+rereview, hosted CI, and merge remain required. C5-02 through C5-04 and all Production/distribution
+actions remain blocked.

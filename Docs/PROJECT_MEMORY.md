@@ -137,8 +137,12 @@ fixes correct. PR #75 merged the closeout as `82ef0fa`; C4C-05 and COM-C4C are D
 physical paper-invoice total remains an honest manual-review-only non-pass. A separate explicit owner entry
 opened COM-C5 on 2026-08-27. C5-01 now contains only a dormant, default-off, closed-schema,
 encrypted local telemetry client with no production construction, capture call, URL, or transport;
-C5-02 through C5-04, Production, and release remain blocked. Focused telemetry tests pass 13/13;
-the owning full validation passes 530 unit tests across 32 suites, all 17 UI tests, Release, the
+C5-02 through C5-04, Production, and release remain blocked. PR #76 review remediation keeps
+corrupt persistence locally deletable without claiming remote deletion, limits unlinkability to
+ordinary upload envelopes, records grouped complete-delete association as an explicit C5-02
+non-retention boundary, and makes the static gate self-testing/fail-closed. Focused telemetry tests
+pass 17/17;
+the owning full validation passes 534 unit tests across 32 suites, all 17 UI tests, Release, the
 strict Dashboard benchmark, every static contract, and coverage.
 PR #61 review remediation removes the same-session Delete All presentation split: after local
 models and sync metadata are cleared, the service immediately republishes `.disabled` together

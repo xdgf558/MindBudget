@@ -1388,4 +1388,27 @@ if grep -Eq 'SPEC-015 (open|remains open)' \
   exit 1
 fi
 
+for c501_review_anchor in \
+  'DEC-COM-057' \
+  '.deletedLocallyWithoutRemoteProofs' \
+  'ordinary upload envelopes' \
+  'must not persist, log, or reuse' \
+  'in-flight opt-out cancellation' \
+  'four-generation re-enable' \
+  '17/17'; do
+  if ! grep -Fq "${c501_review_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-01 review-remediation contract is missing: ${c501_review_anchor}" >&2
+    exit 1
+  fi
+done
+
 echo "Commercialization documentation gate passed"

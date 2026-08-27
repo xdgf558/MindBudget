@@ -1703,3 +1703,39 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   concurrent actor suspension to lose a capture; wiring dormant code into AppSession/Settings;
   treating focused client tests as receiver/TTL/deletion evidence; entering C5-02 automatically; or
   authorizing Production/release.
+
+## DEC-COM-057 — Preserve privacy deletion under corruption and scope pseudonym unlinkability
+
+- Status/date: **Accepted C5-01 independent-review remediation — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056
+- Context: Independent review found that sticky corrupt persistence correctly blocked collection
+  and overwrite but also made the encrypted file and device-only at-rest key impossible to delete.
+  It also found that the broad word “unlinkability” obscured a deliberate deletion-envelope
+  tradeoff: normal upload envelopes carry only one non-reused pseudonym, while one complete-delete
+  request groups every retained generation proof. The dormancy scan depended on `rg` inside a shell
+  conditional and therefore treated a missing tool as a clean scan, and the new gate had no positive
+  or negative fixture self-tests.
+- Decision: Keep corrupt state sticky for collection, opt-in, capture, and overwrite, but allow the
+  explicit privacy deletion to remove the unreadable file and at-rest key without parsing it. Return
+  `.deletedLocallyWithoutRemoteProofs`, restore an empty available state only after that local delete
+  succeeds, and never imply that unreadable remote proofs were exercised. Define unlinkability
+  narrowly and mechanically: ordinary upload envelopes never reuse or group pseudonyms across
+  opt-out/re-enable. A delete request intentionally groups the bounded retained proof set to avoid
+  partial deletion; C5-02 must process that association only for deletion and must not persist, log,
+  or reuse it. Keep identity-capacity enforcement only where a new identity is created. Record the
+  four-generation re-enable failure for C5-04 guidance and require C5-02 to decide and test in-flight
+  upload cancellation. Replace the dormancy scan with an explicitly fail-closed `grep` result model
+  and run positive/negative event, envelope, construction, and scan-failure fixtures on every gate
+  invocation.
+- Consequences: A malformed, oversized, unauthenticated, structurally invalid, or missing-key local
+  telemetry file can always be removed together with its local key, while the client truthfully
+  distinguishes that result from confirmed remote deletion. Normal uploads remain pseudonym-
+  separated; the deletion association is explicit, bounded, and reserved for later first-party
+  deletion processing. C5-01 remains dormant with zero collection and egress, and C5-02 through
+  C5-04 remain blocked.
+- Alternatives rejected: Blocking privacy deletion because content cannot be authenticated;
+  reporting corrupt local cleanup as remote deletion; claiming deletion-envelope unlinkability;
+  sending one proof per immediately adjacent request and pretending shared timing/connection
+  metadata cannot correlate them; accepting partial deletion state solely to avoid the grouped
+  request; discarding a retained proof to make re-enable succeed; letting a missing scan tool pass;
+  or using this remediation to add a live transport, customer setting, Production, or release.

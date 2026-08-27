@@ -420,7 +420,19 @@ actor TelemetryClient {
         await acquireStateMutation()
         defer { releaseStateMutation() }
         if Task.isCancelled { return .failed(nil) }
-        guard var state = await loadState() else { return .unavailable }
+        guard var state = await loadState() else {
+            // Collection and mutation remain sticky fail-closed after corrupt persistence, but
+            // local deletion must stay available. The unreadable file cannot supply authenticated
+            // remote proofs, so this result deliberately makes no remote-deletion claim.
+            do {
+                try await persistence.delete()
+                self.state = .disabled
+                persistenceIsCorrupt = false
+                return .deletedLocallyWithoutRemoteProofs
+            } catch {
+                return .failed(nil)
+            }
+        }
         guard !state.identities.isEmpty else {
             do {
                 try await persistence.delete()
@@ -541,9 +553,6 @@ actor TelemetryClient {
     ) throws {
         pruneExpiredProofs(in: &state, now: now)
         guard !state.identities.isEmpty else { return }
-        guard state.identities.count < TelemetryPolicy.maximumIdentityGenerations else {
-            throw TelemetryClientError.identityCapacityReached
-        }
         guard let expiration = policy.deletionProofExpirationDate(after: now) else {
             throw TelemetryClientError.invalidClock
         }

@@ -2912,3 +2912,21 @@ production client construction, capture call, URL, endpoint, setting, or egress.
 
 Consequences: Current collection remains zero and App Privacy answers do not change. C5-02 through
 C5-04, Production, Archive/upload, tester assignment, distribution, and release remain blocked.
+
+---
+
+## 2026-08-27 — Keep corrupt telemetry locally deletable and qualify identity unlinkability
+
+Context: Independent review of C5-01 found that sticky corrupt persistence also blocked deletion,
+and that the deletion envelope intentionally grouped generations despite a broader unlinkability
+description.
+
+Decision: Detailed ownership is DEC-COM-057. Corrupt state remains unavailable for collection and
+overwrite but can always attempt local file/key deletion with a result that makes no remote claim.
+Pseudonym unlinkability is limited to ordinary upload envelopes; complete deletion deliberately
+groups retained proofs, and C5-02 may use that association only transiently for deletion. The static
+gate now self-tests and fails closed on missing tools, paths, or incomplete scans.
+
+Consequences: The privacy delete path no longer depends on readable telemetry state. C5-01 remains
+dormant and default-off; customer guidance, live transport cancellation, receiver behavior,
+Production, distribution, and release remain later explicit gates.

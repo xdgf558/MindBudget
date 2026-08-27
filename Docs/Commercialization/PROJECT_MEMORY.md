@@ -452,11 +452,15 @@ submission, or Production deployment followed.
 
 Next suggested task: complete independent review, hosted CI, and merge for C5-01. The owner
 explicitly entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05 closeout as `82ef0fa`.
-DEC-COM-056 limits this packet to a dormant default-off client: fixed typed events, unlinkable
-opt-out/re-enable identity generations, encrypted bounded persistence, serialized local mutation,
-batch/backoff, and retained deletion proofs. There is no production client construction, event call
+DEC-COM-056 limits this packet to a dormant default-off client: fixed typed events, ordinary
+upload-envelope pseudonym non-reuse across opt-out/re-enable, encrypted bounded persistence,
+serialized local mutation, batch/backoff, and retained deletion proofs. DEC-COM-057 keeps
+corrupt-state file/key deletion available with no remote claim, explicitly records that one
+complete-delete request groups retained pseudonyms, assigns non-retention of that association and
+in-flight opt-out cancellation to C5-02, assigns the four-generation guidance to C5-04, and makes
+the static gate self-testing/fail-closed. There is no production client construction, event call
 site, URL, receiver, or network transport, so the current app still collects and transmits zero
-telemetry. Focused telemetry tests pass 13/13; the owning full validation passes 530 unit tests
+telemetry. Focused telemetry tests pass 17/17; the owning full validation passes 534 unit tests
 across 32 suites, all 17 UI tests, Release, the strict Dashboard benchmark, every static contract,
 and coverage. C5-02 through C5-04 remain blocked. Production, Archive/TestFlight/App Store actions,
 remote receipt processing, receipt sync, and telemetry deployment remain unauthorized.

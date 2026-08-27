@@ -61,6 +61,31 @@ struct TelemetryClientTests {
     }
 
     @Test
+    func identityCapacityFailsClosedWithoutDiscardingDeletionProofs() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let client = try makeClient(persistence: persistence)
+
+        for generation in 0..<TelemetryPolicy.maximumIdentityGenerations {
+            try await client.setCollectionEnabled(true, now: laterDate(days: generation * 2))
+            try await client.setCollectionEnabled(false, now: laterDate(days: generation * 2 + 1))
+        }
+
+        #expect(
+            await client.snapshot().retainedIdentityCount
+                == TelemetryPolicy.maximumIdentityGenerations
+        )
+        await #expect(throws: TelemetryClientError.identityCapacityReached) {
+            try await client.setCollectionEnabled(
+                true,
+                now: laterDate(days: TelemetryPolicy.maximumIdentityGenerations * 2)
+            )
+        }
+        let snapshot = await client.snapshot()
+        #expect(snapshot.collectionEnabled == false)
+        #expect(snapshot.retainedIdentityCount == TelemetryPolicy.maximumIdentityGenerations)
+    }
+
+    @Test
     func concurrentCapturesSerializeReadModifyWriteWithoutLosingAnEvent() async throws {
         let persistence = GatedWriteTelemetryPersistence()
         let client = try makeClient(persistence: persistence)
@@ -214,6 +239,22 @@ struct TelemetryClientTests {
     }
 
     @Test
+    func deletionRequestExplicitlyGroupsEveryRetainedGenerationForCompleteDeletion() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let transport = RecordingTelemetryTransport()
+        let client = try makeClient(persistence: persistence, transport: transport)
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        try await client.resetPseudonymousIdentity(now: laterDate(days: 1))
+        try await client.setCollectionEnabled(false, now: laterDate(days: 2))
+        let expectedIdentifiers = Set(try #require(await persistence.currentState).identities.map(\.identifier))
+
+        #expect(await client.deleteAllTelemetry(now: laterDate(days: 3)) == .deletedRemotely)
+        let request = try #require(await transport.deletions.first)
+        #expect(request.proofs.count == 2)
+        #expect(Set(request.proofs.map(\.pseudonymousIdentifier)) == expectedIdentifiers)
+    }
+
+    @Test
     func corruptPersistenceIsStickyAndNeverOverwritten() async throws {
         let persistence = MemoryTelemetryPersistence(readResult: .invalid)
         let client = try makeClient(persistence: persistence)
@@ -227,6 +268,56 @@ struct TelemetryClientTests {
     }
 
     @Test
+    func corruptPersistenceCanBeDeletedLocallyWithoutClaimingRemoteDeletion() async throws {
+        let persistence = MemoryTelemetryPersistence(readResult: .invalid)
+        let client = try makeClient(persistence: persistence)
+
+        #expect(await client.snapshot() == .corrupt)
+        #expect(
+            await client.deleteAllTelemetry(now: referenceDate)
+                == .deletedLocallyWithoutRemoteProofs
+        )
+        #expect(await persistence.deleteCount == 1)
+        #expect(await client.snapshot() == TelemetryClientSnapshot(
+            collectionEnabled: false,
+            queuedEventCount: 0,
+            retainedIdentityCount: 0,
+            retryNotBefore: nil,
+            availability: .available
+        ))
+
+        let restartedClient = try makeClient(persistence: persistence)
+        #expect(await restartedClient.snapshot().availability == .available)
+    }
+
+    @Test
+    func encryptedCorruptPersistenceDeletesFileAndKeyWithoutRemoteClaim() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-Telemetry-Delete-\(UUID().uuidString)", isDirectory: true)
+        let fileURL = directory.appendingPathComponent("queue.v1")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let keyProvider = TrackingTelemetryKeyProvider()
+        let persistence = EncryptedFileTelemetryPersistence(
+            fileURL: fileURL,
+            keyProvider: keyProvider
+        )
+        let state = makePersistedTelemetryState()
+        try await persistence.write(state)
+        var corrupt = try Data(contentsOf: fileURL)
+        corrupt[corrupt.index(before: corrupt.endIndex)] ^= 0x01
+        try corrupt.write(to: fileURL, options: .atomic)
+        let client = try makeClient(persistence: persistence)
+
+        #expect(await client.snapshot() == .corrupt)
+        #expect(
+            await client.deleteAllTelemetry(now: referenceDate)
+                == .deletedLocallyWithoutRemoteProofs
+        )
+        #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
+        #expect(keyProvider.containsKey() == false)
+    }
+
+    @Test
     func encryptedFileRoundTripsWithoutPlaintextAndCorruptionFailsClosed() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("MindBudget-Telemetry-\(UUID().uuidString)", isDirectory: true)
@@ -236,27 +327,8 @@ struct TelemetryClientTests {
             fileURL: fileURL,
             keyProvider: FixedTelemetryKeyProvider()
         )
-        let identity = TelemetryIdentityGeneration(
-            identifier: UUID(),
-            createdAt: referenceDate,
-            rotatesAt: laterDate(days: 30),
-            deletionSecret: Data(repeating: 7, count: 32),
-            deletionProofExpiresAt: nil
-        )
-        let state = TelemetryPersistedState(
-            collectionEnabled: true,
-            identities: [identity],
-            queuedEvents: [
-                TelemetryQueuedEvent(
-                    id: UUID(),
-                    identityIdentifier: identity.identifier,
-                    occurredAt: referenceDate,
-                    event: .receipt(.saved, .completed)
-                )
-            ],
-            consecutiveFailures: 0,
-            retryNotBefore: nil
-        )
+        let state = makePersistedTelemetryState()
+        let identity = try #require(state.identities.first)
 
         try await persistence.write(state)
         #expect(await persistence.read() == .valid(state))
@@ -310,13 +382,37 @@ struct TelemetryClientTests {
             appVersion: try TelemetryAppVersion("1.0.0")
         )
     }
+
+    private func makePersistedTelemetryState() -> TelemetryPersistedState {
+        let identity = TelemetryIdentityGeneration(
+            identifier: UUID(),
+            createdAt: referenceDate,
+            rotatesAt: laterDate(days: 30),
+            deletionSecret: Data(repeating: 7, count: 32),
+            deletionProofExpiresAt: nil
+        )
+        return TelemetryPersistedState(
+            collectionEnabled: true,
+            identities: [identity],
+            queuedEvents: [
+                TelemetryQueuedEvent(
+                    id: UUID(),
+                    identityIdentifier: identity.identifier,
+                    occurredAt: referenceDate,
+                    event: .receipt(.saved, .completed)
+                )
+            ],
+            consecutiveFailures: 0,
+            retryNotBefore: nil
+        )
+    }
 }
 
 private actor MemoryTelemetryPersistence: TelemetryPersisting {
     private(set) var currentState: TelemetryPersistedState?
     private(set) var writeCount = 0
     private(set) var deleteCount = 0
-    private let readResult: TelemetryPersistenceRead?
+    private var readResult: TelemetryPersistenceRead?
 
     init(readResult: TelemetryPersistenceRead? = nil) {
         self.readResult = readResult
@@ -333,6 +429,7 @@ private actor MemoryTelemetryPersistence: TelemetryPersisting {
 
     func delete() {
         currentState = nil
+        readResult = nil
         deleteCount += 1
     }
 }
@@ -451,6 +548,38 @@ private struct FixedTelemetryKeyProvider: TelemetryAtRestKeyProviding {
     func read() -> Data? { key }
     func createIfMissing() -> Data { key }
     func delete() {}
+}
+
+private final class TrackingTelemetryKeyProvider: TelemetryAtRestKeyProviding, @unchecked Sendable {
+    private let lock = NSLock()
+    private var key: Data? = Data(SHA256.hash(data: Data("test-delete-key".utf8)))
+
+    func read() -> Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return key
+    }
+
+    func createIfMissing() -> Data {
+        lock.lock()
+        defer { lock.unlock() }
+        if let key { return key }
+        let replacement = Data(SHA256.hash(data: Data("replacement-delete-key".utf8)))
+        key = replacement
+        return replacement
+    }
+
+    func delete() {
+        lock.lock()
+        defer { lock.unlock() }
+        key = nil
+    }
+
+    func containsKey() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return key != nil
+    }
 }
 
 private enum StubTransportError: Error {

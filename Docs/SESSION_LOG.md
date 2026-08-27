@@ -5899,3 +5899,30 @@ every selected coverage threshold. Four opt-in physical CloudKit probes were rep
 `CSVExporter.swift` was the minimum selected coverage result at 87.60% against 85%. The validator
 removed its temporary result bundle after completion, so its path was an execution pointer rather
 than a durable artifact. Independent review, hosted CI, and merge remain open.
+
+## 2026-08-27 — Remediate C5-01 deletion and contract-gate review findings
+
+Independent review of PR #76 found that sticky corrupt telemetry state also blocked the only local
+file/key deletion path, and that the broad unlinkability wording did not disclose the grouped
+complete-delete envelope. DEC-COM-057 now keeps corrupt state fail-closed for collection and
+overwrite while allowing local file/key deletion with the distinct
+`.deletedLocallyWithoutRemoteProofs` result. Ordinary upload envelopes never reuse or group a prior
+pseudonym; the bounded complete-delete request intentionally groups retained proofs, and C5-02 must
+not persist, log, or reuse that association. C5-02 also owns the real transport's in-flight opt-out
+cancellation decision, while C5-04 owns truthful guidance when four retained generations block a
+new identity.
+
+The redundant capacity check was removed from retirement and remains only at identity creation.
+The dormancy scan no longer depends on `rg` inside a fail-open conditional: required tools and source
+roots are explicit, scan exit states distinguish clean from incomplete, and event, envelope,
+construction, and scan-failure fixtures run on every invocation. Seventeen deterministic telemetry
+tests pass, including corrupt protocol-state deletion, real encrypted-file/key deletion, explicit
+grouped proof coverage, and the four-generation fail-closed boundary. The owning unrestricted
+`Scripts/validate.sh` run then passed every static contract, Release compilation, the isolated
+strict 10,000-row Dashboard benchmark, 534 unit tests across 32 suites, all 17 UI tests, and every
+selected coverage threshold. Four physical CloudKit probes remained explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.OzAGSt/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Exact-head
+rereview, hosted CI, and merge remain open; no production client, collection, URL, transport, or
+egress was added.
