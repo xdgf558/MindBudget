@@ -47,9 +47,10 @@ detailed phase checklists; it added no paid product behavior.
   closeout as `2107723`. C4C-04 is Done. Independent review approved remediation head `8607356`
   and raised three nonblocking P3 observations. Final maintenance head `81cd107` applied them,
   passed Actions run `33035427257`, and PR #74 merged it as `d751ff4` without a pre-merge rereview.
-  PR #75's closeout review then read and accepted that exact maintenance delta post-merge. C4C-05
-  and COM-C4C are Done; COM-C5 awaits separate explicit owner entry and its accepted first-party
-  telemetry conflict resolution.**
+  PR #75's closeout review then read and accepted that exact maintenance delta post-merge, and PR
+  #75 merged as `82ef0fa`. C4C-05 and COM-C4C are Done. A separate explicit owner entry opened
+  COM-C5 on 2026-08-27; C5-01 implementation is complete pending independent review, while C5-02 through
+  C5-04 remain blocked and there is still no live telemetry transport or collection.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -537,17 +538,38 @@ known sensitive-field leaks and no unconfirmed persistence.
 
 ## COM-C5 — R1 first-party telemetry, metrics, and runbook
 
-Status: **Blocked pending explicit owner entry and accepted first-party telemetry conflict
-resolution; the predecessor dependency is satisfied.**
+Status: **In Progress.**
 
-- [B] **C5-01 — Typed private client.** Fixed event/property allow-list, rotating pseudonymous ID,
-  delete key, opt-out/reset/delete, encrypted bounded queue, batching, backoff, and no content.
-- [B] **C5-02 — Minimal ingest and deletion.** Independent serverless ingest, unknown/free-text
-  rejection, 90-day TTL, deletion API, environment separation, monitoring, and cost limits.
-- [B] **C5-03 — Metrics and G1 evidence.** Define App Store metric workflow, survey, exact
-  numerator/denominator/confidence intervals, observability coverage, and receipt funnel.
-- [B] **C5-04 — Operations and disclosures.** Signed-config publish/rollback/key-rotation runbook,
-  privacy policy, App Privacy, data-flow map, capture tests, and actual TTL/delete verification.
+### C5-01 — Typed private client
+
+Status: **Implementation complete pending independent review, hosted CI, and merge.**
+
+- [ ] Fixed event/property allow-list, rotating pseudonymous ID, delete secret, opt-out/reset/delete,
+  encrypted bounded queue, batching, backoff, and no content. The C5-01 app has no production client
+  construction, call site, URL, or transport; collection and egress remain zero. Focused lifecycle
+  tests pass 13/13, and the owning full validation passes 530 unit tests, all 17 UI tests, Release,
+  the strict Dashboard benchmark, every static contract, and coverage.
+
+### C5-02 — Minimal ingest and deletion
+
+Status: **Blocked by C5-01.**
+
+- [B] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
+  environment separation, monitoring, and cost limits.
+
+### C5-03 — Metrics and G1 evidence
+
+Status: **Blocked by C5-02.**
+
+- [B] Define App Store metric workflow, survey, exact numerator/denominator/confidence intervals,
+  observability coverage, and receipt funnel.
+
+### C5-04 — Operations and disclosures
+
+Status: **Blocked by C5-03.**
+
+- [B] Signed-config publish/rollback/key-rotation runbook, privacy policy, App Privacy, data-flow
+  map, capture tests, and actual TTL/delete verification.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.

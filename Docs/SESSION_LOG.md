@@ -5878,3 +5878,24 @@ all static contracts, Release compilation, the strict 10,000-row Dashboard wall-
 complete unit-test execution, all 17 UI tests, and every selected coverage threshold passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
 temporary result bundle was removed by the validator after the successful run.
+
+## 2026-08-27 — Enter COM-C5 and implement the dormant C5-01 typed telemetry client
+
+After PR #75 merged the C4C-05 closeout as `82ef0fa`, the owner explicitly entered COM-C5.
+DEC-COM-056 limits C5-01 to a dormant local capability: a closed typed event vocabulary, validated
+content-free envelopes, default-off collection, rotating unlinkable pseudonyms, retained deletion
+proofs, a bounded encrypted queue, serialized read/modify/write, generation-safe batching, and
+bounded retry. The app contains no production `TelemetryClient` construction, capture call, URL,
+receiver, or live transport, so current telemetry collection and network egress remain zero.
+C5-02 through C5-04 remain blocked.
+
+Thirteen deterministic telemetry tests pass on the simulator. The final test adds a gated transport
+lane that proves concurrent flushes cannot upload the same batch twice. A first full-validation attempt in the
+restricted environment could not connect to CoreSimulator and produced an empty bundle identifier;
+it stopped before trustworthy execution and is excluded as an environmental non-pass. The
+unrestricted rerun of `Scripts/validate.sh` passed every static contract, Release compilation, the
+strict 10,000-row Dashboard wall-clock stage, 530 unit tests across 32 suites, all 17 UI tests, and
+every selected coverage threshold. Four opt-in physical CloudKit probes were reported as skipped;
+`CSVExporter.swift` was the minimum selected coverage result at 87.60% against 85%. The validator
+removed its temporary result bundle after completion, so its path was an execution pointer rather
+than a durable artifact. Independent review, hosted CI, and merge remain open.

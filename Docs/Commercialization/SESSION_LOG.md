@@ -2746,3 +2746,30 @@ every static contract, Release compilation, the strict 10,000-row Dashboard wall
 complete unit-test execution, all 17 UI tests, and all selected coverage thresholds passed.
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
 validator removed its temporary result bundle after the successful run.
+
+## 2026-08-27 — C5-01 dormant typed telemetry client candidate
+
+The owner explicitly entered COM-C5 after the reviewed C4C-05 closeout merged through PR #75 as
+`82ef0fa`. DEC-COM-056 opens only C5-01. The implementation adds a closed `TelemetryEvent` enum and
+exact upload/delete envelopes, default-off state, cryptographically random rotating pseudonyms,
+opt-out unlinkability, retained deletion proofs, a four-generation ceiling, a 256-event encrypted
+queue, 20-event same-generation batches, serialized local mutation across actor suspension, bounded
+backoff, and sticky corrupt-state failure. AES-GCM state uses a device-only Keychain key, atomic
+read-back-verified persistence, file protection, backup exclusion, and a 256 KiB bound.
+
+The production tree intentionally contains no `TelemetryClient` construction, capture call, URL,
+receiver, or real transport. `UnavailableTelemetryTransport` is the only default, and the new
+static contract rejects schema drift, selected content/financial authority types, live egress, and
+production construction. Current collection and transmission therefore remain zero; no customer
+setting, App Privacy answer, endpoint, server TTL, or deletion-service claim is made. C5-02 through
+C5-04, Production, and distribution remain blocked.
+
+Focused simulator execution passes 13/13 deterministic telemetry tests, including a gated
+transport-lane regression that proves concurrent flushes cannot upload the same batch twice. The first owning
+validation attempt was sandbox-blocked from CoreSimulator before trustworthy execution and is an
+environmental non-pass. The unrestricted `Scripts/validate.sh` rerun passes all static contracts,
+Release compilation, the strict 10,000-row Dashboard wall-clock stage, 530 unit tests across 32
+suites, all 17 UI tests, and every selected coverage threshold. Four opt-in physical CloudKit
+probes are explicit skips; `CSVExporter.swift` remains the minimum selected coverage result at
+87.60% against 85%. The validator deleted its temporary result bundle after completion.
+Independent review, hosted CI, and merge remain required.

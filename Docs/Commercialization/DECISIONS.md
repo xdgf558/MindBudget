@@ -1668,3 +1668,38 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   as persistence; persisting receipt images/OCR/model evidence; opening a network or CloudKit
   receipt channel; marking later release/privacy verification complete; entering COM-C5
   automatically; or using this closeout as telemetry, Production, TestFlight, or release authority.
+
+## DEC-COM-056 — Enter COM-C5 through a dormant, closed-schema C5-01 client
+
+- Status/date: **Accepted owner-entry and C5-01 implementation decision — 2026-08-27**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; REQ-RECEIPT-PRIVACY-001;
+  SPEC-009/012; DEC-COM-001/002/003/004/055
+- Context: PR #75 merged the reviewed C4C-05/COM-C4C closeout as `82ef0fa`, satisfying the
+  predecessor dependency. The owner then explicitly entered COM-C5. The first-party telemetry
+  domain, endpoint, receiver bytes, TTL, deletion service, monitoring, costs, customer disclosure,
+  App Privacy answers, and final-binary traffic are still unverified. Implementing a network adapter
+  or production capture calls in C5-01 would therefore make an unaccepted channel reachable.
+- Decision: Open only C5-01. Add a closed `TelemetryEvent` enum and exact upload/deletion envelope;
+  it has no arbitrary property dictionary or content field. Missing state is default-off and creates
+  no file/key/identity. A 30-day pseudonym generation owns a random deletion secret; reset rotates,
+  opt-out clears unsent events and retires that generation, and re-enable creates a different
+  pseudonym. Retain deletion proofs for a bounded 90-day local target while referenced; cap the
+  encrypted AES-GCM/file-protected/non-backed-up queue at 256 events and four identity generations;
+  send at most 20 events from one generation; serialize each local read/modify/write; use bounded
+  backoff; and treat corrupt persistence as sticky invalid. Only confirmed deletion may destroy
+  retained proofs. Keep `UnavailableTelemetryTransport` as the only production default and forbid
+  every production client construction/capture call, URL, endpoint, and network primitive in this
+  packet.
+- Consequences: The checked-in app continues to collect and transmit zero telemetry. No customer
+  control or disclosure is presented yet because there is no reachable client or receiver, and App
+  Privacy answers do not change. C5-01 can prove local type/persistence/concurrency/deletion
+  semantics but cannot claim real server TTL, deletion, unknown-field rejection, environment
+  isolation, monitoring, cost, capture audit, disclosure, or egress. C5-02 through C5-04 remain
+  blocked; COM-C6 and Production/distribution/release remain blocked.
+- Alternatives rejected: Embedding a provisional URL; accepting `[String: Any]` or caller-defined
+  properties; recording money, merchant, note, category, receipt/OCR/model evidence, StoreKit IDs,
+  or CloudKit envelopes; using an advertising/vendor/device/account identifier; reusing a pseudonym
+  after opt-out; deleting a failed proof; persisting plaintext or an unbounded queue; allowing
+  concurrent actor suspension to lose a capture; wiring dormant code into AppSession/Settings;
+  treating focused client tests as receiver/TTL/deletion evidence; entering C5-02 automatically; or
+  authorizing Production/release.

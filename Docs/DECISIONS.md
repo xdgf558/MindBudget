@@ -2896,3 +2896,19 @@ pass.
 Consequences: The receipt Requirements remain Active for their later C6/C8/C12 verification.
 COM-C5 requires separate explicit owner entry and accepted first-party telemetry conflict
 resolution. No Production, Archive/upload, tester, distribution, or release action is authorized.
+
+---
+
+## 2026-08-27 — Enter COM-C5 through a dormant typed telemetry client
+
+Context: PR #75 merged the C4C-05/COM-C4C closeout as `82ef0fa`, and the owner explicitly entered
+COM-C5. No first-party telemetry domain, endpoint, receiver, TTL, deletion service, disclosure, or
+release evidence is accepted yet.
+
+Decision: Detailed ownership is DEC-COM-056. C5-01 adds only a closed event/envelope domain,
+rotating and opt-out-unlinkable pseudonyms, retained deletion proofs, AES-GCM bounded local state,
+serialized mutation, batching/backoff, and a deliberately unavailable transport. There is no
+production client construction, capture call, URL, endpoint, setting, or egress.
+
+Consequences: Current collection remains zero and App Privacy answers do not change. C5-02 through
+C5-04, Production, Archive/upload, tester assignment, distribution, and release remain blocked.

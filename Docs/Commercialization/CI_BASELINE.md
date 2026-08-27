@@ -1502,3 +1502,24 @@ complete unit-test execution, all 17 UI tests, and every selected coverage thres
 `CSVExporter.swift` remains the minimum selected coverage result at 87.60% against 85%. The
 validator removed the temporary result bundle after completion, so this path is an execution
 pointer rather than a durable artifact.
+
+### C5-01 dormant typed telemetry candidate — 2026-08-27
+
+The focused simulator command executes `TelemetryClientTests` and passes 13/13 with no failure or
+skip. It covers missing-state default-off behavior, exact closed JSON, invalid app-version rejection,
+opt-out/re-enable unlinkability, serialized concurrent capture, queue overflow, manual and automatic
+rotation, same-generation batching, concurrent capture during upload, a gated transport lane that
+prevents concurrent flushes from duplicating one batch, retry/backoff, deletion-proof
+retention and confirmed destruction, sticky corruption, and encrypted file round trip.
+
+The first `Scripts/validate.sh` attempt ran in a restricted environment that denied CoreSimulator
+access and yielded an empty application bundle identifier. It stopped before trustworthy execution
+and is excluded as an environmental non-pass. The unrestricted rerun then passed the telemetry,
+money, network, commercialization-document, StoreKit catalog, and all other static contracts;
+Release compilation; the strict 10,000-row Dashboard benchmark; 530 unit tests across 32 suites;
+all 17 UI tests; and every selected coverage threshold. Four opt-in physical CloudKit probes were
+reported as skipped. `CSVExporter.swift` was the minimum selected result at 87.60% against the 85%
+floor. The validator removed
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XVH9gD/MindBudget.xcresult`
+after success, so this path is an execution pointer rather than a durable artifact. Hosted CI on
+the eventual exact PR head remains required.
