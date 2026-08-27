@@ -287,6 +287,32 @@ struct ReceiptImageLifecycleTests {
     }
 
     @Test
+    func staleArtifactCleanupCannotDeleteANewerGeneration() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MindBudget-C4C05-ArtifactIdentity-\(UUID().uuidString)", isDirectory: true)
+        let lifecycle = ReceiptImageLifecycle(
+            processor: ImmediateReceiptImageProcessor(),
+            store: ReceiptTemporaryImageStore(directoryURL: root)
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let first = try await lifecycle.prepare(
+            ReceiptImageInput(data: Data([1]), source: .camera)
+        )
+        let second = try await lifecycle.prepare(
+            ReceiptImageInput(data: Data([2]), source: .camera)
+        )
+
+        await lifecycle.discardTemporaryImage(matching: first.id)
+
+        #expect(FileManager.default.fileExists(atPath: second.fileURL.path))
+        #expect(try Data(contentsOf: second.fileURL) == ImmediateReceiptImageProcessor.output)
+
+        await lifecycle.discardTemporaryImage(matching: second.id)
+        #expect(!FileManager.default.fileExists(atPath: root.path))
+    }
+
+    @Test
     func twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact() async throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("MindBudget-C4C05-TwentyImages-\(UUID().uuidString)", isDirectory: true)

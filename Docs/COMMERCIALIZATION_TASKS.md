@@ -513,9 +513,14 @@ run on the reviewed head and merge remain required.**
   the receipt trust boundary: a custom overlay surrounds the bounded DataScanner surface, capture
   must pass through preview, and processing/review/failure return inline to the expense form. The
   A implementation exposes no live edge/aligned state, broad Photos access, or long-receipt stitch.
-- The exact redesigned source passes 514 unit results, 17/17 UI tests, Release, the strict
-  Dashboard benchmark, every static contract, and coverage; the result summary reports 531 total,
-  520 passed, 11 explicit skips, and zero failed.
+- DEC-COM-054 closes the independent-review gaps on the production path: amount, merchant, and date
+  use explicit per-generation edit ownership rather than value equality; rejected/missing fields
+  and user-owned fields cannot be overwritten; typed acquisition/processing failures keep distinct
+  localized guidance; inactive scenes mask receipt work while only backgrounding discards it; and
+  artifact-ID cleanup prevents a canceled generation from deleting a newer prepared image.
+- The exact review-remediated source passes 522 unit results, 17/17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; the result summary reports 539 total,
+  528 passed, 11 explicit skips, and zero failed.
 
 Exit gate: local Pro has durable value without cloud AI; core receipt gates pass offline with zero
 known sensitive-field leaks and no unconfirmed persistence.

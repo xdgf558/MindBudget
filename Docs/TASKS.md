@@ -489,3 +489,8 @@ unauthorized.
   one-primary-action camera overlay, preview confirmation, form-inline processing/review/failure,
   generation-safe cancellation, and AX/Reduce Motion adaptations. It deliberately uses the A path:
   no live edge/alignment claim, no broad Photos permission, and no unreviewed long-receipt stitching.
+  DEC-COM-054 removes the unreachable unconditional prefill seam and makes the production path the
+  tested contract: per-field edit flags survive changes back to the original value, failure cards
+  retain their typed reason and recovery action, inactive scenes hide without destroying work, and
+  temporary cleanup is scoped to the prepared artifact identity. If all accepted fields remain
+  user-owned, the eventual explicit Save truthfully keeps manual provenance.

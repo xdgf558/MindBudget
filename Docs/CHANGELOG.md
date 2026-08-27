@@ -9,6 +9,9 @@
 - Redesigned that unreleased receipt flow around one clear camera shutter, a local-only badge,
   photo preview, and inline form progress/review/retry states. The form stays usable after a failed
   read, while cancellation and backgrounding prevent a late recognition result from being applied.
+- Kept amount, merchant, and date edits authoritative while receipt recognition finishes, added
+  reason-specific access/camera/storage guidance, preserved in-progress work behind a privacy cover
+  during brief inactive transitions, and prevented old cleanup from deleting a newer receipt image.
 - Corrected the unreleased receipt flow for full-resolution iPhone photos and harmless sub-percent
   Vision bounding-box drift. Ordinary paper invoices can now reach review without relaxing image
   limits or guessing an uncertain amount.

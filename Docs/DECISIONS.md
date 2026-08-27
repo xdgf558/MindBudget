@@ -2857,3 +2857,21 @@ Consequences: The customer receives the redesigned first-use, camera, preview, a
 journey without a new AVCapture/Vision frame pipeline, broad Photos permission, long-receipt
 stitching, persistence, egress, or release authority. C4C-05 remains In Progress pending review,
 hosted CI, and merge.
+
+---
+
+## 2026-08-27 — Make receipt edit ownership and artifact cleanup explicit
+
+Context: Independent review found that the first C4C-05 redesign tested an unreachable
+unconditional prefill seam and used value equality to infer whether late recognition could replace
+a field. It also collapsed typed failures and destroyed receipt work on transient inactive scenes.
+
+Decision: Detailed ownership is DEC-COM-054. Delete the dead prefill API; test the production
+generation; track amount, merchant, and date edits independently of their current values; retain
+truthful failure-specific guidance; mask inactive receipt work but discard it on background; and
+scope late cleanup to the matching prepared-artifact identity.
+
+Consequences: The explicit Save action remains the only writer. User edits cannot be overwritten
+even when changed back to their starting value, and stale cleanup cannot delete a newer generation.
+When no recognized field contributes to the form, a later Save remains correctly `.manual`.
+C4C-05 still requires independent rereview, green hosted CI, and merge.

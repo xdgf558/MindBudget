@@ -1604,3 +1604,36 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   hierarchy; creating AVCaptureSession plus VNDetectRectanglesRequest inside this packet; requesting
   broad Photos access for a cosmetic thumbnail; implying that the disabled long-receipt slot performs
   stitching; restoring a full-screen processing or review page; or persisting before explicit Save.
+
+## DEC-COM-054 — Make edit ownership and artifact identity authoritative
+
+- Status/date: **Accepted C4C-05 independent-review remediation — 2026-08-27**
+- Requirements: REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001;
+  DEC-COM-051/052/053
+- Context: Independent review found that two persistence/edit-preservation tests exercised an
+  unreachable unconditional prefill helper instead of the production recognition path. The live
+  path inferred ownership from value equality, so a user who changed a field and returned it to its
+  starting value could be overwritten by late recognition. The inline UI also discarded typed
+  failure reasons, acquisition gates impersonated local-storage failure, inactive scenes destroyed
+  captured work, and cleanup carried no artifact identity.
+- Decision: Remove the unconditional helper and drive the production generation through tests.
+  Track edit ownership separately for amount, merchant, and date; once edited, a field remains
+  user-owned for that recognition generation regardless of its final value. Copy only accepted,
+  non-user-owned fields, and keep explicit Save as the only writer. Preserve each closed failure as
+  a distinct localized title/detail plus a recovery action appropriate to that failure. A true
+  background transition cancels and discards receipt work; an inactive transition covers it with a
+  privacy shield and resumes on active. Give each prepared artifact an identity and allow late task
+  cleanup to remove only the matching artifact, never a replacement generation.
+- Consequences: Rejected/missing suggestions and any user-edited field cannot be overwritten by
+  late OCR. Product-disabled/requires-Pro are disclosed as access states, not storage faults, and a
+  local-data failure no longer suggests that taking another photo will repair storage. Tests now
+  prove the no-write-before-Save boundary through the same production method the app uses, protect
+  edit-then-return-to-starting-value for all three fields, and prove stale artifact cleanup cannot
+  delete a newer generation. If every accepted suggestion remains user-owned, recognition has not
+  contributed a field and the later explicit Save truthfully retains `.manual` provenance.
+  C4C-05 remains In Progress pending rereview, green hosted CI, and merge.
+- Alternatives rejected: Keeping a shorter unconditional internal API beside the guarded path;
+  using current value equality as a proxy for user intent; clearing edit ownership when a value
+  returns to its starting state; flattening all failures into one retake card; destroying work on
+  transient inactive transitions; allowing unscoped late cleanup; or recording `receiptImport`
+  provenance when no recognized field contributed to the saved expense.

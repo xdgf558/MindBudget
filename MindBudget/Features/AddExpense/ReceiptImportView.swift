@@ -9,14 +9,40 @@ enum ReceiptImportFailure: Equatable, Sendable {
     case cameraTemporarilyUnavailable
     case unreadableImage
     case localDataUnavailable
+    case productDisabled
+    case requiresPro
 
-    var localizedKey: LocalizedStringKey {
+    var titleKey: String {
+        switch self {
+        case .permissionDenied: "receipt.permission.title"
+        case .cameraUnsupported: "receipt.error.cameraUnsupported.title"
+        case .cameraTemporarilyUnavailable: "receipt.error.cameraUnavailable.title"
+        case .unreadableImage: "receipt.failure.inline.title"
+        case .localDataUnavailable: "receipt.error.localData.title"
+        case .productDisabled: "receipt.error.productDisabled.title"
+        case .requiresPro: "receipt.error.requiresPro.title"
+        }
+    }
+
+    var detailKey: String {
         switch self {
         case .permissionDenied: "receipt.error.cameraPermission"
         case .cameraUnsupported: "receipt.error.cameraUnsupported"
         case .cameraTemporarilyUnavailable: "receipt.error.cameraUnavailable"
-        case .unreadableImage: "receipt.error.unreadable"
+        case .unreadableImage: "receipt.failure.inline.detail"
         case .localDataUnavailable: "receipt.error.localData"
+        case .productDisabled: "receipt.error.productDisabled.detail"
+        case .requiresPro: "receipt.error.requiresPro.detail"
+        }
+    }
+
+    var allowsCaptureRetry: Bool {
+        switch self {
+        case .permissionDenied, .cameraUnsupported, .cameraTemporarilyUnavailable,
+             .unreadableImage:
+            true
+        case .localDataUnavailable, .productDisabled, .requiresPro:
+            false
         }
     }
 }
@@ -139,15 +165,12 @@ final class ReceiptImportViewModel: ObservableObject {
     @Published private(set) var capability: ReceiptImageAcquisitionCapability
 
     let acquisition: any ReceiptSystemImageAcquiring
-    private let lifecycle: any ReceiptImageLifecycleHandling
 
     init(
-        lifecycle: any ReceiptImageLifecycleHandling,
         baseline: LocalReceiptRecognitionBaseline,
         showsIntroduction: Bool,
         acquisition: any ReceiptSystemImageAcquiring = ReceiptSystemImageAcquisition()
     ) {
-        self.lifecycle = lifecycle
         self.acquisition = acquisition
         let resolvedCapability = acquisition.capability(baseline: baseline)
         capability = resolvedCapability
@@ -182,16 +205,9 @@ final class ReceiptImportViewModel: ObservableObject {
 
     func retake() {
         state = Self.destination(for: capability.camera)
-        let lifecycle = lifecycle
-        Task { await lifecycle.discardTemporaryImage() }
     }
 
-    func cancel() {
-        let lifecycle = lifecycle
-        Task { await lifecycle.discardTemporaryImage() }
-    }
-
-    private static func destination(
+    static func destination(
         for availability: ReceiptCameraAvailability
     ) -> ReceiptImportState {
         switch availability {
@@ -205,8 +221,10 @@ final class ReceiptImportViewModel: ObservableObject {
             .failed(.cameraTemporarilyUnavailable)
         case .permissionNotDetermined:
             .introduction
-        case .productDisabled, .requiresPro:
-            .failed(.localDataUnavailable)
+        case .productDisabled:
+            .failed(.productDisabled)
+        case .requiresPro:
+            .failed(.requiresPro)
         }
     }
 }
@@ -227,7 +245,6 @@ struct ReceiptImportView: View {
     let acquired: (ReceiptImageInput) -> Void
 
     init(
-        lifecycle: any ReceiptImageLifecycleHandling,
         baseline: LocalReceiptRecognitionBaseline,
         showsIntroduction: Bool,
         acquired: @escaping (ReceiptImageInput) -> Void
@@ -236,7 +253,6 @@ struct ReceiptImportView: View {
         self.acquired = acquired
         _viewModel = StateObject(
             wrappedValue: ReceiptImportViewModel(
-                lifecycle: lifecycle,
                 baseline: baseline,
                 showsIntroduction: showsIntroduction
             )
@@ -282,14 +298,16 @@ struct ReceiptImportView: View {
                 }
                 return
             }
+            guard phase == .background else { return }
             guard !isOpeningSettings else { return }
             guard !didHandOffImage else { return }
             presentsPhotoPicker = false
             dismissFlow()
         }
-        .onDisappear {
-            guard !didHandOffImage else { return }
-            viewModel.cancel()
+        .overlay {
+            if scenePhase == .inactive {
+                ReceiptInactivePrivacyShield()
+            }
         }
         .accessibilityIdentifier("receipt.import.view")
     }
@@ -422,13 +440,11 @@ struct ReceiptImportView: View {
                             .font(.title2)
                             .foregroundStyle(.white)
                     }
-                Text(failure == .permissionDenied
-                     ? LocalizedStringKey("receipt.permission.title")
-                     : failure.localizedKey)
+                Text(LocalizedStringKey(failure.titleKey))
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                Text(failure.localizedKey)
+                Text(LocalizedStringKey(failure.detailKey))
                     .font(.body)
                     .foregroundStyle(.white.opacity(0.68))
                     .multilineTextAlignment(.center)
@@ -475,7 +491,29 @@ struct ReceiptImportView: View {
     }
 
     private func dismissFlow() {
-        viewModel.cancel()
         dismiss()
+    }
+}
+
+struct ReceiptInactivePrivacyShield: View {
+    var body: some View {
+        ZStack {
+            Color(red: 0.047, green: 0.047, blue: 0.055)
+                .ignoresSafeArea()
+            VStack(spacing: 12) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 30, weight: .semibold))
+                Text("receipt.privacy.inactive.title")
+                    .font(.headline)
+                Text("receipt.privacy.inactive.detail")
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.white.opacity(0.68))
+            }
+            .foregroundStyle(.white)
+            .padding(28)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("receipt.privacy.inactive")
     }
 }

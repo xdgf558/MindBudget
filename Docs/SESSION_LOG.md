@@ -5806,3 +5806,32 @@ repository validation then passed at `/private/tmp/MindBudget-C4C05-Redesign-Fin
 514 unit results, 17/17 UI tests, Release, the strict Dashboard benchmark, every static contract,
 and coverage passed. The result summary reports 531 total, 520 passed, 11 explicit skips, and zero
 failed. Independent review, hosted CI, and merge remain open.
+
+## 2026-08-27 — Close C4C-05 receipt review gaps on the production path
+
+Independent review of PR #74 found that the no-write/edit-preservation tests were calling an
+unreachable unconditional prefill helper, while the production method inferred user ownership from
+value equality. The same review found that inline failures discarded their associated reason,
+product/Pro gates impersonated storage failure, transient inactive scenes destroyed captured work,
+and asynchronous cleanup did not identify the artifact it intended to remove.
+
+DEC-COM-054 removes the dead helper and tests the actual recognition generation. Amount, merchant,
+and date now carry explicit edit ownership for the whole generation, including when the user changes
+a value back to its starting value. Typed failures retain distinct localized titles, details, and
+appropriate recovery actions. Inactive scenes show a receipt privacy shield and preserve work;
+backgrounding still cancels and discards. Prepared-image cleanup is artifact-scoped, so an old task
+cannot delete a newer generation. No recognized field contribution continues to produce truthful
+`.manual` provenance after explicit Save.
+
+The app and test targets compile under final Xcode 26.6. Focused iOS 26.5 simulator execution under
+Xcode 27 beta 6 passes 22/22 tests in `ReceiptImportIntegrationTests` and
+`ReceiptImageLifecycleTests` at `/private/tmp/MindBudget-C4C05-ReviewFix-Focused2.xcresult`, with
+zero failures or skips. A separate Designed-for-iPhone-on-Mac attempt was rejected before execution
+because the provisioning profile did not include the Mac; it is an environmental non-pass and not
+evidence. The exact remediated source then passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-ReviewFix-Final.xcresult`: every static contract, Release
+compilation, the strict 10,000-row Dashboard wall-clock stage, 522 unit-test results across 31
+suites, all 17 UI tests, and every selected coverage threshold passed. The bundle reports 539
+logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains
+the minimum selected coverage result at 87.60% against 85%. Independent rereview, hosted CI, and
+merge remain open.

@@ -47,10 +47,10 @@ enum ExpenseSubmitResult: Sendable {
     case failed
 }
 
-private struct ReceiptRecognitionInputSnapshot: Sendable {
-    let amountText: String
-    let merchantName: String
-    let spentAt: Date
+private enum ReceiptEditableField: Hashable, Sendable {
+    case amount
+    case merchant
+    case date
 }
 
 struct ReminderEventWriter: Sendable {
@@ -126,8 +126,9 @@ final class ExpenseFormViewModel: ObservableObject {
     private var latestContextRequestID = UUID()
     private var receiptRecognitionGeneration = 0
     private var receiptRecognitionTask: Task<Void, Never>?
-    private var receiptRecognitionInputSnapshot: ReceiptRecognitionInputSnapshot?
-    private var didManuallyEditAmountDuringReceiptRecognition = false
+    /// Monotonic user ownership for one recognition generation. Returning a value to its starting
+    /// representation never makes the field eligible for a late recognition overwrite again.
+    private var editedFieldsDuringReceiptRecognition: Set<ReceiptEditableField> = []
 
     init(
         existingExpense: ExpenseDetail?,
@@ -166,7 +167,7 @@ final class ExpenseFormViewModel: ObservableObject {
 
     func enterKeypad(_ key: String, decimalSeparator: String) {
         guard amountText.count < 24 else { return }
-        markManualAmountEditDuringReceiptRecognition()
+        markReceiptFieldEdited(.amount)
         if key == decimalSeparator {
             guard !amountText.contains(decimalSeparator) else { return }
             amountText = amountText.isEmpty ? "0\(decimalSeparator)" : amountText + key
@@ -179,13 +180,23 @@ final class ExpenseFormViewModel: ObservableObject {
 
     func deleteKeypadCharacter() {
         guard !amountText.isEmpty else { return }
-        markManualAmountEditDuringReceiptRecognition()
+        markReceiptFieldEdited(.amount)
         amountText.removeLast()
+    }
+
+    func updateMerchantNameFromUser(_ value: String) {
+        markReceiptFieldEdited(.merchant)
+        merchantName = value
+    }
+
+    func updateSpentAtFromUser(_ value: Date) {
+        markReceiptFieldEdited(.date)
+        spentAt = value
     }
 
     var blocksSaveForReceiptRecognition: Bool {
         receiptRecognitionPhase == .recognizing
-            && !didManuallyEditAmountDuringReceiptRecognition
+            && !editedFieldsDuringReceiptRecognition.contains(.amount)
     }
 
     func startReceiptRecognition(
@@ -200,21 +211,18 @@ final class ExpenseFormViewModel: ObservableObject {
         receiptRecognitionGeneration &+= 1
         let acceptedGeneration = receiptRecognitionGeneration
         receiptRecognitionTask?.cancel()
-        receiptRecognitionInputSnapshot = ReceiptRecognitionInputSnapshot(
-            amountText: amountText,
-            merchantName: merchantName,
-            spentAt: spentAt
-        )
-        didManuallyEditAmountDuringReceiptRecognition = false
+        editedFieldsDuringReceiptRecognition.removeAll()
         receiptThumbnailData = ReceiptImageThumbnail.make(from: input.data)
         receiptRecognitionPhase = .recognizing
         let processor = receiptProcessor
 
         receiptRecognitionTask = Task { [weak self] in
+            var artifact: ReceiptTemporaryImageArtifact?
             do {
                 let expenses = try await dataActor.fetchExpenseSummaries()
                 try Task.checkCancellation()
-                let artifact = try await lifecycle.prepare(input)
+                let preparedArtifact = try await lifecycle.prepare(input)
+                artifact = preparedArtifact
                 let context = ReceiptExtractionContext(
                     expectedCurrencyCode: currencyCode,
                     dateOrder: ReceiptImportContextBuilder.dateOrder(for: locale),
@@ -226,25 +234,29 @@ final class ExpenseFormViewModel: ObservableObject {
                     )
                 )
                 let result = try await processor.process(
-                    artifact: artifact,
+                    artifact: preparedArtifact,
                     baseline: baseline,
                     context: context
                 )
-                await lifecycle.discardTemporaryImage()
+                await lifecycle.discardTemporaryImage(matching: preparedArtifact.id)
                 try Task.checkCancellation()
                 guard let self,
                       acceptedGeneration == self.receiptRecognitionGeneration else { return }
                 self.receiptRecognitionTask = nil
-                self.applyReceiptImportWithoutOverwritingEdits(
+                self.applyRecognizedReceiptRespectingUserEdits(
                     result,
                     locale: locale,
                     calendar: calendar
                 )
                 self.receiptRecognitionPhase = .review(result)
             } catch is CancellationError {
-                await lifecycle.discardTemporaryImage()
+                if let artifact {
+                    await lifecycle.discardTemporaryImage(matching: artifact.id)
+                }
             } catch {
-                await lifecycle.discardTemporaryImage()
+                if let artifact {
+                    await lifecycle.discardTemporaryImage(matching: artifact.id)
+                }
                 guard let self,
                       acceptedGeneration == self.receiptRecognitionGeneration else { return }
                 self.receiptRecognitionTask = nil
@@ -259,92 +271,48 @@ final class ExpenseFormViewModel: ObservableObject {
         guard case .review = receiptRecognitionPhase else { return }
         receiptRecognitionPhase = .none
         receiptThumbnailData = nil
-        receiptRecognitionInputSnapshot = nil
+        editedFieldsDuringReceiptRecognition.removeAll()
     }
 
     func dismissReceiptFailure() {
         guard case .failed = receiptRecognitionPhase else { return }
         receiptRecognitionPhase = .none
         receiptThumbnailData = nil
-        receiptRecognitionInputSnapshot = nil
+        editedFieldsDuringReceiptRecognition.removeAll()
     }
 
-    func prepareForReceiptRescan(
-        lifecycle: any ReceiptImageLifecycleHandling
-    ) {
-        cancelReceiptRecognition(lifecycle: lifecycle)
+    func prepareForReceiptRescan() {
+        cancelReceiptRecognition()
     }
 
-    func cancelReceiptRecognition(
-        lifecycle: any ReceiptImageLifecycleHandling
-    ) {
+    func cancelReceiptRecognition() {
         receiptRecognitionGeneration &+= 1
         receiptRecognitionTask?.cancel()
         receiptRecognitionTask = nil
         receiptRecognitionPhase = .none
         receiptThumbnailData = nil
-        receiptRecognitionInputSnapshot = nil
-        didManuallyEditAmountDuringReceiptRecognition = false
-        Task { await lifecycle.discardTemporaryImage() }
+        editedFieldsDuringReceiptRecognition.removeAll()
     }
 
-    /// Applies only validated, privacy-filtered fields to the editable form. This method performs
-    /// no write; the existing explicit Save action remains the sole persistence boundary.
-    func applyReceiptImport(
+    /// This is the production application boundary. It copies only validated fields that the user
+    /// has not edited since recognition began and performs no write; the existing explicit Save action remains the sole persistence boundary.
+    private func applyRecognizedReceiptRespectingUserEdits(
         _ result: ReceiptStructuredExtractionResult,
         locale: Locale,
         calendar: Calendar
     ) {
         var acceptedAnyField = false
-        if let merchant = result.fields.merchantName.acceptedValue {
-            merchantName = merchant
-            acceptedAnyField = true
-        }
-        if let amount = result.fields.total.acceptedValue {
-            amountText = MoneyInputParser().inputText(for: amount, locale: locale)
-            acceptedAnyField = true
-        }
-        if let receiptDate = result.fields.purchaseDate.acceptedValue {
-            var components = DateComponents()
-            components.calendar = calendar
-            components.timeZone = calendar.timeZone
-            components.year = receiptDate.year
-            components.month = receiptDate.month
-            components.day = receiptDate.day
-            components.hour = 12
-            if let date = calendar.date(from: components) {
-                spentAt = date
-                acceptedAnyField = true
-            }
-        }
-        guard acceptedAnyField else { return }
-        hasImportedReceipt = true
-        if case let .exactMatches(ids) = result.duplicateResolution {
-            importedReceiptDuplicateCount = ids.count
-        } else {
-            importedReceiptDuplicateCount = 0
-        }
-        error = nil
-    }
-
-    private func applyReceiptImportWithoutOverwritingEdits(
-        _ result: ReceiptStructuredExtractionResult,
-        locale: Locale,
-        calendar: Calendar
-    ) {
-        guard let snapshot = receiptRecognitionInputSnapshot else { return }
-        var acceptedAnyField = false
-        if merchantName == snapshot.merchantName,
+        if !editedFieldsDuringReceiptRecognition.contains(.merchant),
            let merchant = result.fields.merchantName.acceptedValue {
             merchantName = merchant
             acceptedAnyField = true
         }
-        if amountText == snapshot.amountText,
+        if !editedFieldsDuringReceiptRecognition.contains(.amount),
            let amount = result.fields.total.acceptedValue {
             amountText = MoneyInputParser().inputText(for: amount, locale: locale)
             acceptedAnyField = true
         }
-        if spentAt == snapshot.spentAt,
+        if !editedFieldsDuringReceiptRecognition.contains(.date),
            let receiptDate = result.fields.purchaseDate.acceptedValue {
             var components = DateComponents()
             components.calendar = calendar
@@ -367,12 +335,11 @@ final class ExpenseFormViewModel: ObservableObject {
             }
             error = nil
         }
-        receiptRecognitionInputSnapshot = nil
     }
 
-    private func markManualAmountEditDuringReceiptRecognition() {
+    private func markReceiptFieldEdited(_ field: ReceiptEditableField) {
         guard receiptRecognitionPhase == .recognizing else { return }
-        didManuallyEditAmountDuringReceiptRecognition = true
+        editedFieldsDuringReceiptRecognition.insert(field)
     }
 
     func loadContext(
@@ -1055,7 +1022,7 @@ struct AddExpenseView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("common.cancel") {
-                    viewModel.cancelReceiptRecognition(lifecycle: receiptImageLifecycle)
+                    viewModel.cancelReceiptRecognition()
                     dismiss()
                 }
             }
@@ -1083,9 +1050,9 @@ struct AddExpenseView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            guard phase != .active,
+            guard phase == .background,
                   viewModel.receiptRecognitionPhase == .recognizing else { return }
-            viewModel.cancelReceiptRecognition(lifecycle: receiptImageLifecycle)
+            viewModel.cancelReceiptRecognition()
         }
         .task(id: viewModel.inlineInsight?.dedupeKey) {
             guard viewModel.inlineInsight != nil else { return }
@@ -1153,7 +1120,7 @@ struct AddExpenseView: View {
             NavigationStack {
                 DatePicker(
                     "expense.date",
-                    selection: $viewModel.spentAt,
+                    selection: spentAtUserBinding,
                     displayedComponents: [.date, .hourAndMinute]
                 )
                 .datePickerStyle(.graphical)
@@ -1189,7 +1156,6 @@ struct AddExpenseView: View {
         }
         .fullScreenCover(isPresented: $presentsReceiptImport) {
             ReceiptImportView(
-                lifecycle: receiptImageLifecycle,
                 baseline: receiptRecognitionBaseline,
                 showsIntroduction: !settings.hasCompletedReceiptImport
             ) { input in
@@ -1206,8 +1172,28 @@ struct AddExpenseView: View {
             }
         }
         .onDisappear {
-            viewModel.cancelReceiptRecognition(lifecycle: receiptImageLifecycle)
+            viewModel.cancelReceiptRecognition()
         }
+        .overlay {
+            if scenePhase == .inactive,
+               viewModel.receiptRecognitionPhase != .none {
+                ReceiptInactivePrivacyShield()
+            }
+        }
+    }
+
+    private var merchantNameUserBinding: Binding<String> {
+        Binding(
+            get: { viewModel.merchantName },
+            set: { viewModel.updateMerchantNameFromUser($0) }
+        )
+    }
+
+    private var spentAtUserBinding: Binding<Date> {
+        Binding(
+            get: { viewModel.spentAt },
+            set: { viewModel.updateSpentAtFromUser($0) }
+        )
     }
 
     private var receiptRecognitionBaseline: LocalReceiptRecognitionBaseline {
@@ -1275,12 +1261,12 @@ struct AddExpenseView: View {
                 thumbnailData: viewModel.receiptThumbnailData,
                 confirm: { viewModel.confirmReceiptReview() },
                 rescan: {
-                    viewModel.prepareForReceiptRescan(lifecycle: receiptImageLifecycle)
+                    viewModel.prepareForReceiptRescan()
                     presentsReceiptImport = true
                 }
             )
-        case .failed:
-            receiptFailureCard
+        case let .failed(failure):
+            receiptFailureCard(failure)
         }
     }
 
@@ -1322,27 +1308,29 @@ struct AddExpenseView: View {
         .accessibilityIdentifier("expense.receiptImport")
     }
 
-    private var receiptFailureCard: some View {
+    private func receiptFailureCard(_ failure: ReceiptImportFailure) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("receipt.failure.inline.title")
+            Text(LocalizedStringKey(failure.titleKey))
                 .font(.headline)
                 .foregroundStyle(theme.attentionText)
-            Text("receipt.failure.inline.detail")
+            Text(LocalizedStringKey(failure.detailKey))
                 .font(.subheadline)
                 .foregroundStyle(theme.inkSecondary)
 
             HStack(spacing: 10) {
-                Button("receipt.failure.retake") {
-                    viewModel.prepareForReceiptRescan(lifecycle: receiptImageLifecycle)
-                    presentsReceiptImport = true
-                }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(theme.ink)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(theme.surface, in: RoundedRectangle(cornerRadius: 14))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(theme.hairlineStrong, lineWidth: 1)
+                if failure.allowsCaptureRetry {
+                    Button("receipt.failure.retake") {
+                        viewModel.prepareForReceiptRescan()
+                        presentsReceiptImport = true
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(theme.ink)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(theme.surface, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(theme.hairlineStrong, lineWidth: 1)
+                    }
                 }
 
                 Button("receipt.failure.manual") {
@@ -1496,11 +1484,11 @@ struct AddExpenseView: View {
                 .foregroundStyle(theme.ink)
             HStack(spacing: 8) {
                 dateButton("expense.date.today", selected: calendar.isDateInToday(viewModel.spentAt)) {
-                    viewModel.spentAt = Date()
+                    viewModel.updateSpentAtFromUser(Date())
                 }
                 dateButton("expense.date.yesterday", selected: calendar.isDateInYesterday(viewModel.spentAt)) {
                     if let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) {
-                        viewModel.spentAt = yesterday
+                        viewModel.updateSpentAtFromUser(yesterday)
                     }
                 }
                 Button {
@@ -1544,13 +1532,13 @@ struct AddExpenseView: View {
             Text("expense.optional")
                 .font(.headline)
                 .foregroundStyle(theme.ink)
-            TextField("expense.merchant", text: $viewModel.merchantName)
+            TextField("expense.merchant", text: merchantNameUserBinding)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("expense.merchant")
             if !viewModel.merchantSuggestions.isEmpty {
                 Menu("expense.merchant.suggestions") {
                     ForEach(viewModel.merchantSuggestions, id: \.self) { merchant in
-                        Button(merchant) { viewModel.merchantName = merchant }
+                        Button(merchant) { viewModel.updateMerchantNameFromUser(merchant) }
                     }
                 }
             }
@@ -1629,7 +1617,7 @@ struct AddExpenseView: View {
 
     private func submit() {
         if viewModel.receiptRecognitionPhase == .recognizing {
-            viewModel.cancelReceiptRecognition(lifecycle: receiptImageLifecycle)
+            viewModel.cancelReceiptRecognition()
         }
         Task {
             let result = await viewModel.submit(

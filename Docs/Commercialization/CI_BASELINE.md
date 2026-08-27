@@ -1439,3 +1439,25 @@ the strict 10,000-row Dashboard wall-clock stage, 514 unit-test results across 3
 tests, and every selected coverage threshold. The result summary contains 531 total tests, 520
 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains the minimum selected
 coverage result at 87.60% against 85%. Independent review, hosted CI, and merge remain open.
+
+### C4C-05 independent-review remediation focused evidence — 2026-08-27
+
+Final Xcode 26.6 `build-for-testing` compiles the MindBudget, MindBudgetTests, and MindBudgetUITests
+targets after DEC-COM-054. The focused simulator command under Xcode 27 beta 6 on iPhone 17 Pro,
+iOS 26.5, executes `ReceiptImportIntegrationTests` and `ReceiptImageLifecycleTests`. Result bundle
+`/private/tmp/MindBudget-C4C05-ReviewFix-Focused2.xcresult` passes 22/22 tests with zero failures and
+zero skips.
+
+This exact run proves that the production recognition path remains empty before explicit Save,
+rejected/missing fields cannot overwrite user input, edit-then-return-to-starting-value protects
+amount/merchant/date, product/Pro acquisition gates keep truthful typed failures, and stale
+artifact cleanup cannot delete a newer generation. A Designed-for-iPhone-on-Mac attempt was stopped
+before test execution by a provisioning-profile mismatch and is not counted.
+
+The exact remediated source then passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-ReviewFix-Final.xcresult`: every static contract, Release
+compilation, the strict 10,000-row Dashboard wall-clock stage, 522 unit-test results across 31
+suites, all 17 UI tests, and every selected coverage threshold passed. The result-bundle metrics
+report 539 logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed;
+CSVExporter remains the minimum selected coverage result at 87.60% against 85%. Independent
+rereview, hosted CI, and merge remain open.

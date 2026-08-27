@@ -112,9 +112,15 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
   around the existing expense form, preserving edits and the same explicit Save boundary without
   adding broad Photos access, long-receipt stitching, persistence, or egress. Independent review,
   hosted CI, and merge remain open.
-  The exact redesigned source passes 514 unit results, all 17 UI tests, Release, the strict
-  Dashboard benchmark, every static contract, and coverage; its result summary reports 531 total,
-  520 passed, 11 explicit skips, and zero failed.
+  DEC-COM-054 closes the review findings against the actual production path. The dead unconditional
+  prefill seam is gone; amount, merchant, and date use explicit per-generation edit ownership;
+  typed failures preserve truthful titles/details and recovery actions; inactive scenes hide the
+  receipt surface without destroying work; background still discards; and artifact-scoped cleanup
+  prevents a canceled generation from deleting its replacement. A Save with no recognized field
+  contribution correctly remains `.manual` provenance.
+  The exact review-remediated source passes 522 unit results, all 17 UI tests, Release, the strict
+  Dashboard benchmark, every static contract, and coverage; its result summary reports 539 total,
+  528 passed, 11 explicit skips, and zero failed.
   The
   audit confirms that V1–V4 authoritative amounts
   already use `Int64` minor units, so no destructive amount rewrite is justified. The proven delta
@@ -443,6 +449,9 @@ DataScanner capture, PHPicker selection, local OCR review, cancel-without-write,
 evidence are recorded as real iOS 26.6.1 evidence, while the uncertain paper-invoice total remains
 a non-pass for automatic amount recognition. DEC-COM-053 adds no new physical alignment evidence:
 the white frame is visual guidance only, and no live alignment or automatic-crop claim exists.
+DEC-COM-054 additionally makes the real production prefill path the tested boundary, protects all
+three editable fields by edit ownership rather than value equality, preserves typed failure
+guidance, masks inactive work, discards only on background, and scopes late cleanup by artifact ID.
 Do not mark C4C-05 or COM-C4C Done before reviewed green CI and merge, and do not enter COM-C5
 automatically.
 Production, Archive/TestFlight/App Store actions, remote receipt processing, and receipt sync remain

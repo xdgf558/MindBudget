@@ -89,3 +89,5 @@ remain open, and every Production/distribution/release action remains blocked. D
 only the local capture/review presentation: DataScanner remains bounded, the generic PHPicker icon
 does not request a recent-photo thumbnail or broad library access, recognition returns to the local
 expense form, and no live-frame detector, receipt content channel, telemetry, or endpoint is added.
+DEC-COM-054 changes only local ownership, failure presentation, scene handling, and artifact-scoped
+cleanup; it adds no destination, payload, identifier, log content, telemetry, or remote model.

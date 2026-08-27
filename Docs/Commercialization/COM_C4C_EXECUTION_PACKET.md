@@ -135,9 +135,10 @@ persistence.
   caller cancellation cancels the older processing task; a generation check prevents late work
   from committing. Only the bounded prepared JPEG reaches the fixed temporary directory—never the
   source bytes. The directory is excluded from backup and uses complete file protection.
-- Startup removes crash-orphaned bytes once. Cancel, background/inactive transition, memory
-  warning, Delete All, downstream release, and AppSession teardown share the same idempotent
-  cleanup boundary. SwiftUI task recreation cannot clear a later active artifact.
+- Startup removes crash-orphaned bytes once. Cancel, a true background transition, memory warning,
+  Delete All, downstream release, and AppSession teardown share the same idempotent cleanup
+  boundary. An inactive transition masks the receipt surface but preserves capture/recognition work.
+  SwiftUI task recreation and late artifact-scoped cleanup cannot clear a newer active artifact.
 
 ### Verification and closeout
 
@@ -296,6 +297,10 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
   still ephemeral. Only the form's existing explicit Save action creates the `Expense`, preserving
   existing exact-money, budget, duplicate-warning, reminder, and validation paths. Receipt-created
   expenses carry only the non-content provenance value `receiptImport`.
+- The production application path records edit ownership independently for amount, merchant, and
+  date. Once edited during a recognition generation, a field remains user-owned even if its value
+  is changed back to the starting value. Rejected/missing suggestions never overwrite input. If no
+  accepted receipt field contributes to the form, a later explicit Save remains `.manual`.
 - The accepted capture redesign uses option A from the owner handoff: the bounded DataScanner
   remains the source, system guidance is disabled, and a custom black overlay supplies one
   dominant shutter, local-only disclosure, flash control, one-image PHPicker entry, and a preview
@@ -305,6 +310,10 @@ matrix, zero-leak privacy evidence, accuracy gates, and 20-image resource stabil
   shows inline progress, review, and fail-closed recovery; a canceled or backgrounded generation
   cannot apply a late result. Manual amount entry reopens Save, while the action itself cancels
   outstanding recognition before using the existing write path.
+- Acquisition gates and processing failures retain typed, localized title/detail and recovery
+  behavior. Product-disabled and requires-Pro states never impersonate local-storage failure;
+  storage failure does not offer a useless retake. Inactive scenes show a privacy shield without
+  discarding work, while backgrounding cancels and removes the matching prepared artifact.
 - Broad Photos access remains forbidden, so the camera shows a generic PHPicker icon rather than a
   recent-library thumbnail. Long-receipt stitching and review-image expansion remain unimplemented
   because their interaction designs are not accepted; the disabled slot states that limit.

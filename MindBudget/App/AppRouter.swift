@@ -906,7 +906,10 @@ struct AppRouter: View {
                         localizedReason: appLockReason
                     )
                 }
-            case .inactive, .background:
+            case .inactive:
+                session.cancelScenePublicConfigurationRefresh()
+                session.lockAppIfNeeded(settings: settings)
+            case .background:
                 session.cancelScenePublicConfigurationRefresh()
                 session.lockAppIfNeeded(settings: settings)
                 Task { await session.discardReceiptImageWork() }

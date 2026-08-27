@@ -428,6 +428,18 @@ for c4c05_source_anchor in \
   'fixedReceiptMatrixCoversAtLeastSixtyExactReceiptsAndNonReceipts' \
   'twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact' \
   'recognizedFieldsRemainEphemeralUntilTheExistingSaveAction' \
+  'applyRecognizedReceiptRespectingUserEdits' \
+  'editedFieldsDuringReceiptRecognition' \
+  'editedFieldsStayUserOwnedEvenWhenChangedBackToTheirStartingValues' \
+  'case let .failed(failure):' \
+  'case .productDisabled:' \
+  '.failed(.productDisabled)' \
+  'case .requiresPro:' \
+  '.failed(.requiresPro)' \
+  'discardTemporaryImage(matching artifactID: UUID)' \
+  'staleArtifactCleanupCannotDeleteANewerGeneration' \
+  'phase == .background' \
+  'ReceiptInactivePrivacyShield' \
   'fullResolutionIPhoneCaptureIsDownsampledToThePreparedPixelLimit' \
   'pipelineClampsOnlyMinorVisionGeometryDrift'; do
   if ! grep -RFq "${c4c05_source_anchor}" \
@@ -441,13 +453,23 @@ for c4c05_source_anchor in \
   fi
 done
 
+if grep -Fq 'func applyReceiptImport(' \
+    MindBudget/Features/AddExpense/AddExpenseView.swift; then
+  echo "C4C-05 must not retain a dead unconditional receipt-prefill API beside the production edit-preserving path" >&2
+  exit 1
+fi
+
 for c4c05_contract_anchor in \
   'C4C-05 implementation/evaluation' \
   'DEC-COM-051' \
   'DEC-COM-052' \
   'DEC-COM-053' \
+  'DEC-COM-054' \
   'recommended option A' \
   'existing explicit Save action' \
+  'explicit per-generation edit ownership' \
+  'inactive scenes mask receipt work while only backgrounding discards it' \
+  'artifact-ID cleanup' \
   '60 exact supported receipts' \
   'Physical iOS 26.6.1 DataScanner/PHPicker/OCR'; do
   if ! grep -Fq "${c4c05_contract_anchor}" \

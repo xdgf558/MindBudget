@@ -30,7 +30,7 @@ struct ReceiptImportIntegrationTests {
         #expect(viewModel.receiptRecognitionPhase == .recognizing)
         #expect(viewModel.blocksSaveForReceiptRecognition)
 
-        viewModel.cancelReceiptRecognition(lifecycle: lifecycle)
+        viewModel.cancelReceiptRecognition()
         await processor.release()
         await Task.yield()
 
@@ -76,7 +76,7 @@ struct ReceiptImportIntegrationTests {
             Issue.record("The completed generation should enter inline review")
             return
         }
-        viewModel.cancelReceiptRecognition(lifecycle: lifecycle)
+        viewModel.cancelReceiptRecognition()
     }
 
     @Test @MainActor
@@ -112,7 +112,7 @@ struct ReceiptImportIntegrationTests {
     @Test @MainActor
     func recognizedFieldsRemainEphemeralUntilTheExistingSaveAction() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
-        let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
+        let lifecycle = StubReceiptImageLifecycle()
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC")!
         let duplicateID = UUID()
@@ -132,12 +132,25 @@ struct ReceiptImportIntegrationTests {
             duplicateResolution: .exactMatches([duplicateID]),
             execution: .deterministic
         )
+        let processor = GatedReceiptLocalProcessor(result: result)
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: TestFixtures.now,
+            receiptProcessor: processor
+        )
 
-        viewModel.applyReceiptImport(
-            result,
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1]), source: .camera),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
             locale: Locale(identifier: "en_US"),
             calendar: calendar
         )
+        await processor.waitUntilEntered()
+        await processor.release()
+        await waitForRecognitionToFinish(viewModel)
 
         #expect(try await actor.fetchExpenseSummaries().isEmpty)
         #expect(viewModel.amountText == "12.34")
@@ -168,10 +181,9 @@ struct ReceiptImportIntegrationTests {
     }
 
     @Test @MainActor
-    func rejectedOrMissingReceiptFieldsNeverOverwriteUserInput() {
-        let viewModel = ExpenseFormViewModel(existingExpense: nil, now: TestFixtures.now)
-        viewModel.amountText = "9.99"
-        viewModel.merchantName = "User Entry"
+    func rejectedOrMissingReceiptFieldsNeverOverwriteUserInput() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let lifecycle = StubReceiptImageLifecycle()
         let result = ReceiptStructuredExtractionResult(
             fields: ReceiptCoreFields(
                 merchantName: .rejected(.invalidMerchant),
@@ -182,16 +194,120 @@ struct ReceiptImportIntegrationTests {
             duplicateResolution: .notEvaluable,
             execution: .deterministic
         )
+        let processor = GatedReceiptLocalProcessor(result: result)
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: TestFixtures.now,
+            receiptProcessor: processor
+        )
+        viewModel.amountText = "9.99"
+        viewModel.merchantName = "User Entry"
 
-        viewModel.applyReceiptImport(
-            result,
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1]), source: .photoPicker),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
             locale: Locale(identifier: "en_US"),
             calendar: TestFixtures.utcCalendar
         )
+        await processor.waitUntilEntered()
+        await processor.release()
+        await waitForRecognitionToFinish(viewModel)
 
         #expect(viewModel.amountText == "9.99")
         #expect(viewModel.merchantName == "User Entry")
         #expect(!viewModel.hasImportedReceipt)
+        guard case .review = viewModel.receiptRecognitionPhase else {
+            Issue.record("The production recognition path should expose rejected fields for review")
+            return
+        }
+    }
+
+    @Test @MainActor
+    func editedFieldsStayUserOwnedEvenWhenChangedBackToTheirStartingValues() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        let processor = GatedReceiptLocalProcessor(result: acceptedReceiptResult())
+        let lifecycle = StubReceiptImageLifecycle()
+        let originalDate = try #require(
+            TestFixtures.utcCalendar.date(
+                from: DateComponents(year: 2026, month: 8, day: 20, hour: 12)
+            )
+        )
+        let changedDate = try #require(
+            TestFixtures.utcCalendar.date(
+                from: DateComponents(year: 2026, month: 8, day: 21, hour: 12)
+            )
+        )
+        let viewModel = ExpenseFormViewModel(
+            existingExpense: nil,
+            now: originalDate,
+            receiptProcessor: processor
+        )
+        viewModel.amountText = "5"
+        viewModel.merchantName = "Original Merchant"
+
+        viewModel.startReceiptRecognition(
+            ReceiptImageInput(data: Data([1]), source: .camera),
+            dataActor: actor,
+            lifecycle: lifecycle,
+            baseline: .deterministic,
+            currencyCode: "USD",
+            locale: Locale(identifier: "en_US"),
+            calendar: TestFixtures.utcCalendar
+        )
+        await processor.waitUntilEntered()
+
+        viewModel.deleteKeypadCharacter()
+        viewModel.enterKeypad("9", decimalSeparator: ".")
+        viewModel.deleteKeypadCharacter()
+        viewModel.enterKeypad("5", decimalSeparator: ".")
+        viewModel.updateMerchantNameFromUser("Changed Merchant")
+        viewModel.updateMerchantNameFromUser("Original Merchant")
+        viewModel.updateSpentAtFromUser(changedDate)
+        viewModel.updateSpentAtFromUser(originalDate)
+
+        #expect(!viewModel.blocksSaveForReceiptRecognition)
+        await processor.release()
+        await waitForRecognitionToFinish(viewModel)
+
+        #expect(viewModel.amountText == "5")
+        #expect(viewModel.merchantName == "Original Merchant")
+        #expect(viewModel.spentAt == originalDate)
+        #expect(!viewModel.hasImportedReceipt)
+
+        let saved = await viewModel.save(
+            dataActor: actor,
+            currencyCode: "USD",
+            bucket: .discretionary,
+            locale: Locale(identifier: "en_US"),
+            now: originalDate,
+            timeZone: TestFixtures.utcCalendar.timeZone,
+            cycleStartDay: 1,
+            calendar: TestFixtures.utcCalendar
+        )
+        let stored = try #require(try await actor.fetchExpenseSummaries().first)
+
+        #expect(saved)
+        #expect(stored.source == .manual)
+    }
+
+    @Test @MainActor
+    func acquisitionGateFailuresRemainTruthfulAndRecoverySpecific() {
+        #expect(
+            ReceiptImportViewModel.destination(for: .productDisabled)
+                == .failed(.productDisabled)
+        )
+        #expect(
+            ReceiptImportViewModel.destination(for: .requiresPro)
+                == .failed(.requiresPro)
+        )
+        #expect(ReceiptImportFailure.requiresPro.titleKey == "receipt.error.requiresPro.title")
+        #expect(ReceiptImportFailure.requiresPro.detailKey == "receipt.error.requiresPro.detail")
+        #expect(!ReceiptImportFailure.requiresPro.allowsCaptureRetry)
+        #expect(!ReceiptImportFailure.localDataUnavailable.allowsCaptureRetry)
+        #expect(ReceiptImportFailure.unreadableImage.allowsCaptureRetry)
     }
 
     @Test
@@ -374,6 +490,14 @@ struct ReceiptImportIntegrationTests {
             execution: .deterministic
         )
     }
+
+    @MainActor
+    private func waitForRecognitionToFinish(_ viewModel: ExpenseFormViewModel) async {
+        for _ in 0..<200 where viewModel.receiptRecognitionPhase == .recognizing {
+            await Task.yield()
+        }
+        #expect(viewModel.receiptRecognitionPhase != .recognizing)
+    }
 }
 
 private actor GatedReceiptLocalProcessor: ReceiptLocalProcessing {
@@ -428,6 +552,8 @@ private struct StubReceiptImageLifecycle: ReceiptImageLifecycleHandling {
         )
     }
 
+    func discardTemporaryImage(matching artifactID: UUID) async {}
+
     func discardTemporaryImage() async {}
 }
 
@@ -439,6 +565,8 @@ private struct FailingReceiptImageLifecycle: ReceiptImageLifecycleHandling {
     func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact {
         throw error
     }
+
+    func discardTemporaryImage(matching artifactID: UUID) async {}
 
     func discardTemporaryImage() async {}
 }

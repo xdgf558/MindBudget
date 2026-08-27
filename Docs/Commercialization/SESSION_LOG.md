@@ -2674,3 +2674,33 @@ tests, and every selected coverage threshold. The result summary contains 531 to
 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains the minimum selected
 coverage result at 87.60% against 85%. No reviewed merge, C4C-05 Done, Production, distribution,
 or release claim is made here.
+
+## 2026-08-27 — C4C-05 production-path review remediation
+
+PR #74 independent review exposed a real test-boundary defect: two central invariants were proved
+through an unreachable unconditional prefill helper, not the method invoked after local recognition.
+It also demonstrated that value equality loses user intent after edit-then-return-to-starting-value,
+and found collapsed failure reasons, access gates reported as storage faults, destructive inactive
+handling, and unscoped late temporary-image cleanup.
+
+DEC-COM-054 deletes the dead helper and makes the live generation the only tested application path.
+Amount, merchant, and date retain edit ownership for the entire generation. Failure presentation is
+typed and recovery-specific. Inactive scenes mask without cleanup, true background cancels and
+discards, and artifact identity prevents stale cleanup from deleting a replacement. The suggested
+change to record `receiptImport` when all accepted fields remain user-owned is rejected: provenance
+describes a recognized field contribution to the stored expense, so no contribution remains
+truthfully `.manual`.
+
+`xcodebuild build-for-testing` succeeds for the app, unit-test, and UI-test targets under final
+Xcode 26.6. The focused iOS 26.5 simulator bundle
+`/private/tmp/MindBudget-C4C05-ReviewFix-Focused2.xcresult` passes 22/22 tests across
+`ReceiptImportIntegrationTests` and `ReceiptImageLifecycleTests`, with no failure or skip. The prior
+Designed-for-iPhone-on-Mac test attempt stopped at provisioning and is excluded from evidence.
+The exact remediated source then passed `Scripts/validate.sh` at
+`/private/tmp/MindBudget-C4C05-ReviewFix-Final.xcresult`: every static contract, Release
+compilation, the strict 10,000-row Dashboard wall-clock stage, 522 unit-test results across 31
+suites, all 17 UI tests, and every selected coverage threshold passed. The bundle reports 539
+logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains
+the minimum selected coverage result at 87.60% against 85%. Independent rereview, hosted CI, and
+merge remain required; C4C-05/COM-C4C and both receipt Requirements remain In Progress, and
+Production/distribution remain blocked.

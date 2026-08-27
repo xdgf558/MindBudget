@@ -309,6 +309,7 @@ actor ReceiptTemporaryImageStore: ReceiptTemporaryImageStoring {
 protocol ReceiptImageLifecycleHandling: Sendable {
     func start() async
     func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact
+    func discardTemporaryImage(matching artifactID: UUID) async
     func discardTemporaryImage() async
 }
 
@@ -319,6 +320,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
     private var hasStarted = false
     private var generation = 0
     private var processingTask: Task<ReceiptPreparedImageBytes, Error>?
+    private var currentArtifactID: UUID?
 
     init(
         processor: any ReceiptImageProcessing = ReceiptImageProcessor(),
@@ -335,6 +337,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
     func start() async {
         guard !hasStarted else { return }
         hasStarted = true
+        currentArtifactID = nil
         await store.removeAll()
     }
 
@@ -343,6 +346,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
         generation += 1
         let acceptedGeneration = generation
         processingTask?.cancel()
+        currentArtifactID = nil
         await store.removeAll()
 
         let processor = processor
@@ -363,18 +367,30 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
             }
             let artifact = try await store.replace(with: prepared)
             guard acceptedGeneration == generation, !Task.isCancelled else {
-                await store.removeAll()
                 throw ReceiptImageLifecycleError.superseded
             }
+            currentArtifactID = artifact.id
             processingTask = nil
             return artifact
         } catch {
             if acceptedGeneration == generation {
                 processingTask = nil
+                currentArtifactID = nil
                 await store.removeAll()
             }
             throw error
         }
+    }
+
+    /// A completed recognition generation may clean up only the artifact it received. A late
+    /// cancellation or processor completion must never remove a newer generation's image.
+    func discardTemporaryImage(matching artifactID: UUID) async {
+        guard currentArtifactID == artifactID else { return }
+        generation += 1
+        processingTask?.cancel()
+        processingTask = nil
+        currentArtifactID = nil
+        await store.removeAll()
     }
 
     /// Cancellation, backgrounding, memory pressure, and successful downstream handoff all use
@@ -383,6 +399,7 @@ actor ReceiptImageLifecycle: ReceiptImageLifecycleHandling {
         generation += 1
         processingTask?.cancel()
         processingTask = nil
+        currentArtifactID = nil
         await store.removeAll()
     }
 }
@@ -393,6 +410,8 @@ struct NoopReceiptImageLifecycle: ReceiptImageLifecycleHandling, Sendable {
     func prepare(_ input: ReceiptImageInput) async throws -> ReceiptTemporaryImageArtifact {
         throw ReceiptImageLifecycleError.superseded
     }
+
+    func discardTemporaryImage(matching artifactID: UUID) async {}
 
     func discardTemporaryImage() async {}
 }
