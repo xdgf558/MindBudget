@@ -430,8 +430,14 @@ for c4c05_source_anchor in \
   'recognizedFieldsRemainEphemeralUntilTheExistingSaveAction' \
   'applyRecognizedReceiptRespectingUserEdits' \
   'editedFieldsDuringReceiptRecognition' \
+  '@Published private(set) var amountText' \
+  '@Published private(set) var spentAt' \
+  '@Published private(set) var merchantName' \
+  'updateAmountTextFromUser' \
   'editedFieldsStayUserOwnedEvenWhenChangedBackToTheirStartingValues' \
   'case let .failed(failure):' \
+  'receipt.failure.unreadable.title' \
+  'receipt.failure.unreadable.detail' \
   'case .productDisabled:' \
   '.failed(.productDisabled)' \
   'case .requiresPro:' \
@@ -456,6 +462,19 @@ done
 if grep -Fq 'func applyReceiptImport(' \
     MindBudget/Features/AddExpense/AddExpenseView.swift; then
   echo "C4C-05 must not retain a dead unconditional receipt-prefill API beside the production edit-preserving path" >&2
+  exit 1
+fi
+
+if grep -Fq 'receipt.error.unreadable' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings || \
+   grep -Fq 'receipt.failure.inline.title' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings || \
+   grep -Fq 'receipt.failure.inline.detail' \
+    MindBudget/Features/AddExpense/ReceiptImportView.swift \
+    MindBudget/Resources/Localizable.xcstrings; then
+  echo "C4C-05 unreadable-image copy must use the shared non-surface-specific localized keys" >&2
   exit 1
 fi
 

@@ -1461,3 +1461,13 @@ suites, all 17 UI tests, and every selected coverage threshold passed. The resul
 report 539 logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed;
 CSVExporter remains the minimum selected coverage result at 87.60% against 85%. Independent
 rereview, hosted CI, and merge remain open.
+
+### C4C-05 P3 review-maintenance evidence — 2026-08-27
+
+The bounded recognition wait, surface-neutral unreadable-image localization keys, and
+compiler-enforced receipt-field mutation boundary compile and pass 76/76 focused tests across
+`ReceiptImportIntegrationTests`, `Phase3FeatureTests`, `Phase4FeatureTests`, and
+`Phase5FeatureTests` at `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. The preceding
+restricted attempt could not connect to CoreSimulator and is an environmental non-pass. No product,
+persistence, egress, entitlement, or release boundary changed; hosted CI on the new exact head
+remains required.

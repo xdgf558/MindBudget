@@ -14,8 +14,8 @@ struct ReceiptImportIntegrationTests {
             now: TestFixtures.now,
             receiptProcessor: processor
         )
-        viewModel.amountText = "7.00"
-        viewModel.merchantName = "User Value"
+        viewModel.updateAmountTextFromUser("7.00")
+        viewModel.updateMerchantNameFromUser("User Value")
 
         viewModel.startReceiptRecognition(
             ReceiptImageInput(data: Data([1, 2, 3]), source: .camera),
@@ -200,8 +200,8 @@ struct ReceiptImportIntegrationTests {
             now: TestFixtures.now,
             receiptProcessor: processor
         )
-        viewModel.amountText = "9.99"
-        viewModel.merchantName = "User Entry"
+        viewModel.updateAmountTextFromUser("9.99")
+        viewModel.updateMerchantNameFromUser("User Entry")
 
         viewModel.startReceiptRecognition(
             ReceiptImageInput(data: Data([1]), source: .photoPicker),
@@ -245,8 +245,8 @@ struct ReceiptImportIntegrationTests {
             now: originalDate,
             receiptProcessor: processor
         )
-        viewModel.amountText = "5"
-        viewModel.merchantName = "Original Merchant"
+        viewModel.updateAmountTextFromUser("5")
+        viewModel.updateMerchantNameFromUser("Original Merchant")
 
         viewModel.startReceiptRecognition(
             ReceiptImageInput(data: Data([1]), source: .camera),
@@ -493,10 +493,13 @@ struct ReceiptImportIntegrationTests {
 
     @MainActor
     private func waitForRecognitionToFinish(_ viewModel: ExpenseFormViewModel) async {
-        for _ in 0..<200 where viewModel.receiptRecognitionPhase == .recognizing {
+        for _ in 0..<200 {
+            guard viewModel.receiptRecognitionPhase == .recognizing else { return }
             await Task.yield()
         }
-        #expect(viewModel.receiptRecognitionPhase != .recognizing)
+        Issue.record(
+            "Receipt recognition did not leave the recognizing phase within the bounded wait"
+        )
     }
 }
 

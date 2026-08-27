@@ -78,10 +78,10 @@ struct ReminderEventWriter: Sendable {
 
 @MainActor
 final class ExpenseFormViewModel: ObservableObject {
-    @Published var amountText = ""
+    @Published private(set) var amountText = ""
     @Published var category: ExpenseCategory
-    @Published var spentAt: Date
-    @Published var merchantName = ""
+    @Published private(set) var spentAt: Date
+    @Published private(set) var merchantName = ""
     @Published var note = ""
     @Published var isPlanned: Bool
     @Published var isRecurring: Bool
@@ -182,6 +182,11 @@ final class ExpenseFormViewModel: ObservableObject {
         guard !amountText.isEmpty else { return }
         markReceiptFieldEdited(.amount)
         amountText.removeLast()
+    }
+
+    func updateAmountTextFromUser(_ value: String) {
+        markReceiptFieldEdited(.amount)
+        amountText = value
     }
 
     func updateMerchantNameFromUser(_ value: String) {

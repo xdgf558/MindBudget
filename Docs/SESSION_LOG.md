@@ -5835,3 +5835,18 @@ suites, all 17 UI tests, and every selected coverage threshold passed. The bundl
 logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed; CSVExporter remains
 the minimum selected coverage result at 87.60% against 85%. Independent rereview, hosted CI, and
 merge remain open.
+
+## 2026-08-27 — Tighten C4C-05 review-maintenance seams
+
+The independent rereview raised three nonblocking maintainability observations. The bounded test
+wait now exits as soon as recognition completes and records an explicit timeout instead of using a
+`for ... where` filter. The unused `receipt.error.unreadable` catalog entry is removed, and the
+unreadable-image title/detail use shared `receipt.failure.unreadable.*` keys rather than keys named
+for only the inline surface. `amountText`, `merchantName`, and `spentAt` are now compiler-enforced
+`private(set)` values; tests and UI mutations use the same user-input methods that own edit tracking.
+
+The first focused attempt could not connect to CoreSimulator in the restricted environment and is
+an environmental non-pass. The unrestricted rerun passes 76/76 tests across
+`ReceiptImportIntegrationTests`, `Phase3FeatureTests`, `Phase4FeatureTests`, and
+`Phase5FeatureTests` at `/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. This maintenance
+does not change the C4C-05 scope, provenance decision, persistence boundary, or release authority.

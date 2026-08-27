@@ -2704,3 +2704,17 @@ logical results, 528 passed, 11 explicit opt-in/runtime skips, and zero failed; 
 the minimum selected coverage result at 87.60% against 85%. Independent rereview, hosted CI, and
 merge remain required; C4C-05/COM-C4C and both receipt Requirements remain In Progress, and
 Production/distribution remain blocked.
+
+## 2026-08-27 — C4C-05 P3 review-maintenance follow-up
+
+The rereview's three P3 observations are closed without changing product scope. The recognition
+test helper now returns immediately on completion and reports a bounded timeout explicitly. The
+orphaned `receipt.error.unreadable` key is removed; both full-screen and inline presentation share
+surface-neutral `receipt.failure.unreadable.*` keys. The three receipt-prefill fields are
+`private(set)`, with amount, merchant, and date user-input methods forming the compiler-enforced
+mutation boundary for edit ownership.
+
+A restricted CoreSimulator attempt failed before execution and is excluded. The unrestricted iOS
+26.5 simulator rerun passes 76/76 tests across the receipt integration and Phase 3/4/5 suites at
+`/private/tmp/MindBudget-C4C05-P3Fix-Focused2.xcresult`. C4C-05/COM-C4C remain In Progress pending
+rereview, hosted CI, and merge; Production/distribution remain blocked.
