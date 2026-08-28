@@ -1528,6 +1528,7 @@ for c502_review_remediation_anchor in \
   'DEC-COM-061' \
   'UTC-day expiration bucket' \
   'User-Agent: MindBudget' \
+  'it predates DEC-COM-061 and is not current-source probe evidence' \
   'repeats those bounded transactions until no expired batch remains' \
   'C5-04 must make them terminal/non-retrying'; do
   if ! grep -Fq "${c502_review_remediation_anchor}" \

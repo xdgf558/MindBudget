@@ -1862,9 +1862,10 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057/058/059/060/061
 - Context: Independent review approved exact remediation head `72abf4b`, GitHub Actions run
   `33176551566` completed successfully on that head, and PR #78 merged it to `main` as `4715054`.
-  The review confirmed both P1, both P2, and both P3 findings were closed with targeted tests; the
-  remaining observability and future physical confirmation observations are nonblocking and belong
-  to later activation/operations work.
+  The review confirmed both P1, both P2, and two of three P3 findings were closed with targeted
+  tests. The fixed-endpoint 404/405/421 terminal-failure P3 remains explicitly deferred to C5-04;
+  the remaining observability and future physical confirmation observations are nonblocking and
+  belong to later activation/operations work.
 - Decision: Mark C5-02 Done on the reviewed source, hosted run, and merge. Preserve
   `UnavailableTelemetryTransport` as the production default with zero client construction and
   capture calls. Do not infer that the DEC-COM-061 remediation was redeployed or live-probed: the

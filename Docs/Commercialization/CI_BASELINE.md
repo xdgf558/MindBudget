@@ -1674,11 +1674,12 @@ probes were explicit skips.
 This closeout marks C5-02 Done without claiming a remediated Development redeploy/probe, production
 client construction, capture, customer telemetry egress, App Privacy change, Staging/Production,
 distribution, or release. The recorded Development version remains the earlier candidate. C5-03
-awaits explicit owner entry and C5-04 remains blocked by C5-03. On the documentation closeout
-branch, every static contract, Release compilation, the isolated strict 10,000-row Dashboard
-benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold
-passed. Four opt-in physical CloudKit probes were explicit skips; `CSVExporter.swift` was the
-minimum selected result at 87.60% against the 85% floor. The validator deleted
+awaits explicit owner entry and C5-04 remains blocked by C5-03. On Xcode 27.0 beta 6 (`27A5252f`)
+with the iOS 26.5 iPhone 17 Pro simulator, the documentation closeout branch passed every static
+contract, Release compilation, the isolated strict 10,000-row Dashboard benchmark, 542 unit tests
+across 32 suites, all 17 UI tests, and every selected coverage threshold. Four opt-in physical
+CloudKit probes were explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60%
+against the 85% floor. The validator deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.Bj3fdn/MindBudget.xcresult`
 after success, so the path is an execution pointer rather than a durable artifact. Independent
 review, green hosted CI, and merge remain required for this documentation closeout.

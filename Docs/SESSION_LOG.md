@@ -6033,11 +6033,11 @@ is enabled.
 
 ## 2026-08-28 — Close C5-02 after reviewed PR #78 merge
 
-Independent review approved exact remediation head `72abf4b`: both P1, both P2, and both P3
-findings were closed with targeted tests, while the remaining observability and future physical
-confirmation observations were explicitly nonblocking. GitHub Actions run `33176551566` completed
-successfully on that exact head, and PR #78 merged to `main` as `4715054`. DEC-COM-062 therefore
-marks C5-02 Done.
+Independent review approved exact remediation head `72abf4b`: both P1, both P2, and two of three
+P3 findings were closed with targeted tests. The fixed-endpoint 404/405/421 terminal-failure P3 is
+deferred to C5-04, while the remaining observability and future physical confirmation observations
+were explicitly nonblocking. GitHub Actions run `33176551566` completed successfully on that exact
+head, and PR #78 merged to `main` as `4715054`. DEC-COM-062 therefore marks C5-02 Done.
 
 This closeout does not claim a post-remediation Development deployment or probe. The recorded
 Development Worker remains the earlier candidate; Staging remains unmigrated/undeployed and
@@ -6057,3 +6057,11 @@ floor. The validator removed its temporary
 `mindbudget-validation.Bj3fdn/MindBudget.xcresult` bundle after success, so the name is an
 execution pointer rather than a durable artifact. Independent review, green hosted CI, and merge
 remain required for this documentation closeout.
+
+PR #79 independent review identified that the egress matrix placed current post-DEC-COM-061
+retention behavior beside the earlier Development probe without a time boundary, and that the
+closeout record counted all three P3 findings as closed. The matrix now identifies Worker
+`1c162a57-8789-4f7f-9fec-f2c484e9f4f2` as pre-remediation, non-current-source probe evidence; the
+decision and session records state that two P3 findings closed while fixed 404/405/421 terminal
+handling remains deferred to C5-04. The CI baseline now records Xcode 27.0 beta 6 (`27A5252f`) on
+the iOS 26.5 iPhone 17 Pro simulator. No runtime or deployment state changed.

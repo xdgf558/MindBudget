@@ -2923,9 +2923,10 @@ release remain blocked.
 ## 2026-08-28 — C5-02 reviewed-merge documentation closeout
 
 Independent review approved exact PR #78 remediation head `72abf4b` and confirmed both P1, both P2,
-and both P3 findings were closed with targeted regressions. GitHub Actions run `33176551566`
-completed successfully on that head, and PR #78 merged it to `main` as `4715054`. DEC-COM-062
-closes only C5-02 on this evidence.
+and two of three P3 findings were closed with targeted regressions. The fixed-endpoint 404/405/421
+terminal-failure P3 remains deferred to C5-04. GitHub Actions run `33176551566` completed
+successfully on that head, and PR #78 merged it to `main` as `4715054`. DEC-COM-062 closes only
+C5-02 on this evidence.
 
 The closeout preserves the dormant boundary. `UnavailableTelemetryTransport` remains the default,
 no production `TelemetryClient` is constructed, no capture call exists, and customer telemetry
@@ -2942,3 +2943,10 @@ Four opt-in physical CloudKit probes were explicit skips; `CSVExporter.swift` wa
 selected result at 87.60% against the 85% floor. The validator deleted its temporary
 `mindbudget-validation.Bj3fdn/MindBudget.xcresult` bundle after success. Independent review, green
 hosted CI, and merge remain required for this documentation closeout.
+
+PR #79 independent review corrected two evidence-boundary details. The network-egress matrix now
+labels the 0-event/0-identity/2-tombstone Development probe as evidence from pre-remediation Worker
+`1c162a57-8789-4f7f-9fec-f2c484e9f4f2`, not a probe of DEC-COM-061 source. DEC-COM-062 and both
+session tracks now record two closed P3 findings and the third, fixed 404/405/421 terminal handling,
+as deferred to C5-04. CI_BASELINE now records Xcode 27.0 beta 6 (`27A5252f`) and the iOS 26.5
+iPhone 17 Pro simulator for the closeout validation. No runtime or deployment action occurred.
