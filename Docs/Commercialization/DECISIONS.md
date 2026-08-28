@@ -1792,3 +1792,66 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   deployed channel; describing local proof retention as server TTL/deletion evidence; adding a
   provisional host, call site, customer control, or App Privacy answer in a closeout; marking
   COM-C5 Done; or using the reviewed merge as Production, distribution, or release authority.
+
+## DEC-COM-060 — Enter C5-02 with a deletion-safe first-party receiver
+
+- Status/date: **Accepted owner-entry and C5-02 implementation contract — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057/058/059
+- Context: C5-01 is reviewed and merged, but its transport is deliberately unavailable. Before any
+  endpoint can become reachable, C5-02 must make retries idempotent, make late upload unable to
+  resurrect deleted data, prove a real maximum server retention window, isolate environments, and
+  bound anonymous abuse without introducing a customer/content identifier or persisting the
+  complete-delete request's cross-generation association.
+- Decision: Accept the three exact `mindbudget-telemetry[-dev|-staging].yehao1105.workers.dev`
+  hosts with anonymous `POST /v1/events` and proof-authenticated `POST /v1/delete`. Use distinct
+  Worker/D1/rate-limit resources per environment. Enforce exact bounded JSON and a closed event
+  vocabulary; store only independent typed event rows, one handle per pseudonym, and independent
+  per-generation delete tombstones. Event UUID conflicts with different facts reject atomically;
+  exact retries do not duplicate. Delete validates every proof before any mutation, records no
+  request/group association, is idempotent, and makes late matching uploads accepted-but-discarded.
+  Expire rows and tombstones within 90 x 24 UTC hours from server acceptance using indexed bounded
+  Cron deletion. Disable invocation logs; persist only sampled closed operational reason codes.
+  Opt-out best-effort cancels the active upload but does not claim to revoke an already accepted
+  request. Add the fixed iOS adapter and direct tests without constructing it in the app; keep the
+  unavailable transport default and zero capture call sites. Deploy/probe Development only.
+- Consequences: C5-02 can prove receiver schema, environment separation, TTL mechanics, deletion,
+  retry, cancellation, and cost/monitoring boundaries without changing customer collection or App
+  Privacy answers. C5-03 metrics and C5-04 control/disclosure remain blocked. Staging/Production
+  deployment, final traffic, distribution, and release remain unauthorized. Development alone may
+  own a migrated D1 and deployed Worker; an isolated Staging D1 may exist without migration or
+  deployment, while the Production binding stays an invalid placeholder until a separately
+  authorized resource-provisioning gate.
+- Alternatives rejected: A shared database or wildcard host; arbitrary dictionaries/free text;
+  storing raw deletion secrets, grouped proof requests, IP addresses, or request bodies; a static
+  client API secret presented as authentication; IP rate limiting as deletion authority; deleting
+  only currently present events without a late-upload tombstone; exactly-once assumptions; keeping
+  data 90 days from a client-controlled timestamp; unbounded cleanup; claiming opt-out can recall a
+  request already accepted at the edge; enabling capture/customer controls; or deploying Production.
+
+## DEC-COM-061 — Remove request-unique deletion timing and ambient transport metadata
+
+- Status/date: **Accepted C5-02 review remediation — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-057/058/060
+- Context: Independent review found that one exact millisecond tombstone expiry shared by every
+  proof in a complete-delete request preserved a recoverable request grouping for the tombstone
+  lifetime, ambient URLSession metadata could disclose build/OS/locale outside the closed egress
+  row, and a single 1,000-row hourly cleanup pass did not prove the documented 90-day maximum under
+  backlog.
+- Decision: Round delete-tombstone expiration down to a UTC-day bucket shared across independent
+  requests accepted that day; disclose that broad expiry day while persisting no exact acceptance
+  timestamp or request/group identifier. Send only fixed `User-Agent: MindBudget`, explicitly
+  suppress `Accept-Language`, and reject any different/nonempty value at the receiver. Keep every
+  cleanup transaction bounded to 1,000 rows per table but repeat bounded transactions during the
+  same scheduled operation until no full expired batch remains. Make JSON whitespace exactly the
+  RFC grammar, make Swift deletion-secret base64 explicit, and remove the redundant event-shape
+  precheck. Add deterministic regressions and static anchors for every boundary.
+- Consequences: The dormant transport reveals neither app version/OS nor locale in HTTP metadata;
+  tombstones retain only a coarse daily TTL bucket rather than a request-unique deletion time; and
+  the 90 x 24-hour maximum no longer assumes less than one batch of backlog. HTTP 404/405/421 fixed
+  endpoint-policy failures remain typed failures in the unconstructed adapter; C5-04 must make
+  them terminal/non-retrying before it creates any production transport. This remediation does not
+  enable capture, customer controls, Staging/Production, distribution, or release.
+- Alternatives rejected: Persisting exact per-request expiry for operational convenience;
+  allowing URLSession's variable default user agent or language; weakening the 90-day statement to
+  eventual deletion; unbounded SQL statements; or expanding the dormant C5-02 local lifecycle for
+  customer-facing terminal error handling owned by C5-04.

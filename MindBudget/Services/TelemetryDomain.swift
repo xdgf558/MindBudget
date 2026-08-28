@@ -292,6 +292,11 @@ enum TelemetryTransportUploadResolution: Equatable, Sendable {
 protocol TelemetryTransporting: Sendable {
     func upload(_ batch: TelemetryUploadBatch) async throws -> TelemetryTransportUploadResolution
     func delete(_ request: TelemetryDeletionRequest) async throws
+    func cancelInFlightUpload() async
+}
+
+extension TelemetryTransporting {
+    func cancelInFlightUpload() async {}
 }
 
 /// C5-01 deliberately has no real transport or accepted endpoint. C5-02 must replace this only
@@ -306,4 +311,6 @@ struct UnavailableTelemetryTransport: TelemetryTransporting {
     func delete(_ request: TelemetryDeletionRequest) async throws {
         throw Unavailable.noAcceptedEndpoint
     }
+
+    func cancelInFlightUpload() async {}
 }

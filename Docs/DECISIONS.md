@@ -2961,3 +2961,33 @@ transport, capture call, customer control, or telemetry egress.
 Consequences: The reviewed client remains dormant and default-off, current telemetry collection
 and egress remain zero, and App Privacy answers do not change. C5-03/C5-04, Production,
 distribution, and release remain blocked.
+
+---
+
+## 2026-08-28 — Enter C5-02 through a deletion-safe first-party receiver
+
+Context: C5-01 is reviewed, merged, and still dormant. The owner separately entered C5-02.
+
+Decision: Detailed ownership is DEC-COM-060. Accept exact environment-specific first-party hosts,
+strict bounded upload/delete bytes, independent D1 stores, idempotent event UUIDs and proof
+deletion, late-upload tombstones, a 90 x 24-hour maximum server TTL, bounded rate/cost controls,
+closed non-content monitoring, and a directly testable but unconstructed iOS transport.
+
+Consequences: Development alone may be deployed and probed. Collection/capture remains zero;
+C5-03/C5-04, App Privacy changes, Staging/Production deployment, distribution, and release remain
+blocked.
+
+---
+
+## 2026-08-28 — Harden C5-02 deletion timing, transport metadata, and TTL cleanup
+
+Context: Independent review found request-correlation and maximum-retention gaps in the otherwise
+dormant C5-02 candidate.
+
+Decision: Detailed ownership is DEC-COM-061. Tombstones persist only a shared UTC-day expiration
+bucket, the iOS/Worker contract fixes the user agent and suppresses locale, and each scheduled run
+repeats bounded 1,000-row cleanup transactions until the expired backlog is drained. C5-04 owns
+terminal handling for fixed endpoint-policy failures before any transport construction.
+
+Consequences: C5-02 remains pending rereview, hosted CI, and merge. Collection/capture stays zero;
+C5-03/C5-04, App Privacy changes, Staging/Production, distribution, and release remain blocked.

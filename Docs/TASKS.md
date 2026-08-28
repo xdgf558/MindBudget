@@ -250,9 +250,9 @@ remediation head `8607356` and raised three nonblocking P3 observations. Mainten
 without a pre-merge rereview. PR #75's closeout review then accepted that exact delta post-merge.
 C4C-05 and COM-C4C are Done through PR #75 (`82ef0fa`). A separate explicit owner entry opened
 COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`,
-and PR #76 merged it as `68304ad`. C5-01 is Done without a production capture call site, endpoint,
-or transport. C5-02 awaits explicit owner entry; C5-03/C5-04, Production, and release remain
-blocked.
+and PR #76 merged it as `68304ad`. C5-01 is Done without a production capture call site. The owner
+entered C5-02 on 2026-08-28; its receiver and dormant adapter implementation are complete pending
+independent review, green hosted CI, and merge. C5-03/C5-04, Production, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -520,7 +520,13 @@ blocked.
   benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.
   Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 merged it as
   `68304ad`. C5-02 was not entered automatically.
-- [ ] Enter C5-02 only after a separate explicit owner instruction. Until then, keep
-  `UnavailableTelemetryTransport` as the only production default and preserve zero telemetry
-  collection/egress; do not infer an endpoint, receiver, customer control, App Privacy change,
-  Production, distribution, or release authority from the C5-01 closeout.
+- [ ] Complete C5-02 after the owner's explicit 2026-08-28 entry. Implement the exact independent
+  dev/staging/production Worker/D1 contract, strict content-free request bytes, idempotent ingest
+  and proof deletion, 90-day maximum server TTL, bounded abuse/cost controls, closed monitoring,
+  and the smallest dormant iOS adapter. Development alone may be deployed/probed; keep
+  `UnavailableTelemetryTransport` as the production client default, add no capture/customer
+  control, and do not enter C5-03 or authorize Production/distribution/release. Implementation and
+  the Development probe are complete. Review remediation replaces request-unique tombstone expiry
+  times with a shared UTC-day bucket, fixes transport metadata, drains cleanup backlog through
+  repeated bounded batches, and leaves permanent endpoint-policy failure UX to C5-04 before any
+  transport construction. Independent rereview, green hosted CI, and merge remain open.

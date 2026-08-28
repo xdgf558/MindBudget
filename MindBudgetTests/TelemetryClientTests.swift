@@ -224,6 +224,110 @@ struct TelemetryClientTests {
     }
 
     @Test
+    func optOutCancelsTheInFlightUploadBeforeCommittingDisabledState() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let transport = GatedTelemetryTransport()
+        let client = try makeClient(persistence: persistence, transport: transport)
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        #expect(try await client.capture(.appSessionStarted, at: referenceDate) == .queued)
+
+        let flush = Task { await client.flush(now: referenceDate) }
+        await transport.waitUntilUploadStarts()
+        try await client.setCollectionEnabled(false, now: laterDate(seconds: 1))
+
+        #expect(await flush.value == .failed(nil))
+        #expect(await transport.cancelCount == 1)
+        #expect(await client.snapshot().collectionEnabled == false)
+        #expect(await client.snapshot().queuedEventCount == 0)
+    }
+
+    @Test
+    func fixedTransportPostsOnlyTheReviewedDevelopmentUploadEnvelope() async throws {
+        let loader = RecordingTelemetryHTTPLoader(statusCode: 202)
+        let transport = FixedTelemetryTransport(environment: .development, loader: loader)
+        let batch = try makeUploadBatch()
+
+        #expect(try await transport.upload(batch) == .accepted)
+        let request = try #require(await loader.requests.first)
+        #expect(request.url?.absoluteString == "https://mindbudget-telemetry-dev.yehao1105.workers.dev/v1/events")
+        #expect(request.httpMethod == "POST")
+        #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+        #expect(request.value(forHTTPHeaderField: "User-Agent") == "MindBudget")
+        #expect(request.value(forHTTPHeaderField: "Accept-Language") == "")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == nil)
+        #expect(request.value(forHTTPHeaderField: "Cookie") == nil)
+        let data = try #require(request.httpBody)
+        let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        #expect(Set(object.keys) == [
+            "appVersion", "deletionHandle", "environment", "events",
+            "pseudonymousIdentifier", "schemaVersion"
+        ])
+        #expect(object["environment"] as? String == "development")
+        let events = try #require(object["events"] as? [[String: Any]])
+        #expect(Set(try #require(events.first).keys) == [
+            "event", "id", "identityIdentifier", "occurredAt"
+        ])
+    }
+
+    @Test
+    func fixedTransportFailsClosedForEnvironmentDriftAndUnexpectedResponseContent() async throws {
+        let wrongEnvironmentLoader = RecordingTelemetryHTTPLoader(statusCode: 202)
+        let stagingTransport = FixedTelemetryTransport(
+            environment: .staging,
+            loader: wrongEnvironmentLoader
+        )
+        await #expect(throws: TelemetryHTTPTransportError.invalidEnvelope) {
+            try await stagingTransport.upload(makeUploadBatch())
+        }
+        #expect(await wrongEnvironmentLoader.requests.isEmpty)
+
+        let bodyLoader = RecordingTelemetryHTTPLoader(
+            statusCode: 202,
+            responseData: Data("not-empty".utf8)
+        )
+        let developmentTransport = FixedTelemetryTransport(
+            environment: .development,
+            loader: bodyLoader
+        )
+        await #expect(throws: TelemetryHTTPTransportError.unexpectedResponseBody) {
+            try await developmentTransport.upload(makeUploadBatch())
+        }
+    }
+
+    @Test
+    func fixedTransportMapsRetryAfterAndUsesProofAuthenticatedDelete() async throws {
+        let retryLoader = RecordingTelemetryHTTPLoader(
+            statusCode: 429,
+            responseHeaders: ["Retry-After": "120"]
+        )
+        let retryTransport = FixedTelemetryTransport(
+            environment: .development,
+            loader: retryLoader
+        )
+        #expect(try await retryTransport.upload(makeUploadBatch()) == .retryAfter(seconds: 120))
+
+        let deleteLoader = RecordingTelemetryHTTPLoader(statusCode: 204)
+        let deleteTransport = FixedTelemetryTransport(
+            environment: .development,
+            loader: deleteLoader
+        )
+        let batch = try makeUploadBatch()
+        try await deleteTransport.delete(TelemetryDeletionRequest(
+            schemaVersion: TelemetryPolicy.schemaVersion,
+            environment: .development,
+            proofs: [TelemetryDeletionProof(
+                pseudonymousIdentifier: batch.pseudonymousIdentifier,
+                deletionSecret: Data(repeating: 9, count: 32)
+            )]
+        ))
+        let request = try #require(await deleteLoader.requests.first)
+        #expect(request.url?.absoluteString == "https://mindbudget-telemetry-dev.yehao1105.workers.dev/v1/delete")
+        #expect(request.httpMethod == "POST")
+        let data = try #require(request.httpBody)
+        #expect(String(decoding: data, as: UTF8.self).contains(Data(repeating: 9, count: 32).base64EncodedString()))
+    }
+
+    @Test
     func concurrentFlushesShareOneTransportLaneAndCannotDuplicateABatch() async throws {
         let persistence = MemoryTelemetryPersistence()
         let transport = GatedTelemetryTransport()
@@ -466,6 +570,23 @@ struct TelemetryClientTests {
         )
     }
 
+    private func makeUploadBatch() throws -> TelemetryUploadBatch {
+        let identity = UUID(uuidString: "11111111-1111-4111-8111-111111111111")!
+        return TelemetryUploadBatch(
+            schemaVersion: TelemetryPolicy.schemaVersion,
+            environment: .development,
+            appVersion: try TelemetryAppVersion("1.0.0"),
+            pseudonymousIdentifier: identity,
+            deletionHandle: String(repeating: "a", count: 64),
+            events: [TelemetryQueuedEvent(
+                id: UUID(uuidString: "22222222-2222-4222-8222-222222222222")!,
+                identityIdentifier: identity,
+                occurredAt: referenceDate,
+                event: .receipt(.reviewed, .completed)
+            )]
+        )
+    }
+
     private var testCalendar: Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: "en_US_POSIX")
@@ -620,19 +741,19 @@ private actor RecordingTelemetryTransport: TelemetryTransporting {
 private actor GatedTelemetryTransport: TelemetryTransporting {
     private var entered = false
     private var entryWaiters: [CheckedContinuation<Void, Never>] = []
-    private var releaseContinuation: CheckedContinuation<Void, Never>?
+    private var releaseContinuation: CheckedContinuation<TelemetryTransportUploadResolution, Error>?
     private(set) var uploadCount = 0
+    private(set) var cancelCount = 0
 
-    func upload(_ batch: TelemetryUploadBatch) async -> TelemetryTransportUploadResolution {
+    func upload(_ batch: TelemetryUploadBatch) async throws -> TelemetryTransportUploadResolution {
         uploadCount += 1
         entered = true
         let waiters = entryWaiters
         entryWaiters.removeAll()
         waiters.forEach { $0.resume() }
-        await withCheckedContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             releaseContinuation = continuation
         }
-        return .accepted
     }
 
     func delete(_ request: TelemetryDeletionRequest) {}
@@ -645,8 +766,49 @@ private actor GatedTelemetryTransport: TelemetryTransporting {
     }
 
     func releaseUpload() {
-        releaseContinuation?.resume()
+        releaseContinuation?.resume(returning: .accepted)
         releaseContinuation = nil
+    }
+
+    func cancelInFlightUpload() async {
+        cancelCount += 1
+        releaseContinuation?.resume(throwing: CancellationError())
+        releaseContinuation = nil
+    }
+}
+
+private actor RecordingTelemetryHTTPLoader: TelemetryHTTPLoading {
+    private let statusCode: Int
+    private let responseHeaders: [String: String]
+    private let responseData: Data
+    private(set) var requests: [URLRequest] = []
+
+    init(
+        statusCode: Int,
+        responseHeaders: [String: String] = [:],
+        responseData: Data = Data()
+    ) {
+        self.statusCode = statusCode
+        self.responseHeaders = responseHeaders
+        self.responseData = responseData
+    }
+
+    func load(
+        request: URLRequest,
+        maximumResponseBytes: Int
+    ) throws -> TelemetryHTTPResponse {
+        requests.append(request)
+        guard responseData.count <= maximumResponseBytes,
+              let url = request.url,
+              let response = HTTPURLResponse(
+                  url: url,
+                  statusCode: statusCode,
+                  httpVersion: "HTTP/1.1",
+                  headerFields: responseHeaders
+              ) else {
+            throw TelemetryHTTPTransportError.responseTooLarge
+        }
+        return TelemetryHTTPResponse(data: responseData, response: response)
     }
 }
 

@@ -279,6 +279,10 @@ actor TelemetryClient {
             // Missing state materializes only in memory. Repeating the default-off decision must
             // not create an encrypted file, Keychain key, identity, or persistence write.
             guard state.collectionEnabled else { return }
+            // Opt-out asks the fixed transport to cancel an active request. Cancellation is
+            // necessarily best-effort: an edge acceptance that won the race remains subject to
+            // server TTL and explicit proof deletion, never a false recall claim.
+            await transport.cancelInFlightUpload()
             try retireCurrentIdentityForOptOut(in: &state, now: now)
             state.collectionEnabled = false
             state.queuedEvents.removeAll()

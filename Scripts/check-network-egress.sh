@@ -5,12 +5,13 @@ SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
-# COM-C3-03B accepts exactly one app-owned Release HTTP(S) adapter. Scan app source and Release
+# COM-C3-03B and C5-02 accept exactly two app-owned Release HTTP(S) adapters. Scan app source and Release
 # configuration rather than trusting documentation alone. System-owned transports such as
 # StoreKit and CloudKit are not matched here. The exact source exception below is intentionally
 # file-scoped and its host/method/privacy contract is checked independently before any broad scan
 # exclusion is applied.
 APPROVED_PUBLIC_CONFIGURATION_SOURCE="MindBudget/Commerce/PublicConfigurationTransport.swift"
+APPROVED_TELEMETRY_SOURCE="MindBudget/Services/TelemetryTransport.swift"
 swift_network_pattern='(^|[^[:alnum:]_])(URLSession|URLRequest|NSURLConnection|NWConnection|NWListener|NWBrowser|CFHTTPMessage|CFHost|CFSocket|WKWebView)([^[:alnum:]_]|$)|^[[:space:]]*import[[:space:]]+(Network|CFNetwork|WebKit)([[:space:]]|$)|"[^"]*https?://'
 configuration_network_pattern='NSAppTransportSecurity|NSAllowsArbitraryLoads|NSExceptionDomains|NSAllowsLocalNetworking|com\.apple\.developer\.networking\.|com\.apple\.developer\.associated-domains|<string>[[:space:]]*https?://|^[[:space:]]*[[:alnum:]_.-]+[[:space:]]*=.*https?://'
 
@@ -104,6 +105,10 @@ if [[ ! -s "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" ]]; then
   echo "Missing the one approved app-owned network adapter: ${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" >&2
   exit 1
 fi
+if [[ ! -s "${APPROVED_TELEMETRY_SOURCE}" ]]; then
+  echo "Missing the reviewed telemetry network adapter: ${APPROVED_TELEMETRY_SOURCE}" >&2
+  exit 1
+fi
 
 approved_urls="$({
   grep -Eo 'https://[^"[:space:]]+' "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" || true
@@ -138,6 +143,47 @@ for approved_contract in \
   }
 done
 
+telemetry_urls="$({
+  grep -Eo 'mindbudget-telemetry(-dev|-staging)?\.yehao1105\.workers\.dev' "${APPROVED_TELEMETRY_SOURCE}" || true
+} | LC_ALL=C sort -u)"
+expected_telemetry_urls="$(printf '%s\n' \
+  'mindbudget-telemetry-dev.yehao1105.workers.dev' \
+  'mindbudget-telemetry-staging.yehao1105.workers.dev' \
+  'mindbudget-telemetry.yehao1105.workers.dev' \
+  | LC_ALL=C sort)"
+if [[ "${telemetry_urls}" != "${expected_telemetry_urls}" ]]; then
+  echo "The telemetry adapter must contain exactly the three reviewed hosts" >&2
+  printf '%s\n' "${telemetry_urls}" >&2
+  exit 1
+fi
+
+for telemetry_contract in \
+  'URLSessionConfiguration.ephemeral' \
+  'configuration.httpShouldSetCookies = false' \
+  'configuration.urlCredentialStorage = nil' \
+  'configuration.urlCache = nil' \
+  'TelemetryRedirectRejector()' \
+  'request.httpMethod = "POST"' \
+  'request.setValue("application/json", forHTTPHeaderField: "Content-Type")' \
+  'case .production: "mindbudget-telemetry.yehao1105.workers.dev"'; do
+  grep -Fq "${telemetry_contract}" "${APPROVED_TELEMETRY_SOURCE}" || {
+    echo "Approved telemetry adapter is missing contract: ${telemetry_contract}" >&2
+    exit 1
+  }
+done
+
+for forbidden_telemetry_shape in \
+  'URLSession.shared' \
+  'httpShouldSetCookies = true' \
+  'httpCookieStorage' \
+  'forHTTPHeaderField: "Authorization"' \
+  'forHTTPHeaderField: "Cookie"'; do
+  if grep -Fq "${forbidden_telemetry_shape}" "${APPROVED_TELEMETRY_SOURCE}"; then
+    echo "Approved telemetry adapter contains forbidden shape: ${forbidden_telemetry_shape}" >&2
+    exit 1
+  fi
+done
+
 for forbidden_approved_shape in \
   'URLSession.shared' \
   'httpShouldSetCookies = true' \
@@ -153,7 +199,8 @@ done
 
 swift_violations="$({
   while IFS= read -r -d '' file; do
-    if [[ "${file}" == "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" ]]; then
+    if [[ "${file}" == "${APPROVED_PUBLIC_CONFIGURATION_SOURCE}" \
+       || "${file}" == "${APPROVED_TELEMETRY_SOURCE}" ]]; then
       continue
     fi
     scan_file "${file}" "${swift_network_pattern}"
@@ -194,10 +241,10 @@ if [[ -n "${configuration_violations}" ]]; then
 fi
 
 if [[ -n "${violations}" ]]; then
-  echo "App-owned network source or Release configuration found outside the one approved adapter:" >&2
+  echo "App-owned network source or Release configuration found outside the two approved adapters:" >&2
   echo "${violations}" >&2
   echo "Accept a new exact channel before adding another centralized adapter exception." >&2
   exit 1
 fi
 
-echo "App-owned Release network egress is limited to the exact signed public-configuration adapter"
+echo "App-owned Release network egress is limited to the signed public-configuration and dormant telemetry adapters"

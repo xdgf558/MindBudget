@@ -59,6 +59,18 @@ jobs:
           npm audit --audit-level=high
           npm run check
 
+      - name: Install telemetry Worker toolchain
+        working-directory: Services/TelemetryWorker
+        run: |
+          node -e 'const major = Number(process.versions.node.split(".")[0]); if (major < 22) throw new Error(`Expected Node 22+, got ${process.versions.node}`)'
+          npm ci
+
+      - name: Audit and verify telemetry Worker
+        working-directory: Services/TelemetryWorker
+        run: |
+          npm audit --audit-level=high
+          npm run check
+
       - name: Verify StoreKit local test catalog isolation
         run: Scripts/check-storekit-test-catalog.sh
 

@@ -10,6 +10,7 @@ cd "${PROJECT_ROOT}"
 
 DOMAIN_SOURCE="MindBudget/Services/TelemetryDomain.swift"
 CLIENT_SOURCE="MindBudget/Services/TelemetryClient.swift"
+TRANSPORT_SOURCE="MindBudget/Services/TelemetryTransport.swift"
 TEST_SOURCE="MindBudgetTests/TelemetryClientTests.swift"
 PROJECT_FILE="MindBudget.xcodeproj/project.pbxproj"
 
@@ -56,6 +57,21 @@ production_client_construction_scan() {
   [[ -d "${source_root}" ]] || return 2
   set +e
   grep -REq --include='*.swift' 'TelemetryClient[[:space:]]*\(' "${source_root}" 2>/dev/null
+  scan_status=$?
+  set -e
+  case "${scan_status}" in
+    0) return 0 ;;
+    1) return 1 ;;
+    *) return 2 ;;
+  esac
+}
+
+production_fixed_transport_construction_scan() {
+  local source_root="$1"
+  local scan_status
+  [[ -d "${source_root}" ]] || return 2
+  set +e
+  grep -REq --include='*.swift' 'FixedTelemetryTransport[[:space:]]*\(' "${source_root}" 2>/dev/null
   scan_status=$?
   set -e
   case "${scan_status}" in
@@ -156,7 +172,7 @@ self_test() {
 
 self_test
 
-for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TEST_SOURCE}" "${PROJECT_FILE}"; do
+for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TRANSPORT_SOURCE}" "${TEST_SOURCE}" "${PROJECT_FILE}"; do
   if [[ ! -s "${file}" ]]; then
     echo "Missing C5-01 telemetry contract artifact: ${file}" >&2
     exit 1
@@ -168,6 +184,17 @@ if [[ "${event_cases}" != "${expected_event_cases}" ]]; then
   echo "TelemetryEvent must retain the exact closed event vocabulary" >&2
   printf '%s\n' "${event_cases}" >&2
   exit 1
+fi
+
+if production_fixed_transport_construction_scan MindBudget; then
+  echo "C5-02 must remain dormant: production code instantiated FixedTelemetryTransport" >&2
+  exit 1
+else
+  transport_construction_scan_status=$?
+  if [[ "${transport_construction_scan_status}" -ne 1 ]]; then
+    echo "C5-02 transport dormancy scan could not complete" >&2
+    exit 1
+  fi
 fi
 
 upload_fields="$(telemetry_upload_fields "${DOMAIN_SOURCE}")"
@@ -222,6 +249,42 @@ for contract in \
   }
 done
 
+for transport_contract in \
+  'mindbudget-telemetry-dev.yehao1105.workers.dev' \
+  'mindbudget-telemetry-staging.yehao1105.workers.dev' \
+  'mindbudget-telemetry.yehao1105.workers.dev' \
+  'URLSessionConfiguration.ephemeral' \
+  'configuration.httpShouldSetCookies = false' \
+  'configuration.urlCredentialStorage = nil' \
+  'configuration.urlCache = nil' \
+  'TelemetryRedirectRejector()' \
+  'request.httpMethod = "POST"' \
+  'request.setValue("MindBudget", forHTTPHeaderField: "User-Agent")' \
+  'request.setValue("", forHTTPHeaderField: "Accept-Language")' \
+  'encoder.dataEncodingStrategy = .base64' \
+  'maximumUploadBytes = 32 * 1_024' \
+  'maximumDeleteBytes = 2 * 1_024' \
+  'maximumResponseBytes = 1_024' \
+  'actor FixedTelemetryTransport: TelemetryTransporting' \
+  'continues to default to `UnavailableTelemetryTransport`'; do
+  grep -Fq "${transport_contract}" "${TRANSPORT_SOURCE}" || {
+    echo "C5-02 telemetry transport is missing contract: ${transport_contract}" >&2
+    exit 1
+  }
+done
+
+for forbidden_transport_shape in \
+  'URLSession.shared' \
+  'httpShouldSetCookies = true' \
+  'httpCookieStorage' \
+  'forHTTPHeaderField: "Authorization"' \
+  'forHTTPHeaderField: "Cookie"'; do
+  if grep -Fq "${forbidden_transport_shape}" "${TRANSPORT_SOURCE}"; then
+    echo "C5-02 telemetry transport contains forbidden shape: ${forbidden_transport_shape}" >&2
+    exit 1
+  fi
+done
+
 for test_contract in \
   'collectionIsDefaultOffAndDoesNotCreatePersistence' \
   'disablingANeverEnabledEncryptedClientCreatesNoFileOrKey' \
@@ -250,11 +313,22 @@ for test_contract in \
   }
 done
 
-for source_name in TelemetryDomain.swift TelemetryClient.swift TelemetryClientTests.swift; do
+for c502_test_contract in \
+  'optOutCancelsTheInFlightUploadBeforeCommittingDisabledState' \
+  'fixedTransportPostsOnlyTheReviewedDevelopmentUploadEnvelope' \
+  'fixedTransportFailsClosedForEnvironmentDriftAndUnexpectedResponseContent' \
+  'fixedTransportMapsRetryAfterAndUsesProofAuthenticatedDelete'; do
+  grep -Fq "${c502_test_contract}" "${TEST_SOURCE}" || {
+    echo "C5-02 telemetry tests are missing contract: ${c502_test_contract}" >&2
+    exit 1
+  }
+done
+
+for source_name in TelemetryDomain.swift TelemetryClient.swift TelemetryTransport.swift TelemetryClientTests.swift; do
   if [[ "$(grep -Fc "${source_name} in Sources" "${PROJECT_FILE}")" -ne 2 ]]; then
     echo "${source_name} must have one build-file and one source-phase reference" >&2
     exit 1
   fi
 done
 
-echo "C5-01 dormant telemetry client contract passed"
+echo "C5-02 dormant telemetry transport and client contract passed"

@@ -136,8 +136,16 @@ state behind explicit user-input methods; its focused suite passed 76/76 and Git
 fixes correct. PR #75 merged the closeout as `82ef0fa`; C4C-05 and COM-C4C are Done. The uncertain
 physical paper-invoice total remains an honest manual-review-only non-pass. A separate explicit owner entry
 opened COM-C5 on 2026-08-27. C5-01 now contains only a dormant, default-off, closed-schema,
-encrypted local telemetry client with no production construction, capture call, URL, or transport;
-C5-02 awaits explicit owner entry; C5-03/C5-04, Production, and release remain blocked. PR #76
+encrypted local telemetry client with no production construction, capture call, URL, or transport.
+The owner entered C5-02 on 2026-08-28 under DEC-COM-060. Its strict Worker/D1 receiver, bounded
+dormant adapter, in-flight opt-out cancellation, and deterministic tests are implemented. Only the
+Development Worker version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed and probed; Staging
+is undeployed, Production has no provisioned D1 resource, and C5-03/C5-04/release remain blocked.
+DEC-COM-061 remediates review findings without enabling the dormant client: deletion tombstones now
+retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
+values, hourly cleanup repeats bounded batches until drained, and C5-04 must make fixed
+endpoint-policy failures terminal before constructing the transport.
+PR #76
 review remediation keeps
 corrupt persistence locally deletable without claiming remote deletion, limits unlinkability to
 ordinary upload envelopes, records grouped complete-delete association as an explicit C5-02

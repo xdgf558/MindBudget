@@ -1597,3 +1597,66 @@ The validator deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.k5zkq3/MindBudget.xcresult`
 after success, so the path is an execution pointer rather than a durable artifact. Independent
 review, hosted CI, and merge remain required for this closeout.
+
+### C5-02 deletion-safe minimal ingest candidate — 2026-08-28
+
+`Services/TelemetryWorker` passes generated binding types, `tsc --noEmit`, all 26 Vitest cases
+against real local D1, Development/Staging/Production Wrangler dry-runs and startup checks, and
+`npm audit --audit-level=high` with zero vulnerabilities. The cases cover strict JSON grammar,
+closed schemas, exact host/path/method rejection, size/depth/node limits, idempotent retries,
+changed-fact conflicts, proof authentication, all-or-none deletion, independent tombstones,
+late-upload discard, bounded retention cleanup, and rate-limit non-authority.
+
+The iOS 26.5 simulator focused telemetry suite passes 25/25 with no failure or skip. Four new tests
+prove opt-out cancellation reaches the active transport, Development wire encoding is exact,
+environment drift/non-empty responses fail closed, and Retry-After plus proof deletion map to the
+typed client contract. Generic build-for-testing also passes. The money, network-egress,
+commercialization-document, StoreKit-catalog, telemetry-client, and telemetry-Worker static gates,
+plus `git diff --check`, pass on the candidate source.
+
+Development D1 `2faff8ac-de17-4fd0-aaa7-546bd1902e74` received migration `0001_initial.sql` and
+Worker version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2`. The exact live probe observed upload 202,
+identical retry 202, changed-fact conflict 409, authenticated complete deletion 204, and matching
+late-upload discard 202. A final remote D1 read returned zero events, zero identities, and two
+independent tombstones. This is Development evidence only. Staging D1
+`776d171d-ec10-4a90-9235-b537e063e04b` remains unmigrated and undeployed, Production has no
+provisioned D1 and no deployment, and no Staging/Production reachability, operational, privacy,
+final-binary, or distribution claim is made. Hosted CI on the exact PR head remains required.
+
+The first `Scripts/validate.sh` invocation selected `/Library/Developer/CommandLineTools` and
+stopped before Xcode build; it is excluded as an environmental non-pass. The owning rerun used
+Xcode 27 beta 6 explicitly and passed every static contract, Release compilation, the isolated
+strict 10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every
+selected coverage threshold. Four opt-in physical CloudKit probes were explicit skips.
+`CSVExporter.swift` was the minimum selected result at 87.60% against the 85% floor. The validator
+deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.1f3FOS/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. Independent
+review, hosted CI on the exact head, and merge remain required.
+
+### C5-02 independent-review remediation — 2026-08-28
+
+`Services/TelemetryWorker` passes generated binding types, `tsc --noEmit`, all 32 Vitest cases
+against local D1, Development/Staging/Production Wrangler dry-runs and startup checks, and
+`npm audit --audit-level=high` with zero vulnerabilities. New cases prove that separate deletion
+requests on the same UTC day share only a coarse tombstone expiry bucket, variable user-agent or
+nonempty language metadata is rejected, non-JSON Unicode whitespace is rejected, and one scheduled
+operation drains more than one bounded cleanup batch. The focused iOS 26.5 simulator telemetry
+suite passes 25/25 and directly asserts the fixed user agent, suppressed language, and explicit
+wire contract.
+
+The first owning `Scripts/validate.sh` attempt passed static contracts but stopped at Release link
+when Xcode transiently reported `/Applications/Xcode-27-beta-6.app/Contents/Developer/Toolchains/
+XcodeDefault.xctoolchain/usr/bin/clang` missing. The file was present on immediate reinspection, so
+that attempt is excluded as an environmental non-pass. A clean rerun with explicit Xcode 27 beta 6
+passed every static contract, Release compilation, the isolated strict 10,000-row Dashboard
+benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold.
+Four opt-in physical CloudKit probes remained explicit skips. `CSVExporter.swift` remained the
+minimum selected result at 87.60% against the 85% floor. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.Qwp8O6/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact.
+
+No remediated Development deployment/probe is claimed yet. The currently recorded Development
+version predates DEC-COM-061; Staging remains unmigrated/undeployed and Production remains
+unprovisioned/undeployed. The adapter is still unconstructed with zero capture/customer egress.
+Exact-head rereview, hosted CI, and merge remain required.

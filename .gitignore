@@ -23,3 +23,8 @@ Services/PublicConfigurationWorker/.dev.vars*
 Services/PublicConfigurationWorker/.env*
 Services/PublicConfigurationWorker/.wrangler/
 Services/PublicConfigurationWorker/node_modules/
+Services/TelemetryWorker/.dev.vars*
+Services/TelemetryWorker/.env*
+Services/TelemetryWorker/.wrangler/
+Services/TelemetryWorker/node_modules/
+Services/TelemetryWorker/*.cpuprofile
