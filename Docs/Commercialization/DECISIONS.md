@@ -1936,15 +1936,18 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 
 ## DEC-COM-065 — Close C5-03 on reviewed dormant evidence computation
 
-- Status/date: **Accepted after reviewed PR #80 merge — 2026-08-29**
+- Status/date: **Accepted after PR #81 post-merge verification of PR #80 — 2026-08-29**
 - Requirements: REQ-R1-TELEMETRY-001; REQ-G1-001; DEC-COM-063/064
-- Context: Independent review approved exact remediation head `0c61427`. GitHub Actions run
-  `33211270363` completed successfully on that exact head, and PR #80 merged it to `main` as
-  `a587f42`. Review required removal of the cross-environment/storefront root coverage value; the
-  exact head retains coverage only on exact segments and exposes widest Wilson interval width.
-- Decision: Mark C5-03 Done on the reviewed source, hosted run, and merge. This closes only the
-  dormant read-only D1 aggregate and offline immutable evidence computation. C5-04 is no longer
-  dependency-blocked but requires separate explicit owner entry before customer controls,
+- Context: Independent review approved head `4ea7cd9` and raised one P2 cross-segment coverage
+  issue plus one P3 weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub
+  Actions run `33211270363` completed successfully, and PR #80 merged it to `main` as `a587f42`
+  without a pre-merge rereview. PR #81's post-merge closeout review read that exact remediation
+  delta and confirmed both fixes: coverage remains exact-segment-only and exposes widest Wilson
+  interval width.
+- Decision: Mark C5-03 Done on the pre-merge review of `4ea7cd9`, successful hosted run and merge
+  of remediation `0c61427`, and PR #81's post-merge verification of that exact delta. This closes
+  only the dormant read-only D1 aggregate and offline immutable evidence computation. C5-04 is no
+  longer dependency-blocked but requires separate explicit owner entry before customer controls,
   capture construction, App Privacy changes, operational deployment/proof, or final-binary traffic.
 - Consequences: No real App Store export, survey response, telemetry sample, evidence bundle,
   threshold pass, or G1 decision is claimed. `UnavailableTelemetryTransport` remains the app

@@ -149,6 +149,8 @@ def self_test() -> None:
         PhaseStatus("C4A-01", "Implementation complete pending independent review.", source, 2),
         PhaseStatus("C4A-02", "Blocked by C4A-01.", source, 3),
         PhaseStatus("COM-C0A", "Done.", source, 4),
+        PhaseStatus("C5-03", "Done through PR #80 (`a587f42`).", source, 5),
+        PhaseStatus("C5-04", "Implementation complete pending independent review.", source, 6),
     ]
     if validate(valid):
         raise AssertionError("valid structural phase states were rejected")

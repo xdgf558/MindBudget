@@ -6126,9 +6126,12 @@ decision is claimed; exact-head rereview, hosted CI, and merge remain required.
 
 ## 2026-08-29 — Close C5-03 after reviewed PR #80 merge
 
-Independent review approved exact remediation head `0c61427`. GitHub Actions run `33211270363`
-completed successfully on that exact head, and PR #80 merged it to `main` as `a587f42`.
-DEC-COM-065 marks C5-03 Done on the dormant metrics/evidence computation only.
+Independent review approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one
+P3 weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Actions run
+`33211270363` completed successfully, and PR #80 merged it to `main` as `a587f42` without a
+pre-merge rereview. PR #81's post-merge closeout review read that exact remediation delta and
+confirmed both fixes. DEC-COM-065 marks C5-03 Done on the dormant metrics/evidence computation
+only.
 
 The reviewed package remains outside every live data path: the D1 aggregate has no route, the
 offline builder has no network client, `UnavailableTelemetryTransport` remains the production app
@@ -6151,3 +6154,20 @@ tests were explicit skips. `CSVExporter.swift` remained the minimum selected cov
 87.60% against the 85% floor. The validator deleted
 `mindbudget-validation.1rJYdA/MindBudget.xcresult` after success, so the name is an execution
 pointer rather than a durable artifact.
+
+## 2026-08-29 — Remediate PR #81 closeout provenance and gate review
+
+Independent review found that the closeout incorrectly described remediation head `0c61427` as
+independently reviewed before merge. The actual pre-merge review covered `4ea7cd9` and raised one
+P2 cross-segment coverage issue plus one P3 weak-sample-visibility issue. `0c61427` applied both,
+passed run `33211270363`, and merged through PR #80 as `a587f42` without a pre-merge rereview. PR
+#81's review then read that exact remediation delta post-merge and confirmed both fixes.
+
+The remediation replaces the inaccurate chronology throughout current-state/evidence documents,
+requires `4ea7cd9`, `0c61427`, the hosted run, merge, PR #81, and the C5-04 owner-entry boundary in
+every controlled file, and rejects any renewed claim that `0c61427` received pre-merge review. It
+also removes the unqualified generic pending-review grep: the existing structural parser owns
+heading-scoped phase Status validation and now includes an explicit valid C5-03 Done/C5-04 pending
+review self-test. Static money, egress, commercialization-document, StoreKit 13/13, C5 evidence
+8/8, parser self-test, and `git diff --check` all pass. No runtime or customer behavior changed;
+hosted CI and rereview of the new exact closeout head remain required.

@@ -142,10 +142,12 @@ dormant adapter, in-flight opt-out cancellation, and deterministic tests are imp
 Development Worker version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed and probed; Staging
 is undeployed and Production has no provisioned D1 resource. Independent review approved exact
 remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 merged it as `4715054`;
-C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant metrics/evidence implementation
-closed after independent review approved exact remediation head `0c61427`, GitHub Actions run
-`33211270363` passed, and PR #80 merged it as `a587f42`: nine closed aggregate metrics, source
-hashes, immutable canonical evidence, exact counts, outward-rounded 95% Wilson intervals, fixed
+C5-02 is Done. The owner entered C5-03 on 2026-08-29. Independent review approved head `4ea7cd9`
+and raised one P2 cross-segment coverage issue plus one P3 weak-sample-visibility issue.
+Remediation head `0c61427` applied both, passed GitHub Actions run `33211270363`, and PR #80 merged
+it as `a587f42` without a pre-merge rereview. PR #81's post-merge closeout review confirmed that
+exact remediation delta. The dormant package supplies nine closed aggregate metrics, source hashes,
+immutable canonical evidence, exact counts, outward-rounded 95% Wilson intervals, fixed
 aggregate-only surveys, and a read-only ordered receipt funnel. Review remediation removes
 ambiguous cross-segment coverage:
 coverage is exact-segment-only and exposes the widest interval width to surface weak samples.

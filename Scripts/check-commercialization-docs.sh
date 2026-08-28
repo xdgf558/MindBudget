@@ -1487,13 +1487,13 @@ grep -Fq '`33176551566`, and PR #78 merge `4715054`.**' \
   exit 1
 }
 
-grep -Fq 'Status: **Done after independent review of exact head `0c61427`, green GitHub Actions run' \
+grep -Fq 'Status: **Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-03 Done status must retain the reviewed exact head" >&2
+  echo "C5-03 Done status must retain the accurate pre/post-merge review boundary" >&2
   exit 1
 }
 
-grep -Fq '`33211270363`, and PR #80 merge `a587f42`.**' \
+grep -Fq 'remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
   echo "C5-03 Done status must retain green CI and merge provenance" >&2
   exit 1
@@ -1542,8 +1542,7 @@ for c503_contract_anchor in \
   'zero_denominator' \
   'not_collected' \
   'pseudonym generation' \
-  'current customer telemetry collection and egress remain zero' \
-  'C5-04 awaits explicit owner entry'; do
+  'current customer telemetry collection and egress remain zero'; do
   if ! grep -Fq "${c503_contract_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -1652,9 +1651,10 @@ if grep -Eq 'C5-03 (awaits|still requires) (a )?(separate )?explicit owner entry
   exit 1
 fi
 
-# C5-03 closes only on the independently reviewed exact remediation head, its successful hosted
-# run, and PR #80 merge. Require every current-state/evidence document to retain those facts while
-# preserving the zero-capture/no-G1 boundary and keeping C5-04 behind a separate owner entry.
+# C5-03's pre-merge review covered 4ea7cd9. The 0c61427 remediation passed hosted CI and merged
+# without a pre-merge rereview; PR #81's closeout review then verified that exact delta. Require
+# every current-state/evidence document to retain that accurate chronology and the separate C5-04
+# owner-entry boundary rather than accepting a cross-file OR match.
 c503_closeout_files=(
   Docs/COMMERCIALIZATION_TASKS.md
   Docs/TASKS.md
@@ -1669,12 +1669,16 @@ c503_closeout_files=(
 )
 
 for c503_closeout_file in "${c503_closeout_files[@]}"; do
-  for c503_provenance_anchor in '0c61427' '33211270363' 'a587f42'; do
+  for c503_provenance_anchor in '4ea7cd9' '0c61427' '33211270363' 'a587f42' 'PR #81'; do
     if ! grep -Fq "${c503_provenance_anchor}" "${c503_closeout_file}"; then
       echo "C5-03 provenance is missing ${c503_provenance_anchor} in ${c503_closeout_file}" >&2
       exit 1
     fi
   done
+  if ! grep -Fq 'C5-04 awaits explicit owner entry' "${c503_closeout_file}"; then
+    echo "C5-04 owner-entry boundary is missing in ${c503_closeout_file}" >&2
+    exit 1
+  fi
 done
 
 grep -Fq 'DEC-COM-065' Docs/Commercialization/DECISIONS.md || {
@@ -1682,7 +1686,10 @@ grep -Fq 'DEC-COM-065' Docs/Commercialization/DECISIONS.md || {
   exit 1
 }
 
-if grep -Eq 'C5-03 (implementation (is )?complete pending|implementation pending review/CI/merge|remains pending (re)?review|awaits independent review)|Status: \*\*Implementation complete pending independent review\.\*\*|Status: \*\*Blocked by C5-03\.\*\*' \
+# Phase Status lines are already parsed with their heading by commercialization_phase_states.py;
+# keep this prose scan phase-qualified so a future C5-04 pending-review Status cannot be mistaken
+# for stale C5-03 state.
+if grep -Eq 'C5-03 (implementation (is )?complete pending|implementation pending review/CI/merge|remains pending (re)?review|awaits independent review)|Status: \*\*Blocked by C5-03\.\*\*' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -1693,6 +1700,21 @@ if grep -Eq 'C5-03 (implementation (is )?complete pending|implementation pending
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C5-03 as pending review or C5-04 as blocked by C5-03" >&2
+  exit 1
+fi
+
+if grep -Eq 'Independent review approved (exact )?(C5-03 )?(remediation )?head `0c61427`|Exact remediation head `0c61427` passed independent review|reviewed head `0c61427`' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/CI_BASELINE.md; then
+  echo "C5-03 provenance must not claim that 0c61427 received a pre-merge independent review" >&2
   exit 1
 fi
 

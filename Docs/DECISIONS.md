@@ -3043,11 +3043,13 @@ C5-04 and all activation/release work remain blocked.
 
 ## 2026-08-29 — Close C5-03 after reviewed PR #80 merge
 
-Context: Exact remediation head `0c61427` passed independent review and GitHub Actions run
-`33211270363`; PR #80 merged it as `a587f42`.
+Context: Independent review approved head `4ea7cd9` and raised one P2 cross-segment coverage issue
+plus one P3 weak-sample-visibility issue. Remediation head `0c61427` applied both, passed GitHub
+Actions run `33211270363`, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's
+post-merge closeout review read that exact remediation delta and confirmed both fixes.
 
-Decision: Detailed ownership is DEC-COM-065. Mark C5-03 Done on the reviewed dormant evidence
-computation while keeping C5-04 subject to separate explicit owner entry.
+Decision: Detailed ownership is DEC-COM-065. Mark C5-03 Done after PR #81's post-merge verification
+of the exact remediation delta while keeping C5-04 subject to separate explicit owner entry.
 
 Consequences: No customer telemetry capture, App Store/survey evidence, metric result, G1 decision,
 App Privacy change, Production action, distribution, or release is inferred from C5-03. COM-C5

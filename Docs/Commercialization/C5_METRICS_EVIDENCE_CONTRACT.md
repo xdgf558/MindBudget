@@ -1,7 +1,8 @@
 # C5 Metrics and Evidence Contract
 
-Status: **C5-03 Done after independent review of exact head `0c61427`, green GitHub Actions run
-`33211270363`, and PR #80 merge `a587f42`.** C5-04 awaits explicit owner entry.
+Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
+remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
+C5-04 awaits explicit owner entry.
 
 ## Purpose and non-goals
 

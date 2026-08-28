@@ -106,11 +106,12 @@ operational proof, and final-binary traffic before any telemetry may ship.
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
 `33176551566` passed, and PR #78 merged it as `4715054`. DEC-COM-062 closes only the dormant
 receiver/adapter package: collection, capture, customer telemetry egress, and App Privacy answers
-remain unchanged. The owner entered C5-03 on 2026-08-29; independent review approved its exact
-remediation head `0c61427`, GitHub Actions run `33211270363` passed, and PR #80 merged it as
-`a587f42`. DEC-COM-065 closes only dormant aggregate evidence computation: no route, capture call,
-real evidence result, G1 decision, or App Privacy change exists. C5-04 awaits explicit owner entry,
-and every distribution/release proof remains blocked.
+remain unchanged. The owner entered C5-03 on 2026-08-29. Independent review approved head
+`4ea7cd9`; remediation head `0c61427` closed its P2/P3 findings, passed GitHub Actions run
+`33211270363`, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge
+closeout review confirmed that exact delta. DEC-COM-065 closes only dormant aggregate evidence
+computation: no route, capture call, real evidence result, G1 decision, or App Privacy change
+exists. C5-04 awaits explicit owner entry, and every distribution/release proof remains blocked.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

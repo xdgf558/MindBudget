@@ -8,11 +8,14 @@ The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C close
 (`82ef0fa`). Exact final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76
 merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. Independent review
 approved exact remediation head `72abf4b`, GitHub Actions run `33176551566` passed, and PR #78
-merged it as `4715054`; C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant
-metrics/evidence implementation is Done after independent review approved exact remediation head
-`0c61427`, GitHub Actions run `33211270363` passed, and PR #80 merged it as `a587f42`. C5-04 awaits
-explicit owner entry, and no collection, customer setting, capture call, G1 decision, App Privacy
-change, Staging/Production deployment, distribution, or release is authorized.
+merged it as `4715054`; C5-02 is Done. The owner entered C5-03 on 2026-08-29. Independent review
+approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one P3
+weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Actions run
+`33211270363` passed, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's
+post-merge closeout review confirmed that exact delta; C5-03's dormant metrics/evidence
+implementation is Done. C5-04 awaits explicit owner entry, and no collection, customer setting,
+capture call, G1 decision, App Privacy change, Staging/Production deployment, distribution, or
+release is authorized.
 
 ## Input gate
 
@@ -216,8 +219,8 @@ or C5-04 release approval.
 
 ## C5-03 — Metrics and G1 evidence
 
-Status: **Done after independent review of exact head `0c61427`, green GitHub Actions run
-`33211270363`, and PR #80 merge `a587f42`.**
+Status: **Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
+remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
 
 Own exact App Store and voluntary telemetry numerators/denominators, confidence intervals, coverage
 reporting, survey workflow, and the receipt funnel without expanding captured fields.

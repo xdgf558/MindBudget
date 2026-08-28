@@ -472,10 +472,12 @@ DEC-COM-060. The dormant fixed adapter and independent Worker/D1 receiver are im
 Development version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed and probed. Staging is
 unmigrated/undeployed and Production has no provisioned D1 resource. Independent review approved
 exact remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 merged it as
-`4715054`; C5-02 is Done. C5-03's dormant implementation is Done after independent review approved
-exact remediation head `0c61427`, hosted run `33211270363` passed, and PR #80 merged it as
-`a587f42`: a closed
-nine-metric evidence vocabulary, exact aggregate counts/source hashes, immutable canonical JSON,
+`4715054`; C5-02 is Done. Independent review approved C5-03 head `4ea7cd9` and raised one P2
+cross-segment coverage issue plus one P3 weak-sample-visibility issue. Remediation head `0c61427`
+applied both, hosted run `33211270363` passed, and PR #80 merged it as `a587f42` without a
+pre-merge rereview. PR #81's post-merge closeout review confirmed that exact delta; C5-03's dormant
+implementation is Done. It supplies a closed nine-metric evidence vocabulary, exact aggregate
+counts/source hashes, immutable canonical JSON,
 95% Wilson basis-point intervals, explicit suppressed/zero/not-collected states, a fixed voluntary
 survey workflow, and a read-only ordered D1 receipt funnel. Independent review remediation removes
 the root coverage roll-up, keeps coverage on exact environment/storefront/device-family segments,
