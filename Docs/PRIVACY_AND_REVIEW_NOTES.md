@@ -103,6 +103,12 @@ no provisioned D1 resource. C5-03/C5-04 still must add metrics, explicit bilingu
 disclosure, data-flow/capture audit, App Privacy, operational proof, and final-binary traffic before
 any telemetry may ship.
 
+Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
+`33176551566` passed, and PR #78 merged it as `4715054`. DEC-COM-062 closes only the dormant
+receiver/adapter package: collection, capture, customer telemetry egress, and App Privacy answers
+remain unchanged. C5-03 awaits explicit owner entry; C5-04 and every distribution/release proof
+remain blocked.
+
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,
 storefront, StoreKit fact, or financial/content field. The independent MindBudget Worker stores no
