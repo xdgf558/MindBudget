@@ -1,0 +1,126 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mindbudget-telemetry",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-28",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 0.01,
+      "invocation_logs": false,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "triggers": {
+    "crons": ["17 * * * *"]
+  },
+  "vars": {
+    "DEPLOYMENT_ENVIRONMENT": "production",
+    "EXPECTED_HOST": "mindbudget-telemetry.yehao1105.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "TELEMETRY_DB",
+      "database_name": "mindbudget-telemetry-production",
+      "database_id": "00000000-0000-4000-8000-000000000003",
+      "preview_database_id": "00000000-0000-4000-8000-000000000003",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "TELEMETRY_EDGE_RATE_LIMITER",
+      "namespace_id": "97600301",
+      "simple": { "limit": 120, "period": 60 }
+    },
+    {
+      "name": "TELEMETRY_IDENTITY_RATE_LIMITER",
+      "namespace_id": "97600302",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ],
+  "env": {
+    "development": {
+      "name": "mindbudget-telemetry-dev",
+      "vars": {
+        "DEPLOYMENT_ENVIRONMENT": "development",
+        "EXPECTED_HOST": "mindbudget-telemetry-dev.yehao1105.workers.dev"
+      },
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "invocation_logs": false,
+          "persist": true
+        },
+        "traces": { "enabled": false }
+      },
+      "d1_databases": [
+        {
+          "binding": "TELEMETRY_DB",
+          "database_name": "mindbudget-telemetry-development",
+          "database_id": "2faff8ac-de17-4fd0-aaa7-546bd1902e74",
+          "preview_database_id": "2faff8ac-de17-4fd0-aaa7-546bd1902e74",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "TELEMETRY_EDGE_RATE_LIMITER",
+          "namespace_id": "97600101",
+          "simple": { "limit": 120, "period": 60 }
+        },
+        {
+          "name": "TELEMETRY_IDENTITY_RATE_LIMITER",
+          "namespace_id": "97600102",
+          "simple": { "limit": 60, "period": 60 }
+        }
+      ]
+    },
+    "staging": {
+      "name": "mindbudget-telemetry-staging",
+      "vars": {
+        "DEPLOYMENT_ENVIRONMENT": "staging",
+        "EXPECTED_HOST": "mindbudget-telemetry-staging.yehao1105.workers.dev"
+      },
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 0.1,
+          "invocation_logs": false,
+          "persist": true
+        },
+        "traces": { "enabled": false }
+      },
+      "d1_databases": [
+        {
+          "binding": "TELEMETRY_DB",
+          "database_name": "mindbudget-telemetry-staging",
+          "database_id": "776d171d-ec10-4a90-9235-b537e063e04b",
+          "preview_database_id": "776d171d-ec10-4a90-9235-b537e063e04b",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "TELEMETRY_EDGE_RATE_LIMITER",
+          "namespace_id": "97600201",
+          "simple": { "limit": 120, "period": 60 }
+        },
+        {
+          "name": "TELEMETRY_IDENTITY_RATE_LIMITER",
+          "namespace_id": "97600202",
+          "simple": { "limit": 60, "period": 60 }
+        }
+      ]
+    }
+  }
+}

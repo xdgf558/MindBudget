@@ -50,9 +50,11 @@ detailed phase checklists; it added no paid product behavior.
   PR #75's closeout review then read and accepted that exact maintenance delta post-merge, and PR
   #75 merged as `82ef0fa`. C4C-05 and COM-C4C are Done. A separate explicit owner entry opened
   COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run
-  `33085630481`, and PR #76 merged it as `68304ad`. C5-01 is Done; C5-02 awaits separate explicit
-  owner entry, C5-03/C5-04 remain blocked, and there is still no live telemetry transport or
-  collection.**
+  `33085630481`, and PR #76 merged it as `68304ad`. C5-01 is Done. The owner entered C5-02 on
+  2026-08-28; its implementation and Development-only receiver probe are complete pending
+  independent review, green hosted CI, and merge. C5-03/C5-04 remain blocked, and there is still no
+  production construction, capture call, customer collection, Staging/Production deployment, or
+  release authority.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -559,12 +561,13 @@ Status: **Done after independent review of exact head `d937dc8`, green GitHub Ac
 
 ### C5-02 — Minimal ingest and deletion
 
-Status: **Blocked pending explicit owner entry after C5-01 closeout.**
+Status: **Implementation complete pending independent review, green hosted CI, and merge.**
 
-- [B] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
+- [ ] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
   environment separation, monitoring, cost limits, deletion-association non-retention, and the
-  explicit in-flight opt-out cancellation policy. Event-ID acceptance and identical proof-deletion
-  retries must be idempotent before transport is reachable.
+  explicit in-flight opt-out cancellation policy are implemented. Development alone is deployed
+  and probed; the iOS adapter remains unconstructed with zero capture calls. Independent review,
+  green hosted CI, and merge remain required before C5-02 is Done.
 
 ### C5-03 — Metrics and G1 evidence
 

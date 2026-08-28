@@ -31,6 +31,7 @@ Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
 Scripts/check-public-configuration-contract.sh
 Scripts/check-telemetry-contract.sh
+Scripts/check-telemetry-worker-contract.sh
 Scripts/check-feature-access-boundary.sh
 Scripts/check-storekit-test-catalog.sh
 

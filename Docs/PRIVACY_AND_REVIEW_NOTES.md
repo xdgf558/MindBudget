@@ -92,10 +92,13 @@ or repeatedly disabling never-enabled telemetry creates no file, Keychain key, i
 C5-02 must make event acceptance and proof deletion idempotent because a remote success can precede
 a failed local acknowledgement or cleanup.
 Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 merged C5-01 as
-`68304ad`. That reviewed merge closes only the dormant local client. C5-02 awaits separate explicit
-owner entry; C5-02 through C5-04 must still add and verify the real endpoint, TTL/deletion, explicit
-bilingual control/disclosure, data-flow/capture audit, and final-binary traffic before any telemetry
-may ship.
+`68304ad`. That reviewed merge closes only the dormant local client. The owner then entered C5-02.
+Its implementation establishes a strict content-free first-party receiver, real 90 x 24-hour UTC
+TTL and proof deletion, and a bounded fixed adapter, but the adapter remains unconstructed and no
+capture call exists. Only Development is deployed/probed; Staging is undeployed and Production has
+no provisioned D1 resource. C5-03/C5-04 still must add metrics, explicit bilingual control/
+disclosure, data-flow/capture audit, App Privacy, operational proof, and final-binary traffic before
+any telemetry may ship.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

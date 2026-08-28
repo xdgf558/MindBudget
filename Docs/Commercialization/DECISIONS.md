@@ -1792,3 +1792,38 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   deployed channel; describing local proof retention as server TTL/deletion evidence; adding a
   provisional host, call site, customer control, or App Privacy answer in a closeout; marking
   COM-C5 Done; or using the reviewed merge as Production, distribution, or release authority.
+
+## DEC-COM-060 — Enter C5-02 with a deletion-safe first-party receiver
+
+- Status/date: **Accepted owner-entry and C5-02 implementation contract — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057/058/059
+- Context: C5-01 is reviewed and merged, but its transport is deliberately unavailable. Before any
+  endpoint can become reachable, C5-02 must make retries idempotent, make late upload unable to
+  resurrect deleted data, prove a real maximum server retention window, isolate environments, and
+  bound anonymous abuse without introducing a customer/content identifier or persisting the
+  complete-delete request's cross-generation association.
+- Decision: Accept the three exact `mindbudget-telemetry[-dev|-staging].yehao1105.workers.dev`
+  hosts with anonymous `POST /v1/events` and proof-authenticated `POST /v1/delete`. Use distinct
+  Worker/D1/rate-limit resources per environment. Enforce exact bounded JSON and a closed event
+  vocabulary; store only independent typed event rows, one handle per pseudonym, and independent
+  per-generation delete tombstones. Event UUID conflicts with different facts reject atomically;
+  exact retries do not duplicate. Delete validates every proof before any mutation, records no
+  request/group association, is idempotent, and makes late matching uploads accepted-but-discarded.
+  Expire rows and tombstones within 90 x 24 UTC hours from server acceptance using indexed bounded
+  Cron deletion. Disable invocation logs; persist only sampled closed operational reason codes.
+  Opt-out best-effort cancels the active upload but does not claim to revoke an already accepted
+  request. Add the fixed iOS adapter and direct tests without constructing it in the app; keep the
+  unavailable transport default and zero capture call sites. Deploy/probe Development only.
+- Consequences: C5-02 can prove receiver schema, environment separation, TTL mechanics, deletion,
+  retry, cancellation, and cost/monitoring boundaries without changing customer collection or App
+  Privacy answers. C5-03 metrics and C5-04 control/disclosure remain blocked. Staging/Production
+  deployment, final traffic, distribution, and release remain unauthorized. Development alone may
+  own a migrated D1 and deployed Worker; an isolated Staging D1 may exist without migration or
+  deployment, while the Production binding stays an invalid placeholder until a separately
+  authorized resource-provisioning gate.
+- Alternatives rejected: A shared database or wildcard host; arbitrary dictionaries/free text;
+  storing raw deletion secrets, grouped proof requests, IP addresses, or request bodies; a static
+  client API secret presented as authentication; IP rate limiting as deletion authority; deleting
+  only currently present events without a late-upload tombstone; exactly-once assumptions; keeping
+  data 90 days from a client-controlled timestamp; unbounded cleanup; claiming opt-out can recall a
+  request already accepted at the edge; enabling capture/customer controls; or deploying Production.

@@ -5970,3 +5970,32 @@ every selected coverage threshold passed. Four opt-in physical CloudKit probes w
 skips, and `CSVExporter.swift` remained the minimum selected result at 87.60% against 85%. The
 validator removed its temporary `mindbudget-validation.k5zkq3/MindBudget.xcresult` bundle after
 success, so the name is an execution pointer rather than a durable artifact.
+
+## 2026-08-28 — Implement C5-02 deletion-safe minimal telemetry ingest
+
+The owner explicitly entered C5-02 after the reviewed C5-01 closeout. DEC-COM-060 adds a strict
+first-party Cloudflare Worker/D1 receiver with exact environment hosts, bounded closed-schema
+upload and proof-authenticated complete deletion, event-ID idempotency, atomic conflict rejection,
+independent deletion tombstones, maximum 90 x 24-hour UTC retention, bounded hourly cleanup, and
+closed non-content monitoring. The iOS transport adapter is compiled and directly tested, but
+`UnavailableTelemetryTransport` remains the production default: no production client is
+constructed, no capture call exists, and current customer telemetry collection/egress remain zero.
+
+Only Development was migrated, deployed, and probed. Worker version
+`1c162a57-8789-4f7f-9fec-f2c484e9f4f2` accepted one event, accepted its identical retry,
+atomically rejected the same event ID with changed facts, authenticated complete deletion, and
+accepted-but-discarded a matching late upload. The final Development D1 read showed zero events,
+zero identities, and two independent tombstones. Staging has only an isolated, unmigrated,
+undeployed D1 resource; Production has no provisioned D1 and no deployment. C5-03/C5-04,
+customer controls, App Privacy changes, metrics, Production, distribution, and release remain
+blocked. Independent review, hosted CI, and merge remain required.
+
+The first owning full-validation attempt used the system Command Line Tools selection and stopped
+before any Xcode build; it is an environmental non-pass. The explicit Xcode 27 beta 6 rerun passed
+every static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 542 unit
+tests across 32 suites, all 17 UI tests, and every selected coverage threshold. Four opt-in
+physical CloudKit probes remained explicit skips, and `CSVExporter.swift` was the minimum selected
+coverage result at 87.60% against 85%. The validator removed its temporary
+`mindbudget-validation.1f3FOS/MindBudget.xcresult` bundle after success, so the name is an execution
+pointer rather than a durable artifact. `Docs/CHANGELOG.md` is unchanged because the adapter remains
+dormant and this package adds no customer-visible behavior.

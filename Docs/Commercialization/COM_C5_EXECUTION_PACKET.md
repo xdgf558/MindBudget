@@ -5,22 +5,25 @@
 Status: **In Progress.**
 
 The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C closed through PR #75
-(`82ef0fa`). This packet opens only C5-01. It does not accept a domain, create a live transport,
-enable collection, add a customer setting, deploy a receiver, change App Privacy answers, enter
-C5-02, or authorize Production/distribution. Exact final C5-01 head `d937dc8` passed GitHub Actions
-run `33085630481`, and PR #76 merged it as `68304ad`.
+(`82ef0fa`). Exact final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76
+merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. C5-02 may establish the
+reviewable receiver and dormant client adapter below, but it may not enable collection, add a
+customer setting or capture call, change App Privacy answers, enter C5-03, deploy Production, or
+authorize distribution.
 
 ## Input gate
 
 - SPEC-009 and SPEC-012 accept only an optional, explicit-control, first-party, allow-listed,
   pseudonymous channel whose fixed schema excludes customer content and whose failure cannot alter
   product behavior.
-- REQ-R1-TELEMETRY-001 remains Active. C5-01 may establish the typed local client and test seams;
-  real TTL, server rejection, deletion, environment isolation, monitoring, cost, capture audit,
-  disclosure, and final-binary traffic evidence remain later gates.
-- `NETWORK_EGRESS_POLICY.md` still lists the telemetry domain and endpoints as UNVERIFIED/TBD.
-  Therefore a URL, `URLSession` adapter, Worker, dashboard, secret, entitlement, or production call
-  site is outside this packet.
+- REQ-R1-TELEMETRY-001 remains Active. C5-01 established the typed local client and test seams;
+  C5-02 now owns the exact receiver, TTL, server rejection, deletion, environment isolation,
+  monitoring, cost ceilings, and dormant adapter. Capture audit, disclosure, App Privacy, and
+  final-binary traffic remain C5-03/C5-04 and release gates.
+- `NETWORK_EGRESS_POLICY.md` accepts only the three exact first-party hosts and two exact POST
+  paths. Development alone may be deployed/probed. No production client construction, capture
+  call, customer setting, Staging/Production deployment, dashboard product claim, entitlement, or
+  release action is inside this packet.
 - Receipt images, prepared pixels, OCR, privacy-filtered receipt text, model evidence, merchant,
   amount, note, category, StoreKit identifiers, CloudKit envelopes, and other business facts must
   remain unrepresentable by the telemetry event type.
@@ -141,13 +144,59 @@ Status: **Done after independent review of exact head `d937dc8`, green GitHub Ac
 
 ## C5-02 — Minimal ingest and deletion
 
-Status: **Blocked pending separate explicit owner entry after C5-01 closeout.**
+Status: **Implementation complete pending independent review, green hosted CI, and merge.**
 
 Own the independent serverless receiver, strict request-byte schema, environment separation,
 unknown/free-text rejection, real retention and deletion behavior, abuse/cost ceilings, monitoring,
 the smallest reviewed client network adapter, non-retention of deletion-request cross-generation
 association, and the explicit in-flight opt-out cancellation policy. It may not infer C5-03 metrics
 or C5-04 release approval.
+
+### Accepted C5-02 boundary
+
+- The exact first-party hosts are `mindbudget-telemetry-dev.yehao1105.workers.dev`,
+  `mindbudget-telemetry-staging.yehao1105.workers.dev`, and
+  `mindbudget-telemetry.yehao1105.workers.dev`. Each environment owns a distinct Worker, D1
+  database, and rate-limit namespaces. Development may be deployed and probed in this package;
+  Staging and Production remain configuration-only until their later owner gates.
+- Upload is anonymous `POST /v1/events`; deletion is proof-authenticated `POST /v1/delete`.
+  Requests are bounded JSON with exact keys and duplicate-key rejection, no cookies, authorization header, query,
+  redirect, caller URL, arbitrary property map, or free text. Success/rejection/retry responses are
+  empty and status-coded; the client buffers at most 1 KiB of response data.
+- An upload contains at most 20 events and 32 KiB. D1 enforces one deletion handle per pseudonym
+  and one exact row per event UUID. An identical accepted event is idempotent; the same UUID with
+  different facts rejects the whole batch. A previously deleted pseudonym/handle pair accepts but
+  discards a late identical upload so deletion cannot be undone by an older in-flight request.
+- A delete request contains at most four UUID/32-byte-secret proofs and 2 KiB. SHA-256 proof
+  comparison authorizes deletion. All proof pairs pass or none mutate. The grouped association
+  exists only in request-local memory/SQL parameters: storage contains independent per-generation
+  tombstones and never a deletion request, group ID, proof list, IP, or association row. Identical
+  retries are successful.
+- Events and deletion tombstones expire no later than `acceptedAt + 90 * 24 hours` in UTC. This is
+  a server maximum-duration privacy bound, not a user-calendar UI date. An hourly UTC Cron removes
+  expired rows in bounded indexed chunks; request paths also prune the addressed expired identity.
+- Edge-derived IP and pseudonym rate limits are permissive abuse buffers, not accounting or delete
+  authority. Every request has fixed body, batch, D1-statement, and CPU ceilings. Persistent Worker
+  logs disable invocation metadata and contain only sampled closed route/reason/environment codes;
+  request bodies, IPs, pseudonyms, event IDs, app versions, handles, secrets, and grouped proofs are
+  never logged.
+- Opt-out makes local state disabled and clears unsent events, then best-effort cancels the active
+  upload transport. It cannot truthfully revoke a response already accepted at the edge; a raced
+  accepted event remains subject to the real TTL and explicit delete. Server tombstones make a
+  later in-flight upload non-resurrecting. C5-04 owns the customer-facing wording.
+- `FixedTelemetryTransport` is compiled and directly testable but is not constructed by production
+  app code. `UnavailableTelemetryTransport` remains the `TelemetryClient` default, and there are
+  still zero capture call sites and zero customer telemetry egress until C5-04 accepts controls and
+  disclosure.
+- Only Development is deployed: `mindbudget-telemetry-dev` version
+  `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` owns D1
+  `2faff8ac-de17-4fd0-aaa7-546bd1902e74`. Its exact live probe accepted one upload and an identical
+  retry, atomically rejected a changed `appVersion` under the same event UUID, authenticated a
+  proof delete, accepted-but-discarded a late matching upload, and ended with 0 event rows,
+  0 identity rows, and 2 independent tombstones. Staging has only the isolated, unmigrated,
+  undeployed D1 resource `776d171d-ec10-4a90-9235-b537e063e04b`; Production has no provisioned D1
+  resource and the checked-in UUID is an intentionally invalid placeholder. Neither environment
+  has a deployed Worker or probe evidence.
 
 ## C5-03 — Metrics and G1 evidence
 
