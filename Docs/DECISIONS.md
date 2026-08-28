@@ -3022,3 +3022,19 @@ output. Add no event field, route, customer collection, deployment, or G1 result
 Consequences: C5-03 remains pending independent review, hosted CI, and merge. Customer telemetry
 collection/egress stay zero; C5-04, App Privacy changes, Staging/Production, distribution, and
 release remain blocked.
+
+---
+
+## 2026-08-29 — Keep C5 evidence coverage on exact segments
+
+Context: Independent review found that the draft C5-03 root coverage added Development,
+Production, `ALL`, and specific-storefront segment cells into one number, and that completeness did
+not surface the uncertainty of a denominator-one metric.
+
+Decision: Detailed ownership is DEC-COM-064. Remove root coverage entirely. Retain completeness
+only on exact environment/storefront/device-family segments and add the widest available 95%
+confidence-interval width to each segment. Do not invent a sample threshold in C5-03.
+
+Consequences: No mixed-population number can be cited for G1, while a tiny but computable sample
+remains available with its weakness visible. C5-03 still awaits rereview, hosted CI, and merge;
+C5-04 and all activation/release work remain blocked.

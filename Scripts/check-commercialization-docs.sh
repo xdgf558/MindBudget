@@ -1527,8 +1527,11 @@ done
 
 for c503_contract_anchor in \
   'DEC-COM-063' \
+  'DEC-COM-064' \
   'c5-03-v1' \
   'wilson_score_95_outward_rounded_basis_points' \
+  'widestConfidenceIntervalBasisPoints' \
+  'no cross-segment roll-up' \
   'source_suppressed' \
   'zero_denominator' \
   'not_collected' \

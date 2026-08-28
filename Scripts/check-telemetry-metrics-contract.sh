@@ -56,6 +56,7 @@ for evidence_anchor in \
   'zero_denominator' \
   'not_collected' \
   'metric_artifact_source' \
+  'widestConfidenceIntervalBasisPoints' \
   'inputStat.size > MAXIMUM_INPUT_BYTES' \
   'await link(temporaryPath, outputPath)' \
   'input and output paths must differ'; do
@@ -64,6 +65,12 @@ for evidence_anchor in \
     exit 1
   }
 done
+
+if grep -Fq 'requiredMetricIDs.length * segments.length' "${EVIDENCE_TOOL}" \
+  || grep -Fq 'segments.reduce((sum, segment) => sum + segment.coverage' "${EVIDENCE_TOOL}"; then
+  echo "C5-03 evidence must not roll coverage across exact segments" >&2
+  exit 1
+fi
 
 for funnel_anchor in \
   'MAXIMUM_OBSERVATION_WINDOW_MILLISECONDS = 90 * 24 * 60 * 60 * 1000' \
@@ -131,6 +138,8 @@ done
 for test_anchor in \
   'uses a fixed outward-rounded Wilson 95 percent interval' \
   'distinguishes Apple suppression, a proven zero denominator, and no collection' \
+  'never rolls coverage across environments or overlapping storefront populations' \
+  'surfaces weak samples through the widest per-segment confidence interval' \
   'rejects missing metrics, impossible counts, and source-digest substitution' \
   'CLI commits canonical evidence once and refuses to overwrite it'; do
   grep -Fq "${test_anchor}" "${EVIDENCE_TEST}" || {

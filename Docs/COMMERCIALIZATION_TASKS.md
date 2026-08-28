@@ -580,7 +580,8 @@ Status: **Implementation complete pending independent review.**
 - [ ] Define App Store metric workflow, survey, exact numerator/denominator/confidence intervals,
   observability coverage, and receipt funnel. `C5_METRICS_EVIDENCE_CONTRACT.md` now fixes nine
   aggregate metric IDs, explicit suppressed/zero/not-collected states, source digests, immutable
-  canonical output, 95% Wilson basis-point intervals, and a read-only ordered D1 receipt funnel.
+  canonical output, 95% Wilson basis-point intervals, exact-segment coverage with its widest
+  interval width, no cross-segment roll-up, and a read-only ordered D1 receipt funnel.
   The package remains dormant pending independent review, hosted CI, and merge.
 
 ### C5-04 — Operations and disclosures

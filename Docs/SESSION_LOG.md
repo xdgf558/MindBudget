@@ -6102,3 +6102,24 @@ survey or App Store export is claimed collected, and no real evidence bundle, me
 threshold pass, G1 decision, deployment, App Privacy change, distribution, or release is claimed.
 C5-03 remains pending independent review, hosted CI, and merge; C5-04 remains blocked. There is no
 CHANGELOG entry because the package introduces no customer-visible or live-network behavior.
+
+PR #80 independent review found that the candidate root coverage value added exact segments across
+different environments and overlapping `ALL`/specific-storefront populations. DEC-COM-064 removes
+that root roll-up entirely: coverage now belongs only to one exact environment/app-version/
+storefront/device-family segment. Each segment also exposes
+`widestConfidenceIntervalBasisPoints`; a one-of-one sample remains honestly computable but reports
+the 7,935-basis-point Wilson width instead of looking as strong as a large sample. No arbitrary
+minimum denominator or G1 threshold was invented in C5-03.
+
+Regression coverage now includes mixed Development/Production segments, overlapping `ALL`/`USA`
+storefronts, the one-of-one weak-sample vector, and a no-available-metric `null` width. The Worker
+check passes 35/35 local-D1 cases and eight offline evidence-contract tests, all three environment
+dry-runs/startup checks, generated bindings, TypeScript checking, and the high-severity dependency
+audit with zero vulnerabilities. Full validation with Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator passed every static contract, Release compilation, the strict
+10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected
+coverage threshold. Four opt-in physical CloudKit probes remained explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator removed
+`mindbudget-validation.MjKE14/MindBudget.xcresult` after success, so the name is an execution
+pointer rather than a durable artifact. No deployment, evidence collection, threshold pass, or G1
+decision is claimed; exact-head rereview, hosted CI, and merge remain required.

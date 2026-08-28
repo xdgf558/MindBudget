@@ -536,7 +536,8 @@ review. C5-04, Production, and release remain blocked.
 - [ ] Complete C5-03 metrics and G1 evidence after the owner's explicit 2026-08-29 entry. The
   implementation adds a closed nine-metric aggregate evidence vocabulary, immutable canonical
   JSON builder, exact numerator/denominator/sample/source provenance, outward-rounded 95% Wilson
-  intervals, fixed voluntary bilingual survey workflow, evidence-completeness reporting, and an
-  ordered read-only D1 receipt funnel. It adds no App capture call, event field, HTTP route,
+  intervals, fixed voluntary bilingual survey workflow, exact-segment evidence-completeness plus
+  widest-interval reporting, and an ordered read-only D1 receipt funnel. No root/cross-segment
+  coverage is emitted. It adds no App capture call, event field, HTTP route,
   deployment, customer collection, or G1 decision. Independent review, hosted CI, and merge remain
   open; C5-04, Production/distribution/release remain unauthorized.

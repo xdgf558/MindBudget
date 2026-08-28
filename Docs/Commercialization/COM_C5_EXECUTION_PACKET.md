@@ -223,8 +223,11 @@ The accepted implementation delta is `C5_METRICS_EVIDENCE_CONTRACT.md`, a closed
 and a read-only D1 aggregate. It fixes nine metric IDs, exact numerator/denominator/sample counts,
 source-export SHA-256 provenance, explicit `source_suppressed`/`zero_denominator`/`not_collected`
 states, outward-rounded 95% Wilson intervals in integer basis points, evidence-completeness coverage,
-and a fixed aggregate-only bilingual survey. Receipt stages count only ordered completed events for
-one app version and half-open window; the unit is a pseudonym generation, never a user/device.
+and a fixed aggregate-only bilingual survey. Coverage exists only inside each exact environment /
+storefront / device-family segment, has no cross-segment roll-up, and surfaces the widest available
+confidence-interval width so a small sample cannot hide behind completeness. Receipt stages count
+only ordered completed events for one app version and half-open window; the unit is a pseudonym
+generation, never a user/device.
 No code path exposes a metrics route, queries App Store Connect, collects survey responses,
 constructs the client, or changes the closed event vocabulary.
 

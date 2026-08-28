@@ -475,8 +475,10 @@ exact remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 me
 `4715054`; C5-02 is Done. C5-03 now has a dormant implementation pending review: a closed
 nine-metric evidence vocabulary, exact aggregate counts/source hashes, immutable canonical JSON,
 95% Wilson basis-point intervals, explicit suppressed/zero/not-collected states, a fixed voluntary
-survey workflow, and a read-only ordered D1 receipt funnel. No telemetry capture, route, deployment,
-or customer evidence exists; C5-04 remains blocked by C5-03.
+survey workflow, and a read-only ordered D1 receipt funnel. Independent review remediation removes
+the root coverage roll-up, keeps coverage on exact environment/storefront/device-family segments,
+and exposes the widest interval width so a tiny sample is visible. No telemetry capture, route,
+deployment, or customer evidence exists; C5-04 remains blocked by C5-03.
 DEC-COM-061 remediates the independent review before rereview: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats
 bounded batches until drained, and C5-04 owns terminal fixed-endpoint failure behavior before any

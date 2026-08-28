@@ -22,6 +22,7 @@ Every evidence bundle records:
 - the evaluated app version and telemetry schema version `1`;
 - one UTC half-open observation window `[start, end)` no longer than 90 days;
 - one or more exact `environment / appVersion / storefront / deviceFamily` segments;
+- coverage only inside each exact segment, with no root-level or cross-segment roll-up;
 - source-export timestamps and lowercase SHA-256 digests; and
 - all nine required metric IDs, including explicit unavailable states.
 
@@ -77,6 +78,18 @@ measure the share of all customers who enabled telemetry: opt-out devices send n
 usage opt-in describes a different population. C5-03 therefore forbids dividing telemetry
 pseudonyms by Apple Active Devices and calling that a participation rate.
 
+Coverage is emitted only inside an exact `environment / appVersion / storefront / deviceFamily`
+segment. The bundle has no root coverage because Development cannot support a Production decision,
+and `ALL` may overlap a specific storefront while device-family segments may describe different
+populations. A later G1 decision must cite its exact segment and may not average, add, or otherwise
+roll coverage across segments.
+
+`available` means the source exposes a computable proportion; it does not mean the sample is
+adequate. Every segment therefore reports `widestConfidenceIntervalBasisPoints`, the widest upper
+minus lower 95% Wilson interval among its available metrics, or `null` when none are available. A
+`1 / 1` metric remains truthfully available but makes weak evidence visible through its 7,935-basis-
+point interval width. C5-03 invents no minimum denominator or G1 acceptance threshold.
+
 ## Receipt funnel
 
 `receiptFunnelCounts` is a read-only D1 aggregation with no HTTP route. It returns four integers and
@@ -98,7 +111,8 @@ unique users.
    outside the repository and record the export's SHA-256 digest.
 3. Copy only the aggregate integers defined above. If Apple omits or threshold-suppresses a row,
    record `source_suppressed`; if the report is absent, record `not_collected`.
-4. Do not combine filters with different populations, observation windows, or opt-in semantics.
+4. Do not combine filters with different populations, observation windows, opt-in semantics,
+   environments, storefront scopes, or device families. Keep every comparison on its exact segment.
 5. Generate an immutable evidence bundle with:
 
    ```bash

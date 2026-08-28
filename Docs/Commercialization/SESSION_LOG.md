@@ -2989,3 +2989,30 @@ exports, real metric values, representative sample, threshold pass, G1 decision,
 App Privacy update, distribution, or release is claimed. `UnavailableTelemetryTransport` remains
 the app default with zero production construction/capture call sites. C5-03 awaits independent
 review, hosted CI, and merge; C5-04 remains blocked.
+
+## 2026-08-29 — Remediate C5-03 exact-segment coverage review
+
+PR #80 independent review correctly identified that root coverage summed exact segments across
+Development/Staging/Production and could double-count overlapping `ALL` and specific storefront
+populations. DEC-COM-064 adopts the stronger resolution: the evidence bundle has no root or
+cross-segment coverage roll-up. Completeness is reported only inside one exact environment,
+app-version, storefront, and device-family segment, and any later G1 citation must name that segment.
+
+The non-blocking weak-sample observation is also made visible without inventing an owner threshold.
+Every segment now reports `widestConfidenceIntervalBasisPoints`, or `null` when no metric is
+available. A one-of-one sample therefore remains `available` under the existing computation
+contract while visibly carrying the 7,935-basis-point 95% Wilson interval width. Eight offline
+contract tests cover mixed environments, overlapping `ALL`/`USA` storefronts, one-of-one evidence,
+and no-available evidence in addition to the original canonicalization and fail-closed cases.
+
+The remediated Worker package passes 35/35 Vitest cases against local D1, eight evidence-contract
+tests, generated bindings, TypeScript checking, Development/Staging/Production dry-runs and startup
+checks, and the high-severity audit with zero vulnerabilities. Full validation used Xcode 27.0 beta
+6 (`27A5252f`) with the iOS 26.5 iPhone 17 Pro simulator and passed every static contract, Release
+compilation, the strict 10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI
+tests, and every selected coverage threshold. Four opt-in physical CloudKit probes remained
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator deleted `mindbudget-validation.MjKE14/MindBudget.xcresult` after success. No deployment,
+probe, actual evidence bundle, metric conclusion, G1 decision, App Privacy change, distribution, or
+release is claimed. C5-03 remains pending exact-head rereview, hosted CI, and merge; C5-04 remains
+blocked.

@@ -41,6 +41,18 @@ function availableMetric(id, numerator = 50, denominator = 100, sampleSize = 100
   };
 }
 
+function notCollectedMetric(id) {
+  return {
+    artifactSHA256: null,
+    denominator: null,
+    id,
+    numerator: null,
+    sampleSize: null,
+    source: metricSources[id],
+    status: "not_collected",
+  };
+}
+
 function input() {
   return {
     evaluatedAppVersion: "1.0.0",
@@ -84,9 +96,11 @@ test("builds complete deterministic rows with exact counts and source digests", 
   secondInput.sourceArtifacts.reverse();
   const second = buildEvidenceBundle(secondInput);
 
-  assert.equal(first.coverage.availableMetricCount, 9);
-  assert.equal(first.coverage.requiredMetricCount, 9);
-  assert.equal(first.coverage.availableRatioBasisPoints, 10_000);
+  assert.equal(Object.hasOwn(first, "coverage"), false);
+  assert.equal(first.segments[0].coverage.availableMetricCount, 9);
+  assert.equal(first.segments[0].coverage.requiredMetricCount, 9);
+  assert.equal(first.segments[0].coverage.availableRatioBasisPoints, 10_000);
+  assert.equal(first.segments[0].coverage.widestConfidenceIntervalBasisPoints, 1924);
   assert.equal(first.segments[0].metrics[0].id, "app_store_download_conversion");
   assert.equal(first.segments[0].metrics[0].confidenceInterval95.lowerBasisPoints, 4038);
   assert.equal(canonicalEvidenceJSON(first), canonicalEvidenceJSON(second));
@@ -123,11 +137,61 @@ test("distinguishes Apple suppression, a proven zero denominator, and no collect
   };
 
   const result = buildEvidenceBundle(candidate);
-  assert.equal(result.coverage.availableMetricCount, 6);
-  assert.equal(result.coverage.evidenceBearingMetricCount, 8);
+  assert.equal(result.segments[0].coverage.availableMetricCount, 6);
+  assert.equal(result.segments[0].coverage.evidenceBearingMetricCount, 8);
   assert.equal(result.segments[0].metrics.find((row) => row.id === "app_store_download_conversion").estimateBasisPoints, null);
   assert.equal(result.segments[0].metrics.find((row) => row.id === "receipt_acquired_from_opened").denominator, 0);
   assert.equal(result.segments[0].metrics.find((row) => row.id === "survey_response_rate").artifactSHA256, null);
+});
+
+test("never rolls coverage across environments or overlapping storefront populations", () => {
+  const candidate = input();
+  candidate.segments[0].metrics = Object.keys(metricSources).map(notCollectedMetric);
+  candidate.segments.push({
+    appVersion: "1.0.0",
+    deviceFamily: "iPhone",
+    environment: "development",
+    metrics: Object.keys(metricSources).map((id) => availableMetric(id)),
+    storefront: "ALL",
+  });
+  candidate.segments.push({
+    appVersion: "1.0.0",
+    deviceFamily: "iPhone",
+    environment: "production",
+    metrics: Object.keys(metricSources).map((id) => availableMetric(id)),
+    storefront: "USA",
+  });
+
+  const result = buildEvidenceBundle(candidate);
+  assert.equal(Object.hasOwn(result, "coverage"), false);
+  assert.deepEqual(result.segments.map((segment) => ({
+    availableMetricCount: segment.coverage.availableMetricCount,
+    environment: segment.environment,
+    storefront: segment.storefront,
+  })), [
+    { availableMetricCount: 9, environment: "development", storefront: "ALL" },
+    { availableMetricCount: 0, environment: "production", storefront: "ALL" },
+    { availableMetricCount: 9, environment: "production", storefront: "USA" },
+  ]);
+});
+
+test("surfaces weak samples through the widest per-segment confidence interval", () => {
+  const candidate = input();
+  candidate.segments[0].metrics[0] = availableMetric(
+    "app_store_download_conversion",
+    1,
+    1,
+    1,
+  );
+  const result = buildEvidenceBundle(candidate);
+
+  assert.equal(result.segments[0].coverage.availableMetricCount, 9);
+  assert.equal(result.segments[0].coverage.availableRatioBasisPoints, 10_000);
+  assert.equal(result.segments[0].coverage.widestConfidenceIntervalBasisPoints, 7935);
+
+  candidate.segments[0].metrics = Object.keys(metricSources).map(notCollectedMetric);
+  const unavailable = buildEvidenceBundle(candidate);
+  assert.equal(unavailable.segments[0].coverage.widestConfidenceIntervalBasisPoints, null);
 });
 
 test("rejects missing metrics, impossible counts, and source-digest substitution", () => {

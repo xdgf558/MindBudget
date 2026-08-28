@@ -145,7 +145,9 @@ remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 merged i
 C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant metrics/evidence implementation
 is complete pending review: nine closed aggregate metrics, source hashes, immutable canonical
 evidence, exact counts, outward-rounded 95% Wilson intervals, fixed aggregate-only surveys, and a
-read-only ordered receipt funnel. C5-04 and release remain blocked.
+read-only ordered receipt funnel. Review remediation removes ambiguous cross-segment coverage:
+coverage is exact-segment-only and exposes the widest interval width to surface weak samples.
+C5-04 and release remain blocked.
 DEC-COM-061 remediates review findings without enabling the dormant client: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, hourly cleanup repeats bounded batches until drained, and C5-04 must make fixed

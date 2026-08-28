@@ -195,8 +195,14 @@ function validatedSegment(value, artifactByDigest, evaluatedAppVersion) {
   if (requiredMetricIDs.some((identifier) => !metricIDs.includes(identifier))) fail("missing_metric");
   metrics.sort((lhs, rhs) => lhs.id.localeCompare(rhs.id, "en"));
 
-  const availableMetricCount = metrics.filter((metric) => metric.status === "available").length;
+  const availableMetrics = metrics.filter((metric) => metric.status === "available");
+  const availableMetricCount = availableMetrics.length;
   const evidenceBearingMetricCount = metrics.filter((metric) => metric.status !== "not_collected").length;
+  const widestConfidenceIntervalBasisPoints = availableMetrics.length === 0
+    ? null
+    : Math.max(...availableMetrics.map((metric) => (
+      metric.confidenceInterval95.upperBasisPoints - metric.confidenceInterval95.lowerBasisPoints
+    )));
   return Object.freeze({
     appVersion: segment.appVersion,
     coverage: Object.freeze({
@@ -207,6 +213,7 @@ function validatedSegment(value, artifactByDigest, evaluatedAppVersion) {
         evidenceBearingMetricCount * BASIS_POINTS / requiredMetricIDs.length,
       ),
       requiredMetricCount: requiredMetricIDs.length,
+      widestConfidenceIntervalBasisPoints,
     }),
     deviceFamily: segment.deviceFamily,
     environment: segment.environment,
@@ -263,23 +270,8 @@ export function buildEvidenceBundle(value) {
       .localeCompare([rhs.environment, rhs.appVersion, rhs.storefront, rhs.deviceFamily].join("/"), "en")
   ));
 
-  const requiredMetricCount = requiredMetricIDs.length * segments.length;
-  const availableMetricCount = segments.reduce((sum, segment) => sum + segment.coverage.availableMetricCount, 0);
-  const evidenceBearingMetricCount = segments.reduce(
-    (sum, segment) => sum + segment.coverage.evidenceBearingMetricCount,
-    0,
-  );
   return Object.freeze({
     confidenceMethod: "wilson_score_95_outward_rounded_basis_points",
-    coverage: Object.freeze({
-      availableMetricCount,
-      availableRatioBasisPoints: Math.floor(availableMetricCount * BASIS_POINTS / requiredMetricCount),
-      evidenceBearingMetricCount,
-      evidenceBearingRatioBasisPoints: Math.floor(
-        evidenceBearingMetricCount * BASIS_POINTS / requiredMetricCount,
-      ),
-      requiredMetricCount,
-    }),
     evaluatedAppVersion: input.evaluatedAppVersion,
     evidenceVersion: EVIDENCE_VERSION,
     generatedAt: input.generatedAt,
