@@ -1434,4 +1434,50 @@ for c501_final_review_anchor in \
   fi
 done
 
+# C5-01 closes only on the independently reviewed exact head, its green hosted run, and PR #76
+# merge. Require the exact provenance in every current-state/evidence document; this closeout must
+# leave the client dormant and must not enter C5-02 automatically.
+c501_closeout_files=(
+  Docs/COMMERCIALIZATION_TASKS.md
+  Docs/TASKS.md
+  Docs/PROJECT_MEMORY.md
+  Docs/Commercialization/PROJECT_MEMORY.md
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
+  Docs/Commercialization/REQUIREMENTS_INDEX.md
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md
+  Docs/Commercialization/CI_BASELINE.md
+)
+
+for c501_closeout_file in "${c501_closeout_files[@]}"; do
+  for c501_provenance_anchor in 'd937dc8' '33085630481' '68304ad'; do
+    if ! grep -Fq "${c501_provenance_anchor}" "${c501_closeout_file}"; then
+      echo "C5-01 provenance is missing ${c501_provenance_anchor} in ${c501_closeout_file}" >&2
+      exit 1
+    fi
+  done
+done
+
+grep -Fq 'DEC-COM-059' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-01 reviewed merge closeout is missing DEC-COM-059" >&2
+  exit 1
+}
+
+if grep -Eq 'C5-01 (implementation (is )?complete pending (independent )?review|remains In Progress|awaits independent review)|C5-01/C5-02 remain blocked|C5-02 through C5-04 remain blocked' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C5-01 as pending or C5-02 as dependency-blocked" >&2
+  exit 1
+fi
+
+grep -Fq 'Status: **Blocked pending separate explicit owner entry after C5-01 closeout.**' \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
+  echo "C5-02 must remain blocked pending separate explicit owner entry after C5-01 closeout" >&2
+  exit 1
+}
+
 echo "Commercialization documentation gate passed"

@@ -248,9 +248,10 @@ the documentation closeout as `2107723`. C4C-04 is Done. Independent review appr
 remediation head `8607356` and raised three nonblocking P3 observations. Maintenance head
 `81cd107` applied them, passed GitHub Actions run `33035427257`, and PR #74 merged it as `d751ff4`
 without a pre-merge rereview. PR #75's closeout review then accepted that exact delta post-merge.
-C4C-05 and COM-C4C are Done through PR #75 (`82ef0fa`). A separate explicit owner entry opened COM-C5 on
-2026-08-27. C5-01 implementation is complete pending independent review; it adds no production
-capture call site, endpoint, or transport. C5-02 through C5-04, Production, and release remain
+C4C-05 and COM-C4C are Done through PR #75 (`82ef0fa`). A separate explicit owner entry opened
+COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`,
+and PR #76 merged it as `68304ad`. C5-01 is Done without a production capture call site, endpoint,
+or transport. C5-02 awaits explicit owner entry; C5-03/C5-04, Production, and release remain
 blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
@@ -504,7 +505,7 @@ blocked.
 - [x] Complete the C4C-05/COM-C4C documentation closeout through independent review, green hosted
   CI, and PR #75 merge `82ef0fa`. Record DEC-COM-055 and the exact PR #74 evidence without
   relabeling the manual-review-only physical amount as recognized.
-- [ ] Complete C5-01 independent review, hosted CI, and merge after the owner's explicit COM-C5
+- [x] Complete C5-01 independent review, hosted CI, and merge after the owner's explicit COM-C5
   entry. Keep the implementation dormant and default-off: no production construction/capture call,
   URL, receiver, customer setting, or transport. Require the closed event/envelope vocabulary,
   upload-envelope pseudonym non-reuse, explicit grouped-delete association, retained deletion
@@ -517,3 +518,9 @@ blocked.
   authorize telemetry egress, Production, tester assignment, distribution, or release. Local
   focused telemetry tests pass 21/21; exact-source validation passes Release, the strict Dashboard
   benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.
+  Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 merged it as
+  `68304ad`. C5-02 was not entered automatically.
+- [ ] Enter C5-02 only after a separate explicit owner instruction. Until then, keep
+  `UnavailableTelemetryTransport` as the only production default and preserve zero telemetry
+  collection/egress; do not infer an endpoint, receiver, customer control, App Privacy change,
+  Production, distribution, or release authority from the C5-01 closeout.

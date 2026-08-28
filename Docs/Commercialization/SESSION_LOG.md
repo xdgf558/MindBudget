@@ -2821,3 +2821,23 @@ the minimum selected result at 87.60% against 85%. The validator removed its tem
 `mindbudget-validation.g8bqhg/MindBudget.xcresult` bundle after success. Hosted CI and merge remain
 required. No production construction, call site, endpoint, transport, telemetry collection, or
 egress was added; C5-02 through C5-04 and Production/distribution remain blocked.
+
+## 2026-08-28 — C5-01 reviewed-merge documentation closeout
+
+Independent review approved exact final PR #76 head `d937dc8`. GitHub Actions run `33085630481`
+completed successfully on that head, and PR #76 merged to `main` as `68304ad`. DEC-COM-059 marks
+C5-01 Done while keeping COM-C5 In Progress.
+
+The closeout records only the dormant local capability. No production `TelemetryClient`
+construction, capture call, URL, endpoint, receiver, transport, customer setting, App Privacy
+answer, collection, or egress was added. C5-02 awaits separate explicit owner entry; C5-03/C5-04,
+Production, distribution, and release remain blocked. This branch changes documentation and the
+commercialization state gate only and still requires its own independent review, green hosted CI,
+and merge.
+
+The closeout branch then passed `Scripts/validate.sh`: every static contract, Release compilation,
+the strict 10,000-row Dashboard benchmark, 538 unit tests across 32 suites, all 17 UI tests, and
+every selected coverage threshold passed. Four opt-in physical CloudKit probes were explicit
+skips; `CSVExporter.swift` remained the minimum selected result at 87.60% against 85%. The
+validator removed its temporary `mindbudget-validation.k5zkq3/MindBudget.xcresult` bundle after
+success, so the name is an execution pointer rather than a durable artifact.
