@@ -1855,3 +1855,25 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   allowing URLSession's variable default user agent or language; weakening the 90-day statement to
   eventual deletion; unbounded SQL statements; or expanding the dormant C5-02 local lifecycle for
   customer-facing terminal error handling owned by C5-04.
+
+## DEC-COM-062 — Close C5-02 on reviewed dormant-receiver evidence
+
+- Status/date: **Accepted after reviewed PR #78 merge — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056/057/058/059/060/061
+- Context: Independent review approved exact remediation head `72abf4b`, GitHub Actions run
+  `33176551566` completed successfully on that head, and PR #78 merged it to `main` as `4715054`.
+  The review confirmed both P1, both P2, and both P3 findings were closed with targeted tests; the
+  remaining observability and future physical confirmation observations are nonblocking and belong
+  to later activation/operations work.
+- Decision: Mark C5-02 Done on the reviewed source, hosted run, and merge. Preserve
+  `UnavailableTelemetryTransport` as the production default with zero client construction and
+  capture calls. Do not infer that the DEC-COM-061 remediation was redeployed or live-probed: the
+  recorded Development version remains the earlier candidate, Staging remains undeployed, and
+  Production remains unprovisioned/undeployed. C5-03 is no longer dependency-blocked but requires a
+  separate explicit owner entry; C5-04 remains blocked by C5-03.
+- Consequences: C5-02 closes the strict content-free receiver and dormant adapter only. Customer
+  telemetry collection/egress, controls/disclosure, App Privacy changes, metrics/G1 evidence,
+  terminal fixed-endpoint guidance, Production, distribution, and release remain unauthorized.
+- Alternatives rejected: Treating green CI as a deployment claim; automatically entering C5-03;
+  constructing the adapter before C5-04 terminal-failure and disclosure work; or marking COM-C5
+  Done before C5-03/C5-04.

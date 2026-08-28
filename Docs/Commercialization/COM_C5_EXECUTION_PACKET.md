@@ -6,10 +6,11 @@ Status: **In Progress.**
 
 The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C closed through PR #75
 (`82ef0fa`). Exact final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76
-merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. C5-02 may establish the
-reviewable receiver and dormant client adapter below, but it may not enable collection, add a
-customer setting or capture call, change App Privacy answers, enter C5-03, deploy Production, or
-authorize distribution.
+merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. Independent review
+approved exact remediation head `72abf4b`, GitHub Actions run `33176551566` passed, and PR #78
+merged it as `4715054`; C5-02 is Done. C5-03 still requires explicit owner entry, C5-04 remains
+blocked by C5-03, and no collection, customer setting, capture call, App Privacy change,
+Staging/Production deployment, distribution, or release is authorized.
 
 ## Input gate
 
@@ -144,7 +145,8 @@ Status: **Done after independent review of exact head `d937dc8`, green GitHub Ac
 
 ## C5-02 — Minimal ingest and deletion
 
-Status: **Implementation complete pending independent review, green hosted CI, and merge.**
+Status: **Done after independent review of exact head `72abf4b`, green GitHub Actions run
+`33176551566`, and PR #78 merge `4715054`.**
 
 Own the independent serverless receiver, strict request-byte schema, environment separation,
 unknown/free-text rejection, real retention and deletion behavior, abuse/cost ceilings, monitoring,
@@ -211,7 +213,7 @@ or C5-04 release approval.
 
 ## C5-03 — Metrics and G1 evidence
 
-Status: **Blocked by C5-02.**
+Status: **Blocked pending explicit owner entry after C5-02 closeout.**
 
 Own exact App Store and voluntary telemetry numerators/denominators, confidence intervals, coverage
 reporting, survey workflow, and the receipt funnel without expanding captured fields.
@@ -225,8 +227,8 @@ policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion ver
 
 ## Exit and stop conditions
 
-C5-01 may be Done only after exact-head independent review, green hosted CI, and merge. COM-C5 is
-not Done until C5-02 through C5-04 prove a content-free, optional, deletable, observable, and
+C5-01 and C5-02 may be Done only after exact-head independent review, green hosted CI, and merge.
+COM-C5 is not Done until C5-03 and C5-04 prove a content-free, optional, deletable, observable, and
 cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,

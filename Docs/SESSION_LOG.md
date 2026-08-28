@@ -6030,3 +6030,30 @@ C5-02 remains pending Development redeploy/probe of the remediated source, exact
 green hosted CI, and merge. Staging/Production, C5-03/C5-04, App Privacy changes, distribution, and
 release remain blocked. `Docs/CHANGELOG.md` remains unchanged because no customer-visible behavior
 is enabled.
+
+## 2026-08-28 — Close C5-02 after reviewed PR #78 merge
+
+Independent review approved exact remediation head `72abf4b`: both P1, both P2, and both P3
+findings were closed with targeted tests, while the remaining observability and future physical
+confirmation observations were explicitly nonblocking. GitHub Actions run `33176551566` completed
+successfully on that exact head, and PR #78 merged to `main` as `4715054`. DEC-COM-062 therefore
+marks C5-02 Done.
+
+This closeout does not claim a post-remediation Development deployment or probe. The recorded
+Development Worker remains the earlier candidate; Staging remains unmigrated/undeployed and
+Production remains unprovisioned/undeployed. `UnavailableTelemetryTransport` is still the app
+default, there are zero production client constructions and capture calls, and current customer
+telemetry collection/egress remain zero. C5-03 is no longer dependency-blocked but awaits separate
+explicit owner entry; C5-04 remains blocked by C5-03. App Privacy changes, Production,
+distribution, and release remain unauthorized.
+
+This branch changes documentation and its state gate only; it changes no Swift, Worker, schema,
+endpoint, entitlement, persistence, customer control, or user-visible behavior. Consequently
+`Docs/CHANGELOG.md` remains unchanged. The closeout branch passed every static contract, Release
+compilation, the isolated strict 10,000-row Dashboard benchmark, 542 unit tests across 32 suites,
+all 17 UI tests, and every selected coverage threshold. Four opt-in physical CloudKit probes were
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against the 85%
+floor. The validator removed its temporary
+`mindbudget-validation.Bj3fdn/MindBudget.xcresult` bundle after success, so the name is an
+execution pointer rather than a durable artifact. Independent review, green hosted CI, and merge
+remain required for this documentation closeout.

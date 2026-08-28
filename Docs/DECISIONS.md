@@ -2991,3 +2991,18 @@ terminal handling for fixed endpoint-policy failures before any transport constr
 
 Consequences: C5-02 remains pending rereview, hosted CI, and merge. Collection/capture stays zero;
 C5-03/C5-04, App Privacy changes, Staging/Production, distribution, and release remain blocked.
+
+---
+
+## 2026-08-28 — Close C5-02 after reviewed PR #78 merge
+
+Context: Exact remediation head `72abf4b` passed independent review and GitHub Actions run
+`33176551566`; PR #78 merged it as `4715054`.
+
+Decision: Detailed ownership is DEC-COM-062. C5-02 is Done without constructing the telemetry
+adapter or enabling capture. C5-03 now awaits separate explicit owner entry, and C5-04 remains
+blocked by C5-03.
+
+Consequences: Current customer telemetry collection and egress remain zero. The recorded
+Development deployment predates the review remediation and is not relabeled as exact-source probe
+evidence. Staging/Production, App Privacy, distribution, and release remain blocked.

@@ -251,8 +251,9 @@ without a pre-merge rereview. PR #75's closeout review then accepted that exact 
 C4C-05 and COM-C4C are Done through PR #75 (`82ef0fa`). A separate explicit owner entry opened
 COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`,
 and PR #76 merged it as `68304ad`. C5-01 is Done without a production capture call site. The owner
-entered C5-02 on 2026-08-28; its receiver and dormant adapter implementation are complete pending
-independent review, green hosted CI, and merge. C5-03/C5-04, Production, and release remain blocked.
+entered C5-02 on 2026-08-28. Independent review approved exact remediation head `72abf4b`, hosted
+run `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. C5-03 awaits explicit
+owner entry, while C5-04, Production, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -520,7 +521,7 @@ independent review, green hosted CI, and merge. C5-03/C5-04, Production, and rel
   benchmark, 538 unit tests across 32 suites, 17/17 UI tests, and every selected coverage gate.
   Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 merged it as
   `68304ad`. C5-02 was not entered automatically.
-- [ ] Complete C5-02 after the owner's explicit 2026-08-28 entry. Implement the exact independent
+- [x] Complete C5-02 after the owner's explicit 2026-08-28 entry. Implement the exact independent
   dev/staging/production Worker/D1 contract, strict content-free request bytes, idempotent ingest
   and proof deletion, 90-day maximum server TTL, bounded abuse/cost controls, closed monitoring,
   and the smallest dormant iOS adapter. Development alone may be deployed/probed; keep
@@ -529,4 +530,7 @@ independent review, green hosted CI, and merge. C5-03/C5-04, Production, and rel
   the Development probe are complete. Review remediation replaces request-unique tombstone expiry
   times with a shared UTC-day bucket, fixes transport metadata, drains cleanup backlog through
   repeated bounded batches, and leaves permanent endpoint-policy failure UX to C5-04 before any
-  transport construction. Independent rereview, green hosted CI, and merge remain open.
+  transport construction. Independent review approved exact head `72abf4b`, hosted run
+  `33176551566` passed, and PR #78 merged it as `4715054`. C5-03 was not entered automatically.
+- [ ] Await explicit owner instruction before entering C5-03 metrics and G1 evidence. C5-04 remains
+  blocked by C5-03; Production/distribution/release remain unauthorized.

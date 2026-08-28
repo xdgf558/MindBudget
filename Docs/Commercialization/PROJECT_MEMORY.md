@@ -450,7 +450,7 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the C5-02 implementation without entering C5-03. The owner
+Next suggested task: wait for explicit owner instruction before entering C5-03. The owner
 explicitly entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05 closeout as `82ef0fa`.
 DEC-COM-056 limits this packet to a dormant default-off client: fixed typed events, ordinary
 upload-envelope pseudonym non-reuse across opt-out/re-enable, encrypted bounded persistence,
@@ -468,11 +468,13 @@ coverage gate. Exact final head `d937dc8` passed GitHub Actions run `33085630481
 merged it as `68304ad`; C5-01 is Done. The owner explicitly entered C5-02 on 2026-08-28 under
 DEC-COM-060. The dormant fixed adapter and independent Worker/D1 receiver are implemented; only
 Development version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed and probed. Staging is
-unmigrated/undeployed and Production has no provisioned D1 resource. C5-03/C5-04 remain blocked.
+unmigrated/undeployed and Production has no provisioned D1 resource. Independent review approved
+exact remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 merged it as
+`4715054`; C5-02 is Done. C5-03 awaits explicit owner entry, and C5-04 remains blocked by C5-03.
 DEC-COM-061 remediates the independent review before rereview: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats
 bounded batches until drained, and C5-04 owns terminal fixed-endpoint failure behavior before any
-production construction. C5-02 remains pending rereview, hosted CI, and merge.
+production construction. DEC-COM-062 records the reviewed C5-02 merge without enabling the client.
 Archive/TestFlight/App Store actions, remote receipt processing, receipt sync, capture/customer
 telemetry controls, distribution, and release remain unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution

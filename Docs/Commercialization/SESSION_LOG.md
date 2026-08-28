@@ -2919,3 +2919,26 @@ explicitly authorizes a Development-only redeploy and live probe. The adapter re
 collection/capture and customer egress remain zero, and C5-02 stays pending that exact-source probe,
 rereview, hosted CI, and merge. Staging/Production, C5-03/C5-04, App Privacy, distribution, and
 release remain blocked.
+
+## 2026-08-28 — C5-02 reviewed-merge documentation closeout
+
+Independent review approved exact PR #78 remediation head `72abf4b` and confirmed both P1, both P2,
+and both P3 findings were closed with targeted regressions. GitHub Actions run `33176551566`
+completed successfully on that head, and PR #78 merged it to `main` as `4715054`. DEC-COM-062
+closes only C5-02 on this evidence.
+
+The closeout preserves the dormant boundary. `UnavailableTelemetryTransport` remains the default,
+no production `TelemetryClient` is constructed, no capture call exists, and customer telemetry
+collection/egress remain zero. The earlier Development deployment/probe is not relabeled as exact
+DEC-COM-061 source evidence; Staging remains unmigrated/undeployed and Production remains
+unprovisioned/undeployed. C5-03 now awaits a separate explicit owner entry, while C5-04, App Privacy
+changes, Production, distribution, and release remain blocked.
+
+This documentation-only branch changes no Swift, Worker, schema, endpoint, entitlement,
+persistence, control, or customer-visible behavior and therefore adds no CHANGELOG entry. It
+passed every static contract, Release compilation, the isolated strict 10,000-row Dashboard
+benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold.
+Four opt-in physical CloudKit probes were explicit skips; `CSVExporter.swift` was the minimum
+selected result at 87.60% against the 85% floor. The validator deleted its temporary
+`mindbudget-validation.Bj3fdn/MindBudget.xcresult` bundle after success. Independent review, green
+hosted CI, and merge remain required for this documentation closeout.
