@@ -1683,3 +1683,47 @@ against the 85% floor. The validator deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.Bj3fdn/MindBudget.xcresult`
 after success, so the path is an execution pointer rather than a durable artifact. Independent
 review, green hosted CI, and merge remain required for this documentation closeout.
+
+### C5-03 metrics/evidence implementation candidate — 2026-08-29
+
+`Services/TelemetryWorker` passes generated binding types, `tsc --noEmit`, 35/35 Vitest cases
+against local D1, six Node evidence-contract tests, Development/Staging/Production Wrangler
+dry-runs and startup checks, and `npm audit --audit-level=high` with zero vulnerabilities. The D1
+cases prove app-version/window isolation, ordered completed receipt funnels, later valid chains,
+and malformed/reversed/over-retention rejection. The offline cases prove fixed Wilson vectors,
+canonical determinism, explicit unavailable states, source binding and chronology, bounded windows,
+and no-overwrite output. The money, network-egress, commercialization-document, StoreKit-catalog,
+telemetry-client, telemetry-Worker, and C5 metrics/evidence gates plus `git diff --check` pass.
+
+Full `Scripts/validate.sh` used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. It passed every static contract, Release compilation, the isolated strict 10,000-row
+Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage
+threshold. Four opt-in physical CloudKit probes were explicit skips. `CSVExporter.swift` was the
+minimum selected result at 87.60% against the 85% floor. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.0CrPs7/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact.
+
+No live Worker import/route, deployment, probe, production iOS construction/capture, customer
+collection, actual survey/App Store export, real evidence bundle, metric result, G1 decision,
+App Privacy change, distribution, or release is included. Independent review, hosted CI on the
+exact PR head, and merge remain required.
+
+### C5-03 exact-segment coverage remediation — 2026-08-29
+
+After PR #80 review, the evidence builder no longer emits a root coverage roll-up across exact
+segments. Eight offline evidence-contract tests now include mixed Development/Production segments,
+overlapping `ALL`/`USA` storefronts, a one-of-one metric whose segment reports a 7,935-basis-point
+widest Wilson interval, and a segment with no available metric whose width is `null`. The Worker
+package passes 35/35 local-D1 tests, all eight evidence tests, generated bindings, TypeScript
+checking, all three environment dry-runs/startup checks, and a high-severity dependency audit with
+zero vulnerabilities.
+
+Full `Scripts/validate.sh` used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. It passed every static contract, Release compilation, the isolated strict 10,000-row
+Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage
+threshold. Four opt-in physical CloudKit probes remained explicit skips; `CSVExporter.swift` was
+the minimum selected result at 87.60% against the 85% floor. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.MjKE14/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact. No deployment,
+real evidence collection, G1 decision, App Privacy change, distribution, or release is claimed.
+Exact-head rereview, hosted CI, and merge remain required.

@@ -8,8 +8,9 @@ The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C close
 (`82ef0fa`). Exact final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76
 merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. Independent review
 approved exact remediation head `72abf4b`, GitHub Actions run `33176551566` passed, and PR #78
-merged it as `4715054`; C5-02 is Done. C5-03 still requires explicit owner entry, C5-04 remains
-blocked by C5-03, and no collection, customer setting, capture call, App Privacy change,
+merged it as `4715054`; C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant
+metrics/evidence implementation is complete pending independent review; C5-04 remains blocked by
+C5-03, and no collection, customer setting, capture call, App Privacy change,
 Staging/Production deployment, distribution, or release is authorized.
 
 ## Input gate
@@ -213,10 +214,22 @@ or C5-04 release approval.
 
 ## C5-03 — Metrics and G1 evidence
 
-Status: **Blocked pending explicit owner entry after C5-02 closeout.**
+Status: **Implementation complete pending independent review.**
 
 Own exact App Store and voluntary telemetry numerators/denominators, confidence intervals, coverage
 reporting, survey workflow, and the receipt funnel without expanding captured fields.
+
+The accepted implementation delta is `C5_METRICS_EVIDENCE_CONTRACT.md`, a closed offline builder,
+and a read-only D1 aggregate. It fixes nine metric IDs, exact numerator/denominator/sample counts,
+source-export SHA-256 provenance, explicit `source_suppressed`/`zero_denominator`/`not_collected`
+states, outward-rounded 95% Wilson intervals in integer basis points, evidence-completeness coverage,
+and a fixed aggregate-only bilingual survey. Coverage exists only inside each exact environment /
+storefront / device-family segment, has no cross-segment roll-up, and surfaces the widest available
+confidence-interval width so a small sample cannot hide behind completeness. Receipt stages count
+only ordered completed events for one app version and half-open window; the unit is a pseudonym
+generation, never a user/device.
+No code path exposes a metrics route, queries App Store Connect, collects survey responses,
+constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 

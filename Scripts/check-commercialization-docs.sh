@@ -34,6 +34,7 @@ required_files=(
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
+  Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
 )
@@ -1486,9 +1487,9 @@ grep -Fq '`33176551566`, and PR #78 merge `4715054`.**' \
   exit 1
 }
 
-grep -Fq 'Status: **Blocked pending explicit owner entry after C5-02 closeout.**' \
+grep -Fq 'Status: **Implementation complete pending independent review.**' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-03 must await explicit owner entry after C5-02 closeout" >&2
+  echo "C5-03 must retain its pending-review implementation status" >&2
   exit 1
 }
 
@@ -1508,7 +1509,7 @@ for c502_contract_anchor in \
   '0 identity rows' \
   '2 independent tombstones' \
   'Production has no provisioned D1' \
-  'C5-03 awaits explicit owner entry'; do
+  'owner entered C5-03'; do
   if ! grep -Fq "${c502_contract_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -1520,6 +1521,35 @@ for c502_contract_anchor in \
       Docs/Commercialization/REQUIREMENTS_INDEX.md \
       Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
     echo "C5-02 implementation contract is missing: ${c502_contract_anchor}" >&2
+    exit 1
+  fi
+done
+
+for c503_contract_anchor in \
+  'DEC-COM-063' \
+  'DEC-COM-064' \
+  'c5-03-v1' \
+  'wilson_score_95_outward_rounded_basis_points' \
+  'widestConfidenceIntervalBasisPoints' \
+  'no cross-segment roll-up' \
+  'source_suppressed' \
+  'zero_denominator' \
+  'not_collected' \
+  'pseudonym generation' \
+  'current customer telemetry collection and egress remain zero' \
+  'C5-04 remains blocked'; do
+  if ! grep -Fq "${c503_contract_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-03 metrics evidence contract is missing: ${c503_contract_anchor}" >&2
     exit 1
   fi
 done
@@ -1598,6 +1628,19 @@ if grep -Eq 'C5-02 awaits (a )?(separate )?explicit owner entry|C5-02 must remai
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C5-02 as awaiting owner entry" >&2
+  exit 1
+fi
+
+if grep -Eq 'C5-03 (awaits|still requires) (a )?(separate )?explicit owner entry|Status: \*\*Blocked pending explicit owner entry after C5-02 closeout\.\*\*' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C5-03 as awaiting owner entry" >&2
   exit 1
 fi
 

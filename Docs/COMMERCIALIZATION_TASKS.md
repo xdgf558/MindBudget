@@ -52,9 +52,10 @@ detailed phase checklists; it added no paid product behavior.
   COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions run
   `33085630481`, and PR #76 merged it as `68304ad`. C5-01 is Done. The owner entered C5-02 on
   2026-08-28. Independent review approved exact remediation head `72abf4b`, GitHub Actions run
-  `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. C5-03 awaits explicit
-  owner entry, C5-04 remains blocked by C5-03, and there is still no production construction,
-  capture call, customer collection, Staging/Production deployment, or release authority.**
+  `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. The owner entered C5-03
+  on 2026-08-29. Its dormant metrics/evidence implementation is complete pending independent
+  review; C5-04 remains blocked, and there is still no production construction, capture call,
+  customer collection, Staging/Production deployment, or release authority.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -574,10 +575,14 @@ Status: **Done after independent review of exact head `72abf4b`, green GitHub Ac
 
 ### C5-03 — Metrics and G1 evidence
 
-Status: **Blocked pending explicit owner entry after C5-02 closeout.**
+Status: **Implementation complete pending independent review.**
 
-- [B] Define App Store metric workflow, survey, exact numerator/denominator/confidence intervals,
-  observability coverage, and receipt funnel.
+- [ ] Define App Store metric workflow, survey, exact numerator/denominator/confidence intervals,
+  observability coverage, and receipt funnel. `C5_METRICS_EVIDENCE_CONTRACT.md` now fixes nine
+  aggregate metric IDs, explicit suppressed/zero/not-collected states, source digests, immutable
+  canonical output, 95% Wilson basis-point intervals, exact-segment coverage with its widest
+  interval width, no cross-segment roll-up, and a read-only ordered D1 receipt funnel.
+  The package remains dormant pending independent review, hosted CI, and merge.
 
 ### C5-04 — Operations and disclosures
 

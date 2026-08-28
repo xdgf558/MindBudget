@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "npm run types && npm run typecheck && npm run test:run && npm run deploy:dry-run && npm run startup:check",
+    "check": "npm run types && npm run typecheck && npm run test:run && npm run test:evidence && npm run deploy:dry-run && npm run startup:check",
     "deploy:development": "wrangler deploy --env development",
     "deploy:dry-run": "npm run deploy:dry-run:production && npm run deploy:dry-run:development && npm run deploy:dry-run:staging",
     "deploy:dry-run:production": "wrangler deploy --env=\"\" --dry-run --outdir .wrangler/deploy-dry-run/production",
     "deploy:dry-run:development": "wrangler deploy --env development --dry-run --outdir .wrangler/deploy-dry-run/development",
     "deploy:dry-run:staging": "wrangler deploy --env staging --dry-run --outdir .wrangler/deploy-dry-run/staging",
+    "evidence:build": "node tools/build-c5-evidence.mjs",
     "migrate:development": "wrangler d1 migrations apply TELEMETRY_DB --env development --remote",
     "startup:check": "npm run startup:check:production && npm run startup:check:development && npm run startup:check:staging",
     "startup:check:production": "wrangler check startup --env=\"\"",
@@ -17,6 +18,7 @@
     "startup:check:staging": "wrangler check startup --env staging",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:evidence": "node --test test/c5-evidence.contract.mjs",
     "typecheck": "tsc --noEmit",
     "types": "wrangler types --include-runtime=false"
   },

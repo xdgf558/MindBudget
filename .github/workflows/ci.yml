@@ -71,6 +71,9 @@ jobs:
           npm audit --audit-level=high
           npm run check
 
+      - name: Verify telemetry metrics evidence boundary
+        run: Scripts/check-telemetry-metrics-contract.sh
+
       - name: Verify StoreKit local test catalog isolation
         run: Scripts/check-storekit-test-catalog.sh
 

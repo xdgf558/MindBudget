@@ -99,15 +99,16 @@ Its implementation establishes a strict content-free first-party receiver, real 
 TTL and proof deletion, repeated bounded cleanup, a fixed `MindBudget` user agent with no language
 metadata, and a bounded fixed adapter, but the adapter remains unconstructed and no
 capture call exists. Only Development is deployed/probed; Staging is undeployed and Production has
-no provisioned D1 resource. C5-03/C5-04 still must add metrics, explicit bilingual control/
-disclosure, data-flow/capture audit, App Privacy, operational proof, and final-binary traffic before
-any telemetry may ship.
+no provisioned D1 resource. C5-03 now adds only dormant aggregate metrics/evidence tooling; C5-04
+still must add explicit bilingual control/disclosure, data-flow/capture audit, App Privacy,
+operational proof, and final-binary traffic before any telemetry may ship.
 
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
 `33176551566` passed, and PR #78 merged it as `4715054`. DEC-COM-062 closes only the dormant
 receiver/adapter package: collection, capture, customer telemetry egress, and App Privacy answers
-remain unchanged. C5-03 awaits explicit owner entry; C5-04 and every distribution/release proof
-remain blocked.
+remain unchanged. The owner entered C5-03 on 2026-08-29; its implementation consumes only
+aggregate counts/source hashes and adds no route or capture call. C5-04 and every
+distribution/release proof remain blocked.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

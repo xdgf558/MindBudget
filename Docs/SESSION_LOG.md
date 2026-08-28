@@ -6065,3 +6065,61 @@ closeout record counted all three P3 findings as closed. The matrix now identifi
 decision and session records state that two P3 findings closed while fixed 404/405/421 terminal
 handling remains deferred to C5-04. The CI baseline now records Xcode 27.0 beta 6 (`27A5252f`) on
 the iOS 26.5 iPhone 17 Pro simulator. No runtime or deployment state changed.
+
+## 2026-08-29 — Implement C5-03 metrics and evidence computation
+
+The owner explicitly entered C5-03 after the reviewed C5-02 closeout. DEC-COM-063 adds a dormant,
+read-only receipt-funnel aggregate over local Worker D1 test infrastructure and a separate offline
+evidence builder. The query accepts only an exact app version and a bounded half-open UTC window,
+counts a pseudonym generation once at each ordered completed step, and returns only opened,
+acquired, reviewed, and saved aggregate counts. It is not imported by the live Worker entry point
+and exposes no HTTP route. No D1 write, identity row, event row, or content field can leave the
+query boundary.
+
+The evidence builder accepts a closed nine-metric vocabulary spanning owner-supplied App Store
+Analytics aggregates, first-party telemetry aggregates, and a fixed bilingual voluntary survey.
+It records exact numerator, denominator, sample size, observation window, source-export digest,
+and one of four explicit availability states. Available ratios use a fixed 95% Wilson score
+interval rounded outward to integer basis points. Coverage describes evidence completeness only;
+it is never presented as customer participation, and telemetry pseudonyms are never divided by
+Apple Active Devices. Canonical JSON is written immutably through a same-directory `0600` temporary
+file plus no-overwrite hard link and read-back verification.
+
+Worker verification passes 35/35 Vitest cases against local D1, six Node evidence-contract tests,
+generated binding types, TypeScript checking, all three environment dry-run/startup checks, and a
+high-severity dependency audit with zero vulnerabilities. The new static gate proves that neither
+the metrics module nor evidence tool is reachable from the production Worker and that the evidence
+tool contains no network client or identifier/content schema. Full validation with Xcode 27.0 beta
+6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator passed every static contract, Release
+compilation, the strict 10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI
+tests, and every selected coverage threshold. Four opt-in physical CloudKit probes remained
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator deleted its temporary `mindbudget-validation.0CrPs7/MindBudget.xcresult` bundle after
+success, so the name is an execution pointer rather than a durable artifact.
+
+No production telemetry client is constructed, no capture call or customer control is added, no
+survey or App Store export is claimed collected, and no real evidence bundle, metric result,
+threshold pass, G1 decision, deployment, App Privacy change, distribution, or release is claimed.
+C5-03 remains pending independent review, hosted CI, and merge; C5-04 remains blocked. There is no
+CHANGELOG entry because the package introduces no customer-visible or live-network behavior.
+
+PR #80 independent review found that the candidate root coverage value added exact segments across
+different environments and overlapping `ALL`/specific-storefront populations. DEC-COM-064 removes
+that root roll-up entirely: coverage now belongs only to one exact environment/app-version/
+storefront/device-family segment. Each segment also exposes
+`widestConfidenceIntervalBasisPoints`; a one-of-one sample remains honestly computable but reports
+the 7,935-basis-point Wilson width instead of looking as strong as a large sample. No arbitrary
+minimum denominator or G1 threshold was invented in C5-03.
+
+Regression coverage now includes mixed Development/Production segments, overlapping `ALL`/`USA`
+storefronts, the one-of-one weak-sample vector, and a no-available-metric `null` width. The Worker
+check passes 35/35 local-D1 cases and eight offline evidence-contract tests, all three environment
+dry-runs/startup checks, generated bindings, TypeScript checking, and the high-severity dependency
+audit with zero vulnerabilities. Full validation with Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator passed every static contract, Release compilation, the strict
+10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected
+coverage threshold. Four opt-in physical CloudKit probes remained explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator removed
+`mindbudget-validation.MjKE14/MindBudget.xcresult` after success, so the name is an execution
+pointer rather than a durable artifact. No deployment, evidence collection, threshold pass, or G1
+decision is claimed; exact-head rereview, hosted CI, and merge remain required.

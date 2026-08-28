@@ -14,6 +14,7 @@ export default defineConfig({
     })),
   ],
   test: {
+    fileParallelism: false,
     setupFiles: ["./test/apply-migrations.ts"],
   },
 });
