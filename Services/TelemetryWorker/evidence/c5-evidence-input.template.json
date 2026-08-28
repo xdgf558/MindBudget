@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "evidenceVersion": "c5-03-v1",
+  "generatedAt": "2026-08-29T00:00:00Z",
+  "evaluatedAppVersion": "0.0.0",
+  "telemetrySchemaVersion": 1,
+  "observationWindow": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-08-28T00:00:00Z"
+  },
+  "sourceArtifacts": [],
+  "segments": [
+    {
+      "environment": "development",
+      "appVersion": "0.0.0",
+      "storefront": "ALL",
+      "deviceFamily": "all",
+      "metrics": [
+        {
+          "id": "app_store_download_conversion",
+          "source": "app_store_connect_analytics",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "app_store_trial_to_paid",
+          "source": "app_store_connect_analytics",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "app_store_usage_opt_in",
+          "source": "app_store_connect_analytics",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "receipt_acquired_from_opened",
+          "source": "first_party_telemetry_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "receipt_reviewed_from_acquired",
+          "source": "first_party_telemetry_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "receipt_saved_from_reviewed",
+          "source": "first_party_telemetry_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "survey_response_rate",
+          "source": "voluntary_survey_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "survey_pro_value_positive",
+          "source": "voluntary_survey_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        },
+        {
+          "id": "survey_receipt_value_positive",
+          "source": "voluntary_survey_aggregate",
+          "status": "not_collected",
+          "numerator": null,
+          "denominator": null,
+          "sampleSize": null,
+          "artifactSHA256": null
+        }
+      ]
+    }
+  ]
+}

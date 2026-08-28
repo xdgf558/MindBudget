@@ -1878,3 +1878,35 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Treating green CI as a deployment claim; automatically entering C5-03;
   constructing the adapter before C5-04 terminal-failure and disclosure work; or marking COM-C5
   Done before C5-03/C5-04.
+
+## DEC-COM-063 — Build C5-03 as dormant aggregate evidence, not a new data channel
+
+- Status/date: **Accepted C5-03 implementation boundary — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-G1-001; SPEC-009/012
+- Context: The owner explicitly entered C5-03 after the reviewed C5-02 closeout. Later G1 needs
+  exact App Store, first-party telemetry, and voluntary survey evidence, but C5-04 still owns the
+  only possible customer control/capture activation and all release/privacy operations. Current
+  collection and customer telemetry egress are zero, and Apple may threshold or noise Analytics
+  rows. The existing receipt vocabulary contains only stage/outcome facts and a rotating
+  pseudonym generation, not a durable user/session identity.
+- Decision: Add no event, client construction, capture call, host, or HTTP route. Accept a closed
+  nine-metric aggregate vocabulary with exact integer numerator, denominator, and sample size;
+  source-export SHA-256 provenance; explicit `available`, `zero_denominator`,
+  `source_suppressed`, and `not_collected` states; and immutable canonical output. Compute
+  available proportions with a two-sided 95% Wilson score interval rounded outwards to integer
+  basis points. Define coverage as evidence completeness rather than population participation.
+  Add a read-only D1 receipt funnel that counts only ordered completed stages in one app-version,
+  half-open, at-most-90-day window and returns counts only. Its unit is a pseudonym generation,
+  never a user/device. Fix a bilingual, optional, aggregate-only two-question survey workflow with
+  no free text or product-data request.
+- Consequences: C5-03 can make later evidence reproducible without turning evidence preparation
+  into a fifth egress channel. Apple-suppressed values remain unavailable rather than inferred
+  from percentages; a proven zero denominator is not displayed as 0%; and current zero collection
+  remains visible as `not_collected`. The tooling does not claim App Store, survey, or production
+  funnel results and cannot decide G1. C5-04, Staging/Production, App Privacy changes,
+  distribution, and release remain blocked pending separate gates.
+- Alternatives rejected: Adding a `/metrics` or admin endpoint; storing raw App Store reports or
+  survey responses in the repository; dividing rotating telemetry pseudonyms by Apple's distinct
+  opt-in population and calling it customer coverage; treating missing/suppressed data as zero;
+  reverse-engineering counts from a displayed percentage; exposing pseudonyms in an evidence
+  report; accepting caller-defined metric names; or enabling capture to manufacture a C5-03 sample.

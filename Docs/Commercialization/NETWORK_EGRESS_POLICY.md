@@ -113,4 +113,6 @@ Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 m
 customer control, App Privacy change, Staging/Production deployment, distribution, or release.
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
 `33176551566` passed, and PR #78 merged it as `4715054`. Current customer telemetry egress remains
-zero; C5-03 awaits explicit owner entry and C5-04 remains blocked by C5-03.
+zero. The owner entered C5-03 on 2026-08-29, but its evidence builder is offline and its D1 receipt
+funnel is an unexposed read-only aggregate: it adds no host, path, request, client construction, or
+capture. C5-04 remains blocked by C5-03.

@@ -3006,3 +3006,19 @@ blocked by C5-03.
 Consequences: Current customer telemetry collection and egress remain zero. The recorded
 Development deployment predates the review remediation and is not relabeled as exact-source probe
 evidence. Staging/Production, App Privacy, distribution, and release remain blocked.
+
+---
+
+## 2026-08-29 — Enter C5-03 through dormant aggregate evidence
+
+Context: C5-02 is reviewed, merged, and still has no production client construction or capture
+call. The owner explicitly entered C5-03.
+
+Decision: Detailed ownership is DEC-COM-063. Add only a closed offline evidence builder and an
+unexposed read-only D1 receipt aggregate: exact counts/source hashes, explicit unavailable states,
+integer-basis-point 95% Wilson intervals, fixed aggregate-only surveys, and immutable canonical
+output. Add no event field, route, customer collection, deployment, or G1 result.
+
+Consequences: C5-03 remains pending independent review, hosted CI, and merge. Customer telemetry
+collection/egress stay zero; C5-04, App Privacy changes, Staging/Production, distribution, and
+release remain blocked.

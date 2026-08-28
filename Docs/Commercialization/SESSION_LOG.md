@@ -2950,3 +2950,42 @@ labels the 0-event/0-identity/2-tombstone Development probe as evidence from pre
 session tracks now record two closed P3 findings and the third, fixed 404/405/421 terminal handling,
 as deferred to C5-04. CI_BASELINE now records Xcode 27.0 beta 6 (`27A5252f`) and the iOS 26.5
 iPhone 17 Pro simulator for the closeout validation. No runtime or deployment action occurred.
+
+## 2026-08-29 — C5-03 deterministic metrics and immutable evidence candidate
+
+The owner explicitly entered C5-03. DEC-COM-063 accepts a read-only D1 receipt-funnel query and an
+offline evidence-bundle builder while retaining the C5-01/C5-02 dormancy boundary. The query is
+not imported by `src/index.ts`, has no HTTP route, performs no write, and returns only four aggregate
+counts for one exact app version and a bounded half-open UTC window. A pseudonym generation counts
+once per ordered completed receipt step, so the unit is neither a customer nor a device and cannot
+be combined with an App Store denominator as a participation rate.
+
+The builder's nine metric identifiers and three source families are closed. App Store Analytics
+inputs remain owner-supplied exports; telemetry inputs are aggregate-only; the voluntary
+`c5-survey-v1` instrument has two fixed bilingual questions, closed answers, and no free text or
+product data. Every row carries exact numerator/denominator/sample size, explicit availability,
+one source-export SHA-256 digest where evidence exists, and a 95% Wilson interval rounded outward
+to integer basis points. Unknown keys, duplicate metrics, missing source artifacts, impossible
+counts, invalid timestamps, excessive windows, source substitution, and output overwrite all fail
+closed. Canonical output uses sorted keys, a same-directory `0600` temporary file, an atomic
+no-overwrite hard link, and read-back verification.
+
+The Worker suite passes 35/35 cases against local D1. Six separate Node contract tests prove fixed
+Wilson vectors, deterministic sorted output, availability semantics, source binding, chronology,
+window limits, and immutable CLI output. Generated types, `tsc --noEmit`, Development/Staging/
+Production dry-runs and startup checks, and `npm audit --audit-level=high` with zero vulnerabilities
+also pass. The dedicated static gate proves the query/evidence code remains absent from the live
+Worker entry and rejects network, identifier, content, and write-capable shapes.
+
+The owning full validation used Xcode 27.0 beta 6 (`27A5252f`) with the iOS 26.5 iPhone 17 Pro
+simulator and passed every static contract, Release compilation, the isolated strict 10,000-row
+Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage
+threshold. Four opt-in physical CloudKit probes were explicit skips; `CSVExporter.swift` remained
+the minimum selected result at 87.60% against the 85% floor. The validator deleted
+`mindbudget-validation.0CrPs7/MindBudget.xcresult` after success.
+
+No Development redeploy or probe occurred. No customer telemetry, survey responses, App Store
+exports, real metric values, representative sample, threshold pass, G1 decision, Production,
+App Privacy update, distribution, or release is claimed. `UnavailableTelemetryTransport` remains
+the app default with zero production construction/capture call sites. C5-03 awaits independent
+review, hosted CI, and merge; C5-04 remains blocked.
