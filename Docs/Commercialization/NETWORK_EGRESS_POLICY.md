@@ -24,6 +24,12 @@ submission, or Production configuration deployment followed transport acceptance
 | App Attest/current entitlement | Planned, domain UNVERIFIED | Sandbox/Production strictly separated | Exact independent backend domain TBD plus Apple verification APIs server-side | Challenge/attestation and entitlement endpoints TBD | Attestation/JWS/current product/environment identifiers, nonce, request ID; no ledger content | Short-lived signed entitlement result | Required only for explicit cloud request; no account created | Short server cache; deletion/log TTL specified in COM-C7 | Deny cloud request, retain local/template behavior | REQ-CLOUD-AUTH-001 / COM-C7/C10 |
 | Cloud Coach | Planned, forbidden before G1/C8 | Dev/staging/prod separated | Client contacts only exact independent backend; provider domains are server-only allow-list | Versioned analysis endpoint TBD | Consented, redacted, bounded schema only; never raw ledger/note/receipt image/OCR/identifier | Versioned structured facts/wording, usage result, request ID | Explicit first-send consent naming provider set/purpose/fields; renewal on material change | Provider/first-party retention and deletion must be accepted and disclosed | Deny/fallback locally on consent, auth, quota, policy, provider, or network failure | REQ-CLOUD-CONSENT-001, REQ-CLOUD-USAGE-001 / COM-C8–C12 |
 
+C5-03 adds no network row or egress path. Independent review approved exact dormant-evidence head
+`0c61427`, GitHub Actions run `33211270363` passed, and PR #80 merged it as `a587f42` under
+DEC-COM-065. The read-only aggregate and offline builder remain unreachable from the live Worker;
+no customer capture, real evidence bundle, G1 decision, App Privacy change, deployment, or release
+is inferred. C5-04 awaits explicit owner entry before any telemetry activation or operations work.
+
 ## Release enforcement contract
 
 1. `Scripts/check-network-egress.sh` scans every app-target Swift file plus checked-in app property
@@ -113,6 +119,7 @@ Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 m
 customer control, App Privacy change, Staging/Production deployment, distribution, or release.
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
 `33176551566` passed, and PR #78 merged it as `4715054`. Current customer telemetry egress remains
-zero. The owner entered C5-03 on 2026-08-29, but its evidence builder is offline and its D1 receipt
-funnel is an unexposed read-only aggregate: it adds no host, path, request, client construction, or
-capture. C5-04 remains blocked by C5-03.
+zero. The owner entered C5-03 on 2026-08-29; reviewed head `0c61427` passed run `33211270363`, and
+PR #80 merged it as `a587f42`. Its evidence builder is offline and its D1 receipt funnel is an
+unexposed read-only aggregate: it adds no host, path, request, client construction, or capture.
+C5-04 awaits explicit owner entry.

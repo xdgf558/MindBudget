@@ -253,8 +253,9 @@ COM-C5 on 2026-08-27. Reviewed final C5-01 head `d937dc8` passed GitHub Actions 
 and PR #76 merged it as `68304ad`. C5-01 is Done without a production capture call site. The owner
 entered C5-02 on 2026-08-28. Independent review approved exact remediation head `72abf4b`, hosted
 run `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. The owner entered
-C5-03 on 2026-08-29; its dormant metrics/evidence implementation is complete pending independent
-review. C5-04, Production, and release remain blocked.
+C5-03 on 2026-08-29. Independent review approved exact remediation head `0c61427`, hosted run
+`33211270363` passed, and PR #80 merged it as `a587f42`; C5-03 is Done. C5-04 awaits explicit owner
+entry, while Production, G1, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -533,11 +534,15 @@ review. C5-04, Production, and release remain blocked.
   repeated bounded batches, and leaves permanent endpoint-policy failure UX to C5-04 before any
   transport construction. Independent review approved exact head `72abf4b`, hosted run
   `33176551566` passed, and PR #78 merged it as `4715054`. C5-03 was not entered automatically.
-- [ ] Complete C5-03 metrics and G1 evidence after the owner's explicit 2026-08-29 entry. The
+- [x] Complete C5-03 metrics and G1 evidence after the owner's explicit 2026-08-29 entry. The
   implementation adds a closed nine-metric aggregate evidence vocabulary, immutable canonical
   JSON builder, exact numerator/denominator/sample/source provenance, outward-rounded 95% Wilson
   intervals, fixed voluntary bilingual survey workflow, exact-segment evidence-completeness plus
   widest-interval reporting, and an ordered read-only D1 receipt funnel. No root/cross-segment
   coverage is emitted. It adds no App capture call, event field, HTTP route,
-  deployment, customer collection, or G1 decision. Independent review, hosted CI, and merge remain
-  open; C5-04, Production/distribution/release remain unauthorized.
+  deployment, customer collection, or G1 decision. Independent review approved exact remediation
+  head `0c61427`, GitHub Actions run `33211270363` passed, and PR #80 merged it as `a587f42`.
+- [ ] Await explicit owner instruction before entering C5-04 operations and disclosures. C5-04
+  still owns capture audit, customer control/disclosure, App Privacy, terminal fixed-endpoint
+  behavior, TTL/deletion operational proof, and final-binary traffic; Production, G1,
+  distribution, and release remain unauthorized.

@@ -9,9 +9,10 @@ The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C close
 merged it as `68304ad`. The owner separately entered C5-02 on 2026-08-28. Independent review
 approved exact remediation head `72abf4b`, GitHub Actions run `33176551566` passed, and PR #78
 merged it as `4715054`; C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant
-metrics/evidence implementation is complete pending independent review; C5-04 remains blocked by
-C5-03, and no collection, customer setting, capture call, App Privacy change,
-Staging/Production deployment, distribution, or release is authorized.
+metrics/evidence implementation is Done after independent review approved exact remediation head
+`0c61427`, GitHub Actions run `33211270363` passed, and PR #80 merged it as `a587f42`. C5-04 awaits
+explicit owner entry, and no collection, customer setting, capture call, G1 decision, App Privacy
+change, Staging/Production deployment, distribution, or release is authorized.
 
 ## Input gate
 
@@ -20,8 +21,9 @@ Staging/Production deployment, distribution, or release is authorized.
   product behavior.
 - REQ-R1-TELEMETRY-001 remains Active. C5-01 established the typed local client and test seams;
   C5-02 now owns the exact receiver, TTL, server rejection, deletion, environment isolation,
-  monitoring, cost ceilings, and dormant adapter. Capture audit, disclosure, App Privacy, and
-  final-binary traffic remain C5-03/C5-04 and release gates.
+  monitoring, cost ceilings, and dormant adapter. C5-03 closed the dormant metrics/evidence
+  computation only. Capture audit, disclosure, App Privacy, and final-binary traffic remain C5-04
+  and release gates.
 - `NETWORK_EGRESS_POLICY.md` accepts only the three exact first-party hosts and two exact POST
   paths. Development alone may be deployed/probed. No production client construction, capture
   call, customer setting, Staging/Production deployment, dashboard product claim, entitlement, or
@@ -214,7 +216,8 @@ or C5-04 release approval.
 
 ## C5-03 — Metrics and G1 evidence
 
-Status: **Implementation complete pending independent review.**
+Status: **Done after independent review of exact head `0c61427`, green GitHub Actions run
+`33211270363`, and PR #80 merge `a587f42`.**
 
 Own exact App Store and voluntary telemetry numerators/denominators, confidence intervals, coverage
 reporting, survey workflow, and the receipt funnel without expanding captured fields.
@@ -233,15 +236,15 @@ constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 
-Status: **Blocked by C5-03.**
+Status: **Blocked pending explicit owner entry after C5-03 closeout.**
 
 Own the publish/rollback/key-rotation runbook, customer control and bilingual disclosure, privacy
 policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion verification.
 
 ## Exit and stop conditions
 
-C5-01 and C5-02 may be Done only after exact-head independent review, green hosted CI, and merge.
-COM-C5 is not Done until C5-03 and C5-04 prove a content-free, optional, deletable, observable, and
+C5-01 through C5-03 may be Done only after exact-head independent review, green hosted CI, and
+merge. COM-C5 is not Done until C5-04 proves a content-free, optional, deletable, observable, and
 cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,

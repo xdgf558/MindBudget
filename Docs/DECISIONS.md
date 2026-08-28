@@ -3038,3 +3038,17 @@ confidence-interval width to each segment. Do not invent a sample threshold in C
 Consequences: No mixed-population number can be cited for G1, while a tiny but computable sample
 remains available with its weakness visible. C5-03 still awaits rereview, hosted CI, and merge;
 C5-04 and all activation/release work remain blocked.
+
+---
+
+## 2026-08-29 — Close C5-03 after reviewed PR #80 merge
+
+Context: Exact remediation head `0c61427` passed independent review and GitHub Actions run
+`33211270363`; PR #80 merged it as `a587f42`.
+
+Decision: Detailed ownership is DEC-COM-065. Mark C5-03 Done on the reviewed dormant evidence
+computation while keeping C5-04 subject to separate explicit owner entry.
+
+Consequences: No customer telemetry capture, App Store/survey evidence, metric result, G1 decision,
+App Privacy change, Production action, distribution, or release is inferred from C5-03. COM-C5
+remains In Progress and C5-04 owns every activation and operations gate.

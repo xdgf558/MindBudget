@@ -6123,3 +6123,31 @@ coverage threshold. Four opt-in physical CloudKit probes remained explicit skips
 `mindbudget-validation.MjKE14/MindBudget.xcresult` after success, so the name is an execution
 pointer rather than a durable artifact. No deployment, evidence collection, threshold pass, or G1
 decision is claimed; exact-head rereview, hosted CI, and merge remain required.
+
+## 2026-08-29 — Close C5-03 after reviewed PR #80 merge
+
+Independent review approved exact remediation head `0c61427`. GitHub Actions run `33211270363`
+completed successfully on that exact head, and PR #80 merged it to `main` as `a587f42`.
+DEC-COM-065 marks C5-03 Done on the dormant metrics/evidence computation only.
+
+The reviewed package remains outside every live data path: the D1 aggregate has no route, the
+offline builder has no network client, `UnavailableTelemetryTransport` remains the production app
+default, and there are zero production client constructions or capture calls. No App Store export,
+survey response, telemetry sample, real evidence bundle, metric conclusion, threshold pass, or G1
+decision is claimed. C5-04 is no longer dependency-blocked but awaits separate explicit owner
+entry; customer controls/disclosure, App Privacy, terminal endpoint-policy behavior, operational
+TTL/delete proof, Staging/Production, distribution, and release remain unauthorized.
+
+This closeout changes documentation and the commercialization state gate only. It changes no
+Swift, Worker, schema, route, persistence, entitlement, egress, customer behavior, or release
+artifact, so `Docs/CHANGELOG.md` remains unchanged. Independent review, green hosted CI, and merge
+remain required for this documentation-only closeout.
+
+The closeout branch then passed `Scripts/validate.sh` with Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 iPhone 17 Pro simulator: Release compilation, 35/35 local-D1 Worker tests, eight C5
+evidence-contract tests, 542 unit tests across 32 suites, all 17 UI tests, the strict 10,000-row
+Dashboard benchmark, and every selected coverage threshold passed. Four opt-in physical CloudKit
+tests were explicit skips. `CSVExporter.swift` remained the minimum selected coverage result at
+87.60% against the 85% floor. The validator deleted
+`mindbudget-validation.1rJYdA/MindBudget.xcresult` after success, so the name is an execution
+pointer rather than a durable artifact.

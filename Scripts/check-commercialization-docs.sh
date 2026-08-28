@@ -1487,15 +1487,21 @@ grep -Fq '`33176551566`, and PR #78 merge `4715054`.**' \
   exit 1
 }
 
-grep -Fq 'Status: **Implementation complete pending independent review.**' \
+grep -Fq 'Status: **Done after independent review of exact head `0c61427`, green GitHub Actions run' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-03 must retain its pending-review implementation status" >&2
+  echo "C5-03 Done status must retain the reviewed exact head" >&2
   exit 1
 }
 
-grep -Fq 'Status: **Blocked by C5-03.**' \
+grep -Fq '`33211270363`, and PR #80 merge `a587f42`.**' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-04 must remain blocked by C5-03" >&2
+  echo "C5-03 Done status must retain green CI and merge provenance" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Blocked pending explicit owner entry after C5-03 closeout.**' \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
+  echo "C5-04 must await explicit owner entry after C5-03 closeout" >&2
   exit 1
 }
 
@@ -1537,7 +1543,7 @@ for c503_contract_anchor in \
   'not_collected' \
   'pseudonym generation' \
   'current customer telemetry collection and egress remain zero' \
-  'C5-04 remains blocked'; do
+  'C5-04 awaits explicit owner entry'; do
   if ! grep -Fq "${c503_contract_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -1612,6 +1618,7 @@ if grep -Eq 'C5-02 (implementation (is )?complete pending|implementation pending
     Docs/PRIVACY_AND_REVIEW_NOTES.md \
     Docs/Commercialization/PROJECT_MEMORY.md \
     Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C5-02 as pending or C5-03 as blocked by C5-02" >&2
@@ -1638,9 +1645,68 @@ if grep -Eq 'C5-03 (awaits|still requires) (a )?(separate )?explicit owner entry
     Docs/PRIVACY_AND_REVIEW_NOTES.md \
     Docs/Commercialization/PROJECT_MEMORY.md \
     Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C5-03 as awaiting owner entry" >&2
+  exit 1
+fi
+
+# C5-03 closes only on the independently reviewed exact remediation head, its successful hosted
+# run, and PR #80 merge. Require every current-state/evidence document to retain those facts while
+# preserving the zero-capture/no-G1 boundary and keeping C5-04 behind a separate owner entry.
+c503_closeout_files=(
+  Docs/COMMERCIALIZATION_TASKS.md
+  Docs/TASKS.md
+  Docs/PROJECT_MEMORY.md
+  Docs/PRIVACY_AND_REVIEW_NOTES.md
+  Docs/Commercialization/PROJECT_MEMORY.md
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
+  Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
+  Docs/Commercialization/REQUIREMENTS_INDEX.md
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md
+  Docs/Commercialization/CI_BASELINE.md
+)
+
+for c503_closeout_file in "${c503_closeout_files[@]}"; do
+  for c503_provenance_anchor in '0c61427' '33211270363' 'a587f42'; do
+    if ! grep -Fq "${c503_provenance_anchor}" "${c503_closeout_file}"; then
+      echo "C5-03 provenance is missing ${c503_provenance_anchor} in ${c503_closeout_file}" >&2
+      exit 1
+    fi
+  done
+done
+
+grep -Fq 'DEC-COM-065' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-03 reviewed merge closeout is missing DEC-COM-065" >&2
+  exit 1
+}
+
+if grep -Eq 'C5-03 (implementation (is )?complete pending|implementation pending review/CI/merge|remains pending (re)?review|awaits independent review)|Status: \*\*Implementation complete pending independent review\.\*\*|Status: \*\*Blocked by C5-03\.\*\*' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C5-03 as pending review or C5-04 as blocked by C5-03" >&2
+  exit 1
+fi
+
+if grep -Eq 'C5-04 (is )?(In Progress|entered|Done)|owner explicitly entered C5-04' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C5-03 closeout must not enter or complete C5-04" >&2
   exit 1
 fi
 

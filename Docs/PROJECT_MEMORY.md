@@ -143,11 +143,14 @@ Development Worker version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed an
 is undeployed and Production has no provisioned D1 resource. Independent review approved exact
 remediation head `72abf4b`, hosted run `33176551566` passed, and PR #78 merged it as `4715054`;
 C5-02 is Done. The owner entered C5-03 on 2026-08-29. Its dormant metrics/evidence implementation
-is complete pending review: nine closed aggregate metrics, source hashes, immutable canonical
-evidence, exact counts, outward-rounded 95% Wilson intervals, fixed aggregate-only surveys, and a
-read-only ordered receipt funnel. Review remediation removes ambiguous cross-segment coverage:
+closed after independent review approved exact remediation head `0c61427`, GitHub Actions run
+`33211270363` passed, and PR #80 merged it as `a587f42`: nine closed aggregate metrics, source
+hashes, immutable canonical evidence, exact counts, outward-rounded 95% Wilson intervals, fixed
+aggregate-only surveys, and a read-only ordered receipt funnel. Review remediation removes
+ambiguous cross-segment coverage:
 coverage is exact-segment-only and exposes the widest interval width to surface weak samples.
-C5-04 and release remain blocked.
+C5-03 is Done without a real evidence bundle or G1 decision. C5-04 awaits explicit owner entry;
+release remains blocked.
 DEC-COM-061 remediates review findings without enabling the dormant client: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, hourly cleanup repeats bounded batches until drained, and C5-04 must make fixed
