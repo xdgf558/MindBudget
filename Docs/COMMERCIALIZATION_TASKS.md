@@ -566,8 +566,10 @@ Status: **Implementation complete pending independent review, green hosted CI, a
 - [ ] Independent serverless ingest, unknown/free-text rejection, 90-day TTL, deletion API,
   environment separation, monitoring, cost limits, deletion-association non-retention, and the
   explicit in-flight opt-out cancellation policy are implemented. Development alone is deployed
-  and probed; the iOS adapter remains unconstructed with zero capture calls. Independent review,
-  green hosted CI, and merge remain required before C5-02 is Done.
+  and probed; the iOS adapter remains unconstructed with zero capture calls. Review remediation
+  adds the shared UTC-day tombstone expiry bucket, fixed request metadata, and backlog-draining
+  bounded cleanup. Independent rereview, green hosted CI, and merge remain required before C5-02
+  is Done.
 
 ### C5-03 — Metrics and G1 evidence
 

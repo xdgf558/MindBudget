@@ -141,6 +141,10 @@ The owner entered C5-02 on 2026-08-28 under DEC-COM-060. Its strict Worker/D1 re
 dormant adapter, in-flight opt-out cancellation, and deterministic tests are implemented. Only the
 Development Worker version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` is deployed and probed; Staging
 is undeployed, Production has no provisioned D1 resource, and C5-03/C5-04/release remain blocked.
+DEC-COM-061 remediates review findings without enabling the dormant client: deletion tombstones now
+retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
+values, hourly cleanup repeats bounded batches until drained, and C5-04 must make fixed
+endpoint-policy failures terminal before constructing the transport.
 PR #76
 review remediation keeps
 corrupt persistence locally deletable without claiming remote deletion, limits unlinkability to

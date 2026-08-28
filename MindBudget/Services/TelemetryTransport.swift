@@ -316,6 +316,10 @@ actor FixedTelemetryTransport: TelemetryTransporting {
         request.httpBody = body
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        // Keep transport metadata invariant across app, OS, and locale versions. The receiver
+        // rejects any ambient URLSession identity or language value outside this closed contract.
+        request.setValue("MindBudget", forHTTPHeaderField: "User-Agent")
+        request.setValue("", forHTTPHeaderField: "Accept-Language")
         return request
     }
 
@@ -333,6 +337,7 @@ actor FixedTelemetryTransport: TelemetryTransporting {
 
     private static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
+        encoder.dataEncodingStrategy = .base64
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         return encoder
     }()

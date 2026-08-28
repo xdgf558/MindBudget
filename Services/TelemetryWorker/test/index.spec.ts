@@ -55,7 +55,7 @@ function deletionBody(proofs: Array<{ identity: string; secret: Uint8Array }>): 
 function request(path: string, body: unknown, headers: HeadersInit = {}): Request {
   return new Request(`${endpoint}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
+    headers: { "Content-Type": "application/json", "User-Agent": "MindBudget", ...headers },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
 }
@@ -180,6 +180,16 @@ describe("MindBudget telemetry Worker", () => {
     expect(await rowCount("telemetry_events")).toBe(0);
   });
 
+  it("accepts only JSON whitespace and rejects non-JSON Unicode whitespace", async () => {
+    const body = JSON.stringify(await uploadBody());
+    const accepted = await handleRequest(request("/v1/events", ` \t\n\r${body}\r\n `), env, now);
+    const rejected = await handleRequest(request("/v1/events", `\u00a0${body}`), env, now);
+
+    expect(accepted.status).toBe(202);
+    expect(rejected.status).toBe(400);
+    expect(await rowCount("telemetry_events")).toBe(1);
+  });
+
   it.each([
     ["wrong host", new Request("https://example.invalid/v1/events", { method: "POST" }), 421],
     ["wrong path", request("/v2/events", {}), 404],
@@ -191,6 +201,11 @@ describe("MindBudget telemetry Worker", () => {
     ["cookie", request("/v1/events", {}, { Cookie: "forbidden=1" }), 400],
     ["content encoding", request("/v1/events", {}, { "Content-Encoding": "gzip" }), 400],
     ["custom app header", request("/v1/events", {}, { "X-MindBudget-Device": "forbidden" }), 400],
+    ["missing user agent", new Request(`${endpoint}/v1/events`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    }), 400],
+    ["ambient user agent", request("/v1/events", {}, { "User-Agent": "MindBudget/1.0 iOS/26" }), 400],
+    ["accept language", request("/v1/events", {}, { "Accept-Language": "zh-CN" }), 400],
   ])("rejects %s with an empty response", async (_name, candidate, status) => {
     const response = await handleRequest(candidate, env);
     expect(response.status).toBe(status);
@@ -227,6 +242,29 @@ describe("MindBudget telemetry Worker", () => {
       "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
     ).all<{ name: string }>();
     expect(tables.results.map((row) => row.name)).not.toContain("telemetry_deletion_requests");
+  });
+
+  it("stores only a coarse UTC-day tombstone expiry shared across separate requests", async () => {
+    const first = await handleRequest(
+      request("/v1/delete", deletionBody([{ identity: firstIdentity, secret: firstSecret }])),
+      env,
+      now + 1,
+    );
+    const second = await handleRequest(
+      request("/v1/delete", deletionBody([{ identity: secondIdentity, secret: secondSecret }])),
+      env,
+      now + 60 * 60 * 1000,
+    );
+
+    expect(first.status).toBe(204);
+    expect(second.status).toBe(204);
+    const rows = await env.TELEMETRY_DB.prepare(
+      "SELECT expires_at_ms FROM telemetry_deleted_identities ORDER BY pseudonymous_id",
+    ).all<{ expires_at_ms: number }>();
+    expect(rows.results).toHaveLength(2);
+    expect(new Set(rows.results.map((row) => row.expires_at_ms)).size).toBe(1);
+    expect(rows.results[0]?.expires_at_ms % (24 * 60 * 60 * 1000)).toBe(0);
+    expect(rows.results[0]?.expires_at_ms).toBeLessThanOrEqual(now + 1 + 90 * 24 * 60 * 60 * 1000);
   });
 
   it("rejects one invalid proof without partially deleting the other identity", async () => {
@@ -279,6 +317,25 @@ describe("MindBudget telemetry Worker", () => {
 
     expect(await rowCount("telemetry_events")).toBe(0);
     expect(await rowCount("telemetry_identities")).toBe(0);
+    expect(await rowCount("telemetry_deleted_identities")).toBe(0);
+  });
+
+  it("drains more than one bounded cleanup batch in one scheduled operation", async () => {
+    await env.TELEMETRY_DB.prepare(
+      `WITH RECURSIVE sequence(value) AS (
+         VALUES(1)
+         UNION ALL SELECT value + 1 FROM sequence WHERE value < 1001
+       )
+       INSERT INTO telemetry_deleted_identities(pseudonymous_id, deletion_handle, expires_at_ms)
+       SELECT printf('%08x-0000-4000-8000-%012x', value, value),
+              printf('%064x', value),
+              ?
+       FROM sequence`,
+    ).bind(now - 1).run();
+    expect(await rowCount("telemetry_deleted_identities")).toBe(1001);
+
+    await cleanupExpired(env, now);
+
     expect(await rowCount("telemetry_deleted_identities")).toBe(0);
   });
 

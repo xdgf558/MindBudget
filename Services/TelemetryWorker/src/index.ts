@@ -5,8 +5,10 @@ const MAXIMUM_DELETE_BYTES = 2 * 1024;
 const MAXIMUM_BATCH_EVENTS = 20;
 const MAXIMUM_DELETE_PROOFS = 4;
 const RETENTION_MILLISECONDS = 90 * 24 * 60 * 60 * 1000;
+const UTC_DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 const MAXIMUM_FUTURE_SKEW_MILLISECONDS = 10 * 60 * 1000;
 const CLEANUP_BATCH_SIZE = 1_000;
+const FIXED_USER_AGENT = "MindBudget";
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const LOWER_HEX_32_PATTERN = /^[0-9a-f]{64}$/;
 const APP_VERSION_PATTERN = /^[0-9]+(?:\.[0-9]+)*$/;
@@ -198,7 +200,7 @@ class StrictJSONReader {
   }
 
   private skipWhitespace(): void {
-    while (/\s/.test(this.source[this.index] ?? "")) this.index += 1;
+    while (/[ \t\n\r]/.test(this.source[this.index] ?? "")) this.index += 1;
   }
 }
 
@@ -279,12 +281,9 @@ async function validateEvent(
     occurredAt < nowMilliseconds - RETENTION_MILLISECONDS
     || occurredAt > nowMilliseconds + MAXIMUM_FUTURE_SKEW_MILLISECONDS
   ) return null;
-  if (!exactObject(value.event, ["name"])) {
-    if (!exactObject(value.event, ["action", "name"])) {
-      if (!exactObject(value.event, ["action", "name", "outcome"])) return null;
-    }
-  }
-  const name = value.event.name;
+  const event = value.event;
+  if (event === null || Array.isArray(event) || typeof event !== "object") return null;
+  const name = event.name;
   if (
     typeof name !== "string"
     || ![
@@ -299,20 +298,20 @@ async function validateEvent(
   let action: string | null = null;
   let outcome: AcceptedOutcome | null = null;
   if (acceptedName === "app_session_started") {
-    if (!exactObject(value.event, ["name"])) return null;
+    if (!exactObject(event, ["name"])) return null;
   } else if (acceptedName === "pro_surface") {
-    if (!exactObject(value.event, ["action", "name"]) || !acceptedAction(acceptedName, value.event.action)) {
+    if (!exactObject(event, ["action", "name"]) || !acceptedAction(acceptedName, event.action)) {
       return null;
     }
-    action = value.event.action as string;
+    action = event.action as string;
   } else {
     if (
-      !exactObject(value.event, ["action", "name", "outcome"])
-      || !acceptedAction(acceptedName, value.event.action)
-      || !acceptedOutcome(value.event.outcome)
+      !exactObject(event, ["action", "name", "outcome"])
+      || !acceptedAction(acceptedName, event.action)
+      || !acceptedOutcome(event.outcome)
     ) return null;
-    action = value.event.action as string;
-    outcome = value.event.outcome as AcceptedOutcome;
+    action = event.action as string;
+    outcome = event.outcome as AcceptedOutcome;
   }
   const digestBytes = new TextEncoder().encode(JSON.stringify([
     pseudonymousIdentifier,
@@ -451,8 +450,11 @@ async function readStrictJSON(request: Request, maximumBytes: number): Promise<J
 }
 
 function hasAcceptedHeaders(request: Request): boolean {
+  const acceptLanguage = request.headers.get("Accept-Language");
   if (
     request.headers.get("Content-Type")?.toLowerCase() !== "application/json"
+    || request.headers.get("User-Agent") !== FIXED_USER_AGENT
+    || (acceptLanguage !== null && acceptLanguage !== "")
     || request.headers.has("Content-Encoding")
     || request.headers.has("Authorization")
     || request.headers.has("Cookie")
@@ -461,6 +463,14 @@ function hasAcceptedHeaders(request: Request): boolean {
     if (name.toLowerCase().startsWith("x-mindbudget-")) return false;
   }
   return true;
+}
+
+/// Tombstones deliberately retain only a coarse UTC-day TTL bucket. Multiple requests accepted
+/// on the same UTC day therefore have no request-unique acceptance timestamp to preserve or join.
+function tombstoneExpirationBucket(nowMilliseconds: number): number {
+  return Math.floor(
+    (nowMilliseconds + RETENTION_MILLISECONDS) / UTC_DAY_MILLISECONDS,
+  ) * UTC_DAY_MILLISECONDS;
 }
 
 async function rateLimitEdge(request: Request, env: WorkerEnvironment, route: RouteName): Promise<boolean> {
@@ -576,7 +586,7 @@ async function deleteProofs(
 ): Promise<"deleted" | "proof_conflict" | "storage_unavailable"> {
   const cte = suppliedProofCTE(proofs.length);
   const bindings = proofs.flatMap((proof) => [proof.pseudonymousIdentifier, proof.deletionHandle]);
-  const expiresAt = nowMilliseconds + RETENTION_MILLISECONDS;
+  const expiresAt = tombstoneExpirationBucket(nowMilliseconds);
   const noMismatch = `NOT EXISTS (
     SELECT 1
     FROM telemetry_identities AS identity
@@ -622,39 +632,42 @@ async function deleteProofs(
 }
 
 export async function cleanupExpired(env: WorkerEnvironment, nowMilliseconds: number): Promise<void> {
-  await env.TELEMETRY_DB.batch([
-    env.TELEMETRY_DB.prepare(
-      `DELETE FROM telemetry_events
-       WHERE event_id IN (
-         SELECT event_id FROM telemetry_events
-         WHERE expires_at_ms <= ?
-         ORDER BY expires_at_ms
-         LIMIT ?
-       )`,
-    ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
-    env.TELEMETRY_DB.prepare(
-      `DELETE FROM telemetry_identities
-       WHERE pseudonymous_id IN (
-         SELECT pseudonymous_id FROM telemetry_identities
-         WHERE expires_at_ms <= ?
-           AND NOT EXISTS (
-             SELECT 1 FROM telemetry_events
-             WHERE telemetry_events.pseudonymous_id = telemetry_identities.pseudonymous_id
-           )
-         ORDER BY expires_at_ms
-         LIMIT ?
-       )`,
-    ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
-    env.TELEMETRY_DB.prepare(
-      `DELETE FROM telemetry_deleted_identities
-       WHERE rowid IN (
-         SELECT rowid FROM telemetry_deleted_identities
-         WHERE expires_at_ms <= ?
-         ORDER BY expires_at_ms
-         LIMIT ?
-       )`,
-    ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
-  ]);
+  while (true) {
+    const results = await env.TELEMETRY_DB.batch([
+      env.TELEMETRY_DB.prepare(
+        `DELETE FROM telemetry_events
+         WHERE event_id IN (
+           SELECT event_id FROM telemetry_events
+           WHERE expires_at_ms <= ?
+           ORDER BY expires_at_ms
+           LIMIT ?
+         )`,
+      ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
+      env.TELEMETRY_DB.prepare(
+        `DELETE FROM telemetry_identities
+         WHERE pseudonymous_id IN (
+           SELECT pseudonymous_id FROM telemetry_identities
+           WHERE expires_at_ms <= ?
+             AND NOT EXISTS (
+               SELECT 1 FROM telemetry_events
+               WHERE telemetry_events.pseudonymous_id = telemetry_identities.pseudonymous_id
+             )
+           ORDER BY expires_at_ms
+           LIMIT ?
+         )`,
+      ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
+      env.TELEMETRY_DB.prepare(
+        `DELETE FROM telemetry_deleted_identities
+         WHERE rowid IN (
+           SELECT rowid FROM telemetry_deleted_identities
+           WHERE expires_at_ms <= ?
+           ORDER BY expires_at_ms
+           LIMIT ?
+         )`,
+      ).bind(nowMilliseconds, CLEANUP_BATCH_SIZE),
+    ]);
+    if (!results.some((result) => result.meta.changes === CLEANUP_BATCH_SIZE)) return;
+  }
 }
 
 async function handleEvents(

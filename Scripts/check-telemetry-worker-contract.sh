@@ -37,7 +37,14 @@ for source_contract in \
   'const MAXIMUM_BATCH_EVENTS = 20' \
   'const MAXIMUM_DELETE_PROOFS = 4' \
   'const RETENTION_MILLISECONDS = 90 * 24 * 60 * 60 * 1000' \
+  'const UTC_DAY_MILLISECONDS = 24 * 60 * 60 * 1000' \
+  'const FIXED_USER_AGENT = "MindBudget"' \
   'if (keys.has(key)) throw new StrictJSONError("duplicate_key")' \
+  'while (/[ \t\n\r]/.test(this.source[this.index] ?? ""))' \
+  'request.headers.get("User-Agent") !== FIXED_USER_AGENT' \
+  '(acceptLanguage !== null && acceptLanguage !== "")' \
+  'function tombstoneExpirationBucket(nowMilliseconds: number): number' \
+  'if (!results.some((result) => result.meta.changes === CLEANUP_BATCH_SIZE)) return' \
   'request.headers.get("CF-Connecting-IP") ?? "local-development"' \
   'await env.TELEMETRY_DB.batch(statements)' \
   'INSERT INTO telemetry_deleted_identities' \
@@ -118,10 +125,15 @@ for test_contract in \
   'rolls back a whole batch when one accepted event ID changes facts' \
   'treats an app-version change as conflicting facts for the same event ID' \
   'rejects duplicate JSON keys before parser semantics can collapse them' \
+  'accepts only JSON whitespace and rejects non-JSON Unicode whitespace' \
+  'ambient user agent' \
+  'accept language' \
   'deletes every valid proof atomically, keeps no group, and accepts an identical retry' \
+  'stores only a coarse UTC-day tombstone expiry shared across separate requests' \
   'rejects one invalid proof without partially deleting the other identity' \
   'accepts but discards a late matching upload after deletion' \
   'removes expired events, independent identities, and tombstones in bounded cleanup' \
+  'drains more than one bounded cleanup batch in one scheduled operation' \
   'persists only the closed operational log object'; do
   grep -Fq "${test_contract}" "${WORKER_TEST}" || {
     echo "Telemetry Worker tests are missing contract: ${test_contract}" >&2

@@ -1633,3 +1633,30 @@ deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.1f3FOS/MindBudget.xcresult`
 after success, so the path is an execution pointer rather than a durable artifact. Independent
 review, hosted CI on the exact head, and merge remain required.
+
+### C5-02 independent-review remediation — 2026-08-28
+
+`Services/TelemetryWorker` passes generated binding types, `tsc --noEmit`, all 32 Vitest cases
+against local D1, Development/Staging/Production Wrangler dry-runs and startup checks, and
+`npm audit --audit-level=high` with zero vulnerabilities. New cases prove that separate deletion
+requests on the same UTC day share only a coarse tombstone expiry bucket, variable user-agent or
+nonempty language metadata is rejected, non-JSON Unicode whitespace is rejected, and one scheduled
+operation drains more than one bounded cleanup batch. The focused iOS 26.5 simulator telemetry
+suite passes 25/25 and directly asserts the fixed user agent, suppressed language, and explicit
+wire contract.
+
+The first owning `Scripts/validate.sh` attempt passed static contracts but stopped at Release link
+when Xcode transiently reported `/Applications/Xcode-27-beta-6.app/Contents/Developer/Toolchains/
+XcodeDefault.xctoolchain/usr/bin/clang` missing. The file was present on immediate reinspection, so
+that attempt is excluded as an environmental non-pass. A clean rerun with explicit Xcode 27 beta 6
+passed every static contract, Release compilation, the isolated strict 10,000-row Dashboard
+benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold.
+Four opt-in physical CloudKit probes remained explicit skips. `CSVExporter.swift` remained the
+minimum selected result at 87.60% against the 85% floor. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.Qwp8O6/MindBudget.xcresult`
+after success, so the path is an execution pointer rather than a durable artifact.
+
+No remediated Development deployment/probe is claimed yet. The currently recorded Development
+version predates DEC-COM-061; Staging remains unmigrated/undeployed and Production remains
+unprovisioned/undeployed. The adapter is still unconstructed with zero capture/customer egress.
+Exact-head rereview, hosted CI, and merge remain required.

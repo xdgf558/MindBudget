@@ -252,6 +252,8 @@ struct TelemetryClientTests {
         #expect(request.url?.absoluteString == "https://mindbudget-telemetry-dev.yehao1105.workers.dev/v1/events")
         #expect(request.httpMethod == "POST")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+        #expect(request.value(forHTTPHeaderField: "User-Agent") == "MindBudget")
+        #expect(request.value(forHTTPHeaderField: "Accept-Language") == "")
         #expect(request.value(forHTTPHeaderField: "Authorization") == nil)
         #expect(request.value(forHTTPHeaderField: "Cookie") == nil)
         let data = try #require(request.httpBody)

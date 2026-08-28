@@ -5999,3 +5999,34 @@ coverage result at 87.60% against 85%. The validator removed its temporary
 `mindbudget-validation.1f3FOS/MindBudget.xcresult` bundle after success, so the name is an execution
 pointer rather than a durable artifact. `Docs/CHANGELOG.md` is unchanged because the adapter remains
 dormant and this package adds no customer-visible behavior.
+
+## 2026-08-28 — Remediate C5-02 request-correlation, metadata, and retention findings
+
+Independent review of PR #78 found that exact millisecond tombstone expirations could preserve a
+complete-delete request grouping, ambient URLSession headers exceeded the closed egress contract,
+and one 1,000-row hourly cleanup pass could not prove the documented maximum retention under
+backlog. DEC-COM-061 replaces exact deletion timing with one coarse UTC-day expiry bucket shared
+across independent requests, fixes `User-Agent` to `MindBudget`, suppresses `Accept-Language`, and
+requires the receiver to reject variable metadata. Scheduled cleanup still uses bounded 1,000-row
+transactions but repeats them until no expired full batch remains. Strict JSON whitespace,
+explicit base64 deletion-secret encoding, and the redundant event-shape precheck were also closed.
+
+Worker verification passes 32/32 against local D1, type generation/typecheck, all three environment
+dry-run/startup checks, and `npm audit --audit-level=high` with zero vulnerabilities. The focused
+iOS telemetry suite passes 25/25 with no failure or skip. The first owning full-validation attempt
+passed every static contract but stopped at Release linking when the selected Xcode toolchain
+briefly reported its own `clang` executable missing; the executable was immediately present on
+reinspection, so this is retained as an environmental non-pass. A clean rerun with Xcode 27 beta 6
+passed every static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 542
+unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold. Four opt-in
+physical CloudKit probes remained explicit skips; `CSVExporter.swift` was the minimum selected
+result at 87.60% against 85%. The validator removed its temporary
+`mindbudget-validation.Qwp8O6/MindBudget.xcresult` bundle after success, so the name is an execution
+pointer rather than a durable artifact.
+
+The iOS adapter remains unconstructed with zero capture/customer telemetry egress. HTTP
+404/405/421 terminal handling remains an explicit C5-04 prerequisite before any construction.
+C5-02 remains pending Development redeploy/probe of the remediated source, exact-head rereview,
+green hosted CI, and merge. Staging/Production, C5-03/C5-04, App Privacy changes, distribution, and
+release remain blocked. `Docs/CHANGELOG.md` remains unchanged because no customer-visible behavior
+is enabled.

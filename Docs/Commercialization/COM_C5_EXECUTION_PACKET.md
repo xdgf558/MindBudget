@@ -161,8 +161,11 @@ or C5-04 release approval.
   Staging and Production remain configuration-only until their later owner gates.
 - Upload is anonymous `POST /v1/events`; deletion is proof-authenticated `POST /v1/delete`.
   Requests are bounded JSON with exact keys and duplicate-key rejection, no cookies, authorization header, query,
-  redirect, caller URL, arbitrary property map, or free text. Success/rejection/retry responses are
-  empty and status-coded; the client buffers at most 1 KiB of response data.
+  redirect, caller URL, arbitrary property map, or free text. The client sends the fixed
+  `User-Agent: MindBudget`, explicitly suppresses `Accept-Language`, and the receiver rejects any
+  variable user-agent or nonempty language value so build, OS, and locale do not enter this
+  channel. Success/rejection/retry responses are empty and status-coded; the client buffers at
+  most 1 KiB of response data.
 - An upload contains at most 20 events and 32 KiB. D1 enforces one deletion handle per pseudonym
   and one exact row per event UUID. An identical accepted event is idempotent; the same UUID with
   different facts rejects the whole batch. A previously deleted pseudonym/handle pair accepts but
@@ -170,11 +173,16 @@ or C5-04 release approval.
 - A delete request contains at most four UUID/32-byte-secret proofs and 2 KiB. SHA-256 proof
   comparison authorizes deletion. All proof pairs pass or none mutate. The grouped association
   exists only in request-local memory/SQL parameters: storage contains independent per-generation
-  tombstones and never a deletion request, group ID, proof list, IP, or association row. Identical
-  retries are successful.
-- Events and deletion tombstones expire no later than `acceptedAt + 90 * 24 hours` in UTC. This is
-  a server maximum-duration privacy bound, not a user-calendar UI date. An hourly UTC Cron removes
-  expired rows in bounded indexed chunks; request paths also prune the addressed expired identity.
+  tombstones and never a deletion request, group ID, proof list, IP, exact acceptance timestamp, or
+  association row. Tombstones retain only a coarse UTC-day expiration bucket shared by every
+  delete accepted that day; this can reveal the broad expiry day but cannot preserve a
+  request-unique grouping key. Identical retries are successful.
+- Events and identities expire no later than `acceptedAt + 90 * 24 hours`; deletion tombstones use
+  the earlier-or-equal UTC-day bucket for the same maximum. This is a server maximum-duration
+  privacy bound, not a user-calendar UI date. Each hourly UTC Cron transaction deletes at most
+  1,000 rows per table and repeats those bounded transactions until no expired batch remains, so
+  the maximum does not depend on the backlog fitting in one hourly batch. Request paths also prune
+  the addressed expired identity.
 - Edge-derived IP and pseudonym rate limits are permissive abuse buffers, not accounting or delete
   authority. Every request has fixed body, batch, D1-statement, and CPU ceilings. Persistent Worker
   logs disable invocation metadata and contain only sampled closed route/reason/environment codes;
@@ -197,6 +205,9 @@ or C5-04 release approval.
   undeployed D1 resource `776d171d-ec10-4a90-9235-b537e063e04b`; Production has no provisioned D1
   resource and the checked-in UUID is an intentionally invalid placeholder. Neither environment
   has a deployed Worker or probe evidence.
+- Fixed endpoint-policy failures such as HTTP 404, 405, and 421 still surface as typed rejected
+  statuses in the dormant adapter. C5-04 must make them terminal/non-retrying before constructing
+  the transport; C5-02 does not enlarge the local lifecycle state machine while no call site exists.
 
 ## C5-03 — Metrics and G1 evidence
 

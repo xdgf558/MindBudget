@@ -1506,6 +1506,27 @@ for c502_contract_anchor in \
   fi
 done
 
+for c502_review_remediation_anchor in \
+  'DEC-COM-061' \
+  'UTC-day expiration bucket' \
+  'User-Agent: MindBudget' \
+  'repeats those bounded transactions until no expired batch remains' \
+  'C5-04 must make them terminal/non-retrying'; do
+  if ! grep -Fq "${c502_review_remediation_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/DECISIONS.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-02 review remediation contract is missing: ${c502_review_remediation_anchor}" >&2
+    exit 1
+  fi
+done
+
 if grep -Eq 'C5-02 awaits (a )?(separate )?explicit owner entry|C5-02 must remain blocked pending separate explicit owner entry' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \

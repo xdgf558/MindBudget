@@ -1827,3 +1827,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   only currently present events without a late-upload tombstone; exactly-once assumptions; keeping
   data 90 days from a client-controlled timestamp; unbounded cleanup; claiming opt-out can recall a
   request already accepted at the edge; enabling capture/customer controls; or deploying Production.
+
+## DEC-COM-061 — Remove request-unique deletion timing and ambient transport metadata
+
+- Status/date: **Accepted C5-02 review remediation — 2026-08-28**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-057/058/060
+- Context: Independent review found that one exact millisecond tombstone expiry shared by every
+  proof in a complete-delete request preserved a recoverable request grouping for the tombstone
+  lifetime, ambient URLSession metadata could disclose build/OS/locale outside the closed egress
+  row, and a single 1,000-row hourly cleanup pass did not prove the documented 90-day maximum under
+  backlog.
+- Decision: Round delete-tombstone expiration down to a UTC-day bucket shared across independent
+  requests accepted that day; disclose that broad expiry day while persisting no exact acceptance
+  timestamp or request/group identifier. Send only fixed `User-Agent: MindBudget`, explicitly
+  suppress `Accept-Language`, and reject any different/nonempty value at the receiver. Keep every
+  cleanup transaction bounded to 1,000 rows per table but repeat bounded transactions during the
+  same scheduled operation until no full expired batch remains. Make JSON whitespace exactly the
+  RFC grammar, make Swift deletion-secret base64 explicit, and remove the redundant event-shape
+  precheck. Add deterministic regressions and static anchors for every boundary.
+- Consequences: The dormant transport reveals neither app version/OS nor locale in HTTP metadata;
+  tombstones retain only a coarse daily TTL bucket rather than a request-unique deletion time; and
+  the 90 x 24-hour maximum no longer assumes less than one batch of backlog. HTTP 404/405/421 fixed
+  endpoint-policy failures remain typed failures in the unconstructed adapter; C5-04 must make
+  them terminal/non-retrying before it creates any production transport. This remediation does not
+  enable capture, customer controls, Staging/Production, distribution, or release.
+- Alternatives rejected: Persisting exact per-request expiry for operational convenience;
+  allowing URLSession's variable default user agent or language; weakening the 90-day statement to
+  eventual deletion; unbounded SQL statements; or expanding the dormant C5-02 local lifecycle for
+  customer-facing terminal error handling owned by C5-04.

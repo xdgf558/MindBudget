@@ -2889,3 +2889,33 @@ selected result at 87.60% against 85%. The validator removed the temporary
 `mindbudget-validation.1f3FOS/MindBudget.xcresult` bundle after success, so it is an execution
 pointer rather than a durable artifact. No CHANGELOG entry is added because the transport stays
 unconstructed and there is no customer-visible behavior.
+
+## 2026-08-28 — PR #78 deletion timing, HTTP metadata, and cleanup remediation
+
+Independent review identified three contract gaps in the dormant C5-02 candidate. Exact
+millisecond tombstone expiry shared by proofs in one delete request preserved a recoverable
+request association; URLSession could add build/OS/locale metadata outside the closed wire schema;
+and one bounded cleanup batch per hour did not prove the stated maximum retention under backlog.
+DEC-COM-061 uses an earlier-or-equal UTC-day tombstone bucket shared across independent requests,
+fixes `User-Agent: MindBudget`, suppresses `Accept-Language`, rejects variable values server-side,
+and repeats bounded 1,000-row cleanup transactions until drained. The strict parser now accepts
+only JSON whitespace, Swift explicitly encodes deletion secrets as base64, and the dead event-shape
+precheck is removed. HTTP 404/405/421 remain typed failures while the adapter is dormant; C5-04
+must make them terminal before constructing a production transport.
+
+The Worker suite passes 32/32 against local D1; generated types, `tsc --noEmit`, three environment
+dry-runs/startup checks, and high-severity audit all pass with zero vulnerabilities. Focused iOS
+telemetry execution passes 25/25 with no failure or skip. The first full-validation attempt passed
+static gates but stopped at Release link when Xcode transiently reported its own `clang` executable
+missing; immediate reinspection found the executable, so that attempt is an environmental non-pass.
+The clean Xcode 27 beta 6 rerun passed every static contract, Release compilation, the strict
+10,000-row Dashboard benchmark, 542 unit tests across 32 suites, all 17 UI tests, and every selected
+coverage threshold. Four opt-in physical CloudKit probes remained explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator deleted
+its temporary `mindbudget-validation.Qwp8O6/MindBudget.xcresult` bundle after success.
+
+The currently deployed Development version remains the pre-remediation candidate until the owner
+explicitly authorizes a Development-only redeploy and live probe. The adapter remains unconstructed,
+collection/capture and customer egress remain zero, and C5-02 stays pending that exact-source probe,
+rereview, hosted CI, and merge. Staging/Production, C5-03/C5-04, App Privacy, distribution, and
+release remain blocked.

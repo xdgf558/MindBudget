@@ -259,6 +259,9 @@ for transport_contract in \
   'configuration.urlCache = nil' \
   'TelemetryRedirectRejector()' \
   'request.httpMethod = "POST"' \
+  'request.setValue("MindBudget", forHTTPHeaderField: "User-Agent")' \
+  'request.setValue("", forHTTPHeaderField: "Accept-Language")' \
+  'encoder.dataEncodingStrategy = .base64' \
   'maximumUploadBytes = 32 * 1_024' \
   'maximumDeleteBytes = 2 * 1_024' \
   'maximumResponseBytes = 1_024' \

@@ -526,4 +526,7 @@ independent review, green hosted CI, and merge. C5-03/C5-04, Production, and rel
   and the smallest dormant iOS adapter. Development alone may be deployed/probed; keep
   `UnavailableTelemetryTransport` as the production client default, add no capture/customer
   control, and do not enter C5-03 or authorize Production/distribution/release. Implementation and
-  the Development probe are complete; independent review, green hosted CI, and merge remain open.
+  the Development probe are complete. Review remediation replaces request-unique tombstone expiry
+  times with a shared UTC-day bucket, fixes transport metadata, drains cleanup backlog through
+  repeated bounded batches, and leaves permanent endpoint-policy failure UX to C5-04 before any
+  transport construction. Independent rereview, green hosted CI, and merge remain open.
