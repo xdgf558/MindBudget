@@ -3016,3 +3016,53 @@ validator deleted `mindbudget-validation.MjKE14/MindBudget.xcresult` after succe
 probe, actual evidence bundle, metric conclusion, G1 decision, App Privacy change, distribution, or
 release is claimed. C5-03 remains pending exact-head rereview, hosted CI, and merge; C5-04 remains
 blocked.
+
+## 2026-08-29 — C5-03 reviewed merge and documentation closeout
+
+Independent review approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one
+P3 weak-sample-visibility issue. Remediation head `0c61427` applied both by removing root
+cross-environment/storefront coverage and adding the exact-segment widest-interval
+evidence-strength field. GitHub Actions run `33211270363` completed successfully, and PR #80
+merged it to `main` as `a587f42` without a pre-merge rereview. PR #81's post-merge closeout review
+read that exact remediation delta and confirmed both fixes. DEC-COM-065 closes C5-03 on that
+evidence.
+
+The closeout does not convert dormant computation into collected evidence. The read-only D1
+aggregate remains unexposed, the immutable builder remains offline, the production app still uses
+`UnavailableTelemetryTransport`, and there are zero production client constructions/capture calls
+and zero customer telemetry egress. No App Store export, voluntary survey response, production
+funnel sample, real evidence bundle, metric result, threshold pass, or G1 decision is claimed.
+C5-04 now awaits a separate explicit owner entry and still owns control/disclosure, capture audit,
+App Privacy, terminal fixed-endpoint behavior, operational TTL/delete proof, final-binary traffic,
+and activation. COM-C5 remains In Progress; Staging/Production, distribution, and release remain
+unauthorized.
+
+This documentation-only branch changes no Swift, Worker, D1 schema, route, persistence,
+entitlement, network behavior, or customer-visible behavior and therefore adds no CHANGELOG entry.
+Its own independent review, green hosted CI, and merge remain required.
+
+The closeout branch passed `Scripts/validate.sh` with Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator. Release compilation, 35/35 local-D1 Worker tests, eight C5
+evidence-contract tests, 542 unit tests across 32 suites, all 17 UI tests, the strict 10,000-row
+Dashboard benchmark, and every selected coverage threshold passed. Four opt-in physical CloudKit
+tests were explicit skips. `CSVExporter.swift` remained the minimum selected coverage result at
+87.60% against the 85% floor. The validator removed
+`mindbudget-validation.1rJYdA/MindBudget.xcresult` after success; the name is only an execution
+pointer, not a durable artifact or new release proof.
+
+## 2026-08-29 — Remediate PR #81 closeout provenance and phase-gate review
+
+PR #81 review found the closeout chronology inaccurate: independent review covered implementation
+head `4ea7cd9`, not remediation head `0c61427`. The former review raised one P2 cross-segment
+coverage issue and one P3 weak-sample-visibility issue; `0c61427` applied both, passed run
+`33211270363`, and merged through PR #80 as `a587f42` without pre-merge rereview. PR #81's
+post-merge review read the exact remediation delta and confirmed both fixes.
+
+All ten current-state/evidence documents now retain that chronology and the exact C5-04 explicit
+owner-entry boundary individually. The gate rejects future claims that `0c61427` received
+pre-merge review. The phase-unqualified `Status: **Implementation complete pending independent
+review.**` grep is removed because `commercialization_phase_states.py` already associates Status
+with its heading; its self-test now explicitly accepts C5-03 Done alongside a future C5-04 pending
+review state. Static money, egress, commercialization-document, StoreKit 13/13, C5 evidence 8/8,
+parser self-test, and `git diff --check` pass. No runtime, evidence, G1, deployment, or release
+boundary changed; hosted CI and exact-head rereview remain required.

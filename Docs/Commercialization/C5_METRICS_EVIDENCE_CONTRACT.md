@@ -1,6 +1,8 @@
 # C5 Metrics and Evidence Contract
 
-Status: **C5-03 implementation complete pending independent review.** C5-04 remains blocked.
+Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
+remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
+C5-04 awaits explicit owner entry.
 
 ## Purpose and non-goals
 
@@ -153,7 +155,8 @@ this contract. The implementation proves the schema, validation, interval math, 
 failure states only. It does not claim metric success, funnel accuracy on production traffic, G1
 readiness, or release approval.
 
-C5-03 may be marked Done only after independent review, green hosted CI, and merge of this dormant
-evidence package. C5-04 remains blocked until then and still owns customer control/disclosure,
-capture-site audit, terminal endpoint-policy failures, App Privacy/data-flow updates, operational
-TTL/delete evidence, Staging/Production deployment, and final-binary traffic verification.
+C5-03 is Done through reviewed PR #80 merge `a587f42` without claiming collected evidence or G1
+success. C5-04 is no longer dependency-blocked but awaits explicit owner entry and still owns
+customer control/disclosure, capture-site audit, terminal endpoint-policy failures, App Privacy/
+data-flow updates, operational TTL/delete evidence, Staging/Production deployment, and final-binary
+traffic verification.

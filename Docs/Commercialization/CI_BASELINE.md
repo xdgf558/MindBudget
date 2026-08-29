@@ -1727,3 +1727,42 @@ the minimum selected result at 87.60% against the 85% floor. The validator delet
 after success, so the path is an execution pointer rather than a durable artifact. No deployment,
 real evidence collection, G1 decision, App Privacy change, distribution, or release is claimed.
 Exact-head rereview, hosted CI, and merge remain required.
+
+### C5-03 reviewed merge and documentation closeout — 2026-08-29
+
+Independent review approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one
+P3 weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Actions run
+`33211270363` completed successfully, and PR #80 merged it to `main` as `a587f42` without a
+pre-merge rereview. PR #81's post-merge closeout review read that exact remediation delta and
+confirmed both fixes. The source evidence remains 35/35 local-D1 Worker tests, eight offline
+evidence-contract tests, generated
+bindings, TypeScript checking, all three environment dry-runs/startup checks, zero high-severity
+dependency vulnerabilities, Release compilation, the strict 10,000-row Dashboard benchmark, 542
+unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold. Four opt-in
+physical CloudKit probes were explicit skips; `CSVExporter.swift` was the minimum selected result
+at 87.60% against the 85% floor.
+
+This closeout records only the reviewed merge. It includes no deployment, probe, production app
+construction/capture, customer collection, App Store/survey evidence, real bundle, G1 decision,
+App Privacy change, distribution, or release. C5-04 awaits explicit owner entry. The
+documentation-only closeout still requires its own independent review, green hosted CI, and merge.
+
+The documentation closeout itself passed `Scripts/validate.sh` with Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. Release compilation, 35/35 local-D1 Worker
+tests, eight C5 evidence-contract tests, 542 unit tests across 32 suites, all 17 UI tests, the
+strict 10,000-row Dashboard benchmark, and every selected coverage threshold passed. Four opt-in
+physical CloudKit tests were explicit skips. `CSVExporter.swift` was the minimum selected result at
+87.60% against the 85% floor. The validator deleted
+`mindbudget-validation.1rJYdA/MindBudget.xcresult` after success, making the name an execution
+pointer rather than a durable artifact.
+
+### PR #81 closeout review remediation — 2026-08-29
+
+The documentation review corrected the pre/post-merge review chronology and the phase gate without
+changing runtime code. Independent review covered `4ea7cd9`; `0c61427` applied its P2/P3 findings,
+passed run `33211270363`, and merged as `a587f42` without pre-merge rereview; PR #81 then verified
+that exact delta post-merge. The controlled files now require those facts and the C5-04 owner-entry
+boundary individually. The structural phase parser self-test explicitly accepts a C5-03 Done state
+beside a future C5-04 pending-review state. Static money, egress, commercialization-document,
+StoreKit 13/13, C5 evidence 8/8, parser self-test, and `git diff --check` pass. Hosted CI on the new
+exact closeout head remains required.
