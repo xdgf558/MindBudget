@@ -1,13 +1,17 @@
 # C5 Telemetry Operations Runbook
 
-Status: **C5-04 product capability merged from exact remediation head `2c1cebe` after its
-deletion-order remediation passed scoped independent review and green GitHub Actions run
-`33233846430`; PR #82 merged it as `28d9eae`. Only Development is eligible for the still-open
-current-source deployment/probe; Staging and Production remain unauthorized.**
+Status: **Current source `becb020` is deployed only to Development as Worker version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its TTL/delete/idempotency probe passed and cleaned its
+exact rows. C5-04 evidence awaits independent review, hosted CI, and merge; Staging and Production
+remain unauthorized.**
+
+The product capability came from PR #82's scoped review of the deletion-order remediation on exact head `2c1cebe`,
+green run `33233846430`, and merge `28d9eae`; the Development proof does not broaden that review.
 
 PR #82's independent review did not inspect this runbook, `PrivacyInfo.xcprivacy`, the receipt and
-Pro capture sites, or `TelemetryService`. PR #83's closeout review is explicitly asked to inspect
-those surfaces. `TelemetryService` is defined in `MindBudget/Services/TelemetryClient.swift`.
+Pro capture sites, or `TelemetryService`. PR #83 supplemental review covered those surfaces on
+exact head `e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. `TelemetryService`
+is defined in `MindBudget/Services/TelemetryClient.swift`.
 
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
 write by itself. The operator must name the exact environment and receive explicit approval before
@@ -75,6 +79,25 @@ headers used by the native adapter. The probe must establish:
 The command transcript must record only status codes, response byte counts, version/deployment ID,
 and aggregate counts/deltas. It must not record the deletion secret or full request. A probe against
 the prior Worker is historical evidence, not current-source proof.
+
+### Current-source Development evidence — 2026-08-29
+
+- Exact source: `becb020b3c0aa9aafb752a4dca047093a507ed88`.
+- Wrangler/account: 4.127.0 / `3f5394e0ef5a531c63c0ceaa74262e0d`.
+- D1: `mindbudget-telemetry-development` / `2faff8ac-de17-4fd0-aaa7-546bd1902e74`; no migration
+  was pending or applied.
+- Worker: version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`, deployment
+  `4e18af19-a98a-4a6d-bf4c-38e587a1b754`, 100% Development traffic.
+- Probe transcript: upload 202/0 bytes; identical retry 202/0; changed fact under the same event
+  UUID 409/0; proof delete 204/0; late identical upload 202/0 without resurrection; repeated delete
+  204/0.
+- Aggregate proof: one synthetic event/identity had exact `7776000000`-millisecond TTL; delete
+  produced one earlier-or-equal UTC-day tombstone; exact cleanup returned the synthetic event,
+  identity, and tombstone counts to 0. Whole-database final counts were 0 events, 0 identities, and
+  the same 2 historical pre-remediation tombstones, so this probe retained no new row.
+
+This is synthetic Development operational evidence only. It is not customer participation,
+Production/final-binary traffic, a G1 result, or distribution authority. No rollback was needed.
 
 ## Monitoring and incident response
 

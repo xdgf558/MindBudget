@@ -2,8 +2,9 @@
 
 Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
 remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
-C5-04 entered on 2026-08-29 and remains In Progress; its runtime activation cannot change this
-immutable evidence format or manufacture a G1 result.
+C5-04 entered on 2026-08-29 and remains In Progress pending review/CI/merge of Development version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its runtime activation cannot change this immutable
+evidence format or manufacture a G1 result.
 
 ## Purpose and non-goals
 
@@ -13,7 +14,8 @@ call, add a Worker route, deploy Staging/Production, change App Privacy answers,
 C5-04's PR #82 merge `28d9eae` adds an optional default-off live client and closed capture sites
 from exact remediation head `2c1cebe` after green run `33233846430`. The independent review covered
 the deletion-order remediation within its declared scope and excluded the privacy manifest,
-feature capture sites, service, and runbook now named for PR #83 supplemental review; that runtime
+feature capture sites, service, and runbook later covered by PR #83 (`becb020`). Exact source
+`becb020` passed the synthetic current-source Development proof under DEC-COM-069; that runtime
 cannot change evidence inputs, thresholds, or the absence of a current G1 decision.
 
 The checked-in evidence builder consumes only manually supplied aggregate counts and SHA-256

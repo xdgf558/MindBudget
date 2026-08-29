@@ -106,9 +106,11 @@ the explicit control/disclosure, capture audit, conservative App Privacy manifes
 endpoint-policy failure, and an operations runbook. Independent review approved the deletion-order
 remediation on exact head `2c1cebe` within its declared scope; it did not inspect the privacy
 manifest, two feature capture files, `TelemetryService`, or the operations runbook. GitHub Actions
-run `33233846430` passed, and PR #82 merged the source as `28d9eae`; PR #83's closeout review is
-explicitly asked to supplement those surfaces.
-Current-source Development proof, final-binary traffic, App Store Connect privacy answers, and
+run `33233846430` passed, and PR #82 merged the source as `28d9eae`; PR #83 supplemental review
+covered those surfaces on exact head `e6bbd3f`, green run `33242024609`, and merge `becb020`.
+Current source `becb020` is deployed only to Development as version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its content-free synthetic TTL/delete/idempotency probe
+passed and retained no new row. Final-binary traffic, App Store Connect privacy answers, and
 release authorization remain outstanding.
 
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
@@ -122,9 +124,11 @@ computation: no route, real evidence result, or G1 decision exists. The owner en
 2026-08-29. Its product capability is merged through PR #82 (`28d9eae`) after green run
 `33233846430` on exact remediation head `2c1cebe`; the independent review covered the
 deletion-order remediation but excluded the manifest, capture sites, service, and runbook now
-named for PR #83 supplemental review. C5-04 remains In Progress pending a separately
-authorized current-source Development deployment/probe; every Staging/Production and
-distribution/release proof remains blocked.
+named for PR #83 supplemental review. That review and merge are now recorded through `becb020`,
+and the separately authorized current-source Development probe passed on version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. C5-04 remains In Progress pending review, CI, and merge
+of this operational evidence; every Staging/Production and distribution/release proof remains
+blocked.
 
 For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
 pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for

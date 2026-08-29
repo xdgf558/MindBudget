@@ -2048,3 +2048,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Marking C5-04 or COM-C5 Done from a source merge alone; describing
   excluded files as independently reviewed; treating the pre-DEC-COM-061 probe as current-source
   evidence; or inferring a remote deployment from local and hosted tests.
+
+## DEC-COM-069 — Prove current-source telemetry only in Development
+
+- Status/date: **Accepted Development operational evidence candidate — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-061/066/067/068
+- Context: PR #83 supplemental review covered the privacy manifest, capture sites,
+  `TelemetryService`, and operations runbook on exact head `e6bbd3f`; GitHub Actions run
+  `33242024609` passed and PR #83 merged as `becb020`. The owner then explicitly authorized only
+  the current-source Development Worker/D1 publish and synthetic operational proof. The previous
+  live evidence remained tied to pre-remediation version `1c162a57-8789-4f7f-9fec-f2c484e9f4f2`.
+- Decision: Bind the operation to Cloudflare account `3f5394e0ef5a531c63c0ceaa74262e0d`, Worker
+  `mindbudget-telemetry-dev`, and D1 `mindbudget-telemetry-development`
+  (`2faff8ac-de17-4fd0-aaa7-546bd1902e74`). After local generated-types/typecheck, 35 Worker tests,
+  eight evidence tests, three dry-runs, and three startup checks passed with Wrangler 4.127.0,
+  publish exact source `becb020` as version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. Use one
+  disposable synthetic identity/event/secret only; record status/body-size and aggregate counts,
+  never its request or secret; remove only its exact tombstone after proof.
+- Consequences: The synthetic sequence returned 202/202/409/204/202/204 with empty bodies, proved
+  an exact `7776000000`-millisecond event TTL, an earlier-or-equal UTC-day tombstone, idempotency,
+  and no late-upload resurrection. Exact cleanup returned synthetic counts to 0; whole-D1 final
+  counts were 0 events, 0 identities, and the same 2 historical pre-remediation tombstones. No
+  rollback was needed. C5-04 and COM-C5 remain In Progress pending independent review, hosted CI,
+  and merge of this evidence. No customer participation, G1, App Store Connect update,
+  Staging/Production action, final-binary traffic, distribution, or release is inferred.
+- Alternatives rejected: Reusing the historical probe as current evidence; logging request bytes
+  or the deletion secret; retaining a new synthetic tombstone; touching Staging/Production;
+  treating Development proof as G1/final-binary/release evidence; or marking the phase Done before
+  exact-head review, CI, and merge.

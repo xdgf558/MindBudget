@@ -15,9 +15,13 @@ weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Ac
 post-merge closeout review confirmed that exact delta; C5-03's dormant metrics/evidence
 implementation is Done. The owner entered C5-04 on 2026-08-29. Independent review approved exact
 remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the
-controlled activation product capability as `28d9eae`. C5-04/COM-C5 remain In Progress pending
-current-source Development deployment/probe. No G1 decision, Staging/Production deployment,
-distribution, or release is authorized.
+controlled activation product capability as `28d9eae`. PR #83 supplemental review then covered
+the previously excluded surfaces; exact head `e6bbd3f` passed run `33242024609` and merged as
+`becb020`. That exact current source is deployed only to Development as Worker version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`, and its synthetic TTL/delete/idempotency probe passed and
+cleaned its exact rows. C5-04/COM-C5 remain In Progress pending independent review, hosted CI, and
+merge of this operational evidence. No G1 decision, Staging/Production deployment, distribution,
+or release is authorized.
 
 ## Input gate
 
@@ -29,8 +33,8 @@ distribution, or release is authorized.
   monitoring, cost ceilings, and dormant adapter. C5-03 closed the dormant metrics/evidence
   computation only. C5-04 adds the capture audit, disclosure, App Privacy source declaration,
   controls, deletion integration, terminal failure behavior, and Development operations runbook;
-  current-source Development proof, App Store Connect answers, and final-binary traffic remain
-  evidence/release gates.
+  current-source Development proof is now the pending-review evidence in this packet. App Store
+  Connect answers and final-binary traffic remain later evidence/release gates.
 - `NETWORK_EGRESS_POLICY.md` accepts only the three exact first-party hosts and two exact POST
   paths. Development alone may be deployed/probed. C5-04 permits the sole reviewed production
   factory, closed capture calls, and default-off customer control; it does not permit a
@@ -243,10 +247,7 @@ constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 
-Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its
-deletion-order remediation passed scoped independent review and green GitHub Actions run
-`33233846430`; PR #82 merged it as `28d9eae`, while current-source Development deployment/probe
-remains open.**
+Status: **Implementation and Development operational proof complete pending independent review.**
 
 Own the publish/rollback/key-rotation runbook, customer control and bilingual disclosure, privacy
 policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion verification.
@@ -271,8 +272,8 @@ Interaction and the conservative rotating Device ID classification are declared 
 manifest as unlinked, non-tracking Analytics. App Store Connect answers and final-binary traffic
 remain COM-C6/C12 gates.
 
-The PR #82 reviewer approved the deletion-order remediation on exact head `2c1cebe` within the
-scope it declared. That review did not inspect `PrivacyInfo.xcprivacy`, the receipt and Pro capture
+The PR #82 reviewer approved the deletion-order remediation on exact head `2c1cebe` within its
+declared scope. That review did not inspect `PrivacyInfo.xcprivacy`, the receipt and Pro capture
 sites, `TelemetryService` (which is defined in `TelemetryClient.swift`), or this operations
 runbook. PR #83's closeout review must include those four surfaces; the merge/run/commit facts do
 not expand the earlier review scope.
@@ -283,14 +284,24 @@ manual retry only after completing setup again and opening Privacy & Security > 
 `TelemetryService.stop()` cancels only drain/retry tasks; it does not destroy the client or its
 proofs, and `deleteAllTelemetry()` remains callable on that same service instance.
 
+PR #83 supplemental review inspected the four previously excluded surfaces on exact head
+`e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. Wrangler 4.127.0 then confirmed
+account `3f5394e0ef5a531c63c0ceaa74262e0d`, the exact Development Worker/D1 binding, and no pending
+migration before publishing `becb020` as version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`
+(deployment `4e18af19-a98a-4a6d-bf4c-38e587a1b754`). The content-free synthetic sequence returned
+202/202/409/204/202/204 with empty bodies, proved an exact `7776000000`-millisecond event TTL,
+proved an earlier-or-equal UTC-day tombstone bucket, prevented late-upload resurrection, and
+deleted only its exact synthetic tombstone. Final aggregate inspection reported 0 events,
+0 identities, and the same 2 historical pre-remediation tombstones; the new probe retained no row.
+
 ## Exit and stop conditions
 
-C5-01 through C5-03 are Done on their recorded evidence. C5-04's scoped deletion-remediation
-review, hosted CI, and merge are recorded through exact remediation head `2c1cebe`, run
-`33233846430`, and PR #82 merge `28d9eae`; PR #83 closeout review must supplement the four
-previously excluded surfaces. C5-04 and COM-C5 are not Done until current-source Development
-operational proof establishes a content-free, optional, deletable, observable, and cost-bounded
-real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
+C5-01 through C5-03 are Done on their recorded evidence. C5-04's product merge and supplemental
+review are recorded through PR #82 (`28d9eae`) and PR #83 (`becb020`). The current-source
+Development operational proof establishes the pending-review content-free, optional, deletable,
+observable, and cost-bounded real channel; C5-04 and COM-C5 are not Done until this evidence branch
+passes independent review, hosted CI, and merge. Stop on any content-bearing field, arbitrary
+dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,
 product-behavior dependency, App Privacy mismatch, terminal endpoint auto-retry, or release claim.

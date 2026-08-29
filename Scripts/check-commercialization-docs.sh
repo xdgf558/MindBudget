@@ -1499,9 +1499,9 @@ grep -Fq 'remediation head `0c61427`, green GitHub Actions run `33211270363`, an
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its' \
+grep -Fq 'Status: **Implementation and Development operational proof complete pending independent review.**' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-04 must retain the scoped-review product-merge and open operational-evidence status" >&2
+  echo "C5-04 must retain the pending-review Development operational-evidence status" >&2
   exit 1
 }
 
@@ -1766,9 +1766,9 @@ for c504_merge_file in \
   done
 done
 
-grep -Fq -- '- [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,' \
+grep -Fq -- '- [x] Complete the Development-only current-source publish readiness, aggregate-only monitoring,' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "C5-04 current-source Development probe must remain an unchecked standalone work item" >&2
+  echo "C5-04 current-source Development proof must remain a completed standalone work item" >&2
   exit 1
 }
 
@@ -1804,7 +1804,7 @@ if grep -Fq 'Independent review approved exact remediation head `2c1cebe`' \
 fi
 
 # Keep this scan phase-qualified. Future phases are allowed to await their own review/CI/merge.
-if grep -Ei 'C5-04 (implementation candidate|controlled activation candidate).*(pending|awaits).*(review|CI|merge)|C5-04/COM-C5 remain In Progress pending.*(review|CI|merge)|C5-04.*(exact-head review|hosted CI|merge) remain(s)? open' \
+if grep -Ei 'C5-04 (implementation candidate|controlled activation candidate).*(pending|awaits).*(review|CI|merge)|C5-04.*(exact-head review|hosted CI|merge) remain(s)? open' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -1817,6 +1817,66 @@ if grep -Ei 'C5-04 (implementation candidate|controlled activation candidate).*(
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes C5-04 review, hosted CI, or merge as open" >&2
+  exit 1
+fi
+
+grep -Fq 'DEC-COM-069' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-04 current-source Development evidence decision is missing DEC-COM-069" >&2
+  exit 1
+}
+
+# The operational proof is a real remote Development fact, so every current-state/evidence file
+# must name both the exact deployed main source and the resulting Development Worker version.
+# Review/CI/merge remain open for this branch, and the check below deliberately does not mark the
+# phase Done or authorize any later environment.
+for c504_development_evidence_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+  Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  for c504_development_evidence_anchor in \
+    'becb020' \
+    '003c66fa-a57c-4b6a-a8d7-3f75b14cc716'; do
+    grep -Fq "${c504_development_evidence_anchor}" "${c504_development_evidence_file}" || {
+      echo "C5-04 Development evidence is missing ${c504_development_evidence_anchor} in ${c504_development_evidence_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for c504_probe_detail_file in \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  grep -Fq '7776000000' "${c504_probe_detail_file}" || {
+    echo "C5-04 Development TTL evidence is missing from ${c504_probe_detail_file}" >&2
+    exit 1
+  }
+done
+
+if grep -Eqi 'current-source Development operational proof is still open|current-source Development deployment/probe remains open|current-source deployment/probe.*remain(s)? open|The C5-04 source has not yet been deployed or probed|only an earlier Development Worker/D1 version is deployed/probed|No current-source deployment/probe' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes the completed Development proof as open" >&2
   exit 1
 fi
 
@@ -1864,7 +1924,7 @@ if grep -Eq 'C5-04 (is )?Done|COM-C5 (is )?Done' \
     Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C5-04/COM-C5 must remain In Progress until current-source Development operational proof" >&2
+  echo "C5-04/COM-C5 must remain pending review until the Development evidence branch passes CI and merge" >&2
   exit 1
 fi
 

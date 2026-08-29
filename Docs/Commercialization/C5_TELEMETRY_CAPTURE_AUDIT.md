@@ -1,9 +1,11 @@
 # C5 Telemetry Capture Audit
 
-Status: **C5-04 product capability merged from exact remediation head `2c1cebe` after its
-deletion-order remediation passed scoped independent review and green GitHub Actions run
-`33233846430`; PR #82 merged it as `28d9eae`, while current-source Development deployment/probe
-remains open.**
+Status: **C5-04 product capability is merged through PR #82 (`28d9eae`) and supplemental review
+through PR #83 (`becb020`); current source `becb020` passed the pending-review Development
+operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`.**
+
+PR #82's scoped review of the deletion-order remediation covered exact head `2c1cebe`, which passed GitHub Actions
+run `33233846430` before the `28d9eae` merge; the operational proof does not expand that scope.
 
 This is the exhaustive production capture inventory for the optional MindBudget first-party
 telemetry channel. `Scripts/check-telemetry-contract.sh` requires the concrete client/transport to
@@ -43,8 +45,9 @@ The only capture-bearing production files are:
 3. `MindBudget/Features/Commerce/ProSubscriptionView.swift`
 
 PR #82's independent review did not inspect the privacy manifest, the two feature capture files,
-`TelemetryService`, or the operations runbook. PR #83's closeout review is explicitly scoped to
-supplement those four surfaces. The service type is defined in
+`TelemetryService`, or the operations runbook. PR #83's supplemental review covered those four
+surfaces on exact head `e6bbd3f`; green run `33242024609` and merge `becb020` record that scope.
+The service type is defined in
 `MindBudget/Services/TelemetryClient.swift`, not in a standalone `TelemetryService.swift` file.
 
 The channel intentionally does not capture ordinary expense/income/budget/wishlist/cooling-off

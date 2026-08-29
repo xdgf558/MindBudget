@@ -6289,3 +6289,29 @@ confirmed that service `stop()` cancels tasks without invalidating the same clie
 delete retry. Delete All resets setup, so a retained remote-deletion proof becomes reachable from
 Privacy & Security > Product Analytics only after onboarding is completed again; that manual UX
 boundary is now carried in the runbook instead of being omitted.
+
+## 2026-08-29 — Prove C5-04 current source only in Development
+
+Synced `main` through PR #83 merge `becb020`, whose supplemental-review head `e6bbd3f` passed
+GitHub Actions run `33242024609`. After exact account/Worker/D1/source verification and explicit
+owner approval, Wrangler 4.127.0 deployed `becb020` only to Development as version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. No migration was pending or applied.
+
+One disposable content-free synthetic sequence returned 202/202/409/204/202/204 with empty bodies.
+Aggregate checks proved exact `7776000000`-millisecond event TTL, an earlier-or-equal UTC-day
+tombstone, idempotent retry/conflict, proof deletion, and no late-upload resurrection. Exact cleanup
+left no synthetic row; whole-D1 final counts remained 0 events, 0 identities, and 2 historical
+pre-remediation tombstones. No customer data, request body, deletion secret, D1 row, or IP entered
+the record. DEC-COM-069 keeps this as a pending-review Development operational-evidence candidate;
+no G1, Staging/Production, App Store Connect, final-binary, distribution, or release conclusion
+follows.
+
+The evidence branch then passed `Scripts/validate.sh` with Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 iPhone 17 Pro simulator. Every static contract, the Release build, 35/35 local-D1 Worker
+tests, all eight evidence-contract tests, the complete unit-test run, 17/17 UI tests, and every
+selected coverage threshold passed; `CSVExporter.swift` was the minimum selected result at 87.60%
+against the 85% floor. The validator removed
+`mindbudget-validation.wnudAw/MindBudget.xcresult` after success, so that name is an execution
+pointer rather than a durable artifact. An immediately preceding attempt that inherited
+`/Library/Developer/CommandLineTools` failed before Xcode execution and is recorded only as an
+environmental non-pass; no product test failed in that attempt.

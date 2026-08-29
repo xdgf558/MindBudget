@@ -450,12 +450,13 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: after PR #83's supplemental review of the four surfaces excluded from PR
-#82's declared scope, finish C5-04's separately authorized current-source Development operational
-probe without entering Staging/Production, G1, or release. Independent review approved the
-deletion-order remediation on exact head `2c1cebe`; GitHub Actions run `33233846430` passed, and
-PR #82 merged the product capability as `28d9eae`. Those exact merge facts do not imply that the
-privacy manifest, feature capture sites, `TelemetryService`, or operations runbook were reviewed.
+Next suggested task: independently review, run hosted CI, and merge the C5-04 Development evidence
+candidate without entering Staging/Production, G1, or release. PR #83 supplemental review covered
+the privacy manifest, feature capture sites, `TelemetryService`, and operations runbook on exact
+head `e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. That exact current source
+is deployed only to Development as version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its synthetic
+TTL/delete/idempotency sequence passed and retained no new row. C5-04/COM-C5 remain In Progress
+until this operational evidence branch passes review, CI, and merge.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

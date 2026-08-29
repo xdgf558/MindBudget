@@ -3105,3 +3105,21 @@ endpoint/TTL/delete-idempotency evidence.
 
 Consequences: This closeout changes documentation and gates only. It does not deploy, collect,
 decide G1, update App Store Connect, authorize Staging/Production, distribute, or release.
+
+---
+
+## 2026-08-29 — Prove current-source telemetry only in Development
+
+Context: PR #83 supplemental review closed the four source/declaration coverage gaps and merged
+exact head `e6bbd3f` as `becb020` after green run `33242024609`. The owner explicitly authorized
+only the Development Worker/D1 publish and synthetic probe.
+
+Decision: Detailed ownership is DEC-COM-069. Deploy exact source `becb020` to the previously
+verified Development Worker/D1 only, then use one disposable content-free synthetic identity to
+prove endpoint status, exact event TTL, idempotency/conflict, proof deletion, UTC-day tombstone,
+non-resurrection, and exact cleanup without logging the secret or request body.
+
+Consequences: Development version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716` passed the full
+202/202/409/204/202/204 sequence and retained no new row. C5-04/COM-C5 remain pending independent
+review, hosted CI, and merge of this evidence; Staging/Production, G1, App Store Connect,
+final-binary traffic, distribution, and release remain unauthorized.
