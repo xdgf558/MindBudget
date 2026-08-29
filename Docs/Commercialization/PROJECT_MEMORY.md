@@ -450,8 +450,10 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: finish C5-04's separately authorized current-source Development probe, exact-
-head independent review, hosted CI, and merge without entering Staging/Production, G1, or release.
+Next suggested task: finish C5-04's separately authorized current-source Development operational
+probe without entering Staging/Production, G1, or release. Independent review approved exact
+remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the product
+capability as `28d9eae`; those gates are closed and must not be listed as pending.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.
@@ -484,13 +486,14 @@ survey workflow, and a read-only ordered D1 receipt funnel. Independent review r
 the root coverage roll-up, keeps coverage on exact environment/storefront/device-family segments,
 and exposes the widest interval width so a tiny sample is visible. No telemetry capture, route,
 deployment, customer evidence, or G1 decision was created by C5-03. The owner entered C5-04 on
-2026-08-29. Its implementation candidate adds one fixed environment-isolated factory, bilingual
+2026-08-29. Its reviewed product capability adds one fixed environment-isolated factory, bilingual
 default-off controls, bounded lifecycle and explicit deletion, sticky non-retrying 404/405/421,
 an exhaustive three-source capture audit, App Privacy declarations, and a Development-only
 operations runbook. App-wide Delete All attempts authenticated telemetry deletion first, but
 remote failure cannot block the local financial erase; a distinct pending state keeps retained
-proofs available for a separate retry. Current-source Development deployment/probe, independent review, hosted CI,
-and merge remain open; no real evidence bundle or G1 decision is claimed.
+proofs available for a separate retry. Exact remediation head `2c1cebe` passed independent review
+and hosted run `33233846430`; PR #82 merged it as `28d9eae`. Current-source Development
+deployment/probe remains open; no real evidence bundle or G1 decision is claimed.
 DEC-COM-061 remediates the independent review: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats
 bounded batches until drained, and C5-04 now owns sticky terminal fixed-endpoint failure behavior

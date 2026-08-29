@@ -1,7 +1,9 @@
 # C5 Telemetry Operations Runbook
 
-Status: **C5-04 implementation candidate. Only Development is eligible for current-source
-deployment/probe; Staging and Production remain unauthorized.**
+Status: **C5-04 product capability merged after independent review of exact remediation head
+`2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`. Only Development is
+eligible for the still-open current-source deployment/probe; Staging and Production remain
+unauthorized.**
 
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
 write by itself. The operator must name the exact environment and receive explicit approval before

@@ -13,10 +13,11 @@ approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one 
 weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Actions run
 `33211270363` passed, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's
 post-merge closeout review confirmed that exact delta; C5-03's dormant metrics/evidence
-implementation is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation candidate
-is complete pending current-source Development deployment/probe, exact-head independent review,
-hosted CI, and merge. No G1 decision, Staging/Production deployment, distribution, or release is
-authorized.
+implementation is Done. The owner entered C5-04 on 2026-08-29. Independent review approved exact
+remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the
+controlled activation product capability as `28d9eae`. C5-04/COM-C5 remain In Progress pending
+current-source Development deployment/probe. No G1 decision, Staging/Production deployment,
+distribution, or release is authorized.
 
 ## Input gate
 
@@ -242,13 +243,14 @@ constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 
-Status: **In Progress — owner entered 2026-08-29; implementation candidate complete pending
-current-source Development deployment/probe, independent review, hosted CI, and merge.**
+Status: **In Progress — product capability merged after independent review of exact remediation
+head `2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`; current-source
+Development deployment/probe remains open.**
 
 Own the publish/rollback/key-rotation runbook, customer control and bilingual disclosure, privacy
 policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion verification.
 
-The implementation candidate constructs exactly one `TelemetryClient` and one
+The reviewed product capability constructs exactly one `TelemetryClient` and one
 `FixedTelemetryTransport` in `TelemetryServiceFactory`. Missing state remains off without a write;
 an explicit Privacy-settings confirmation is the only enable path. Missing factory prerequisites
 produce an unavailable telemetry service instead of blocking local app startup. The lifecycle drains a bounded
@@ -270,9 +272,10 @@ remain COM-C6/C12 gates.
 
 ## Exit and stop conditions
 
-C5-01 through C5-03 are Done on their recorded evidence. C5-04 and COM-C5 are not Done until exact-
-head independent review, green hosted CI, merge, and current-source Development operational proof
-establish a content-free, optional, deletable, observable, and
+C5-01 through C5-03 are Done on their recorded evidence. C5-04 product review, hosted CI, and merge
+are complete through exact remediation head `2c1cebe`, run `33233846430`, and PR #82 merge
+`28d9eae`. C5-04 and COM-C5 are not Done until current-source Development operational proof
+establishes a content-free, optional, deletable, observable, and
 cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,

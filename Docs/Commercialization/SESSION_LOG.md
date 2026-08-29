@@ -3153,3 +3153,25 @@ Four physical CloudKit probes were explicit skips; minimum selected coverage rem
 `mindbudget-validation.LO2cps/MindBudget.xcresult` after success. No remote deploy/probe, G1,
 Staging/Production action, distribution, or release claim changes; exact-head rereview, hosted CI,
 and merge remain required.
+
+### C5-04 reviewed product merge calibration — 2026-08-29
+
+Independent review approved exact remediation head `2c1cebe`; GitHub Actions run `33233846430`
+completed successfully on that exact head; and PR #82 merged the product capability to `main` as
+`28d9eae`. DEC-COM-068 records those three facts and removes review, hosted CI, and merge from the
+open C5-04 work without treating a source merge as operational evidence.
+
+The closeout updates only documentation and the commercialization-document gate. C5-04 and
+COM-C5 remain In Progress solely because the current source has not been published to the
+Development Worker and the endpoint/monitoring/TTL/delete-idempotency sequence has not been run.
+The earlier Worker `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` evidence remains explicitly historical.
+No remote deployment, D1 mutation, customer collection, App Store Connect answer, evidence bundle,
+G1 decision, Staging/Production action, distribution, or release is claimed.
+
+This exact closeout source passed `Scripts/validate.sh` with Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 iPhone 17 Pro simulator. Release compilation, 35/35 local-D1 Worker tests, all eight C5
+evidence tests, the strict 10,000-row Dashboard benchmark, 550 unit tests across 32 suites, 17/17
+UI tests, and every selected coverage threshold passed. Four opt-in physical CloudKit probes were
+explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
+validator deleted `mindbudget-validation.bKKG10/MindBudget.xcresult` after success; it is an
+execution pointer, not a durable artifact.

@@ -57,9 +57,11 @@ detailed phase checklists; it added no paid product behavior.
   coverage issue plus one P3 weak-sample-visibility issue. Remediation head `0c61427` applied both,
   passed GitHub Actions run `33211270363`, and PR #80 merged it as `a587f42` without a pre-merge
   rereview. PR #81's post-merge closeout review read that exact remediation delta and confirmed
-  both fixes; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation
-  candidate is complete pending current-source Development proof, exact-head review, hosted CI,
-  and merge; Staging/Production deployment, G1, distribution, and release remain unauthorized.**
+  both fixes; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Independent review approved
+  exact remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the
+  controlled activation product capability as `28d9eae`. C5-04 and COM-C5 remain In Progress only
+  because current-source Development operational proof is still open; Staging/Production
+  deployment, G1, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -594,16 +596,18 @@ remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 m
 
 ### C5-04 — Operations and disclosures
 
-Status: **In Progress — owner entered 2026-08-29; implementation candidate complete pending
-current-source Development deployment/probe, independent review, hosted CI, and merge.**
+Status: **In Progress — product capability merged after independent review of exact remediation
+head `2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`; current-source
+Development deployment/probe remains open.**
 
-- [ ] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
+- [x] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
   Development/Staging/Production isolation and keep Staging/Production undeployed.
-- [ ] Lock the exhaustive capture audit, App Privacy manifest/checklist, deletion integration,
+- [x] Lock the exhaustive capture audit, App Privacy manifest/checklist, deletion integration,
   terminal 404/405/421 behavior, four-generation re-enable guidance, and the local-first rule that
   an optional remote telemetry failure retains proofs for retry but never blocks local Delete All.
 - [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,
-  TTL/delete/idempotency probe, independent review, hosted CI, and merge. No G1 or release claim.
+  and TTL/delete/idempotency probe. Review, hosted CI, and product merge are complete through PR
+  #82 (`28d9eae`); no G1 or release claim follows from that merge.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.

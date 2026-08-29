@@ -1832,3 +1832,30 @@ selected coverage threshold. Four opt-in physical CloudKit tests were explicit s
 `mindbudget-validation.LO2cps/MindBudget.xcresult` after success; the name is an execution pointer,
 not a durable artifact. No Worker deployment, current-source live probe, G1, Staging/Production,
 distribution, or release evidence is claimed. Hosted CI and exact-head rereview remain open.
+
+### C5-04 reviewed product merge — 2026-08-29
+
+Independent review approved exact remediation head `2c1cebe`. GitHub Actions run `33233846430`
+completed successfully on that head, and PR #82 merged it to `main` as `28d9eae`. The reviewed
+source evidence remains the 16-test focused Phase 6 remediation run, 35/35 local-D1 Worker tests,
+eight immutable-evidence tests, strict 10,000-row Dashboard benchmark, 550 unit tests across 32
+suites, 17/17 UI tests, Release compilation, and every selected coverage threshold. Four opt-in
+physical CloudKit tests were explicit skips; `CSVExporter.swift` remained the minimum selected
+coverage result at 87.60% against the 85% floor.
+
+The earlier 661.598333-millisecond strict benchmark remains a recorded non-pass. Under the
+controlled same-machine comparison, both the remediation branch and detached `origin/main`
+passed the 500-millisecond assertion 3/3; the exact-source validator then also passed the strict
+benchmark. No current-source Development deployment or endpoint/TTL/delete-idempotency probe is
+part of this merge evidence, so C5-04 and COM-C5 remain In Progress. This post-merge calibration
+adds no Worker/D1 mutation, App Store Connect update, G1 decision, Staging/Production action,
+distribution, or release evidence.
+
+The documentation-and-gate closeout itself passed `Scripts/validate.sh` with Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. Release compilation, 35/35 local-D1 Worker
+tests, eight C5 evidence-contract tests, the strict 10,000-row Dashboard benchmark, 550 unit tests
+across 32 suites, all 17 UI tests, and every selected coverage threshold passed. Four opt-in
+physical CloudKit tests were explicit skips. `CSVExporter.swift` was the minimum selected result
+at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.bKKG10/MindBudget.xcresult` after success, making that name an execution
+pointer rather than a durable artifact.

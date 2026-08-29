@@ -1,7 +1,8 @@
 # C5 Telemetry Capture Audit
 
-Status: **C5-04 implementation candidate; independent review, hosted CI, current-source
-Development deployment/probe, and merge remain open.**
+Status: **C5-04 product capability merged after independent review of exact remediation head
+`2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`; current-source
+Development deployment/probe remains open.**
 
 This is the exhaustive production capture inventory for the optional MindBudget first-party
 telemetry channel. `Scripts/check-telemetry-contract.sh` requires the concrete client/transport to

@@ -3088,3 +3088,18 @@ Consequences: The app reports completed local deletion with a distinct pending-t
 rather than claiming remote success or holding local records hostage. C5-04's remaining
 Development, review, CI, merge, G1, Staging/Production, distribution, and release gates are
 unchanged.
+
+---
+
+## 2026-08-29 — Record the reviewed C5-04 product merge without closing operations
+
+Context: Exact remediation head `2c1cebe` passed independent review and GitHub Actions run
+`33233846430`; PR #82 merged it to `main` as `28d9eae`. The current source has still not been
+deployed or probed in Development.
+
+Decision: Detailed ownership is DEC-COM-068. Record implementation, review, hosted CI, and merge
+as complete, but keep C5-04 and COM-C5 In Progress for the separately authorized current-source
+Development endpoint/TTL/delete-idempotency evidence.
+
+Consequences: This closeout changes documentation and gates only. It does not deploy, collect,
+decide G1, update App Store Connect, authorize Staging/Production, distribute, or release.
