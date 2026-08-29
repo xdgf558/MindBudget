@@ -106,11 +106,19 @@ the explicit control/disclosure, capture audit, conservative App Privacy manifes
 endpoint-policy failure, and an operations runbook. Independent review approved the deletion-order
 remediation on exact head `2c1cebe` within its declared scope; it did not inspect the privacy
 manifest, two feature capture files, `TelemetryService`, or the operations runbook. GitHub Actions
-run `33233846430` passed, and PR #82 merged the source as `28d9eae`; PR #83 supplemental review
-covered those surfaces on exact head `e6bbd3f`, green run `33242024609`, and merge `becb020`.
+run `33233846430` passed, and PR #82 merged the source as `28d9eae`. Independent review of PR #83
+head `daea2d2` raised two P2 findings and one P3 and retained that exclusion. Remediation head
+`e6bbd3f` applied them and recorded the implementation author's supplemental inspection of the
+four excluded surfaces; it passed green run `33242024609` and merged as `becb020` without a
+pre-merge rereview.
 Current source `becb020` is deployed only to Development as version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its content-free synthetic TTL/delete/idempotency probe
-passed and retained no new row. Final-binary traffic, App Store Connect privacy answers, and
+passed and retained no new row. PR #84 then used the actual iOS Simulator
+`FixedTelemetryTransport`/`URLSession` path against the strict Development Worker: upload returned
+202, delete returned 204, and aggregate D1 inspection found 0 events, 0 identities, and 3
+tombstones (2 historical plus the expected new UTC-day deletion tombstone). This proves the
+adapter's fixed User-Agent and absent/empty language metadata were accepted on the wire, but it is
+not final-binary traffic. Final-binary traffic, App Store Connect privacy answers, and
 release authorization remain outstanding.
 
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
@@ -124,7 +132,7 @@ computation: no route, real evidence result, or G1 decision exists. The owner en
 2026-08-29. Its product capability is merged through PR #82 (`28d9eae`) after green run
 `33233846430` on exact remediation head `2c1cebe`; the independent review covered the
 deletion-order remediation but excluded the manifest, capture sites, service, and runbook now
-named for PR #83 supplemental review. That review and merge are now recorded through `becb020`,
+named for PR #83 supplemental inspection. That author-side inspection and merge are now recorded through `becb020`,
 and the separately authorized current-source Development probe passed on version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. C5-04 remains In Progress pending review, CI, and merge
 of this operational evidence; every Staging/Production and distribution/release proof remains

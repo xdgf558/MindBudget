@@ -3123,3 +3123,25 @@ Consequences: Development version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716` passed 
 202/202/409/204/202/204 sequence and retained no new row. C5-04/COM-C5 remain pending independent
 review, hosted CI, and merge of this evidence; Staging/Production, G1, App Store Connect,
 final-binary traffic, distribution, and release remain unauthorized.
+
+---
+
+## 2026-08-29 — Correct C5-04 review provenance and verify native transport headers
+
+Context: Independent review of PR #83 covered head `daea2d2`, raised two P2 findings and one P3,
+and excluded four privacy-critical surfaces. Remediation head `e6bbd3f` applied the findings and
+recorded the implementation author's supplemental inspection, passed run `33242024609`, and
+merged as `becb020` without a pre-merge rereview. PR #84 review also identified that the manual
+Development transcript had not exercised the real iOS URLSession header path and that the
+post-`stop()` deletion-retry claim lacked a test.
+
+Decision: Detailed ownership is DEC-COM-070. Correct the attribution without rewriting historical
+decision entries, add a default-disabled and non-archiving live telemetry test scheme, exercise
+the real `FixedTelemetryTransport`/`URLSession` against Development, and add the deterministic
+post-`stop()` explicit-deletion regression.
+
+Consequences: The actual iOS Simulator adapter received upload 202 and delete 204 from the strict
+Worker; aggregate D1 counts after the run were 0 events, 0 identities, and 3 tombstones (2
+historical plus the expected live-probe tombstone). This closes only the named Debug transport and
+retry-test gaps. C5-04/COM-C5 remain In Progress pending review, hosted CI, and merge; final-binary,
+G1, Staging/Production, distribution, and release gates remain open.

@@ -451,11 +451,17 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 submission, or Production deployment followed.
 
 Next suggested task: independently review, run hosted CI, and merge the C5-04 Development evidence
-candidate without entering Staging/Production, G1, or release. PR #83 supplemental review covered
-the privacy manifest, feature capture sites, `TelemetryService`, and operations runbook on exact
-head `e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. That exact current source
+candidate without entering Staging/Production, G1, or release. Independent review of PR #83 head
+`daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
+the implementation author's supplemental inspection of the privacy manifest, feature capture
+sites, `TelemetryService`, and operations runbook; run `33242024609` passed and PR #83 merged as
+`becb020` without a pre-merge rereview. That exact current source
 is deployed only to Development as version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its synthetic
-TTL/delete/idempotency sequence passed and retained no new row. C5-04/COM-C5 remain In Progress
+TTL/delete/idempotency sequence passed and retained no new row. PR #84's opt-in iOS Simulator run
+then exercised the real `FixedTelemetryTransport`/`URLSession` path, received upload 202 and delete
+204, and produced final D1 aggregates of 0 events/0 identities/3 tombstones (2 historical plus the
+expected live-probe tombstone); a deterministic test proves `stop()` does not disable explicit
+deletion retry. C5-04/COM-C5 remain In Progress
 until this operational evidence branch passes review, CI, and merge.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
@@ -497,7 +503,7 @@ remote failure cannot block the local financial erase; a distinct pending state 
 proofs available for a separate retry. The deletion-order remediation on exact head `2c1cebe`
 passed scoped independent review and hosted run `33233846430`; PR #82 merged it as `28d9eae`.
 That review excluded the privacy manifest, feature capture sites, `TelemetryService`, and the
-operations runbook now named for PR #83 supplemental review. Current-source Development
+operations runbook now named for PR #83 author-side supplemental inspection. Current-source Development
 deployment/probe remains open; no real evidence bundle or G1 decision is claimed.
 DEC-COM-061 remediates the independent review: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats

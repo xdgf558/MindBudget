@@ -1,7 +1,7 @@
 # C5 Telemetry Capture Audit
 
-Status: **C5-04 product capability is merged through PR #82 (`28d9eae`) and supplemental review
-through PR #83 (`becb020`); current source `becb020` passed the pending-review Development
+Status: **C5-04 product capability is merged through PR #82 (`28d9eae`) and author-side
+supplemental inspection through PR #83 (`becb020`); current source `becb020` passed the pending-review Development
 operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`.**
 
 PR #82's scoped review of the deletion-order remediation covered exact head `2c1cebe`, which passed GitHub Actions
@@ -45,8 +45,11 @@ The only capture-bearing production files are:
 3. `MindBudget/Features/Commerce/ProSubscriptionView.swift`
 
 PR #82's independent review did not inspect the privacy manifest, the two feature capture files,
-`TelemetryService`, or the operations runbook. PR #83's supplemental review covered those four
-surfaces on exact head `e6bbd3f`; green run `33242024609` and merge `becb020` record that scope.
+`TelemetryService`, or the operations runbook. Independent review of PR #83 head `daea2d2` raised
+two P2 findings and one P3 and explicitly retained that exclusion. Remediation head `e6bbd3f`
+applied them and recorded the implementation author's supplemental inspection of those four
+surfaces; green run `33242024609` passed and PR #83 merged it as `becb020` without a pre-merge
+rereview. This attribution is an author-side inspection record, not an independent-review claim.
 The service type is defined in
 `MindBudget/Services/TelemetryClient.swift`, not in a standalone `TelemetryService.swift` file.
 
@@ -84,3 +87,7 @@ distribution build is submitted; checking in the manifest does not update App St
   the app must not relabel that remote remainder as deleted.
 - Treat Development synthetic probes as operational evidence only, never customer participation,
   a Production result, or a G1 threshold pass.
+- The opt-in `MindBudget-Telemetry-Live` scheme exercises the actual
+  `FixedTelemetryTransport`/`URLSession` path only in Debug. Its accepted upload 202 and delete 204
+  prove the strict fixed-header path on the wire, not the final release binary. It is not enabled
+  in the default scheme and cannot archive.

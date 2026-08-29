@@ -5,6 +5,9 @@ import Testing
 
 @Suite("C5-01 typed telemetry client")
 struct TelemetryClientTests {
+    private static let runsLiveDevelopmentTelemetryTransportTest =
+        ProcessInfo.processInfo.environment["MINDBUDGET_LIVE_TELEMETRY_TESTS"] == "1"
+
     @Test
     func collectionIsDefaultOffAndDoesNotCreatePersistence() async throws {
         let persistence = MemoryTelemetryPersistence()
@@ -269,6 +272,55 @@ struct TelemetryClientTests {
         ])
     }
 
+    @Test(.enabled(if: Self.runsLiveDevelopmentTelemetryTransportTest))
+    func liveDevelopmentFixedTransportUsesAcceptedURLSessionHeadersAndDeletesSyntheticIdentity()
+        async throws {
+        // The default scheme never runs this test. Each explicitly authorized run leaves the
+        // Worker's normal UTC-day deletion tombstone until its ordinary retention expiry.
+        let transport = FixedTelemetryTransport(environment: .development)
+        let identity = UUID()
+        let secret = Data(SHA256.hash(data: Data("C5-04-\(UUID().uuidString)".utf8)))
+        let deletionHandle = SHA256.hash(data: secret)
+            .map { String(format: "%02x", $0) }
+            .joined()
+        let batch = TelemetryUploadBatch(
+            schemaVersion: TelemetryPolicy.schemaVersion,
+            environment: .development,
+            appVersion: try TelemetryAppVersion("0.9.8"),
+            pseudonymousIdentifier: identity,
+            deletionHandle: deletionHandle,
+            events: [TelemetryQueuedEvent(
+                id: UUID(),
+                identityIdentifier: identity,
+                occurredAt: Date(),
+                event: .appSessionStarted
+            )]
+        )
+        let deletionRequest = TelemetryDeletionRequest(
+            schemaVersion: TelemetryPolicy.schemaVersion,
+            environment: .development,
+            proofs: [TelemetryDeletionProof(
+                pseudonymousIdentifier: identity,
+                deletionSecret: secret
+            )]
+        )
+
+        let uploadResolution = try await transport.upload(batch)
+        guard uploadResolution == .accepted else {
+            Issue.record("The live Development Worker rejected FixedTelemetryTransport")
+            return
+        }
+        do {
+            try await transport.delete(deletionRequest)
+        } catch {
+            // One best-effort retry preserves cleanup without weakening the original failure.
+            try? await transport.delete(deletionRequest)
+            throw error
+        }
+
+        print("C5-04 live FixedTelemetryTransport upload=accepted delete=204")
+    }
+
     @Test
     func fixedTransportFailsClosedForEnvironmentDriftAndUnexpectedResponseContent() async throws {
         let wrongEnvironmentLoader = RecordingTelemetryHTTPLoader(statusCode: 202)
@@ -489,6 +541,25 @@ struct TelemetryClientTests {
             await persistence.currentState.queuedEvents.last?.event == .appSessionStarted
         )
         service.stop()
+    }
+
+    @Test
+    @MainActor
+    func runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let transport = RecordingTelemetryTransport()
+        let client = try makeClient(persistence: persistence, transport: transport)
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        let service = TelemetryService(client: client)
+
+        service.stop()
+        let result = await service.deleteAllTelemetry()
+
+        #expect(result == .deletedRemotely)
+        #expect(await transport.deletions.count == 1)
+        #expect(await persistence.deleteCount == 1)
+        #expect(service.snapshot.collectionEnabled == false)
+        #expect(service.snapshot.retainedIdentityCount == 0)
     }
 
     @Test

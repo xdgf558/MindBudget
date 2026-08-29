@@ -6315,3 +6315,40 @@ against the 85% floor. The validator removed
 pointer rather than a durable artifact. An immediately preceding attempt that inherited
 `/Library/Developer/CommandLineTools` failed before Xcode execution and is recorded only as an
 environmental non-pass; no product test failed in that attempt.
+
+## 2026-08-29 — Correct PR #83 chronology and close the native telemetry transport gap
+
+PR #84 review found that current-state documents omitted reviewed head `daea2d2` and incorrectly
+described remediation head `e6bbd3f` as independently reviewed. The corrected chronology now says
+that independent review covered `daea2d2`, raised two P2 findings and one P3, and explicitly
+excluded the privacy manifest, AddExpense/Pro capture files, `TelemetryService`, and runbook.
+`e6bbd3f` applied the findings and recorded the implementation author's supplemental inspection
+of those surfaces, passed run `33242024609`, and merged as `becb020` without a pre-merge rereview.
+DEC-COM-070 records that correction without rewriting the historical DEC-COM-069 entry.
+
+The same remediation added `MindBudget-Telemetry-Live`, a default-disabled shared scheme that can
+run tests but cannot archive. The first exact-method-filter invocation discovered zero tests and
+is retained as a non-pass. The corrected suite-level run on the iOS 26.5 simulator explicitly
+started the live test and exercised the real `FixedTelemetryTransport`, production
+`BoundedTelemetryHTTPLoader`, and `URLSession`; the strict Development Worker accepted upload 202
+and authenticated delete 204. A subsequent read-only D1 aggregate query returned 0 events,
+0 identities, and 3 tombstones: 2 historical pre-remediation rows plus the expected UTC-day
+tombstone from this native transport deletion. No row contents, UUID, secret, body, or IP were
+read or recorded.
+
+The ordinary focused telemetry suite passed 34/34 with the live test explicitly skipped by
+default. It now includes `runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry`, which calls
+`stop()` and then proves an explicit delete on the same service performs the remote request,
+removes encrypted persistence, and clears retained identity proofs. Static telemetry gates pin
+both regressions, require the live opt-in only in its dedicated scheme, and forbid that scheme
+from archiving. This is Debug simulator evidence, not customer/final-binary/G1/Staging/Production/
+distribution/release authority. C5-04/COM-C5 remain In Progress pending rereview, hosted CI, and
+merge.
+
+The exact remediation branch then passed `Scripts/validate.sh` with Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract and Release
+compilation passed; 35/35 local-D1 Worker tests, 8/8 evidence-contract tests, 552 unit tests in 32
+suites, and 17/17 UI tests passed. Every selected coverage threshold passed, with
+`CSVExporter.swift` lowest at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.ceXEOC/MindBudget.xcresult` after success, leaving only this execution
+pointer rather than a durable artifact.

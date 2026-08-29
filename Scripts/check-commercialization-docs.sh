@@ -1825,6 +1825,11 @@ grep -Fq 'DEC-COM-069' Docs/Commercialization/DECISIONS.md || {
   exit 1
 }
 
+grep -Fq 'DEC-COM-070' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-04 native transport and review-provenance decision is missing DEC-COM-070" >&2
+  exit 1
+}
+
 # The operational proof is a real remote Development fact, so every current-state/evidence file
 # must name both the exact deployed main source and the resulting Development Worker version.
 # Review/CI/merge remain open for this branch, and the check below deliberately does not mark the
@@ -1843,6 +1848,9 @@ for c504_development_evidence_file in \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
   Docs/Commercialization/CI_BASELINE.md; do
   for c504_development_evidence_anchor in \
+    'daea2d2' \
+    'e6bbd3f' \
+    '33242024609' \
     'becb020' \
     '003c66fa-a57c-4b6a-a8d7-3f75b14cc716'; do
     grep -Fq "${c504_development_evidence_anchor}" "${c504_development_evidence_file}" || {
@@ -1851,6 +1859,50 @@ for c504_development_evidence_file in \
     }
   done
 done
+
+# PR #83's independent review stopped at daea2d2. e6bbd3f applied its findings and recorded an
+# implementation-author inspection, but did not receive a pre-merge rereview. Keep that chronology
+# distinct from PR #84's separate live-transport evidence.
+if grep -Eqi 'PR #83.? supplemental review|supplemental-review head.*e6bbd3f|its supplemental review covered' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current C5-04 documents still misattribute e6bbd3f as an independent PR #83 rereview" >&2
+  exit 1
+fi
+
+for c504_native_transport_file in \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  for c504_native_transport_anchor in \
+    'FixedTelemetryTransport' \
+    'URLSession' \
+    '0 events' \
+    '0 identities' \
+    '3 tombstones'; do
+    grep -Fq "${c504_native_transport_anchor}" "${c504_native_transport_file}" || {
+      echo "C5-04 native transport evidence is missing ${c504_native_transport_anchor} in ${c504_native_transport_file}" >&2
+      exit 1
+    }
+  done
+done
+
+grep -Fq 'runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry' \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md || {
+  echo "C5-04 runbook must retain executable stop-then-delete retry evidence" >&2
+  exit 1
+}
 
 for c504_probe_detail_file in \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \

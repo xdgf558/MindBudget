@@ -2076,3 +2076,37 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   or the deletion secret; retaining a new synthetic tombstone; touching Staging/Production;
   treating Development proof as G1/final-binary/release evidence; or marking the phase Done before
   exact-head review, CI, and merge.
+
+## DEC-COM-070 — Correct PR #83 provenance and prove the real iOS transport boundary
+
+- Status/date: **Accepted PR #84 review remediation candidate — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-066/067/068/069
+- Context: Independent review of PR #83 covered head `daea2d2`, raised two P2 findings and one P3,
+  and explicitly excluded `PrivacyInfo.xcprivacy`, the AddExpense/Pro capture files,
+  `TelemetryService`, and the operations runbook. Remediation head `e6bbd3f` applied those findings
+  and recorded the implementation author's supplemental inspection of the four excluded surfaces;
+  GitHub Actions run `33242024609` passed and PR #83 merged it as `becb020` without a pre-merge
+  rereview. Separately, DEC-COM-069's manual HTTP transcript did not prove that the actual iOS
+  `URLSession` preserved the Worker's strict `User-Agent` and absent/empty `Accept-Language`
+  contract. The documented claim that explicit deletion remains callable after
+  `TelemetryService.stop()` also lacked an executable regression.
+- Decision: Preserve the historical DEC-COM-069 entry but treat its "supplemental review" wording
+  as an author-side inspection record, not an independent-review claim. Add a default-disabled,
+  non-archiving `MindBudget-Telemetry-Live` scheme that alone enables one opt-in test using the
+  actual Development `FixedTelemetryTransport`, production `BoundedTelemetryHTTPLoader`, and
+  `URLSession`. Keep the default scheme free of that environment variable. Add a deterministic
+  service test that calls `stop()` before explicit deletion and proves the same service still
+  deletes remotely and clears local encrypted state.
+- Consequences: The corrected live suite-level run on the iOS 26.5 simulator received HTTP 202
+  (`.accepted`) for upload and HTTP 204 for authenticated delete from the strict Development
+  Worker. A read-only aggregate query then found 0 events, 0 identities, and 3 tombstones: the 2
+  historical pre-remediation rows plus the expected UTC-day tombstone from this live transport
+  deletion. No event or identity row remained. The earlier exact-method-filter invocation that
+  discovered zero tests is a non-pass and not evidence. This is Debug simulator evidence only;
+  final-binary traffic, App Store Connect, G1, Staging/Production, distribution, and release remain
+  open, and C5-04/COM-C5 remain In Progress pending review, hosted CI, and merge.
+- Alternatives rejected: Continuing to call `e6bbd3f` independently reviewed; treating a manual
+  HTTP client as evidence of native URLSession headers; enabling the live test in the default
+  scheme; allowing the probe scheme to archive; dumping D1 rows or identifiers; relabeling the
+  expected deletion tombstone as a cleanup failure; or treating Debug simulator traffic as a
+  final-binary/release gate.

@@ -15,11 +15,15 @@ weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Ac
 post-merge closeout review confirmed that exact delta; C5-03's dormant metrics/evidence
 implementation is Done. The owner entered C5-04 on 2026-08-29. Independent review approved exact
 remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the
-controlled activation product capability as `28d9eae`. PR #83 supplemental review then covered
-the previously excluded surfaces; exact head `e6bbd3f` passed run `33242024609` and merged as
-`becb020`. That exact current source is deployed only to Development as Worker version
+controlled activation product capability as `28d9eae`. Independent review of PR #83 head
+`daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
+the implementation author's supplemental inspection of the previously excluded surfaces, passed
+run `33242024609`, and merged as `becb020` without a pre-merge rereview. That exact current source is deployed only to Development as Worker version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`, and its synthetic TTL/delete/idempotency probe passed and
-cleaned its exact rows. C5-04/COM-C5 remain In Progress pending independent review, hosted CI, and
+cleaned its exact rows. PR #84 additionally proved the real iOS Simulator
+`FixedTelemetryTransport`/`URLSession` request path with upload 202 and delete 204; aggregate D1
+verification then found 0 events, 0 identities, and 3 tombstones (2 historical plus the live
+probe's expected UTC-day tombstone). C5-04/COM-C5 remain In Progress pending independent review, hosted CI, and
 merge of this operational evidence. No G1 decision, Staging/Production deployment, distribution,
 or release is authorized.
 
@@ -284,8 +288,10 @@ manual retry only after completing setup again and opening Privacy & Security > 
 `TelemetryService.stop()` cancels only drain/retry tasks; it does not destroy the client or its
 proofs, and `deleteAllTelemetry()` remains callable on that same service instance.
 
-PR #83 supplemental review inspected the four previously excluded surfaces on exact head
-`e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. Wrangler 4.127.0 then confirmed
+Independent review of PR #83 head `daea2d2` raised two P2 findings and one P3 while explicitly
+excluding four privacy-critical surfaces. Remediation head `e6bbd3f` applied those findings and
+recorded the implementation author's supplemental inspection of the excluded surfaces; run
+`33242024609` passed and PR #83 merged as `becb020` without a pre-merge rereview. Wrangler 4.127.0 then confirmed
 account `3f5394e0ef5a531c63c0ceaa74262e0d`, the exact Development Worker/D1 binding, and no pending
 migration before publishing `becb020` as version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`
 (deployment `4e18af19-a98a-4a6d-bf4c-38e587a1b754`). The content-free synthetic sequence returned
@@ -293,6 +299,17 @@ migration before publishing `becb020` as version `003c66fa-a57c-4b6a-a8d7-3f75b1
 proved an earlier-or-equal UTC-day tombstone bucket, prevented late-upload resurrection, and
 deleted only its exact synthetic tombstone. Final aggregate inspection reported 0 events,
 0 identities, and the same 2 historical pre-remediation tombstones; the new probe retained no row.
+
+PR #84 then added a default-disabled `MindBudget-Telemetry-Live` scheme and ran the actual
+`FixedTelemetryTransport` with its production `BoundedTelemetryHTTPLoader`/`URLSession` on the iOS
+26.5 simulator. The strict Development Worker accepted the upload as 202 and the authenticated
+delete as 204, which closes the named on-wire `User-Agent`/`Accept-Language` uncertainty. A
+read-only D1 aggregate query after that run found 0 events, 0 identities, and 3 tombstones: the 2
+historical pre-remediation rows plus the expected UTC-day tombstone from this live transport
+deletion. The opt-in scheme is absent from the default scheme and cannot archive. The same
+remediation adds a deterministic regression proving `deleteAllTelemetry()` remains callable on
+the same `TelemetryService` after `stop()`. This is Debug simulator evidence, not a final-binary,
+customer, G1, Staging, Production, distribution, or release claim.
 
 ## Exit and stop conditions
 

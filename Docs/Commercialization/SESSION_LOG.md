@@ -3231,3 +3231,36 @@ coverage threshold; minimum selected coverage was `CSVExporter.swift` at 87.60% 
 validator deleted `mindbudget-validation.wnudAw/MindBudget.xcresult` after success, so the path is
 only an execution pointer. A prior invocation inherited Command Line Tools instead of full Xcode
 and stopped before Xcode execution; it is an environmental non-pass, not product evidence.
+
+## 2026-08-29 — Session 178 — Correct review provenance and exercise native URLSession
+
+Goal: Close PR #84 review findings without expanding Development authority or marking C5-04 Done.
+
+Actions: Corrected the PR #83 chronology: independent review covered `daea2d2`, raised two P2
+findings and one P3, and excluded four privacy-critical surfaces; `e6bbd3f` applied the findings
+and recorded the implementation author's supplemental inspection, passed run `33242024609`, and
+merged as `becb020` without pre-merge rereview. Added DEC-COM-070, updated current-state evidence,
+and kept historical entries append-only. Added a default-disabled/non-archiving
+`MindBudget-Telemetry-Live` scheme, a real Development `FixedTelemetryTransport` test, and a
+deterministic `TelemetryService.stop()`-then-delete retry test.
+
+Evidence: The default focused `TelemetryClientTests` run passed 34/34 and explicitly skipped the
+live test. An exact-method-filter live attempt discovered zero tests and is a non-pass. The
+corrected suite-level live run on Xcode 27.0 beta 6 / iOS 26.5 explicitly started the test and used
+the production `BoundedTelemetryHTTPLoader`/`URLSession`; the strict Worker returned upload 202
+(`.accepted`) and delete 204. A read-only remote D1 aggregate query then returned 0 events,
+0 identities, and 3 tombstones: 2 historical pre-remediation rows plus this run's expected
+UTC-day deletion tombstone. It read no row bodies or identifiers and wrote nothing.
+
+Result: The known native-header uncertainty and prose-only post-`stop()` retry boundary are now
+executable evidence. The live scheme is absent from the default scheme and cannot archive. This
+remains Debug simulator Development evidence only; final-binary traffic, App Store Connect, G1,
+Staging/Production, distribution, and release remain unauthorized. C5-04/COM-C5 remain In
+Progress pending exact-head rereview, hosted CI, and merge.
+
+Validation: `Scripts/validate.sh` passed on the same Xcode 27.0 beta 6 / iOS 26.5 simulator
+toolchain. It passed every static contract, Release compilation, 35/35 local-D1 Worker tests,
+8/8 evidence-contract tests, 552 unit tests in 32 suites, 17/17 UI tests, and every selected
+coverage threshold. Minimum selected coverage was `CSVExporter.swift` at 87.60% against 85%.
+The validator removed `mindbudget-validation.ceXEOC/MindBudget.xcresult` after success; it is an
+execution pointer, not a durable artifact.

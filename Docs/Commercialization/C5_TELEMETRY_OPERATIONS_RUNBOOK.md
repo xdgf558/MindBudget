@@ -2,15 +2,18 @@
 
 Status: **Current source `becb020` is deployed only to Development as Worker version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its TTL/delete/idempotency probe passed and cleaned its
-exact rows. C5-04 evidence awaits independent review, hosted CI, and merge; Staging and Production
+exact rows. A separate real iOS Simulator `FixedTelemetryTransport` probe received upload 202 and
+delete 204. C5-04 evidence awaits independent review, hosted CI, and merge; Staging and Production
 remain unauthorized.**
 
 The product capability came from PR #82's scoped review of the deletion-order remediation on exact head `2c1cebe`,
 green run `33233846430`, and merge `28d9eae`; the Development proof does not broaden that review.
 
 PR #82's independent review did not inspect this runbook, `PrivacyInfo.xcprivacy`, the receipt and
-Pro capture sites, or `TelemetryService`. PR #83 supplemental review covered those surfaces on
-exact head `e6bbd3f`; run `33242024609` passed and PR #83 merged as `becb020`. `TelemetryService`
+Pro capture sites, or `TelemetryService`. Independent review of PR #83 head `daea2d2` raised two
+P2 findings and one P3 and explicitly excluded those surfaces. Remediation head `e6bbd3f` applied
+them and recorded the implementation author's supplemental inspection of the four surfaces; run
+`33242024609` passed and PR #83 merged as `becb020` without a pre-merge rereview. `TelemetryService`
 is defined in `MindBudget/Services/TelemetryClient.swift`.
 
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
@@ -99,6 +102,30 @@ the prior Worker is historical evidence, not current-source proof.
 This is synthetic Development operational evidence only. It is not customer participation,
 Production/final-binary traffic, a G1 result, or distribution authority. No rollback was needed.
 
+### Actual iOS transport header evidence — 2026-08-29
+
+The default-disabled `MindBudget-Telemetry-Live` shared scheme set only
+`MINDBUDGET_LIVE_TELEMETRY_TESTS=1` and ran the full `TelemetryClientTests` suite on the iOS 26.5
+simulator with Xcode 27.0 beta 6. The first exact-method-filter attempt discovered zero tests and
+is explicitly non-evidence. The corrected suite-level run started
+`liveDevelopmentFixedTransportUsesAcceptedURLSessionHeadersAndDeletesSyntheticIdentity` and used
+the real `FixedTelemetryTransport`, production `BoundedTelemetryHTTPLoader`, and `URLSession`.
+
+The strict Development Worker accepted the event upload as HTTP 202 (`.accepted`) and the
+proof-authenticated delete as HTTP 204. Because that Worker rejects any User-Agent other than
+`MindBudget` and any nonempty `Accept-Language`, these responses prove the actual URLSession wire
+request preserved the fixed metadata contract. A read-only aggregate D1 query after the run found
+0 events, 0 identities, and 3 tombstones: the earlier 2 historical pre-remediation tombstones plus
+the expected UTC-day tombstone created by this live transport deletion. No event or identity row
+remained. Unlike the earlier manually cleaned synthetic probe, this tombstone intentionally stays
+under the ordinary 90-day expiry path; rerunning this opt-in scheme is an operator action and must
+be reflected in aggregate evidence.
+
+The scheme is absent from the default `MindBudget` scheme and contains no Archive action or
+archive-enabled build entry. This is Debug simulator transport evidence only. It does not replace
+COM-C6/C12 final-binary host/traffic verification and does not authorize customer traffic,
+Staging, Production, G1, distribution, or release.
+
 ## Monitoring and incident response
 
 Worker logs are closed JSON records containing only component, environment, route, and reason.
@@ -136,6 +163,12 @@ explicit `deleteAllTelemetry()` path remains callable after `stop()` and indepen
 tasks before delegating to the persisted client. The current UX has no automatic deep link from
 onboarding to this pending retry; that is a known manual-reachability boundary, not evidence that
 remote deletion completed.
+
+`runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry` now makes that boundary executable:
+it calls `stop()` on a live in-memory service, then calls `deleteAllTelemetry()` on the same
+instance and verifies the remote delete occurred, local encrypted persistence was removed, and no
+identity proof remained. The customer-facing retry statement therefore no longer rests on prose
+alone.
 
 ## Rollback
 
