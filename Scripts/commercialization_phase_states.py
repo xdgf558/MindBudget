@@ -28,6 +28,15 @@ IN_PROGRESS = re.compile(r"\bin progress\b", re.IGNORECASE)
 PARALLEL = re.compile(r"\bparallel development\b", re.IGNORECASE)
 PR_NUMBER = re.compile(r"\bPR\s*#\d+\b", re.IGNORECASE)
 MERGE_SHA = re.compile(r"`[0-9a-f]{7,40}`", re.IGNORECASE)
+TASK_ITEM = re.compile(r"^- \[(?P<marker>[xB~ ])\]\s+")
+
+STATE_PATTERNS = {
+    "done": DONE,
+    "blocked": BLOCKED,
+    "in_progress": IN_PROGRESS,
+    "pending_review": PENDING_REVIEW,
+    "parallel": PARALLEL,
+}
 
 # C0A/C0B were documentation/bootstrap gates whose original completion records predate the
 # status-line merge-evidence contract. Keep these exceptions explicit and narrow; every later
@@ -44,6 +53,14 @@ class PhaseStatus:
     text: str
     source: Path
     line: int
+
+
+@dataclass(frozen=True)
+class SectionExpectation:
+    source: Path
+    identifier: str
+    state: str
+    task_marker: str
 
 
 def parse_statuses(
@@ -142,6 +159,87 @@ def validate(statuses: Iterable[PhaseStatus]) -> list[str]:
     return errors
 
 
+def validate_section_expectations(
+    expectations: Iterable[SectionExpectation],
+) -> list[str]:
+    """Bind an expected state and task marker to one exact phase section.
+
+    A repository-wide string search cannot prove phase authorization: summary prose can satisfy
+    it while the durable section silently changes. These expectations resolve one unique heading,
+    use only that heading's direct Status record, and inspect only task items owned by that section.
+    """
+
+    errors: list[str] = []
+    lines_by_source: dict[Path, list[str]] = {}
+    statuses_by_source: dict[Path, list[PhaseStatus]] = {}
+
+    for expectation in expectations:
+        lines = lines_by_source.setdefault(
+            expectation.source,
+            expectation.source.read_text(encoding="utf-8").splitlines(),
+        )
+        statuses = statuses_by_source.setdefault(
+            expectation.source,
+            parse_statuses(expectation.source)[0],
+        )
+        headings = [
+            (index, match)
+            for index, line in enumerate(lines)
+            if (match := HEADING.match(line)) is not None
+            and match.group("identifier") == expectation.identifier
+        ]
+        if len(headings) != 1:
+            errors.append(
+                f"{expectation.source} ({expectation.identifier}): expected exactly one phase "
+                f"heading, found {len(headings)}"
+            )
+            continue
+
+        heading_index, heading = headings[0]
+        heading_level = len(heading.group("level"))
+        section_end = len(lines)
+        for candidate_index in range(heading_index + 1, len(lines)):
+            candidate = ANY_HEADING.match(lines[candidate_index])
+            if candidate is not None and len(candidate.group("level")) <= heading_level:
+                section_end = candidate_index
+                break
+
+        phase_statuses = [
+            status for status in statuses if status.identifier == expectation.identifier
+        ]
+        if len(phase_statuses) != 1:
+            errors.append(
+                f"{expectation.source} ({expectation.identifier}): expected exactly one parsed "
+                f"Status record, found {len(phase_statuses)}"
+            )
+        else:
+            status = phase_statuses[0]
+            matched_states = [
+                state
+                for state, pattern in STATE_PATTERNS.items()
+                if pattern.search(status.text) is not None
+            ]
+            if matched_states != [expectation.state]:
+                errors.append(
+                    f"{expectation.source}:{status.line} ({expectation.identifier}): expected "
+                    f"state {expectation.state}, found {matched_states or ['unrecognized']}"
+                )
+
+        task_markers = [
+            match.group("marker")
+            for line in lines[heading_index + 1 : section_end]
+            if (match := TASK_ITEM.match(line)) is not None
+        ]
+        if task_markers != [expectation.task_marker]:
+            errors.append(
+                f"{expectation.source}:{heading_index + 1} ({expectation.identifier}): expected "
+                f"one [{expectation.task_marker}] task, found "
+                f"{[f'[{marker}]' for marker in task_markers] or ['none']}"
+            )
+
+    return errors
+
+
 def self_test() -> None:
     source = Path("self-test.md")
     valid = [
@@ -180,6 +278,7 @@ def self_test() -> None:
         "### C4A-03 — Matrix\n"
         "Status: **Blocked by C4A-02 review, CI, and merge.**\n"
     )
+    import subprocess
     import tempfile
 
     with tempfile.TemporaryDirectory() as directory:
@@ -271,6 +370,118 @@ def self_test() -> None:
                    for error in unexpected_heading_errors):
             raise AssertionError("stable phase-ID set did not reject an unapproved heading")
 
+        c6_map = (
+            "## COM-C6 — Release preflight\n"
+            "Status: **In Progress.**\n\n"
+            "### C6-01 — Matrix\n"
+            "Status: **Done through PR #86 (`015d00e`).**\n\n"
+            "- [x] Run the matrix.\n\n"
+            "### C6-02 — Signed-device review\n"
+            "Status: **Blocked pending owner entry.**\n\n"
+            "- [B] Review signed-device evidence.\n\n"
+            "### C6-03 — TestFlight\n"
+            "Status: **Blocked by C6-02.**\n\n"
+            "- [B] Upload after approval.\n"
+        )
+        c6_path = Path(directory) / "c6.md"
+        c6_path.write_text(c6_map, encoding="utf-8")
+        c6_expectations = (
+            SectionExpectation(c6_path, "C6-01", "done", "x"),
+            SectionExpectation(c6_path, "C6-02", "blocked", "B"),
+            SectionExpectation(c6_path, "C6-03", "blocked", "B"),
+        )
+
+        def run_c6_cli() -> subprocess.CompletedProcess[str]:
+            return subprocess.run(
+                [
+                    sys.executable,
+                    "-B",
+                    str(Path(__file__).resolve()),
+                    "--expect-section",
+                    f"{c6_path}:C6-01:done:x",
+                    "--expect-section",
+                    f"{c6_path}:C6-02:blocked:B",
+                    "--expect-section",
+                    f"{c6_path}:C6-03:blocked:B",
+                    str(c6_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        if validate_section_expectations(c6_expectations):
+            raise AssertionError("valid C6 section-state/task bindings were rejected")
+        valid_c6_cli = run_c6_cli()
+        if valid_c6_cli.returncode != 0:
+            raise AssertionError(
+                f"valid C6 CLI fixture was rejected: {valid_c6_cli.stderr!r}"
+            )
+
+        mutations = (
+            (
+                "C6-01 Done to In Progress",
+                c6_map.replace(
+                    "Status: **Done through PR #86 (`015d00e`).**",
+                    "Status: **In Progress.**",
+                    1,
+                ),
+                "(C6-01): expected state done",
+            ),
+            (
+                "C6-02 Blocked to next-line In Progress",
+                c6_map.replace(
+                    "Status: **Blocked pending owner entry.**",
+                    "Status: **In Progress.**",
+                    1,
+                ),
+                "(C6-02): expected state blocked",
+            ),
+            (
+                "C6-03 Blocked to In Progress",
+                c6_map.replace(
+                    "Status: **Blocked by C6-02.**",
+                    "Status: **In Progress.**",
+                    1,
+                ),
+                "(C6-03): expected state blocked",
+            ),
+            (
+                "C6-01 completed task to blocked marker",
+                c6_map.replace("- [x] Run the matrix.", "- [B] Run the matrix.", 1),
+                "(C6-01): expected one [x] task",
+            ),
+            (
+                "C6-02 blocked task to completed marker",
+                c6_map.replace(
+                    "- [B] Review signed-device evidence.",
+                    "- [x] Review signed-device evidence.",
+                    1,
+                ),
+                "(C6-02): expected one [B] task",
+            ),
+            (
+                "C6-03 blocked task to completed marker",
+                c6_map.replace(
+                    "- [B] Upload after approval.",
+                    "- [x] Upload after approval.",
+                    1,
+                ),
+                "(C6-03): expected one [B] task",
+            ),
+        )
+        for label, mutated_map, expected_error in mutations:
+            c6_path.write_text(mutated_map, encoding="utf-8")
+            errors = validate_section_expectations(c6_expectations)
+            if not any(expected_error in error for error in errors):
+                raise AssertionError(f"self-test did not reject {label}: {errors!r}")
+            cli_result = run_c6_cli()
+            if cli_result.returncode == 0 or expected_error not in cli_result.stderr:
+                raise AssertionError(
+                    f"CLI self-test did not fail closed for {label}: "
+                    f"returncode={cli_result.returncode}, stderr={cli_result.stderr!r}"
+                )
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -290,6 +501,13 @@ def main() -> int:
         default=[],
         metavar="SOURCE:IDENTIFIER[,IDENTIFIER...]",
         help="require the stable approved top-level phase-heading ID set in SOURCE",
+    )
+    parser.add_argument(
+        "--expect-section",
+        action="append",
+        default=[],
+        metavar="SOURCE:IDENTIFIER:STATE:TASK_MARKER",
+        help="bind one phase section to its exact state and sole task marker",
     )
     args = parser.parse_args()
 
@@ -316,6 +534,23 @@ def main() -> int:
             parser.error(f"expected-identifiers source is not an input source: {source}")
         expected_by_source[source].update(identifiers)
 
+    section_expectations: list[SectionExpectation] = []
+    for expectation in args.expect_section:
+        try:
+            source_text, identifier, state, task_marker = expectation.rsplit(":", 3)
+        except ValueError:
+            parser.error(f"invalid --expect-section value: {expectation!r}")
+        source = Path(source_text)
+        if source not in sources:
+            parser.error(f"expect-section source is not an input source: {source}")
+        if state not in STATE_PATTERNS:
+            parser.error(f"unknown expect-section state: {state!r}")
+        if task_marker not in {"x", "B", "~"}:
+            parser.error(f"unknown expect-section task marker: {task_marker!r}")
+        section_expectations.append(
+            SectionExpectation(source, identifier, state, task_marker)
+        )
+
     parsed = [
         parse_statuses(
             source,
@@ -326,6 +561,7 @@ def main() -> int:
     ]
     errors = [error for _, parse_errors in parsed for error in parse_errors]
     errors.extend(validate(status for statuses, _ in parsed for status in statuses))
+    errors.extend(validate_section_expectations(section_expectations))
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1

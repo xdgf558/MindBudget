@@ -3398,3 +3398,32 @@ physical CloudKit probes remained skipped. Every selected coverage threshold pas
 `CSVExporter.swift` lowest at 87.60% against the 85% floor. The retained result bundle is
 `/private/tmp/MindBudget-C6-01-Closeout.xcresult`; it is local execution evidence only and does not
 satisfy any C6-02/C6-03 or remote/release gate.
+
+## 2026-08-29 — Session 184 — Make C6 phase authorization section-bound
+
+Goal: Close PR #87's reproduced phase-gate bypasses without changing C6 status or entering C6-02.
+
+Actions: Extended the existing structural phase-state checker with exact section expectations. The
+authoritative task map now requires unique bindings of C6-01 to Done plus `[x]`, C6-02 to Blocked
+plus `[B]`, and C6-03 to Blocked plus `[B]`. Removed the weak global status anchors and the
+line-oriented C6-02/C6-03 state regex from the shell gate. Added six negative self-tests covering
+all three Status mutations and all three task-marker mutations, including the reviewed next-line
+`Status: **In Progress.**` shape.
+
+Result: Summary text can no longer satisfy a subphase's formal authorization record, and a future
+C6 section transition must change the exact accepted state/task binding. C6-01 remains Done;
+C6-02/C6-03 remain blocked. No product, remote, archive/upload, App Store Connect, G1,
+distribution, or release action occurred. Exact-head validation, rereview, hosted CI, and merge
+remain required.
+
+Validation: The structural phase-checker self-test and all six C6 mutations passed their expected
+accept/reject outcomes. Bytecode compilation passed with its cache confined to `/private/tmp`;
+the first default-cache attempt was an excluded filesystem-permission refusal rather than a code
+failure. All standalone money, network, commercialization, StoreKit 13/13, C6 matrix, Shell syntax,
+and diff checks passed. The exact remediated head then passed `Scripts/validate.sh` under Xcode
+27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: Release compilation,
+the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests
+passed. Four accepted opt-in physical CloudKit probes remained skipped. Every selected coverage
+threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The retained
+bundle is `/private/tmp/MindBudget-C6-01-Closeout-Remediation-Final.xcresult`; it does not satisfy
+any C6-02/C6-03, hosted, signed-device, final-binary, remote, or release gate.

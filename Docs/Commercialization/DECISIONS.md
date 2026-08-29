@@ -2223,3 +2223,25 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   privacy-source review; carrying C6-01 as In Progress after its exact review/CI/merge chain closed;
   archiving or uploading from a documentation closeout; or relabeling any owner-waived physical
   observation as a pass.
+
+## DEC-COM-075 — Bind C6 authorization to exact phase sections
+
+- Status/date: **Accepted C6-01 closeout review remediation — 2026-08-29**
+- Requirements: DEC-COM-074; COM-C6 phase authorization boundary
+- Context: PR #87 review demonstrated two reproducible bypasses in the closeout gate. A summary
+  occurrence of `C6-01 is Done` could keep the gate green after the formal C6-01 Status regressed,
+  while a C6-02 heading followed on the next line by `Status: **In Progress.**` escaped a regex that
+  required the identifier and state on one line. The same structural risk applied to C6-03.
+- Decision: Extend `commercialization_phase_states.py` with section expectations. In the
+  authoritative `COMMERCIALIZATION_TASKS.md`, require exactly one C6-01 heading with one Done
+  Status and one `[x]` task, one C6-02 heading with one Blocked Status and one `[B]` task, and one
+  C6-03 heading with one Blocked Status and one `[B]` task. Validate only the Status and task item
+  owned by each section. Add negative self-tests for all three state changes and all three task
+  marker changes.
+- Consequences: Unrelated summaries and line layout cannot grant phase authority. Changing any
+  C6 subphase state or task marker without the accepted owner transition fails the ordinary
+  commercialization gate. C6-01 remains Done; C6-02 still requires a separate explicit owner
+  entry; C6-03 remains blocked by C6-02 acceptance and separate archive/upload authority.
+- Alternatives rejected: Adding more repository-wide positive strings; keeping the line-oriented
+  C6-02/C6-03 regex as the authorization control; trusting headings without task markers; or
+  entering C6-02 as part of this review remediation.

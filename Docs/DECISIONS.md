@@ -3210,3 +3210,19 @@ Consequences: The seven-row automated matrix, all 33 runtime test bindings, stat
 classification, review, hosted CI, and merge gates are closed. The five-source independent privacy
 inspection, signed-device/App Review evidence, final-binary/IPA checks, App Store Connect writes,
 Staging/Production, G1, archive/upload, distribution, and release remain open and unauthorized.
+
+---
+
+## 2026-08-29 — Bind C6 subphase authorization to exact sections
+
+Context: PR #87 review proved that repository-wide prose searches could be satisfied by summary
+text while the formal C6-01/02/03 Status records changed, and that line-oriented negative matching
+could miss a heading followed by `Status: **In Progress.**` on the next line.
+
+Decision: Detailed ownership is DEC-COM-075. Require the authoritative task map's unique C6-01,
+C6-02, and C6-03 sections to carry, respectively, Done/[x], Blocked/[B], and Blocked/[B]. Exercise
+state and task-marker mutations in the structural phase-checker self-test.
+
+Consequences: Summary prose cannot satisfy phase authorization, and neither C6-02 nor C6-03 can be
+entered by changing a section Status or task marker while leaving unrelated text behind. C6-01
+remains Done; C6-02/C6-03 remain blocked.

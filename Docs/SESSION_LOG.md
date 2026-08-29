@@ -6472,3 +6472,32 @@ opt-in physical CloudKit probes remained skipped by their accepted evidence poli
 coverage threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The
 retained local result bundle is `/private/tmp/MindBudget-C6-01-Closeout.xcresult`; it is an
 execution artifact, not hosted, signed-device, final-binary, App Store Connect, or release evidence.
+
+## 2026-08-29 — Bind C6 closeout authorization to exact sections
+
+PR #87 review reproduced two authorization-gate bypasses: summary prose could satisfy the C6-01
+Done anchor after its formal Status regressed, and the C6-02/C6-03 negative regex could not see a
+state placed on the Status line below a heading. Replaced those status-prose controls with
+structural expectations in the existing phase-state parser. The authoritative task map now must
+contain unique C6-01 Done/[x], C6-02 Blocked/[B], and C6-03 Blocked/[B] sections.
+
+The parser self-test mutates each of the three Status records and each task marker and requires all
+six mutations to fail. No phase status changed: C6-01 remains Done, C6-02 still awaits a separate
+owner entry, and C6-03 remains blocked. No Swift/runtime, Worker, deployment, remote, archive,
+upload, App Store Connect, G1, distribution, or release action occurred. CHANGELOG remains
+unchanged because there is no user-visible behavior change. Exact-head validation, rereview,
+hosted CI, and merge remain required.
+
+Validation: The structural parser self-test, bytecode compilation with its cache confined to
+`/private/tmp`, all four standalone repository gates, the C6 matrix contract, Shell syntax, and
+`git diff --check` passed. The exact remediated head then passed `Scripts/validate.sh` under Xcode
+27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: every static contract,
+Release compilation, the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites,
+and all 17 UI tests passed. Four accepted opt-in physical CloudKit probes remained skipped. Every
+selected coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85%
+floor. The retained result bundle is
+`/private/tmp/MindBudget-C6-01-Closeout-Remediation-Final.xcresult`; it is local execution evidence
+only.
+The first standalone `py_compile` attempt was denied only while trying to create the system user
+cache directory; the explicit `/private/tmp` cache rerun passed and the environmental refusal is
+not counted as a code failure.
