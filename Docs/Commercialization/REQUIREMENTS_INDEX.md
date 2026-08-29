@@ -64,10 +64,12 @@ C6-01 current state: the owner explicitly entered COM-C6 on 2026-08-29 after PR 
 `008b674`. The strict `C6_RELEASE_MATRIX.json` inventory binds seven automated rows to every
 reviewed static gate, both first-party Worker local `check` scripts, a Release simulator build,
 and 16 named Swift test containers. Its new cross-domain regression proves optional public-
-configuration and telemetry failures cannot revoke an injected verified local-Pro snapshot. This
+configuration and telemetry failures cannot revoke an injected verified local-Pro snapshot. PR
+#86 remediation requires each of the 33 declared type/method bindings to occur once as Passed in
+the exact xcresult and requires every repository check script to be explicitly classified. This
 automation performs no archive, upload, deployment, App Store Connect write, G1 decision, or
 Requirement completion. C6-02/C6-03 and the five-surface independent privacy review remain blocked
-pending C6-01 independent review, hosted CI, and merge.
+pending C6-01 exact-head rereview, hosted CI, and merge.
 
 ## COM-C0A implementation inventory against requirements
 

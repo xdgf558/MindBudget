@@ -3342,3 +3342,32 @@ static contract, Release compilation, the strict 10,000-row Dashboard benchmark,
 in 32 suites, 17/17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift`
 was lowest at 87.60% against the 85% floor. The validator removed its temporary xcresult after
 success, so the deleted path is only an execution pointer.
+
+## 2026-08-29 — Session 182 — Bind C6 rows to executed passed methods
+
+Goal: Close PR #86's P1 execution-evidence gap and P3 static-check discovery gap without widening
+C6-01 or entering C6-02.
+
+Actions: Added xcresult schema 0.4.0 parsing after the matrix test run. Every declared test
+type/method binding must occur exactly once as a Test Case and must report Passed. Added negative
+self-tests for skipped, missing, and duplicate evidence. Added direct repository check-script
+discovery and an unclassified-future-gate self-test; the only non-row roles are the C6 bootstrap
+and the full-suite coverage consumer.
+
+Result: The retained earlier C6 bundle verified all 33 bindings and revealed that the Phase 6 local
+Delete All regression is parameterized, so binding deliberately uses exact type plus method
+basename while still requiring the one aggregate Test Case to pass. That retained bundle is only
+a parser/remediation check, not exact-head evidence. No remote state changed and C6-02/C6-03 remain
+blocked.
+
+Validation: `python3 -B Scripts/c6_release_matrix.py --self-test` passed, including the new
+result-evidence and discovery negatives. The remediated C6 matrix then passed all static checks,
+Public Configuration Worker 13/13, Telemetry Worker 35/35 plus evidence 8/8, Worker
+typechecks/dry-runs/startup checks, Release/test builds, 285 tests in 16 suites, and all 33 required
+bindings exactly once as Passed. The retained local bundle is
+`/private/tmp/MindBudget-C6-01-Remediation.xcresult`. The subsequent full validation passed the
+strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests. Its
+result summary contained 558 passes, 12 explicit opt-in skips, and zero failures; every selected
+coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85% floor. The
+retained full bundle is `/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`. Rereview, hosted
+CI, and merge remain required.

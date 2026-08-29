@@ -7,6 +7,7 @@ import argparse
 import copy
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,16 @@ ALLOWED_STATIC_CHECKS = frozenset(
         "Scripts/check_icloud_sync_contract.py",
     }
 )
+
+# These are the only repository-level check scripts that are deliberately not executed as matrix
+# row checks. The matrix contract is its own bootstrap entry point, while coverage requires the
+# complete full-suite xcresult produced by Scripts/validate.sh rather than the selected C6 bundle.
+# Discovery below requires every future check script to be either a matrix check or one of these
+# two exact reviewed special cases.
+SPECIAL_CHECK_CLASSIFICATIONS = {
+    "Scripts/check-c6-release-matrix.sh": "matrix-bootstrap",
+    "Scripts/check-coverage.sh": "full-suite-xcresult",
+}
 
 EXPECTED_WORKER_CHECKS = (
     ("Services/PublicConfigurationWorker", "check"),
@@ -96,7 +107,23 @@ def _nonempty_strings(value: Any) -> bool:
     )
 
 
-def validate_manifest_data(data: Any, project_root: Path) -> list[str]:
+def discovered_check_scripts(project_root: Path) -> frozenset[str]:
+    scripts_directory = project_root / "Scripts"
+    discovered = {
+        path.relative_to(project_root).as_posix()
+        for pattern in ("check-*.sh", "check_*.py")
+        for path in scripts_directory.rglob(pattern)
+        if path.is_file()
+    }
+    return frozenset(discovered)
+
+
+def validate_manifest_data(
+    data: Any,
+    project_root: Path,
+    *,
+    discovered_checks: frozenset[str] | None = None,
+) -> list[str]:
     errors: list[str] = []
     if not _exact_keys(data, ROOT_KEYS):
         return ["root object must contain exactly the reviewed C6 matrix keys"]
@@ -107,6 +134,20 @@ def validate_manifest_data(data: Any, project_root: Path) -> list[str]:
         errors.append("phase must be exactly C6-01")
     if data["remoteMutationAllowed"] is not False:
         errors.append("C6-01 must keep every remote mutation disabled")
+
+    actual_checks = (
+        discovered_check_scripts(project_root)
+        if discovered_checks is None
+        else discovered_checks
+    )
+    classified_checks = ALLOWED_STATIC_CHECKS | frozenset(SPECIAL_CHECK_CLASSIFICATIONS)
+    if actual_checks != classified_checks:
+        unclassified = sorted(actual_checks - classified_checks)
+        missing = sorted(classified_checks - actual_checks)
+        errors.append(
+            "repository check-script classification drifted; "
+            f"unclassified={unclassified}, missing={missing}"
+        )
 
     worker_checks = data["workerChecks"]
     observed_worker_checks: list[tuple[str, str]] = []
@@ -222,6 +263,108 @@ def fail_if_invalid(data: Any, project_root: Path) -> None:
         raise ValueError("\n".join(errors))
 
 
+def required_test_bindings(data: dict[str, Any]) -> list[str]:
+    bindings: list[str] = []
+    for row in data["rows"]:
+        for test in row["swiftTests"]:
+            bindings.extend(
+                f"{test['type']}/{method}" for method in test["requiredMethods"]
+            )
+    return bindings
+
+
+def _test_case_results(result_data: Any) -> dict[str, list[str]]:
+    observed: dict[str, list[str]] = {}
+
+    def visit(value: Any) -> None:
+        if isinstance(value, dict):
+            if value.get("nodeType") == "Test Case":
+                identifier = value.get("nodeIdentifier")
+                result = value.get("result")
+                if isinstance(identifier, str) and isinstance(result, str):
+                    type_name, separator, method_signature = identifier.partition("/")
+                    method_name, argument_separator, _ = method_signature.partition("(")
+                    if separator and argument_separator and type_name and method_name:
+                        binding = f"{type_name}/{method_name}"
+                        observed.setdefault(binding, []).append(result)
+            for child in value.get("children", []):
+                visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+
+    if isinstance(result_data, dict):
+        visit(result_data.get("testNodes", []))
+    return observed
+
+
+def validate_required_test_results(data: dict[str, Any], result_data: Any) -> list[str]:
+    errors: list[str] = []
+    observed = _test_case_results(result_data)
+    for binding in required_test_bindings(data):
+        results = observed.get(binding, [])
+        if len(results) != 1:
+            errors.append(
+                f"required test {binding} must execute exactly once; observed={results}"
+            )
+        elif results[0] != "Passed":
+            errors.append(
+                f"required test {binding} must pass and cannot be skipped; result={results[0]}"
+            )
+    return errors
+
+
+def load_result_bundle(path: Path) -> Any:
+    if not path.is_dir() or path.suffix != ".xcresult":
+        raise ValueError(f"required-test evidence is not an xcresult directory: {path}")
+    command = [
+        "xcrun",
+        "xcresulttool",
+        "get",
+        "test-results",
+        "tests",
+        "--schema-version",
+        "0.4.0",
+        "--path",
+        str(path),
+        "--compact",
+    ]
+    try:
+        completed = subprocess.run(command, capture_output=True, text=True, check=False)
+    except OSError as error:
+        raise ValueError(f"unable to launch xcresulttool: {error}") from error
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or "xcresulttool returned no diagnostic"
+        raise ValueError(f"unable to read required-test evidence: {detail}")
+    try:
+        return json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"xcresulttool returned invalid JSON: {error}") from error
+
+
+def fail_if_required_tests_did_not_pass(data: dict[str, Any], result_data: Any) -> None:
+    errors = validate_required_test_results(data, result_data)
+    if errors:
+        raise ValueError("\n".join(errors))
+
+
+def _self_test_result_data(data: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "testNodes": [
+            {
+                "children": [
+                    {
+                        "nodeType": "Test Case",
+                        "nodeIdentifier": f"{binding}()",
+                        "result": "Passed",
+                    }
+                    for binding in sorted(set(required_test_bindings(data)))
+                ]
+            }
+        ]
+    }
+
+
 def run_self_test(data: Any, project_root: Path) -> None:
     fail_if_invalid(data, project_root)
 
@@ -255,6 +398,44 @@ def run_self_test(data: Any, project_root: Path) -> None:
         if not validate_manifest_data(mutation, project_root):
             raise AssertionError(f"self-test failed to reject {description}")
 
+    actual_checks = discovered_check_scripts(project_root)
+    unclassified_checks = actual_checks | frozenset({"Scripts/check-future-gate.sh"})
+    if not validate_manifest_data(
+        data,
+        project_root,
+        discovered_checks=unclassified_checks,
+    ):
+        raise AssertionError("self-test failed to reject an unclassified check script")
+
+    passing_results = _self_test_result_data(data)
+    fail_if_required_tests_did_not_pass(data, passing_results)
+
+    first_binding = required_test_bindings(data)[0]
+    skipped_results = copy.deepcopy(passing_results)
+    skipped_results["testNodes"][0]["children"][0]["result"] = "Skipped"
+    if not validate_required_test_results(data, skipped_results):
+        raise AssertionError("self-test failed to reject a skipped required test")
+
+    missing_results = copy.deepcopy(passing_results)
+    missing_results["testNodes"][0]["children"] = [
+        test
+        for test in missing_results["testNodes"][0]["children"]
+        if not test["nodeIdentifier"].startswith(f"{first_binding}(")
+    ]
+    if not validate_required_test_results(data, missing_results):
+        raise AssertionError("self-test failed to reject a missing required test")
+
+    duplicate_results = copy.deepcopy(passing_results)
+    duplicate_results["testNodes"][0]["children"].append(
+        {
+            "nodeType": "Test Case",
+            "nodeIdentifier": f"{first_binding}()",
+            "result": "Passed",
+        }
+    )
+    if not validate_required_test_results(data, duplicate_results):
+        raise AssertionError("self-test failed to reject duplicate required-test evidence")
+
 
 def unique_test_filters(data: dict[str, Any]) -> list[str]:
     values: list[str] = []
@@ -282,6 +463,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--list-test-filters", action="store_true")
     parser.add_argument("--list-static-checks", action="store_true")
     parser.add_argument("--list-worker-checks", action="store_true")
+    parser.add_argument("--verify-result-bundle")
     return parser.parse_args()
 
 
@@ -305,11 +487,19 @@ def main() -> int:
                     for worker in data["workerChecks"]
                 )
             )
+        if arguments.verify_result_bundle:
+            result_data = load_result_bundle(Path(arguments.verify_result_bundle))
+            fail_if_required_tests_did_not_pass(data, result_data)
+            print(
+                "C6-01 required-test evidence passed: "
+                f"{len(required_test_bindings(data))} matrix bindings"
+            )
         if not any(
             (
                 arguments.list_test_filters,
                 arguments.list_static_checks,
                 arguments.list_worker_checks,
+                arguments.verify_result_bundle,
             )
         ):
             print("C6-01 release matrix contract passed")

@@ -2047,18 +2047,24 @@ fi
 # without rewriting the historical C5 packet that recorded the earlier wait boundary.
 for c601_entry_anchor in \
   'owner explicitly entered COM-C6 on 2026-08-29' \
-  'C6-01 implementation is complete pending independent review' \
+  'C6-01 review remediation is complete pending exact-head rereview' \
   'C6-02 and C6-03 remain blocked' \
   'remoteMutationAllowed' \
-  'optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot'; do
-  if ! grep -Fq "${c601_entry_anchor}" \
+  'optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot' \
+  'DEC-COM-073' \
+  '--verify-result-bundle' \
+  'SPECIAL_CHECK_CLASSIFICATIONS'; do
+  if ! grep -Fq -- "${c601_entry_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
       Docs/PROJECT_MEMORY.md \
       Docs/Commercialization/PROJECT_MEMORY.md \
       Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
       Docs/Commercialization/C6_RELEASE_MATRIX.json \
-      MindBudgetTests/CommercializationEntitlementTests.swift; then
+      Docs/Commercialization/DECISIONS.md \
+      MindBudgetTests/CommercializationEntitlementTests.swift \
+      Scripts/c6_release_matrix.py \
+      Scripts/run-c6-release-matrix.sh; then
     echo "C6-01 entry/matrix contract is missing: ${c601_entry_anchor}" >&2
     exit 1
   fi

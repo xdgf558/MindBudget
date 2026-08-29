@@ -464,8 +464,10 @@ then exercised the real `FixedTelemetryTransport`/`URLSession` path, received up
 expected live-probe tombstone); a deterministic test proves `stop()` does not disable explicit
 deletion retry. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
 passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done; C6-01 is the sole active COM-C6
-subphase. No G1, App Store Connect, Staging/Production, distribution, or release gate follows from
-that closeout or from C6-01 automation.
+subphase. PR #86 remediation makes every one of its 33 declared method bindings depend on one
+Passed xcresult Test Case and classifies every repository check script. No G1, App Store Connect,
+Staging/Production, distribution, or release gate follows from that closeout or from C6-01
+automation.
 During C6-02, an independent reviewer must inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
 the AddExpense and Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and

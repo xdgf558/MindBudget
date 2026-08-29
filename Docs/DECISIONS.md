@@ -3178,3 +3178,19 @@ deployment, App Store Connect write, C6-02/C6-03 action, and release action bloc
 
 Consequences: C6-01 is pending independent review, hosted CI, and merge. The mandatory independent
 privacy-source inspection remains C6-02 work and is not satisfied by automation.
+
+---
+
+## 2026-08-29 — Bind C6 required methods to passed xcresult evidence
+
+Context: PR #86 review found that the initial matrix validated required method names in source but
+did not prove those methods executed, and that new repository check scripts could remain outside
+the manually maintained matrix allow-list.
+
+Decision: Detailed ownership is DEC-COM-073. Parse the exact C6 result bundle after testing,
+require every declared type/method binding exactly once with result Passed, and classify every
+repository check script as either row-driven or one of two exact special roles.
+
+Consequences: Skipped, missing, duplicate, wrong-type, commented-out, and non-test required
+methods cannot satisfy C6-01. C6-02/C6-03 remain blocked pending exact-head rereview, hosted CI,
+and merge.

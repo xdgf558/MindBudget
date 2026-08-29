@@ -177,7 +177,9 @@ handoff as `008b674`, and the owner explicitly entered COM-C6 on 2026-08-29. C6-
 active subphase; C6-02/C6-03, Staging/Production, G1, App Store Connect, distribution, and release
 remain blocked. C6-01 freezes a strict seven-row automated matrix with all static gates, both
 Worker local checks, Release build, 16 Swift test containers, and an offline local-Pro authority
-regression. It performs no archive, upload, deployment, or App Store Connect write.
+regression. PR #86 remediation now requires all 33 declared type/method bindings to appear exactly
+once as Passed in the exact xcresult and requires every repository check script to be explicitly
+classified. It performs no archive, upload, deployment, or App Store Connect write.
 During C6-02, COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and
 Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and

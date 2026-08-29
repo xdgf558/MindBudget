@@ -1,9 +1,9 @@
 # COM-C6 Execution Packet
 
-Status: **In Progress through C6-01 implementation and review.**
+Status: **In Progress through C6-01 review remediation.**
 
-C6-01 implementation is complete pending independent review and hosted CI. C6-02 and C6-03 remain
-blocked.
+C6-01 review remediation is complete pending exact-head rereview and hosted CI. C6-02 and C6-03
+remain blocked.
 
 Owner entry: the project owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged the
 COM-C5 closeout as `008b674`.
@@ -43,8 +43,19 @@ required rows are:
 The top-level runner first validates the JSON contract and its negative self-tests, runs every
 referenced static gate, executes the exact local `check` script for both first-party Workers, builds
 Release for the simulator, builds tests once, and then executes the 16 named Swift test containers
-serially into one xcresult. Worker `check` scripts may typecheck, test, profile, and perform local
-dry-runs; they may not deploy.
+serially into one xcresult. It then reads that exact bundle through `xcresulttool` schema 0.4.0 and
+requires every one of the 33 row/method bindings to appear exactly once as a Test Case with result
+`Passed`; a missing, disabled/skipped, duplicated, wrong-type, commented-out, or non-test method is
+non-evidence and fails the matrix. Parameterized Swift Testing methods bind by their exact test type
+and method basename while their argument rows remain subordinate evidence. Worker `check` scripts
+may typecheck, test, profile, and perform local dry-runs; they may not deploy.
+
+Repository check discovery is also closed. Every `Scripts/**/check-*.sh` or
+`Scripts/**/check_*.py` file must be either one of the twelve row-driven matrix checks or one of two
+exact special classifications: `check-c6-release-matrix.sh` is the matrix bootstrap and
+`check-coverage.sh` consumes the full-suite xcresult produced by `Scripts/validate.sh`. A newly
+added but unclassified check makes the C6 contract fail instead of silently falling outside the
+release matrix.
 
 ## New cross-domain regression
 

@@ -76,5 +76,7 @@ done < <(python3 -B Scripts/c6_release_matrix.py --list-test-filters)
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   "${test_arguments[@]}" test-without-building
 
+python3 -B Scripts/c6_release_matrix.py --verify-result-bundle "${RESULT_BUNDLE}"
+
 echo "C6-01 automated release matrix passed."
 echo "Result bundle: ${RESULT_BUNDLE}"

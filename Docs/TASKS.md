@@ -587,8 +587,10 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   release matrix. The implementation adds strict JSON/self-test validation, all existing static
   gates, both Worker test/typecheck/dry-run checks, Release build, 16 Swift test containers, and a
   cross-domain regression proving optional network failure cannot revoke an injected verified
-  local-Pro snapshot. It performs no archive, upload, deployment, or App Store Connect write;
-  C6-02 and C6-03 remain blocked.
+  local-Pro snapshot. PR #86 remediation additionally requires all 33 declared method bindings to
+  appear once as Passed in the exact xcresult and classifies every repository check script. It
+  performs no archive, upload, deployment, or App Store Connect write; C6-02 and C6-03 remain
+  blocked.
 - [ ] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and

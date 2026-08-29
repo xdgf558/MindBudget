@@ -648,7 +648,7 @@ C6-02 and C6-03 remain blocked until their direct predecessor is reviewed, green
 
 ### C6-01 — Automated release matrix
 
-Status: **Implementation complete pending independent review and hosted CI.**
+Status: **In Progress after review remediation; exact-head rereview and hosted CI pending.**
 
 - [ ] Exercise StoreKit lifecycle, exact entitlement states, environment isolation, public config,
   R1 networking, migration/rollback, Free iCloud, receipt privacy/accuracy/memory, telemetry

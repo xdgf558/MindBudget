@@ -2170,3 +2170,32 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   a dry-run as deployment; folding signed-device/manual review into automation; entering C6-02
   before C6-01 review/CI/merge; archiving or uploading during C6-01; or letting optional network
   state become entitlement authority.
+
+## DEC-COM-073 — Make C6 row evidence depend on passed xcresult cases
+
+- Status/date: **Accepted C6-01 review remediation — 2026-08-29**
+- Requirements: DEC-COM-072; all Requirements named by `C6_RELEASE_MATRIX.json`
+- Context: Independent review of PR #86 found that `requiredMethods` was only a source-text
+  preflight while the runner filtered at test-type granularity and never proved the named methods
+  executed. A disabled/skipped method, a comment, a method in another type, or a non-test function
+  could therefore leave the matrix green. Review also identified that the manually maintained
+  static-check allow-list would not notice a future repository check script.
+- Decision: After `test-without-building`, parse the exact new xcresult with `xcresulttool` schema
+  0.4.0. Require every type/method binding to occur exactly once as a `Test Case` whose result is
+  `Passed`; missing, skipped, failed, or duplicate evidence fails closed. Retain type-level test
+  filters so the matrix continues to execute the full owning suites. Discover every
+  `Scripts/check-*.sh` and `Scripts/check_*.py` file and require it to be either a row-driven matrix
+  check or one of two exact special roles: matrix bootstrap or full-suite coverage consumer.
+- Consequences: `requiredMethods` is now runtime evidence rather than documentation metadata.
+  Negative self-tests cover unclassified scripts plus skipped, missing, and duplicate required
+  cases. The retained earlier bundle independently exercised 33 matrix bindings, including the
+  parameterized local-Delete-All regression. The subsequent remediated matrix passed 285 tests in
+  16 suites and proved all 33 bindings exactly once as Passed. Full validation then passed the
+  strict Dashboard benchmark, 553 unit tests in 32 suites, 17/17 UI tests, and every selected
+  coverage threshold with zero failures; rereview, hosted CI, and merge remain required.
+  C6-02/C6-03 stay blocked.
+- Alternatives rejected: Merely changing filters to individual methods without checking results;
+  accepting skipped methods because the owning suite passed; trusting comment-sensitive source
+  regexes as execution evidence; treating every `check-*` script as an interchangeable no-argument
+  static gate; recursively adding the C6 bootstrap to itself; or running selected-suite coverage as
+  if it were the full-suite coverage gate.
