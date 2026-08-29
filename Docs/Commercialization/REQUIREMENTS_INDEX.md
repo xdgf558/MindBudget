@@ -39,6 +39,12 @@ No commercial Requirement grants permission to work ahead of the active COM phas
 | REQ-WATCH-ENTITLEMENT-001 | Active, not implemented | v1.4 §9.8.6, COM-C6.5 | COM-C6.5 reusing C1/C2 | Same Product ID allow-list/status mapper/set union; current verified StoreKit state; bounded offline cache; no Watch purchase/restore/manage UI; expiry tests | SPEC-011/017 accepted | P0 / Watch Pro release |
 | REQ-WATCH-PRIVACY-001 | Active, not implemented | v1.4 §9.8.9, §20.7, COM-C6.5 | COM-C6.5; separate Watch release verification | Only latest snapshot/outbox/minimum metadata; no full ledger/note/receipt; Watch never contacts telemetry; amount complication opt-in; logs content-free; Delete All and offline replay proof | SPEC-011/012/013 accepted | P0 / Watch release only |
 
+C5-04 review-scope qualification: PR #82's independent review approved the deletion-order
+remediation on exact head `2c1cebe` within its declared scope. It did not inspect
+`PrivacyInfo.xcprivacy`, the AddExpense/Pro capture sites, `TelemetryService` (defined in
+`TelemetryClient.swift`), or the operations runbook. PR #83 closeout review is explicitly asked to
+supplement those surfaces; run `33233846430` and merge `28d9eae` do not expand the earlier scope.
+
 ## COM-C0A implementation inventory against requirements
 
 - Already present: exact `Money`, currency exponents, checked domain arithmetic, versioned

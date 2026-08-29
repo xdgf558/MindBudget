@@ -1499,9 +1499,9 @@ grep -Fq 'remediation head `0c61427`, green GitHub Actions run `33211270363`, an
   exit 1
 }
 
-grep -Fq 'Status: **In Progress — product capability merged after independent review of exact remediation' \
+grep -Fq 'Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-04 must retain the reviewed product-merge and open operational-evidence status" >&2
+  echo "C5-04 must retain the scoped-review product-merge and open operational-evidence status" >&2
   exit 1
 }
 
@@ -1744,8 +1744,8 @@ grep -Fq 'DEC-COM-068' Docs/Commercialization/DECISIONS.md || {
 }
 
 # These are current-state documents, not append-only history. Require every one to retain the
-# exact reviewed-head/run/merge provenance so a partial closeout cannot imply that operational
-# evidence or a different source revision was reviewed.
+# exact source/run/merge provenance so a partial closeout cannot imply that operational evidence,
+# a different source revision, or review coverage beyond the declared scope was established.
 for c504_merge_file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/TASKS.md \
@@ -1765,6 +1765,43 @@ for c504_merge_file in \
     }
   done
 done
+
+grep -Fq -- '- [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "C5-04 current-source Development probe must remain an unchecked standalone work item" >&2
+  exit 1
+}
+
+for c504_review_scope_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  grep -Eiq 'declared scope|scoped (independent )?review|scoped review' "${c504_review_scope_file}" || {
+    echo "C5-04 current-state file ${c504_review_scope_file} is missing the PR #82 review-scope qualification" >&2
+    exit 1
+  }
+done
+
+if grep -Fq 'Independent review approved exact remediation head `2c1cebe`' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C5-04 current-state documents must not expand PR #82 review beyond its declared scope" >&2
+  exit 1
+fi
 
 # Keep this scan phase-qualified. Future phases are allowed to await their own review/CI/merge.
 if grep -Ei 'C5-04 (implementation candidate|controlled activation candidate).*(pending|awaits).*(review|CI|merge)|C5-04/COM-C5 remain In Progress pending.*(review|CI|merge)|C5-04.*(exact-head review|hosted CI|merge) remain(s)? open' \

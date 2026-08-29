@@ -103,8 +103,11 @@ metadata, and a bounded fixed adapter. C5-04 constructs that adapter only throug
 factory after the customer enables collection. Only Development has an earlier deployment/probe;
 Staging is undeployed and Production has no provisioned D1 resource. The reviewed C5-04 source adds
 the explicit control/disclosure, capture audit, conservative App Privacy manifest entries, sticky
-endpoint-policy failure, and an operations runbook. Independent review approved exact remediation
-head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged it as `28d9eae`.
+endpoint-policy failure, and an operations runbook. Independent review approved the deletion-order
+remediation on exact head `2c1cebe` within its declared scope; it did not inspect the privacy
+manifest, two feature capture files, `TelemetryService`, or the operations runbook. GitHub Actions
+run `33233846430` passed, and PR #82 merged the source as `28d9eae`; PR #83's closeout review is
+explicitly asked to supplement those surfaces.
 Current-source Development proof, final-binary traffic, App Store Connect privacy answers, and
 release authorization remain outstanding.
 
@@ -116,8 +119,10 @@ remain unchanged. The owner entered C5-03 on 2026-08-29. Independent review appr
 `33211270363`, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge
 closeout review confirmed that exact delta. DEC-COM-065 closes only dormant aggregate evidence
 computation: no route, real evidence result, or G1 decision exists. The owner entered C5-04 on
-2026-08-29. Its product capability is merged through reviewed PR #82 (`28d9eae`) after green run
-`33233846430` on exact remediation head `2c1cebe`. C5-04 remains In Progress pending a separately
+2026-08-29. Its product capability is merged through PR #82 (`28d9eae`) after green run
+`33233846430` on exact remediation head `2c1cebe`; the independent review covered the
+deletion-order remediation but excluded the manifest, capture sites, service, and runbook now
+named for PR #83 supplemental review. C5-04 remains In Progress pending a separately
 authorized current-source Development deployment/probe; every Staging/Production and
 distribution/release proof remains blocked.
 
@@ -132,6 +137,12 @@ remote proof, but an optional telemetry network/endpoint failure cannot block th
 local financial erase. The app reports that remote-only remainder separately and keeps any
 authenticated proof for an explicit Privacy-settings retry. Corrupt local telemetry remains
 locally deletable without a false remote-deletion claim.
+
+Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
+remains valid, but the person must complete setup again before Privacy & Security > Product
+Analytics becomes reachable. Stopping the telemetry service does not invalidate that retry:
+`TelemetryService.stop()` cancels lifecycle tasks only, while the same service and persisted client
+continue to expose the explicit delete operation.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

@@ -3156,10 +3156,13 @@ and merge remain required.
 
 ### C5-04 reviewed product merge calibration — 2026-08-29
 
-Independent review approved exact remediation head `2c1cebe`; GitHub Actions run `33233846430`
-completed successfully on that exact head; and PR #82 merged the product capability to `main` as
-`28d9eae`. DEC-COM-068 records those three facts and removes review, hosted CI, and merge from the
-open C5-04 work without treating a source merge as operational evidence.
+Independent review approved the deletion-order remediation on exact head `2c1cebe` within its
+declared scope; GitHub Actions run `33233846430` completed successfully on that exact head; and PR
+#82 merged the product capability to `main` as `28d9eae`. The review excluded the privacy
+manifest, AddExpense/Pro capture sites, `TelemetryService`, and operations runbook. DEC-COM-068
+records the exact source/run/merge facts without expanding that review scope or treating a source
+merge as operational evidence; PR #83 closeout review is explicitly asked to inspect those four
+surfaces.
 
 The closeout updates only documentation and the commercialization-document gate. C5-04 and
 COM-C5 remain In Progress solely because the current source has not been published to the
@@ -3175,3 +3178,20 @@ UI tests, and every selected coverage threshold passed. Four opt-in physical Clo
 explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The
 validator deleted `mindbudget-validation.bKKG10/MindBudget.xcresult` after success; it is an
 execution pointer, not a durable artifact.
+
+### C5-04 closeout review-scope and retry-boundary correction — 2026-08-29
+
+PR #83 review found that the first closeout draft overstated PR #82's independent-review coverage
+and that one checklist line could be read as if the still-open TTL/delete/idempotency probe were
+complete. The task list now keeps source merge facts separate from the unchecked Development
+probe, and every current-state description scopes review to the deletion-order remediation. PR
+#83's reviewer is explicitly asked to inspect `PrivacyInfo.xcprivacy`, the AddExpense and Pro
+capture sites, `TelemetryService` in `TelemetryClient.swift`, and the operations runbook.
+
+The same review carried forward two nonblocking retry questions. Source inspection confirms that
+`TelemetryService.stop()` cancels only drain/retry task handles and does not destroy the client or
+its retained proofs, so `deleteAllTelemetry()` remains callable on the same service. Delete All
+does reset `firstLaunchCompleted`; a person with a pending remote telemetry deletion must complete
+onboarding again before Privacy & Security > Product Analytics is reachable. The runbook and
+privacy notes now state that manual reachability boundary rather than implying an immediate retry
+surface.

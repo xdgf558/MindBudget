@@ -10,8 +10,10 @@ immutable evidence format or manufacture a G1 result.
 C5-03 defines a reproducible evidence shape for later R1/G1 observation. Its implementation did not
 collect customer data, construct `TelemetryClient` or `FixedTelemetryTransport`, add an app capture
 call, add a Worker route, deploy Staging/Production, change App Privacy answers, or decide G1.
-C5-04's reviewed PR #82 merge `28d9eae` adds an optional default-off live client and closed capture
-sites from exact remediation head `2c1cebe` after green run `33233846430`, but that separate runtime
+C5-04's PR #82 merge `28d9eae` adds an optional default-off live client and closed capture sites
+from exact remediation head `2c1cebe` after green run `33233846430`. The independent review covered
+the deletion-order remediation within its declared scope and excluded the privacy manifest,
+feature capture sites, service, and runbook now named for PR #83 supplemental review; that runtime
 cannot change evidence inputs, thresholds, or the absence of a current G1 decision.
 
 The checked-in evidence builder consumes only manually supplied aggregate counts and SHA-256

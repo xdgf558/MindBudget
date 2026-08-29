@@ -596,18 +596,21 @@ remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 m
 
 ### C5-04 — Operations and disclosures
 
-Status: **In Progress — product capability merged after independent review of exact remediation
-head `2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`; current-source
-Development deployment/probe remains open.**
+Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its
+deletion-order remediation passed scoped independent review and green GitHub Actions run
+`33233846430`; PR #82 merged it as `28d9eae`, while current-source Development deployment/probe
+remains open.**
 
 - [x] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
   Development/Staging/Production isolation and keep Staging/Production undeployed.
 - [x] Lock the exhaustive capture audit, App Privacy manifest/checklist, deletion integration,
   terminal 404/405/421 behavior, four-generation re-enable guidance, and the local-first rule that
   an optional remote telemetry failure retains proofs for retry but never blocks local Delete All.
+- [x] Record the scoped review, hosted CI, and product merge through PR #82 (`28d9eae`) without
+  implying that the review covered the privacy manifest, capture sites, telemetry service, or
+  operations runbook. PR #83's closeout review is explicitly asked to inspect those four surfaces.
 - [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,
-  and TTL/delete/idempotency probe. Review, hosted CI, and product merge are complete through PR
-  #82 (`28d9eae`); no G1 or release claim follows from that merge.
+  and TTL/delete/idempotency probe; no G1 or release claim follows from the source merge.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.

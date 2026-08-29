@@ -243,9 +243,10 @@ constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 
-Status: **In Progress — product capability merged after independent review of exact remediation
-head `2c1cebe`, green GitHub Actions run `33233846430`, and PR #82 merge `28d9eae`; current-source
-Development deployment/probe remains open.**
+Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its
+deletion-order remediation passed scoped independent review and green GitHub Actions run
+`33233846430`; PR #82 merged it as `28d9eae`, while current-source Development deployment/probe
+remains open.**
 
 Own the publish/rollback/key-rotation runbook, customer control and bilingual disclosure, privacy
 policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion verification.
@@ -270,13 +271,26 @@ Interaction and the conservative rotating Device ID classification are declared 
 manifest as unlinked, non-tracking Analytics. App Store Connect answers and final-binary traffic
 remain COM-C6/C12 gates.
 
+The PR #82 reviewer approved the deletion-order remediation on exact head `2c1cebe` within the
+scope it declared. That review did not inspect `PrivacyInfo.xcprivacy`, the receipt and Pro capture
+sites, `TelemetryService` (which is defined in `TelemetryClient.swift`), or this operations
+runbook. PR #83's closeout review must include those four surfaces; the merge/run/commit facts do
+not expand the earlier review scope.
+
+Delete All resets `firstLaunchCompleted` and returns the app to onboarding. If remote telemetry
+deletion remains pending, the retained proof is still available, but the customer reaches the
+manual retry only after completing setup again and opening Privacy & Security > Product Analytics.
+`TelemetryService.stop()` cancels only drain/retry tasks; it does not destroy the client or its
+proofs, and `deleteAllTelemetry()` remains callable on that same service instance.
+
 ## Exit and stop conditions
 
-C5-01 through C5-03 are Done on their recorded evidence. C5-04 product review, hosted CI, and merge
-are complete through exact remediation head `2c1cebe`, run `33233846430`, and PR #82 merge
-`28d9eae`. C5-04 and COM-C5 are not Done until current-source Development operational proof
-establishes a content-free, optional, deletable, observable, and
-cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
+C5-01 through C5-03 are Done on their recorded evidence. C5-04's scoped deletion-remediation
+review, hosted CI, and merge are recorded through exact remediation head `2c1cebe`, run
+`33233846430`, and PR #82 merge `28d9eae`; PR #83 closeout review must supplement the four
+previously excluded surfaces. C5-04 and COM-C5 are not Done until current-source Development
+operational proof establishes a content-free, optional, deletable, observable, and cost-bounded
+real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,
 product-behavior dependency, App Privacy mismatch, terminal endpoint auto-retry, or release claim.

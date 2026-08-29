@@ -2026,22 +2026,25 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 
 - Status/date: **Accepted post-merge calibration — 2026-08-29**
 - Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-066/067
-- Context: Independent review approved exact remediation head `2c1cebe`. GitHub Actions run
-  `33233846430` completed successfully on that head, and PR #82 merged the reviewed product
-  capability to `main` as `28d9eae`. The implementation and its local/hosted evidence are no
-  longer pending review, CI, or merge, but no current-source Development Worker deployment or
-  endpoint/TTL/delete-idempotency probe has occurred.
-- Decision: Record the C5-04 implementation, independent review, hosted CI, and product merge as
-  complete. Mark the implementation and review/CI/merge work items complete while keeping C5-04
-  and COM-C5 In Progress solely for the separately authorized current-source Development
-  operational proof. This documentation-only calibration performs no Worker deployment, D1
-  mutation, endpoint probe, customer collection, App Store Connect change, or release action.
-- Consequences: The next authorized C5 task is only the Development publish/monitoring/TTL and
-  delete-idempotency evidence described by `C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. App Store Connect
+- Context: Independent review approved the deletion-order remediation on exact head `2c1cebe`
+  within its declared scope. It did not inspect `PrivacyInfo.xcprivacy`, the AddExpense and Pro
+  capture sites, `TelemetryService` (defined in `TelemetryClient.swift`), or the operations
+  runbook. GitHub Actions run `33233846430` completed successfully on that head, and PR #82 merged
+  the product capability to `main` as `28d9eae`. No current-source Development Worker deployment
+  or endpoint/TTL/delete-idempotency probe has occurred.
+- Decision: Record the exact implementation, scoped review, hosted CI, and product merge facts
+  without expanding review coverage. PR #83's closeout review is explicitly asked to supplement
+  the four excluded surfaces. Keep C5-04 and COM-C5 In Progress for that review boundary and the
+  separately authorized current-source Development operational proof. This documentation-only
+  calibration performs no Worker deployment, D1 mutation, endpoint probe, customer collection,
+  App Store Connect change, or release action.
+- Consequences: After PR #83's supplemental review, the next authorized C5 task is only the
+  Development publish/monitoring/TTL and delete-idempotency evidence described by
+  `C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. App Store Connect
   privacy answers, final-binary traffic verification, G1, Staging/Production, distribution, and
   release remain later gates. Earlier Development evidence from Worker
   `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` remains historical and cannot satisfy the current-source
   probe.
-- Alternatives rejected: Marking C5-04 or COM-C5 Done from a source merge alone; continuing to
-  describe exact-head review, hosted CI, or merge as open; treating the pre-DEC-COM-061 probe as
-  current-source evidence; or inferring a remote deployment from local and hosted tests.
+- Alternatives rejected: Marking C5-04 or COM-C5 Done from a source merge alone; describing
+  excluded files as independently reviewed; treating the pre-DEC-COM-061 probe as current-source
+  evidence; or inferring a remote deployment from local and hosted tests.

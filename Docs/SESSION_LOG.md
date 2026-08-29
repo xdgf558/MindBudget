@@ -6260,10 +6260,12 @@ In Progress pending the existing external evidence, exact-head rereview, hosted 
 
 ## 2026-08-29 — C5-04 reviewed product merge calibration
 
-Independent review approved exact remediation head `2c1cebe`. GitHub Actions run `33233846430`
-completed successfully on that head, and PR #82 merged it to `main` as `28d9eae`. DEC-COM-068
-therefore closes the implementation/review/hosted-CI/merge bookkeeping without claiming the still
-missing current-source Development Worker deployment or endpoint/TTL/delete-idempotency probe.
+Independent review approved the deletion-order remediation on exact head `2c1cebe` within its
+declared scope. It excluded the privacy manifest, AddExpense/Pro capture sites, `TelemetryService`,
+and the operations runbook. GitHub Actions run `33233846430` completed successfully on that head,
+and PR #82 merged it to `main` as `28d9eae`. DEC-COM-068 records the exact source/run/merge facts
+without expanding review coverage or claiming the still-missing current-source Development Worker
+deployment or endpoint/TTL/delete-idempotency probe.
 
 The current-state task, memory, privacy, requirement, egress, capture-audit, operations-runbook,
 and execution-packet documents now distinguish the merged product capability from its open
@@ -6278,3 +6280,12 @@ UI tests, and every selected coverage threshold passed. Four opt-in physical Clo
 explicit skips; `CSVExporter.swift` was the minimum selected result at 87.60% against the 85%
 floor. The validator removed `mindbudget-validation.bKKG10/MindBudget.xcresult` after success, so
 that name is an execution pointer rather than a durable artifact.
+
+PR #83 review then required the closeout to separate the completed product merge from the
+unchecked Development probe and to state PR #82's actual review scope. Its supplemental review is
+explicitly directed at `PrivacyInfo.xcprivacy`, the AddExpense/Pro capture sites,
+`TelemetryService` in `TelemetryClient.swift`, and the operations runbook. Source inspection also
+confirmed that service `stop()` cancels tasks without invalidating the same client's explicit
+delete retry. Delete All resets setup, so a retained remote-deletion proof becomes reachable from
+Privacy & Security > Product Analytics only after onboarding is completed again; that manual UX
+boundary is now carried in the runbook instead of being omitted.

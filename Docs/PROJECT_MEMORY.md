@@ -157,10 +157,12 @@ client only after bilingual default-off consent; adds a three-file content-free 
 bounded lifecycle/retry, sticky terminal 404/405/421 behavior, authenticated telemetry deletion
 attempted before app-wide financial deletion without letting optional remote failure block the
 local erase, App Privacy manifest entries, and a Development-only
-publish/rollback/TTL-delete runbook. Independent review approved exact remediation head `2c1cebe`,
-GitHub Actions run `33233846430` passed, and PR #82 merged the product capability as `28d9eae`.
-Current-source Development operational proof remains open, so C5-04/COM-C5 stay In Progress;
-Staging/Production, G1, distribution, and release remain blocked.
+publish/rollback/TTL-delete runbook. Independent review approved the deletion-order remediation on
+exact head `2c1cebe` within its declared scope; GitHub Actions run `33233846430` passed, and PR #82
+merged the product capability as `28d9eae`. That review did not inspect the privacy manifest, the
+two feature capture files, `TelemetryService`, or the operations runbook; PR #83's closeout review
+is explicitly asked to supplement them. Current-source Development operational proof remains open,
+so C5-04/COM-C5 stay In Progress; Staging/Production, G1, distribution, and release remain blocked.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

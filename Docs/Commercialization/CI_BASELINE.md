@@ -1835,9 +1835,11 @@ distribution, or release evidence is claimed. Hosted CI and exact-head rereview 
 
 ### C5-04 reviewed product merge — 2026-08-29
 
-Independent review approved exact remediation head `2c1cebe`. GitHub Actions run `33233846430`
-completed successfully on that head, and PR #82 merged it to `main` as `28d9eae`. The reviewed
-source evidence remains the 16-test focused Phase 6 remediation run, 35/35 local-D1 Worker tests,
+Independent review approved the deletion-order remediation on exact head `2c1cebe` within its
+declared scope. It did not inspect the privacy manifest, the AddExpense and Pro capture files,
+`TelemetryService`, or the operations runbook. GitHub Actions run `33233846430` completed
+successfully on that head, and PR #82 merged it to `main` as `28d9eae`. The source evidence remains
+the 16-test focused Phase 6 remediation run, 35/35 local-D1 Worker tests,
 eight immutable-evidence tests, strict 10,000-row Dashboard benchmark, 550 unit tests across 32
 suites, 17/17 UI tests, Release compilation, and every selected coverage threshold. Four opt-in
 physical CloudKit tests were explicit skips; `CSVExporter.swift` remained the minimum selected
@@ -1859,3 +1861,9 @@ physical CloudKit tests were explicit skips. `CSVExporter.swift` was the minimum
 at 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.bKKG10/MindBudget.xcresult` after success, making that name an execution
 pointer rather than a durable artifact.
+
+PR #83 closeout review is explicitly asked to supplement the four source/declaration surfaces that
+were excluded from PR #82's review scope. Repository inspection confirms that `TelemetryService`
+is defined in `MindBudget/Services/TelemetryClient.swift`; its `stop()` cancels only task handles,
+so the same service still exposes explicit proof-authenticated deletion. Delete All resets setup,
+therefore a pending retry becomes manually reachable only after onboarding is completed again.
