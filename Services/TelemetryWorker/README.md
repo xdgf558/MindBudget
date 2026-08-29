@@ -1,6 +1,6 @@
 # MindBudget first-party telemetry Worker
 
-This isolated Worker implements the dormant C5-02 ingestion and proof-deletion contract. It
+This isolated Worker implements the C5 first-party ingestion and proof-deletion contract. It
 accepts only MindBudget's closed event vocabulary, stores no request metadata or free text, and
 keeps Development, Staging, and Production resources separate.
 
@@ -16,7 +16,8 @@ also type-checks the Worker and performs dry-run/startup validation for all thre
 
 ## Deployment boundary
 
-Only Development deployment is authorized in C5-02:
+Only Development deployment is eligible for C5-04 operational evidence, and every actual remote
+write still requires explicit authorization in the execution session:
 
 ```bash
 npm run migrate:development
@@ -24,9 +25,11 @@ npm run deploy:development
 ```
 
 There are intentionally no Staging or Production deployment/migration scripts. Those environments
-remain configuration-only until their later owner and release gates are accepted. The app-side
-`FixedTelemetryTransport` is likewise compiled and tested but has no production construction or
-capture call site.
+remain configuration-only until their later owner and release gates are accepted. C5-04 activates
+the app-side fixed transport only behind a bilingual, default-off customer control. Its exact
+capture inventory and operational procedures are documented in
+`Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md` and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`.
 
 ## C5-03 offline evidence
 
@@ -43,5 +46,5 @@ SHA-256 digests, then create a new immutable output path:
 npm run evidence:build -- --input INPUT.json --output OUTPUT.json
 ```
 
-The template is demonstrative and is not observation evidence. C5-03 does not authorize a live
-client, an App Store credential, Staging/Production deployment, or release.
+The template is demonstrative and is not observation evidence. C5-03 did not authorize a live
+client or App Store credential. C5-04 does not authorize Staging/Production deployment or release.

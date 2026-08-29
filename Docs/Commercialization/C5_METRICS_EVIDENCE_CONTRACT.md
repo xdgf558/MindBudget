@@ -2,14 +2,16 @@
 
 Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
 remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
-C5-04 awaits explicit owner entry.
+C5-04 entered on 2026-08-29 and remains In Progress; its runtime activation cannot change this
+immutable evidence format or manufacture a G1 result.
 
 ## Purpose and non-goals
 
-C5-03 defines a reproducible evidence shape for later R1/G1 observation. It does not collect any
-customer data, construct `TelemetryClient` or `FixedTelemetryTransport`, add an app capture call,
-add a Worker route, deploy Staging/Production, change App Privacy answers, or decide G1. The app
-still defaults to `UnavailableTelemetryTransport`; current customer telemetry collection and egress remain zero.
+C5-03 defines a reproducible evidence shape for later R1/G1 observation. Its implementation did not
+collect customer data, construct `TelemetryClient` or `FixedTelemetryTransport`, add an app capture
+call, add a Worker route, deploy Staging/Production, change App Privacy answers, or decide G1.
+C5-04 later adds an optional default-off live client and closed capture sites, but that separate
+runtime cannot change evidence inputs, thresholds, or the absence of a current G1 decision.
 
 The checked-in evidence builder consumes only manually supplied aggregate counts and SHA-256
 digests of source exports. It never accepts receipt text, merchant, amount, budget, note, account,
@@ -156,7 +158,8 @@ failure states only. It does not claim metric success, funnel accuracy on produc
 readiness, or release approval.
 
 C5-03 is Done through reviewed PR #80 merge `a587f42` without claiming collected evidence or G1
-success. C5-04 is no longer dependency-blocked but awaits explicit owner entry and still owns
-customer control/disclosure, capture-site audit, terminal endpoint-policy failures, App Privacy/
-data-flow updates, operational TTL/delete evidence, Staging/Production deployment, and final-binary
-traffic verification.
+success. The owner entered C5-04 on 2026-08-29. Its implementation candidate supplies customer
+control/disclosure, capture-site audit, terminal endpoint-policy behavior, source App Privacy/data-
+flow updates, and a Development operations runbook. Current-source operational evidence, App Store
+Connect answers, Staging/Production deployment, final-binary traffic, and every G1/release decision
+remain open.

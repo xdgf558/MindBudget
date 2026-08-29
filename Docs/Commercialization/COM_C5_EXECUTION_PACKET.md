@@ -13,9 +13,10 @@ approved head `4ea7cd9` and raised one P2 cross-segment coverage issue plus one 
 weak-sample-visibility issue. Remediation head `0c61427` applied both, GitHub Actions run
 `33211270363` passed, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's
 post-merge closeout review confirmed that exact delta; C5-03's dormant metrics/evidence
-implementation is Done. C5-04 awaits explicit owner entry, and no collection, customer setting,
-capture call, G1 decision, App Privacy change, Staging/Production deployment, distribution, or
-release is authorized.
+implementation is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation candidate
+is complete pending current-source Development deployment/probe, exact-head independent review,
+hosted CI, and merge. No G1 decision, Staging/Production deployment, distribution, or release is
+authorized.
 
 ## Input gate
 
@@ -25,12 +26,14 @@ release is authorized.
 - REQ-R1-TELEMETRY-001 remains Active. C5-01 established the typed local client and test seams;
   C5-02 now owns the exact receiver, TTL, server rejection, deletion, environment isolation,
   monitoring, cost ceilings, and dormant adapter. C5-03 closed the dormant metrics/evidence
-  computation only. Capture audit, disclosure, App Privacy, and final-binary traffic remain C5-04
-  and release gates.
+  computation only. C5-04 adds the capture audit, disclosure, App Privacy source declaration,
+  controls, deletion integration, terminal failure behavior, and Development operations runbook;
+  current-source Development proof, App Store Connect answers, and final-binary traffic remain
+  evidence/release gates.
 - `NETWORK_EGRESS_POLICY.md` accepts only the three exact first-party hosts and two exact POST
-  paths. Development alone may be deployed/probed. No production client construction, capture
-  call, customer setting, Staging/Production deployment, dashboard product claim, entitlement, or
-  release action is inside this packet.
+  paths. Development alone may be deployed/probed. C5-04 permits the sole reviewed production
+  factory, closed capture calls, and default-off customer control; it does not permit a
+  Staging/Production deployment, dashboard product claim, entitlement, or release action.
 - Receipt images, prepared pixels, OCR, privacy-filtered receipt text, model evidence, merchant,
   amount, note, category, StoreKit identifiers, CloudKit envelopes, and other business facts must
   remain unrepresentable by the telemetry event type.
@@ -200,10 +203,10 @@ or C5-04 release approval.
   upload transport. It cannot truthfully revoke a response already accepted at the edge; a raced
   accepted event remains subject to the real TTL and explicit delete. Server tombstones make a
   later in-flight upload non-resurrecting. C5-04 owns the customer-facing wording.
-- `FixedTelemetryTransport` is compiled and directly testable but is not constructed by production
-  app code. `UnavailableTelemetryTransport` remains the `TelemetryClient` default, and there are
-  still zero capture call sites and zero customer telemetry egress until C5-04 accepts controls and
-  disclosure.
+- At C5-02 close, `FixedTelemetryTransport` was compiled and directly testable but remained
+  unconstructed, with `UnavailableTelemetryTransport` as the default and zero capture call sites.
+  C5-04 supersedes only that dormant construction boundary through the sole reviewed default-off
+  factory and the closed capture audit; it does not retroactively turn C5-02 into activation proof.
 - Only Development is deployed: `mindbudget-telemetry-dev` version
   `1c162a57-8789-4f7f-9fec-f2c484e9f4f2` owns D1
   `2faff8ac-de17-4fd0-aaa7-546bd1902e74`. Its exact live probe accepted one upload and an identical
@@ -213,9 +216,9 @@ or C5-04 release approval.
   undeployed D1 resource `776d171d-ec10-4a90-9235-b537e063e04b`; Production has no provisioned D1
   resource and the checked-in UUID is an intentionally invalid placeholder. Neither environment
   has a deployed Worker or probe evidence.
-- Fixed endpoint-policy failures such as HTTP 404, 405, and 421 still surface as typed rejected
-  statuses in the dormant adapter. C5-04 must make them terminal/non-retrying before constructing
-  the transport; C5-02 does not enlarge the local lifecycle state machine while no call site exists.
+- At C5-02 close, fixed endpoint-policy failures such as HTTP 404, 405, and 421 surfaced only as
+  typed rejected statuses. C5-04 now makes them durable, terminal, and non-retrying before its sole
+  transport construction; C5-02 itself did not enlarge the then-dormant lifecycle.
 
 ## C5-03 — Metrics and G1 evidence
 
@@ -239,16 +242,38 @@ constructs the client, or changes the closed event vocabulary.
 
 ## C5-04 — Operations and disclosures
 
-Status: **Blocked pending explicit owner entry after C5-03 closeout.**
+Status: **In Progress — owner entered 2026-08-29; implementation candidate complete pending
+current-source Development deployment/probe, independent review, hosted CI, and merge.**
 
 Own the publish/rollback/key-rotation runbook, customer control and bilingual disclosure, privacy
 policy/App Privacy/data-flow updates, capture audit, and actual TTL/deletion verification.
 
+The implementation candidate constructs exactly one `TelemetryClient` and one
+`FixedTelemetryTransport` in `TelemetryServiceFactory`. Missing state remains off without a write;
+an explicit Privacy-settings confirmation is the only enable path. Missing factory prerequisites
+produce an unavailable telemetry service instead of blocking local app startup. The lifecycle drains a bounded
+encrypted queue, persists retry state, never changes product behavior, and exposes terminal
+404/405/421 as sticky non-retrying endpoint-policy failures. An upload resumes only after explicit
+Send Retry or opt-out; deletion retries only through another explicit Delete. Disable clears unsent
+events. The separate Delete action first durably
+disables collection, clears the unsent queue, and retires the active identity, then uses every
+retained proof; a failed remote delete stays disabled, cannot create a new identity or re-enable,
+and only a repeated explicit Delete retries those proofs. App-wide Delete All attempts that remote
+deletion first, but a network, endpoint-policy, or unavailable result cannot block removal of local
+financial records. It reports a distinct completed-with-pending-telemetry state, while the client
+keeps authenticated proofs for the separate Privacy-settings retry. `C5_TELEMETRY_CAPTURE_AUDIT.md` fixes the three capture-bearing source files
+and the exact content-free events. `C5_TELEMETRY_OPERATIONS_RUNBOOK.md` fixes Development publish,
+rollback, aggregate monitoring, TTL/delete probe, credentials, and incident steps. Product
+Interaction and the conservative rotating Device ID classification are declared in the privacy
+manifest as unlinked, non-tracking Analytics. App Store Connect answers and final-binary traffic
+remain COM-C6/C12 gates.
+
 ## Exit and stop conditions
 
-C5-01 through C5-03 may be Done only after exact-head independent review, green hosted CI, and
-merge. COM-C5 is not Done until C5-04 proves a content-free, optional, deletable, observable, and
+C5-01 through C5-03 are Done on their recorded evidence. C5-04 and COM-C5 are not Done until exact-
+head independent review, green hosted CI, merge, and current-source Development operational proof
+establish a content-free, optional, deletable, observable, and
 cost-bounded real channel. Stop on any content-bearing field, arbitrary dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,
-product-behavior dependency, or release claim.
+product-behavior dependency, App Privacy mismatch, terminal endpoint auto-retry, or release claim.

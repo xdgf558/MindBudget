@@ -38,6 +38,18 @@ enum TelemetryHTTPTransportError: Error, Equatable, Sendable {
     case serverUnavailable
 }
 
+extension TelemetryHTTPTransportError: TelemetryTerminalFailureProviding {
+    var telemetryTerminalFailure: TelemetryTerminalFailure? {
+        guard case let .rejectedStatus(statusCode) = self else { return nil }
+        return switch statusCode {
+        case 404: .endpointNotFound
+        case 405: .methodNotAllowed
+        case 421: .misdirectedRequest
+        default: nil
+        }
+    }
+}
+
 struct TelemetryHTTPResponse: Sendable {
     let data: Data
     let response: HTTPURLResponse
@@ -198,8 +210,8 @@ private struct TelemetryWireDeletion: Encodable {
     }
 }
 
-/// This adapter is compiled and tested but has no production factory or call site. The client
-/// continues to default to `UnavailableTelemetryTransport` until C5-04 accepts customer controls.
+/// The C5-04 factory is the sole production construction site. It selects one compile-time
+/// environment, accepts no caller URL, and remains inert until the customer explicitly opts in.
 actor FixedTelemetryTransport: TelemetryTransporting {
     static let maximumUploadBytes = 32 * 1_024
     static let maximumDeleteBytes = 2 * 1_024

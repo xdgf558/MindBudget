@@ -223,6 +223,7 @@ enum TelemetryClientError: Error, Equatable, Sendable {
     case corruptPersistence
     case identityCapacityReached
     case invalidClock
+    case unresolvedDeletion
 }
 
 actor TelemetryClient {
@@ -260,7 +261,8 @@ actor TelemetryClient {
             queuedEventCount: state.queuedEvents.count,
             retainedIdentityCount: state.identities.count,
             retryNotBefore: state.retryNotBefore,
-            availability: .available
+            availability: .available,
+            terminalTransportFailure: state.terminalTransportFailure
         )
     }
 
@@ -270,6 +272,12 @@ actor TelemetryClient {
         try Task.checkCancellation()
         guard var state = await loadState() else { throw TelemetryClientError.corruptPersistence }
         if enabled {
+            // A terminal failure on disabled state came from proof-authenticated Delete. Do not
+            // create another identity or restart capture until the customer repeats Delete and
+            // every recoverable proof has been removed.
+            guard state.terminalTransportFailure == nil else {
+                throw TelemetryClientError.unresolvedDeletion
+            }
             pruneExpiredProofs(in: &state, now: now)
             state.collectionEnabled = true
             if state.identities.last?.deletionProofExpiresAt != nil || state.identities.isEmpty {
@@ -288,6 +296,7 @@ actor TelemetryClient {
             state.queuedEvents.removeAll()
             state.consecutiveFailures = 0
             state.retryNotBefore = nil
+            state.terminalTransportFailure = nil
         }
         try await commit(state)
     }
@@ -298,6 +307,7 @@ actor TelemetryClient {
         try Task.checkCancellation()
         guard var state = await loadState() else { return .unavailable }
         guard state.collectionEnabled else { return .disabled }
+        guard state.terminalTransportFailure == nil else { return .unavailable }
         try rotateIdentityIfNeeded(in: &state, now: now)
         guard let identity = state.identities.last else {
             throw TelemetryClientError.invalidClock
@@ -346,6 +356,10 @@ actor TelemetryClient {
             releaseStateMutation()
             return .disabled
         }
+        if let failure = state.terminalTransportFailure {
+            releaseStateMutation()
+            return .terminalFailure(failure)
+        }
         if let retryNotBefore = state.retryNotBefore, now < retryNotBefore {
             releaseStateMutation()
             return .deferred(retryNotBefore)
@@ -380,6 +394,10 @@ actor TelemetryClient {
         } catch is CancellationError {
             return .failed(nil)
         } catch {
+            if let terminalFailure = (error as? any TelemetryTerminalFailureProviding)?
+                .telemetryTerminalFailure {
+                return await recordTerminalTransportFailure(terminalFailure)
+            }
             return await recordTransportFailure(now: now)
         }
 
@@ -393,11 +411,13 @@ actor TelemetryClient {
             current.queuedEvents.removeAll { eventIDs.contains($0.id) }
             current.consecutiveFailures = 0
             current.retryNotBefore = nil
+            current.terminalTransportFailure = nil
             result = .accepted(events.count)
         case .rejected:
             current.queuedEvents.removeAll { eventIDs.contains($0.id) }
             current.consecutiveFailures = 0
             current.retryNotBefore = nil
+            current.terminalTransportFailure = nil
             result = .rejected(events.count)
         case let .retryAfter(seconds):
             current.consecutiveFailures += 1
@@ -440,6 +460,23 @@ actor TelemetryClient {
                 return .failed(nil)
             }
         }
+
+        // Delete is also an immediate opt-out. Persist that privacy-safe state before making the
+        // remote request so cancellation, termination, or a transport failure cannot resume
+        // capture or preserve an unsent event. Every remaining identity is retained only as a
+        // bounded deletion proof until the remote delete is confirmed.
+        do {
+            try retireCurrentIdentityForOptOut(in: &state, now: now)
+        } catch {
+            return .failed(nil)
+        }
+        state.collectionEnabled = false
+        state.queuedEvents.removeAll()
+        state.consecutiveFailures = 0
+        state.retryNotBefore = nil
+        state.terminalTransportFailure = nil
+        pruneExpiredProofs(in: &state, now: now)
+
         guard !state.identities.isEmpty else {
             do {
                 try await persistence.delete()
@@ -448,6 +485,11 @@ actor TelemetryClient {
             } catch {
                 return .failed(nil)
             }
+        }
+        do {
+            try await commit(state)
+        } catch {
+            return .failed(nil)
         }
         let request = TelemetryDeletionRequest(
             schemaVersion: TelemetryPolicy.schemaVersion,
@@ -468,6 +510,21 @@ actor TelemetryClient {
         } catch is CancellationError {
             return .failed(nil)
         } catch {
+            if let terminalFailure = (error as? any TelemetryTerminalFailureProviding)?
+                .telemetryTerminalFailure {
+                state.terminalTransportFailure = terminalFailure
+                state.retryNotBefore = nil
+                state.consecutiveFailures = 0
+                do {
+                    try await commit(state)
+                    return .terminalFailure(terminalFailure)
+                } catch {
+                    // A sticky terminal result is truthful only after it is durable. Preserve
+                    // the in-memory and persisted proofs and report an unclassified failure when
+                    // that commit cannot be established.
+                    return .failed(nil)
+                }
+            }
             state.consecutiveFailures += 1
             state.retryNotBefore = policy.retryDate(
                 after: now,
@@ -476,6 +533,32 @@ actor TelemetryClient {
             try? await commit(state)
             return .failed(state.retryNotBefore)
         }
+    }
+
+    /// A customer retry is the only operation that clears a sticky upload-policy failure.
+    /// A failed Delete remains disabled and is retried through the explicit Delete action so the
+    /// client never confuses an upload retry with proof-authenticated deletion.
+    func retryTerminalTransport(now: Date) async -> TelemetryFlushResult {
+        await acquireStateMutation()
+        guard var state = await loadState() else {
+            releaseStateMutation()
+            return .unavailable
+        }
+        guard state.collectionEnabled else {
+            releaseStateMutation()
+            return .disabled
+        }
+        state.terminalTransportFailure = nil
+        state.retryNotBefore = nil
+        state.consecutiveFailures = 0
+        do {
+            try await commit(state)
+        } catch {
+            releaseStateMutation()
+            return .persistenceFailed
+        }
+        releaseStateMutation()
+        return await flush(now: now)
     }
 
     private func loadState() async -> TelemetryPersistedState? {
@@ -505,6 +588,25 @@ actor TelemetryClient {
         do {
             try await commit(current)
             return .failed(current.retryNotBefore)
+        } catch is CancellationError {
+            return .failed(nil)
+        } catch {
+            return .persistenceFailed
+        }
+    }
+
+    private func recordTerminalTransportFailure(
+        _ failure: TelemetryTerminalFailure
+    ) async -> TelemetryFlushResult {
+        await acquireStateMutation()
+        defer { releaseStateMutation() }
+        guard var current = self.state, current.collectionEnabled else { return .disabled }
+        current.terminalTransportFailure = failure
+        current.consecutiveFailures = 0
+        current.retryNotBefore = nil
+        do {
+            try await commit(current)
+            return .terminalFailure(failure)
         } catch is CancellationError {
             return .failed(nil)
         } catch {
@@ -636,5 +738,217 @@ actor TelemetryClient {
             guard let expiresAt = identity.deletionProofExpiresAt else { return false }
             return expiresAt <= now && !queuedIdentityIDs.contains(identity.identifier)
         }
+    }
+}
+
+@MainActor
+protocol TelemetryServicing: AnyObject, Sendable {
+    var snapshot: TelemetryClientSnapshot { get }
+    var onSnapshotChange: (@MainActor @Sendable (TelemetryClientSnapshot) -> Void)? { get set }
+
+    func start() async
+    func setCollectionEnabled(_ enabled: Bool) async -> Bool
+    func capture(_ event: TelemetryEvent) async -> TelemetryCaptureResult
+    func retryTerminalFailure() async
+    func sceneDidBecomeActive() async
+    func deleteAllTelemetry() async -> TelemetryDeletionResult
+    func stop()
+}
+
+@MainActor
+final class TelemetryService: TelemetryServicing {
+    private let client: TelemetryClient
+    private var hasStarted = false
+    private var drainTask: Task<Void, Never>?
+    private var retryTask: Task<Void, Never>?
+
+    private(set) var snapshot = TelemetryClientSnapshot(
+        collectionEnabled: false,
+        queuedEventCount: 0,
+        retainedIdentityCount: 0,
+        retryNotBefore: nil,
+        availability: .available
+    )
+    var onSnapshotChange: (@MainActor @Sendable (TelemetryClientSnapshot) -> Void)?
+
+    init(client: TelemetryClient) {
+        self.client = client
+    }
+
+    func start() async {
+        guard !hasStarted else { return }
+        hasStarted = true
+        defer {
+            if Task.isCancelled {
+                hasStarted = false
+            }
+        }
+        await publishSnapshot()
+        guard !Task.isCancelled else { return }
+        guard snapshot.collectionEnabled else { return }
+        _ = await capture(.appSessionStarted)
+    }
+
+    func setCollectionEnabled(_ enabled: Bool) async -> Bool {
+        do {
+            try await client.setCollectionEnabled(enabled, now: Date())
+            if !enabled {
+                drainTask?.cancel()
+                retryTask?.cancel()
+            }
+            await publishSnapshot()
+            if enabled {
+                _ = await capture(.appSessionStarted)
+            }
+            return true
+        } catch {
+            await publishSnapshot()
+            return false
+        }
+    }
+
+    func capture(_ event: TelemetryEvent) async -> TelemetryCaptureResult {
+        do {
+            let result = try await client.capture(event, at: Date())
+            await publishSnapshot()
+            if result == .queued || result == .queuedAfterDroppingOldest {
+                beginDrain()
+            }
+            return result
+        } catch {
+            await publishSnapshot()
+            return .unavailable
+        }
+    }
+
+    func retryTerminalFailure() async {
+        drainTask?.cancel()
+        retryTask?.cancel()
+        let result = await client.retryTerminalTransport(now: Date())
+        await publishSnapshot()
+        await handleFlushResult(result)
+    }
+
+    func sceneDidBecomeActive() async {
+        await publishSnapshot()
+        guard snapshot.collectionEnabled,
+              snapshot.terminalTransportFailure == nil else { return }
+        beginDrain()
+    }
+
+    func deleteAllTelemetry() async -> TelemetryDeletionResult {
+        drainTask?.cancel()
+        retryTask?.cancel()
+        let result = await client.deleteAllTelemetry(now: Date())
+        await publishSnapshot()
+        return result
+    }
+
+    func stop() {
+        drainTask?.cancel()
+        retryTask?.cancel()
+        drainTask = nil
+        retryTask = nil
+    }
+
+    private func beginDrain() {
+        guard drainTask == nil else { return }
+        drainTask = Task { [weak self] in
+            await self?.drainQueuedEvents()
+        }
+    }
+
+    private func drainQueuedEvents() async {
+        defer { drainTask = nil }
+        // The persisted queue is bounded at 256 and batches at 20. Fourteen passes drain any
+        // reachable snapshot while preventing an accidental unbounded network loop.
+        for _ in 0..<14 {
+            guard !Task.isCancelled else { return }
+            let result = await client.flush(now: Date())
+            await publishSnapshot()
+            switch result {
+            case .accepted, .rejected:
+                continue
+            default:
+                await handleFlushResult(result)
+                return
+            }
+        }
+    }
+
+    private func handleFlushResult(_ result: TelemetryFlushResult) async {
+        let retryDate: Date?
+        switch result {
+        case let .deferred(date), let .failed(date?):
+            retryDate = date
+        default:
+            retryDate = nil
+        }
+        guard let retryDate else { return }
+        retryTask?.cancel()
+        retryTask = Task { [weak self] in
+            do {
+                let delay = max(0, retryDate.timeIntervalSinceNow)
+                try await Task.sleep(for: .seconds(delay))
+                guard !Task.isCancelled else { return }
+                self?.beginDrain()
+            } catch {
+                // Disable, deletion, replacement, and shutdown deliberately cancel retry.
+            }
+        }
+    }
+
+    private func publishSnapshot() async {
+        snapshot = await client.snapshot()
+        onSnapshotChange?(snapshot)
+    }
+}
+
+@MainActor
+final class UnavailableTelemetryService: TelemetryServicing {
+    private(set) var snapshot = TelemetryClientSnapshot.unavailable
+    var onSnapshotChange: (@MainActor @Sendable (TelemetryClientSnapshot) -> Void)?
+
+    func start() async { onSnapshotChange?(snapshot) }
+    func setCollectionEnabled(_ enabled: Bool) async -> Bool { false }
+    func capture(_ event: TelemetryEvent) async -> TelemetryCaptureResult { .unavailable }
+    func retryTerminalFailure() async {}
+    func sceneDidBecomeActive() async { onSnapshotChange?(snapshot) }
+    func deleteAllTelemetry() async -> TelemetryDeletionResult { .unavailable }
+    func stop() {}
+}
+
+enum TelemetryServiceFactory {
+    @MainActor
+    static func live(
+        applicationSupportURL: URL? = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first,
+        rawVersion: String? = Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String
+    ) -> any TelemetryServicing {
+        guard let applicationSupportURL,
+              let rawVersion,
+              let appVersion = try? TelemetryAppVersion(rawVersion) else {
+            // Optional telemetry construction can fail closed without ever preventing the local
+            // budgeting app from launching. App-wide deletion still refuses to claim telemetry
+            // cleanup while this unavailable state cannot authenticate any possible proofs.
+            return UnavailableTelemetryService()
+        }
+        let environment = TelemetryEnvironment.current()
+        let persistence = EncryptedFileTelemetryPersistence(
+            fileURL: applicationSupportURL
+                .appendingPathComponent("MindBudget/Telemetry", isDirectory: true)
+                .appendingPathComponent("queue.v1", isDirectory: false)
+        )
+        let client = TelemetryClient(
+            persistence: persistence,
+            transport: FixedTelemetryTransport(environment: environment),
+            environment: environment,
+            appVersion: appVersion
+        )
+        return TelemetryService(client: client)
     }
 }

@@ -452,6 +452,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(privacyControl.waitForExistence(timeout: 2))
         privacyControl.tap()
         XCTAssertTrue(element("settings.privacy.appLock", in: app).waitForExistence(timeout: 2))
+        let telemetryControl = element("settings.privacy.telemetry", in: app)
+        XCTAssertTrue(telemetryControl.waitForExistence(timeout: 2))
+        telemetryControl.tap()
+        let telemetryToggle = element("settings.telemetry.toggle", in: app)
+        XCTAssertTrue(telemetryToggle.waitForExistence(timeout: 2))
+        XCTAssertEqual(telemetryToggle.value as? String, "0")
+        let neverIncludedDisclosure =
+            "Never included: amounts, merchants, categories, notes, receipt images or text, StoreKit identifiers, iCloud records, free-form text, advertising data, or third-party analytics."
+        XCTAssertTrue(
+            app.staticTexts
+                .matching(NSPredicate(format: "label == %@", neverIncludedDisclosure))
+                .firstMatch.exists
+        )
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(element("settings.privacy.appLock", in: app).waitForExistence(timeout: 2))
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
 

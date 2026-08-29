@@ -57,9 +57,9 @@ detailed phase checklists; it added no paid product behavior.
   coverage issue plus one P3 weak-sample-visibility issue. Remediation head `0c61427` applied both,
   passed GitHub Actions run `33211270363`, and PR #80 merged it as `a587f42` without a pre-merge
   rereview. PR #81's post-merge closeout review read that exact remediation delta and confirmed
-  both fixes; C5-03 is Done. C5-04 awaits explicit owner entry, and there is still no production
-  construction, capture call, customer collection, Staging/Production deployment, G1 decision, or
-  release authority.**
+  both fixes; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation
+  candidate is complete pending current-source Development proof, exact-head review, hosted CI,
+  and merge; Staging/Production deployment, G1, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -594,10 +594,16 @@ remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 m
 
 ### C5-04 — Operations and disclosures
 
-Status: **Blocked pending explicit owner entry after C5-03 closeout.**
+Status: **In Progress — owner entered 2026-08-29; implementation candidate complete pending
+current-source Development deployment/probe, independent review, hosted CI, and merge.**
 
-- [B] Signed-config publish/rollback/key-rotation runbook, privacy policy, App Privacy, data-flow
-  map, capture tests, four-generation re-enable guidance, and actual TTL/delete verification.
+- [ ] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
+  Development/Staging/Production isolation and keep Staging/Production undeployed.
+- [ ] Lock the exhaustive capture audit, App Privacy manifest/checklist, deletion integration,
+  terminal 404/405/421 behavior, four-generation re-enable guidance, and the local-first rule that
+  an optional remote telemetry failure retains proofs for retry but never blocks local Delete All.
+- [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,
+  TTL/delete/idempotency probe, independent review, hosted CI, and merge. No G1 or release claim.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.

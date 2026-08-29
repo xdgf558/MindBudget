@@ -151,12 +151,19 @@ immutable canonical evidence, exact counts, outward-rounded 95% Wilson intervals
 aggregate-only surveys, and a read-only ordered receipt funnel. Review remediation removes
 ambiguous cross-segment coverage:
 coverage is exact-segment-only and exposes the widest interval width to surface weak samples.
-C5-03 is Done without a real evidence bundle or G1 decision. C5-04 awaits explicit owner entry;
-release remains blocked.
-DEC-COM-061 remediates review findings without enabling the dormant client: deletion tombstones now
+C5-03 is Done without a real evidence bundle or G1 decision. The owner entered C5-04 on
+2026-08-29. Its implementation candidate activates one fixed, environment-isolated first-party
+client only after bilingual default-off consent; adds a three-file content-free capture audit,
+bounded lifecycle/retry, sticky terminal 404/405/421 behavior, authenticated telemetry deletion
+attempted before app-wide financial deletion without letting optional remote failure block the
+local erase, App Privacy manifest entries, and a Development-only
+publish/rollback/TTL-delete runbook. Current-source Development deployment/probe, exact-head
+review, hosted CI, and merge remain open. Staging/Production, G1, distribution, and release remain
+blocked.
+DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
-values, hourly cleanup repeats bounded batches until drained, and C5-04 must make fixed
-endpoint-policy failures terminal before constructing the transport.
+values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed
+endpoint-policy failures sticky and non-retrying before its sole reviewed transport construction.
 PR #76
 review remediation keeps
 corrupt persistence locally deletable without claiming remote deletion, limits unlinkability to

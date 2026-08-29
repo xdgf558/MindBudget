@@ -406,6 +406,10 @@ touching financial state, and persists the choice across a store reload. Corrupt
 raw values fall back to Warm Botanical without destroying the stored raw value. Delete All resets
 the preference to Warm Botanical with the other local preferences. Simplified Chinese catalog
 coverage proves that no user-facing value contains the English product name `MindBudget`.
+When optional first-party telemetry is present, app-wide Delete All attempts its authenticated
+remote deletion before erasing local financial data. A `.failed`, terminal endpoint-policy, or
+unavailable telemetry result must still leave all local model counts at zero and reset preferences,
+while publishing a distinct pending-remote state and retaining any proof for a separate retry.
 Every `AppSkin` must resolve to an opaque portrait artwork asset at least 800 pixels wide and 1700
 pixels tall. The release-readiness script validates all three asset-catalog mappings and dimensions.
 Before each TestFlight replacement, visually inspect Today, Log, Add Expense, Insights, Wishlist, Ask, Settings, and

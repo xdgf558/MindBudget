@@ -3066,3 +3066,90 @@ with its heading; its self-test now explicitly accepts C5-03 Done alongside a fu
 review state. Static money, egress, commercialization-document, StoreKit 13/13, C5 evidence 8/8,
 parser self-test, and `git diff --check` pass. No runtime, evidence, G1, deployment, or release
 boundary changed; hosted CI and exact-head rereview remain required.
+
+## 2026-08-29 — C5-04 controlled telemetry activation candidate
+
+The owner explicitly entered C5-04. DEC-COM-066 authorizes only one fixed, compile-time isolated
+client/transport factory behind a bilingual default-off Privacy control. Collection creates no
+state before confirmation, remains unable to affect product behavior, and captures only the closed
+events audited in `C5_TELEMETRY_CAPTURE_AUDIT.md` from three named production files. No amount,
+merchant/category/note text, receipt/OCR/model evidence, StoreKit/CloudKit identifier, locale,
+device/advertising identifier, or caller-defined string can enter the schema.
+
+The implementation adds bounded foreground lifecycle, explicit Retry, durable non-retrying
+404/405/421 policy failures, disable/delete guidance, and proof-authenticated remote deletion before
+app-wide financial deletion proceeds. App Privacy declares Product Interaction and a conservative
+rotating Device ID as unlinked, non-tracking Analytics. The separate operations runbook limits
+publish/probe/rollback and closed monitoring to Development; Staging/Production and release remain
+unauthorized.
+
+The focused simulator suite passed 47/47 tests with Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+iPhone 17 Pro simulator, and the Worker passed 35/35 local-D1 tests, eight evidence tests, generated bindings,
+TypeScript, all three dry-runs/startup checks, and the high-severity audit. The first sandboxed
+simulator attempt failed CoreSimulator access and is not evidence. No current-source Worker deploy
+or live probe occurred because uploading source to Cloudflare Development still requires explicit
+authorization in this run. C5-04/COM-C5 remain In Progress pending that evidence, exact-head review,
+green hosted CI, and merge; no G1 or distribution claim is made.
+
+## 2026-08-29 — C5-04 final local verification and self-review hardening
+
+Final self-review made the activation boundary more explicit before independent review. Pro
+presentation telemetry is paired per visible interval. Telemetry deletion commits opt-out, queue
+removal, identity retirement, and retry-state clearing before the remote request; a remote failure
+retains proofs and prevents re-enablement until the user explicitly retries Delete. The live
+factory is nonthrowing at the application boundary: missing application-support storage or an
+invalid app-version string resolves to an unavailable service, so telemetry cannot block local
+budgeting, while app-wide Delete All still fails closed rather than falsely claiming telemetry
+cleanup. The bilingual Privacy surface remains default off and its UI test now asserts the exact
+never-collected disclosure through a label predicate within XCUITest's query limits.
+
+The final focused `TelemetryClientTests` plus `Phase6FeatureTests` command passed all 48 declared
+tests. The exact current-source full validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+iPhone 17 Pro simulator and passed every static contract, Release compilation, 35/35 local-D1
+Worker tests, all eight immutable-evidence tests, 550 unit tests across 32 suites, all 17 UI tests,
+and every selected coverage threshold. Four opt-in physical CloudKit probes were explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator deleted
+`mindbudget-validation.XKvHyp/MindBudget.xcresult` after success, making the name an execution
+pointer rather than a durable artifact.
+
+The first strict wall-clock attempt measured 661.598333 milliseconds for the isolated 10,000-row
+Dashboard benchmark against the 500-millisecond ceiling on this loaded host. That result remains a
+performance non-pass. The final correctness run explicitly used
+`MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1`; it is not represented as a strict performance pass. An
+intermediate full run stopped after identifying the overlong UI-test query and is excluded from
+evidence.
+
+No current-source Cloudflare Development deployment/probe occurred because remote source upload
+still requires separate explicit authorization. Staging and Production remain untouched.
+C5-04/COM-C5 therefore remain In Progress pending Development endpoint/TTL/delete evidence,
+exact-head independent review, green hosted CI, and merge. No G1, distribution, or release claim is
+made.
+
+## 2026-08-29 — PR #82 review remediation: local-first deletion and controlled performance evidence
+
+Independent review identified a local-first contract violation: optional telemetry remote deletion
+could return before `DataActor.deleteAllUserData()`, leaving the customer's local financial records
+intact during ordinary network, endpoint-policy, or unavailable-service failure. DEC-COM-067
+supersedes that part of DEC-COM-066. App-wide Delete All still stops capture, commits opt-out/queue
+removal, and attempts authenticated telemetry deletion first, but `.failed`, `.terminalFailure`,
+and `.unavailable` results now preserve proofs for the separate Privacy retry and continue the
+authoritative local erase. A distinct completed-with-pending-telemetry state and bilingual copy
+report the remaining remote uncertainty without misrepresenting the local result.
+
+The parameterized regression covers all three failure classes and confirms zero local model counts,
+reset preferences, a retained identity proof, and exact notification/search/telemetry ordering. The
+focused Phase 6 suite passed all 16 declared tests. Static money, egress, commercialization,
+StoreKit 13/13, telemetry, and diff checks passed.
+
+The earlier 661.598333-millisecond strict Dashboard attempt remains a non-pass, but the review's
+request for evidence replaced its unsupported loaded-host attribution. With Xcode 27.0 beta 6
+(`27A5252f`), the iOS 26.5 iPhone 17 Pro simulator, parallel testing disabled, and identical
+three-repetition commands, both this remediation branch and detached `origin/main` passed the
+500-millisecond assertion 3/3. The exact-source full validator also ran without the wall-clock skip
+and passed every static contract, Release, 35/35 Worker tests, eight evidence tests, the strict
+benchmark, 550 unit tests across 32 suites, 17/17 UI tests, and all selected coverage thresholds.
+Four physical CloudKit probes were explicit skips; minimum selected coverage remained
+`CSVExporter.swift` at 87.60% against 85%. The validator removed
+`mindbudget-validation.LO2cps/MindBudget.xcresult` after success. No remote deploy/probe, G1,
+Staging/Production action, distribution, or release claim changes; exact-head rereview, hosted CI,
+and merge remain required.

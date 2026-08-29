@@ -1766,3 +1766,69 @@ boundary individually. The structural phase parser self-test explicitly accepts 
 beside a future C5-04 pending-review state. Static money, egress, commercialization-document,
 StoreKit 13/13, C5 evidence 8/8, parser self-test, and `git diff --check` pass. Hosted CI on the new
 exact closeout head remains required.
+
+### C5-04 controlled activation candidate — 2026-08-29
+
+The focused telemetry/lifecycle suite was run with Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+iPhone 17 Pro simulator and passed 47/47 tests. It covered terminal 404/405/421 lifecycle, explicit retry, default-off
+zero-write, cancellation/restart, proof-retaining deletion, Delete All ordering, and existing
+client/adapter cases with no failure or skip. A preceding sandboxed attempt could not connect to
+CoreSimulator and is excluded as an environmental non-pass.
+
+`Services/TelemetryWorker` passed generated bindings, `tsc --noEmit`, 35/35 Vitest cases against
+local D1, all eight immutable-evidence tests, Development/Staging/Production dry-runs and startup
+checks, and the high-severity audit with zero vulnerabilities. The telemetry static gate and local
+artifact syntax checks passed. The current source was not deployed: read-only Wrangler inspection
+confirmed the authenticated Development account and existing migrations/deployments, but the
+remote source-upload operation lacked explicit authorization. Consequently no current-source
+Development endpoint/TTL/delete result is recorded. Full `Scripts/validate.sh`, exact-head
+independent review, hosted CI, and merge remain required; Staging/Production, G1, distribution, and
+release remain unauthorized.
+
+### C5-04 final local candidate verification — 2026-08-29
+
+The final focused `TelemetryClientTests` and `Phase6FeatureTests` selection passed all 48 declared
+tests with Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. This exact source
+also passed `Scripts/validate.sh` with `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1`: every static
+contract, Release compilation, 35/35 local-D1 Worker tests, eight C5 evidence-contract tests, 550
+unit tests across 32 suites, all 17 UI tests, and every selected coverage threshold passed. Four
+opt-in physical CloudKit tests were explicit skips. `CSVExporter.swift` was the minimum selected
+coverage result at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.XKvHyp/MindBudget.xcresult` after success, so this path is an execution
+pointer rather than a durable artifact.
+
+The strict wall-clock path was also attempted separately. The isolated 10,000-row Dashboard
+benchmark measured 661.598333 milliseconds against the 500-millisecond ceiling and is a recorded
+non-pass on this loaded host. No strict-performance pass is claimed by the later correctness run.
+One intermediate validation was interrupted after a new UI assertion exceeded XCUITest's
+128-character identifier-query limit; the assertion was converted to an exact label predicate,
+the affected UI test passed independently, and the complete 17-test UI suite then passed in the
+final run.
+
+No current-source Worker deployment or live endpoint/TTL/delete probe is part of this baseline.
+Cloudflare Development deployment requires separate owner authorization; Staging and Production
+remain untouched. Exact-head review, green hosted CI, merge, and Development operational evidence
+remain open.
+
+### C5-04 PR #82 review remediation — 2026-08-29
+
+The local-deletion remediation passed all 16 declared focused Phase 6 tests under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. The parameterized telemetry case exercised
+`.failed`, `.terminalFailure(.endpointNotFound)`, and `.unavailable`; each result still completed
+the authoritative local erase with zero model counts and reset preferences while retaining a
+remote-deletion proof and publishing the distinct pending-telemetry completion state.
+
+The previously recorded 661.598333-millisecond strict Dashboard result remains a non-pass. Its
+cause is not inferred. A controlled same-machine comparison used identical Xcode, simulator,
+parallel-disabled, and three-repetition commands for the remediation branch and detached
+`origin/main`; both passed the 500-millisecond assertion 3/3. This closes the requested performance
+evidence gap without rewriting or dismissing the earlier result.
+
+Exact-source `Scripts/validate.sh` then ran with no wall-clock exclusion. It passed every static
+contract, Release compilation, 35/35 local-D1 Worker tests, eight immutable-evidence tests, the
+strict 10,000-row Dashboard benchmark, 550 unit tests across 32 suites, all 17 UI tests, and every
+selected coverage threshold. Four opt-in physical CloudKit tests were explicit skips;
+`CSVExporter.swift` was the minimum selected result at 87.60% against 85%. The validator removed
+`mindbudget-validation.LO2cps/MindBudget.xcresult` after success; the name is an execution pointer,
+not a durable artifact. No Worker deployment, current-source live probe, G1, Staging/Production,
+distribution, or release evidence is claimed. Hosted CI and exact-head rereview remain open.

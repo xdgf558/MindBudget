@@ -579,6 +579,41 @@ struct Phase6FeatureTests {
         #expect(await recorder.values() == ["notifications", "searchIndex", "recoveryArtifacts"])
     }
 
+    @Test(arguments: [
+        TelemetryDeletionResult.failed(nil),
+        TelemetryDeletionResult.terminalFailure(.endpointNotFound),
+        TelemetryDeletionResult.unavailable
+    ])
+    func telemetryDeletionFailureNeverBlocksLocalFinancialDeletion(
+        deletionResult: TelemetryDeletionResult
+    ) async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        try await controller.dataActor.replaceLocalData(with: TestFixtures.sample(.endOfCycle))
+        let recorder = DeletionStageRecorder()
+        let settings = testSettings()
+        settings.firstLaunchCompleted = true
+        settings.currencyCode = "USD"
+        let telemetry = TestTelemetryService(
+            deletionResult: deletionResult,
+            recorder: recorder
+        )
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            notificationScheduler: TestDeletionNotificationScheduler(recorder: recorder),
+            searchIndexCleaner: TestSearchIndexCleaner(recorder: recorder),
+            telemetryService: telemetry
+        )
+
+        #expect(await session.deleteAllData(settings: settings))
+
+        #expect(try await controller.dataActor.modelCounts() == .zero)
+        #expect(!settings.firstLaunchCompleted)
+        #expect(settings.currencyCode.isEmpty)
+        #expect(session.privacyDeletionState == .completedWithPendingTelemetryDeletion)
+        #expect(session.telemetrySnapshot.retainedIdentityCount == 1)
+        #expect(await recorder.values() == ["notifications", "searchIndex", "telemetry"])
+    }
+
     @Test
     func privacyConfirmationWordUsesTheRequestedLocale() {
         #expect(
@@ -907,6 +942,49 @@ private struct TestPrivacyDeletionVerifier: PrivacyDeletionVerifying {
 
     func isDeletionComplete(in dataActor: DataActor) async throws -> Bool {
         isComplete
+    }
+}
+
+@MainActor
+private final class TestTelemetryService: TelemetryServicing {
+    private let deletionResult: TelemetryDeletionResult
+    private let recorder: DeletionStageRecorder?
+
+    var snapshot: TelemetryClientSnapshot
+    var onSnapshotChange: (@MainActor @Sendable (TelemetryClientSnapshot) -> Void)?
+
+    init(
+        deletionResult: TelemetryDeletionResult,
+        recorder: DeletionStageRecorder? = nil
+    ) {
+        self.deletionResult = deletionResult
+        self.recorder = recorder
+        let terminalFailure: TelemetryTerminalFailure?
+        if case let .terminalFailure(failure) = deletionResult {
+            terminalFailure = failure
+        } else {
+            terminalFailure = nil
+        }
+        snapshot = TelemetryClientSnapshot(
+            collectionEnabled: false,
+            queuedEventCount: 0,
+            retainedIdentityCount: 1,
+            retryNotBefore: nil,
+            availability: deletionResult == .unavailable ? .unavailable : .available,
+            terminalTransportFailure: terminalFailure
+        )
+    }
+
+    func start() async {}
+    func setCollectionEnabled(_ enabled: Bool) async -> Bool { true }
+    func capture(_ event: TelemetryEvent) async -> TelemetryCaptureResult { .disabled }
+    func retryTerminalFailure() async {}
+    func sceneDidBecomeActive() async {}
+    func stop() {}
+
+    func deleteAllTelemetry() async -> TelemetryDeletionResult {
+        await recorder?.append("telemetry")
+        return deletionResult
     }
 }
 

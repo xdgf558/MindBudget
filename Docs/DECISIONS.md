@@ -3054,3 +3054,37 @@ of the exact remediation delta while keeping C5-04 subject to separate explicit 
 Consequences: No customer telemetry capture, App Store/survey evidence, metric result, G1 decision,
 App Privacy change, Production action, distribution, or release is inferred from C5-03. COM-C5
 remains In Progress and C5-04 owns every activation and operations gate.
+
+---
+
+## 2026-08-29 — Enter C5-04 with explicit control and closed telemetry operations
+
+Context: The owner explicitly entered C5-04 after C5-03's reviewed closeout. The existing client,
+adapter, Development receiver, and evidence tools were intentionally dormant.
+
+Decision: Detailed ownership is DEC-COM-066. Activate exactly one fixed client factory only behind
+a bilingual default-off Privacy control; freeze capture to the closed three-source audit; make
+404/405/421 sticky and non-retrying; make explicit Delete durably stop collection before remote
+proof deletion, and integrate that authenticated deletion before app-wide financial deletion;
+declare conservative App Privacy types; and establish a Development-only
+publish/rollback/TTL-delete runbook.
+
+Consequences: C5-04 remains In Progress pending current-source Development deployment/probe,
+exact-head independent review, hosted CI, and merge. No Staging/Production action, G1 decision,
+distribution, or release is authorized.
+
+---
+
+## 2026-08-29 — Keep local Delete All independent from optional telemetry availability
+
+Context: C5-04 review found that an offline, unavailable, or terminal telemetry deletion returned
+before the app erased local financial records, contradicting the local-first failure boundary.
+
+Decision: Detailed ownership is DEC-COM-067. App-wide Delete All attempts the separately
+authenticated telemetry deletion first, but optional remote failure retains proofs for retry and
+cannot block local model deletion, verification, recovery cleanup, or preference reset.
+
+Consequences: The app reports completed local deletion with a distinct pending-telemetry state
+rather than claiming remote success or holding local records hostage. C5-04's remaining
+Development, review, CI, merge, G1, Staging/Production, distribution, and release gates are
+unchanged.

@@ -78,11 +78,13 @@ must add current bilingual disclosure, App Privacy answers, channel-specific rev
 behavior, and signed release evidence. No forward-looking permission changes the current binary's
 local-only data handling.
 
-C5-01 now contains a dormant telemetry client type but no production construction, capture call,
-customer control, URL, or network adapter. Missing state is default-off and creates no identity or
-file. Its closed event vocabulary cannot represent ledger values, merchant/note/category text,
-receipt image/OCR/model evidence, StoreKit identifiers, or CloudKit envelopes. Therefore this source
-increment does not change the current App Privacy answers or the uploaded build's data collection.
+C5-04 now contains one production construction of the fixed first-party telemetry client/adapter,
+but collection remains missing-state default-off and requires explicit bilingual confirmation in
+Privacy settings before creating an identity, file, or request. The exhaustive capture inventory is
+limited to three reviewed production files and closed product-interaction events. Its vocabulary
+cannot represent ledger values, merchant/note/category text, receipt image/OCR/model evidence,
+StoreKit identifiers, CloudKit envelopes, locale, device details, or arbitrary strings. Telemetry
+failure never changes entitlement, budgets, receipt handling, or local app use.
 C5-01 pseudonym separation applies to ordinary upload envelopes: opt-out/re-enable cannot reuse or
 group the prior pseudonym there. A future complete-delete request intentionally groups the bounded
 retained proof set; C5-02 processes that association only to delete and does not persist, log, or
@@ -97,11 +99,13 @@ Exact final head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76 m
 `68304ad`. That reviewed merge closes only the dormant local client. The owner then entered C5-02.
 Its implementation establishes a strict content-free first-party receiver, real 90 x 24-hour UTC
 TTL and proof deletion, repeated bounded cleanup, a fixed `MindBudget` user agent with no language
-metadata, and a bounded fixed adapter, but the adapter remains unconstructed and no
-capture call exists. Only Development is deployed/probed; Staging is undeployed and Production has
-no provisioned D1 resource. C5-03 now adds only dormant aggregate metrics/evidence tooling; C5-04
-still must add explicit bilingual control/disclosure, data-flow/capture audit, App Privacy,
-operational proof, and final-binary traffic before any telemetry may ship.
+metadata, and a bounded fixed adapter. C5-04 constructs that adapter only through the reviewed sole
+factory after the customer enables collection. Only Development has an earlier deployment/probe;
+Staging is undeployed and Production has no provisioned D1 resource. The current C5-04 source adds
+the explicit control/disclosure, capture audit, conservative App Privacy manifest entries, sticky
+endpoint-policy failure, and an operations runbook. Current-source Development proof, final-binary
+traffic, App Store Connect privacy answers, independent review, hosted CI, merge, and release
+authorization remain outstanding.
 
 Independent review approved exact C5-02 remediation head `72abf4b`, GitHub Actions run
 `33176551566` passed, and PR #78 merged it as `4715054`. DEC-COM-062 closes only the dormant
@@ -110,8 +114,22 @@ remain unchanged. The owner entered C5-03 on 2026-08-29. Independent review appr
 `4ea7cd9`; remediation head `0c61427` closed its P2/P3 findings, passed GitHub Actions run
 `33211270363`, and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge
 closeout review confirmed that exact delta. DEC-COM-065 closes only dormant aggregate evidence
-computation: no route, capture call, real evidence result, G1 decision, or App Privacy change
-exists. C5-04 awaits explicit owner entry, and every distribution/release proof remains blocked.
+computation: no route, real evidence result, or G1 decision exists. The owner entered C5-04 on
+2026-08-29. Its implementation candidate remains In Progress pending a separately authorized
+current-source Development deployment/probe, exact-head review, green hosted CI, and merge; every
+Staging/Production and distribution/release proof remains blocked.
+
+For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
+pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for
+tracking. This source declaration does not update App Store Connect by itself. The rotating UUID is
+not an account, hardware, advertising, StoreKit, or CloudKit identifier. A complete authenticated
+delete deliberately groups the bounded retained generations in request-local memory so the first-
+party service can delete them; that association is not claimed to be unlinkable. Disable clears
+unsent events and stops capture. App-wide Delete All first requests deletion for every recoverable
+remote proof, but an optional telemetry network/endpoint failure cannot block the authoritative
+local financial erase. The app reports that remote-only remainder separately and keeps any
+authenticated proof for an explicit Privacy-settings retry. Corrupt local telemetry remains
+locally deletable without a false remote-deletion claim.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

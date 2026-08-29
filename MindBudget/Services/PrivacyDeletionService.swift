@@ -4,6 +4,7 @@ import Foundation
 enum PrivacyDeletionStage: String, Equatable, Sendable {
     case cancellingNotifications
     case clearingSearchIndex
+    case deletingTelemetry
     case deletingLocalData
     case resettingPreferences
 }
@@ -13,6 +14,10 @@ enum PrivacyDeletionState: Equatable, Sendable {
     case inProgress(PrivacyDeletionStage)
     case failed(PrivacyDeletionStage)
     case completed
+    /// Every local financial record and preference was deleted, while the optional first-party
+    /// telemetry endpoint did not confirm its separate remote deletion. Any authenticated proof
+    /// remains owned by the telemetry client so the customer can retry from Privacy settings.
+    case completedWithPendingTelemetryDeletion
 }
 
 protocol SearchIndexDeleting: Sendable {
