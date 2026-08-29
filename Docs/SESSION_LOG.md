@@ -6475,11 +6475,12 @@ execution artifact, not hosted, signed-device, final-binary, App Store Connect, 
 
 ## 2026-08-29 — Bind C6 closeout authorization to exact sections
 
-PR #87 review reproduced two authorization-gate bypasses: summary prose could satisfy the C6-01
-Done anchor after its formal Status regressed, and the C6-02/C6-03 negative regex could not see a
-state placed on the Status line below a heading. Replaced those status-prose controls with
-structural expectations in the existing phase-state parser. The authoritative task map now must
-contain unique C6-01 Done/[x], C6-02 Blocked/[B], and C6-03 Blocked/[B] sections.
+Author-side supplemental inspection of initial closeout head `4545e88` reproduced two
+authorization-gate bypasses: summary prose could satisfy the C6-01 Done anchor after its formal
+Status regressed, and the C6-02/C6-03 negative regex could not see a state placed on the Status
+line below a heading. Replaced those status-prose controls with structural expectations in the
+existing phase-state parser. The authoritative task map now must contain unique C6-01 Done/[x],
+C6-02 Blocked/[B], and C6-03 Blocked/[B] sections.
 
 The parser self-test mutates each of the three Status records and each task marker and requires all
 six mutations to fail. No phase status changed: C6-01 remains Done, C6-02 still awaits a separate
@@ -6501,3 +6502,12 @@ only.
 The first standalone `py_compile` attempt was denied only while trying to create the system user
 cache directory; the explicit `/private/tmp` cache rerun passed and the environmental refusal is
 not counted as a code failure.
+
+## 2026-08-30 — Correct C6 gate-finding attribution
+
+The first independent review of PR #87 found that the two authorization-gate bypasses had been
+incorrectly attributed to “PR #87 review” even though remediation head `ba11fde` predated that
+review. Corrected the persistent record: author-side supplemental inspection of initial closeout
+head `4545e88` found the bypasses; the independent PR #87 review found this attribution mismatch.
+No implementation, phase status, C6-01 Done evidence, C6-02/C6-03 authorization, or user-visible
+behavior changed.

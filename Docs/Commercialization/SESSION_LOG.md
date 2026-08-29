@@ -3401,7 +3401,8 @@ satisfy any C6-02/C6-03 or remote/release gate.
 
 ## 2026-08-29 — Session 184 — Make C6 phase authorization section-bound
 
-Goal: Close PR #87's reproduced phase-gate bypasses without changing C6 status or entering C6-02.
+Goal: Close two phase-gate bypasses found by author-side supplemental inspection of initial
+closeout head `4545e88` without changing C6 status or entering C6-02.
 
 Actions: Extended the existing structural phase-state checker with exact section expectations. The
 authoritative task map now requires unique bindings of C6-01 to Done plus `[x]`, C6-02 to Blocked
@@ -3427,3 +3428,17 @@ passed. Four accepted opt-in physical CloudKit probes remained skipped. Every se
 threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The retained
 bundle is `/private/tmp/MindBudget-C6-01-Closeout-Remediation-Final.xcresult`; it does not satisfy
 any C6-02/C6-03, hosted, signed-device, final-binary, remote, or release gate.
+
+## 2026-08-30 — Session 185 — Correct C6 gate-finding attribution
+
+Goal: Correct the provenance of the two section-gate findings without changing their remediation,
+validation, or any C6 authorization state.
+
+Actions: Replaced the inaccurate “PR #87 review” attribution in the main and commercialization
+decision, session, and CI records. The record now states that author-side supplemental inspection
+of initial closeout head `4545e88` found the bypasses. The first independent PR #87 review instead
+identified that attribution mismatch after remediation head `ba11fde` already existed.
+
+Result: DEC-COM-075, the structural checker, and its six mutation tests remain unchanged. C6-01
+remains Done; C6-02 and C6-03 remain blocked. No product, Worker, remote, archive/upload, App Store
+Connect, G1, distribution, release, or user-visible change occurred.

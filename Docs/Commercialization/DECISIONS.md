@@ -2228,10 +2228,11 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 
 - Status/date: **Accepted C6-01 closeout review remediation — 2026-08-29**
 - Requirements: DEC-COM-074; COM-C6 phase authorization boundary
-- Context: PR #87 review demonstrated two reproducible bypasses in the closeout gate. A summary
-  occurrence of `C6-01 is Done` could keep the gate green after the formal C6-01 Status regressed,
-  while a C6-02 heading followed on the next line by `Status: **In Progress.**` escaped a regex that
-  required the identifier and state on one line. The same structural risk applied to C6-03.
+- Context: Author-side supplemental inspection of initial closeout head `4545e88` demonstrated
+  two reproducible bypasses in the closeout gate. A summary occurrence of `C6-01 is Done` could
+  keep the gate green after the formal C6-01 Status regressed, while a C6-02 heading followed on
+  the next line by `Status: **In Progress.**` escaped a regex that required the identifier and
+  state on one line. The same structural risk applied to C6-03.
 - Decision: Extend `commercialization_phase_states.py` with section expectations. In the
   authoritative `COMMERCIALIZATION_TASKS.md`, require exactly one C6-01 heading with one Done
   Status and one `[x]` task, one C6-02 heading with one Blocked Status and one `[B]` task, and one

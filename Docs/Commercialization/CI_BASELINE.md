@@ -2039,13 +2039,14 @@ hosted, signed-device, final-binary, App Store Connect, G1, or release evidence.
 
 ### C6-01 closeout authorization-gate remediation — 2026-08-29
 
-PR #87 review reproduced a summary-prose bypass for C6-01 and a next-line Status bypass for
-C6-02/C6-03. DEC-COM-075 replaces those controls with section-bound expectations in the structural
-phase checker. The self-test accepts the exact C6-01 Done/[x], C6-02 Blocked/[B], C6-03 Blocked/[B]
-map and rejects all three state changes plus all three task-marker changes. The standalone checker,
-repository gates, Shell syntax, and diff checks passed. A default-cache `py_compile` attempt was
-denied by the sandbox while creating the system user cache path; the rerun with
-`PYTHONPYCACHEPREFIX` confined to `/private/tmp` passed and is the owning syntax result.
+Author-side supplemental inspection of initial closeout head `4545e88` reproduced a summary-prose
+bypass for C6-01 and a next-line Status bypass for C6-02/C6-03. DEC-COM-075 replaces those controls
+with section-bound expectations in the structural phase checker. The self-test accepts the exact
+C6-01 Done/[x], C6-02 Blocked/[B], C6-03 Blocked/[B] map and rejects all three state changes plus
+all three task-marker changes. The standalone checker, repository gates, Shell syntax, and diff
+checks passed. A default-cache `py_compile` attempt was denied by the sandbox while creating the
+system user cache path; the rerun with `PYTHONPYCACHEPREFIX` confined to `/private/tmp` passed and
+is the owning syntax result.
 
 The exact remediated branch passed `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on
 the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract, Release compilation, and the
