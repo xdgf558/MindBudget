@@ -1,8 +1,10 @@
 # C5 Telemetry Capture Audit
 
-Status: **C5-04 product capability is merged through PR #82 (`28d9eae`) and author-side
-supplemental inspection through PR #83 (`becb020`); current source `becb020` passed the pending-review Development
-operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`.**
+Status: **C5-04 and COM-C5 are Done after independent review of exact PR #84 head `84a96bc`, green
+GitHub Actions run `33247176815`, and PR #84 merge `4194b73`. Product capability remains recorded
+through PR #82 (`28d9eae`), author-side supplemental inspection through PR #83 (`becb020`), and
+Development-only operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. COM-C6
+awaits explicit owner entry.**
 
 PR #82's scoped review of the deletion-order remediation covered exact head `2c1cebe`, which passed GitHub Actions
 run `33233846430` before the `28d9eae` merge; the operational proof does not expand that scope.
@@ -74,6 +76,13 @@ and used only for Analytics. App Store Connect privacy answers must match this m
 distribution build is submitted; checking in the manifest does not update App Store Connect.
 
 ## Review checklist
+
+This checklist remains an explicit COM-C6 independent-review gate. Before any App Store Connect
+privacy answer is copied or accepted, that reviewer must compare this inventory with
+`MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro capture sites, the
+`TelemetryService` wiring in `MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation-author
+supplemental inspection recorded in C5 does not satisfy this gate.
 
 - Verify every `TelemetryEvent` case has fixed coding keys and fixed enum values.
 - Verify the capture-source allow-list matches this document and no source contains financial or

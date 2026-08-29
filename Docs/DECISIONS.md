@@ -3145,3 +3145,21 @@ Worker; aggregate D1 counts after the run were 0 events, 0 identities, and 3 tom
 historical plus the expected live-probe tombstone). This closes only the named Debug transport and
 retry-test gaps. C5-04/COM-C5 remain In Progress pending review, hosted CI, and merge; final-binary,
 G1, Staging/Production, distribution, and release gates remain open.
+
+---
+
+## 2026-08-29 — Close C5-04 and COM-C5 after reviewed Development evidence
+
+Context: Independent review approved exact PR #84 head `84a96bc`; GitHub Actions run
+`33247176815` completed successfully on that head, and PR #84 merged it as `4194b73`.
+
+Decision: Detailed ownership is DEC-COM-071. Mark C5-04/COM-C5 Done, retain
+REQ-R1-TELEMETRY-001 as Active for COM-C6/C12 release verification, and require a new explicit
+owner instruction before entering COM-C6. Before App Store Connect privacy answers are copied or
+accepted, COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, both
+telemetry capture sites, the `TelemetryService` wiring, and the C5 operations runbook; the
+implementation-author supplemental inspection does not satisfy that gate.
+
+Consequences: The source, Development operational proof, native iOS transport check, deletion
+retry regression, review, CI, and merge gates are closed. G1, App Store Connect,
+Staging/Production, final-binary traffic, distribution, and release remain open and unauthorized.

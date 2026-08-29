@@ -450,8 +450,8 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review, run hosted CI, and merge the C5-04 Development evidence
-candidate without entering Staging/Production, G1, or release. Independent review of PR #83 head
+Next suggested task: wait for explicit owner entry before beginning COM-C6; do not infer that entry
+from the C5-04/COM-C5 closeout. Independent review of PR #83 head
 `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
 the implementation author's supplemental inspection of the privacy manifest, feature capture
 sites, `TelemetryService`, and operations runbook; run `33242024609` passed and PR #83 merged as
@@ -461,8 +461,16 @@ TTL/delete/idempotency sequence passed and retained no new row. PR #84's opt-in 
 then exercised the real `FixedTelemetryTransport`/`URLSession` path, received upload 202 and delete
 204, and produced final D1 aggregates of 0 events/0 identities/3 tombstones (2 historical plus the
 expected live-probe tombstone); a deterministic test proves `stop()` does not disable explicit
-deletion retry. C5-04/COM-C5 remain In Progress
-until this operational evidence branch passes review, CI, and merge.
+deletion retry. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
+passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done; COM-C6 awaits explicit owner entry.
+No G1, App Store Connect, Staging/Production, distribution, or release gate follows from this
+closeout.
+At COM-C6 entry, an independent reviewer must inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
+the AddExpense and Pro telemetry capture sites, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted. The implementation-author supplemental inspection recorded in C5
+does not close this gate.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

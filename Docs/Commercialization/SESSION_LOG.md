@@ -3264,3 +3264,55 @@ toolchain. It passed every static contract, Release compilation, 35/35 local-D1 
 coverage threshold. Minimum selected coverage was `CSVExporter.swift` at 87.60% against 85%.
 The validator removed `mindbudget-validation.ceXEOC/MindBudget.xcresult` after success; it is an
 execution pointer, not a durable artifact.
+
+## 2026-08-29 — Session 179 — Close C5-04 and COM-C5 after PR #84
+
+Goal: Calibrate the durable C5 state after the reviewed Development evidence merged, without
+entering COM-C6 or broadening release authority.
+
+Actions: Verified PR #84 exact head `84a96bc`, successful hosted run `33247176815`, and merge
+`4194b73`. Added DEC-COM-071; marked C5-04/COM-C5 Done across task, memory, requirement, privacy,
+egress, capture, metrics, runbook, and CI evidence documents; kept REQ-R1-TELEMETRY-001 Active for
+COM-C6/C12; and changed COM-C6 from dependency-blocked to awaiting explicit owner entry. Updated
+the commercialization-document gate to require the exact closeout chain and reject stale C5-04
+pending-review state or automatic COM-C6 entry.
+
+Result: C5-04 and COM-C5 are Done. Development remains the only deployed telemetry environment.
+G1, App Store Connect, Staging/Production, final-binary traffic, distribution, and release remain
+open. No Swift, Worker, entitlement, manifest, endpoint, deployment, D1, or customer-data change
+was made; CHANGELOG is unchanged because there is no user-visible behavior change. This closeout
+branch still requires independent review, hosted CI, and merge.
+
+Validation: `Scripts/validate.sh` passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+(`23F77`) iPhone 17 Pro simulator. Every static contract and Release compilation passed; 35/35
+local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit tests in 32 suites, 17/17 UI tests,
+and every selected coverage threshold passed. `CSVExporter.swift` was lowest at 87.60% against
+the 85% floor. The validator removed `mindbudget-validation.g93SCp/MindBudget.xcresult` after
+success; it is an execution pointer, not a durable artifact.
+
+## 2026-08-29 — Session 180 — Preserve independent source-privacy review after C5 closeout
+
+Goal: Close PR #85's P2 without reopening C5 or treating implementation-author inspection as
+independent review.
+
+Actions: Added an explicit COM-C6 preflight requiring independent inspection of
+`MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro telemetry capture sites, the
+`TelemetryService` wiring in `MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted. Updated DEC-COM-071, the requirement index, task/memory/privacy
+records, the capture-audit checklist, and the runbook. Extended the commercialization-document
+gate so these exact surfaces cannot disappear from the handoff and author-side inspection cannot
+be promoted into the independent gate.
+
+Result: C5-04/COM-C5 remain Done on their existing reviewed evidence, while the only checked-in
+source privacy declaration and its capture/service/runbook basis retain a named independent
+review owner in COM-C6. COM-C6 is not entered. No runtime, manifest, capture, service, Worker,
+deployment, D1, App Store Connect, distribution, release, or customer-data change was made.
+
+Validation: The remediated branch passed `Scripts/validate.sh` under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract and Release
+compilation passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit tests in
+32 suites, 17/17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift` was
+lowest at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
+durable artifact. Exact-head rereview, hosted CI, and merge remain required.
