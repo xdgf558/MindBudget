@@ -71,9 +71,11 @@ detailed phase checklists; it added no paid product behavior.
   historical plus the live transport probe's expected UTC-day tombstone). Independent review then
   approved exact PR #84 head `84a96bc`, GitHub Actions run `33247176815` passed, and PR #84 merged
   as `4194b73`. C5-04 and COM-C5 are Done. PR #85 then merged the preserved C6 privacy-source
-  review handoff as `008b674`. The owner explicitly entered COM-C6 on 2026-08-29; C6-01 is the
-  only active subphase, while C6-02/C6-03, Staging/Production deployment, G1, App Store Connect,
-  distribution, and release remain unauthorized.**
+  review handoff as `008b674`. The owner explicitly entered COM-C6 on 2026-08-29. Independent
+  rereview approved exact PR #86 remediation head `f77d2a6`, GitHub Actions run `33255898196`
+  completed successfully, and PR #86 merged as `015d00e`; C6-01 is Done. C6-02 remains blocked
+  pending a separate explicit owner entry, and C6-03, Staging/Production deployment, G1, App
+  Store Connect, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -642,24 +644,26 @@ failure never changes app behavior.
 
 ## COM-C6 — Local commercialization TestFlight and review preflight
 
-Status: **In Progress through C6-01 implementation and review. No public release in this phase.**
+Status: **In Progress after reviewed C6-01 merge. No public release in this phase.**
 
-C6-02 and C6-03 remain blocked until their direct predecessor is reviewed, green, and merged.
+C6-02 remains blocked pending a separate explicit owner entry after C6-01 closeout. C6-03 remains
+blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
 
 ### C6-01 — Automated release matrix
 
-Status: **In Progress after review remediation; exact-head rereview and hosted CI pending.**
+Status: **Done after independent rereview and green CI through PR #86 (`015d00e`).**
 
-- [ ] Exercise StoreKit lifecycle, exact entitlement states, environment isolation, public config,
+- [x] Exercise StoreKit lifecycle, exact entitlement states, environment isolation, public config,
   R1 networking, migration/rollback, Free iCloud, receipt privacy/accuracy/memory, telemetry
   deletion/TTL, and offline local Pro through the closed seven-row
   `C6_RELEASE_MATRIX.json` contract. The runner performs local static checks, Worker tests and
   dry-runs, Release build, and 16 Swift test containers without archive, upload, deployment, or
-  App Store Connect mutation.
+  App Store Connect mutation. Independent rereview approved exact remediation head `f77d2a6`,
+  hosted run `33255898196` passed, and PR #86 merged as `015d00e`.
 
 ### C6-02 — Signed-device and App Review preflight
 
-Status: **Blocked by C6-01 independent review, green hosted CI, and merge.**
+Status: **Blocked pending a separate explicit owner entry after C6-01 closeout.**
 
 - [B] Validate purchase/restore/manage/legal visibility; screenshots and notes; network and IPA
   egress; key/content scans; data-protection, localization, accessibility, and privacy disclosures.

@@ -1,9 +1,10 @@
 # COM-C6 Execution Packet
 
-Status: **In Progress through C6-01 review remediation.**
+Status: **In Progress after reviewed C6-01 merge.**
 
-C6-01 review remediation is complete pending exact-head rereview and hosted CI. C6-02 and C6-03
-remain blocked.
+C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
+`33255898196` passed, and PR #86 merged as `015d00e`. C6-02 awaits a separate explicit owner
+entry; C6-03 remains blocked.
 
 Owner entry: the project owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged the
 COM-C5 closeout as `008b674`.
@@ -16,7 +17,7 @@ strictly sequential:
 1. **C6-01 — Automated release matrix.** Freeze and run the repository-controlled automated
    evidence rows described below.
 2. **C6-02 — Signed-device and App Review preflight.** Begin only after C6-01 is independently
-   reviewed, green in hosted CI, and merged.
+   reviewed, green in hosted CI, merged, and the owner explicitly enters C6-02.
 3. **C6-03 — TestFlight baseline.** Begin only after C6-02 is accepted. Archive and upload require
    a separate owner instruction at that time.
 
@@ -106,9 +107,10 @@ manual release-checklist item.
 
 ## Exit and stop conditions
 
-C6-01 may become Done only after independent review approves the exact implementation head,
-hosted CI passes on that head, and the reviewed merge is recorded. Until then C6-02 and C6-03 are
-blocked.
+C6-01 is Done through PR #86 (`015d00e`) after independent rereview approved exact remediation
+head `f77d2a6` and hosted run `33255898196` passed. C6-02 remains blocked pending a separate
+explicit owner entry; C6-03 remains blocked by C6-02 acceptance and a separate owner instruction
+for archive/upload.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

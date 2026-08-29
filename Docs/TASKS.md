@@ -270,8 +270,10 @@ received upload 202 and delete 204; final D1 aggregates were 0 events, 0 identit
 tombstones (2 historical plus the expected live-probe tombstone). Independent review approved
 exact PR #84 head `84a96bc`, Actions run `33247176815` passed, and PR #84 merged as `4194b73`.
 C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the
-owner entered COM-C6 on 2026-08-29. C6-01 is the sole active subphase; C6-02/C6-03,
-Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
+owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 remediation head
+`f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. C6-02
+awaits a separate explicit owner entry, while C6-03, Staging/Production, G1, App Store Connect,
+distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -583,14 +585,15 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the owner entered
   COM-C6 on 2026-08-29. Staging/Production, G1, App Store Connect, distribution, and release
   remain unauthorized.
-- [ ] Complete C6-01 independent review, hosted CI, and merge for the closed seven-row automated
+- [x] Complete C6-01 independent review, hosted CI, and merge for the closed seven-row automated
   release matrix. The implementation adds strict JSON/self-test validation, all existing static
   gates, both Worker test/typecheck/dry-run checks, Release build, 16 Swift test containers, and a
   cross-domain regression proving optional network failure cannot revoke an injected verified
   local-Pro snapshot. PR #86 remediation additionally requires all 33 declared method bindings to
   appear once as Passed in the exact xcresult and classifies every repository check script. It
-  performs no archive, upload, deployment, or App Store Connect write; C6-02 and C6-03 remain
-  blocked.
+  performs no archive, upload, deployment, or App Store Connect write. Independent rereview
+  approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as
+  `015d00e`. C6-02 awaits a separate explicit owner entry, and C6-03 remains blocked.
 - [ ] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and

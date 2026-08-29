@@ -2199,3 +2199,50 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   regexes as execution evidence; treating every `check-*` script as an interchangeable no-argument
   static gate; recursively adding the C6 bootstrap to itself; or running selected-suite coverage as
   if it were the full-suite coverage gate.
+
+## DEC-COM-074 — Close C6-01 and preserve explicit C6-02 entry
+
+- Status/date: **Accepted C6-01 reviewed closeout — 2026-08-29**
+- Requirements: DEC-COM-072/073; all Requirements named by `C6_RELEASE_MATRIX.json`
+- Context: Independent rereview approved exact PR #86 remediation head `f77d2a6` after confirming
+  that required methods are runtime evidence and repository check discovery is closed in both
+  directions. GitHub Actions run `33255898196` completed successfully on that exact head, and PR
+  #86 merged it as `015d00e`.
+- Decision: Mark only C6-01 Done. Require a separate explicit owner instruction before entering
+  C6-02, and keep C6-03 blocked by accepted C6-02 evidence plus separate archive/upload authority.
+  Preserve the five-source independent privacy inspection as mandatory C6-02 work; C6-01
+  automation does not satisfy it.
+- Consequences: The reviewed seven-row matrix, 33 exact Passed bindings, static/Worker/local build
+  execution, local full validation, hosted CI, and merge are closed C6-01 evidence. No Active
+  Requirement is marked complete. The checked-in privacy manifest, two capture sites,
+  `TelemetryService`, and operations runbook remain independently unreviewed for C6 purposes.
+  Signed-device purchase/restore/manage/legal evidence, final-binary/IPA traffic and key/content
+  scans, App Store Connect, Staging/Production, G1, archive/upload, distribution, and release remain
+  open and unauthorized.
+- Alternatives rejected: Auto-entering C6-02 after merge; treating automation as the independent
+  privacy-source review; carrying C6-01 as In Progress after its exact review/CI/merge chain closed;
+  archiving or uploading from a documentation closeout; or relabeling any owner-waived physical
+  observation as a pass.
+
+## DEC-COM-075 — Bind C6 authorization to exact phase sections
+
+- Status/date: **Accepted C6-01 closeout review remediation — 2026-08-29**
+- Requirements: DEC-COM-074; COM-C6 phase authorization boundary
+- Context: Author-side supplemental inspection of initial closeout head `4545e88` demonstrated
+  two reproducible bypasses in the closeout gate. A summary occurrence of `C6-01 is Done` could
+  keep the gate green after the formal C6-01 Status regressed, while a C6-02 heading followed on
+  the next line by `Status: **In Progress.**` escaped a regex that required the identifier and
+  state on one line. The same structural risk applied to C6-03.
+- Decision: Extend `commercialization_phase_states.py` with section expectations. In the
+  authoritative `COMMERCIALIZATION_TASKS.md`, require exactly one C6-01 heading with one Done
+  Status and one `[x]` task, one C6-02 heading with one Blocked Status and one `[B]` task, and one
+  C6-03 heading with one Blocked Status and one `[B]` task. Validate only the Status and task item
+  owned by each section. Add negative self-tests for all three state changes and all three task
+  marker changes.
+- Consequences: Unrelated summaries and line layout cannot grant phase authority. Changing any
+  C6 subphase state or task marker without the accepted owner transition fails the ordinary
+  commercialization gate. C6-01 remains Done; C6-02 still requires a separate explicit owner
+  entry; C6-03 remains blocked by C6-02 acceptance and separate archive/upload authority.
+- Alternatives rejected: Adding more repository-wide positive strings; keeping the line-oriented
+  C6-02/C6-03 regex as the authorization control; trusting headings without task markers; or
+  entering C6-02 as part of this review remediation.

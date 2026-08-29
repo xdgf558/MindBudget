@@ -67,6 +67,9 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:blocked:B' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:blocked:B' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
@@ -2043,12 +2046,15 @@ if grep -Eqi 'C5-04 and COM-C5 remain In Progress|C5-04/COM-C5 remain In Progres
   exit 1
 fi
 
-# The owner entered COM-C6 only after the reviewed C5 closeout. Pin the current C6-01-only state
-# without rewriting the historical C5 packet that recorded the earlier wait boundary.
+# C6-01 closed only after exact-head rereview, hosted CI, and merge. Pin that chain while keeping
+# C6-02 behind a separate owner entry and preserving the reviewed runtime/static matrix anchors.
 for c601_entry_anchor in \
   'owner explicitly entered COM-C6 on 2026-08-29' \
-  'C6-01 review remediation is complete pending exact-head rereview' \
-  'C6-02 and C6-03 remain blocked' \
+  'f77d2a6' \
+  '33255898196' \
+  '015d00e' \
+  'DEC-COM-074' \
+  'DEC-COM-075' \
   'remoteMutationAllowed' \
   'optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot' \
   'DEC-COM-073' \
@@ -2070,6 +2076,36 @@ for c601_entry_anchor in \
   fi
 done
 
+for c601_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c601_closeout_evidence in 'f77d2a6' '33255898196' '015d00e'; do
+    grep -Fq "${c601_closeout_evidence}" "${c601_closeout_file}" || {
+      echo "C6-01 closeout is missing ${c601_closeout_evidence} in ${c601_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'C6-01 (is the (sole|only) active|still requires independent review|remains pending)|C6-01 review remediation is complete pending|C6-01[^.]*pending exact-head rereview|Blocked by C6-01 independent review' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state regressed C6-01 to pre-closeout review status" >&2
+  exit 1
+fi
+
 if grep -Fq 'COM-C6 awaits explicit owner entry' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
@@ -2080,16 +2116,6 @@ if grep -Fq 'COM-C6 awaits explicit owner entry' \
     Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "Current commercialization state still describes COM-C6 as awaiting owner entry" >&2
-  exit 1
-fi
-
-if grep -Eqi 'C6-02 (is )?(In Progress|entered|Done)|C6-03 (is )?(In Progress|entered|Done)' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md; then
-  echo "C6-01 must not auto-enter or complete C6-02/C6-03" >&2
   exit 1
 fi
 

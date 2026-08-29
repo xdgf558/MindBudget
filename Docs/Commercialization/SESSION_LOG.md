@@ -3371,3 +3371,74 @@ result summary contained 558 passes, 12 explicit opt-in skips, and zero failures
 coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85% floor. The
 retained full bundle is `/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`. Rereview, hosted
 CI, and merge remain required.
+
+## 2026-08-29 — Session 183 — Close C6-01 after reviewed PR #86 merge
+
+Goal: Record the exact C6-01 review/CI/merge chain without entering C6-02 or widening release
+authority.
+
+Evidence: Independent rereview approved exact remediation head `f77d2a6`. GitHub Actions run
+`33255898196` completed successfully on that head, and PR #86 merged it as `015d00e`. The accepted
+matrix evidence remains 285 selected tests in 16 suites plus all 33 required bindings exactly once
+as Passed; the owning full validation remains 553 unit tests in 32 suites, 17/17 UI tests, zero
+failures, and every selected coverage threshold passing.
+
+Result: C6-01 is Done under DEC-COM-074. C6-02 remains blocked pending a separate explicit owner
+entry, and the five-source privacy inspection preserved by PR #85 remains mandatory there. C6-03,
+App Store Connect, final-binary/IPA evidence, Staging/Production, G1, archive/upload, distribution,
+and release remain blocked or unauthorized. No product, remote, deployment, or customer-data action
+occurred.
+
+Validation: The initial sandboxed `Scripts/validate.sh` attempt could not access CoreSimulator and
+stopped before any build; it is recorded as an environmental non-pass and excluded from evidence.
+The unrestricted rerun passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`)
+iPhone 17 Pro simulator: every static contract, Release compilation, the strict serial 10,000-row
+Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests passed. Four accepted opt-in
+physical CloudKit probes remained skipped. Every selected coverage threshold passed, with
+`CSVExporter.swift` lowest at 87.60% against the 85% floor. The retained result bundle is
+`/private/tmp/MindBudget-C6-01-Closeout.xcresult`; it is local execution evidence only and does not
+satisfy any C6-02/C6-03 or remote/release gate.
+
+## 2026-08-29 — Session 184 — Make C6 phase authorization section-bound
+
+Goal: Close two phase-gate bypasses found by author-side supplemental inspection of initial
+closeout head `4545e88` without changing C6 status or entering C6-02.
+
+Actions: Extended the existing structural phase-state checker with exact section expectations. The
+authoritative task map now requires unique bindings of C6-01 to Done plus `[x]`, C6-02 to Blocked
+plus `[B]`, and C6-03 to Blocked plus `[B]`. Removed the weak global status anchors and the
+line-oriented C6-02/C6-03 state regex from the shell gate. Added six negative self-tests covering
+all three Status mutations and all three task-marker mutations, including the reviewed next-line
+`Status: **In Progress.**` shape.
+
+Result: Summary text can no longer satisfy a subphase's formal authorization record, and a future
+C6 section transition must change the exact accepted state/task binding. C6-01 remains Done;
+C6-02/C6-03 remain blocked. No product, remote, archive/upload, App Store Connect, G1,
+distribution, or release action occurred. Exact-head validation, rereview, hosted CI, and merge
+remain required.
+
+Validation: The structural phase-checker self-test and all six C6 mutations passed their expected
+accept/reject outcomes. Bytecode compilation passed with its cache confined to `/private/tmp`;
+the first default-cache attempt was an excluded filesystem-permission refusal rather than a code
+failure. All standalone money, network, commercialization, StoreKit 13/13, C6 matrix, Shell syntax,
+and diff checks passed. The exact remediated head then passed `Scripts/validate.sh` under Xcode
+27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: Release compilation,
+the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests
+passed. Four accepted opt-in physical CloudKit probes remained skipped. Every selected coverage
+threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The retained
+bundle is `/private/tmp/MindBudget-C6-01-Closeout-Remediation-Final.xcresult`; it does not satisfy
+any C6-02/C6-03, hosted, signed-device, final-binary, remote, or release gate.
+
+## 2026-08-30 — Session 185 — Correct C6 gate-finding attribution
+
+Goal: Correct the provenance of the two section-gate findings without changing their remediation,
+validation, or any C6 authorization state.
+
+Actions: Replaced the inaccurate “PR #87 review” attribution in the main and commercialization
+decision, session, and CI records. The record now states that author-side supplemental inspection
+of initial closeout head `4545e88` found the bypasses. The first independent PR #87 review instead
+identified that attribution mismatch after remediation head `ba11fde` already existed.
+
+Result: DEC-COM-075, the structural checker, and its six mutation tests remain unchanged. C6-01
+remains Done; C6-02 and C6-03 remain blocked. No product, Worker, remote, archive/upload, App Store
+Connect, G1, distribution, release, or user-visible change occurred.
