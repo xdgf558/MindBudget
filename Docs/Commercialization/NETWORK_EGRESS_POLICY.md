@@ -42,9 +42,11 @@ and retained no new row. PR #84 then exercised the actual iOS Simulator
 `FixedTelemetryTransport`/`URLSession` path: upload 202 and delete 204 passed the strict header
 contract, and final D1 aggregates were 0 events, 0 identities, and 3 tombstones (2 historical plus
 the expected live-probe tombstone). Independent review approved exact PR #84 head `84a96bc`,
-hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. COM-C6
-awaits explicit owner entry. App Store Connect, Staging/Production, final-binary traffic,
-distribution, and release remain unclaimed and unauthorized.
+hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
+owner entered COM-C6 on 2026-08-29. C6-01 runs only static checks, local Worker tests/dry-runs,
+Release simulator build, and named Swift tests; it performs no remote mutation. C6-02/C6-03,
+App Store Connect, Staging/Production, final-binary traffic, distribution, and release remain
+unclaimed and unauthorized.
 
 ## Release enforcement contract
 

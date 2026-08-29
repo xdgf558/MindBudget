@@ -2139,3 +2139,63 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   merged; auto-entering COM-C6; treating Debug simulator traffic as final-binary evidence;
   relabeling the expected tombstone as a leak or removing it outside ordinary expiry; deciding G1
   from synthetic traffic; or authorizing Staging/Production, distribution, or release.
+
+## DEC-COM-072 — Enter COM-C6 through a closed non-mutating C6-01 matrix
+
+- Status/date: **Accepted C6-01 implementation decision — 2026-08-29**
+- Requirements: REQ-ENTITLEMENT-001; REQ-STOREKIT-STATE-001;
+  REQ-STOREKIT-LIFECYCLE-001; REQ-R1-NET-001; REQ-R1-TELEMETRY-001; REQ-MONEY-001;
+  REQ-MONEY-MIGRATION-001; REQ-ICLOUD-001; REQ-RECEIPT-PIPELINE-001;
+  REQ-RECEIPT-PRIVACY-001
+- Context: The owner explicitly entered COM-C6 after PR #85 merged the C5 closeout/privacy-source
+  handoff as `008b674`. The pre-existing C6 task named many product domains but did not provide a
+  machine-readable inventory proving that every row remained attached to concrete tests and
+  static gates. It also lacked one direct cross-domain regression for the product promise that
+  optional app-owned network failure cannot revoke a separately verified local Pro entitlement.
+- Decision: Implement only C6-01. Freeze seven rows in strict `C6_RELEASE_MATRIX.json`; validate
+  exact keys, order, sources, test types/methods, static checks, local Worker commands, and five
+  blocked remote actions with fail-closed negative self-tests. Run every reviewed static gate,
+  both Worker `check` scripts, Release simulator build, and 16 Swift test containers serially.
+  Add the offline public-configuration/unavailable-telemetry local-Pro regression. Keep
+  `remoteMutationAllowed` false and forbid archive, upload, Staging/Production deployment, and App
+  Store Connect writes.
+- Consequences: C6-01 is implemented pending independent review, hosted CI, and merge. The local
+  matrix passed 285 tests in 16 suites, with the existing opt-in live telemetry probe skipped by
+  design; both Worker suites and dry-runs passed. C6-02 and C6-03 remain blocked. The five-source
+  privacy inspection preserved by PR #85 remains an independent C6-02 responsibility; this
+  automation does not satisfy it. No physical waiver becomes a pass, no Active Requirement is
+  marked complete, and no G1, TestFlight, App Store Connect, distribution, or release claim
+  follows.
+- Alternatives rejected: Running the entire repository without a closed row inventory; treating
+  a dry-run as deployment; folding signed-device/manual review into automation; entering C6-02
+  before C6-01 review/CI/merge; archiving or uploading during C6-01; or letting optional network
+  state become entitlement authority.
+
+## DEC-COM-073 — Make C6 row evidence depend on passed xcresult cases
+
+- Status/date: **Accepted C6-01 review remediation — 2026-08-29**
+- Requirements: DEC-COM-072; all Requirements named by `C6_RELEASE_MATRIX.json`
+- Context: Independent review of PR #86 found that `requiredMethods` was only a source-text
+  preflight while the runner filtered at test-type granularity and never proved the named methods
+  executed. A disabled/skipped method, a comment, a method in another type, or a non-test function
+  could therefore leave the matrix green. Review also identified that the manually maintained
+  static-check allow-list would not notice a future repository check script.
+- Decision: After `test-without-building`, parse the exact new xcresult with `xcresulttool` schema
+  0.4.0. Require every type/method binding to occur exactly once as a `Test Case` whose result is
+  `Passed`; missing, skipped, failed, or duplicate evidence fails closed. Retain type-level test
+  filters so the matrix continues to execute the full owning suites. Discover every
+  `Scripts/check-*.sh` and `Scripts/check_*.py` file and require it to be either a row-driven matrix
+  check or one of two exact special roles: matrix bootstrap or full-suite coverage consumer.
+- Consequences: `requiredMethods` is now runtime evidence rather than documentation metadata.
+  Negative self-tests cover unclassified scripts plus skipped, missing, and duplicate required
+  cases. The retained earlier bundle independently exercised 33 matrix bindings, including the
+  parameterized local-Delete-All regression. The subsequent remediated matrix passed 285 tests in
+  16 suites and proved all 33 bindings exactly once as Passed. Full validation then passed the
+  strict Dashboard benchmark, 553 unit tests in 32 suites, 17/17 UI tests, and every selected
+  coverage threshold with zero failures; rereview, hosted CI, and merge remain required.
+  C6-02/C6-03 stay blocked.
+- Alternatives rejected: Merely changing filters to individual methods without checking results;
+  accepting skipped methods because the owning suite passed; trusting comment-sensitive source
+  regexes as execution evidence; treating every `check-*` script as an interchangeable no-argument
+  static gate; recursively adding the C6 bootstrap to itself; or running selected-suite coverage as
+  if it were the full-suite coverage gate.

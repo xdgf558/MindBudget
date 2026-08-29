@@ -172,14 +172,20 @@ cleanup. PR #84's separate opt-in iOS Simulator probe exercised the real
 aggregates at 0 events/0 identities/3 tombstones (2 historical plus its expected tombstone); a
 deterministic regression also proves explicit deletion remains callable after service `stop()`.
 Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815` passed, and PR
-#84 merged as `4194b73`. C5-04/COM-C5 are Done. COM-C6 awaits explicit owner entry;
-Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
-COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and
+#84 merged as `4194b73`. C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source
+handoff as `008b674`, and the owner explicitly entered COM-C6 on 2026-08-29. C6-01 is the sole
+active subphase; C6-02/C6-03, Staging/Production, G1, App Store Connect, distribution, and release
+remain blocked. C6-01 freezes a strict seven-row automated matrix with all static gates, both
+Worker local checks, Release build, 16 Swift test containers, and an offline local-Pro authority
+regression. PR #86 remediation now requires all 33 declared type/method bindings to appear exactly
+once as Passed in the exact xcresult and requires every repository check script to be explicitly
+classified. It performs no archive, upload, deployment, or App Store Connect write.
+During C6-02, COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and
 Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and
 `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
 answer is copied or accepted; the implementation-author C5 supplemental inspection does not
-satisfy that gate.
+satisfy that gate, and C6-01 automation does not replace it.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

@@ -1972,3 +1972,43 @@ passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit te
 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
 durable artifact. The new exact head still requires rereview, hosted CI, and merge.
+
+### C6-01 automated release matrix — 2026-08-29
+
+The owner explicitly entered COM-C6 after PR #85 merged as `008b674`. The new C6-01 matrix ran on
+Xcode 27.0 beta 6 (`27A5252f`) with the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every reviewed
+static gate passed. Public Configuration Worker tests passed 13/13; Telemetry Worker tests passed
+35/35 plus 8/8 evidence-contract tests; typechecks, local deployment dry-runs, and telemetry startup
+checks passed. Release simulator build and test build passed. The selected 16 Swift test suites
+then passed 285 tests; the explicit live Development telemetry probe was skipped by default as
+required.
+
+The retained local result bundle is `/private/tmp/MindBudget-C6-01.xcresult`. It is an execution
+artifact, not hosted CI, signed-device, final-binary, App Store Connect, deployment, G1, or release
+evidence. C6-01 still requires independent review, green hosted CI, and merge; C6-02/C6-03 remain
+blocked.
+
+The final branch also passed `Scripts/validate.sh` on that exact local toolchain and simulator:
+every static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit
+tests in 32 suites, 17/17 UI tests, and every selected coverage threshold passed.
+`CSVExporter.swift` was lowest at 87.60% against the 85% floor. The validator deleted its
+temporary xcresult after success, so that path is an execution pointer rather than a durable
+artifact. This does not replace independent review, hosted CI, or any C6-02/C6-03 evidence.
+
+### C6-01 review-remediation preflight — 2026-08-29
+
+PR #86 review found that named methods were not tied to runtime results and that future check
+scripts could drift outside the manual allow-list. The remediated validator's negative self-tests
+reject skipped, missing, and duplicate required cases plus an unclassified future check script.
+Read-only parsing of the retained earlier `/private/tmp/MindBudget-C6-01.xcresult` found all 33
+matrix bindings exactly once with result Passed, including the parameterized Phase 6 local Delete
+All test. This is a parser/remediation preflight against an earlier bundle, not exact-head evidence.
+The subsequent remediated matrix passed every static and Worker check, Release/test builds, 285
+tests in 16 suites, and the new post-run verifier for all 33 bindings. Its retained bundle is
+`/private/tmp/MindBudget-C6-01-Remediation.xcresult`; this path is local execution evidence rather
+than hosted, signed-device, final-binary, or release evidence. The subsequent full validation
+passed the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI
+tests. The result summary contained 558 passes, 12 explicit opt-in skips, and zero failures; every
+selected coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85%
+floor. Its retained full bundle is `/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`.
+Rereview, hosted CI, and merge remain required; no C6-02/C6-03 or remote action is implied.

@@ -70,8 +70,10 @@ detailed phase checklists; it added no paid product behavior.
   and delete 204, and final D1 aggregates were 0 events, 0 identities, and 3 tombstones (2
   historical plus the live transport probe's expected UTC-day tombstone). Independent review then
   approved exact PR #84 head `84a96bc`, GitHub Actions run `33247176815` passed, and PR #84 merged
-  as `4194b73`. C5-04 and COM-C5 are Done. COM-C6 awaits explicit owner entry; Staging/Production
-  deployment, G1, App Store Connect, distribution, and release remain unauthorized.**
+  as `4194b73`. C5-04 and COM-C5 are Done. PR #85 then merged the preserved C6 privacy-source
+  review handoff as `008b674`. The owner explicitly entered COM-C6 on 2026-08-29; C6-01 is the
+  only active subphase, while C6-02/C6-03, Staging/Production deployment, G1, App Store Connect,
+  distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -640,24 +642,41 @@ failure never changes app behavior.
 
 ## COM-C6 — Local commercialization TestFlight and review preflight
 
-Status: **Blocked pending explicit owner entry after COM-C5 closeout. No public release in this
-phase.**
+Status: **In Progress through C6-01 implementation and review. No public release in this phase.**
 
-- [B] **C6-01 — Automated release matrix.** Exercise StoreKit lifecycle, exact entitlement
-  states, environment isolation, public config, R1 networking, migration/rollback, Free iCloud,
-  receipt privacy/accuracy/memory, telemetry deletion/TTL, and offline local Pro.
-- [B] **C6-02 — Signed-device and App Review preflight.** Validate purchase/restore/manage/legal
-  visibility; screenshots and notes; network and IPA egress; key/content scans; data-protection,
-  localization, accessibility, and privacy disclosures. Before any App Store Connect privacy
-  answer is copied or accepted, COM-C6 must independently inspect
-  `MindBudget/Resources/PrivacyInfo.xcprivacy`,
+C6-02 and C6-03 remain blocked until their direct predecessor is reviewed, green, and merged.
+
+### C6-01 — Automated release matrix
+
+Status: **In Progress after review remediation; exact-head rereview and hosted CI pending.**
+
+- [ ] Exercise StoreKit lifecycle, exact entitlement states, environment isolation, public config,
+  R1 networking, migration/rollback, Free iCloud, receipt privacy/accuracy/memory, telemetry
+  deletion/TTL, and offline local Pro through the closed seven-row
+  `C6_RELEASE_MATRIX.json` contract. The runner performs local static checks, Worker tests and
+  dry-runs, Release build, and 16 Swift test containers without archive, upload, deployment, or
+  App Store Connect mutation.
+
+### C6-02 — Signed-device and App Review preflight
+
+Status: **Blocked by C6-01 independent review, green hosted CI, and merge.**
+
+- [B] Validate purchase/restore/manage/legal visibility; screenshots and notes; network and IPA
+  egress; key/content scans; data-protection, localization, accessibility, and privacy disclosures.
+  Before any App Store Connect privacy answer is copied or accepted, COM-C6 must independently
+  inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
   `MindBudget/Features/AddExpense/AddExpenseView.swift`,
   `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
   `MindBudget/Services/TelemetryClient.swift`, and
   `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation-author
   supplemental inspection recorded in C5 does not satisfy this gate.
-- [B] **C6-03 — TestFlight baseline.** Close P0/P1, record the accepted R1 baseline and known
-  limitations, upload only after approval, and keep formal App Store release paused.
+
+### C6-03 — TestFlight baseline
+
+Status: **Blocked by C6-02 acceptance and a separate owner instruction for archive/upload.**
+
+- [B] Close P0/P1, record the accepted R1 baseline and known limitations, upload only after
+  approval, and keep formal App Store release paused.
 
 Exit gate: all v1.4 COM-C6 entry criteria pass and the baseline is suitable for Watch and G1
 observation, but not public distribution.

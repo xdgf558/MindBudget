@@ -35,6 +35,7 @@ Scripts/check-telemetry-worker-contract.sh
 Scripts/check-telemetry-metrics-contract.sh
 Scripts/check-feature-access-boundary.sh
 Scripts/check-storekit-test-catalog.sh
+Scripts/check-c6-release-matrix.sh
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \

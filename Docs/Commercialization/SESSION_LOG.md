@@ -3316,3 +3316,58 @@ compilation passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests,
 lowest at 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
 durable artifact. Exact-head rereview, hosted CI, and merge remain required.
+
+## 2026-08-29 — Session 181 — Enter COM-C6 and implement only C6-01
+
+Goal: Convert the broad C6 automated-preflight promise into one closed, reviewable, non-mutating
+matrix without entering signed-device or TestFlight work.
+
+Actions: Synced `main` through PR #85 merge `008b674`, recorded explicit owner entry, added
+DEC-COM-072 and `COM_C6_EXECUTION_PACKET.md`, froze seven rows in `C6_RELEASE_MATRIX.json`, and
+added a self-testing strict validator plus the complete runner. The matrix binds all reviewed
+static gates, both Worker local `check` scripts, Release simulator build, and 16 named Swift test
+containers. Added the cross-domain offline local-Pro authority regression and integrated the C6
+contract into ordinary validation.
+
+Result: The local C6-01 matrix passed 285 tests in 16 suites; Public Configuration Worker 13/13,
+Telemetry Worker 35/35, and telemetry evidence 8/8 passed with typechecks/dry-runs/startup checks.
+The live telemetry probe stayed skipped by default. No remote state changed. C6-01 remains pending
+independent review, hosted CI, and merge; C6-02/C6-03 and the PR #85 five-source privacy review
+remain blocked. No G1 or release claim follows.
+
+Validation: Xcode 27.0 beta 6 (`27A5252f`), iOS 26.5 (`23F77`) iPhone 17 Pro simulator. The local
+result bundle is `/private/tmp/MindBudget-C6-01.xcresult`; it is an execution artifact rather than
+hosted or durable release evidence. The final branch also passed `Scripts/validate.sh`: every
+static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit tests
+in 32 suites, 17/17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift`
+was lowest at 87.60% against the 85% floor. The validator removed its temporary xcresult after
+success, so the deleted path is only an execution pointer.
+
+## 2026-08-29 — Session 182 — Bind C6 rows to executed passed methods
+
+Goal: Close PR #86's P1 execution-evidence gap and P3 static-check discovery gap without widening
+C6-01 or entering C6-02.
+
+Actions: Added xcresult schema 0.4.0 parsing after the matrix test run. Every declared test
+type/method binding must occur exactly once as a Test Case and must report Passed. Added negative
+self-tests for skipped, missing, and duplicate evidence. Added direct repository check-script
+discovery and an unclassified-future-gate self-test; the only non-row roles are the C6 bootstrap
+and the full-suite coverage consumer.
+
+Result: The retained earlier C6 bundle verified all 33 bindings and revealed that the Phase 6 local
+Delete All regression is parameterized, so binding deliberately uses exact type plus method
+basename while still requiring the one aggregate Test Case to pass. That retained bundle is only
+a parser/remediation check, not exact-head evidence. No remote state changed and C6-02/C6-03 remain
+blocked.
+
+Validation: `python3 -B Scripts/c6_release_matrix.py --self-test` passed, including the new
+result-evidence and discovery negatives. The remediated C6 matrix then passed all static checks,
+Public Configuration Worker 13/13, Telemetry Worker 35/35 plus evidence 8/8, Worker
+typechecks/dry-runs/startup checks, Release/test builds, 285 tests in 16 suites, and all 33 required
+bindings exactly once as Passed. The retained local bundle is
+`/private/tmp/MindBudget-C6-01-Remediation.xcresult`. The subsequent full validation passed the
+strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests. Its
+result summary contained 558 passes, 12 explicit opt-in skips, and zero failures; every selected
+coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85% floor. The
+retained full bundle is `/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`. Rereview, hosted
+CI, and merge remain required.

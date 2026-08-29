@@ -264,6 +264,36 @@ struct CommercializationEntitlementTests {
         #endif
     }
 
+    @MainActor
+    @Test
+    func optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let session = AppSession(
+            dataActor: controller.dataActor,
+            featureAccessService: FeatureAccessService(entitlements: .proSubscription),
+            publicConfigurationService: C6OfflinePublicConfigurationService(),
+            telemetryService: UnavailableTelemetryService()
+        )
+
+        await session.startPublicConfigurationLifecycle()
+        await session.startTelemetryLifecycle()
+
+        #expect(session.publicConfigurationPresentation == .conservativeDefault)
+        #expect(session.telemetrySnapshot.availability == .unavailable)
+        #expect(session.existingPremiumEntryAccess.offersAppleOnDeviceAI)
+        #expect(session.existingPremiumEntryAccess.permitsAdvancedLocalInsights)
+        #expect(session.existingPremiumEntryAccess.offersCustomCoolingOffDurations)
+        #expect(session.existingPremiumEntryAccess.permitsPurchasePreflight)
+        #expect(session.existingPremiumEntryAccess.permitsPostPurchaseReview)
+        #expect(session.existingPremiumEntryAccess.permitsAdvancedSiri)
+        #expect(
+            session.existingPremiumEntryAccess.receiptRecognitionBaseline(
+                productScopeEnabled: true,
+                localModelAvailable: true
+            ) == .deterministicWithOnDeviceModel
+        )
+    }
+
     #if DEBUG
     @Test
     func debugProviderAcceptsEveryValidReachableCombinationWithoutPersistence() {
@@ -296,5 +326,19 @@ enum AcceptedSubscriptionFixture: CaseIterable, Sendable {
         case .subscribed, .gracePeriod:
             .proSubscription
         }
+    }
+}
+
+private actor C6OfflinePublicConfigurationService: PublicConfigurationServicing {
+    private enum Offline: Error {
+        case unavailable
+    }
+
+    func resolveCached(now: Date) async -> PublicConfigurationResolution {
+        .conservativeDefault
+    }
+
+    func refresh() async throws -> PublicConfigurationResolution {
+        throw Offline.unavailable
     }
 }

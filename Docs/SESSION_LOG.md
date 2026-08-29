@@ -6394,3 +6394,54 @@ selected coverage threshold passed. `CSVExporter.swift` was the minimum at 87.60
 floor. The validator deleted `mindbudget-validation.lolUt1/MindBudget.xcresult` after success, so
 the name is only an execution pointer. The new exact head still requires rereview, hosted CI, and
 merge.
+
+## 2026-08-29 — Enter COM-C6 and implement C6-01 automated release matrix
+
+The owner explicitly entered COM-C6 after PR #85 merged as `008b674`. Work remained limited to
+C6-01. Added a strict seven-row JSON inventory, fail-closed/self-testing validator, repository
+contract command, and a complete local matrix runner that runs every reviewed static gate, both
+first-party Worker `check` scripts, Release simulator build, and 16 Swift test containers. Added a
+direct regression proving offline public configuration and unavailable telemetry cannot revoke an
+injected verified local-Pro snapshot. `Scripts/validate.sh` now includes the matrix contract.
+
+The complete C6-01 runner passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`)
+iPhone 17 Pro simulator: all static contracts, Public Configuration Worker 13/13, Telemetry Worker
+35/35 plus 8/8 evidence tests, all Worker typechecks/dry-runs/startup checks, Release build, and
+285 Swift tests in 16 suites passed. The default-disabled live telemetry test remained skipped by
+design. `/private/tmp/MindBudget-C6-01.xcresult` is a local execution artifact, not hosted or
+durable release evidence.
+
+The final branch also passed `Scripts/validate.sh` on the same toolchain and simulator: every
+static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit tests
+in 32 suites, all 17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift`
+was lowest at 87.60% against the 85% floor. The validator removed its temporary xcresult after
+success, so that path is only an execution pointer rather than a durable artifact.
+
+No archive, upload, deployment, App Store Connect write, customer-data action, G1 decision, or
+release action occurred. C6-02/C6-03 and the five-source independent privacy inspection remain
+blocked pending C6-01 independent review, hosted CI, and merge. CHANGELOG is unchanged because the
+only Swift change is test code and there is no user-visible behavior change.
+
+## 2026-08-29 — Remediate C6-01 required-test and check-discovery review gaps
+
+PR #86 review correctly found that `requiredMethods` was source metadata rather than execution
+evidence and that a future repository check script could be omitted from the manual allow-list.
+Added exact xcresult post-run verification: all 33 matrix bindings must appear once as Test Cases
+with result Passed. Missing, skipped, failed, duplicate, wrong-type, commented-out, or non-test
+methods now fail closed. Parameterized methods match their exact type and method basename.
+
+Added direct discovery of every `Scripts/check-*.sh` and `Scripts/check_*.py` file. Twelve remain
+row-driven; the C6 bootstrap and full-suite coverage consumer are the only exact special
+classifications. Negative self-tests now reject an unclassified future gate plus skipped, missing,
+and duplicate required-test evidence. The retained pre-remediation xcresult successfully exercised
+all 33 bindings and exposed the parameterized Phase 6 identifier shape during implementation; it
+is not exact-head evidence. The subsequent remediated C6 run passed all static and Worker checks,
+Release/test builds, 285 tests in 16 suites, and the new post-run proof for all 33 bindings. Its
+retained result is `/private/tmp/MindBudget-C6-01-Remediation.xcresult`; full repository validation
+on the final documentation state then passed: the strict serial 10,000-row Dashboard benchmark,
+553 unit tests in 32 suites, and 17/17 UI tests completed with 558 passed results, 12 explicit
+opt-in skips, and zero failures. Every selected coverage threshold passed; `CSVExporter.swift`
+was lowest at 87.60% against the 85% floor. The retained full result is
+`/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`. Exact-head rereview, hosted CI, and merge
+remain required. No product, remote, archive, upload, deployment, or App Store Connect change
+occurred.
