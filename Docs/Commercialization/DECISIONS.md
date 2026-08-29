@@ -1994,3 +1994,30 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   deletion truthfully resolves; relying on a privacy manifest to update App Store Connect; treating
   a Development probe as Production/final-binary/G1 evidence; or deploying remotely without exact
   environment approval.
+
+## DEC-COM-067 — Never let optional telemetry block authoritative local deletion
+
+- Status/date: **Accepted independent-review remediation for C5-04 — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; SPEC-009/012; DEC-COM-056/057/066
+- Context: Independent review found that DEC-COM-066's ordering made app-wide Delete All return
+  before deleting local financial records whenever the optional telemetry endpoint was offline,
+  unavailable, or in a terminal 404/405/421 state. Because Production remains undeployed, that
+  could hold a customer's local records behind an unrelated first-party network for as long as a
+  retained proof remained. This contradicted the local-first contract and the requirement that
+  telemetry failure cannot change local product use.
+- Decision: App-wide Delete All still stops capture, commits telemetry opt-out and queue removal,
+  and attempts proof-authenticated remote deletion before touching local financial data. A remote
+  `.failed`, `.terminalFailure`, or `.unavailable` result is not authority over the local store and
+  must never stop `DataActor.deleteAllUserData()`, verification, recovery-artifact deletion, or
+  preference reset. The app publishes a distinct completed-with-pending-telemetry state; any
+  authenticated proof remains in the telemetry client for the separate Privacy-settings Delete
+  retry. Only failures in the actual notification/search/local-store/recovery verification stages
+  may make the local Delete All return false.
+- Consequences: Offline and undeployed-endpoint users can always erase local financial records.
+  Remote telemetry deletion is neither falsely reported as complete nor silently forgotten, and
+  collection remains disabled while proofs survive. Tests cover nonterminal failure, terminal
+  endpoint policy, and unavailable service with zero remaining local model counts and reset
+  preferences. C5-04 remains In Progress under its existing operational/review/release gates.
+- Alternatives rejected: Holding local records until an optional endpoint recovers; destroying
+  proofs and claiming remote deletion; treating the whole operation as failed after local records
+  were erased; or allowing a pending remote deletion to resume collection or create a new identity.

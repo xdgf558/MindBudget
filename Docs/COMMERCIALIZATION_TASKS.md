@@ -600,7 +600,8 @@ current-source Development deployment/probe, independent review, hosted CI, and 
 - [ ] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
   Development/Staging/Production isolation and keep Staging/Production undeployed.
 - [ ] Lock the exhaustive capture audit, App Privacy manifest/checklist, deletion integration,
-  terminal 404/405/421 behavior, and four-generation re-enable guidance.
+  terminal 404/405/421 behavior, four-generation re-enable guidance, and the local-first rule that
+  an optional remote telemetry failure retains proofs for retry but never blocks local Delete All.
 - [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,
   TTL/delete/idempotency probe, independent review, hosted CI, and merge. No G1 or release claim.
 

@@ -12,6 +12,7 @@ DOMAIN_SOURCE="MindBudget/Services/TelemetryDomain.swift"
 CLIENT_SOURCE="MindBudget/Services/TelemetryClient.swift"
 TRANSPORT_SOURCE="MindBudget/Services/TelemetryTransport.swift"
 TEST_SOURCE="MindBudgetTests/TelemetryClientTests.swift"
+PHASE6_TEST_SOURCE="MindBudgetTests/Phase6FeatureTests.swift"
 PROJECT_FILE="MindBudget.xcodeproj/project.pbxproj"
 PRIVACY_MANIFEST="MindBudget/Resources/PrivacyInfo.xcprivacy"
 LOCALIZATION_CATALOG="MindBudget/Resources/Localizable.xcstrings"
@@ -356,6 +357,11 @@ for c504_test_contract in \
   }
 done
 
+grep -Fq 'telemetryDeletionFailureNeverBlocksLocalFinancialDeletion' "${PHASE6_TEST_SOURCE}" || {
+  echo "C5-04 app-wide deletion must prove optional telemetry cannot block the local erase" >&2
+  exit 1
+}
+
 capture_sources="$(grep -RIlE --include='*.swift' \
   'recordTelemetry\(|telemetryEventRecorder\.capture\(' MindBudget | sort)"
 expected_capture_sources='MindBudget/App/AppRouter.swift
@@ -372,7 +378,9 @@ for activation_contract in \
   'let telemetryService = TelemetryServiceFactory.live()' \
   'return UnavailableTelemetryService()' \
   'await session.startTelemetryLifecycle()' \
-  'case deletingTelemetry'; do
+  'case deletingTelemetry' \
+  'case completedWithPendingTelemetryDeletion' \
+  'telemetryDeletionRemainsPending = true'; do
   grep -RFq "${activation_contract}" MindBudget || {
     echo "C5-04 production activation is missing contract: ${activation_contract}" >&2
     exit 1
@@ -393,12 +401,19 @@ for disclosure_contract in \
   'telemetry.settings.defaultOff' \
   'telemetry.settings.neverCollects' \
   'telemetry.settings.retention.detail' \
-  'telemetry.settings.delete.message'; do
+  'telemetry.settings.delete.message' \
+  'privacy.delete.telemetryPending.title' \
+  'privacy.delete.telemetryPending.detail'; do
   grep -Fq "${disclosure_contract}" "${LOCALIZATION_CATALOG}" || {
     echo "C5-04 bilingual disclosure is missing contract: ${disclosure_contract}" >&2
     exit 1
   }
 done
+
+if grep -Fq 'telemetryDeletionFailureStopsBeforeFinancialRecordsAreRemoved' "${PHASE6_TEST_SOURCE}"; then
+  echo "C5-04 must not retain the former test contract that optional telemetry blocks local Delete All" >&2
+  exit 1
+fi
 
 for c502_test_contract in \
   'optOutCancelsTheInFlightUploadBeforeCommittingDisabledState' \

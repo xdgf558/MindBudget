@@ -839,13 +839,18 @@ final class AppSession: ObservableObject {
         }
 
         privacyDeletionState = .inProgress(.deletingTelemetry)
+        var telemetryDeletionRemainsPending = false
         if let telemetryService {
             switch await telemetryService.deleteAllTelemetry() {
             case .deletedLocally, .deletedLocallyWithoutRemoteProofs, .deletedRemotely:
                 break
             case .failed, .terminalFailure, .unavailable:
-                privacyDeletionState = .failed(.deletingTelemetry)
-                return false
+                // Optional first-party telemetry must never hold the customer's local financial
+                // records hostage to network or endpoint availability. The telemetry client has
+                // already committed opt-out, cleared its queue, and retained any authenticated
+                // deletion proofs for an explicit retry. Continue the authoritative local erase
+                // and report this remote-only remainder separately after it succeeds.
+                telemetryDeletionRemainsPending = true
             }
         }
 
@@ -879,7 +884,9 @@ final class AppSession: ObservableObject {
         presentsEntryChooser = false
         wishlistNavigationPath = []
         dataDidChange()
-        privacyDeletionState = .completed
+        privacyDeletionState = telemetryDeletionRemainsPending
+            ? .completedWithPendingTelemetryDeletion
+            : .completed
         return true
     }
 

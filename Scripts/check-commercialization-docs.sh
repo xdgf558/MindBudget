@@ -1733,6 +1733,11 @@ grep -Fq 'DEC-COM-066' Docs/Commercialization/DECISIONS.md || {
   exit 1
 }
 
+grep -Fq 'DEC-COM-067' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-04 local-first Delete All remediation is missing DEC-COM-067" >&2
+  exit 1
+}
+
 for c504_contract_file in \
   Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
   Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md; do
@@ -1749,6 +1754,7 @@ for c504_contract_anchor in \
   'sticky terminal' \
   'Product Interaction' \
   'Device ID' \
+  'remote failure cannot block the local financial erase' \
   'current-source Development' \
   'Staging/Production'; do
   if ! grep -Fq "${c504_contract_anchor}" \

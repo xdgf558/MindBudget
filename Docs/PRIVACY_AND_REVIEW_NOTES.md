@@ -125,9 +125,11 @@ tracking. This source declaration does not update App Store Connect by itself. T
 not an account, hardware, advertising, StoreKit, or CloudKit identifier. A complete authenticated
 delete deliberately groups the bounded retained generations in request-local memory so the first-
 party service can delete them; that association is not claimed to be unlinkable. Disable clears
-unsent events and stops capture, while Delete must resolve every recoverable remote proof before
-app-wide financial deletion proceeds. Corrupt local telemetry remains locally deletable without a
-false remote-deletion claim.
+unsent events and stops capture. App-wide Delete All first requests deletion for every recoverable
+remote proof, but an optional telemetry network/endpoint failure cannot block the authoritative
+local financial erase. The app reports that remote-only remainder separately and keeps any
+authenticated proof for an explicit Privacy-settings retry. Corrupt local telemetry remains
+locally deletable without a false remote-deletion claim.
 
 C3-03B now implements one anonymous fixed-host configuration GET carrying only bounded app/config
 versions. It sends no app/user/device/advertising identifier, cookie, authentication, locale,

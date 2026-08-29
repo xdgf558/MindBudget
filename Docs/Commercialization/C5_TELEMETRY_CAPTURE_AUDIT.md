@@ -68,7 +68,9 @@ distribution build is submitted; checking in the manifest does not update App St
 - Verify Off and unavailable/corrupt states cannot capture or silently recreate state.
 - Verify terminal 404/405/421 is sticky, non-retrying, visible, and cleared only by explicit retry
   or disable.
-- Verify Delete All stops before financial deletion unless telemetry deletion returns a truthful
-  local/remote completion result.
+- Verify Delete All commits telemetry opt-out and attempts proof-authenticated remote deletion
+  before financial deletion, but network, endpoint, or unavailable telemetry results never block
+  the authoritative local erase. Any retained proof must remain visible for a separate retry, and
+  the app must not relabel that remote remainder as deleted.
 - Treat Development synthetic probes as operational evidence only, never customer participation,
   a Production result, or a G1 threshold pass.

@@ -550,7 +550,9 @@ Staging/Production, G1, distribution, and release remain blocked.
 - [ ] Complete C5-04 after the owner's explicit 2026-08-29 entry. The implementation candidate
   adds the sole fixed client factory behind bilingual default-off controls, an exhaustive closed
   capture audit, App Privacy manifest entries, bounded lifecycle/retry, sticky terminal
-  404/405/421 handling, proof-authenticated deletion integrated before app-wide financial deletion,
-  and a Development-only operations/rollback runbook. Current-source Development deployment and
+  404/405/421 handling, and proof-authenticated deletion attempted before app-wide financial
+  deletion without allowing optional telemetry failure to block the local erase. A distinct
+  pending-remote state retains proofs for a separate retry. The package also adds a
+  Development-only operations/rollback runbook. Current-source Development deployment and
   synthetic TTL/delete proof, exact-head independent review, hosted CI, and merge remain open.
   Staging/Production, G1, distribution, and release remain unauthorized.

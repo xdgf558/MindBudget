@@ -155,7 +155,8 @@ C5-03 is Done without a real evidence bundle or G1 decision. The owner entered C
 2026-08-29. Its implementation candidate activates one fixed, environment-isolated first-party
 client only after bilingual default-off consent; adds a three-file content-free capture audit,
 bounded lifecycle/retry, sticky terminal 404/405/421 behavior, authenticated telemetry deletion
-before app-wide financial deletion, App Privacy manifest entries, and a Development-only
+attempted before app-wide financial deletion without letting optional remote failure block the
+local erase, App Privacy manifest entries, and a Development-only
 publish/rollback/TTL-delete runbook. Current-source Development deployment/probe, exact-head
 review, hosted CI, and merge remain open. Staging/Production, G1, distribution, and release remain
 blocked.

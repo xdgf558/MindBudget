@@ -487,7 +487,9 @@ deployment, customer evidence, or G1 decision was created by C5-03. The owner en
 2026-08-29. Its implementation candidate adds one fixed environment-isolated factory, bilingual
 default-off controls, bounded lifecycle and explicit deletion, sticky non-retrying 404/405/421,
 an exhaustive three-source capture audit, App Privacy declarations, and a Development-only
-operations runbook. Current-source Development deployment/probe, independent review, hosted CI,
+operations runbook. App-wide Delete All attempts authenticated telemetry deletion first, but
+remote failure cannot block the local financial erase; a distinct pending state keeps retained
+proofs available for a separate retry. Current-source Development deployment/probe, independent review, hosted CI,
 and merge remain open; no real evidence bundle or G1 decision is claimed.
 DEC-COM-061 remediates the independent review: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats

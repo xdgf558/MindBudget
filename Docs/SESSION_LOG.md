@@ -6227,3 +6227,33 @@ session still lacks explicit authorization to upload current source to Cloudflar
 Staging and Production remain untouched. C5-04/COM-C5 remain In Progress pending that separately
 authorized Development evidence, exact-head independent review, green hosted CI, and merge; no
 G1, distribution, or release conclusion is claimed.
+
+## 2026-08-29 — Remediate PR #82 local deletion and performance review
+
+Independent review found that the optional telemetry remote-delete result incorrectly controlled
+whether app-wide Delete All could erase the authoritative local financial store. DEC-COM-067 now
+supersedes that part of DEC-COM-066: Delete All still stops capture and attempts authenticated
+telemetry deletion first, but `.failed`, `.terminalFailure`, and `.unavailable` results retain
+proofs for a separate Privacy retry and cannot stop the local financial erase. The app publishes a
+distinct completed-with-pending-telemetry state and bilingual guidance instead of falsely claiming
+that the remote copy was deleted. A parameterized regression covers all three failure classes and
+proves zero local model counts, reset preferences, retained retry evidence, and the intended stage
+ordering.
+
+The review also rejected the unsupported attribution of the earlier 661.598333-millisecond strict
+Dashboard result to host load. That historical non-pass remains recorded. Under one controlled
+same-machine comparison using Xcode 27.0 beta 6 (`27A5252f`), the iOS 26.5 iPhone 17 Pro simulator,
+parallel testing disabled, and three consecutive repetitions, both the remediation branch and
+`origin/main` passed the 500-millisecond strict assertion 3/3. The earlier result was therefore not
+reproducible under this comparison; no unmeasured cause is claimed.
+
+Focused Phase 6 execution passed all 16 declared tests, including all three parameterized
+telemetry-failure cases. Exact-source `Scripts/validate.sh` then passed without a wall-clock skip:
+every static contract, Release compilation, 35/35 local-D1 Worker tests, eight C5 evidence tests,
+the strict 10,000-row Dashboard benchmark, 550 unit tests across 32 suites, all 17 UI tests, and
+every selected coverage threshold. Four opt-in physical CloudKit tests remained explicit skips;
+`CSVExporter.swift` was the minimum selected coverage result at 87.60% against the 85% floor. The
+validator removed `mindbudget-validation.LO2cps/MindBudget.xcresult` after success, so that name is
+an execution pointer rather than a durable artifact. No Worker deployment, endpoint probe, G1,
+Staging/Production action, distribution, or release conclusion is introduced. C5-04/COM-C5 remain
+In Progress pending the existing external evidence, exact-head rereview, hosted CI, and merge.

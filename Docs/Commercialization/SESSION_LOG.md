@@ -3124,3 +3124,32 @@ still requires separate explicit authorization. Staging and Production remain un
 C5-04/COM-C5 therefore remain In Progress pending Development endpoint/TTL/delete evidence,
 exact-head independent review, green hosted CI, and merge. No G1, distribution, or release claim is
 made.
+
+## 2026-08-29 — PR #82 review remediation: local-first deletion and controlled performance evidence
+
+Independent review identified a local-first contract violation: optional telemetry remote deletion
+could return before `DataActor.deleteAllUserData()`, leaving the customer's local financial records
+intact during ordinary network, endpoint-policy, or unavailable-service failure. DEC-COM-067
+supersedes that part of DEC-COM-066. App-wide Delete All still stops capture, commits opt-out/queue
+removal, and attempts authenticated telemetry deletion first, but `.failed`, `.terminalFailure`,
+and `.unavailable` results now preserve proofs for the separate Privacy retry and continue the
+authoritative local erase. A distinct completed-with-pending-telemetry state and bilingual copy
+report the remaining remote uncertainty without misrepresenting the local result.
+
+The parameterized regression covers all three failure classes and confirms zero local model counts,
+reset preferences, a retained identity proof, and exact notification/search/telemetry ordering. The
+focused Phase 6 suite passed all 16 declared tests. Static money, egress, commercialization,
+StoreKit 13/13, telemetry, and diff checks passed.
+
+The earlier 661.598333-millisecond strict Dashboard attempt remains a non-pass, but the review's
+request for evidence replaced its unsupported loaded-host attribution. With Xcode 27.0 beta 6
+(`27A5252f`), the iOS 26.5 iPhone 17 Pro simulator, parallel testing disabled, and identical
+three-repetition commands, both this remediation branch and detached `origin/main` passed the
+500-millisecond assertion 3/3. The exact-source full validator also ran without the wall-clock skip
+and passed every static contract, Release, 35/35 Worker tests, eight evidence tests, the strict
+benchmark, 550 unit tests across 32 suites, 17/17 UI tests, and all selected coverage thresholds.
+Four physical CloudKit probes were explicit skips; minimum selected coverage remained
+`CSVExporter.swift` at 87.60% against 85%. The validator removed
+`mindbudget-validation.LO2cps/MindBudget.xcresult` after success. No remote deploy/probe, G1,
+Staging/Production action, distribution, or release claim changes; exact-head rereview, hosted CI,
+and merge remain required.

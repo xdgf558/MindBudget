@@ -258,8 +258,10 @@ Send Retry or opt-out; deletion retries only through another explicit Delete. Di
 events. The separate Delete action first durably
 disables collection, clears the unsent queue, and retires the active identity, then uses every
 retained proof; a failed remote delete stays disabled, cannot create a new identity or re-enable,
-and only a repeated explicit Delete retries those proofs. App-wide Delete All stops before financial deletion unless telemetry deletion
-truthfully completes. `C5_TELEMETRY_CAPTURE_AUDIT.md` fixes the three capture-bearing source files
+and only a repeated explicit Delete retries those proofs. App-wide Delete All attempts that remote
+deletion first, but a network, endpoint-policy, or unavailable result cannot block removal of local
+financial records. It reports a distinct completed-with-pending-telemetry state, while the client
+keeps authenticated proofs for the separate Privacy-settings retry. `C5_TELEMETRY_CAPTURE_AUDIT.md` fixes the three capture-bearing source files
 and the exact content-free events. `C5_TELEMETRY_OPERATIONS_RUNBOOK.md` fixes Development publish,
 rollback, aggregate monitoring, TTL/delete probe, credentials, and incident steps. Product
 Interaction and the conservative rotating Device ID classification are declared in the privacy

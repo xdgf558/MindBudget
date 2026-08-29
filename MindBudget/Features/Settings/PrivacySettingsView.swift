@@ -334,6 +334,18 @@ private struct PrivacyDeletionConfirmationView: View {
                 }
             }
 
+            if session.privacyDeletionState == .completedWithPendingTelemetryDeletion {
+                Section {
+                    Label(
+                        "privacy.delete.telemetryPending.title",
+                        systemImage: "checkmark.circle"
+                    )
+                    Text("privacy.delete.telemetryPending.detail")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section {
                 Button("privacy.delete.final.action", role: .destructive) {
                     Task { await deleteAllData() }
