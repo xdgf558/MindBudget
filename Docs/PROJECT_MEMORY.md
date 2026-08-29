@@ -174,6 +174,12 @@ deterministic regression also proves explicit deletion remains callable after se
 Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815` passed, and PR
 #84 merged as `4194b73`. C5-04/COM-C5 are Done. COM-C6 awaits explicit owner entry;
 Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
+COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and
+Pro telemetry capture sites, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted; the implementation-author C5 supplemental inspection does not
+satisfy that gate.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

@@ -17,6 +17,12 @@ them and recorded the implementation author's supplemental inspection of the fou
 `33242024609` passed and PR #83 merged as `becb020` without a pre-merge rereview. `TelemetryService`
 is defined in `MindBudget/Services/TelemetryClient.swift`.
 
+COM-C6 must independently inspect `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`
+alongside
+`MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro capture sites, and the
+`TelemetryService` wiring before any App Store Connect privacy answer is copied or accepted. The
+implementation-author supplemental inspection does not satisfy that release gate.
+
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
 write by itself. The operator must name the exact environment and receive explicit approval before
 running a migration, deploy, rollback, synthetic probe, or D1 cleanup.

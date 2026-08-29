@@ -3289,3 +3289,30 @@ local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit tests in 32 suit
 and every selected coverage threshold passed. `CSVExporter.swift` was lowest at 87.60% against
 the 85% floor. The validator removed `mindbudget-validation.g93SCp/MindBudget.xcresult` after
 success; it is an execution pointer, not a durable artifact.
+
+## 2026-08-29 — Session 180 — Preserve independent source-privacy review after C5 closeout
+
+Goal: Close PR #85's P2 without reopening C5 or treating implementation-author inspection as
+independent review.
+
+Actions: Added an explicit COM-C6 preflight requiring independent inspection of
+`MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro telemetry capture sites, the
+`TelemetryService` wiring in `MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted. Updated DEC-COM-071, the requirement index, task/memory/privacy
+records, the capture-audit checklist, and the runbook. Extended the commercialization-document
+gate so these exact surfaces cannot disappear from the handoff and author-side inspection cannot
+be promoted into the independent gate.
+
+Result: C5-04/COM-C5 remain Done on their existing reviewed evidence, while the only checked-in
+source privacy declaration and its capture/service/runbook basis retain a named independent
+review owner in COM-C6. COM-C6 is not entered. No runtime, manifest, capture, service, Worker,
+deployment, D1, App Store Connect, distribution, release, or customer-data change was made.
+
+Validation: The remediated branch passed `Scripts/validate.sh` under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract and Release
+compilation passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit tests in
+32 suites, 17/17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift` was
+lowest at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
+durable artifact. Exact-head rereview, hosted CI, and merge remain required.

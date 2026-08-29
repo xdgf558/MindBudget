@@ -77,6 +77,13 @@ distribution build is submitted; checking in the manifest does not update App St
 
 ## Review checklist
 
+This checklist remains an explicit COM-C6 independent-review gate. Before any App Store Connect
+privacy answer is copied or accepted, that reviewer must compare this inventory with
+`MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro capture sites, the
+`TelemetryService` wiring in `MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation-author
+supplemental inspection recorded in C5 does not satisfy this gate.
+
 - Verify every `TelemetryEvent` case has fixed coding keys and fixed enum values.
 - Verify the capture-source allow-list matches this document and no source contains financial or
   receipt-content types.

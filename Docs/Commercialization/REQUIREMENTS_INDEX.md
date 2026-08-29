@@ -52,6 +52,13 @@ retained that exclusion; remediation head `e6bbd3f` recorded the implementation 
 supplemental inspection and merged as `becb020` without a pre-merge rereview. PR #84's independent
 review then covered its exact `84a96bc` evidence/remediation delta; green run `33247176815` and
 merge `4194b73` close C5-04/COM-C5 without retroactively expanding the earlier review scopes.
+COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the telemetry
+capture calls in `MindBudget/Features/AddExpense/AddExpenseView.swift` and
+`MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted. The implementation-author supplemental inspection does not satisfy
+this release gate.
 
 ## COM-C0A implementation inventory against requirements
 

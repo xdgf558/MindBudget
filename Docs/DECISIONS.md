@@ -3155,7 +3155,10 @@ Context: Independent review approved exact PR #84 head `84a96bc`; GitHub Actions
 
 Decision: Detailed ownership is DEC-COM-071. Mark C5-04/COM-C5 Done, retain
 REQ-R1-TELEMETRY-001 as Active for COM-C6/C12 release verification, and require a new explicit
-owner instruction before entering COM-C6.
+owner instruction before entering COM-C6. Before App Store Connect privacy answers are copied or
+accepted, COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, both
+telemetry capture sites, the `TelemetryService` wiring, and the C5 operations runbook; the
+implementation-author supplemental inspection does not satisfy that gate.
 
 Consequences: The source, Development operational proof, native iOS transport check, deletion
 retry regression, review, CI, and merge gates are closed. G1, App Store Connect,

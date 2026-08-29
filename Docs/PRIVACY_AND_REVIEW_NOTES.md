@@ -139,6 +139,14 @@ hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C
 awaits explicit owner entry, and every App Store Connect, Staging/Production,
 distribution/release proof remains blocked.
 
+Before any App Store Connect privacy answer is copied or accepted, COM-C6 must independently
+inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
+`MindBudget/Features/AddExpense/AddExpenseView.swift` and
+`MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation author's C5
+supplemental inspection is retained as provenance but does not satisfy this independent gate.
+
 For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
 pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for
 tracking. This source declaration does not update App Store Connect by itself. The rotating UUID is

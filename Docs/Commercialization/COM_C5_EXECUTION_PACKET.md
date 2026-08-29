@@ -320,7 +320,12 @@ review are recorded through PR #82 (`28d9eae`) and PR #83 (`becb020`). The curre
 Development operational proof establishes the content-free, optional, deletable, observable, and
 cost-bounded real channel. Independent review approved exact PR #84 head `84a96bc`, hosted run
 `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done.
-COM-C6 awaits explicit owner entry. Stop on any content-bearing field, arbitrary
+COM-C6 awaits explicit owner entry. Before any App Store Connect privacy answer is copied or
+accepted, COM-C6 must independently inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, both
+telemetry capture sites, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`; the implementation-author
+supplemental inspection does not satisfy that gate. Stop on any content-bearing field, arbitrary
 dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,

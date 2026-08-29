@@ -2051,6 +2051,51 @@ for com_c6_wait_file in \
   }
 done
 
+# C5's author-side supplemental inspection cannot become the only review of the checked-in source
+# privacy declaration. Pin the exact surfaces to COM-C6 before any App Store Connect answer.
+for com_c6_privacy_review_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/DECISIONS.md; do
+  for com_c6_privacy_review_anchor in \
+    'MindBudget/Resources/PrivacyInfo.xcprivacy' \
+    'MindBudget/Services/TelemetryClient.swift' \
+    'Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md'; do
+    grep -Fq "${com_c6_privacy_review_anchor}" "${com_c6_privacy_review_file}" || {
+      echo "COM-C6 source-privacy review is missing ${com_c6_privacy_review_anchor} in ${com_c6_privacy_review_file}" >&2
+      exit 1
+    }
+  done
+done
+
+grep -Fq 'MindBudget/Features/AddExpense/AddExpenseView.swift' Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C6 source-privacy review is missing the AddExpense capture site" >&2
+  exit 1
+}
+
+grep -Fq 'MindBudget/Features/Commerce/ProSubscriptionView.swift' Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C6 source-privacy review is missing the Pro capture site" >&2
+  exit 1
+}
+
+if grep -Eqi 'implementation-author (supplemental )?inspection (satisfies|closes|completed) (the |this )?(independent )?(privacy|App Store Connect|COM-C6)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/DECISIONS.md; then
+  echo "C5 implementation-author inspection must not satisfy the COM-C6 independent privacy review" >&2
+  exit 1
+fi
+
 if grep -Eqi 'COM-C6 (is )?(In Progress|entered|Done)|owner explicitly entered COM-C6' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \

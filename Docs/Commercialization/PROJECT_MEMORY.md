@@ -465,6 +465,12 @@ deletion retry. Independent review approved exact PR #84 head `84a96bc`, hosted 
 passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done; COM-C6 awaits explicit owner entry.
 No G1, App Store Connect, Staging/Production, distribution, or release gate follows from this
 closeout.
+At COM-C6 entry, an independent reviewer must inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
+the AddExpense and Pro telemetry capture sites, the `TelemetryService` wiring in
+`MindBudget/Services/TelemetryClient.swift`, and
+`Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
+answer is copied or accepted. The implementation-author supplemental inspection recorded in C5
+does not close this gate.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

@@ -581,3 +581,11 @@ Connect, distribution, and release remain blocked.
   `84a96bc`, hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are
   Done. COM-C6 awaits explicit owner entry. Staging/Production, G1, App Store Connect,
   distribution, and release remain unauthorized.
+- [ ] When COM-C6 is explicitly entered, independently inspect
+  `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
+  `MindBudget/Features/AddExpense/AddExpenseView.swift` and
+  `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
+  `MindBudget/Services/TelemetryClient.swift`, and
+  `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before copying or accepting any App
+  Store Connect privacy answer. The C5 implementation-author supplemental inspection is not this
+  independent review.

@@ -2124,8 +2124,13 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   the expected live-probe tombstone).
 - Decision: Mark C5-04 and COM-C5 Done on the recorded source, Development evidence, independent
   review, hosted CI, and merge. Keep REQ-R1-TELEMETRY-001 Active for COM-C6/C12 final-binary,
-  App Store Connect, environment, distribution, and release verification. Do not enter COM-C6
-  without a separate explicit owner instruction.
+  App Store Connect, environment, distribution, and release verification. Before any App Store
+  Connect privacy answer is copied or accepted, require COM-C6 independent inspection of
+  `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites, the
+  `TelemetryService` wiring in `MindBudget/Services/TelemetryClient.swift`, and
+  `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`; the implementation-author
+  supplemental inspection does not satisfy that gate. Do not enter COM-C6 without a separate
+  explicit owner instruction.
 - Consequences: Development version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716` remains the only
   deployed telemetry environment. Staging remains unmigrated/undeployed and Production remains
   unprovisioned/undeployed. No real customer evidence bundle, G1 decision, App Store Connect

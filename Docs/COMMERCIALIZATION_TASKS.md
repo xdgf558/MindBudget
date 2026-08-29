@@ -648,7 +648,14 @@ phase.**
   receipt privacy/accuracy/memory, telemetry deletion/TTL, and offline local Pro.
 - [B] **C6-02 — Signed-device and App Review preflight.** Validate purchase/restore/manage/legal
   visibility; screenshots and notes; network and IPA egress; key/content scans; data-protection,
-  localization, accessibility, and privacy disclosures.
+  localization, accessibility, and privacy disclosures. Before any App Store Connect privacy
+  answer is copied or accepted, COM-C6 must independently inspect
+  `MindBudget/Resources/PrivacyInfo.xcprivacy`,
+  `MindBudget/Features/AddExpense/AddExpenseView.swift`,
+  `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
+  `MindBudget/Services/TelemetryClient.swift`, and
+  `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation-author
+  supplemental inspection recorded in C5 does not satisfy this gate.
 - [B] **C6-03 — TestFlight baseline.** Close P0/P1, record the accepted R1 baseline and known
   limitations, upload only after approval, and keep formal App Store release paused.
 
