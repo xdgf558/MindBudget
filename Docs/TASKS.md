@@ -269,8 +269,9 @@ and retained no new row. PR #84's opt-in real iOS `FixedTelemetryTransport`/`URL
 received upload 202 and delete 204; final D1 aggregates were 0 events, 0 identities, and 3
 tombstones (2 historical plus the expected live-probe tombstone). Independent review approved
 exact PR #84 head `84a96bc`, Actions run `33247176815` passed, and PR #84 merged as `4194b73`.
-C5-04/COM-C5 are Done; COM-C6 awaits explicit owner entry, while Staging/Production, G1, App Store
-Connect, distribution, and release remain blocked.
+C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the
+owner entered COM-C6 on 2026-08-29. C6-01 is the sole active subphase; C6-02/C6-03,
+Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -579,13 +580,20 @@ Connect, distribution, and release remain blocked.
   aggregates of 0 events/0 identities/3 tombstones, and tests that explicit deletion remains
   callable after `TelemetryService.stop()`. Independent review approved exact PR #84 head
   `84a96bc`, hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are
-  Done. COM-C6 awaits explicit owner entry. Staging/Production, G1, App Store Connect,
-  distribution, and release remain unauthorized.
-- [ ] When COM-C6 is explicitly entered, independently inspect
+  Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the owner entered
+  COM-C6 on 2026-08-29. Staging/Production, G1, App Store Connect, distribution, and release
+  remain unauthorized.
+- [ ] Complete C6-01 independent review, hosted CI, and merge for the closed seven-row automated
+  release matrix. The implementation adds strict JSON/self-test validation, all existing static
+  gates, both Worker test/typecheck/dry-run checks, Release build, 16 Swift test containers, and a
+  cross-domain regression proving optional network failure cannot revoke an injected verified
+  local-Pro snapshot. It performs no archive, upload, deployment, or App Store Connect write;
+  C6-02 and C6-03 remain blocked.
+- [ ] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and
   `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
   `MindBudget/Services/TelemetryClient.swift`, and
   `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before copying or accepting any App
   Store Connect privacy answer. The C5 implementation-author supplemental inspection is not this
-  independent review.
+  independent review, and C6-01 automation does not satisfy it.

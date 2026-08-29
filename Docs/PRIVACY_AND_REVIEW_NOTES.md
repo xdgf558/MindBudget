@@ -135,17 +135,18 @@ deletion-order remediation but excluded the manifest, capture sites, service, an
 named for PR #83 supplemental inspection. That author-side inspection and merge are now recorded through `becb020`,
 and the separately authorized current-source Development probe passed on version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. Independent review approved exact PR #84 head `84a96bc`,
-hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. COM-C6
-awaits explicit owner entry, and every App Store Connect, Staging/Production,
-distribution/release proof remains blocked.
+hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
+owner explicitly entered COM-C6 on 2026-08-29; C6-01 automation is active while C6-02/C6-03 and
+every App Store Connect, Staging/Production, distribution/release proof remain blocked.
 
-Before any App Store Connect privacy answer is copied or accepted, COM-C6 must independently
+Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
 `MindBudget/Features/AddExpense/AddExpenseView.swift` and
 `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and
 `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation author's C5
-supplemental inspection is retained as provenance but does not satisfy this independent gate.
+supplemental inspection is retained as provenance but does not satisfy this independent gate;
+C6-01 automation also does not satisfy it.
 
 For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
 pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for

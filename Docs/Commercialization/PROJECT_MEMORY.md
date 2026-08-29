@@ -450,8 +450,9 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: wait for explicit owner entry before beginning COM-C6; do not infer that entry
-from the C5-04/COM-C5 closeout. Independent review of PR #83 head
+Next suggested task: complete independent review, hosted CI, and merge for C6-01; do not enter
+C6-02 or authorize archive/upload from the automated matrix. The owner explicitly entered COM-C6
+on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head
 `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
 the implementation author's supplemental inspection of the privacy manifest, feature capture
 sites, `TelemetryService`, and operations runbook; run `33242024609` passed and PR #83 merged as
@@ -462,15 +463,15 @@ then exercised the real `FixedTelemetryTransport`/`URLSession` path, received up
 204, and produced final D1 aggregates of 0 events/0 identities/3 tombstones (2 historical plus the
 expected live-probe tombstone); a deterministic test proves `stop()` does not disable explicit
 deletion retry. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
-passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done; COM-C6 awaits explicit owner entry.
-No G1, App Store Connect, Staging/Production, distribution, or release gate follows from this
-closeout.
-At COM-C6 entry, an independent reviewer must inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
+passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done; C6-01 is the sole active COM-C6
+subphase. No G1, App Store Connect, Staging/Production, distribution, or release gate follows from
+that closeout or from C6-01 automation.
+During C6-02, an independent reviewer must inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
 the AddExpense and Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and
 `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
 answer is copied or accepted. The implementation-author supplemental inspection recorded in C5
-does not close this gate.
+does not close this gate, and C6-01 automation does not satisfy it.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

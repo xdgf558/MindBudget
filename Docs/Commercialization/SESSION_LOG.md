@@ -3316,3 +3316,29 @@ compilation passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests,
 lowest at 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
 durable artifact. Exact-head rereview, hosted CI, and merge remain required.
+
+## 2026-08-29 — Session 181 — Enter COM-C6 and implement only C6-01
+
+Goal: Convert the broad C6 automated-preflight promise into one closed, reviewable, non-mutating
+matrix without entering signed-device or TestFlight work.
+
+Actions: Synced `main` through PR #85 merge `008b674`, recorded explicit owner entry, added
+DEC-COM-072 and `COM_C6_EXECUTION_PACKET.md`, froze seven rows in `C6_RELEASE_MATRIX.json`, and
+added a self-testing strict validator plus the complete runner. The matrix binds all reviewed
+static gates, both Worker local `check` scripts, Release simulator build, and 16 named Swift test
+containers. Added the cross-domain offline local-Pro authority regression and integrated the C6
+contract into ordinary validation.
+
+Result: The local C6-01 matrix passed 285 tests in 16 suites; Public Configuration Worker 13/13,
+Telemetry Worker 35/35, and telemetry evidence 8/8 passed with typechecks/dry-runs/startup checks.
+The live telemetry probe stayed skipped by default. No remote state changed. C6-01 remains pending
+independent review, hosted CI, and merge; C6-02/C6-03 and the PR #85 five-source privacy review
+remain blocked. No G1 or release claim follows.
+
+Validation: Xcode 27.0 beta 6 (`27A5252f`), iOS 26.5 (`23F77`) iPhone 17 Pro simulator. The local
+result bundle is `/private/tmp/MindBudget-C6-01.xcresult`; it is an execution artifact rather than
+hosted or durable release evidence. The final branch also passed `Scripts/validate.sh`: every
+static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit tests
+in 32 suites, 17/17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift`
+was lowest at 87.60% against the 85% floor. The validator removed its temporary xcresult after
+success, so the deleted path is only an execution pointer.

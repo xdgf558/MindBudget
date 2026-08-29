@@ -34,6 +34,8 @@ required_files=(
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md
+  Docs/Commercialization/C6_RELEASE_MATRIX.json
   Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
   Docs/Commercialization/PUBLIC_CONFIGURATION_CONTRACT.md
@@ -63,6 +65,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
   --require-all-status Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  --require-all-status Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
@@ -71,7 +74,8 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   Docs/Commercialization/COM_C4A_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C4B_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md \
-  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md
 
 # C4B uses a small structural parser rather than another phase-specific collection of prose
 # comparisons. It verifies the required contract declarations and makes a future CloudKit
@@ -2039,17 +2043,49 @@ if grep -Eqi 'C5-04 and COM-C5 remain In Progress|C5-04/COM-C5 remain In Progres
   exit 1
 fi
 
-for com_c6_wait_file in \
-  Docs/COMMERCIALIZATION_TASKS.md \
-  Docs/TASKS.md \
-  Docs/PROJECT_MEMORY.md \
-  Docs/Commercialization/PROJECT_MEMORY.md \
-  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md; do
-  grep -Fq 'COM-C6 awaits explicit owner entry' "${com_c6_wait_file}" || {
-    echo "COM-C6 owner-entry boundary is missing from ${com_c6_wait_file}" >&2
+# The owner entered COM-C6 only after the reviewed C5 closeout. Pin the current C6-01-only state
+# without rewriting the historical C5 packet that recorded the earlier wait boundary.
+for c601_entry_anchor in \
+  'owner explicitly entered COM-C6 on 2026-08-29' \
+  'C6-01 implementation is complete pending independent review' \
+  'C6-02 and C6-03 remain blocked' \
+  'remoteMutationAllowed' \
+  'optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot'; do
+  if ! grep -Fq "${c601_entry_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+      Docs/Commercialization/C6_RELEASE_MATRIX.json \
+      MindBudgetTests/CommercializationEntitlementTests.swift; then
+    echo "C6-01 entry/matrix contract is missing: ${c601_entry_anchor}" >&2
     exit 1
-  }
+  fi
 done
+
+if grep -Fq 'COM-C6 awaits explicit owner entry' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes COM-C6 as awaiting owner entry" >&2
+  exit 1
+fi
+
+if grep -Eqi 'C6-02 (is )?(In Progress|entered|Done)|C6-03 (is )?(In Progress|entered|Done)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md; then
+  echo "C6-01 must not auto-enter or complete C6-02/C6-03" >&2
+  exit 1
+fi
 
 # C5's author-side supplemental inspection cannot become the only review of the checked-in source
 # privacy declaration. Pin the exact surfaces to COM-C6 before any App Store Connect answer.
@@ -2061,6 +2097,7 @@ for com_c6_privacy_review_file in \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
   Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
   Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   Docs/Commercialization/REQUIREMENTS_INDEX.md \
   Docs/Commercialization/DECISIONS.md; do
   for com_c6_privacy_review_anchor in \
@@ -2093,19 +2130,6 @@ if grep -Eqi 'implementation-author (supplemental )?inspection (satisfies|closes
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/DECISIONS.md; then
   echo "C5 implementation-author inspection must not satisfy the COM-C6 independent privacy review" >&2
-  exit 1
-fi
-
-if grep -Eqi 'COM-C6 (is )?(In Progress|entered|Done)|owner explicitly entered COM-C6' \
-    Docs/COMMERCIALIZATION_TASKS.md \
-    Docs/TASKS.md \
-    Docs/PROJECT_MEMORY.md \
-    Docs/PRIVACY_AND_REVIEW_NOTES.md \
-    Docs/Commercialization/PROJECT_MEMORY.md \
-    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
-    Docs/Commercialization/REQUIREMENTS_INDEX.md \
-    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C5-04 closeout must not auto-enter or complete COM-C6" >&2
   exit 1
 fi
 

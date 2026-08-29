@@ -60,6 +60,15 @@ capture calls in `MindBudget/Features/AddExpense/AddExpenseView.swift` and
 answer is copied or accepted. The implementation-author supplemental inspection does not satisfy
 this release gate.
 
+C6-01 current state: the owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged as
+`008b674`. The strict `C6_RELEASE_MATRIX.json` inventory binds seven automated rows to every
+reviewed static gate, both first-party Worker local `check` scripts, a Release simulator build,
+and 16 named Swift test containers. Its new cross-domain regression proves optional public-
+configuration and telemetry failures cannot revoke an injected verified local-Pro snapshot. This
+automation performs no archive, upload, deployment, App Store Connect write, G1 decision, or
+Requirement completion. C6-02/C6-03 and the five-surface independent privacy review remain blocked
+pending C6-01 independent review, hosted CI, and merge.
+
 ## COM-C0A implementation inventory against requirements
 
 - Already present: exact `Money`, currency exponents, checked domain arithmetic, versioned

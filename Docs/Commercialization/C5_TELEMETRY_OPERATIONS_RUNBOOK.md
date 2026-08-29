@@ -4,8 +4,9 @@ Status: **Current source `becb020` is deployed only to Development as Worker ver
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its TTL/delete/idempotency probe passed and cleaned its
 exact rows. A separate real iOS Simulator `FixedTelemetryTransport` probe received upload 202 and
 delete 204. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
-passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. COM-C6 awaits explicit owner
-entry, while Staging and Production remain unauthorized.**
+passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The owner entered COM-C6 on
+2026-08-29; C6-01 is automated and non-mutating, while C6-02/C6-03, Staging, and Production remain
+blocked or unauthorized.**
 
 The product capability came from PR #82's scoped review of the deletion-order remediation on exact head `2c1cebe`,
 green run `33233846430`, and merge `28d9eae`; the Development proof does not broaden that review.
@@ -17,11 +18,12 @@ them and recorded the implementation author's supplemental inspection of the fou
 `33242024609` passed and PR #83 merged as `becb020` without a pre-merge rereview. `TelemetryService`
 is defined in `MindBudget/Services/TelemetryClient.swift`.
 
-COM-C6 must independently inspect `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`
+During C6-02, COM-C6 must independently inspect `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`
 alongside
 `MindBudget/Resources/PrivacyInfo.xcprivacy`, the AddExpense and Pro capture sites, and the
 `TelemetryService` wiring before any App Store Connect privacy answer is copied or accepted. The
-implementation-author supplemental inspection does not satisfy that release gate.
+implementation-author supplemental inspection and C6-01 automation do not satisfy that release
+gate.
 
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
 write by itself. The operator must name the exact environment and receive explicit approval before

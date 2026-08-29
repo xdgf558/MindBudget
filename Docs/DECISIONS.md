@@ -3163,3 +3163,18 @@ implementation-author supplemental inspection does not satisfy that gate.
 Consequences: The source, Development operational proof, native iOS transport check, deletion
 retry regression, review, CI, and merge gates are closed. G1, App Store Connect,
 Staging/Production, final-binary traffic, distribution, and release remain open and unauthorized.
+
+---
+
+## 2026-08-29 — Enter COM-C6 through C6-01 automated evidence only
+
+Context: The owner explicitly entered COM-C6 after PR #85 merged the C5 closeout handoff as
+`008b674`.
+
+Decision: Detailed ownership is DEC-COM-072. Implement only the strict seven-row C6-01 automated
+release matrix, including one cross-domain test that optional public-configuration and telemetry
+failure cannot revoke an injected verified local-Pro snapshot. Keep every archive, upload,
+deployment, App Store Connect write, C6-02/C6-03 action, and release action blocked.
+
+Consequences: C6-01 is pending independent review, hosted CI, and merge. The mandatory independent
+privacy-source inspection remains C6-02 work and is not satisfied by automation.

@@ -1972,3 +1972,25 @@ passed; 35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit te
 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.lolUt1/MindBudget.xcresult` after success; it is an execution pointer, not a
 durable artifact. The new exact head still requires rereview, hosted CI, and merge.
+
+### C6-01 automated release matrix — 2026-08-29
+
+The owner explicitly entered COM-C6 after PR #85 merged as `008b674`. The new C6-01 matrix ran on
+Xcode 27.0 beta 6 (`27A5252f`) with the iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every reviewed
+static gate passed. Public Configuration Worker tests passed 13/13; Telemetry Worker tests passed
+35/35 plus 8/8 evidence-contract tests; typechecks, local deployment dry-runs, and telemetry startup
+checks passed. Release simulator build and test build passed. The selected 16 Swift test suites
+then passed 285 tests; the explicit live Development telemetry probe was skipped by default as
+required.
+
+The retained local result bundle is `/private/tmp/MindBudget-C6-01.xcresult`. It is an execution
+artifact, not hosted CI, signed-device, final-binary, App Store Connect, deployment, G1, or release
+evidence. C6-01 still requires independent review, green hosted CI, and merge; C6-02/C6-03 remain
+blocked.
+
+The final branch also passed `Scripts/validate.sh` on that exact local toolchain and simulator:
+every static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit
+tests in 32 suites, 17/17 UI tests, and every selected coverage threshold passed.
+`CSVExporter.swift` was lowest at 87.60% against the 85% floor. The validator deleted its
+temporary xcresult after success, so that path is an execution pointer rather than a durable
+artifact. This does not replace independent review, hosted CI, or any C6-02/C6-03 evidence.

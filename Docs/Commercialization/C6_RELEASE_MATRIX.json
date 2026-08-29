@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "phase": "C6-01",
+  "remoteMutationAllowed": false,
+  "workerChecks": [
+    {
+      "directory": "Services/PublicConfigurationWorker",
+      "script": "check"
+    },
+    {
+      "directory": "Services/TelemetryWorker",
+      "script": "check"
+    }
+  ],
+  "blockedActions": [
+    "archive",
+    "upload",
+    "deploy-staging",
+    "deploy-production",
+    "app-store-connect-write"
+  ],
+  "rows": [
+    {
+      "id": "storekit-entitlement-lifecycle",
+      "title": "StoreKit lifecycle, exact entitlement states, and environment isolation",
+      "requirements": [
+        "REQ-ENTITLEMENT-001",
+        "REQ-STOREKIT-STATE-001",
+        "REQ-STOREKIT-LIFECYCLE-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/CommercializationEntitlementTests.swift",
+          "type": "CommercializationEntitlementTests",
+          "requiredMethods": [
+            "fullFeatureAccessMatrixRequiresTheAcceptedSubscription",
+            "optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/StoreRuntimeTests.swift",
+          "type": "StoreRuntimeTests",
+          "requiredMethods": [
+            "verifiedAppIdentityIsTheOnlyAuthorityForAStoreEnvironment",
+            "entitlementAuthorityRejectsEveryCrossEnvironmentOrBundleMismatch"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/StoreLifecycleDomainTests.swift",
+          "type": "StoreLifecycleDomainTests",
+          "requiredMethods": [
+            "subscriptionStateMatrixGrantsOnlySubscribedAndVerifiedGrace",
+            "unknownOrUnverifiedSubscriptionFactsFailClosedAsOneAuthoritySnapshot"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/TrialLifecycleTests.swift",
+          "type": "TrialLifecycleTests",
+          "requiredMethods": [
+            "verifiedActiveTrialProjectsActualRenewalFacts",
+            "inconsistentTrialProjectionFailsClosed"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/StoreKitTestCatalogTests.swift",
+          "type": "StoreKitTestCatalogTests",
+          "requiredMethods": [
+            "configurationContainsOnlyTheAcceptedMonthlyAndAnnualSubscriptions",
+            "fixtureHasOnlyTheAcceptedTrialAndNoLifetimeOrOtherOffers"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-feature-access-boundary.sh",
+        "Scripts/check-storekit-test-catalog.sh"
+      ],
+      "nonAutomatedBoundary": "C6-02 owns signed-device purchase, restore, management, and legal-surface evidence."
+    },
+    {
+      "id": "signed-public-configuration-and-r1-network",
+      "title": "Signed public configuration and the closed R1 network allow-list",
+      "requirements": [
+        "REQ-R1-NET-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/PublicConfigurationTests.swift",
+          "type": "PublicConfigurationTests",
+          "requiredMethods": [
+            "invalidEnvelopeSignatureKeyAndUnknownFieldsFailClosed",
+            "offlineUsesOnlyANonexpiredVerifiedCacheThenFallsBackBuiltIn"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/PublicConfigurationTransportTests.swift",
+          "type": "PublicConfigurationTransportTests",
+          "requiredMethods": [
+            "exactEnvironmentRequestsContainOnlyReviewedMetadataAndNoBody",
+            "invalidSignatureAndOfflineTransportRetainOnlyVerifiedCache"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-network-egress.sh",
+        "Scripts/check-public-configuration-contract.sh",
+        "Scripts/check-public-configuration-transport.sh"
+      ],
+      "nonAutomatedBoundary": "C6-02 owns release-binary traffic capture; this row performs no live deployment or App Store Connect mutation."
+    },
+    {
+      "id": "migration-and-rollback",
+      "title": "Recoverable migration, integrity validation, rollback, and money bounds",
+      "requirements": [
+        "REQ-MONEY-001",
+        "REQ-MONEY-MIGRATION-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/DataActorTests.swift",
+          "type": "StoreMigrationRecoveryTests",
+          "requiredMethods": [
+            "interruptedAttemptRestoresOriginalBytesBeforeCreatingTheNextSnapshot",
+            "corruptManifestBackupNeverOverwritesTheLiveStore"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/DataActorTests.swift",
+          "type": "C4A03RecoveryAndCurrencyMatrixTests",
+          "requiredMethods": [
+            "everyLegacySchemaUpgradesCleanlyToV5AndRepeatedRestartPreservesItsExactExpense",
+            "failedValidationRestoresTheLegacyStoreWithoutZeroingItsInvalidFact"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-no-floating-point-money.sh"
+      ],
+      "nonAutomatedBoundary": "C6-02 owns archive/device data-protection inspection; this row never rewrites a production customer store."
+    },
+    {
+      "id": "free-private-icloud",
+      "title": "Default-off Free private iCloud sync and deterministic local-first failures",
+      "requirements": [
+        "REQ-ICLOUD-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/CloudSyncTests.swift",
+          "type": "CloudSyncTests",
+          "requiredMethods": [
+            "defaultOffDoesNotConstructACloudKitAdapter",
+            "transportFailuresMapToClosedLocalOnlyStatuses",
+            "stickyPausesRejectLateTransportAndAccountCallbacks"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check_icloud_sync_contract.py"
+      ],
+      "nonAutomatedBoundary": "The owner-waived physical observations remain non-passes; C6-02/C12 own Distribution signing and authorized Production schema evidence."
+    },
+    {
+      "id": "receipt-local-privacy-accuracy-memory",
+      "title": "Local receipt privacy, deterministic extraction, bounded image memory, and explicit-save integration",
+      "requirements": [
+        "REQ-RECEIPT-PIPELINE-001",
+        "REQ-RECEIPT-PRIVACY-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/ReceiptImageLifecycleTests.swift",
+          "type": "ReceiptImageLifecycleTests",
+          "requiredMethods": [
+            "processorRejectsEmptyCorruptAndOversizedEncodedInput",
+            "temporaryStoreKeepsOnlyPreparedBytesAcrossRepeatedLifecycleCleanup"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/ReceiptOCRPrivacyTests.swift",
+          "type": "ReceiptOCRPrivacyTests",
+          "requiredMethods": [
+            "filterRemovesCardValuesLastFourAndAuthorizationCodes",
+            "pipelineFailsClosedForCountLineAndDocumentCaps"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/ReceiptStructuredExtractionTests.swift",
+          "type": "ReceiptStructuredExtractionTests",
+          "requiredMethods": [
+            "currencyExponentMatrixAcceptsJpyAndKwd",
+            "modelCannotReplaceADeterministicRejection"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/ReceiptImportIntegrationTests.swift",
+          "type": "ReceiptImportIntegrationTests",
+          "requiredMethods": [
+            "recognizedFieldsRemainEphemeralUntilTheExistingSaveAction",
+            "fixedReceiptMatrixCoversAtLeastSixtyExactReceiptsAndNonReceipts"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-commercialization-docs.sh",
+        "Scripts/check-release-readiness.sh"
+      ],
+      "nonAutomatedBoundary": "C6-02 owns final-binary camera/photo-picker, privacy disclosure, accessibility, and signed-device memory inspection."
+    },
+    {
+      "id": "telemetry-deletion-ttl-and-local-delete",
+      "title": "Optional telemetry deletion, retention, idempotency, and local financial Delete All independence",
+      "requirements": [
+        "REQ-R1-TELEMETRY-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/TelemetryClientTests.swift",
+          "type": "TelemetryClientTests",
+          "requiredMethods": [
+            "terminalDeletionFailureStopsCollectionAndRetainsEveryProofForExplicitRetry",
+            "runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry"
+          ]
+        },
+        {
+          "source": "MindBudgetTests/Phase6FeatureTests.swift",
+          "type": "Phase6FeatureTests",
+          "requiredMethods": [
+            "telemetryDeletionFailureNeverBlocksLocalFinancialDeletion"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-telemetry-contract.sh",
+        "Scripts/check-telemetry-worker-contract.sh",
+        "Scripts/check-telemetry-metrics-contract.sh"
+      ],
+      "nonAutomatedBoundary": "Development synthetic evidence remains non-customer and non-G1; C6-02/C12 own final-binary and App Store Connect verification."
+    },
+    {
+      "id": "offline-local-pro",
+      "title": "Verified local Pro remains independent of optional app-owned network failure",
+      "requirements": [
+        "REQ-ENTITLEMENT-001",
+        "REQ-R1-NET-001",
+        "REQ-R1-TELEMETRY-001"
+      ],
+      "swiftTests": [
+        {
+          "source": "MindBudgetTests/CommercializationEntitlementTests.swift",
+          "type": "CommercializationEntitlementTests",
+          "requiredMethods": [
+            "optionalNetworkFailuresCannotChangeTheInjectedLocalProSnapshot"
+          ]
+        }
+      ],
+      "staticChecks": [
+        "Scripts/check-feature-access-boundary.sh",
+        "Scripts/check-network-egress.sh"
+      ],
+      "nonAutomatedBoundary": "This proves authority separation with deterministic failures; C6-02 owns airplane-mode observation on the signed release candidate."
+    }
+  ]
+}

@@ -6394,3 +6394,30 @@ selected coverage threshold passed. `CSVExporter.swift` was the minimum at 87.60
 floor. The validator deleted `mindbudget-validation.lolUt1/MindBudget.xcresult` after success, so
 the name is only an execution pointer. The new exact head still requires rereview, hosted CI, and
 merge.
+
+## 2026-08-29 — Enter COM-C6 and implement C6-01 automated release matrix
+
+The owner explicitly entered COM-C6 after PR #85 merged as `008b674`. Work remained limited to
+C6-01. Added a strict seven-row JSON inventory, fail-closed/self-testing validator, repository
+contract command, and a complete local matrix runner that runs every reviewed static gate, both
+first-party Worker `check` scripts, Release simulator build, and 16 Swift test containers. Added a
+direct regression proving offline public configuration and unavailable telemetry cannot revoke an
+injected verified local-Pro snapshot. `Scripts/validate.sh` now includes the matrix contract.
+
+The complete C6-01 runner passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`)
+iPhone 17 Pro simulator: all static contracts, Public Configuration Worker 13/13, Telemetry Worker
+35/35 plus 8/8 evidence tests, all Worker typechecks/dry-runs/startup checks, Release build, and
+285 Swift tests in 16 suites passed. The default-disabled live telemetry test remained skipped by
+design. `/private/tmp/MindBudget-C6-01.xcresult` is a local execution artifact, not hosted or
+durable release evidence.
+
+The final branch also passed `Scripts/validate.sh` on the same toolchain and simulator: every
+static contract, Release compilation, the strict 10,000-row Dashboard benchmark, 553 unit tests
+in 32 suites, all 17 UI tests, and every selected coverage threshold passed. `CSVExporter.swift`
+was lowest at 87.60% against the 85% floor. The validator removed its temporary xcresult after
+success, so that path is only an execution pointer rather than a durable artifact.
+
+No archive, upload, deployment, App Store Connect write, customer-data action, G1 decision, or
+release action occurred. C6-02/C6-03 and the five-source independent privacy inspection remain
+blocked pending C6-01 independent review, hosted CI, and merge. CHANGELOG is unchanged because the
+only Swift change is test code and there is no user-visible behavior change.

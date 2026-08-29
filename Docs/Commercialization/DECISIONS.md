@@ -2139,3 +2139,34 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   merged; auto-entering COM-C6; treating Debug simulator traffic as final-binary evidence;
   relabeling the expected tombstone as a leak or removing it outside ordinary expiry; deciding G1
   from synthetic traffic; or authorizing Staging/Production, distribution, or release.
+
+## DEC-COM-072 — Enter COM-C6 through a closed non-mutating C6-01 matrix
+
+- Status/date: **Accepted C6-01 implementation decision — 2026-08-29**
+- Requirements: REQ-ENTITLEMENT-001; REQ-STOREKIT-STATE-001;
+  REQ-STOREKIT-LIFECYCLE-001; REQ-R1-NET-001; REQ-R1-TELEMETRY-001; REQ-MONEY-001;
+  REQ-MONEY-MIGRATION-001; REQ-ICLOUD-001; REQ-RECEIPT-PIPELINE-001;
+  REQ-RECEIPT-PRIVACY-001
+- Context: The owner explicitly entered COM-C6 after PR #85 merged the C5 closeout/privacy-source
+  handoff as `008b674`. The pre-existing C6 task named many product domains but did not provide a
+  machine-readable inventory proving that every row remained attached to concrete tests and
+  static gates. It also lacked one direct cross-domain regression for the product promise that
+  optional app-owned network failure cannot revoke a separately verified local Pro entitlement.
+- Decision: Implement only C6-01. Freeze seven rows in strict `C6_RELEASE_MATRIX.json`; validate
+  exact keys, order, sources, test types/methods, static checks, local Worker commands, and five
+  blocked remote actions with fail-closed negative self-tests. Run every reviewed static gate,
+  both Worker `check` scripts, Release simulator build, and 16 Swift test containers serially.
+  Add the offline public-configuration/unavailable-telemetry local-Pro regression. Keep
+  `remoteMutationAllowed` false and forbid archive, upload, Staging/Production deployment, and App
+  Store Connect writes.
+- Consequences: C6-01 is implemented pending independent review, hosted CI, and merge. The local
+  matrix passed 285 tests in 16 suites, with the existing opt-in live telemetry probe skipped by
+  design; both Worker suites and dry-runs passed. C6-02 and C6-03 remain blocked. The five-source
+  privacy inspection preserved by PR #85 remains an independent C6-02 responsibility; this
+  automation does not satisfy it. No physical waiver becomes a pass, no Active Requirement is
+  marked complete, and no G1, TestFlight, App Store Connect, distribution, or release claim
+  follows.
+- Alternatives rejected: Running the entire repository without a closed row inventory; treating
+  a dry-run as deployment; folding signed-device/manual review into automation; entering C6-02
+  before C6-01 review/CI/merge; archiving or uploading during C6-01; or letting optional network
+  state become entitlement authority.
