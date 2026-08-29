@@ -1,8 +1,10 @@
 # C5 Telemetry Capture Audit
 
-Status: **C5-04 product capability is merged through PR #82 (`28d9eae`) and author-side
-supplemental inspection through PR #83 (`becb020`); current source `becb020` passed the pending-review Development
-operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`.**
+Status: **C5-04 and COM-C5 are Done after independent review of exact PR #84 head `84a96bc`, green
+GitHub Actions run `33247176815`, and PR #84 merge `4194b73`. Product capability remains recorded
+through PR #82 (`28d9eae`), author-side supplemental inspection through PR #83 (`becb020`), and
+Development-only operational proof on version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. COM-C6
+awaits explicit owner entry.**
 
 PR #82's scoped review of the deletion-order remediation covered exact head `2c1cebe`, which passed GitHub Actions
 run `33233846430` before the `28d9eae` merge; the operational proof does not expand that scope.

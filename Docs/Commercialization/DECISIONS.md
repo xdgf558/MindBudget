@@ -2110,3 +2110,27 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   scheme; allowing the probe scheme to archive; dumping D1 rows or identifiers; relabeling the
   expected deletion tombstone as a cleanup failure; or treating Debug simulator traffic as a
   final-binary/release gate.
+
+## DEC-COM-071 — Close C5-04 and COM-C5 on reviewed Development evidence
+
+- Status/date: **Accepted C5-04/COM-C5 closeout — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056 through DEC-COM-070
+- Context: Independent review approved exact PR #84 head `84a96bc` after confirming both P2
+  findings and the P3 regression were closed. GitHub Actions run `33247176815` completed
+  successfully on that exact head, and PR #84 merged it as `4194b73`. The reviewed evidence
+  includes the actual Development `FixedTelemetryTransport`/`URLSession` 202/204 path, the
+  deterministic post-`stop()` deletion retry, the default-disabled/non-archiving probe scheme,
+  and the disclosed aggregate state of 0 events, 0 identities, and 3 tombstones (2 historical plus
+  the expected live-probe tombstone).
+- Decision: Mark C5-04 and COM-C5 Done on the recorded source, Development evidence, independent
+  review, hosted CI, and merge. Keep REQ-R1-TELEMETRY-001 Active for COM-C6/C12 final-binary,
+  App Store Connect, environment, distribution, and release verification. Do not enter COM-C6
+  without a separate explicit owner instruction.
+- Consequences: Development version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716` remains the only
+  deployed telemetry environment. Staging remains unmigrated/undeployed and Production remains
+  unprovisioned/undeployed. No real customer evidence bundle, G1 decision, App Store Connect
+  update, final-binary traffic, distribution, or release authority follows from this closeout.
+- Alternatives rejected: Leaving C5-04 or COM-C5 In Progress after their exact exit evidence
+  merged; auto-entering COM-C6; treating Debug simulator traffic as final-binary evidence;
+  relabeling the expected tombstone as a leak or removing it outside ordinary expiry; deciding G1
+  from synthetic traffic; or authorizing Staging/Production, distribution, or release.

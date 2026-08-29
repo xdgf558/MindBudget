@@ -1934,3 +1934,24 @@ suites passed, and all 17 UI tests passed. Every selected coverage threshold pas
 `CSVExporter.swift` was the minimum at 87.60% against the 85% floor. The validator removed
 `mindbudget-validation.ceXEOC/MindBudget.xcresult` after success, so that name is an execution
 pointer rather than a durable artifact.
+
+### C5-04/COM-C5 reviewed evidence merge — 2026-08-29
+
+Independent review approved exact PR #84 head `84a96bc` after confirming both P2 findings and the
+P3 regression were closed. GitHub Actions run `33247176815` started at 2026-08-29T10:10:02Z,
+completed successfully at 2026-08-29T10:36:34Z, and ran the complete hosted `Build and test`
+workflow on that exact head. PR #84 then merged as `4194b73` at 2026-08-29T10:37:40Z.
+
+DEC-COM-071 uses this exact review/CI/merge chain to close C5-04 and COM-C5. The closeout does not
+reinterpret the Debug simulator 202/204 observation as final-binary traffic, remove or hide the
+expected third UTC-day tombstone, decide G1, update App Store Connect, deploy Staging/Production,
+or authorize distribution/release. This documentation-only branch still requires its own review,
+green hosted CI, and merge.
+
+The closeout branch passed `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract and Release compilation passed;
+35/35 local-D1 Worker tests, 8/8 C5 evidence-contract tests, 552 unit tests in 32 suites, and
+17/17 UI tests passed. Every selected coverage threshold passed, with `CSVExporter.swift` lowest
+at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.g93SCp/MindBudget.xcresult` after success, so that name is an execution
+pointer rather than a durable artifact.

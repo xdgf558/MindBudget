@@ -171,8 +171,9 @@ cleanup. PR #84's separate opt-in iOS Simulator probe exercised the real
 `FixedTelemetryTransport`/`URLSession` path, received upload 202 and delete 204, and left final D1
 aggregates at 0 events/0 identities/3 tombstones (2 historical plus its expected tombstone); a
 deterministic regression also proves explicit deletion remains callable after service `stop()`.
-C5-04/COM-C5 stay In Progress pending review, CI, and merge of that operational evidence;
-Staging/Production, G1, distribution, and release remain blocked.
+Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815` passed, and PR
+#84 merged as `4194b73`. C5-04/COM-C5 are Done. COM-C6 awaits explicit owner entry;
+Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

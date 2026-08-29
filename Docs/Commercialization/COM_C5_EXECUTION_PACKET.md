@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: **In Progress.**
+Status: **Done after independent review of exact PR #84 head `84a96bc`, green GitHub Actions run
+`33247176815`, and PR #84 merge `4194b73`.**
 
 The owner explicitly entered COM-C5 on 2026-08-27 after C4C-05 and COM-C4C closed through PR #75
 (`82ef0fa`). Exact final C5-01 head `d937dc8` passed GitHub Actions run `33085630481`, and PR #76
@@ -23,9 +24,10 @@ run `33242024609`, and merged as `becb020` without a pre-merge rereview. That ex
 cleaned its exact rows. PR #84 additionally proved the real iOS Simulator
 `FixedTelemetryTransport`/`URLSession` request path with upload 202 and delete 204; aggregate D1
 verification then found 0 events, 0 identities, and 3 tombstones (2 historical plus the live
-probe's expected UTC-day tombstone). C5-04/COM-C5 remain In Progress pending independent review, hosted CI, and
-merge of this operational evidence. No G1 decision, Staging/Production deployment, distribution,
-or release is authorized.
+probe's expected UTC-day tombstone). Independent review approved exact PR #84 head `84a96bc`,
+hosted run `33247176815` passed, and PR #84 merged as `4194b73`. C5-04 and COM-C5 are Done.
+COM-C6 awaits explicit owner entry; no G1 decision, App Store Connect update, Staging/Production
+deployment, distribution, or release is authorized.
 
 ## Input gate
 
@@ -315,9 +317,10 @@ customer, G1, Staging, Production, distribution, or release claim.
 
 C5-01 through C5-03 are Done on their recorded evidence. C5-04's product merge and supplemental
 review are recorded through PR #82 (`28d9eae`) and PR #83 (`becb020`). The current-source
-Development operational proof establishes the pending-review content-free, optional, deletable,
-observable, and cost-bounded real channel; C5-04 and COM-C5 are not Done until this evidence branch
-passes independent review, hosted CI, and merge. Stop on any content-bearing field, arbitrary
+Development operational proof establishes the content-free, optional, deletable, observable, and
+cost-bounded real channel. Independent review approved exact PR #84 head `84a96bc`, hosted run
+`33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done.
+COM-C6 awaits explicit owner entry. Stop on any content-bearing field, arbitrary
 dictionary/string, implicit
 collection, identifier reuse across opt-out, lost deletion proof, unencrypted/unbounded queue,
 an unqualified claim that deletion requests are unlinkable, unaccepted domain, environment mixing,

@@ -2,9 +2,11 @@
 
 Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
 remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
-C5-04 entered on 2026-08-29 and remains In Progress pending review/CI/merge of Development version
-`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its runtime activation cannot change this immutable
-evidence format or manufacture a G1 result.
+C5-04 and COM-C5 are Done after independent review approved exact PR #84 head `84a96bc`, hosted
+run `33247176815` passed, and PR #84 merged as `4194b73`. Development version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716` remains the only deployed telemetry environment; runtime
+activation cannot change this immutable evidence format or manufacture a G1 result. COM-C6 awaits
+explicit owner entry.
 
 ## Purpose and non-goals
 

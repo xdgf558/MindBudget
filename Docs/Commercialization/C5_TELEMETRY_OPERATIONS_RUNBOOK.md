@@ -3,8 +3,9 @@
 Status: **Current source `becb020` is deployed only to Development as Worker version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its TTL/delete/idempotency probe passed and cleaned its
 exact rows. A separate real iOS Simulator `FixedTelemetryTransport` probe received upload 202 and
-delete 204. C5-04 evidence awaits independent review, hosted CI, and merge; Staging and Production
-remain unauthorized.**
+delete 204. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
+passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. COM-C6 awaits explicit owner
+entry, while Staging and Production remain unauthorized.**
 
 The product capability came from PR #82's scoped review of the deletion-order remediation on exact head `2c1cebe`,
 green run `33233846430`, and merge `28d9eae`; the Development proof does not broaden that review.

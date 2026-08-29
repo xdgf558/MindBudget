@@ -134,9 +134,10 @@ computation: no route, real evidence result, or G1 decision exists. The owner en
 deletion-order remediation but excluded the manifest, capture sites, service, and runbook now
 named for PR #83 supplemental inspection. That author-side inspection and merge are now recorded through `becb020`,
 and the separately authorized current-source Development probe passed on version
-`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. C5-04 remains In Progress pending review, CI, and merge
-of this operational evidence; every Staging/Production and distribution/release proof remains
-blocked.
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. Independent review approved exact PR #84 head `84a96bc`,
+hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. COM-C6
+awaits explicit owner entry, and every App Store Connect, Staging/Production,
+distribution/release proof remains blocked.
 
 For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
 pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for

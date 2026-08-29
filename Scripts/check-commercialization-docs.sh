@@ -1499,9 +1499,15 @@ grep -Fq 'remediation head `0c61427`, green GitHub Actions run `33211270363`, an
   exit 1
 }
 
-grep -Fq 'Status: **Implementation and Development operational proof complete pending independent review.**' \
+grep -Fq 'Status: **Done after independent review of exact PR #84 head `84a96bc`, green GitHub Actions run' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-04 must retain the pending-review Development operational-evidence status" >&2
+  echo "C5-04/COM-C5 must retain the reviewed PR #84 Done status" >&2
+  exit 1
+}
+
+grep -Fq '`33247176815`, and PR #84 merge `4194b73`.**' \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
+  echo "C5-04/COM-C5 Done status must retain green CI and merge provenance" >&2
   exit 1
 }
 
@@ -1830,10 +1836,15 @@ grep -Fq 'DEC-COM-070' Docs/Commercialization/DECISIONS.md || {
   exit 1
 }
 
+grep -Fq 'DEC-COM-071' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-04/COM-C5 reviewed closeout decision is missing DEC-COM-071" >&2
+  exit 1
+}
+
 # The operational proof is a real remote Development fact, so every current-state/evidence file
 # must name both the exact deployed main source and the resulting Development Worker version.
-# Review/CI/merge remain open for this branch, and the check below deliberately does not mark the
-# phase Done or authorize any later environment.
+# PR #84 closed review/CI/merge for C5-04 and COM-C5. The check below pins that exact chain without
+# authorizing any later environment, G1, COM-C6 entry, distribution, or release.
 for c504_development_evidence_file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/TASKS.md \
@@ -1852,6 +1863,9 @@ for c504_development_evidence_file in \
     'e6bbd3f' \
     '33242024609' \
     'becb020' \
+    '84a96bc' \
+    '33247176815' \
+    '4194b73' \
     '003c66fa-a57c-4b6a-a8d7-3f75b14cc716'; do
     grep -Fq "${c504_development_evidence_anchor}" "${c504_development_evidence_file}" || {
       echo "C5-04 Development evidence is missing ${c504_development_evidence_anchor} in ${c504_development_evidence_file}" >&2
@@ -1967,7 +1981,77 @@ for c504_contract_anchor in \
   fi
 done
 
-if grep -Eq 'C5-04 (is )?Done|COM-C5 (is )?Done' \
+for c504_closeout_file in \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+    Docs/Commercialization/CI_BASELINE.md; do
+  for c504_closeout_anchor in '84a96bc' '33247176815' '4194b73'; do
+    grep -Fq "${c504_closeout_anchor}" "${c504_closeout_file}" || {
+      echo "C5-04/COM-C5 closeout is missing ${c504_closeout_anchor} in ${c504_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for c504_done_anchor in \
+  'Status: **Done after independent review of exact PR #84 head `84a96bc`, green GitHub Actions run' \
+  'Status: **Done after independent review of exact head `84a96bc`, green GitHub Actions run' \
+  'C5-04 and COM-C5 are Done'; do
+  if ! grep -Fq "${c504_done_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+      Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+      Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-04/COM-C5 Done state is missing contract: ${c504_done_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eqi 'C5-04 and COM-C5 remain In Progress|C5-04/COM-C5 remain In Progress|C5-04/COM-C5 stay In Progress|C5-04 remains In Progress pending|C5-04 evidence awaits independent review|C5-04 awaits independent review|until this operational evidence branch passes review|C5-04 and COM-C5 are not Done until this evidence branch|C5-04/COM-C5 remain pending independent' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
+    Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+    Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state regressed C5-04/COM-C5 to pending review" >&2
+  exit 1
+fi
+
+for com_c6_wait_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C5_EXECUTION_PACKET.md; do
+  grep -Fq 'COM-C6 awaits explicit owner entry' "${com_c6_wait_file}" || {
+    echo "COM-C6 owner-entry boundary is missing from ${com_c6_wait_file}" >&2
+    exit 1
+  }
+done
+
+if grep -Eqi 'COM-C6 (is )?(In Progress|entered|Done)|owner explicitly entered COM-C6' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -1976,7 +2060,7 @@ if grep -Eq 'C5-04 (is )?Done|COM-C5 (is )?Done' \
     Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C5-04/COM-C5 must remain pending review until the Development evidence branch passes CI and merge" >&2
+  echo "C5-04 closeout must not auto-enter or complete COM-C6" >&2
   exit 1
 fi
 

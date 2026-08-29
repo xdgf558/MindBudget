@@ -68,9 +68,10 @@ detailed phase checklists; it added no paid product behavior.
   TTL/delete/idempotency probe passed with exact cleanup. PR #84 additionally ran the real
   `FixedTelemetryTransport` through iOS Simulator `URLSession`; the Worker accepted upload 202
   and delete 204, and final D1 aggregates were 0 events, 0 identities, and 3 tombstones (2
-  historical plus the live transport probe's expected UTC-day tombstone). C5-04 and COM-C5 remain In Progress only
-  pending independent review, hosted CI, and merge of that operational evidence; Staging/Production
-  deployment, G1, distribution, and release remain unauthorized.**
+  historical plus the live transport probe's expected UTC-day tombstone). Independent review then
+  approved exact PR #84 head `84a96bc`, GitHub Actions run `33247176815` passed, and PR #84 merged
+  as `4194b73`. C5-04 and COM-C5 are Done. COM-C6 awaits explicit owner entry; Staging/Production
+  deployment, G1, App Store Connect, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
   head `138c240` passed GitHub Actions run `32406654986`; PR #55 merged it as `77292c6`, closing
@@ -558,7 +559,8 @@ known sensitive-field leaks and no unconfirmed persistence.
 
 ## COM-C5 — R1 first-party telemetry, metrics, and runbook
 
-Status: **In Progress.**
+Status: **Done after independent review of exact PR #84 head `84a96bc`, green GitHub Actions run
+`33247176815`, and PR #84 merge `4194b73`.**
 
 ### C5-01 — Typed private client
 
@@ -605,7 +607,8 @@ remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 m
 
 ### C5-04 — Operations and disclosures
 
-Status: **Implementation and Development operational proof complete pending independent review.**
+Status: **Done after independent review of exact head `84a96bc`, green GitHub Actions run
+`33247176815`, and PR #84 merge `4194b73`.**
 
 - [x] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
   Development/Staging/Production isolation and keep Staging/Production undeployed.
@@ -627,13 +630,18 @@ Status: **Implementation and Development operational proof complete pending inde
   0 identity rows, and 3 tombstones (2 historical plus this probe's expected tombstone). The same
   remediation adds a deterministic `stop()`-then-delete retry regression. No rollback was needed,
   and no final-binary, G1, or release claim follows.
+- [x] Close C5-04 and COM-C5 after independent review approved exact PR #84 head `84a96bc`, hosted
+  run `33247176815` completed successfully, and PR #84 merged as `4194b73`. This closes only the
+  accepted Development evidence package; it does not enter COM-C6 or approve G1, App Store
+  Connect, Staging/Production, distribution, or release.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.
 
 ## COM-C6 — Local commercialization TestFlight and review preflight
 
-Status: **Blocked by COM-C5. No public release in this phase.**
+Status: **Blocked pending explicit owner entry after COM-C5 closeout. No public release in this
+phase.**
 
 - [B] **C6-01 — Automated release matrix.** Exercise StoreKit lifecycle, exact entitlement
   states, environment isolation, public config, R1 networking, migration/rollback, Free iCloud,

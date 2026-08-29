@@ -267,8 +267,10 @@ pre-merge rereview. Current source `becb020` is now deployed only to Development
 version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its synthetic TTL/delete/idempotency probe passed
 and retained no new row. PR #84's opt-in real iOS `FixedTelemetryTransport`/`URLSession` probe then
 received upload 202 and delete 204; final D1 aggregates were 0 events, 0 identities, and 3
-tombstones (2 historical plus the expected live-probe tombstone). C5-04/COM-C5 remain In Progress pending review, CI, and merge of this
-operational evidence; Staging/Production, G1, distribution, and release remain blocked.
+tombstones (2 historical plus the expected live-probe tombstone). Independent review approved
+exact PR #84 head `84a96bc`, Actions run `33247176815` passed, and PR #84 merged as `4194b73`.
+C5-04/COM-C5 are Done; COM-C6 awaits explicit owner entry, while Staging/Production, G1, App Store
+Connect, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -557,7 +559,7 @@ operational evidence; Staging/Production, G1, distribution, and release remain b
   remediation head `0c61427` closed its P2/P3 findings, passed GitHub Actions run `33211270363`,
   and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge closeout
   review confirmed the exact remediation delta.
-- [ ] Complete C5-04 after the owner's explicit 2026-08-29 entry. The reviewed product capability
+- [x] Complete C5-04 after the owner's explicit 2026-08-29 entry. The reviewed product capability
   adds the sole fixed client factory behind bilingual default-off controls, an exhaustive closed
   capture audit, App Privacy manifest entries, bounded lifecycle/retry, sticky terminal
   404/405/421 handling, and proof-authenticated deletion attempted before app-wide financial
@@ -575,5 +577,7 @@ operational evidence; Staging/Production, G1, distribution, and release remain b
   bucketing, non-resurrection, and exact cleanup. PR #84 additionally proves the actual iOS
   `FixedTelemetryTransport`/`URLSession` headers with upload 202 and delete 204, records final D1
   aggregates of 0 events/0 identities/3 tombstones, and tests that explicit deletion remains
-  callable after `TelemetryService.stop()`. C5-04 awaits independent review, hosted CI, and
-  merge of this evidence; Staging/Production, G1, distribution, and release remain unauthorized.
+  callable after `TelemetryService.stop()`. Independent review approved exact PR #84 head
+  `84a96bc`, hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are
+  Done. COM-C6 awaits explicit owner entry. Staging/Production, G1, App Store Connect,
+  distribution, and release remain unauthorized.
