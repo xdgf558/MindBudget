@@ -256,9 +256,13 @@ run `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. The 
 C5-03 on 2026-08-29. Independent review approved head `4ea7cd9`; remediation head `0c61427`
 closed its P2/P3 findings, passed hosted run `33211270363`, and PR #80 merged it as `a587f42`
 without a pre-merge rereview. PR #81's post-merge closeout review confirmed the exact remediation
-delta; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation candidate
-awaits current-source Development proof, exact-head review, hosted CI, and merge, while
-Staging/Production, G1, distribution, and release remain blocked.
+delta; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Independent review approved the
+deletion-order remediation on exact head `2c1cebe` within its declared scope; GitHub Actions run
+`33233846430` passed, and PR #82 merged the controlled activation product capability as `28d9eae`.
+The privacy manifest, two feature capture files, `TelemetryService`, and operations runbook were
+outside that review and are explicit PR #83 closeout-review surfaces. C5-04/COM-C5 remain In
+Progress pending current-source Development operational proof; Staging/Production, G1,
+distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -547,12 +551,16 @@ Staging/Production, G1, distribution, and release remain blocked.
   remediation head `0c61427` closed its P2/P3 findings, passed GitHub Actions run `33211270363`,
   and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge closeout
   review confirmed the exact remediation delta.
-- [ ] Complete C5-04 after the owner's explicit 2026-08-29 entry. The implementation candidate
+- [ ] Complete C5-04 after the owner's explicit 2026-08-29 entry. The reviewed product capability
   adds the sole fixed client factory behind bilingual default-off controls, an exhaustive closed
   capture audit, App Privacy manifest entries, bounded lifecycle/retry, sticky terminal
   404/405/421 handling, and proof-authenticated deletion attempted before app-wide financial
   deletion without allowing optional telemetry failure to block the local erase. A distinct
   pending-remote state retains proofs for a separate retry. The package also adds a
-  Development-only operations/rollback runbook. Current-source Development deployment and
-  synthetic TTL/delete proof, exact-head independent review, hosted CI, and merge remain open.
-  Staging/Production, G1, distribution, and release remain unauthorized.
+  Development-only operations/rollback runbook. Independent review approved the deletion-order
+  remediation on exact head `2c1cebe` within its declared scope; hosted run `33233846430` passed,
+  and PR #82 merged it as `28d9eae`. The privacy manifest, two feature capture files,
+  `TelemetryService`, and operations runbook were outside that review and are explicit PR #83
+  closeout-review surfaces. Only the current-source Development deployment plus synthetic
+  TTL/delete/idempotency proof remains open inside C5-04. Staging/Production, G1, distribution,
+  and release remain unauthorized.

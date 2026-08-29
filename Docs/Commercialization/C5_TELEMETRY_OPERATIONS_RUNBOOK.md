@@ -1,7 +1,13 @@
 # C5 Telemetry Operations Runbook
 
-Status: **C5-04 implementation candidate. Only Development is eligible for current-source
-deployment/probe; Staging and Production remain unauthorized.**
+Status: **C5-04 product capability merged from exact remediation head `2c1cebe` after its
+deletion-order remediation passed scoped independent review and green GitHub Actions run
+`33233846430`; PR #82 merged it as `28d9eae`. Only Development is eligible for the still-open
+current-source deployment/probe; Staging and Production remain unauthorized.**
+
+PR #82's independent review did not inspect this runbook, `PrivacyInfo.xcprivacy`, the receipt and
+Pro capture sites, or `TelemetryService`. PR #83's closeout review is explicitly asked to inspect
+those surfaces. `TelemetryService` is defined in `MindBudget/Services/TelemetryClient.swift`.
 
 This runbook is for the fixed MindBudget first-party telemetry Worker. It never authorizes a remote
 write by itself. The operator must name the exact environment and receive explicit approval before
@@ -92,6 +98,21 @@ client in the test build; do not delete customer rows without the authenticated 
 | 421 | sticky `misdirectedRequest` | verify environment/host isolation; never redirect or substitute host; retry only through the matching explicit Send/Delete action, and do not re-enable after failed deletion |
 | corrupt local queue | capture stays unavailable; local file/key remains deletable | disclose that remote deletion cannot be proven without authenticated proofs |
 | four retained generations | re-enable fails closed | customer deletes telemetry data or waits for an expired proof; never drop a proof silently |
+
+## Local Delete All retry reachability
+
+App-wide Delete All resets `firstLaunchCompleted` and returns the app to onboarding. A pending
+remote telemetry deletion therefore is not immediately reachable from the post-delete navigation
+state: the customer must complete setup again, then open Privacy & Security > Product Analytics
+and choose Delete to retry the retained proof. Do not describe that retry as still visible on the
+Delete All completion screen after the reset.
+
+`TelemetryService.stop()` only cancels and clears its drain/retry task handles. It does not replace
+the service, destroy the `TelemetryClient`, or erase retained proofs. The same service instance's
+explicit `deleteAllTelemetry()` path remains callable after `stop()` and independently cancels any
+tasks before delegating to the persisted client. The current UX has no automatic deep link from
+onboarding to this pending retry; that is a known manual-reachability boundary, not evidence that
+remote deletion completed.
 
 ## Rollback
 
