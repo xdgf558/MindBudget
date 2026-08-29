@@ -2012,3 +2012,27 @@ tests. The result summary contained 558 passes, 12 explicit opt-in skips, and ze
 selected coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85%
 floor. Its retained full bundle is `/private/tmp/MindBudget-C6-01-Remediation-Full.xcresult`.
 Rereview, hosted CI, and merge remain required; no C6-02/C6-03 or remote action is implied.
+
+### C6-01 reviewed merge and documentation closeout — 2026-08-29
+
+Independent rereview approved exact PR #86 remediation head `f77d2a6`. GitHub Actions run
+`33255898196` started at 2026-08-29T13:47:11Z and completed successfully at
+2026-08-29T14:18:21Z on that exact head. PR #86 then merged as `015d00e` at
+2026-08-29T14:55:16Z.
+
+DEC-COM-074 uses this exact review/CI/merge chain to close only C6-01. The matrix and full local
+validation evidence remain implementation evidence; they do not satisfy C6-02's five-source
+independent privacy inspection, signed-device/App Review checks, final-binary/IPA traffic evidence,
+or any App Store Connect, Staging/Production, G1, archive/upload, distribution, or release gate.
+C6-02 awaits a separate explicit owner entry and C6-03 remains blocked. This documentation-only
+closeout still requires its own independent review, green hosted CI, and merge.
+
+The first sandboxed closeout validation attempt could not access CoreSimulator and stopped before
+building; it is an environmental non-pass and is not evidence. The subsequent unrestricted
+`Scripts/validate.sh` run passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`)
+iPhone 17 Pro simulator. Every static contract, Release compilation, and the strict serial
+10,000-row Dashboard benchmark passed; 553 unit tests in 32 suites and 17/17 UI tests passed, while
+four explicitly opt-in physical CloudKit probes remained skipped. Every selected coverage threshold
+passed, with `CSVExporter.swift` lowest at 87.60% against the 85% floor. The retained result bundle
+is `/private/tmp/MindBudget-C6-01-Closeout.xcresult`; it is a local execution artifact rather than
+hosted, signed-device, final-binary, App Store Connect, G1, or release evidence.

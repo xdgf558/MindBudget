@@ -136,8 +136,10 @@ named for PR #83 supplemental inspection. That author-side inspection and merge 
 and the separately authorized current-source Development probe passed on version
 `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`. Independent review approved exact PR #84 head `84a96bc`,
 hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
-owner explicitly entered COM-C6 on 2026-08-29; C6-01 automation is active while C6-02/C6-03 and
-every App Store Connect, Staging/Production, distribution/release proof remain blocked.
+owner explicitly entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86
+remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`;
+C6-01 is Done. C6-02 awaits a separate explicit owner entry, while C6-03 and every App Store
+Connect, Staging/Production, distribution/release proof remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in

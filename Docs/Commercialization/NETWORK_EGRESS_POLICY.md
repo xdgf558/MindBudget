@@ -43,10 +43,12 @@ and retained no new row. PR #84 then exercised the actual iOS Simulator
 contract, and final D1 aggregates were 0 events, 0 identities, and 3 tombstones (2 historical plus
 the expected live-probe tombstone). Independent review approved exact PR #84 head `84a96bc`,
 hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
-owner entered COM-C6 on 2026-08-29. C6-01 runs only static checks, local Worker tests/dry-runs,
-Release simulator build, and named Swift tests; it performs no remote mutation. C6-02/C6-03,
-App Store Connect, Staging/Production, final-binary traffic, distribution, and release remain
-unclaimed and unauthorized.
+owner entered COM-C6 on 2026-08-29. C6-01 ran only static checks, local Worker tests/dry-runs,
+Release simulator build, and named Swift tests; it performed no remote mutation. Independent
+rereview approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86
+merged as `015d00e`; C6-01 is Done. C6-02 awaits a separate explicit owner entry. C6-03, App Store
+Connect, Staging/Production, final-binary traffic, distribution, and release remain unclaimed and
+unauthorized.
 
 ## Release enforcement contract
 

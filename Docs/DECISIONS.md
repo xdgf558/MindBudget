@@ -3194,3 +3194,19 @@ repository check script as either row-driven or one of two exact special roles.
 Consequences: Skipped, missing, duplicate, wrong-type, commented-out, and non-test required
 methods cannot satisfy C6-01. C6-02/C6-03 remain blocked pending exact-head rereview, hosted CI,
 and merge.
+
+---
+
+## 2026-08-29 — Close C6-01 without auto-entering C6-02
+
+Context: Independent rereview approved exact PR #86 remediation head `f77d2a6`; GitHub Actions run
+`33255898196` completed successfully on that head, and PR #86 merged it as `015d00e`.
+
+Decision: Detailed ownership is DEC-COM-074. Mark C6-01 Done. Keep C6-02 blocked until a separate
+explicit owner entry and keep C6-03 blocked by C6-02 acceptance plus separate archive/upload
+authorization.
+
+Consequences: The seven-row automated matrix, all 33 runtime test bindings, static-check
+classification, review, hosted CI, and merge gates are closed. The five-source independent privacy
+inspection, signed-device/App Review evidence, final-binary/IPA checks, App Store Connect writes,
+Staging/Production, G1, archive/upload, distribution, and release remain open and unauthorized.
