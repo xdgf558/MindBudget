@@ -4,6 +4,7 @@ import Foundation
 enum PrivacyDeletionStage: String, Equatable, Sendable {
     case cancellingNotifications
     case clearingSearchIndex
+    case deletingTelemetry
     case deletingLocalData
     case resettingPreferences
 }

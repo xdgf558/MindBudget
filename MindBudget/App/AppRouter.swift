@@ -11,6 +11,23 @@ private struct ReceiptImageLifecycleEnvironmentKey: EnvironmentKey {
     static let defaultValue: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle()
 }
 
+struct TelemetryEventRecorder: Sendable {
+    private let handler: @MainActor @Sendable (TelemetryEvent) -> Void
+
+    init(handler: @MainActor @Sendable @escaping (TelemetryEvent) -> Void = { _ in }) {
+        self.handler = handler
+    }
+
+    @MainActor
+    func capture(_ event: TelemetryEvent) {
+        handler(event)
+    }
+}
+
+private struct TelemetryEventRecorderEnvironmentKey: EnvironmentKey {
+    static let defaultValue = TelemetryEventRecorder()
+}
+
 extension EnvironmentValues {
     var existingPremiumEntryAccess: ExistingPremiumEntryAccess {
         get { self[ExistingPremiumEntryAccessEnvironmentKey.self] }
@@ -20,6 +37,11 @@ extension EnvironmentValues {
     var receiptImageLifecycle: any ReceiptImageLifecycleHandling {
         get { self[ReceiptImageLifecycleEnvironmentKey.self] }
         set { self[ReceiptImageLifecycleEnvironmentKey.self] = newValue }
+    }
+
+    var telemetryEventRecorder: TelemetryEventRecorder {
+        get { self[TelemetryEventRecorderEnvironmentKey.self] }
+        set { self[TelemetryEventRecorderEnvironmentKey.self] = newValue }
     }
 }
 
@@ -61,6 +83,7 @@ final class AppSession: ObservableObject {
     private let publicConfigurationService: (any PublicConfigurationServicing)?
     private let publicConfigurationExpirationScheduler: any PublicConfigurationExpirationScheduling
     private let cloudSyncService: (any CloudSyncServicing)?
+    private let telemetryService: (any TelemetryServicing)?
     let receiptImageLifecycle: any ReceiptImageLifecycleHandling
 
     @Published var revision = 0
@@ -91,6 +114,13 @@ final class AppSession: ObservableObject {
     @Published private(set) var publicConfigurationPresentation =
         PublicConfigurationPresentation.conservativeDefault
     @Published private(set) var cloudSyncSnapshot = CloudSyncSnapshot.disabled
+    @Published private(set) var telemetrySnapshot = TelemetryClientSnapshot(
+        collectionEnabled: false,
+        queuedEventCount: 0,
+        retainedIdentityCount: 0,
+        retryNotBefore: nil,
+        availability: .available
+    )
     private var invalidCoolingOffPlanIDs: Set<UUID> = []
     private var hasStartedCommerceLifecycle = false
     private var trialLifecycleReconciliationGeneration = 0
@@ -98,6 +128,7 @@ final class AppSession: ObservableObject {
     private var publicConfigurationExpiresAt: Date?
     private var publicConfigurationRefreshTask: Task<Void, Never>?
     private var publicConfigurationExpiryTask: Task<Void, Never>?
+    private var telemetryCaptureTail: Task<Void, Never>?
 
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
@@ -142,6 +173,7 @@ final class AppSession: ObservableObject {
             SystemPublicConfigurationExpirationScheduler(),
         cloudSyncService: (any CloudSyncServicing)? = nil,
         receiptImageLifecycle: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle(),
+        telemetryService: (any TelemetryServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
@@ -160,6 +192,7 @@ final class AppSession: ObservableObject {
         self.publicConfigurationExpirationScheduler = publicConfigurationExpirationScheduler
         self.cloudSyncService = cloudSyncService
         self.receiptImageLifecycle = receiptImageLifecycle
+        self.telemetryService = telemetryService
         existingPremiumEntryAccess = ExistingPremiumEntryAccess(featureAccess: featureAccessService)
         appLockState = appLockInitiallyEnabled ? .locked : .unlocked
         if let cloudSyncService {
@@ -168,11 +201,20 @@ final class AppSession: ObservableObject {
                 self?.cloudSyncSnapshot = snapshot
             }
         }
+        if let telemetryService {
+            telemetrySnapshot = telemetryService.snapshot
+            telemetryService.onSnapshotChange = { [weak self] snapshot in
+                self?.telemetrySnapshot = snapshot
+            }
+        }
     }
 
     deinit {
         publicConfigurationRefreshTask?.cancel()
         publicConfigurationExpiryTask?.cancel()
+        telemetryCaptureTail?.cancel()
+        let telemetryService = telemetryService
+        Task { @MainActor in telemetryService?.stop() }
         let receiptImageLifecycle = receiptImageLifecycle
         Task { await receiptImageLifecycle.discardTemporaryImage() }
     }
@@ -284,21 +326,63 @@ final class AppSession: ObservableObject {
     /// Typed commerce seams owned by the voluntary C3 purchase presentation. Views never call
     /// StoreKit directly, and none of these operations runs without an explicit user action.
     func purchasePro(_ product: StoreProductID) async -> StorePurchaseOutcome {
-        guard let entitlementStore else { return .failed(.unavailable) }
+        guard let entitlementStore else {
+            recordTelemetry(.subscription(.purchase, .unavailable))
+            return .failed(.unavailable)
+        }
         let outcome = await entitlementStore.purchase(product)
         if outcome == .purchased {
             await refreshCommerceCatalog()
         }
+        recordTelemetry(.subscription(.purchase, telemetryOutcome(for: outcome)))
         return outcome
     }
 
     func restoreProPurchases() async -> StoreRestoreOutcome {
-        guard let entitlementStore else { return .failed(.unavailable) }
+        guard let entitlementStore else {
+            recordTelemetry(.subscription(.restore, .unavailable))
+            return .failed(.unavailable)
+        }
         let outcome = await entitlementStore.restorePurchases()
         if outcome == .restored {
             await refreshCommerceCatalog()
         }
+        recordTelemetry(.subscription(.restore, telemetryOutcome(for: outcome)))
         return outcome
+    }
+
+    func recordManageSubscriptionsPresented() {
+        recordTelemetry(.subscription(.manage, .completed))
+    }
+
+    func recordTelemetry(_ event: TelemetryEvent) {
+        guard let telemetryService else { return }
+        let predecessor = telemetryCaptureTail
+        telemetryCaptureTail = Task {
+            _ = await predecessor?.value
+            guard !Task.isCancelled else { return }
+            _ = await telemetryService.capture(event)
+        }
+    }
+
+    func startTelemetryLifecycle() async {
+        await telemetryService?.start()
+    }
+
+    func setTelemetryCollectionEnabled(_ enabled: Bool) async -> Bool {
+        await telemetryService?.setCollectionEnabled(enabled) ?? false
+    }
+
+    func retryTelemetryTransport() async {
+        await telemetryService?.retryTerminalFailure()
+    }
+
+    func deleteTelemetryData() async -> TelemetryDeletionResult {
+        await telemetryService?.deleteAllTelemetry() ?? .unavailable
+    }
+
+    func refreshTelemetryOnSceneActivation() async {
+        await telemetryService?.sceneDidBecomeActive()
     }
 
     func refreshCommerceCatalog() async {
@@ -323,10 +407,20 @@ final class AppSession: ObservableObject {
 
     func setCloudSyncEnabled(_ enabled: Bool) async {
         await cloudSyncService?.setEnabled(enabled)
+        let succeeded = cloudSyncSnapshot.isEnabled == enabled
+        recordTelemetry(.cloudSync(
+            enabled ? .enable : .disable,
+            succeeded ? .completed : .failed
+        ))
     }
 
     func setCloudSyncEnabled(_ enabled: Bool, reimportConfirmed: Bool) async {
         await cloudSyncService?.setEnabled(enabled, reimportConfirmed: reimportConfirmed)
+        let succeeded = cloudSyncSnapshot.isEnabled == enabled
+        recordTelemetry(.cloudSync(
+            enabled ? .enable : .disable,
+            succeeded ? .completed : .failed
+        ))
     }
 
     func retryCloudSync() async {
@@ -349,14 +443,41 @@ final class AppSession: ObservableObject {
         recordName: String,
         resolution: CloudSyncConflictResolution
     ) async -> Bool {
-        await cloudSyncService?.resolveConflict(
+        let resolved = await cloudSyncService?.resolveConflict(
             recordName: recordName,
             resolution: resolution
         ) ?? false
+        recordTelemetry(.cloudSync(
+            .resolveConflict,
+            resolved ? .completed : .failed
+        ))
+        return resolved
     }
 
     func deleteCloudSyncData() async -> CloudSyncCloudDeletionOutcome {
-        await cloudSyncService?.deleteCloudData() ?? .failed(.transportFailed)
+        let outcome = await cloudSyncService?.deleteCloudData() ?? .failed(.transportFailed)
+        recordTelemetry(.cloudSync(
+            .deleteCloudCopy,
+            outcome == .deleted ? .completed : .failed
+        ))
+        return outcome
+    }
+
+    private func telemetryOutcome(for outcome: StorePurchaseOutcome) -> TelemetryOutcome {
+        switch outcome {
+        case .purchased: .completed
+        case .cancelled: .cancelled
+        case .pending: .unavailable
+        case .failed: .failed
+        }
+    }
+
+    private func telemetryOutcome(for outcome: StoreRestoreOutcome) -> TelemetryOutcome {
+        switch outcome {
+        case .restored: .completed
+        case .noActiveSubscription: .unavailable
+        case .failed: .failed
+        }
     }
 
     func recoverCloudSyncFromLocalData() async -> Bool {
@@ -698,6 +819,9 @@ final class AppSession: ObservableObject {
     func deleteAllData(settings: SettingsStore) async -> Bool {
         await receiptImageLifecycle.discardTemporaryImage()
         await cloudSyncService?.stop()
+        telemetryCaptureTail?.cancel()
+        telemetryCaptureTail = nil
+        telemetryService?.stop()
         privacyDeletionState = .inProgress(.cancellingNotifications)
         do {
             try await notificationScheduler.cancelAll()
@@ -712,6 +836,17 @@ final class AppSession: ObservableObject {
         } catch {
             privacyDeletionState = .failed(.clearingSearchIndex)
             return false
+        }
+
+        privacyDeletionState = .inProgress(.deletingTelemetry)
+        if let telemetryService {
+            switch await telemetryService.deleteAllTelemetry() {
+            case .deletedLocally, .deletedLocallyWithoutRemoteProofs, .deletedRemotely:
+                break
+            case .failed, .terminalFailure, .unavailable:
+                privacyDeletionState = .failed(.deletingTelemetry)
+                return false
+            }
         }
 
         privacyDeletionState = .inProgress(.deletingLocalData)
@@ -777,6 +912,7 @@ struct AppRouter: View {
         publicConfigurationService: (any PublicConfigurationServicing)? = nil,
         cloudSyncService: (any CloudSyncServicing)? = nil,
         receiptImageLifecycle: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle(),
+        telemetryService: (any TelemetryServicing)? = nil,
         appLockInitiallyEnabled: Bool = false
     ) {
         _session = StateObject(
@@ -795,6 +931,7 @@ struct AppRouter: View {
                 publicConfigurationService: publicConfigurationService,
                 cloudSyncService: cloudSyncService,
                 receiptImageLifecycle: receiptImageLifecycle,
+                telemetryService: telemetryService,
                 appLockInitiallyEnabled: appLockInitiallyEnabled
             )
         )
@@ -853,6 +990,12 @@ struct AppRouter: View {
         }
         .environment(\.existingPremiumEntryAccess, session.existingPremiumEntryAccess)
         .environment(\.receiptImageLifecycle, session.receiptImageLifecycle)
+        .environment(
+            \.telemetryEventRecorder,
+            TelemetryEventRecorder { [weak session] event in
+                session?.recordTelemetry(event)
+            }
+        )
         .environment(\.mindBudgetTheme, MindBudgetTheme(skin: settings.appSkin))
         .preferredColorScheme(MindBudgetTheme(skin: settings.appSkin).preferredColorScheme)
         .task {
@@ -864,6 +1007,11 @@ struct AppRouter: View {
             // The service reads the durable default-off switch first. No CKContainer or
             // CKSyncEngine is created until the owner has explicitly accepted the disclosure.
             await session.startCloudSyncLifecycle()
+        }
+        .task {
+            // Missing/default-off telemetry state stays memory-only and creates no identifier,
+            // encrypted file, Keychain key, or request until the customer explicitly opts in.
+            await session.startTelemetryLifecycle()
         }
         .task {
             // Clears only crash-orphaned C4C-02 temporary bytes. The actor is idempotent so a
@@ -895,6 +1043,7 @@ struct AppRouter: View {
                 session.beginScenePublicConfigurationRefresh()
                 Task {
                     await session.refreshCloudSyncOnSceneActivation()
+                    await session.refreshTelemetryOnSceneActivation()
                     await session.refreshCommerceEntitlements()
                     await session.reconcileTrialLifecycle(
                         settings: settings,

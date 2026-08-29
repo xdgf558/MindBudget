@@ -905,6 +905,7 @@ struct AddExpenseView: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
     @Environment(\.receiptImageLifecycle) private var receiptImageLifecycle
+    @Environment(\.telemetryEventRecorder) private var telemetryEventRecorder
     @StateObject private var viewModel: ExpenseFormViewModel
     @State private var showsContextFields = false
     @State private var showsDatePicker = false
@@ -1050,8 +1051,14 @@ struct AddExpenseView: View {
         .onChange(of: viewModel.purchaseReason) { _, _ in recalculate() }
         .onChange(of: viewModel.isRecurring) { _, _ in recalculate() }
         .onChange(of: viewModel.receiptRecognitionPhase) { _, phase in
-            if case .review = phase {
+            switch phase {
+            case .review:
                 settings.hasCompletedReceiptImport = true
+                telemetryEventRecorder.capture(.receipt(.reviewed, .completed))
+            case .failed:
+                telemetryEventRecorder.capture(.receipt(.reviewed, .failed))
+            case .none, .recognizing:
+                break
             }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -1165,6 +1172,7 @@ struct AddExpenseView: View {
                 showsIntroduction: !settings.hasCompletedReceiptImport
             ) { input in
                 presentsReceiptImport = false
+                telemetryEventRecorder.capture(.receipt(.acquired, .completed))
                 viewModel.startReceiptRecognition(
                     input,
                     dataActor: dataActor,
@@ -1277,6 +1285,7 @@ struct AddExpenseView: View {
 
     private var receiptEntryCard: some View {
         Button {
+            telemetryEventRecorder.capture(.receipt(.opened, .completed))
             presentsReceiptImport = true
         } label: {
             HStack(spacing: 14) {
@@ -1653,6 +1662,7 @@ struct AddExpenseView: View {
     private func completeSuccessfulExpense() {
         if viewModel.hasImportedReceipt {
             settings.hasCompletedReceiptImport = true
+            telemetryEventRecorder.capture(.receipt(.saved, .completed))
         }
         completed()
     }

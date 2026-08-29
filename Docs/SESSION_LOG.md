@@ -6171,3 +6171,59 @@ heading-scoped phase Status validation and now includes an explicit valid C5-03 
 review self-test. Static money, egress, commercialization-document, StoreKit 13/13, C5 evidence
 8/8, parser self-test, and `git diff --check` all pass. No runtime or customer behavior changed;
 hosted CI and rereview of the new exact closeout head remain required.
+
+## 2026-08-29 — Enter C5-04 and implement controlled first-party telemetry activation
+
+The owner explicitly entered C5-04 after the reviewed C5-03 closeout. DEC-COM-066 permits one
+environment-isolated `TelemetryClient`/`FixedTelemetryTransport` factory behind a bilingual,
+default-off Privacy control. The implementation adds bounded lifecycle start/flush, explicit Retry,
+sticky non-retrying 404/405/421 endpoint-policy failures, and proof-authenticated telemetry deletion
+before app-wide financial deletion can continue. Product capture is limited to the closed events in
+`C5_TELEMETRY_CAPTURE_AUDIT.md` from `AppRouter.swift`, `ProSubscriptionView.swift`, and
+`AddExpenseView.swift`; the vocabulary still cannot represent financial or receipt content,
+StoreKit/CloudKit identifiers, locale, device details, or arbitrary strings.
+
+The privacy manifest now declares Product Interaction and a conservative rotating Device ID as
+unlinked, non-tracking Analytics. `C5_TELEMETRY_OPERATIONS_RUNBOOK.md` defines Development-only
+publish/probe/rollback, closed monitoring, TTL/delete checks, and credential boundaries. Staging and
+Production remain untouched. Focused iOS execution with Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator passed 47/47 telemetry/Delete-All lifecycle tests; Worker verification passed 35/35
+local-D1 tests and all eight immutable-evidence tests plus typecheck, dry-runs, startup checks, and
+the high-severity audit. A sandboxed simulator attempt was excluded as an environmental non-pass.
+The current Worker source was not uploaded because this run lacks explicit authorization for that
+remote source deployment. Therefore no current-source Development probe, G1 decision,
+Staging/Production action, distribution, or release is claimed. Full validation, exact-head review,
+hosted CI, and merge remain open.
+
+## 2026-08-29 — Finalize the C5-04 local activation candidate
+
+The final self-review tightened four activation boundaries before external review: Pro-surface
+events now pair once per visible interval; remote deletion durably disables collection and clears
+the unsent queue before transport, retains deletion proofs after a remote failure, and blocks
+re-enablement until Delete is explicitly retried; a missing application-support URL or invalid app
+version now produces an unavailable telemetry service instead of blocking local app startup; and
+the Privacy UI test verifies both the default-off toggle and the exact never-collected disclosure.
+The disclosure assertion uses a label predicate because its localized English sentence exceeds
+XCUITest's 128-character identifier-query limit.
+
+The final focused `TelemetryClientTests` plus `Phase6FeatureTests` command passed all 48 declared
+tests. The exact current-source `Scripts/validate.sh` run used Xcode 27.0 beta 6 (`27A5252f`) and
+the iOS 26.5 iPhone 17 Pro simulator. It passed every static contract, the Release build, 35/35
+local-D1 Worker tests, eight immutable-evidence tests, 550 unit tests across 32 suites, all 17 UI
+tests, and every selected coverage threshold. Four opt-in physical CloudKit probes remained
+explicit skips. `CSVExporter.swift` was the minimum selected coverage result at 87.60% against the
+85% floor. The validator deleted
+`mindbudget-validation.XKvHyp/MindBudget.xcresult` after success, so that name is only an execution
+pointer.
+
+An earlier strict wall-clock attempt measured the isolated 10,000-row Dashboard benchmark at
+661.598333 milliseconds against the 500-millisecond ceiling on this loaded host. It is recorded as
+a performance non-pass and was not replaced by a false passing claim; the final correctness run
+used `MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=1`. One intermediate full run was deliberately
+interrupted after the overlong XCUITest query was found and is not evidence.
+
+No Worker source was deployed and no live endpoint, TTL, or deletion probe was run because this
+session still lacks explicit authorization to upload current source to Cloudflare Development.
+Staging and Production remain untouched. C5-04/COM-C5 remain In Progress pending that separately
+authorized Development evidence, exact-head independent review, green hosted CI, and merge; no
+G1, distribution, or release conclusion is claimed.

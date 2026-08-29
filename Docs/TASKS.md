@@ -256,8 +256,9 @@ run `33176551566` passed, and PR #78 merged it as `4715054`; C5-02 is Done. The 
 C5-03 on 2026-08-29. Independent review approved head `4ea7cd9`; remediation head `0c61427`
 closed its P2/P3 findings, passed hosted run `33211270363`, and PR #80 merged it as `a587f42`
 without a pre-merge rereview. PR #81's post-merge closeout review confirmed the exact remediation
-delta; C5-03 is Done. C5-04 awaits explicit owner entry, while Production, G1, and release remain
-blocked.
+delta; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Its controlled activation candidate
+awaits current-source Development proof, exact-head review, hosted CI, and merge, while
+Staging/Production, G1, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -546,7 +547,10 @@ blocked.
   remediation head `0c61427` closed its P2/P3 findings, passed GitHub Actions run `33211270363`,
   and PR #80 merged it as `a587f42` without a pre-merge rereview. PR #81's post-merge closeout
   review confirmed the exact remediation delta.
-- [ ] Await explicit owner instruction before entering C5-04 operations and disclosures. C5-04
-  still owns capture audit, customer control/disclosure, App Privacy, terminal fixed-endpoint
-  behavior, TTL/deletion operational proof, and final-binary traffic; Production, G1,
-  distribution, and release remain unauthorized.
+- [ ] Complete C5-04 after the owner's explicit 2026-08-29 entry. The implementation candidate
+  adds the sole fixed client factory behind bilingual default-off controls, an exhaustive closed
+  capture audit, App Privacy manifest entries, bounded lifecycle/retry, sticky terminal
+  404/405/421 handling, proof-authenticated deletion integrated before app-wide financial deletion,
+  and a Development-only operations/rollback runbook. Current-source Development deployment and
+  synthetic TTL/delete proof, exact-head independent review, hosted CI, and merge remain open.
+  Staging/Production, G1, distribution, and release remain unauthorized.

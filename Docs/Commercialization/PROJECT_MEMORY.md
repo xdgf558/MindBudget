@@ -450,8 +450,9 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: wait for explicit owner instruction before entering C5-04 operations and
-disclosures. The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
+Next suggested task: finish C5-04's separately authorized current-source Development probe, exact-
+head independent review, hosted CI, and merge without entering Staging/Production, G1, or release.
+The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.
 DEC-COM-056 limits this packet to a dormant default-off client: fixed typed events, ordinary
@@ -482,11 +483,16 @@ counts/source hashes, immutable canonical JSON,
 survey workflow, and a read-only ordered D1 receipt funnel. Independent review remediation removes
 the root coverage roll-up, keeps coverage on exact environment/storefront/device-family segments,
 and exposes the widest interval width so a tiny sample is visible. No telemetry capture, route,
-deployment, customer evidence, or G1 decision exists; C5-04 awaits explicit owner entry.
-DEC-COM-061 remediates the independent review before rereview: tombstones keep only a shared
+deployment, customer evidence, or G1 decision was created by C5-03. The owner entered C5-04 on
+2026-08-29. Its implementation candidate adds one fixed environment-isolated factory, bilingual
+default-off controls, bounded lifecycle and explicit deletion, sticky non-retrying 404/405/421,
+an exhaustive three-source capture audit, App Privacy declarations, and a Development-only
+operations runbook. Current-source Development deployment/probe, independent review, hosted CI,
+and merge remain open; no real evidence bundle or G1 decision is claimed.
+DEC-COM-061 remediates the independent review: tombstones keep only a shared
 UTC-day expiration bucket, transport metadata is fixed and locale-free, scheduled cleanup repeats
-bounded batches until drained, and C5-04 owns terminal fixed-endpoint failure behavior before any
-production construction. DEC-COM-062 records the reviewed C5-02 merge without enabling the client.
+bounded batches until drained, and C5-04 now owns sticky terminal fixed-endpoint failure behavior
+in the sole reviewed production construction. DEC-COM-062 records the reviewed C5-02 merge.
 Archive/TestFlight/App Store actions, remote receipt processing, receipt sync, capture/customer
 telemetry controls, distribution, and release remain unauthorized.
 Keep every C4B physical waiver disclosed as a non-pass under DEC-COM-039/042/043. Distribution

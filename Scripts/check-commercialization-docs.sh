@@ -1499,9 +1499,9 @@ grep -Fq 'remediation head `0c61427`, green GitHub Actions run `33211270363`, an
   exit 1
 }
 
-grep -Fq 'Status: **Blocked pending explicit owner entry after C5-03 closeout.**' \
+grep -Fq 'Status: **In Progress — owner entered 2026-08-29; implementation candidate complete pending' \
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md || {
-  echo "C5-04 must await explicit owner entry after C5-03 closeout" >&2
+  echo "C5-04 must retain the owner-entered implementation-candidate status" >&2
   exit 1
 }
 
@@ -1542,7 +1542,7 @@ for c503_contract_anchor in \
   'zero_denominator' \
   'not_collected' \
   'pseudonym generation' \
-  'current customer telemetry collection and egress remain zero'; do
+  'no real evidence bundle or G1 decision'; do
   if ! grep -Fq "${c503_contract_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -1565,7 +1565,7 @@ for c502_review_remediation_anchor in \
   'User-Agent: MindBudget' \
   'it predates DEC-COM-061 and is not current-source probe evidence' \
   'repeats those bounded transactions until no expired batch remains' \
-  'C5-04 must make them terminal/non-retrying'; do
+  'terminal/non-retrying'; do
   if ! grep -Fq "${c502_review_remediation_anchor}" \
       Docs/COMMERCIALIZATION_TASKS.md \
       Docs/TASKS.md \
@@ -1653,8 +1653,8 @@ fi
 
 # C5-03's pre-merge review covered 4ea7cd9. The 0c61427 remediation passed hosted CI and merged
 # without a pre-merge rereview; PR #81's closeout review then verified that exact delta. Require
-# every current-state/evidence document to retain that accurate chronology and the separate C5-04
-# owner-entry boundary rather than accepting a cross-file OR match.
+# every current-state/evidence document to retain that accurate chronology. C5-04 has since been
+# entered, so its current state is guarded separately below rather than frozen into this closeout.
 c503_closeout_files=(
   Docs/COMMERCIALIZATION_TASKS.md
   Docs/TASKS.md
@@ -1675,10 +1675,6 @@ for c503_closeout_file in "${c503_closeout_files[@]}"; do
       exit 1
     fi
   done
-  if ! grep -Fq 'C5-04 awaits explicit owner entry' "${c503_closeout_file}"; then
-    echo "C5-04 owner-entry boundary is missing in ${c503_closeout_file}" >&2
-    exit 1
-  fi
 done
 
 grep -Fq 'DEC-COM-065' Docs/Commercialization/DECISIONS.md || {
@@ -1718,7 +1714,7 @@ if grep -Eq 'Independent review approved (exact )?(C5-03 )?(remediation )?head `
   exit 1
 fi
 
-if grep -Eq 'C5-04 (is )?(In Progress|entered|Done)|owner explicitly entered C5-04' \
+if grep -Eq 'C5-04 awaits explicit owner entry|Status: \*\*Blocked pending explicit owner entry after C5-03 closeout\.\*\*' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -1728,7 +1724,59 @@ if grep -Eq 'C5-04 (is )?(In Progress|entered|Done)|owner explicitly entered C5-
     Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C5-03 closeout must not enter or complete C5-04" >&2
+  echo "Current commercialization state still describes C5-04 as awaiting owner entry" >&2
+  exit 1
+fi
+
+grep -Fq 'DEC-COM-066' Docs/Commercialization/DECISIONS.md || {
+  echo "C5-04 controlled activation decision is missing DEC-COM-066" >&2
+  exit 1
+}
+
+for c504_contract_file in \
+  Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+  Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md; do
+  test -f "${c504_contract_file}" || {
+    echo "C5-04 contract file is missing: ${c504_contract_file}" >&2
+    exit 1
+  }
+done
+
+for c504_contract_anchor in \
+  'owner entered 2026-08-29' \
+  'C5_TELEMETRY_CAPTURE_AUDIT.md' \
+  'C5_TELEMETRY_OPERATIONS_RUNBOOK.md' \
+  'sticky terminal' \
+  'Product Interaction' \
+  'Device ID' \
+  'current-source Development' \
+  'Staging/Production'; do
+  if ! grep -Fq "${c504_contract_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+      Docs/Commercialization/C5_TELEMETRY_CAPTURE_AUDIT.md \
+      Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+    echo "C5-04 controlled activation contract is missing: ${c504_contract_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eq 'C5-04 (is )?Done|COM-C5 (is )?Done' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C5_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C5-04/COM-C5 must remain In Progress until operational proof, review, CI, and merge" >&2
   exit 1
 fi
 

@@ -10,6 +10,7 @@ struct ProSubscriptionView: View {
     @State private var isPerformingOperation = false
     @State private var notice: ProCommerceNotice?
     @State private var presentsManageSubscriptions = false
+    @State private var didRecordPresentation = false
 
     private var snapshot: StoreCatalogSnapshot? {
         session.storeCatalogAvailability.snapshot
@@ -79,6 +80,16 @@ struct ProSubscriptionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await session.refreshCommerceCatalog() }
         .manageSubscriptionsSheet(isPresented: $presentsManageSubscriptions)
+        .onAppear {
+            guard !didRecordPresentation else { return }
+            didRecordPresentation = true
+            session.recordTelemetry(.proSurface(.presented))
+        }
+        .onDisappear {
+            guard didRecordPresentation else { return }
+            didRecordPresentation = false
+            session.recordTelemetry(.proSurface(.dismissed))
+        }
         .accessibilityIdentifier("commerce.pro.view")
     }
 
@@ -91,6 +102,7 @@ struct ProSubscriptionView: View {
                 ProSubscriptionStatusSummaryView(guidance: guidance)
 
                 Button("commerce.pro.manage") {
+                    session.recordManageSubscriptionsPresented()
                     presentsManageSubscriptions = true
                 }
                 .disabled(isPerformingOperation)
@@ -258,6 +270,7 @@ struct ProSubscriptionView: View {
             .accessibilityIdentifier("commerce.pro.restore")
 
             Button("commerce.pro.manage") {
+                session.recordManageSubscriptionsPresented()
                 presentsManageSubscriptions = true
             }
             .disabled(isPerformingOperation)

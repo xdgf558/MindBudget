@@ -201,13 +201,18 @@ struct TelemetryPersistedState: Codable, Equatable, Sendable {
     var queuedEvents: [TelemetryQueuedEvent]
     var consecutiveFailures: Int
     var retryNotBefore: Date?
+    /// Sticky endpoint-policy failures never participate in automatic retry. Upload failure is
+    /// cleared only by explicit Send Retry or opt-out; a failed Delete remains disabled and is
+    /// retried only by a repeated explicit Delete action.
+    var terminalTransportFailure: TelemetryTerminalFailure? = nil
 
     static let disabled = TelemetryPersistedState(
         collectionEnabled: false,
         identities: [],
         queuedEvents: [],
         consecutiveFailures: 0,
-        retryNotBefore: nil
+        retryNotBefore: nil,
+        terminalTransportFailure: nil
     )
 }
 
@@ -241,6 +246,18 @@ enum TelemetryCaptureResult: Equatable, Sendable {
     case unavailable
 }
 
+enum TelemetryTerminalFailure: String, Codable, Equatable, Sendable {
+    case endpointNotFound
+    case methodNotAllowed
+    case misdirectedRequest
+}
+
+/// Transport implementations expose only the closed, content-free terminal reason. The client
+/// never persists an HTTP body, URL supplied by a caller, or arbitrary error description.
+protocol TelemetryTerminalFailureProviding: Error {
+    var telemetryTerminalFailure: TelemetryTerminalFailure? { get }
+}
+
 enum TelemetryFlushResult: Equatable, Sendable {
     case disabled
     case empty
@@ -249,6 +266,7 @@ enum TelemetryFlushResult: Equatable, Sendable {
     case rejected(Int)
     case failed(Date?)
     case persistenceFailed
+    case terminalFailure(TelemetryTerminalFailure)
     case unavailable
 }
 
@@ -259,12 +277,14 @@ enum TelemetryDeletionResult: Equatable, Sendable {
     case deletedLocallyWithoutRemoteProofs
     case deletedRemotely
     case failed(Date?)
+    case terminalFailure(TelemetryTerminalFailure)
     case unavailable
 }
 
 enum TelemetryClientAvailability: Equatable, Sendable {
     case available
     case corruptPersistence
+    case unavailable
 }
 
 struct TelemetryClientSnapshot: Equatable, Sendable {
@@ -273,13 +293,40 @@ struct TelemetryClientSnapshot: Equatable, Sendable {
     let retainedIdentityCount: Int
     let retryNotBefore: Date?
     let availability: TelemetryClientAvailability
+    let terminalTransportFailure: TelemetryTerminalFailure?
+
+    init(
+        collectionEnabled: Bool,
+        queuedEventCount: Int,
+        retainedIdentityCount: Int,
+        retryNotBefore: Date?,
+        availability: TelemetryClientAvailability,
+        terminalTransportFailure: TelemetryTerminalFailure? = nil
+    ) {
+        self.collectionEnabled = collectionEnabled
+        self.queuedEventCount = queuedEventCount
+        self.retainedIdentityCount = retainedIdentityCount
+        self.retryNotBefore = retryNotBefore
+        self.availability = availability
+        self.terminalTransportFailure = terminalTransportFailure
+    }
 
     static let corrupt = TelemetryClientSnapshot(
         collectionEnabled: false,
         queuedEventCount: 0,
         retainedIdentityCount: 0,
         retryNotBefore: nil,
-        availability: .corruptPersistence
+        availability: .corruptPersistence,
+        terminalTransportFailure: nil
+    )
+
+    static let unavailable = TelemetryClientSnapshot(
+        collectionEnabled: false,
+        queuedEventCount: 0,
+        retainedIdentityCount: 0,
+        retryNotBefore: nil,
+        availability: .unavailable,
+        terminalTransportFailure: nil
     )
 }
 

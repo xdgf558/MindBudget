@@ -61,6 +61,19 @@ struct PrivacySettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section {
+                NavigationLink {
+                    TelemetrySettingsView(session: session)
+                } label: {
+                    Label("telemetry.settings.title", systemImage: "chart.bar.xaxis")
+                }
+                .accessibilityIdentifier("settings.privacy.telemetry")
+            } header: {
+                Text("telemetry.settings.section")
+            } footer: {
+                Text("telemetry.settings.summary")
+            }
+
             Section("privacy.delete.section") {
                 Text("privacy.delete.explanation")
                     .foregroundStyle(.secondary)
@@ -122,6 +135,156 @@ struct PrivacySettingsView: View {
             )
         )
         faceIDAvailability = session.faceIDAvailability()
+    }
+}
+
+private struct TelemetrySettingsView: View {
+    @ObservedObject var session: AppSession
+    @Environment(\.mindBudgetTheme) private var theme
+
+    @State private var presentsEnableConfirmation = false
+    @State private var presentsDeleteConfirmation = false
+    @State private var isWorking = false
+    @State private var operationFailed = false
+
+    var body: some View {
+        List {
+            Section {
+                Toggle(
+                    "telemetry.settings.toggle",
+                    isOn: Binding(
+                        get: { session.telemetrySnapshot.collectionEnabled },
+                        set: { enabled in
+                            if enabled {
+                                presentsEnableConfirmation = true
+                            } else {
+                                Task { await setCollectionEnabled(false) }
+                            }
+                        }
+                    )
+                )
+                .disabled(isWorking || session.telemetrySnapshot.availability != .available)
+                .accessibilityIdentifier("settings.telemetry.toggle")
+            } header: {
+                Text("telemetry.settings.section")
+            } footer: {
+                Text("telemetry.settings.defaultOff")
+            }
+
+            Section("telemetry.settings.collects.title") {
+                Text("telemetry.settings.collects.detail")
+                Text("telemetry.settings.neverCollects")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("telemetry.settings.identity.title") {
+                Text("telemetry.settings.identity.detail")
+                Text("telemetry.settings.retention.detail")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("telemetry.settings.status.title") {
+                LabeledContent(
+                    "telemetry.settings.status.queue",
+                    value: String(session.telemetrySnapshot.queuedEventCount)
+                )
+                LabeledContent(
+                    "telemetry.settings.status.identities",
+                    value: String(session.telemetrySnapshot.retainedIdentityCount)
+                )
+
+                if session.telemetrySnapshot.availability == .corruptPersistence {
+                    Label("telemetry.settings.corrupt", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(theme.attentionText)
+                }
+
+                if session.telemetrySnapshot.availability == .unavailable {
+                    Label("telemetry.settings.unavailable", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(theme.attentionText)
+                }
+
+                if session.telemetrySnapshot.terminalTransportFailure != nil {
+                    Label("telemetry.settings.endpointFailure", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(theme.attentionText)
+                    if session.telemetrySnapshot.collectionEnabled {
+                        Button("telemetry.settings.retry") {
+                            Task {
+                                isWorking = true
+                                await session.retryTelemetryTransport()
+                                isWorking = false
+                            }
+                        }
+                        .disabled(isWorking)
+                    }
+                }
+
+                if session.telemetrySnapshot.retainedIdentityCount
+                    >= TelemetryPolicy.maximumIdentityGenerations {
+                    Text("telemetry.settings.identityCapacity")
+                        .font(.footnote)
+                        .foregroundStyle(theme.attentionText)
+                }
+            }
+
+            Section {
+                Button("telemetry.settings.delete", role: .destructive) {
+                    presentsDeleteConfirmation = true
+                }
+                .disabled(isWorking)
+                .accessibilityIdentifier("settings.telemetry.delete")
+
+                if operationFailed {
+                    Text("telemetry.settings.operationFailed")
+                        .font(.footnote)
+                        .foregroundStyle(theme.attentionText)
+                }
+            } footer: {
+                Text("telemetry.settings.delete.detail")
+            }
+        }
+        .navigationTitle("telemetry.settings.title")
+        .confirmationDialog(
+            "telemetry.settings.enable.title",
+            isPresented: $presentsEnableConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("telemetry.settings.enable.confirm") {
+                Task { await setCollectionEnabled(true) }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("telemetry.settings.enable.message")
+        }
+        .confirmationDialog(
+            "telemetry.settings.delete.title",
+            isPresented: $presentsDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("telemetry.settings.delete.confirm", role: .destructive) {
+                Task { await deleteTelemetry() }
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("telemetry.settings.delete.message")
+        }
+    }
+
+    private func setCollectionEnabled(_ enabled: Bool) async {
+        isWorking = true
+        operationFailed = !(await session.setTelemetryCollectionEnabled(enabled))
+        isWorking = false
+    }
+
+    private func deleteTelemetry() async {
+        isWorking = true
+        let result = await session.deleteTelemetryData()
+        switch result {
+        case .deletedLocally, .deletedLocallyWithoutRemoteProofs, .deletedRemotely:
+            operationFailed = false
+        case .failed, .terminalFailure, .unavailable:
+            operationFailed = true
+        }
+        isWorking = false
     }
 }
 

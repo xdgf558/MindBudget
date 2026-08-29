@@ -1956,3 +1956,41 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Treating implementation tests as collected evidence; automatically
   entering C5-04; marking COM-C5 Done before controls/disclosures/operations; or using C5-03 merge
   as authorization to deploy, capture, update App Privacy, decide G1, distribute, or release.
+
+## DEC-COM-066 — Activate C5 telemetry only behind customer control and closed operations
+
+- Status/date: **Accepted C5-04 implementation boundary — 2026-08-29**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; DEC-COM-056 through DEC-COM-065
+- Context: After C5-03's reviewed closeout, the owner explicitly entered C5-04. The dormant client,
+  fixed adapter, Development Worker, and evidence computation already existed, but the product had
+  no customer control, production construction, capture inventory, App Privacy declaration,
+  terminal endpoint policy, or current-source operational proof.
+- Decision: Permit exactly one `TelemetryClient` plus `FixedTelemetryTransport` construction in
+  `TelemetryServiceFactory`. Keep missing state default-off and require bilingual confirmation in
+  Privacy settings before creating a pseudonym or request. Limit capture to the three reviewed
+  production files and the closed events in `C5_TELEMETRY_CAPTURE_AUDIT.md`; never add content,
+  financial values, receipt evidence, StoreKit/CloudKit identifiers, device/locale metadata, or
+  arbitrary strings. Treat fixed 404/405/421 endpoint-policy failures as durable, non-retrying
+  states; upload retry requires explicit Send Retry or opt-out, while deletion retry requires
+  another explicit Delete. Delete first durably disables collection, clears the unsent queue, and
+  retires the active identity, then removes every authenticated retained generation before app-wide
+  financial deletion can proceed. A failed delete cannot re-enable or create a new identity while
+  any terminal proof state remains. Declare Product Interaction and a conservative
+  rotating Device ID as unlinked, non-tracking Analytics in the privacy manifest. Use
+  `C5_TELEMETRY_OPERATIONS_RUNBOOK.md` for separately authorized Development publish, rollback,
+  closed monitoring, synthetic TTL/delete proof, and credentials. Telemetry has no server signing
+  key; client deletion secrets remain local and must never be exported.
+- Consequences: Runtime telemetry is optional and cannot affect entitlement, budgets, local use,
+  or any product decision. Factory prerequisites fail to a typed unavailable telemetry service
+  rather than failing app startup; its UI remains off and explains that budgeting still works.
+  Disable drops unsent events and stops capture; Delete remains a distinct
+  proof-authenticated action. Corrupt local state remains deletable without a false remote claim.
+  App Store Connect privacy answers must be updated before distribution. C5-04 and COM-C5 remain
+  In Progress until current-source Development proof, exact-head review, green hosted CI, and merge.
+  Staging/Production, G1, TestFlight/App Store distribution, and release remain unauthorized.
+- Alternatives rejected: Implicit or mandatory collection; a global analytics singleton with
+  arbitrary properties; stable account/device/advertising identity; financial or receipt-content
+  events; automatic retry of endpoint-policy failures; deleting financial data before telemetry
+  deletion truthfully resolves; relying on a privacy manifest to update App Store Connect; treating
+  a Development probe as Production/final-binary/G1 evidence; or deploying remotely without exact
+  environment approval.

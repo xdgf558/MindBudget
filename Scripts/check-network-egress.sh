@@ -247,4 +247,4 @@ if [[ -n "${violations}" ]]; then
   exit 1
 fi
 
-echo "App-owned Release network egress is limited to the signed public-configuration and dormant telemetry adapters"
+echo "App-owned Release network egress is limited to the signed public-configuration and controlled telemetry adapters"

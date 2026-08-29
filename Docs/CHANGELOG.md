@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added an unreleased, optional first-party product-analytics control in Privacy settings. It is
+  default off, requires explicit confirmation, accepts only closed non-content interaction events,
+  and can be disabled or deleted without changing budgets, subscriptions, receipt processing, or
+  local app use. Financial values, merchant/category/note text, receipt data, StoreKit identifiers,
+  CloudKit records, locale, and device/advertising identifiers are excluded.
 - Added an unreleased Pro receipt workflow to the new-expense form. A user can explicitly choose
   one photo or camera capture, process it entirely on device, review accepted merchant/date/total
   suggestions, and then use the existing Save action. Receipt images and recognized text are not

@@ -327,6 +327,170 @@ struct TelemetryClientTests {
         #expect(String(decoding: data, as: UTF8.self).contains(Data(repeating: 9, count: 32).base64EncodedString()))
     }
 
+    @Test(arguments: [
+        (404, TelemetryTerminalFailure.endpointNotFound),
+        (405, TelemetryTerminalFailure.methodNotAllowed),
+        (421, TelemetryTerminalFailure.misdirectedRequest)
+    ])
+    func fixedEndpointPolicyFailuresAreStickyAndNeverRetryAutomatically(
+        statusCode: Int,
+        expectedFailure: TelemetryTerminalFailure
+    ) async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let loader = RecordingTelemetryHTTPLoader(statusCode: statusCode)
+        let client = try makeClient(
+            persistence: persistence,
+            transport: FixedTelemetryTransport(environment: .development, loader: loader)
+        )
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        #expect(try await client.capture(.appSessionStarted, at: referenceDate) == .queued)
+
+        #expect(await client.flush(now: referenceDate) == .terminalFailure(expectedFailure))
+        #expect(await client.flush(now: laterDate(seconds: 60)) == .terminalFailure(expectedFailure))
+        #expect(await loader.requests.count == 1)
+        #expect(await client.snapshot().terminalTransportFailure == expectedFailure)
+        #expect(
+            try await client.capture(.proSurface(.presented), at: laterDate(seconds: 60))
+                == .unavailable
+        )
+
+        #expect(
+            await client.retryTerminalTransport(now: laterDate(seconds: 120))
+                == .terminalFailure(expectedFailure)
+        )
+        #expect(await loader.requests.count == 2)
+    }
+
+    @Test
+    func terminalDeletionFailureStopsCollectionAndRetainsEveryProofForExplicitRetry() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let loader = RecordingTelemetryHTTPLoader(statusCode: 404)
+        let client = try makeClient(
+            persistence: persistence,
+            transport: FixedTelemetryTransport(environment: .development, loader: loader)
+        )
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        #expect(try await client.capture(.appSessionStarted, at: referenceDate) == .queued)
+
+        #expect(
+            await client.deleteAllTelemetry(now: referenceDate)
+                == .terminalFailure(.endpointNotFound)
+        )
+        let snapshot = await client.snapshot()
+        #expect(snapshot.collectionEnabled == false)
+        #expect(snapshot.queuedEventCount == 0)
+        #expect(snapshot.retainedIdentityCount == 1)
+        #expect(await persistence.currentState?.identities.last?.deletionProofExpiresAt != nil)
+        #expect(
+            try await client.capture(.proSurface(.presented), at: laterDate(seconds: 1))
+                == .disabled
+        )
+        await #expect(throws: TelemetryClientError.unresolvedDeletion) {
+            try await client.setCollectionEnabled(true, now: laterDate(seconds: 1))
+        }
+        #expect(await persistence.deleteCount == 0)
+
+        // The separate Delete action, not the upload Retry control, retries the exact proofs.
+        #expect(
+            await client.deleteAllTelemetry(now: laterDate(seconds: 2))
+                == .terminalFailure(.endpointNotFound)
+        )
+        #expect(await loader.requests.count == 2)
+    }
+
+    @Test
+    func terminalDeletionIsNotAttemptedWhenDisabledStateCannotBePersisted() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let loader = RecordingTelemetryHTTPLoader(statusCode: 404)
+        let client = try makeClient(
+            persistence: persistence,
+            transport: FixedTelemetryTransport(environment: .development, loader: loader)
+        )
+        try await client.setCollectionEnabled(true, now: referenceDate)
+        await persistence.failNextWrite()
+
+        #expect(await client.deleteAllTelemetry(now: referenceDate) == .failed(nil))
+        #expect(await client.snapshot().retainedIdentityCount == 1)
+        #expect(await persistence.deleteCount == 0)
+        #expect(await persistence.currentState?.terminalTransportFailure == nil)
+        #expect(await loader.requests.isEmpty)
+    }
+
+    @Test
+    func persistedStateWithoutTerminalFailureFieldRemainsReadable() throws {
+        var state = makePersistedTelemetryState()
+        state.terminalTransportFailure = .endpointNotFound
+        let encoded = try JSONEncoder().encode(state)
+        var object = try #require(
+            JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+        )
+        object.removeValue(forKey: "terminalTransportFailure")
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+
+        let decoded = try JSONDecoder().decode(TelemetryPersistedState.self, from: legacyData)
+
+        #expect(decoded.terminalTransportFailure == nil)
+        #expect(decoded.collectionEnabled == state.collectionEnabled)
+        #expect(decoded.identities == state.identities)
+        #expect(decoded.queuedEvents == state.queuedEvents)
+    }
+
+    @Test
+    @MainActor
+    func runtimeStartWhileDefaultOffCreatesNoPersistenceOrIdentity() async throws {
+        let persistence = MemoryTelemetryPersistence()
+        let client = try makeClient(persistence: persistence)
+        let service = TelemetryService(client: client)
+
+        await service.start()
+
+        #expect(service.snapshot.collectionEnabled == false)
+        #expect(service.snapshot.retainedIdentityCount == 0)
+        #expect(await persistence.writeCount == 0)
+    }
+
+    @Test
+    @MainActor
+    func unavailableRuntimeCannotBlockLocalUseOrClaimCollection() async {
+        let service = TelemetryServiceFactory.live(
+            applicationSupportURL: nil,
+            rawVersion: "0.9.8"
+        )
+
+        await service.start()
+
+        #expect(service.snapshot == .unavailable)
+        #expect(await service.setCollectionEnabled(true) == false)
+        #expect(await service.capture(.appSessionStarted) == .unavailable)
+        #expect(await service.deleteAllTelemetry() == .unavailable)
+    }
+
+    @Test
+    @MainActor
+    func cancelledRuntimeStartCanBeRetriedWithoutLosingTheLifecycleEvent() async throws {
+        let persistence = GatedReadTelemetryPersistence(
+            initialState: makePersistedTelemetryState()
+        )
+        let client = try makeClient(persistence: persistence)
+        let service = TelemetryService(client: client)
+        await persistence.suspendNextRead()
+
+        let firstStart = Task { await service.start() }
+        await persistence.waitUntilReadStarts()
+        firstStart.cancel()
+        await persistence.releaseRead()
+        await firstStart.value
+        #expect(await persistence.currentState.queuedEvents.count == 1)
+
+        await service.start()
+
+        #expect(await persistence.currentState.queuedEvents.count == 2)
+        #expect(
+            await persistence.currentState.queuedEvents.last?.event == .appSessionStarted
+        )
+        service.stop()
+    }
+
     @Test
     func concurrentFlushesShareOneTransportLaneAndCannotDuplicateABatch() async throws {
         let persistence = MemoryTelemetryPersistence()
@@ -705,6 +869,57 @@ private actor GatedWriteTelemetryPersistence: TelemetryPersisting {
     }
 
     func releaseWrite() {
+        releaseContinuation?.resume()
+        releaseContinuation = nil
+    }
+}
+
+private actor GatedReadTelemetryPersistence: TelemetryPersisting {
+    private(set) var currentState: TelemetryPersistedState
+    private var shouldSuspendNextRead = false
+    private var readStarted = false
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+    private var releaseContinuation: CheckedContinuation<Void, Never>?
+
+    init(initialState: TelemetryPersistedState) {
+        currentState = initialState
+    }
+
+    func read() async -> TelemetryPersistenceRead {
+        if shouldSuspendNextRead {
+            shouldSuspendNextRead = false
+            readStarted = true
+            let waiters = startWaiters
+            startWaiters.removeAll()
+            waiters.forEach { $0.resume() }
+            await withCheckedContinuation { continuation in
+                releaseContinuation = continuation
+            }
+        }
+        return .valid(currentState)
+    }
+
+    func write(_ state: TelemetryPersistedState) {
+        currentState = state
+    }
+
+    func delete() {
+        currentState = .disabled
+    }
+
+    func suspendNextRead() {
+        shouldSuspendNextRead = true
+        readStarted = false
+    }
+
+    func waitUntilReadStarts() async {
+        if readStarted { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(continuation)
+        }
+    }
+
+    func releaseRead() {
         releaseContinuation?.resume()
         releaseContinuation = nil
     }

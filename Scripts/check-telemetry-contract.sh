@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# These strings and exact field lists are reviewed contract anchors. C5-02 must change them only
-# together with the accepted endpoint, server schema, disclosure, deletion, and retention packet.
+# These strings, construction counts, and exact field lists are reviewed contract anchors.
+# C5-04 permits one production factory and only the enumerated content-free capture call sites.
 
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
@@ -13,8 +13,10 @@ CLIENT_SOURCE="MindBudget/Services/TelemetryClient.swift"
 TRANSPORT_SOURCE="MindBudget/Services/TelemetryTransport.swift"
 TEST_SOURCE="MindBudgetTests/TelemetryClientTests.swift"
 PROJECT_FILE="MindBudget.xcodeproj/project.pbxproj"
+PRIVACY_MANIFEST="MindBudget/Resources/PrivacyInfo.xcprivacy"
+LOCALIZATION_CATALOG="MindBudget/Resources/Localizable.xcstrings"
 
-for command_name in awk grep mktemp rm; do
+for command_name in awk grep mktemp rm sort tr wc; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
     echo "C5-01 telemetry contract requires ${command_name}" >&2
     exit 1
@@ -186,15 +188,40 @@ if [[ "${event_cases}" != "${expected_event_cases}" ]]; then
   exit 1
 fi
 
-if production_fixed_transport_construction_scan MindBudget; then
-  echo "C5-02 must remain dormant: production code instantiated FixedTelemetryTransport" >&2
+fixed_transport_construction_count="$(grep -REh --include='*.swift' \
+  'FixedTelemetryTransport[[:space:]]*\(' MindBudget | wc -l | tr -d ' ')"
+if [[ "${fixed_transport_construction_count}" -ne 1 ]] \
+    || ! grep -Eq 'transport:[[:space:]]*FixedTelemetryTransport\(environment: environment\)' \
+      "${CLIENT_SOURCE}"; then
+  echo "C5-04 requires exactly one reviewed fixed-transport construction in TelemetryServiceFactory" >&2
   exit 1
-else
-  transport_construction_scan_status=$?
-  if [[ "${transport_construction_scan_status}" -ne 1 ]]; then
-    echo "C5-02 transport dormancy scan could not complete" >&2
-    exit 1
-  fi
+fi
+
+# A contextual `.init` still needs a type-bearing declaration somewhere. Keep the concrete client
+# type confined to its owning source, and the concrete transport type confined to its definition
+# plus that source. This catches type aliases, initializer function values, and cross-file sinks
+# that a simple `Type(` construction count would miss.
+client_reference_sources="$(grep -RIlE --include='*.swift' \
+  '(^|[^[:alnum:]_])TelemetryClient([^[:alnum:]_]|$)' MindBudget | sort)"
+if [[ "${client_reference_sources}" != "${CLIENT_SOURCE}" ]]; then
+  echo "TelemetryClient type reference escaped its reviewed owning source" >&2
+  printf '%s\n' "${client_reference_sources}" >&2
+  exit 1
+fi
+expected_transport_reference_sources='MindBudget/Services/TelemetryClient.swift
+MindBudget/Services/TelemetryTransport.swift'
+transport_reference_sources="$(grep -RIlE --include='*.swift' \
+  '(^|[^[:alnum:]_])FixedTelemetryTransport([^[:alnum:]_]|$)' MindBudget | sort)"
+if [[ "${transport_reference_sources}" != "${expected_transport_reference_sources}" ]]; then
+  echo "FixedTelemetryTransport type reference escaped its reviewed definition/factory sources" >&2
+  printf '%s\n' "${transport_reference_sources}" >&2
+  exit 1
+fi
+if grep -REq --include='*.swift' \
+    'TelemetryClient[[:space:]]*\.[[:space:]]*init|typealias[^[:cntrl:]]*TelemetryClient|TelemetryClient[^=[:cntrl:]]*=[[:space:]]*\.init' \
+    MindBudget; then
+  echo "TelemetryClient initializer aliases/function values are forbidden" >&2
+  exit 1
 fi
 
 upload_fields="$(telemetry_upload_fields "${DOMAIN_SOURCE}")"
@@ -216,15 +243,12 @@ if grep -Eq '(^|[^[:alnum:]_])(Money|ExpenseSummary|IncomeSummary|ReceiptOCRDocu
   exit 1
 fi
 
-if production_client_construction_scan MindBudget; then
-  echo "C5-01 must remain dormant: production code instantiated TelemetryClient" >&2
+client_construction_count="$(grep -REh --include='*.swift' \
+  'TelemetryClient[[:space:]]*\(' MindBudget | wc -l | tr -d ' ')"
+if [[ "${client_construction_count}" -ne 1 ]] \
+    || ! grep -Fq 'let client = TelemetryClient(' "${CLIENT_SOURCE}"; then
+  echo "C5-04 requires exactly one reviewed TelemetryClient construction in its fixed factory" >&2
   exit 1
-else
-  construction_scan_status=$?
-  if [[ "${construction_scan_status}" -ne 1 ]]; then
-    echo "C5-01 dormancy scan could not complete" >&2
-    exit 1
-  fi
 fi
 
 for contract in \
@@ -237,6 +261,9 @@ for contract in \
   'struct UnavailableTelemetryTransport: TelemetryTransporting' \
   'case deletedLocallyWithoutRemoteProofs' \
   'case persistenceFailed' \
+  'case terminalFailure(TelemetryTerminalFailure)' \
+  'var terminalTransportFailure: TelemetryTerminalFailure? = nil' \
+  'func retryTerminalTransport(now: Date) async -> TelemetryFlushResult' \
   'private var stateMutationInProgress = false' \
   'private var transportOperationInProgress = false' \
   'try retireCurrentIdentityForOptOut(in: &state, now: now)' \
@@ -266,7 +293,9 @@ for transport_contract in \
   'maximumDeleteBytes = 2 * 1_024' \
   'maximumResponseBytes = 1_024' \
   'actor FixedTelemetryTransport: TelemetryTransporting' \
-  'continues to default to `UnavailableTelemetryTransport`'; do
+  'case 404: .endpointNotFound' \
+  'case 405: .methodNotAllowed' \
+  'case 421: .misdirectedRequest'; do
   grep -Fq "${transport_contract}" "${TRANSPORT_SOURCE}" || {
     echo "C5-02 telemetry transport is missing contract: ${transport_contract}" >&2
     exit 1
@@ -313,6 +342,64 @@ for test_contract in \
   }
 done
 
+for c504_test_contract in \
+  'fixedEndpointPolicyFailuresAreStickyAndNeverRetryAutomatically' \
+  'terminalDeletionFailureStopsCollectionAndRetainsEveryProofForExplicitRetry' \
+  'terminalDeletionIsNotAttemptedWhenDisabledStateCannotBePersisted' \
+  'persistedStateWithoutTerminalFailureFieldRemainsReadable' \
+  'runtimeStartWhileDefaultOffCreatesNoPersistenceOrIdentity' \
+  'unavailableRuntimeCannotBlockLocalUseOrClaimCollection' \
+  'cancelledRuntimeStartCanBeRetriedWithoutLosingTheLifecycleEvent'; do
+  grep -Fq "${c504_test_contract}" "${TEST_SOURCE}" || {
+    echo "C5-04 telemetry tests are missing contract: ${c504_test_contract}" >&2
+    exit 1
+  }
+done
+
+capture_sources="$(grep -RIlE --include='*.swift' \
+  'recordTelemetry\(|telemetryEventRecorder\.capture\(' MindBudget | sort)"
+expected_capture_sources='MindBudget/App/AppRouter.swift
+MindBudget/Features/AddExpense/AddExpenseView.swift
+MindBudget/Features/Commerce/ProSubscriptionView.swift'
+if [[ "${capture_sources}" != "${expected_capture_sources}" ]]; then
+  echo "C5-04 telemetry capture escaped the reviewed production call-site list" >&2
+  printf '%s\n' "${capture_sources}" >&2
+  exit 1
+fi
+
+for activation_contract in \
+  'let telemetryService: any TelemetryServicing' \
+  'let telemetryService = TelemetryServiceFactory.live()' \
+  'return UnavailableTelemetryService()' \
+  'await session.startTelemetryLifecycle()' \
+  'case deletingTelemetry'; do
+  grep -RFq "${activation_contract}" MindBudget || {
+    echo "C5-04 production activation is missing contract: ${activation_contract}" >&2
+    exit 1
+  }
+done
+
+for privacy_contract in \
+  'NSPrivacyCollectedDataTypeProductInteraction' \
+  'NSPrivacyCollectedDataTypeDeviceID' \
+  'NSPrivacyCollectedDataTypePurposeAnalytics'; do
+  grep -Fq "${privacy_contract}" "${PRIVACY_MANIFEST}" || {
+    echo "C5-04 privacy manifest is missing contract: ${privacy_contract}" >&2
+    exit 1
+  }
+done
+
+for disclosure_contract in \
+  'telemetry.settings.defaultOff' \
+  'telemetry.settings.neverCollects' \
+  'telemetry.settings.retention.detail' \
+  'telemetry.settings.delete.message'; do
+  grep -Fq "${disclosure_contract}" "${LOCALIZATION_CATALOG}" || {
+    echo "C5-04 bilingual disclosure is missing contract: ${disclosure_contract}" >&2
+    exit 1
+  }
+done
+
 for c502_test_contract in \
   'optOutCancelsTheInFlightUploadBeforeCommittingDisabledState' \
   'fixedTransportPostsOnlyTheReviewedDevelopmentUploadEnvelope' \
@@ -331,4 +418,4 @@ for source_name in TelemetryDomain.swift TelemetryClient.swift TelemetryTranspor
   fi
 done
 
-echo "C5-02 dormant telemetry transport and client contract passed"
+echo "C5-04 activated first-party telemetry contract passed"
