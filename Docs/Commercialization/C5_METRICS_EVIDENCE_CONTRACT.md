@@ -2,8 +2,9 @@
 
 Status: **C5-03 Done after pre-merge review of head `4ea7cd9`, post-merge PR #81 verification of
 remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 merge `a587f42`.**
-C5-04 entered on 2026-08-29 and remains In Progress; its runtime activation cannot change this
-immutable evidence format or manufacture a G1 result.
+C5-04 entered on 2026-08-29 and remains In Progress pending review/CI/merge of Development version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its runtime activation cannot change this immutable
+evidence format or manufacture a G1 result.
 
 ## Purpose and non-goals
 
@@ -13,7 +14,12 @@ call, add a Worker route, deploy Staging/Production, change App Privacy answers,
 C5-04's PR #82 merge `28d9eae` adds an optional default-off live client and closed capture sites
 from exact remediation head `2c1cebe` after green run `33233846430`. The independent review covered
 the deletion-order remediation within its declared scope and excluded the privacy manifest,
-feature capture sites, service, and runbook now named for PR #83 supplemental review; that runtime
+feature capture sites, service, and runbook. Independent review of PR #83 head `daea2d2` raised
+two P2 findings and one P3; remediation head `e6bbd3f` applied them and recorded an author-side
+supplemental inspection of those four surfaces, passed run `33242024609`, and merged as `becb020`
+without a pre-merge rereview. Exact source `becb020` passed the synthetic current-source
+Development proof under DEC-COM-069. PR #84 separately proved the actual iOS Simulator
+`FixedTelemetryTransport`/`URLSession` strict-header path with upload 202 and delete 204; that runtime
 cannot change evidence inputs, thresholds, or the absence of a current G1 decision.
 
 The checked-in evidence builder consumes only manually supplied aggregate counts and SHA-256
@@ -164,6 +170,8 @@ C5-03 is Done through reviewed PR #80 merge `a587f42` without claiming collected
 success. The owner entered C5-04 on 2026-08-29. Reviewed PR #82 merge `28d9eae` supplies customer
 control/disclosure, capture-site audit, terminal endpoint-policy behavior, source App Privacy/data-
 flow updates, and a Development operations runbook after exact head `2c1cebe` passed run
-`33233846430`. Current-source operational evidence, App Store
+`33233846430`. PR #84's actual iOS transport probe remains Debug simulator evidence and its final
+D1 aggregates were 0 events, 0 identities, and 3 tombstones; it is not customer evidence or a G1
+input. App Store
 Connect answers, Staging/Production deployment, final-binary traffic, and every G1/release decision
 remain open.

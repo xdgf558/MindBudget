@@ -59,8 +59,17 @@ detailed phase checklists; it added no paid product behavior.
   rereview. PR #81's post-merge closeout review read that exact remediation delta and confirmed
   both fixes; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Independent review approved
   exact remediation head `2c1cebe`, GitHub Actions run `33233846430` passed, and PR #82 merged the
-  controlled activation product capability as `28d9eae`. C5-04 and COM-C5 remain In Progress only
-  because current-source Development operational proof is still open; Staging/Production
+  controlled activation product capability as `28d9eae`. Independent review of PR #83 head
+  `daea2d2` raised two P2 findings and one P3 and explicitly excluded the privacy manifest,
+  capture sites, service, and runbook. Remediation head `e6bbd3f` applied those findings and
+  recorded the implementation author's supplemental inspection of the four excluded surfaces;
+  it passed run `33242024609` and merged as `becb020` without a pre-merge rereview. Current source `becb020` is deployed
+  only to Development as Worker version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`, and its synthetic
+  TTL/delete/idempotency probe passed with exact cleanup. PR #84 additionally ran the real
+  `FixedTelemetryTransport` through iOS Simulator `URLSession`; the Worker accepted upload 202
+  and delete 204, and final D1 aggregates were 0 events, 0 identities, and 3 tombstones (2
+  historical plus the live transport probe's expected UTC-day tombstone). C5-04 and COM-C5 remain In Progress only
+  pending independent review, hosted CI, and merge of that operational evidence; Staging/Production
   deployment, G1, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
@@ -596,10 +605,7 @@ remediation head `0c61427`, green GitHub Actions run `33211270363`, and PR #80 m
 
 ### C5-04 — Operations and disclosures
 
-Status: **In Progress — product capability merged from exact remediation head `2c1cebe` after its
-deletion-order remediation passed scoped independent review and green GitHub Actions run
-`33233846430`; PR #82 merged it as `28d9eae`, while current-source Development deployment/probe
-remains open.**
+Status: **Implementation and Development operational proof complete pending independent review.**
 
 - [x] Activate the sole fixed client factory behind a bilingual default-off control; retain exact
   Development/Staging/Production isolation and keep Staging/Production undeployed.
@@ -608,9 +614,19 @@ remains open.**
   an optional remote telemetry failure retains proofs for retry but never blocks local Delete All.
 - [x] Record the scoped review, hosted CI, and product merge through PR #82 (`28d9eae`) without
   implying that the review covered the privacy manifest, capture sites, telemetry service, or
-  operations runbook. PR #83's closeout review is explicitly asked to inspect those four surfaces.
-- [ ] Complete the Development-only current-source publish/rollback, aggregate-only monitoring,
-  and TTL/delete/idempotency probe; no G1 or release claim follows from the source merge.
+  operations runbook. PR #83 head `daea2d2` was independently reviewed; remediation head
+  `e6bbd3f` recorded the implementation author's supplemental inspection of those four surfaces,
+  passed run `33242024609`, and merged as `becb020` without a pre-merge rereview.
+- [x] Complete the Development-only current-source publish readiness, aggregate-only monitoring,
+  and TTL/delete/idempotency probe. Source `becb020` is deployed only as Development version
+  `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; 202/202/409/204/202/204 behavior, exact
+  `7776000000`-millisecond event TTL, UTC-day tombstone bucketing, non-resurrection, and exact
+  synthetic cleanup passed. A separately opt-in iOS Simulator scheme then exercised the actual
+  `FixedTelemetryTransport`/`URLSession` path against the strict Worker headers: upload mapped from
+  HTTP 202 to `.accepted`, delete returned 204, and aggregate D1 verification found 0 event rows,
+  0 identity rows, and 3 tombstones (2 historical plus this probe's expected tombstone). The same
+  remediation adds a deterministic `stop()`-then-delete retry regression. No rollback was needed,
+  and no final-binary, G1, or release claim follows.
 
 Exit gate: data channel is optional, content-free, deletable, observable, and cost-bounded; its
 failure never changes app behavior.

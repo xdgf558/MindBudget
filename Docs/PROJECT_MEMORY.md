@@ -160,9 +160,19 @@ local erase, App Privacy manifest entries, and a Development-only
 publish/rollback/TTL-delete runbook. Independent review approved the deletion-order remediation on
 exact head `2c1cebe` within its declared scope; GitHub Actions run `33233846430` passed, and PR #82
 merged the product capability as `28d9eae`. That review did not inspect the privacy manifest, the
-two feature capture files, `TelemetryService`, or the operations runbook; PR #83's closeout review
-is explicitly asked to supplement them. Current-source Development operational proof remains open,
-so C5-04/COM-C5 stay In Progress; Staging/Production, G1, distribution, and release remain blocked.
+two feature capture files, `TelemetryService`, or the operations runbook. Independent review of
+PR #83 head `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them
+and recorded the implementation author's supplemental inspection of those four surfaces, passed
+green run `33242024609`, and merged as `becb020` without a pre-merge rereview.
+Current source `becb020` is deployed only to Development as version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its synthetic 202/202/409/204/202/204 sequence proved
+the exact 90-day event TTL, UTC-day tombstone bucketing, idempotency, non-resurrection, and exact
+cleanup. PR #84's separate opt-in iOS Simulator probe exercised the real
+`FixedTelemetryTransport`/`URLSession` path, received upload 202 and delete 204, and left final D1
+aggregates at 0 events/0 identities/3 tombstones (2 historical plus its expected tombstone); a
+deterministic regression also proves explicit deletion remains callable after service `stop()`.
+C5-04/COM-C5 stay In Progress pending review, CI, and merge of that operational evidence;
+Staging/Production, G1, distribution, and release remain blocked.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

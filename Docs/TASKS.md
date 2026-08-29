@@ -260,9 +260,15 @@ delta; C5-03 is Done. The owner entered C5-04 on 2026-08-29. Independent review 
 deletion-order remediation on exact head `2c1cebe` within its declared scope; GitHub Actions run
 `33233846430` passed, and PR #82 merged the controlled activation product capability as `28d9eae`.
 The privacy manifest, two feature capture files, `TelemetryService`, and operations runbook were
-outside that review and are explicit PR #83 closeout-review surfaces. C5-04/COM-C5 remain In
-Progress pending current-source Development operational proof; Staging/Production, G1,
-distribution, and release remain blocked.
+outside that review. Independent review of PR #83 head `daea2d2` raised two P2 findings and one
+P3; remediation head `e6bbd3f` applied them and recorded the implementation author's supplemental
+inspection of the excluded surfaces, passed run `33242024609`, and merged as `becb020` without a
+pre-merge rereview. Current source `becb020` is now deployed only to Development as
+version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716`; its synthetic TTL/delete/idempotency probe passed
+and retained no new row. PR #84's opt-in real iOS `FixedTelemetryTransport`/`URLSession` probe then
+received upload 202 and delete 204; final D1 aggregates were 0 events, 0 identities, and 3
+tombstones (2 historical plus the expected live-probe tombstone). C5-04/COM-C5 remain In Progress pending review, CI, and merge of this
+operational evidence; Staging/Production, G1, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -560,7 +566,14 @@ distribution, and release remain blocked.
   Development-only operations/rollback runbook. Independent review approved the deletion-order
   remediation on exact head `2c1cebe` within its declared scope; hosted run `33233846430` passed,
   and PR #82 merged it as `28d9eae`. The privacy manifest, two feature capture files,
-  `TelemetryService`, and operations runbook were outside that review and are explicit PR #83
-  closeout-review surfaces. Only the current-source Development deployment plus synthetic
-  TTL/delete/idempotency proof remains open inside C5-04. Staging/Production, G1, distribution,
-  and release remain unauthorized.
+  `TelemetryService`, and operations runbook were outside that review. Independent review of PR
+  #83 head `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them,
+  recorded the implementation author's supplemental inspection of those four surfaces, passed
+  run `33242024609`, and merged as `becb020` without a pre-merge rereview.
+  Development version `003c66fa-a57c-4b6a-a8d7-3f75b14cc716` now carries that exact current source;
+  the synthetic sequence proved 202/202/409/204/202/204, exact 90-day event TTL, UTC-day tombstone
+  bucketing, non-resurrection, and exact cleanup. PR #84 additionally proves the actual iOS
+  `FixedTelemetryTransport`/`URLSession` headers with upload 202 and delete 204, records final D1
+  aggregates of 0 events/0 identities/3 tombstones, and tests that explicit deletion remains
+  callable after `TelemetryService.stop()`. C5-04 awaits independent review, hosted CI, and
+  merge of this evidence; Staging/Production, G1, distribution, and release remain unauthorized.

@@ -1867,3 +1867,70 @@ were excluded from PR #82's review scope. Repository inspection confirms that `T
 is defined in `MindBudget/Services/TelemetryClient.swift`; its `stop()` cancels only task handles,
 so the same service still exposes explicit proof-authenticated deletion. Delete All resets setup,
 therefore a pending retry becomes manually reachable only after onboarding is completed again.
+
+### C5-04 current-source Development operational evidence — 2026-08-29
+
+PR #83 exact head `e6bbd3f` passed GitHub Actions run `33242024609` and merged as `becb020`; its
+supplemental review covered the privacy manifest, two capture files, `TelemetryService`, and the
+operations runbook. On that exact main source, `npm ci` reported zero vulnerabilities and
+`npm run check` passed generated bindings, TypeScript, 35/35 local-D1 Worker tests, 8/8 evidence
+tests, three environment dry-runs, and three startup checks with Wrangler 4.127.0.
+
+Read-only preflight matched the recorded Cloudflare account, Development Worker/D1, prior version,
+and no-pending-migration state. The authorized Development publish created version
+`003c66fa-a57c-4b6a-a8d7-3f75b14cc716` / deployment
+`4e18af19-a98a-4a6d-bf4c-38e587a1b754`. The bounded synthetic probe returned
+202/202/409/204/202/204 with empty bodies, proved exact `7776000000`-millisecond event TTL,
+UTC-day tombstone bucketing, idempotency/conflict, proof deletion, and non-resurrection, then
+removed only its exact tombstone. Synthetic final counts were 0 events/0 identities/0 tombstones;
+whole-D1 counts were 0 events/0 identities/2 historical pre-remediation tombstones. No rollback
+was needed.
+
+This is Development-only synthetic operational evidence, not customer participation,
+Production/final-binary traffic, a G1 result, App Store Connect evidence, distribution, or release.
+The documentation/evidence candidate still requires its own independent review, hosted CI, and
+merge before C5-04 or COM-C5 can be marked Done.
+
+The exact evidence branch passed `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 (`23F77`) iPhone 17 Pro simulator. Every static contract, Release compilation, 35/35
+local-D1 Worker tests, all eight C5 evidence-contract tests, the complete unit-test run, 17/17 UI
+tests, and every selected coverage threshold passed. `CSVExporter.swift` was the minimum selected
+coverage result at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.wnudAw/MindBudget.xcresult` after success; the name is an execution pointer,
+not a durable artifact. An immediately preceding invocation inherited
+`/Library/Developer/CommandLineTools` and stopped before Xcode execution, so it is retained only as
+an environmental non-pass and not as product evidence.
+
+### C5-04 native transport and deletion-retry review remediation — 2026-08-29
+
+PR #84 review corrected the PR #83 provenance: independent review covered `daea2d2`, raised two
+P2 findings and one P3, and excluded four privacy-critical surfaces. Remediation head `e6bbd3f`
+applied those findings and recorded the implementation author's supplemental inspection, passed
+GitHub Actions run `33242024609`, and merged as `becb020` without a pre-merge rereview.
+
+With Xcode 27.0 beta 6 (`27A5252f`) and the iOS 26.5 (`23F77`) iPhone 17 Pro simulator, the default
+focused `TelemetryClientTests` run passed 34/34; the live test was an explicit skip. A first
+exact-method-filter invocation under `MindBudget-Telemetry-Live` discovered zero tests and is
+recorded only as a non-pass. The corrected suite-level run explicitly started
+`liveDevelopmentFixedTransportUsesAcceptedURLSessionHeadersAndDeletesSyntheticIdentity` and used
+the real `FixedTelemetryTransport`, `BoundedTelemetryHTTPLoader`, and `URLSession`. The strict
+Development Worker accepted upload 202 (`.accepted`) and authenticated delete 204. A read-only D1
+aggregate query after the run found 0 events, 0 identities, and 3 tombstones: 2 historical
+pre-remediation rows plus the expected UTC-day tombstone from this live deletion. No row contents,
+identifier, secret, request body, or IP were read or logged.
+
+The default-focused run also passed
+`runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry`, proving the same service remains
+able to perform proof-authenticated deletion after `stop()`, removes local encrypted persistence,
+and clears retained identity state. The dedicated scheme is not enabled from the default scheme
+and cannot archive. These are Debug simulator and deterministic unit-test facts, not final-binary,
+customer, G1, Staging/Production, distribution, or release evidence. Exact-head hosted CI and
+rereview remain required.
+
+The remediated branch then passed `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on
+the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: every static contract and Release compilation
+passed, all 35 local-D1 Worker tests and 8 C5 evidence-contract tests passed, 552 unit tests in 32
+suites passed, and all 17 UI tests passed. Every selected coverage threshold passed;
+`CSVExporter.swift` was the minimum at 87.60% against the 85% floor. The validator removed
+`mindbudget-validation.ceXEOC/MindBudget.xcresult` after success, so that name is an execution
+pointer rather than a durable artifact.

@@ -16,6 +16,8 @@ PHASE6_TEST_SOURCE="MindBudgetTests/Phase6FeatureTests.swift"
 PROJECT_FILE="MindBudget.xcodeproj/project.pbxproj"
 PRIVACY_MANIFEST="MindBudget/Resources/PrivacyInfo.xcprivacy"
 LOCALIZATION_CATALOG="MindBudget/Resources/Localizable.xcstrings"
+LIVE_SCHEME="MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-Telemetry-Live.xcscheme"
+DEFAULT_SCHEME="MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
 
 for command_name in awk grep mktemp rm sort tr wc; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
@@ -175,7 +177,8 @@ self_test() {
 
 self_test
 
-for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TRANSPORT_SOURCE}" "${TEST_SOURCE}" "${PROJECT_FILE}"; do
+for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TRANSPORT_SOURCE}" "${TEST_SOURCE}" \
+  "${PROJECT_FILE}" "${LIVE_SCHEME}" "${DEFAULT_SCHEME}"; do
   if [[ ! -s "${file}" ]]; then
     echo "Missing C5-01 telemetry contract artifact: ${file}" >&2
     exit 1
@@ -350,12 +353,28 @@ for c504_test_contract in \
   'persistedStateWithoutTerminalFailureFieldRemainsReadable' \
   'runtimeStartWhileDefaultOffCreatesNoPersistenceOrIdentity' \
   'unavailableRuntimeCannotBlockLocalUseOrClaimCollection' \
-  'cancelledRuntimeStartCanBeRetriedWithoutLosingTheLifecycleEvent'; do
+  'cancelledRuntimeStartCanBeRetriedWithoutLosingTheLifecycleEvent' \
+  'runtimeStopDoesNotInvalidateExplicitTelemetryDeletionRetry' \
+  'liveDevelopmentFixedTransportUsesAcceptedURLSessionHeadersAndDeletesSyntheticIdentity'; do
   grep -Fq "${c504_test_contract}" "${TEST_SOURCE}" || {
     echo "C5-04 telemetry tests are missing contract: ${c504_test_contract}" >&2
     exit 1
   }
 done
+
+grep -Fq 'key="MINDBUDGET_LIVE_TELEMETRY_TESTS" value="1" isEnabled="YES"' "${LIVE_SCHEME}" || {
+  echo "C5-04 live telemetry scheme must explicitly enable its opt-in environment" >&2
+  exit 1
+}
+if grep -Fq 'buildForArchiving="YES"' "${LIVE_SCHEME}" \
+    || grep -Fq '<ArchiveAction' "${LIVE_SCHEME}"; then
+  echo "C5-04 live telemetry probe scheme must never archive" >&2
+  exit 1
+fi
+if grep -Fq 'MINDBUDGET_LIVE_TELEMETRY_TESTS' "${DEFAULT_SCHEME}"; then
+  echo "Default MindBudget scheme must not enable the live telemetry probe" >&2
+  exit 1
+fi
 
 grep -Fq 'telemetryDeletionFailureNeverBlocksLocalFinancialDeletion' "${PHASE6_TEST_SOURCE}" || {
   echo "C5-04 app-wide deletion must prove optional telemetry cannot block the local erase" >&2
