@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Kept the four-tab navigation bar compact at accessibility text sizes so it no longer obscures
+  Dashboard or pushed Pro content. Page content still receives the user's full Dynamic Type size.
 - Corrected the unreleased App Privacy source declaration so the closed subscription-action
   outcome is conservatively disclosed as Purchase History. Product Interaction, the rotating
   app-scoped pseudonym as Device ID, and Purchase History remain Analytics-only, unlinked, and

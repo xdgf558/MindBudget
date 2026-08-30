@@ -4,10 +4,12 @@ Status: **In Progress after explicit owner entry on 2026-08-30.** Independent re
 exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`.
 That review left one non-blocking required-reason API source-inventory hardening item before C6-02
 Done. PR #89 review accepted the lexer and wiring but found missing Foundation Swift overlay
-symbols; the current remediation closes those fail-open cases pending exact-head rereview.
+symbols. Independent rereview accepted exact remediation head `6ffc6fa`, hosted run `33287620965`
+passed, and PR #89 merged it as `72f016e`, closing that source-gate item.
 Customer-facing StoreKit, accessibility, localization, data-protection, and distribution-signed
-checks remain open. C6-03, archive, upload, deployment, App Store Connect writes, tester assignment,
-G1, distribution, and release remain unauthorized.
+checks are now partially exercised below. C6-02 remains In Progress for the explicitly open manual
+items and this branch's review/CI/merge. C6-03, archive, upload, deployment, App Store Connect
+writes, tester assignment, G1, distribution, and release remain unauthorized.
 
 ## Authorization and evidence boundary
 
@@ -26,7 +28,7 @@ proof, or TestFlight baseline.
 
 The C5 implementation-author supplemental inspection did not satisfy this gate. C6-02 re-read all
 five mandatory surfaces against Apple's current App Privacy definitions and the closed telemetry
-vocabulary. This branch remains pending independent PR review.
+vocabulary. Independent review accepted this pass through PR #88 (`6c2a051`).
 
 | Surface | C6-02 result |
 |---|---|
@@ -121,6 +123,40 @@ Completed evidence:
 - [x] Verified no `.storekit` fixture or `.xctest` bundle is embedded.
 - [x] Installed and launched the app successfully on the named iPhone.
 
+Physical observations from the same installed candidate:
+
+- [x] Inspected Chinese and English Pro surfaces against live StoreKit presentation. Monthly was
+  `$1.99`, annual was `$19.99`, the active seven-day trial disclosed renewal on 2026-09-02 at the
+  current `$1.99` App Store price, and the already-entitled state disabled a duplicate purchase.
+  Restore Purchases, Manage Subscription, Subscription Terms, and Subscription Privacy were
+  visible in both languages. This did not execute a new purchase, cancellation, restore, paid
+  introductory offer, or unavailable-authority transaction path.
+- [x] Enabled airplane mode and cold-launched the app. The previously verified local Pro snapshot,
+  active trial, renewal date, and `$1.99` disclosure remained visible rather than becoming exact
+  Free. The screenshot copied to
+  `/private/tmp/MindBudget-C6-02-physical-20260830/offline-pro-zh.png` has SHA-256
+  `a039b956ce736725b89c2bd84d3d84368d28d3546bb5623542b08610e8201420`; the path is an
+  execution pointer, not a durable repository artifact or final-binary traffic proof.
+- [x] Inspected English Privacy & Security and Product Analytics copy. It states that financial
+  records stay on device, analytics is explicit opt-in/default-off, and amounts, merchants,
+  categories, notes, receipt images/text, StoreKit/CloudKit identifiers, locale, device IDs, and
+  advertising IDs are excluded. Delete All and retained remote-proof retry copy were visible.
+- [x] Inspected the Chinese receipt entry, local-only disclosure, camera/photo choices, CSV local-
+  file disclosure, iCloud default-off disclosure, and both-language Pro surfaces without a raw key
+  or stale product term. Cancelling receipt review and then cancelling Add Expense left Today's
+  spending at `$0.00` and the existing `$25.00` recent expense unchanged, confirming no ledger
+  persistence without explicit Save. Camera/photo acquisition itself was not rerun because iPhone
+  Mirroring cannot use the camera and opening the picker would expose unrelated private photos.
+- [x] Physical AX5/Increase Contrast/Reduce Motion inspection found a real non-pass: the uncapped
+  persistent four-tab bar obscured Dashboard and pushed Pro content. DEC-COM-078 caps only that
+  navigation chrome at Accessibility 1 while page content remains uncapped. PR #90 review found
+  that the first simulator check asserted only chrome height and that its noncanonical content-size
+  launch value was ignored by UIKit. DEC-COM-079 therefore replaces that evidence with canonical
+  AX1/AX5 raw values, an AX1-versus-AX5 Dashboard-content height comparison, and the existing
+  chrome reachability/height bound. Earlier simulator bundles remain ordinary UI execution
+  pointers, not AX5 evidence. The remediated build has not yet been reinstalled on the physical
+  phone, so the full physical accessibility line remains open.
+
 Provisioning limitation:
 
 - Direct device installation used a development provisioning profile, so the signed app has
@@ -131,24 +167,63 @@ Provisioning limitation:
   `get-task-allow = false`; C6-03 must run that mode on the authorized archive/export before any
   upload.
 
+Automated remediation evidence:
+
+- The first complete `Scripts/validate.sh` run after the navigation change passed Release, the
+  strict serial 10,000-row Dashboard benchmark, and all 553 unit tests, but retained three UI
+  non-passes. A rerun alone did not establish a transient mechanism. PR #90 review required the
+  language, onboarding/tab/category, and Pro appearance transitions to use bounded predicate
+  waits rather than immediate post-interaction reads.
+- Author-side review then found that all four old tests used the noncanonical string
+  `UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge`, which UIKit ignored. The supported
+  raw values are `UICTContentSizeCategoryAccessibilityM` for AX1 and
+  `UICTContentSizeCategoryAccessibilityXXXL` for AX5. The earlier simulator bundles therefore do
+  not prove AX5, even though the physical AX5 obstruction remains a valid non-pass.
+- The corrected focused AX1/AX5 content regression passed one test with zero failures at
+  `/private/tmp/C6-02-ReviewFix-TrueAX5-setup-rerun.xcresult`. It proves the dynamic Dashboard date
+  content is taller at AX5 than AX1 while every persistent tab remains present, hittable, and at
+  or below the reviewed chrome bound. The corrected three-appearance Pro AX5 regression passed
+  one test with zero failures at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro.xcresult`.
+- Hosted Actions run `33312286576` on remediation head `6908f6c` was a real non-pass: the
+  three-appearance Pro regression could expose `settings.pro` as hittable while that row's center
+  remained behind the Settings navigation bar after returning from Appearance. Two synthesized
+  taps therefore did not navigate, and the old test then emitted cascading missing-control
+  failures. This is not classified as transient or environmental.
+- The regression now scrolls until the Pro row's center is below the live navigation-bar frame,
+  asserts that geometry, then uses a bounded tap-to-destination handshake and stops on failure so
+  downstream checks cannot obscure the first cause. The pre-fix two-iteration diagnostic passed
+  1/2 at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-NavigationHandshake-TwoIterations.xcresult`;
+  the safe-hit-point version passed 2/2 at
+  `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-SafeHitPoint-TwoIterations.xcresult`.
+- The new owning complete validation under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+  (`23F77`) iPhone 17 Pro simulator passed Release, the strict benchmark, 553 tests in 32 unit
+  suites, all 17 UI tests with the canonical AX5 values, and every selected coverage threshold.
+  Four accepted opt-in physical CloudKit probes remained skipped; `CSVExporter.swift` was lowest
+  at 87.60% against the 85% floor. The validator removed its temporary xcresult, so that path was
+  an execution pointer rather than a durable artifact.
+- The exact-source C6 matrix rerun passed every static and Worker check, Release/test build, 285
+  tests in 16 suites, and all 33 required method bindings exactly once as Passed. A first sandboxed
+  attempt could not write Wrangler logs or bind its local test server and is an environmental
+  non-pass; the unrestricted rerun is the owning result. Its temporary result bundle was removed.
+
 ## Manual signed-device evidence still open
 
-- [ ] Monthly and annual product presentation uses live localized StoreKit prices and correct
-  legal/renewal disclosure; unsupported paid introductory offers remain fail-closed.
-- [ ] Purchase, cancellation, restore, Manage Subscriptions, already-entitled, unavailable
-  authority, and retry paths present truthful localized states without duplicate purchase entry.
-- [ ] Airplane-mode launch preserves a previously verified local Pro snapshot while optional
-  configuration/telemetry fail closed.
-- [ ] English and Simplified Chinese purchase, privacy, receipt, iCloud, export, and Delete All
-  copy has no raw localization keys, clipping, or stale terms.
+- [ ] Execute or deterministically re-evidence purchase cancellation, actual restore, unsupported
+  paid introductory offer, unavailable StoreKit authority, and retry states. Live monthly/annual,
+  renewal/legal, already-entitled, and Manage Subscription presentation passed as recorded above.
+- [ ] Reinstall the DEC-COM-078 remediation and repeat physical AX5 plus English/Simplified Chinese
+  light/dark appearance. The pre-fix AX5 run is retained as a non-pass; the simulator regression
+  proves only the remediated navigation invariant.
 - [ ] VoiceOver, AX5, Increase Contrast, Reduce Motion, light/dark appearance, focus order, touch
   targets, sheets, alerts, keyboard, and supported portrait orientations pass on the signed phone.
 - [ ] Camera and photo-picker receipt paths remain local, preview/retry/cancel correctly, preserve
-  edits, and require explicit Save before ledger persistence.
+  edits, and require explicit Save before ledger persistence. The local-only entry and cancellation
+  no-write boundary passed, but acquisition was not rerun in this continuation.
 - [ ] Instruments confirms launch/scroll/memory/persistence behavior; effective SwiftData file
   protection is inspected in the installed container.
 - [ ] Notification, Siri, Spotlight, Face ID lock, CSV export, and all-stage Delete All behaviors
-  pass the signed-device checklist.
+  pass the signed-device checklist. CSV copy was inspected but no share destination or file was
+  created in this continuation.
 
 ## Remaining release constraints
 

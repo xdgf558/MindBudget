@@ -3262,3 +3262,54 @@ pending exact-head rereview after PR #89 identified missing overlay spellings. L
 keys are outside the lexical proof, and source scanning does not replace C6-03's distribution
 privacy report, compiled-dependency inspection, Archive/IPA evidence, or separate archive
 authority.
+
+---
+
+## 2026-08-30 — Bound only persistent navigation chrome at AX5
+
+Context: C6-02 physical-device inspection found that uncapped AX5 labels made the persistent
+four-tab navigation bar consume enough height to obscure Dashboard and pushed Pro content.
+
+Decision: Detailed ownership is DEC-COM-078. Cap only the always-visible custom tab bar at the
+first accessibility Dynamic Type category; keep selected-page content uncapped and add a UI
+regression for the navigation-chrome height.
+
+Consequences: The focused AX5 UI test passes and primary navigation remains present and hittable.
+The final complete validation also passes Release, the strict Dashboard benchmark, 553 unit tests,
+all 17 UI tests, and every selected coverage gate after an asynchronous appearance-selection
+assertion was given a bounded wait. This does not close the remaining physical VoiceOver,
+appearance, Instruments, receipt, or system-integration checks, and it does not authorize C6-03 or
+any release action.
+
+---
+
+## 2026-08-30 — Prove page Dynamic Type separately from capped navigation chrome
+
+Context: PR #90 review found that the AX5 regression checked only navigation height and that two UI
+failures were called transient without a mechanism. Investigation additionally found the old
+content-size launch string was not a UIKit raw value and had been ignored.
+
+Decision: Detailed ownership is DEC-COM-079. Use canonical AX1/AX5 launch values, compare one
+dynamic Dashboard content element across those sizes, retain the separate chrome bound, and use
+bounded waits for asynchronous language/tab/category/appearance state.
+
+Consequences: Earlier simulator bundles are not AX5 evidence. Corrected focused regressions and a
+new complete validation pass with real AX5 values, but the physical pre-fix observation remains a
+non-pass and the remediated app still requires physical reinstall. C6-02 remains In Progress and
+C6-03 remains blocked.
+
+---
+
+## 2026-08-30 — Require an unobscured Settings hit point at AX5
+
+Context: Hosted run `33312286576` and a two-iteration reproduction showed that SwiftUI could
+report the Pro Settings row as hittable while its center remained behind the navigation bar after
+returning from Appearance; synthesized taps then did not navigate.
+
+Decision: Detailed ownership is DEC-COM-080. Scroll until the row's live midpoint is below the
+live navigation-bar frame, assert that geometry, and use a bounded tap-to-destination handshake
+that stops the test before cascading assertions.
+
+Consequences: The pre-fix diagnostic passed 1/2 and the safe-hit-point regression passed 2/2. A
+new complete validator passed, but this remains simulator evidence. Physical reinstall and the
+rest of C6-02 remain open; C6-03 remains blocked.

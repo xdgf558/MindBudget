@@ -123,18 +123,27 @@ Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690
 pinned rather than derived from production source. `Scripts/check_required_reason_apis.py` now
 closes that source-drift path across Apple's five current categories and is classified in the C6
 matrix. PR #89 review found missing Foundation Swift overlay spellings; the remediation adds those
-aliases and keeps UserDefaults `CA92.1` enforcement active in future multi-category manifests
-pending exact-head rereview. The manual signed-device checklist is still open, and distribution
-privacy-report inspection remains C6-03 evidence.
+aliases and keeps UserDefaults `CA92.1` enforcement active in future multi-category manifests.
+Independent rereview accepted exact remediation head `6ffc6fa`, hosted run `33287620965` passed,
+and PR #89 merged it as `72f016e`. The continuation partially exercises the manual checklist:
+bilingual live StoreKit/renewal/legal presentation, offline retention of verified local Pro,
+privacy/receipt/iCloud/export copy, and receipt cancellation without persistence passed. A physical
+AX5 navigation obstruction is remediated under DEC-COM-078/079. PR #90 review found the first
+simulator check used an ignored noncanonical content-size value and lacked a content-side
+guarantee; the corrected regression compares canonical AX1/AX5 page content while separately
+bounding persistent chrome and using bounded interaction waits. Focused and full local validation
+pass; physical reinstall and the remaining accessibility, transaction-error, receipt-acquisition,
+Instruments/data-protection, and system-integration evidence remain open. Distribution privacy-
+report inspection remains C6-03 evidence.
 
 ## Exit and stop conditions
 
 C6-01 is Done through PR #86 (`015d00e`) after independent rereview approved exact remediation
 head `f77d2a6` and hosted run `33255898196` passed. C6-02 is In Progress after explicit owner entry
 on 2026-08-30. PR #88 merged the reviewed privacy correction and development-signed Release
-inspection as `6c2a051`; the required-reason source gate follow-up remains pending independent
-rereview after its Swift overlay remediation, and the manual checklist remains open. C6-03 remains
-blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
+inspection as `6c2a051`; PR #89 merged the independently rereviewed required-reason source-gate
+remediation as `72f016e` after hosted run `33287620965` passed. The manual checklist remains open.
+C6-03 remains blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

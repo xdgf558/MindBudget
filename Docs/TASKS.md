@@ -611,5 +611,14 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and
   PR #88 merged as `6c2a051`. Its required-reason source-inventory P2 is implemented by
   `Scripts/check_required_reason_apis.py` on this follow-up branch. PR #89 review found incomplete
-  Swift overlay coverage; the current remediation adds those aliases and keeps `CA92.1` checked in
-  multi-category manifests pending exact-head rereview. C6-02 remains open for manual evidence.
+  Swift overlay coverage. Independent rereview accepted exact remediation head `6ffc6fa`, hosted
+  run `33287620965` passed, and PR #89 merged it as `72f016e`. The continuation records bilingual
+  live StoreKit/renewal/legal presentation, offline verified-local-Pro retention, privacy/receipt/
+  iCloud/export copy, and a no-write receipt cancellation. Its physical AX5 run found a persistent-
+  tab-bar obstruction; DEC-COM-078 caps only that chrome. PR #90 review found that the first
+  regression lacked a content-side guarantee and used an ignored noncanonical content-size value.
+  DEC-COM-079 uses canonical AX1/AX5 values, proves Dashboard content grows while chrome remains
+  bounded, and gives language/tab/category/appearance changes bounded waits. Focused tests and a
+  new full local validation pass. C6-02 remains open for physical reinstallation/accessibility,
+  transaction-error paths, receipt acquisition, Instruments/data protection, system integration,
+  exact-head review, hosted CI, and merge.

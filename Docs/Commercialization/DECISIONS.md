@@ -2305,3 +2305,83 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   comments or string examples satisfy/fail the gate; inferring `getattrlist*` semantics from its
   name; scanning tests as if they ship in the App target; declaring all five categories
   prophylactically; or treating source scanning as final-binary privacy evidence.
+
+## DEC-COM-078 — Keep AX5 page content visible beside persistent navigation
+
+- Status/date: **Accepted C6-02 physical-preflight remediation — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary
+- Context: On the development-signed Release build, physical iPhone inspection with the largest
+  accessibility text, Increase Contrast, and Reduce Motion found that the custom four-tab bar grew
+  enough to obscure Dashboard and a pushed Pro surface. The page itself remained scrollable; the
+  defect belonged to always-visible navigation chrome rather than customer content.
+- Decision: Apply `.dynamicTypeSize(...DynamicTypeSize.accessibility1)` only to the custom tab bar.
+  Leave every selected page outside that modifier so its text still receives the user's uncapped
+  Dynamic Type setting. Extend the existing AX5 UI test to require all four tab controls to remain
+  present, hittable, and no taller than the reviewed navigation-chrome bound.
+- Consequences: The focused test passed on the iOS 26.5 iPhone 17 Pro simulator under Xcode 27.0
+  beta 6 with one test and zero failures at
+  `/private/tmp/C6-02-AX5-TabBar-retry.xcresult`. The first sandboxed attempt could not access
+  CoreSimulator and is an environmental non-pass. The first complete validation after the change
+  retained three UI non-passes; a focused rerun reduced those to an immediate appearance-selection
+  assertion race, which now uses a bounded wait. The final complete validation passed Release, the
+  strict Dashboard benchmark, 553 unit tests, all 17 UI tests, and every selected coverage gate.
+  This correction is user-visible but is not a
+  substitute for remaining physical VoiceOver, appearance, receipt, Instruments/data-protection,
+  or system-integration evidence. C6-02 remains In Progress; C6-03 and every remote/release action
+  remain blocked or unauthorized.
+- Alternatives rejected: Capping the entire app or Pro page and thereby suppressing the user's
+  content-size choice; hiding tab labels; treating the obstruction as an iPhone Mirroring artifact;
+  accepting an existence-only UI test; or marking the full manual accessibility checklist passed
+  from one focused simulator regression.
+
+## DEC-COM-079 — Prove uncapped page content with canonical AX5 runtime values
+
+- Status/date: **Accepted C6-02 PR #90 review-remediation decision — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078
+- Context: PR #90 review found that DEC-COM-078's UI regression asserted only capped navigation
+  chrome and could not detect moving that cap above the page-content boundary. It also found that
+  two interaction failures had been called transient only because they passed on rerun. Author-
+  side investigation then established that the old
+  `UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge` launch value is not a UIKit raw value
+  and was ignored, so the cited simulator bundles did not exercise AX5.
+- Decision: Use UIKit's canonical `UICTContentSizeCategoryAccessibilityM` and
+  `UICTContentSizeCategoryAccessibilityXXXL` raw values. Compare the same dynamic Dashboard date
+  element at AX1 and AX5, require AX5 to be taller, and retain the four-tab presence, hit-testing,
+  and 96-point chrome bound. Scroll setup and Settings content under true AX5 geometry. Replace
+  immediate post-interaction reads for language, Dashboard tab, expense category, and appearance
+  with bounded predicate waits.
+- Consequences: Earlier simulator bundles remain ordinary UI execution pointers but are not AX5
+  evidence; the physical AX5 obstruction remains a valid non-pass. The corrected focused content
+  and Pro regressions each passed 1/1. A new complete validator passed Release, the strict
+  Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests with canonical AX5 values, and
+  every selected coverage gate. The remediated build has not been physically reinstalled, so the
+  physical accessibility line remains open. C6-02 stays In Progress; C6-03 and all remote/release
+  actions remain blocked or unauthorized.
+- Alternatives rejected: Treating a rerun as a failure mechanism; relying on modifier placement
+  comments without a content-side assertion; checking only chrome existence or a loose height;
+  retaining an ignored launch value; hardcoding an absolute page-content height; or converting the
+  physical non-pass into a simulator pass.
+
+## DEC-COM-080 — Require an unobscured hit point before AX5 Settings navigation
+
+- Status/date: **Accepted C6-02 PR #90 CI-remediation decision — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078/079
+- Context: Hosted Actions run `33312286576` on head `6908f6c` failed the three-appearance Pro AX5
+  regression. Result-bundle inspection and the retained UI hierarchy showed that, after returning
+  from Appearance, SwiftUI could report the Pro row as hittable while its frame center remained
+  above the Settings navigation bar's lower edge. XCUITest synthesized the tap but Settings stayed
+  visible. A bounded retry alone reproduced the same failure in repetition two and did not supply
+  a mechanism.
+- Decision: Before tapping the Pro row, compare its live frame midpoint with the live Settings
+  navigation-bar frame and scroll down until the midpoint is below that obstruction. Assert the
+  geometry, then use a bounded source-tap-to-destination handshake. Return immediately after a
+  failed handshake so later purchase/legal assertions cannot become cascading failures.
+- Consequences: The diagnostic before the geometric fix passed 1/2; the safe-hit-point regression
+  passed 2/2 across all three appearances. A new complete validator passed Release, the strict
+  Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and every selected coverage
+  gate. The hosted non-pass remains recorded and is not renamed transient. This remains simulator
+  evidence only: physical reinstall and the other C6-02 manual lines remain open, C6-02 stays In
+  Progress, and C6-03 plus all remote/release actions remain blocked or unauthorized.
+- Alternatives rejected: Increasing timeouts without proving the tap target is unobscured;
+  trusting `isHittable` alone; repeatedly tapping a geometrically clipped row; accepting one
+  focused pass; or continuing into downstream assertions after navigation failed.

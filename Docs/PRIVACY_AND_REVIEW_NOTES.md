@@ -141,9 +141,10 @@ remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged a
 C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact
 PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02
 remains In Progress for required-reason source-gate and manual evidence. PR #89 review found
-missing Foundation Swift overlay aliases in that source gate; the remediation is pending exact-
-head rereview. C6-03 and every App Store Connect, Staging/Production, distribution/release proof
-remain blocked.
+missing Foundation Swift overlay aliases in that source gate. Independent rereview accepted exact
+remediation head `6ffc6fa`, hosted run `33287620965` passed, and PR #89 merged it as `72f016e`.
+C6-02 remains In Progress only for its manual evidence; C6-03 and every App Store Connect,
+Staging/Production, distribution/release proof remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
@@ -171,7 +172,7 @@ locally deletable without a false remote-deletion claim.
 C6-02's first five-surface pass found the Purchase History omission and added a fail-closed
 manifest validator with negative tests. The same validator passed against the manifest embedded in
 a development-signed Release app installed and launched on an iPhone Air with iOS 26.6.1. This is
-source and signed-device preflight pending independent review, not an App Store Connect update,
+independently reviewed source and signed-device preflight, not an App Store Connect update,
 distribution signature, exported IPA, final-binary traffic result, or release claim. The exact
 review and manual boundaries are recorded in `Commercialization/C6_02_PREFLIGHT.md`.
 
@@ -180,8 +181,21 @@ Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690
 UserDefaults declaration from a source-derived required-reason inventory. The follow-up
 `Scripts/check_required_reason_apis.py` scans production App sources against Apple's five current
 categories, requires exact equality with the manifest, and fails closed on ambiguous file-metadata
-APIs; it remains pending independent review. It does not replace the C6-03 distribution privacy
-report or compiled-dependency inspection.
+APIs. Its Swift-overlay remediation passed independent rereview and merged through PR #89
+(`72f016e`). It does not replace the C6-03 distribution privacy report or compiled-dependency
+inspection.
+
+The continuing physical C6-02 pass observed live bilingual StoreKit renewal/legal presentation,
+offline retention of a previously verified local-Pro snapshot, truthful privacy/analytics/
+receipt/iCloud/export copy, and receipt cancellation without a ledger write. It did not execute a
+new purchase/restore, expose unrelated private photos, create an exported file, or inspect a
+distribution binary. Physical AX5 testing also found that uncapped custom-tab labels obscured page
+content. DEC-COM-078 caps only that persistent navigation chrome while leaving page content at the
+user's full Dynamic Type size. DEC-COM-079 replaces the ignored noncanonical simulator launch
+value with canonical AX1/AX5 values and proves a dynamic content element grows while chrome remains
+bounded. Corrected focused and full local validation are green; physical reinstall and the rest of
+the accessibility, acquisition, data-protection, Instruments, and system-integration checklist
+remain open.
 
 Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
 remains valid, but the person must complete setup again before Privacy & Security > Product
