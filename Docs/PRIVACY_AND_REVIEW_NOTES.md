@@ -191,7 +191,9 @@ receipt/iCloud/export copy, and receipt cancellation without a ledger write. It 
 new purchase/restore, expose unrelated private photos, create an exported file, or inspect a
 distribution binary. Physical AX5 testing also found that uncapped custom-tab labels obscured page
 content. DEC-COM-078 caps only that persistent navigation chrome while leaving page content at the
-user's full Dynamic Type size. The focused regression is green; physical reinstall and the rest of
+user's full Dynamic Type size. DEC-COM-079 replaces the ignored noncanonical simulator launch
+value with canonical AX1/AX5 values and proves a dynamic content element grows while chrome remains
+bounded. Corrected focused and full local validation are green; physical reinstall and the rest of
 the accessibility, acquisition, data-protection, Instruments, and system-integration checklist
 remain open.
 

@@ -2333,3 +2333,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   content-size choice; hiding tab labels; treating the obstruction as an iPhone Mirroring artifact;
   accepting an existence-only UI test; or marking the full manual accessibility checklist passed
   from one focused simulator regression.
+
+## DEC-COM-079 — Prove uncapped page content with canonical AX5 runtime values
+
+- Status/date: **Accepted C6-02 PR #90 review-remediation decision — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078
+- Context: PR #90 review found that DEC-COM-078's UI regression asserted only capped navigation
+  chrome and could not detect moving that cap above the page-content boundary. It also found that
+  two interaction failures had been called transient only because they passed on rerun. Author-
+  side investigation then established that the old
+  `UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge` launch value is not a UIKit raw value
+  and was ignored, so the cited simulator bundles did not exercise AX5.
+- Decision: Use UIKit's canonical `UICTContentSizeCategoryAccessibilityM` and
+  `UICTContentSizeCategoryAccessibilityXXXL` raw values. Compare the same dynamic Dashboard date
+  element at AX1 and AX5, require AX5 to be taller, and retain the four-tab presence, hit-testing,
+  and 96-point chrome bound. Scroll setup and Settings content under true AX5 geometry. Replace
+  immediate post-interaction reads for language, Dashboard tab, expense category, and appearance
+  with bounded predicate waits.
+- Consequences: Earlier simulator bundles remain ordinary UI execution pointers but are not AX5
+  evidence; the physical AX5 obstruction remains a valid non-pass. The corrected focused content
+  and Pro regressions each passed 1/1. A new complete validator passed Release, the strict
+  Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests with canonical AX5 values, and
+  every selected coverage gate. The remediated build has not been physically reinstalled, so the
+  physical accessibility line remains open. C6-02 stays In Progress; C6-03 and all remote/release
+  actions remain blocked or unauthorized.
+- Alternatives rejected: Treating a rerun as a failure mechanism; relying on modifier placement
+  comments without a content-side assertion; checking only chrome existence or a loose height;
+  retaining an ignored launch value; hardcoding an absolute page-content height; or converting the
+  physical non-pass into a simulator pass.

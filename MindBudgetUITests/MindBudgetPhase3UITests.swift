@@ -125,8 +125,18 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         let localizedLanguageDestination = element("settings.language", in: app)
         XCTAssertTrue(localizedLanguageDestination.waitForExistence(timeout: 3))
-        XCTAssertEqual(localizedLanguageDestination.label, "语言")
-        XCTAssertEqual(element("settings.appearance", in: app).label, "外观与皮肤")
+        assertEventuallyHasLabel(
+            localizedLanguageDestination,
+            "语言",
+            message: "Language row did not settle after changing the app language"
+        )
+        let localizedAppearanceDestination = element("settings.appearance", in: app)
+        XCTAssertTrue(localizedAppearanceDestination.waitForExistence(timeout: 3))
+        assertEventuallyHasLabel(
+            localizedAppearanceDestination,
+            "外观与皮肤",
+            message: "Appearance row did not settle after changing the app language"
+        )
     }
 
     @MainActor
@@ -142,24 +152,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.textFields["budget.totalBudget"].typeText("2500")
         app.textFields["budget.savingGoal"].tap()
         app.textFields["budget.savingGoal"].typeText("500")
-        XCTAssertTrue(element("budget.flexiblePreview", in: app).exists)
+        XCTAssertTrue(element("budget.flexiblePreview", in: app).waitForExistence(timeout: 2))
         assertBudgetKeyboardHasNoCompletionToolbar(in: app)
-        XCTAssertTrue(app.buttons["budget.save"].exists)
+        XCTAssertTrue(app.buttons["budget.save"].waitForExistence(timeout: 2))
         app.buttons["budget.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         let dailyAmount = element("dashboard.today.left", in: app)
-        XCTAssertTrue(dailyAmount.exists)
+        XCTAssertTrue(dailyAmount.waitForExistence(timeout: 2))
         let dailyAmountBeforeExpense = dailyAmount.label
         assertCompactEmptyStateAction(
             app.buttons["dashboard.empty.addEntry"],
             named: "Dashboard Add Entry"
         )
         assertPrimaryNavigationIsBottomAnchored(in: app)
-        XCTAssertTrue(app.buttons["tab.dashboard"].isSelected)
+        assertEventuallySelected(
+            app.buttons["tab.dashboard"],
+            message: "Dashboard tab did not settle after onboarding"
+        )
         XCTAssertEqual(app.buttons["tab.dashboard"].value as? String, "Tab 1 of 4")
         let paceTrack = element("dashboard.pace.track", in: app)
-        XCTAssertTrue(paceTrack.exists)
+        XCTAssertTrue(paceTrack.waitForExistence(timeout: 2))
         XCTAssertFalse((paceTrack.value as? String ?? "").isEmpty)
         app.buttons["dashboard.empty.addEntry"].tap()
         let addExpense = firstElement("entry.add.expense", in: app)
@@ -183,7 +196,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(otherCategory.isHittable)
         otherCategory.tap()
-        XCTAssertTrue(otherCategory.isSelected)
+        assertEventuallySelected(
+            otherCategory,
+            message: "Expense category selection did not settle before Save"
+        )
         app.buttons["expense.save"].tap()
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
@@ -529,7 +545,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
             locale: "en_US",
             additionalArguments: [
                 "-UIPreferredContentSizeCategoryName",
-                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+                "UICTContentSizeCategoryAccessibilityXXXL",
             ]
         )
         completeBudgetSetup(in: app)
@@ -539,7 +555,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         for skin in ["auroraGlow", "warmBotanical", "neonPulse"] {
             for _ in 0..<6 where !element("settings.appearance", in: app).isHittable {
-                app.swipeDown()
+                app.swipeUp()
             }
             let appearance = element("settings.appearance", in: app)
             XCTAssertTrue(appearance.waitForExistence(timeout: 2))
@@ -551,22 +567,15 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
             XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
             skinControl.tap()
-            let selectedExpectation = XCTNSPredicateExpectation(
-                predicate: NSPredicate { object, _ in
-                    (object as? XCUIElement)?.isSelected == true
-                },
-                object: skinControl
-            )
-            XCTAssertEqual(
-                XCTWaiter.wait(for: [selectedExpectation], timeout: 2),
-                .completed,
-                "Appearance selection did not settle: \(skin)"
+            assertEventuallySelected(
+                skinControl,
+                message: "Appearance selection did not settle: \(skin)"
             )
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
             let proEntry = element("settings.pro", in: app)
             for _ in 0..<7 where !proEntry.isHittable {
-                app.swipeUp()
+                app.swipeDown()
             }
             XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
             proEntry.tap()
@@ -632,12 +641,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     @MainActor
     func testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable() {
+        let accessibility1App = launchApp(
+            language: "en",
+            locale: "en_US",
+            additionalArguments: [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityM",
+            ]
+        )
+        completeBudgetSetup(in: accessibility1App)
+        XCTAssertTrue(element("dashboard.view", in: accessibility1App).waitForExistence(timeout: 5))
+        let accessibility1Content = element("dashboard.header.date", in: accessibility1App)
+        XCTAssertTrue(accessibility1Content.waitForExistence(timeout: 2))
+        let accessibility1ContentHeight = accessibility1Content.frame.height
+        accessibility1App.terminate()
+
         let app = launchApp(
             language: "en",
             locale: "en_US",
             additionalArguments: [
                 "-UIPreferredContentSizeCategoryName",
-                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+                "UICTContentSizeCategoryAccessibilityXXXL",
             ]
         )
 
@@ -646,6 +670,13 @@ final class MindBudgetPhase3UITests: XCTestCase {
         completeBudgetSetup(in: app)
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+        let accessibility5Content = element("dashboard.header.date", in: app)
+        XCTAssertTrue(accessibility5Content.waitForExistence(timeout: 2))
+        XCTAssertGreaterThan(
+            accessibility5Content.frame.height,
+            accessibility1ContentHeight + 1,
+            "AX5 page content must remain larger than AX1 when navigation chrome is capped"
+        )
         assertPrimaryNavigationIsBottomAnchored(in: app)
         for identifier in [
             "tab.dashboard",
@@ -677,7 +708,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 "-NSDoubleLocalizedStrings",
                 "YES",
                 "-UIPreferredContentSizeCategoryName",
-                "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge",
+                "UICTContentSizeCategoryAccessibilityXXXL",
             ]
         )
         let title = app.staticTexts["onboarding.title"]
@@ -737,6 +768,35 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    private func assertEventuallySelected(
+        _ element: XCUIElement,
+        timeout: TimeInterval = 2,
+        message: String
+    ) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate { object, _ in
+                (object as? XCUIElement)?.isSelected == true
+            },
+            object: element
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+    }
+
+    @MainActor
+    private func assertEventuallyHasLabel(
+        _ element: XCUIElement,
+        _ expectedLabel: String,
+        timeout: TimeInterval = 3,
+        message: String
+    ) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", expectedLabel),
+            object: element
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+    }
+
+    @MainActor
     private func launchApp(
         language: String,
         locale: String,
@@ -756,13 +816,36 @@ final class MindBudgetPhase3UITests: XCTestCase {
     private func completeBudgetSetup(in app: XCUIApplication) {
         app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
-        app.textFields["budget.monthlyIncome"].tap()
-        app.textFields["budget.monthlyIncome"].typeText("3000")
-        app.textFields["budget.totalBudget"].tap()
-        app.textFields["budget.totalBudget"].typeText("2500")
-        app.textFields["budget.savingGoal"].tap()
-        app.textFields["budget.savingGoal"].typeText("500")
-        app.buttons["budget.save"].tap()
+        let monthlyIncome = app.textFields["budget.monthlyIncome"]
+        makeHittable(monthlyIncome, in: app)
+        monthlyIncome.tap()
+        monthlyIncome.typeText("3000")
+
+        let totalBudget = app.textFields["budget.totalBudget"]
+        makeHittable(totalBudget, in: app)
+        totalBudget.tap()
+        totalBudget.typeText("2500")
+
+        let savingGoal = app.textFields["budget.savingGoal"]
+        makeHittable(savingGoal, in: app)
+        savingGoal.tap()
+        savingGoal.typeText("500")
+
+        let save = app.buttons["budget.save"]
+        makeHittable(save, in: app)
+        save.tap()
+    }
+
+    @MainActor
+    private func makeHittable(
+        _ element: XCUIElement,
+        in app: XCUIApplication
+    ) {
+        for _ in 0..<8 where !element.exists || !element.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(element.waitForExistence(timeout: 2))
+        XCTAssertTrue(element.isHittable)
     }
 
     @MainActor

@@ -6628,3 +6628,28 @@ build, 285 tests in 16 suites, and all 33 required method bindings. Its first sa
 could not write Wrangler logs or bind its local test server and is retained as an environmental
 non-pass; the unrestricted rerun owns the result. No archive, upload, deployment, App Store Connect
 write, G1, distribution, or release action occurred.
+
+## 2026-08-30 — Correct C6-02 AX5 evidence and interaction synchronization
+
+PR #90 review found that the persistent-navigation regression asserted only chrome height and did
+not prove selected-page content stayed uncapped. It also rejected describing the language and
+onboarding/manual-flow failures as transient merely because a rerun passed. Author-side
+investigation found that the old
+`UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge` launch argument is not a UIKit raw
+value and was ignored, so earlier simulator bundles are not AX5 evidence.
+
+Replaced the content-size arguments with canonical AX1 `UICTContentSizeCategoryAccessibilityM`
+and AX5 `UICTContentSizeCategoryAccessibilityXXXL`. Added a nonvisual identifier to the existing
+dynamic Dashboard date and made the regression compare its AX1/AX5 heights while retaining the
+four-tab reachability and 96-point chrome bound. Budget setup and Pro navigation now scroll under
+true AX5 geometry. Language labels, Dashboard-tab selection, expense-category selection, and
+appearance selection use bounded predicate waits instead of immediate post-interaction reads.
+
+The focused true-AX5 content comparison and three-appearance Pro regression each passed 1/1. A
+new full `Scripts/validate.sh` run under Xcode 27.0 beta 6 on the iOS 26.5 iPhone 17 Pro simulator
+passed Release, the strict benchmark, 553 unit tests in 32 suites, all 17 UI tests, and all selected
+coverage gates; `CSVExporter.swift` was lowest at 87.60%. C6-02 remains In Progress because the
+remediated build has not been physically reinstalled and the other manual items remain open. No
+archive, upload, deployment, App Store Connect write, G1, distribution, or release action occurred.
+The exact-source C6 matrix also passed every static and Worker check, Release/test build, 285 tests
+in 16 suites, and all 33 required method bindings exactly once as Passed.

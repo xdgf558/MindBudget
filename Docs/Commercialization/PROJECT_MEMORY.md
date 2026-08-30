@@ -450,12 +450,14 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the DEC-COM-078 AX5 remediation and partial signed-device
+Next suggested task: independently review the DEC-COM-079 AX5 evidence remediation and partial signed-device
 evidence, then complete only the remaining manual checks in `C6_02_PREFLIGHT.md`; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
 cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a
-non-pass; the remediated build still needs physical reinstallation, and transaction-error,
+non-pass. The first simulator launch value was noncanonical and ignored; DEC-COM-079 now proves
+uncapped page content against capped chrome with canonical AX1/AX5 values. The remediated build
+still needs physical reinstallation, and transaction-error,
 acquisition, full accessibility/appearance, Instruments/data protection, and system integration
 remain open. The owner explicitly entered COM-C6
 on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head

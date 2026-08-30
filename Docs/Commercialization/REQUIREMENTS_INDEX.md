@@ -85,8 +85,9 @@ report proof to C6-03/C12. Independent rereview accepted exact remediation head 
 run `33287620965` passed, and PR #89 merged it as `72f016e`.
 The continuing signed-device pass records bilingual live StoreKit/renewal/legal presentation,
 offline verified-local-Pro retention, truthful privacy/receipt/iCloud/export copy, and receipt
-cancellation without persistence. DEC-COM-078 remediates the physical AX5 tab-bar obstruction
-without capping page content. These are partial C6-02 facts, not Requirement completion; physical
+cancellation without persistence. DEC-COM-078/079 remediate the physical AX5 tab-bar obstruction
+without capping page content; canonical AX1/AX5 values now bind that content/chrome split in UI
+tests. These are partial C6-02 facts, not Requirement completion; physical
 reinstall/accessibility, transaction-error, acquisition, Instruments/data protection, system
 integration, C6-03 distribution artifacts, and final-binary proof remain open.
 

@@ -128,8 +128,11 @@ Independent rereview accepted exact remediation head `6ffc6fa`, hosted run `3328
 and PR #89 merged it as `72f016e`. The continuation partially exercises the manual checklist:
 bilingual live StoreKit/renewal/legal presentation, offline retention of verified local Pro,
 privacy/receipt/iCloud/export copy, and receipt cancellation without persistence passed. A physical
-AX5 navigation obstruction is remediated under DEC-COM-078 with a focused simulator regression;
-physical reinstall and the remaining accessibility, transaction-error, receipt-acquisition,
+AX5 navigation obstruction is remediated under DEC-COM-078/079. PR #90 review found the first
+simulator check used an ignored noncanonical content-size value and lacked a content-side
+guarantee; the corrected regression compares canonical AX1/AX5 page content while separately
+bounding persistent chrome and using bounded interaction waits. Focused and full local validation
+pass; physical reinstall and the remaining accessibility, transaction-error, receipt-acquisition,
 Instruments/data-protection, and system-integration evidence remain open. Distribution privacy-
 report inspection remains C6-03 evidence.
 

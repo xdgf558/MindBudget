@@ -149,11 +149,13 @@ Physical observations from the same installed candidate:
   Mirroring cannot use the camera and opening the picker would expose unrelated private photos.
 - [x] Physical AX5/Increase Contrast/Reduce Motion inspection found a real non-pass: the uncapped
   persistent four-tab bar obscured Dashboard and pushed Pro content. DEC-COM-078 caps only that
-  navigation chrome at Accessibility 1 while page content remains uncapped. The focused simulator
-  regression passed one test with zero failures at
-  `/private/tmp/C6-02-AX5-TabBar-retry.xcresult`; a prior sandboxed attempt that could not reach
-  CoreSimulator is an environmental non-pass. The remediated build has not yet been reinstalled on
-  the physical phone, so the full physical accessibility line remains open.
+  navigation chrome at Accessibility 1 while page content remains uncapped. PR #90 review found
+  that the first simulator check asserted only chrome height and that its noncanonical content-size
+  launch value was ignored by UIKit. DEC-COM-079 therefore replaces that evidence with canonical
+  AX1/AX5 raw values, an AX1-versus-AX5 Dashboard-content height comparison, and the existing
+  chrome reachability/height bound. Earlier simulator bundles remain ordinary UI execution
+  pointers, not AX5 evidence. The remediated build has not yet been reinstalled on the physical
+  phone, so the full physical accessibility line remains open.
 
 Provisioning limitation:
 
@@ -167,19 +169,27 @@ Provisioning limitation:
 
 Automated remediation evidence:
 
-- The first complete `Scripts/validate.sh` run after the AX5 navigation change passed Release,
-  the strict serial 10,000-row Dashboard benchmark, and all 553 unit tests, but it retained three
-  UI non-passes. A focused rerun showed the language and manual-flow cases were transient and
-  reproduced only an immediate Warm Botanical selected-state assertion race in the Pro AX5 test.
-- The Pro AX5 test now waits up to two seconds for the appearance selection to settle instead of
-  treating an asynchronous SwiftUI update as synchronous. Its focused rerun passed one test with
-  zero failures at `/private/tmp/C6-02-Pro-AX5-Selection-Retry.xcresult`.
-- The final complete validation under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`)
-  iPhone 17 Pro simulator passed Release, the strict benchmark, 553 tests in 32 unit suites, all
-  17 UI tests, and every selected coverage threshold. Four accepted opt-in physical CloudKit
-  probes remained skipped; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The
-  validator removed its temporary xcresult, so the path was an execution pointer rather than a
-  durable artifact.
+- The first complete `Scripts/validate.sh` run after the navigation change passed Release, the
+  strict serial 10,000-row Dashboard benchmark, and all 553 unit tests, but retained three UI
+  non-passes. A rerun alone did not establish a transient mechanism. PR #90 review required the
+  language, onboarding/tab/category, and Pro appearance transitions to use bounded predicate
+  waits rather than immediate post-interaction reads.
+- Author-side review then found that all four old tests used the noncanonical string
+  `UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge`, which UIKit ignored. The supported
+  raw values are `UICTContentSizeCategoryAccessibilityM` for AX1 and
+  `UICTContentSizeCategoryAccessibilityXXXL` for AX5. The earlier simulator bundles therefore do
+  not prove AX5, even though the physical AX5 obstruction remains a valid non-pass.
+- The corrected focused AX1/AX5 content regression passed one test with zero failures at
+  `/private/tmp/C6-02-ReviewFix-TrueAX5-setup-rerun.xcresult`. It proves the dynamic Dashboard date
+  content is taller at AX5 than AX1 while every persistent tab remains present, hittable, and at
+  or below the reviewed chrome bound. The corrected three-appearance Pro AX5 regression passed
+  one test with zero failures at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro.xcresult`.
+- The new owning complete validation under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+  (`23F77`) iPhone 17 Pro simulator passed Release, the strict benchmark, 553 tests in 32 unit
+  suites, all 17 UI tests with the canonical AX5 values, and every selected coverage threshold.
+  Four accepted opt-in physical CloudKit probes remained skipped; `CSVExporter.swift` was lowest
+  at 87.60% against the 85% floor. The validator removed its temporary xcresult, so that path was
+  an execution pointer rather than a durable artifact.
 - The exact-source C6 matrix rerun passed every static and Worker check, Release/test build, 285
   tests in 16 suites, and all 33 required method bindings exactly once as Passed. A first sandboxed
   attempt could not write Wrangler logs or bind its local test server and is an environmental

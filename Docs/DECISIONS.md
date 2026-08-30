@@ -3280,3 +3280,20 @@ all 17 UI tests, and every selected coverage gate after an asynchronous appearan
 assertion was given a bounded wait. This does not close the remaining physical VoiceOver,
 appearance, Instruments, receipt, or system-integration checks, and it does not authorize C6-03 or
 any release action.
+
+---
+
+## 2026-08-30 — Prove page Dynamic Type separately from capped navigation chrome
+
+Context: PR #90 review found that the AX5 regression checked only navigation height and that two UI
+failures were called transient without a mechanism. Investigation additionally found the old
+content-size launch string was not a UIKit raw value and had been ignored.
+
+Decision: Detailed ownership is DEC-COM-079. Use canonical AX1/AX5 launch values, compare one
+dynamic Dashboard content element across those sizes, retain the separate chrome bound, and use
+bounded waits for asynchronous language/tab/category/appearance state.
+
+Consequences: Earlier simulator bundles are not AX5 evidence. Corrected focused regressions and a
+new complete validation pass with real AX5 values, but the physical pre-fix observation remains a
+non-pass and the remediated app still requires physical reinstall. C6-02 remains In Progress and
+C6-03 remains blocked.

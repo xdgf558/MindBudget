@@ -415,6 +415,7 @@ private struct DashboardHeader: View {
                     .font(.caption.weight(.medium))
                     .foregroundStyle(theme.inkSecondary)
                     .textCase(.uppercase)
+                    .accessibilityIdentifier("dashboard.header.date")
                 Text("dashboard.title")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(theme.ink)

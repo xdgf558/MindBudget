@@ -689,9 +689,12 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   is partially exercised: live bilingual StoreKit/renewal/legal presentation, an offline retained
   local-Pro snapshot, privacy/analytics/receipt/iCloud/export copy, and receipt cancellation without
   a write passed. Physical AX5 found a real persistent-tab-bar obstruction; DEC-COM-078 limits only
-  that navigation chrome and the focused regression is green. Physical reinstall/accessibility,
-  transaction-error paths, receipt acquisition, Instruments/data protection, and system integration
-  remain open, so C6-02 is not Done.
+  that navigation chrome. PR #90 review found that the first simulator check neither proved
+  uncapped content nor used a canonical UIKit AX5 value. DEC-COM-079 adds a true AX1/AX5 content-
+  height comparison, retains the chrome bound, and replaces immediate interaction reads with
+  bounded waits; corrected focused and full local validation are green. Physical reinstall/
+  accessibility, transaction-error paths, receipt acquisition, Instruments/data protection, and
+  system integration remain open, so C6-02 is not Done.
 
 ### C6-03 — TestFlight baseline
 

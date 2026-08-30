@@ -209,11 +209,14 @@ not replace distribution privacy-report inspection.
 The continued C6-02 physical pass now records bilingual live StoreKit renewal/legal presentation,
 offline verified-local-Pro retention, privacy/receipt/iCloud/export copy, and receipt cancellation
 without persistence. Physical AX5 exposed a persistent-tab-bar obstruction; DEC-COM-078 caps only
-that navigation chrome, leaves page content uncapped, and has a green focused regression. The
-remediated build still needs physical reinstallation, and transaction-error, receipt acquisition,
-full accessibility/appearance, Instruments/data protection, and system integration remain open.
+that navigation chrome. PR #90 review found that the initial simulator regression neither proved
+uncapped content nor used a canonical UIKit AX5 raw value. DEC-COM-079 replaces it with a true
+AX1/AX5 content-height comparison plus the separate chrome bound and bounded interaction waits;
+focused and full local validation pass. The remediated build still needs physical reinstallation,
+and transaction-error, receipt acquisition, full accessibility/appearance, Instruments/data
+protection, and system integration remain open.
 
-Next suggested task: review and merge the DEC-COM-078 remediation, then complete only the remaining
+Next suggested task: review and merge the DEC-COM-079 remediation, then complete only the remaining
 manual signed-device checklist in `Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
 upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now

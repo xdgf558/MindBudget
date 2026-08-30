@@ -3614,3 +3614,29 @@ attempt could not write Wrangler logs or bind its local test server and is an en
 non-pass; the unrestricted rerun is the owning result. C6-02 remains In Progress for physical
 reinstall and every other open manual item; C6-03 and all remote/release actions remain blocked or
 unauthorized.
+
+## 2026-08-30 — Session 192 — Replace asserted AX5 evidence with canonical runtime evidence
+
+Goal: Address PR #90's two P2 findings without claiming the physical remediation passed or
+advancing C6-02/C6-03.
+
+Actions: Confirmed that the previous
+`UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge` argument is not a supported UIKit raw
+value and was ignored. Replaced all four occurrences with canonical AX5
+`UICTContentSizeCategoryAccessibilityXXXL`, and used
+`UICTContentSizeCategoryAccessibilityM` for an AX1 baseline. Added a Dashboard content anchor and
+required its AX5 height to exceed AX1 while the four-tab chrome remains bounded. Updated true-AX5
+setup/Settings navigation to scroll. Replaced immediate reads after language, tab, category, and
+appearance interactions with bounded predicate waits; removed the unsupported transient
+classification from current evidence.
+
+Result: The focused true-AX5 content comparison passed 1/1 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-setup-rerun.xcresult`; the corrected three-appearance Pro AX5
+test passed 1/1 at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro.xcresult`. The new complete validator
+passed Release, the strict Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and
+all selected coverage gates under Xcode 27.0 beta 6/iOS 26.5. Four accepted physical-only
+CloudKit probes remained skipped and `CSVExporter.swift` was lowest at 87.60%. Earlier simulator
+bundles remain ordinary UI execution pointers, not AX5 evidence. Physical reinstall is still open;
+C6-02 remains In Progress and C6-03 plus every remote/release action remain blocked. The exact-
+source C6 matrix also passed all static and Worker checks, Release/test build, 285 tests in 16
+suites, and all 33 required method bindings exactly once as Passed.

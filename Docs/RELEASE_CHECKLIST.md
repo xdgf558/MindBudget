@@ -73,8 +73,11 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   without ledger persistence. These observations do not cover an actual purchase/restore,
   unavailable authority, camera/photo acquisition, share destination, or final binary.
 - [x] Treat the physical AX5 navigation obstruction as a non-pass, cap only the persistent four-tab
-  chrome while leaving page content uncapped, and pass the focused one-test simulator regression.
-  Physical reinstallation and the complete accessibility/appearance matrix remain open.
+  chrome while leaving page content uncapped. DEC-COM-079 uses UIKit's canonical AX1/AX5 values,
+  proves a dynamic Dashboard content element grows at AX5 while the four-tab chrome remains
+  reachable and bounded, and replaces immediate UI-transition reads with bounded waits. Earlier
+  noncanonical simulator runs are not AX5 evidence. Physical reinstallation and the complete
+  accessibility/appearance matrix remain open.
 - [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
   require Production APS plus `get-task-allow = false` before any upload.
 

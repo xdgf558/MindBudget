@@ -615,7 +615,10 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   run `33287620965` passed, and PR #89 merged it as `72f016e`. The continuation records bilingual
   live StoreKit/renewal/legal presentation, offline verified-local-Pro retention, privacy/receipt/
   iCloud/export copy, and a no-write receipt cancellation. Its physical AX5 run found a persistent-
-  tab-bar obstruction; DEC-COM-078 caps only that chrome and the focused regression passed. C6-02
-  remains open for physical reinstallation/accessibility, transaction-error paths, receipt
-  acquisition, Instruments/data protection, system integration, exact-head review, hosted CI, and
-  merge.
+  tab-bar obstruction; DEC-COM-078 caps only that chrome. PR #90 review found that the first
+  regression lacked a content-side guarantee and used an ignored noncanonical content-size value.
+  DEC-COM-079 uses canonical AX1/AX5 values, proves Dashboard content grows while chrome remains
+  bounded, and gives language/tab/category/appearance changes bounded waits. Focused tests and a
+  new full local validation pass. C6-02 remains open for physical reinstallation/accessibility,
+  transaction-error paths, receipt acquisition, Instruments/data protection, system integration,
+  exact-head review, hosted CI, and merge.

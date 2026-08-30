@@ -2183,3 +2183,32 @@ in 16 suites, and all 33 required method bindings exactly once as Passed. A firs
 could not write Wrangler logs or bind its local test server and is an environmental non-pass; the
 unrestricted rerun is the owning result. The matrix removed its temporary xcresult, so that path
 was also an execution pointer rather than a durable artifact.
+
+### C6-02 PR #90 review remediation with canonical AX5 values — 2026-08-30
+
+PR #90 review found that the navigation test protected only the capped chrome and did not prove
+that selected-page content remained uncapped. It also rejected the unexplained `transient` label
+for two interaction failures. Author-side investigation found a deeper evidence error: the prior
+launch string `UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge` is not a UIKit content-
+size raw value and was ignored. Those earlier simulator bundles remain ordinary UI execution
+pointers but are not AX5 evidence. The physical AX5 obstruction remains a valid non-pass.
+
+The remediation uses UIKit's canonical `UICTContentSizeCategoryAccessibilityM` and
+`UICTContentSizeCategoryAccessibilityXXXL` values. The Dashboard date supplies a nonvisual
+content-side anchor; the AX5 run must render it taller than AX1 while all four persistent tabs
+remain present, hittable, and within the reviewed 96-point chrome bound. Language labels,
+Dashboard-tab selection, expense-category selection, and appearance selection now use bounded
+predicate waits. True AX5 setup and Pro navigation scroll their own content rather than assuming
+ordinary-size geometry.
+
+The focused content comparison passed 1/1 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-setup-rerun.xcresult`, and the corrected three-appearance Pro
+AX5 regression passed 1/1 at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro.xcresult`. The new owning
+`Scripts/validate.sh` run under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17
+Pro simulator passed Release, the strict Dashboard benchmark, 553 tests in 32 unit suites, all 17
+UI tests with the canonical content-size values, and every selected coverage threshold. Four
+accepted opt-in physical CloudKit probes remained skipped; `CSVExporter.swift` was lowest at
+87.60% against the 85% floor. These are local execution pointers, not durable or physical evidence.
+The remediated app still requires physical reinstall; C6-02 remains In Progress and C6-03 remains
+blocked. The exact-source C6 matrix also passed every static and Worker check, Release/test build,
+285 tests in 16 suites, and all 33 required method bindings exactly once as Passed.
