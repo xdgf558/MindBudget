@@ -2305,3 +2305,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   comments or string examples satisfy/fail the gate; inferring `getattrlist*` semantics from its
   name; scanning tests as if they ship in the App target; declaring all five categories
   prophylactically; or treating source scanning as final-binary privacy evidence.
+
+## DEC-COM-078 — Keep AX5 page content visible beside persistent navigation
+
+- Status/date: **Accepted C6-02 physical-preflight remediation — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary
+- Context: On the development-signed Release build, physical iPhone inspection with the largest
+  accessibility text, Increase Contrast, and Reduce Motion found that the custom four-tab bar grew
+  enough to obscure Dashboard and a pushed Pro surface. The page itself remained scrollable; the
+  defect belonged to always-visible navigation chrome rather than customer content.
+- Decision: Apply `.dynamicTypeSize(...DynamicTypeSize.accessibility1)` only to the custom tab bar.
+  Leave every selected page outside that modifier so its text still receives the user's uncapped
+  Dynamic Type setting. Extend the existing AX5 UI test to require all four tab controls to remain
+  present, hittable, and no taller than the reviewed navigation-chrome bound.
+- Consequences: The focused test passed on the iOS 26.5 iPhone 17 Pro simulator under Xcode 27.0
+  beta 6 with one test and zero failures at
+  `/private/tmp/C6-02-AX5-TabBar-retry.xcresult`. The first sandboxed attempt could not access
+  CoreSimulator and is an environmental non-pass. The first complete validation after the change
+  retained three UI non-passes; a focused rerun reduced those to an immediate appearance-selection
+  assertion race, which now uses a bounded wait. The final complete validation passed Release, the
+  strict Dashboard benchmark, 553 unit tests, all 17 UI tests, and every selected coverage gate.
+  This correction is user-visible but is not a
+  substitute for remaining physical VoiceOver, appearance, receipt, Instruments/data-protection,
+  or system-integration evidence. C6-02 remains In Progress; C6-03 and every remote/release action
+  remain blocked or unauthorized.
+- Alternatives rejected: Capping the entire app or Pro page and thereby suppressing the user's
+  content-size choice; hiding tab labels; treating the obstruction as an iPhone Mirroring artifact;
+  accepting an existence-only UI test; or marking the full manual accessibility checklist passed
+  from one focused simulator regression.

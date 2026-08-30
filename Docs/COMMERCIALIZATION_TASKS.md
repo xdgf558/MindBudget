@@ -684,8 +684,14 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   `33283398690` passed, and PR #88 merged as `6c2a051`. Its one non-blocking P2 noted that the
   required-reason declaration was pinned rather than source-derived. The follow-up
   `check_required_reason_apis.py` closes that source-drift shape. PR #89 review found missing Swift
-  overlay spellings; the remediation adds them and multi-category `CA92.1` enforcement pending
-  exact-head rereview. The manual signed-device checklist remains open.
+  overlay spellings. Independent rereview accepted exact remediation head `6ffc6fa`, hosted run
+  `33287620965` passed, and PR #89 merged it as `72f016e`. The manual signed-device checklist
+  is partially exercised: live bilingual StoreKit/renewal/legal presentation, an offline retained
+  local-Pro snapshot, privacy/analytics/receipt/iCloud/export copy, and receipt cancellation without
+  a write passed. Physical AX5 found a real persistent-tab-bar obstruction; DEC-COM-078 limits only
+  that navigation chrome and the focused regression is green. Physical reinstall/accessibility,
+  transaction-error paths, receipt acquisition, Instruments/data protection, and system integration
+  remain open, so C6-02 is not Done.
 
 ### C6-03 — TestFlight baseline
 

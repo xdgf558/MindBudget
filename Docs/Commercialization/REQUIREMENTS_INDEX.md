@@ -78,10 +78,17 @@ A development-signed Release app passed that inspection and launched on an iPhon
 independent-review and manual signed-device work, and no App Store Connect answer was written.
 Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
 #88 merged as `6c2a051`. Its non-blocking required-reason source-inventory finding is implemented
-by `Scripts/check_required_reason_apis.py` pending independent review; the gate requires the exact
-production-source category set to equal the manifest. PR #89 review found missing Swift overlay
+by `Scripts/check_required_reason_apis.py`; the gate requires the exact production-source category
+set to equal the manifest. PR #89 review found missing Swift overlay
 aliases; the remediation covers them and leaves literal raw-value keys plus distribution privacy-
-report proof to C6-03/C12 pending exact-head rereview.
+report proof to C6-03/C12. Independent rereview accepted exact remediation head `6ffc6fa`, hosted
+run `33287620965` passed, and PR #89 merged it as `72f016e`.
+The continuing signed-device pass records bilingual live StoreKit/renewal/legal presentation,
+offline verified-local-Pro retention, truthful privacy/receipt/iCloud/export copy, and receipt
+cancellation without persistence. DEC-COM-078 remediates the physical AX5 tab-bar obstruction
+without capping page content. These are partial C6-02 facts, not Requirement completion; physical
+reinstall/accessibility, transaction-error, acquisition, Instruments/data protection, system
+integration, C6-03 distribution artifacts, and final-binary proof remain open.
 
 ## COM-C0A implementation inventory against requirements
 

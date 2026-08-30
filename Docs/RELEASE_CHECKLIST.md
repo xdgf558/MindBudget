@@ -61,11 +61,20 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [x] Inventory production App source against Apple's five current required-reason API categories.
   `Scripts/check_required_reason_apis.py` finds only UserDefaults/`@AppStorage`, requires exact
   equality with the sole `CA92.1` declaration, covers reviewed Foundation Swift overlay spellings,
-  and is a source-drift gate pending PR #89 exact-head rereview; it
-  does not replace the distribution privacy report or dynamic raw-value-key inspection.
+  and is a source-drift gate accepted through PR #89 (`72f016e`) after exact remediation head
+  `6ffc6fa` passed run `33287620965`; it does not replace the distribution privacy report or
+  dynamic raw-value-key inspection.
 - [ ] Complete the purchase/restore/manage/legal, accessibility/localization, camera/photo-picker,
   privacy/data-protection, Instruments, and system-integration checks listed in
   `Docs/Commercialization/C6_02_PREFLIGHT.md`.
+- [x] Record the partial signed-device pass: live monthly/annual/trial/already-entitled/legal
+  StoreKit presentation in English and Simplified Chinese; offline retention of the verified local
+  Pro snapshot; truthful privacy/analytics/receipt/iCloud/export copy; and receipt cancellation
+  without ledger persistence. These observations do not cover an actual purchase/restore,
+  unavailable authority, camera/photo acquisition, share destination, or final binary.
+- [x] Treat the physical AX5 navigation obstruction as a non-pass, cap only the persistent four-tab
+  chrome while leaving page content uncapped, and pass the focused one-test simulator regression.
+  Physical reinstallation and the complete accessibility/appearance matrix remain open.
 - [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
   require Production APS plus `get-task-allow = false` before any upload.
 

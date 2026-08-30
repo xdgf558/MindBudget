@@ -3545,3 +3545,72 @@ every selected coverage threshold. Four accepted opt-in physical CloudKit probes
 `CSVExporter.swift` was lowest at 87.60% against the 85% floor. Both result-bundle paths were
 temporary execution pointers rather than durable, hosted, signed-device, final-binary, or release
 evidence.
+
+## 2026-08-30 — Session 189 — Continue C6-02 after PR #89 merge
+
+Goal: Calibrate the accepted required-reason remediation and continue only the remaining C6-02
+manual signed-device preflight without entering C6-03 or authorizing a remote/release action.
+
+Actions: Recorded that independent rereview accepted exact PR #89 remediation head `6ffc6fa`,
+hosted run `33287620965` passed, and PR #89 merged as `72f016e`. Removed current-state claims that
+the source gate remained pending rereview while preserving the historical implementation-session
+records. Re-ran the required-reason negative suite and production scan, commercialization document
+gate, and telemetry/privacy gate. Re-ran the signed-device inspector against the retained Release
+0.9.8 (9) app from the accepted C6-02 build.
+
+Result: The source/manifest inventory remains exactly UserDefaults/`@AppStorage` with reason
+`CA92.1`, and the retained app passed signature, designated requirement, exact entitlements,
+embedded privacy manifest, reviewed host literals, and no-test-fixture checks. A sandboxed
+signature attempt returned `CSSMERR_TP_NOT_TRUSTED` because it could not consult the signing trust
+state; the unrestricted rerun passed and is the owning result. CoreDevice reported the paired
+physical `拉沙的iPhone` as unavailable, so no new StoreKit, localization/accessibility, receipt,
+Instruments/data-protection, or system-integration observation is claimed. C6-02 stays In Progress
+for those manual items. C6-03 and Archive/IPA, upload, App Store Connect, G1, distribution, and
+release remain blocked or unauthorized.
+
+## 2026-08-30 — Session 190 — Partial physical preflight and AX5 remediation
+
+Goal: Continue only C6-02 signed-device evidence, record non-passes honestly, and remediate any
+customer-visible issue without entering C6-03 or performing a remote/release action.
+
+Actions: Inspected the installed development-signed Release 0.9.8 (9) in English and Simplified
+Chinese. Live StoreKit showed monthly `$1.99`, annual `$19.99`, the active seven-day trial and
+renewal date/price, already-entitled state, and Restore/Manage/Terms/Privacy controls. Airplane-mode
+cold launch retained the verified local Pro snapshot. Inspected privacy/analytics, receipt, iCloud,
+and export disclosures. Cancelled receipt review and Add Expense and confirmed Today's spending
+remained `$0.00` and the existing `$25.00` expense was unchanged. Did not open the private photo
+library or claim a camera path through iPhone Mirroring.
+
+Result: Physical AX5 with Increase Contrast and Reduce Motion found a real navigation obstruction.
+DEC-COM-078 caps only the persistent four-tab bar at Accessibility 1, not selected-page content.
+Extended the AX5 UI regression to require all tab controls present, hittable, and no taller than
+the reviewed bound. The unrestricted focused test passed one result with zero failures at
+`/private/tmp/C6-02-AX5-TabBar-retry.xcresult`; an earlier sandboxed CoreSimulator attempt is an
+environmental non-pass. The remediated build still needs physical reinstall. Transaction-error,
+receipt-acquisition, full accessibility/appearance, Instruments/data-protection, and system-
+integration evidence remain open. C6-02 is In Progress; C6-03 and all archive/upload/deployment/
+App Store Connect/G1/distribution/release actions remain blocked or unauthorized.
+
+## 2026-08-30 — Session 191 — Stabilize AX5 evidence and complete local validation
+
+Goal: Close the local automated evidence for DEC-COM-078 without converting simulator results into
+physical or release evidence and without entering C6-03.
+
+Actions: Retained the first complete validation's three UI non-passes. Re-ran those cases in
+isolation: language switching and onboarding/manual entry passed, while the Pro AX5 case reproduced
+only an immediate Warm Botanical selected-state assertion race. Replaced the immediate read with a
+bounded predicate wait and reran the focused Pro test successfully. Then reran the entire ordinary
+validation pipeline.
+
+Result: The focused Pro AX5 run passed one test with zero failures at
+`/private/tmp/C6-02-Pro-AX5-Selection-Retry.xcresult`. The final complete validation under Xcode
+27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator passed Release, the
+strict serial 10,000-row Dashboard benchmark, 553 tests in 32 unit suites, all 17 UI tests, and all
+selected coverage gates. Four accepted opt-in physical CloudKit probes remained skipped;
+`CSVExporter.swift` was lowest at 87.60% against the 85% floor. The result bundle was temporary
+execution evidence only. The exact-source C6 matrix then passed every static and Worker check,
+Release/test build, 285 tests in 16 suites, and all 33 required method bindings. Its first sandboxed
+attempt could not write Wrangler logs or bind its local test server and is an environmental
+non-pass; the unrestricted rerun is the owning result. C6-02 remains In Progress for physical
+reinstall and every other open manual item; C6-03 and all remote/release actions remain blocked or
+unauthorized.

@@ -551,7 +551,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
             XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
             skinControl.tap()
-            XCTAssertTrue(skinControl.isSelected)
+            let selectedExpectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate { object, _ in
+                    (object as? XCUIElement)?.isSelected == true
+                },
+                object: skinControl
+            )
+            XCTAssertEqual(
+                XCTWaiter.wait(for: [selectedExpectation], timeout: 2),
+                .completed,
+                "Appearance selection did not settle: \(skin)"
+            )
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
             let proEntry = element("settings.pro", in: app)
@@ -647,6 +657,13 @@ final class MindBudgetPhase3UITests: XCTestCase {
             let control = app.buttons[identifier]
             XCTAssertTrue(control.exists, "Missing AX5 navigation control: \(identifier)")
             XCTAssertTrue(control.isHittable, "Clipped AX5 navigation control: \(identifier)")
+        }
+        for identifier in ["tab.dashboard", "tab.log", "tab.insights", "tab.wishlist"] {
+            XCTAssertLessThanOrEqual(
+                app.buttons[identifier].frame.height,
+                96,
+                "AX5 navigation chrome must not consume the content viewport: \(identifier)"
+            )
         }
         XCTAssertTrue(app.buttons["dashboard.settings"].isHittable)
     }

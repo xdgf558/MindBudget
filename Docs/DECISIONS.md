@@ -3262,3 +3262,21 @@ pending exact-head rereview after PR #89 identified missing overlay spellings. L
 keys are outside the lexical proof, and source scanning does not replace C6-03's distribution
 privacy report, compiled-dependency inspection, Archive/IPA evidence, or separate archive
 authority.
+
+---
+
+## 2026-08-30 — Bound only persistent navigation chrome at AX5
+
+Context: C6-02 physical-device inspection found that uncapped AX5 labels made the persistent
+four-tab navigation bar consume enough height to obscure Dashboard and pushed Pro content.
+
+Decision: Detailed ownership is DEC-COM-078. Cap only the always-visible custom tab bar at the
+first accessibility Dynamic Type category; keep selected-page content uncapped and add a UI
+regression for the navigation-chrome height.
+
+Consequences: The focused AX5 UI test passes and primary navigation remains present and hittable.
+The final complete validation also passes Release, the strict Dashboard benchmark, 553 unit tests,
+all 17 UI tests, and every selected coverage gate after an asynchronous appearance-selection
+assertion was given a bounded wait. This does not close the remaining physical VoiceOver,
+appearance, Instruments, receipt, or system-integration checks, and it does not authorize C6-03 or
+any release action.

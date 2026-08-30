@@ -1315,6 +1315,11 @@ private struct MainTabView: View {
             .accessibilitySortPriority(3)
             .accessibilityIdentifier("dashboard.quickAdd")
         }
+        // Keep persistent navigation chrome readable without allowing AX5 labels to consume the
+        // content viewport. The selected content still receives the user's uncapped Dynamic Type
+        // size; only this always-visible four-tab control is capped at the first accessibility
+        // category. Physical C6-02 testing found the uncapped bar obscured the pushed Pro surface.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .fixedSize(horizontal: false, vertical: true)
         .background(
             theme.surface

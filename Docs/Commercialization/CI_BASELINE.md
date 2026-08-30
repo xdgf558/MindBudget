@@ -2124,3 +2124,62 @@ and all 17 UI tests passed. Four accepted opt-in physical CloudKit probes remain
 selected coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85%
 floor. The validator removed its temporary xcresult. Exact-head rereview, hosted CI, and the open
 manual C6-02 checklist remain required; no C6-03 or remote/release authorization follows.
+
+### C6-02 required-reason reviewed merge and continuation — 2026-08-30
+
+Independent rereview accepted exact PR #89 remediation head `6ffc6fa`. GitHub Actions run
+`33287620965` completed successfully on that exact head in 22m59s, and PR #89 merged it as
+`72f016e`. The merged source gate now closes the reviewed Swift-overlay and multi-category
+`CA92.1` gaps; literal raw-value keys and compiled dependencies remain assigned to C6-03's
+distribution privacy report and artifact inspection.
+
+On the continuation branch, the required-reason self-test and App scan, commercialization
+document gate, and telemetry/privacy gate passed. The retained development-signed Release 0.9.8
+(9) app at `/private/tmp/MindBudget-C6-02-Release-20260830/Build/Products/Release-iphoneos/`
+`MindBudget.app` passed `inspect-c6-release-app.sh --mode signed-device` when run with access to the
+signing trust state. The path is an execution pointer rather than a durable artifact. A first
+sandboxed attempt returned `CSSMERR_TP_NOT_TRUSTED` and is excluded as an environmental non-pass.
+CoreDevice listed `拉沙的iPhone` as paired but unavailable, so no new physical manual-checklist
+evidence is claimed. C6-02 remains In Progress and C6-03 remains blocked.
+
+### C6-02 physical evidence and focused AX5 navigation regression — 2026-08-30
+
+The installed development-signed Release 0.9.8 (9) supplied partial physical evidence for live
+bilingual StoreKit/renewal/legal presentation, offline verified-local-Pro retention, privacy/
+analytics/receipt/iCloud/export copy, and receipt cancellation without a ledger write. Paths under
+`/private/tmp/MindBudget-C6-02-physical-20260830/` are local execution pointers, not durable,
+distribution, final-binary, App Store Connect, G1, or release artifacts.
+
+The physical AX5 run found a persistent-tab-bar content obstruction and is retained as a non-pass.
+After DEC-COM-078 remediation, the focused
+`MindBudgetPhase3UITests/testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable`
+run under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator passed
+1 test with 0 failures at `/private/tmp/C6-02-AX5-TabBar-retry.xcresult`. A first sandboxed attempt
+could not access CoreSimulator and is excluded as an environmental non-pass. This focused result
+does not replace physical reinstall or the rest of the C6-02 manual checklist. Exact-head full
+validation, independent review, hosted CI, and merge remain required.
+
+### C6-02 complete validation after AX5 navigation remediation — 2026-08-30
+
+The first complete `Scripts/validate.sh` run after the DEC-COM-078 production change passed
+Release, the strict serial 10,000-row Dashboard benchmark, and all 553 unit tests, but retained
+three UI non-passes. A focused rerun passed the language-switch and onboarding/manual-flow cases
+and reproduced only the Pro AX5 test's immediate Warm Botanical selected-state assertion. That
+assertion now waits at most two seconds for SwiftUI selection state to settle. The focused rerun
+then passed one test with zero failures at
+`/private/tmp/C6-02-Pro-AX5-Selection-Retry.xcresult`.
+
+The final owning `Scripts/validate.sh` run passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 (`23F77`) iPhone 17 Pro simulator: Release compilation, the strict Dashboard benchmark, 553
+tests in 32 unit suites, and all 17 UI tests passed. Four accepted opt-in physical CloudKit probes
+remained skipped. Every selected coverage threshold passed; `CSVExporter.swift` was lowest at
+87.60% against the 85% floor. The validator removed its temporary xcresult; all paths in this
+section are local execution pointers rather than durable, hosted, signed-device, distribution, or
+release artifacts. The pre-remediation physical AX5 observation remains a non-pass, and physical
+reinstall plus the remaining manual C6-02 evidence are still open.
+
+The exact-source C6 matrix rerun passed every static and Worker check, Release/test build, 285 tests
+in 16 suites, and all 33 required method bindings exactly once as Passed. A first sandboxed attempt
+could not write Wrangler logs or bind its local test server and is an environmental non-pass; the
+unrestricted rerun is the owning result. The matrix removed its temporary xcresult, so that path
+was also an execution pointer rather than a durable artifact.

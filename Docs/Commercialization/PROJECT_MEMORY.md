@@ -450,9 +450,14 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the C6-02 privacy/signed-app candidate, then complete only
-the remaining manual signed-device checks in `C6_02_PREFLIGHT.md`; do not authorize archive/upload
-from the C6-01 matrix or the development-signed Release build. The owner explicitly entered COM-C6
+Next suggested task: independently review the DEC-COM-078 AX5 remediation and partial signed-device
+evidence, then complete only the remaining manual checks in `C6_02_PREFLIGHT.md`; do not authorize
+archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
+StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
+cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a
+non-pass; the remediated build still needs physical reinstallation, and transaction-error,
+acquisition, full accessibility/appearance, Instruments/data protection, and system integration
+remain open. The owner explicitly entered COM-C6
 on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head
 `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
 the implementation author's supplemental inspection of the privacy manifest, feature capture
@@ -487,7 +492,8 @@ required-reason declaration was pinned rather than source-derived. The follow-up
 `Scripts/check_required_reason_apis.py` now requires exact equality between production App-source
 use across Apple's five current categories and the manifest. PR #89 review found missing Swift
 overlay aliases; the remediation adds them, strengthens `CA92.1` validation, and records literal
-raw-value keys as outside lexical proof. It remains pending exact-head rereview and cannot replace
+raw-value keys as outside lexical proof. Independent rereview accepted exact remediation head
+`6ffc6fa`, hosted run `33287620965` passed, and PR #89 merged it as `72f016e`. It cannot replace
 C6-03 distribution privacy-report inspection.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
