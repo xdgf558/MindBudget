@@ -32,6 +32,7 @@ ALLOWED_STATIC_CHECKS = frozenset(
         "Scripts/check-public-configuration-contract.sh",
         "Scripts/check-public-configuration-transport.sh",
         "Scripts/check-release-readiness.sh",
+        "Scripts/check_required_reason_apis.py",
         "Scripts/check-storekit-test-catalog.sh",
         "Scripts/check-telemetry-contract.sh",
         "Scripts/check-telemetry-metrics-contract.sh",

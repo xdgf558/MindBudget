@@ -3478,3 +3478,39 @@ passed. Four accepted opt-in physical CloudKit probes remained skipped. Every se
 threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The temporary
 xcresult was removed by the validator and is an execution pointer, not a durable artifact. Exact-
 head independent review, hosted CI, and the manual C6-02 evidence remain required.
+
+## 2026-08-30 — Session 187 — Derive the required-reason manifest from App source
+
+Goal: Close the required-reason API source-inventory P2 left by PR #88 review without marking
+C6-02 Done or entering C6-03.
+
+Actions: Added `Scripts/check_required_reason_apis.py` using Apple's current five-category list.
+The scanner covers production Swift, Objective-C, Objective-C++, C, C++, and headers under
+`MindBudget/`; removes nested comments and ordinary/multiline/raw literal strings; retains actual
+Swift interpolation code; and maps source symbols to UserDefaults, file timestamps, system boot
+time, disk space, or active keyboards. It requires exact equality with
+`NSPrivacyAccessedAPITypes`, enforces UserDefaults reason `CA92.1`, and fails ambiguous
+`getattrlist*` calls pending explicit review. Self-tests cover every non-UserDefaults category,
+comments and string decoys, Swift interpolation, raw-string trailing backslashes, C `stat`, extra
+manifest declarations, wrong reasons, and ambiguous metadata calls. Classified the new check in
+the C6 release matrix and wired it into the telemetry/privacy gate. Recorded DEC-COM-077 and the
+source-only boundary in the C6-02 packet, task, privacy, release, requirement, and memory records.
+
+Result: The current production inventory is exactly UserDefaults/`@AppStorage`; the checked-in
+manifest remains exactly UserDefaults with App-only reason `CA92.1`. Source scanning does not
+replace the C6-03 distribution privacy report or compiled dependency/IPA review. C6-02 remains In
+Progress pending exact-head independent review and the open manual checklist. C6-03 and all
+Archive/IPA, upload, App Store Connect, G1, distribution, and release actions remain blocked or
+unauthorized.
+
+Validation: All standalone money, network-egress, commercialization-document, StoreKit 13/13,
+required-reason, telemetry, C6 matrix, Shell, Python, plist, and diff checks passed. The full C6
+matrix passed 285 selected tests in 16 suites and verified all 33 required method bindings exactly
+once as Passed. The first sandboxed `Scripts/validate.sh` rerun could not access CoreSimulator and
+is an environmental non-pass. The unrestricted run passed under Xcode 27.0 beta 6 (`27A5252f`)
+on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: Release compilation, the strict serial
+10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests passed. Four
+accepted opt-in physical CloudKit probes remained skipped. Every selected coverage threshold
+passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The validator removed its
+temporary xcresult; the path was an execution pointer, not a durable, hosted, signed-device,
+distribution, or release artifact.

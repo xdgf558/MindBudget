@@ -76,6 +76,11 @@ closed subscription outcome and added exact source/embedded-manifest plus signed
 A development-signed Release app passed that inspection and launched on an iPhone Air running iOS
 26.6.1; this is not distribution/IPA/final-traffic evidence. `C6_02_PREFLIGHT.md` retains the
 independent-review and manual signed-device work, and no App Store Connect answer was written.
+Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
+#88 merged as `6c2a051`. Its non-blocking required-reason source-inventory finding is implemented
+by `Scripts/check_required_reason_apis.py` pending independent review; the gate requires the exact
+production-source category set to equal the manifest and leaves distribution privacy-report proof
+to C6-03/C12.
 
 ## COM-C0A implementation inventory against requirements
 

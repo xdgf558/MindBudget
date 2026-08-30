@@ -2276,3 +2276,28 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   app as distribution evidence; archiving early to obtain an IPA; writing draft answers to App
   Store Connect; weakening the checked-in manifest to match a stale answer; or marking C6-02 Done
   before exact-head independent review, green hosted CI, and accepted manual evidence.
+
+## DEC-COM-077 — Derive required-reason categories from production App source
+
+- Status/date: **Accepted C6-02 review-remediation decision — 2026-08-30**
+- Requirements: REQ-R1-TELEMETRY-001; COM-C6 privacy and release boundary
+- Context: Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690`
+  passed, and PR #88 merged as `6c2a051`. The review left one non-blocking P2 before C6-02 Done:
+  `privacy_manifest_contract.py` required exactly UserDefaults `CA92.1`, but that constant check
+  did not prove production source had avoided Apple's other required-reason API categories.
+- Decision: Add `Scripts/check_required_reason_apis.py`. Scan production Swift, Objective-C,
+  Objective-C++, C, C++, and headers under `MindBudget/` against Apple's five current categories.
+  Remove nested comments and literal strings, retain real Swift interpolation code, require the
+  observed category set to equal `NSPrivacyAccessedAPITypes`, and reject ambiguous
+  `getattrlist*` use pending explicit classification. Keep the current accepted inventory at only
+  UserDefaults/`@AppStorage` with App-only reason `CA92.1`. Classify the check in the C6 matrix and
+  run it through the ordinary telemetry/privacy gate.
+- Consequences: An undeclared source category, an unobserved manifest category, the wrong
+  UserDefaults reason, or a lexically ambiguous file-metadata API now fails locally and in hosted
+  validation. This is source-level drift control only. The C6-03 distribution candidate must still
+  produce and review Xcode's privacy report and compiled dependency/IPA evidence before App Store
+  Connect or upload.
+- Alternatives rejected: Treating a pinned manifest constant as source proof; broad grep that lets
+  comments or string examples satisfy/fail the gate; inferring `getattrlist*` semantics from its
+  name; scanning tests as if they ship in the App target; declaring all five categories
+  prophylactically; or treating source scanning as final-binary privacy evidence.

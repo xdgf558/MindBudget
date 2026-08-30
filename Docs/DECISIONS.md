@@ -3244,3 +3244,18 @@ Consequences: One Release-configuration app passed the signed-device inspector a
 iPhone Air with iOS 26.6.1. Independent review and the manual C6-02 checklist remain open. No
 archive, upload, deployment, App Store Connect write, tester assignment, G1, distribution, or
 release action occurred, and C6-03 remains blocked.
+
+---
+
+## 2026-08-30 — Derive required-reason API declarations from production source
+
+Context: PR #88 review accepted the privacy correction but found that the validator pinned
+UserDefaults `CA92.1` rather than proving production source used no other required-reason category.
+
+Decision: Detailed ownership is DEC-COM-077. Add a comment/string-aware production-source scanner
+for Apple's five current categories, require exact source/manifest equality, reject ambiguous file-
+metadata APIs, and classify the gate in the C6 automated matrix.
+
+Consequences: The current inventory remains only UserDefaults/`@AppStorage`. This follow-up remains
+pending independent review, and source scanning does not replace C6-03's distribution privacy
+report, compiled-dependency inspection, Archive/IPA evidence, or separate archive authority.

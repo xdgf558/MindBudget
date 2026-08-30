@@ -1,10 +1,12 @@
 # C6-02 Signed-Device and App Review Preflight
 
-Status: **In Progress after explicit owner entry on 2026-08-30.** The source/privacy correction
-and one development-signed Release-device inspection are complete pending independent review.
-Customer-facing StoreKit, accessibility, localization, data-protection, and distribution-signed
-checks remain open. C6-03, archive, upload, deployment, App Store Connect writes, tester assignment,
-G1, distribution, and release remain unauthorized.
+Status: **In Progress after explicit owner entry on 2026-08-30.** Independent review accepted
+exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`.
+That review left one non-blocking required-reason API source-inventory hardening item before C6-02
+Done; the current follow-up implements it pending independent review. Customer-facing StoreKit,
+accessibility, localization, data-protection, and distribution-signed checks remain open. C6-03,
+archive, upload, deployment, App Store Connect writes, tester assignment, G1, distribution, and
+release remain unauthorized.
 
 ## Authorization and evidence boundary
 
@@ -36,6 +38,30 @@ vocabulary. This branch remains pending independent PR review.
 `Scripts/privacy_manifest_contract.py` now enforces the exact checked-in and embedded manifest. Its
 negative self-tests reject missing Purchase History, linked data, tracking, a tracking domain, a
 non-Analytics purpose, the wrong required-reason API, and any extra collected-data type.
+
+## Required-reason API source inventory
+
+PR #88 review correctly observed that the first validator pinned UserDefaults `CA92.1` but did not
+derive the set of accessed API categories from App-target source. Apple's current list was checked
+again on 2026-08-30 and contains File Timestamp, System Boot Time, Disk Space, Active Keyboards,
+and UserDefaults.
+
+`Scripts/check_required_reason_apis.py` now scans production Swift, Objective-C, Objective-C++, C,
+C++, and header files under `MindBudget/`. It removes nested comments and ordinary, multiline, and
+raw string literal content while retaining real Swift interpolation code. The observed source
+category set must exactly equal `NSPrivacyAccessedAPITypes`; an undeclared source category and an
+unobserved manifest category both fail. The current source inventory finds only `UserDefaults` and
+SwiftUI `@AppStorage`, matching the sole App-only `CA92.1` declaration.
+
+The self-test rejects every currently unobserved Apple category, C `stat`, an extra manifest
+category, the wrong UserDefaults reason, a real API hidden in string interpolation or after a raw
+string ending in a backslash, and ambiguous `getattrlist*` file-metadata access. Comments and
+literal strings containing API names do not satisfy or trip the contract. The check is classified
+in `C6_RELEASE_MATRIX.json` and also runs through the ordinary telemetry/privacy gate.
+
+This is a source-level drift control, not final-binary or dependency proof. C6-03 must still inspect
+the distribution candidate's Xcode privacy report and rerun the signed-app/IPA checks before any
+App Store Connect answer or upload.
 
 ## Draft App Privacy mapping — do not submit from this packet
 
@@ -121,6 +147,8 @@ Provisioning limitation:
   C4B physical waivers remain explicit non-passes and do not waive deterministic or release checks.
 - No App Store Connect answer has been copied or accepted. No archive, IPA, upload, tester
   assignment, G1 decision, or public-release action occurred.
+- The required-reason source gate cannot replace Xcode's distribution privacy report or inspection
+  of compiled dependencies; those remain mandatory C6-03/C12 evidence.
 - C6-02 cannot become Done until the exact branch receives independent review, hosted CI is green,
   and the owner accepts the remaining manual evidence or records a narrowly scoped decision for
   each unresolved item. C6-03 requires a separate explicit owner instruction.

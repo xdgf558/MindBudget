@@ -74,7 +74,9 @@ detailed phase checklists; it added no paid product behavior.
   review handoff as `008b674`. The owner explicitly entered COM-C6 on 2026-08-29. Independent
   rereview approved exact PR #86 remediation head `f77d2a6`, GitHub Actions run `33255898196`
   completed successfully, and PR #86 merged as `015d00e`; C6-01 is Done. The owner explicitly
-  entered C6-02 on 2026-08-30; C6-03, Staging/Production deployment, G1, App
+  entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head `0ac0500`, hosted run
+  `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 remains In Progress for its
+  required-reason source-gate follow-up and manual evidence. C6-03, Staging/Production deployment, G1, App
   Store Connect, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
@@ -678,7 +680,11 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   pass found and corrected the missing Purchase History declaration, added a closed source/
   embedded-manifest validator and signed-app inspector, and installed/launched a development-
   signed Release build on an iPhone Air with iOS 26.6.1. These facts are recorded in
-  `C6_02_PREFLIGHT.md`; independent review and the manual signed-device checklist remain open.
+  `C6_02_PREFLIGHT.md`. Independent review accepted exact head `0ac0500`, hosted run
+  `33283398690` passed, and PR #88 merged as `6c2a051`. Its one non-blocking P2 noted that the
+  required-reason declaration was pinned rather than source-derived. The follow-up
+  `check_required_reason_apis.py` closes that source-drift shape pending independent review; the
+  manual signed-device checklist remains open.
 
 ### C6-03 — TestFlight baseline
 

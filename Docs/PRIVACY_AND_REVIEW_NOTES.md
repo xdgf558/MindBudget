@@ -138,8 +138,10 @@ and the separately authorized current-source Development probe passed on version
 hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
 owner explicitly entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86
 remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`;
-C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30, while C6-03 and every App Store
-Connect, Staging/Production, distribution/release proof remain blocked.
+C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact
+PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02
+remains In Progress for required-reason source-gate and manual evidence, while C6-03 and every App
+Store Connect, Staging/Production, distribution/release proof remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
@@ -170,6 +172,14 @@ a development-signed Release app installed and launched on an iPhone Air with iO
 source and signed-device preflight pending independent review, not an App Store Connect update,
 distribution signature, exported IPA, final-binary traffic result, or release claim. The exact
 review and manual boundaries are recorded in `Commercialization/C6_02_PREFLIGHT.md`.
+
+Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
+#88 merged as `6c2a051`. The review's one non-blocking privacy P2 correctly distinguished a pinned
+UserDefaults declaration from a source-derived required-reason inventory. The follow-up
+`Scripts/check_required_reason_apis.py` scans production App sources against Apple's five current
+categories, requires exact equality with the manifest, and fails closed on ambiguous file-metadata
+APIs; it remains pending independent review. It does not replace the C6-03 distribution privacy
+report or compiled-dependency inspection.
 
 Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
 remains valid, but the person must complete setup again before Privacy & Security > Product

@@ -177,6 +177,7 @@ self_test() {
 
 self_test
 python3 -B Scripts/privacy_manifest_contract.py --self-test
+python3 -B Scripts/check_required_reason_apis.py --self-test
 
 for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TRANSPORT_SOURCE}" "${TEST_SOURCE}" \
   "${PROJECT_FILE}" "${LIVE_SCHEME}" "${DEFAULT_SCHEME}"; do
@@ -418,6 +419,7 @@ for privacy_contract in \
   }
 done
 python3 -B Scripts/privacy_manifest_contract.py
+python3 -B Scripts/check_required_reason_apis.py
 
 for disclosure_contract in \
   'telemetry.settings.defaultOff' \

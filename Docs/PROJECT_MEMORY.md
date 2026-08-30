@@ -195,7 +195,15 @@ and launched on an iPhone Air with iOS 26.6.1; its development APS entitlement a
 are not distribution proof. `Docs/Commercialization/C6_02_PREFLIGHT.md` retains the independent-
 review and manual-device checklist. C6-03 remains blocked.
 
-Next suggested task: obtain exact-head independent review of this C6-02 candidate and complete the
+Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
+#88 merged as `6c2a051`. Its non-blocking required-reason P2 noted that the manifest validator
+pinned UserDefaults `CA92.1` without deriving accessed categories from source. The follow-up
+`Scripts/check_required_reason_apis.py` scans production App source across Apple's five current
+categories, requires exact source/manifest equality, and fails closed on ambiguous file-metadata
+APIs; this follow-up remains pending independent review and does not replace distribution privacy-
+report inspection.
+
+Next suggested task: independently review the required-reason source gate, then complete the
 remaining manual signed-device checklist in `Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not
 archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
