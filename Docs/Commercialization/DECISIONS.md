@@ -2290,13 +2290,17 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   Remove nested comments and literal strings, retain real Swift interpolation code, require the
   observed category set to equal `NSPrivacyAccessedAPITypes`, and reject ambiguous
   `getattrlist*` use pending explicit classification. Keep the current accepted inventory at only
-  UserDefaults/`@AppStorage` with App-only reason `CA92.1`. Classify the check in the C6 matrix and
-  run it through the ordinary telemetry/privacy gate.
+  UserDefaults/`@AppStorage` with App-only reason `CA92.1`. Map Foundation's reviewed Swift overlay
+  accessors as well as Apple's listed key/function spellings, and enforce `CA92.1` whenever the
+  UserDefaults category is present, not only while it is the sole category. Classify the check in
+  the C6 matrix and run it through the ordinary telemetry/privacy gate.
 - Consequences: An undeclared source category, an unobserved manifest category, the wrong
   UserDefaults reason, or a lexically ambiguous file-metadata API now fails locally and in hosted
-  validation. This is source-level drift control only. The C6-03 distribution candidate must still
-  produce and review Xcode's privacy report and compiled dependency/IPA evidence before App Store
-  Connect or upload.
+  validation. Literal strings are intentionally removed, so dynamically constructed raw-value keys
+  such as `URLResourceKey(rawValue: "NSURLCreationDateKey")` are outside this lexical proof. This
+  is source-level drift control only. The C6-03 distribution candidate must still produce and
+  review Xcode's privacy report and compiled dependency/IPA evidence before App Store Connect or
+  upload.
 - Alternatives rejected: Treating a pinned manifest constant as source proof; broad grep that lets
   comments or string examples satisfy/fail the gate; inferring `getattrlist*` semantics from its
   name; scanning tests as if they ship in the App target; declaring all five categories

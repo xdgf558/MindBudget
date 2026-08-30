@@ -485,8 +485,10 @@ work open; C6-03 remains blocked. Independent review accepted exact PR #88 head 
 run `33283398690` passed, and PR #88 merged as `6c2a051`. Its one non-blocking P2 found that the
 required-reason declaration was pinned rather than source-derived. The follow-up
 `Scripts/check_required_reason_apis.py` now requires exact equality between production App-source
-use across Apple's five current categories and the manifest, but remains pending independent
-review and cannot replace C6-03 distribution privacy-report inspection.
+use across Apple's five current categories and the manifest. PR #89 review found missing Swift
+overlay aliases; the remediation adds them, strengthens `CA92.1` validation, and records literal
+raw-value keys as outside lexical proof. It remains pending exact-head rereview and cannot replace
+C6-03 distribution privacy-report inspection.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

@@ -79,8 +79,9 @@ independent-review and manual signed-device work, and no App Store Connect answe
 Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
 #88 merged as `6c2a051`. Its non-blocking required-reason source-inventory finding is implemented
 by `Scripts/check_required_reason_apis.py` pending independent review; the gate requires the exact
-production-source category set to equal the manifest and leaves distribution privacy-report proof
-to C6-03/C12.
+production-source category set to equal the manifest. PR #89 review found missing Swift overlay
+aliases; the remediation covers them and leaves literal raw-value keys plus distribution privacy-
+report proof to C6-03/C12 pending exact-head rereview.
 
 ## COM-C0A implementation inventory against requirements
 

@@ -2178,6 +2178,11 @@ for c602_contract_anchor in \
   'Scripts/privacy_manifest_contract.py' \
   'Scripts/check_required_reason_apis.py' \
   'required-reason source' \
+  'fileCreationDate' \
+  'contentModificationDate' \
+  'volumeAvailableCapacity' \
+  'fileSystemFreeSize' \
+  'literal raw-value keys' \
   'does not replace the distribution privacy report' \
   'Scripts/inspect-c6-release-app.sh' \
   'aps-environment = development' \

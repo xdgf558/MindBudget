@@ -3514,3 +3514,34 @@ accepted opt-in physical CloudKit probes remained skipped. Every selected covera
 passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The validator removed its
 temporary xcresult; the path was an execution pointer, not a durable, hosted, signed-device,
 distribution, or release artifact.
+
+## 2026-08-30 — Session 188 — Close PR #89 required-reason Swift overlay gaps
+
+Goal: Remediate the required-reason source scanner fail-open cases found by PR #89 independent
+review without marking C6-02 Done, entering C6-03, or authorizing any remote or release action.
+
+Actions: Added explicit file-timestamp mappings for Foundation's `fileCreationDate` and
+`contentModificationDate` overlays. Added disk-space mappings for `volumeAvailableCapacity`,
+`volumeAvailableCapacityForImportantUsage`, `volumeAvailableCapacityForOpportunisticUsage`,
+`volumeTotalCapacity`, `fileSystemFreeSize`, and `fileSystemSize`. Each spelling has a targeted
+undeclared-category self-test. UserDefaults `CA92.1` validation now remains active whenever the
+category is present, and a two-category wrong-reason mutation proves another declaration cannot
+disable it. Recorded that literal strings and dynamically constructed raw-value keys are outside
+the lexical proof and remain a C6-03 distribution privacy-report and compiled-artifact boundary.
+
+Result: The production source/manifest contract still resolves to exactly UserDefaults/
+`@AppStorage` with App-only reason `CA92.1`. The review's blocking inventory gap is closed in code
+and tests. Broad fail-safe symbol matching remains intentionally conservative, while raw-value
+construction is not misrepresented as covered. C6-02 remains In Progress pending exact-head
+rereview, hosted CI, and its open manual checklist. C6-03 and all Archive/IPA, upload, App Store
+Connect, G1, distribution, and release actions remain blocked or unauthorized.
+
+Validation: The required-reason self-test and App scan passed. The full C6 matrix passed every
+static and Worker check, Release/test builds, 285 tests in 16 suites, and the post-run verifier for
+all 33 required bindings. The separate `Scripts/validate.sh` run under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator passed Release compilation, the
+strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and
+every selected coverage threshold. Four accepted opt-in physical CloudKit probes remained skipped;
+`CSVExporter.swift` was lowest at 87.60% against the 85% floor. Both result-bundle paths were
+temporary execution pointers rather than durable, hosted, signed-device, final-binary, or release
+evidence.

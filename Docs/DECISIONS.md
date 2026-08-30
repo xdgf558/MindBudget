@@ -3254,8 +3254,11 @@ UserDefaults `CA92.1` rather than proving production source used no other requir
 
 Decision: Detailed ownership is DEC-COM-077. Add a comment/string-aware production-source scanner
 for Apple's five current categories, require exact source/manifest equality, reject ambiguous file-
-metadata APIs, and classify the gate in the C6 automated matrix.
+metadata APIs, cover Foundation's reviewed Swift overlay accessors, keep UserDefaults reason
+validation active in multi-category manifests, and classify the gate in the C6 automated matrix.
 
 Consequences: The current inventory remains only UserDefaults/`@AppStorage`. This follow-up remains
-pending independent review, and source scanning does not replace C6-03's distribution privacy
-report, compiled-dependency inspection, Archive/IPA evidence, or separate archive authority.
+pending exact-head rereview after PR #89 identified missing overlay spellings. Literal raw-value
+keys are outside the lexical proof, and source scanning does not replace C6-03's distribution
+privacy report, compiled-dependency inspection, Archive/IPA evidence, or separate archive
+authority.

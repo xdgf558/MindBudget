@@ -3,10 +3,11 @@
 Status: **In Progress after explicit owner entry on 2026-08-30.** Independent review accepted
 exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`.
 That review left one non-blocking required-reason API source-inventory hardening item before C6-02
-Done; the current follow-up implements it pending independent review. Customer-facing StoreKit,
-accessibility, localization, data-protection, and distribution-signed checks remain open. C6-03,
-archive, upload, deployment, App Store Connect writes, tester assignment, G1, distribution, and
-release remain unauthorized.
+Done. PR #89 review accepted the lexer and wiring but found missing Foundation Swift overlay
+symbols; the current remediation closes those fail-open cases pending exact-head rereview.
+Customer-facing StoreKit, accessibility, localization, data-protection, and distribution-signed
+checks remain open. C6-03, archive, upload, deployment, App Store Connect writes, tester assignment,
+G1, distribution, and release remain unauthorized.
 
 ## Authorization and evidence boundary
 
@@ -59,9 +60,20 @@ string ending in a backslash, and ambiguous `getattrlist*` file-metadata access.
 literal strings containing API names do not satisfy or trip the contract. The check is classified
 in `C6_RELEASE_MATRIX.json` and also runs through the ordinary telemetry/privacy gate.
 
+PR #89 review reproduced missing Swift overlay coverage. The remediation explicitly maps
+`fileCreationDate` and `contentModificationDate` to File Timestamp; maps the four
+`URLResourceValues` capacity properties (`volumeAvailableCapacity`,
+`volumeAvailableCapacityForImportantUsage`, `volumeAvailableCapacityForOpportunisticUsage`, and
+`volumeTotalCapacity`) plus `fileSystemFreeSize` and `fileSystemSize` to Disk Space; and tests every
+overlay independently. UserDefaults reason `CA92.1` is now checked whenever that category is
+declared, including a future multi-category manifest.
+
 This is a source-level drift control, not final-binary or dependency proof. C6-03 must still inspect
 the distribution candidate's Xcode privacy report and rerun the signed-app/IPA checks before any
-App Store Connect answer or upload.
+App Store Connect answer or upload. Literal strings are intentionally excluded, so dynamically
+constructed raw-value keys such as `URLResourceKey(rawValue: "NSURLCreationDateKey")` are outside
+this lexical proof and remain part of the distribution privacy-report and compiled-dependency
+inspection boundary.
 
 ## Draft App Privacy mapping — do not submit from this packet
 

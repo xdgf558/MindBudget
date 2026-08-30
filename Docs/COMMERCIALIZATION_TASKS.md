@@ -683,8 +683,9 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   `C6_02_PREFLIGHT.md`. Independent review accepted exact head `0ac0500`, hosted run
   `33283398690` passed, and PR #88 merged as `6c2a051`. Its one non-blocking P2 noted that the
   required-reason declaration was pinned rather than source-derived. The follow-up
-  `check_required_reason_apis.py` closes that source-drift shape pending independent review; the
-  manual signed-device checklist remains open.
+  `check_required_reason_apis.py` closes that source-drift shape. PR #89 review found missing Swift
+  overlay spellings; the remediation adds them and multi-category `CA92.1` enforcement pending
+  exact-head rereview. The manual signed-device checklist remains open.
 
 ### C6-03 — TestFlight baseline
 

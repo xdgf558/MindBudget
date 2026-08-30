@@ -6548,3 +6548,23 @@ could not access CoreSimulator and is recorded as an environmental non-pass; the
 is the owning result. C6-02 remains In Progress pending independent review and the manual checklist.
 C6-03, Archive/IPA, upload, App Store Connect, G1, distribution, and release remain blocked or
 unauthorized.
+
+## 2026-08-30 — Close PR #89 required-reason Swift overlay gaps
+
+PR #89 independent review accepted the required-reason lexer and C6 wiring but reproduced a
+fail-open inventory for Foundation Swift overlays. Added the reviewed file-timestamp spellings
+`fileCreationDate` and `contentModificationDate`; added the four `URLResourceValues` capacity
+properties plus `fileSystemFreeSize` and `fileSystemSize`; and added a separate undeclared-category
+self-test for every spelling. UserDefaults reason `CA92.1` is now enforced whenever that category
+is declared, including a multi-category manifest. Dynamic raw-value keys remain outside lexical
+proof and are explicitly assigned to C6-03 distribution privacy-report and compiled-artifact
+inspection.
+
+The exact remediation passed the full C6 matrix with 285 tests in 16 suites and all 33 required
+bindings verified as Passed. `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 (`23F77`) iPhone 17 Pro simulator passed Release compilation, the strict serial 10,000-row
+Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and every selected coverage
+threshold; four accepted opt-in physical CloudKit probes remained skipped and `CSVExporter.swift`
+was lowest at 87.60%. C6-02 remains In Progress pending exact-head rereview, hosted CI, and the
+manual checklist. C6-03 and all Archive/IPA, upload, App Store Connect, G1, distribution, and
+release actions remain blocked or unauthorized.

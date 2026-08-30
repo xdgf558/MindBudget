@@ -140,8 +140,10 @@ owner explicitly entered COM-C6 on 2026-08-29. Independent rereview approved exa
 remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`;
 C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact
 PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02
-remains In Progress for required-reason source-gate and manual evidence, while C6-03 and every App
-Store Connect, Staging/Production, distribution/release proof remain blocked.
+remains In Progress for required-reason source-gate and manual evidence. PR #89 review found
+missing Foundation Swift overlay aliases in that source gate; the remediation is pending exact-
+head rereview. C6-03 and every App Store Connect, Staging/Production, distribution/release proof
+remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in

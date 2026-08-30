@@ -31,7 +31,9 @@ REVIEWED_CATEGORY_SYMBOLS = {
         {
             "creationDate",
             "modificationDate",
+            "fileCreationDate",
             "fileModificationDate",
+            "contentModificationDate",
             "contentModificationDateKey",
             "creationDateKey",
             "NSFileCreationDate",
@@ -51,10 +53,16 @@ REVIEWED_CATEGORY_SYMBOLS = {
             "volumeAvailableCapacityForImportantUsageKey",
             "volumeAvailableCapacityForOpportunisticUsageKey",
             "volumeTotalCapacityKey",
+            "volumeAvailableCapacity",
+            "volumeAvailableCapacityForImportantUsage",
+            "volumeAvailableCapacityForOpportunisticUsage",
+            "volumeTotalCapacity",
             "NSURLVolumeAvailableCapacityKey",
             "NSURLVolumeAvailableCapacityForImportantUsageKey",
             "NSURLVolumeAvailableCapacityForOpportunisticUsageKey",
             "NSURLVolumeTotalCapacityKey",
+            "fileSystemFreeSize",
+            "fileSystemSize",
             "systemFreeSize",
             "systemSize",
             "NSFileSystemFreeSize",
@@ -339,12 +347,16 @@ def validate_contract(source_root: Path, manifest_path: Path) -> list[str]:
     if extra:
         errors.append(f"Privacy manifest declares unobserved required-reason categories: {extra}")
 
-    if declared == {USER_DEFAULTS}:
-        declarations = manifest["NSPrivacyAccessedAPITypes"]
-        user_defaults_declaration = next(
-            item for item in declarations if item[API_TYPE_KEY] == USER_DEFAULTS
-        )
-        if user_defaults_declaration[API_REASONS_KEY] != ["CA92.1"]:
+    if USER_DEFAULTS in declared:
+        declarations = manifest.get("NSPrivacyAccessedAPITypes", [])
+        user_defaults_declarations = [
+            item
+            for item in declarations
+            if isinstance(item, dict) and item.get(API_TYPE_KEY) == USER_DEFAULTS
+        ]
+        if len(user_defaults_declarations) != 1 or user_defaults_declarations[0].get(
+            API_REASONS_KEY
+        ) != ["CA92.1"]:
             errors.append("App-only UserDefaults use must remain exactly CA92.1")
     return errors
 
@@ -393,9 +405,57 @@ let defaults = UserDefaults.standard
 
         missing_cases = (
             ("File Timestamp", "let key = URLResourceKey.creationDateKey", FILE_TIMESTAMP),
-            ("System Boot Time", "let elapsed = ProcessInfo.processInfo.systemUptime", SYSTEM_BOOT_TIME),
+            (
+                "NSDictionary file creation date overlay",
+                "let created = (attrs as NSDictionary).fileCreationDate",
+                FILE_TIMESTAMP,
+            ),
+            (
+                "URL resource modification date overlay",
+                "let modified = values.contentModificationDate",
+                FILE_TIMESTAMP,
+            ),
+            (
+                "System Boot Time",
+                "let elapsed = ProcessInfo.processInfo.systemUptime",
+                SYSTEM_BOOT_TIME,
+            ),
             ("Disk Space", "let key = URLResourceKey.volumeAvailableCapacityKey", DISK_SPACE),
-            ("Active Keyboards", "let modes = UITextInputMode.activeInputModes", ACTIVE_KEYBOARDS),
+            (
+                "URL resource available capacity overlay",
+                "let available = values.volumeAvailableCapacity",
+                DISK_SPACE,
+            ),
+            (
+                "URL resource important capacity overlay",
+                "let available = values.volumeAvailableCapacityForImportantUsage",
+                DISK_SPACE,
+            ),
+            (
+                "URL resource opportunistic capacity overlay",
+                "let available = values.volumeAvailableCapacityForOpportunisticUsage",
+                DISK_SPACE,
+            ),
+            (
+                "URL resource total capacity overlay",
+                "let total = values.volumeTotalCapacity",
+                DISK_SPACE,
+            ),
+            (
+                "NSDictionary free-size overlay",
+                "let free = (attrs as NSDictionary).fileSystemFreeSize",
+                DISK_SPACE,
+            ),
+            (
+                "NSDictionary total-size overlay",
+                "let total = (attrs as NSDictionary).fileSystemSize",
+                DISK_SPACE,
+            ),
+            (
+                "Active Keyboards",
+                "let modes = UITextInputMode.activeInputModes",
+                ACTIVE_KEYBOARDS,
+            ),
             ("C stat", "struct stat value; stat(path, &value);", FILE_TIMESTAMP),
         )
         for label, source, expected_category in missing_cases:
@@ -438,6 +498,17 @@ let defaults = UserDefaults.standard
         )
         if not any("CA92.1" in error for error in wrong_reason):
             raise AssertionError("wrong UserDefaults reason was not rejected")
+
+        wrong_reason_with_another_category = write_case(
+            "let defaults = UserDefaults.standard\n"
+            "let elapsed = ProcessInfo.processInfo.systemUptime\n",
+            [
+                (USER_DEFAULTS, ["1C8F.1"]),
+                (SYSTEM_BOOT_TIME, ["35F9.1"]),
+            ],
+        )
+        if not any("CA92.1" in error for error in wrong_reason_with_another_category):
+            raise AssertionError("another category disabled the UserDefaults reason check")
 
 
 def main() -> int:

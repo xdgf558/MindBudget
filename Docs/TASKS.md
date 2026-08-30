@@ -610,5 +610,6 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   manual-device evidence; no archive, upload, deployment, or App Store Connect write occurred.
   Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and
   PR #88 merged as `6c2a051`. Its required-reason source-inventory P2 is implemented by
-  `Scripts/check_required_reason_apis.py` on this follow-up branch pending independent review;
-  C6-02 remains open for the manual evidence.
+  `Scripts/check_required_reason_apis.py` on this follow-up branch. PR #89 review found incomplete
+  Swift overlay coverage; the current remediation adds those aliases and keeps `CA92.1` checked in
+  multi-category manifests pending exact-head rereview. C6-02 remains open for manual evidence.

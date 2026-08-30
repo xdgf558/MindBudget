@@ -2103,3 +2103,24 @@ passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The temp
 removed by the validator and is not a durable artifact. Exact-head independent review, hosted CI,
 and the remaining C6-02 manual evidence are still required; this result does not authorize C6-03,
 Archive/IPA, upload, App Store Connect, G1, distribution, or release.
+
+### C6-02 required-reason Swift overlay remediation — 2026-08-30
+
+PR #89 independent review accepted the lexical scanner and matrix wiring but reproduced missing
+Foundation overlay spellings. The remediation added exact file-timestamp and disk-space overlay
+mappings, one negative source/manifest test per spelling, and a multi-category mutation proving
+that UserDefaults reason `CA92.1` cannot be bypassed by adding another declared category. Dynamic
+raw-value keys are explicitly outside lexical proof and remain assigned to C6-03 distribution
+privacy-report and compiled-artifact inspection.
+
+`Scripts/run-c6-release-matrix.sh` passed under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+(`23F77`) iPhone 17 Pro simulator. Every static and Worker contract, Release/test build, 285 tests
+in 16 suites, and all 33 required method bindings passed. Its result-bundle path was temporary
+local execution evidence only.
+
+The independent full `Scripts/validate.sh` run passed under the same toolchain and destination:
+Release compilation, the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites,
+and all 17 UI tests passed. Four accepted opt-in physical CloudKit probes remained skipped. Every
+selected coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the 85%
+floor. The validator removed its temporary xcresult. Exact-head rereview, hosted CI, and the open
+manual C6-02 checklist remain required; no C6-03 or remote/release authorization follows.
