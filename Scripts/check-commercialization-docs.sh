@@ -2171,10 +2171,19 @@ fi
 for c602_contract_anchor in \
   'owner explicitly entered C6-02 on 2026-08-30' \
   'DEC-COM-076' \
+  'DEC-COM-077' \
   'C6_02_PREFLIGHT.md' \
   'NSPrivacyCollectedDataTypePurchaseHistory' \
   'Product Interaction, Device ID, and Purchase History' \
   'Scripts/privacy_manifest_contract.py' \
+  'Scripts/check_required_reason_apis.py' \
+  'required-reason source' \
+  'fileCreationDate' \
+  'contentModificationDate' \
+  'volumeAvailableCapacity' \
+  'fileSystemFreeSize' \
+  'literal raw-value keys' \
+  'does not replace the distribution privacy report' \
   'Scripts/inspect-c6-release-app.sh' \
   'aps-environment = development' \
   'get-task-allow = true' \

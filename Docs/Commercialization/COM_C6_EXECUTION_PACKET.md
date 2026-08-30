@@ -118,15 +118,23 @@ Interaction, Device ID, and Purchase History as Analytics-only, unlinked, and no
 closed validator checks both source and embedded manifests. One Release-configuration app was
 development-signed, inspected, installed, and launched on an iPhone Air running iOS 26.6.1. Its
 development `aps-environment` and `get-task-allow=true` are expressly not distribution evidence.
-Independent review and the manual signed-device checklist remain open.
+Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
+#88 merged as `6c2a051`. Its one non-blocking P2 found that the required-reason declaration was
+pinned rather than derived from production source. `Scripts/check_required_reason_apis.py` now
+closes that source-drift path across Apple's five current categories and is classified in the C6
+matrix. PR #89 review found missing Foundation Swift overlay spellings; the remediation adds those
+aliases and keeps UserDefaults `CA92.1` enforcement active in future multi-category manifests
+pending exact-head rereview. The manual signed-device checklist is still open, and distribution
+privacy-report inspection remains C6-03 evidence.
 
 ## Exit and stop conditions
 
 C6-01 is Done through PR #86 (`015d00e`) after independent rereview approved exact remediation
 head `f77d2a6` and hosted run `33255898196` passed. C6-02 is In Progress after explicit owner entry
-on 2026-08-30; its privacy correction and development-signed Release inspection remain pending
-independent review and its manual checklist remains open. C6-03 remains blocked by C6-02 acceptance
-and a separate owner instruction for archive/upload.
+on 2026-08-30. PR #88 merged the reviewed privacy correction and development-signed Release
+inspection as `6c2a051`; the required-reason source gate follow-up remains pending independent
+rereview after its Swift overlay remediation, and the manual checklist remains open. C6-03 remains
+blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

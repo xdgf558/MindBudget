@@ -230,6 +230,7 @@
         }
       ],
       "staticChecks": [
+        "Scripts/check_required_reason_apis.py",
         "Scripts/check-telemetry-contract.sh",
         "Scripts/check-telemetry-worker-contract.sh",
         "Scripts/check-telemetry-metrics-contract.sh"

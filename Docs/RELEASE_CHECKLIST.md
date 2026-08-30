@@ -58,6 +58,11 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [x] Record that direct device provisioning supplies `aps-environment = development` and
   `get-task-allow = true` even for Release configuration. This is expected signed-device evidence,
   not distribution signing, Archive/IPA, TestFlight, or final-binary traffic evidence.
+- [x] Inventory production App source against Apple's five current required-reason API categories.
+  `Scripts/check_required_reason_apis.py` finds only UserDefaults/`@AppStorage`, requires exact
+  equality with the sole `CA92.1` declaration, covers reviewed Foundation Swift overlay spellings,
+  and is a source-drift gate pending PR #89 exact-head rereview; it
+  does not replace the distribution privacy report or dynamic raw-value-key inspection.
 - [ ] Complete the purchase/restore/manage/legal, accessibility/localization, camera/photo-picker,
   privacy/data-protection, Instruments, and system-integration checks listed in
   `Docs/Commercialization/C6_02_PREFLIGHT.md`.

@@ -6527,3 +6527,44 @@ tests, and all selected coverage gates. Four accepted physical CloudKit probes r
 C6-02 stays In Progress pending independent review and the manual signed-device checklist; C6-03
 and every archive/upload/deployment/App Store Connect/G1/distribution/release action remain blocked
 or unauthorized.
+
+## 2026-08-30 — Derive required-reason declarations from production source
+
+Closed the non-blocking P2 left by PR #88 review without advancing C6-02. Added a comment/string-
+aware production-source scanner for Apple's five current required-reason API categories and
+required exact equality with the checked-in privacy manifest. The scanner recognizes real Swift
+string interpolation, rejects ambiguous `getattrlist*` use, and has negative self-tests for every
+non-UserDefaults category, misleading comments/strings, raw-string termination, C `stat`, wrong
+reasons, and extra manifest categories. The current production inventory remains only
+UserDefaults/`@AppStorage` with reason `CA92.1`.
+
+The gate is classified in the C6 matrix and runs through the ordinary telemetry/privacy contract.
+The C6 matrix passed 285 selected tests in 16 suites and verified all 33 required bindings as
+Passed. Full validation under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 (`23F77`) iPhone 17
+Pro simulator passed Release compilation, the strict Dashboard benchmark, 553 unit tests in 32
+suites, 17/17 UI tests, and all selected coverage gates; four accepted physical CloudKit probes
+remained skipped and `CSVExporter.swift` was lowest at 87.60%. One sandboxed validation attempt
+could not access CoreSimulator and is recorded as an environmental non-pass; the unrestricted run
+is the owning result. C6-02 remains In Progress pending independent review and the manual checklist.
+C6-03, Archive/IPA, upload, App Store Connect, G1, distribution, and release remain blocked or
+unauthorized.
+
+## 2026-08-30 — Close PR #89 required-reason Swift overlay gaps
+
+PR #89 independent review accepted the required-reason lexer and C6 wiring but reproduced a
+fail-open inventory for Foundation Swift overlays. Added the reviewed file-timestamp spellings
+`fileCreationDate` and `contentModificationDate`; added the four `URLResourceValues` capacity
+properties plus `fileSystemFreeSize` and `fileSystemSize`; and added a separate undeclared-category
+self-test for every spelling. UserDefaults reason `CA92.1` is now enforced whenever that category
+is declared, including a multi-category manifest. Dynamic raw-value keys remain outside lexical
+proof and are explicitly assigned to C6-03 distribution privacy-report and compiled-artifact
+inspection.
+
+The exact remediation passed the full C6 matrix with 285 tests in 16 suites and all 33 required
+bindings verified as Passed. `Scripts/validate.sh` under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 (`23F77`) iPhone 17 Pro simulator passed Release compilation, the strict serial 10,000-row
+Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and every selected coverage
+threshold; four accepted opt-in physical CloudKit probes remained skipped and `CSVExporter.swift`
+was lowest at 87.60%. C6-02 remains In Progress pending exact-head rereview, hosted CI, and the
+manual checklist. C6-03 and all Archive/IPA, upload, App Store Connect, G1, distribution, and
+release actions remain blocked or unauthorized.

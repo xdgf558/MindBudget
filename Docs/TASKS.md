@@ -272,8 +272,10 @@ exact PR #84 head `84a96bc`, Actions run `33247176815` passed, and PR #84 merged
 C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the
 owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 remediation head
 `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The
-owner explicitly entered C6-02 on 2026-08-30, while C6-03, Staging/Production, G1, App Store Connect,
-distribution, and release remain blocked.
+owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head
+`0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 remains In
+Progress for the required-reason source-gate follow-up and manual evidence, while C6-03,
+Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -606,3 +608,8 @@ distribution, and release remain blocked.
   checks, and installed/launched a development-signed Release build on an iPhone Air running iOS
   26.6.1. `Docs/Commercialization/C6_02_PREFLIGHT.md` retains the open independent-review and
   manual-device evidence; no archive, upload, deployment, or App Store Connect write occurred.
+  Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and
+  PR #88 merged as `6c2a051`. Its required-reason source-inventory P2 is implemented by
+  `Scripts/check_required_reason_apis.py` on this follow-up branch. PR #89 review found incomplete
+  Swift overlay coverage; the current remediation adds those aliases and keeps `CA92.1` checked in
+  multi-category manifests pending exact-head rereview. C6-02 remains open for manual evidence.
