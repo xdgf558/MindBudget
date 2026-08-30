@@ -35,6 +35,7 @@ required_files=(
   Docs/Commercialization/COM_C4C_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md
+  Docs/Commercialization/C6_02_PREFLIGHT.md
   Docs/Commercialization/C6_RELEASE_MATRIX.json
   Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
@@ -68,7 +69,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
-  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:blocked:B' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:in_progress:pending' \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:blocked:B' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
@@ -2162,6 +2163,69 @@ if grep -Eqi 'implementation-author (supplemental )?inspection (satisfies|closes
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/DECISIONS.md; then
   echo "C5 implementation-author inspection must not satisfy the COM-C6 independent privacy review" >&2
+  exit 1
+fi
+
+# C6-02 is owner-entered but remains open. Pin the privacy correction and signed-device evidence
+# without allowing either to impersonate distribution, an App Store Connect write, or C6-03 entry.
+for c602_contract_anchor in \
+  'owner explicitly entered C6-02 on 2026-08-30' \
+  'DEC-COM-076' \
+  'C6_02_PREFLIGHT.md' \
+  'NSPrivacyCollectedDataTypePurchaseHistory' \
+  'Product Interaction, Device ID, and Purchase History' \
+  'Scripts/privacy_manifest_contract.py' \
+  'Scripts/inspect-c6-release-app.sh' \
+  'aps-environment = development' \
+  'get-task-allow = true' \
+  'iPhone Air' \
+  'iOS 26.6.1' \
+  'not distribution evidence'; do
+  if ! grep -Fq -- "${c602_contract_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/RELEASE_CHECKLIST.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+      Docs/Commercialization/C6_02_PREFLIGHT.md \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md \
+      Docs/Commercialization/NETWORK_EGRESS_POLICY.md \
+      Docs/Commercialization/DECISIONS.md \
+      MindBudget/Resources/PrivacyInfo.xcprivacy \
+      Scripts/privacy_manifest_contract.py \
+      Scripts/inspect-c6-release-app.sh; then
+    echo "C6-02 privacy/signed-device contract is missing: ${c602_contract_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eqi 'C6-02 (remains |is )?blocked pending explicit owner entry|C6-02 awaits explicit owner entry' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_02_PREFLIGHT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current commercialization state still describes C6-02 as awaiting owner entry" >&2
+  exit 1
+fi
+
+if grep -Eqi 'C6-03 (is )?(In Progress|entered|Done)|archive (is )?authorized by C6-02|App Store Connect (was|is) updated by C6-02' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_02_PREFLIGHT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C6-02 evidence must not enter C6-03 or claim archive/App Store Connect authority" >&2
   exit 1
 fi
 

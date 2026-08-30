@@ -271,8 +271,8 @@ tombstones (2 historical plus the expected live-probe tombstone). Independent re
 exact PR #84 head `84a96bc`, Actions run `33247176815` passed, and PR #84 merged as `4194b73`.
 C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as `008b674`, and the
 owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 remediation head
-`f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. C6-02
-awaits a separate explicit owner entry, while C6-03, Staging/Production, G1, App Store Connect,
+`f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The
+owner explicitly entered C6-02 on 2026-08-30, while C6-03, Staging/Production, G1, App Store Connect,
 distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
@@ -593,7 +593,7 @@ distribution, and release remain blocked.
   appear once as Passed in the exact xcresult and classifies every repository check script. It
   performs no archive, upload, deployment, or App Store Connect write. Independent rereview
   approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as
-  `015d00e`. C6-02 awaits a separate explicit owner entry, and C6-03 remains blocked.
+  `015d00e`. The owner entered C6-02 on 2026-08-30, and C6-03 remains blocked.
 - [ ] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and
@@ -601,4 +601,8 @@ distribution, and release remain blocked.
   `MindBudget/Services/TelemetryClient.swift`, and
   `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before copying or accepting any App
   Store Connect privacy answer. The C5 implementation-author supplemental inspection is not this
-  independent review, and C6-01 automation does not satisfy it.
+  independent review, and C6-01 automation does not satisfy it. The implementation pass corrected
+  the missing Purchase History declaration, added exact source/embedded-manifest and signed-app
+  checks, and installed/launched a development-signed Release build on an iPhone Air running iOS
+  26.6.1. `Docs/Commercialization/C6_02_PREFLIGHT.md` retains the open independent-review and
+  manual-device evidence; no archive, upload, deployment, or App Store Connect write occurred.

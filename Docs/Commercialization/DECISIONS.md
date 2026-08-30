@@ -2246,3 +2246,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Adding more repository-wide positive strings; keeping the line-oriented
   C6-02/C6-03 regex as the authorization control; trusting headings without task markers; or
   entering C6-02 as part of this review remediation.
+
+## DEC-COM-076 — Enter C6-02 and make the signed privacy declaration exact
+
+- Status/date: **Accepted C6-02 implementation decision — 2026-08-30**
+- Requirements: REQ-R1-TELEMETRY-001; REQ-R1-NET-001; REQ-ICLOUD-001; COM-C6 release boundary
+- Context: The owner explicitly entered C6-02 after C6-01 closed. The mandatory five-surface
+  privacy pass found that `subscription_action` carries an explicit purchase outcome. Under
+  Apple's current App Privacy definition, that fact is Purchase History even though the closed
+  event contains no product, price, transaction, storefront, subscription date, or financial
+  content. The checked manifest declared Product Interaction and Device ID but omitted Purchase
+  History. C6-02 also needed a reproducible distinction between a Release-configuration app
+  installed with development provisioning and a true distribution-signed archive.
+- Decision: Declare exactly Product Interaction, Device ID, and Purchase History as Analytics-only,
+  unlinked, and non-tracking. Add one fail-closed validator for both checked-in and embedded
+  manifests, with negative tests for every privacy dimension. Add a signed-app inspector with
+  separate `signed-device` and `distribution` modes. Accept development APS plus
+  `get-task-allow=true` only in signed-device mode; require Production APS plus
+  `get-task-allow=false` in distribution mode. Record the five-surface inspection and all open
+  manual items in `C6_02_PREFLIGHT.md`.
+- Consequences: A Release-configuration app passed the signed-device inspection and was installed
+  and launched on an iPhone Air running iOS 26.6.1. This is a C6-02 candidate pending independent
+  review and manual signed-device evidence. It is not an App Store Connect update, distribution
+  signature, Archive/IPA, final-binary traffic result, Production deployment, TestFlight baseline,
+  G1 decision, or release claim. C6-03 remains blocked and must rerun the inspector in distribution
+  mode only after separate archive/upload authority.
+- Alternatives rejected: Omitting Purchase History because the event lacks a product ID or price;
+  broadening telemetry to carry transaction details; treating a development-provisioned Release
+  app as distribution evidence; archiving early to obtain an IPA; writing draft answers to App
+  Store Connect; weakening the checked-in manifest to match a stale answer; or marking C6-02 Done
+  before exact-head independent review, green hosted CI, and accepted manual evidence.

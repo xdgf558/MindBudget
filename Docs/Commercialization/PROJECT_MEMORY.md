@@ -450,8 +450,9 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: wait for a separate explicit owner instruction before entering C6-02; do not
-authorize archive/upload from the C6-01 automated matrix. The owner explicitly entered COM-C6
+Next suggested task: independently review the C6-02 privacy/signed-app candidate, then complete only
+the remaining manual signed-device checks in `C6_02_PREFLIGHT.md`; do not authorize archive/upload
+from the C6-01 matrix or the development-signed Release build. The owner explicitly entered COM-C6
 on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head
 `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
 the implementation author's supplemental inspection of the privacy manifest, feature capture
@@ -465,7 +466,7 @@ expected live-probe tombstone); a deterministic test proves `stop()` does not di
 deletion retry. Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815`
 passed, and PR #84 merged as `4194b73`. C5-04/COM-C5 are Done. Independent rereview approved exact
 PR #86 remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as
-`015d00e`; C6-01 is Done, while C6-02 awaits a separate explicit owner entry and C6-03 remains
+`015d00e`; C6-01 is Done, and the owner explicitly entered C6-02 on 2026-08-30 while C6-03 remains
 blocked. PR #86 remediation makes every one of its 33 declared method bindings depend on one
 Passed xcresult Test Case and classifies every repository check script. No G1, App Store Connect,
 Staging/Production, distribution, or release gate follows from that closeout or from C6-01
@@ -475,7 +476,12 @@ the AddExpense and Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and
 `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
 answer is copied or accepted. The implementation-author supplemental inspection recorded in C5
-does not close this gate, and C6-01 automation does not satisfy it.
+does not close this gate, and C6-01 automation does not satisfy it. The first C6-02 implementation
+pass found and corrected a missing Purchase History declaration for the closed subscription
+outcome, added exact source/embedded-manifest and signed-app validators, and installed/launched a
+development-signed Release build on an iPhone Air running iOS 26.6.1. That signature shape is not
+distribution evidence. `C6_02_PREFLIGHT.md` keeps the exact independent-review and manual-device
+work open; C6-03 remains blocked.
 The owner explicitly entered C5-03 on 2026-08-29 after C5-02's
 reviewed closeout. The owner had entered COM-C5 on 2026-08-27 after PR #75 merged the C4C-05
 closeout as `82ef0fa`.

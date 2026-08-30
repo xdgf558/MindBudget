@@ -19,7 +19,7 @@ LOCALIZATION_CATALOG="MindBudget/Resources/Localizable.xcstrings"
 LIVE_SCHEME="MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-Telemetry-Live.xcscheme"
 DEFAULT_SCHEME="MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
 
-for command_name in awk grep mktemp rm sort tr wc; do
+for command_name in awk grep mktemp python3 rm sort tr wc; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
     echo "C5-01 telemetry contract requires ${command_name}" >&2
     exit 1
@@ -176,6 +176,7 @@ self_test() {
 }
 
 self_test
+python3 -B Scripts/privacy_manifest_contract.py --self-test
 
 for file in "${DOMAIN_SOURCE}" "${CLIENT_SOURCE}" "${TRANSPORT_SOURCE}" "${TEST_SOURCE}" \
   "${PROJECT_FILE}" "${LIVE_SCHEME}" "${DEFAULT_SCHEME}"; do
@@ -409,12 +410,14 @@ done
 for privacy_contract in \
   'NSPrivacyCollectedDataTypeProductInteraction' \
   'NSPrivacyCollectedDataTypeDeviceID' \
+  'NSPrivacyCollectedDataTypePurchaseHistory' \
   'NSPrivacyCollectedDataTypePurposeAnalytics'; do
   grep -Fq "${privacy_contract}" "${PRIVACY_MANIFEST}" || {
     echo "C5-04 privacy manifest is missing contract: ${privacy_contract}" >&2
     exit 1
   }
 done
+python3 -B Scripts/privacy_manifest_contract.py
 
 for disclosure_contract in \
   'telemetry.settings.defaultOff' \

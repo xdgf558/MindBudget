@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Corrected the unreleased App Privacy source declaration so the closed subscription-action
+  outcome is conservatively disclosed as Purchase History. Product Interaction, the rotating
+  app-scoped pseudonym as Device ID, and Purchase History remain Analytics-only, unlinked, and
+  non-tracking; no product, price, transaction, storefront, subscription date, or financial
+  content is added to telemetry.
 - Added an unreleased, optional first-party product-analytics control in Privacy settings. It is
   default off, requires explicit confirmation, accepts only closed non-content interaction events,
   and can be disabled or deleted without changing budgets, subscriptions, receipt processing, or

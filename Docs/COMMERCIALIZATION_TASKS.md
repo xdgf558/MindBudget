@@ -73,8 +73,8 @@ detailed phase checklists; it added no paid product behavior.
   as `4194b73`. C5-04 and COM-C5 are Done. PR #85 then merged the preserved C6 privacy-source
   review handoff as `008b674`. The owner explicitly entered COM-C6 on 2026-08-29. Independent
   rereview approved exact PR #86 remediation head `f77d2a6`, GitHub Actions run `33255898196`
-  completed successfully, and PR #86 merged as `015d00e`; C6-01 is Done. C6-02 remains blocked
-  pending a separate explicit owner entry, and C6-03, Staging/Production deployment, G1, App
+  completed successfully, and PR #86 merged as `015d00e`; C6-01 is Done. The owner explicitly
+  entered C6-02 on 2026-08-30; C6-03, Staging/Production deployment, G1, App
   Store Connect, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
   `093535f` passed GitHub Actions run `32434148439`. Reviewed C4A-03
@@ -646,8 +646,8 @@ failure never changes app behavior.
 
 Status: **In Progress after reviewed C6-01 merge. No public release in this phase.**
 
-C6-02 remains blocked pending a separate explicit owner entry after C6-01 closeout. C6-03 remains
-blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
+C6-02 is In Progress after explicit owner entry on 2026-08-30. C6-03 remains blocked by C6-02
+acceptance and a separate owner instruction for archive/upload.
 
 ### C6-01 — Automated release matrix
 
@@ -663,17 +663,22 @@ Status: **Done after independent rereview and green CI through PR #86 (`015d00e`
 
 ### C6-02 — Signed-device and App Review preflight
 
-Status: **Blocked pending a separate explicit owner entry after C6-01 closeout.**
+Status: **In Progress after explicit owner entry on 2026-08-30.**
 
-- [B] Validate purchase/restore/manage/legal visibility; screenshots and notes; network and IPA
-  egress; key/content scans; data-protection, localization, accessibility, and privacy disclosures.
+- [ ] Validate purchase/restore/manage/legal visibility; screenshots and notes; signed-app network,
+  key, and content scans; data-protection, localization, accessibility, and privacy disclosures.
+  Define the mandatory C6-03 Archive/IPA rerun without creating an archive in C6-02.
   Before any App Store Connect privacy answer is copied or accepted, COM-C6 must independently
   inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`,
   `MindBudget/Features/AddExpense/AddExpenseView.swift`,
   `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
   `MindBudget/Services/TelemetryClient.swift`, and
   `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`. The implementation-author
-  supplemental inspection recorded in C5 does not satisfy this gate.
+  supplemental inspection recorded in C5 does not satisfy this gate. The C6-02 implementation
+  pass found and corrected the missing Purchase History declaration, added a closed source/
+  embedded-manifest validator and signed-app inspector, and installed/launched a development-
+  signed Release build on an iPhone Air with iOS 26.6.1. These facts are recorded in
+  `C6_02_PREFLIGHT.md`; independent review and the manual signed-device checklist remain open.
 
 ### C6-03 — TestFlight baseline
 

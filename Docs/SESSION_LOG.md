@@ -6511,3 +6511,19 @@ review. Corrected the persistent record: author-side supplemental inspection of 
 head `4545e88` found the bypasses; the independent PR #87 review found this attribution mismatch.
 No implementation, phase status, C6-01 Done evidence, C6-02/C6-03 authorization, or user-visible
 behavior changed.
+
+## 2026-08-30 — Enter C6-02 source/privacy and signed-device preflight
+
+The owner explicitly entered C6-02. The mandatory five-surface pass found that the closed
+subscription action/outcome is Purchase History under Apple's App Privacy definition. Added that
+conservative Analytics-only, unlinked, non-tracking declaration, an exact checked-in/embedded
+manifest validator, a two-mode signed-app inspector, `C6_02_PREFLIGHT.md`, and DEC-COM-076.
+
+Xcode 27.0 beta 6 built Release 0.9.8 (9), and the inspected development-signed app installed and
+launched on an iPhone Air running iOS 26.6.1. Development APS plus `get-task-allow=true` is recorded
+as signed-device evidence only; no Archive/IPA/distribution/final-traffic claim follows. Full local
+validation passed Release, the strict Dashboard benchmark, 553 unit tests in 32 suites, 17/17 UI
+tests, and all selected coverage gates. Four accepted physical CloudKit probes remained skipped.
+C6-02 stays In Progress pending independent review and the manual signed-device checklist; C6-03
+and every archive/upload/deployment/App Store Connect/G1/distribution/release action remain blocked
+or unauthorized.

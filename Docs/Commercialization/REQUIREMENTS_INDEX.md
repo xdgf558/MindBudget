@@ -69,8 +69,13 @@ configuration and telemetry failures cannot revoke an injected verified local-Pr
 the exact xcresult and requires every repository check script to be explicitly classified. This
 automation performs no archive, upload, deployment, App Store Connect write, G1 decision, or
 Requirement completion. Independent rereview approved exact remediation head `f77d2a6`, hosted run
-`33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. C6-02 and the five-surface
-independent privacy review await a separate explicit owner entry, while C6-03 remains blocked.
+`33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The owner explicitly entered
+C6-02 and its five-surface independent privacy review on 2026-08-30, while C6-03 remains blocked.
+The first C6-02 implementation pass corrected the missing Purchase History declaration for the
+closed subscription outcome and added exact source/embedded-manifest plus signed-app inspection.
+A development-signed Release app passed that inspection and launched on an iPhone Air running iOS
+26.6.1; this is not distribution/IPA/final-traffic evidence. `C6_02_PREFLIGHT.md` retains the
+independent-review and manual signed-device work, and no App Store Connect answer was written.
 
 ## COM-C0A implementation inventory against requirements
 

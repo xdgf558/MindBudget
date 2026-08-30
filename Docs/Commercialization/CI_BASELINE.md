@@ -2056,3 +2056,27 @@ coverage threshold passed, with `CSVExporter.swift` lowest at 87.60% against the
 retained result is `/private/tmp/MindBudget-C6-01-Closeout-Remediation-Final.xcresult`; it is a
 local execution artifact rather than hosted, signed-device, final-binary, App Store Connect, G1,
 or release evidence. Exact-head rereview, hosted CI, and merge remain required.
+
+### C6-02 source/privacy and development-signed Release preflight — 2026-08-30
+
+The owner explicitly entered C6-02. The mandatory five-surface implementation pass found and
+corrected the missing Purchase History declaration for the closed subscription outcome. The new
+privacy validator and all seven negative mutations passed against source; the same validator then
+passed against the manifest embedded in a Release-configuration app.
+
+Xcode 27.0 beta 6 (`27A5252f`) built Release 0.9.8 (9) for `拉沙的iPhone`, an iPhone Air
+(`iPhone18,4`) running iOS 26.6.1 (`23G83`). The app signature/designated requirement, exact bundle/
+team/application IDs, minimum OS, iPhone family, background mode, private CloudKit entitlement,
+embedded manifest, six reviewed host literals, and no-fixture/no-test shape passed
+`inspect-c6-release-app.sh --mode signed-device`. Installation and launch succeeded. Development
+APS plus `get-task-allow=true` is expected from direct provisioning and is not distribution,
+Archive/IPA, final-traffic, or TestFlight evidence.
+
+All standalone static, syntax, plist, and diff checks passed. The full `Scripts/validate.sh` run
+passed under the same Xcode with the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: Release
+compilation, the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and all
+17 UI tests passed. Four accepted opt-in physical CloudKit probes remained skipped. Every selected
+coverage threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The
+validator removed its temporary xcresult, so its path is an execution pointer rather than a
+durable artifact. Independent review, hosted CI, and the manual C6-02 checklist remain open;
+C6-03 and all remote/release actions remain blocked or unauthorized.
