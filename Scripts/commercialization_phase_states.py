@@ -377,8 +377,8 @@ def self_test() -> None:
             "Status: **Done through PR #86 (`015d00e`).**\n\n"
             "- [x] Run the matrix.\n\n"
             "### C6-02 — Signed-device review\n"
-            "Status: **Blocked pending owner entry.**\n\n"
-            "- [B] Review signed-device evidence.\n\n"
+            "Status: **In Progress after explicit owner entry.**\n\n"
+            "- [ ] Review signed-device evidence.\n\n"
             "### C6-03 — TestFlight\n"
             "Status: **Blocked by C6-02.**\n\n"
             "- [B] Upload after approval.\n"
@@ -387,7 +387,7 @@ def self_test() -> None:
         c6_path.write_text(c6_map, encoding="utf-8")
         c6_expectations = (
             SectionExpectation(c6_path, "C6-01", "done", "x"),
-            SectionExpectation(c6_path, "C6-02", "blocked", "B"),
+            SectionExpectation(c6_path, "C6-02", "in_progress", " "),
             SectionExpectation(c6_path, "C6-03", "blocked", "B"),
         )
 
@@ -400,7 +400,7 @@ def self_test() -> None:
                     "--expect-section",
                     f"{c6_path}:C6-01:done:x",
                     "--expect-section",
-                    f"{c6_path}:C6-02:blocked:B",
+                    f"{c6_path}:C6-02:in_progress:pending",
                     "--expect-section",
                     f"{c6_path}:C6-03:blocked:B",
                     str(c6_path),
@@ -429,13 +429,13 @@ def self_test() -> None:
                 "(C6-01): expected state done",
             ),
             (
-                "C6-02 Blocked to next-line In Progress",
+                "C6-02 In Progress to premature Done",
                 c6_map.replace(
-                    "Status: **Blocked pending owner entry.**",
-                    "Status: **In Progress.**",
+                    "Status: **In Progress after explicit owner entry.**",
+                    "Status: **Done through PR #99 (`abcdef0`).**",
                     1,
                 ),
-                "(C6-02): expected state blocked",
+                "(C6-02): expected state in_progress",
             ),
             (
                 "C6-03 Blocked to In Progress",
@@ -452,13 +452,13 @@ def self_test() -> None:
                 "(C6-01): expected one [x] task",
             ),
             (
-                "C6-02 blocked task to completed marker",
+                "C6-02 pending task to completed marker",
                 c6_map.replace(
-                    "- [B] Review signed-device evidence.",
+                    "- [ ] Review signed-device evidence.",
                     "- [x] Review signed-device evidence.",
                     1,
                 ),
-                "(C6-02): expected one [B] task",
+                "(C6-02): expected one [ ] task",
             ),
             (
                 "C6-03 blocked task to completed marker",
@@ -545,7 +545,9 @@ def main() -> int:
             parser.error(f"expect-section source is not an input source: {source}")
         if state not in STATE_PATTERNS:
             parser.error(f"unknown expect-section state: {state!r}")
-        if task_marker not in {"x", "B", "~"}:
+        if task_marker == "pending":
+            task_marker = " "
+        if task_marker not in {"x", "B", "~", " "}:
             parser.error(f"unknown expect-section task marker: {task_marker!r}")
         section_expectations.append(
             SectionExpectation(source, identifier, state, task_marker)

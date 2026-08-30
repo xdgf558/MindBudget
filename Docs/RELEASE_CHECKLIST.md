@@ -47,6 +47,23 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [x] Before the 0.9.7 replacement Archive, increment the build number. Reverify the current team,
   App Store Connect record, agreements, certificate, and profile during Archive/export.
 
+### C6-02 development-signed Release preflight — 2026-08-30
+
+- [x] Build Release 0.9.8 (9) for `拉沙的iPhone`, an iPhone Air (`iPhone18,4`) running iOS
+  26.6.1 (`23G83`), with Xcode 27.0 beta 6 (`27A5252f`); install and launch it successfully.
+- [x] Run `Scripts/inspect-c6-release-app.sh --mode signed-device` against that app. Its signature,
+  bundle/team/application IDs, version/build, minimum OS, iPhone family, background mode, private
+  CloudKit container/service, embedded privacy manifest, exact six reviewed Worker host literals,
+  and absence of StoreKit/test fixtures pass.
+- [x] Record that direct device provisioning supplies `aps-environment = development` and
+  `get-task-allow = true` even for Release configuration. This is expected signed-device evidence,
+  not distribution signing, Archive/IPA, TestFlight, or final-binary traffic evidence.
+- [ ] Complete the purchase/restore/manage/legal, accessibility/localization, camera/photo-picker,
+  privacy/data-protection, Instruments, and system-integration checks listed in
+  `Docs/Commercialization/C6_02_PREFLIGHT.md`.
+- [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
+  require Production APS plus `get-task-allow = false` before any upload.
+
 ### Completed 0.9.8 (9) release execution
 
 - [x] On 2026-08-17, Archive Release 0.9.8 (9) from merged `main` (`6fa1cb3`). The archive reports

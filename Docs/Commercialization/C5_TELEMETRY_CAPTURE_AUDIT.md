@@ -72,9 +72,12 @@ times for no more than 90 x 24 UTC hours. It stores no request IP, header, local
 request grouping; Cloudflare necessarily processes ordinary connection metadata at the edge.
 
 Product events map to App Privacy `Product Interaction`; the rotating app-generated pseudonym maps
-conservatively to `Device ID`. Both are declared as not linked to identity, not used for tracking,
-and used only for Analytics. App Store Connect privacy answers must match this manifest before any
-distribution build is submitted; checking in the manifest does not update App Store Connect.
+conservatively to `Device ID`. Because `subscription_action` transmits an explicit purchase outcome,
+that event also maps to `Purchase History` under Apple's definition even though no product, price,
+transaction, storefront, or subscription date is present. All three declarations are not linked to
+identity, not used for tracking, and used only for Analytics. App Store Connect privacy answers must
+match this manifest before any distribution build is submitted; checking in the manifest does not
+update App Store Connect.
 
 ## Review checklist
 

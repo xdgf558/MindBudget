@@ -1,13 +1,17 @@
 # COM-C6 Execution Packet
 
-Status: **In Progress after reviewed C6-01 merge.**
+Status: **In Progress in C6-02 after explicit owner entry.**
 
 C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
-`33255898196` passed, and PR #86 merged as `015d00e`. C6-02 awaits a separate explicit owner
-entry; C6-03 remains blocked.
+`33255898196` passed, and PR #86 merged as `015d00e`. The owner explicitly entered C6-02 on
+2026-08-30; C6-03 remains blocked.
 
 Owner entry: the project owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged the
 COM-C5 closeout as `008b674`.
+
+C6-02 entry: the project owner explicitly entered C6-02 on 2026-08-30. This authorizes source and
+signed-device preflight only; it does not authorize archive, upload, deployment, App Store Connect
+write, tester assignment, G1, distribution, or release.
 
 ## Scope and sequence
 
@@ -101,16 +105,28 @@ Store Connect privacy answer is copied or accepted, C6-02 must independently ins
 - `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md`.
 
 The implementation-author C5 supplemental inspection does not satisfy this gate. C6-02 also owns
-signed-device purchase/restore/manage testing, final-binary and IPA egress inspection, release
-entitlements, privacy/data-protection/localization/accessibility evidence, and every accepted
-manual release-checklist item.
+signed-device purchase/restore/manage testing, release entitlements,
+privacy/data-protection/localization/accessibility evidence, and every accepted manual release-
+checklist item. `C6_02_PREFLIGHT.md` is the current evidence packet. C6-02 may exercise the
+distribution inspector against a development-signed Release app, but final Archive/IPA evidence
+is impossible before archive authority and therefore remains a mandatory C6-03 rerun rather than
+something C6-02 may infer.
+
+The first C6-02 five-surface pass found that the closed `subscription_action` outcome meets
+Apple's Purchase History definition. The checked-in privacy manifest now declares exactly Product
+Interaction, Device ID, and Purchase History as Analytics-only, unlinked, and non-tracking. A
+closed validator checks both source and embedded manifests. One Release-configuration app was
+development-signed, inspected, installed, and launched on an iPhone Air running iOS 26.6.1. Its
+development `aps-environment` and `get-task-allow=true` are expressly not distribution evidence.
+Independent review and the manual signed-device checklist remain open.
 
 ## Exit and stop conditions
 
 C6-01 is Done through PR #86 (`015d00e`) after independent rereview approved exact remediation
-head `f77d2a6` and hosted run `33255898196` passed. C6-02 remains blocked pending a separate
-explicit owner entry; C6-03 remains blocked by C6-02 acceptance and a separate owner instruction
-for archive/upload.
+head `f77d2a6` and hosted run `33255898196` passed. C6-02 is In Progress after explicit owner entry
+on 2026-08-30; its privacy correction and development-signed Release inspection remain pending
+independent review and its manual checklist remains open. C6-03 remains blocked by C6-02 acceptance
+and a separate owner instruction for archive/upload.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

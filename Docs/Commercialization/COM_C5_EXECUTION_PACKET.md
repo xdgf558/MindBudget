@@ -274,9 +274,10 @@ financial records. It reports a distinct completed-with-pending-telemetry state,
 keeps authenticated proofs for the separate Privacy-settings retry. `C5_TELEMETRY_CAPTURE_AUDIT.md` fixes the three capture-bearing source files
 and the exact content-free events. `C5_TELEMETRY_OPERATIONS_RUNBOOK.md` fixes Development publish,
 rollback, aggregate monitoring, TTL/delete probe, credentials, and incident steps. Product
-Interaction and the conservative rotating Device ID classification are declared in the privacy
-manifest as unlinked, non-tracking Analytics. App Store Connect answers and final-binary traffic
-remain COM-C6/C12 gates.
+Interaction, the conservative rotating Device ID classification, and Purchase History for the
+closed subscription purchase outcome are declared in the privacy manifest as unlinked,
+non-tracking Analytics. No product, price, transaction, storefront, or subscription date is
+transmitted. App Store Connect answers and final-binary traffic remain COM-C6/C12 gates.
 
 The PR #82 reviewer approved the deletion-order remediation on exact head `2c1cebe` within its
 declared scope. That review did not inspect `PrivacyInfo.xcprivacy`, the receipt and Pro capture

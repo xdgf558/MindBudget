@@ -138,7 +138,7 @@ and the separately authorized current-source Development probe passed on version
 hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C5 are Done. The
 owner explicitly entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86
 remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`;
-C6-01 is Done. C6-02 awaits a separate explicit owner entry, while C6-03 and every App Store
+C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30, while C6-03 and every App Store
 Connect, Staging/Production, distribution/release proof remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
@@ -150,10 +150,12 @@ inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
 supplemental inspection is retained as provenance but does not satisfy this independent gate;
 C6-01 automation also does not satisfy it.
 
-For App Privacy, the checked manifest conservatively declares Product Interaction and the rotating
-pseudonym as a Device ID, both used only for Analytics, linked to no user identity, and not used for
-tracking. This source declaration does not update App Store Connect by itself. The rotating UUID is
-not an account, hardware, advertising, StoreKit, or CloudKit identifier. A complete authenticated
+For App Privacy, the checked manifest declares Product Interaction, the rotating pseudonym as a
+conservative Device ID, and Purchase History because the closed subscription event includes a
+purchase outcome. All three are used only for Analytics, linked to no user identity, and not used
+for tracking. No product, price, transaction, storefront, or subscription date is transmitted.
+This source declaration does not update App Store Connect by itself. The rotating UUID is not an
+account, hardware, advertising, StoreKit, or CloudKit identifier. A complete authenticated
 delete deliberately groups the bounded retained generations in request-local memory so the first-
 party service can delete them; that association is not claimed to be unlinkable. Disable clears
 unsent events and stops capture. App-wide Delete All first requests deletion for every recoverable
@@ -161,6 +163,13 @@ remote proof, but an optional telemetry network/endpoint failure cannot block th
 local financial erase. The app reports that remote-only remainder separately and keeps any
 authenticated proof for an explicit Privacy-settings retry. Corrupt local telemetry remains
 locally deletable without a false remote-deletion claim.
+
+C6-02's first five-surface pass found the Purchase History omission and added a fail-closed
+manifest validator with negative tests. The same validator passed against the manifest embedded in
+a development-signed Release app installed and launched on an iPhone Air with iOS 26.6.1. This is
+source and signed-device preflight pending independent review, not an App Store Connect update,
+distribution signature, exported IPA, final-binary traffic result, or release claim. The exact
+review and manual boundaries are recorded in `Commercialization/C6_02_PREFLIGHT.md`.
 
 Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
 remains valid, but the person must complete setup again before Privacy & Security > Product
@@ -348,9 +357,11 @@ does not label a person based on those tags.
 
 ## Privacy manifest baseline
 
-`PrivacyInfo.xcprivacy` declares no tracking, no tracking domains, no collected
-data types, and UserDefaults reason `CA92.1`. Add File Timestamp reasons only if
-a shipped implementation actually uses the covered API.
+`PrivacyInfo.xcprivacy` declares no tracking or tracking domains. Its first-party optional
+telemetry declarations are Product Interaction, a conservative rotating Device ID, and Purchase
+History, all unlinked, non-tracking, and Analytics-only; the manifest also declares UserDefaults
+reason `CA92.1`. Add File Timestamp reasons only if a shipped implementation actually uses the
+covered API.
 
 ## Current local planning data
 

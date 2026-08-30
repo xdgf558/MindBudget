@@ -3442,3 +3442,39 @@ identified that attribution mismatch after remediation head `ba11fde` already ex
 Result: DEC-COM-075, the structural checker, and its six mutation tests remain unchanged. C6-01
 remains Done; C6-02 and C6-03 remain blocked. No product, Worker, remote, archive/upload, App Store
 Connect, G1, distribution, release, or user-visible change occurred.
+
+## 2026-08-30 — Session 186 — Enter C6-02 and correct the signed privacy declaration
+
+Goal: Execute only the owner-entered C6-02 source/privacy and signed-device preflight without
+archiving, uploading, deploying, writing App Store Connect, entering C6-03, or making a release
+claim.
+
+Actions: Re-read the mandatory privacy manifest, AddExpense and Pro telemetry capture sites,
+`TelemetryService`, and C5 operations runbook against Apple's current App Privacy definitions.
+Found that the closed subscription purchase outcome must be classified as Purchase History even
+though it contains no product, price, transaction, storefront, subscription date, or financial
+content. Added that declaration, an exact privacy-manifest validator with seven negative
+mutations, and a signed-app inspector with separate development-signed and distribution modes.
+Recorded the complete review/result boundary in `C6_02_PREFLIGHT.md` and DEC-COM-076.
+
+Signed-device evidence: Xcode 27.0 beta 6 (`27A5252f`) built Release 0.9.8 (9) for
+`拉沙的iPhone`, an iPhone Air (`iPhone18,4`) on iOS 26.6.1 (`23G83`). The app passed signature,
+bundle/team/application ID, minimum OS, iPhone family, background mode, private CloudKit,
+embedded-manifest, exact-host, and no-fixture checks, then installed and launched successfully.
+The development provisioning profile supplied development APS and `get-task-allow=true`; this is
+explicitly not distribution/Archive/IPA/final-traffic evidence.
+
+Result: The automated/source candidate is ready for independent review, but C6-02 remains In
+Progress. The signed-device purchase/restore/manage/legal, localization/accessibility,
+camera/photo-picker, data-protection/Instruments, and system-integration checklist remains open.
+C6-03 and every archive/upload/deployment/App Store Connect/G1/distribution/release action remain
+blocked or unauthorized.
+
+Validation: All standalone money, network-egress, commercialization-document, StoreKit 13/13, C6
+matrix, Shell syntax, Python syntax, plist, and diff checks passed. `Scripts/validate.sh` passed
+under Xcode 27.0 beta 6 on the iOS 26.5 (`23F77`) iPhone 17 Pro simulator: Release compilation,
+the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32 suites, and 17/17 UI tests
+passed. Four accepted opt-in physical CloudKit probes remained skipped. Every selected coverage
+threshold passed; `CSVExporter.swift` was lowest at 87.60% against the 85% floor. The temporary
+xcresult was removed by the validator and is an execution pointer, not a durable artifact. Exact-
+head independent review, hosted CI, and the manual C6-02 evidence remain required.

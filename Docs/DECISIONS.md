@@ -3227,3 +3227,20 @@ state and task-marker mutations in the structural phase-checker self-test.
 Consequences: Summary prose cannot satisfy phase authorization, and neither C6-02 nor C6-03 can be
 entered by changing a section Status or task marker while leaving unrelated text behind. C6-01
 remains Done; C6-02/C6-03 remain blocked.
+
+---
+
+## 2026-08-30 — Enter C6-02 with an exact signed privacy declaration
+
+Context: The owner explicitly entered C6-02 after the reviewed C6-01 closeout. The mandatory
+five-surface pass found that the closed subscription outcome meets Apple's Purchase History
+definition, while the source privacy manifest declared only Product Interaction and Device ID.
+
+Decision: Detailed ownership is DEC-COM-076. Add Purchase History as Analytics-only, unlinked, and
+non-tracking; enforce the exact source and embedded manifest; and distinguish development-signed
+Release-device evidence from distribution-signed Archive/IPA evidence.
+
+Consequences: One Release-configuration app passed the signed-device inspector and launched on an
+iPhone Air with iOS 26.6.1. Independent review and the manual C6-02 checklist remain open. No
+archive, upload, deployment, App Store Connect write, tester assignment, G1, distribution, or
+release action occurred, and C6-03 remains blocked.

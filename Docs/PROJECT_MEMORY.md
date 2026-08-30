@@ -175,7 +175,7 @@ Independent review approved exact PR #84 head `84a96bc`, hosted run `33247176815
 #84 merged as `4194b73`. C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source
 handoff as `008b674`, and the owner explicitly entered COM-C6 on 2026-08-29. Independent rereview
 approved exact PR #86 remediation head `f77d2a6`, GitHub Actions run `33255898196` passed, and PR
-#86 merged as `015d00e`; C6-01 is Done. C6-02 awaits a separate explicit owner entry, while
+#86 merged as `015d00e`; C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30, while
 C6-03, Staging/Production, G1, App Store Connect, distribution, and release remain blocked. C6-01
 freezes a strict seven-row automated matrix with all static gates, both
 Worker local checks, Release build, 16 Swift test containers, and an offline local-Pro authority
@@ -187,7 +187,17 @@ Pro telemetry capture sites, the `TelemetryService` wiring in
 `MindBudget/Services/TelemetryClient.swift`, and
 `Docs/Commercialization/C5_TELEMETRY_OPERATIONS_RUNBOOK.md` before any App Store Connect privacy
 answer is copied or accepted; the implementation-author C5 supplemental inspection does not
-satisfy that gate, and C6-01 automation does not replace it.
+satisfy that gate, and C6-01 automation does not replace it. The first C6-02 implementation pass
+read all five surfaces, found that the closed subscription outcome requires Apple's Purchase
+History declaration, corrected the manifest/docs, and added exact source/embedded-manifest plus
+signed-app inspection. A Release-configuration app was development-signed, inspected, installed,
+and launched on an iPhone Air with iOS 26.6.1; its development APS entitlement and debug allowance
+are not distribution proof. `Docs/Commercialization/C6_02_PREFLIGHT.md` retains the independent-
+review and manual-device checklist. C6-03 remains blocked.
+
+Next suggested task: obtain exact-head independent review of this C6-02 candidate and complete the
+remaining manual signed-device checklist in `Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not
+archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed
