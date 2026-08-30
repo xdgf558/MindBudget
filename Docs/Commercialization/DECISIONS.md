@@ -2361,3 +2361,27 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   comments without a content-side assertion; checking only chrome existence or a loose height;
   retaining an ignored launch value; hardcoding an absolute page-content height; or converting the
   physical non-pass into a simulator pass.
+
+## DEC-COM-080 — Require an unobscured hit point before AX5 Settings navigation
+
+- Status/date: **Accepted C6-02 PR #90 CI-remediation decision — 2026-08-30**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078/079
+- Context: Hosted Actions run `33312286576` on head `6908f6c` failed the three-appearance Pro AX5
+  regression. Result-bundle inspection and the retained UI hierarchy showed that, after returning
+  from Appearance, SwiftUI could report the Pro row as hittable while its frame center remained
+  above the Settings navigation bar's lower edge. XCUITest synthesized the tap but Settings stayed
+  visible. A bounded retry alone reproduced the same failure in repetition two and did not supply
+  a mechanism.
+- Decision: Before tapping the Pro row, compare its live frame midpoint with the live Settings
+  navigation-bar frame and scroll down until the midpoint is below that obstruction. Assert the
+  geometry, then use a bounded source-tap-to-destination handshake. Return immediately after a
+  failed handshake so later purchase/legal assertions cannot become cascading failures.
+- Consequences: The diagnostic before the geometric fix passed 1/2; the safe-hit-point regression
+  passed 2/2 across all three appearances. A new complete validator passed Release, the strict
+  Dashboard benchmark, 553 unit tests in 32 suites, all 17 UI tests, and every selected coverage
+  gate. The hosted non-pass remains recorded and is not renamed transient. This remains simulator
+  evidence only: physical reinstall and the other C6-02 manual lines remain open, C6-02 stays In
+  Progress, and C6-03 plus all remote/release actions remain blocked or unauthorized.
+- Alternatives rejected: Increasing timeouts without proving the tap target is unobscured;
+  trusting `isHittable` alone; repeatedly tapping a geometrically clipped row; accepting one
+  focused pass; or continuing into downstream assertions after navigation failed.

@@ -3640,3 +3640,29 @@ bundles remain ordinary UI execution pointers, not AX5 evidence. Physical reinst
 C6-02 remains In Progress and C6-03 plus every remote/release action remain blocked. The exact-
 source C6 matrix also passed all static and Worker checks, Release/test build, 285 tests in 16
 suites, and all 33 required method bindings exactly once as Passed.
+
+## 2026-08-30 — Session 193 — Diagnose and close the obscured AX5 Pro-row race
+
+Goal: Treat the exact-head hosted failure as a product-test non-pass, identify its mechanism, and
+verify a mechanism-specific correction without advancing C6-02/C6-03.
+
+Actions: Inspected hosted Actions run `33312286576` and its xcresult for head `6908f6c`. Added an
+initial bounded tap-to-destination handshake, then rejected its one-pass result when a two-
+iteration run reproduced the failure in repetition two. Exported the result attachments and UI
+hierarchy; they showed `settings.pro` with its frame center behind the Settings navigation bar even
+though XCUITest reported it hittable. Updated the regression to scroll until the row midpoint is
+below the live navigation-bar frame, assert that geometry, retain the bounded destination wait,
+and stop after a failed navigation so missing controls cannot cascade.
+
+Result: The pre-geometric-fix diagnostic passed 1/2 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-NavigationHandshake-TwoIterations.xcresult`. The safe-hit-
+point regression passed 2/2 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-SafeHitPoint-TwoIterations.xcresult`. A fresh complete
+`Scripts/validate.sh` run under Xcode 27.0 beta 6/iOS 26.5 passed Release, the strict Dashboard
+benchmark, 553 unit tests in 32 suites, all 17 UI tests, and every selected coverage threshold;
+four accepted physical-only CloudKit probes remained skipped and `CSVExporter.swift` was lowest
+at 87.60%. Run `33312286576` remains a real non-pass, not a transient label. Physical reinstall and
+the other manual evidence remain open; C6-02 stays In Progress, while C6-03 and every remote or
+release action remain blocked. The exact-source C6 matrix also passed every static and Worker
+check, Release/test build, 285 tests in 16 suites, and all 33 required method bindings exactly once
+as Passed.

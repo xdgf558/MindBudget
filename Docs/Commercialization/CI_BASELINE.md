@@ -2212,3 +2212,28 @@ accepted opt-in physical CloudKit probes remained skipped; `CSVExporter.swift` w
 The remediated app still requires physical reinstall; C6-02 remains In Progress and C6-03 remains
 blocked. The exact-source C6 matrix also passed every static and Worker check, Release/test build,
 285 tests in 16 suites, and all 33 required method bindings exactly once as Passed.
+
+### C6-02 hosted AX5 Pro navigation non-pass and geometric remediation — 2026-08-30
+
+Hosted Actions run `33312286576` on head `6908f6c` passed the static and unit portions but failed
+the three-appearance Pro AX5 UI test. The failure is retained as a real test non-pass. The result
+bundle showed that after returning from Appearance, `settings.pro` could remain partially behind
+the Settings navigation bar while XCUITest reported it hittable. Two synthesized taps left the
+Settings page visible, after which the old test emitted cascading missing-control assertions.
+
+An initial bounded tap-to-destination handshake did not close the mechanism: a two-iteration
+diagnostic passed 1/2 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-NavigationHandshake-TwoIterations.xcresult`. The corrected
+regression first requires the Pro row midpoint to be below the live navigation-bar frame. It then
+asserts the geometry, waits boundedly for the destination, and terminates the test path if
+navigation fails. That version passed 2/2 at
+`/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-SafeHitPoint-TwoIterations.xcresult`.
+
+A fresh complete `Scripts/validate.sh` run under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+(`23F77`) iPhone 17 Pro simulator passed Release, the strict Dashboard benchmark, 553 unit tests in
+32 suites, all 17 UI tests, and every selected coverage threshold. Four accepted opt-in physical
+CloudKit probes remained skipped and `CSVExporter.swift` was lowest at 87.60%. These paths are
+temporary local execution pointers, not hosted, physical, distribution, or release artifacts.
+The exact-source C6 matrix then passed every static and Worker check, Release/test build, 285 tests
+in 16 suites, and all 33 required method bindings exactly once as Passed. C6-02 remains In
+Progress; C6-03 and all remote/release actions remain blocked.

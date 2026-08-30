@@ -574,12 +574,26 @@ final class MindBudgetPhase3UITests: XCTestCase {
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
             let proEntry = element("settings.pro", in: app)
-            for _ in 0..<7 where !proEntry.isHittable {
+            let settingsNavigationBottom = app.navigationBars.firstMatch.frame.maxY
+            for _ in 0..<7 where
+                !proEntry.isHittable || proEntry.frame.midY <= settingsNavigationBottom
+            {
                 app.swipeDown()
             }
             XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
-            proEntry.tap()
-            XCTAssertTrue(element("commerce.pro.view", in: app).waitForExistence(timeout: 5))
+            XCTAssertGreaterThan(
+                proEntry.frame.midY,
+                settingsNavigationBottom,
+                "Pro row hit point remained behind the Settings navigation bar"
+            )
+            let proView = element("commerce.pro.view", in: app)
+            guard tapAndWaitForDestination(
+                proEntry,
+                destination: proView,
+                message: "Pro destination did not settle after tapping its Settings row"
+            ) else {
+                return
+            }
 
             let screenshot = XCTAttachment(screenshot: app.screenshot())
             screenshot.name = "MindBudget Pro AX5 - \(skin)"
@@ -794,6 +808,30 @@ final class MindBudgetPhase3UITests: XCTestCase {
             object: element
         )
         XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+    }
+
+    @MainActor
+    private func tapAndWaitForDestination(
+        _ source: XCUIElement,
+        destination: XCUIElement,
+        attempts: Int = 2,
+        timeout: TimeInterval = 3,
+        message: String
+    ) -> Bool {
+        for _ in 0..<attempts {
+            if destination.exists {
+                return true
+            }
+            guard source.waitForExistence(timeout: timeout), source.isHittable else {
+                continue
+            }
+            source.tap()
+            if destination.waitForExistence(timeout: timeout) {
+                return true
+            }
+        }
+        XCTFail(message)
+        return false
     }
 
     @MainActor

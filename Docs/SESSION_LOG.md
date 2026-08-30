@@ -6653,3 +6653,20 @@ remediated build has not been physically reinstalled and the other manual items 
 archive, upload, deployment, App Store Connect write, G1, distribution, or release action occurred.
 The exact-source C6 matrix also passed every static and Worker check, Release/test build, 285 tests
 in 16 suites, and all 33 required method bindings exactly once as Passed.
+
+## 2026-08-30 — Make AX5 Pro navigation depend on an unobscured hit point
+
+Hosted Actions run `33312286576` on head `6908f6c` failed the Pro AX5 regression. An initial
+bounded tap retry was not accepted as a mechanism: a two-iteration run passed repetition one and
+failed repetition two. Result-bundle inspection showed that `settings.pro` could be reported
+hittable while its frame midpoint remained behind the Settings navigation bar after returning
+from Appearance, so synthesized taps did not navigate and later control checks cascaded.
+
+The test now scrolls until the live row midpoint is below the live navigation-bar frame, asserts
+that geometry, uses a bounded tap-to-destination handshake, and stops immediately if navigation
+does not settle. The pre-fix diagnostic passed 1/2; the safe-hit-point version passed 2/2 across all
+three appearances. A fresh complete `Scripts/validate.sh` run passed Release, the strict benchmark,
+553 unit tests in 32 suites, all 17 UI tests, and all selected coverage gates. This is simulator
+evidence only. Physical reinstall and the remaining C6-02 manual checks stay open, and C6-03 plus
+all remote/release actions remain blocked. The exact-source C6 matrix also passed all static and
+Worker checks, Release/test build, 285 tests in 16 suites, and all 33 required method bindings.

@@ -184,6 +184,17 @@ Automated remediation evidence:
   content is taller at AX5 than AX1 while every persistent tab remains present, hittable, and at
   or below the reviewed chrome bound. The corrected three-appearance Pro AX5 regression passed
   one test with zero failures at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro.xcresult`.
+- Hosted Actions run `33312286576` on remediation head `6908f6c` was a real non-pass: the
+  three-appearance Pro regression could expose `settings.pro` as hittable while that row's center
+  remained behind the Settings navigation bar after returning from Appearance. Two synthesized
+  taps therefore did not navigate, and the old test then emitted cascading missing-control
+  failures. This is not classified as transient or environmental.
+- The regression now scrolls until the Pro row's center is below the live navigation-bar frame,
+  asserts that geometry, then uses a bounded tap-to-destination handshake and stops on failure so
+  downstream checks cannot obscure the first cause. The pre-fix two-iteration diagnostic passed
+  1/2 at `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-NavigationHandshake-TwoIterations.xcresult`;
+  the safe-hit-point version passed 2/2 at
+  `/private/tmp/C6-02-ReviewFix-TrueAX5-Pro-SafeHitPoint-TwoIterations.xcresult`.
 - The new owning complete validation under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
   (`23F77`) iPhone 17 Pro simulator passed Release, the strict benchmark, 553 tests in 32 unit
   suites, all 17 UI tests with the canonical AX5 values, and every selected coverage threshold.

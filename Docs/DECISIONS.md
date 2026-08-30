@@ -3297,3 +3297,19 @@ Consequences: Earlier simulator bundles are not AX5 evidence. Corrected focused 
 new complete validation pass with real AX5 values, but the physical pre-fix observation remains a
 non-pass and the remediated app still requires physical reinstall. C6-02 remains In Progress and
 C6-03 remains blocked.
+
+---
+
+## 2026-08-30 — Require an unobscured Settings hit point at AX5
+
+Context: Hosted run `33312286576` and a two-iteration reproduction showed that SwiftUI could
+report the Pro Settings row as hittable while its center remained behind the navigation bar after
+returning from Appearance; synthesized taps then did not navigate.
+
+Decision: Detailed ownership is DEC-COM-080. Scroll until the row's live midpoint is below the
+live navigation-bar frame, assert that geometry, and use a bounded tap-to-destination handshake
+that stops the test before cascading assertions.
+
+Consequences: The pre-fix diagnostic passed 1/2 and the safe-hit-point regression passed 2/2. A
+new complete validator passed, but this remains simulator evidence. Physical reinstall and the
+rest of C6-02 remain open; C6-03 remains blocked.
