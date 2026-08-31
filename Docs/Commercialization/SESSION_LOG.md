@@ -3735,3 +3735,34 @@ transaction-error behavior, receipt acquisition, full signed-phone VoiceOver/acc
 Instruments/data protection, and system integration. No additional physical test, Archive, IPA,
 upload, deployment, App Store Connect write, tester assignment, G1, distribution, or release
 action occurred. C6-02 stays In Progress and C6-03 stays blocked.
+
+## 2026-08-31 — Session 197 — Bound the remaining C6-02 evidence without inventing passes
+
+Goal: Apply the owner's instruction not to repeat already sufficient device work, disposition the
+remaining C6-02 checklist honestly, and keep C6-03 plus every remote/release action blocked.
+
+Actions: Added `C6_02_ACCEPTANCE_MATRIX.json` and a fail-closed/self-testing validator. The matrix
+binds 23 exact StoreKit, receipt, accessibility-regression, and system-integration test methods to
+five closed rows, requires each deterministic binding to execute exactly once as Passed, and keeps
+Archive/IPA, upload, deployment, App Store Connect writes, tester assignment, G1, distribution,
+and release blocked. Re-read the retained complete xcresult and confirmed every binding Passed.
+Used read-only `devicectl` inspection on `拉沙的iPhone` only; the data container showed the expected
+SwiftData artifacts and containermanagerd protection-policy attributes. A proposed export of the
+financial store was rejected by the safety boundary and was not retried or worked around. `xctrace`
+classified the phone as Offline while `devicectl` still saw it connected and produced no trace.
+
+Result: DEC-COM-083 records deterministic evidence as passable only where exact runtime results
+exist. Receipt acquisition continuity is bounded rather than redundantly rerun. The complete
+signed-phone VoiceOver matrix, Instruments run, exact protection class, and physical notification/
+Siri/Spotlight/Face ID/share/Delete All effects remain explicit non-passes or final-candidate
+responsibilities; none is relabeled as Passed. No financial store was copied off device. C6-02
+remains In Progress pending exact-head independent review, hosted CI, and merge. C6-03 and every
+archive, upload, deployment, App Store Connect, G1, distribution, and release action remain blocked.
+
+Validation: A fresh `Scripts/validate.sh` run on Xcode 27.0 beta 6 and the iOS 26.5 iPhone 17 Pro
+simulator passed Release, the strict serial 10,000-row Dashboard benchmark, 553 unit tests in 32
+suites, 18 UI tests with 17 passed and the single physical-only case skipped, every selected
+coverage threshold, and the new 23-binding C6-02 result-bundle check. The exact-source C6 matrix
+then passed 285 tests in 16 suites and all 33 release-matrix bindings at
+`/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`. Both result paths are local execution
+pointers, not release evidence; the completed runs do not upgrade any physical non-pass.

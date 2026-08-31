@@ -36,6 +36,7 @@ Scripts/check-telemetry-metrics-contract.sh
 Scripts/check-feature-access-boundary.sh
 Scripts/check-storekit-test-catalog.sh
 Scripts/check-c6-release-matrix.sh
+Scripts/check_c6_02_acceptance.py --self-test
 
 build_settings="$(
   xcodebuild -project MindBudget.xcodeproj -target MindBudget \
@@ -86,3 +87,4 @@ xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   "${test_arguments[@]}" test-without-building
 
 Scripts/check-coverage.sh "${RESULT_BUNDLE}"
+Scripts/check_c6_02_acceptance.py --verify-result-bundle "${RESULT_BUNDLE}"

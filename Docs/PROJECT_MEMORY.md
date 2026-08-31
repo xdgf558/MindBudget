@@ -230,9 +230,18 @@ DEC-COM-082. This closes only that reviewed AX5/navigation increment. C6-02 rema
 transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
 Instruments/data-protection, and system-integration evidence; C6-03 remains blocked.
 
-Next suggested task: complete only the remaining manual signed-device checklist in
-`Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
-upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
+DEC-COM-083 records the owner's instruction not to repeat already sufficient device work and
+closes only the remaining C6-02 evidence dispositions. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact
+runtime methods and separates deterministic passes from unperformed physical non-passes.
+Read-only `devicectl` inspection on only `拉沙的iPhone` found the SwiftData artifacts under
+containermanagerd data-protection policy; no financial store was exported. `xctrace` listed the
+same permitted phone Offline and generated no trace, so Instruments and an exact protection class
+are not called passed. Full VoiceOver and physical system side effects also remain non-passes for
+C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
+hosted CI, and merge.
+
+Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
+Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

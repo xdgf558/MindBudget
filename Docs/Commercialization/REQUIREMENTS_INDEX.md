@@ -93,9 +93,12 @@ after manual screenshots found an invisible first-push back indicator that green
 missed; its final three-skin run passed 1/1 with nine manually inspected captures. These are partial
 C6-02 facts. Independent review accepted exact PR #91 head `b3ed24d` without P1/P2 findings,
 hosted run `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under
-DEC-COM-082. This is not Requirement completion; full physical accessibility, transaction-error,
-acquisition, Instruments/data protection, system integration, C6-03 distribution artifacts, and
-final-binary proof remain open.
+DEC-COM-082. DEC-COM-083 then makes `C6_02_ACCEPTANCE_MATRIX.json` bind 23 exact StoreKit, receipt,
+accessibility-regression, and system-integration methods to a fresh complete xcresult. It accepts
+existing physical continuity without rerun and preserves full VoiceOver, Instruments/exact
+data-protection class, and physical system side effects as explicit non-passes owned by C6-03/C12.
+This is not Requirement completion; C6-03 distribution artifacts and final-binary proof remain
+open.
 
 ## COM-C0A implementation inventory against requirements
 

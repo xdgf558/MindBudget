@@ -49,6 +49,7 @@ ALLOWED_STATIC_CHECKS = frozenset(
 SPECIAL_CHECK_CLASSIFICATIONS = {
     "Scripts/check-c6-release-matrix.sh": "matrix-bootstrap",
     "Scripts/check-coverage.sh": "full-suite-xcresult",
+    "Scripts/check_c6_02_acceptance.py": "c6-02-bounded-acceptance",
 }
 
 EXPECTED_WORKER_CHECKS = (

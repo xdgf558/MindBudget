@@ -455,7 +455,16 @@ Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, 
 DEC-COM-082. This closes only that reviewed AX5/navigation increment and does not close any
 remaining manual row.
 
-Next suggested task: complete only the remaining manual checks in `C6_02_PREFLIGHT.md`; do not authorize
+DEC-COM-083 records the owner's bounded acceptance of the remaining C6-02 rows.
+`C6_02_ACCEPTANCE_MATRIX.json` requires 23 exact StoreKit, receipt, accessibility-regression, and
+system-integration bindings in one fresh complete xcresult. Existing C4C-05/PR #91 physical
+evidence is not rerun; full VoiceOver,
+Instruments/exact file protection, and physical system side effects remain explicit non-passes for
+C6-03/C12. Read-only `devicectl` inspection found protected SwiftData artifacts on only
+`拉沙的iPhone`; no database was exported, and an Offline `xctrace` attempt produced no trace or
+Instruments pass. C6-02 awaits exact-head independent review, hosted CI, and merge.
+
+Next suggested task: independently review and merge the DEC-COM-083 C6-02 packet; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
 cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a
@@ -468,7 +477,7 @@ later owner-stopped duplicate is not a pass. Final local revalidation passed two
 iterations, the complete validator with 558 passed/13 skipped/zero failed, and the C6 matrix with
 285 tests plus all 33 bindings. It is simulator regression evidence only. Transaction-error,
 acquisition, full accessibility/appearance, Instruments/data protection, and system integration
-remain open. The owner explicitly entered COM-C6
+are dispositioned without being relabeled as physical passes. The owner explicitly entered COM-C6
 on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head
 `daea2d2` raised two P2 findings and one P3. Remediation head `e6bbd3f` applied them and recorded
 the implementation author's supplemental inspection of the privacy manifest, feature capture

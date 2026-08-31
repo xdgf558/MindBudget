@@ -6735,3 +6735,27 @@ evidence. Transaction-error paths, receipt acquisition, the complete signed-phon
 accessibility matrix, Instruments/data protection, and system integration remain open. No new
 physical run occurred. C6-02 remains In Progress; C6-03, Archive/IPA, upload, deployment, App Store
 Connect mutation, tester assignment, G1, distribution, and release remain blocked or unauthorized.
+
+## 2026-08-31 — Bound the remaining C6-02 checklist without repeating device work
+
+The owner accepted a narrow disposition of the remaining C6-02 manual rows and explicitly stopped
+redundant physical reruns. Added `C6_02_ACCEPTANCE_MATRIX.json` plus a fail-closed/self-testing
+validator that binds 23 exact runtime methods to StoreKit transaction errors, receipt acquisition,
+accessibility regression, and system integration. The validator rejects missing, skipped,
+duplicate, or non-Passed results and preserves every archive/remote/G1/distribution/release block.
+
+Read-only inspection used only `拉沙的iPhone`. The app container exposed its expected SwiftData
+artifacts and data-protection policy attributes. A request to copy the real financial store off the
+phone was rejected by the safety boundary; it was not retried or bypassed. `xctrace` saw the device
+as Offline while `devicectl` remained connected and generated no trace. Therefore full VoiceOver,
+Instruments, exact data-protection class, and physical notification/Siri/Spotlight/Face ID/share/
+Delete All side effects remain explicit non-passes or final-candidate checks. DEC-COM-083 does not
+call them Passed. C6-02 awaits exact-head review, hosted CI, and merge; C6-03 and all remote/release
+actions remain blocked.
+
+Fresh exact-source validation subsequently passed on Xcode 27.0 beta 6 with the iOS 26.5 iPhone 17
+Pro simulator: Release, the strict Dashboard benchmark, 553 unit tests in 32 suites, 18 UI tests
+with 17 passed and the physical-only case skipped, all selected coverage gates, and all 23 bounded
+C6-02 runtime bindings. The C6 release matrix also passed 285 tests in 16 suites and all 33 matrix
+bindings at `/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`. These are deterministic
+local execution results only and do not alter the recorded physical non-passes or release blocks.

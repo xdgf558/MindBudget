@@ -63,6 +63,13 @@ signed-device evidence. Independent review accepted exact head `b3ed24d`, hosted
 payload, entitlement, deployment, traffic claim, App Store Connect mutation, Archive/IPA,
 distribution, or release authority; C6-02 remains In Progress and C6-03 remains blocked.
 
+DEC-COM-083 adds no egress or remote action. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact local
+runtime results and records the owner's bounded treatment of remaining C6-02 physical evidence.
+No StoreKit transaction, receipt content, financial store, trace payload,
+notification/Siri/Spotlight action, Archive, upload, deployment, or App Store Connect write was
+sent. Full physical/system and distribution-candidate checks remain explicit C6-03/C12 non-passes
+rather than inferred successes.
+
 ## Release enforcement contract
 
 1. `Scripts/check-network-egress.sh` scans every app-target Swift file plus checked-in app property

@@ -2451,3 +2451,35 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   geometry a contrast measurement; rerunning the owner-stopped duplicate physical suite; using
   `Xiao li的 iPhone (2)`; entering C6-03; or authorizing archive, upload, deployment, App Store
   Connect mutation, tester assignment, distribution, or release.
+
+## DEC-COM-083 — Close C6-02 manual disposition without inventing physical passes
+
+- Status/date: **Accepted owner evidence-scope decision — 2026-08-31**
+- Requirements: COM-C6 signed-device/App Review preflight; REQ-STOREKIT-LIFECYCLE-001;
+  REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; local system/privacy release checks
+- Context: After PR #92 closed the reviewed DEC-COM-081 increment, five C6-02 checklist rows
+  remained. The owner instructed the project not to repeat already sufficient device work and to
+  accept the remaining scope. The retained exact-source full/C6 result bundles contain real Passed
+  test cases for StoreKit errors/restore/offers/retry, receipt lifecycle/explicit Save, and
+  notification/Siri/Spotlight/Face ID/CSV/Delete All. A read-only `devicectl` pass on only
+  `拉沙的iPhone` found the SwiftData artifacts inside the protected app container, but `xctrace`
+  independently listed that phone Offline and generated no trace. Exporting the real financial
+  store to the Mac was rejected as unsafe and did not occur.
+- Decision: Add `C6_02_ACCEPTANCE_MATRIX.json` and `check_c6_02_acceptance.py`. Bind 23 exact test
+  methods to one fresh complete xcresult, reject missing/skipped/duplicate evidence, keep all
+  archive/remote/G1/distribution/release actions blocked, and separate deterministic passes from
+  physical non-passes. Accept C4C-05 physical receipt continuity and the reviewed PR #91 AX5
+  evidence without rerunning them. Treat the unexecuted complete VoiceOver matrix,
+  Instruments/precise file-protection inspection, and physical system side effects as explicit
+  non-passes retained for final-candidate C6-03/C12 review, not as successful tests.
+- Consequences: C6-02 implementation/evidence may proceed to exact-head independent review and
+  hosted CI without another physical run. The phase is not Done until that reviewed head, its 23
+  runtime bindings, green CI, and merge are recorded. C6-03 still requires a separate owner
+  instruction; no Archive, upload, deployment, App Store Connect write, tester assignment, G1,
+  distribution, or release is authorized. This decision narrows C6-02 evidence scope but does not
+  waive final distribution-candidate privacy, accessibility, Instruments/data-protection, or
+  system-integration checks owned by C6-03/C12.
+- Alternatives rejected: Calling an unrun manual row Passed; exporting a real customer financial
+  store to inspect attributes; using `Xiao li的 iPhone (2)`; repeating the owner-stopped AX5 suite;
+  treating `devicectl` metadata as an exact protection-class proof; treating an Offline `xctrace`
+  attempt as Instruments evidence; or entering C6-03/Archive/upload automatically.

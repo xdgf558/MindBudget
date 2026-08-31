@@ -665,7 +665,7 @@ Status: **Done after independent rereview and green CI through PR #86 (`015d00e`
 
 ### C6-02 — Signed-device and App Review preflight
 
-Status: **In Progress after explicit owner entry on 2026-08-30.**
+Status: **Implementation and bounded evidence complete pending independent review, hosted CI, and merge.**
 
 - [ ] Validate purchase/restore/manage/legal visibility; screenshots and notes; signed-app network,
   key, and content scans; data-protection, localization, accessibility, and privacy disclosures.
@@ -703,8 +703,15 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   with zero failures, and the exact-source C6 matrix with every required binding. Independent
   review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run `33362101536`
   passed, and PR #91 merged this bounded increment as `4ddabcd` under DEC-COM-082.
-  Transaction-error paths, receipt acquisition, full VoiceOver/accessibility, Instruments/data
-  protection, and system integration remain open, so C6-02 is not Done.
+  DEC-COM-083 now closes the remaining C6-02 disposition work without converting unrun physical
+  checks into passes. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact StoreKit, receipt,
+  accessibility-regression, and system-integration methods to one fresh complete xcresult. The
+  owner accepted C4C-05/PR #91 physical continuity and explicitly retained the unrun complete
+  VoiceOver matrix, Instruments/exact file-protection inspection, and physical system side effects
+  as non-passes for final-candidate C6-03/C12 review. Read-only `devicectl` inspection found the
+  SwiftData artifacts under containermanagerd data-protection policy on only `拉沙的iPhone`;
+  `xctrace` listed it Offline and generated no trace, and no financial store was exported. C6-02
+  awaits exact-head independent review, green hosted CI, and merge; it is not Done yet.
 
 ### C6-03 — TestFlight baseline
 

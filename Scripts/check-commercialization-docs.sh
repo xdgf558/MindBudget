@@ -36,6 +36,7 @@ required_files=(
   Docs/Commercialization/COM_C5_EXECUTION_PACKET.md
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md
   Docs/Commercialization/C6_02_PREFLIGHT.md
+  Docs/Commercialization/C6_02_ACCEPTANCE_MATRIX.json
   Docs/Commercialization/C6_RELEASE_MATRIX.json
   Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
@@ -69,7 +70,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
-  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:in_progress:pending' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:pending_review:pending' \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:blocked:B' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
@@ -86,6 +87,12 @@ python3 -B "${PHASE_STATE_CHECKER}" \
 # import/entitlement fail unless DataController's primary local stores are explicitly `.none`.
 python3 -B Scripts/check_icloud_sync_contract.py --self-test
 python3 -B Scripts/check_icloud_sync_contract.py
+
+# C6-02's remaining manual rows are closed only as a bounded disposition. The checker proves the
+# exact five-row vocabulary, all 23 deterministic runtime bindings, explicit non-pass text, and
+# every still-blocked archive/remote/release action. Runtime execution is verified later by the
+# full validator against its newly produced xcresult.
+python3 -B Scripts/check_c6_02_acceptance.py --self-test
 
 # C4C-01 established premium/evidence seams. C4C-02 owns bounded system image acquisition and
 # temporary lifecycle. C4C-03 adds local OCR only through the mandatory sensitive-text boundary.
@@ -2230,6 +2237,68 @@ for c602_pr91_closeout_file in \
     }
   done
 done
+
+# DEC-COM-083 replaces the ambiguous open-manual list with a machine-readable bounded acceptance
+# packet. Require the decision, checker, exact runtime count, and honest physical non-pass boundary
+# across the current C6-02 status surfaces without letting this pre-review branch claim Done.
+for c602_acceptance_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/RELEASE_CHECKLIST.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_02_PREFLIGHT.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c602_acceptance_anchor in \
+    'DEC-COM-083' \
+    'C6_02_ACCEPTANCE_MATRIX.json' \
+    '23 exact' \
+    'C6-03'; do
+    grep -Fq "${c602_acceptance_anchor}" "${c602_acceptance_file}" || {
+      echo "C6-02 bounded acceptance is missing ${c602_acceptance_anchor} in ${c602_acceptance_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for c602_nonpass_anchor in \
+  'owner-accepted-non-pass' \
+  'xctrace' \
+  'No financial store was copied off device' \
+  'does not claim those physical side effects passed'; do
+  if ! grep -Fq "${c602_nonpass_anchor}" \
+      Docs/COMMERCIALIZATION_TASKS.md \
+      Docs/TASKS.md \
+      Docs/PROJECT_MEMORY.md \
+      Docs/PRIVACY_AND_REVIEW_NOTES.md \
+      Docs/RELEASE_CHECKLIST.md \
+      Docs/Commercialization/PROJECT_MEMORY.md \
+      Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+      Docs/Commercialization/C6_02_PREFLIGHT.md \
+      Docs/Commercialization/C6_02_ACCEPTANCE_MATRIX.json \
+      Docs/Commercialization/REQUIREMENTS_INDEX.md; then
+    echo "C6-02 bounded acceptance lost its physical non-pass boundary: ${c602_nonpass_anchor}" >&2
+    exit 1
+  fi
+done
+
+if grep -Eqi 'C6-02 is Done|full (signed-phone )?VoiceOver (matrix )?(passed|is Passed)|Instruments (run )?(passed|is Passed)|exact (data-)?protection class (passed|is Passed)|physical system integration (passed|is Passed)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/RELEASE_CHECKLIST.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_02_PREFLIGHT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C6-02 bounded acceptance must not convert unrun physical checks into passes or claim Done before review" >&2
+  exit 1
+fi
 
 if grep -Eqi 'review the DEC-COM-081|independently review the DEC-COM-081|DEC-COM-081[^.]*pending (independent )?review|physical reinstall and the remaining|this branch.s review/CI/merge' \
     Docs/COMMERCIALIZATION_TASKS.md \

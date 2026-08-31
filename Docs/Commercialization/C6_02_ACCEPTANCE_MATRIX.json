@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "phase": "C6-02",
+  "ownerInstructionDate": "2026-08-31",
+  "blockedActions": [
+    "archive",
+    "upload",
+    "deploy-staging",
+    "deploy-production",
+    "app-store-connect-write",
+    "tester-assignment",
+    "g1-decision",
+    "distribution",
+    "release"
+  ],
+  "rows": [
+    {
+      "id": "storekit-transaction-errors",
+      "disposition": "deterministic-pass",
+      "requiredTests": [
+        {
+          "source": "MindBudgetTests/StoreLifecycleDomainTests.swift",
+          "type": "StoreLifecycleDomainTests",
+          "method": "nonSuccessfulPurchaseResultsNeverFinishOrGrantAccess"
+        },
+        {
+          "source": "MindBudgetTests/StoreLifecycleDomainTests.swift",
+          "type": "StoreLifecycleDomainTests",
+          "method": "restoreDistinguishesRestoredNoPurchaseAndSourceFailure"
+        },
+        {
+          "source": "MindBudgetTests/StoreLifecycleDomainTests.swift",
+          "type": "StoreLifecycleDomainTests",
+          "method": "unavailableAuthorityBlocksPurchaseBeforeTheSourceCanPresentStoreKit"
+        },
+        {
+          "source": "MindBudgetTests/StoreLifecycleDomainTests.swift",
+          "type": "StoreLifecycleDomainTests",
+          "method": "subscriptionStateMatrixGrantsOnlySubscribedAndVerifiedGrace"
+        },
+        {
+          "source": "MindBudgetTests/StoreRuntimeTests.swift",
+          "type": "StoreRuntimeTests",
+          "method": "eligiblePayAsYouGoOfferRetainsItsPriceAndPausesPurchase"
+        },
+        {
+          "source": "MindBudgetTests/StoreRuntimeTests.swift",
+          "type": "StoreRuntimeTests",
+          "method": "eligiblePayUpFrontOfferRetainsItsPriceAndPausesPurchase"
+        },
+        {
+          "source": "MindBudgetTests/StoreRuntimeTests.swift",
+          "type": "StoreRuntimeTests",
+          "method": "ineligibleOrUnknownIntroductoryOffersCannotBeMisrepresented"
+        },
+        {
+          "source": "MindBudgetTests/StoreRuntimeTests.swift",
+          "type": "StoreRuntimeTests",
+          "method": "subscriptionSoftLandingCoversEveryVerifiedExceptionalStateBilingually"
+        }
+      ],
+      "acceptedEvidence": "The retained exact-source C6 result bundle records every named binding Passed; the signed phone separately showed live prices, renewal/legal copy, already-entitled blocking, and Manage Subscription.",
+      "nonPassBoundary": "No new Sandbox purchase, cancellation, or restore transaction was executed; the deterministic disposition does not claim a new physical transaction pass."
+    },
+    {
+      "id": "receipt-acquisition",
+      "disposition": "bounded-mixed-evidence",
+      "requiredTests": [
+        {
+          "source": "MindBudgetTests/ReceiptImageLifecycleTests.swift",
+          "type": "ReceiptImageLifecycleTests",
+          "method": "twentySequentialRealImagesStayBoundedAndLeaveNoTemporaryArtifact"
+        },
+        {
+          "source": "MindBudgetTests/ReceiptImportIntegrationTests.swift",
+          "type": "ReceiptImportIntegrationTests",
+          "method": "cancellingARecognizingGenerationCannotApplyItsLateResult"
+        },
+        {
+          "source": "MindBudgetTests/ReceiptImportIntegrationTests.swift",
+          "type": "ReceiptImportIntegrationTests",
+          "method": "recognizedFieldsRemainEphemeralUntilTheExistingSaveAction"
+        },
+        {
+          "source": "MindBudgetTests/ReceiptImportIntegrationTests.swift",
+          "type": "ReceiptImportIntegrationTests",
+          "method": "editedFieldsStayUserOwnedEvenWhenChangedBackToTheirStartingValues"
+        },
+        {
+          "source": "MindBudgetTests/ReceiptImportIntegrationTests.swift",
+          "type": "ReceiptImportIntegrationTests",
+          "method": "acquisitionGateFailuresRemainTruthfulAndRecoverySpecific"
+        }
+      ],
+      "acceptedEvidence": "C4C-05 already recorded physical camera/photo-picker/local OCR and explicit-Save behavior on the same iOS generation; the current signed candidate showed local-only disclosure and cancellation without a ledger write, while the retained exact-source bundle passed the named lifecycle and integration bindings.",
+      "nonPassBoundary": "Camera/photo-picker acquisition was not redundantly rerun in this continuation; this bounded continuity decision does not claim a new physical acquisition pass."
+    },
+    {
+      "id": "signed-phone-accessibility",
+      "disposition": "owner-accepted-non-pass",
+      "requiredTests": [
+        {
+          "source": "MindBudgetUITests/MindBudgetPhase3UITests.swift",
+          "type": "MindBudgetPhase3UITests",
+          "method": "testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance"
+        },
+        {
+          "source": "MindBudgetUITests/MindBudgetPhase3UITests.swift",
+          "type": "MindBudgetPhase3UITests",
+          "method": "testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable"
+        }
+      ],
+      "acceptedEvidence": "The reviewed physical AX5/bilingual/light-dark/three-skin evidence on 拉沙的iPhone and the exact-source simulator bundle passed the two named regressions; the owner explicitly declined another redundant device run.",
+      "nonPassBoundary": "A complete signed-phone VoiceOver, focus-order, sheet, alert, keyboard, and every-control matrix was not executed and is not called a physical pass; C12 retains final-candidate accessibility review."
+    },
+    {
+      "id": "instruments-data-protection",
+      "disposition": "owner-accepted-non-pass",
+      "requiredTests": [],
+      "acceptedEvidence": "A read-only devicectl listing on 拉沙的iPhone found MindBudget.store, its WAL/SHM, migration marker, and signed configuration inside the app data container with containermanagerd data-protection policy attributes. No financial store was copied off device.",
+      "nonPassBoundary": "xctrace saw the permitted phone as Offline while devicectl remained connected, generated no trace, and therefore did not prove launch/scroll/memory; the exact protection class was not exported or inferred as a pass. C6-03/C12 retain distribution-candidate Instruments and data-protection inspection."
+    },
+    {
+      "id": "system-integration",
+      "disposition": "deterministic-pass-with-physical-deferral",
+      "requiredTests": [
+        {
+          "source": "MindBudgetTests/Phase9FeatureTests.swift",
+          "type": "Phase9FeatureTests",
+          "method": "notificationSchedulerCarriesAGatedEntityAssociationToTheSDKBoundary"
+        },
+        {
+          "source": "MindBudgetTests/Phase8AFeatureTests.swift",
+          "type": "Phase8AFeatureTests",
+          "method": "unavailableSiriReturnsNoPassiveEntitiesAndRejectsActiveWrites"
+        },
+        {
+          "source": "MindBudgetTests/Phase8AFeatureTests.swift",
+          "type": "Phase8AFeatureTests",
+          "method": "spotlightReconciliationEnforcesTheMerchantTripleGateEndToEnd"
+        },
+        {
+          "source": "MindBudgetTests/SettingsStoreTests.swift",
+          "type": "SettingsStoreTests",
+          "method": "appLockNeverUnlocksAfterCancelledAuthentication"
+        },
+        {
+          "source": "MindBudgetTests/SettingsStoreTests.swift",
+          "type": "SettingsStoreTests",
+          "method": "enablingAppLockRequiresAvailableFaceIDAndSuccessfulAuthentication"
+        },
+        {
+          "source": "MindBudgetTests/Phase11FreeTierTests.swift",
+          "type": "Phase11FreeTierTests",
+          "method": "unifiedCSVExportsIncomeExactlyAndNeutralizesSpreadsheetFormulas"
+        },
+        {
+          "source": "MindBudgetTests/Phase6FeatureTests.swift",
+          "type": "Phase6FeatureTests",
+          "method": "deleteAllDataRunsPrivacyStagesThenResetsEveryLocalModelAndPreference"
+        },
+        {
+          "source": "MindBudgetTests/Phase6FeatureTests.swift",
+          "type": "Phase6FeatureTests",
+          "method": "telemetryDeletionFailureNeverBlocksLocalFinancialDeletion"
+        }
+      ],
+      "acceptedEvidence": "The retained exact-source full result bundle records every named notification, Siri, Spotlight, Face ID, CSV, and all-stage deletion binding Passed; the signed candidate separately exposed the reviewed privacy/export controls.",
+      "nonPassBoundary": "No new physical notification delivery, Siri invocation, Spotlight search, Face ID challenge, share destination, or destructive Delete All was performed; this deterministic disposition does not claim those physical side effects passed and C12 retains final-candidate checks."
+    }
+  ]
+}

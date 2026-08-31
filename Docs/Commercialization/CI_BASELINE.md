@@ -2303,3 +2303,40 @@ Transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessib
 Instruments/data-protection, and system-integration evidence remain open. C6-02 is not Done, and
 C6-03 plus every Archive/IPA, upload, deployment, App Store Connect, G1, distribution, and release
 action remain blocked or unauthorized.
+
+### C6-02 bounded acceptance preflight — 2026-08-31
+
+`check_c6_02_acceptance.py --self-test` passed. Read-only `xcresulttool` verification of
+`/private/tmp/MindBudget-C6-02-DEC-COM-081-Full-Validated.xcresult` then confirmed all 23 exact
+StoreKit, receipt, accessibility-regression, and system-integration bindings executed once as
+Passed. That retained bundle remains a local execution pointer rather than hosted, signed-device,
+distribution, or release evidence.
+
+Read-only `devicectl` inspection used only `拉沙的iPhone` and found the expected SwiftData store,
+WAL/SHM, migration marker, signed configuration, and containermanagerd data-protection policy
+attributes. No financial store was copied off device: a proposed export was rejected by the safety
+boundary and was not retried or bypassed. `xctrace` classified the same phone as Offline while
+`devicectl` saw it connected; the attempted Activity Monitor recording produced no trace and is a
+non-pass. No exact protection class or Instruments metric is inferred from that attempt.
+
+DEC-COM-083 accepts only the matrix's bounded dispositions. Full signed-phone VoiceOver,
+Instruments, exact data-protection class, and physical notification/Siri/Spotlight/Face ID/share/
+Delete All effects were not run and are not Passed. Fresh repository validation, exact-head
+independent review, hosted CI, and merge remain required. C6-02 stays In Progress; C6-03 and every
+Archive/IPA, upload, deployment, App Store Connect, tester assignment, G1, distribution, and
+release action remain blocked.
+
+The fresh exact-source validation then completed on Xcode 27.0 beta 6 (`27A5252f`) with the iOS
+26.5 (`23F77`) iPhone 17 Pro simulator. Release compilation, the strict serial 10,000-row
+Dashboard benchmark, 553 unit tests in 32 suites, 18 UI tests with 17 passed and the one
+physical-only case skipped, every selected coverage threshold, and all static/Worker contracts
+passed. The new verifier confirmed all 23 C6-02 bindings executed exactly once as Passed. Its
+temporary `mindbudget-validation.*` result path was deleted by the validator and is an execution
+pointer rather than a durable artifact.
+
+The exact-source C6 release matrix then passed at
+`/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`: all static and Worker checks,
+Release/test builds, 285 tests in 16 suites, and all 33 C6-01 runtime bindings passed. That local
+path is also an execution pointer, not hosted or distribution evidence. These green deterministic
+runs do not change any DEC-COM-083 non-pass disposition; exact-head review, hosted CI, and merge
+remain required before C6-02 can close.

@@ -143,8 +143,8 @@ PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c
 remains In Progress for required-reason source-gate and manual evidence. PR #89 review found
 missing Foundation Swift overlay aliases in that source gate. Independent rereview accepted exact
 remediation head `6ffc6fa`, hosted run `33287620965` passed, and PR #89 merged it as `72f016e`.
-C6-02 remains In Progress only for its manual evidence; C6-03 and every App Store Connect,
-Staging/Production, distribution/release proof remain blocked.
+C6-02 now has a bounded evidence packet pending exact-head independent review, hosted CI, and
+merge; C6-03 and every App Store Connect, Staging/Production, distribution/release proof remain blocked.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
@@ -197,9 +197,15 @@ bounded. DEC-COM-081 then binds Pro navigation chrome to the selected skin after
 review found a first-push back-indicator contrast defect that a green hierarchy result missed.
 Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
 `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
-Automated geometry is not visual-contrast proof; the inspected captures own that evidence. The rest
-of the accessibility, acquisition, data-protection, Instruments, and system-integration checklist
-remains open.
+Automated geometry is not visual-contrast proof; the inspected captures own that evidence.
+DEC-COM-083 makes `C6_02_ACCEPTANCE_MATRIX.json` require 23 exact runtime bindings and explicitly
+distinguishes deterministic results from unperformed physical work. Existing C4C-05 receipt and
+PR #91 accessibility evidence is
+accepted without a redundant device rerun. Complete VoiceOver, Instruments/exact data-protection
+class, and physical notification/Siri/Spotlight/Face ID/share/Delete All side effects remain
+non-passes for C6-03/C12. A read-only container listing found containermanagerd protection metadata
+for the SwiftData artifacts on only `拉沙的iPhone`; no financial data was copied. `xctrace`
+listed the same phone Offline and produced no trace, so no Instruments pass is claimed.
 
 Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
 remains valid, but the person must complete setup again before Privacy & Security > Product

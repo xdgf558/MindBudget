@@ -1,6 +1,7 @@
 # COM-C6 Execution Packet
 
-Status: **In Progress in C6-02 after explicit owner entry.**
+Status: **C6-02 implementation and bounded evidence complete pending independent review, hosted
+CI, and merge.**
 
 C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
 `33255898196` passed, and PR #86 merged as `015d00e`. The owner explicitly entered C6-02 on
@@ -134,9 +135,9 @@ guarantee; the corrected regression compares canonical AX1/AX5 page content whil
 bounding persistent chrome and using bounded interaction waits. Focused and full local validation
 pass. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
 `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
-Physical reinstall/appearance is therefore closed only at that reviewed boundary; the remaining
-accessibility, transaction-error, receipt-acquisition, Instruments/data-protection, and system-
-integration evidence remain open. Distribution privacy-report inspection remains C6-03 evidence.
+Physical reinstall/appearance is therefore closed only at that reviewed boundary. DEC-COM-083
+now dispositions the remaining five rows without calling unperformed physical checks passed.
+Distribution privacy-report inspection remains C6-03 evidence.
 
 ## Exit and stop conditions
 
@@ -146,8 +147,20 @@ on 2026-08-30. PR #88 merged the reviewed privacy correction and development-sig
 inspection as `6c2a051`; PR #89 merged the independently rereviewed required-reason source-gate
 remediation as `72f016e` after hosted run `33287620965` passed. PR #91 exact head `b3ed24d` passed
 independent review and hosted run `33362101536`, then merged the bounded AX5/navigation increment as
-`4ddabcd`. The remaining manual checklist remains open.
-C6-03 remains blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
+`4ddabcd`. The bounded acceptance packet now awaits exact-head independent review, hosted CI, and
+merge. C6-03 remains blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
+
+DEC-COM-083 replaces the ambiguous open-manual list with the closed five-row
+`C6_02_ACCEPTANCE_MATRIX.json`. A fresh complete xcresult must contain all 23 exact named StoreKit,
+receipt, accessibility-regression, and system-integration bindings exactly once as Passed. The
+owner accepted existing C4C-05 and PR #91
+physical continuity and declined redundant device reruns. The complete VoiceOver matrix,
+Instruments/exact file-protection proof, and physical notification/Siri/Spotlight/Face ID/share/
+Delete All side effects are explicit non-passes retained for distribution-candidate C6-03/C12,
+not rewritten as successes. Read-only container metadata from only `拉沙的iPhone` showed the
+SwiftData artifacts under containermanagerd protection; no financial database was exported.
+`xctrace` listed that permitted phone Offline and generated no trace. Review/CI/merge of this exact
+packet remain required before C6-02 may be marked Done.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

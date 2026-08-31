@@ -3350,3 +3350,20 @@ phone accessibility, Instruments/data-protection, and system-integration rows op
 Consequences: C6-02 remains In Progress; C6-03 remains blocked by C6-02 acceptance and separate
 archive/upload authority. No Archive/IPA, deployment, App Store Connect write, G1, distribution,
 or release authorization follows from PR #91.
+
+---
+
+## 2026-08-31 — Accept bounded C6-02 dispositions without relabeling non-passes
+
+Context: The remaining C6-02 rows mixed deterministic transaction/receipt/system facts with
+physical work the owner declined to repeat. `devicectl` could inspect only `拉沙的iPhone`, while
+`xctrace` classified it Offline and produced no Instruments trace.
+
+Decision: Detailed ownership is DEC-COM-083. Require 23 exact runtime bindings in a fresh complete
+xcresult, accept the already reviewed physical receipt/AX5 continuity, and preserve unrun full
+VoiceOver, Instruments/exact file protection, and physical system-side-effect checks as explicit
+non-passes for C6-03/C12.
+
+Consequences: C6-02 is implementation/evidence complete pending exact-head review, hosted CI, and
+merge. No real financial database was exported. C6-03 and every Archive/upload/remote/App Store
+Connect/G1/distribution/release action remain blocked or unauthorized.

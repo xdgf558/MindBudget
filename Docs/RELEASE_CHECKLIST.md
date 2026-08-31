@@ -64,9 +64,10 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   and is a source-drift gate accepted through PR #89 (`72f016e`) after exact remediation head
   `6ffc6fa` passed run `33287620965`; it does not replace the distribution privacy report or
   dynamic raw-value-key inspection.
-- [ ] Complete the purchase/restore/manage/legal, accessibility/localization, camera/photo-picker,
-  privacy/data-protection, Instruments, and system-integration checks listed in
-  `Docs/Commercialization/C6_02_PREFLIGHT.md`.
+- [x] Complete the bounded C6-02 dispositions in `C6_02_PREFLIGHT.md` and
+  `C6_02_ACCEPTANCE_MATRIX.json`. DEC-COM-083 requires 23 exact Passed runtime bindings and records
+  unrun full VoiceOver, Instruments/exact file protection, and physical system side effects as
+  owner-accepted non-passes retained for C6-03/C12; it does not call them successful checks.
 - [x] Record the partial signed-device pass: live monthly/annual/trial/already-entitled/legal
   StoreKit presentation in English and Simplified Chinese; offline retention of the verified local
   Pro snapshot; truthful privacy/analytics/receipt/iCloud/export copy; and receipt cancellation
@@ -76,8 +77,8 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   chrome while leaving page content uncapped. DEC-COM-079 uses UIKit's canonical AX1/AX5 values,
   proves a dynamic Dashboard content element grows at AX5 while the four-tab chrome remains
   reachable and bounded, and replaces immediate UI-transition reads with bounded waits. Earlier
-  noncanonical simulator runs are not AX5 evidence. Physical reinstallation and the complete
-  accessibility/appearance matrix remain open.
+  noncanonical simulator runs are not AX5 evidence. The bounded physical reinstall item passed;
+  the complete accessibility/appearance matrix remains a non-pass retained for C12.
 - [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
   require Production APS plus `get-task-allow = false` before any upload.
 
