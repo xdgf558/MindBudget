@@ -619,6 +619,14 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   regression lacked a content-side guarantee and used an ignored noncanonical content-size value.
   DEC-COM-079 uses canonical AX1/AX5 values, proves Dashboard content grows while chrome remains
   bounded, and gives language/tab/category/appearance changes bounded waits. Focused tests and a
-  new full local validation pass. C6-02 remains open for physical reinstallation/accessibility,
-  transaction-error paths, receipt acquisition, Instruments/data protection, system integration,
-  exact-head review, hosted CI, and merge.
+  new full local validation pass. The corrected build was then installed only on
+  `拉沙的iPhone`; physical AX5 content plus English/Simplified Chinese light/dark Pro evidence
+  passed. Screenshot review found a separate first-push legal-navigation contrast defect that a
+  green hierarchy test missed. DEC-COM-081 binds navigation chrome to the Pro skin, and the final
+  three-skin Pro/Terms/Privacy run passed 1/1 with all nine retained screenshots manually
+  inspected. A later duplicate combined run was stopped by the owner and is not counted as a
+  pass. C6-02 remains open for transaction-error paths, receipt acquisition, full VoiceOver and
+  accessibility coverage, Instruments/data protection, system integration, exact-head review,
+  hosted CI, and merge. Final local revalidation passed two focused AX1/AX5 iterations, the full
+  validator with zero failures, and the C6 matrix with all 33 required bindings; this remains
+  simulator evidence and does not close those manual rows.

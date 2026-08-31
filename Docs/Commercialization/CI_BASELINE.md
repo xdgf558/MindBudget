@@ -2237,3 +2237,50 @@ temporary local execution pointers, not hosted, physical, distribution, or relea
 The exact-source C6 matrix then passed every static and Worker check, Release/test build, 285 tests
 in 16 suites, and all 33 required method bindings exactly once as Passed. C6-02 remains In
 Progress; C6-03 and all remote/release actions remain blocked.
+
+### C6-02 bounded physical AX5 reinstall and first-push navigation remediation — 2026-08-31
+
+Only `拉沙的iPhone` (iPhone Air/iPhone18,4, iOS 26.6.1 `23G83`) was used. The owner explicitly
+excluded `Xiao li的 iPhone (2)`. This is development-signed physical preflight evidence, not
+distribution, Archive/IPA, final-binary, TestFlight, or release evidence.
+
+The canonical true-AX5 content run passed. The bilingual physical run passed 1/1 at
+`/private/tmp/MindBudget-C6-02-Physical-AX5-Bilingual-Light-Dark-Lasha-Geometry.xcresult`; manual
+inspection covered English light/dark and Simplified Chinese light/dark Pro screens. An exact
+physical Pro/legal regression later passed at the hierarchy level but retained screenshots exposed
+an invisible first-push back indicator across appearance transitions. That green bundle is a
+visual non-pass.
+
+DEC-COM-081 binds `.toolbarColorScheme` to the Pro presentation boundary and removes competing
+child scheme declarations. The owning physical three-skin run passed 1/1 at
+`/private/tmp/MindBudget-C6-02-Physical-AX5-ToolbarScheme-Retry-Lasha.xcresult`. All nine retained
+Pro/Terms/Privacy captures were inspected and showed the system back indicator. A prior locked-
+device/developer-certificate attempt and the pre-fix visual bundles remain non-passes. The owner
+stopped a later duplicate combined run after the first content case passed; the interrupted bundle
+is not counted as a pass. These `/private/tmp` paths are local execution pointers, not durable
+artifacts. C6-02 remains In Progress for the other manual rows, and C6-03 plus every remote/release
+action remains blocked.
+
+### C6-02 DEC-COM-081 final local validation — 2026-08-31
+
+The first retained complete run at
+`/private/tmp/MindBudget-C6-02-DEC-COM-081-Full-Final.xcresult` was a non-pass: the AX5/AX1 UI test
+reported one primary failure while subsequent assertions cascaded. Result-bundle inspection proved
+that the full-screen setup helper alternated `budget.totalBudget` from below the keyboard to behind
+the navigation bar for all eight attempts. This was not a product or money-calculation failure.
+
+The helper now derives its lower interaction boundary from the live keyboard and uses small drags
+inside the budget form. The exact focused regression passed two consecutive iterations at
+`/private/tmp/MindBudget-C6-02-AX5-Budget-Scroll-Remediation.xcresult`. A fresh complete
+`Scripts/validate.sh` run then passed at
+`/private/tmp/MindBudget-C6-02-DEC-COM-081-Full-Validated.xcresult`: the result summary records 571
+total executions, 558 passed, 13 intentionally skipped, and zero failed; the UI target specifically
+ran 18 tests with 17 passed, one physical-only test skipped, and zero failures. Release build,
+strict wall-clock run, all unit/UI suites, and every selected service coverage threshold passed.
+
+The exact-source C6 matrix was also repeated after the final helper change at
+`/private/tmp/MindBudget-C6-02-DEC-COM-081-C6-Matrix-Final.xcresult`; all static/Worker checks,
+Release/test build, 285 tests in 16 suites, and all 33 required bindings passed. These temporary
+paths are execution pointers, not durable artifacts. No additional physical run was performed after
+the owner stopped redundant testing, and no C6-02, C6-03, distribution, or release completion is
+claimed.

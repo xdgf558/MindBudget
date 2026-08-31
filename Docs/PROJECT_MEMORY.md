@@ -212,11 +212,19 @@ without persistence. Physical AX5 exposed a persistent-tab-bar obstruction; DEC-
 that navigation chrome. PR #90 review found that the initial simulator regression neither proved
 uncapped content nor used a canonical UIKit AX5 raw value. DEC-COM-079 replaces it with a true
 AX1/AX5 content-height comparison plus the separate chrome bound and bounded interaction waits;
-focused and full local validation pass. The remediated build still needs physical reinstallation,
-and transaction-error, receipt acquisition, full accessibility/appearance, Instruments/data
-protection, and system integration remain open.
+focused and full local validation pass. The remediated build was then installed only on
+`拉沙的iPhone`. Physical true-AX5 content and four bilingual light/dark Pro captures passed.
+Manual review of a separate exact physical regression found that the first Terms/Privacy push
+could render an invisible system back indicator even while the accessibility hierarchy was green.
+DEC-COM-081 binds the navigation-bar scheme at the Pro presentation boundary; its final physical
+three-skin run passed 1/1 and all nine Pro/Terms/Privacy screenshots were manually inspected. A
+later duplicate combined run was stopped by the owner and is not recorded as a pass. Transaction-
+error, receipt acquisition, full VoiceOver/accessibility, Instruments/data protection, and system
+integration remain open. Final simulator revalidation passed the focused AX1/AX5 regression twice,
+the complete validator with 558 passed/13 skipped/zero failed, and the C6 matrix with 285 tests plus
+all 33 required bindings; it does not broaden the physical result.
 
-Next suggested task: review and merge the DEC-COM-079 remediation, then complete only the remaining
+Next suggested task: review the DEC-COM-081 physical remediation, then complete only the remaining
 manual signed-device checklist in `Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
 upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now

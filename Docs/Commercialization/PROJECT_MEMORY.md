@@ -450,14 +450,20 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the DEC-COM-079 AX5 evidence remediation and partial signed-device
-evidence, then complete only the remaining manual checks in `C6_02_PREFLIGHT.md`; do not authorize
+Next suggested task: independently review the DEC-COM-081 physical AX5/navigation remediation and
+partial signed-device evidence, then complete only the remaining manual checks in
+`C6_02_PREFLIGHT.md`; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
 cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a
 non-pass. The first simulator launch value was noncanonical and ignored; DEC-COM-079 now proves
 uncapped page content against capped chrome with canonical AX1/AX5 values. The remediated build
-still needs physical reinstallation, and transaction-error,
+was installed only on `拉沙的iPhone`; physical true-AX5 content and bilingual light/dark Pro
+captures passed. DEC-COM-081 fixes a screenshot-only first-push legal-navigation contrast defect,
+and its three-skin run passed 1/1 with all nine Pro/Terms/Privacy captures manually inspected. A
+later owner-stopped duplicate is not a pass. Final local revalidation passed two focused AX1/AX5
+iterations, the complete validator with 558 passed/13 skipped/zero failed, and the C6 matrix with
+285 tests plus all 33 bindings. It is simulator regression evidence only. Transaction-error,
 acquisition, full accessibility/appearance, Instruments/data protection, and system integration
 remain open. The owner explicitly entered COM-C6
 on 2026-08-29 after PR #85 merged the C5 privacy-source handoff as `008b674`. Independent review of PR #83 head
