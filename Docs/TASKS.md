@@ -636,5 +636,9 @@ while C6-03, Staging/Production, G1, App Store Connect, distribution, and releas
   `拉沙的iPhone` found the protected SwiftData artifacts; `xctrace` reported that permitted phone
   Offline and generated no trace. No financial store was exported. C6-02 now awaits exact-head
   review, hosted CI, and merge; C6-03 remains blocked.
+- [ ] Close PR #93's hosted-schema remediation. Run `33370429991` is a non-pass: tests and coverage
+  passed, but Xcode 26.6 rejected schema `0.4.0`. DEC-COM-084 uses shared schema `0.3.0`, and the
+  downloaded hosted artifact plus local Xcode 27 artifact each verify all 23 exact bindings. A new
+  remediation head still requires rereview, green hosted CI, and merge; do not enter C6-03.
 - [ ] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
   packet before marking C6-02 Done. Do not enter C6-03 or authorize Archive/upload automatically.

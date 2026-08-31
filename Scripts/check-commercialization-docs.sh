@@ -93,6 +93,18 @@ python3 -B Scripts/check_icloud_sync_contract.py
 # every still-blocked archive/remote/release action. Runtime execution is verified later by the
 # full validator against its newly produced xcresult.
 python3 -B Scripts/check_c6_02_acceptance.py --self-test
+grep -Fq 'RESULT_SCHEMA_VERSION = "0.3.0"' Scripts/check_c6_02_acceptance.py || {
+  echo "C6-02 acceptance lost the Xcode 26.6/27 common xcresult schema" >&2
+  exit 1
+}
+if grep -Fq 'RESULT_SCHEMA_VERSION = "0.4.0"' Scripts/check_c6_02_acceptance.py; then
+  echo "C6-02 acceptance must not depend on the Xcode 27-only xcresult schema" >&2
+  exit 1
+fi
+grep -Fq 'failed-then-passed retry' Scripts/check_c6_02_acceptance.py || {
+  echo "C6-02 acceptance must reject a retry that hides an earlier failure" >&2
+  exit 1
+}
 
 # C4C-01 established premium/evidence seams. C4C-02 owns bounded system image acquisition and
 # temporary lifecycle. C4C-03 adds local OCR only through the mandatory sensitive-text boundary.
@@ -2299,6 +2311,26 @@ if grep -Eqi 'C6-02 is Done|full (signed-phone )?VoiceOver (matrix )?(passed|is 
   echo "C6-02 bounded acceptance must not convert unrun physical checks into passes or claim Done before review" >&2
   exit 1
 fi
+
+for c602_portability_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_02_PREFLIGHT.md; do
+  for c602_portability_anchor in 'DEC-COM-084' '33370429991' '0.3.0'; do
+    grep -Fq "${c602_portability_anchor}" "${c602_portability_file}" || {
+      echo "C6-02 hosted-schema remediation is missing ${c602_portability_anchor} in ${c602_portability_file}" >&2
+      exit 1
+    }
+  done
+done
+
+grep -Fq 'three exact C6 special checks' Docs/Commercialization/COM_C6_EXECUTION_PACKET.md || {
+  echo "COM-C6 packet lost the current three-special-check classification" >&2
+  exit 1
+}
 
 if grep -Eqi 'review the DEC-COM-081|independently review the DEC-COM-081|DEC-COM-081[^.]*pending (independent )?review|physical reinstall and the remaining|this branch.s review/CI/merge' \
     Docs/COMMERCIALIZATION_TASKS.md \

@@ -464,6 +464,11 @@ C6-03/C12. Read-only `devicectl` inspection found protected SwiftData artifacts 
 `拉沙的iPhone`; no database was exported, and an Offline `xctrace` attempt produced no trace or
 Instruments pass. C6-02 awaits exact-head independent review, hosted CI, and merge.
 
+PR #93 run `33370429991` is a non-pass because hosted Xcode 26.6 rejected schema `0.4.0` after its
+tests and coverage passed. DEC-COM-084 selects shared schema `0.3.0`; both the downloaded hosted
+artifact and local Xcode 27 artifact verify all 23 bindings after remediation. A new exact-head
+rereview and green hosted run remain required.
+
 Next suggested task: independently review and merge the DEC-COM-083 C6-02 packet; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt

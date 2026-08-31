@@ -2340,3 +2340,19 @@ Release/test builds, 285 tests in 16 suites, and all 33 C6-01 runtime bindings p
 path is also an execution pointer, not hosted or distribution evidence. These green deterministic
 runs do not change any DEC-COM-083 non-pass disposition; exact-head review, hosted CI, and merge
 remain required before C6-02 can close.
+
+### C6-02 PR #93 hosted-schema non-pass and remediation — 2026-08-31
+
+GitHub Actions run `33370429991` executed exact PR #93 head `9f69f1a` on hosted Xcode 26.6. Every
+static/Worker preflight passed; Release, 553 unit tests, 18 UI tests with one physical-only skip,
+and coverage also passed. The job nevertheless ended red when the final C6-02 verifier requested
+`xcresulttool` schema `0.4.0`; Xcode 26.6 returned `Unknown schema version provided`. That run is a
+non-pass and is not hosted evidence that the 23 bindings passed.
+
+The uploaded artifact `MindBudget-xcresult-33370429991-1` was downloaded read-only. DEC-COM-084
+changes the C6-02 reader to explicit schema `0.3.0`, which is supported by both Xcode 26.6 and
+Xcode 27. The remediated verifier read the downloaded hosted artifact and the local Xcode 27 full
+bundle and found all 23 exact bindings once as Passed in each. Its self-test now also rejects a
+failed-then-passed retry, making `-retry-tests-on-failure` a deliberate evidence non-pass rather
+than a hidden success. This is local remediation proof only; a new exact-head hosted run must turn
+green before merge or C6-02 Done.

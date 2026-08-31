@@ -6759,3 +6759,16 @@ with 17 passed and the physical-only case skipped, all selected coverage gates, 
 C6-02 runtime bindings. The C6 release matrix also passed 285 tests in 16 suites and all 33 matrix
 bindings at `/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`. These are deterministic
 local execution results only and do not alter the recorded physical non-passes or release blocks.
+
+## 2026-08-31 — Remediate PR #93's hosted Xcode 26.6 evidence reader
+
+Actions run `33370429991` on head `9f69f1a` passed its tests and coverage but is a non-pass because
+the new verifier requested Xcode 27 schema `0.4.0`, which hosted Xcode 26.6 does not recognize. The
+run's uploaded Xcode 26.6 xcresult was downloaded read-only. DEC-COM-084 changes the C6-02 reader
+to shared schema `0.3.0`, accepts the stable Xcode 26/27 test-case identifier shapes, and adds a
+negative failed-then-passed retry test so CI retries cannot hide a failed first attempt.
+
+The remediated checker verifies all 23 exact bindings once as Passed in both the downloaded hosted
+artifact and the existing local Xcode 27 bundle. That local read is remediation evidence, not a
+green hosted run. The new exact head still needs rereview, hosted CI, and merge; C6-03 and all
+archive/remote/release actions remain blocked.

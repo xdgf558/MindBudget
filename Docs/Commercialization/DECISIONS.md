@@ -2185,7 +2185,8 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   `Passed`; missing, skipped, failed, or duplicate evidence fails closed. Retain type-level test
   filters so the matrix continues to execute the full owning suites. Discover every
   `Scripts/check-*.sh` and `Scripts/check_*.py` file and require it to be either a row-driven matrix
-  check or one of two exact special roles: matrix bootstrap or full-suite coverage consumer.
+  check or, at this decision's time, one of two exact special roles: matrix bootstrap or full-suite
+  coverage consumer.
 - Consequences: `requiredMethods` is now runtime evidence rather than documentation metadata.
   Negative self-tests cover unclassified scripts plus skipped, missing, and duplicate required
   cases. The retained earlier bundle independently exercised 33 matrix bindings, including the
@@ -2483,3 +2484,29 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   store to inspect attributes; using `Xiao li的 iPhone (2)`; repeating the owner-stopped AX5 suite;
   treating `devicectl` metadata as an exact protection-class proof; treating an Offline `xctrace`
   attempt as Instruments evidence; or entering C6-03/Archive/upload automatically.
+
+## DEC-COM-084 — Use one cross-toolchain xcresult schema for C6-02 hosted evidence
+
+- Status/date: **Accepted PR #93 review remediation — 2026-08-31**
+- Requirements: DEC-COM-083; C6-02 hosted runtime evidence
+- Context: PR #93 exact head `9f69f1a` ran all unit/UI tests and coverage successfully in GitHub
+  Actions run `33370429991`, but the final C6-02 verifier failed because hosted Xcode 26.6 rejects
+  `xcresulttool` schema `0.4.0`. That version was the local Xcode 27 default, not a portable
+  repository contract. The run's uploaded Xcode 26.6 xcresult was downloaded and retained as a
+  local execution artifact for remediation verification.
+- Decision: Read C6-02 test results through explicit schema `0.3.0`, which both Xcode 26.6 and
+  Xcode 27 support. Parse the schema-stable `testNodes`/`Test Case` fields with a closed identifier
+  grammar that accepts either `Type/method(...)` or one leading bundle/module component. Continue
+  requiring each of the 23 bindings exactly once with result `Passed`. A failed-then-passed retry,
+  duplicate pass, skip, missing case, or malformed identifier remains a fail-closed non-pass.
+  Classify the C6-02 verifier as the third current C6 special check alongside matrix bootstrap and
+  the full-suite coverage consumer.
+- Consequences: The first hosted run is recorded as a non-pass despite its green test suites; it
+  does not establish hosted 23-binding evidence. The downloaded artifact now passes the remediated
+  `0.3.0` verifier for all 23 bindings, and the Xcode 27 local bundle remains compatible. A new
+  exact remediation head must pass independent rereview and hosted CI before merge or C6-02 Done.
+  C6-03 and every remote/release action remain blocked.
+- Alternatives rejected: Keeping Xcode 27-only schema `0.4.0`; relying on each toolchain's changing
+  default schema; parsing console prose; accepting any later Passed retry after a Failed attempt;
+  weakening exact bindings to suite-level status; or treating the first red hosted run as green
+  evidence because its tests happened to pass.

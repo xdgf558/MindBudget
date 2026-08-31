@@ -3766,3 +3766,22 @@ coverage threshold, and the new 23-binding C6-02 result-bundle check. The exact-
 then passed 285 tests in 16 suites and all 33 release-matrix bindings at
 `/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`. Both result paths are local execution
 pointers, not release evidence; the completed runs do not upgrade any physical non-pass.
+
+## 2026-08-31 — Session 198 — Make PR #93 evidence portable to hosted Xcode 26.6
+
+Goal: Close the review P2 without weakening the 23 exact runtime bindings, hiding a retried test,
+or changing any product/C6-03 boundary.
+
+Actions: Read Actions run `33370429991` and confirmed every test/coverage stage completed before
+the new verifier alone failed on unknown schema `0.4.0`. Downloaded the run's Xcode 26.6 xcresult
+artifact. Changed only the C6-02 reader to common schema `0.3.0`, replaced the schema-assuming split
+with a closed identifier grammar that accepts the Xcode 26/27 shapes, and added a negative
+failed-then-passed retry self-test. Corrected the current three-special-check description and the
+preflight's stale `still-open` wording. Recorded DEC-COM-084 and kept C6-03 blocked.
+
+Result: The remediated checker verifies all 23 bindings exactly once as Passed in both the
+downloaded hosted Xcode 26.6 artifact and the existing local Xcode 27 full bundle. The first hosted
+run remains red/non-pass, and no hosted evidence is inferred from the local artifact read. The new
+exact head still requires rereview, green hosted CI, and merge. No Swift product code, physical
+test, archive, upload, deployment, App Store Connect write, G1, distribution, or release action
+occurred.

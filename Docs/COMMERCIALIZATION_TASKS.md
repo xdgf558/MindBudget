@@ -711,7 +711,10 @@ Status: **Implementation and bounded evidence complete pending independent revie
   as non-passes for final-candidate C6-03/C12 review. Read-only `devicectl` inspection found the
   SwiftData artifacts under containermanagerd data-protection policy on only `拉沙的iPhone`;
   `xctrace` listed it Offline and generated no trace, and no financial store was exported. C6-02
-  awaits exact-head independent review, green hosted CI, and merge; it is not Done yet.
+  awaits exact-head independent review, green hosted CI, and merge; it is not Done yet. PR #93
+  run `33370429991` is a non-pass because hosted Xcode 26.6 rejected schema `0.4.0` after all tests
+  and coverage passed. DEC-COM-084 uses the common `0.3.0` schema, verifies the downloaded hosted
+  artifact's 23 bindings, and still requires a new green hosted run.
 
 ### C6-03 — TestFlight baseline
 

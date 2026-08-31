@@ -73,6 +73,14 @@ EXPECTED_BINDINGS_BY_ROW = {
     ),
 }
 IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+TEST_NODE_IDENTIFIER = re.compile(
+    r"^(?:[A-Za-z_][A-Za-z0-9_]*/)?"
+    r"(?P<type>[A-Za-z_][A-Za-z0-9_]*)/"
+    r"(?P<method>[A-Za-z_][A-Za-z0-9_]*)\(.*\)$"
+)
+# Xcode 26.6 and Xcode 27 both expose this stable test-results schema. Do not use 0.4.0 here:
+# hosted Xcode 26.6 does not recognize it.
+RESULT_SCHEMA_VERSION = "0.3.0"
 
 
 def exact_keys(value: Any, expected: frozenset[str]) -> bool:
@@ -193,10 +201,10 @@ def result_bindings(result_data: Any) -> dict[str, list[str]]:
                 identifier = value.get("nodeIdentifier")
                 result = value.get("result")
                 if isinstance(identifier, str) and isinstance(result, str):
-                    type_name, separator, signature = identifier.partition("/")
-                    method, argument_separator, _ = signature.partition("(")
-                    if separator and argument_separator and type_name and method:
-                        observed.setdefault(f"{type_name}/{method}", []).append(result)
+                    match = TEST_NODE_IDENTIFIER.fullmatch(identifier)
+                    if match:
+                        binding = f"{match.group('type')}/{match.group('method')}"
+                        observed.setdefault(binding, []).append(result)
             for child in value.get("children", []):
                 visit(child)
         elif isinstance(value, list):
@@ -230,7 +238,7 @@ def load_result_bundle(path: Path) -> Any:
         "test-results",
         "tests",
         "--schema-version",
-        "0.4.0",
+        RESULT_SCHEMA_VERSION,
         "--path",
         str(path),
         "--compact",
@@ -288,6 +296,11 @@ def self_test(data: dict[str, Any], project_root: Path) -> None:
     }
     if errors := validate_results(data, passing):
         raise AssertionError("\n".join(errors))
+    bundle_prefixed = copy.deepcopy(passing)
+    for node in bundle_prefixed["testNodes"][0]["children"]:
+        node["nodeIdentifier"] = f"MindBudgetTests/{node['nodeIdentifier']}"
+    if errors := validate_results(data, bundle_prefixed):
+        raise AssertionError("\n".join(errors))
     skipped = copy.deepcopy(passing)
     skipped["testNodes"][0]["children"][0]["result"] = "Skipped"
     if not validate_results(data, skipped):
@@ -298,6 +311,12 @@ def self_test(data: dict[str, Any], project_root: Path) -> None:
     )
     if not validate_results(data, duplicate):
         raise AssertionError("self-test failed to reject duplicate evidence")
+    failed_then_passed = copy.deepcopy(passing)
+    failed_then_passed["testNodes"][0]["children"][0]["result"] = "Failed"
+    retry_pass = copy.deepcopy(passing["testNodes"][0]["children"][0])
+    failed_then_passed["testNodes"][0]["children"].append(retry_pass)
+    if not validate_results(data, failed_then_passed):
+        raise AssertionError("self-test failed to reject a failed-then-passed retry")
 
 
 def arguments() -> argparse.Namespace:

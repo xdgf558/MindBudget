@@ -217,6 +217,20 @@ Automated remediation evidence:
   attempt could not write Wrangler logs or bind its local test server and is an environmental
   non-pass; the unrestricted rerun is the owning result. Its temporary result bundle was removed.
 
+### PR #93 hosted-schema remediation
+
+GitHub Actions run `33370429991` on exact head `9f69f1a` is a non-pass. Release, unit, UI, and
+coverage execution completed successfully, but the new acceptance verifier asked hosted Xcode
+26.6 for Xcode 27-only schema `0.4.0` and failed with `Unknown schema version provided`.
+Accordingly, that run does not prove the 23 bindings in hosted CI.
+
+DEC-COM-084 changes only the evidence reader to explicit schema `0.3.0`, supported by both Xcode
+26.6 and Xcode 27. The uploaded Xcode 26.6 xcresult from the failed run was downloaded and the
+remediated checker found all 23 bindings exactly once as Passed; the existing Xcode 27 result also
+passes. Self-tests additionally reject a failed-then-passed retry, so CI's
+`-retry-tests-on-failure` cannot hide a first-attempt failure behind a later pass. This local
+artifact inspection is remediation evidence, not a replacement for a new green hosted run.
+
 ## Bounded disposition of the remaining signed-device rows
 
 A checked row below means its evidence/disposition is complete for C6-02 review. It does not mean
@@ -245,7 +259,7 @@ validation, while every omitted physical action remains an explicit non-pass or 
 - [x] Revalidate the DEC-COM-081 simulator regression without retries after the physical item: the
   focused AX1/AX5 content/chrome test passed 2/2, the complete validator recorded 558 passed, 13
   intentionally skipped, and zero failed tests, and the exact-source C6 matrix passed 285 tests
-  plus all 33 required bindings. This is local regression evidence, not a substitute for the still-
+  plus all 33 required bindings. This is local regression evidence, not a substitute for the then-
   open full signed-phone accessibility row above.
 - [x] Accept receipt continuity from C4C-05 physical acquisition plus the current signed candidate's
   local-only disclosure/cancellation-without-write observation and five Passed exact-source

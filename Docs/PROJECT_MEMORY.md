@@ -240,6 +240,11 @@ are not called passed. Full VoiceOver and physical system side effects also rema
 C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
 hosted CI, and merge.
 
+PR #93 run `33370429991` is an explicit hosted non-pass: its tests and coverage passed, but Xcode
+26.6 rejected the Xcode 27-only result schema. DEC-COM-084 moves the C6-02 verifier to common
+schema `0.3.0`; the downloaded hosted artifact and local Xcode 27 artifact each verify all 23
+bindings. The remediation still needs exact-head rereview and a new green hosted run.
+
 Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
 Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now

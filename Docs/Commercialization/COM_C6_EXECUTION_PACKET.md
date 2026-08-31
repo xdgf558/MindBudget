@@ -162,6 +162,14 @@ SwiftData artifacts under containermanagerd protection; no financial database wa
 `xctrace` listed that permitted phone Offline and generated no trace. Review/CI/merge of this exact
 packet remain required before C6-02 may be marked Done.
 
+PR #93 run `33370429991` is not green evidence: all tests and coverage passed, but hosted Xcode
+26.6 rejected the verifier's Xcode 27-only schema `0.4.0`. DEC-COM-084 moves C6-02 result parsing to
+the shared `0.3.0` schema and pins both supported `Test Case` identifier shapes. The downloaded
+hosted artifact and local Xcode 27 artifact each verify all 23 bindings after remediation. A
+failed-then-passed retry remains a deliberate evidence failure rather than a duplicate that can be
+silently accepted. The repository now has three exact C6 special checks: matrix bootstrap,
+full-suite coverage consumption, and bounded C6-02 acceptance. A fresh hosted run remains required.
+
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical
 observation as a pass, claim a real G1 sample, or mark an Active Requirement complete from local

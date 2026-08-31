@@ -3189,7 +3189,8 @@ the manually maintained matrix allow-list.
 
 Decision: Detailed ownership is DEC-COM-073. Parse the exact C6 result bundle after testing,
 require every declared type/method binding exactly once with result Passed, and classify every
-repository check script as either row-driven or one of two exact special roles.
+repository check script as either row-driven or, at that decision's time, one of two exact special
+roles.
 
 Consequences: Skipped, missing, duplicate, wrong-type, commented-out, and non-test required
 methods cannot satisfy C6-01. C6-02/C6-03 remain blocked pending exact-head rereview, hosted CI,
@@ -3367,3 +3368,18 @@ non-passes for C6-03/C12.
 Consequences: C6-02 is implementation/evidence complete pending exact-head review, hosted CI, and
 merge. No real financial database was exported. C6-03 and every Archive/upload/remote/App Store
 Connect/G1/distribution/release action remain blocked or unauthorized.
+
+---
+
+## 2026-08-31 — Make C6-02 xcresult evidence portable across hosted and local Xcode
+
+Context: PR #93 head `9f69f1a` passed its tests and coverage in Actions run `33370429991`, but the
+new verifier failed because hosted Xcode 26.6 does not recognize local Xcode 27 schema `0.4.0`.
+
+Decision: Detailed ownership is DEC-COM-084. Use explicit common schema `0.3.0`, accept the stable
+Xcode 26/27 `Test Case` identifier shapes, and continue rejecting every missing, skipped, failed,
+or duplicate binding. A failed-then-passed CI retry is deliberately not exact Passed evidence.
+
+Consequences: The first hosted run remains a non-pass. Its downloaded Xcode 26.6 xcresult and the
+local Xcode 27 bundle both verify all 23 bindings after remediation, but the new exact head still
+requires rereview, hosted CI, and merge. C6-03 remains blocked.
