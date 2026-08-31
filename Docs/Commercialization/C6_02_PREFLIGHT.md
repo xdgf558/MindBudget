@@ -224,12 +224,19 @@ coverage execution completed successfully, but the new acceptance verifier asked
 26.6 for Xcode 27-only schema `0.4.0` and failed with `Unknown schema version provided`.
 Accordingly, that run does not prove the 23 bindings in hosted CI.
 
-DEC-COM-084 changes only the evidence reader to explicit schema `0.3.0`, supported by both Xcode
-26.6 and Xcode 27. The uploaded Xcode 26.6 xcresult from the failed run was downloaded and the
-remediated checker found all 23 bindings exactly once as Passed; the existing Xcode 27 result also
-passes. Self-tests additionally reject a failed-then-passed retry, so CI's
-`-retry-tests-on-failure` cannot hide a first-attempt failure behind a later pass. This local
-artifact inspection is remediation evidence, not a replacement for a new green hosted run.
+Head `bf83faf` then produced the second non-pass, Actions run `33384223530`: Xcode 26.6 also
+rejected forced schema `0.3.0`, disproving the cross-toolchain assumption in DEC-COM-084. The run
+additionally retained one pseudo-long-text UI failure followed by a retry pass. Its screenshot
+showed the expected `500` rendered in the active field, identifying a lagging accessibility-value
+snapshot rather than lost input.
+
+DEC-COM-085 removes the forced schema entirely and validates the reviewed fields from each active
+toolchain-native result shape. Real `Repetition` children are collected, so any failed-then-passed
+required binding remains a non-pass. The pseudo-long-text helper now uses the bounded Dashboard
+transition as end-to-end proof that all budget values reached the model, validated, persisted, and
+dismissed the form. That focused regression passed 2/2 without retry at
+`/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. Both hosted runs remain non-passes;
+this local remediation evidence does not replace a new green exact-head hosted run.
 
 ## Bounded disposition of the remaining signed-device rows
 

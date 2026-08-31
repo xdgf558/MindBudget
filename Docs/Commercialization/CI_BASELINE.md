@@ -2356,3 +2356,29 @@ bundle and found all 23 exact bindings once as Passed in each. Its self-test now
 failed-then-passed retry, making `-retry-tests-on-failure` a deliberate evidence non-pass rather
 than a hidden success. This is local remediation proof only; a new exact-head hosted run must turn
 green before merge or C6-02 Done.
+
+### C6-02 PR #93 second hosted-schema non-pass and native remediation — 2026-08-31
+
+GitHub Actions run `33384223530` executed exact head `bf83faf` on hosted Xcode 26.6. All preflight
+checks passed; Release, unit, UI, and coverage execution completed. The run is nevertheless a
+non-pass because the final verifier failed with `Unknown schema version provided: 0.3.0`. It also
+retained one pseudo-long-text UI first-attempt failure followed by a retry pass. The failure frame
+showed the expected `500` rendered in the active saving-goal field, identifying an accessibility-
+snapshot lag rather than missing input.
+
+DEC-COM-085 removes forced schema selection and reads the active toolchain-native JSON. The
+validator now collects real Failed/Passed `Repetition` children so a required binding cannot hide
+an earlier failure behind aggregate Passed. The pseudo-long-text helper waits for the bounded
+Dashboard transition after Save, which is the end-to-end persistence authority. A two-iteration
+focused run passed with zero failures/skips at
+`/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. That path is a local execution
+pointer. Runs `33370429991` and `33384223530` remain non-passes; a new exact head still requires
+independent rereview, green hosted CI, and merge.
+
+A subsequent complete local `Scripts/validate.sh` run under Xcode 27.0 beta 6 on the iOS 26.5
+iPhone 17 Pro simulator passed Release, the strict Dashboard benchmark, 553 unit tests, all 18 UI
+tests with 17 passed and the single physical-only case skipped, every selected coverage gate, and
+all 23 C6-02 runtime bindings. No test retried. The temporary
+`mindbudget-validation.JZRFiN/MindBudget.xcresult` path was removed by the validator and is an
+execution pointer rather than a durable artifact. This local result does not replace the required
+new Xcode 26.6 hosted run.

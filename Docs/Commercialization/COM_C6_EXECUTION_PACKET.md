@@ -49,7 +49,8 @@ required rows are:
 The top-level runner first validates the JSON contract and its negative self-tests, runs every
 referenced static gate, executes the exact local `check` script for both first-party Workers, builds
 Release for the simulator, builds tests once, and then executes the 16 named Swift test containers
-serially into one xcresult. It then reads that exact bundle through `xcresulttool` schema 0.4.0 and
+serially into one xcresult. It then reads that exact bundle through the active Xcode toolchain's
+native `xcresulttool` shape and
 requires every one of the 33 row/method bindings to appear exactly once as a Test Case with result
 `Passed`; a missing, disabled/skipped, duplicated, wrong-type, commented-out, or non-test method is
 non-evidence and fails the matrix. Parameterized Swift Testing methods bind by their exact test type
@@ -57,9 +58,12 @@ and method basename while their argument rows remain subordinate evidence. Worke
 may typecheck, test, profile, and perform local dry-runs; they may not deploy.
 
 Repository check discovery is also closed. Every `Scripts/**/check-*.sh` or
-`Scripts/**/check_*.py` file must be either one of the twelve row-driven matrix checks or one of two
-exact special classifications: `check-c6-release-matrix.sh` is the matrix bootstrap and
-`check-coverage.sh` consumes the full-suite xcresult produced by `Scripts/validate.sh`. A newly
+`Scripts/**/check_*.py` file must be either one of the twelve row-driven matrix checks or one of
+three exact special classifications: `check-c6-release-matrix.sh` is the matrix bootstrap,
+`check-coverage.sh` is the full-suite coverage consumer, and
+`check_c6_02_acceptance.py` is the bounded C6-02 result verifier. These roles are closed rather
+than inferred from filenames; all other checks must be row-driven. `check-coverage.sh` consumes
+the full-suite xcresult produced by `Scripts/validate.sh`. A newly
 added but unclassified check makes the C6 contract fail instead of silently falling outside the
 release matrix.
 
@@ -162,13 +166,15 @@ SwiftData artifacts under containermanagerd protection; no financial database wa
 `xctrace` listed that permitted phone Offline and generated no trace. Review/CI/merge of this exact
 packet remain required before C6-02 may be marked Done.
 
-PR #93 run `33370429991` is not green evidence: all tests and coverage passed, but hosted Xcode
-26.6 rejected the verifier's Xcode 27-only schema `0.4.0`. DEC-COM-084 moves C6-02 result parsing to
-the shared `0.3.0` schema and pins both supported `Test Case` identifier shapes. The downloaded
-hosted artifact and local Xcode 27 artifact each verify all 23 bindings after remediation. A
-failed-then-passed retry remains a deliberate evidence failure rather than a duplicate that can be
-silently accepted. The repository now has three exact C6 special checks: matrix bootstrap,
-full-suite coverage consumption, and bounded C6-02 acceptance. A fresh hosted run remains required.
+PR #93 runs `33370429991` and `33384223530` are not green evidence: hosted Xcode 26.6 rejected
+forced schemas `0.4.0` and `0.3.0`; the latter also retained one pseudo-long-text failure followed
+by a retry pass. DEC-COM-085 consumes each supported toolchain-native result shape, pins the shared
+reviewed fields and both `Test Case` identifier forms, and inspects real `Repetition` nodes so a
+failed-then-passed required binding cannot be accepted. The UI failure screenshot showed the
+entered digits rendered; a focused two-iteration run passes without retry after the bounded
+Dashboard transition replaced the lagging active-field accessibility-value assertion. The
+repository now has three exact C6 special checks: matrix bootstrap, full-suite coverage
+consumption, and bounded C6-02 acceptance. A fresh hosted run remains required.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
 write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical

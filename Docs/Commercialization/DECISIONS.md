@@ -2510,3 +2510,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   default schema; parsing console prose; accepting any later Passed retry after a Failed attempt;
   weakening exact bindings to suite-level status; or treating the first red hosted run as green
   evidence because its tests happened to pass.
+
+## DEC-COM-085 — Consume toolchain-native xcresult and inspect real retry nodes
+
+- Status/date: **Accepted second PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/084; C6-02 hosted runtime evidence
+- Context: Actions run `33384223530` on exact head `bf83faf` disproved DEC-COM-084's portability
+  assumption: hosted Xcode 26.6 rejects explicit schema `0.3.0` as well as `0.4.0`. Release, unit,
+  UI, and coverage execution completed, but the final verifier remained red. The same run retained
+  one unrelated pseudo-long-text UI failure followed by a retry pass. Its attachment showed `500`
+  visibly present in the active saving-goal field, while the immediate accessibility `value`
+  predicate lagged. Inspection of the hosted result established the actual retry shape: one
+  `Test Case` with Failed and Passed `Repetition` children, not duplicate test-case nodes.
+- Decision: Do not request an explicit result schema. Consume the active Xcode toolchain-native
+  `test-results tests` JSON and validate only the closed shared fields needed for the 23 exact
+  bindings. Collect direct `Repetition` results, so any failed/skipped retry history attached to a
+  required binding prevents exact Passed evidence. In the pseudo-long-text setup helper, replace
+  the active-field value snapshot with a bounded transition to `dashboard.view`, which proves all
+  three inputs reached the view model, validated, persisted, and dismissed the form.
+- Consequences: Runs `33370429991` and `33384223530` remain non-passes. The native-schema reader
+  accepts the retained Xcode 26.6 artifacts and the Xcode 27 local artifact without pinning either
+  toolchain's schema version. The focused UI regression passes 2/2 without retry at
+  `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. This path is a local execution
+  pointer, not hosted or distribution evidence. A new exact head still requires independent
+  rereview, green hosted CI, and merge; C6-02 is not Done and C6-03 remains blocked.
+- Alternatives rejected: Guessing another shared explicit schema; accepting a retry's aggregate
+  Passed status without its repetition history; treating rendered input as lost because an active
+  TextField's accessibility value lags; removing CI retry support globally; or calling either red
+  run hosted evidence.

@@ -3383,3 +3383,19 @@ or duplicate binding. A failed-then-passed CI retry is deliberately not exact Pa
 Consequences: The first hosted run remains a non-pass. Its downloaded Xcode 26.6 xcresult and the
 local Xcode 27 bundle both verify all 23 bindings after remediation, but the new exact head still
 requires rereview, hosted CI, and merge. C6-03 remains blocked.
+
+---
+
+## 2026-08-31 — Replace the mistaken shared-schema assumption with native result parsing
+
+Context: Actions run `33384223530` on exact PR #93 head `bf83faf` proved hosted Xcode 26.6 also
+rejects explicit schema `0.3.0`; it additionally retained one pseudo-long-text failure followed by
+a retry pass even though the failure attachment showed the entered digits rendered.
+
+Decision: Detailed ownership is DEC-COM-085. Consume each active Xcode toolchain-native result
+shape, validate only the closed shared binding fields, inspect real `Repetition` nodes, and use the
+bounded Dashboard transition instead of an active TextField's lagging accessibility value.
+
+Consequences: Both hosted runs remain non-passes. The focused UI regression passes twice without
+retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02 is not Done;
+C6-03 and every archive/remote/release action remain blocked.

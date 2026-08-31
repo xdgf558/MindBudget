@@ -6772,3 +6772,22 @@ The remediated checker verifies all 23 exact bindings once as Passed in both the
 artifact and the existing local Xcode 27 bundle. That local read is remediation evidence, not a
 green hosted run. The new exact head still needs rereview, hosted CI, and merge; C6-03 and all
 archive/remote/release actions remain blocked.
+
+## 2026-08-31 — Remediate PR #93's second hosted result-reader failure
+
+Actions run `33384223530` on exact head `bf83faf` is a second explicit non-pass. Hosted Xcode 26.6
+rejected forced schema `0.3.0`, and the suite retained one pseudo-long-text first-attempt failure
+followed by a retry pass. The failure frame showed `500` visibly present in the active field, so the
+immediate accessibility-value predicate was stale rather than the input being lost.
+
+DEC-COM-085 removes explicit schema selection, consumes the active toolchain-native result shape,
+and inspects real `Repetition` children so required bindings cannot hide a failed attempt. The UI
+helper now uses the bounded Dashboard transition as its end-to-end authority. Its two-iteration
+focused run passed without retry at `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`.
+Both hosted runs remain non-passes. A new exact head still requires rereview, green hosted CI, and
+merge; C6-02 remains In Progress and C6-03 plus all remote/release actions remain blocked.
+
+A fresh complete local validator then passed Release, the strict Dashboard benchmark, 553 unit
+tests, all 18 UI tests with 17 passed and one expected physical-only skip, every selected coverage
+gate, and the 23/23 C6-02 runtime check. No UI test retried. The validator deleted its temporary
+xcresult, so the printed path is an execution pointer; a new hosted Xcode 26.6 run remains required.

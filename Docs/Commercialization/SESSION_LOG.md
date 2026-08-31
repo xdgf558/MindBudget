@@ -3785,3 +3785,28 @@ run remains red/non-pass, and no hosted evidence is inferred from the local arti
 exact head still requires rereview, green hosted CI, and merge. No Swift product code, physical
 test, archive, upload, deployment, App Store Connect write, G1, distribution, or release action
 occurred.
+
+## 2026-08-31 — Session 199 — Replace the failed common-schema assumption
+
+Goal: Diagnose Actions run `33384223530` without relabeling either hosted failure, hiding a UI
+retry, or weakening the 23 exact C6-02 bindings.
+
+Actions: Confirmed hosted Xcode 26.6 also rejects explicit schema `0.3.0`. Downloaded and inspected
+the second xcresult, which showed real retry history as `Repetition` children under one `Test Case`.
+Removed forced schema selection, taught the verifier to retain those child results, and updated its
+negative self-test to the observed shape. Exported the pseudo-long-text failure attachment: the
+expected `500` was visibly rendered while the active field's accessibility value lagged. Replaced
+that immediate value predicate with the bounded post-Save Dashboard transition and ran the focused
+test twice without retry. Recorded DEC-COM-085 and corrected the packet's three-special-check text.
+
+Result: `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult` reports two passes, zero
+failures, and zero skips. Runs `33370429991` and `33384223530` remain non-passes. The new exact head
+still needs rereview, green hosted CI, and merge. No product behavior, physical test, archive,
+upload, deployment, App Store Connect write, G1, distribution, or release action occurred; C6-02
+remains In Progress and C6-03 remains blocked.
+
+Validation: A fresh complete `Scripts/validate.sh` run passed Release, the strict Dashboard
+benchmark, 553 unit tests, 18 UI tests with 17 passed and one expected physical-only skip, every
+selected coverage threshold, and all 23 C6-02 bindings. No UI test retried. The validator removed
+its temporary result bundle, so the printed path is an execution pointer rather than a durable
+artifact. This is local evidence only; hosted Xcode 26.6 still owns the portability result.

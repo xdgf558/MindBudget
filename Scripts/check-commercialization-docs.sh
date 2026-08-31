@@ -93,15 +93,15 @@ python3 -B Scripts/check_icloud_sync_contract.py
 # every still-blocked archive/remote/release action. Runtime execution is verified later by the
 # full validator against its newly produced xcresult.
 python3 -B Scripts/check_c6_02_acceptance.py --self-test
-grep -Fq 'RESULT_SCHEMA_VERSION = "0.3.0"' Scripts/check_c6_02_acceptance.py || {
-  echo "C6-02 acceptance lost the Xcode 26.6/27 common xcresult schema" >&2
-  exit 1
-}
-if grep -Fq 'RESULT_SCHEMA_VERSION = "0.4.0"' Scripts/check_c6_02_acceptance.py; then
-  echo "C6-02 acceptance must not depend on the Xcode 27-only xcresult schema" >&2
+if grep -Fq -- '--schema-version' Scripts/check_c6_02_acceptance.py; then
+  echo "C6-02 acceptance must consume the active Xcode toolchain's native xcresult schema" >&2
   exit 1
 fi
-grep -Fq 'failed-then-passed retry' Scripts/check_c6_02_acceptance.py || {
+grep -Fq 'repetition.get("nodeType") == "Repetition"' Scripts/check_c6_02_acceptance.py || {
+  echo "C6-02 acceptance lost real xcresult retry-node inspection" >&2
+  exit 1
+}
+grep -Fq 'real failed-then-passed repetition nodes' Scripts/check_c6_02_acceptance.py || {
   echo "C6-02 acceptance must reject a retry that hides an earlier failure" >&2
   exit 1
 }
@@ -2319,7 +2319,7 @@ for c602_portability_file in \
   Docs/Commercialization/PROJECT_MEMORY.md \
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   Docs/Commercialization/C6_02_PREFLIGHT.md; do
-  for c602_portability_anchor in 'DEC-COM-084' '33370429991' '0.3.0'; do
+  for c602_portability_anchor in 'DEC-COM-085' '33370429991' '33384223530' 'toolchain-native'; do
     grep -Fq "${c602_portability_anchor}" "${c602_portability_file}" || {
       echo "C6-02 hosted-schema remediation is missing ${c602_portability_anchor} in ${c602_portability_file}" >&2
       exit 1

@@ -78,9 +78,8 @@ TEST_NODE_IDENTIFIER = re.compile(
     r"(?P<type>[A-Za-z_][A-Za-z0-9_]*)/"
     r"(?P<method>[A-Za-z_][A-Za-z0-9_]*)\(.*\)$"
 )
-# Xcode 26.6 and Xcode 27 both expose this stable test-results schema. Do not use 0.4.0 here:
-# hosted Xcode 26.6 does not recognize it.
-RESULT_SCHEMA_VERSION = "0.3.0"
+# Do not force a schema version here. Each supported Xcode emits its native `test-results tests`
+# shape, and the validator accepts only the reviewed fields shared by the hosted/local artifacts.
 
 
 def exact_keys(value: Any, expected: frozenset[str]) -> bool:
@@ -204,7 +203,15 @@ def result_bindings(result_data: Any) -> dict[str, list[str]]:
                     match = TEST_NODE_IDENTIFIER.fullmatch(identifier)
                     if match:
                         binding = f"{match.group('type')}/{match.group('method')}"
-                        observed.setdefault(binding, []).append(result)
+                        results = observed.setdefault(binding, [])
+                        results.append(result)
+                        for repetition in value.get("children", []):
+                            if (
+                                isinstance(repetition, dict)
+                                and repetition.get("nodeType") == "Repetition"
+                                and isinstance(repetition.get("result"), str)
+                            ):
+                                results.append(f"Repetition:{repetition['result']}")
             for child in value.get("children", []):
                 visit(child)
         elif isinstance(value, list):
@@ -237,8 +244,6 @@ def load_result_bundle(path: Path) -> Any:
         "get",
         "test-results",
         "tests",
-        "--schema-version",
-        RESULT_SCHEMA_VERSION,
         "--path",
         str(path),
         "--compact",
@@ -312,11 +317,20 @@ def self_test(data: dict[str, Any], project_root: Path) -> None:
     if not validate_results(data, duplicate):
         raise AssertionError("self-test failed to reject duplicate evidence")
     failed_then_passed = copy.deepcopy(passing)
-    failed_then_passed["testNodes"][0]["children"][0]["result"] = "Failed"
-    retry_pass = copy.deepcopy(passing["testNodes"][0]["children"][0])
-    failed_then_passed["testNodes"][0]["children"].append(retry_pass)
+    failed_then_passed["testNodes"][0]["children"][0]["children"] = [
+        {
+            "nodeType": "Repetition",
+            "nodeIdentifier": "1",
+            "result": "Failed",
+        },
+        {
+            "nodeType": "Repetition",
+            "nodeIdentifier": "2",
+            "result": "Passed",
+        },
+    ]
     if not validate_results(data, failed_then_passed):
-        raise AssertionError("self-test failed to reject a failed-then-passed retry")
+        raise AssertionError("self-test failed to reject real failed-then-passed repetition nodes")
 
 
 def arguments() -> argparse.Namespace:
