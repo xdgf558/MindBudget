@@ -154,8 +154,14 @@ Physical observations from the same installed candidate:
   launch value was ignored by UIKit. DEC-COM-079 therefore replaces that evidence with canonical
   AX1/AX5 raw values, an AX1-versus-AX5 Dashboard-content height comparison, and the existing
   chrome reachability/height bound. Earlier simulator bundles remain ordinary UI execution
-  pointers, not AX5 evidence. The remediated build has not yet been reinstalled on the physical
-  phone, so the full physical accessibility line remains open.
+  pointers, not AX5 evidence. The remediated build was subsequently installed only on
+  `拉沙的iPhone`. A physical true-AX5 content run and four English/Simplified Chinese light/dark
+  Pro captures passed. A separate exact physical regression then exposed a first-legal-push
+  system-back-indicator contrast defect despite a green hierarchy result. DEC-COM-081 binds the
+  navigation-bar scheme at the Pro presentation boundary. Its final three-skin physical run passed
+  1/1, and manual inspection of all nine Pro/Terms/Privacy screenshots confirmed the back indicator
+  remained visible. This closes only the named reinstall/appearance item; the full physical
+  accessibility line remains open.
 
 Provisioning limitation:
 
@@ -211,11 +217,19 @@ Automated remediation evidence:
 - [ ] Execute or deterministically re-evidence purchase cancellation, actual restore, unsupported
   paid introductory offer, unavailable StoreKit authority, and retry states. Live monthly/annual,
   renewal/legal, already-entitled, and Manage Subscription presentation passed as recorded above.
-- [ ] Reinstall the DEC-COM-078 remediation and repeat physical AX5 plus English/Simplified Chinese
-  light/dark appearance. The pre-fix AX5 run is retained as a non-pass; the simulator regression
-  proves only the remediated navigation invariant.
+- [x] Reinstall the DEC-COM-078/079 remediation and repeat physical AX5 plus English/Simplified
+  Chinese light/dark appearance on `拉沙的iPhone` only. True-AX5 content and all four bilingual
+  light/dark Pro captures passed. DEC-COM-081 additionally closes the screenshot-only first-push
+  back-indicator defect with a 1/1 three-skin run and nine manually inspected Pro/Terms/Privacy
+  captures. Pre-fix, certificate-trust, and owner-stopped duplicate bundles remain explicit
+  non-passes and are not used as evidence.
 - [ ] VoiceOver, AX5, Increase Contrast, Reduce Motion, light/dark appearance, focus order, touch
   targets, sheets, alerts, keyboard, and supported portrait orientations pass on the signed phone.
+- [x] Revalidate the DEC-COM-081 simulator regression without retries after the physical item: the
+  focused AX1/AX5 content/chrome test passed 2/2, the complete validator recorded 558 passed, 13
+  intentionally skipped, and zero failed tests, and the exact-source C6 matrix passed 285 tests
+  plus all 33 required bindings. This is local regression evidence, not a substitute for the still-
+  open full signed-phone accessibility row above.
 - [ ] Camera and photo-picker receipt paths remain local, preview/retry/cancel correctly, preserve
   edits, and require explicit Save before ledger persistence. The local-only entry and cancellation
   no-write boundary passed, but acquisition was not rerun in this continuation.

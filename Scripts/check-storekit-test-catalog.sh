@@ -123,6 +123,7 @@ for contract in \
   '@Environment(\.locale)' \
   'renewalDisclosure(for: selectedProduct, locale: locale)' \
   '.preferredColorScheme(theme.preferredColorScheme)' \
+  '.toolbarColorScheme(theme.preferredColorScheme, for: .navigationBar)' \
   '.disabled(!canPurchaseSelectedProduct)' \
   'guard canPurchaseSelectedProduct, let selectedProduct else { return }' \
   'guidance.usesWarningTint ? theme.attentionText : theme.ink' \
@@ -137,8 +138,15 @@ for contract in \
   fi
 done
 
-if [[ "$(grep -Fc '.preferredColorScheme(theme.preferredColorScheme)' "${PAYWALL_SOURCE}")" -ne 3 ]]; then
-  echo "The Pro, Terms, and Privacy presentation boundaries must each bind the selected skin" >&2
+if [[ "$(grep -Fc '.preferredColorScheme(theme.preferredColorScheme)' "${PAYWALL_SOURCE}")" -ne 1 ]] \
+  || [[ "$(grep -Fc '.toolbarColorScheme(theme.preferredColorScheme, for: .navigationBar)' "${PAYWALL_SOURCE}")" -ne 1 ]]; then
+  echo "The Pro presentation boundary must be the single owner of content and navigation-bar schemes" >&2
+  exit 1
+fi
+
+legal_presentation_source="$(sed -n '/^private struct ProSubscriptionTermsView/,$p' "${PAYWALL_SOURCE}")"
+if grep -Eq 'preferredColorScheme|toolbarColorScheme' <<< "${legal_presentation_source}"; then
+  echo "Pushed legal destinations must inherit the Pro scheme boundary rather than compete with it" >&2
   exit 1
 fi
 

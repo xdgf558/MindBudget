@@ -692,9 +692,17 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   that navigation chrome. PR #90 review found that the first simulator check neither proved
   uncapped content nor used a canonical UIKit AX5 value. DEC-COM-079 adds a true AX1/AX5 content-
   height comparison, retains the chrome bound, and replaces immediate interaction reads with
-  bounded waits; corrected focused and full local validation are green. Physical reinstall/
-  accessibility, transaction-error paths, receipt acquisition, Instruments/data protection, and
-  system integration remain open, so C6-02 is not Done.
+  bounded waits; corrected focused and full local validation are green. The corrected build was
+  installed only on `拉沙的iPhone`, where physical AX5 content and bilingual light/dark Pro
+  evidence passed. Manual screenshot review then found that the first legal push could inherit the
+  preceding skin's system-chrome scheme even while the accessibility back element existed.
+  DEC-COM-081 makes the Pro presentation boundary own both content and navigation-bar scheme; the
+  final three-skin Pro/Terms/Privacy run passed 1/1 and all nine screenshots showed a visible back
+  indicator. The owner stopped a later duplicate combined run, which is not called a pass.
+  Post-remediation simulator validation passed the focused AX1/AX5 test twice, the complete suite
+  with zero failures, and the exact-source C6 matrix with every required binding.
+  Transaction-error paths, receipt acquisition, full VoiceOver/accessibility, Instruments/data
+  protection, and system integration remain open, so C6-02 is not Done.
 
 ### C6-03 — TestFlight baseline
 

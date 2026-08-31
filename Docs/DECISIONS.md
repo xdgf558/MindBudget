@@ -3313,3 +3313,25 @@ that stops the test before cascading assertions.
 Consequences: The pre-fix diagnostic passed 1/2 and the safe-hit-point regression passed 2/2. A
 new complete validator passed, but this remains simulator evidence. Physical reinstall and the
 rest of C6-02 remain open; C6-03 remains blocked.
+
+---
+
+## 2026-08-31 — Bind Pro system navigation chrome to the selected skin
+
+Context: The corrected C6-02 build passed physical true-AX5 content and bilingual light/dark Pro
+checks on `拉沙的iPhone`, but retained screenshots from a separate exact regression showed that
+the first pushed legal screen could have no visible back indicator even while XCUITest reported a
+valid, hittable back element.
+
+Decision: Detailed ownership is DEC-COM-081. Make the Pro presentation boundary own both the
+preferred content scheme and the navigation-bar toolbar scheme; let Terms and Privacy inherit that
+single boundary. Require settled navigation geometry before a retained screenshot and keep manual
+screenshot inspection as the contrast evidence.
+
+Consequences: The final physical three-skin Pro/Terms/Privacy regression passed 1/1, and all nine
+screenshots showed a visible back indicator. A later duplicate combined run was stopped by the
+owner and is not called a pass. This closes only the named physical reinstall/appearance evidence;
+the rest of C6-02 remains In Progress and C6-03 remains blocked. A subsequent full simulator run
+found an AX5 test-helper oscillation between navigation and keyboard obstructions; bounded local
+form drags fixed that harness mechanism, passed twice focused, and passed the complete validator
+with zero failures. It is simulator regression evidence, not new physical evidence.

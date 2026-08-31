@@ -3666,3 +3666,53 @@ the other manual evidence remain open; C6-02 stays In Progress, while C6-03 and 
 release action remain blocked. The exact-source C6 matrix also passed every static and Worker
 check, Release/test build, 285 tests in 16 suites, and all 33 required method bindings exactly once
 as Passed.
+
+## 2026-08-31 — Session 194 — Reinstall and close the bounded physical AX5 appearance item
+
+Goal: Repeat only the DEC-COM-078/079 physical AX5 plus bilingual appearance item on
+`拉沙的iPhone`, explicitly excluding `Xiao li的 iPhone (2)`, and preserve all other C6-02/C6-03
+and release boundaries.
+
+Actions: Installed the corrected development-signed build and ran canonical true-AX5 content plus
+English/Simplified Chinese light/dark Pro variants. Exported a failing setup hierarchy and replaced
+`isHittable`-only budget entry with a safe live-midpoint lane. Inspected every retained physical
+capture. A separate exact Pro/legal regression passed automation but showed a missing first-push
+back indicator in screenshots, proving hierarchy success was not contrast evidence. Removed pushed-
+view scheme duplication, made the Pro boundary own the navigation-bar toolbar scheme, and required
+settled back-button geometry plus one discarded compositor frame before retained evidence. Updated
+the StoreKit gate to require that single parent owner and reject child legal-page scheme overrides.
+
+Result: The bilingual run passed 1/1 at
+`/private/tmp/MindBudget-C6-02-Physical-AX5-Bilingual-Light-Dark-Lasha-Geometry.xcresult`, with four
+captures manually inspected. The owning three-skin legal run passed 1/1 at
+`/private/tmp/MindBudget-C6-02-Physical-AX5-ToolbarScheme-Retry-Lasha.xcresult`; all nine
+Pro/Terms/Privacy captures showed a visible back indicator. Pre-fix visually wrong bundles, a
+device-lock/certificate-trust attempt, and one later owner-stopped duplicate combined run remain
+non-passes and are not counted. DEC-COM-081 closes only this bounded reinstall/appearance item.
+C6-02 remains In Progress for transaction-error paths, receipt acquisition, full VoiceOver and
+accessibility coverage, Instruments/data protection, and system integration. C6-03 and all archive,
+upload, deployment, App Store Connect, G1, distribution, and release actions remain blocked or
+unauthorized.
+
+## 2026-08-31 — Session 195 — Close the DEC-COM-081 local validation loop
+
+Goal: Verify the final physical-appearance remediation through the repository's complete local
+gates without repeating owner-stopped device work or broadening the bounded C6-02 evidence.
+
+Actions: Read the retained failed full validator with `xcresulttool`. It contained one primary
+failure in `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable`: after the first
+AX5 amount was entered, full-screen swipes moved `budget.totalBudget` from under the keyboard to
+behind the navigation bar and back for every attempt. Replaced those swipes with small drags on the
+budget form, recomputed the safe lower boundary from the live keyboard, and retained the existing
+navigation-bar upper bound. Re-ran the four required static gates, two focused iterations, the full
+validator, and the exact-source C6 matrix. No physical test was repeated, and `Xiao li的 iPhone (2)`
+was not used.
+
+Result: The focused regression passed 2/2 at
+`/private/tmp/MindBudget-C6-02-AX5-Budget-Scroll-Remediation.xcresult`. The fresh complete validator
+passed at `/private/tmp/MindBudget-C6-02-DEC-COM-081-Full-Validated.xcresult` with 558 passed, 13
+intentionally skipped, and zero failed tests; all coverage thresholds passed. The final C6 matrix at
+`/private/tmp/MindBudget-C6-02-DEC-COM-081-C6-Matrix-Final.xcresult` passed 285 tests in 16 suites
+and all 33 runtime bindings. The earlier full bundle remains a non-pass and is not superseded into a
+pass. C6-02 remains In Progress for the still-open manual rows, while C6-03 and all remote/release
+actions remain blocked.

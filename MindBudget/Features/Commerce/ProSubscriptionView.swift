@@ -76,6 +76,10 @@ struct ProSubscriptionView: View {
         // scheme during a rapid dark↔light change. This local binding is therefore an intentional
         // presentation-boundary override, not a second theme source.
         .preferredColorScheme(theme.preferredColorScheme)
+        // Keep navigation chrome on the same explicit scheme as the Pro surface. A physical AX5
+        // capture proved that the first legal push after changing skins could otherwise inherit
+        // the preceding scheme for its back indicator even after the destination content settled.
+        .toolbarColorScheme(theme.preferredColorScheme, for: .navigationBar)
         .navigationTitle("commerce.pro.title")
         .navigationBarTitleDisplayMode(.inline)
         .task { await session.refreshCommerceCatalog() }
@@ -769,9 +773,11 @@ private struct ProPlanOptionLabel: View {
     }
 }
 
+// These pushed legal views intentionally inherit the Pro surface's color-scheme boundary.
+// Restating the preference inside a destination can make NavigationStack re-resolve its system
+// chrome during the push and briefly render the back control without visible pixels.
 private struct ProSubscriptionTermsView: View {
     let products: [StoreProductPresentation]
-    @Environment(\.mindBudgetTheme) private var theme
 
     var body: some View {
         List {
@@ -791,15 +797,12 @@ private struct ProSubscriptionTermsView: View {
             }
         }
         .settingsListPresentation()
-        .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.terms.title")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 private struct ProSubscriptionPrivacyView: View {
-    @Environment(\.mindBudgetTheme) private var theme
-
     var body: some View {
         List {
             Section("commerce.pro.privacy.storekit") {
@@ -811,7 +814,6 @@ private struct ProSubscriptionPrivacyView: View {
             }
         }
         .settingsListPresentation()
-        .preferredColorScheme(theme.preferredColorScheme)
         .navigationTitle("commerce.pro.privacy.title")
         .navigationBarTitleDisplayMode(.inline)
     }

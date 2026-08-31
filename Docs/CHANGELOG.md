@@ -4,6 +4,8 @@
 
 - Kept the four-tab navigation bar compact at accessibility text sizes so it no longer obscures
   Dashboard or pushed Pro content. Page content still receives the user's full Dynamic Type size.
+- Kept the Pro subscription navigation bar and its system back indicator on the selected skin's
+  light or dark scheme, including the first Terms or Privacy push at accessibility text sizes.
 - Corrected the unreleased App Privacy source declaration so the closed subscription-action
   outcome is conservatively disclosed as Purchase History. Product Interaction, the rotating
   app-scoped pseudonym as Device ID, and Purchase History remain Analytics-only, unlinked, and

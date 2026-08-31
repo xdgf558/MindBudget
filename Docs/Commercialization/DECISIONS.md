@@ -2385,3 +2385,43 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Increasing timeouts without proving the tap target is unobscured;
   trusting `isHittable` alone; repeatedly tapping a geometrically clipped row; accepting one
   focused pass; or continuing into downstream assertions after navigation failed.
+
+## DEC-COM-081 — Keep first-push Pro navigation chrome on the selected skin
+
+- Status/date: **Accepted C6-02 physical-preflight remediation — 2026-08-31**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078/079/080
+- Context: After the DEC-COM-078/079 build was installed only on `拉沙的iPhone`, physical true-AX5
+  content and four English/Simplified Chinese light/dark Pro captures passed. A separate exact
+  physical regression was green at the accessibility-hierarchy level but manual screenshot review
+  found that the first Terms or Privacy push could inherit the preceding skin's system-chrome
+  scheme. The back element existed and was hittable, yet its indicator pixels could be black on a
+  dark surface or white on a light surface. Repeating `.preferredColorScheme` inside each pushed
+  view did not provide a stable first-push boundary.
+- Decision: The Pro presentation boundary owns both
+  `.preferredColorScheme(theme.preferredColorScheme)` and
+  `.toolbarColorScheme(theme.preferredColorScheme, for: .navigationBar)`. Terms and Privacy inherit
+  that one boundary and do not restate a competing scheme. The AX5 regression requires the back
+  element's midpoint to be inside live navigation/app geometry, consumes one non-evidence
+  compositor frame, and retains the following capture for manual contrast inspection. AX5 budget
+  setup also interacts only with text fields whose live midpoint is outside navigation and bottom
+  obstructions; `isHittable` alone is not authority. The StoreKit presentation gate requires
+  exactly one content-scheme owner and one navigation-bar-scheme owner at the Pro boundary and
+  rejects either override inside the pushed legal destinations.
+- Consequences: The owning three-skin physical run at
+  `/private/tmp/MindBudget-C6-02-Physical-AX5-ToolbarScheme-Retry-Lasha.xcresult` passed 1/1. Manual
+  inspection of all nine retained Pro/Terms/Privacy screenshots confirmed a visible back indicator
+  across Aurora, Warm Botanical, and Neon Pulse. The bilingual light/dark run at
+  `/private/tmp/MindBudget-C6-02-Physical-AX5-Bilingual-Light-Dark-Lasha-Geometry.xcresult` passed
+  1/1 with four inspected captures, and the separate physical content AX5 run passed. A prior
+  device-lock/developer-certificate attempt, pre-fix green-but-visually-wrong bundles, and the
+  owner's later stop of a redundant combined run are non-passes and are not used as evidence. Only
+  `拉沙的iPhone` was used; `Xiao li的 iPhone (2)` was explicitly excluded. C6-02 remains In
+  Progress for the other manual rows; C6-03 and every archive/upload/remote/release action remain
+  blocked or unauthorized. A later complete simulator validator exposed one additional test-harness
+  issue: full-screen swipes could oscillate an AX5 budget field between the keyboard and navigation
+  bar. Small form-local drags plus a keyboard-aware lower bound passed the focused test twice and a
+  fresh complete validator with 558 passed, 13 intentionally skipped, and zero failed tests. This
+  simulator evidence validates the regression mechanism but does not broaden the physical result.
+- Alternatives rejected: Treating an accessibility element as visual contrast proof; keeping
+  duplicate child color-scheme owners; relabeling a stopped run as passed; expanding one appearance
+  run into full VoiceOver or release evidence; or substituting the excluded second phone.

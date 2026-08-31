@@ -639,6 +639,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 XCTAssertGreaterThanOrEqual(destinationView.frame.minX, app.frame.minX)
                 XCTAssertLessThanOrEqual(destinationView.frame.maxX, app.frame.maxX)
 
+                assertNavigationBackButtonReady(
+                    in: app,
+                    message: "AX5 legal navigation did not settle before capture: \(destination) / \(skin)"
+                )
+
                 let legalScreenshot = XCTAttachment(screenshot: app.screenshot())
                 legalScreenshot.name = "MindBudget Pro \(destination) AX5 - \(skin)"
                 legalScreenshot.lifetime = .keepAlways
@@ -651,6 +656,100 @@ final class MindBudgetPhase3UITests: XCTestCase {
             app.navigationBars.buttons.element(boundBy: 0).tap()
             XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 2))
         }
+    }
+
+    @MainActor
+    func testPhysicalC602AX5BilingualLightAndDarkAppearanceEvidence() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("C6-02 bilingual light/dark evidence requires a signed physical iPhone")
+#else
+        let variants = [
+            (language: "en", locale: "en_US", skin: "warmBotanical", name: "English light"),
+            (language: "en", locale: "en_US", skin: "neonPulse", name: "English dark"),
+            (language: "zh-Hans", locale: "zh_CN", skin: "warmBotanical", name: "Chinese light"),
+            (language: "zh-Hans", locale: "zh_CN", skin: "neonPulse", name: "Chinese dark"),
+        ]
+
+        for variant in variants {
+            let app = launchApp(
+                language: variant.language,
+                locale: variant.locale,
+                additionalArguments: [
+                    "-UIPreferredContentSizeCategoryName",
+                    "UICTContentSizeCategoryAccessibilityXXXL",
+                ]
+            )
+            completeBudgetSetup(in: app)
+            XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+            XCTAssertTrue(app.buttons["dashboard.settings"].isHittable)
+            app.buttons["dashboard.settings"].tap()
+            XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 5))
+
+            let appearance = element("settings.appearance", in: app)
+            for _ in 0..<6 where !appearance.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(appearance.waitForExistence(timeout: 2))
+            appearance.tap()
+
+            let skinControl = element("settings.appearance.skin.\(variant.skin)", in: app)
+            for _ in 0..<4 where !skinControl.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
+            skinControl.tap()
+            assertEventuallySelected(
+                skinControl,
+                message: "Physical AX5 appearance selection did not settle: \(variant.name)"
+            )
+            assertNavigationBackButtonReady(
+                in: app,
+                message: "Physical AX5 Appearance navigation did not settle: \(variant.name)"
+            )
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(element("settings.view", in: app).waitForExistence(timeout: 3))
+
+            let proEntry = element("settings.pro", in: app)
+            let settingsNavigationBottom = app.navigationBars.firstMatch.frame.maxY
+            for _ in 0..<7 where
+                !proEntry.isHittable || proEntry.frame.midY <= settingsNavigationBottom
+            {
+                app.swipeDown()
+            }
+            XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
+            XCTAssertGreaterThan(
+                proEntry.frame.midY,
+                settingsNavigationBottom,
+                "Physical AX5 Pro row remained behind the Settings navigation bar"
+            )
+
+            let proView = element("commerce.pro.view", in: app)
+            guard tapAndWaitForDestination(
+                proEntry,
+                destination: proView,
+                message: "Physical AX5 Pro destination did not settle: \(variant.name)"
+            ) else {
+                app.terminate()
+                continue
+            }
+            assertNavigationBackButtonReady(
+                in: app,
+                message: "Physical AX5 Pro navigation did not settle: \(variant.name)"
+            )
+
+            let expectedTitle = variant.language == "zh-Hans" ? "花有数 Pro" : "MindBudget Pro"
+            XCTAssertTrue(
+                app.staticTexts[expectedTitle].waitForExistence(timeout: 3),
+                "Missing localized Pro title: \(variant.name)"
+            )
+
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "C6-02 physical AX5 - \(variant.name)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            app.terminate()
+        }
+#endif
     }
 
     @MainActor
@@ -811,6 +910,39 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    private func assertNavigationBackButtonReady(
+        in app: XCUIApplication,
+        timeout: TimeInterval = 3,
+        message: String
+    ) {
+        let navigationBar = app.navigationBars.firstMatch
+        let backButton = app.navigationBars.buttons.element(boundBy: 0)
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in
+                guard navigationBar.exists,
+                      backButton.exists,
+                      backButton.isHittable else { return false }
+
+                let navigationFrame = navigationBar.frame
+                let frame = backButton.frame
+                let hitPoint = CGPoint(x: frame.midX, y: frame.midY)
+                return !navigationFrame.isEmpty
+                    && !frame.isEmpty
+                    && navigationFrame.contains(hitPoint)
+                    && app.frame.contains(hitPoint)
+            },
+            object: backButton
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+
+        // On a physical device, the accessibility hierarchy can report a completed push one
+        // compositor frame before navigation chrome appears in the first screenshot. Consume
+        // that non-evidence frame only after the button geometry is ready, then let the caller
+        // retain the following capture.
+        XCTAssertFalse(app.screenshot().pngRepresentation.isEmpty, message)
+    }
+
+    @MainActor
     private func tapAndWaitForDestination(
         _ source: XCUIElement,
         destination: XCUIElement,
@@ -855,23 +987,75 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         let monthlyIncome = app.textFields["budget.monthlyIncome"]
-        makeHittable(monthlyIncome, in: app)
-        monthlyIncome.tap()
-        monthlyIncome.typeText("3000")
+        enterBudgetValue("3000", into: monthlyIncome, in: app)
 
         let totalBudget = app.textFields["budget.totalBudget"]
-        makeHittable(totalBudget, in: app)
-        totalBudget.tap()
-        totalBudget.typeText("2500")
+        enterBudgetValue("2500", into: totalBudget, in: app)
 
         let savingGoal = app.textFields["budget.savingGoal"]
-        makeHittable(savingGoal, in: app)
-        savingGoal.tap()
-        savingGoal.typeText("500")
+        enterBudgetValue("500", into: savingGoal, in: app)
 
         let save = app.buttons["budget.save"]
         makeHittable(save, in: app)
         save.tap()
+    }
+
+    @MainActor
+    private func enterBudgetValue(
+        _ value: String,
+        into field: XCUIElement,
+        in app: XCUIApplication
+    ) {
+        let budgetForm = app.collectionViews["budget.setup.view"]
+
+        for _ in 0..<12 {
+            if field.exists {
+                let navigationBottom = app.navigationBars.firstMatch.frame.maxY
+                let keyboard = app.keyboards.firstMatch
+                let safeBottom = keyboard.exists
+                    ? keyboard.frame.minY - 8
+                    : app.frame.maxY - 80
+                let frame = field.frame
+                if field.isHittable,
+                   frame.midY > navigationBottom + 8,
+                   frame.midY < safeBottom
+                {
+                    field.tap()
+                    field.typeText(value)
+
+                    let valueExpectation = XCTNSPredicateExpectation(
+                        predicate: NSPredicate(format: "value == %@", value),
+                        object: field
+                    )
+                    XCTAssertEqual(
+                        XCTWaiter.wait(for: [valueExpectation], timeout: 2),
+                        .completed,
+                        "Budget field did not retain its entered value: \(field.identifier)"
+                    )
+                    return
+                }
+
+                // A full-screen swipe can move a large AX5 field from behind the keyboard to
+                // behind the navigation bar (and back again) without ever exposing its hit point.
+                // Move only a small portion of the budget form so the field converges into the
+                // actual lane between those two pieces of system chrome.
+                let upperPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.38)
+                )
+                let lowerPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
+                )
+                if frame.midY <= navigationBottom + 8 {
+                    upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
+                } else {
+                    lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
+                }
+            } else {
+                app.swipeUp()
+            }
+        }
+
+        XCTFail("Budget field did not enter the safe interaction lane: \(field.identifier)")
     }
 
     @MainActor
