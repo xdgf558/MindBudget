@@ -132,9 +132,11 @@ AX5 navigation obstruction is remediated under DEC-COM-078/079. PR #90 review fo
 simulator check used an ignored noncanonical content-size value and lacked a content-side
 guarantee; the corrected regression compares canonical AX1/AX5 page content while separately
 bounding persistent chrome and using bounded interaction waits. Focused and full local validation
-pass; physical reinstall and the remaining accessibility, transaction-error, receipt-acquisition,
-Instruments/data-protection, and system-integration evidence remain open. Distribution privacy-
-report inspection remains C6-03 evidence.
+pass. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
+`33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
+Physical reinstall/appearance is therefore closed only at that reviewed boundary; the remaining
+accessibility, transaction-error, receipt-acquisition, Instruments/data-protection, and system-
+integration evidence remain open. Distribution privacy-report inspection remains C6-03 evidence.
 
 ## Exit and stop conditions
 
@@ -142,7 +144,9 @@ C6-01 is Done through PR #86 (`015d00e`) after independent rereview approved exa
 head `f77d2a6` and hosted run `33255898196` passed. C6-02 is In Progress after explicit owner entry
 on 2026-08-30. PR #88 merged the reviewed privacy correction and development-signed Release
 inspection as `6c2a051`; PR #89 merged the independently rereviewed required-reason source-gate
-remediation as `72f016e` after hosted run `33287620965` passed. The manual checklist remains open.
+remediation as `72f016e` after hosted run `33287620965` passed. PR #91 exact head `b3ed24d` passed
+independent review and hosted run `33362101536`, then merged the bounded AX5/navigation increment as
+`4ddabcd`. The remaining manual checklist remains open.
 C6-03 remains blocked by C6-02 acceptance and a separate owner instruction for archive/upload.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,

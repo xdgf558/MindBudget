@@ -450,9 +450,12 @@ Release calibration: App Store Connect accepted 0.9.8 (9) on 2026-08-17 with del
 `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. No tester assignment, external Beta App Review, App Store
 submission, or Production deployment followed.
 
-Next suggested task: independently review the DEC-COM-081 physical AX5/navigation remediation and
-partial signed-device evidence, then complete only the remaining manual checks in
-`C6_02_PREFLIGHT.md`; do not authorize
+Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
+`33362101536` passed, and PR #91 merged the bounded DEC-COM-081 remediation as `4ddabcd` under
+DEC-COM-082. This closes only that reviewed AX5/navigation increment and does not close any
+remaining manual row.
+
+Next suggested task: complete only the remaining manual checks in `C6_02_PREFLIGHT.md`; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
 cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a

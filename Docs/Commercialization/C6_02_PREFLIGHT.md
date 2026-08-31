@@ -8,8 +8,10 @@ symbols. Independent rereview accepted exact remediation head `6ffc6fa`, hosted 
 passed, and PR #89 merged it as `72f016e`, closing that source-gate item.
 Customer-facing StoreKit, accessibility, localization, data-protection, and distribution-signed
 checks are now partially exercised below. C6-02 remains In Progress for the explicitly open manual
-items and this branch's review/CI/merge. C6-03, archive, upload, deployment, App Store Connect
-writes, tester assignment, G1, distribution, and release remain unauthorized.
+items. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
+`33362101536` passed, and PR #91 merged the bounded AX5/navigation increment as `4ddabcd` under
+DEC-COM-082. C6-03, archive, upload, deployment, App Store Connect writes, tester assignment, G1,
+distribution, and release remain unauthorized.
 
 ## Authorization and evidence boundary
 
@@ -222,7 +224,9 @@ Automated remediation evidence:
   light/dark Pro captures passed. DEC-COM-081 additionally closes the screenshot-only first-push
   back-indicator defect with a 1/1 three-skin run and nine manually inspected Pro/Terms/Privacy
   captures. Pre-fix, certificate-trust, and owner-stopped duplicate bundles remain explicit
-  non-passes and are not used as evidence.
+  non-passes and are not used as evidence. Independent review accepted exact PR #91 head
+  `b3ed24d`, hosted run `33362101536` passed, and PR #91 merged this item as `4ddabcd`; automated
+  geometry remains non-contrast evidence, so the manual screenshot review stays the visual proof.
 - [ ] VoiceOver, AX5, Increase Contrast, Reduce Motion, light/dark appearance, focus order, touch
   targets, sheets, alerts, keyboard, and supported portrait orientations pass on the signed phone.
 - [x] Revalidate the DEC-COM-081 simulator regression without retries after the physical item: the

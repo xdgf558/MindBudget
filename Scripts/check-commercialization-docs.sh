@@ -2210,6 +2210,41 @@ for c602_contract_anchor in \
   fi
 done
 
+# PR #91 closes only the reviewed DEC-COM-081 increment. Require its exact head, hosted run,
+# merge commit, and closeout decision in every current C6-02 status surface while preserving the
+# still-open manual checklist and blocked C6-03 boundary.
+for c602_pr91_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_02_PREFLIGHT.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c602_pr91_closeout_evidence in 'b3ed24d' '33362101536' '4ddabcd' 'DEC-COM-082'; do
+    grep -Fq "${c602_pr91_closeout_evidence}" "${c602_pr91_closeout_file}" || {
+      echo "C6-02 PR #91 closeout is missing ${c602_pr91_closeout_evidence} in ${c602_pr91_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'review the DEC-COM-081|independently review the DEC-COM-081|DEC-COM-081[^.]*pending (independent )?review|physical reinstall and the remaining|this branch.s review/CI/merge' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_02_PREFLIGHT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current C6-02 state regressed PR #91's reviewed DEC-COM-081 increment to pending" >&2
+  exit 1
+fi
+
 if grep -Eqi 'C6-02 (remains |is )?blocked pending explicit owner entry|C6-02 awaits explicit owner entry' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
