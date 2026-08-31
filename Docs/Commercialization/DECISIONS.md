@@ -2567,3 +2567,33 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   green evidence; disabling the fail-closed retry check; blindly rerunning the workflow; weakening
   the Save boundary back to a stale TextField value; retrying after a surfaced validation error; or
   entering C6-03 from any red run.
+
+## DEC-COM-087 — Require visible App geometry for remaining AX5 interactions
+
+- Status/date: **Accepted fourth PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/086; C6-02 hosted runtime evidence
+- Context: Independent rereview accepted exact head `c05860f` subject to green hosted CI. Actions
+  run `33398172181` then produced a fourth non-pass. During the first UI iteration, the Terms and
+  Privacy back buttons remained present, retained screenshots, and were tapped successfully after
+  the helper timed out because their midpoint was not yet inside a delayed navigation-bar container
+  frame. During a later runner repetition, the budget fields remained valid but the decimal
+  keyboard covered Save while XCTest still reported it hittable; neither bounded activation
+  reached Dashboard. These are test interaction-geometry defects, not product data or navigation
+  failures.
+- Decision: Back-button readiness requires existence, hittability, a nonempty frame, and a midpoint
+  inside the App window; it does not depend on an asynchronously settling navigation-container
+  frame. Budget Save readiness requires existence, hittability, a nonempty frame, and its whole
+  frame inside the lane below the navigation bar and above the keyboard. Move only the owning Form
+  with bounded drags until that condition holds, then retain the existing at-most-two
+  Save-to-Dashboard activation handshake. Do not weaken result-bundle retry rejection.
+- Consequences: Run `33398172181` remains a non-pass alongside the prior three runs. The first local
+  fixture attempt is also a non-pass because it queried Save's frame before the control existed.
+  After adding that existence boundary, the focused AX1/AX5 test passes 2/2 without test-runner
+  retry at `/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult`. The path is a local execution
+  pointer only. A new exact head still requires independent rereview, green hosted CI, and merge.
+  C6-02 is not Done; C6-03 and every archive/remote/release action remain blocked.
+- Alternatives rejected: Calling the fourth run green because its screenshots and later taps
+  worked; increasing only an arbitrary timeout while retaining the container-frame dependency;
+  trusting `isHittable` when a keyboard overlaps the control; tapping by coordinate through an
+  obstruction; dismissing the keyboard by mutating product flow; blindly rerunning CI; weakening
+  retry evidence; or entering C6-03 from any red run.

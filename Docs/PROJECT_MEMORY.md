@@ -240,7 +240,7 @@ are not called passed. Full VoiceOver and physical system side effects also rema
 C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
 hosted CI, and merge.
 
-PR #93 runs `33370429991`, `33384223530`, and `33391122019` are explicit hosted non-passes. The
+PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are explicit hosted non-passes. The
 first two completed their suites and coverage, but Xcode 26.6 rejected forced result schemas
 `0.4.0` and `0.3.0` respectively; the second run also recorded an unrelated pseudo-long-text UI
 failure followed by a retry pass.
@@ -252,8 +252,14 @@ accessibility value. The third run proved native parsing works but exposed a sep
 attempt Save interaction failure followed by a retry pass, which the verifier correctly rejected.
 DEC-COM-086 uses the existing bounded Save-to-Dashboard activation handshake and treats direct
 `Repetition` children as the concrete attempts rather than double-counting their aggregate parent.
-Its focused regression passes 2/2 without test-runner retry. The new exact head still needs
-rereview and a green hosted run.
+Independently reviewed head `c05860f` then exposed two distinct hosted geometry assumptions: a
+working back button was rejected by a delayed navigation-container frame, and a keyboard-covered
+Save could still report hittable. DEC-COM-087 binds back-button readiness to a nonempty midpoint
+inside the App window and Save readiness to the whole frame being above the keyboard and below the
+navigation bar. The corrected focused regression passes 2/2 without test-runner retry. A fresh
+complete validator passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests
+with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without a
+UI retry. The new exact head still needs rereview and a green hosted run.
 
 Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
 Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.

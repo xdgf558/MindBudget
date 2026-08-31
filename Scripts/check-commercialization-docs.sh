@@ -2322,9 +2322,11 @@ for c602_portability_file in \
   for c602_portability_anchor in \
     'DEC-COM-085' \
     'DEC-COM-086' \
+    'DEC-COM-087' \
     '33370429991' \
     '33384223530' \
     '33391122019' \
+    '33398172181' \
     'toolchain-native' \
     'Save-to-Dashboard'; do
     grep -Fq "${c602_portability_anchor}" "${c602_portability_file}" || {

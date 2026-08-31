@@ -166,7 +166,7 @@ SwiftData artifacts under containermanagerd protection; no financial database wa
 `xctrace` listed that permitted phone Offline and generated no trace. Review/CI/merge of this exact
 packet remain required before C6-02 may be marked Done.
 
-PR #93 runs `33370429991`, `33384223530`, and `33391122019` are not green evidence. The first two
+PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are not green evidence. The first two
 failed because hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also
 retained one pseudo-long-text failure followed by a retry pass. DEC-COM-085 consumes each supported
 toolchain-native result shape, pins the shared
@@ -177,8 +177,13 @@ Dashboard transition replaced the lagging active-field accessibility-value asser
 third run proved native parsing on hosted Xcode 26.6, then correctly failed because AX1 Save had
 one failed attempt followed by a pass. DEC-COM-086 uses a bounded Save-to-Dashboard activation
 handshake and counts concrete repetition attempts without their aggregate parent; one future
-`Repetition:Passed` remains valid while Failed→Passed remains a non-pass. Its focused regression
-passes 2/2 without test-runner retry. The repository now has three exact C6 special checks: matrix
+`Repetition:Passed` remains valid while Failed→Passed remains a non-pass. Independently reviewed
+head `c05860f` then exposed a delayed navigation-container frame and a keyboard-covered Save that
+still reported hittable. DEC-COM-087 replaces those assumptions with App-window back-button
+geometry and a full Save frame inside the keyboard-safe interaction lane. Its corrected focused
+regression passes 2/2 without test-runner retry. A fresh complete validator passes Release, the
+strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
+physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. The repository now has three exact C6 special checks: matrix
 bootstrap, full-suite coverage
 consumption, and bounded C6-02 acceptance. A fresh hosted run remains required.
 

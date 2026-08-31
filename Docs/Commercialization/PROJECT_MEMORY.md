@@ -464,7 +464,7 @@ C6-03/C12. Read-only `devicectl` inspection found protected SwiftData artifacts 
 `拉沙的iPhone`; no database was exported, and an Offline `xctrace` attempt produced no trace or
 Instruments pass. C6-02 awaits exact-head independent review, hosted CI, and merge.
 
-PR #93 runs `33370429991`, `33384223530`, and `33391122019` are non-passes. The first two failed
+PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are non-passes. The first two failed
 because hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also retained one
 pseudo-long-text failure followed by a retry pass. DEC-COM-085 replaces DEC-COM-084's mistaken
 cross-toolchain mechanism with the
@@ -473,8 +473,13 @@ passes without retry after the bounded Dashboard transition replaced the active 
 accessibility-value assertion. The third run proved the native reader works on Xcode 26.6 but
 retained an AX1 Save interaction failure followed by a retry pass. DEC-COM-086 applies the existing
 bounded Save-to-Dashboard activation handshake and counts concrete repetition attempts without
-their aggregate parent. Its focused regression passes 2/2 without test-runner retry. A new exact-
-head rereview and green hosted run remain required.
+their aggregate parent. Reviewed head `c05860f` then failed on delayed navigation-container bounds
+and a keyboard-covered Save that still reported hittable. DEC-COM-087 instead requires a nonempty
+back-button midpoint inside the App window and the full Save frame in the keyboard-safe interaction
+lane. Its corrected focused regression passes 2/2 without test-runner retry. A fresh complete
+validator passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests with 17
+passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry.
+A new exact-head rereview and green hosted run remain required.
 
 Next suggested task: independently review and merge the DEC-COM-083 C6-02 packet; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual

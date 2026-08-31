@@ -3837,3 +3837,36 @@ hosted or distribution evidence. A new exact head requires independent rereview,
 and merge. No product behavior, physical test, archive, upload, deployment, App Store Connect
 write, G1, distribution, or release action occurred; C6-02 remains In Progress and C6-03 remains
 blocked.
+
+## 2026-08-31 — Session 201 — Preserve the fourth PR #93 hosted non-pass
+
+Goal: Diagnose Actions run `33398172181` without calling retained screenshots or a runner retry
+green, weakening the 23-binding acceptance gate, or entering C6-03.
+
+Actions: Confirmed the workflow reached UI execution without a schema-version failure and read the
+failing UI logs; no green 23-binding result is inferred from the red run. In the first iteration,
+the Terms and Privacy back buttons existed, retained screenshots, and were tapped successfully
+after the helper timed out against the navigation bar's delayed container frame. In a
+later repetition, the budget fields remained valid while the decimal keyboard covered Save even
+though XCTest reported it hittable. Removed the navigation-container dependency and required a
+nonempty back-button midpoint inside the App window. Added a budget-specific bounded Form drag that
+requires Save's complete frame below the navigation bar and above the keyboard before activation.
+Recorded DEC-COM-087.
+
+Result: Run `33398172181` remains a non-pass. The first local focused attempt is also a non-pass
+because the new helper initially queried Save's frame before the control existed. After adding the
+existence boundary, the exact AX1/AX5 test passed 2/2 with zero failures and no test-runner retry at
+`/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult` under Xcode 27.0 beta 6 on the iOS 26.5
+iPhone 17 Pro simulator. That path is a local execution pointer, not hosted or distribution
+evidence. All four hosted runs remain non-passes. A new exact head requires independent rereview,
+green hosted CI, and merge. No product behavior, physical test, archive, upload, deployment, App
+Store Connect write, G1, distribution, or release action occurred; C6-02 remains In Progress and
+C6-03 remains blocked.
+
+Validation: The first complete-validator launch is an environmental non-pass before build/test
+execution because the restricted environment could not connect to CoreSimulator or read the local
+signing prefix. The identical unrestricted command then passed Release, the strict Dashboard
+benchmark, all unit tests, all 18 UI tests with 17 passed and one expected physical-only skip,
+every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI summary contains
+exactly 18 executions, so no test-runner retry occurred. The validator removed its temporary
+xcresult; its printed path is an execution pointer rather than a durable artifact.

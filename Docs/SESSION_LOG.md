@@ -6812,3 +6812,32 @@ UI test retried. The validator removed its temporary result bundle, so both path
 pointers rather than durable artifacts. All three hosted runs remain non-passes. A new exact head
 still requires rereview, green hosted CI, and merge; C6-02 remains In Progress, C6-03 remains
 blocked, and no remote/release action occurred.
+
+## 2026-08-31 — Remediate PR #93's fourth hosted AX5 interaction non-pass
+
+Independent review accepted exact head `c05860f` subject to green hosted CI. Actions run
+`33398172181` is instead a fourth explicit non-pass. The workflow reached UI execution without a
+schema-version failure, but the AX1/AX5 test failed in two concrete attempts. In one iteration,
+Terms and Privacy retained working back buttons and the test subsequently tapped them successfully,
+but the helper timed out
+against a delayed navigation-container frame. In another repetition, valid budget fields remained
+onscreen with the decimal keyboard covering Save even though XCTest reported the button hittable.
+
+DEC-COM-087 removes the unstable container-frame dependency and requires the back-button midpoint
+inside the App window. Budget setup now moves the Form by bounded drags until Save's entire frame is
+below the navigation bar and above the keyboard before activation. The first local focused attempt
+is retained as a non-pass because the new helper initially queried Save's frame before the control
+existed. After adding that existence boundary, the exact test passed 2/2 without test-runner retry
+at `/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult` under Xcode 27.0 beta 6 on the iOS 26.5
+iPhone 17 Pro simulator. This path is a local execution pointer, not hosted or distribution
+evidence. All four hosted runs remain non-passes. A new exact head requires independent rereview,
+green hosted CI, and merge; C6-02 remains In Progress, C6-03 remains blocked, and no remote/release
+action occurred.
+
+The first complete-validator launch was an environmental non-pass before build/test execution: the
+restricted environment could not connect to CoreSimulator and could not read the local signing
+prefix. The identical unrestricted command then passed Release, the strict Dashboard benchmark,
+all unit tests, all 18 UI tests with 17 passed and one expected physical-only skip, every selected
+coverage threshold, and all 23 C6-02 runtime bindings. The 18-case UI summary proves no test-runner
+retry was added. The validator deleted its temporary xcresult, so the printed path is an execution
+pointer rather than a durable artifact.

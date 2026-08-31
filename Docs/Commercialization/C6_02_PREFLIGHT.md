@@ -248,6 +248,26 @@ is valid; Failed then Passed is still rejected. The focused test now passes 2/2 
 retry at `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. All three hosted runs
 remain non-passes; a fresh exact-head hosted run remains required.
 
+Independently reviewed head `c05860f` then produced a fourth non-pass, Actions run `33398172181`.
+The first UI iteration retained and successfully tapped the affected back buttons after the helper
+timed out waiting for the navigation bar's container frame, so the failure was an over-constrained
+container-geometry predicate rather than missing navigation. A runner repetition later reached the
+budget form with valid fields but left the decimal keyboard covering Save; XCTest still reported
+the control hittable and the bounded activation did not reach Dashboard. DEC-COM-087 requires a
+nonempty back-button midpoint inside the App window, and requires the complete Save frame below the
+navigation bar and above the keyboard before activation. The first local fixture attempt is a
+non-pass because it queried the Save frame before the control existed. After adding that existence
+boundary, the exact focused test passed 2/2 without runner retry at
+`/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult`. All four hosted runs and the failed local
+fixture attempt remain non-passes. The first complete-validator launch was also a non-pass because
+the restricted environment could not connect to CoreSimulator or read the local signing prefix; it
+did not enter build/test execution. The identical unrestricted validator then passed Release, the
+strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
+physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI
+suite executed exactly 18 cases, so none used a test-runner retry. Its temporary xcresult was
+deleted by the validator and is an execution pointer rather than a durable artifact. A new exact-
+head hosted run remains required.
+
 ## Bounded disposition of the remaining signed-device rows
 
 A checked row below means its evidence/disposition is complete for C6-02 review. It does not mean

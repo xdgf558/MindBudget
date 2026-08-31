@@ -2407,3 +2407,31 @@ runtime bindings. No UI test retried, including the remediated AX1/AX5 case. The
 its temporary `mindbudget-validation.U87fhN/MindBudget.xcresult`; both paths are local execution
 pointers rather than durable artifacts. A new exact head still needs independent rereview, green
 hosted CI, and merge.
+
+### C6-02 PR #93 fourth hosted non-pass and visible-geometry remediation — 2026-08-31
+
+Independent rereview accepted exact head `c05860f` contingent on green hosted CI. GitHub Actions
+run `33398172181` executed that head on hosted Xcode 26.6. Static/Worker preflight passed and the
+workflow reached UI execution without a schema-version failure, but it did not produce green
+23-binding evidence because the required AX1/AX5 test remained a non-pass. The first iteration
+timed out on two back-button navigation-container-frame predicates;
+the screenshots were retained and both back buttons were subsequently tapped successfully. A later
+runner repetition retained valid budget fields and a focused decimal keyboard covering Save even
+though XCTest reported the control hittable, and neither bounded activation reached Dashboard.
+
+DEC-COM-087 replaces the delayed container-frame dependency with a nonempty back-button midpoint
+inside the App window. The budget helper now performs bounded Form drags until Save's complete frame
+is below the navigation bar and above the keyboard before using the unchanged at-most-two
+Save-to-Dashboard handshake. The first local focused attempt is a non-pass because the initial
+helper queried Save's frame before it existed. After adding that existence boundary, the focused
+test passed 2/2 with zero failures/skips and no test-runner retry at
+`/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult` under Xcode 27.0 beta 6 on the iOS 26.5
+iPhone 17 Pro simulator. The path is a local execution pointer. Run `33398172181` and the prior
+three hosted runs remain non-passes. The first complete-validator launch was an environmental
+non-pass before build/test execution because the restricted environment could not connect to
+CoreSimulator or read the local signing prefix. The identical unrestricted command then passed
+Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one
+expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings.
+The UI summary contains exactly 18 executions, so no test-runner retry occurred. The validator
+deleted its temporary xcresult, which is an execution pointer rather than a durable artifact. A
+new exact-head hosted run must turn green before merge or C6-02 Done.

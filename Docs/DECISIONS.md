@@ -3416,3 +3416,21 @@ Failed→Passed remains a non-pass.
 Consequences: The third hosted run remains red evidence. The focused regression passes 2/2 without
 test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
 is not Done and C6-03 remains blocked.
+
+---
+
+## 2026-08-31 — Bind remaining AX5 interactions to visible App geometry
+
+Context: Independent review accepted PR #93 head `c05860f` subject to green hosted CI, but Actions
+run `33398172181` exposed two remaining test-only geometry assumptions. The affected back buttons
+remained present and tappable after a navigation-container-frame timeout. In a later repetition,
+budget Save reported hittable while the decimal keyboard still covered the control.
+
+Decision: Detailed ownership is DEC-COM-087. Require a nonempty back-button midpoint inside the App
+window. Before activating budget Save, require its complete frame below the navigation bar and
+above the keyboard; use bounded Form drags to enter that safe interaction lane.
+
+Consequences: The fourth hosted run remains a non-pass. A first local fixture attempt that queried
+Save before it existed is also a non-pass. The corrected focused regression passes 2/2 without
+test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
+is not Done and C6-03 remains blocked.
