@@ -273,9 +273,9 @@ C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as 
 owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 remediation head
 `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The
 owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head
-`0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 remains In
-Progress for the required-reason source-gate follow-up and manual evidence, while C6-03,
-Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
+`0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 now has an
+implementation-complete bounded evidence packet pending independent review, hosted CI, and merge,
+while C6-03, Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -627,8 +627,30 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   inspected. A later duplicate combined run was stopped by the owner and is not counted as a
   pass. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
   `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
-  C6-02 remains open for transaction-error paths, receipt acquisition, full VoiceOver and
-  accessibility coverage, Instruments/data protection, and system integration. Final local
-  revalidation passed two focused AX1/AX5 iterations, the full
-  validator with zero failures, and the C6 matrix with all 33 required bindings; this remains
-  simulator evidence and does not close those manual rows.
+  DEC-COM-083 closes the remaining disposition work without claiming unrun physical checks passed.
+  `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact StoreKit/receipt/accessibility/system methods to a
+  fresh full xcresult. Final local revalidation already records those bindings Passed. The owner
+  accepted existing C4C-05/PR #91 device continuity and retained full VoiceOver,
+  Instruments/exact file protection, and physical notification/Siri/Spotlight/Face ID/share/Delete
+  All actions as explicit non-passes for C6-03/C12. A read-only container listing on only
+  `拉沙的iPhone` found the protected SwiftData artifacts; `xctrace` reported that permitted phone
+  Offline and generated no trace. No financial store was exported. C6-02 now awaits exact-head
+  review, hosted CI, and merge; C6-03 remains blocked.
+- [ ] Close PR #93's hosted-schema/runtime remediation. Runs `33370429991`, `33384223530`,
+  `33391122019`, and `33398172181` are non-passes:
+  hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the latter run also retained one
+  unrelated pseudo-long-text failure followed by a retry pass. DEC-COM-085 uses the toolchain-native
+  result shape and replaces a lagging active-field value assertion with the bounded Dashboard
+  transition. The third run proved that reader works on hosted Xcode 26.6 and correctly rejected a
+  real AX1 Save interaction failure followed by a retry pass. DEC-COM-086 uses a bounded
+  Save-to-Dashboard interaction handshake and counts concrete `Repetition` attempts without also
+  counting their aggregate parent. Reviewed head `c05860f` then exposed two remaining hosted UI
+  geometry assumptions: delayed navigation-container bounds and a Save control reported hittable
+  while the keyboard still covered it. DEC-COM-087 binds the back-button midpoint to the App window
+  and requires the whole Save frame in the keyboard-safe interaction lane. The corrected focused
+  regression passes 2/2 without test-runner retry. A fresh complete validator passes Release, the
+  strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
+  physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. A new remediation head
+  still requires rereview, green hosted CI, and merge; do not enter C6-03.
+- [ ] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
+  packet before marking C6-02 Done. Do not enter C6-03 or authorize Archive/upload automatically.

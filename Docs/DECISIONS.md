@@ -3189,7 +3189,8 @@ the manually maintained matrix allow-list.
 
 Decision: Detailed ownership is DEC-COM-073. Parse the exact C6 result bundle after testing,
 require every declared type/method binding exactly once with result Passed, and classify every
-repository check script as either row-driven or one of two exact special roles.
+repository check script as either row-driven or, at that decision's time, one of two exact special
+roles.
 
 Consequences: Skipped, missing, duplicate, wrong-type, commented-out, and non-test required
 methods cannot satisfy C6-01. C6-02/C6-03 remain blocked pending exact-head rereview, hosted CI,
@@ -3350,3 +3351,86 @@ phone accessibility, Instruments/data-protection, and system-integration rows op
 Consequences: C6-02 remains In Progress; C6-03 remains blocked by C6-02 acceptance and separate
 archive/upload authority. No Archive/IPA, deployment, App Store Connect write, G1, distribution,
 or release authorization follows from PR #91.
+
+---
+
+## 2026-08-31 — Accept bounded C6-02 dispositions without relabeling non-passes
+
+Context: The remaining C6-02 rows mixed deterministic transaction/receipt/system facts with
+physical work the owner declined to repeat. `devicectl` could inspect only `拉沙的iPhone`, while
+`xctrace` classified it Offline and produced no Instruments trace.
+
+Decision: Detailed ownership is DEC-COM-083. Require 23 exact runtime bindings in a fresh complete
+xcresult, accept the already reviewed physical receipt/AX5 continuity, and preserve unrun full
+VoiceOver, Instruments/exact file protection, and physical system-side-effect checks as explicit
+non-passes for C6-03/C12.
+
+Consequences: C6-02 is implementation/evidence complete pending exact-head review, hosted CI, and
+merge. No real financial database was exported. C6-03 and every Archive/upload/remote/App Store
+Connect/G1/distribution/release action remain blocked or unauthorized.
+
+---
+
+## 2026-08-31 — Make C6-02 xcresult evidence portable across hosted and local Xcode
+
+Context: PR #93 head `9f69f1a` passed its tests and coverage in Actions run `33370429991`, but the
+new verifier failed because hosted Xcode 26.6 does not recognize local Xcode 27 schema `0.4.0`.
+
+Decision: Detailed ownership is DEC-COM-084. Use explicit common schema `0.3.0`, accept the stable
+Xcode 26/27 `Test Case` identifier shapes, and continue rejecting every missing, skipped, failed,
+or duplicate binding. A failed-then-passed CI retry is deliberately not exact Passed evidence.
+
+Consequences: The first hosted run remains a non-pass. Its downloaded Xcode 26.6 xcresult and the
+local Xcode 27 bundle both verify all 23 bindings after remediation, but the new exact head still
+requires rereview, hosted CI, and merge. C6-03 remains blocked.
+
+---
+
+## 2026-08-31 — Replace the mistaken shared-schema assumption with native result parsing
+
+Context: Actions run `33384223530` on exact PR #93 head `bf83faf` proved hosted Xcode 26.6 also
+rejects explicit schema `0.3.0`; it additionally retained one pseudo-long-text failure followed by
+a retry pass even though the failure attachment showed the entered digits rendered.
+
+Decision: Detailed ownership is DEC-COM-085. Consume each active Xcode toolchain-native result
+shape, validate only the closed shared binding fields, inspect real `Repetition` nodes, and use the
+bounded Dashboard transition instead of an active TextField's lagging accessibility value.
+
+Consequences: Both hosted runs remain non-passes. The focused UI regression passes twice without
+retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02 is not Done;
+C6-03 and every archive/remote/release action remain blocked.
+
+---
+
+## 2026-08-31 — Bind C6-02 AX budget Save to Dashboard and concrete retry attempts
+
+Context: Independent rereview accepted PR #93 head `44c53a5` contingent on green hosted CI, but
+Actions run `33391122019` retained one AX1 Save failure followed by a runner retry pass. The native
+result parser worked and correctly rejected that history.
+
+Decision: Detailed ownership is DEC-COM-086. Use the bounded Save-to-Dashboard interaction
+handshake, and when Xcode emits direct `Repetition` children count those concrete attempts without
+also counting their aggregate Test Case parent. One concrete Passed attempt is valid;
+Failed→Passed remains a non-pass.
+
+Consequences: The third hosted run remains red evidence. The focused regression passes 2/2 without
+test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
+is not Done and C6-03 remains blocked.
+
+---
+
+## 2026-08-31 — Bind remaining AX5 interactions to visible App geometry
+
+Context: Independent review accepted PR #93 head `c05860f` subject to green hosted CI, but Actions
+run `33398172181` exposed two remaining test-only geometry assumptions. The affected back buttons
+remained present and tappable after a navigation-container-frame timeout. In a later repetition,
+budget Save reported hittable while the decimal keyboard still covered the control.
+
+Decision: Detailed ownership is DEC-COM-087. Require a nonempty back-button midpoint inside the App
+window. Before activating budget Save, require its complete frame below the navigation bar and
+above the keyboard; use bounded Form drags to enter that safe interaction lane.
+
+Consequences: The fourth hosted run remains a non-pass. A first local fixture attempt that queried
+Save before it existed is also a non-pass. The corrected focused regression passes 2/2 without
+test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
+is not Done and C6-03 remains blocked.

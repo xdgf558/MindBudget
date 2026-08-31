@@ -45,10 +45,11 @@ ALLOWED_STATIC_CHECKS = frozenset(
 # row checks. The matrix contract is its own bootstrap entry point, while coverage requires the
 # complete full-suite xcresult produced by Scripts/validate.sh rather than the selected C6 bundle.
 # Discovery below requires every future check script to be either a matrix check or one of these
-# two exact reviewed special cases.
+# three exact reviewed special cases.
 SPECIAL_CHECK_CLASSIFICATIONS = {
     "Scripts/check-c6-release-matrix.sh": "matrix-bootstrap",
     "Scripts/check-coverage.sh": "full-suite-xcresult",
+    "Scripts/check_c6_02_acceptance.py": "c6-02-bounded-acceptance",
 }
 
 EXPECTED_WORKER_CHECKS = (

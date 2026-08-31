@@ -2185,7 +2185,8 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   `Passed`; missing, skipped, failed, or duplicate evidence fails closed. Retain type-level test
   filters so the matrix continues to execute the full owning suites. Discover every
   `Scripts/check-*.sh` and `Scripts/check_*.py` file and require it to be either a row-driven matrix
-  check or one of two exact special roles: matrix bootstrap or full-suite coverage consumer.
+  check or, at this decision's time, one of two exact special roles: matrix bootstrap or full-suite
+  coverage consumer.
 - Consequences: `requiredMethods` is now runtime evidence rather than documentation metadata.
   Negative self-tests cover unclassified scripts plus skipped, missing, and duplicate required
   cases. The retained earlier bundle independently exercised 33 matrix bindings, including the
@@ -2451,3 +2452,148 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   geometry a contrast measurement; rerunning the owner-stopped duplicate physical suite; using
   `Xiao li的 iPhone (2)`; entering C6-03; or authorizing archive, upload, deployment, App Store
   Connect mutation, tester assignment, distribution, or release.
+
+## DEC-COM-083 — Close C6-02 manual disposition without inventing physical passes
+
+- Status/date: **Accepted owner evidence-scope decision — 2026-08-31**
+- Requirements: COM-C6 signed-device/App Review preflight; REQ-STOREKIT-LIFECYCLE-001;
+  REQ-RECEIPT-PIPELINE-001; REQ-RECEIPT-PRIVACY-001; local system/privacy release checks
+- Context: After PR #92 closed the reviewed DEC-COM-081 increment, five C6-02 checklist rows
+  remained. The owner instructed the project not to repeat already sufficient device work and to
+  accept the remaining scope. The retained exact-source full/C6 result bundles contain real Passed
+  test cases for StoreKit errors/restore/offers/retry, receipt lifecycle/explicit Save, and
+  notification/Siri/Spotlight/Face ID/CSV/Delete All. A read-only `devicectl` pass on only
+  `拉沙的iPhone` found the SwiftData artifacts inside the protected app container, but `xctrace`
+  independently listed that phone Offline and generated no trace. Exporting the real financial
+  store to the Mac was rejected as unsafe and did not occur.
+- Decision: Add `C6_02_ACCEPTANCE_MATRIX.json` and `check_c6_02_acceptance.py`. Bind 23 exact test
+  methods to one fresh complete xcresult, reject missing/skipped/duplicate evidence, keep all
+  archive/remote/G1/distribution/release actions blocked, and separate deterministic passes from
+  physical non-passes. Accept C4C-05 physical receipt continuity and the reviewed PR #91 AX5
+  evidence without rerunning them. Treat the unexecuted complete VoiceOver matrix,
+  Instruments/precise file-protection inspection, and physical system side effects as explicit
+  non-passes retained for final-candidate C6-03/C12 review, not as successful tests.
+- Consequences: C6-02 implementation/evidence may proceed to exact-head independent review and
+  hosted CI without another physical run. The phase is not Done until that reviewed head, its 23
+  runtime bindings, green CI, and merge are recorded. C6-03 still requires a separate owner
+  instruction; no Archive, upload, deployment, App Store Connect write, tester assignment, G1,
+  distribution, or release is authorized. This decision narrows C6-02 evidence scope but does not
+  waive final distribution-candidate privacy, accessibility, Instruments/data-protection, or
+  system-integration checks owned by C6-03/C12.
+- Alternatives rejected: Calling an unrun manual row Passed; exporting a real customer financial
+  store to inspect attributes; using `Xiao li的 iPhone (2)`; repeating the owner-stopped AX5 suite;
+  treating `devicectl` metadata as an exact protection-class proof; treating an Offline `xctrace`
+  attempt as Instruments evidence; or entering C6-03/Archive/upload automatically.
+
+## DEC-COM-084 — Use one cross-toolchain xcresult schema for C6-02 hosted evidence
+
+- Status/date: **Accepted PR #93 review remediation — 2026-08-31**
+- Requirements: DEC-COM-083; C6-02 hosted runtime evidence
+- Context: PR #93 exact head `9f69f1a` ran all unit/UI tests and coverage successfully in GitHub
+  Actions run `33370429991`, but the final C6-02 verifier failed because hosted Xcode 26.6 rejects
+  `xcresulttool` schema `0.4.0`. That version was the local Xcode 27 default, not a portable
+  repository contract. The run's uploaded Xcode 26.6 xcresult was downloaded and retained as a
+  local execution artifact for remediation verification.
+- Decision: Read C6-02 test results through explicit schema `0.3.0`, which both Xcode 26.6 and
+  Xcode 27 support. Parse the schema-stable `testNodes`/`Test Case` fields with a closed identifier
+  grammar that accepts either `Type/method(...)` or one leading bundle/module component. Continue
+  requiring each of the 23 bindings exactly once with result `Passed`. A failed-then-passed retry,
+  duplicate pass, skip, missing case, or malformed identifier remains a fail-closed non-pass.
+  Classify the C6-02 verifier as the third current C6 special check alongside matrix bootstrap and
+  the full-suite coverage consumer.
+- Consequences: The first hosted run is recorded as a non-pass despite its green test suites; it
+  does not establish hosted 23-binding evidence. The downloaded artifact now passes the remediated
+  `0.3.0` verifier for all 23 bindings, and the Xcode 27 local bundle remains compatible. A new
+  exact remediation head must pass independent rereview and hosted CI before merge or C6-02 Done.
+  C6-03 and every remote/release action remain blocked.
+- Alternatives rejected: Keeping Xcode 27-only schema `0.4.0`; relying on each toolchain's changing
+  default schema; parsing console prose; accepting any later Passed retry after a Failed attempt;
+  weakening exact bindings to suite-level status; or treating the first red hosted run as green
+  evidence because its tests happened to pass.
+
+## DEC-COM-085 — Consume toolchain-native xcresult and inspect real retry nodes
+
+- Status/date: **Accepted second PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/084; C6-02 hosted runtime evidence
+- Context: Actions run `33384223530` on exact head `bf83faf` disproved DEC-COM-084's portability
+  assumption: hosted Xcode 26.6 rejects explicit schema `0.3.0` as well as `0.4.0`. Release, unit,
+  UI, and coverage execution completed, but the final verifier remained red. The same run retained
+  one unrelated pseudo-long-text UI failure followed by a retry pass. Its attachment showed `500`
+  visibly present in the active saving-goal field, while the immediate accessibility `value`
+  predicate lagged. Inspection of the hosted result established the actual retry shape: one
+  `Test Case` with Failed and Passed `Repetition` children, not duplicate test-case nodes.
+- Decision: Do not request an explicit result schema. Consume the active Xcode toolchain-native
+  `test-results tests` JSON and validate only the closed shared fields needed for the 23 exact
+  bindings. Collect direct `Repetition` results, so any failed/skipped retry history attached to a
+  required binding prevents exact Passed evidence. In the pseudo-long-text setup helper, replace
+  the active-field value snapshot with a bounded transition to `dashboard.view`, which proves all
+  three inputs reached the view model, validated, persisted, and dismissed the form.
+- Consequences: Runs `33370429991` and `33384223530` remain non-passes. The native-schema reader
+  accepts the retained Xcode 26.6 artifacts and the Xcode 27 local artifact without pinning either
+  toolchain's schema version. The focused UI regression passes 2/2 without retry at
+  `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. This path is a local execution
+  pointer, not hosted or distribution evidence. A new exact head still requires independent
+  rereview, green hosted CI, and merge; C6-02 is not Done and C6-03 remains blocked.
+- Alternatives rejected: Guessing another shared explicit schema; accepting a retry's aggregate
+  Passed status without its repetition history; treating rendered input as lost because an active
+  TextField's accessibility value lags; removing CI retry support globally; or calling either red
+  run hosted evidence.
+
+## DEC-COM-086 — Bind AX budget Save to its destination and count concrete retry attempts
+
+- Status/date: **Accepted third PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/085; C6-02 hosted runtime evidence
+- Context: Independent rereview accepted exact head `44c53a5` subject to green hosted CI. Actions
+  run `33391122019` then proved the toolchain-native reader works on Xcode 26.6, but correctly ended
+  red because the AX1 half of the required accessibility test failed before its runner retry
+  passed. The failure hierarchy retained valid `3000`/`2500`/`500` fields and the matching flexible
+  preview while Save and the focused decimal keyboard remained onscreen. This identifies one
+  synthesized Save activation consumed during the Form keyboard/scroll transaction, not invalid
+  budget data. The result shape was aggregate `Passed` plus concrete Failed/Passed `Repetition`
+  children.
+- Decision: Activate budget Save through the existing bounded source-to-destination handshake:
+  retry the UI activation at most once only while `dashboard.view` remains absent. This is not an
+  XCTest runner retry and never converts an assertion failure into evidence. When a Test Case has
+  direct `Repetition` children, treat those children as the concrete attempts and do not also count
+  the aggregate parent. Accept exactly one concrete Passed attempt; reject Failed→Passed, skips,
+  duplicates, missing bindings, or malformed results. Keep self-tests for both one Passed
+  repetition and the observed Failed→Passed shape.
+- Consequences: Run `33391122019` remains a non-pass alongside `33370429991` and `33384223530`.
+  The focused AX1/AX5 regression passes 2/2 without test-runner retry at
+  `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`; the path is a local execution
+  pointer only. A new exact head still requires independent rereview, green hosted CI, and merge.
+  C6-02 is not Done; C6-03 and every archive/remote/release action remain blocked.
+- Alternatives rejected: Treating `** TEST EXECUTE SUCCEEDED **` or the aggregate Passed parent as
+  green evidence; disabling the fail-closed retry check; blindly rerunning the workflow; weakening
+  the Save boundary back to a stale TextField value; retrying after a surfaced validation error; or
+  entering C6-03 from any red run.
+
+## DEC-COM-087 — Require visible App geometry for remaining AX5 interactions
+
+- Status/date: **Accepted fourth PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/086; C6-02 hosted runtime evidence
+- Context: Independent rereview accepted exact head `c05860f` subject to green hosted CI. Actions
+  run `33398172181` then produced a fourth non-pass. During the first UI iteration, the Terms and
+  Privacy back buttons remained present, retained screenshots, and were tapped successfully after
+  the helper timed out because their midpoint was not yet inside a delayed navigation-bar container
+  frame. During a later runner repetition, the budget fields remained valid but the decimal
+  keyboard covered Save while XCTest still reported it hittable; neither bounded activation
+  reached Dashboard. These are test interaction-geometry defects, not product data or navigation
+  failures.
+- Decision: Back-button readiness requires existence, hittability, a nonempty frame, and a midpoint
+  inside the App window; it does not depend on an asynchronously settling navigation-container
+  frame. Budget Save readiness requires existence, hittability, a nonempty frame, and its whole
+  frame inside the lane below the navigation bar and above the keyboard. Move only the owning Form
+  with bounded drags until that condition holds, then retain the existing at-most-two
+  Save-to-Dashboard activation handshake. Do not weaken result-bundle retry rejection.
+- Consequences: Run `33398172181` remains a non-pass alongside the prior three runs. The first local
+  fixture attempt is also a non-pass because it queried Save's frame before the control existed.
+  After adding that existence boundary, the focused AX1/AX5 test passes 2/2 without test-runner
+  retry at `/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult`. The path is a local execution
+  pointer only. A new exact head still requires independent rereview, green hosted CI, and merge.
+  C6-02 is not Done; C6-03 and every archive/remote/release action remain blocked.
+- Alternatives rejected: Calling the fourth run green because its screenshots and later taps
+  worked; increasing only an arbitrary timeout while retaining the container-frame dependency;
+  trusting `isHittable` when a keyboard overlaps the control; tapping by coordinate through an
+  obstruction; dismissing the keyboard by mutating product flow; blindly rerunning CI; weakening
+  retry evidence; or entering C6-03 from any red run.

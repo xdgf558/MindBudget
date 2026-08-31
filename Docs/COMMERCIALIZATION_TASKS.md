@@ -665,7 +665,7 @@ Status: **Done after independent rereview and green CI through PR #86 (`015d00e`
 
 ### C6-02 — Signed-device and App Review preflight
 
-Status: **In Progress after explicit owner entry on 2026-08-30.**
+Status: **Implementation and bounded evidence complete pending independent review, hosted CI, and merge.**
 
 - [ ] Validate purchase/restore/manage/legal visibility; screenshots and notes; signed-app network,
   key, and content scans; data-protection, localization, accessibility, and privacy disclosures.
@@ -703,8 +703,31 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   with zero failures, and the exact-source C6 matrix with every required binding. Independent
   review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run `33362101536`
   passed, and PR #91 merged this bounded increment as `4ddabcd` under DEC-COM-082.
-  Transaction-error paths, receipt acquisition, full VoiceOver/accessibility, Instruments/data
-  protection, and system integration remain open, so C6-02 is not Done.
+  DEC-COM-083 now closes the remaining C6-02 disposition work without converting unrun physical
+  checks into passes. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact StoreKit, receipt,
+  accessibility-regression, and system-integration methods to one fresh complete xcresult. The
+  owner accepted C4C-05/PR #91 physical continuity and explicitly retained the unrun complete
+  VoiceOver matrix, Instruments/exact file-protection inspection, and physical system side effects
+  as non-passes for final-candidate C6-03/C12 review. Read-only `devicectl` inspection found the
+  SwiftData artifacts under containermanagerd data-protection policy on only `拉沙的iPhone`;
+  `xctrace` listed it Offline and generated no trace, and no financial store was exported. C6-02
+  awaits exact-head independent review, green hosted CI, and merge; it is not Done yet. PR #93
+  runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are non-passes. The first two failed because
+  hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also recorded one
+  pseudo-long-text failure followed by a
+  retry pass. DEC-COM-085 consumes the toolchain-native result shape, rejects failed `Repetition`
+  nodes for required bindings, and uses the bounded Dashboard transition instead of a lagging
+  active-field accessibility value. Run `33391122019` proved the native reader portable but
+  retained an AX1 Save interaction failure followed by a retry pass. DEC-COM-086 adds a bounded
+  Save-to-Dashboard interaction handshake and counts concrete repetition attempts without their
+  aggregate parent. Independently reviewed head `c05860f` then failed hosted run `33398172181`:
+  one iteration over-constrained two working back buttons to a delayed navigation-container frame,
+  while another let a keyboard-covered Save report hittable. DEC-COM-087 requires the back-button
+  midpoint inside the App window and the complete Save frame inside the keyboard-safe interaction
+  lane. The corrected focused regression passes 2/2 without test-runner retry. A fresh complete
+  validator then passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests
+  with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without
+  a UI retry. A new exact head still requires rereview and a green hosted run.
 
 ### C6-03 — TestFlight baseline
 

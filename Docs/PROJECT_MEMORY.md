@@ -230,9 +230,39 @@ DEC-COM-082. This closes only that reviewed AX5/navigation increment. C6-02 rema
 transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
 Instruments/data-protection, and system-integration evidence; C6-03 remains blocked.
 
-Next suggested task: complete only the remaining manual signed-device checklist in
-`Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
-upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
+DEC-COM-083 records the owner's instruction not to repeat already sufficient device work and
+closes only the remaining C6-02 evidence dispositions. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact
+runtime methods and separates deterministic passes from unperformed physical non-passes.
+Read-only `devicectl` inspection on only `拉沙的iPhone` found the SwiftData artifacts under
+containermanagerd data-protection policy; no financial store was exported. `xctrace` listed the
+same permitted phone Offline and generated no trace, so Instruments and an exact protection class
+are not called passed. Full VoiceOver and physical system side effects also remain non-passes for
+C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
+hosted CI, and merge.
+
+PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are explicit hosted non-passes. The
+first two completed their suites and coverage, but Xcode 26.6 rejected forced result schemas
+`0.4.0` and `0.3.0` respectively; the second run also recorded an unrelated pseudo-long-text UI
+failure followed by a retry pass.
+DEC-COM-085 supersedes DEC-COM-084's portability mechanism: the verifier now consumes the active
+toolchain-native xcresult shape and rejects real failed-then-passed `Repetition` nodes for any of
+the 23 required bindings. A focused two-iteration UI run passes without retry after using the
+bounded Dashboard transition as the end-to-end authority instead of the active field's lagging
+accessibility value. The third run proved native parsing works but exposed a separate AX1 first-
+attempt Save interaction failure followed by a retry pass, which the verifier correctly rejected.
+DEC-COM-086 uses the existing bounded Save-to-Dashboard activation handshake and treats direct
+`Repetition` children as the concrete attempts rather than double-counting their aggregate parent.
+Independently reviewed head `c05860f` then exposed two distinct hosted geometry assumptions: a
+working back button was rejected by a delayed navigation-container frame, and a keyboard-covered
+Save could still report hittable. DEC-COM-087 binds back-button readiness to a nonempty midpoint
+inside the App window and Save readiness to the whole frame being above the keyboard and below the
+navigation bar. The corrected focused regression passes 2/2 without test-runner retry. A fresh
+complete validator passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests
+with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without a
+UI retry. The new exact head still needs rereview and a green hosted run.
+
+Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
+Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

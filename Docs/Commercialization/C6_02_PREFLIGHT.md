@@ -1,17 +1,20 @@
 # C6-02 Signed-Device and App Review Preflight
 
-Status: **In Progress after explicit owner entry on 2026-08-30.** Independent review accepted
-exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`.
+Status: **Implementation and bounded evidence complete pending independent review, hosted CI, and
+merge.** Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed,
+and PR #88 merged as `6c2a051`.
 That review left one non-blocking required-reason API source-inventory hardening item before C6-02
 Done. PR #89 review accepted the lexer and wiring but found missing Foundation Swift overlay
 symbols. Independent rereview accepted exact remediation head `6ffc6fa`, hosted run `33287620965`
 passed, and PR #89 merged it as `72f016e`, closing that source-gate item.
 Customer-facing StoreKit, accessibility, localization, data-protection, and distribution-signed
-checks are now partially exercised below. C6-02 remains In Progress for the explicitly open manual
-items. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
-`33362101536` passed, and PR #91 merged the bounded AX5/navigation increment as `4ddabcd` under
-DEC-COM-082. C6-03, archive, upload, deployment, App Store Connect writes, tester assignment, G1,
-distribution, and release remain unauthorized.
+checks are now dispositioned below. Independent review accepted exact PR #91 head `b3ed24d` with
+no P1/P2 findings, hosted run `33362101536` passed, and PR #91 merged the bounded AX5/navigation
+increment as `4ddabcd` under DEC-COM-082. On 2026-08-31 the owner declined redundant physical
+reruns and accepted the exact
+bounded/non-pass treatment in `C6_02_ACCEPTANCE_MATRIX.json` under DEC-COM-083. That decision does
+not turn an unperformed physical check into a pass. C6-03, archive, upload, deployment, App Store
+Connect writes, tester assignment, G1, distribution, and release remain unauthorized.
 
 ## Authorization and evidence boundary
 
@@ -214,11 +217,69 @@ Automated remediation evidence:
   attempt could not write Wrangler logs or bind its local test server and is an environmental
   non-pass; the unrestricted rerun is the owning result. Its temporary result bundle was removed.
 
-## Manual signed-device evidence still open
+### PR #93 hosted-schema remediation
 
-- [ ] Execute or deterministically re-evidence purchase cancellation, actual restore, unsupported
-  paid introductory offer, unavailable StoreKit authority, and retry states. Live monthly/annual,
-  renewal/legal, already-entitled, and Manage Subscription presentation passed as recorded above.
+GitHub Actions run `33370429991` on exact head `9f69f1a` is a non-pass. Release, unit, UI, and
+coverage execution completed successfully, but the new acceptance verifier asked hosted Xcode
+26.6 for Xcode 27-only schema `0.4.0` and failed with `Unknown schema version provided`.
+Accordingly, that run does not prove the 23 bindings in hosted CI.
+
+Head `bf83faf` then produced the second non-pass, Actions run `33384223530`: Xcode 26.6 also
+rejected forced schema `0.3.0`, disproving the cross-toolchain assumption in DEC-COM-084. The run
+additionally retained one pseudo-long-text UI failure followed by a retry pass. Its screenshot
+showed the expected `500` rendered in the active field, identifying a lagging accessibility-value
+snapshot rather than lost input.
+
+DEC-COM-085 removes the forced schema entirely and validates the reviewed fields from each active
+toolchain-native result shape. Real `Repetition` children are collected, so any failed-then-passed
+required binding remains a non-pass. The pseudo-long-text helper now uses the bounded Dashboard
+transition as end-to-end proof that all budget values reached the model, validated, persisted, and
+dismissed the form. That focused regression passed 2/2 without retry at
+`/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. Both hosted runs remain non-passes;
+this local remediation evidence does not replace a new green exact-head hosted run.
+
+Exact head `44c53a5` then produced a third non-pass, Actions run `33391122019`. The native reader
+worked on hosted Xcode 26.6 and reached the 23-binding check. It correctly rejected the AX1/AX5 UI
+binding because AX1's first Save activation left the valid `3000`/`2500`/`500` form and keyboard
+onscreen, then the test-runner retry passed. DEC-COM-086 uses the existing bounded
+Save-to-Dashboard activation handshake and, when a Test Case has direct `Repetition` children, counts
+those concrete attempts instead of also counting the aggregate parent. One concrete Passed attempt
+is valid; Failed then Passed is still rejected. The focused test now passes 2/2 without runner
+retry at `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. All three hosted runs
+remain non-passes; a fresh exact-head hosted run remains required.
+
+Independently reviewed head `c05860f` then produced a fourth non-pass, Actions run `33398172181`.
+The first UI iteration retained and successfully tapped the affected back buttons after the helper
+timed out waiting for the navigation bar's container frame, so the failure was an over-constrained
+container-geometry predicate rather than missing navigation. A runner repetition later reached the
+budget form with valid fields but left the decimal keyboard covering Save; XCTest still reported
+the control hittable and the bounded activation did not reach Dashboard. DEC-COM-087 requires a
+nonempty back-button midpoint inside the App window, and requires the complete Save frame below the
+navigation bar and above the keyboard before activation. The first local fixture attempt is a
+non-pass because it queried the Save frame before the control existed. After adding that existence
+boundary, the exact focused test passed 2/2 without runner retry at
+`/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult`. All four hosted runs and the failed local
+fixture attempt remain non-passes. The first complete-validator launch was also a non-pass because
+the restricted environment could not connect to CoreSimulator or read the local signing prefix; it
+did not enter build/test execution. The identical unrestricted validator then passed Release, the
+strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
+physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI
+suite executed exactly 18 cases, so none used a test-runner retry. Its temporary xcresult was
+deleted by the validator and is an execution pointer rather than a durable artifact. A new exact-
+head hosted run remains required.
+
+## Bounded disposition of the remaining signed-device rows
+
+A checked row below means its evidence/disposition is complete for C6-02 review. It does not mean
+that every physical action named by the original row passed. `C6_02_ACCEPTANCE_MATRIX.json` is the
+machine-readable authority: 23 exact test bindings must execute once as Passed in a fresh complete
+validation, while every omitted physical action remains an explicit non-pass or later release gate.
+
+- [x] Deterministically re-evidence purchase cancellation, restore, unsupported paid introductory
+  offers, unavailable StoreKit authority, and retry states. The retained exact-source bundle
+  records the eight named StoreKit bindings Passed; live monthly/annual, renewal/legal, already-
+  entitled, and Manage Subscription presentation passed as recorded above. No new Sandbox
+  purchase/cancellation/restore was executed or claimed.
 - [x] Reinstall the DEC-COM-078/079 remediation and repeat physical AX5 plus English/Simplified
   Chinese light/dark appearance on `拉沙的iPhone` only. True-AX5 content and all four bilingual
   light/dark Pro captures passed. DEC-COM-081 additionally closes the screenshot-only first-push
@@ -227,21 +288,32 @@ Automated remediation evidence:
   non-passes and are not used as evidence. Independent review accepted exact PR #91 head
   `b3ed24d`, hosted run `33362101536` passed, and PR #91 merged this item as `4ddabcd`; automated
   geometry remains non-contrast evidence, so the manual screenshot review stays the visual proof.
-- [ ] VoiceOver, AX5, Increase Contrast, Reduce Motion, light/dark appearance, focus order, touch
-  targets, sheets, alerts, keyboard, and supported portrait orientations pass on the signed phone.
+- [x] Record the owner's bounded acceptance of the signed-phone accessibility evidence without
+  calling the full row passed. The reviewed physical AX5/bilingual/light-dark/three-skin evidence
+  and two exact simulator bindings pass. A complete VoiceOver/focus-order/sheet/alert/every-control
+  matrix was not run after the owner declined another redundant device pass; C12 retains final-
+  candidate accessibility review.
 - [x] Revalidate the DEC-COM-081 simulator regression without retries after the physical item: the
   focused AX1/AX5 content/chrome test passed 2/2, the complete validator recorded 558 passed, 13
   intentionally skipped, and zero failed tests, and the exact-source C6 matrix passed 285 tests
-  plus all 33 required bindings. This is local regression evidence, not a substitute for the still-
+  plus all 33 required bindings. This is local regression evidence, not a substitute for the then-
   open full signed-phone accessibility row above.
-- [ ] Camera and photo-picker receipt paths remain local, preview/retry/cancel correctly, preserve
-  edits, and require explicit Save before ledger persistence. The local-only entry and cancellation
-  no-write boundary passed, but acquisition was not rerun in this continuation.
-- [ ] Instruments confirms launch/scroll/memory/persistence behavior; effective SwiftData file
-  protection is inspected in the installed container.
-- [ ] Notification, Siri, Spotlight, Face ID lock, CSV export, and all-stage Delete All behaviors
-  pass the signed-device checklist. CSV copy was inspected but no share destination or file was
-  created in this continuation.
+- [x] Accept receipt continuity from C4C-05 physical acquisition plus the current signed candidate's
+  local-only disclosure/cancellation-without-write observation and five Passed exact-source
+  lifecycle/integration bindings. Camera/photo-picker acquisition was not redundantly rerun, so
+  this does not claim a new physical acquisition pass.
+- [x] Record Instruments/data-protection as an owner-accepted non-pass. Read-only `devicectl`
+  inspection on `拉沙的iPhone` found the SwiftData store, WAL/SHM, migration marker, and signed
+  configuration inside the app container with containermanagerd data-protection policy attributes;
+  no financial store was copied off device. `xctrace` simultaneously classified the permitted
+  phone Offline while `devicectl` remained connected, generated no trace, and therefore proved no
+  launch/scroll/memory result or exact protection class. C6-03/C12 retain distribution-candidate
+  inspection.
+- [x] Accept deterministic system-integration evidence while retaining physical side effects as
+  non-passes. The exact complete bundle records eight named notification, Siri, Spotlight, Face
+  ID, CSV, and all-stage deletion bindings Passed. No new physical notification delivery, Siri
+  invocation, Spotlight search, Face ID challenge, share destination, or destructive Delete All
+  was performed; C12 retains those final-candidate checks.
 
 ## Remaining release constraints
 
@@ -254,6 +326,6 @@ Automated remediation evidence:
   assignment, G1 decision, or public-release action occurred.
 - The required-reason source gate cannot replace Xcode's distribution privacy report or inspection
   of compiled dependencies; those remain mandatory C6-03/C12 evidence.
-- C6-02 cannot become Done until the exact branch receives independent review, hosted CI is green,
-  and the owner accepts the remaining manual evidence or records a narrowly scoped decision for
-  each unresolved item. C6-03 requires a separate explicit owner instruction.
+- C6-02 cannot become Done until this exact bounded-acceptance branch receives independent review,
+  its fresh complete validation proves all 23 declared runtime bindings, hosted CI is green, and
+  the reviewed merge is recorded. C6-03 requires a separate explicit owner instruction.

@@ -6735,3 +6735,109 @@ evidence. Transaction-error paths, receipt acquisition, the complete signed-phon
 accessibility matrix, Instruments/data protection, and system integration remain open. No new
 physical run occurred. C6-02 remains In Progress; C6-03, Archive/IPA, upload, deployment, App Store
 Connect mutation, tester assignment, G1, distribution, and release remain blocked or unauthorized.
+
+## 2026-08-31 — Bound the remaining C6-02 checklist without repeating device work
+
+The owner accepted a narrow disposition of the remaining C6-02 manual rows and explicitly stopped
+redundant physical reruns. Added `C6_02_ACCEPTANCE_MATRIX.json` plus a fail-closed/self-testing
+validator that binds 23 exact runtime methods to StoreKit transaction errors, receipt acquisition,
+accessibility regression, and system integration. The validator rejects missing, skipped,
+duplicate, or non-Passed results and preserves every archive/remote/G1/distribution/release block.
+
+Read-only inspection used only `拉沙的iPhone`. The app container exposed its expected SwiftData
+artifacts and data-protection policy attributes. A request to copy the real financial store off the
+phone was rejected by the safety boundary; it was not retried or bypassed. `xctrace` saw the device
+as Offline while `devicectl` remained connected and generated no trace. Therefore full VoiceOver,
+Instruments, exact data-protection class, and physical notification/Siri/Spotlight/Face ID/share/
+Delete All side effects remain explicit non-passes or final-candidate checks. DEC-COM-083 does not
+call them Passed. C6-02 awaits exact-head review, hosted CI, and merge; C6-03 and all remote/release
+actions remain blocked.
+
+Fresh exact-source validation subsequently passed on Xcode 27.0 beta 6 with the iOS 26.5 iPhone 17
+Pro simulator: Release, the strict Dashboard benchmark, 553 unit tests in 32 suites, 18 UI tests
+with 17 passed and the physical-only case skipped, all selected coverage gates, and all 23 bounded
+C6-02 runtime bindings. The C6 release matrix also passed 285 tests in 16 suites and all 33 matrix
+bindings at `/private/tmp/MindBudget-C6-02-DEC-COM-083-C6-Matrix.xcresult`. These are deterministic
+local execution results only and do not alter the recorded physical non-passes or release blocks.
+
+## 2026-08-31 — Remediate PR #93's hosted Xcode 26.6 evidence reader
+
+Actions run `33370429991` on head `9f69f1a` passed its tests and coverage but is a non-pass because
+the new verifier requested Xcode 27 schema `0.4.0`, which hosted Xcode 26.6 does not recognize. The
+run's uploaded Xcode 26.6 xcresult was downloaded read-only. DEC-COM-084 changes the C6-02 reader
+to shared schema `0.3.0`, accepts the stable Xcode 26/27 test-case identifier shapes, and adds a
+negative failed-then-passed retry test so CI retries cannot hide a failed first attempt.
+
+The remediated checker verifies all 23 exact bindings once as Passed in both the downloaded hosted
+artifact and the existing local Xcode 27 bundle. That local read is remediation evidence, not a
+green hosted run. The new exact head still needs rereview, hosted CI, and merge; C6-03 and all
+archive/remote/release actions remain blocked.
+
+## 2026-08-31 — Remediate PR #93's second hosted result-reader failure
+
+Actions run `33384223530` on exact head `bf83faf` is a second explicit non-pass. Hosted Xcode 26.6
+rejected forced schema `0.3.0`, and the suite retained one pseudo-long-text first-attempt failure
+followed by a retry pass. The failure frame showed `500` visibly present in the active field, so the
+immediate accessibility-value predicate was stale rather than the input being lost.
+
+DEC-COM-085 removes explicit schema selection, consumes the active toolchain-native result shape,
+and inspects real `Repetition` children so required bindings cannot hide a failed attempt. The UI
+helper now uses the bounded Dashboard transition as its end-to-end authority. Its two-iteration
+focused run passed without retry at `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`.
+Both hosted runs remain non-passes. A new exact head still requires rereview, green hosted CI, and
+merge; C6-02 remains In Progress and C6-03 plus all remote/release actions remain blocked.
+
+A fresh complete local validator then passed Release, the strict Dashboard benchmark, 553 unit
+tests, all 18 UI tests with 17 passed and one expected physical-only skip, every selected coverage
+gate, and the 23/23 C6-02 runtime check. No UI test retried. The validator deleted its temporary
+xcresult, so the printed path is an execution pointer; a new hosted Xcode 26.6 run remains required.
+
+## 2026-08-31 — Remediate PR #93's hosted AX1 Save retry
+
+Independent rereview accepted exact head `44c53a5` subject to green hosted CI. Actions run
+`33391122019` is instead a third explicit non-pass: native Xcode 26.6 result parsing worked, then
+the 23-binding gate correctly rejected one AX1 Save failure followed by a runner retry pass. The
+failure hierarchy showed the valid `3000`/`2500`/`500` values and matching preview still in the
+Form with the decimal keyboard focused, identifying a swallowed Save interaction rather than lost
+or invalid money input.
+
+DEC-COM-086 reuses the bounded Save-to-Dashboard activation handshake and normalizes direct
+`Repetition` children as concrete attempts without double-counting the aggregate Test Case parent.
+Exactly one concrete Passed attempt is accepted; Failed→Passed remains rejected. The focused test
+passes 2/2 without test-runner retry at
+`/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. A subsequent complete validator
+passes Release, the strict Dashboard benchmark, 553 unit tests, all 18 UI tests with 17 passed and
+one expected physical-only skip, every selected coverage threshold, and 23/23 C6-02 bindings; no
+UI test retried. The validator removed its temporary result bundle, so both paths are execution
+pointers rather than durable artifacts. All three hosted runs remain non-passes. A new exact head
+still requires rereview, green hosted CI, and merge; C6-02 remains In Progress, C6-03 remains
+blocked, and no remote/release action occurred.
+
+## 2026-08-31 — Remediate PR #93's fourth hosted AX5 interaction non-pass
+
+Independent review accepted exact head `c05860f` subject to green hosted CI. Actions run
+`33398172181` is instead a fourth explicit non-pass. The workflow reached UI execution without a
+schema-version failure, but the AX1/AX5 test failed in two concrete attempts. In one iteration,
+Terms and Privacy retained working back buttons and the test subsequently tapped them successfully,
+but the helper timed out
+against a delayed navigation-container frame. In another repetition, valid budget fields remained
+onscreen with the decimal keyboard covering Save even though XCTest reported the button hittable.
+
+DEC-COM-087 removes the unstable container-frame dependency and requires the back-button midpoint
+inside the App window. Budget setup now moves the Form by bounded drags until Save's entire frame is
+below the navigation bar and above the keyboard before activation. The first local focused attempt
+is retained as a non-pass because the new helper initially queried Save's frame before the control
+existed. After adding that existence boundary, the exact test passed 2/2 without test-runner retry
+at `/private/tmp/MindBudget-C6-02-Hosted-UI-Focus5.xcresult` under Xcode 27.0 beta 6 on the iOS 26.5
+iPhone 17 Pro simulator. This path is a local execution pointer, not hosted or distribution
+evidence. All four hosted runs remain non-passes. A new exact head requires independent rereview,
+green hosted CI, and merge; C6-02 remains In Progress, C6-03 remains blocked, and no remote/release
+action occurred.
+
+The first complete-validator launch was an environmental non-pass before build/test execution: the
+restricted environment could not connect to CoreSimulator and could not read the local signing
+prefix. The identical unrestricted command then passed Release, the strict Dashboard benchmark,
+all unit tests, all 18 UI tests with 17 passed and one expected physical-only skip, every selected
+coverage threshold, and all 23 C6-02 runtime bindings. The 18-case UI summary proves no test-runner
+retry was added. The validator deleted its temporary xcresult, so the printed path is an execution
+pointer rather than a durable artifact.
