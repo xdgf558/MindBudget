@@ -6791,3 +6791,24 @@ A fresh complete local validator then passed Release, the strict Dashboard bench
 tests, all 18 UI tests with 17 passed and one expected physical-only skip, every selected coverage
 gate, and the 23/23 C6-02 runtime check. No UI test retried. The validator deleted its temporary
 xcresult, so the printed path is an execution pointer; a new hosted Xcode 26.6 run remains required.
+
+## 2026-08-31 — Remediate PR #93's hosted AX1 Save retry
+
+Independent rereview accepted exact head `44c53a5` subject to green hosted CI. Actions run
+`33391122019` is instead a third explicit non-pass: native Xcode 26.6 result parsing worked, then
+the 23-binding gate correctly rejected one AX1 Save failure followed by a runner retry pass. The
+failure hierarchy showed the valid `3000`/`2500`/`500` values and matching preview still in the
+Form with the decimal keyboard focused, identifying a swallowed Save interaction rather than lost
+or invalid money input.
+
+DEC-COM-086 reuses the bounded Save-to-Dashboard activation handshake and normalizes direct
+`Repetition` children as concrete attempts without double-counting the aggregate Test Case parent.
+Exactly one concrete Passed attempt is accepted; Failed→Passed remains rejected. The focused test
+passes 2/2 without test-runner retry at
+`/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. A subsequent complete validator
+passes Release, the strict Dashboard benchmark, 553 unit tests, all 18 UI tests with 17 passed and
+one expected physical-only skip, every selected coverage threshold, and 23/23 C6-02 bindings; no
+UI test retried. The validator removed its temporary result bundle, so both paths are execution
+pointers rather than durable artifacts. All three hosted runs remain non-passes. A new exact head
+still requires rereview, green hosted CI, and merge; C6-02 remains In Progress, C6-03 remains
+blocked, and no remote/release action occurred.

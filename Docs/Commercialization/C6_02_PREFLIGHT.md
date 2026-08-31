@@ -238,6 +238,16 @@ dismissed the form. That focused regression passed 2/2 without retry at
 `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. Both hosted runs remain non-passes;
 this local remediation evidence does not replace a new green exact-head hosted run.
 
+Exact head `44c53a5` then produced a third non-pass, Actions run `33391122019`. The native reader
+worked on hosted Xcode 26.6 and reached the 23-binding check. It correctly rejected the AX1/AX5 UI
+binding because AX1's first Save activation left the valid `3000`/`2500`/`500` form and keyboard
+onscreen, then the test-runner retry passed. DEC-COM-086 uses the existing bounded
+Save-to-Dashboard activation handshake and, when a Test Case has direct `Repetition` children, counts
+those concrete attempts instead of also counting the aggregate parent. One concrete Passed attempt
+is valid; Failed then Passed is still rejected. The focused test now passes 2/2 without runner
+retry at `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. All three hosted runs
+remain non-passes; a fresh exact-head hosted run remains required.
+
 ## Bounded disposition of the remaining signed-device rows
 
 A checked row below means its evidence/disposition is complete for C6-02 review. It does not mean

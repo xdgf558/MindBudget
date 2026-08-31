@@ -997,13 +997,20 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         let save = app.buttons["budget.save"]
         makeHittable(save, in: app)
-        save.tap()
+        let dashboard = element("dashboard.view", in: app)
         // The active SwiftUI TextField accessibility value can lag its rendered digits under
         // pseudo-localization. The bounded Dashboard transition is the end-to-end authority that
         // all three values reached the view model, validated, persisted, and dismissed the form.
-        XCTAssertTrue(
-            element("dashboard.view", in: app).waitForExistence(timeout: 5),
-            "Budget setup did not accept and persist all entered values"
+        // Under hosted load, a Form can report the Save control hittable while its first
+        // synthesized tap is consumed by the still-focused decimal keyboard/scroll transaction.
+        // Retry only while the authoritative destination is absent; this is an interaction
+        // handshake, not an XCTest runner retry that could hide a failed assertion.
+        _ = tapAndWaitForDestination(
+            save,
+            destination: dashboard,
+            attempts: 2,
+            timeout: 5,
+            message: "Budget setup did not accept and persist all entered values"
         )
     }
 

@@ -2538,3 +2538,32 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   Passed status without its repetition history; treating rendered input as lost because an active
   TextField's accessibility value lags; removing CI retry support globally; or calling either red
   run hosted evidence.
+
+## DEC-COM-086 — Bind AX budget Save to its destination and count concrete retry attempts
+
+- Status/date: **Accepted third PR #93 hosted remediation — 2026-08-31**
+- Requirements: DEC-COM-083/085; C6-02 hosted runtime evidence
+- Context: Independent rereview accepted exact head `44c53a5` subject to green hosted CI. Actions
+  run `33391122019` then proved the toolchain-native reader works on Xcode 26.6, but correctly ended
+  red because the AX1 half of the required accessibility test failed before its runner retry
+  passed. The failure hierarchy retained valid `3000`/`2500`/`500` fields and the matching flexible
+  preview while Save and the focused decimal keyboard remained onscreen. This identifies one
+  synthesized Save activation consumed during the Form keyboard/scroll transaction, not invalid
+  budget data. The result shape was aggregate `Passed` plus concrete Failed/Passed `Repetition`
+  children.
+- Decision: Activate budget Save through the existing bounded source-to-destination handshake:
+  retry the UI activation at most once only while `dashboard.view` remains absent. This is not an
+  XCTest runner retry and never converts an assertion failure into evidence. When a Test Case has
+  direct `Repetition` children, treat those children as the concrete attempts and do not also count
+  the aggregate parent. Accept exactly one concrete Passed attempt; reject Failed→Passed, skips,
+  duplicates, missing bindings, or malformed results. Keep self-tests for both one Passed
+  repetition and the observed Failed→Passed shape.
+- Consequences: Run `33391122019` remains a non-pass alongside `33370429991` and `33384223530`.
+  The focused AX1/AX5 regression passes 2/2 without test-runner retry at
+  `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`; the path is a local execution
+  pointer only. A new exact head still requires independent rereview, green hosted CI, and merge.
+  C6-02 is not Done; C6-03 and every archive/remote/release action remain blocked.
+- Alternatives rejected: Treating `** TEST EXECUTE SUCCEEDED **` or the aggregate Passed parent as
+  green evidence; disabling the fail-closed retry check; blindly rerunning the workflow; weakening
+  the Save boundary back to a stale TextField value; retrying after a surfaced validation error; or
+  entering C6-03 from any red run.

@@ -3810,3 +3810,30 @@ benchmark, 553 unit tests, 18 UI tests with 17 passed and one expected physical-
 selected coverage threshold, and all 23 C6-02 bindings. No UI test retried. The validator removed
 its temporary result bundle, so the printed path is an execution pointer rather than a durable
 artifact. This is local evidence only; hosted Xcode 26.6 still owns the portability result.
+
+## 2026-08-31 — Session 200 — Preserve the third PR #93 hosted non-pass
+
+Goal: Diagnose run `33391122019` without calling a runner retry green, weakening the 23-binding
+gate, or entering C6-03.
+
+Actions: Confirmed the native xcresult reader reached hosted Xcode 26.6 successfully. Read the
+failed test log and hierarchy rather than rerunning blindly. AX1 retained valid
+`3000`/`2500`/`500` values and the matching flexible preview while Save and the focused decimal
+keyboard remained onscreen; the first synthesized Save activation had not reached Dashboard. The
+runner retry passed, and the acceptance gate correctly rejected the Failed/Passed `Repetition`
+history. Changed the shared setup helper to use the existing bounded source-to-Dashboard
+activation handshake. Changed result normalization to count concrete Repetition children instead
+of double-counting their aggregate parent, with self-tests for one Passed repetition and the
+observed Failed→Passed shape. Recorded DEC-COM-086.
+
+Result: Run `33391122019` remains a non-pass. The focused AX1/AX5 test passed 2/2 with zero failures
+and no test-runner retry at `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult` under
+Xcode 27.0 beta 6 on the iOS 26.5 iPhone 17 Pro simulator. A subsequent complete validator passed
+Release, the strict Dashboard benchmark, 553 unit tests, all 18 UI tests with 17 passed and one
+expected physical-only skip, every selected coverage threshold, and 23/23 C6-02 runtime bindings.
+No UI test retried. The validator removed its temporary
+`mindbudget-validation.U87fhN/MindBudget.xcresult`; both paths are local execution pointers, not
+hosted or distribution evidence. A new exact head requires independent rereview, green hosted CI,
+and merge. No product behavior, physical test, archive, upload, deployment, App Store Connect
+write, G1, distribution, or release action occurred; C6-02 remains In Progress and C6-03 remains
+blocked.

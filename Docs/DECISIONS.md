@@ -3399,3 +3399,20 @@ bounded Dashboard transition instead of an active TextField's lagging accessibil
 Consequences: Both hosted runs remain non-passes. The focused UI regression passes twice without
 retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02 is not Done;
 C6-03 and every archive/remote/release action remain blocked.
+
+---
+
+## 2026-08-31 — Bind C6-02 AX budget Save to Dashboard and concrete retry attempts
+
+Context: Independent rereview accepted PR #93 head `44c53a5` contingent on green hosted CI, but
+Actions run `33391122019` retained one AX1 Save failure followed by a runner retry pass. The native
+result parser worked and correctly rejected that history.
+
+Decision: Detailed ownership is DEC-COM-086. Use the bounded Save-to-Dashboard interaction
+handshake, and when Xcode emits direct `Repetition` children count those concrete attempts without
+also counting their aggregate Test Case parent. One concrete Passed attempt is valid;
+Failed→Passed remains a non-pass.
+
+Consequences: The third hosted run remains red evidence. The focused regression passes 2/2 without
+test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
+is not Done and C6-03 remains blocked.

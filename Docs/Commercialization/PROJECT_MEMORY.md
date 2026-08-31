@@ -464,12 +464,17 @@ C6-03/C12. Read-only `devicectl` inspection found protected SwiftData artifacts 
 `拉沙的iPhone`; no database was exported, and an Offline `xctrace` attempt produced no trace or
 Instruments pass. C6-02 awaits exact-head independent review, hosted CI, and merge.
 
-PR #93 runs `33370429991` and `33384223530` are non-passes because hosted Xcode 26.6 rejected
-forced schemas `0.4.0` and `0.3.0`; the latter also retained one pseudo-long-text failure followed
-by a retry pass. DEC-COM-085 replaces DEC-COM-084's mistaken cross-toolchain mechanism with the
+PR #93 runs `33370429991`, `33384223530`, and `33391122019` are non-passes. The first two failed
+because hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also retained one
+pseudo-long-text failure followed by a retry pass. DEC-COM-085 replaces DEC-COM-084's mistaken
+cross-toolchain mechanism with the
 toolchain-native xcresult shape and real `Repetition` inspection. A focused two-iteration UI run
 passes without retry after the bounded Dashboard transition replaced the active field's lagging
-accessibility-value assertion. A new exact-head rereview and green hosted run remain required.
+accessibility-value assertion. The third run proved the native reader works on Xcode 26.6 but
+retained an AX1 Save interaction failure followed by a retry pass. DEC-COM-086 applies the existing
+bounded Save-to-Dashboard activation handshake and counts concrete repetition attempts without
+their aggregate parent. Its focused regression passes 2/2 without test-runner retry. A new exact-
+head rereview and green hosted run remain required.
 
 Next suggested task: independently review and merge the DEC-COM-083 C6-02 packet; do not authorize
 archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual

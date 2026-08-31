@@ -240,14 +240,20 @@ are not called passed. Full VoiceOver and physical system side effects also rema
 C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
 hosted CI, and merge.
 
-PR #93 runs `33370429991` and `33384223530` are explicit hosted non-passes: their suites and
-coverage completed, but Xcode 26.6 rejected forced result schemas `0.4.0` and `0.3.0` respectively;
-the latter run also recorded an unrelated pseudo-long-text UI failure followed by a retry pass.
+PR #93 runs `33370429991`, `33384223530`, and `33391122019` are explicit hosted non-passes. The
+first two completed their suites and coverage, but Xcode 26.6 rejected forced result schemas
+`0.4.0` and `0.3.0` respectively; the second run also recorded an unrelated pseudo-long-text UI
+failure followed by a retry pass.
 DEC-COM-085 supersedes DEC-COM-084's portability mechanism: the verifier now consumes the active
 toolchain-native xcresult shape and rejects real failed-then-passed `Repetition` nodes for any of
 the 23 required bindings. A focused two-iteration UI run passes without retry after using the
 bounded Dashboard transition as the end-to-end authority instead of the active field's lagging
-accessibility value. The new exact head still needs rereview and a green hosted run.
+accessibility value. The third run proved native parsing works but exposed a separate AX1 first-
+attempt Save interaction failure followed by a retry pass, which the verifier correctly rejected.
+DEC-COM-086 uses the existing bounded Save-to-Dashboard activation handshake and treats direct
+`Repetition` children as the concrete attempts rather than double-counting their aggregate parent.
+Its focused regression passes 2/2 without test-runner retry. The new exact head still needs
+rereview and a green hosted run.
 
 Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
 Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.

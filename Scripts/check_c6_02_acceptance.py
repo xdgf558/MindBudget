@@ -204,14 +204,19 @@ def result_bindings(result_data: Any) -> dict[str, list[str]]:
                     if match:
                         binding = f"{match.group('type')}/{match.group('method')}"
                         results = observed.setdefault(binding, [])
-                        results.append(result)
+                        repetitions: list[str] = []
                         for repetition in value.get("children", []):
                             if (
                                 isinstance(repetition, dict)
                                 and repetition.get("nodeType") == "Repetition"
                                 and isinstance(repetition.get("result"), str)
                             ):
-                                results.append(f"Repetition:{repetition['result']}")
+                                repetitions.append(f"Repetition:{repetition['result']}")
+                        # A Test Case result is the aggregate when Xcode also emits per-attempt
+                        # Repetition children. Count the concrete attempts in that shape instead
+                        # of double-counting the aggregate parent. One Passed repetition is valid;
+                        # Failed then Passed remains two executions and is rejected below.
+                        results.extend(repetitions or [result])
             for child in value.get("children", []):
                 visit(child)
         elif isinstance(value, list):
@@ -230,7 +235,7 @@ def validate_results(data: dict[str, Any], result_data: Any) -> list[str]:
         results = observed.get(binding, [])
         if len(results) != 1:
             errors.append(f"required C6-02 test {binding} must execute exactly once; observed={results}")
-        elif results[0] != "Passed":
+        elif results[0] not in {"Passed", "Repetition:Passed"}:
             errors.append(f"required C6-02 test {binding} cannot fail or skip; result={results[0]}")
     return errors
 
@@ -331,6 +336,18 @@ def self_test(data: dict[str, Any], project_root: Path) -> None:
     ]
     if not validate_results(data, failed_then_passed):
         raise AssertionError("self-test failed to reject real failed-then-passed repetition nodes")
+    single_passed_repetition = copy.deepcopy(passing)
+    single_passed_repetition["testNodes"][0]["children"][0]["children"] = [
+        {
+            "nodeType": "Repetition",
+            "nodeIdentifier": "1",
+            "result": "Passed",
+        }
+    ]
+    if errors := validate_results(data, single_passed_repetition):
+        raise AssertionError(
+            "self-test rejected one concrete passed repetition:\n" + "\n".join(errors)
+        )
 
 
 def arguments() -> argparse.Namespace:

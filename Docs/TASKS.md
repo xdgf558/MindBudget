@@ -636,11 +636,15 @@ while C6-03, Staging/Production, G1, App Store Connect, distribution, and releas
   `拉沙的iPhone` found the protected SwiftData artifacts; `xctrace` reported that permitted phone
   Offline and generated no trace. No financial store was exported. C6-02 now awaits exact-head
   review, hosted CI, and merge; C6-03 remains blocked.
-- [ ] Close PR #93's hosted-schema remediation. Runs `33370429991` and `33384223530` are non-passes:
+- [ ] Close PR #93's hosted-schema/runtime remediation. Runs `33370429991`, `33384223530`, and
+  `33391122019` are non-passes:
   hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the latter run also retained one
   unrelated pseudo-long-text failure followed by a retry pass. DEC-COM-085 uses the toolchain-native
-  result shape, inspects real `Repetition` nodes, and replaces a lagging active-field value assertion
-  with the bounded Dashboard transition. The focused UI regression passes 2/2 without retry. A new
-  remediation head still requires rereview, green hosted CI, and merge; do not enter C6-03.
+  result shape and replaces a lagging active-field value assertion with the bounded Dashboard
+  transition. The third run proved that reader works on hosted Xcode 26.6 and correctly rejected a
+  real AX1 Save interaction failure followed by a retry pass. DEC-COM-086 uses a bounded
+  Save-to-Dashboard interaction handshake and counts concrete `Repetition` attempts without also
+  counting their aggregate parent. The focused UI regression passes 2/2 without test-runner retry.
+  A new remediation head still requires rereview, green hosted CI, and merge; do not enter C6-03.
 - [ ] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
   packet before marking C6-02 Done. Do not enter C6-03 or authorize Archive/upload automatically.

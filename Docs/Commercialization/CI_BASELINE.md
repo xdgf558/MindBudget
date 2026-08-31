@@ -2382,3 +2382,28 @@ all 23 C6-02 runtime bindings. No test retried. The temporary
 `mindbudget-validation.JZRFiN/MindBudget.xcresult` path was removed by the validator and is an
 execution pointer rather than a durable artifact. This local result does not replace the required
 new Xcode 26.6 hosted run.
+
+### C6-02 PR #93 third hosted non-pass and Save interaction remediation — 2026-08-31
+
+Independent rereview accepted exact head `44c53a5` contingent on green hosted CI. GitHub Actions
+run `33391122019` executed that head on hosted Xcode 26.6. All static/Worker preflight checks and
+Release/unit/coverage work completed. The native `xcresulttool` read also succeeded, closing the
+schema-portability question. The run nevertheless remains a non-pass: the AX1 half of
+`testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable` failed before its runner
+retry passed, and the 23-binding gate rejected observed aggregate Passed plus concrete
+Failed/Passed `Repetition` nodes.
+
+The failure hierarchy retained valid `3000`, `2500`, and `500` fields plus the matching flexible
+preview while Save and the decimal keyboard remained onscreen. DEC-COM-086 therefore uses the
+existing bounded Save-to-Dashboard interaction handshake instead of retrying the workflow or
+weakening evidence. It also treats direct Repetition children as the concrete attempts without
+double-counting their aggregate parent; exactly one concrete Passed is valid, while Failed→Passed
+remains rejected. The focused regression passed 2/2 without test-runner retry at
+`/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult` under Xcode 27.0 beta 6 on the iOS
+26.5 iPhone 17 Pro simulator. A subsequent complete `Scripts/validate.sh` run on the same local
+toolchain passed Release, the strict Dashboard benchmark, 553 unit tests, all 18 UI tests with 17
+passed and one expected physical-only skip, every selected coverage threshold, and all 23 C6-02
+runtime bindings. No UI test retried, including the remediated AX1/AX5 case. The validator removed
+its temporary `mindbudget-validation.U87fhN/MindBudget.xcresult`; both paths are local execution
+pointers rather than durable artifacts. A new exact head still needs independent rereview, green
+hosted CI, and merge.

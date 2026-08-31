@@ -712,12 +712,16 @@ Status: **Implementation and bounded evidence complete pending independent revie
   SwiftData artifacts under containermanagerd data-protection policy on only `拉沙的iPhone`;
   `xctrace` listed it Offline and generated no trace, and no financial store was exported. C6-02
   awaits exact-head independent review, green hosted CI, and merge; it is not Done yet. PR #93
-  runs `33370429991` and `33384223530` are non-passes because hosted Xcode 26.6 rejected forced
-  schemas `0.4.0` and `0.3.0`; the latter also recorded one pseudo-long-text failure followed by a
+  runs `33370429991`, `33384223530`, and `33391122019` are non-passes. The first two failed because
+  hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also recorded one
+  pseudo-long-text failure followed by a
   retry pass. DEC-COM-085 consumes the toolchain-native result shape, rejects failed `Repetition`
   nodes for required bindings, and uses the bounded Dashboard transition instead of a lagging
-  active-field accessibility value. The focused UI regression passes 2/2 without retry; a new
-  exact head still requires rereview and a green hosted run.
+  active-field accessibility value. Run `33391122019` proved the native reader portable but
+  retained an AX1 Save interaction failure followed by a retry pass. DEC-COM-086 adds a bounded
+  Save-to-Dashboard interaction handshake and counts concrete repetition attempts without their
+  aggregate parent. The focused UI regression passes 2/2 without test-runner retry; a new exact
+  head still requires rereview and a green hosted run.
 
 ### C6-03 — TestFlight baseline
 

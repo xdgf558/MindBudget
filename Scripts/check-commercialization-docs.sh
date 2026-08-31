@@ -2319,7 +2319,14 @@ for c602_portability_file in \
   Docs/Commercialization/PROJECT_MEMORY.md \
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   Docs/Commercialization/C6_02_PREFLIGHT.md; do
-  for c602_portability_anchor in 'DEC-COM-085' '33370429991' '33384223530' 'toolchain-native'; do
+  for c602_portability_anchor in \
+    'DEC-COM-085' \
+    'DEC-COM-086' \
+    '33370429991' \
+    '33384223530' \
+    '33391122019' \
+    'toolchain-native' \
+    'Save-to-Dashboard'; do
     grep -Fq "${c602_portability_anchor}" "${c602_portability_file}" || {
       echo "C6-02 hosted-schema remediation is missing ${c602_portability_anchor} in ${c602_portability_file}" >&2
       exit 1

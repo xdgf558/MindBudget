@@ -166,14 +166,20 @@ SwiftData artifacts under containermanagerd protection; no financial database wa
 `xctrace` listed that permitted phone Offline and generated no trace. Review/CI/merge of this exact
 packet remain required before C6-02 may be marked Done.
 
-PR #93 runs `33370429991` and `33384223530` are not green evidence: hosted Xcode 26.6 rejected
-forced schemas `0.4.0` and `0.3.0`; the latter also retained one pseudo-long-text failure followed
-by a retry pass. DEC-COM-085 consumes each supported toolchain-native result shape, pins the shared
+PR #93 runs `33370429991`, `33384223530`, and `33391122019` are not green evidence. The first two
+failed because hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also
+retained one pseudo-long-text failure followed by a retry pass. DEC-COM-085 consumes each supported
+toolchain-native result shape, pins the shared
 reviewed fields and both `Test Case` identifier forms, and inspects real `Repetition` nodes so a
 failed-then-passed required binding cannot be accepted. The UI failure screenshot showed the
 entered digits rendered; a focused two-iteration run passes without retry after the bounded
 Dashboard transition replaced the lagging active-field accessibility-value assertion. The
-repository now has three exact C6 special checks: matrix bootstrap, full-suite coverage
+third run proved native parsing on hosted Xcode 26.6, then correctly failed because AX1 Save had
+one failed attempt followed by a pass. DEC-COM-086 uses a bounded Save-to-Dashboard activation
+handshake and counts concrete repetition attempts without their aggregate parent; one future
+`Repetition:Passed` remains valid while Failed→Passed remains a non-pass. Its focused regression
+passes 2/2 without test-runner retry. The repository now has three exact C6 special checks: matrix
+bootstrap, full-suite coverage
 consumption, and bounded C6-02 acceptance. A fresh hosted run remains required.
 
 Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
