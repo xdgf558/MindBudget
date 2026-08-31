@@ -98,7 +98,10 @@ accessibility-regression, and system-integration methods to a fresh complete xcr
 existing physical continuity without rerun and preserves full VoiceOver, Instruments/exact
 data-protection class, and physical system side effects as explicit non-passes owned by C6-03/C12.
 This is not Requirement completion; C6-03 distribution artifacts and final-binary proof remain
-open.
+open. Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings,
+hosted run `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done.
+All four earlier hosted runs remain non-passes, and the back-button-selection/App-window-geometry plus upward-only
+Save-drag P3 notes remain C6-03/C12 maintenance evidence. No Active Requirement is marked Done.
 
 ## COM-C0A implementation inventory against requirements
 

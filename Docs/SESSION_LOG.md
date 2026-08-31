@@ -6841,3 +6841,21 @@ all unit tests, all 18 UI tests with 17 passed and one expected physical-only sk
 coverage threshold, and all 23 C6-02 runtime bindings. The 18-case UI summary proves no test-runner
 retry was added. The validator deleted its temporary xcresult, so the printed path is an execution
 pointer rather than a durable artifact.
+
+## 2026-09-01 — Close C6-02 after PR #93's exact reviewed merge
+
+Verified that independent final review approved exact PR #93 head `016dd33` with no P1/P2
+findings, GitHub Actions run `33405016652` passed on that exact head, and PR #93 merged as
+`c940e8e`. DEC-COM-088 closes C6-02 while preserving all four earlier hosted runs as non-passes,
+the accepted unrun physical rows for C6-03/C12, and the two non-blocking final-review harness
+notes. Updated both documentation tracks and the structural commercialization gate. No Swift
+product change, physical test, Archive, IPA, upload, deployment, App Store Connect mutation,
+tester assignment, G1 decision, distribution, release, or Active Requirement completion occurred;
+C6-03 remains blocked pending explicit owner entry and separate Archive/upload authority.
+
+Validation used Xcode 27.0 beta 6 (`27A5252f`). The no-`DEVELOPER_DIR` CommandLineTools attempt
+and sandbox-denied CoreSimulator attempt are recorded as environmental non-passes. The identical
+unrestricted validator passed Release, the strict Dashboard benchmark, 553 unit tests across 32
+suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one
+expected physical-only skip, selected coverage, and all 23 C6-02 runtime bindings. All four static
+gates, Shell syntax, and `git diff --check` also passed; no UI test-runner retry occurred.

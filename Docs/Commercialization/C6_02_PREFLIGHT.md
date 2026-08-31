@@ -1,7 +1,7 @@
 # C6-02 Signed-Device and App Review Preflight
 
-Status: **Implementation and bounded evidence complete pending independent review, hosted CI, and
-merge.** Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed,
+Status: **Done after independent final review and green hosted CI through PR #93 (`c940e8e`).**
+Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed,
 and PR #88 merged as `6c2a051`.
 That review left one non-blocking required-reason API source-inventory hardening item before C6-02
 Done. PR #89 review accepted the lexer and wiring but found missing Foundation Swift overlay
@@ -236,7 +236,7 @@ required binding remains a non-pass. The pseudo-long-text helper now uses the bo
 transition as end-to-end proof that all budget values reached the model, validated, persisted, and
 dismissed the form. That focused regression passed 2/2 without retry at
 `/private/tmp/MindBudget-C6-02-Native-Schema-Focus2.xcresult`. Both hosted runs remain non-passes;
-this local remediation evidence does not replace a new green exact-head hosted run.
+at that point this local remediation evidence did not replace a new green exact-head hosted run.
 
 Exact head `44c53a5` then produced a third non-pass, Actions run `33391122019`. The native reader
 worked on hosted Xcode 26.6 and reached the 23-binding check. It correctly rejected the AX1/AX5 UI
@@ -246,7 +246,7 @@ Save-to-Dashboard activation handshake and, when a Test Case has direct `Repetit
 those concrete attempts instead of also counting the aggregate parent. One concrete Passed attempt
 is valid; Failed then Passed is still rejected. The focused test now passes 2/2 without runner
 retry at `/private/tmp/MindBudget-C6-02-Save-Handshake-Focus2.xcresult`. All three hosted runs
-remain non-passes; a fresh exact-head hosted run remains required.
+remain non-passes; at that point a fresh exact-head hosted run remained required.
 
 Independently reviewed head `c05860f` then produced a fourth non-pass, Actions run `33398172181`.
 The first UI iteration retained and successfully tapped the affected back buttons after the helper
@@ -265,8 +265,8 @@ did not enter build/test execution. The identical unrestricted validator then pa
 strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
 physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI
 suite executed exactly 18 cases, so none used a test-runner retry. Its temporary xcresult was
-deleted by the validator and is an execution pointer rather than a durable artifact. A new exact-
-head hosted run remains required.
+deleted by the validator and is an execution pointer rather than a durable artifact. At that point
+a new exact-head hosted run remained required.
 
 ## Bounded disposition of the remaining signed-device rows
 
@@ -326,6 +326,11 @@ validation, while every omitted physical action remains an explicit non-pass or 
   assignment, G1 decision, or public-release action occurred.
 - The required-reason source gate cannot replace Xcode's distribution privacy report or inspection
   of compiled dependencies; those remain mandatory C6-03/C12 evidence.
-- C6-02 cannot become Done until this exact bounded-acceptance branch receives independent review,
-  its fresh complete validation proves all 23 declared runtime bindings, hosted CI is green, and
-  the reviewed merge is recorded. C6-03 requires a separate explicit owner instruction.
+- Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings, hosted run
+  `33405016652` passed on that head, and PR #93 merged as `c940e8e`. DEC-COM-088 marks C6-02
+  Done. The four earlier hosted runs remain non-passes. C6-02 is Done; C6-03 still requires a
+  separate explicit owner instruction.
+- Carry two non-blocking review notes into C6-03/C12: the back-button helper selects
+  `buttons.element(boundBy: 0)` and its accepted predicate is App-window geometry rather than a
+  navigation-bar-container frame, and the budget Save helper moves the Form only upward. Neither
+  note is a physical/accessibility pass or archive authorization.

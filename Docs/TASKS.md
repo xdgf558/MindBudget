@@ -273,9 +273,10 @@ C5-04/COM-C5 are Done. PR #85 merged the preserved C6 privacy-source handoff as 
 owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 remediation head
 `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The
 owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head
-`0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 now has an
-implementation-complete bounded evidence packet pending independent review, hosted CI, and merge,
-while C6-03, Staging/Production, G1, App Store Connect, distribution, and release remain blocked.
+`0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`. PR #93 later closed the
+bounded C6-02 packet through exact head `016dd33`, green run `33405016652`, merge `c940e8e`, and
+DEC-COM-088, while C6-03, Staging/Production, G1, App Store Connect, distribution, and release
+remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -596,7 +597,7 @@ while C6-03, Staging/Production, G1, App Store Connect, distribution, and releas
   performs no archive, upload, deployment, or App Store Connect write. Independent rereview
   approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as
   `015d00e`. The owner entered C6-02 on 2026-08-30, and C6-03 remains blocked.
-- [ ] During C6-02, independently inspect
+- [x] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and
   `MindBudget/Features/Commerce/ProSubscriptionView.swift`, the `TelemetryService` wiring in
@@ -634,9 +635,10 @@ while C6-03, Staging/Production, G1, App Store Connect, distribution, and releas
   Instruments/exact file protection, and physical notification/Siri/Spotlight/Face ID/share/Delete
   All actions as explicit non-passes for C6-03/C12. A read-only container listing on only
   `拉沙的iPhone` found the protected SwiftData artifacts; `xctrace` reported that permitted phone
-  Offline and generated no trace. No financial store was exported. C6-02 now awaits exact-head
-  review, hosted CI, and merge; C6-03 remains blocked.
-- [ ] Close PR #93's hosted-schema/runtime remediation. Runs `33370429991`, `33384223530`,
+  Offline and generated no trace. No financial store was exported. Independent final review
+  approved exact PR #93 head `016dd33`, hosted run `33405016652` passed, and PR #93 merged as
+  `c940e8e`; DEC-COM-088 marks C6-02 Done while C6-03 remains blocked.
+- [x] Close PR #93's hosted-schema/runtime remediation. Runs `33370429991`, `33384223530`,
   `33391122019`, and `33398172181` are non-passes:
   hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the latter run also retained one
   unrelated pseudo-long-text failure followed by a retry pass. DEC-COM-085 uses the toolchain-native
@@ -650,7 +652,9 @@ while C6-03, Staging/Production, G1, App Store Connect, distribution, and releas
   and requires the whole Save frame in the keyboard-safe interaction lane. The corrected focused
   regression passes 2/2 without test-runner retry. A fresh complete validator passes Release, the
   strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
-  physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. A new remediation head
-  still requires rereview, green hosted CI, and merge; do not enter C6-03.
-- [ ] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
-  packet before marking C6-02 Done. Do not enter C6-03 or authorize Archive/upload automatically.
+  physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. Independent final
+  review approved exact head `016dd33` with no P1/P2 findings, hosted run `33405016652` passed, and
+  PR #93 merged as `c940e8e`; do not enter C6-03 automatically.
+- [x] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
+  packet. C6-02 is Done through PR #93 (`c940e8e`). Preserve the two review P3 harness notes for
+  C6-03/C12 and do not authorize Archive/upload automatically.

@@ -2597,3 +2597,24 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   trusting `isHittable` when a keyboard overlaps the control; tapping by coordinate through an
   obstruction; dismissing the keyboard by mutating product flow; blindly rerunning CI; weakening
   retry evidence; or entering C6-03 from any red run.
+
+## DEC-COM-088 — Close C6-02 without entering C6-03
+
+- Status/date: **Accepted after PR #93 reviewed merge — 2026-09-01**
+- Requirements: COM-C6 C6-02; DEC-COM-083/085/086/087
+- Context: Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings.
+  GitHub Actions run `33405016652` passed on that exact head, and PR #93 merged as `c940e8e`.
+  Runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` remain explicit non-passes;
+  the accepted run does not rewrite their schema, retry, or interaction failures.
+- Decision: Mark C6-02 Done. Preserve the owner-accepted VoiceOver, Instruments/exact data-
+  protection, and physical system-side-effect rows as non-passes owned by C6-03/C12. Carry two
+  non-blocking final-review notes forward: the back-button helper still chooses
+  `buttons.element(boundBy: 0)` and proves App-window rather than navigation-container geometry,
+  and the budget Save helper performs only bounded upward Form drags. Keep C6-03 blocked pending
+  an explicit owner instruction and separate archive/upload authority.
+- Consequences: C6-02 source, signed-device, deterministic acceptance, independent review, and
+  hosted-CI evidence are closed. No Archive, IPA, upload, deployment, App Store Connect mutation,
+  tester assignment, G1 decision, distribution, release, or Active Requirement completion follows.
+- Alternatives rejected: Treating any earlier red run as evidence; calling retained physical non-
+  passes successful; dropping the two review P3 notes; entering C6-03 automatically; or treating a
+  development-signed Release build as a distribution candidate.

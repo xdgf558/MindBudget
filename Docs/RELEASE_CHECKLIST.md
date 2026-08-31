@@ -79,6 +79,10 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   reachable and bounded, and replaces immediate UI-transition reads with bounded waits. Earlier
   noncanonical simulator runs are not AX5 evidence. The bounded physical reinstall item passed;
   the complete accessibility/appearance matrix remains a non-pass retained for C12.
+- [x] Close C6-02 under DEC-COM-088 through independent final review of exact PR #93 head
+  `016dd33`, green hosted run `33405016652`, and merge `c940e8e`. Preserve all four earlier hosted runs as non-passes and
+  carry the back-button-selection/App-window-geometry and upward-only Save-drag P3 notes into
+  C6-03/C12. This closeout does not authorize an Archive, upload, or App Store Connect mutation.
 - [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
   require Production APS plus `get-task-allow = false` before any upload.
 

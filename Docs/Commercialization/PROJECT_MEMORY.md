@@ -462,7 +462,9 @@ evidence is not rerun; full VoiceOver,
 Instruments/exact file protection, and physical system side effects remain explicit non-passes for
 C6-03/C12. Read-only `devicectl` inspection found protected SwiftData artifacts on only
 `拉沙的iPhone`; no database was exported, and an Offline `xctrace` attempt produced no trace or
-Instruments pass. C6-02 awaits exact-head independent review, hosted CI, and merge.
+Instruments pass. Independent final review approved exact PR #93 head `016dd33`, hosted run
+`33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done and every
+retained physical non-pass remains owned by C6-03/C12.
 
 PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are non-passes. The first two failed
 because hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also retained one
@@ -479,10 +481,14 @@ back-button midpoint inside the App window and the full Save frame in the keyboa
 lane. Its corrected focused regression passes 2/2 without test-runner retry. A fresh complete
 validator passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests with 17
 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry.
-A new exact-head rereview and green hosted run remain required.
+Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and merged as
+`c940e8e` under DEC-COM-088.
 
-Next suggested task: independently review and merge the DEC-COM-083 C6-02 packet; do not authorize
-archive/upload from the C6-01 matrix or the development-signed Release build. Live bilingual
+Next suggested task: wait for explicit owner entry into C6-03; do not authorize archive/upload
+from the C6-01 matrix, C6-02 closeout, or the development-signed Release build. Carry forward the
+two non-blocking final-review notes: the back-button helper still uses
+`buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
+bounded upward Form drags. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
 cancellation without persistence have been observed. The pre-fix physical AX5 obstruction is a
 non-pass. The first simulator launch value was noncanonical and ignored; DEC-COM-079 now proves

@@ -61,7 +61,9 @@ PR #91 changes only local SwiftUI appearance ownership, UI-test synchronization,
 signed-device evidence. Independent review accepted exact head `b3ed24d`, hosted run
 `33362101536` passed, and PR #91 merged as `4ddabcd` under DEC-COM-082. It adds no host, request,
 payload, entitlement, deployment, traffic claim, App Store Connect mutation, Archive/IPA,
-distribution, or release authority; C6-02 remains In Progress and C6-03 remains blocked.
+distribution, or release authority. Independent final review approved exact PR #93 head
+`016dd33`, hosted run `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks
+C6-02 Done and C6-03 remains blocked pending separate owner/archive authority.
 
 DEC-COM-083 adds no egress or remote action. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact local
 runtime results and records the owner's bounded treatment of remaining C6-02 physical evidence.
