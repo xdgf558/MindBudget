@@ -57,6 +57,12 @@ the exact six reviewed host literals. It did not observe traffic, establish host
 prove Production deployment, inspect a distribution signature/IPA, or authorize any remote or App
 Store Connect mutation. `C6_02_PREFLIGHT.md` owns those evidence boundaries.
 
+PR #91 changes only local SwiftUI appearance ownership, UI-test synchronization, and bounded
+signed-device evidence. Independent review accepted exact head `b3ed24d`, hosted run
+`33362101536` passed, and PR #91 merged as `4ddabcd` under DEC-COM-082. It adds no host, request,
+payload, entitlement, deployment, traffic claim, App Store Connect mutation, Archive/IPA,
+distribution, or release authority; C6-02 remains In Progress and C6-03 remains blocked.
+
 ## Release enforcement contract
 
 1. `Scripts/check-network-egress.sh` scans every app-target Swift file plus checked-in app property

@@ -625,8 +625,10 @@ Staging/Production, G1, App Store Connect, distribution, and release remain bloc
   green hierarchy test missed. DEC-COM-081 binds navigation chrome to the Pro skin, and the final
   three-skin Pro/Terms/Privacy run passed 1/1 with all nine retained screenshots manually
   inspected. A later duplicate combined run was stopped by the owner and is not counted as a
-  pass. C6-02 remains open for transaction-error paths, receipt acquisition, full VoiceOver and
-  accessibility coverage, Instruments/data protection, system integration, exact-head review,
-  hosted CI, and merge. Final local revalidation passed two focused AX1/AX5 iterations, the full
+  pass. Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
+  `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
+  C6-02 remains open for transaction-error paths, receipt acquisition, full VoiceOver and
+  accessibility coverage, Instruments/data protection, and system integration. Final local
+  revalidation passed two focused AX1/AX5 iterations, the full
   validator with zero failures, and the C6 matrix with all 33 required bindings; this remains
   simulator evidence and does not close those manual rows.

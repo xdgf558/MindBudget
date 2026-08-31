@@ -91,7 +91,9 @@ tests. The corrected build's physical true-AX5 content and bilingual light/dark 
 on `拉沙的iPhone` only. DEC-COM-081 additionally binds Pro navigation chrome to the selected skin
 after manual screenshots found an invisible first-push back indicator that green hierarchy checks
 missed; its final three-skin run passed 1/1 with nine manually inspected captures. These are partial
-C6-02 facts, not Requirement completion; full physical accessibility, transaction-error,
+C6-02 facts. Independent review accepted exact PR #91 head `b3ed24d` without P1/P2 findings,
+hosted run `33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under
+DEC-COM-082. This is not Requirement completion; full physical accessibility, transaction-error,
 acquisition, Instruments/data protection, system integration, C6-03 distribution artifacts, and
 final-binary proof remain open.
 

@@ -2425,3 +2425,29 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Treating an accessibility element as visual contrast proof; keeping
   duplicate child color-scheme owners; relabeling a stopped run as passed; expanding one appearance
   run into full VoiceOver or release evidence; or substituting the excluded second phone.
+
+## DEC-COM-082 — Close only the reviewed DEC-COM-081 merge evidence
+
+- Status/date: **Accepted C6-02 partial-evidence closeout — 2026-08-31**
+- Requirements: COM-C6 signed-device accessibility and localization boundary; DEC-COM-078/079/080/081
+- Context: Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings and four
+  non-blocking observations. GitHub Actions run `33362101536` then passed on that exact head, and
+  PR #91 merged it to `main` as `4ddabcd`. The review accepted the single Pro presentation-boundary
+  color-scheme owner, the StoreKit static ownership gate, the geometry-settled AX5 screenshot
+  harness, and the keyboard-aware budget-form interaction helper. It also retained the fact that
+  automated geometry does not prove visual contrast, while the reviewed manual captures do.
+- Decision: Record the exact review/CI/merge chain and close only the DEC-COM-081 product and local-
+  regression increment. Keep C6-02 In Progress for transaction-error paths, receipt acquisition,
+  the complete signed-phone VoiceOver/accessibility matrix, Instruments/data protection, and
+  system integration. Keep C6-03 blocked by C6-02 acceptance and a separate archive/upload owner
+  instruction.
+- Consequences: PR #91 is durable partial C6-02 evidence, not C6-02 acceptance, distribution proof,
+  Archive/IPA evidence, App Store Connect authority, G1, or release authorization. The review's
+  P3 observations remain bounded maintenance notes: visual contrast still depends on manual
+  screenshot inspection; legal-page content inherits the parent navigation scheme; the physical
+  test identifies the first navigation-bar button as Back; and the budget helper intentionally
+  targets the reviewed budget form collection view. No additional physical run is inferred.
+- Alternatives rejected: Marking C6-02 Done from one bounded appearance fix; calling hierarchy
+  geometry a contrast measurement; rerunning the owner-stopped duplicate physical suite; using
+  `Xiao li的 iPhone (2)`; entering C6-03; or authorizing archive, upload, deployment, App Store
+  Connect mutation, tester assignment, distribution, or release.

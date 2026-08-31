@@ -224,8 +224,14 @@ integration remain open. Final simulator revalidation passed the focused AX1/AX5
 the complete validator with 558 passed/13 skipped/zero failed, and the C6 matrix with 285 tests plus
 all 33 required bindings; it does not broaden the physical result.
 
-Next suggested task: review the DEC-COM-081 physical remediation, then complete only the remaining
-manual signed-device checklist in `Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
+Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, GitHub Actions run
+`33362101536` passed, and PR #91 merged the bounded DEC-COM-081 remediation as `4ddabcd` under
+DEC-COM-082. This closes only that reviewed AX5/navigation increment. C6-02 remains In Progress for
+transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
+Instruments/data-protection, and system-integration evidence; C6-03 remains blocked.
+
+Next suggested task: complete only the remaining manual signed-device checklist in
+`Docs/Commercialization/C6_02_PREFLIGHT.md`. Do not archive,
 upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language

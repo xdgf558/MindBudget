@@ -700,7 +700,9 @@ Status: **In Progress after explicit owner entry on 2026-08-30.**
   final three-skin Pro/Terms/Privacy run passed 1/1 and all nine screenshots showed a visible back
   indicator. The owner stopped a later duplicate combined run, which is not called a pass.
   Post-remediation simulator validation passed the focused AX1/AX5 test twice, the complete suite
-  with zero failures, and the exact-source C6 matrix with every required binding.
+  with zero failures, and the exact-source C6 matrix with every required binding. Independent
+  review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run `33362101536`
+  passed, and PR #91 merged this bounded increment as `4ddabcd` under DEC-COM-082.
   Transaction-error paths, receipt acquisition, full VoiceOver/accessibility, Instruments/data
   protection, and system integration remain open, so C6-02 is not Done.
 

@@ -2284,3 +2284,22 @@ Release/test build, 285 tests in 16 suites, and all 33 required bindings passed.
 paths are execution pointers, not durable artifacts. No additional physical run was performed after
 the owner stopped redundant testing, and no C6-02, C6-03, distribution, or release completion is
 claimed.
+
+### C6-02 PR #91 reviewed merge calibration — 2026-08-31
+
+Independent review accepted exact head `b3ed24d` with no P1/P2 findings. Its P3 observations did
+not broaden the evidence: the automation verifies navigation geometry rather than visual contrast;
+the nine reviewed screenshots remain the contrast evidence; legal destinations inherit the single
+Pro color-scheme boundary; and the XCUITest helpers retain their reviewed structural assumptions.
+
+GitHub Actions run `33362101536` completed successfully on exact head `b3ed24d`. The `Build and
+test` job passed in 27m16s after every static, Worker, StoreKit, deployment-target, Release, unit,
+UI, coverage, and report step completed. PR #91 then merged that head to `main` as `4ddabcd`; the
+merge commit's second parent is `b3ed24d`.
+
+This closes only PR #91's bounded DEC-COM-081 implementation and local-regression evidence. No
+additional physical run occurred, and the prior owner-stopped duplicate remains a non-pass.
+Transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
+Instruments/data-protection, and system-integration evidence remain open. C6-02 is not Done, and
+C6-03 plus every Archive/IPA, upload, deployment, App Store Connect, G1, distribution, and release
+action remain blocked or unauthorized.

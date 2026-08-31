@@ -193,9 +193,13 @@ distribution binary. Physical AX5 testing also found that uncapped custom-tab la
 content. DEC-COM-078 caps only that persistent navigation chrome while leaving page content at the
 user's full Dynamic Type size. DEC-COM-079 replaces the ignored noncanonical simulator launch
 value with canonical AX1/AX5 values and proves a dynamic content element grows while chrome remains
-bounded. Corrected focused and full local validation are green; physical reinstall and the rest of
-the accessibility, acquisition, data-protection, Instruments, and system-integration checklist
-remain open.
+bounded. DEC-COM-081 then binds Pro navigation chrome to the selected skin after manual capture
+review found a first-push back-indicator contrast defect that a green hierarchy result missed.
+Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, hosted run
+`33362101536` passed, and PR #91 merged the bounded remediation as `4ddabcd` under DEC-COM-082.
+Automated geometry is not visual-contrast proof; the inspected captures own that evidence. The rest
+of the accessibility, acquisition, data-protection, Instruments, and system-integration checklist
+remains open.
 
 Delete All also resets setup state and returns to onboarding. A retained telemetry-deletion proof
 remains valid, but the person must complete setup again before Privacy & Security > Product

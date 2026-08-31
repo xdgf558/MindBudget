@@ -3335,3 +3335,18 @@ the rest of C6-02 remains In Progress and C6-03 remains blocked. A subsequent fu
 found an AX5 test-helper oscillation between navigation and keyboard obstructions; bounded local
 form drags fixed that harness mechanism, passed twice focused, and passed the complete validator
 with zero failures. It is simulator regression evidence, not new physical evidence.
+
+---
+
+## 2026-08-31 — Close only the reviewed DEC-COM-081 merge evidence
+
+Context: Independent review accepted exact PR #91 head `b3ed24d` without P1/P2 findings. GitHub
+Actions run `33362101536` passed on that head, and PR #91 merged it as `4ddabcd`.
+
+Decision: Detailed ownership is DEC-COM-082. Record the exact review/CI/merge chain as partial
+C6-02 evidence while keeping the remaining transaction-error, receipt-acquisition, full signed-
+phone accessibility, Instruments/data-protection, and system-integration rows open.
+
+Consequences: C6-02 remains In Progress; C6-03 remains blocked by C6-02 acceptance and separate
+archive/upload authority. No Archive/IPA, deployment, App Store Connect write, G1, distribution,
+or release authorization follows from PR #91.

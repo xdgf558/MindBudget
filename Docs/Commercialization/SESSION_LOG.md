@@ -3716,3 +3716,22 @@ intentionally skipped, and zero failed tests; all coverage thresholds passed. Th
 and all 33 runtime bindings. The earlier full bundle remains a non-pass and is not superseded into a
 pass. C6-02 remains In Progress for the still-open manual rows, while C6-03 and all remote/release
 actions remain blocked.
+
+## 2026-08-31 — Session 196 — Close PR #91's reviewed partial C6-02 merge evidence
+
+Goal: Calibrate the DEC-COM-081 product merge without closing C6-02 or changing the C6-03 archive
+boundary.
+
+Actions: Synchronized `main` to PR #91 merge `4ddabcd`. Reconciled exact reviewed head `b3ed24d`,
+green hosted run `33362101536`, and the merge parent chain. Recorded the review's no-P1/P2 result
+and retained its P3 boundaries: automated navigation geometry is not contrast proof, legal pages
+inherit the Pro owner, the physical harness identifies the first navigation-bar button as Back,
+and the budget helper remains intentionally scoped to the reviewed form. Updated the two memory
+tracks, packet/preflight, tasks, requirements/privacy/egress records, decisions, CI baseline, and
+the exact-evidence documentation gate.
+
+Result: DEC-COM-082 accepts PR #91 only as partial C6-02 evidence. The remaining manual rows are
+transaction-error behavior, receipt acquisition, full signed-phone VoiceOver/accessibility,
+Instruments/data protection, and system integration. No additional physical test, Archive, IPA,
+upload, deployment, App Store Connect write, tester assignment, G1, distribution, or release
+action occurred. C6-02 stays In Progress and C6-03 stays blocked.

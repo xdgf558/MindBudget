@@ -6718,3 +6718,20 @@ matrix passed 285 tests in 16 suites and all 33 required bindings at
 remains a non-pass. This adds simulator regression evidence only; C6-02 remains In Progress and
 C6-03 plus all archive/upload/deployment/App Store Connect/G1/distribution/release actions remain
 blocked or unauthorized.
+
+## 2026-08-31 — Close PR #91's reviewed partial C6-02 merge evidence
+
+Goal: Record the exact independent-review, hosted-CI, and merge chain for the bounded DEC-COM-081
+increment without marking C6-02 Done or entering C6-03.
+
+Actions: Fast-forwarded local `main` to PR #91 merge `4ddabcd`. Verified that independent review
+accepted exact head `b3ed24d` with no P1/P2 findings, that GitHub Actions run `33362101536` passed
+on that head, and that the merge commit's second parent is the reviewed head. Updated both memory
+tracks, the C6 execution packet and preflight, requirements/privacy/egress records, decisions,
+tasks, CI baseline, and the commercialization-document gate.
+
+Result: DEC-COM-082 closes only the reviewed AX5/navigation implementation and local-regression
+evidence. Transaction-error paths, receipt acquisition, the complete signed-phone VoiceOver and
+accessibility matrix, Instruments/data protection, and system integration remain open. No new
+physical run occurred. C6-02 remains In Progress; C6-03, Archive/IPA, upload, deployment, App Store
+Connect mutation, tester assignment, G1, distribution, and release remain blocked or unauthorized.
