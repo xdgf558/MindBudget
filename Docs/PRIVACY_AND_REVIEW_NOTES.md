@@ -151,6 +151,13 @@ owner explicitly entered C6-03 on 2026-09-01 under DEC-COM-089 and
 transport upload only. This does not authorize copying App Privacy answers into App
 Store Connect, tester assignment, service/schema deployment, G1, App Store submission,
 distribution, or public release; those gates remain open.
+Independent review approved exact preparation head `11ab612`, hosted run `33488815168` passed,
+and PR #95 merged it as `d5d0959`. The exported app then passed Distribution inspection with
+Production APS/CloudKit and `get-task-allow = false`; App Store Connect accepted delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8` at `2026-09-01 19:27:25 +0800`. This proves only the
+reviewed build's package/signature/privacy-manifest shape and transport acceptance. It does not
+prove final-binary Production traffic or authorize App Privacy form submission, tester assignment,
+G1, external review, distribution, or release. DEC-COM-090 owns this exact boundary.
 Final review retained two non-blocking C6-03/C12 harness notes: the back-button helper identifies
 `buttons.element(boundBy: 0)` and proves App-window geometry rather than navigation-container
 geometry, and the budget Save helper moves the Form only upward.

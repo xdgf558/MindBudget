@@ -157,3 +157,15 @@ model names/prices/retention policies, StoreKit commercial terms, trial, storefr
 quota, CloudKit architecture, App Attest design, backend domains, Watch target minimum, and formal
 release metadata remain **UNVERIFIED** until their named phase produces dated first-party evidence
 and an Accepted decision.
+
+## C6-03 current transport evidence — 2026-09-01
+
+DEC-COM-089 authorized only a reviewed/green/merged `0.9.9 (10)` Archive and TestFlight transport
+upload. Exact head `11ab612` passed independent review and hosted run `33488815168`; PR #95 merged
+it as `d5d0959`. DEC-COM-090 records the failed first export as a non-pass, the later cloud-managed
+Apple Distribution inspection as passed, and App Store Connect delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8` as accepted for processing at
+`2026-09-01 19:27:25 +0800`. This evidence does not mark any Active Requirement Done and does not
+prove Production service/schema deployment, final-binary traffic, customer participation, tester
+assignment, App Privacy form completion, G1, distribution, or public release. C6-03/COM-C6 remain
+open only for independent review, hosted CI, and merge of the documentation closeout.

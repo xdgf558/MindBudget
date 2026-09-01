@@ -2642,3 +2642,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   archiving an unreviewed branch; treating development signing as Distribution evidence; uploading
   before hosted CI; assigning testers as part of transport; deploying remote services/schema to make
   the binary appear complete; or calling TestFlight acceptance public-release approval.
+
+## DEC-COM-090 — Close C6-03 implementation at TestFlight transport acceptance
+
+- Status/date: **Accepted after reviewed build-10 merge, Distribution inspection, and owner-authorized upload — 2026-09-01**
+- Requirements: COM-C6 C6-03; DEC-COM-089; REQ-R1-NET-001; REQ-R1-TELEMETRY-001
+- Context: Independent review approved exact PR #95 head `11ab612`, GitHub Actions run
+  `33488815168` passed on that head, and PR #95 merged it as `d5d0959`. The first post-merge App
+  Store Connect export failed before package acceptance because Xcode lacked a usable current
+  account, distribution certificate, and entitlement-compatible Store profile. After the owner
+  restored the current account, automatic export produced a cloud-managed Apple Distribution IPA.
+  The closed Distribution inspector passed version `0.9.9`, build `10`, team `2AM5S7BM2N`,
+  Production APS/CloudKit, `get-task-allow=false`, the sole reviewed privacy manifest, exact host
+  vocabulary, and absence of StoreKit/test/extension/framework payloads.
+- Decision: Accept the later Distribution export as the exact `d5d0959` candidate. Record the first
+  export as a non-pass. Record App Store Connect transport acceptance at
+  `2026-09-01 19:27:25 +0800` with delivery UUID
+  `1b358d3b-4544-4617-ab47-5be69addc7a8`, then stop. C6-03/COM-C6 become Done only after this
+  documentation closeout receives independent review, green hosted CI, and merge.
+- Consequences: Build 10 is processing in App Store Connect and is traceable to the reviewed source
+  and Distribution signature. No tester assignment, external Beta App Review, App Store version
+  submission, App Privacy form acceptance, Production/Staging Worker or CloudKit schema deployment,
+  final-binary Production traffic, G1 decision, distribution, or public release is claimed or
+  authorized. Active Requirements remain Active.
+- Alternatives rejected: Calling the failed export harmless green evidence; using the development-
+  signed archive as Distribution evidence; retrying with `manageAppVersionAndBuildNumber=true`;
+  treating processing as tester availability or release; assigning a tester group automatically;
+  deploying a backend/schema to make the uploaded binary appear complete; deciding G1 from upload;
+  or entering a later phase before closeout review/CI/merge.

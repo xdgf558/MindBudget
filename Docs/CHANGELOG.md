@@ -6,7 +6,7 @@ Every user-visible change must be added here when it is implemented. Before each
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
 
-## 0.9.9 (10) — 2026-09-01 — C6-03 TestFlight baseline
+## 0.9.9 (10) — 2026-09-01 — TestFlight transport accepted; not publicly released
 
 ### Changed
 

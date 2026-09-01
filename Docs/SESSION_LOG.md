@@ -6895,3 +6895,35 @@ fresh C6 release matrix passed 285 tests across 16 suites and all 33 required ru
 `/private/tmp/MindBudget-C6-03-0.9.9-Build10-Matrix-20260901.xcresult`; this path is a local execution
 pointer rather than hosted or distribution evidence. The exact preparation head still requires
 independent review, green hosted CI, and merge before any Archive.
+
+## 2026-09-01 — Archive, inspect, and upload the reviewed C6-03 build-10 baseline
+
+Independent review approved exact PR #95 head `11ab612`, GitHub Actions run `33488815168` passed,
+and PR #95 merged it as `d5d0959`. Archived Release `0.9.9 (10)` from that exact `main` commit with
+Xcode 27.0 beta 6 (`27A5252f`). The archive retained a development signature and is not used as
+Distribution evidence.
+
+The first App Store Connect export is an explicit non-pass: Xcode initially lacked a usable current
+account, distribution certificate, and entitlement-compatible Store profile. No package was
+accepted. After the owner restored the account, automatic export with
+`manageAppVersionAndBuildNumber=false` produced a cloud-managed Apple Distribution IPA. The closed
+Distribution inspector passed version/build, bundle/team, arm64/iPhone-only, Production APS,
+Production CloudKit, `get-task-allow=false`, beta reporting, exact host vocabulary, the reviewed
+privacy manifest, and absence of StoreKit/test/extension/framework payloads.
+
+The owner explicitly authorized upload. App Store Connect accepted `0.9.9 (10)` for processing at
+`2026-09-01 19:27:25 +0800` with delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 stops at that transport boundary. No tester
+assignment, external Beta review, App Store submission, privacy-form write, service/schema
+deployment, final-binary Production traffic probe, G1, distribution, or public release occurred.
+The documentation closeout still needs independent review, hosted CI, and merge.
+
+Closeout validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
+across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed
+and one expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime
+bindings; no UI test-runner retry occurred. The validator removed its temporary xcresult, so that
+path is only an execution pointer. The separate C6 release matrix passed 285 tests across 16
+suites and all 33 required bindings at
+`/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; this local path is not hosted,
+Archive, Distribution, App Store Connect, G1, or release evidence.

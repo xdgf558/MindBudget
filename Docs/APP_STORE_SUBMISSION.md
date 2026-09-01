@@ -7,15 +7,16 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Current source candidate: version 0.9.9, build 10
-- Current uploaded TestFlight candidate: version 0.9.8, build 9 (transport accepted 2026-08-17)
+- Current source and uploaded TestFlight candidate: version 0.9.9, build 10 (transport accepted
+  2026-09-01; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8`)
+- Previous uploaded TestFlight candidate: version 0.9.8, build 9 (transport accepted 2026-08-17)
 - Previous uploaded candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
 - Earlier uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
 - Earlier uploaded candidate: version 0.9.6, build 7 (transport accepted 2026-08-10)
 - Earlier uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Every uploaded build above is immutable. C6-03 prepares build 10 as the next replacement.
+- Every uploaded build above is immutable. Build 10 is now the current processing replacement.
 - Increment the build number after every uploaded replacement.
 - Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
   legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
@@ -38,6 +39,13 @@ validated under the owner's current China-region Apple Developer account.
   only after its exact source head passes independent review and hosted CI and merges to `main`.
   The authorization still excludes tester-group assignment, external Beta App Review, App Store
   version submission, public release, G1, and Staging/Production service deployment.
+- Independent review approved exact build-10 head `11ab612`, hosted run `33488815168` passed, and
+  PR #95 merged it as `d5d0959`. A cloud-managed Apple Distribution export passed the closed
+  distribution inspector. App Store Connect accepted `0.9.9 (10)` at
+  `2026-09-01 19:27:25 +0800` with delivery UUID
+  `1b358d3b-4544-4617-ab47-5be69addc7a8` and began processing. No tester group, external Beta App
+  Review, App Store submission, G1 decision, or public release followed; DEC-COM-090 records that
+  exact boundary.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
@@ -49,7 +57,7 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.9 (10) — C6-03 baseline candidate; not yet uploaded
+### 0.9.9 (10) — Uploaded C6-03 TestFlight baseline; processing
 
 This candidate brings the reviewed C4–C6 local-first work together without making any public-
 release claim. Financial records remain authoritative on device; iCloud sync and first-party
@@ -69,8 +77,9 @@ What to test:
   Dynamic Type-aware key. Pattern cards may show supporting/total samples and an integer evidence
   ratio without presenting that ratio as a probability.
 - In MindBudget Pro, exercise verified subscription, trial, grace, billing-retry, expiry, restore,
-  and unavailable-authority presentation. Purchase must remain disabled unless StoreKit has an
-  exact actionable Free result; network/configuration failure must not revoke verified local Pro.
+  and unavailable-authority presentation. Purchase must remain disabled unless StoreKit has
+  completed authoritative verification and returned the exact no-subscription state; this is
+  separate from a free trial. Network/configuration failure must not revoke verified local Pro.
 - At AX5 in English and Simplified Chinese, confirm the four-tab chrome remains reachable while
   page content continues to grow, and Pro, Terms, and Privacy keep a visible system back indicator
   in all three skins.

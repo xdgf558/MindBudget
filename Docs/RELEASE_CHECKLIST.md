@@ -86,18 +86,28 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [ ] After the reviewed build-10 preparation merges to `main`, run the same inspector in
   `--mode distribution` and require Production APS plus `get-task-allow = false` before upload.
 
-### C6-03 0.9.9 (10) baseline — In Progress
+### C6-03 0.9.9 (10) baseline — transport complete, closeout review pending
 
 - [x] DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized one
   `0.9.9 (10)` Archive plus TestFlight transport upload after exact-head independent review, green
   hosted CI, and merge.
 - [x] Build 10 is committed as the next traceable replacement; matching dated changelog and
   TestFlight notes are present. `manageAppVersionAndBuildNumber` must remain false during export.
-- [ ] Obtain exact-head independent review, green hosted CI, and merge before Archive.
-- [ ] Archive merged `main`, inspect the Distribution signature/privacy/dependencies, then upload
+- [x] Independent review approved exact head `11ab612`, hosted run `33488815168` passed, and PR #95
+  merged the reviewed candidate as `d5d0959` before Archive.
+- [x] Archive merged `main`, inspect the Distribution signature/privacy/dependencies, then upload
   only if every gate in `Docs/Commercialization/C6_03_RELEASE_BASELINE.md` passes.
-- [ ] Record transport acceptance and stop. Do not assign testers, submit external Beta App Review,
-  submit an App Store version, deploy services/schema, decide G1, or release publicly.
+- [x] Record App Store Connect transport acceptance at `2026-09-01 19:27:25 +0800` with delivery
+  UUID `1b358d3b-4544-4617-ab47-5be69addc7a8`, then stop. No tester assignment, external Beta App
+  Review, App Store version submission, service/schema deployment, G1 decision, or public release
+  followed.
+- [x] Preserve the first distribution-export attempt as a non-pass caused by unavailable current
+  account/signing/profile state. Only the later cloud-managed Apple Distribution export is valid
+  distribution evidence.
+- [x] DEC-COM-090 records the exact Distribution/transport evidence and keeps every later remote,
+  tester, G1, distribution, and release action outside this baseline.
+- [ ] Merge the independently reviewed, hosted-green documentation closeout before marking C6-03
+  complete or closing its parent COM phase.
 
 ### Completed 0.9.8 (9) release execution
 

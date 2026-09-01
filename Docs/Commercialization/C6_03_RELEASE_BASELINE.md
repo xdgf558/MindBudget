@@ -1,7 +1,7 @@
 # C6-03 TestFlight Baseline
 
-Status: **In Progress under DEC-COM-089 after explicit owner entry and bounded Archive/upload authority on
-2026-09-01.**
+Status: **Implementation and bounded transport complete under DEC-COM-090; documentation closeout
+pending independent review, hosted CI, and merge.**
 
 ## Authorized outcome
 
@@ -21,24 +21,46 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
   entitlement, privacy-manifest, host-literal, device-family, minimum-OS, and no-test-fixture checks.
 - [x] Every repository static gate, full validator, and C6 release matrix passes on the preparation
   head with no hidden test retry accepted as evidence.
-- [ ] Independent review approves the exact head, hosted CI passes on that head, and the reviewed
-  candidate merges to `main` before Archive.
+- [x] Independent review approved exact preparation head `11ab612`, GitHub Actions run
+  `33488815168` passed on that head, and PR #95 merged it to `main` as `d5d0959` before Archive.
 
 ## Distribution gates after reviewed merge
 
-- [ ] Archive plain `MindBudget` Release from the exact merged `main` commit using the owner-selected
+- [x] Archive plain `MindBudget` Release from exact merged `main` commit `d5d0959` using the owner-selected
   team `2AM5S7BM2N` and bundle ID `com.xdgf558.MindBudget`.
-- [ ] Run `Scripts/inspect-c6-release-app.sh --mode distribution` against the archived app and require
+- [x] Run `Scripts/inspect-c6-release-app.sh --mode distribution` against the exported app and require
   Production APS, Production private-CloudKit environment, and `get-task-allow = false`.
-- [ ] Confirm the archive embeds the reviewed `PrivacyInfo.xcprivacy`, contains no StoreKit fixture
+- [x] Confirm the exported app embeds the reviewed `PrivacyInfo.xcprivacy`, contains no StoreKit fixture
   or test bundle, and contains no unreviewed app/extension/framework privacy manifest or dependency.
-- [ ] Confirm Release environment selection can reach only the reviewed Production configuration
+- [x] Confirm Release environment selection can reach only the reviewed Production configuration
   and telemetry contexts. Development and Staging literals may remain inert enum-case strings, but
   there must be no Release selection path to them.
-- [ ] Export/upload with `manageAppVersionAndBuildNumber: false`; require transport acceptance for
+- [x] Export/upload with `manageAppVersionAndBuildNumber: false`; App Store Connect accepted
   `0.9.9 (10)` and record the delivery UUID, timestamp, signing identity, and merged source commit.
-- [ ] Record that tester assignment, external review, Production deployment/schema, G1, distribution,
+- [x] Record that tester assignment, external review, Production deployment/schema, G1, distribution,
   and public release were not performed.
+
+## Exact distribution and transport evidence
+
+- Archive: `/private/tmp/MindBudget-C6-03-0.9.9-zv9Qeg/MindBudget.xcarchive`, produced from
+  `d5d0959` with Xcode 27.0 beta 6 (`27A5252f`). The archive's development signature is not used as
+  distribution evidence.
+- The first App Store Connect export is an explicit non-pass: Xcode had no usable current account,
+  distribution certificate, or entitlement-compatible Store provisioning profile. No package was
+  accepted from that attempt.
+- After the owner restored the current Xcode account, automatic App Store Connect export produced
+  `/private/tmp/MindBudget-C6-03-0.9.9-zv9Qeg/Exported/MindBudget.ipa`. The extracted app passed the
+  distribution inspector as version `0.9.9`, build `10`, bundle `com.xdgf558.MindBudget`, team
+  `2AM5S7BM2N`, arm64, iPhone-only, and `get-task-allow = false`.
+- Distribution signing used the cloud-managed Apple Distribution certificate with SHA-1
+  `772445FF75853BB4E4D8145E13D5AE0730F97D72` and Store profile UUID
+  `b2a9f8d1-2e48-41bf-84fd-48a9922ce82b`; both expire 2027-08-08. The app carries Production APS,
+  Production CloudKit, `iCloud.com.xdgf558.MindBudget`, `beta-reports-active = true`, the sole
+  reviewed app privacy manifest, no StoreKit fixture/test bundle, and no embedded app extension,
+  framework, or test target.
+- The owner explicitly authorized upload. At `2026-09-01 19:27:25 +0800`, App Store Connect
+  accepted the package for processing with delivery UUID
+  `1b358d3b-4544-4617-ab47-5be69addc7a8`. This is transport acceptance only.
 
 ## Accepted non-passes carried forward
 

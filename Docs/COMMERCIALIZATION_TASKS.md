@@ -646,12 +646,16 @@ failure never changes app behavior.
 
 ## COM-C6 — Local commercialization TestFlight and review preflight
 
-Status: **In Progress after reviewed C6-01 merge. No public release in this phase.**
+Status: **Implementation and bounded TestFlight transport complete; documentation closeout pending
+independent review, hosted CI, and merge. No public release in this phase.**
 
 C6-02 is Done after independent final review, green hosted CI, and PR #93 merge `c940e8e`.
 DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized Archive
 plus transport upload of `0.9.9 (10)` only after the exact preparation head passes independent
 review, hosted CI, and merge; `C6_03_RELEASE_BASELINE.md` owns the bounded checklist.
+DEC-COM-090 records exact reviewed head `11ab612`, green run `33488815168`, merge `d5d0959`,
+Distribution inspection, and App Store Connect delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`. Only this documentation closeout remains open.
 
 ### C6-01 — Automated release matrix
 
@@ -739,13 +743,17 @@ Status: **Done after independent final review and green hosted CI through PR #93
 
 ### C6-03 — TestFlight baseline
 
-Status: **In Progress after explicit owner entry and bounded Archive/upload authority on
-2026-09-01.**
+Status: **In Progress; implementation and bounded transport are complete under DEC-COM-090, and
+the documentation closeout awaits independent review, hosted CI, and merge.**
 
 - [ ] Close P0/P1, record the accepted R1 baseline and known limitations, prepare `0.9.9 (10)`,
-  archive and upload only after exact-head review/CI/merge, and keep tester assignment, G1, service
-  deployment, formal App Store submission, and public release paused. The authoritative checklist
-  is `C6_03_RELEASE_BASELINE.md`.
+  archive exact merged `main`, pass Distribution inspection, and stop after App Store Connect
+  transport acceptance. Exact reviewed head `11ab612` passed run `33488815168`, PR #95 merged as
+  `d5d0959`, and delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` was accepted at
+  `2026-09-01 19:27:25 +0800`. Tester assignment, G1, service deployment, formal App Store
+  submission, distribution, and public release remain paused. The authoritative checklist is
+  `C6_03_RELEASE_BASELINE.md`; only independent review, hosted CI, and merge of this documentation
+  closeout remain before the item can be marked complete.
 
 Exit gate: all v1.4 COM-C6 entry criteria pass and the baseline is suitable for Watch and G1
 observation, but not public distribution.
