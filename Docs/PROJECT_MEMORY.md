@@ -264,7 +264,7 @@ UI retry. Exact head `016dd33` subsequently passed final review and hosted run `
 merged as `c940e8e` under DEC-COM-088.
 
 Current task: DEC-COM-089 records that C6-03 is explicitly entered as of 2026-09-01. Follow
-`C6_03_RELEASE_BASELINE.md` and prepare `0.9.8 (10)` for independent
+`C6_03_RELEASE_BASELINE.md` and prepare `0.9.9 (10)` for independent
 review and hosted CI; Archive and TestFlight transport upload may occur only from the exact reviewed,
 green, merged `main` commit. Stop after transport acceptance. Do not assign testers, deploy
 Staging/Production or CloudKit schema, decide G1, submit App Store review, distribute, or release.

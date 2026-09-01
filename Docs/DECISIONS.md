@@ -3459,7 +3459,7 @@ Context: C6-02 closed through PR #93 and the owner explicitly instructed the pro
 next task. The previously uploaded `0.9.8 (9)` binary is immutable, while all C4–C6 source changes
 remain unreleased.
 
-Decision: Detailed ownership is DEC-COM-089. Prepare `0.9.8 (10)` first as a normal independently
+Decision: Detailed ownership is DEC-COM-089. Prepare `0.9.9 (10)` first as a normal independently
 reviewed and hosted-green PR. Only after that exact candidate merges to `main` may C6-03 Archive,
 inspect the Distribution signature/privacy/dependencies, and upload through TestFlight transport.
 Stop after transport acceptance.

@@ -7,7 +7,7 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Current source candidate: version 0.9.8, build 10
+- Current source candidate: version 0.9.9, build 10
 - Current uploaded TestFlight candidate: version 0.9.8, build 9 (transport accepted 2026-08-17)
 - Previous uploaded candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
 - Earlier uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
@@ -49,7 +49,7 @@ validated under the owner's current China-region Apple Developer account.
 
 ## TestFlight build notes
 
-### 0.9.8 (10) — C6-03 baseline candidate; not yet uploaded
+### 0.9.9 (10) — C6-03 baseline candidate; not yet uploaded
 
 This candidate brings the reviewed C4–C6 local-first work together without making any public-
 release claim. Financial records remain authoritative on device; iCloud sync and first-party

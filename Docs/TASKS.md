@@ -659,7 +659,7 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [x] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
   packet. C6-02 is Done through PR #93 (`c940e8e`). Preserve the two review P3 harness notes for
   C6-03/C12 and do not authorize Archive/upload automatically.
-- [ ] Execute the DEC-COM-089 C6-03 baseline in `C6_03_RELEASE_BASELINE.md`. Prepare `0.9.8 (10)` and
+- [ ] Execute the DEC-COM-089 C6-03 baseline in `C6_03_RELEASE_BASELINE.md`. Prepare `0.9.9 (10)` and
   its matching notes/inspector, obtain exact-head independent review plus green hosted CI and merge,
   then Archive merged `main`, verify the Distribution signature/privacy/dependencies, upload only
   through transport acceptance, and stop before tester assignment, G1, deployment, App Store

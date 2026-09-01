@@ -104,7 +104,7 @@ All four earlier hosted runs remain non-passes, and the back-button-selection/Ap
 Save-drag P3 notes remain C6-03/C12 maintenance evidence. No Active Requirement is marked Done.
 
 C6-03 owner entry: DEC-COM-089 records that on 2026-09-01 the owner authorized preparation of
-`0.9.8 (10)` plus one Archive
+`0.9.9 (10)` plus one Archive
 and TestFlight transport upload only after the exact preparation head receives independent review,
 passes hosted CI, and merges to `main`. `C6_03_RELEASE_BASELINE.md` binds the Distribution signature,
 embedded privacy manifest/dependency inventory, release-environment, upload, and stop conditions.

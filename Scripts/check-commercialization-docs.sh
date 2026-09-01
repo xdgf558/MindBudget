@@ -2435,7 +2435,7 @@ for c603_entry_file in \
   Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
   for c603_entry_anchor in \
     'DEC-COM-089' \
-    '0.9.8 (10)' \
+    '0.9.9 (10)' \
     'C6_03_RELEASE_BASELINE.md'; do
     grep -Fq "${c603_entry_anchor}" "${c603_entry_file}" || {
       echo "C6-03 entry is missing ${c603_entry_anchor} in ${c603_entry_file}" >&2
@@ -2449,7 +2449,7 @@ grep -Fq 'EXPECTED_BUILD="10"' Scripts/inspect-c6-release-app.sh || {
   exit 1
 }
 
-if grep -Eqi 'C6-03 (is )?Done|0\.9\.8 \(10\).*(transport accepted|uploaded successfully)|build 10.*(transport accepted|uploaded successfully)' \
+if grep -Eqi 'C6-03 (is )?Done|0\.9\.9 \(10\).*(transport accepted|uploaded successfully)|build 10.*(transport accepted|uploaded successfully)' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \

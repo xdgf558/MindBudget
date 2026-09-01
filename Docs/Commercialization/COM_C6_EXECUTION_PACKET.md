@@ -18,7 +18,7 @@ signed-device preflight only; it does not authorize archive, upload, deployment,
 write, tester assignment, G1, distribution, or release.
 
 C6-03 entry: DEC-COM-089 records that the project owner explicitly entered C6-03 on 2026-09-01 and
-authorized one `0.9.8 (10)` Archive plus TestFlight transport upload after the exact preparation
+authorized one `0.9.9 (10)` Archive plus TestFlight transport upload after the exact preparation
 head passes independent review, hosted CI, and merge. `C6_03_RELEASE_BASELINE.md` owns the candidate
 checklist. The authority ends when
 transport accepts build 10 and excludes tester assignment, external Beta App Review, App Store

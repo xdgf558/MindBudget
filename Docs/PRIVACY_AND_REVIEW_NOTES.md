@@ -147,7 +147,7 @@ C6-02's bounded evidence packet received independent final review on exact PR #9
 with no P1/P2 findings; hosted run `33405016652` passed and PR #93 merged as `c940e8e`.
 DEC-COM-088 marks C6-02 Done without turning its accepted physical non-passes into successes. The
 owner explicitly entered C6-03 on 2026-09-01 under DEC-COM-089 and
-`C6_03_RELEASE_BASELINE.md`, authorizing a reviewed/green/merged `0.9.8 (10)` Archive and TestFlight
+`C6_03_RELEASE_BASELINE.md`, authorizing a reviewed/green/merged `0.9.9 (10)` Archive and TestFlight
 transport upload only. This does not authorize copying App Privacy answers into App
 Store Connect, tester assignment, service/schema deployment, G1, App Store submission,
 distribution, or public release; those gates remain open.

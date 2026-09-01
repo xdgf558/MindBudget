@@ -485,7 +485,7 @@ Exact head `016dd33` subsequently passed final review and hosted run `3340501665
 `c940e8e` under DEC-COM-088.
 
 Current task: DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and
-authorized one `0.9.8 (10)` Archive
+authorized one `0.9.9 (10)` Archive
 plus TestFlight transport upload only after exact-head independent review, green hosted CI, and
 merge. `C6_03_RELEASE_BASELINE.md` owns the checklist. Stop after transport acceptance; tester
 assignment, service/schema deployment, G1, App Store submission, distribution, and public release

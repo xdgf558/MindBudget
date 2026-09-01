@@ -2627,7 +2627,7 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   hosted run `33405016652`, and merge `c940e8e`. App Store Connect already holds immutable
   `0.9.8 (9)`. The owner instructed the project to begin C6-03 after being told that this phase
   requires explicit Archive/TestFlight authority.
-- Decision: Enter C6-03 and prepare marketing version `0.9.8`, build `10`. The preparation head must
+- Decision: Enter C6-03 and prepare marketing version `0.9.9`, build `10`. The preparation head must
   receive independent review, green hosted CI, and merge to `main` before Archive. Archive only that
   exact merged source, require `Scripts/inspect-c6-release-app.sh --mode distribution` to prove
   Production APS/CloudKit plus `get-task-allow=false`, inspect the embedded privacy manifest and

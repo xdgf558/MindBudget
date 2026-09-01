@@ -6862,7 +6862,7 @@ gates, Shell syntax, and `git diff --check` also passed; no UI test-runner retry
 
 ## 2026-09-01 — Enter C6-03 and prepare build 10 for reviewed TestFlight transport
 
-The owner explicitly entered C6-03 and authorized one reviewed, green, merged `0.9.8 (10)` Archive
+The owner explicitly entered C6-03 and authorized one reviewed, green, merged `0.9.9 (10)` Archive
 and TestFlight transport upload. DEC-COM-089 keeps the preparation and distribution gates
 sequential: this branch may change the traceable build number, release notes, inspector expectation,
 and durable evidence packet, but may not Archive or upload before independent review, hosted CI,
@@ -6870,19 +6870,28 @@ and merge to `main`. The authority ends at transport acceptance and excludes tes
 external Beta App Review, App Store submission, Production/Staging service or CloudKit-schema
 deployment, G1, distribution, and public release.
 
-Prepared build 10 in both Debug and Release while retaining marketing version `0.9.8`; reserved
-`1.0.0` for public launch; added matching dated release/TestFlight notes; updated the signed-app and
-release-readiness checks; added `C6_03_RELEASE_BASELINE.md`; and changed the structural COM gate so
+Prepared build 10 in both Debug and Release while raising the marketing version and newest in-app
+release-note entry to `0.9.9`; reserved `1.0.0` for public launch; added matching dated
+release/TestFlight notes; updated the signed-app and release-readiness checks; added
+`C6_03_RELEASE_BASELINE.md`; and changed the structural COM gate so
 C6-03 is exactly In Progress with its prior stages Done. No Swift product behavior, Archive, IPA,
 upload, deployment, App Store Connect mutation, tester assignment, or release action occurred.
 
-Validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. All static
-and Worker checks passed. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553
-unit tests across 32 suites with the four expected opt-in CloudKit physical probes skipped, all 18
-UI tests with 17 passed and one expected physical-only skip, every selected coverage threshold,
-and all 23 C6-02 runtime bindings; no UI test-runner retry occurred. The validator deleted its
-temporary xcresult, so its printed path was an execution pointer. The independent C6 release matrix
-then passed 285 tests across 16 suites and all 33 required runtime bindings at
-`/private/tmp/MindBudget-C6-03-Build10-Matrix-20260901.xcresult`; this path is a local execution
+The owner then corrected the candidate marketing version from the initially prepared `0.9.8` to
+`0.9.9` while retaining build 10. The earlier successful validator and C6 matrix were run before
+that correction and are not exact `0.9.9 (10)` evidence. The first complete `0.9.9` validator is
+also retained as a non-pass: the product and unit layers built, but one localization test and one UI
+test still expected `0.9.8`. The remediation preserved `0.9.8` as historical release notes, added a
+new localized `0.9.9` entry, and updated the current/history/future localization checks plus the UI
+version assertion.
+
+Fresh exact-candidate validation then used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone
+17 Pro simulator. All static and Worker checks passed. `Scripts/validate.sh` passed Release, the
+strict Dashboard benchmark, 553 unit tests across 32 suites with the four expected opt-in CloudKit
+physical probes skipped, all 18 UI tests with 17 passed and one expected physical-only skip, every
+selected coverage threshold, and all 23 C6-02 runtime bindings; no UI test-runner retry occurred.
+The validator deleted its temporary xcresult, so its printed path was an execution pointer. The
+fresh C6 release matrix passed 285 tests across 16 suites and all 33 required runtime bindings at
+`/private/tmp/MindBudget-C6-03-0.9.9-Build10-Matrix-20260901.xcresult`; this path is a local execution
 pointer rather than hosted or distribution evidence. The exact preparation head still requires
 independent review, green hosted CI, and merge before any Archive.

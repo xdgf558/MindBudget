@@ -28,7 +28,7 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is version 0.9.8/build 10, iPhone-only, iOS 17+, and contains no shared
+- [x] Release configuration is version 0.9.9/build 10, iPhone-only, iOS 17+, and contains no shared
   Apple Team ID. Build 10 is the next replacement candidate and uploaded build 9 is immutable.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
@@ -86,10 +86,10 @@ presentation default without changing StoreKit entitlement or permanent subscrip
 - [ ] After the reviewed build-10 preparation merges to `main`, run the same inspector in
   `--mode distribution` and require Production APS plus `get-task-allow = false` before upload.
 
-### C6-03 0.9.8 (10) baseline — In Progress
+### C6-03 0.9.9 (10) baseline — In Progress
 
 - [x] DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized one
-  `0.9.8 (10)` Archive plus TestFlight transport upload after exact-head independent review, green
+  `0.9.9 (10)` Archive plus TestFlight transport upload after exact-head independent review, green
   hosted CI, and merge.
 - [x] Build 10 is committed as the next traceable replacement; matching dated changelog and
   TestFlight notes are present. `manageAppVersionAndBuildNumber` must remain false during export.

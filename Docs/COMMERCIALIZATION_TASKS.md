@@ -650,7 +650,7 @@ Status: **In Progress after reviewed C6-01 merge. No public release in this phas
 
 C6-02 is Done after independent final review, green hosted CI, and PR #93 merge `c940e8e`.
 DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized Archive
-plus transport upload of `0.9.8 (10)` only after the exact preparation head passes independent
+plus transport upload of `0.9.9 (10)` only after the exact preparation head passes independent
 review, hosted CI, and merge; `C6_03_RELEASE_BASELINE.md` owns the bounded checklist.
 
 ### C6-01 — Automated release matrix
@@ -742,7 +742,7 @@ Status: **Done after independent final review and green hosted CI through PR #93
 Status: **In Progress after explicit owner entry and bounded Archive/upload authority on
 2026-09-01.**
 
-- [ ] Close P0/P1, record the accepted R1 baseline and known limitations, prepare `0.9.8 (10)`,
+- [ ] Close P0/P1, record the accepted R1 baseline and known limitations, prepare `0.9.9 (10)`,
   archive and upload only after exact-head review/CI/merge, and keep tester assignment, G1, service
   deployment, formal App Store submission, and public release paused. The authoritative checklist
   is `C6_03_RELEASE_BASELINE.md`.

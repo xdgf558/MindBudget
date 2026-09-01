@@ -48,7 +48,7 @@ Release simulator build, and named Swift tests; it performed no remote mutation.
 rereview approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86
 merged as `015d00e`; C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. On 2026-09-01
 DEC-COM-089 records that the owner separately entered C6-03 and authorized only a
-reviewed/green/merged `0.9.8 (10)` Archive and
+reviewed/green/merged `0.9.9 (10)` Archive and
 TestFlight transport upload. Staging/Production service or schema deployment, App Store Connect
 form writes, tester assignment, G1, distribution, and public release remain unauthorized.
 

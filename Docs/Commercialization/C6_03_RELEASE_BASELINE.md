@@ -5,7 +5,7 @@ Status: **In Progress under DEC-COM-089 after explicit owner entry and bounded A
 
 ## Authorized outcome
 
-Prepare `MindBudget` / `花有数` version `0.9.8`, build `10`, as one traceable TestFlight
+Prepare `MindBudget` / `花有数` version `0.9.9`, build `10`, as one traceable TestFlight
 baseline. Archive and upload may occur only after the exact preparation head receives independent
 review, passes hosted CI, and merges to `main`. Stop after App Store Connect transport accepts the
 build. Do not assign internal testers, submit external Beta App Review, submit an App Store version,
@@ -13,7 +13,7 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
 
 ## Preparation gates before merge
 
-- [x] Build 10 is committed in both app configurations while marketing version remains `0.9.8`;
+- [x] Build 10 is committed in both app configurations with marketing version `0.9.9`;
   `1.0.0` remains reserved for public launch.
 - [x] `Docs/CHANGELOG.md` and `Docs/APP_STORE_SUBMISSION.md` contain the same build-10 scope and
   truthful known boundaries.
@@ -36,7 +36,7 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
   and telemetry contexts. Development and Staging literals may remain inert enum-case strings, but
   there must be no Release selection path to them.
 - [ ] Export/upload with `manageAppVersionAndBuildNumber: false`; require transport acceptance for
-  `0.9.8 (10)` and record the delivery UUID, timestamp, signing identity, and merged source commit.
+  `0.9.9 (10)` and record the delivery UUID, timestamp, signing identity, and merged source commit.
 - [ ] Record that tester assignment, external review, Production deployment/schema, G1, distribution,
   and public release were not performed.
 
