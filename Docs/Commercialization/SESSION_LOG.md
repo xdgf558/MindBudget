@@ -3894,3 +3894,37 @@ environmental non-passes. The identical unrestricted validator then passed Relea
 Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical
 skips, all 18 UI tests with 17 passed and one expected physical-only skip, selected coverage, and
 23/23 C6-02 runtime bindings. The 18-case UI summary proves that no test-runner retry occurred.
+
+## 2026-09-01 — Session 203 — Enter C6-03 and prepare build 10
+
+Goal: Enter only C6-03, prepare a traceable `0.9.9 (10)` candidate, and establish the exact gates
+that must pass before the owner-authorized Archive and TestFlight transport upload.
+
+Actions: Recorded DEC-COM-089 and added `C6_03_RELEASE_BASELINE.md`. Bumped both app configurations
+from `0.9.8 (9)` to `0.9.9 (10)` and aligned the newest in-app release-note version; added matching
+dated changelog and TestFlight notes; updated the release-readiness and distribution-inspector
+version/build expectations; and moved the structural C6-03 state from Blocked to In Progress. The packet requires exact-head
+independent review, hosted CI, and merge before Archive, then Distribution inspection and upload
+with `manageAppVersionAndBuildNumber: false` from exact merged `main`.
+
+Result: Preparation is complete pending independent review, hosted CI, and merge. No Archive, IPA,
+upload, deployment, App Store Connect mutation, tester assignment, external Beta App Review, G1,
+distribution, public release, or Active Requirement completion occurred. The owner-waived CloudKit
+physical observations and remaining C12-only physical matrices remain explicit non-passes.
+
+Validation: The owner corrected the initially prepared marketing version to `0.9.9` while retaining
+build 10. The earlier successful validator and C6 matrix predate that correction and are not exact
+`0.9.9 (10)` evidence. The first complete corrected-version validator is retained as a non-pass:
+the product and unit layers built, but one localization test and one UI test still expected
+`0.9.8`. Remediation preserved the `0.9.8` historical release-note entry, added a new localized
+`0.9.9` entry, and updated the current/history/future localization checks plus the UI version
+assertion.
+
+Fresh exact-candidate validation with Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator passed all static and Worker gates. The full validator passed Release, the strict
+Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical
+skips, all 18 UI tests with 17 passed and one expected physical-only skip, selected coverage, and
+all 23 C6-02 runtime bindings, with no UI retry. Its deleted temporary xcresult is only an execution
+pointer. The fresh C6 release matrix passed 285 tests across 16 suites and all 33 required runtime
+bindings at `/private/tmp/MindBudget-C6-03-0.9.9-Build10-Matrix-20260901.xcresult`; that local path
+is not hosted, Archive, or distribution evidence.

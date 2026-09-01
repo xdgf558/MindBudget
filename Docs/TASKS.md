@@ -275,8 +275,9 @@ owner entered COM-C6 on 2026-08-29. Independent rereview approved exact PR #86 r
 owner explicitly entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head
 `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c2a051`. PR #93 later closed the
 bounded C6-02 packet through exact head `016dd33`, green run `33405016652`, merge `c940e8e`, and
-DEC-COM-088, while C6-03, Staging/Production, G1, App Store Connect, distribution, and release
-remain blocked.
+DEC-COM-088. The owner explicitly entered C6-03 on 2026-09-01 with authority limited to a reviewed,
+green, merged build-10 Archive and transport upload; Staging/Production deployment, tester
+assignment, G1, App Store submission, distribution, and public release remain blocked.
 - [x] Extract the owner-approved v1.4 commercialization specification into a dependency-aware,
   review-sized execution map at `Docs/COMMERCIALIZATION_TASKS.md` without changing product code.
 - [x] Execute the COM-C0A audit work only: lock the specification, build the Requirement index and
@@ -596,7 +597,7 @@ remain blocked.
   appear once as Passed in the exact xcresult and classifies every repository check script. It
   performs no archive, upload, deployment, or App Store Connect write. Independent rereview
   approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86 merged as
-  `015d00e`. The owner entered C6-02 on 2026-08-30, and C6-03 remains blocked.
+  `015d00e`. The owner entered C6-02 on 2026-08-30; C6-03 was still blocked at that checkpoint.
 - [x] During C6-02, independently inspect
   `MindBudget/Resources/PrivacyInfo.xcprivacy`, both telemetry capture sites in
   `MindBudget/Features/AddExpense/AddExpenseView.swift` and
@@ -637,7 +638,7 @@ remain blocked.
   `拉沙的iPhone` found the protected SwiftData artifacts; `xctrace` reported that permitted phone
   Offline and generated no trace. No financial store was exported. Independent final review
   approved exact PR #93 head `016dd33`, hosted run `33405016652` passed, and PR #93 merged as
-  `c940e8e`; DEC-COM-088 marks C6-02 Done while C6-03 remains blocked.
+  `c940e8e`; DEC-COM-088 marks C6-02 Done and preserved C6-03 as blocked at that closeout.
 - [x] Close PR #93's hosted-schema/runtime remediation. Runs `33370429991`, `33384223530`,
   `33391122019`, and `33398172181` are non-passes:
   hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the latter run also retained one
@@ -654,7 +655,12 @@ remain blocked.
   strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
   physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. Independent final
   review approved exact head `016dd33` with no P1/P2 findings, hosted run `33405016652` passed, and
-  PR #93 merged as `c940e8e`; do not enter C6-03 automatically.
+  PR #93 merged as `c940e8e`; that closeout did not enter C6-03 automatically.
 - [x] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
   packet. C6-02 is Done through PR #93 (`c940e8e`). Preserve the two review P3 harness notes for
   C6-03/C12 and do not authorize Archive/upload automatically.
+- [ ] Execute the DEC-COM-089 C6-03 baseline in `C6_03_RELEASE_BASELINE.md`. Prepare `0.9.9 (10)` and
+  its matching notes/inspector, obtain exact-head independent review plus green hosted CI and merge,
+  then Archive merged `main`, verify the Distribution signature/privacy/dependencies, upload only
+  through transport acceptance, and stop before tester assignment, G1, deployment, App Store
+  submission, distribution, or public release.

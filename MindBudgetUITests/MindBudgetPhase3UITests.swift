@@ -493,7 +493,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(aboutControl.waitForExistence(timeout: 2))
         aboutControl.tap()
         XCTAssertTrue(element("settings.about.view", in: app).waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.8"))
+        XCTAssertTrue(app.staticTexts["settings.version.value"].label.contains("0.9.9"))
         XCTAssertTrue(element("settings.releaseNotes", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.1", in: app).exists)
         XCTAssertFalse(element("settings.releaseNotes.history.0.9.0", in: app).exists)

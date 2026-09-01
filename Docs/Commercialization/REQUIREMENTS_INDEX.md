@@ -70,7 +70,7 @@ the exact xcresult and requires every repository check script to be explicitly c
 automation performs no archive, upload, deployment, App Store Connect write, G1 decision, or
 Requirement completion. Independent rereview approved exact remediation head `f77d2a6`, hosted run
 `33255898196` passed, and PR #86 merged as `015d00e`; C6-01 is Done. The owner explicitly entered
-C6-02 and its five-surface independent privacy review on 2026-08-30, while C6-03 remains blocked.
+C6-02 and its five-surface independent privacy review on 2026-08-30.
 The first C6-02 implementation pass corrected the missing Purchase History declaration for the
 closed subscription outcome and added exact source/embedded-manifest plus signed-app inspection.
 A development-signed Release app passed that inspection and launched on an iPhone Air running iOS
@@ -102,6 +102,14 @@ open. Independent final review approved exact PR #93 head `016dd33` with no P1/P
 hosted run `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done.
 All four earlier hosted runs remain non-passes, and the back-button-selection/App-window-geometry plus upward-only
 Save-drag P3 notes remain C6-03/C12 maintenance evidence. No Active Requirement is marked Done.
+
+C6-03 owner entry: DEC-COM-089 records that on 2026-09-01 the owner authorized preparation of
+`0.9.9 (10)` plus one Archive
+and TestFlight transport upload only after the exact preparation head receives independent review,
+passes hosted CI, and merges to `main`. `C6_03_RELEASE_BASELINE.md` binds the Distribution signature,
+embedded privacy manifest/dependency inventory, release-environment, upload, and stop conditions.
+Successful transport does not complete any Active Requirement, G1, App Store Connect privacy form,
+service/schema deployment, tester assignment, distribution, or public release gate.
 
 ## COM-C0A implementation inventory against requirements
 

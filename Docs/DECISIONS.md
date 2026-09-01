@@ -3450,3 +3450,20 @@ owner entry plus separate Archive/upload authority.
 Consequences: No Archive, IPA, upload, deployment, App Store Connect mutation, tester assignment,
 G1 decision, distribution, release, or Active Requirement completion is authorized by this
 documentation closeout.
+
+---
+
+## 2026-09-01 — Enter C6-03 with a reviewed build-10 upload boundary
+
+Context: C6-02 closed through PR #93 and the owner explicitly instructed the project to begin the
+next task. The previously uploaded `0.9.8 (9)` binary is immutable, while all C4–C6 source changes
+remain unreleased.
+
+Decision: Detailed ownership is DEC-COM-089. Prepare `0.9.9 (10)` first as a normal independently
+reviewed and hosted-green PR. Only after that exact candidate merges to `main` may C6-03 Archive,
+inspect the Distribution signature/privacy/dependencies, and upload through TestFlight transport.
+Stop after transport acceptance.
+
+Consequences: Build 10 is the traceable next candidate. Tester assignment, external Beta review,
+App Store submission, Staging/Production or CloudKit-schema deployment, G1, distribution, public
+release, and Active Requirement completion remain unauthorized.

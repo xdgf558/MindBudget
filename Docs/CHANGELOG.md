@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+Every user-visible change must be added here when it is implemented. Before each TestFlight or
+App Store upload, move the included entries into a dated version/build section and use the same
+summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
+
+## 0.9.9 (10) — 2026-09-01 — C6-03 TestFlight baseline
+
+### Changed
+
 - Kept the four-tab navigation bar compact at accessibility text sizes so it no longer obscures
   Dashboard or pushed Pro content. Page content still receives the user's full Dynamic Type size.
 - Kept the Pro subscription navigation bar and its system back indicator on the selected skin's
@@ -52,12 +60,6 @@
   divergent recurring claims now quarantine without changing local facts.
 - Clarified in Privacy settings that Delete All removes this device's data only and does not yet
   delete retained iCloud copies, which may return after a later re-enable.
-
-Every user-visible change must be added here when it is implemented. Before each TestFlight or
-App Store upload, move the included entries into a dated version/build section and use the same
-summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.
-
-### Changed
 
 - Added an unreleased, Free, default-off iCloud sync control in Settings. After the exact bilingual
   disclosure is accepted, the app can stage only the 12 approved budgeting fact types as encrypted

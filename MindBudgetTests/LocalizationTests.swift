@@ -202,24 +202,24 @@ struct LocalizationTests {
 
     @Test
     func installedReleaseNotesStayCurrentWhileEarlierVersionsCollapseIntoHistory() throws {
-        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.8")
+        let presentation = ReleaseNotesCatalog.presentation(installedVersion: "0.9.9")
 
-        #expect(presentation.current?.version == "0.9.8")
+        #expect(presentation.current?.version == "0.9.9")
         #expect(presentation.current?.items.count == 4)
         #expect(
             Set(presentation.current?.items.map(\.localizationKey) ?? []) == [
-                "settings.releaseNotes.settingsGroups",
-                "settings.releaseNotes.languageEntry",
-                "settings.releaseNotes.chartPalette",
-                "settings.releaseNotes.insightsGroups",
+                "settings.releaseNotes.receiptImport",
+                "settings.releaseNotes.optionalCloudSync",
+                "settings.releaseNotes.optionalAnalytics",
+                "settings.releaseNotes.accessibilityPolish",
             ]
         )
         #expect(
-            presentation.history.map(\.version) == ["0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+            presentation.history.map(\.version) == ["0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
         )
 
         let future = ReleaseNotesVersion(
-            version: "0.9.9",
+            version: "0.10.0",
             items: [
                 ReleaseNoteItem(
                     systemImage: "sparkles",
@@ -228,13 +228,13 @@ struct LocalizationTests {
             ]
         )
         let nextPresentation = ReleaseNotesCatalog.presentation(
-            installedVersion: "0.9.9",
+            installedVersion: "0.10.0",
             versions: [future] + ReleaseNotesCatalog.versions
         )
 
-        #expect(nextPresentation.current?.version == "0.9.9")
+        #expect(nextPresentation.current?.version == "0.10.0")
         #expect(
-            nextPresentation.history.map(\.version) == ["0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
+            nextPresentation.history.map(\.version) == ["0.9.9", "0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.2", "0.9.1", "0.9.0"]
         )
     }
 

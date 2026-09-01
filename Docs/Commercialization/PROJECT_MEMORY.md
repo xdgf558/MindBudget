@@ -484,9 +484,12 @@ passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings w
 Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and merged as
 `c940e8e` under DEC-COM-088.
 
-Next suggested task: wait for explicit owner entry into C6-03; do not authorize archive/upload
-from the C6-01 matrix, C6-02 closeout, or the development-signed Release build. Carry forward the
-two non-blocking final-review notes: the back-button helper still uses
+Current task: DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and
+authorized one `0.9.9 (10)` Archive
+plus TestFlight transport upload only after exact-head independent review, green hosted CI, and
+merge. `C6_03_RELEASE_BASELINE.md` owns the checklist. Stop after transport acceptance; tester
+assignment, service/schema deployment, G1, App Store submission, distribution, and public release
+remain blocked. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
 bounded upward Form drags. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt
@@ -529,7 +532,8 @@ pass found and corrected a missing Purchase History declaration for the closed s
 outcome, added exact source/embedded-manifest and signed-app validators, and installed/launched a
 development-signed Release build on an iPhone Air running iOS 26.6.1. That signature shape is not
 distribution evidence. `C6_02_PREFLIGHT.md` keeps the exact independent-review and manual-device
-work open; C6-03 remains blocked. Independent review accepted exact PR #88 head `0ac0500`, hosted
+work open; at that checkpoint, C6-03 remained blocked. Independent review accepted exact PR #88
+head `0ac0500`, hosted
 run `33283398690` passed, and PR #88 merged as `6c2a051`. Its one non-blocking P2 found that the
 required-reason declaration was pinned rather than source-derived. The follow-up
 `Scripts/check_required_reason_apis.py` now requires exact equality between production App-source

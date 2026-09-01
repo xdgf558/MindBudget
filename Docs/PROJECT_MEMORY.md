@@ -193,7 +193,7 @@ History declaration, corrected the manifest/docs, and added exact source/embedde
 signed-app inspection. A Release-configuration app was development-signed, inspected, installed,
 and launched on an iPhone Air with iOS 26.6.1; its development APS entitlement and debug allowance
 are not distribution proof. `Docs/Commercialization/C6_02_PREFLIGHT.md` retains the independent-
-review and manual-device checklist. C6-03 remains blocked.
+review and manual-device checklist. At that checkpoint, C6-03 remained blocked.
 
 Independent review accepted exact PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR
 #88 merged as `6c2a051`. Its non-blocking required-reason P2 noted that the manifest validator
@@ -228,7 +228,7 @@ Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, 
 `33362101536` passed, and PR #91 merged the bounded DEC-COM-081 remediation as `4ddabcd` under
 DEC-COM-082. At that point, only the reviewed AX5/navigation increment was closed and the phase remained open for
 transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
-Instruments/data-protection, and system-integration evidence; C6-03 remains blocked.
+Instruments/data-protection, and system-integration evidence; C6-03 remained blocked.
 
 DEC-COM-083 records the owner's instruction not to repeat already sufficient device work and
 closes only the remaining C6-02 evidence dispositions. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact
@@ -263,10 +263,14 @@ with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bi
 UI retry. Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and
 merged as `c940e8e` under DEC-COM-088.
 
-Next suggested task: wait for explicit owner entry into C6-03. Do not archive, upload, deploy,
-write App Store Connect, or enter C6-03 from this closeout. Preserve the final-review P3 notes that
-the back-button helper still uses `buttons.element(boundBy: 0)` with an App-window geometry check
-and the budget Save helper performs only bounded upward Form drags.
+Current task: DEC-COM-089 records that C6-03 is explicitly entered as of 2026-09-01. Follow
+`C6_03_RELEASE_BASELINE.md` and prepare `0.9.9 (10)` for independent
+review and hosted CI; Archive and TestFlight transport upload may occur only from the exact reviewed,
+green, merged `main` commit. Stop after transport acceptance. Do not assign testers, deploy
+Staging/Production or CloudKit schema, decide G1, submit App Store review, distribute, or release.
+Preserve the final-review P3 notes that the back-button helper still uses
+`buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
+only bounded upward Form drags.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed
