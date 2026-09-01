@@ -6,7 +6,7 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 EXPECTED_BUNDLE_ID="com.xdgf558.MindBudget"
 EXPECTED_TEAM_ID="2AM5S7BM2N"
 EXPECTED_VERSION="0.9.8"
-EXPECTED_BUILD="9"
+EXPECTED_BUILD="10"
 EXPECTED_ICLOUD_CONTAINER="iCloud.com.xdgf558.MindBudget"
 
 usage() {
@@ -142,4 +142,4 @@ OBSERVED_HOSTS="$(strings -a "${EXECUTABLE}" \
   exit 1
 }
 
-echo "C6-02 ${MODE} app inspection passed: ${EXPECTED_BUNDLE_ID} ${EXPECTED_VERSION} (${EXPECTED_BUILD})"
+echo "C6-03 ${MODE} app inspection passed: ${EXPECTED_BUNDLE_ID} ${EXPECTED_VERSION} (${EXPECTED_BUILD})"

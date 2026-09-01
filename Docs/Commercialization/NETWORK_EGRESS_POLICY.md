@@ -46,9 +46,11 @@ hosted run `33247176815` passed, and PR #84 merged as `4194b73`; C5-04 and COM-C
 owner entered COM-C6 on 2026-08-29. C6-01 ran only static checks, local Worker tests/dry-runs,
 Release simulator build, and named Swift tests; it performed no remote mutation. Independent
 rereview approved exact remediation head `f77d2a6`, hosted run `33255898196` passed, and PR #86
-merged as `015d00e`; C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. C6-03, App Store
-Connect, Staging/Production, final-binary traffic, distribution, and release remain unclaimed and
-unauthorized.
+merged as `015d00e`; C6-01 is Done. The owner explicitly entered C6-02 on 2026-08-30. On 2026-09-01
+DEC-COM-089 records that the owner separately entered C6-03 and authorized only a
+reviewed/green/merged `0.9.8 (10)` Archive and
+TestFlight transport upload. Staging/Production service or schema deployment, App Store Connect
+form writes, tester assignment, G1, distribution, and public release remain unauthorized.
 
 C6-02's first source pass conservatively added Purchase History for the closed subscription
 outcome and introduced an exact privacy-manifest validator plus a signed-app inspector. The latter
@@ -63,7 +65,8 @@ signed-device evidence. Independent review accepted exact head `b3ed24d`, hosted
 payload, entitlement, deployment, traffic claim, App Store Connect mutation, Archive/IPA,
 distribution, or release authority. Independent final review approved exact PR #93 head
 `016dd33`, hosted run `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks
-C6-02 Done and C6-03 remains blocked pending separate owner/archive authority.
+C6-02 Done. The later C6-03 owner entry is governed by `C6_03_RELEASE_BASELINE.md` and does not
+retroactively broaden any C6-02 evidence or network authorization.
 
 DEC-COM-083 adds no egress or remote action. `C6_02_ACCEPTANCE_MATRIX.json` binds 23 exact local
 runtime results and records the owner's bounded treatment of remaining C6-02 physical evidence.

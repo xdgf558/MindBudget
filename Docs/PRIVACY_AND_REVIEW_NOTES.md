@@ -145,8 +145,12 @@ missing Foundation Swift overlay aliases in that source gate. Independent rerevi
 remediation head `6ffc6fa`, hosted run `33287620965` passed, and PR #89 merged it as `72f016e`.
 C6-02's bounded evidence packet received independent final review on exact PR #93 head `016dd33`
 with no P1/P2 findings; hosted run `33405016652` passed and PR #93 merged as `c940e8e`.
-DEC-COM-088 marks C6-02 Done without turning its accepted physical non-passes into successes. C6-03 and every App Store
-Connect, Staging/Production, distribution/release proof remain blocked pending separate authority.
+DEC-COM-088 marks C6-02 Done without turning its accepted physical non-passes into successes. The
+owner explicitly entered C6-03 on 2026-09-01 under DEC-COM-089 and
+`C6_03_RELEASE_BASELINE.md`, authorizing a reviewed/green/merged `0.9.8 (10)` Archive and TestFlight
+transport upload only. This does not authorize copying App Privacy answers into App
+Store Connect, tester assignment, service/schema deployment, G1, App Store submission,
+distribution, or public release; those gates remain open.
 Final review retained two non-blocking C6-03/C12 harness notes: the back-button helper identifies
 `buttons.element(boundBy: 0)` and proves App-window geometry rather than navigation-container
 geometry, and the budget Save helper moves the Form only upward.

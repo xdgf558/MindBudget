@@ -28,8 +28,8 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   actor tests reject historical-period mutation and preserve plan/category identities.
 - [x] The standard, dark, and tinted 1024px opaque App Icon variants and privacy manifest pass
   static release checks.
-- [x] Release configuration is version 0.9.8/build 9, iPhone-only, iOS 17+, and contains no shared
-  Apple Team ID. Build 9 is the next replacement candidate and build 8 remains historical.
+- [x] Release configuration is version 0.9.8/build 10, iPhone-only, iOS 17+, and contains no shared
+  Apple Team ID. Build 10 is the next replacement candidate and uploaded build 9 is immutable.
 - [x] Debug and Release use the English `MindBudget` fallback and ship localized Home Screen names:
   `MindBudget` for English and `花有数` for Simplified Chinese. The Chinese App Store draft uses
   `温和的预算与消费复盘工具` as its subtitle.
@@ -83,8 +83,21 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   `016dd33`, green hosted run `33405016652`, and merge `c940e8e`. Preserve all four earlier hosted runs as non-passes and
   carry the back-button-selection/App-window-geometry and upward-only Save-drag P3 notes into
   C6-03/C12. This closeout does not authorize an Archive, upload, or App Store Connect mutation.
-- [ ] After separate C6-03 archive authority, run the same inspector in `--mode distribution` and
-  require Production APS plus `get-task-allow = false` before any upload.
+- [ ] After the reviewed build-10 preparation merges to `main`, run the same inspector in
+  `--mode distribution` and require Production APS plus `get-task-allow = false` before upload.
+
+### C6-03 0.9.8 (10) baseline — In Progress
+
+- [x] DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized one
+  `0.9.8 (10)` Archive plus TestFlight transport upload after exact-head independent review, green
+  hosted CI, and merge.
+- [x] Build 10 is committed as the next traceable replacement; matching dated changelog and
+  TestFlight notes are present. `manageAppVersionAndBuildNumber` must remain false during export.
+- [ ] Obtain exact-head independent review, green hosted CI, and merge before Archive.
+- [ ] Archive merged `main`, inspect the Distribution signature/privacy/dependencies, then upload
+  only if every gate in `Docs/Commercialization/C6_03_RELEASE_BASELINE.md` passes.
+- [ ] Record transport acceptance and stop. Do not assign testers, submit external Beta App Review,
+  submit an App Store version, deploy services/schema, decide G1, or release publicly.
 
 ### Completed 0.9.8 (9) release execution
 

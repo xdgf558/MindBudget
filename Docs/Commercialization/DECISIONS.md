@@ -2618,3 +2618,27 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Alternatives rejected: Treating any earlier red run as evidence; calling retained physical non-
   passes successful; dropping the two review P3 notes; entering C6-03 automatically; or treating a
   development-signed Release build as a distribution candidate.
+
+## DEC-COM-089 — Enter C6-03 with bounded build-10 Archive/upload authority
+
+- Status/date: **Accepted by explicit owner instruction — 2026-09-01**
+- Requirements: COM-C6 C6-03; DEC-COM-088; REQ-R1-NET-001; REQ-R1-TELEMETRY-001
+- Context: C6-02 is Done through independent final review of exact PR #93 head `016dd33`, green
+  hosted run `33405016652`, and merge `c940e8e`. App Store Connect already holds immutable
+  `0.9.8 (9)`. The owner instructed the project to begin C6-03 after being told that this phase
+  requires explicit Archive/TestFlight authority.
+- Decision: Enter C6-03 and prepare marketing version `0.9.8`, build `10`. The preparation head must
+  receive independent review, green hosted CI, and merge to `main` before Archive. Archive only that
+  exact merged source, require `Scripts/inspect-c6-release-app.sh --mode distribution` to prove
+  Production APS/CloudKit plus `get-task-allow=false`, inspect the embedded privacy manifest and
+  dependencies, export with `manageAppVersionAndBuildNumber=false`, and stop after transport accepts
+  build 10. `C6_03_RELEASE_BASELINE.md` is the authoritative checklist.
+- Consequences: The upload can become a traceable TestFlight baseline for later observation, but it
+  does not assign testers, submit external Beta review, copy/accept App Store Connect privacy forms,
+  deploy Staging/Production Workers or Production CloudKit schema, decide G1, authorize
+  distribution/public release, or mark an Active Requirement Done. Accepted physical non-passes
+  and the two C6-02 harness P3 notes remain explicit.
+- Alternatives rejected: Reusing uploaded build 9; letting Xcode auto-change the build number;
+  archiving an unreviewed branch; treating development signing as Distribution evidence; uploading
+  before hosted CI; assigning testers as part of transport; deploying remote services/schema to make
+  the binary appear complete; or calling TestFlight acceptance public-release approval.

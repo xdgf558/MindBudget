@@ -37,6 +37,7 @@ required_files=(
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md
   Docs/Commercialization/C6_02_PREFLIGHT.md
   Docs/Commercialization/C6_02_ACCEPTANCE_MATRIX.json
+  Docs/Commercialization/C6_03_RELEASE_BASELINE.md
   Docs/Commercialization/C6_RELEASE_MATRIX.json
   Docs/Commercialization/C5_METRICS_EVIDENCE_CONTRACT.md
   Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md
@@ -71,7 +72,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:done:x' \
-  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:blocked:B' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:in_progress:pending' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
@@ -2406,7 +2407,7 @@ if grep -Eqi 'C6-02 (remains |is )?blocked pending explicit owner entry|C6-02 aw
   exit 1
 fi
 
-if grep -Eqi 'C6-03 (is )?(In Progress|entered|Done)|archive (is )?authorized by C6-02|App Store Connect (was|is) updated by C6-02' \
+if grep -Eqi 'archive (is )?authorized by C6-02|App Store Connect (was|is) updated by C6-02' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2417,6 +2418,49 @@ if grep -Eqi 'C6-03 (is )?(In Progress|entered|Done)|archive (is )?authorized by
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
   echo "C6-02 evidence must not enter C6-03 or claim archive/App Store Connect authority" >&2
+  exit 1
+fi
+
+# DEC-COM-089 is a distinct owner entry, not authority inferred from C6-02. Keep the candidate
+# identity and reviewed-before-Archive boundary aligned across every current status surface.
+for c603_entry_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/RELEASE_CHECKLIST.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c603_entry_anchor in \
+    'DEC-COM-089' \
+    '0.9.8 (10)' \
+    'C6_03_RELEASE_BASELINE.md'; do
+    grep -Fq "${c603_entry_anchor}" "${c603_entry_file}" || {
+      echo "C6-03 entry is missing ${c603_entry_anchor} in ${c603_entry_file}" >&2
+      exit 1
+    }
+  done
+done
+
+grep -Fq 'EXPECTED_BUILD="10"' Scripts/inspect-c6-release-app.sh || {
+  echo "C6-03 Distribution inspector must bind the build-10 candidate" >&2
+  exit 1
+}
+
+if grep -Eqi 'C6-03 (is )?Done|0\.9\.8 \(10\).*(transport accepted|uploaded successfully)|build 10.*(transport accepted|uploaded successfully)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/RELEASE_CHECKLIST.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C6-03 preparation must not claim completion or transport acceptance before reviewed merge" >&2
   exit 1
 fi
 

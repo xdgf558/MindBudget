@@ -7,7 +7,7 @@ validated under the owner's current China-region Apple Developer account.
 
 - Product/brand: `花有数` in Simplified Chinese; `MindBudget` in English
 - Brand line: 温和的预算与消费复盘工具
-- Current source candidate: version 0.9.8, build 9
+- Current source candidate: version 0.9.8, build 10
 - Current uploaded TestFlight candidate: version 0.9.8, build 9 (transport accepted 2026-08-17)
 - Previous uploaded candidate: version 0.9.7, build 8 (transport accepted 2026-08-17)
 - Earlier uploaded candidate: version 0.9.6, build 8 (transport accepted 2026-08-11)
@@ -15,7 +15,7 @@ validated under the owner's current China-region Apple Developer account.
 - Earlier uploaded candidate: version 0.9.5, build 6
 - Earlier uploaded candidate: version 0.9.4, build 5
 - Earlier uploaded candidate: version 0.9.2, build 3
-- Every uploaded build above is immutable. Increment to build 10 before uploading any replacement.
+- Every uploaded build above is immutable. C6-03 prepares build 10 as the next replacement.
 - Increment the build number after every uploaded replacement.
 - Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
   legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
@@ -34,6 +34,10 @@ validated under the owner's current China-region Apple Developer account.
   The Production signed-configuration service remains undeployed, so its optional value trigger
   stays conservatively off on transport/offline failure and is never purchase or entitlement
   authority. The product owner retains all TestFlight assignment and later distribution actions.
+- C6-03 owner entry on 2026-09-01 authorizes Archive and transport upload of reviewed build 10
+  only after its exact source head passes independent review and hosted CI and merges to `main`.
+  The authorization still excludes tester-group assignment, external Beta App Review, App Store
+  version submission, public release, G1, and Staging/Production service deployment.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
@@ -44,6 +48,42 @@ validated under the owner's current China-region Apple Developer account.
   Store Connect app record. Do not reuse an identifier owned by the previous account.
 
 ## TestFlight build notes
+
+### 0.9.8 (10) — C6-03 baseline candidate; not yet uploaded
+
+This candidate brings the reviewed C4–C6 local-first work together without making any public-
+release claim. Financial records remain authoritative on device; iCloud sync and first-party
+analytics are separately disclosed, default off, and optional.
+
+What to test:
+
+- In Settings > Privacy and Security, review the Free iCloud sync and Product Analytics controls.
+  Confirm neither starts without explicit consent, local use continues through network/account
+  failures, and local Delete All remains available even when an optional remote deletion is
+  pending. Cloud-conflict and retained-copy guidance must never expose record content.
+- From Add Expense, choose Scan a Receipt. Confirm capture or one-photo selection stays on device,
+  accepted merchant/date/total suggestions never overwrite fields edited after recognition began,
+  and nothing enters the ledger until the ordinary Save action. Uncertain amounts must require
+  manual review rather than being guessed.
+- In Insights, confirm the 30-day category donut represents the full total and keeps a readable
+  Dynamic Type-aware key. Pattern cards may show supporting/total samples and an integer evidence
+  ratio without presenting that ratio as a probability.
+- In MindBudget Pro, exercise verified subscription, trial, grace, billing-retry, expiry, restore,
+  and unavailable-authority presentation. Purchase must remain disabled unless StoreKit has an
+  exact actionable Free result; network/configuration failure must not revoke verified local Pro.
+- At AX5 in English and Simplified Chinese, confirm the four-tab chrome remains reachable while
+  page content continues to grow, and Pro, Terms, and Privacy keep a visible system back indicator
+  in all three skins.
+- Enable Product Analytics only after reading its disclosure. Exercise the reviewed closed actions,
+  then disable/delete it. No amount, merchant, category, note, receipt text/image, Product ID,
+  CloudKit record, locale, or device/advertising identifier should be collected.
+- Upgrade an existing store, exercise budget/category upper bounds, then restart. Valid history
+  must remain intact; recovery failures must preserve the original store rather than silently
+  rewriting invalid money to zero.
+
+Known boundaries: this baseline does not claim same-account two-device iCloud convergence,
+background-push delivery, complete physical VoiceOver/Instruments/system-side-effect coverage,
+Production Worker or CloudKit-schema deployment, tester assignment, G1 evidence, or public release.
 
 ### 0.9.8 (9) — Uploaded internal test candidate
 

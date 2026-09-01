@@ -1,13 +1,14 @@
 # COM-C6 Execution Packet
 
-Status: **C6-02 Done after independent final review and green hosted CI through PR #93
-(`c940e8e`); C6-03 blocked pending separate owner entry and archive/upload authority.**
+Status: **C6-03 In Progress after explicit owner entry and bounded Archive/upload authority on
+2026-09-01; C6-02 is Done through PR #93 (`c940e8e`).**
 
 C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
 `33255898196` passed, and PR #86 merged as `015d00e`. The owner explicitly entered C6-02 on
 2026-08-30. Independent final review approved exact PR #93 head `016dd33`, hosted run
-`33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done and C6-03
-remains blocked.
+`33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done. The owner
+entered C6-03 on 2026-09-01 and bounded its authority to a reviewed/green/merged build-10 Archive
+and transport upload, without tester assignment or public release.
 
 Owner entry: the project owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged the
 COM-C5 closeout as `008b674`.
@@ -15,6 +16,13 @@ COM-C5 closeout as `008b674`.
 C6-02 entry: the project owner explicitly entered C6-02 on 2026-08-30. This authorizes source and
 signed-device preflight only; it does not authorize archive, upload, deployment, App Store Connect
 write, tester assignment, G1, distribution, or release.
+
+C6-03 entry: DEC-COM-089 records that the project owner explicitly entered C6-03 on 2026-09-01 and
+authorized one `0.9.8 (10)` Archive plus TestFlight transport upload after the exact preparation
+head passes independent review, hosted CI, and merge. `C6_03_RELEASE_BASELINE.md` owns the candidate
+checklist. The authority ends when
+transport accepts build 10 and excludes tester assignment, external Beta App Review, App Store
+submission, service/schema deployment, G1, and public release.
 
 ## Scope and sequence
 
@@ -28,8 +36,9 @@ strictly sequential:
 3. **C6-03 — TestFlight baseline.** Begin only after C6-02 is accepted. Archive and upload require
    a separate owner instruction at that time.
 
-C6-01 performs no archive, upload, Staging or Production deployment, App Store Connect write,
-tester assignment, schema deployment, customer-data collection, G1 decision, or release action.
+C6-01 and C6-02 performed no archive, upload, Staging or Production deployment, App Store Connect
+write, tester assignment, schema deployment, customer-data collection, G1 decision, or release
+action. C6-03 is the first bounded Archive/upload phase.
 
 ## C6-01 closed automated matrix
 
@@ -156,7 +165,7 @@ exact head `b3ed24d` passed
 independent review and hosted run `33362101536`, then merged the bounded AX5/navigation increment as
 `4ddabcd`. Independent final review approved the bounded acceptance packet on exact PR #93 head
 `016dd33` with no P1/P2 findings, hosted run `33405016652` passed, and PR #93 merged as
-`c940e8e`. C6-03 remains blocked pending a separate owner instruction for archive/upload.
+`c940e8e`. The owner then entered C6-03 on 2026-09-01 under the bounded authority above.
 
 DEC-COM-083 replaces the ambiguous open-manual list with the closed five-row
 `C6_02_ACCEPTANCE_MATRIX.json`. A fresh complete xcresult must contain all 23 exact named StoreKit,
@@ -195,7 +204,7 @@ button helper still selects `buttons.element(boundBy: 0)` and proves App-window 
 navigation-bar-container geometry, while the budget Save helper performs only bounded upward Form
 drags. These notes do not weaken C6-02 evidence and do not authorize C6-03.
 
-Stop and request a new decision if the automated matrix would need to deploy, upload, archive,
-write App Store Connect, weaken an existing fail-closed gate, reinterpret an owner-waived physical
-observation as a pass, claim a real G1 sample, or mark an Active Requirement complete from local
-automation alone.
+During C6-03, stop and request a new decision if work would deploy Staging/Production or CloudKit
+schema, assign testers, submit Beta/App Store review, publish, weaken an existing fail-closed gate,
+reinterpret an owner-waived physical observation as a pass, claim a real G1 sample, or mark an
+Active Requirement complete from Archive/upload evidence alone.

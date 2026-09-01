@@ -2461,3 +2461,22 @@ with 17 passed and one expected physical-only skip, every selected coverage thre
 the C6-02 evidence reader confirmed 23 exact runtime bindings. The UI summary contains exactly 18
 executions, so no test-runner retry occurred. The validator deleted its temporary xcresult; its
 printed path was an execution pointer rather than a durable artifact.
+
+### C6-03 build-10 preparation baseline — 2026-09-01
+
+The owner entered C6-03 under DEC-COM-089 and authorized one reviewed/green/merged `0.9.8 (10)`
+Archive plus TestFlight transport upload. This preparation branch performed no Archive, IPA,
+upload, deployment, App Store Connect mutation, tester assignment, G1, distribution, or release.
+
+Local validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. All
+static and Worker gates passed. `Scripts/validate.sh` passed Release, the strict Dashboard
+benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical skips, all
+18 UI tests with 17 passed and one expected physical-only skip, every selected coverage threshold,
+and 23 exact C6-02 runtime bindings; no UI test-runner retry occurred. The validator deleted its
+temporary result bundle, so its printed path is an execution pointer rather than a durable artifact.
+
+The separately driven C6 release matrix passed 285 tests across 16 suites and all 33 required
+runtime bindings. Its result bundle is
+`/private/tmp/MindBudget-C6-03-Build10-Matrix-20260901.xcresult`; this is a local execution pointer,
+not hosted, signed Archive, IPA, final-binary, App Store Connect, G1, distribution, or release
+evidence. Independent review, green hosted CI, and merge remain required before Archive.
