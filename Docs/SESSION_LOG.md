@@ -6918,6 +6918,13 @@ assignment, external Beta review, App Store submission, privacy-form write, serv
 deployment, final-binary Production traffic probe, G1, distribution, or public release occurred.
 The documentation closeout still needs independent review, hosted CI, and merge.
 
+PR #96 review found a multi-file OR weakness in the new execution-anchor gate and an auditability
+problem where original DEC-COM-089 criteria had been rewritten while being checked. The repair
+makes every execution anchor mandatory in each of three authoritative evidence files, restores the
+original criteria, records the development-signed archive criterion as an explicit non-pass with
+an exported-IPA deviation under DEC-COM-090, aligns the release checklist, reverts the unrelated
+What-to-test wording change, and adds a mandatory build-number increment before any later upload.
+
 Closeout validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
 simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
 across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed

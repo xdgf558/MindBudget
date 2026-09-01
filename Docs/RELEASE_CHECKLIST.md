@@ -83,8 +83,10 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   `016dd33`, green hosted run `33405016652`, and merge `c940e8e`. Preserve all four earlier hosted runs as non-passes and
   carry the back-button-selection/App-window-geometry and upward-only Save-drag P3 notes into
   C6-03/C12. This closeout does not authorize an Archive, upload, or App Store Connect mutation.
-- [ ] After the reviewed build-10 preparation merges to `main`, run the same inspector in
-  `--mode distribution` and require Production APS plus `get-task-allow = false` before upload.
+- [x] After the reviewed build-10 preparation merges to `main`, run the same inspector in
+  `--mode distribution` against the exported IPA and require Production APS plus
+  `get-task-allow=false` before upload. DEC-COM-090 records why the development-signed archive was
+  not used as Distribution evidence.
 
 ### C6-03 0.9.9 (10) baseline — transport complete, closeout review pending
 
@@ -108,6 +110,9 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   tester, G1, distribution, and release action outside this baseline.
 - [ ] Merge the independently reviewed, hosted-green documentation closeout before marking C6-03
   complete or closing its parent COM phase.
+- [ ] Before preparing any later candidate, raise `CURRENT_PROJECT_VERSION` and the inspector's
+  expected build above 10 in the same reviewed preparation change. Uploaded `0.9.9 (10)` is
+  immutable and must never be reused.
 
 ### Completed 0.9.8 (9) release execution
 

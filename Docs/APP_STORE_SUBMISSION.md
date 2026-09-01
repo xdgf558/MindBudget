@@ -18,6 +18,9 @@ validated under the owner's current China-region Apple Developer account.
 - Earlier uploaded candidate: version 0.9.2, build 3
 - Every uploaded build above is immutable. Build 10 is now the current processing replacement.
 - Increment the build number after every uploaded replacement.
+- Before any later candidate is archived or uploaded, raise both `CURRENT_PROJECT_VERSION` and the
+  distribution inspector's expected build above 10; the current source value is not permission to
+  reuse immutable `0.9.9 (10)`.
 - Build-number uniqueness is scoped to the marketing version, so `0.9.6 (8)` and `0.9.7 (8)` coexist
   legitimately in App Store Connect. Uploading a second `0.9.7 (8)` would be rejected.
 - Recorded gap: `0.9.6 (8)` was accepted on 2026-08-11 but never recorded here at the time, and
@@ -77,9 +80,8 @@ What to test:
   Dynamic Type-aware key. Pattern cards may show supporting/total samples and an integer evidence
   ratio without presenting that ratio as a probability.
 - In MindBudget Pro, exercise verified subscription, trial, grace, billing-retry, expiry, restore,
-  and unavailable-authority presentation. Purchase must remain disabled unless StoreKit has
-  completed authoritative verification and returned the exact no-subscription state; this is
-  separate from a free trial. Network/configuration failure must not revoke verified local Pro.
+  and unavailable-authority presentation. Purchase must remain disabled unless StoreKit has an
+  exact actionable Free result; network/configuration failure must not revoke verified local Pro.
 - At AX5 in English and Simplified Chinese, confirm the four-tab chrome remains reachable while
   page content continues to grow, and Pro, Terms, and Privacy keep a visible system back indicator
   in all three skins.

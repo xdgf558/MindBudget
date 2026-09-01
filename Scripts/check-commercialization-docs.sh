@@ -2476,19 +2476,21 @@ for c603_closeout_file in \
   done
 done
 
-for c603_execution_anchor in \
-  '2026-09-01 19:27:25 +0800' \
-  'manageAppVersionAndBuildNumber=false' \
-  'Production APS' \
-  'get-task-allow=false' \
-  'first App Store Connect export is an explicit non-pass'; do
-  if ! grep -Fq "${c603_execution_anchor}" \
-      Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
-      Docs/Commercialization/DECISIONS.md \
-      Docs/Commercialization/SESSION_LOG.md; then
-    echo "C6-03 execution evidence is missing: ${c603_execution_anchor}" >&2
-    exit 1
-  fi
+for c603_execution_file in \
+  Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+  Docs/Commercialization/DECISIONS.md \
+  Docs/Commercialization/SESSION_LOG.md; do
+  for c603_execution_anchor in \
+    '2026-09-01 19:27:25 +0800' \
+    'manageAppVersionAndBuildNumber=false' \
+    'Production APS' \
+    'get-task-allow=false' \
+    'first App Store Connect export is an explicit non-pass'; do
+    grep -Fq "${c603_execution_anchor}" "${c603_execution_file}" || {
+      echo "C6-03 execution evidence is missing ${c603_execution_anchor} in ${c603_execution_file}" >&2
+      exit 1
+    }
+  done
 done
 
 if grep -Eqi 'C6-03 (is )?Done|COM-C6 (is )?Done|tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved)|public release (is )?(approved|authorized|complete)' \

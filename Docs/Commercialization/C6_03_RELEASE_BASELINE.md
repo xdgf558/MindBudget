@@ -21,22 +21,28 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
   entitlement, privacy-manifest, host-literal, device-family, minimum-OS, and no-test-fixture checks.
 - [x] Every repository static gate, full validator, and C6 release matrix passes on the preparation
   head with no hidden test retry accepted as evidence.
-- [x] Independent review approved exact preparation head `11ab612`, GitHub Actions run
-  `33488815168` passed on that head, and PR #95 merged it to `main` as `d5d0959` before Archive.
+- [x] Independent review approves the exact head, hosted CI passes on that head, and the reviewed
+  candidate merges to `main` before Archive. Evidence: exact head `11ab612`, GitHub Actions run
+  `33488815168`, and merge `d5d0959` through PR #95.
 
 ## Distribution gates after reviewed merge
 
-- [x] Archive plain `MindBudget` Release from exact merged `main` commit `d5d0959` using the owner-selected
-  team `2AM5S7BM2N` and bundle ID `com.xdgf558.MindBudget`.
-- [x] Run `Scripts/inspect-c6-release-app.sh --mode distribution` against the exported app and require
+- [x] Archive plain `MindBudget` Release from the exact merged `main` commit using the owner-selected
+  team `2AM5S7BM2N` and bundle ID `com.xdgf558.MindBudget`. Evidence: merged commit `d5d0959`.
+- [ ] Run `Scripts/inspect-c6-release-app.sh --mode distribution` against the archived app and require
   Production APS, Production private-CloudKit environment, and `get-task-allow = false`.
-- [x] Confirm the exported app embeds the reviewed `PrivacyInfo.xcprivacy`, contains no StoreKit fixture
+  DEC-COM-090 records the accepted deviation: the archive retained development signing, so it was
+  not claimed as Distribution evidence; the exported IPA instead passed the same closed
+  Distribution inspection before upload.
+- [x] Confirm the archive embeds the reviewed `PrivacyInfo.xcprivacy`, contains no StoreKit fixture
   or test bundle, and contains no unreviewed app/extension/framework privacy manifest or dependency.
 - [x] Confirm Release environment selection can reach only the reviewed Production configuration
   and telemetry contexts. Development and Staging literals may remain inert enum-case strings, but
   there must be no Release selection path to them.
-- [x] Export/upload with `manageAppVersionAndBuildNumber: false`; App Store Connect accepted
+- [x] Export/upload with `manageAppVersionAndBuildNumber: false`; require transport acceptance for
   `0.9.9 (10)` and record the delivery UUID, timestamp, signing identity, and merged source commit.
+  Evidence: export preserved `manageAppVersionAndBuildNumber=false`, and App Store Connect accepted
+  that exact package as recorded below.
 - [x] Record that tester assignment, external review, Production deployment/schema, G1, distribution,
   and public release were not performed.
 
@@ -51,7 +57,7 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
 - After the owner restored the current Xcode account, automatic App Store Connect export produced
   `/private/tmp/MindBudget-C6-03-0.9.9-zv9Qeg/Exported/MindBudget.ipa`. The extracted app passed the
   distribution inspector as version `0.9.9`, build `10`, bundle `com.xdgf558.MindBudget`, team
-  `2AM5S7BM2N`, arm64, iPhone-only, and `get-task-allow = false`.
+  `2AM5S7BM2N`, arm64, iPhone-only, and `get-task-allow=false`.
 - Distribution signing used the cloud-managed Apple Distribution certificate with SHA-1
   `772445FF75853BB4E4D8145E13D5AE0730F97D72` and Store profile UUID
   `b2a9f8d1-2e48-41bf-84fd-48a9922ce82b`; both expire 2027-08-08. The app carries Production APS,
@@ -61,6 +67,10 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
 - The owner explicitly authorized upload. At `2026-09-01 19:27:25 +0800`, App Store Connect
   accepted the package for processing with delivery UUID
   `1b358d3b-4544-4617-ab47-5be69addc7a8`. This is transport acceptance only.
+- Independent review approval for `11ab612` was delivered through the owner's external review
+  workflow and supplied to this project session. PR #95 has no GitHub Review/comment object, so
+  the approval is a durable owner-mediated project record rather than a GitHub-verifiable review
+  artifact; the exact head, hosted run, and merge remain independently platform-verifiable.
 
 ## Accepted non-passes carried forward
 

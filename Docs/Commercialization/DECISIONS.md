@@ -2648,10 +2648,12 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
 - Status/date: **Accepted after reviewed build-10 merge, Distribution inspection, and owner-authorized upload — 2026-09-01**
 - Requirements: COM-C6 C6-03; DEC-COM-089; REQ-R1-NET-001; REQ-R1-TELEMETRY-001
 - Context: Independent review approved exact PR #95 head `11ab612`, GitHub Actions run
-  `33488815168` passed on that head, and PR #95 merged it as `d5d0959`. The first post-merge App
-  Store Connect export failed before package acceptance because Xcode lacked a usable current
+  `33488815168` passed on that head, and PR #95 merged it as `d5d0959`.
+  The first App Store Connect export is an explicit non-pass: after merge it failed before package
+  acceptance because Xcode lacked a usable current
   account, distribution certificate, and entitlement-compatible Store profile. After the owner
-  restored the current account, automatic export produced a cloud-managed Apple Distribution IPA.
+  restored the current account, automatic export with `manageAppVersionAndBuildNumber=false`
+  produced a cloud-managed Apple Distribution IPA.
   The closed Distribution inspector passed version `0.9.9`, build `10`, team `2AM5S7BM2N`,
   Production APS/CloudKit, `get-task-allow=false`, the sole reviewed privacy manifest, exact host
   vocabulary, and absence of StoreKit/test/extension/framework payloads.
@@ -2665,6 +2667,11 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   submission, App Privacy form acceptance, Production/Staging Worker or CloudKit schema deployment,
   final-binary Production traffic, G1 decision, distribution, or public release is claimed or
   authorized. Active Requirements remain Active.
+- Evidence qualification: The independent-review conclusion was supplied through the owner's
+  external review workflow; PR #95 has no GitHub Review/comment object. It is therefore a durable
+  owner-mediated project record, while head `11ab612`, run `33488815168`, and merge `d5d0959` are
+  the platform-verifiable provenance. This distinction does not relabel the review as a GitHub
+  artifact.
 - Alternatives rejected: Calling the failed export harmless green evidence; using the development-
   signed archive as Distribution evidence; retrying with `manageAppVersionAndBuildNumber=true`;
   treating processing as tester availability or release; assigning a tester group automatically;
