@@ -70,7 +70,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --require-all-status Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
-  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:pending_review:pending' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:done:x' \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:blocked:B' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
@@ -2185,8 +2185,8 @@ if grep -Eqi 'implementation-author (supplemental )?inspection (satisfies|closes
   exit 1
 fi
 
-# C6-02 is owner-entered but remains open. Pin the privacy correction and signed-device evidence
-# without allowing either to impersonate distribution, an App Store Connect write, or C6-03 entry.
+# C6-02 is reviewed and closed. Pin the privacy correction and signed-device evidence without
+# allowing either to impersonate distribution, an App Store Connect write, or C6-03 entry.
 for c602_contract_anchor in \
   'owner explicitly entered C6-02 on 2026-08-30' \
   'DEC-COM-076' \
@@ -2252,7 +2252,7 @@ done
 
 # DEC-COM-083 replaces the ambiguous open-manual list with a machine-readable bounded acceptance
 # packet. Require the decision, checker, exact runtime count, and honest physical non-pass boundary
-# across the current C6-02 status surfaces without letting this pre-review branch claim Done.
+# across the current C6-02 status surfaces while preserving its explicit physical non-passes.
 for c602_acceptance_file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/TASKS.md \
@@ -2297,7 +2297,7 @@ for c602_nonpass_anchor in \
   fi
 done
 
-if grep -Eqi 'C6-02 is Done|full (signed-phone )?VoiceOver (matrix )?(passed|is Passed)|Instruments (run )?(passed|is Passed)|exact (data-)?protection class (passed|is Passed)|physical system integration (passed|is Passed)' \
+if grep -Eqi 'full (signed-phone )?VoiceOver (matrix )?(passed|is Passed)|Instruments (run )?(passed|is Passed)|exact (data-)?protection class (passed|is Passed)|physical system integration (passed|is Passed)' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2308,7 +2308,7 @@ if grep -Eqi 'C6-02 is Done|full (signed-phone )?VoiceOver (matrix )?(passed|is 
     Docs/Commercialization/C6_02_PREFLIGHT.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C6-02 bounded acceptance must not convert unrun physical checks into passes or claim Done before review" >&2
+  echo "C6-02 closeout must not convert unrun physical checks into passes" >&2
   exit 1
 fi
 
@@ -2335,6 +2335,43 @@ for c602_portability_file in \
     }
   done
 done
+
+# DEC-COM-088 closes C6-02 only after the exact final review, green hosted run, and reviewed merge.
+# Require the complete provenance in every current status surface so summary prose elsewhere cannot
+# substitute for the authoritative phase state. C6-03 still needs a distinct owner/archive decision.
+for c602_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/RELEASE_CHECKLIST.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_02_PREFLIGHT.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c602_closeout_anchor in '016dd33' '33405016652' 'c940e8e' 'DEC-COM-088'; do
+    grep -Fq "${c602_closeout_anchor}" "${c602_closeout_file}" || {
+      echo "C6-02 closeout is missing ${c602_closeout_anchor} in ${c602_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'C6-02 (awaits|remains In Progress|is implementation/evidence complete pending|cannot become Done|still requires (rereview|independent review)|new exact(-head)? hosted run remains required)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/RELEASE_CHECKLIST.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_02_PREFLIGHT.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "Current C6-02 state regressed to a pre-closeout review/CI status" >&2
+  exit 1
+fi
 
 grep -Fq 'three exact C6 special checks' Docs/Commercialization/COM_C6_EXECUTION_PACKET.md || {
   echo "COM-C6 packet lost the current three-special-check classification" >&2

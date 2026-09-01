@@ -226,7 +226,7 @@ all 33 required bindings; it does not broaden the physical result.
 
 Independent review accepted exact PR #91 head `b3ed24d` with no P1/P2 findings, GitHub Actions run
 `33362101536` passed, and PR #91 merged the bounded DEC-COM-081 remediation as `4ddabcd` under
-DEC-COM-082. This closes only that reviewed AX5/navigation increment. C6-02 remains In Progress for
+DEC-COM-082. At that point, only the reviewed AX5/navigation increment was closed and the phase remained open for
 transaction-error, receipt-acquisition, complete signed-phone VoiceOver/accessibility,
 Instruments/data-protection, and system-integration evidence; C6-03 remains blocked.
 
@@ -237,8 +237,9 @@ Read-only `devicectl` inspection on only `拉沙的iPhone` found the SwiftData a
 containermanagerd data-protection policy; no financial store was exported. `xctrace` listed the
 same permitted phone Offline and generated no trace, so Instruments and an exact protection class
 are not called passed. Full VoiceOver and physical system side effects also remain non-passes for
-C6-03/C12. C6-02 is implementation/evidence complete pending exact-head independent review,
-hosted CI, and merge.
+C6-03/C12. Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings,
+hosted run `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done
+without converting any retained physical non-pass into a success.
 
 PR #93 runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are explicit hosted non-passes. The
 first two completed their suites and coverage, but Xcode 26.6 rejected forced result schemas
@@ -259,10 +260,13 @@ inside the App window and Save readiness to the whole frame being above the keyb
 navigation bar. The corrected focused regression passes 2/2 without test-runner retry. A fresh
 complete validator passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests
 with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without a
-UI retry. The new exact head still needs rereview and a green hosted run.
+UI retry. Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and
+merged as `c940e8e` under DEC-COM-088.
 
-Next suggested task: independently review and merge only the DEC-COM-083 C6-02 acceptance packet.
-Do not archive, upload, deploy, write App Store Connect, or enter C6-03 from the development-signed build.
+Next suggested task: wait for explicit owner entry into C6-03. Do not archive, upload, deploy,
+write App Store Connect, or enter C6-03 from this closeout. Preserve the final-review P3 notes that
+the back-button helper still uses `buttons.element(boundBy: 0)` with an App-window geometry check
+and the budget Save helper performs only bounded upward Form drags.
 DEC-COM-061 remediates review findings before activation: deletion tombstones now
 retain only a shared UTC-day expiration bucket, HTTP metadata uses fixed `MindBudget`/no-language
 values, and hourly cleanup repeats bounded batches until drained. C5-04 now makes fixed

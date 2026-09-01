@@ -75,7 +75,7 @@ detailed phase checklists; it added no paid product behavior.
   rereview approved exact PR #86 remediation head `f77d2a6`, GitHub Actions run `33255898196`
   completed successfully, and PR #86 merged as `015d00e`; C6-01 is Done. The owner explicitly
   entered C6-02 on 2026-08-30. Independent review accepted exact PR #88 head `0ac0500`, hosted run
-  `33283398690` passed, and PR #88 merged as `6c2a051`; C6-02 remains In Progress for its
+  `33283398690` passed, and PR #88 merged as `6c2a051`; at that point the phase remained open for its
   required-reason source-gate follow-up and manual evidence. C6-03, Staging/Production deployment, G1, App
   Store Connect, distribution, and release remain unauthorized.**
   Reviewed C4B-02 head `0024507` passed GitHub Actions run `32490174014`. Reviewed C4B-01 head
@@ -648,8 +648,8 @@ failure never changes app behavior.
 
 Status: **In Progress after reviewed C6-01 merge. No public release in this phase.**
 
-C6-02 is In Progress after explicit owner entry on 2026-08-30. C6-03 remains blocked by C6-02
-acceptance and a separate owner instruction for archive/upload.
+C6-02 is Done after independent final review, green hosted CI, and PR #93 merge `c940e8e`.
+C6-03 remains blocked pending a separate owner instruction for archive/upload.
 
 ### C6-01 — Automated release matrix
 
@@ -665,9 +665,9 @@ Status: **Done after independent rereview and green CI through PR #86 (`015d00e`
 
 ### C6-02 — Signed-device and App Review preflight
 
-Status: **Implementation and bounded evidence complete pending independent review, hosted CI, and merge.**
+Status: **Done after independent final review and green hosted CI through PR #93 (`c940e8e`).**
 
-- [ ] Validate purchase/restore/manage/legal visibility; screenshots and notes; signed-app network,
+- [x] Validate purchase/restore/manage/legal visibility; screenshots and notes; signed-app network,
   key, and content scans; data-protection, localization, accessibility, and privacy disclosures.
   Define the mandatory C6-03 Archive/IPA rerun without creating an archive in C6-02.
   Before any App Store Connect privacy answer is copied or accepted, COM-C6 must independently
@@ -710,8 +710,8 @@ Status: **Implementation and bounded evidence complete pending independent revie
   VoiceOver matrix, Instruments/exact file-protection inspection, and physical system side effects
   as non-passes for final-candidate C6-03/C12 review. Read-only `devicectl` inspection found the
   SwiftData artifacts under containermanagerd data-protection policy on only `拉沙的iPhone`;
-  `xctrace` listed it Offline and generated no trace, and no financial store was exported. C6-02
-  awaits exact-head independent review, green hosted CI, and merge; it is not Done yet. PR #93
+  `xctrace` listed it Offline and generated no trace, and no financial store was exported. At that
+  point the packet awaited exact-head independent review, green hosted CI, and merge. PR #93
   runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` are non-passes. The first two failed because
   hosted Xcode 26.6 rejected forced schemas `0.4.0` and `0.3.0`; the second also recorded one
   pseudo-long-text failure followed by a
@@ -727,11 +727,17 @@ Status: **Implementation and bounded evidence complete pending independent revie
   lane. The corrected focused regression passes 2/2 without test-runner retry. A fresh complete
   validator then passes Release, the strict Dashboard benchmark, all unit tests, all 18 UI tests
   with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings without
-  a UI retry. A new exact head still requires rereview and a green hosted run.
+  a UI retry. Independent final review approved exact head `016dd33` with no P1/P2 findings,
+  GitHub Actions run `33405016652` passed on that head, and PR #93 merged as `c940e8e`.
+  DEC-COM-088 marks C6-02 Done.
+  The four earlier hosted runs remain non-passes. Review retained two non-blocking harness notes for
+  C6-03/C12: the back-button helper still selects `buttons.element(boundBy: 0)` and now proves only
+  App-window geometry, while the budget Save helper performs only bounded upward Form drags.
+  Neither note changes the accepted C6-02 result or authorizes an archive.
 
 ### C6-03 — TestFlight baseline
 
-Status: **Blocked by C6-02 acceptance and a separate owner instruction for archive/upload.**
+Status: **Blocked pending a separate owner instruction for archive/upload after C6-02 closeout.**
 
 - [B] Close P0/P1, record the accepted R1 baseline and known limitations, upload only after
   approval, and keep formal App Store release paused.

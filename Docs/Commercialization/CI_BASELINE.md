@@ -2435,3 +2435,29 @@ expected physical-only skip, every selected coverage threshold, and all 23 C6-02
 The UI summary contains exactly 18 executions, so no test-runner retry occurred. The validator
 deleted its temporary xcresult, which is an execution pointer rather than a durable artifact. A
 new exact-head hosted run must turn green before merge or C6-02 Done.
+
+### C6-02 exact-head hosted pass and reviewed merge — 2026-09-01
+
+Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings. GitHub
+Actions run `33405016652` completed successfully on that exact head, and PR #93 merged it as
+`c940e8e`. The accepted head preserves toolchain-native xcresult parsing, rejects Failed→Passed
+`Repetition` history, passes the complete suite and all 23 C6-02 runtime bindings, and contains no
+product Swift change beyond the already reviewed PR #93 scope.
+
+Runs `33370429991`, `33384223530`, `33391122019`, and `33398172181` remain non-passes and are not
+superseded into green evidence. Final review retained two non-blocking harness notes for C6-03/C12:
+the back-button helper selects `buttons.element(boundBy: 0)` and proves App-window rather than
+navigation-container geometry, and the budget Save helper performs only bounded upward Form drags.
+DEC-COM-088 marks C6-02 Done while C6-03, Archive/IPA, upload, App Store Connect mutation, G1,
+distribution, and release remain blocked or unauthorized.
+
+The documentation closeout was then verified locally with Xcode 27.0 beta 6 (`27A5252f`). An
+initial invocation without `DEVELOPER_DIR` selected CommandLineTools and did not enter the build;
+a second sandboxed invocation reached Xcode but could not access CoreSimulator. Both are
+environmental non-passes, not product evidence. The identical unrestricted validator completed
+successfully: Release build and strict Dashboard benchmark passed, 553 unit tests passed across 32
+suites with the four expected opt-in CloudKit physical probes skipped, all 18 UI tests executed
+with 17 passed and one expected physical-only skip, every selected coverage threshold passed, and
+the C6-02 evidence reader confirmed 23 exact runtime bindings. The UI summary contains exactly 18
+executions, so no test-runner retry occurred. The validator deleted its temporary xcresult; its
+printed path was an execution pointer rather than a durable artifact.

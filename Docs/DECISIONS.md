@@ -3434,3 +3434,19 @@ Consequences: The fourth hosted run remains a non-pass. A first local fixture at
 Save before it existed is also a non-pass. The corrected focused regression passes 2/2 without
 test-runner retry, but a new exact head still requires rereview, green hosted CI, and merge. C6-02
 is not Done and C6-03 remains blocked.
+
+---
+
+## 2026-09-01 — Close C6-02 without entering C6-03
+
+Context: Independent final review approved exact PR #93 head `016dd33` with no P1/P2 findings,
+GitHub Actions run `33405016652` passed, and PR #93 merged as `c940e8e`. The four preceding hosted
+runs remain non-passes.
+
+Decision: Detailed ownership is DEC-COM-088. Mark C6-02 Done, preserve its accepted physical non-
+passes and two final-review P3 harness notes for C6-03/C12, and keep C6-03 blocked pending explicit
+owner entry plus separate Archive/upload authority.
+
+Consequences: No Archive, IPA, upload, deployment, App Store Connect mutation, tester assignment,
+G1 decision, distribution, release, or Active Requirement completion is authorized by this
+documentation closeout.

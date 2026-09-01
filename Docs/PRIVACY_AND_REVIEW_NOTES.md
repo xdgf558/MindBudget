@@ -143,8 +143,13 @@ PR #88 head `0ac0500`, hosted run `33283398690` passed, and PR #88 merged as `6c
 remains In Progress for required-reason source-gate and manual evidence. PR #89 review found
 missing Foundation Swift overlay aliases in that source gate. Independent rereview accepted exact
 remediation head `6ffc6fa`, hosted run `33287620965` passed, and PR #89 merged it as `72f016e`.
-C6-02 now has a bounded evidence packet pending exact-head independent review, hosted CI, and
-merge; C6-03 and every App Store Connect, Staging/Production, distribution/release proof remain blocked.
+C6-02's bounded evidence packet received independent final review on exact PR #93 head `016dd33`
+with no P1/P2 findings; hosted run `33405016652` passed and PR #93 merged as `c940e8e`.
+DEC-COM-088 marks C6-02 Done without turning its accepted physical non-passes into successes. C6-03 and every App Store
+Connect, Staging/Production, distribution/release proof remain blocked pending separate authority.
+Final review retained two non-blocking C6-03/C12 harness notes: the back-button helper identifies
+`buttons.element(boundBy: 0)` and proves App-window geometry rather than navigation-container
+geometry, and the budget Save helper moves the Form only upward.
 
 Before any App Store Connect privacy answer is copied or accepted, C6-02 must independently
 inspect `MindBudget/Resources/PrivacyInfo.xcprivacy`, the capture calls in
