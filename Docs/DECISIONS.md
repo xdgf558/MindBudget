@@ -3516,3 +3516,19 @@ refund/retry/delete/recovery rules, and provider candidates must be derived from
 Consequences: No public launch or customer observation is required to begin that analysis. The
 US$4.99 price, included count, card prices/counts, provider, backend, and Product IDs remain
 unaccepted. Current Monthly/Annual TestFlight behavior is unchanged, and COM-C7 remains blocked.
+
+---
+
+## 2026-09-02 — Enter G1 and stop at insufficient quote evidence
+
+Context: The owner explicitly entered G1 and requested real supplier pricing plus a sustainable
+one-time local-Pro and finite-credit offer analysis.
+
+Decision: Detailed ownership is DEC-COM-093. Record official 2026-09-02 AI/backend/Apple quotes,
+integer-micro-USD typical/P50 and peak/P95 planning envelopes, a provisional 10-use starter grant,
+and 10/25/65-use card candidates. Return `INSUFFICIENT_QUOTE_EVIDENCE` because the fixed bilingual
+provider Eval, account privacy/region/rate proof, exact App Store proceeds, independent review, and
+owner acceptance are still missing.
+
+Consequences: G1 is In Progress, not passed. No provider credential, backend, product, price,
+credit ledger, customer-facing change, App Store Connect mutation, or COM-C7 entry is authorized.

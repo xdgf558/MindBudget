@@ -669,9 +669,11 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
   DEC-COM-091 marks C6-03/COM-C6 Done without entering G1, COM-C6.5, or any distribution/release
   action. COM-C6.5 remains behind its 14-day no-P0/P1 gate and explicit owner entry.
-- [ ] Execute the owner-rescoped G1 packet only after explicit entry. DEC-COM-092 replaces public-
-  observation prerequisites with dated real cloud-AI/backend quotes and deterministic unit-
-  economics. Evaluate a US$4.99 one-time local-Pro unlock with finite starter AI uses plus
-  separately purchased consumable usage cards; derive the included count and card tiers from
-  typical/P50 and peak/P95 all-in cost. Do not create products, change the current subscription
-  UI, deploy a provider/backend, or enter COM-C7 from this planning change.
+- [ ] Complete the owner-entered G1 packet. The owner explicitly entered G1 on 2026-09-02;
+  DEC-COM-092 and DEC-COM-093 capture dated official AI/backend quotes, integer-micro-USD
+  typical/P50 and peak/P95 planning arithmetic, a provisional 10-use US$4.99 starter envelope,
+  and provisional 10/25/65-use consumable cards.
+  The bounded bilingual provider Eval, account region/retention proof, exact App Store proceeds,
+  independent review, and owner decision remain open, so the interim result is
+  `INSUFFICIENT_QUOTE_EVIDENCE`. Do not create products, change the subscription UI, configure
+  credentials, deploy a provider/backend, or enter COM-C7 from this evidence packet.

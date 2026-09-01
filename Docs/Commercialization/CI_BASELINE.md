@@ -2562,3 +2562,24 @@ The closeout still needs independent review, a green hosted run on its exact hea
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`;
   this path is an execution pointer rather than a durable artifact. The exact updated PR head
   still requires independent review and green hosted CI.
+
+### G1 quote-backed interim economics — 2026-09-02
+
+- The owner explicitly entered G1. DEC-COM-093 records official dated supplier/backend/Apple
+  evidence, integer-micro-USD arithmetic, and the interim `INSUFFICIENT_QUOTE_EVIDENCE` result.
+- `Scripts/g1_unit_economics.py --self-test` and its packet cross-check pass. The reported planning
+  outputs are US$0.011330 typical, US$0.033098 peak, a derived maximum of 11 peak-envelope starter
+  uses, provisional 10 starter uses, and 10/25/65-use card candidates.
+- These are quote-backed planning estimates, not measured P50/P95 Eval evidence. No credential,
+  provider/backend connection, Product ID, App Store Connect mutation, G1 pass, or COM-C7 entry is
+  claimed.
+- The first full-validator invocation used the default Command Line Tools and stopped after every
+  static gate passed because that selection has no `xcodebuild`; it is an environment non-pass.
+- The explicit Xcode 27.0 beta 6 (`27A5252f`) rerun on the iOS 26.5 iPhone 17 Pro simulator passed
+  Release, the strict Dashboard benchmark, 553 unit tests across 32 suites with four expected
+  opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one expected physical-only
+  skip, every selected coverage threshold, and all 23 C6-02 runtime bindings.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.AOYlWw/MindBudget.xcresult`;
+  this is an execution pointer, not a durable artifact. Independent review, exact-head hosted CI,
+  and merge remain required.
