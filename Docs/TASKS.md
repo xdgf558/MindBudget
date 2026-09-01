@@ -659,8 +659,11 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [x] Independently review, run hosted CI, and merge the DEC-COM-083 bounded C6-02 acceptance
   packet. C6-02 is Done through PR #93 (`c940e8e`). Preserve the two review P3 harness notes for
   C6-03/C12 and do not authorize Archive/upload automatically.
-- [ ] Execute the DEC-COM-089 C6-03 baseline in `C6_03_RELEASE_BASELINE.md`. Prepare `0.9.9 (10)` and
-  its matching notes/inspector, obtain exact-head independent review plus green hosted CI and merge,
-  then Archive merged `main`, verify the Distribution signature/privacy/dependencies, upload only
-  through transport acceptance, and stop before tester assignment, G1, deployment, App Store
-  submission, distribution, or public release.
+- [x] Execute the DEC-COM-089 C6-03 baseline in `C6_03_RELEASE_BASELINE.md`. Exact head `11ab612`
+  passed independent review and hosted run `33488815168`; PR #95 merged it as `d5d0959`. The
+  Distribution export passed the closed inspector, and App Store Connect accepted `0.9.9 (10)` at
+  `2026-09-01 19:27:25 +0800` with delivery UUID
+  `1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 records that tester assignment, G1,
+  deployment, App Store submission, distribution, and public release were not performed.
+- [ ] Complete the independent review, hosted CI, and merge of the C6-03/COM-C6 documentation
+  closeout. Do not enter G1, COM-C6.5, or any distribution/release action automatically.

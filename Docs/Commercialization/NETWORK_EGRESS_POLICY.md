@@ -51,6 +51,12 @@ DEC-COM-089 records that the owner separately entered C6-03 and authorized only 
 reviewed/green/merged `0.9.9 (10)` Archive and
 TestFlight transport upload. Staging/Production service or schema deployment, App Store Connect
 form writes, tester assignment, G1, distribution, and public release remain unauthorized.
+Exact preparation head `11ab612` passed independent review and hosted run `33488815168` before PR
+#95 merged as `d5d0959`. The Distribution IPA passed the closed host/privacy/dependency inspector,
+and App Store Connect accepted delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` for processing
+at `2026-09-01 19:27:25 +0800`. That upload is not a claim that any reviewed Production Worker is
+deployed or reachable, and it is not final-binary traffic, customer telemetry, tester assignment,
+G1, distribution, or public-release evidence. DEC-COM-090 owns this exact stop boundary.
 
 C6-02's first source pass conservatively added Purchase History for the closed subscription
 outcome and introduced an exact privacy-manifest validator plus a signed-app inspector. The latter

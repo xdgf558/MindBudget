@@ -3928,3 +3928,47 @@ all 23 C6-02 runtime bindings, with no UI retry. Its deleted temporary xcresult 
 pointer. The fresh C6 release matrix passed 285 tests across 16 suites and all 33 required runtime
 bindings at `/private/tmp/MindBudget-C6-03-0.9.9-Build10-Matrix-20260901.xcresult`; that local path
 is not hosted, Archive, or distribution evidence.
+
+## 2026-09-01 — Session 204 — Upload the reviewed C6-03 build-10 baseline
+
+Exact preparation head `11ab612` passed independent review and GitHub Actions run `33488815168`;
+PR #95 merged it as `d5d0959`. Created the Release archive at
+`/private/tmp/MindBudget-C6-03-0.9.9-zv9Qeg/MindBudget.xcarchive` from that exact merge using Xcode
+27.0 beta 6 (`27A5252f`). Its development signature is not Distribution evidence.
+
+The first App Store Connect export is an explicit non-pass because the current account,
+distribution certificate, and Store profile were unavailable or incompatible with the APS/
+CloudKit entitlements. After the owner restored the current account, automatic export with
+`manageAppVersionAndBuildNumber=false` produced
+`/private/tmp/MindBudget-C6-03-0.9.9-zv9Qeg/Exported/MindBudget.ipa`. Distribution inspection passed
+the cloud-managed Apple Distribution certificate SHA-1
+`772445FF75853BB4E4D8145E13D5AE0730F97D72`, profile UUID
+`b2a9f8d1-2e48-41bf-84fd-48a9922ce82b`, Production APS/CloudKit, private container
+`iCloud.com.xdgf558.MindBudget`, `get-task-allow=false`, `beta-reports-active=true`, exact six host
+literals, the reviewed privacy manifest, and no StoreKit/test/extension/framework payloads.
+
+After explicit owner authorization, App Store Connect accepted `0.9.9 (10)` at
+`2026-09-01 19:27:25 +0800`, delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`, with processing status. DEC-COM-090 closes only execution
+through transport acceptance. Tester assignment, external Beta review, App Store submission,
+privacy-form acceptance, service/schema deployment, final-binary Production traffic, G1,
+distribution, and public release remain open or unauthorized. The closeout branch still requires
+independent review, hosted CI, and merge.
+
+Review of PR #96 found that the first closeout gate checked execution anchors with multi-file OR
+semantics and that three DEC-COM-089 criteria had been edited in place while being checked. The
+remediation requires every exact execution anchor in each of the baseline, decision, and session
+records; restores the original criteria; leaves the archive-level Distribution criterion visibly
+unchecked; and records the exported-IPA inspection as an explicit DEC-COM-090 deviation. It also
+records that the `11ab612` approval came through the owner's external review workflow rather than
+a GitHub Review/comment object.
+
+Closeout validation then passed with Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. The complete validator passed Release, the strict Dashboard benchmark, 553 unit tests
+across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed
+and one expected physical-only skip, selected coverage, and all 23 C6-02 runtime bindings; the UI
+summary proves that no test-runner retry occurred. The validator's deleted temporary xcresult is
+only an execution pointer. The independent C6 matrix passed 285 tests across 16 suites and all 33
+required runtime bindings at
+`/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; that local result bundle does not
+replace hosted closeout CI or signed Distribution/transport evidence.

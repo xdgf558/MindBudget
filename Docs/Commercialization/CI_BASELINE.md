@@ -2489,3 +2489,35 @@ Its result bundle is `/private/tmp/MindBudget-C6-03-0.9.9-Build10-Matrix-2026090
 a local execution pointer, not hosted, signed Archive, IPA, final-binary, App Store Connect, G1,
 distribution, or release evidence. Independent review, green hosted CI, and merge remain required
 before Archive.
+
+### C6-03 reviewed merge, Distribution inspection, and upload — 2026-09-01
+
+- Independent review approved exact PR #95 head `11ab612`; GitHub Actions run `33488815168`
+  completed successfully; PR #95 merged it as `d5d0959`.
+- Release Archive from exact merged `main` completed with Xcode 27.0 beta 6 (`27A5252f`). The
+  archive's development signature is not accepted as Distribution evidence.
+- First App Store Connect export: **non-pass** before package acceptance because the current Xcode
+  account/distribution certificate/entitlement-compatible Store profile were unavailable.
+- Later cloud-managed Apple Distribution export: **pass**. The distribution inspector passed
+  `0.9.9 (10)`, bundle/team, Production APS/CloudKit, `get-task-allow=false`,
+  `beta-reports-active=true`, reviewed privacy-manifest and host inventory, with no StoreKit
+  fixture, test bundle, extension, framework, or extra manifest.
+- Owner-authorized upload: **transport accepted** at `2026-09-01 19:27:25 +0800`, delivery UUID
+  `1b358d3b-4544-4617-ab47-5be69addc7a8`, status Processing.
+- This does not prove tester assignment, Production endpoint traffic/deployment, G1, distribution,
+  or public release. DEC-COM-090 records that stop boundary. The documentation-only closeout still
+  needs independent review, hosted CI, and merge.
+
+The documentation closeout was then validated locally with Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 iPhone 17 Pro simulator. `Scripts/validate.sh` passed Release, the strict Dashboard
+benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical skips, all
+18 UI tests with 17 passed and one expected physical-only skip, every selected coverage threshold,
+and 23 exact C6-02 runtime bindings. The UI summary contains exactly 18 executions, so no
+test-runner retry occurred. The validator deleted its temporary xcresult and that printed path is
+only an execution pointer.
+
+The separate closeout C6 release matrix passed 285 tests across 16 suites and all 33 required
+runtime bindings. Its result bundle is
+`/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; this local execution pointer is
+not hosted, Archive, IPA, final-binary, App Store Connect, G1, distribution, or release evidence.
+The closeout still needs independent review, a green hosted run on its exact head, and merge.

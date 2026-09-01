@@ -3467,3 +3467,19 @@ Stop after transport acceptance.
 Consequences: Build 10 is the traceable next candidate. Tester assignment, external Beta review,
 App Store submission, Staging/Production or CloudKit-schema deployment, G1, distribution, public
 release, and Active Requirement completion remain unauthorized.
+
+---
+
+## 2026-09-01 — Stop C6-03 at accepted build-10 transport
+
+Context: Exact PR #95 head `11ab612` passed independent review and hosted run `33488815168`, then
+merged as `d5d0959`. The first App Store Connect export failed before acceptance; a later
+cloud-managed Apple Distribution export passed the closed Distribution inspector.
+
+Decision: Detailed ownership is DEC-COM-090. Record App Store Connect acceptance of `0.9.9 (10)` at
+`2026-09-01 19:27:25 +0800` with delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`, then stop at the authorized transport boundary.
+
+Consequences: The documentation closeout still needs independent review, green hosted CI, and
+merge. No tester assignment, external review, App Store submission, service/schema deployment,
+G1, distribution, public release, or Active Requirement completion follows.

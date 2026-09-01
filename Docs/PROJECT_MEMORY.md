@@ -263,11 +263,16 @@ with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bi
 UI retry. Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and
 merged as `c940e8e` under DEC-COM-088.
 
-Current task: DEC-COM-089 records that C6-03 is explicitly entered as of 2026-09-01. Follow
-`C6_03_RELEASE_BASELINE.md` and prepare `0.9.9 (10)` for independent
-review and hosted CI; Archive and TestFlight transport upload may occur only from the exact reviewed,
-green, merged `main` commit. Stop after transport acceptance. Do not assign testers, deploy
-Staging/Production or CloudKit schema, decide G1, submit App Store review, distribute, or release.
+Current task: DEC-COM-089 authorized the bounded C6-03 Archive/upload, and DEC-COM-090 now closes
+execution at transport acceptance under `C6_03_RELEASE_BASELINE.md`. Close the C6-03 documentation
+after exact preparation head `11ab612` passed
+independent review and hosted run `33488815168`, PR #95 merged as `d5d0959`, the Distribution IPA
+passed inspection, and App Store Connect accepted `0.9.9 (10)` at
+`2026-09-01 19:27:25 +0800` with delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 treats this only as TestFlight transport
+acceptance. Do not assign testers, deploy Staging/Production or CloudKit schema, decide G1, submit
+App Store review, distribute, or release. The documentation closeout still needs independent
+review, hosted CI, and merge before C6-03/COM-C6 may be marked Done.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

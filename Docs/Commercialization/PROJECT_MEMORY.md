@@ -484,12 +484,16 @@ passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings w
 Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and merged as
 `c940e8e` under DEC-COM-088.
 
-Current task: DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and
-authorized one `0.9.9 (10)` Archive
-plus TestFlight transport upload only after exact-head independent review, green hosted CI, and
-merge. `C6_03_RELEASE_BASELINE.md` owns the checklist. Stop after transport acceptance; tester
+Current task: DEC-COM-089 authorized the bounded Archive/upload and DEC-COM-090 closes execution
+under `C6_03_RELEASE_BASELINE.md` at transport acceptance. Close C6-03 documentation after exact
+preparation head `11ab612` passed independent
+review and hosted run `33488815168`, PR #95 merged as `d5d0959`, the Distribution IPA passed the
+closed inspector, and App Store Connect accepted `0.9.9 (10)` at
+`2026-09-01 19:27:25 +0800` with delivery UUID
+`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 records transport acceptance only. Tester
 assignment, service/schema deployment, G1, App Store submission, distribution, and public release
-remain blocked. Carry forward the two non-blocking final-review notes: the back-button helper still uses
+remain blocked; the documentation closeout still needs independent review, hosted CI, and merge
+before C6-03/COM-C6 may be marked Done. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
 bounded upward Form drags. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt

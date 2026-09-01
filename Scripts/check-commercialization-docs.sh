@@ -2449,7 +2449,51 @@ grep -Fq 'EXPECTED_BUILD="10"' Scripts/inspect-c6-release-app.sh || {
   exit 1
 }
 
-if grep -Eqi 'C6-03 (is )?Done|0\.9\.9 \(10\).*(transport accepted|uploaded successfully)|build 10.*(transport accepted|uploaded successfully)' \
+# DEC-COM-090 records the exact reviewed merge and bounded TestFlight transport acceptance. Require
+# that provenance in every current C6-03 status surface while keeping the phase In Progress until
+# this documentation-only closeout itself receives independent review, hosted CI, and merge.
+for c603_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/RELEASE_CHECKLIST.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c603_closeout_anchor in \
+    '11ab612' \
+    '33488815168' \
+    'd5d0959' \
+    '1b358d3b-4544-4617-ab47-5be69addc7a8' \
+    'DEC-COM-090'; do
+    grep -Fq "${c603_closeout_anchor}" "${c603_closeout_file}" || {
+      echo "C6-03 closeout is missing ${c603_closeout_anchor} in ${c603_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for c603_execution_file in \
+  Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+  Docs/Commercialization/DECISIONS.md \
+  Docs/Commercialization/SESSION_LOG.md; do
+  for c603_execution_anchor in \
+    '2026-09-01 19:27:25 +0800' \
+    'manageAppVersionAndBuildNumber=false' \
+    'Production APS' \
+    'get-task-allow=false' \
+    'first App Store Connect export is an explicit non-pass'; do
+    grep -Fq "${c603_execution_anchor}" "${c603_execution_file}" || {
+      echo "C6-03 execution evidence is missing ${c603_execution_anchor} in ${c603_execution_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'C6-03 (is )?Done|COM-C6 (is )?Done|tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved)|public release (is )?(approved|authorized|complete)' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2460,7 +2504,7 @@ if grep -Eqi 'C6-03 (is )?Done|0\.9\.9 \(10\).*(transport accepted|uploaded succ
     Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C6-03 preparation must not claim completion or transport acceptance before reviewed merge" >&2
+  echo "C6-03 transport closeout overclaims a later review, tester, G1, distribution, or release gate" >&2
   exit 1
 fi
 

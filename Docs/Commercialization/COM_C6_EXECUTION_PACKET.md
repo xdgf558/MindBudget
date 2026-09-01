@@ -1,7 +1,7 @@
 # COM-C6 Execution Packet
 
-Status: **C6-03 In Progress after explicit owner entry and bounded Archive/upload authority on
-2026-09-01; C6-02 is Done through PR #93 (`c940e8e`).**
+Status: **C6-03 implementation and bounded transport complete under DEC-COM-090; documentation
+closeout pending independent review, hosted CI, and merge.**
 
 C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
 `33255898196` passed, and PR #86 merged as `015d00e`. The owner explicitly entered C6-02 on
@@ -9,6 +9,9 @@ C6-01 is Done after independent rereview approved exact remediation head `f77d2a
 `33405016652` passed, and PR #93 merged as `c940e8e`; DEC-COM-088 marks C6-02 Done. The owner
 entered C6-03 on 2026-09-01 and bounded its authority to a reviewed/green/merged build-10 Archive
 and transport upload, without tester assignment or public release.
+Independent review then approved exact preparation head `11ab612`, hosted run `33488815168`
+passed, and PR #95 merged as `d5d0959`. The Distribution export passed inspection and App Store
+Connect accepted delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` for processing.
 
 Owner entry: the project owner explicitly entered COM-C6 on 2026-08-29 after PR #85 merged the
 COM-C5 closeout as `008b674`.
@@ -23,6 +26,11 @@ head passes independent review, hosted CI, and merge. `C6_03_RELEASE_BASELINE.md
 checklist. The authority ends when
 transport accepts build 10 and excludes tester assignment, external Beta App Review, App Store
 submission, service/schema deployment, G1, and public release.
+
+C6-03 execution: DEC-COM-090 records the exact reviewed merge, the explicit non-pass from the
+first export attempt, the later cloud-managed Apple Distribution export, Production APS/CloudKit
+inspection, and transport acceptance at `2026-09-01 19:27:25 +0800`. The accepted upload is not
+tester assignment, distribution, or release evidence.
 
 ## Scope and sequence
 
@@ -165,7 +173,11 @@ exact head `b3ed24d` passed
 independent review and hosted run `33362101536`, then merged the bounded AX5/navigation increment as
 `4ddabcd`. Independent final review approved the bounded acceptance packet on exact PR #93 head
 `016dd33` with no P1/P2 findings, hosted run `33405016652` passed, and PR #93 merged as
-`c940e8e`. The owner then entered C6-03 on 2026-09-01 under the bounded authority above.
+`c940e8e`. The owner then entered C6-03 on 2026-09-01 under the bounded authority above. Exact
+preparation head `11ab612` passed hosted run `33488815168` and independent review before PR #95
+merged it as `d5d0959`. The resulting Distribution IPA passed the closed inspector and App Store
+Connect accepted delivery `1b358d3b-4544-4617-ab47-5be69addc7a8` for processing. Only this
+documentation closeout remains open; no later phase or remote action is entered automatically.
 
 DEC-COM-083 replaces the ambiguous open-manual list with the closed five-row
 `C6_02_ACCEPTANCE_MATRIX.json`. A fresh complete xcresult must contain all 23 exact named StoreKit,
