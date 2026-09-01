@@ -220,8 +220,11 @@ drags. These notes do not weaken C6-02 evidence and do not authorize C6-03.
 
 After COM-C6 closeout, stop and request a new decision if work would deploy Staging/Production or
 CloudKit schema, assign testers, submit Beta/App Store review, publish, weaken an existing fail-
-closed gate, reinterpret an owner-waived physical observation as a pass, claim a real G1 sample,
-or mark an Active Requirement complete from Archive/upload evidence alone. G1 remains unentered
-pending explicit owner entry, a frozen observation window, and accepted real supplier quotes.
+closed gate, reinterpret an owner-waived physical observation as a pass, claim G1 economics
+without dated real supplier evidence, or mark an Active Requirement complete from Archive/upload
+evidence alone. DEC-COM-092 leaves G1 unentered but replaces the public-observation prerequisite
+with `G1_UNIT_ECONOMICS_PACKET.md`: dated primary/backup AI and backend quotes, typical/P50 and
+peak/P95 all-in costs, a US$4.99 one-time local-Pro starter-credit analysis, and consumable usage-
+card options. No product, price, count, provider, or backend is accepted by this scope change.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

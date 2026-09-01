@@ -101,5 +101,7 @@ This closeout does not assign testers, submit external Beta App Review or an App
 accept App Privacy answers, deploy Staging/Production services or CloudKit schema, prove final-
 binary Production traffic, decide G1, distribute, release, or complete an Active Requirement.
 Any later candidate must increment build number 10 before preparation. G1 and COM-C6.5 require
-their own explicit owner entries; COM-C6.5 is additionally ineligible before 2026-09-15 under the
-14-day no-P0/P1 gate.
+their own explicit owner entries. DEC-COM-092 gives the still-unentered G1 a cost-only next packet:
+dated real AI/backend quotes, typical/P50 and peak/P95 cost, a US$4.99 one-time local-Pro starter-
+credit scenario, and consumable usage-card options; it does not accept a product or price.
+COM-C6.5 is additionally ineligible before 2026-09-15 under the 14-day no-P0/P1 gate.

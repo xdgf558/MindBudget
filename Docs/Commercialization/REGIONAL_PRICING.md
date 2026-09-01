@@ -2,15 +2,21 @@
 
 ## Status
 
-**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.** This
-is an evidence/owner-acceptance surface, not authorization to create formal App Store Connect
-products or invent regional conversions. Engineering must render StoreKit values and must not
-choose customer-facing regional prices.
+**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**
+DEC-COM-092 reopened a one-time-offer hypothesis for G1 analysis on 2026-09-01. This is an
+evidence/owner-acceptance surface, not authorization to create formal App Store Connect products
+or invent regional conversions. Engineering must render StoreKit values and must not choose
+customer-facing regional prices.
 
 The accepted nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and a 7-day free
 trial for StoreKit-eligible subscribers. The first test storefront set is HKG, USA, SGP, and TWN.
 These values support Configuration/Sandbox/TestFlight validation only and are not final launch
 pricing, proceeds, margin, or storefront authorization.
+
+The new working scenario is a US$4.99 one-time local-Pro unlock with finite starter cloud-AI
+credits and separately purchased consumable usage cards. It is not an accepted price or product.
+`G1_UNIT_ECONOMICS_PACKET.md` must derive the starter count and card options from dated real quotes
+and typical/P50 plus peak/P95 all-in costs before this worksheet can accept them.
 
 Accepted technical products:
 
@@ -50,14 +56,25 @@ Rows are evaluation candidates only; they do not promise launch availability.
 | Expected usage | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
 | P95/high usage | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
 
+## One-time unlock and usage-card scenario
+
+| Offer element | Candidate price | Credit count | Net proceeds | Typical fulfillment cost | Peak fulfillment cost | Refund/recovery terms | Evidence status |
+|---|---:|---:|---:|---:|---:|---|---|
+| One-time local-Pro unlock + starter credits | US$4.99 working assumption | TBD by G1 | TBD | TBD | TBD | TBD | UNVERIFIED |
+| Usage card A | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
+| Usage card B | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
+| Usage card C | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
+
 ## Three-stage acceptance
 
 1. Configuration stage: provisional, nonpublic StoreKit Configuration terms may support COM-C2/3
    tests and create no price promise.
 2. Preliminary economics stage: an Accepted dated worksheet is required before formal App Store
    Connect products and COM-C6.
-3. G1 stage: final provider, quality, quota/reset, retry/failover cost, storefront price and margin
-   evidence is required before COM-C7.
+3. G1 stage: DEC-COM-092 requires final provider, quality, typical/P50 and peak/P95 all-in cost,
+   starter-credit, consumable-card, ledger/recovery, storefront price and margin evidence before
+   COM-C7.
 
-Local Lifetime is excluded from this worksheet until a new Accepted specification explicitly
-reopens it.
+The prior blanket exclusion of Local Lifetime is superseded only for this G1 hypothesis. No
+one-time Product ID, entitlement, price, credit count, or UI may be created until the reviewed G1
+worksheet is Accepted and a later implementation phase is explicitly entered.

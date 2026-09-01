@@ -2563,4 +2563,71 @@ if grep -Eqi 'tester assignment (is )?(complete|completed)|external Beta App Rev
   exit 1
 fi
 
+G1_ECONOMICS_PACKET="Docs/Commercialization/G1_UNIT_ECONOMICS_PACKET.md"
+test -f "${G1_ECONOMICS_PACKET}" || {
+  echo "Missing G1 quote/economics packet" >&2
+  exit 1
+}
+
+for g1_economics_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_economics_anchor in \
+    'DEC-COM-092' \
+    'US$4.99' \
+    'typical/P50' \
+    'peak/P95' \
+    'consumable'; do
+    grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
+      echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_decision_file in \
+  Docs/DECISIONS.md \
+  Docs/SESSION_LOG.md \
+  Docs/Commercialization/DECISIONS.md \
+  Docs/Commercialization/SESSION_LOG.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  grep -Fq 'DEC-COM-092' "${g1_decision_file}" || {
+    echo "G1 economics decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+done
+
+if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer telemetry|G1 .*public App Store observation.*required' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    "${G1_ECONOMICS_PACKET}"; then
+  echo "Current G1 scope regressed to the superseded public-observation prerequisite" >&2
+  exit 1
+fi
+
+if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|credits) (are|is) (accepted|approved|final)|usage-card (price|tier|count) (is|are) (accepted|approved|final)|G1 (is )?(In Progress|entered|Done)|COM-C7 (is )?(In Progress|entered|Done)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+    Docs/Commercialization/REGIONAL_PRICING.md \
+    "${G1_ECONOMICS_PACKET}"; then
+  echo "G1 planning change overclaims an accepted offer, phase entry, or downstream phase" >&2
+  exit 1
+fi
+
 echo "Commercialization documentation gate passed"

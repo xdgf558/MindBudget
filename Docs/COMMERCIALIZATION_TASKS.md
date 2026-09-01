@@ -785,19 +785,23 @@ earliest eligible date is 2026-09-15. Distribution remains a separate post-iPhon
 Exit gate: R1.1 Watch TestFlight evidence recorded before the separate Watch release. Watch delay
 must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
-## G1 — Evidence and cost decision gate
+## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **Blocked pending explicit owner entry, a frozen observation window, and accepted real
-supplier quotes after COM-C6 closeout.**
+Status: **Scope accepted under DEC-COM-092; blocked pending explicit owner entry and dated real
+supplier quotes. Public App Store observation is not an entry prerequisite.**
 
-- [B] Freeze the evaluated app/schema/event/Eval versions and observation window.
-- [B] Report App Store metrics, actual proceeds, telemetry coverage/funnels, surveys, local-model
-  Evals, supplier quality/latency/cost, fixed backend costs, and candidate Monthly/Annual prices and
-  included calls.
-- [B] Record numerator, denominator, confidence interval, and segmentation for every criterion.
-- [B] Output `PROCEED_TO_R2`, `CONTINUE_R1`, or `INSUFFICIENT_SAMPLE`; never lower a gate merely to
-  advance the backend.
-- [B] Accept the R2 provider candidates, unit economics, quota/reset policy, and C7 start decision.
+- [B] Freeze quote date/currency/region, App Store commission/tax/refund assumptions, exact AI
+  task set, and deterministic typical/P50 plus peak/P95 request profiles.
+- [B] Obtain dated official rate cards or written quotes for at least one primary and one viable
+  backup cloud-AI provider plus the fixed/variable first-party backend path.
+- [B] Calculate all-in cost per successful use, including input/output/cache/tool use, bounded
+  retries/failover/invalid output, backend allocation, monitoring, and safety reserve.
+- [B] Evaluate a US$4.99 one-time local-Pro unlock with a finite starter credit grant; derive at
+  least three candidate included-use counts from the conservative peak envelope.
+- [B] Evaluate at least three consumable usage-card count/price options, including commission,
+  refund, credit-ledger, idempotency, retry, deletion, and restore/recovery consequences.
+- [B] Output `PROCEED_TO_R2`, `REVISE_OFFER`, or `INSUFFICIENT_QUOTE_EVIDENCE`; accept exact
+  providers, starter uses, card terms, circuit breaker, and C7 start only from reviewed evidence.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
 

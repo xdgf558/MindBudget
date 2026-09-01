@@ -3500,3 +3500,19 @@ deployment, final-binary Production traffic, G1, distribution, public release, a
 Requirement completion remain open or unauthorized. G1 needs a separate owner entry plus real
 observation/quote evidence. COM-C6.5 needs a separate owner entry and its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15.
+
+---
+
+## 2026-09-01 — Rescope G1 to provider cost and buyout-plus-credits analysis
+
+Context: The owner replaced the planned public-observation prerequisite with a narrower immediate
+question: obtain real cloud-AI/backend quotes and determine sustainable AI usage economics.
+
+Decision: Detailed ownership is DEC-COM-092. G1 remains unentered, but its next packet evaluates a
+US$4.99 one-time local-Pro unlock with a finite starter AI allocation plus separately purchased
+consumable usage cards. Typical/P50 and peak/P95 all-in costs, included uses, card tiers, ledger,
+refund/retry/delete/recovery rules, and provider candidates must be derived from dated evidence.
+
+Consequences: No public launch or customer observation is required to begin that analysis. The
+US$4.99 price, included count, card prices/counts, provider, backend, and Product IDs remain
+unaccepted. Current Monthly/Annual TestFlight behavior is unchanged, and COM-C7 remains blocked.

@@ -2543,3 +2543,22 @@ The closeout still needs independent review, a green hosted run on its exact hea
   this path is an execution pointer, not a durable artifact.
 - This documentation-only closeout still requires independent review, a green hosted run on its
   exact head, and merge. No later phase or external action is authorized by the local pass.
+
+### G1 quote/economics scope replacement — 2026-09-01
+
+- DEC-COM-092 changes planning and evidence scope only. G1 remains unentered.
+- `G1_UNIT_ECONOMICS_PACKET.md` replaces the public-observation prerequisite with dated real
+  primary/backup AI and backend quotes, deterministic typical/P50 and peak/P95 cost, a US$4.99
+  one-time local-Pro starter-credit scenario, and at least three consumable usage-card options.
+- This record contains no supplier quote, cost result, accepted price/count/card/provider,
+  Product ID, backend/provider connection, App Store Connect mutation, G1 entry, distribution, or
+  release evidence.
+- Exact-scope local validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+  simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
+  across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17
+  passed and one expected physical-only skip, every selected coverage threshold, and all 23
+  C6-02 runtime bindings. No UI test-runner retry occurred.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`;
+  this path is an execution pointer rather than a durable artifact. The exact updated PR head
+  still requires independent review and green hosted CI.

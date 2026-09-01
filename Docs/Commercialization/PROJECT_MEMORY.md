@@ -240,14 +240,17 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 
 ## Commercial model
 
-- Formal launch products: Pro Monthly and Pro Annual only.
+- The existing reviewed TestFlight implementation remains Pro Monthly and Pro Annual. The formal
+  launch offer is now `TBD`: DEC-COM-092 reopens a US$4.99 one-time local-Pro unlock plus finite
+  starter AI credits and consumable usage cards for G1 evaluation only.
 - Subscription group internal reference: `MindBudget Pro`.
 - Monthly Product ID: `com.xdgf558.mindbudget.pro.monthly`.
 - Annual Product ID: `com.xdgf558.mindbudget.pro.annual`.
 - Monthly/Annual price, trial, included cloud calls, reset boundary, launch storefronts, and
   provider set are `TBD` until their accepted evidence gates.
-- Local Lifetime is deferred: zero product, zero entitlement, zero UI entry, zero sale, and zero
-  public promise.
+- The one-time offer is still deferred at runtime: zero product, zero entitlement constructor,
+  zero UI entry, zero sale, and zero public promise until G1 accepts exact economics and later
+  implementation/release gates pass.
 - TestFlight, StoreKit Configuration, Sandbox, development overrides, and promotional tests never
   create production grandfathered rights. Production rights come only from verified Production
   StoreKit state.
@@ -274,7 +277,9 @@ cloud economics:
 
 1. COM-C2/3 may use configuration-only products and provisional test terms.
 2. Formal App Store Connect products and COM-C6 require accepted preliminary unit economics.
-3. G1 accepts final provider, quota, reset, cost, and price inputs before COM-C7/cloud work.
+3. Under DEC-COM-092, G1 accepts final provider, unit-cost, starter-credit, consumable-card,
+   accounting, circuit-breaker, and price inputs before COM-C7/cloud work. Its working scenario is
+   a US$4.99 one-time local-Pro unlock, not a presently accepted customer offer.
 
 The app never hardcodes a customer price. Visible prices and subscription terms come from StoreKit
 or current SDK renewal information. `REGIONAL_PRICING.md` is the owner acceptance surface.
@@ -492,8 +497,12 @@ The preparation chain remains exact head `11ab612`, hosted run `33488815168`, an
 `d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
 The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. Tester assignment,
 service/schema deployment, G1, App Store submission, distribution, public release, and Active
-Requirement completion remain unperformed or blocked. G1 awaits explicit owner entry, a frozen
-observation window, and accepted real supplier quotes. COM-C6.5 awaits its 14-day no-P0/P1 gate,
+Requirement completion remain unperformed or blocked. DEC-COM-092 rescopes the still-unentered G1
+to dated real cloud-AI/backend quotes and deterministic typical/P50 plus peak/P95 unit economics.
+It must determine whether a US$4.99 one-time local-Pro unlock can safely include finite starter AI
+uses and which consumable usage-card tiers, if any, remain viable after commission, refunds,
+retry/failover, backend, credit-ledger, and safety-reserve costs. Public App Store observation is
+not an entry prerequisite. COM-C6.5 awaits its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
 bounded upward Form drags. Live bilingual

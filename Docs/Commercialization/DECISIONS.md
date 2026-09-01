@@ -2702,3 +2702,34 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   closeout; entering G1 automatically; starting Watch before its 14-day gate; treating synthetic
   Development evidence as customer observation; accepting supplier economics without dated real
   quotes; reusing build 10; or marking an Active Requirement Done from Archive/upload evidence.
+
+## DEC-COM-092 — Rescope G1 to real-quote unit economics and a buyout-plus-credits hypothesis
+
+- Status/date: **Accepted by product owner — 2026-09-01**
+- Requirements: REQ-G1-001; REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`
+- Context: The owner does not want public App Store observation to be a prerequisite for the next
+  G1 task. The immediate decision needed is whether real cloud-AI and backend costs can support a
+  simple one-time offer and finite usage top-ups. Existing C5 evidence machinery remains valid but
+  is no longer a mandatory G1 entry input. The completed Monthly/Annual TestFlight implementation
+  remains historical/current test evidence and is not rewritten by this planning decision.
+- Decision: Keep G1 unentered until a separate explicit owner instruction. When entered, obtain
+  dated official rate cards or written quotes for at least one primary and one viable backup AI
+  provider plus the backend path. Calculate deterministic typical/P50 and peak/P95 all-in cost per
+  successful use, including retry/failover, invalid output, fixed/variable backend, commission,
+  tax/refund assumptions, and safety reserve. Evaluate US$4.99 as a working one-time local-Pro
+  unlock with a finite starter credit grant, followed by separately purchased consumable usage
+  cards. Derive rather than guess the included count and at least three card options.
+- Consequences: Public App Store release, proceeds, customer telemetry, survey response, and an
+  observation window are not G1 entry prerequisites. US$4.99 is not yet an accepted price. No
+  starter count, card count/price, Product ID, provider, backend, quota, expiry/reset, credit-
+  recovery, or customer copy is accepted until the reviewed packet resolves it. The credit ledger
+  must be server-authoritative and explicitly handle purchase verification, idempotency, retry,
+  cancellation, refund, deletion, reinstall/device/account recovery, and the lack of ordinary
+  StoreKit restore semantics for consumed consumables. Only owner-accepted `PROCEED_TO_R2`
+  authorizes COM-C7.
+- Alternatives rejected: Requiring public launch before cost modelling; using remembered prices or
+  search snippets as quotes; advertising unlimited AI; choosing a round included-use count before
+  peak cost is known; treating a consumable as automatically restorable; silently replacing the
+  current subscription implementation; creating immutable Product IDs before the offer is
+  accepted; or treating this decision as G1 entry or provider/backend deployment authority.

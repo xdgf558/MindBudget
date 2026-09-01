@@ -271,8 +271,12 @@ The preparation chain remains exact head `11ab612`, hosted run `33488815168`, an
 `d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
 The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. No tester assignment,
 Staging/Production or CloudKit-schema deployment, G1 decision, App Store review, distribution,
-public release, or Active Requirement completion follows. G1 remains unentered pending a frozen
-observation window, accepted real supplier quotes, and explicit owner direction. COM-C6.5 remains
+public release, or Active Requirement completion follows. DEC-COM-092 rescopes the still-unentered
+G1 to dated real cloud-AI/backend quotes and deterministic typical/P50 plus peak/P95 cost. Its
+working offer is a US$4.99 one-time local-Pro unlock with finite starter AI uses and separately
+purchased consumable usage cards; the actual included count, card tiers, and prices remain
+unaccepted until the reviewed worksheet proves them. Public App Store observation is not an entry
+prerequisite. COM-C6.5 remains
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs

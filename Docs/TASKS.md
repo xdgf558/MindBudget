@@ -668,5 +668,10 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [x] Complete the C6-03/COM-C6 documentation closeout. Independent review approved exact PR #96
   head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
   DEC-COM-091 marks C6-03/COM-C6 Done without entering G1, COM-C6.5, or any distribution/release
-  action. COM-C6.5 remains behind its 14-day no-P0/P1 gate and explicit owner entry; G1 still
-  requires an explicit owner entry, a frozen observation window, and accepted real supplier quotes.
+  action. COM-C6.5 remains behind its 14-day no-P0/P1 gate and explicit owner entry.
+- [ ] Execute the owner-rescoped G1 packet only after explicit entry. DEC-COM-092 replaces public-
+  observation prerequisites with dated real cloud-AI/backend quotes and deterministic unit-
+  economics. Evaluate a US$4.99 one-time local-Pro unlock with finite starter AI uses plus
+  separately purchased consumable usage cards; derive the included count and card tiers from
+  typical/P50 and peak/P95 all-in cost. Do not create products, change the current subscription
+  UI, deploy a provider/backend, or enter COM-C7 from this planning change.

@@ -4001,3 +4001,31 @@ occurred. The validator deleted its temporary
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XehnXC/MindBudget.xcresult`;
 the path is an execution pointer. This closeout head still needs independent review, green hosted
 CI, and merge before DEC-COM-091 becomes merged current state.
+
+## 2026-09-01 — Session 206 — Rescope the unentered G1 task
+
+Goal: Replace the planned public-observation prerequisite with the owner's requested real-quote
+unit-economics task while leaving G1 and every implementation/external action unentered.
+
+Actions: Recorded DEC-COM-092 and created `G1_UNIT_ECONOMICS_PACKET.md`. The packet requires dated
+official or written quotes for at least one primary and one viable backup AI provider plus the
+first-party backend; fixed typical/P50 and peak/P95 request profiles; integer-micro-USD all-in
+costs; and explicit commission, tax/refund, retry/failover, invalid-output, backend, ledger,
+deletion and recovery assumptions. It evaluates US$4.99 only as a working one-time local-Pro
+scenario with finite starter credits and at least three consumable usage-card candidates.
+
+Result: Public App Store release, proceeds, customer telemetry, surveys and an observation window
+are no longer G1 entry prerequisites. No quote, provider, backend, price, starter count, card tier,
+Product ID, quota, credit ledger, or commercial term was accepted. The existing Monthly/Annual
+TestFlight implementation remains unchanged. G1 and COM-C7 remain blocked pending explicit owner
+entry and a reviewed `PROCEED_TO_R2` decision; no App Store Connect, deployment, product-code,
+distribution, or release action occurred.
+
+Validation: Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator passed the full
+validator on the updated quote/economics scope: Release, the strict Dashboard benchmark, 553 unit
+tests across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17
+passed and one expected physical-only skip, selected coverage, and all 23 C6-02 runtime bindings.
+No UI test-runner retry occurred. The validator deleted its temporary
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`;
+the path is an execution pointer, not a durable artifact. The updated exact head still requires
+independent review, green hosted CI, and merge.
