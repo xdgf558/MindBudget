@@ -484,16 +484,17 @@ passed and one expected physical-only skip, coverage, and 23/23 C6-02 bindings w
 Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and merged as
 `c940e8e` under DEC-COM-088.
 
-Current task: DEC-COM-089 authorized the bounded Archive/upload and DEC-COM-090 closes execution
-under `C6_03_RELEASE_BASELINE.md` at transport acceptance. Close C6-03 documentation after exact
-preparation head `11ab612` passed independent
-review and hosted run `33488815168`, PR #95 merged as `d5d0959`, the Distribution IPA passed the
-closed inspector, and App Store Connect accepted `0.9.9 (10)` at
-`2026-09-01 19:27:25 +0800` with delivery UUID
-`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 records transport acceptance only. Tester
-assignment, service/schema deployment, G1, App Store submission, distribution, and public release
-remain blocked; the documentation closeout still needs independent review, hosted CI, and merge
-before C6-03/COM-C6 may be marked Done. Carry forward the two non-blocking final-review notes: the back-button helper still uses
+Current task: DEC-COM-089 authorized the bounded `0.9.9 (10)` Archive/upload under
+`C6_03_RELEASE_BASELINE.md`, DEC-COM-090 stopped at accepted transport, and C6-03/COM-C6 are Done
+under DEC-COM-091 after independent review approved exact PR
+#96 head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
+The preparation chain remains exact head `11ab612`, hosted run `33488815168`, and PR #95 merge
+`d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
+The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. Tester assignment,
+service/schema deployment, G1, App Store submission, distribution, public release, and Active
+Requirement completion remain unperformed or blocked. G1 awaits explicit owner entry, a frozen
+observation window, and accepted real supplier quotes. COM-C6.5 awaits its 14-day no-P0/P1 gate,
+no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
 bounded upward Form drags. Live bilingual
 StoreKit renewal/legal, offline local-Pro retention, privacy/receipt/iCloud/export copy, and receipt

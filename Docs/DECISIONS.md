@@ -3483,3 +3483,20 @@ Decision: Detailed ownership is DEC-COM-090. Record App Store Connect acceptance
 Consequences: The documentation closeout still needs independent review, green hosted CI, and
 merge. No tester assignment, external review, App Store submission, service/schema deployment,
 G1, distribution, public release, or Active Requirement completion follows.
+
+---
+
+## 2026-09-01 — Close C6-03 and COM-C6 at the reviewed TestFlight boundary
+
+Context: Independent review approved exact PR #96 head `3ed1357`, GitHub Actions run
+`33508360536` passed on that head, and PR #96 merged as `246e7c1`.
+
+Decision: Detailed ownership is DEC-COM-091. Mark C6-03/COM-C6 Done while keeping the accepted
+`0.9.9 (10)` upload as TestFlight transport evidence only. Do not enter G1 or COM-C6.5
+automatically.
+
+Consequences: Tester assignment, App Privacy answer acceptance, Production service/schema
+deployment, final-binary Production traffic, G1, distribution, public release, and Active
+Requirement completion remain open or unauthorized. G1 needs a separate owner entry plus real
+observation/quote evidence. COM-C6.5 needs a separate owner entry and its 14-day no-P0/P1 gate,
+no earlier than 2026-09-15.

@@ -263,16 +263,17 @@ with 17 passed and one expected physical-only skip, coverage, and 23/23 C6-02 bi
 UI retry. Exact head `016dd33` subsequently passed final review and hosted run `33405016652` and
 merged as `c940e8e` under DEC-COM-088.
 
-Current task: DEC-COM-089 authorized the bounded C6-03 Archive/upload, and DEC-COM-090 now closes
-execution at transport acceptance under `C6_03_RELEASE_BASELINE.md`. Close the C6-03 documentation
-after exact preparation head `11ab612` passed
-independent review and hosted run `33488815168`, PR #95 merged as `d5d0959`, the Distribution IPA
-passed inspection, and App Store Connect accepted `0.9.9 (10)` at
-`2026-09-01 19:27:25 +0800` with delivery UUID
-`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 treats this only as TestFlight transport
-acceptance. Do not assign testers, deploy Staging/Production or CloudKit schema, decide G1, submit
-App Store review, distribute, or release. The documentation closeout still needs independent
-review, hosted CI, and merge before C6-03/COM-C6 may be marked Done.
+Current task: DEC-COM-089 authorized the bounded `0.9.9 (10)` Archive/upload under
+`C6_03_RELEASE_BASELINE.md`, DEC-COM-090 stopped at accepted transport, and C6-03/COM-C6 are Done
+under DEC-COM-091 after independent review approved exact PR
+#96 head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
+The preparation chain remains exact head `11ab612`, hosted run `33488815168`, and PR #95 merge
+`d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
+The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. No tester assignment,
+Staging/Production or CloudKit-schema deployment, G1 decision, App Store review, distribution,
+public release, or Active Requirement completion follows. G1 remains unentered pending a frozen
+observation window, accepted real supplier quotes, and explicit owner direction. COM-C6.5 remains
+unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

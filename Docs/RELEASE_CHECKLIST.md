@@ -88,7 +88,7 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   `get-task-allow=false` before upload. DEC-COM-090 records why the development-signed archive was
   not used as Distribution evidence.
 
-### C6-03 0.9.9 (10) baseline — transport complete, closeout review pending
+### Completed C6-03 0.9.9 (10) TestFlight transport baseline
 
 - [x] DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized one
   `0.9.9 (10)` Archive plus TestFlight transport upload after exact-head independent review, green
@@ -108,8 +108,9 @@ presentation default without changing StoreKit entitlement or permanent subscrip
   distribution evidence.
 - [x] DEC-COM-090 records the exact Distribution/transport evidence and keeps every later remote,
   tester, G1, distribution, and release action outside this baseline.
-- [ ] Merge the independently reviewed, hosted-green documentation closeout before marking C6-03
-  complete or closing its parent COM phase.
+- [x] Independent review approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed,
+  and PR #96 merged the documentation closeout as `246e7c1`; DEC-COM-091 marks C6-03/COM-C6 Done
+  without entering G1, COM-C6.5, tester assignment, distribution, or public release.
 - [ ] Before preparing any later candidate, raise `CURRENT_PROJECT_VERSION` and the inspector's
   expected build above 10 in the same reviewed preparation change. Uploaded `0.9.9 (10)` is
   immutable and must never be reused.

@@ -6934,3 +6934,26 @@ path is only an execution pointer. The separate C6 release matrix passed 285 tes
 suites and all 33 required bindings at
 `/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; this local path is not hosted,
 Archive, Distribution, App Store Connect, G1, or release evidence.
+
+## 2026-09-01 — Close C6-03 and COM-C6 after PR #96
+
+Verified the exact final product-delivery chain before changing current state: PR #96 final head
+`3ed1357` passed GitHub Actions run `33508360536` and merged to `main` as `246e7c1`. Under
+DEC-COM-091, C6-03 and COM-C6 are now Done. This records the reviewed Distribution inspection and
+App Store Connect transport acceptance of `0.9.9 (10)`; it does not turn that transport event into
+tester assignment, external Beta App Review, App Store version submission, App Privacy-form
+acceptance, Production traffic, G1, distribution, or public-release evidence.
+
+The next commercial phases were not entered. G1 still requires explicit owner entry, a frozen
+observation window, and accepted real supplier quotes. COM-C6.5 remains blocked behind its
+post-COM-C6 14-day no-P0/P1 gate and a separate owner entry, with `2026-09-15` as the earliest
+possible entry date. Any later candidate must increment the build number beyond 10.
+
+Validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator.
+`Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests across 32
+suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one
+expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime
+bindings. The UI summary contains exactly 18 executions, so no test-runner retry occurred. The
+validator deleted `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XehnXC/MindBudget.xcresult`;
+that path is an execution pointer, not a durable artifact. This documentation branch still needs
+its own independent review, green hosted CI, and merge.

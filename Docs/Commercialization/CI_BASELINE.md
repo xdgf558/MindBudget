@@ -2521,3 +2521,25 @@ runtime bindings. Its result bundle is
 `/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; this local execution pointer is
 not hosted, Archive, IPA, final-binary, App Store Connect, G1, distribution, or release evidence.
 The closeout still needs independent review, a green hosted run on its exact head, and merge.
+
+### C6-03 / COM-C6 reviewed-product closeout — 2026-09-01
+
+- PR #96 final head `3ed1357` completed GitHub Actions run `33508360536` successfully and merged
+  to `main` as `246e7c1`.
+- DEC-COM-091 closes C6-03 and COM-C6 from that exact reviewed product-delivery chain while
+  preserving the upload as transport evidence only. It does not claim tester assignment,
+  external Beta review, App Store submission, privacy-form acceptance, Production traffic, G1,
+  distribution, release, or Active Requirement completion.
+- G1 remains eligible but unentered pending explicit owner entry, a frozen observation window,
+  and accepted real supplier quotes. COM-C6.5 remains blocked pending the post-COM-C6 14-day
+  no-P0/P1 gate plus explicit owner entry; `2026-09-15` is the earliest possible entry date.
+- Local documentation validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17
+  Pro simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit
+  tests across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with
+  17 passed and one expected physical-only skip, every selected coverage threshold, and all 23
+  C6-02 runtime bindings. The 18-execution UI summary proves no test-runner retry occurred.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XehnXC/MindBudget.xcresult`;
+  this path is an execution pointer, not a durable artifact.
+- This documentation-only closeout still requires independent review, a green hosted run on its
+  exact head, and merge. No later phase or external action is authorized by the local pass.

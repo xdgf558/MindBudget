@@ -2677,3 +2677,28 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   treating processing as tester availability or release; assigning a tester group automatically;
   deploying a backend/schema to make the uploaded binary appear complete; deciding G1 from upload;
   or entering a later phase before closeout review/CI/merge.
+
+## DEC-COM-091 — Close C6-03 and COM-C6 without entering G1 or Watch
+
+- Status/date: **Accepted after exact-head independent review, green hosted CI, and merge — 2026-09-01**
+- Requirements: COM-C6 C6-03; DEC-COM-089/090; REQ-R1-NET-001; REQ-R1-TELEMETRY-001;
+  REQ-G1-001; REQ-WATCH-SCOPE-001
+- Context: Independent review approved exact PR #96 head `3ed1357`. GitHub Actions run
+  `33508360536` completed successfully on that head, and PR #96 merged the bounded transport
+  record as `246e7c1`. The reviewed packet preserves the development-signed archive criterion as
+  a non-pass, qualifies the exported Apple Distribution IPA as the accepted deviation, records
+  transport acceptance, and forbids reuse of uploaded build 10.
+- Decision: Mark C6-03 and COM-C6 Done. Retain `0.9.9 (10)` as TestFlight transport evidence only;
+  do not infer tester assignment, App Privacy answer acceptance, Production service/schema
+  deployment, final-binary Production traffic, G1, distribution, public release, or Active
+  Requirement completion. G1 remains unentered pending explicit owner entry, a frozen observation
+  window, and accepted real supplier quotes. COM-C6.5 remains unentered behind a 14-day no-P0/P1
+  gate from this closeout, no earlier than 2026-09-15, plus explicit owner entry.
+- Consequences: The repository now has a closed C1–C6 TestFlight baseline, not a release decision.
+  Later work must preserve the accepted non-passes and the two C6-02 harness notes. Any later
+  candidate must increment build number 10 before preparation. G1 and COM-C6.5 are independently
+  authorized work streams and neither begins from this decision alone.
+- Alternatives rejected: Calling Processing a tester or release pass; assigning testers during
+  closeout; entering G1 automatically; starting Watch before its 14-day gate; treating synthetic
+  Development evidence as customer observation; accepting supplier economics without dated real
+  quotes; reusing build 10; or marking an Active Requirement Done from Archive/upload evidence.

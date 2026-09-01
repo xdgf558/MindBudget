@@ -3972,3 +3972,32 @@ only an execution pointer. The independent C6 matrix passed 285 tests across 16 
 required runtime bindings at
 `/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; that local result bundle does not
 replace hosted closeout CI or signed Distribution/transport evidence.
+
+## 2026-09-01 — Session 205 — Close C6-03 and COM-C6 after reviewed transport
+
+Goal: Calibrate the durable record after PR #96's reviewed, green merge; close only C6-03 and
+COM-C6; and leave every later commercial phase behind its own explicit entry and evidence gates.
+
+Actions: Verified PR #96 final head `3ed1357`, successful GitHub Actions run `33508360536`, and
+merge commit `246e7c1`. Added DEC-COM-091, marked C6-03 and COM-C6 Done, preserved build 10's
+Distribution/transport evidence and explicit non-passes, and strengthened the current-state gate
+with per-file exact provenance plus structural phase-state checks. Moved G1 to an eligible but
+unentered state requiring explicit owner entry, a frozen observation window, and accepted real
+supplier quotes. Kept COM-C6.5 blocked behind the post-COM-C6 14-day no-P0/P1 gate and separate
+owner entry; the earliest possible entry date is `2026-09-15`.
+
+Result: The repository now records the end of COM-C6 without claiming tester assignment,
+external Beta App Review, App Store version submission, App Privacy-form acceptance, service or
+schema deployment, final-binary Production traffic, G1, distribution, public release, or Active
+Requirement completion. Any later upload requires a build number greater than 10. No Swift,
+Archive, IPA, upload, App Store Connect mutation, deployment, tester, distribution, or release
+action occurred in this session.
+
+Validation: Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator passed the full
+validator: Release build, strict Dashboard benchmark, 553 unit tests across 32 suites with four
+expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one expected
+physical-only skip, selected coverage, and all 23 C6-02 runtime bindings. No UI test-runner retry
+occurred. The validator deleted its temporary
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XehnXC/MindBudget.xcresult`;
+the path is an execution pointer. This closeout head still needs independent review, green hosted
+CI, and merge before DEC-COM-091 becomes merged current state.

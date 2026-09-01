@@ -49,6 +49,9 @@ validated under the owner's current China-region Apple Developer account.
   `1b358d3b-4544-4617-ab47-5be69addc7a8` and began processing. No tester group, external Beta App
   Review, App Store submission, G1 decision, or public release followed; DEC-COM-090 records that
   exact boundary.
+- Independent review approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed, and
+  PR #96 merged the transport closeout as `246e7c1`. DEC-COM-091 closes C6-03/COM-C6 but does not
+  authorize tester assignment, copying App Privacy answers, submission, distribution, or release.
 - Public launch version: reserve 1.0.0 for the first approved App Store release.
 - Category: Finance
 - Device family: iPhone only
