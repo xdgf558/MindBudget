@@ -2547,7 +2547,7 @@ if grep -Eqi 'C6-03/COM-C6 remain open|C6-03/COM-C6 may be marked Done|documenta
   exit 1
 fi
 
-if grep -Eqi 'tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved|entered)|COM-C6\.5 (is )?(In Progress|entered|Done)|public release (is )?(approved|authorized|complete)' \
+if grep -Eqi 'tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved)|COM-C6\.5 (is )?(In Progress|entered|Done)|public release (is )?(approved|authorized|complete)' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2581,6 +2581,7 @@ for g1_economics_file in \
   "${G1_ECONOMICS_PACKET}"; do
   for g1_economics_anchor in \
     'DEC-COM-092' \
+    'DEC-COM-093' \
     'US$4.99' \
     'typical/P50' \
     'peak/P95' \
@@ -2602,6 +2603,31 @@ for g1_decision_file in \
     echo "G1 economics decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-093' "${g1_decision_file}" || {
+    echo "Entered-G1 interim decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+done
+
+grep -Fq "Status: **In Progress after the owner's explicit 2026-09-02 entry." \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "G1 current phase status must remain explicitly In Progress after owner entry" >&2
+  exit 1
+}
+
+python3 Scripts/g1_unit_economics.py --self-test >/dev/null
+python3 Scripts/g1_unit_economics.py --check-document "${G1_ECONOMICS_PACKET}" >/dev/null
+
+for g1_interim_anchor in \
+  'INSUFFICIENT_QUOTE_EVIDENCE' \
+  '10 starter uses' \
+  '10 uses / US$0.99' \
+  '25 uses / US$1.99' \
+  '65 uses / US$4.99'; do
+  grep -Fq "${g1_interim_anchor}" "${G1_ECONOMICS_PACKET}" || {
+    echo "G1 interim packet is missing ${g1_interim_anchor}" >&2
+    exit 1
+  }
 done
 
 if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer telemetry|G1 .*public App Store observation.*required' \
@@ -2616,7 +2642,7 @@ if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer 
   exit 1
 fi
 
-if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|credits) (are|is) (accepted|approved|final)|usage-card (price|tier|count) (is|are) (accepted|approved|final)|G1 (is )?(In Progress|entered|Done)|COM-C7 (is )?(In Progress|entered|Done)' \
+if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|credits) (are|is) (accepted|approved|final)|usage-card (price|tier|count) (is|are) (accepted|approved|final)|G1 (is )?(passed|approved|Done)|COM-C7 (is )?(In Progress|entered|Done)' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2626,7 +2652,7 @@ if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|cred
     Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
     Docs/Commercialization/REGIONAL_PRICING.md \
     "${G1_ECONOMICS_PACKET}"; then
-  echo "G1 planning change overclaims an accepted offer, phase entry, or downstream phase" >&2
+  echo "G1 work overclaims an accepted offer, phase result, or downstream phase" >&2
   exit 1
 fi
 

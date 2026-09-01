@@ -2733,3 +2733,31 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   peak cost is known; treating a consumable as automatically restorable; silently replacing the
   current subscription implementation; creating immutable Product IDs before the offer is
   accepted; or treating this decision as G1 entry or provider/backend deployment authority.
+
+## DEC-COM-093 — Enter G1 and return insufficient quote evidence after the first cost envelope
+
+- Status/date: **Accepted as an interim evidence boundary by product owner entry — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`
+- Context: The owner explicitly entered G1. Official OpenAI, Anthropic, Google, Cloudflare, and
+  Apple pricing/data pages were retrieved on 2026-09-02. They support reproducible supplier and
+  backend arithmetic but do not supply the fixed bilingual quality, token, latency, or failure
+  distribution required by `AI_PROVIDER_CONTRACT.md`. Account-level processing-region,
+  retention/ZDR, rate-tier, billing, and exact App Store proceeds evidence also remains missing.
+- Decision: Mark G1 In Progress. Use integer micro-USD arithmetic to record a planning typical/P50
+  cost of US$0.011330 and peak/P95 cost of US$0.033098 per successful use at 1,000 monthly
+  successes. Under a 30% commission downside, 10% tax/FX reserve, 5% refund reserve, US$2 local-Pro
+  reserve, and 50% cloud safety hold, a US$4.99 hypothesis can fund at most 11 peak-envelope starter
+  uses; record 10 starter uses and 10/25/65-use cards at US$0.99/US$1.99/US$4.99 only as provisional
+  candidates. The formal interim result is `INSUFFICIENT_QUOTE_EVIDENCE`, not `PROCEED_TO_R2`.
+- Consequences: No provider, backup, model, backend, credential, price, starter grant, card,
+  Product ID, ledger, circuit breaker, customer copy, or COM-C7 entry is accepted or authorized.
+  The current Monthly/Annual TestFlight products and all local behavior remain unchanged. A
+  separate owner authorization is required before configuring candidate credentials and running
+  the bounded non-production Eval; exact StoreKit price/proceeds evidence and independent review
+  remain mandatory before a later owner decision.
+- Alternatives rejected: Treating engineering token profiles as measured P50/P95; relying on a
+  temporary provider promotion or cache discount; assuming Small Business 15% commission; using
+  optimistic retry/failure rates; advertising unlimited AI; granting more than the derived peak
+  maximum; treating consumables as ordinarily restorable; creating products or a ledger from
+  provisional arithmetic; or entering COM-C7 from published quotes alone.

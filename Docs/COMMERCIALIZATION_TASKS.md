@@ -787,21 +787,25 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **Scope accepted under DEC-COM-092; blocked pending explicit owner entry and dated real
-supplier quotes. Public App Store observation is not an entry prerequisite.**
+Status: **In Progress after the owner's explicit 2026-09-02 entry. DEC-COM-092 and DEC-COM-093
+capture dated supplier quotes and a deterministic planning envelope; the bounded bilingual
+provider Eval, account-level privacy/region proof, exact App Store proceeds, review, and owner
+decision remain open. Public App Store observation is not an entry prerequisite.**
 
-- [B] Freeze quote date/currency/region, App Store commission/tax/refund assumptions, exact AI
-  task set, and deterministic typical/P50 plus peak/P95 request profiles.
-- [B] Obtain dated official rate cards or written quotes for at least one primary and one viable
-  backup cloud-AI provider plus the fixed/variable first-party backend path.
-- [B] Calculate all-in cost per successful use, including input/output/cache/tool use, bounded
-  retries/failover/invalid output, backend allocation, monitoring, and safety reserve.
-- [B] Evaluate a US$4.99 one-time local-Pro unlock with a finite starter credit grant; derive at
-  least three candidate included-use counts from the conservative peak envelope.
-- [B] Evaluate at least three consumable usage-card count/price options, including commission,
-  refund, credit-ledger, idempotency, retry, deletion, and restore/recovery consequences.
-- [B] Output `PROCEED_TO_R2`, `REVISE_OFFER`, or `INSUFFICIENT_QUOTE_EVIDENCE`; accept exact
-  providers, starter uses, card terms, circuit breaker, and C7 start only from reviewed evidence.
+- [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
+  exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
+  These token envelopes remain estimates until the mandatory Eval measures them.
+- [x] Capture official OpenAI, Anthropic, Google, Apple, and Cloudflare rate cards. OpenAI Luna and
+  Anthropic Haiku are provisional primary/backup cost candidates only; no provider is selected.
+- [x] Calculate integer-micro-USD all-in cost per successful use, including one bounded failover,
+  invalid-output reserve, full paid-backend floor, D1/monitoring operations, and incident reserve.
+- [x] Evaluate the US$4.99 one-time local-Pro scenario at 5/10/15 starter uses. The quote envelope
+  provisionally recommends 10, but neither the price nor count is accepted.
+- [x] Evaluate 10/25/65-use consumable cards at US$0.99/US$1.99/US$4.99 and record exact ledger,
+  idempotency, retry, refund, deletion, non-expiry, and restore/recovery proposals.
+- [ ] Run the fixed Simplified-Chinese/English provider Eval, verify account region/retention/rate
+  settings and exact App Store proceeds, then independently review an owner decision. The current
+  interim result is `INSUFFICIENT_QUOTE_EVIDENCE`; only `PROCEED_TO_R2` can enter COM-C7.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
 

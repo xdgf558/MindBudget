@@ -6981,3 +6981,27 @@ test-runner retry occurred. The deleted temporary xcresult at
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`
 is an execution pointer, not a durable artifact. Independent review, green hosted CI, and merge
 remain required for the updated exact head.
+
+## 2026-09-02 — Enter G1 and build the first quote-backed cost envelope
+
+The owner explicitly entered G1. Retrieved dated official rate, limit, and data-control evidence
+from OpenAI, Anthropic, Google, Cloudflare, and Apple; no credentials were configured and no remote
+request, product creation, App Store Connect mutation, or runtime code change occurred.
+
+Added `Scripts/g1_unit_economics.py` and expanded `G1_UNIT_ECONOMICS_PACKET.md` with deterministic
+integer-micro-USD arithmetic. At the 1,000-success/month planning floor it reports US$0.011330
+typical and US$0.033098 peak all-in cost. The downside US$4.99 scenario derives a maximum of 11
+peak-envelope starter uses, yielding provisional 10 starter uses and 10/25/65-use cards at
+US$0.99/US$1.99/US$4.99. Updated regional pricing, provider, requirement, task, decision, and memory
+records under DEC-COM-093.
+
+The planning token/failure profiles are not measured Eval distributions, account-level region/ZDR
+and exact App Store proceeds remain unverified, and no independent review has accepted the offer.
+The formal interim result is `INSUFFICIENT_QUOTE_EVIDENCE`; G1 remains In Progress and COM-C7
+remains blocked. The first validation invocation used the host's default Command Line Tools and
+stopped after all static gates passed because `xcodebuild` was unavailable; it is an environment
+non-pass, not product evidence. The explicit Xcode 27.0 beta 6 (`27A5252f`) rerun on the iOS 26.5
+iPhone 17 Pro simulator passed Release, the strict Dashboard benchmark, 553 unit tests across 32
+suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one
+expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings.
+The validator deleted its temporary xcresult, so the printed path is only an execution pointer.

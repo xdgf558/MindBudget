@@ -3,10 +3,11 @@
 ## Status
 
 **Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**
-DEC-COM-092 reopened a one-time-offer hypothesis for G1 analysis on 2026-09-01. This is an
-evidence/owner-acceptance surface, not authorization to create formal App Store Connect products
-or invent regional conversions. Engineering must render StoreKit values and must not choose
-customer-facing regional prices.
+DEC-COM-092 reopened a one-time-offer hypothesis for G1 analysis on 2026-09-01. The owner entered
+G1 on 2026-09-02; DEC-COM-093 records quote-backed planning evidence and the interim result
+`INSUFFICIENT_QUOTE_EVIDENCE`. This is an evidence/owner-acceptance surface, not authorization to
+create formal App Store Connect products or invent regional conversions. Engineering must render
+StoreKit values and must not choose customer-facing regional prices.
 
 The accepted nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and a 7-day free
 trial for StoreKit-eligible subscribers. The first test storefront set is HKG, USA, SGP, and TWN.
@@ -15,8 +16,10 @@ pricing, proceeds, margin, or storefront authorization.
 
 The new working scenario is a US$4.99 one-time local-Pro unlock with finite starter cloud-AI
 credits and separately purchased consumable usage cards. It is not an accepted price or product.
-`G1_UNIT_ECONOMICS_PACKET.md` must derive the starter count and card options from dated real quotes
-and typical/P50 plus peak/P95 all-in costs before this worksheet can accept them.
+`G1_UNIT_ECONOMICS_PACKET.md` derives a provisional 10-use starter grant and 10/25/65-use card
+ladder from dated real quotes and deterministic typical/P50 plus peak/P95 planning envelopes. The
+envelopes are not measured distributions and remain unaccepted pending the provider Eval, account
+privacy/region proof, exact App Store proceeds, independent review, and an owner decision.
 
 Accepted technical products:
 
@@ -50,20 +53,20 @@ Rows are evaluation candidates only; they do not promise launch availability.
 
 ## Unit-economics scenarios
 
-| Scenario | Paid users | Calls/user/period | Input/output distribution | Retry/failover | Fixed cost | Variable cost | Net proceeds | Gross margin | Evidence status |
-|---|---:|---:|---|---|---:|---:|---:|---:|---|
-| Low usage | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
-| Expected usage | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
-| P95/high usage | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
+| Scenario | Successful uses/month | Provider attempts per success | Input/output per attempt | Retry/failover | Monthly fixed/reserve | Typical all-in/use | Peak all-in/use | Evidence status |
+|---|---:|---:|---|---|---:|---:|---:|---|
+| Low volume sensitivity | 100 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.101330 | US$0.123098 | PROVISIONAL PLANNING, NOT MEASURED |
+| Planning floor | 1,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.011330 | US$0.033098 | PROVISIONAL PLANNING, NOT MEASURED |
+| High volume sensitivity | 10,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.002330 | US$0.024098 | PROVISIONAL PLANNING, NOT MEASURED |
 
 ## One-time unlock and usage-card scenario
 
 | Offer element | Candidate price | Credit count | Net proceeds | Typical fulfillment cost | Peak fulfillment cost | Refund/recovery terms | Evidence status |
 |---|---:|---:|---:|---:|---:|---|---|
-| One-time local-Pro unlock + starter credits | US$4.99 working assumption | TBD by G1 | TBD | TBD | TBD | TBD | UNVERIFIED |
-| Usage card A | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
-| Usage card B | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
-| Usage card C | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED |
+| One-time local-Pro unlock + starter credits | US$4.99 working assumption | 10 starter uses | US$2.744500 after 30% commission plus 10% tax/FX and 5% refund reserves | US$0.113300 | US$0.330980 | Non-consumable recovery anchor; starter/offer terms unaccepted | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
+| Usage card A | US$0.99 | 10 uses | US$0.544500 | US$0.113300 | US$0.330980 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
+| Usage card B | US$1.99 | 25 uses | US$1.094500 | US$0.283250 | US$0.827450 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
+| Usage card C | US$4.99 | 65 uses | US$2.744500 | US$0.736450 | US$2.151370 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
 
 ## Three-stage acceptance
 
@@ -71,9 +74,9 @@ Rows are evaluation candidates only; they do not promise launch availability.
    tests and create no price promise.
 2. Preliminary economics stage: an Accepted dated worksheet is required before formal App Store
    Connect products and COM-C6.
-3. G1 stage: DEC-COM-092 requires final provider, quality, typical/P50 and peak/P95 all-in cost,
-   starter-credit, consumable-card, ledger/recovery, storefront price and margin evidence before
-   COM-C7.
+3. G1 stage: DEC-COM-092/093 require final provider, quality, measured typical/P50 and peak/P95
+   all-in cost, starter-credit, consumable-card, ledger/recovery, storefront price and margin
+   evidence before COM-C7. The 2026-09-02 planning worksheet does not satisfy that gate.
 
 The prior blanket exclusion of Local Lifetime is superseded only for this G1 hypothesis. No
 one-time Product ID, entitlement, price, credit count, or UI may be created until the reviewed G1

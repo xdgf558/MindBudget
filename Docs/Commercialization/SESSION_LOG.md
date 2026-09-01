@@ -4029,3 +4029,33 @@ No UI test-runner retry occurred. The validator deleted its temporary
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`;
 the path is an execution pointer, not a durable artifact. The updated exact head still requires
 independent review, green hosted CI, and merge.
+
+## 2026-09-02 — Session 207 — Enter G1 and capture quote-backed unit economics
+
+Goal: Execute the owner's explicit G1 entry without treating published prices as measured model
+quality or authorizing a provider/backend/product implementation.
+
+Actions: Retrieved official 2026-09-02 OpenAI, Anthropic, Google, Cloudflare, and Apple rate,
+limit, retention/training, and proceeds evidence. Added `Scripts/g1_unit_economics.py` with
+integer-micro-USD self-tests and expanded `G1_UNIT_ECONOMICS_PACKET.md` with the closed task set,
+typical/P50 and peak/P95 planning profiles, retry/failover and backend allocation, commission/tax/
+refund reserves, circuit breaker, offer candidates, and credit-ledger/refund/delete/recovery
+proposal. Synchronized DEC-COM-093, regional pricing, requirements, tasks, provider contract, and
+both project memories.
+
+Result: At 1,000 monthly successes the planning envelope is US$0.011330 typical and US$0.033098
+peak per successful use. The US$4.99 downside budget supports at most 11 peak-envelope starter
+uses; 10 starter uses and cards of 10/25/65 uses at US$0.99/US$1.99/US$4.99 are provisional. The
+formal result is `INSUFFICIENT_QUOTE_EVIDENCE`: the bilingual Eval, measured distributions,
+account privacy/region/rate proof, exact App Store proceeds, independent review, and owner decision
+remain open. No credentials, egress, backend, product, UI, App Store Connect, or COM-C7 action
+occurred.
+
+Validation: The worksheet self-test and documentation cross-check pass. The initial default-
+toolchain invocation stopped after successful static gates because `xcodebuild` resolved only to
+Command Line Tools; that environment non-pass is excluded as product evidence. The explicit Xcode
+27.0 beta 6 (`27A5252f`) rerun on the iOS 26.5 iPhone 17 Pro simulator passed Release, the strict
+Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical
+skips, all 18 UI tests with 17 passed and one expected physical-only skip, selected coverage, and
+all 23 C6-02 runtime bindings. The validator removed its temporary xcresult. Exact-head independent
+review, hosted CI, and merge remain required.
