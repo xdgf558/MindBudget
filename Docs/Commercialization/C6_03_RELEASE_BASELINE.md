@@ -1,7 +1,7 @@
 # C6-03 TestFlight Baseline
 
-Status: **Implementation and bounded transport complete under DEC-COM-090; documentation closeout
-pending independent review, hosted CI, and merge.**
+Status: **Done after independent review of exact PR #96 head `3ed1357`, green GitHub Actions run
+`33508360536`, and PR #96 merge `246e7c1` under DEC-COM-091.**
 
 ## Authorized outcome
 
@@ -89,3 +89,19 @@ deploy Staging/Production services or CloudKit schema, decide G1, or authorize p
 Any P0/P1, signing mismatch, manifest/dependency drift, failed static/test gate, red hosted CI,
 failed independent review, archive-inspector failure, or transport rejection stops the upload.
 Nothing in C6-03 may be reclassified as public-release approval.
+
+## Reviewed documentation closeout
+
+Independent review approved exact PR #96 head `3ed1357`. GitHub Actions run `33508360536`
+completed successfully on that exact head, and PR #96 merged as `246e7c1`. DEC-COM-091 therefore
+marks C6-03/COM-C6 Done while retaining the archive-signing deviation, first-export non-pass,
+accepted transport record, and every accepted physical non-pass exactly as recorded above.
+
+This closeout does not assign testers, submit external Beta App Review or an App Store version,
+accept App Privacy answers, deploy Staging/Production services or CloudKit schema, prove final-
+binary Production traffic, decide G1, distribute, release, or complete an Active Requirement.
+Any later candidate must increment build number 10 before preparation. G1 and COM-C6.5 require
+their own explicit owner entries. DEC-COM-092 gives the still-unentered G1 a cost-only next packet:
+dated real AI/backend quotes, typical/P50 and peak/P95 cost, a US$4.99 one-time local-Pro starter-
+credit scenario, and consumable usage-card options; it does not accept a product or price.
+COM-C6.5 is additionally ineligible before 2026-09-15 under the 14-day no-P0/P1 gate.

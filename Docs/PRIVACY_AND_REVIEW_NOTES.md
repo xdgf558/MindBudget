@@ -158,6 +158,9 @@ Production APS/CloudKit and `get-task-allow = false`; App Store Connect accepted
 reviewed build's package/signature/privacy-manifest shape and transport acceptance. It does not
 prove final-binary Production traffic or authorize App Privacy form submission, tester assignment,
 G1, external review, distribution, or release. DEC-COM-090 owns this exact boundary.
+Independent review approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed, and PR
+#96 merged as `246e7c1`; DEC-COM-091 closes C6-03/COM-C6 without changing those privacy and release
+limitations. G1 and COM-C6.5 remain unentered behind separate owner/evidence/timing gates.
 Final review retained two non-blocking C6-03/C12 harness notes: the back-button helper identifies
 `buttons.element(boundBy: 0)` and proves App-window geometry rather than navigation-container
 geometry, and the budget Save helper moves the Form only upward.

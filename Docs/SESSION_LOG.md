@@ -6934,3 +6934,50 @@ path is only an execution pointer. The separate C6 release matrix passed 285 tes
 suites and all 33 required bindings at
 `/private/tmp/MindBudget-C6-03-Upload-Closeout-20260901.xcresult`; this local path is not hosted,
 Archive, Distribution, App Store Connect, G1, or release evidence.
+
+## 2026-09-01 — Close C6-03 and COM-C6 after PR #96
+
+Verified the exact final product-delivery chain before changing current state: PR #96 final head
+`3ed1357` passed GitHub Actions run `33508360536` and merged to `main` as `246e7c1`. Under
+DEC-COM-091, C6-03 and COM-C6 are now Done. This records the reviewed Distribution inspection and
+App Store Connect transport acceptance of `0.9.9 (10)`; it does not turn that transport event into
+tester assignment, external Beta App Review, App Store version submission, App Privacy-form
+acceptance, Production traffic, G1, distribution, or public-release evidence.
+
+The next commercial phases were not entered. G1 still requires explicit owner entry, a frozen
+observation window, and accepted real supplier quotes. COM-C6.5 remains blocked behind its
+post-COM-C6 14-day no-P0/P1 gate and a separate owner entry, with `2026-09-15` as the earliest
+possible entry date. Any later candidate must increment the build number beyond 10.
+
+Validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator.
+`Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests across 32
+suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one
+expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime
+bindings. The UI summary contains exactly 18 executions, so no test-runner retry occurred. The
+validator deleted `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XehnXC/MindBudget.xcresult`;
+that path is an execution pointer, not a durable artifact. This documentation branch still needs
+its own independent review, green hosted CI, and merge.
+
+## 2026-09-01 — Rescope the next G1 task to quote-backed AI unit economics
+
+The owner replaced G1's public-observation prerequisite with a narrower commercial analysis.
+DEC-COM-092 keeps G1 unentered but makes its next packet responsible for dated real cloud-AI and
+backend quotes, deterministic typical/P50 and peak/P95 all-in cost per successful use, and an
+evaluation of a US$4.99 one-time local-Pro unlock with finite starter AI credits plus separately
+purchased consumable usage cards.
+
+Added `G1_UNIT_ECONOMICS_PACKET.md` with closed quote provenance, workload, cost, commission,
+refund, retry/failover, backend, credit-ledger, deletion and recovery inputs. The packet must derive
+at least three starter allocations and three card options, then return `PROCEED_TO_R2`,
+`REVISE_OFFER`, or `INSUFFICIENT_QUOTE_EVIDENCE`. No quote was collected, no included count/card
+price/provider/product was accepted, G1/COM-C7 were not entered, and the existing Monthly/Annual
+TestFlight product behavior was not changed.
+
+Exact-scope validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
+across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed
+and one expected physical-only skip, selected coverage, and all 23 C6-02 runtime bindings. No UI
+test-runner retry occurred. The deleted temporary xcresult at
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.UjGKJy/MindBudget.xcresult`
+is an execution pointer, not a durable artifact. Independent review, green hosted CI, and merge
+remain required for the updated exact head.

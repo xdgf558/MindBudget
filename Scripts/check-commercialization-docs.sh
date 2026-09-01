@@ -72,7 +72,7 @@ python3 -B "${PHASE_STATE_CHECKER}" \
   --expect-identifiers "Docs/COMMERCIALIZATION_TASKS.md:${AUTHORITATIVE_PHASE_IDS}" \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-01:done:x' \
   --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-02:done:x' \
-  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:in_progress:pending' \
+  --expect-section 'Docs/COMMERCIALIZATION_TASKS.md:C6-03:done:x' \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/Commercialization/COM_C1_EXECUTION_PACKET.md \
   Docs/Commercialization/COM_C2_EXECUTION_PACKET.md \
@@ -2450,8 +2450,7 @@ grep -Fq 'EXPECTED_BUILD="10"' Scripts/inspect-c6-release-app.sh || {
 }
 
 # DEC-COM-090 records the exact reviewed merge and bounded TestFlight transport acceptance. Require
-# that provenance in every current C6-03 status surface while keeping the phase In Progress until
-# this documentation-only closeout itself receives independent review, hosted CI, and merge.
+# that provenance in every current C6-03 status surface.
 for c603_closeout_file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/TASKS.md \
@@ -2493,7 +2492,47 @@ for c603_execution_file in \
   done
 done
 
-if grep -Eqi 'C6-03 (is )?Done|COM-C6 (is )?Done|tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved)|public release (is )?(approved|authorized|complete)' \
+for c603_final_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
+  Docs/RELEASE_CHECKLIST.md \
+  Docs/APP_STORE_SUBMISSION.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/NETWORK_EGRESS_POLICY.md; do
+  for c603_final_closeout_anchor in \
+    '3ed1357' \
+    '33508360536' \
+    '246e7c1' \
+    'DEC-COM-091'; do
+    grep -Fq "${c603_final_closeout_anchor}" "${c603_final_closeout_file}" || {
+      echo "C6-03 final closeout is missing ${c603_final_closeout_anchor} in ${c603_final_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for c603_closeout_provenance_file in \
+  Docs/Commercialization/DECISIONS.md \
+  Docs/Commercialization/SESSION_LOG.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  for c603_closeout_provenance_anchor in \
+    '3ed1357' \
+    '33508360536' \
+    '246e7c1' \
+    'DEC-COM-091'; do
+    grep -Fq "${c603_closeout_provenance_anchor}" "${c603_closeout_provenance_file}" || {
+      echo "C6-03 closeout provenance is missing ${c603_closeout_provenance_anchor} in ${c603_closeout_provenance_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'C6-03/COM-C6 remain open|C6-03/COM-C6 may be marked Done|documentation closeout (still )?(needs|awaits|pending)|Only this documentation closeout remains open' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2504,7 +2543,90 @@ if grep -Eqi 'C6-03 (is )?Done|COM-C6 (is )?Done|tester assignment (is )?(comple
     Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
     Docs/Commercialization/REQUIREMENTS_INDEX.md \
     Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
-  echo "C6-03 transport closeout overclaims a later review, tester, G1, distribution, or release gate" >&2
+  echo "Current C6-03 state regressed to a pre-closeout review/CI status" >&2
+  exit 1
+fi
+
+if grep -Eqi 'tester assignment (is )?(complete|completed)|external Beta App Review (is )?(submitted|complete)|App Store version (is )?submitted|G1 (is )?(passed|approved|entered)|COM-C6\.5 (is )?(In Progress|entered|Done)|public release (is )?(approved|authorized|complete)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/PRIVACY_AND_REVIEW_NOTES.md \
+    Docs/RELEASE_CHECKLIST.md \
+    Docs/APP_STORE_SUBMISSION.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/C6_03_RELEASE_BASELINE.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/NETWORK_EGRESS_POLICY.md; then
+  echo "C6-03 final closeout overclaims a tester, G1, Watch, distribution, or release gate" >&2
+  exit 1
+fi
+
+G1_ECONOMICS_PACKET="Docs/Commercialization/G1_UNIT_ECONOMICS_PACKET.md"
+test -f "${G1_ECONOMICS_PACKET}" || {
+  echo "Missing G1 quote/economics packet" >&2
+  exit 1
+}
+
+for g1_economics_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_economics_anchor in \
+    'DEC-COM-092' \
+    'US$4.99' \
+    'typical/P50' \
+    'peak/P95' \
+    'consumable'; do
+    grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
+      echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_decision_file in \
+  Docs/DECISIONS.md \
+  Docs/SESSION_LOG.md \
+  Docs/Commercialization/DECISIONS.md \
+  Docs/Commercialization/SESSION_LOG.md \
+  Docs/Commercialization/CI_BASELINE.md; do
+  grep -Fq 'DEC-COM-092' "${g1_decision_file}" || {
+    echo "G1 economics decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+done
+
+if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer telemetry|G1 .*public App Store observation.*required' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    "${G1_ECONOMICS_PACKET}"; then
+  echo "Current G1 scope regressed to the superseded public-observation prerequisite" >&2
+  exit 1
+fi
+
+if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|credits) (are|is) (accepted|approved|final)|usage-card (price|tier|count) (is|are) (accepted|approved|final)|G1 (is )?(In Progress|entered|Done)|COM-C7 (is )?(In Progress|entered|Done)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+    Docs/Commercialization/REGIONAL_PRICING.md \
+    "${G1_ECONOMICS_PACKET}"; then
+  echo "G1 planning change overclaims an accepted offer, phase entry, or downstream phase" >&2
   exit 1
 fi
 

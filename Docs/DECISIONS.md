@@ -3483,3 +3483,36 @@ Decision: Detailed ownership is DEC-COM-090. Record App Store Connect acceptance
 Consequences: The documentation closeout still needs independent review, green hosted CI, and
 merge. No tester assignment, external review, App Store submission, service/schema deployment,
 G1, distribution, public release, or Active Requirement completion follows.
+
+---
+
+## 2026-09-01 — Close C6-03 and COM-C6 at the reviewed TestFlight boundary
+
+Context: Independent review approved exact PR #96 head `3ed1357`, GitHub Actions run
+`33508360536` passed on that head, and PR #96 merged as `246e7c1`.
+
+Decision: Detailed ownership is DEC-COM-091. Mark C6-03/COM-C6 Done while keeping the accepted
+`0.9.9 (10)` upload as TestFlight transport evidence only. Do not enter G1 or COM-C6.5
+automatically.
+
+Consequences: Tester assignment, App Privacy answer acceptance, Production service/schema
+deployment, final-binary Production traffic, G1, distribution, public release, and Active
+Requirement completion remain open or unauthorized. G1 needs a separate owner entry plus real
+observation/quote evidence. COM-C6.5 needs a separate owner entry and its 14-day no-P0/P1 gate,
+no earlier than 2026-09-15.
+
+---
+
+## 2026-09-01 — Rescope G1 to provider cost and buyout-plus-credits analysis
+
+Context: The owner replaced the planned public-observation prerequisite with a narrower immediate
+question: obtain real cloud-AI/backend quotes and determine sustainable AI usage economics.
+
+Decision: Detailed ownership is DEC-COM-092. G1 remains unentered, but its next packet evaluates a
+US$4.99 one-time local-Pro unlock with a finite starter AI allocation plus separately purchased
+consumable usage cards. Typical/P50 and peak/P95 all-in costs, included uses, card tiers, ledger,
+refund/retry/delete/recovery rules, and provider candidates must be derived from dated evidence.
+
+Consequences: No public launch or customer observation is required to begin that analysis. The
+US$4.99 price, included count, card prices/counts, provider, backend, and Product IDs remain
+unaccepted. Current Monthly/Annual TestFlight behavior is unchanged, and COM-C7 remains blocked.

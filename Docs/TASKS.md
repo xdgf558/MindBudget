@@ -665,5 +665,13 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   `2026-09-01 19:27:25 +0800` with delivery UUID
   `1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-090 records that tester assignment, G1,
   deployment, App Store submission, distribution, and public release were not performed.
-- [ ] Complete the independent review, hosted CI, and merge of the C6-03/COM-C6 documentation
-  closeout. Do not enter G1, COM-C6.5, or any distribution/release action automatically.
+- [x] Complete the C6-03/COM-C6 documentation closeout. Independent review approved exact PR #96
+  head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
+  DEC-COM-091 marks C6-03/COM-C6 Done without entering G1, COM-C6.5, or any distribution/release
+  action. COM-C6.5 remains behind its 14-day no-P0/P1 gate and explicit owner entry.
+- [ ] Execute the owner-rescoped G1 packet only after explicit entry. DEC-COM-092 replaces public-
+  observation prerequisites with dated real cloud-AI/backend quotes and deterministic unit-
+  economics. Evaluate a US$4.99 one-time local-Pro unlock with finite starter AI uses plus
+  separately purchased consumable usage cards; derive the included count and card tiers from
+  typical/P50 and peak/P95 all-in cost. Do not create products, change the current subscription
+  UI, deploy a provider/backend, or enter COM-C7 from this planning change.

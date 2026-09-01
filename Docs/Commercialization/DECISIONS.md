@@ -2677,3 +2677,59 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   treating processing as tester availability or release; assigning a tester group automatically;
   deploying a backend/schema to make the uploaded binary appear complete; deciding G1 from upload;
   or entering a later phase before closeout review/CI/merge.
+
+## DEC-COM-091 — Close C6-03 and COM-C6 without entering G1 or Watch
+
+- Status/date: **Accepted after exact-head independent review, green hosted CI, and merge — 2026-09-01**
+- Requirements: COM-C6 C6-03; DEC-COM-089/090; REQ-R1-NET-001; REQ-R1-TELEMETRY-001;
+  REQ-G1-001; REQ-WATCH-SCOPE-001
+- Context: Independent review approved exact PR #96 head `3ed1357`. GitHub Actions run
+  `33508360536` completed successfully on that head, and PR #96 merged the bounded transport
+  record as `246e7c1`. The reviewed packet preserves the development-signed archive criterion as
+  a non-pass, qualifies the exported Apple Distribution IPA as the accepted deviation, records
+  transport acceptance, and forbids reuse of uploaded build 10.
+- Decision: Mark C6-03 and COM-C6 Done. Retain `0.9.9 (10)` as TestFlight transport evidence only;
+  do not infer tester assignment, App Privacy answer acceptance, Production service/schema
+  deployment, final-binary Production traffic, G1, distribution, public release, or Active
+  Requirement completion. G1 remains unentered pending explicit owner entry, a frozen observation
+  window, and accepted real supplier quotes. COM-C6.5 remains unentered behind a 14-day no-P0/P1
+  gate from this closeout, no earlier than 2026-09-15, plus explicit owner entry.
+- Consequences: The repository now has a closed C1–C6 TestFlight baseline, not a release decision.
+  Later work must preserve the accepted non-passes and the two C6-02 harness notes. Any later
+  candidate must increment build number 10 before preparation. G1 and COM-C6.5 are independently
+  authorized work streams and neither begins from this decision alone.
+- Alternatives rejected: Calling Processing a tester or release pass; assigning testers during
+  closeout; entering G1 automatically; starting Watch before its 14-day gate; treating synthetic
+  Development evidence as customer observation; accepting supplier economics without dated real
+  quotes; reusing build 10; or marking an Active Requirement Done from Archive/upload evidence.
+
+## DEC-COM-092 — Rescope G1 to real-quote unit economics and a buyout-plus-credits hypothesis
+
+- Status/date: **Accepted by product owner — 2026-09-01**
+- Requirements: REQ-G1-001; REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`
+- Context: The owner does not want public App Store observation to be a prerequisite for the next
+  G1 task. The immediate decision needed is whether real cloud-AI and backend costs can support a
+  simple one-time offer and finite usage top-ups. Existing C5 evidence machinery remains valid but
+  is no longer a mandatory G1 entry input. The completed Monthly/Annual TestFlight implementation
+  remains historical/current test evidence and is not rewritten by this planning decision.
+- Decision: Keep G1 unentered until a separate explicit owner instruction. When entered, obtain
+  dated official rate cards or written quotes for at least one primary and one viable backup AI
+  provider plus the backend path. Calculate deterministic typical/P50 and peak/P95 all-in cost per
+  successful use, including retry/failover, invalid output, fixed/variable backend, commission,
+  tax/refund assumptions, and safety reserve. Evaluate US$4.99 as a working one-time local-Pro
+  unlock with a finite starter credit grant, followed by separately purchased consumable usage
+  cards. Derive rather than guess the included count and at least three card options.
+- Consequences: Public App Store release, proceeds, customer telemetry, survey response, and an
+  observation window are not G1 entry prerequisites. US$4.99 is not yet an accepted price. No
+  starter count, card count/price, Product ID, provider, backend, quota, expiry/reset, credit-
+  recovery, or customer copy is accepted until the reviewed packet resolves it. The credit ledger
+  must be server-authoritative and explicitly handle purchase verification, idempotency, retry,
+  cancellation, refund, deletion, reinstall/device/account recovery, and the lack of ordinary
+  StoreKit restore semantics for consumed consumables. Only owner-accepted `PROCEED_TO_R2`
+  authorizes COM-C7.
+- Alternatives rejected: Requiring public launch before cost modelling; using remembered prices or
+  search snippets as quotes; advertising unlimited AI; choosing a round included-use count before
+  peak cost is known; treating a consumable as automatically restorable; silently replacing the
+  current subscription implementation; creating immutable Product IDs before the offer is
+  accepted; or treating this decision as G1 entry or provider/backend deployment authority.

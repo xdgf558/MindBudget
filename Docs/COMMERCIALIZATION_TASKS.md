@@ -646,8 +646,8 @@ failure never changes app behavior.
 
 ## COM-C6 — Local commercialization TestFlight and review preflight
 
-Status: **Implementation and bounded TestFlight transport complete; documentation closeout pending
-independent review, hosted CI, and merge. No public release in this phase.**
+Status: **Done after independent review of exact PR #96 head `3ed1357`, green GitHub Actions run
+`33508360536`, and PR #96 merge `246e7c1`. No public release follows from this phase.**
 
 C6-02 is Done after independent final review, green hosted CI, and PR #93 merge `c940e8e`.
 DEC-COM-089 records that the owner explicitly entered C6-03 on 2026-09-01 and authorized Archive
@@ -655,7 +655,8 @@ plus transport upload of `0.9.9 (10)` only after the exact preparation head pass
 review, hosted CI, and merge; `C6_03_RELEASE_BASELINE.md` owns the bounded checklist.
 DEC-COM-090 records exact reviewed head `11ab612`, green run `33488815168`, merge `d5d0959`,
 Distribution inspection, and App Store Connect delivery UUID
-`1b358d3b-4544-4617-ab47-5be69addc7a8`. Only this documentation closeout remains open.
+`1b358d3b-4544-4617-ab47-5be69addc7a8`. DEC-COM-091 records the independently reviewed,
+hosted-green PR #96 closeout and closes C6-03/COM-C6 without entering a later phase.
 
 ### C6-01 — Automated release matrix
 
@@ -743,59 +744,64 @@ Status: **Done after independent final review and green hosted CI through PR #93
 
 ### C6-03 — TestFlight baseline
 
-Status: **In Progress; implementation and bounded transport are complete under DEC-COM-090, and
-the documentation closeout awaits independent review, hosted CI, and merge.**
+Status: **Done after independent review of exact PR #96 head `3ed1357`, green GitHub Actions run
+`33508360536`, and PR #96 merge `246e7c1`.**
 
-- [ ] Close P0/P1, record the accepted R1 baseline and known limitations, prepare `0.9.9 (10)`,
+- [x] Close P0/P1, record the accepted R1 baseline and known limitations, prepare `0.9.9 (10)`,
   archive exact merged `main`, pass Distribution inspection, and stop after App Store Connect
   transport acceptance. Exact reviewed head `11ab612` passed run `33488815168`, PR #95 merged as
   `d5d0959`, and delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` was accepted at
   `2026-09-01 19:27:25 +0800`. Tester assignment, G1, service deployment, formal App Store
   submission, distribution, and public release remain paused. The authoritative checklist is
-  `C6_03_RELEASE_BASELINE.md`; only independent review, hosted CI, and merge of this documentation
-  closeout remain before the item can be marked complete.
+  `C6_03_RELEASE_BASELINE.md`. Exact PR #96 head `3ed1357` passed independent review and GitHub
+  Actions run `33508360536`, then merged as `246e7c1`; DEC-COM-091 closes only C6-03/COM-C6.
 
 Exit gate: all v1.4 COM-C6 entry criteria pass and the baseline is suitable for Watch and G1
 observation, but not public distribution.
 
 ## COM-C6.5 — Apple Watch companion
 
-Status: **Parallel development after COM-C6 plus its 14-day no-P0/P1 gate. Distribution is a
-separate post-iPhone-1.0 milestone and does not block G1, COM-C7, COM-C12, or iPhone 1.0.**
+Status: **Blocked pending the post-COM-C6 14-day no-P0/P1 gate and explicit owner entry; the
+earliest eligible date is 2026-09-15. Distribution remains a separate post-iPhone-1.0 milestone.**
 
-- [~] **C6.5-01 — Contracts and shared module.** Verify current watchOS guidance; move only common
+- [B] **C6.5-01 — Contracts and shared module.** Verify current watchOS guidance; move only common
   Money/entitlement/enums; version snapshot, command, acknowledgement, receipt, envelope, and
   `ledgerGenerationID` contracts.
-- [~] **C6.5-02 — Targets and connectivity owner.** Create watchOS/Widget targets and one
+- [B] **C6.5-02 — Targets and connectivity owner.** Create watchOS/Widget targets and one
   actor-owned `WCSession`; App Group is same-device Watch/Widget storage only, never cross-device
   transport.
-- [~] **C6.5-03 — Durable outbox and exactly-once phone commit.** Data-protected bounded Outbox,
+- [B] **C6.5-03 — Durable outbox and exactly-once phone commit.** Data-protected bounded Outbox,
   fast and background paths, source-command dedupe, atomic receipt, tombstones, stale-generation
   rejection, crash/retry recovery, and Delete All compensation.
-- [~] **C6.5-04 — Minimal Watch UX.** Confirmed amount/category/optional emotion, queue/retry state,
+- [B] **C6.5-04 — Minimal Watch UX.** Confirmed amount/category/optional emotion, queue/retry state,
   freshness-labelled budget snapshot, Free/Pro state, fixed cooling actions, accessibility, and
   no free text or on-Watch purchasing.
-- [~] **C6.5-05 — Widget, intents, and disclosure.** Smart Stack/complication and App Intents use
+- [B] **C6.5-05 — Widget, intents, and disclosure.** Smart Stack/complication and App Intents use
   the same entitlement/outbox/idempotency path; exact watch-face amounts are off by default.
-- [~] **C6.5-06 — Reliability matrix.** Duplicate/replay/delete races, 100-entry capacity,
+- [B] **C6.5-06 — Reliability matrix.** Duplicate/replay/delete races, 100-entry capacity,
   offline/restart, stale snapshots, currency/time-zone/category changes, entitlement states,
   privacy capture, power/memory, and real-device matrix.
 
 Exit gate: R1.1 Watch TestFlight evidence recorded before the separate Watch release. Watch delay
 must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
-## G1 — Evidence and cost decision gate
+## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **Blocked by COM-C6 observation and accepted real supplier quotes.**
+Status: **Scope accepted under DEC-COM-092; blocked pending explicit owner entry and dated real
+supplier quotes. Public App Store observation is not an entry prerequisite.**
 
-- [B] Freeze the evaluated app/schema/event/Eval versions and observation window.
-- [B] Report App Store metrics, actual proceeds, telemetry coverage/funnels, surveys, local-model
-  Evals, supplier quality/latency/cost, fixed backend costs, and candidate Monthly/Annual prices and
-  included calls.
-- [B] Record numerator, denominator, confidence interval, and segmentation for every criterion.
-- [B] Output `PROCEED_TO_R2`, `CONTINUE_R1`, or `INSUFFICIENT_SAMPLE`; never lower a gate merely to
-  advance the backend.
-- [B] Accept the R2 provider candidates, unit economics, quota/reset policy, and C7 start decision.
+- [B] Freeze quote date/currency/region, App Store commission/tax/refund assumptions, exact AI
+  task set, and deterministic typical/P50 plus peak/P95 request profiles.
+- [B] Obtain dated official rate cards or written quotes for at least one primary and one viable
+  backup cloud-AI provider plus the fixed/variable first-party backend path.
+- [B] Calculate all-in cost per successful use, including input/output/cache/tool use, bounded
+  retries/failover/invalid output, backend allocation, monitoring, and safety reserve.
+- [B] Evaluate a US$4.99 one-time local-Pro unlock with a finite starter credit grant; derive at
+  least three candidate included-use counts from the conservative peak envelope.
+- [B] Evaluate at least three consumable usage-card count/price options, including commission,
+  refund, credit-ledger, idempotency, retry, deletion, and restore/recovery consequences.
+- [B] Output `PROCEED_TO_R2`, `REVISE_OFFER`, or `INSUFFICIENT_QUOTE_EVIDENCE`; accept exact
+  providers, starter uses, card terms, circuit breaker, and C7 start only from reviewed evidence.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
 

@@ -99,6 +99,10 @@ See `SOURCE_PROVENANCE.md` for the external-source boundary and mandatory re-aud
 - Requirements: REQ-STOREKIT-LIFECYCLE-001, REQ-CLOUD-USAGE-001, REQ-G1-001.
 - Verification evidence: v1.4 explicitly leaves price/trial/quota `TBD`; no current Product ID or
   StoreKit catalog exists.
+- Current owner override: DEC-COM-092 supersedes only the pending G1 offer hypothesis. G1 now
+  evaluates a US$4.99 one-time local-Pro unlock with finite starter cloud credits and consumable
+  usage cards from dated real AI/backend quotes. It does not retroactively relabel the completed
+  Monthly/Annual TestFlight evidence, create a formal product, or accept a customer price/count.
 
 ### SPEC-015 — Floating-point CI scope conflicts with receipt geometry/confidence
 

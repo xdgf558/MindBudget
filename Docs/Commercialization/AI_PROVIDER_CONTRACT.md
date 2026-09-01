@@ -66,16 +66,21 @@ The exact cloud schema is not frozen in COM-C0B. Every later schema must satisfy
 
 ## Evaluation gate
 
-G1 requires a versioned blind Eval comparing deterministic template, on-device model, primary
-candidate and at least one backup candidate. For each task/language report dataset hash, rubric,
-sample size, exclusions, blind scores, structured-output validity, safety/numeric failures,
-P50/P95 latency, retry/failover, token distribution and total cost. A cloud path proceeds only when
-at least one core task has a product-owner-accepted need that the local path cannot meet.
+G1 requires a versioned bounded Eval comparing deterministic template, on-device model, primary
+candidate and at least one backup candidate so the quoted workload and acceptable task set are
+real. For each task/language report dataset hash, rubric, sample size, exclusions, structured-output
+validity, safety/numeric failures, typical/P50 and peak/P95 latency, retry/failover and token
+distribution. DEC-COM-092
+removes public-customer observation as a G1 prerequisite, but it does not permit invented quality
+or workload inputs. A cloud path proceeds only when at least one core task has a product-owner-
+accepted need that the local path cannot meet and `G1_UNIT_ECONOMICS_PACKET.md` accepts its cost.
 
 ## Quota and failure contract
 
-- Monthly and Annual include a specific server-authoritative number of cloud calls; exact values
-  and reset boundaries remain TBD until G1.
+- The current Monthly/Annual TestFlight path remains unchanged during G1. The owner-directed G1
+  hypothesis instead evaluates a US$4.99 one-time local-Pro unlock with finite starter credits and
+  separately purchased consumable usage cards. No count, price, reset/expiry, or product shape is
+  accepted until G1; no option may create unlimited cloud liability.
 - Request IDs and usage accounting are idempotent. Cancelled/failed attempts follow the later
   accepted charging rule; retries cannot multiply-charge silently.
 - Per-tier rate, body, token, concurrency, daily/monthly and cost caps are mandatory.

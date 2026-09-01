@@ -1,7 +1,7 @@
 # COM-C6 Execution Packet
 
-Status: **C6-03 implementation and bounded transport complete under DEC-COM-090; documentation
-closeout pending independent review, hosted CI, and merge.**
+Status: **Done after independent review of exact PR #96 head `3ed1357`, green GitHub Actions run
+`33508360536`, and PR #96 merge `246e7c1` under DEC-COM-091.**
 
 C6-01 is Done after independent rereview approved exact remediation head `f77d2a6`, hosted run
 `33255898196` passed, and PR #86 merged as `015d00e`. The owner explicitly entered C6-02 on
@@ -176,8 +176,10 @@ independent review and hosted run `33362101536`, then merged the bounded AX5/nav
 `c940e8e`. The owner then entered C6-03 on 2026-09-01 under the bounded authority above. Exact
 preparation head `11ab612` passed hosted run `33488815168` and independent review before PR #95
 merged it as `d5d0959`. The resulting Distribution IPA passed the closed inspector and App Store
-Connect accepted delivery `1b358d3b-4544-4617-ab47-5be69addc7a8` for processing. Only this
-documentation closeout remains open; no later phase or remote action is entered automatically.
+Connect accepted delivery `1b358d3b-4544-4617-ab47-5be69addc7a8` for processing. Independent
+review then approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed, and PR #96
+merged as `246e7c1`. DEC-COM-091 closes C6-03/COM-C6; no later phase or remote action is entered
+automatically.
 
 DEC-COM-083 replaces the ambiguous open-manual list with the closed five-row
 `C6_02_ACCEPTANCE_MATRIX.json`. A fresh complete xcresult must contain all 23 exact named StoreKit,
@@ -216,7 +218,13 @@ button helper still selects `buttons.element(boundBy: 0)` and proves App-window 
 navigation-bar-container geometry, while the budget Save helper performs only bounded upward Form
 drags. These notes do not weaken C6-02 evidence and do not authorize C6-03.
 
-During C6-03, stop and request a new decision if work would deploy Staging/Production or CloudKit
-schema, assign testers, submit Beta/App Store review, publish, weaken an existing fail-closed gate,
-reinterpret an owner-waived physical observation as a pass, claim a real G1 sample, or mark an
-Active Requirement complete from Archive/upload evidence alone.
+After COM-C6 closeout, stop and request a new decision if work would deploy Staging/Production or
+CloudKit schema, assign testers, submit Beta/App Store review, publish, weaken an existing fail-
+closed gate, reinterpret an owner-waived physical observation as a pass, claim G1 economics
+without dated real supplier evidence, or mark an Active Requirement complete from Archive/upload
+evidence alone. DEC-COM-092 leaves G1 unentered but replaces the public-observation prerequisite
+with `G1_UNIT_ECONOMICS_PACKET.md`: dated primary/backup AI and backend quotes, typical/P50 and
+peak/P95 all-in costs, a US$4.99 one-time local-Pro starter-credit analysis, and consumable usage-
+card options. No product, price, count, provider, or backend is accepted by this scope change.
+COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
+owner separately enters it.

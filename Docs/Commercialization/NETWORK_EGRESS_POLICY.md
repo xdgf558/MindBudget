@@ -57,6 +57,9 @@ and App Store Connect accepted delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7
 at `2026-09-01 19:27:25 +0800`. That upload is not a claim that any reviewed Production Worker is
 deployed or reachable, and it is not final-binary traffic, customer telemetry, tester assignment,
 G1, distribution, or public-release evidence. DEC-COM-090 owns this exact stop boundary.
+Independent review approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed, and PR
+#96 merged as `246e7c1`; DEC-COM-091 closes C6-03/COM-C6 without authorizing a new egress,
+deployment, App Store Connect write, G1 entry, Watch entry, distribution, or release action.
 
 C6-02's first source pass conservatively added Purchase History for the closed subscription
 outcome and introduced an exact privacy-manifest validator plus a signed-app inspector. The latter
