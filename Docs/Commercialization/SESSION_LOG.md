@@ -4300,6 +4300,11 @@ The first remediated full-validator run is retained as a local non-pass: Release
 test build stopped because Swift 6 could not infer a split `String + String` expression passed to
 `Issue.record`. The diagnostic was replaced by one interpolated string before revalidation.
 
+Original-head GitHub Actions run `33623886226` is also retained as a hosted non-pass. Its AX5
+multi-appearance UI case failed first, passed only under the configured retry, and therefore
+produced `Repetition:Failed` plus `Repetition:Passed`; the C6-02 verifier correctly refused to
+accept that as an exactly-once pass.
+
 Final validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6. All static gates passed;
 the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, all
 selected core files exceeded the 85% coverage floor, and the C6-02 evidence verifier confirmed 23

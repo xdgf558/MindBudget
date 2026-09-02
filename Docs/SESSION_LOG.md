@@ -7214,3 +7214,7 @@ passed: 554 unit tests across 33 suites, 18 UI executions with 17 passed and one
 physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. This
 validates the remediation and evidence wiring only; the sealed comparison remains unreviewed, G1
 remains In Progress, and no Luna or physical-device rerun occurred.
+
+GitHub Actions run `33623886226` on original head `9f04cee` is retained separately as a hosted
+non-pass: the AX5 multi-appearance case failed before passing under the configured retry, and the
+C6-02 verifier correctly rejected the resulting Failed-then-Passed repetition history.

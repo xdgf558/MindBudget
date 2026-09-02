@@ -2768,6 +2768,11 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - PR #102 review reproduced source/count/error leakage in the first scoring packet. The remediated
   scoring surface omits those fields; the sealed sidecar retains them and the A/B/C mapping for
   post-score use. Duplicate candidate bodies are mechanically ineligible to prove cloud value.
+- GitHub Actions run `33623886226` on original head `9f04cee` is retained as a hosted non-pass.
+  The AX5 multi-appearance UI case first failed on unsettled legal navigation and later geometry/
+  reachability assertions, then passed under the configured retry. The C6-02 verifier correctly
+  rejected `Repetition:Failed` followed by `Repetition:Passed`; neither the retry nor the eventual
+  pass is accepted as green evidence for that head.
 - The complete local validation run then exited 0 under Xcode 27.0 beta 6: all static gates passed,
   the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, every
   selected core file remained above the 85% coverage floor, and the C6-02 verifier found all 23
