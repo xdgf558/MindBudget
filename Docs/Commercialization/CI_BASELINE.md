@@ -2744,3 +2744,28 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - DEC-COM-099 advances only to `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`. G1 stays In Progress,
   `productionAdmitted` stays false, and COM-C7 stays blocked. This documentation closeout still
   requires its own exact-head independent review, hosted CI, and merge.
+
+## 2026-09-02 — G1 three-way Eval harness and physical-output checkpoint
+
+- DEC-COM-100 freezes the harness boundary without claiming physical or comparative evidence.
+- Xcode 27.0 beta 6 (`27A5252f`) completed a generic iOS Debug `build-for-testing` for the dedicated
+  `MindBudget-G1-OnDevice-Eval` scheme with code signing disabled. This proves compilation only; it
+  is not Apple on-device output or comparative-value evidence.
+- A prior restricted build could not execute Swift macro plugins under the sandbox and is a local
+  environment non-pass. Direct destination inspection then found no available physical iPhone.
+- `拉沙的iPhone` remains the only authorized device; `Xiao li的 iPhone (2)` remains excluded. At
+  that compile-only checkpoint, no test had run on either device, no Luna request occurred, and no
+  three-way result was claimed.
+- After the owner connected the authorized phone, the exact selected physical test passed 1/1 and
+  emitted 24/24 cases in 29.579 seconds. The effective Apple arm retained 17 validated model
+  outputs and failed 7 closed to the deterministic template. This is physical synthetic Eval
+  output, not final-binary/customer/production evidence; comparative value awaits independent
+  blind review. No OpenAI request occurred during this run.
+- `/private/tmp/mindbudget-g1-three-way-eval/on-device-eval.xcresult` and its Xcode log are local
+  execution pointers, not durable repository artifacts. The normalized JSONL transcript and the
+  still-unfilled blind packet are the durable evidence, pinned by exact hashes in DEC-COM-100.
+- The complete local validation run then exited 0 under Xcode 27.0 beta 6: all static gates passed,
+  the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, every
+  selected core file remained above the 85% coverage floor, and the C6-02 verifier found all 23
+  exact runtime bindings. This validates the repository change; it is not the independent blind
+  comparison and does not advance G1.

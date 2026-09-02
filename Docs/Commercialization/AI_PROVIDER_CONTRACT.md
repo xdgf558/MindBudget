@@ -15,7 +15,8 @@ Selection and a reviewed synthetic Eval pass are not
 activation: no server adapter, client route, customer request, or customer promise exists until G1
 and later gates pass. The Luna-only scorer result also does not satisfy the still-open fixed
 bilingual three-way comparative Eval across deterministic template, supported on-device output,
-and Luna.
+and Luna. DEC-COM-100 freezes a Debug-only harness and reuses the reviewed Luna transcript without
+a new request. Physical Apple output is captured; independent blind review remains open.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,

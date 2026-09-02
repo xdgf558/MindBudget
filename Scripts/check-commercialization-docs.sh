@@ -2571,6 +2571,9 @@ G1_LUNA_EVAL_RESULT="Docs/Commercialization/G1_LUNA_EVAL_RESULT_2026-09-02.json"
 G1_LUNA_EVAL_NONPASS1="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02.jsonl"
 G1_LUNA_EVAL_NONPASS2="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT2.jsonl"
 G1_LUNA_EVAL_PASS="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT3.jsonl"
+G1_THREE_WAY_EVAL_PACKET="Docs/Commercialization/G1_THREE_WAY_EVAL.md"
+G1_APPLE_ON_DEVICE_TRANSCRIPT="Docs/Commercialization/G1_APPLE_ON_DEVICE_EVAL_TRANSCRIPT_2026-09-02.jsonl"
+G1_THREE_WAY_BLIND_REVIEW="Docs/Commercialization/G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json"
 test -f "${G1_ECONOMICS_PACKET}" || {
   echo "Missing G1 quote/economics packet" >&2
   exit 1
@@ -2589,6 +2592,18 @@ test -f "${G1_OPENAI_ADMISSION}" || {
 }
 test -f "${G1_LUNA_EVAL_RESULT}" || {
   echo "Missing machine-readable Luna Eval result" >&2
+  exit 1
+}
+test -f "${G1_THREE_WAY_EVAL_PACKET}" || {
+  echo "Missing fixed G1 three-way Eval packet" >&2
+  exit 1
+}
+test -f "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" || {
+  echo "Missing normalized Apple on-device Eval transcript" >&2
+  exit 1
+}
+test -f "${G1_THREE_WAY_BLIND_REVIEW}" || {
+  echo "Missing pending G1 three-way blind-review packet" >&2
   exit 1
 }
 
@@ -2806,6 +2821,10 @@ for g1_decision_file in \
     echo "Reviewed Luna Eval delivery closeout is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-100' "${g1_decision_file}" || {
+    echo "Three-way Eval harness decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
 for g1_closeout_file in \
@@ -2907,6 +2926,92 @@ python3 -O Scripts/g1_unit_economics.py --self-test >/dev/null
 python3 Scripts/g1_unit_economics.py --check-document "${G1_ECONOMICS_PACKET}" >/dev/null
 python3 Scripts/g1_luna_eval.py --self-test >/dev/null
 python3 -O Scripts/g1_luna_eval.py --self-test >/dev/null
+python3 Scripts/g1_three_way_eval.py --self-test >/dev/null
+python3 -O Scripts/g1_three_way_eval.py --self-test >/dev/null
+python3 Scripts/g1_three_way_eval.py \
+  --check-review-packet "${G1_THREE_WAY_BLIND_REVIEW}" \
+  --on-device-transcript "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" >/dev/null
+
+test "$(shasum -a 256 "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" | awk '{print $1}')" = \
+  'd6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b' || {
+  echo "Apple on-device Eval transcript hash drifted" >&2
+  exit 1
+}
+test "$(shasum -a 256 "${G1_THREE_WAY_BLIND_REVIEW}" | awk '{print $1}')" = \
+  'a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f' || {
+  echo "G1 pending blind-review packet hash drifted" >&2
+  exit 1
+}
+
+python3 - "${G1_THREE_WAY_EVAL_PACKET}" <<'PY'
+import pathlib
+import sys
+import xml.etree.ElementTree as ET
+
+root = pathlib.Path.cwd()
+packet = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-G1-OnDevice-Eval.xcscheme"
+default_scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
+test_path = root / "MindBudgetTests/G1ThreeWayOnDeviceEvalTests.swift"
+runner_path = root / "Scripts/run-g1-three-way-on-device.sh"
+project_path = root / "MindBudget.xcodeproj/project.pbxproj"
+for path in (scheme_path, default_scheme_path, test_path, runner_path, project_path):
+    if not path.is_file():
+        raise SystemExit(f"missing G1 three-way Eval wiring: {path}")
+
+scheme = ET.parse(scheme_path).getroot()
+if scheme.find("ArchiveAction") is not None or scheme.find("LaunchAction") is not None:
+    raise SystemExit("G1 three-way Eval scheme must not launch or archive")
+entries = scheme.findall("./BuildAction/BuildActionEntries/BuildActionEntry")
+if len(entries) != 2 or any(
+    entry.get("buildForTesting") != "YES"
+    or entry.get("buildForRunning") != "NO"
+    or entry.get("buildForArchiving") != "NO"
+    for entry in entries
+):
+    raise SystemExit("G1 three-way Eval scheme build boundary drifted")
+variables = scheme.findall("./TestAction/EnvironmentVariables/EnvironmentVariable")
+if [variable.attrib for variable in variables] != [
+    {"key": "MINDBUDGET_G1_ON_DEVICE_EVAL", "value": "1", "isEnabled": "YES"}
+]:
+    raise SystemExit("G1 three-way Eval opt-in variable drifted")
+if "MINDBUDGET_G1_ON_DEVICE_EVAL" in default_scheme_path.read_text(encoding="utf-8"):
+    raise SystemExit("ordinary MindBudget scheme must not enable the G1 physical Eval")
+
+test_source = test_path.read_text(encoding="utf-8")
+for anchor in (
+    'ProcessInfo.processInfo.environment["MINDBUDGET_G1_ON_DEVICE_EVAL"] == "1"',
+    "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+    "SystemLanguageModel.default.supportsLocale",
+    "successfulModelOutputCount > 0",
+    "MINDBUDGET_G1_ON_DEVICE_EVAL",
+):
+    if anchor not in test_source:
+        raise SystemExit(f"G1 on-device test is missing {anchor}")
+if "OPENAI_API_KEY" in test_source or "api.openai.com" in test_source:
+    raise SystemExit("G1 on-device test must never call OpenAI")
+
+runner = runner_path.read_text(encoding="utf-8")
+for anchor in ("拉沙的iPhone", "Xiao li的 iPhone (2)", "refusing to overwrite", "-only-testing"):
+    if anchor.casefold() not in runner.casefold():
+        raise SystemExit(f"G1 physical runner is missing {anchor}")
+project = project_path.read_text(encoding="utf-8")
+if project.count("G1ThreeWayOnDeviceEvalTests.swift") != 6:
+    raise SystemExit("G1 on-device test target wiring drifted")
+if project.count("G1_LUNA_EVAL_CASES.json") != 6:
+    raise SystemExit("G1 frozen dataset resource wiring drifted")
+
+for anchor in (
+    "PHYSICAL_OUTPUT_CAPTURED_PENDING_INDEPENDENT_BLIND_REVIEW",
+    "does not perform or charge",
+    "procedural blindness, not cryptographic secrecy",
+    "17 Apple outputs",
+    "7 template fallbacks",
+    "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE",
+):
+    if anchor not in packet:
+        raise SystemExit(f"G1 three-way Eval packet is missing {anchor}")
+PY
 
 for g1_eval_anchor in \
   'd509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014' \

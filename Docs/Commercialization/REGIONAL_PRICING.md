@@ -16,6 +16,8 @@ merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. Th
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not completed G1 or COM-C7 entry.
 The fixed bilingual three-way comparative Eval across deterministic template, supported on-device
 output, and Luna remains a separate `PROCEED_TO_R2` prerequisite.
+DEC-COM-100 prepares only its Debug harness and reuses the reviewed Luna transcript; physical Apple
+output is captured and independent blind review remains open.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction

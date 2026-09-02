@@ -686,7 +686,10 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   first-pass automated Eval result. Independent review found no P1/P2 on PR #100 head `323d8d7`,
   hosted run `33593253561` passed, and PR #100 merged as `7a473d2`; DEC-COM-099 closes only that
   evidence delivery. The fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna remains open; obtain StoreKit price-point/Product-ID
+  supported on-device output, and Luna remains open. DEC-COM-100 freezes its Debug-only harness
+  and reuses the accepted Luna transcript without a new call. Physical `拉沙的iPhone` output is
+  captured (24/24; 17 accepted Apple outputs and 7 template fallbacks); independent blind review
+  remains open. Obtain StoreKit price-point/Product-ID
   evidence and record the final owner decision.
   DEC-COM-095 accepts the
   US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,

@@ -525,7 +525,12 @@ proceeds do not exist pre-launch and are a post-launch recalibration input. Curr
 economics deliberately reduce conservatism versus PR #98: removing the US$2 local-Pro reserve,
 separate 50% cloud holdback, and backup provider changed peak all-in cost from US$0.033098 to
 US$0.018986 and the fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an
-owner policy choice constrained by the envelope, not derived from the new 72-use ceiling. COM-C6.5 awaits
+owner policy choice constrained by the envelope, not derived from the new 72-use ceiling.
+DEC-COM-100 freezes a Debug-only three-way Eval harness that reuses the reviewed Luna transcript
+without a new provider call and accepts only `拉沙的iPhone`. The physical run captured 24/24
+cases; 17 Apple outputs passed the existing validator and 7 failed closed to the template.
+Independent blind review remains open, so the evidence does not yet change G1 state.
+COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only

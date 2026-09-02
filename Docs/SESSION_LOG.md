@@ -7187,3 +7187,21 @@ and a new hosted run remain required.
 G1 remains In Progress; StoreKit Product-ID/price-point evidence and owner `PROCEED_TO_R2` remain
 open. `productionAdmitted` stays false and COM-C7 stays blocked. This documentation closeout itself
 still requires exact-head independent review, hosted CI, and merge.
+
+## 2026-09-02 — Prepare the G1 template/on-device/Luna comparison
+
+Recorded DEC-COM-100 and added a test-only physical Foundation Models harness plus a fail-closed
+three-arm validator/blind-review packet builder. It reuses the frozen 24-case bilingual dataset and
+the already reviewed Luna transcript, so it makes no new OpenAI request. The shared Eval scheme
+cannot archive or run the App, ordinary schemes do not enable it, and the runner accepts only
+`拉沙的iPhone` while rejecting the previously excluded phone.
+
+The harness passed a generic unsigned iOS test build with Xcode 27 beta 6. The authorized phone was
+not available, so physical Apple output and independent blind review remain open. G1 remains In
+Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no downstream authority changed.
+
+After the owner connected `拉沙的iPhone`, the selected physical test passed and emitted all 24
+cases. Seventeen Apple outputs passed the existing safety validator; seven failed closed to the
+deterministic template. The normalized transcript and unfilled A/B/C packet are now durable, but
+no subjective cloud-value conclusion is self-approved. Independent blind review remains open and
+no new Luna request occurred.

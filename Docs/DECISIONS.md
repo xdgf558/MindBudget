@@ -3625,3 +3625,16 @@ remain open. Preserve four review P3 areas: ten starter credits are owner policy
 72-use-ceiling derivation; the economics model is deliberately less conservative than PR #98; the
 scorer's number-word/failed-attempt/missing-usage limitations require later hardening or explicit
 re-review; and the retry constant/current-hash hygiene must not drift.
+
+## 2026-09-02 — Freeze the G1 three-way comparative Eval harness
+
+Decision: Detailed ownership is DEC-COM-100. Reuse the frozen bilingual dataset and already
+reviewed Luna attempt-3 output, capture the Apple arm only through a Debug test-only scheme on
+`拉沙的iPhone`, validate all effective outputs with the existing closed scorer, and require an
+independent A/B/C value review. No new OpenAI call is needed while the accepted hashes remain fixed.
+
+Consequences: The harness compiles and the authorized physical run captured 24/24 cases; 17 Apple
+outputs passed the existing validator and 7 failed closed to the template. Independent review
+remains open. This
+does not change `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, admit production, close G1, enter
+COM-C7, or authorize a backend, Product ID, distribution, or release.

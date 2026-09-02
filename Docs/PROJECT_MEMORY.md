@@ -298,6 +298,10 @@ holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.
 margin fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an owner policy
 choice constrained by that envelope, not a value derived from the new 72-use ceiling. COM-C6.5 remains
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
+DEC-COM-100 freezes a Debug-only three-way Eval harness that reuses the reviewed Luna transcript
+without a new provider call and accepts only `拉沙的iPhone`. The physical run captured 24/24
+cases; 17 Apple outputs passed the existing validator and 7 failed closed to the template.
+Independent blind review remains open, so the evidence does not yet change G1 state.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

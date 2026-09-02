@@ -2999,3 +2999,41 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   economics discontinuity; silently calling author inspection independent review; erasing the two
   failed attempts; treating nonblocking scorer gaps as already fixed; closing G1 from a synthetic
   Eval; entering COM-C7; or changing production admission during documentation closeout.
+
+## DEC-COM-100 — Freeze the bilingual three-way Eval harness without claiming its result
+
+- Status/date: **Accepted implementation/evidence boundary — 2026-09-02; independent blind review,
+  hosted CI, and merge remain open**
+- Requirements: REQ-G1-001; DEC-COM-095/096/098/099; `G1_THREE_WAY_EVAL.md`;
+  `G1_LUNA_EVAL_CASES.json`; `Scripts/g1_three_way_eval.py`
+- Context: DEC-COM-099 preserves a fixed comparison across deterministic template, supported Apple
+  on-device output, and the reviewed Luna output because an automated Luna-only pass cannot prove
+  that paid cloud credits add user value over the free local paths. The Mac reports the system
+  language model as device-ineligible, so actual Apple output requires an authorized physical
+  iPhone. The owner previously excluded `Xiao li的 iPhone (2)` from evidence work.
+- Decision: Reuse the exact frozen 24-case bilingual dataset and reviewed Luna attempt-3 transcript;
+  do not make another OpenAI request. Add a Debug test-only, non-archivable scheme that runs only on
+  `拉沙的iPhone`, captures Apple Foundation Models output, applies the existing deterministic Luna
+  validator to every arm, and substitutes the frozen template whenever the Apple output fails or
+  is rejected. Build a deterministically shuffled A/B/C packet for independent review. Accept
+  incremental value only if Luna is independently preferred over both local arms for at least one
+  task in both English and Simplified Chinese without new facts, advice, judgment, or unsafe action.
+- Evidence: The authorized `拉沙的iPhone` run passed one selected test and emitted 24/24 cases.
+  Seventeen Apple outputs passed the existing validator; seven failed closed to the template, six
+  for altered/invented numeric tokens and one also for an invented fact ID. The normalized
+  transcript SHA-256 is `d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`;
+  the unfilled blind packet SHA-256 is
+  `a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f`.
+- Consequences: A generic iOS build proves only that the harness compiles. Until the independent
+  blind review is complete, the comparison is neither pass nor non-pass. G1
+  remains In Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production remains false and
+  COM-C7 remains blocked. The comparison does not create a backend, credit ledger, Product ID,
+  customer request path, distribution authority, or release claim.
+- Limitation carried: The Arabic-digit detector still does not prove number words. Independent
+  review must inspect factual/numeric meaning in every candidate, and this packet makes no complete
+  automated semantic-number claim. No provider retry or missing-usage path was introduced.
+- Alternatives rejected: Recalling the on-device output from memory; running on the excluded phone;
+  using a simulator/Mac/template as if it were supported Apple generation; making another paid Luna
+  call despite an unchanged accepted transcript; self-approving subjective value; weakening the
+  validator or changing the dataset after seeing results; or treating deterministic safety as proof
+  of material incremental value.

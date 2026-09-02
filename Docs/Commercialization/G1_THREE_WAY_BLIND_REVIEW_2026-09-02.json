@@ -1,0 +1,1983 @@
+{
+  "schema_version": 1,
+  "status": "PENDING_BLIND_REVIEW",
+  "scope": "synthetic_three_way_comparison_only",
+  "production_admitted": false,
+  "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+  "luna_transcript_sha256": "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e",
+  "blinding_domain_sha256": "0ae37fdacbee7d7cf6832085cf820ae351ca399bc1c88c93a239d9d3da9960a6",
+  "case_count": 24,
+  "arm_count": 3,
+  "device": {
+    "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+    "device_model": "iPhone",
+    "device_name": "iPhone",
+    "model_availability": "available",
+    "record_type": "metadata",
+    "schema_version": 1,
+    "system_name": "iOS",
+    "system_version": "26.6.1",
+    "xcode_destination_name": "拉沙的iPhone"
+  },
+  "on_device_effective_sources": {
+    "model": 17,
+    "template_fallback_generation_error": 0,
+    "template_fallback_validation_error": 7
+  },
+  "acceptance_rule": {
+    "deterministic_safety": "ALL_EFFECTIVE_OUTPUTS_PASS_EXISTING_VALIDATOR",
+    "incremental_value": "OWNER_MUST_ACCEPT_AT_LEAST_ONE_BILINGUAL_TASK_NEED_WHERE_LUNA_MATERIALLY_EXCEEDS_BOTH_LOCAL_ARMS",
+    "no_self_approval": true
+  },
+  "review_instructions": {
+    "blind_first": "Score candidates without deriving or reading their arm mapping.",
+    "preferred_label": "A, B, C, or TIE",
+    "best_label_arrays": "One or more of A, B, C; an empty array is incomplete.",
+    "material_incremental_value": "True only when the preferred output adds user value without new facts, advice, judgment, or unsafe actions.",
+    "bilingual_task_gate": "A task qualifies only if an accepted need is supported in both English and Simplified Chinese cases."
+  },
+  "independent_review": {
+    "reviewer_kind": null,
+    "reviewed_at_utc": null,
+    "reviewed_head": null
+  },
+  "cases": [
+    {
+      "case_id": "budget-positive-en",
+      "locale": "en",
+      "task": "budget_summary",
+      "question": "How is my current budget?",
+      "facts": [
+        {
+          "id": "remaining_budget",
+          "value": "Remaining budget: US$420.00",
+          "numbers": [
+            "420.00"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "Days left in this cycle: 8",
+          "numbers": [
+            "8"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "remaining_budget",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Your budget is positive!",
+          "explanation": "You have US$420.00 remaining for the next 8 days. Adjust your budget if necessary.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Current budget",
+          "explanation": "You have US$420.00 remaining, with 8 days left in this cycle.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Your current budget still has room",
+          "explanation": "You have US$420.00 left for the remaining 8 days. Review recent spending if you want a calmer plan.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "budget-positive-zh",
+      "locale": "zh",
+      "task": "budget_summary",
+      "question": "我目前的预算怎么样？",
+      "facts": [
+        {
+          "id": "remaining_budget",
+          "value": "剩余预算：US$420.00",
+          "numbers": [
+            "420.00"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "本周期剩余天数：8",
+          "numbers": [
+            "8"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "remaining_budget",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "预算情况良好",
+          "explanation": "你目前还剩 US$420.00 预算，本周期还剩 8 天。",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "我目前的预算怎么样？",
+          "explanation": "剩余预算：US$420.00，本周期剩余天数：8",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "当前预算还有空间",
+          "explanation": "本周期还剩 8 天，可用预算为 US$420.00。如需更从容地安排，可以回看近期消费。",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "budget-tight-en",
+      "locale": "en",
+      "task": "budget_summary",
+      "question": "Is my budget getting tight?",
+      "facts": [
+        {
+          "id": "remaining_budget",
+          "value": "Remaining budget: US$36.50",
+          "numbers": [
+            "36.50"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "Days left in this cycle: 9",
+          "numbers": [
+            "9"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "remaining_budget",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Budget Tight",
+          "explanation": "With only 9 days left in the cycle and a remaining budget of US$36.50, it appears that your budget is getting tight.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Budget summary",
+          "explanation": "You have US$36.50 remaining, with 9 days left in this cycle.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Your remaining budget is limited",
+          "explanation": "US$36.50 remains for 9 days. You can review recent spending or adjust the plan without judging past choices.",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "budget-tight-zh",
+      "locale": "zh",
+      "task": "budget_summary",
+      "question": "我的预算是不是有点紧？",
+      "facts": [
+        {
+          "id": "remaining_budget",
+          "value": "剩余预算：US$36.50",
+          "numbers": [
+            "36.50"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "本周期剩余天数：9",
+          "numbers": [
+            "9"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "remaining_budget",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "当前预算信息",
+          "explanation": "本周期还剩9天，剩余预算为US$36.50。仅根据这些信息，无法判断预算是否“有点紧”。",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "您的预算确实有点紧！",
+          "explanation": "您的剩余预算为US$36.50，本周期剩余天数为9天，因此您的预算可能需要调整。",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "剩余预算比较有限",
+          "explanation": "本周期还剩 9 天，可用预算为 US$36.50。你可以回看近期消费或调整计划，不需要责怪之前的选择。",
+          "fact_ids": [
+            "remaining_budget",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "budget-over-en",
+      "locale": "en",
+      "task": "budget_summary",
+      "question": "What should I know about this cycle?",
+      "facts": [
+        {
+          "id": "overspend_amount",
+          "value": "Amount over plan: US$72.00",
+          "numbers": [
+            "72.00"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "Days left in this cycle: 4",
+          "numbers": [
+            "4"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "overspend_amount",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Over budget!",
+          "explanation": "You are over budget by US$72.00. There are 4 days left in the budget cycle.",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "This cycle is over plan",
+          "explanation": "You are US$72.00 over plan, with 4 days left in this cycle.",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "This cycle is over the current plan",
+          "explanation": "Spending is US$72.00 above the plan with 4 days left. Review the entries, then adjust only if the plan no longer fits.",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "budget-over-zh",
+      "locale": "zh",
+      "task": "budget_summary",
+      "question": "这个周期我需要注意什么？",
+      "facts": [
+        {
+          "id": "overspend_amount",
+          "value": "超出计划：US$72.00",
+          "numbers": [
+            "72.00"
+          ]
+        },
+        {
+          "id": "cycle_days_left",
+          "value": "本周期剩余天数：4",
+          "numbers": [
+            "4"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "overspend_amount",
+        "cycle_days_left"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "本周期已超出计划",
+          "explanation": "目前已超出计划 US$72.00，本周期还剩 4 天。",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "本周期已超出当前计划",
+          "explanation": "本周期还剩 4 天，目前超出计划 US$72.00。可以先核对记录，再判断是否需要调整计划。",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "这个周期需要注意账单超支和剩余天数",
+          "explanation": "这个周期账单超支为US$72.00，剩余天数为4天，请合理安排开支。",
+          "fact_ids": [
+            "overspend_amount",
+            "cycle_days_left"
+          ],
+          "action_ids": [
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "category-shift-en",
+      "locale": "en",
+      "task": "pattern_summary",
+      "question": "What changed in my recent spending?",
+      "facts": [
+        {
+          "id": "category_share_current",
+          "value": "Dining share in the current window: 38%",
+          "numbers": [
+            "38%",
+            "38"
+          ]
+        },
+        {
+          "id": "category_share_previous",
+          "value": "Dining share in the comparison window: 24%",
+          "numbers": [
+            "24%",
+            "24"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "category_share_current",
+        "category_share_previous"
+      ],
+      "allowed_action_ids": [
+        "open_insights",
+        "review_recent_spending"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Dining takes a larger share recently",
+          "explanation": "Dining is 38% of the current window, compared with 24% before. This is a pattern to review, not a judgment.",
+          "fact_ids": [
+            "category_share_current",
+            "category_share_previous"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Dining Share Increased",
+          "explanation": "Dining share increased from 24% to 38% in the comparison window.",
+          "fact_ids": [
+            "category_share_previous",
+            "category_share_current"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Dining spending share increased",
+          "explanation": "Dining made up 38% of spending in the current window, compared with 24% in the comparison window.",
+          "fact_ids": [
+            "category_share_current",
+            "category_share_previous"
+          ],
+          "action_ids": [
+            "open_insights",
+            "review_recent_spending"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "category-shift-zh",
+      "locale": "zh",
+      "task": "pattern_summary",
+      "question": "我最近的消费有什么变化？",
+      "facts": [
+        {
+          "id": "category_share_current",
+          "value": "当前窗口餐饮占比：38%",
+          "numbers": [
+            "38%",
+            "38"
+          ]
+        },
+        {
+          "id": "category_share_previous",
+          "value": "对比窗口餐饮占比：24%",
+          "numbers": [
+            "24%",
+            "24"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "category_share_current",
+        "category_share_previous"
+      ],
+      "allowed_action_ids": [
+        "open_insights",
+        "review_recent_spending"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "近期餐饮占比有所上升",
+          "explanation": "当前窗口餐饮占比为 38%，对比窗口为 24%。这是一条可以回看的变化，不代表对消费作出评价。",
+          "fact_ids": [
+            "category_share_current",
+            "category_share_previous"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "餐饮消费占比上升",
+          "explanation": "当前窗口餐饮占比为38%，对比窗口为24%，显示餐饮占比上升。",
+          "fact_ids": [
+            "category_share_current",
+            "category_share_previous"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "近期餐饮占比有所上升",
+          "explanation": "当前窗口餐饮占比为 38%，对比窗口为 24%。这是一条可以回看的变化，不代表对消费作出评价。",
+          "fact_ids": [
+            "category_share_current",
+            "category_share_previous"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "repeated-impulse-en",
+      "locale": "en",
+      "task": "pattern_summary",
+      "question": "Do I have a repeated impulse pattern?",
+      "facts": [
+        {
+          "id": "tagged_count",
+          "value": "Entries tagged impulse in the review window: 3",
+          "numbers": [
+            "3"
+          ]
+        },
+        {
+          "id": "window_days",
+          "value": "Review window: 30 days",
+          "numbers": [
+            "30"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "tagged_count",
+        "window_days"
+      ],
+      "allowed_action_ids": [
+        "open_insights",
+        "start_cooling_off"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Impulse-tagged entries in the review window",
+          "explanation": "The data shows 3 entries tagged impulse during the 30-day review window. This summary does not provide additional context about the entries.",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "A repeated tag is visible in this review window",
+          "explanation": "There are 3 impulse-tagged entries in 30 days. This only reflects the tags you recorded.",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights",
+            "start_cooling_off"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Impulse Pattern Detected",
+          "explanation": "Based on the review window and tagged entries, there is a repeated impulse pattern. Consider starting cooling off to manage this.",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "start_cooling_off"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "repeated-impulse-zh",
+      "locale": "zh",
+      "task": "pattern_summary",
+      "question": "我有没有重复的冲动消费迹象？",
+      "facts": [
+        {
+          "id": "tagged_count",
+          "value": "复盘窗口中标记为冲动的记录：3",
+          "numbers": [
+            "3"
+          ]
+        },
+        {
+          "id": "window_days",
+          "value": "复盘窗口：30 天",
+          "numbers": [
+            "30"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "tagged_count",
+        "window_days"
+      ],
+      "allowed_action_ids": [
+        "open_insights",
+        "start_cooling_off"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "这个复盘窗口里出现了重复标记",
+          "explanation": "30 天内有 3 条记录被你标记为冲动。这只反映你自己记录的标记。",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights",
+            "start_cooling_off"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "有30天内重复冲动消费的记录",
+          "explanation": "复盘窗口中标记为冲动的记录：3，复盘窗口：30 天",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights",
+            "start_cooling_off"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "复盘窗口内有多次冲动标记",
+          "explanation": "在30天复盘窗口中，有3条记录被标记为冲动。现有数据支持存在多次冲动消费标记，但未提供更具体的消费模式信息。",
+          "fact_ids": [
+            "tagged_count",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "no-pattern-en",
+      "locale": "en",
+      "task": "pattern_summary",
+      "question": "Did the app find a spending pattern?",
+      "facts": [
+        {
+          "id": "pattern_status",
+          "value": "No supported repeated pattern was detected",
+          "numbers": []
+        },
+        {
+          "id": "window_days",
+          "value": "Review window: 30 days",
+          "numbers": [
+            "30"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "pattern_status",
+        "window_days"
+      ],
+      "allowed_action_ids": [
+        "open_insights"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "No spending patterns detected",
+          "explanation": "No repeated spending patterns were detected in the review window of 30 days.",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "No supported repeated pattern is visible",
+          "explanation": "The current 30-day review does not show a repeated pattern with enough support. New entries may change the review later.",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "No supported repeated pattern was detected",
+          "explanation": "The review window was 30 days. No supported repeated pattern was detected.",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "no-pattern-zh",
+      "locale": "zh",
+      "task": "pattern_summary",
+      "question": "应用发现消费模式了吗？",
+      "facts": [
+        {
+          "id": "pattern_status",
+          "value": "暂未检测到有依据的重复模式",
+          "numbers": []
+        },
+        {
+          "id": "window_days",
+          "value": "复盘窗口：30 天",
+          "numbers": [
+            "30"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "pattern_status",
+        "window_days"
+      ],
+      "allowed_action_ids": [
+        "open_insights"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "应用未检测到重复消费模式",
+          "explanation": "应用未检测到有依据的重复消费模式，复盘窗口为30天。",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "暂未看到有依据的重复模式",
+          "explanation": "当前 30 天复盘没有足够依据显示重复模式。后续新增记录可能会改变复盘结果。",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "消费模式",
+          "explanation": "暂未检测到有依据的重复模式。复盘窗口：30 天。",
+          "fact_ids": [
+            "pattern_status",
+            "window_days"
+          ],
+          "action_ids": [
+            "open_insights"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "savings-progress-en",
+      "locale": "en",
+      "task": "goal_summary",
+      "question": "How is my savings goal going?",
+      "facts": [
+        {
+          "id": "goal_progress",
+          "value": "Savings goal progress: 62%",
+          "numbers": [
+            "62%",
+            "62"
+          ]
+        },
+        {
+          "id": "goal_remaining",
+          "value": "Remaining amount: US$760.00",
+          "numbers": [
+            "760.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "goal_progress",
+        "goal_remaining"
+      ],
+      "allowed_action_ids": [
+        "open_savings_goal",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Your savings goal is progressing",
+          "explanation": "The goal is 62% complete, with US$760.00 remaining. You can review the goal without changing the current plan.",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Your savings goal is 62% complete",
+          "explanation": "You have 62% saved so far, with US$760.00 remaining.",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Your savings goal is progressing",
+          "explanation": "The goal is 62% complete, with US$760.00 remaining. You can review the goal without changing the current plan.",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "savings-progress-zh",
+      "locale": "zh",
+      "task": "goal_summary",
+      "question": "我的储蓄目标进展怎么样？",
+      "facts": [
+        {
+          "id": "goal_progress",
+          "value": "储蓄目标进度：62%",
+          "numbers": [
+            "62%",
+            "62"
+          ]
+        },
+        {
+          "id": "goal_remaining",
+          "value": "距离目标还差：US$760.00",
+          "numbers": [
+            "760.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "goal_progress",
+        "goal_remaining"
+      ],
+      "allowed_action_ids": [
+        "open_savings_goal",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "储蓄目标正在推进",
+          "explanation": "当前已完成 62%，距离目标还差 US$760.00。你可以先查看目标，不必立即改变当前计划。",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "储蓄目标正在推进",
+          "explanation": "当前已完成 62%，距离目标还差 US$760.00。你可以先查看目标，不必立即改变当前计划。",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "储蓄目标进展",
+          "explanation": "储蓄目标已完成62%，距离目标还差US$760.00。",
+          "fact_ids": [
+            "goal_progress",
+            "goal_remaining"
+          ],
+          "action_ids": [
+            "open_savings_goal"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "fixed-pressure-en",
+      "locale": "en",
+      "task": "budget_summary",
+      "question": "Why does this cycle feel tight?",
+      "facts": [
+        {
+          "id": "fixed_share",
+          "value": "Fixed-expense share of planned spending: 71%",
+          "numbers": [
+            "71%",
+            "71"
+          ]
+        },
+        {
+          "id": "flexible_remaining",
+          "value": "Flexible budget remaining: US$185.00",
+          "numbers": [
+            "185.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "fixed_share",
+        "flexible_remaining"
+      ],
+      "allowed_action_ids": [
+        "review_fixed_expenses",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Fixed expenses take up most planned spending",
+          "explanation": "Fixed expenses account for 71% of planned spending, with US$185.00 remaining in the flexible budget. You can review fixed expenses or adjust the budget.",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Fixed expenses take most of the current plan",
+          "explanation": "Fixed expenses are 71% of planned spending, leaving US$185.00 flexible. Reviewing fixed items may explain the pressure.",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Budget Tightness",
+          "explanation": "This cycle feels tight because the fixed expense share of planned spending is 71% and the flexible budget remaining is US$185.00. You can review fixed expenses or adjust your budget.",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "fixed-pressure-zh",
+      "locale": "zh",
+      "task": "budget_summary",
+      "question": "为什么这个周期感觉比较紧？",
+      "facts": [
+        {
+          "id": "fixed_share",
+          "value": "固定支出占计划支出：71%",
+          "numbers": [
+            "71%",
+            "71"
+          ]
+        },
+        {
+          "id": "flexible_remaining",
+          "value": "剩余灵活预算：US$185.00",
+          "numbers": [
+            "185.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "fixed_share",
+        "flexible_remaining"
+      ],
+      "allowed_action_ids": [
+        "review_fixed_expenses",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "固定支出占据了当前计划的大部分",
+          "explanation": "固定支出占计划支出的 71%，剩余灵活预算为 US$185.00。回看固定支出可以帮助理解当前压力。",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "固定支出占据了当前计划的大部分",
+          "explanation": "固定支出占计划支出的 71%，剩余灵活预算为 US$185.00。回看固定支出可以帮助理解当前压力。",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "本周期感觉较紧",
+          "explanation": "固定支出占计划支出的71%，剩余灵活预算为US$185.00。",
+          "fact_ids": [
+            "fixed_share",
+            "flexible_remaining"
+          ],
+          "action_ids": [
+            "review_fixed_expenses",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "cooling-off-en",
+      "locale": "en",
+      "task": "cooling_off_summary",
+      "question": "Should I wait before this purchase?",
+      "facts": [
+        {
+          "id": "wish_amount",
+          "value": "Wishlist amount: US$299.00",
+          "numbers": [
+            "299.00"
+          ]
+        },
+        {
+          "id": "cooling_option",
+          "value": "Available cooling-off option: 72 hours",
+          "numbers": [
+            "72"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "wish_amount",
+        "cooling_option"
+      ],
+      "allowed_action_ids": [
+        "start_cooling_off",
+        "continue_purchase"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "A pause is available before you decide",
+          "explanation": "The wishlist amount is US$299.00. You can use the 72-hour cooling-off option or continue the purchase.",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "start_cooling_off",
+            "continue_purchase"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Should I Wait?",
+          "explanation": "If you choose to wait, you'll have 72 hours to decide.",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "start_cooling_off"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "A 72-hour cooling-off option is available.",
+          "explanation": "The wishlist amount is US$299.00. You can start the 72-hour cooling-off period or continue with the purchase.",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "start_cooling_off",
+            "continue_purchase"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "cooling-off-zh",
+      "locale": "zh",
+      "task": "cooling_off_summary",
+      "question": "这笔购买要不要先等等？",
+      "facts": [
+        {
+          "id": "wish_amount",
+          "value": "心愿金额：US$299.00",
+          "numbers": [
+            "299.00"
+          ]
+        },
+        {
+          "id": "cooling_option",
+          "value": "可用冷静期：72 小时",
+          "numbers": [
+            "72"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "wish_amount",
+        "cooling_option"
+      ],
+      "allowed_action_ids": [
+        "start_cooling_off",
+        "continue_purchase"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "决定前可以先留一点时间",
+          "explanation": "这项心愿的金额为 US$299.00。你可以选择 72 小时冷静期，也可以继续购买。",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "start_cooling_off",
+            "continue_purchase"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "这笔购买可使用冷静期",
+          "explanation": "心愿金额为 US$299.00，可用冷静期为 72 小时。你可以开始冷静期，也可以继续购买。",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "start_cooling_off",
+            "continue_purchase"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "这笔购买要不要先等等？",
+          "explanation": "您心愿金额为 US$299.00，可使用 72 小时冷静期，若需继续购买，请选择 '继续购买' 选项。",
+          "fact_ids": [
+            "wish_amount",
+            "cooling_option"
+          ],
+          "action_ids": [
+            "continue_purchase"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "cycle-pace-en",
+      "locale": "en",
+      "task": "budget_summary",
+      "question": "Am I spending faster than the cycle pace?",
+      "facts": [
+        {
+          "id": "cycle_elapsed",
+          "value": "Cycle elapsed: 40%",
+          "numbers": [
+            "40%",
+            "40"
+          ]
+        },
+        {
+          "id": "budget_used",
+          "value": "Budget used: 58%",
+          "numbers": [
+            "58%",
+            "58"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "cycle_elapsed",
+        "budget_used"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Budget use is ahead of the cycle pace",
+          "explanation": "The cycle is 40% complete while 58% of the budget is used. Review recent spending before deciding whether to adjust the plan.",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Spending is ahead of cycle pace",
+          "explanation": "Cycle elapsed: 40%. Budget used: 58%.",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Budget use is ahead of the cycle pace",
+          "explanation": "The cycle is 40% complete while 58% of the budget is used. Review recent spending before deciding whether to adjust the plan.",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "cycle-pace-zh",
+      "locale": "zh",
+      "task": "budget_summary",
+      "question": "我的消费速度是否超过了周期节奏？",
+      "facts": [
+        {
+          "id": "cycle_elapsed",
+          "value": "周期已过：40%",
+          "numbers": [
+            "40%",
+            "40"
+          ]
+        },
+        {
+          "id": "budget_used",
+          "value": "预算已使用：58%",
+          "numbers": [
+            "58%",
+            "58"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "cycle_elapsed",
+        "budget_used"
+      ],
+      "allowed_action_ids": [
+        "review_recent_spending",
+        "adjust_budget"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "消费速度超过周期节奏",
+          "explanation": "周期已过：40%；预算已使用：58%。预算使用比例高于周期已过比例。",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "预算使用进度快于周期进度",
+          "explanation": "周期已过 40%，预算已使用 58%。可以先回看近期消费，再决定是否调整计划。",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "review_recent_spending"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "消费节奏超过了周期节奏？",
+          "explanation": "周期已过：40%，预算已使用：58%，消费速度超过了周期节奏。",
+          "fact_ids": [
+            "cycle_elapsed",
+            "budget_used"
+          ],
+          "action_ids": [
+            "review_recent_spending",
+            "adjust_budget"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "income-allocation-en",
+      "locale": "en",
+      "task": "income_summary",
+      "question": "How much of this income is still unallocated?",
+      "facts": [
+        {
+          "id": "income_amount",
+          "value": "Income amount: US$1,200.00",
+          "numbers": [
+            "1,200.00",
+            "1200.00"
+          ]
+        },
+        {
+          "id": "unallocated_amount",
+          "value": "Unallocated amount: US$300.00",
+          "numbers": [
+            "300.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "income_amount",
+        "unallocated_amount"
+      ],
+      "allowed_action_ids": [
+        "allocate_income",
+        "open_ledger"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "Part of this income remains unallocated",
+          "explanation": "US$300.00 of the US$1,200.00 income is still unallocated. You can allocate it or leave it unchanged.",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "Part of this income remains unallocated",
+          "explanation": "US$300.00 of the US$1,200.00 income is still unallocated. You can allocate it or leave it unchanged.",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "Unallocated income",
+          "explanation": "US$300.00 of this US$1,200.00 income is still unallocated.",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "unknown fact id",
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "income-allocation-zh",
+      "locale": "zh",
+      "task": "income_summary",
+      "question": "这笔收入还有多少没有分配？",
+      "facts": [
+        {
+          "id": "income_amount",
+          "value": "收入金额：US$1,200.00",
+          "numbers": [
+            "1,200.00",
+            "1200.00"
+          ]
+        },
+        {
+          "id": "unallocated_amount",
+          "value": "未分配金额：US$300.00",
+          "numbers": [
+            "300.00"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "income_amount",
+        "unallocated_amount"
+      ],
+      "allowed_action_ids": [
+        "allocate_income",
+        "open_ledger"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "这笔收入还有一部分未分配",
+          "explanation": "US$1,200.00 的收入中还有 US$300.00 未分配。你可以继续分配，也可以保持现状。",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "尚有 US$300.00 未分配",
+          "explanation": "这笔收入金额为 US$1,200.00，其中未分配金额为 US$300.00。",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "这笔收入还有一部分未分配",
+          "explanation": "US$1,200.00 的收入中还有 US$300.00 未分配。你可以继续分配，也可以保持现状。",
+          "fact_ids": [
+            "income_amount",
+            "unallocated_amount"
+          ],
+          "action_ids": [
+            "allocate_income"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ]
+    },
+    {
+      "case_id": "insufficient-data-en",
+      "locale": "en",
+      "task": "pattern_summary",
+      "question": "Can the app summarize a pattern yet?",
+      "facts": [
+        {
+          "id": "data_status",
+          "value": "There is not enough supported data for a pattern summary",
+          "numbers": []
+        },
+        {
+          "id": "entry_count",
+          "value": "Supported entries in the review window: 2",
+          "numbers": [
+            "2"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "data_status",
+        "entry_count"
+      ],
+      "allowed_action_ids": [
+        "open_ledger"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "A pattern summary isn’t available yet",
+          "explanation": "There is not enough supported data for a pattern summary. The review window contains 2 supported entries.",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "There is not enough data for a pattern summary",
+          "explanation": "The review window has 2 supported entries. More records are needed before showing a pattern.",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "No entries for pattern summary",
+          "explanation": "There are only 2 supported entries in the review window. Please add more entries to summarize a pattern.",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    },
+    {
+      "case_id": "insufficient-data-zh",
+      "locale": "zh",
+      "task": "pattern_summary",
+      "question": "应用现在可以总结消费模式吗？",
+      "facts": [
+        {
+          "id": "data_status",
+          "value": "当前没有足够且有依据的数据用于模式总结",
+          "numbers": []
+        },
+        {
+          "id": "entry_count",
+          "value": "复盘窗口中有依据的记录：2",
+          "numbers": [
+            "2"
+          ]
+        }
+      ],
+      "required_fact_ids": [
+        "data_status",
+        "entry_count"
+      ],
+      "allowed_action_ids": [
+        "open_ledger"
+      ],
+      "candidates": [
+        {
+          "label": "A",
+          "headline": "当前数据还不足以总结模式",
+          "explanation": "复盘窗口中有 2 条有依据的记录。需要更多记录后再显示模式。",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        },
+        {
+          "label": "B",
+          "headline": "模式总结数据不足",
+          "explanation": "当前没有足够且有依据的数据用于模式总结。复盘窗口中有依据的记录：2。",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        },
+        {
+          "label": "C",
+          "headline": "目前无法总结消费模式",
+          "explanation": "当前没有足够且有依据的数据用于模式总结。复盘窗口中有依据的记录：2。",
+          "fact_ids": [
+            "data_status",
+            "entry_count"
+          ],
+          "action_ids": [
+            "open_ledger"
+          ]
+        }
+      ],
+      "review": {
+        "preferred_label": null,
+        "clarity_best_labels": [],
+        "usefulness_best_labels": [],
+        "locale_naturalness_best_labels": [],
+        "material_incremental_value": null,
+        "review_notes": ""
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": []
+    }
+  ]
+}
