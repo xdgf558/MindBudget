@@ -2714,3 +2714,33 @@ The closeout still needs independent review, a green hosted run on its exact hea
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.vnH8ya/MindBudget.xcresult`;
   the path is an execution pointer rather than a durable artifact. Exact-head independent review,
   hosted CI, and merge remain open. G1 stays In Progress and production false.
+
+### G1 Luna Eval reviewed-delivery closeout — 2026-09-02
+
+- Independent review read all 24 final outputs and exact PR #100 head `323d8d7`, found no P1/P2,
+  and accepted the automated result. Four P3 groups remain maintenance obligations rather than
+  blockers or completed fixes.
+- GitHub Actions run `33593253561` completed successfully on exact head
+  `323d8d7904cf4d2413efa661b50e7d092a860af0`. PR #100 merged that head as
+  `7a473d2f4123bef60615efd9f104cee2e473afd5`.
+- The machine result now records schema version 2 and exact review provenance. Transcript hashes,
+  the 24/24 first-pass result, zero retries/hard failures, token/latency statistics, and the two
+  earlier non-passes are unchanged.
+- A first closeout validation attempt in the restricted execution sandbox stopped before Xcode
+  testing because CoreSimulatorService was unavailable; it is a local environment non-pass. The
+  exact unrestricted Xcode 27.0 beta 6 (`27A5252f`) run on the iOS 26.5 iPhone 17 Pro simulator
+  then passed Release, the strict Dashboard benchmark, 553 unit tests across 32 suites with four
+  expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one expected
+  physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI
+  summary contains exactly 18 executions, so no test-runner retry occurred.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.lbMNy3/MindBudget.xcresult`;
+  this is an execution pointer rather than a durable artifact.
+- PR #101 review found that the closeout had silently removed the still-unfulfilled three-way
+  template/on-device/Luna comparison from the `PROCEED_TO_R2` list. The remediation restores that
+  prerequisite, restores the historical DEC-COM-098 pointer text instead of rewriting it, and
+  validates the P3 count by type/range rather than freezing the entire review object. Exact-head
+  rereview and a new hosted run remain required.
+- DEC-COM-099 advances only to `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`. G1 stays In Progress,
+  `productionAdmitted` stays false, and COM-C7 stays blocked. This documentation closeout still
+  requires its own exact-head independent review, hosted CI, and merge.

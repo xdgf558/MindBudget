@@ -8,10 +8,14 @@ selects OpenAI `gpt-5.6-luna` as the only permitted future cloud model and recor
 `EVAL_AND_ACCOUNT_EVIDENCE_PENDING`. DEC-COM-096 subsequently freezes the exact Eval and offer;
 DEC-COM-097 accepts standard retention for synthetic Eval only while keeping production false.
 DEC-COM-098 records completed synthetic account admission and attempt 3's 24/24 first-pass
-automated result after preserving two non-pass attempts. The G1 state is
-`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`. Selection and an automated Eval pass are not
+automated result after preserving two non-pass attempts. Independent review found no P1/P2 on PR
+#100 head `323d8d7`; run `33593253561` passed and merge `7a473d2` delivered it. DEC-COM-099 closes
+only that evidence delivery. The G1 state is `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
+Selection and a reviewed synthetic Eval pass are not
 activation: no server adapter, client route, customer request, or customer promise exists until G1
-and later gates pass.
+and later gates pass. The Luna-only scorer result also does not satisfy the still-open fixed
+bilingual three-way comparative Eval across deterministic template, supported on-device output,
+and Luna.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,

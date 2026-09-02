@@ -1,8 +1,8 @@
 # G1 OpenAI Luna Fixed Eval
 
 Status: **The admitted synthetic-only account completed the fixed Luna Eval with a 24/24 automated
-pass; independent review remains pending.** Formal outcome:
-`LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW`.
+pass, and independent review read all 24 outputs with no P1/P2 finding.** Formal outcome:
+`LIVE_LUNA_EVAL_AUTOMATED_PASS_INDEPENDENTLY_REVIEWED`.
 
 ## Purpose and non-claim
 
@@ -117,6 +117,22 @@ The two non-pass transcript hashes and exact result are in
 `G1_LUNA_EVAL_RESULT_2026-09-02.json`; they are not quality, latency, or token evidence.
 
 The implementation author read all 24 final outputs and found no additional fact, number, tone,
-locale, or action issue. This is not independent review. G1 remains In Progress pending that review,
-StoreKit price-point/Product-ID evidence, hosted CI/merge, and the owner's final
-`PROCEED_TO_R2` decision. COM-C7 remains blocked.
+locale, or action issue. Independent review then read all 24 outputs and the account/Eval packet on
+exact PR #100 head `323d8d7`, found no P1/P2, and accepted the automated result. That head passed
+GitHub Actions run `33593253561`; PR #100 merged it as `7a473d2`. The exact machine review record is
+in `G1_LUNA_EVAL_RESULT_2026-09-02.json`.
+
+The review left four nonblocking maintenance observations. Textual number words are not recognized
+by the current Arabic-digit number scanner; failed attempts with zero latency/tokens would enter
+run percentiles; missing provider usage fields currently default to zero; and the retry loop does
+not consume `MAX_RETRIES_PER_CASE`. None affects this transcript because every case passed on its
+first attempt with explicit nonzero usage, and the reviewer found no invented number in the 24
+outputs. These limitations must be resolved or explicitly re-reviewed before the scorer supports a
+future live Eval or implementation/release claim.
+
+G1 remains In Progress pending StoreKit price-point/Product-ID evidence, later implementation
+gates, and the owner's final `PROCEED_TO_R2` decision. This Luna-only scoring run does not satisfy
+the still-open fixed bilingual three-way comparative Eval of deterministic template, supported
+on-device output, and Luna needed to establish the incremental value of paid cloud credits.
+Production admission stays false and COM-C7 remains blocked. This closeout delta itself still
+requires exact-head independent review, hosted CI, and merge.

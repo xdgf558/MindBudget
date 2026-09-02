@@ -753,7 +753,7 @@ grep -Fq 'Current app-owned HTTP(S) | Accepted empty set' \
   exit 1
 }
 
-grep -Fq '**Owner policy, exact cloud-credit counts/consumable card tiers, and the synthetic Luna automated' Docs/Commercialization/REGIONAL_PRICING.md || {
+grep -Fq '**Owner policy, exact cloud-credit counts/consumable card tiers, and the independently reviewed' Docs/Commercialization/REGIONAL_PRICING.md || {
   echo "Regional pricing must distinguish accepted offer values from pending StoreKit/account work" >&2
   exit 1
 }
@@ -2607,12 +2607,14 @@ for g1_economics_file in \
     'DEC-COM-096' \
     'DEC-COM-097' \
     'DEC-COM-098' \
+    'DEC-COM-099' \
     'US$4.99' \
     'gpt-5.6-luna' \
     '50%' \
     'typical/P50' \
     'peak/P95' \
-    'EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE' \
+    'three-way comparative Eval' \
+    'EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE' \
     'consumable'; do
     grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
       echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
@@ -2668,8 +2670,10 @@ import sys
 
 result_path = pathlib.Path(sys.argv[1])
 value = json.loads(result_path.read_text(encoding="utf-8"))
-if value.get("result") != "AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW":
-    raise SystemExit("G1 Luna Eval result must remain pending independent review")
+if value.get("schemaVersion") != 2:
+    raise SystemExit("G1 Luna Eval reviewed-result schema drifted")
+if value.get("result") != "AUTOMATED_PASS_INDEPENDENTLY_REVIEWED":
+    raise SystemExit("G1 Luna Eval result must preserve the accepted independent review")
 if value.get("scope") != "synthetic_eval_only" or value.get("productionAdmitted") is not False:
     raise SystemExit("G1 Luna Eval result cannot admit production")
 if value.get("datasetSHA256") != "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014":
@@ -2682,8 +2686,36 @@ if value.get("finalPassCount") != 24 or value.get("firstPassCount") != 24:
     raise SystemExit("G1 Luna Eval pass counts drifted")
 if value.get("retryCaseCount") != 0 or value.get("hardFailures") != []:
     raise SystemExit("G1 Luna Eval retry/failure result drifted")
-if value.get("independentReview") != "PENDING":
-    raise SystemExit("G1 Luna Eval cannot self-approve independent review")
+review = value.get("independentReview")
+expected_review_keys = {
+    "status",
+    "reviewDate",
+    "reviewedPullRequest",
+    "reviewedHead",
+    "hostedCIRun",
+    "mergeCommit",
+    "finalOutputRead",
+    "p3Findings",
+}
+if not isinstance(review, dict) or set(review) != expected_review_keys:
+    raise SystemExit("G1 Luna Eval independent-review record drifted")
+expected_review_core = {
+    "status": "APPROVED_NO_P1_P2",
+    "reviewedHead": "323d8d7904cf4d2413efa661b50e7d092a860af0",
+    "mergeCommit": "7a473d2f4123bef60615efd9f104cee2e473afd5",
+}
+if any(review.get(key) != expected for key, expected in expected_review_core.items()):
+    raise SystemExit("G1 Luna Eval independent-review provenance drifted")
+if not isinstance(review.get("reviewDate"), str) or not review["reviewDate"]:
+    raise SystemExit("G1 Luna Eval independent-review date must be recorded")
+if type(review.get("reviewedPullRequest")) is not int or review["reviewedPullRequest"] <= 0:
+    raise SystemExit("G1 Luna Eval reviewed pull request must be a positive integer")
+if type(review.get("hostedCIRun")) is not int or review["hostedCIRun"] <= 0:
+    raise SystemExit("G1 Luna Eval hosted CI run must be a positive integer")
+if review.get("finalOutputRead") != "24_OF_24":
+    raise SystemExit("G1 Luna Eval independent review must cover all final outputs")
+if type(review.get("p3Findings")) is not int or review["p3Findings"] < 0:
+    raise SystemExit("G1 Luna Eval P3 count must be a non-negative integer")
 
 artifacts = [value["passingTranscript"], *value["nonPassAttempts"]]
 for artifact in artifacts:
@@ -2770,6 +2802,10 @@ for g1_decision_file in \
     echo "Luna Eval execution decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-099' "${g1_decision_file}" || {
+    echo "Reviewed Luna Eval delivery closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
 for g1_closeout_file in \
@@ -2793,6 +2829,51 @@ for g1_closeout_file in \
       exit 1
     }
   done
+done
+
+for g1_eval_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_eval_closeout_anchor in \
+    'DEC-COM-099' \
+    '323d8d7' \
+    '33593253561' \
+    '7a473d2' \
+    'EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE'; do
+    grep -Fq "${g1_eval_closeout_anchor}" "${g1_eval_closeout_file}" || {
+      echo "Reviewed Luna Eval closeout is missing ${g1_eval_closeout_anchor} in ${g1_eval_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_review_limit_anchor in \
+  'owner policy selection' \
+  'US$0.033098' \
+  'US$0.018986' \
+  'US$0.372250' \
+  'US$1.372250'; do
+  grep -Fq "${g1_review_limit_anchor}" "${G1_ECONOMICS_PACKET}" || {
+    echo "G1 economics review clarification is missing ${g1_review_limit_anchor}" >&2
+    exit 1
+  }
+done
+
+for g1_scorer_limit_anchor in \
+  'number words' \
+  'missing provider usage fields' \
+  'MAX_RETRIES_PER_CASE'; do
+  grep -Fq "${g1_scorer_limit_anchor}" "${G1_LUNA_EVAL_PACKET}" || {
+    echo "G1 scorer review limitation is missing ${g1_scorer_limit_anchor}" >&2
+    exit 1
+  }
 done
 
 for g1_review_followup_anchor in \
@@ -2830,7 +2911,8 @@ python3 -O Scripts/g1_luna_eval.py --self-test >/dev/null
 for g1_eval_anchor in \
   'd509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014' \
   'c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018' \
-  'LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW' \
+  'LIVE_LUNA_EVAL_AUTOMATED_PASS_INDEPENDENTLY_REVIEWED' \
+  'three-way comparative Eval' \
   '4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e' \
   '24/24' \
   'at least 95.00%' \
@@ -2857,7 +2939,7 @@ done
 
 for g1_interim_anchor in \
   'INSUFFICIENT_QUOTE_EVIDENCE' \
-  'EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE' \
+  'EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE' \
   '10 starter uses' \
   '10 uses / US$0.99' \
   '25 uses / US$1.99' \
@@ -2866,6 +2948,24 @@ for g1_interim_anchor in \
     echo "G1 interim packet is missing ${g1_interim_anchor}" >&2
     exit 1
   }
+done
+
+for g1_current_state_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}" \
+  "${G1_LUNA_EVAL_PACKET}"; do
+  if grep -Fq '1d3e1d874ef054e8a41038cea99154a47c484c21658218d4c58809e19820d40b' \
+      "${g1_current_state_file}"; then
+    echo "Superseded Luna prompt hash reappeared in current state: ${g1_current_state_file}" >&2
+    exit 1
+  fi
 done
 
 if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer telemetry|G1 .*public App Store observation.*required' \

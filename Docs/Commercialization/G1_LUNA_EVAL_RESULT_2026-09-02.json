@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "result": "AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW",
+  "schemaVersion": 2,
+  "result": "AUTOMATED_PASS_INDEPENDENTLY_REVIEWED",
   "evidenceDate": "2026-09-02",
   "scope": "synthetic_eval_only",
   "productionAdmitted": false,
@@ -27,7 +27,16 @@
   "latencyMillisecondsP95": 5389,
   "hardFailures": [],
   "implementationAuthorRead": "24_OF_24_ACCEPTED_WITH_NO_ADDITIONAL_FINDING",
-  "independentReview": "PENDING",
+  "independentReview": {
+    "status": "APPROVED_NO_P1_P2",
+    "reviewDate": "2026-09-02",
+    "reviewedPullRequest": 100,
+    "reviewedHead": "323d8d7904cf4d2413efa661b50e7d092a860af0",
+    "hostedCIRun": 33593253561,
+    "mergeCommit": "7a473d2f4123bef60615efd9f104cee2e473afd5",
+    "finalOutputRead": "24_OF_24",
+    "p3Findings": 4
+  },
   "nonPassAttempts": [
     {
       "path": "Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02.jsonl",

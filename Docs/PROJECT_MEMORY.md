@@ -286,10 +286,17 @@ the 24-case bilingual Eval and accepts exactly 10 starter credits plus 10/25/65-
 US$0.99/US$1.99/US$4.99. DEC-COM-097 records a dedicated Global/Luna-only Tier 1 project, bounded
 billing, and owner acceptance of standard up-to-30-day retention for synthetic Eval only while
 keeping production false. DEC-COM-098 records the admitted account and third live attempt's 24/24
-first-pass automated result after preserving two non-pass attempts. Independent review, StoreKit
-price-point/Product-ID evidence, hosted CI/merge, and owner `PROCEED_TO_R2` remain open. Actual US
-proceeds are unavailable pre-launch and become a post-launch recalibration input. The current
-result is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. COM-C6.5 remains
+first-pass automated result after preserving two non-pass attempts. Independent review found no
+P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and PR #100 merged as
+`7a473d2`. DEC-COM-099 closes only that account/Eval evidence delivery. StoreKit price-point/Product-
+ID evidence, the fixed bilingual three-way comparative Eval across deterministic template,
+supported on-device output, and Luna, and owner `PROCEED_TO_R2` remain open. Actual US proceeds are
+unavailable pre-launch and become a post-launch recalibration input. The current result is
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. The revised economics are a
+deliberate discontinuity from PR #98: removing the US$2 local-Pro reserve, separate 50% cloud
+holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.018986 and the 50%
+margin fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an owner policy
+choice constrained by that envelope, not a value derived from the new 72-use ceiling. COM-C6.5 remains
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs

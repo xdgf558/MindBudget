@@ -4211,3 +4211,47 @@ physical-only skip, all selected coverage thresholds, and all 23 C6-02 runtime b
 summary contains exactly 18 executions, so no test-runner retry occurred. The deleted xcresult path
 is recorded in `CI_BASELINE.md` only as an execution pointer. Hosted CI remains required before
 merge.
+
+## 2026-09-02 — Session 213 — Close the independently reviewed Luna Eval delivery
+
+Goal: Record the exact PR #100 review/CI/merge chain and close only the account/Eval evidence
+delivery without closing G1 or admitting production.
+
+Actions: Independent review read all 24 final outputs and exact head `323d8d7`, found no P1/P2,
+and accepted the automated result. Verified hosted run `33593253561` succeeded on that exact head
+and PR #100 merged it as `7a473d2`. Added DEC-COM-099, promoted the machine result to schema version
+2 with exact review provenance, and advanced current status to
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
+
+Review follow-ups: Clarified that ten starter credits are owner policy constrained by the envelope,
+not derived from the current 72-use maximum. Made the PR #98-to-current conservatism discontinuity
+explicit: peak all-in cost changed from US$0.033098 to US$0.018986 and fulfillment budget from
+US$0.372250 to US$1.372250 after the owner removed the local-Pro reserve, separate cloud holdback,
+and backup provider. Preserved scorer limitations for later hardening/re-review: number words are
+outside the Arabic-digit detector, failed zero-valued attempts can bias percentiles, missing usage
+fields default to zero, and the retry loop does not consume `MAX_RETRIES_PER_CASE`. Current-state
+files reject the superseded prompt hash while historical DEC-COM-096 records retain it.
+
+Validation: Static money, egress, commercialization-document, and StoreKit catalog gates passed.
+The first full-validator attempt in the restricted execution sandbox stopped before Xcode testing
+because CoreSimulatorService was unavailable and is a local environment non-pass. The unrestricted
+Xcode 27.0 beta 6 (`27A5252f`) run on the iOS 26.5 iPhone 17 Pro simulator passed Release, the
+strict Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit
+physical skips, 18 UI tests with 17 passed and one expected physical-only skip, all selected
+coverage thresholds, and all 23 C6-02 runtime bindings. Exactly 18 UI executions were reported, so
+no test-runner retry occurred. The validator deleted its xcresult; `CI_BASELINE.md` preserves only
+the execution pointer.
+
+PR #101 review remediation: Independent review found one P2 because the closeout had removed the
+unfulfilled fixed bilingual template/on-device/Luna comparison alongside two requirements that
+were actually delivered. Restored that three-way comparative Eval as a `PROCEED_TO_R2`
+prerequisite across current G1 state surfaces and added an explicit DEC-COM-099 scope-preservation
+clause. Restored the historical DEC-COM-098 pointer paragraph verbatim rather than rewriting it.
+Changed the review-object gate to pin status/head/merge provenance while validating the mutable P3
+count by type/range. This remediation still requires exact-head rereview and a new hosted run.
+
+Result: G1 remains In Progress. StoreKit Product-ID/US$4.99 price-point evidence, remaining
+implementation/legal gates, and owner `PROCEED_TO_R2` remain open. `productionAdmitted` remains
+false; COM-C7, backend/product work, customer traffic, App Store Connect mutation, distribution,
+and release remain blocked. This closeout branch still requires exact-head independent review,
+hosted CI, and merge.

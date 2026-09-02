@@ -314,8 +314,11 @@ DEC-COM-096 freezes a 24-case synthetic bilingual Eval and exact 10-credit start
 the owner-observed dedicated Global project, Luna-only allow-list, Tier 1 limits, bounded billing,
 and accepted standard retention. DEC-COM-098 records the confirmed disabled sharing/logging state,
 Keychain-isolated credential, two explicit non-pass attempts, and the third attempt's 24/24
-first-pass automated result. The implementation-author read is not independent review, and a
-synthetic Eval pass is not final-binary or production evidence. Production admission remains false.
+first-pass automated result. Independent review then read all 24 outputs and exact PR #100 head
+`323d8d7`, found no P1/P2, and accepted the synthetic result; hosted run `33593253561` passed and
+PR #100 merged as `7a473d2`. DEC-COM-099 closes only that evidence delivery. A reviewed synthetic
+Eval pass is not final-binary or production evidence. Production admission remains false, G1 stays
+In Progress, and COM-C7 stays blocked pending StoreKit evidence and owner `PROCEED_TO_R2`.
 
 ## Siri and Spotlight disclosure
 

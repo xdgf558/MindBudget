@@ -3611,3 +3611,17 @@ independent review, complete G1, admit production, or enter COM-C7.
 Consequences: Final privacy-setting confirmation and credential creation remain before any live
 request. Customer traffic, COM-C7, product activation, App Privacy/consent claims, and release are
 not authorized. The prior blocked result remains current until those two account actions complete.
+
+## 2026-09-02 — Close reviewed Luna Eval evidence without closing G1
+
+Decision: Detailed ownership is DEC-COM-099. Independent review read all 24 outputs and exact PR
+#100 head `323d8d7`, found no P1/P2, and accepted the automated Eval result. Hosted run
+`33593253561` passed and PR #100 merged as `7a473d2`. Advance only to
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
+
+Consequences: Keep `productionAdmitted: false`, G1 In Progress, and COM-C7 blocked. StoreKit
+Product-ID/US$4.99 price-point evidence, implementation/legal gates, and owner `PROCEED_TO_R2`
+remain open. Preserve four review P3 areas: ten starter credits are owner policy rather than a
+72-use-ceiling derivation; the economics model is deliberately less conservative than PR #98; the
+scorer's number-word/failed-attempt/missing-usage limitations require later hardening or explicit
+re-review; and the retry constant/current-hash hygiene must not drift.
