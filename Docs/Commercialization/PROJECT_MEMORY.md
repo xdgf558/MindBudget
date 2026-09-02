@@ -516,9 +516,15 @@ cards at US$0.99/US$1.99/US$4.99. DEC-COM-097 records the owner-observed Global/
 project, bounded billing, and standard up-to-30-day retention for synthetic Eval only; ZDR is
 optional and production remains false. DEC-COM-098 records completed synthetic account admission,
 two explicit non-pass attempts, and the third run's 24/24 first-pass automated result. Independent
-review, StoreKit price-point/Product-ID evidence, hosted CI/merge, and owner `PROCEED_TO_R2` remain
-open. Actual US proceeds do not exist pre-launch and are a post-launch recalibration input. Current
-result: `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`, not completed G1 or C7 acceptance. COM-C6.5 awaits
+review found no P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and PR #100
+merged as `7a473d2`. DEC-COM-099 closes only that account/Eval evidence delivery. StoreKit price-
+point/Product-ID evidence and owner `PROCEED_TO_R2` remain open. Actual US proceeds do not exist pre-
+launch and are a post-launch recalibration input. Current result:
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not completed G1 or C7 acceptance. The revised
+economics deliberately reduce conservatism versus PR #98: removing the US$2 local-Pro reserve,
+separate 50% cloud holdback, and backup provider changed peak all-in cost from US$0.033098 to
+US$0.018986 and the fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an
+owner policy choice constrained by the envelope, not derived from the new 72-use ceiling. COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only

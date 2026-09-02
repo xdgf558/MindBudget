@@ -2960,3 +2960,38 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   partial quality evidence; printing provider error bodies or credentials; continuing 24-case
   retries after a terminal 4xx; weakening local length/cardinality/uniqueness validation; changing
   the dataset to make Luna pass; or converting an automated pass into independent approval.
+
+## DEC-COM-099 — Close the independently reviewed Luna Eval delivery without closing G1
+
+- Status/date: **Accepted closeout record — 2026-09-02; this closeout PR still requires exact-head
+  review, hosted CI, and merge**
+- Requirements: REQ-G1-001; `G1_LUNA_EVAL.md`; `G1_LUNA_EVAL_RESULT_2026-09-02.json`;
+  `G1_UNIT_ECONOMICS_PACKET.md`
+- Traceability: Independent review read all 24 final Luna outputs and PR #100 exact head `323d8d7`,
+  found no P1/P2, and accepted the fixed synthetic Eval. GitHub Actions run `33593253561` passed on
+  that head, and PR #100 merged it as `7a473d2`. The result artifact advances to schema version 2
+  with an exact review object; it does not self-approve this separate closeout delta.
+- Decision: Close only the account/Eval evidence delivery as
+  `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`. Keep `productionAdmitted: false`, keep G1 In
+  Progress, and keep COM-C7 blocked pending StoreKit US$4.99 Product-ID/price-point evidence, the
+  remaining implementation/legal gates, and the owner's explicit `PROCEED_TO_R2`.
+- Economics clarification: Ten starter credits are an owner-selected commercial policy constrained
+  by the reviewed envelope, not a value derived from the current 72-use maximum. The current model
+  deliberately reduces conservatism versus PR #98: removing the US$2 local-Pro reserve, separate
+  50% cloud holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.018986
+  and maximum fulfillment cost from US$0.372250 to US$1.372250. This is a policy/model
+  discontinuity, not measured improvement.
+- P3 obligations: Before any future live Eval or implementation/release claim, either harden and
+  re-review the scorer or explicitly bound these limitations: number words are outside the current
+  Arabic-digit detector; failed attempts with zero latency/tokens would bias percentiles; missing
+  provider usage fields default to zero; and the retry loop does not consume
+  `MAX_RETRIES_PER_CASE`. The old prompt hash remains valid only in historical DEC-COM-096 records
+  and is forbidden in current-state G1 surfaces.
+- Consequences: The two failed transcripts remain non-passes; the passing transcript and its
+  metrics remain unchanged; the dedicated credential stays local; and no backend, Product ID,
+  ledger, app route, customer request, App Store Connect mutation, production admission,
+  distribution, or release follows.
+- Alternatives rejected: Treating ten credits as mathematically derived from 72; hiding the
+  economics discontinuity; silently calling author inspection independent review; erasing the two
+  failed attempts; treating nonblocking scorer gaps as already fixed; closing G1 from a synthetic
+  Eval; entering COM-C7; or changing production admission during documentation closeout.

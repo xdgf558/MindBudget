@@ -7150,3 +7150,32 @@ selected coverage threshold, and all 23 C6-02 runtime bindings. The UI summary c
 executions, so no test-runner retry occurred. The xcresult was deleted after validation; its path
 is retained in the commercialization baseline only as an execution pointer. Hosted CI and merge
 remain open.
+
+## 2026-09-02 — Close the independently reviewed Luna Eval delivery
+
+Independent review read all 24 final outputs and exact PR #100 head `323d8d7`, found no P1/P2,
+and accepted the automated result. GitHub Actions run `33593253561` succeeded on that exact head,
+and PR #100 merged it as `7a473d2`. DEC-COM-099 records the exact chain and advances only to
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
+
+The closeout clarifies that ten starter credits are owner policy constrained by the envelope rather
+than derived from the current 72-use ceiling. It also makes the deliberate conservatism change from
+PR #98 visible: peak cost US$0.033098 to US$0.018986 and fulfillment budget US$0.372250 to
+US$1.372250 after removing the local-Pro reserve, separate cloud holdback, and backup provider.
+Four nonblocking P3 areas remain for later hardening or explicit re-review: number-word detection,
+failed-attempt percentile treatment, fail-closed usage fields, and use of the retry constant plus
+current-state prompt-hash hygiene.
+
+Static money, egress, commercialization-document, and StoreKit catalog gates passed. A first full-
+validator attempt in the restricted execution sandbox stopped before Xcode testing because
+CoreSimulatorService was unavailable and remains a local environment non-pass. The unrestricted
+Xcode 27.0 beta 6 (`27A5252f`) run on the iOS 26.5 iPhone 17 Pro simulator passed Release, the
+strict Dashboard benchmark, 553 unit tests across 32 suites with four expected physical CloudKit
+skips, 18 UI tests with 17 passed and one expected physical-only skip, all selected coverage
+thresholds, and all 23 C6-02 runtime bindings. The UI summary contains exactly 18 executions, so no
+test-runner retry occurred. The deleted xcresult path is retained only as an execution pointer in
+the commercialization baseline.
+
+G1 remains In Progress; StoreKit Product-ID/price-point evidence and owner `PROCEED_TO_R2` remain
+open. `productionAdmitted` stays false and COM-C7 stays blocked. This documentation closeout itself
+still requires exact-head independent review, hosted CI, and merge.

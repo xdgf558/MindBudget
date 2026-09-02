@@ -6,7 +6,10 @@ first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVID
 now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
 accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
 synthetic account and attempt 3's 24/24 first-pass automated result after two explicit non-passes.
-The current formal state is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`, not
+PR #100 independent review read all 24 outputs with no P1/P2; reviewed head `323d8d7` passed hosted
+run `33593253561` and merged as `7a473d2`. DEC-COM-099 closes only that independently reviewed
+account/Eval evidence delivery. The current formal state is
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not
 `PROCEED_TO_R2`.
 
 ## Accepted owner policy
@@ -153,6 +156,12 @@ At 1,000 successful uses/month:
 | Backend + incident allocation | US$0.010010 | US$0.010010 |
 | **All-in successful use** | **US$0.011330** | **US$0.018986** |
 
+These values are intentionally discontinuous with PR #98's first planning package. The later
+owner policy removed a US$2 local-Pro reserve from the cloud budget, removed a separate 50% cloud
+safety holdback, and selected Luna without a billed backup provider. That changed peak all-in cost
+from US$0.033098 to US$0.018986 and maximum fulfillment cost at the 50% margin floor from
+US$0.372250 to US$1.372250. This is a policy/model change, not improved measured performance.
+
 | Successful uses/month | Typical all-in/use | Peak all-in/use |
 |---:|---:|---:|
 | 100 | US$0.101330 | US$0.108986 |
@@ -189,10 +198,11 @@ This mathematical maximum is not a recommended grant and must never be advertise
 | **10 starter uses** | **US$0.113300** | **US$0.189860** | **93.08%** | Pass |
 | 15 | US$0.169950 | US$0.284790 | 89.62% | Pass |
 
-**Decision: a verified US$4.99 Pro purchase grants 10 Luna credits exactly once.** This is a
-commercial allocation, not a claim that a live Luna distribution was measured. The 93.08% peak
-planning margin leaves a wide buffer against the 50% floor; any later measured envelope that
-invalidates the floor trips the server breaker before new grants or sales.
+**Decision: a verified US$4.99 Pro purchase grants 10 Luna credits exactly once.** Ten is an
+explicit owner policy selection constrained by the reviewed envelope; it is not mathematically
+derived from the current 72-use peak ceiling and is not presented as an economic optimum. The
+93.08% peak planning margin leaves a wide buffer against the 50% floor; any later measured envelope
+that invalidates the floor trips the server breaker before new grants or sales.
 
 ## Consumable usage-card analysis
 
@@ -260,12 +270,6 @@ margin breaker before a consumable exists.
 
 The following remains mandatory before `PROCEED_TO_R2`:
 
-- a versioned fixed Simplified-Chinese/English Eval comparing deterministic template, supported
-  on-device output, and OpenAI Luna for the accepted structured tasks;
-- measured structured-output validity, quality/safety/numeric failures, input/output token P50/P95,
-  latency P50/P95, bounded same-provider retry rate, and dataset/rubric hashes;
-- account-level OpenAI proof for Global processing, configured retention/no voluntary training,
-  rate tier, bounded billing, model allow-list, and an isolated synthetic-Eval credential;
 - implementation and independent review of the hard 1,000-success/50% server breaker before any
   starter grant or usage-card sale;
 - StoreKit configuration evidence for the US$4.99 price point and later post-launch recalibration
@@ -277,10 +281,11 @@ The fixed Eval protocol is recorded in `G1_LUNA_EVAL.md`; its dataset and prompt
 `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014` and
 `c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`. DEC-COM-098 records
 confirmed synthetic-only account admission and attempt 3's 24/24 first-pass automated result;
-attempts 1 and 2 remain explicit non-passes.
+attempts 1 and 2 remain explicit non-passes. Independent review accepted the account/Eval evidence
+on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and merge `7a473d2` delivered it.
 
-The current formal state is **`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`**. The
-provider/model and exact offer counts are owner-selected and the fixed synthetic run has automated
-evidence, but no backend, Product ID, ledger, UI, App Store Connect product, cloud grant, COM-C7
-entry, production request, or public release is authorized here. Only a later independently
-reviewed and owner-accepted `PROCEED_TO_R2` may enter COM-C7.
+The current formal state is **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
+exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no
+backend, Product ID, ledger, UI, App Store Connect product, cloud grant, COM-C7 entry, production
+request, or public release is authorized here. Only a later owner-accepted `PROCEED_TO_R2` after
+the remaining evidence may enter COM-C7.

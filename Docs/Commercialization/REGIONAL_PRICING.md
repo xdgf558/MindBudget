@@ -2,8 +2,8 @@
 
 ## Status
 
-**Owner policy, exact cloud-credit counts/consumable card tiers, and the synthetic Luna automated
-Eval are accepted; independent review and StoreKit Product IDs/price points remain pending.**
+**Owner policy, exact cloud-credit counts/consumable card tiers, and the independently reviewed
+synthetic Luna Eval are accepted; StoreKit Product IDs/price points remain pending.**
 
 DEC-COM-092 opened the one-time-offer hypothesis. DEC-COM-093 recorded the first quote-backed
 planning package and its historical `INSUFFICIENT_QUOTE_EVIDENCE` result. Independent review found
@@ -11,8 +11,9 @@ no P1/P2 on exact PR #98 head `9226985`; run `33570570896` passed and PR #98 mer
 DEC-COM-094 closed only that evidence package. DEC-COM-095 records the commercial and
 usage-accounting policy; DEC-COM-096 accepts 10 starter credits and the three card tiers.
 DEC-COM-098 records a 24/24 first-pass automated Luna Eval result after preserving two non-pass
-attempts. The current result is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`, not completed
-G1 or COM-C7 entry.
+attempts. Independent review found no P1/P2 on PR #100 head `323d8d7`; run `33593253561` passed and
+merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. The current result is
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not completed G1 or COM-C7 entry.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction
