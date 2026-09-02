@@ -7005,3 +7005,30 @@ iPhone 17 Pro simulator passed Release, the strict Dashboard benchmark, 553 unit
 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one
 expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings.
 The validator deleted its temporary xcresult, so the printed path is only an execution pointer.
+
+## 2026-09-02 — Close the reviewed first G1 quote/planning evidence package
+
+Independent review found no P1/P2 on exact PR #98 head `9226985`, manually reproduced the integer
+micro-USD arithmetic and conservative rounding, and approved merge after hosted CI. GitHub Actions
+run `33570570896` completed successfully on that exact head, and PR #98 merged to `main` as
+`6e2d242`.
+
+Recorded DEC-COM-094 and synchronized the G1 packet, phase/task state, requirements, project
+memories, decisions, CI evidence, and commercialization gate. This closes only the first quote-
+backed planning evidence package. G1 remains In Progress with `INSUFFICIENT_QUOTE_EVIDENCE`; the
+fixed bilingual Eval, account-level provider evidence, exact App Store proceeds, final-decision
+review, and owner outcome remain open. The review's low-volume breaker, explicit-self-test, and
+30-day re-quote observations are named future obligations rather than silently closed P3 items.
+
+Local closeout validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
+across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17 passed
+and one expected physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime
+bindings. The UI summary contains exactly 18 executions, so no test-runner retry occurred. The
+validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.aBMHd9/MindBudget.xcresult`;
+that path is an execution pointer, not a durable artifact.
+
+No Swift/product behavior, provider credential, remote request, backend, Product ID, credit ledger,
+App Store Connect state, or COM-C7 phase changed. This documentation closeout still requires its
+own independent review, green hosted CI, and merge.

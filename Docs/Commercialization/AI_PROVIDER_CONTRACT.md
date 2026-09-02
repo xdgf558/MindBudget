@@ -7,8 +7,11 @@ No cloud provider or model is selected, configured, called, or promised. After t
 Haiku, and Google Gemini plus a Cloudflare backend envelope. OpenAI Luna and Anthropic Haiku are
 provisional primary/backup **cost candidates only**. Their quality, account-level processing
 region, ZDR/retention setting, subprocessors, and usable service levels remain `UNVERIFIED` until
-the fixed Eval and contract admission complete. Cloud Coach is forbidden before G1 authorizes
-COM-C7 and the later entitlement, consent, quota, redaction, backend, and release gates pass.
+the fixed Eval and contract admission complete. Independent review found no P1/P2 on exact PR #98
+head `9226985`; run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes only
+that first package with `INSUFFICIENT_QUOTE_EVIDENCE`, not provider admission. Cloud Coach is
+forbidden before G1 authorizes COM-C7 and the later entitlement, consent, quota, redaction,
+backend, and release gates pass.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If an acceptable cloud option is never proven, the app remains correct without one.

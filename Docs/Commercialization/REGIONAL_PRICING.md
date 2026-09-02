@@ -5,9 +5,11 @@
 **Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**
 DEC-COM-092 reopened a one-time-offer hypothesis for G1 analysis on 2026-09-01. The owner entered
 G1 on 2026-09-02; DEC-COM-093 records quote-backed planning evidence and the interim result
-`INSUFFICIENT_QUOTE_EVIDENCE`. This is an evidence/owner-acceptance surface, not authorization to
-create formal App Store Connect products or invent regional conversions. Engineering must render
-StoreKit values and must not choose customer-facing regional prices.
+`INSUFFICIENT_QUOTE_EVIDENCE`. Independent review found no P1/P2 on exact PR #98 head `9226985`;
+run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes only that first evidence
+package. This remains an evidence/owner-acceptance surface, not authorization to create formal App
+Store Connect products or invent regional conversions. Engineering must render StoreKit values
+and must not choose customer-facing regional prices.
 
 The accepted nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and a 7-day free
 trial for StoreKit-eligible subscribers. The first test storefront set is HKG, USA, SGP, and TWN.
@@ -19,7 +21,7 @@ credits and separately purchased consumable usage cards. It is not an accepted p
 `G1_UNIT_ECONOMICS_PACKET.md` derives a provisional 10-use starter grant and 10/25/65-use card
 ladder from dated real quotes and deterministic typical/P50 plus peak/P95 planning envelopes. The
 envelopes are not measured distributions and remain unaccepted pending the provider Eval, account
-privacy/region proof, exact App Store proceeds, independent review, and an owner decision.
+privacy/region proof, exact App Store proceeds, final-decision review, and an owner decision.
 
 Accepted technical products:
 

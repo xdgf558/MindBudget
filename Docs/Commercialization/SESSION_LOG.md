@@ -4059,3 +4059,28 @@ Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in C
 skips, all 18 UI tests with 17 passed and one expected physical-only skip, selected coverage, and
 all 23 C6-02 runtime bindings. The validator removed its temporary xcresult. Exact-head independent
 review, hosted CI, and merge remain required.
+
+## 2026-09-02 — Session 208 — Close reviewed PR #98 quote evidence without passing G1
+
+Goal: Record the exact PR #98 review/CI/merge chain while preserving the difference between a
+reviewed planning envelope and an accepted G1 provider/offer decision.
+
+Actions: Verified that merge commit `6e2d242` has exact reviewed head `9226985` as its second
+parent and that GitHub Actions run `33570570896` passed on that head. Added DEC-COM-094 and aligned
+the G1 packet, task/status surfaces, requirements, project memories, main/commercial decision and
+session logs, CI baseline, and commercialization-document gate. Carried the review's low-volume
+breaker, optimization-removable `assert`, and 30-day URL-only quote observations forward.
+
+Validation: Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator passed Release,
+the strict Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit
+physical skips, all 18 UI tests with 17 passed and one expected physical-only skip, every selected
+coverage threshold, and all 23 C6-02 runtime bindings. The 18-execution UI summary proves no
+test-runner retry occurred. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.aBMHd9/MindBudget.xcresult`;
+this is an execution pointer, not a durable artifact.
+
+Result: The first quote/planning package is reviewed and merged, but its formal result remains
+`INSUFFICIENT_QUOTE_EVIDENCE`. G1 remains In Progress and COM-C7 remains blocked. No provider,
+price, starter count, card, credential, backend, Product ID, ledger, UI, App Store Connect, remote,
+distribution, or release action occurred. This closeout still requires independent review, green
+hosted CI, and merge on its own exact head.

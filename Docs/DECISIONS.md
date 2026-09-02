@@ -3532,3 +3532,20 @@ owner acceptance are still missing.
 
 Consequences: G1 is In Progress, not passed. No provider credential, backend, product, price,
 credit ledger, customer-facing change, App Store Connect mutation, or COM-C7 entry is authorized.
+
+---
+
+## 2026-09-02 — Close the reviewed first G1 quote package without passing G1
+
+Context: Independent review found no P1/P2 on exact PR #98 head `9226985`, manually reproduced
+the integer arithmetic and conservative rounding, and approved merge after hosted CI. GitHub
+Actions run `33570570896` passed, and PR #98 merged as `6e2d242`.
+
+Decision: Detailed ownership is DEC-COM-094. Close only the first quote/planning evidence package
+and preserve `INSUFFICIENT_QUOTE_EVIDENCE`. Carry its low-volume breaker, explicit-self-test, and
+30-day re-quote P3 observations forward as named implementation/evidence obligations.
+
+Consequences: G1 remains In Progress. No provider, price, starter count, usage card, credential,
+backend, Product ID, ledger, App Store Connect mutation, customer-facing change, or COM-C7 entry is
+accepted. A separate owner authorization is still required before configuring candidate provider
+credentials or running the bounded non-production Eval.

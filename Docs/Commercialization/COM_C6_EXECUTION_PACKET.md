@@ -227,7 +227,9 @@ prerequisite with `G1_UNIT_ECONOMICS_PACKET.md`. The owner later entered G1 on 2
 DEC-COM-093 captures dated quotes and a reproducible typical/P50 plus peak/P95 planning envelope
 for the US$4.99 hypothesis and finite consumable usage cards, but its
 `INSUFFICIENT_QUOTE_EVIDENCE` interim outcome leaves the provider Eval, exact App Store proceeds,
-review, and owner decision open. No product, price, count, provider, or backend is accepted by that
-planning evidence.
+final-decision review, and owner decision open. Independent review found no P1/P2 on exact PR #98
+head `9226985`; hosted run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes
+only that first planning evidence package. No product, price, count, provider, or backend is
+accepted by it.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

@@ -2583,3 +2583,27 @@ The closeout still needs independent review, a green hosted run on its exact hea
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.AOYlWw/MindBudget.xcresult`;
   this is an execution pointer, not a durable artifact. Independent review, exact-head hosted CI,
   and merge remain required.
+
+### G1 first quote/planning package reviewed merge — 2026-09-02
+
+- Independent review found no P1/P2 on exact PR #98 head `9226985`, manually reproduced its
+  arithmetic and conservative rounding, and approved merge after hosted CI.
+- GitHub Actions run `33570570896` passed on that exact head. PR #98 merged to `main` as
+  `6e2d242`; its second parent is `9226985`.
+- DEC-COM-094 closes only the first quote-backed planning evidence package and preserves
+  `INSUFFICIENT_QUOTE_EVIDENCE`. It carries the review's low-volume breaker, explicit-self-test,
+  and 30-day re-quote observations forward as named obligations.
+- G1 remains In Progress. No provider Eval, account-level privacy/region/rate evidence, exact App
+  Store proceeds, final owner decision, credential, backend, product, ledger, App Store Connect
+  mutation, G1 pass, or COM-C7 entry is claimed.
+- Local closeout validation used Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+  simulator. `Scripts/validate.sh` passed Release, the strict Dashboard benchmark, 553 unit tests
+  across 32 suites with four expected opt-in CloudKit physical skips, all 18 UI tests with 17
+  passed and one expected physical-only skip, every selected coverage threshold, and all 23 C6-02
+  runtime bindings. The 18-execution UI summary proves no test-runner retry occurred.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.aBMHd9/MindBudget.xcresult`;
+  this path is an execution pointer, not a durable artifact.
+- This documentation-only closeout still requires its own independent review, green hosted CI on
+  its exact head, and merge. No later phase or external action is authorized by the recorded PR #98
+  merge.

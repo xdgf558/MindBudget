@@ -2761,3 +2761,32 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   optimistic retry/failure rates; advertising unlimited AI; granting more than the derived peak
   maximum; treating consumables as ordinarily restorable; creating products or a ledger from
   provisional arithmetic; or entering COM-C7 from published quotes alone.
+
+## DEC-COM-094 — Close the reviewed first G1 evidence package without passing G1
+
+- Status/date: **Accepted as a reviewed evidence closeout — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`
+- Context: Independent review read exact PR #98 head `9226985`, manually reproduced the integer
+  arithmetic and conservative rounding, found no P1/P2, and approved merge after hosted CI. The
+  review kept four P3 observations: low-volume cards depend on the provisional breaker; Python
+  `assert` is optimization-removable; supplier pages have URLs and retrieval dates but no repository
+  snapshots; and the PR was opened ready-for-review rather than Draft. GitHub Actions run
+  `33570570896` passed on that exact head, and PR #98 merged to `main` as `6e2d242`.
+- Decision: Close only the first quote-backed planning evidence package. Keep G1 In Progress and
+  preserve `INSUFFICIENT_QUOTE_EVIDENCE`. Before any product or card can exist, make the trailing-
+  volume/cost breaker a server-enforced acceptance gate rather than a document promise. Replace
+  optimization-removable `assert` checks with explicit failures before the worksheet becomes
+  implementation or release evidence, and re-quote every URL-only supplier rate within the packet's
+  30-day window. Record the non-Draft state as a process observation only; independent review and
+  green exact-head CI still occurred before merge.
+- Consequences: The provisional US$4.99 price, 10 starter uses, 10/25/65-use cards, provider cost
+  candidates, circuit breaker, and ledger rules remain unaccepted. The bounded bilingual Eval,
+  account region/ZDR/retention/rate/billing proof, exact App Store proceeds, final-decision review,
+  and owner outcome remain open. Configuring credentials, calling a provider, deploying a backend,
+  creating Product IDs/ledger, changing UI, or entering COM-C7 still requires later authority.
+- Alternatives rejected: Marking G1 Done because quote arithmetic passed review; treating hosted
+  product CI as provider Eval evidence; letting a low-volume negative-contribution card ship behind
+  copy-only protection; treating Python `assert` as release-strength evidence; treating dated URLs
+  as immutable quote snapshots; accepting the provisional offer from PR #98; or entering COM-C7
+  without an owner-accepted `PROCEED_TO_R2`.

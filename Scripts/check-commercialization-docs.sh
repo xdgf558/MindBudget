@@ -2607,11 +2607,52 @@ for g1_decision_file in \
     echo "Entered-G1 interim decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-094' "${g1_decision_file}" || {
+    echo "Reviewed G1 quote-package closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
-grep -Fq "Status: **In Progress after the owner's explicit 2026-09-02 entry." \
+for g1_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_closeout_anchor in \
+    'DEC-COM-094' \
+    '9226985' \
+    '33570570896' \
+    '6e2d242' \
+    'INSUFFICIENT_QUOTE_EVIDENCE'; do
+    grep -Fq "${g1_closeout_anchor}" "${g1_closeout_file}" || {
+      echo "G1 reviewed-package closeout is missing ${g1_closeout_anchor} in ${g1_closeout_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_review_followup_file in \
+  Docs/Commercialization/DECISIONS.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_review_followup_anchor in \
+    'server-enforced acceptance gate' \
+    'optimization-removable' \
+    '30-day'; do
+    grep -Fq "${g1_review_followup_anchor}" "${g1_review_followup_file}" || {
+      echo "G1 review follow-up is missing ${g1_review_followup_anchor} in ${g1_review_followup_file}" >&2
+      exit 1
+    }
+  done
+done
+
+grep -Fq "Status: **In Progress after independently reviewed PR #98 quote/planning evidence." \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 current phase status must remain explicitly In Progress after owner entry" >&2
+  echo "G1 current phase status must remain In Progress after the reviewed first evidence package" >&2
   exit 1
 }
 
