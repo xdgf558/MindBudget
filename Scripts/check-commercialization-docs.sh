@@ -753,8 +753,8 @@ grep -Fq 'Current app-owned HTTP(S) | Accepted empty set' \
   exit 1
 }
 
-grep -Fq '**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**' Docs/Commercialization/REGIONAL_PRICING.md || {
-  echo "Regional pricing must distinguish provisional test terms from formal pricing" >&2
+grep -Fq '**Owner policy, exact cloud-credit counts/consumable card tiers, and the synthetic Luna automated' Docs/Commercialization/REGIONAL_PRICING.md || {
+  echo "Regional pricing must distinguish accepted offer values from pending StoreKit/account work" >&2
   exit 1
 }
 
@@ -2564,8 +2564,31 @@ if grep -Eqi 'tester assignment (is )?(complete|completed)|external Beta App Rev
 fi
 
 G1_ECONOMICS_PACKET="Docs/Commercialization/G1_UNIT_ECONOMICS_PACKET.md"
+G1_LUNA_EVAL_PACKET="Docs/Commercialization/G1_LUNA_EVAL.md"
+G1_OPENAI_ACCOUNT_PACKET="Docs/Commercialization/G1_OPENAI_ACCOUNT_EVIDENCE.md"
+G1_OPENAI_ADMISSION="Docs/Commercialization/G1_OPENAI_ACCOUNT_ADMISSION.json"
+G1_LUNA_EVAL_RESULT="Docs/Commercialization/G1_LUNA_EVAL_RESULT_2026-09-02.json"
+G1_LUNA_EVAL_NONPASS1="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02.jsonl"
+G1_LUNA_EVAL_NONPASS2="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT2.jsonl"
+G1_LUNA_EVAL_PASS="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT3.jsonl"
 test -f "${G1_ECONOMICS_PACKET}" || {
   echo "Missing G1 quote/economics packet" >&2
+  exit 1
+}
+test -f "${G1_LUNA_EVAL_PACKET}" || {
+  echo "Missing frozen Luna Eval packet" >&2
+  exit 1
+}
+test -f "${G1_OPENAI_ACCOUNT_PACKET}" || {
+  echo "Missing OpenAI account-evidence packet" >&2
+  exit 1
+}
+test -f "${G1_OPENAI_ADMISSION}" || {
+  echo "Missing machine-readable OpenAI account admission" >&2
+  exit 1
+}
+test -f "${G1_LUNA_EVAL_RESULT}" || {
+  echo "Missing machine-readable Luna Eval result" >&2
   exit 1
 }
 
@@ -2580,11 +2603,16 @@ for g1_economics_file in \
   Docs/Commercialization/REGIONAL_PRICING.md \
   "${G1_ECONOMICS_PACKET}"; do
   for g1_economics_anchor in \
-    'DEC-COM-092' \
-    'DEC-COM-093' \
+    'DEC-COM-095' \
+    'DEC-COM-096' \
+    'DEC-COM-097' \
+    'DEC-COM-098' \
     'US$4.99' \
+    'gpt-5.6-luna' \
+    '50%' \
     'typical/P50' \
     'peak/P95' \
+    'EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE' \
     'consumable'; do
     grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
       echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
@@ -2592,6 +2620,121 @@ for g1_economics_file in \
     }
   done
 done
+
+python3 - "${G1_OPENAI_ADMISSION}" <<'PY'
+import json
+import sys
+
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+expected_evidence = {
+    "dedicatedProject",
+    "noDataSharing",
+    "apiCallLoggingDisabled",
+    "standardRetentionAcknowledged",
+    "globalRegion",
+    "lunaOnlyModelAllowlist",
+    "endpointCompatibility",
+    "rateTier",
+    "billingControls",
+    "credentialIsolation",
+}
+if value.get("schemaVersion") != 2 or set(value.get("evidence", {})) != expected_evidence:
+    raise SystemExit("G1 account admission schema drifted")
+if value.get("scope") != "synthetic_eval_only" or value.get("productionAdmitted") is not False:
+    raise SystemExit("G1 may admit only synthetic Eval and never production traffic")
+if value.get("retention") != {
+    "mode": "standard_up_to_30_days",
+    "store": False,
+    "background": False,
+    "promptCaching": "explicit_no_breakpoints",
+}:
+    raise SystemExit("G1 standard-retention contract drifted")
+if value.get("approvedBaseURL") != "https://api.openai.com/v1":
+    raise SystemExit("G1 Global project must use the exact standard API base URL")
+if any(type(item) is not bool for item in value["evidence"].values()):
+    raise SystemExit("G1 account evidence rows must be exact booleans")
+if value.get("evalAdmitted") is True and not all(value["evidence"].values()):
+    raise SystemExit("G1 Eval cannot be admitted with an incomplete evidence matrix")
+if value.get("evalAdmitted") is not True or not all(value["evidence"].values()):
+    raise SystemExit("G1 synthetic Eval admission must remain complete after the live run")
+PY
+
+python3 - "${G1_LUNA_EVAL_RESULT}" <<'PY'
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+
+result_path = pathlib.Path(sys.argv[1])
+value = json.loads(result_path.read_text(encoding="utf-8"))
+if value.get("result") != "AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW":
+    raise SystemExit("G1 Luna Eval result must remain pending independent review")
+if value.get("scope") != "synthetic_eval_only" or value.get("productionAdmitted") is not False:
+    raise SystemExit("G1 Luna Eval result cannot admit production")
+if value.get("datasetSHA256") != "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014":
+    raise SystemExit("G1 Luna Eval result dataset hash drifted")
+if value.get("promptSchemaSHA256") != "c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018":
+    raise SystemExit("G1 Luna Eval result prompt/schema hash drifted")
+if value.get("caseCount") != 24 or value.get("attemptCount") != 24:
+    raise SystemExit("G1 Luna Eval case/attempt count drifted")
+if value.get("finalPassCount") != 24 or value.get("firstPassCount") != 24:
+    raise SystemExit("G1 Luna Eval pass counts drifted")
+if value.get("retryCaseCount") != 0 or value.get("hardFailures") != []:
+    raise SystemExit("G1 Luna Eval retry/failure result drifted")
+if value.get("independentReview") != "PENDING":
+    raise SystemExit("G1 Luna Eval cannot self-approve independent review")
+
+artifacts = [value["passingTranscript"], *value["nonPassAttempts"]]
+for artifact in artifacts:
+    path = pathlib.Path(artifact["path"])
+    if not path.is_file():
+        raise SystemExit(f"missing G1 Luna Eval transcript: {path}")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != artifact["sha256"]:
+        raise SystemExit(f"G1 Luna Eval transcript hash drifted: {path}")
+
+score = json.loads(
+    subprocess.check_output(
+        [sys.executable, "Scripts/g1_luna_eval.py", "--score", value["passingTranscript"]["path"]],
+        text=True,
+    )
+)
+if score.get("deterministic_result") != "PASS":
+    raise SystemExit("G1 Luna Eval passing transcript no longer scores PASS")
+result_to_score = {
+    "model": "model",
+    "datasetSHA256": "dataset_sha256",
+    "promptSchemaSHA256": "prompt_sha256",
+    "caseCount": "case_count",
+    "attemptCount": "attempt_count",
+    "finalPassCount": "final_pass_count",
+    "firstPassCount": "first_pass_count",
+    "firstPassRateBasisPoints": "first_pass_rate_bps",
+    "retryCaseCount": "retry_case_count",
+    "retryRateBasisPoints": "retry_rate_bps",
+    "inputTokensP50": "input_tokens_p50",
+    "inputTokensP95": "input_tokens_p95",
+    "outputTokensP50": "output_tokens_p50",
+    "outputTokensP95": "output_tokens_p95",
+    "latencyMillisecondsP50": "latency_ms_p50",
+    "latencyMillisecondsP95": "latency_ms_p95",
+    "hardFailures": "hard_failures",
+}
+for result_key, score_key in result_to_score.items():
+    if value.get(result_key) != score.get(score_key):
+        raise SystemExit(f"G1 Luna Eval result does not match transcript score: {result_key}")
+PY
+
+python3 Scripts/g1_luna_eval.py --score "${G1_LUNA_EVAL_PASS}" >/dev/null
+if python3 Scripts/g1_luna_eval.py --score "${G1_LUNA_EVAL_NONPASS1}" >/dev/null 2>&1; then
+  echo "First Luna Eval non-pass transcript unexpectedly passed" >&2
+  exit 1
+fi
+if python3 Scripts/g1_luna_eval.py --score "${G1_LUNA_EVAL_NONPASS2}" >/dev/null 2>&1; then
+  echo "Second Luna Eval non-pass transcript unexpectedly passed" >&2
+  exit 1
+fi
 
 for g1_decision_file in \
   Docs/DECISIONS.md \
@@ -2609,6 +2752,22 @@ for g1_decision_file in \
   }
   grep -Fq 'DEC-COM-094' "${g1_decision_file}" || {
     echo "Reviewed G1 quote-package closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+  grep -Fq 'DEC-COM-095' "${g1_decision_file}" || {
+    echo "Accepted G1 product-policy decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+  grep -Fq 'DEC-COM-096' "${g1_decision_file}" || {
+    echo "Frozen Luna Eval/offer decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+  grep -Fq 'DEC-COM-097' "${g1_decision_file}" || {
+    echo "Synthetic-Eval standard-retention decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+  grep -Fq 'DEC-COM-098' "${g1_decision_file}" || {
+    echo "Luna Eval execution decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
 done
@@ -2636,31 +2795,69 @@ for g1_closeout_file in \
   done
 done
 
-for g1_review_followup_file in \
-  Docs/Commercialization/DECISIONS.md \
-  "${G1_ECONOMICS_PACKET}"; do
-  for g1_review_followup_anchor in \
-    'server-enforced acceptance gate' \
-    'optimization-removable' \
-    '30-day'; do
-    grep -Fq "${g1_review_followup_anchor}" "${g1_review_followup_file}" || {
-      echo "G1 review follow-up is missing ${g1_review_followup_anchor} in ${g1_review_followup_file}" >&2
-      exit 1
-    }
-  done
+for g1_review_followup_anchor in \
+  'server-enforced acceptance gate' \
+  'optimization-removable' \
+  '30-day'; do
+  grep -Fq "${g1_review_followup_anchor}" Docs/Commercialization/DECISIONS.md || {
+    echo "Historical G1 review follow-up is missing ${g1_review_followup_anchor}" >&2
+    exit 1
+  }
 done
 
-grep -Fq "Status: **In Progress after independently reviewed PR #98 quote/planning evidence." \
+for g1_current_followup_anchor in \
+  'server-enforced acceptance gate' \
+  'explicit-failure self-tests' \
+  '30 days'; do
+  grep -Fq "${g1_current_followup_anchor}" "${G1_ECONOMICS_PACKET}" || {
+    echo "Current G1 evidence rule is missing ${g1_current_followup_anchor}" >&2
+    exit 1
+  }
+done
+
+grep -Fq "Status: **In Progress after owner offer acceptance under DEC-COM-095/096." \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 current phase status must remain In Progress after the reviewed first evidence package" >&2
+  echo "G1 current phase status must remain In Progress after owner policy acceptance" >&2
   exit 1
 }
 
 python3 Scripts/g1_unit_economics.py --self-test >/dev/null
+python3 -O Scripts/g1_unit_economics.py --self-test >/dev/null
 python3 Scripts/g1_unit_economics.py --check-document "${G1_ECONOMICS_PACKET}" >/dev/null
+python3 Scripts/g1_luna_eval.py --self-test >/dev/null
+python3 -O Scripts/g1_luna_eval.py --self-test >/dev/null
+
+for g1_eval_anchor in \
+  'd509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014' \
+  'c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018' \
+  'LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW' \
+  '4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e' \
+  '24/24' \
+  'at least 95.00%' \
+  'at most 5.00%'; do
+  grep -Fq "${g1_eval_anchor}" "${G1_LUNA_EVAL_PACKET}" || {
+    echo "Frozen Luna Eval packet is missing ${g1_eval_anchor}" >&2
+    exit 1
+  }
+done
+
+for g1_account_anchor in \
+  'OPENAI_SYNTHETIC_EVAL_ACCOUNT_ADMITTED_PRODUCTION_BLOCKED' \
+  'synthetic_eval_only' \
+  'standard abuse-monitoring retention of up to 30 days' \
+  'productionAdmitted: false' \
+  'Usage/rate tier' \
+  'Billing controls' \
+  'Credential isolation'; do
+  grep -Fq "${g1_account_anchor}" "${G1_OPENAI_ACCOUNT_PACKET}" || {
+    echo "OpenAI account-evidence packet is missing ${g1_account_anchor}" >&2
+    exit 1
+  }
+done
 
 for g1_interim_anchor in \
   'INSUFFICIENT_QUOTE_EVIDENCE' \
+  'EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE' \
   '10 starter uses' \
   '10 uses / US$0.99' \
   '25 uses / US$1.99' \
@@ -2683,7 +2880,27 @@ if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer 
   exit 1
 fi
 
-if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|credits) (are|is) (accepted|approved|final)|usage-card (price|tier|count) (is|are) (accepted|approved|final)|G1 (is )?(passed|approved|Done)|COM-C7 (is )?(In Progress|entered|Done)' \
+for g1_policy_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_policy_anchor in \
+    'zero Luna credits' \
+    'one user-calendar year' \
+    'ultimately displayed' \
+    'ordinary test' \
+    'Apple App Review'; do
+    grep -Fiq "${g1_policy_anchor}" "${g1_policy_file}" || {
+      echo "G1 accepted policy is missing ${g1_policy_anchor} in ${g1_policy_file}" >&2
+      exit 1
+    }
+  done
+done
+
+if grep -Eqi 'G1 (is )?(passed|approved|Done)|COM-C7 (is )?(In Progress|entered|Done)|LIVE_LUNA_EVAL_PASSED|ZDR_VERIFIED|OPENAI_ACCOUNT_ADMITTED' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2693,7 +2910,21 @@ if grep -Eqi 'US\$4\.99 (is )?(accepted|final|approved)|starter (AI )?(uses|cred
     Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
     Docs/Commercialization/REGIONAL_PRICING.md \
     "${G1_ECONOMICS_PACKET}"; then
-  echo "G1 work overclaims an accepted offer, phase result, or downstream phase" >&2
+  echo "G1 work overclaims an account/Eval/phase result or downstream phase" >&2
+  exit 1
+fi
+
+if grep -Eqi 'ordinary (TestFlight|Sandbox|test) users? (can|may|are allowed to) (call|use|reach) Luna|credits? (never|do not) expire|provider failover (is|remains) enabled' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+    Docs/Commercialization/REGIONAL_PRICING.md \
+    "${G1_ECONOMICS_PACKET}"; then
+  echo "G1 current policy regressed on trial credits, test access, expiry, or provider failover" >&2
   exit 1
 fi
 

@@ -224,12 +224,21 @@ closed gate, reinterpret an owner-waived physical observation as a pass, claim G
 without dated real supplier evidence, or mark an Active Requirement complete from Archive/upload
 evidence alone. At C6 closeout DEC-COM-092 left G1 unentered while replacing the public-observation
 prerequisite with `G1_UNIT_ECONOMICS_PACKET.md`. The owner later entered G1 on 2026-09-02;
-DEC-COM-093 captures dated quotes and a reproducible typical/P50 plus peak/P95 planning envelope
-for the US$4.99 hypothesis and finite consumable usage cards, but its
-`INSUFFICIENT_QUOTE_EVIDENCE` interim outcome leaves the provider Eval, exact App Store proceeds,
-final-decision review, and owner decision open. Independent review found no P1/P2 on exact PR #98
-head `9226985`; hosted run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes
-only that first planning evidence package. No product, price, count, provider, or backend is
-accepted by it.
+DEC-COM-093 captures dated quotes and the first reproducible typical/P50 plus peak/P95 planning
+envelope. Independent review found no P1/P2 on exact PR #98 head `9226985`; hosted run
+`33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes only that first package and
+preserves its historical `INSUFFICIENT_QUOTE_EVIDENCE` result. DEC-COM-095 now accepts US$4.99
+one-time Pro, a user-started local-only 30-day trial with zero cloud credit, sole
+`gpt-5.6-luna`, starter/consumable-card lots valid for one user-calendar year,
+displayed-valid-result accounting,
+>=50% conservative margin, refund-without-local-deletion, ordinary-test-user denial with isolated
+capped Apple Review access, and a separately reviewable local-only release path. The 24-case Eval
+protocol and exact 10-credit starter plus three usage-card tiers are frozen under DEC-COM-096.
+DEC-COM-097 accepts standard retention only for the fixed synthetic Eval and records the observed
+Global/Luna-only/Tier 1/billing controls while keeping production admission false. DEC-COM-098
+records completed synthetic account admission and a 24/24 first-pass automated Eval result after
+two explicit non-pass attempts. Independent review, StoreKit price-point/Product-ID evidence,
+hosted CI/merge, and owner decision remain open under
+`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

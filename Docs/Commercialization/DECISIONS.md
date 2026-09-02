@@ -2790,3 +2790,173 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   copy-only protection; treating Python `assert` as release-strength evidence; treating dated URLs
   as immutable quote snapshots; accepting the provisional offer from PR #98; or entering COM-C7
   without an owner-accepted `PROCEED_TO_R2`.
+
+## DEC-COM-095 — Accept the one-time Pro and sole-Luna policy while keeping G1 open
+
+- Status/date: **Accepted by product owner — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-012; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`; `AI_PROVIDER_CONTRACT.md`
+- Context: The app has not publicly launched, so actual United States App Store proceeds and a
+  customer usage distribution do not exist. The owner resolved the commercial and credit-policy
+  questions that remained after the reviewed PR #98 quote package. Official OpenAI documentation
+  retrieved on 2026-09-02 identifies `gpt-5.6-luna`, structured-output support, and US$0.20/M input,
+  US$0.02/M cached input, and US$1.20/M output pricing. Account-specific no-training, Zero Data
+  Retention, region/subprocessor, rate-tier, and billing evidence is still missing and cannot be
+  inferred from the public model page.
+- Decision: Use a US$4.99 one-time Pro buyout. A 30-day trial begins only after the person taps
+  **Start Trial** and includes local Pro plus on-device AI, but zero Luna credits. A verified buyout
+  later grants one finite starter lot; subsequent cloud use requires separately purchased
+  consumable lots. Starter and purchased lots each expire one user-calendar year after grant.
+  Select OpenAI `gpt-5.6-luna` as the sole cloud model, with no backup provider or provider
+  failover. Reserve before a user-initiated analysis and commit exactly one credit only when a
+  valid structured Luna result is ultimately displayed; release on cancellation, invalid output,
+  policy/network/provider failure, or local fallback. Apply that same rule to every future
+  cloud-AI feature. If on-device AI is unavailable, return the deterministic local template. Every
+  accepted SKU must retain at least 50% contribution margin under conservative peak commission,
+  tax/FX, refund, same-model retry, backend, and safety assumptions. A server-enforced breaker
+  stops new sales/grants when the margin cannot be proven while honoring existing credits.
+- Decision, access/refund/release: Ordinary TestFlight, Sandbox, and other test users cannot call
+  Luna. Apple App Review may call real Luna only through an isolated, capped review environment.
+  Pro refund/revocation never deletes local financial data. A card refund removes unused credits
+  from its idempotent lot; if the lot was spent, record only a cloud-credit deficit that future
+  grants satisfy first—never a monetary debt or local-data effect. Because there are no public
+  legacy customers, the old Monthly/Annual/P1W catalog is later replaced rather than grandfathered.
+  If cloud readiness blocks release, the owner may separately authorize a local-only build with
+  Luna absent; that path does not satisfy G1 or enter COM-C7.
+- Consequences: Recalculate the worksheet around one Luna attempt typically and at most one
+  bounded same-model retry at peak. The 1,000-success planning values become US$0.011330 typical
+  and US$0.018986 peak per displayed successful use. The conservative US$4.99 net is US$2.744500,
+  and a 50% margin caps fulfillment cost at US$1.372250. Candidate 5/10/15 starter lots and
+  10/25/65 cards at US$0.99/US$1.99/US$4.99 pass that planning envelope at 1,000 successes, but
+  exact starter/card values and StoreKit price points remain unaccepted until the Luna Eval and
+  account evidence are reviewed. Actual US proceeds are a mandatory post-launch recalibration,
+  not a pre-launch G1 prerequisite. The current result is `EVAL_AND_ACCOUNT_EVIDENCE_PENDING`;
+  G1 remains In Progress and COM-C7 remains blocked.
+- Supersession: This decision supersedes DEC-COM-007's provider-neutral router, backup-provider,
+  and consent-bound failover direction for the current product. DEC-COM-007 remains historical
+  context for why consent must name the actual provider; current consent names only OpenAI/Luna.
+- Alternatives rejected: Granting Luna credits during the free trial; starting trial time on
+  install or first launch; charging for failed/cancelled/fallback output; silently using another
+  provider; treating on-device-model unavailability as cloud authorization; perpetual or fixed-
+  second credit expiry; deleting local data on refund; creating monetary debt from spent refunded
+  credits; allowing ordinary test accounts to consume cloud budget; denying Apple Review a bounded
+  functional path; grandfathering nonpublic test subscriptions; using pre-launch actual proceeds
+  as an impossible gate; shipping a SKU below 50% peak contribution margin; or making cloud
+  readiness a mandatory condition for a separately reviewed local-only release.
+
+## DEC-COM-096 — Freeze the Luna Eval and exact credit offer, but fail closed on account admission
+
+- Status/date: **Accepted by product owner — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  REQ-CLOUD-USAGE-001; REQ-STOREKIT-LIFECYCLE-001; SPEC-012; SPEC-014;
+  `G1_UNIT_ECONOMICS_PACKET.md`; `G1_LUNA_EVAL.md`; `G1_OPENAI_ACCOUNT_EVIDENCE.md`
+- Context: The owner instructed G1 to complete the fixed Luna Eval definition, account-level
+  privacy/region/rate evidence, and final credit counts/card tiers before opening a PR. Public
+  OpenAI documentation confirms the model identity, published price, structured-output support,
+  default no-training treatment, default abuse-monitoring retention, ZDR eligibility conditions,
+  public regional rules, and published rate-tier table. It does not prove this organization's
+  project region, ZDR approval/configuration, data-sharing state, subprocessors/terms, actual rate
+  tier, billing cap, or effective account price. No local API key, organization ID, or project ID
+  was available; browser security policy blocked direct settings access and was not bypassed.
+- Decision, Eval: Freeze 12 bilingual deterministic scenarios expanded to 24 exact cases. Pin
+  dataset SHA-256 `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014`
+  and prompt/schema SHA-256
+  `1d3e1d874ef054e8a41038cea99154a47c484c21658218d4c58809e19820d40b`.
+  Require 24/24 final schema/safety validity, >=95% first-pass validity, <=5% retry incidence,
+  <=8,000 input-token P95, <=1,500 output-token P95, and <=8,000 ms latency P95. The deterministic
+  scorer self-test is accepted as tooling evidence only. No live Luna run is permitted until the
+  dedicated OpenAI account matrix passes independent review.
+- Decision, offer: Accept exactly 10 starter Luna credits after the verified US$4.99 Pro buyout.
+  Accept three first usage-card tiers: 10 uses / US$0.99, 25 uses / US$1.99, and 65 uses /
+  US$4.99. At the 1,000-success planning floor their conservative peak contribution margins are
+  65.13%, 56.63%, and 55.03%; the starter allocation leaves 93.08%. These are commercial choices,
+  not created StoreKit products. A future server must disable new card sales and new starter
+  grants below 1,000 trailing-30-day successful cloud analyses or whenever recomputed peak margin
+  is below 50%, while honoring existing unexpired credits.
+- Consequences: Record `OPENAI_ACCOUNT_NOT_ADMITTED` and
+  `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`; the current G1 result is
+  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, not `PROCEED_TO_R2`. The owner must provide dated,
+  non-secret account evidence and a dedicated local-process credential before a live Eval can run.
+  Dataset/prompt/model/region changes invalidate the frozen hashes and require a new run. No
+  credential, provider request, backend, Product ID, ledger, UI, App Store Connect mutation,
+  COM-C7 entry, or cloud promise follows. Local Pro, local AI, and the deterministic template stay
+  complete and independent.
+- Alternatives rejected: Treating public policy as account proof; running a paid Eval through an
+  unknown region/retention state; pasting a secret into Git or chat; calling template fixtures a
+  model-quality pass; accepting a live result without a blind 24-case review; granting fewer tiers
+  only to hide low-volume cost; selling cards before the hard volume/margin breaker; counting
+  failed/fallback results; or entering COM-C7 from an offer decision while account and live-Eval
+  gates remain open.
+
+## DEC-COM-097 — Admit standard controls for synthetic Luna Eval, not production traffic
+
+- Status/date: **Accepted by product owner — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  `G1_OPENAI_ACCOUNT_EVIDENCE.md`; `G1_OPENAI_ACCOUNT_ADMISSION.json`; `G1_LUNA_EVAL.md`
+- Context: The owner configured a dedicated Global OpenAI project with a Luna-only model allow-
+  list, Tier 1 limits, a US$5 project soft spend limit/alert, Pay-as-you-go credit, and auto-reload
+  off. Official OpenAI documentation says API data is not used for training unless sharing is
+  enabled, while standard abuse-monitoring logs may retain customer content for up to 30 days.
+  ZDR requires prior approval and is not enabled for this account. The fixed Eval contains only
+  repository-authored synthetic cases and no customer, ledger, receipt, merchant, note, identifier,
+  or arbitrary free-text data.
+- Decision: ZDR is no longer a prerequisite for the fixed synthetic Eval. Accept the accurately
+  disclosed standard up-to-30-day abuse-monitoring boundary for that Eval only. Require
+  `store=false`, `background=false`, explicit prompt-cache mode without cache breakpoints, the
+  exact Global base URL, disabled voluntary sharing, disabled API call logging, the Luna-only
+  project, and a dedicated service-account credential stored in macOS Keychain outside
+  Git/chat/screenshots/environment variables. Machine admission uses
+  schema version 2 with `scope: synthetic_eval_only` and permanently keeps
+  `productionAdmitted: false` during G1.
+- Production consequence: This decision does not authorize customer traffic. Later COM phases
+  must independently review first-send consent naming OpenAI/Luna, Global processing, exact
+  outbound fields/purpose, and the configured up-to-30-day boundary; processor/subprocessor terms,
+  server credential isolation, deletion/policy-change handling, final-binary egress, App Privacy,
+  and Apple Review isolation remain release gates. ZDR remains an optional future enhancement and
+  must never be promised unless actually enabled.
+- Current consequence: Account observations may be recorded individually, but the live runner
+  remains fail closed until the owner confirms Saved sharing/logging settings and creates the
+  isolated service-account credential. `OPENAI_ACCOUNT_NOT_ADMITTED`,
+  `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
+  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED` remain the current results. G1 remains In Progress and
+  COM-C7 remains blocked.
+- Supersession: This decision supersedes only DEC-COM-096's ZDR-as-Eval-prerequisite and mandatory
+  pre-run independent-review wording. DEC-COM-096's frozen dataset/prompt/model/thresholds, exact
+  offer, credential secrecy, blind post-run review, and no-production-activation boundaries remain.
+- Alternatives rejected: Calling `store=false` zero retention; claiming ZDR from a missing control;
+  sending real user data in the Eval; enabling data sharing to obtain promotional free tokens;
+  using an organization/admin key; treating soft spend alerts as hard caps; admitting production
+  from synthetic quality evidence; or blocking a synthetic Eval on a sales-only ZDR approval.
+
+## DEC-COM-098 — Accept the wire-schema compatibility repair and record the fixed Luna automated pass
+
+- Status/date: **Accepted execution record — 2026-09-02; independent PR review pending**
+- Requirements: REQ-G1-001; `G1_LUNA_EVAL.md`; `G1_LUNA_EVAL_RESULT_2026-09-02.json`;
+  `G1_OPENAI_ACCOUNT_ADMISSION.json`; `Scripts/g1_luna_eval.py`
+- Context: After the owner confirmed disabled voluntary sharing/API-call logging and stored the
+  dedicated service-account secret in macOS Keychain, the first live run produced 48 zero-token
+  `HTTPError` records because the runner did not preserve a safe HTTP status/code and retried every
+  case. Diagnostic hardening made terminal 4xx responses stop after one request and retain only a
+  sanitized status/code/parameter. The second attempt then identified
+  `HTTP_400:invalid_json_schema:text.format.schema`.
+- Decision: Treat both runs as explicit non-passes. Align the wire schema with OpenAI's documented
+  strict Structured Outputs subset by removing `minLength`, `maxLength`, and `uniqueItems` only.
+  Preserve the same restrictions in local `validate_output`, including non-empty/maximum text,
+  array cardinality, and uniqueness. The compatible prompt/schema hash is
+  `c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`; dataset hash remains
+  `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014`.
+- Result: Attempt 3 passed 24/24 on the first request with no retries or hard failures. Input tokens
+  were P50 296/P95 301, output tokens P50 128/P95 203, and end-to-end latency P50 3,614/P95 5,389
+  milliseconds. Passing transcript SHA-256 is
+  `4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e`. The implementation author
+  read all 24 final outputs with no additional finding; that is not independent review.
+- Consequences: Current Eval result is
+  `LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW`. The account is admitted only for
+  `synthetic_eval_only`; `productionAdmitted` remains false. G1 stays In Progress pending independent
+  review, StoreKit price-point/Product-ID evidence, hosted CI/merge, and the owner's final
+  `PROCEED_TO_R2`. COM-C7, product/backend work, customer requests, and release remain blocked.
+- Alternatives rejected: Discarding the failed transcripts; presenting the first or second run as
+  partial quality evidence; printing provider error bodies or credentials; continuing 24-case
+  retries after a terminal 4xx; weakening local length/cardinality/uniqueness validation; changing
+  the dataset to make Luna pass; or converting an automated pass into independent approval.

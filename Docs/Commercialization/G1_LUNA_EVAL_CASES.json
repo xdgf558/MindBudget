@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "id": "budget-positive",
+      "task": "budget_summary",
+      "question": {"en": "How is my current budget?", "zh": "我目前的预算怎么样？"},
+      "facts": [
+        {"id": "remaining_budget", "en": "Remaining budget: US$420.00", "zh": "剩余预算：US$420.00", "numbers": ["420.00"]},
+        {"id": "cycle_days_left", "en": "Days left in this cycle: 8", "zh": "本周期剩余天数：8", "numbers": ["8"]}
+      ],
+      "requiredFactIDs": ["remaining_budget", "cycle_days_left"],
+      "allowedActionIDs": ["review_recent_spending", "adjust_budget"],
+      "template": {
+        "en": {"headline": "Your current budget still has room", "explanation": "You have US$420.00 left for the remaining 8 days. Review recent spending if you want a calmer plan.", "fact_ids": ["remaining_budget", "cycle_days_left"], "action_ids": ["review_recent_spending"]},
+        "zh": {"headline": "当前预算还有空间", "explanation": "本周期还剩 8 天，可用预算为 US$420.00。如需更从容地安排，可以回看近期消费。", "fact_ids": ["remaining_budget", "cycle_days_left"], "action_ids": ["review_recent_spending"]}
+      }
+    },
+    {
+      "id": "budget-tight",
+      "task": "budget_summary",
+      "question": {"en": "Is my budget getting tight?", "zh": "我的预算是不是有点紧？"},
+      "facts": [
+        {"id": "remaining_budget", "en": "Remaining budget: US$36.50", "zh": "剩余预算：US$36.50", "numbers": ["36.50"]},
+        {"id": "cycle_days_left", "en": "Days left in this cycle: 9", "zh": "本周期剩余天数：9", "numbers": ["9"]}
+      ],
+      "requiredFactIDs": ["remaining_budget", "cycle_days_left"],
+      "allowedActionIDs": ["review_recent_spending", "adjust_budget"],
+      "template": {
+        "en": {"headline": "Your remaining budget is limited", "explanation": "US$36.50 remains for 9 days. You can review recent spending or adjust the plan without judging past choices.", "fact_ids": ["remaining_budget", "cycle_days_left"], "action_ids": ["review_recent_spending", "adjust_budget"]},
+        "zh": {"headline": "剩余预算比较有限", "explanation": "本周期还剩 9 天，可用预算为 US$36.50。你可以回看近期消费或调整计划，不需要责怪之前的选择。", "fact_ids": ["remaining_budget", "cycle_days_left"], "action_ids": ["review_recent_spending", "adjust_budget"]}
+      }
+    },
+    {
+      "id": "budget-over",
+      "task": "budget_summary",
+      "question": {"en": "What should I know about this cycle?", "zh": "这个周期我需要注意什么？"},
+      "facts": [
+        {"id": "overspend_amount", "en": "Amount over plan: US$72.00", "zh": "超出计划：US$72.00", "numbers": ["72.00"]},
+        {"id": "cycle_days_left", "en": "Days left in this cycle: 4", "zh": "本周期剩余天数：4", "numbers": ["4"]}
+      ],
+      "requiredFactIDs": ["overspend_amount", "cycle_days_left"],
+      "allowedActionIDs": ["review_recent_spending", "adjust_budget"],
+      "template": {
+        "en": {"headline": "This cycle is over the current plan", "explanation": "Spending is US$72.00 above the plan with 4 days left. Review the entries, then adjust only if the plan no longer fits.", "fact_ids": ["overspend_amount", "cycle_days_left"], "action_ids": ["review_recent_spending", "adjust_budget"]},
+        "zh": {"headline": "本周期已超出当前计划", "explanation": "本周期还剩 4 天，目前超出计划 US$72.00。可以先核对记录，再判断是否需要调整计划。", "fact_ids": ["overspend_amount", "cycle_days_left"], "action_ids": ["review_recent_spending", "adjust_budget"]}
+      }
+    },
+    {
+      "id": "category-shift",
+      "task": "pattern_summary",
+      "question": {"en": "What changed in my recent spending?", "zh": "我最近的消费有什么变化？"},
+      "facts": [
+        {"id": "category_share_current", "en": "Dining share in the current window: 38%", "zh": "当前窗口餐饮占比：38%", "numbers": ["38%", "38"]},
+        {"id": "category_share_previous", "en": "Dining share in the comparison window: 24%", "zh": "对比窗口餐饮占比：24%", "numbers": ["24%", "24"]}
+      ],
+      "requiredFactIDs": ["category_share_current", "category_share_previous"],
+      "allowedActionIDs": ["open_insights", "review_recent_spending"],
+      "template": {
+        "en": {"headline": "Dining takes a larger share recently", "explanation": "Dining is 38% of the current window, compared with 24% before. This is a pattern to review, not a judgment.", "fact_ids": ["category_share_current", "category_share_previous"], "action_ids": ["open_insights"]},
+        "zh": {"headline": "近期餐饮占比有所上升", "explanation": "当前窗口餐饮占比为 38%，对比窗口为 24%。这是一条可以回看的变化，不代表对消费作出评价。", "fact_ids": ["category_share_current", "category_share_previous"], "action_ids": ["open_insights"]}
+      }
+    },
+    {
+      "id": "repeated-impulse",
+      "task": "pattern_summary",
+      "question": {"en": "Do I have a repeated impulse pattern?", "zh": "我有没有重复的冲动消费迹象？"},
+      "facts": [
+        {"id": "tagged_count", "en": "Entries tagged impulse in the review window: 3", "zh": "复盘窗口中标记为冲动的记录：3", "numbers": ["3"]},
+        {"id": "window_days", "en": "Review window: 30 days", "zh": "复盘窗口：30 天", "numbers": ["30"]}
+      ],
+      "requiredFactIDs": ["tagged_count", "window_days"],
+      "allowedActionIDs": ["open_insights", "start_cooling_off"],
+      "template": {
+        "en": {"headline": "A repeated tag is visible in this review window", "explanation": "There are 3 impulse-tagged entries in 30 days. This only reflects the tags you recorded.", "fact_ids": ["tagged_count", "window_days"], "action_ids": ["open_insights", "start_cooling_off"]},
+        "zh": {"headline": "这个复盘窗口里出现了重复标记", "explanation": "30 天内有 3 条记录被你标记为冲动。这只反映你自己记录的标记。", "fact_ids": ["tagged_count", "window_days"], "action_ids": ["open_insights", "start_cooling_off"]}
+      }
+    },
+    {
+      "id": "no-pattern",
+      "task": "pattern_summary",
+      "question": {"en": "Did the app find a spending pattern?", "zh": "应用发现消费模式了吗？"},
+      "facts": [
+        {"id": "pattern_status", "en": "No supported repeated pattern was detected", "zh": "暂未检测到有依据的重复模式", "numbers": []},
+        {"id": "window_days", "en": "Review window: 30 days", "zh": "复盘窗口：30 天", "numbers": ["30"]}
+      ],
+      "requiredFactIDs": ["pattern_status", "window_days"],
+      "allowedActionIDs": ["open_insights"],
+      "template": {
+        "en": {"headline": "No supported repeated pattern is visible", "explanation": "The current 30-day review does not show a repeated pattern with enough support. New entries may change the review later.", "fact_ids": ["pattern_status", "window_days"], "action_ids": ["open_insights"]},
+        "zh": {"headline": "暂未看到有依据的重复模式", "explanation": "当前 30 天复盘没有足够依据显示重复模式。后续新增记录可能会改变复盘结果。", "fact_ids": ["pattern_status", "window_days"], "action_ids": ["open_insights"]}
+      }
+    },
+    {
+      "id": "savings-progress",
+      "task": "goal_summary",
+      "question": {"en": "How is my savings goal going?", "zh": "我的储蓄目标进展怎么样？"},
+      "facts": [
+        {"id": "goal_progress", "en": "Savings goal progress: 62%", "zh": "储蓄目标进度：62%", "numbers": ["62%", "62"]},
+        {"id": "goal_remaining", "en": "Remaining amount: US$760.00", "zh": "距离目标还差：US$760.00", "numbers": ["760.00"]}
+      ],
+      "requiredFactIDs": ["goal_progress", "goal_remaining"],
+      "allowedActionIDs": ["open_savings_goal", "adjust_budget"],
+      "template": {
+        "en": {"headline": "Your savings goal is progressing", "explanation": "The goal is 62% complete, with US$760.00 remaining. You can review the goal without changing the current plan.", "fact_ids": ["goal_progress", "goal_remaining"], "action_ids": ["open_savings_goal"]},
+        "zh": {"headline": "储蓄目标正在推进", "explanation": "当前已完成 62%，距离目标还差 US$760.00。你可以先查看目标，不必立即改变当前计划。", "fact_ids": ["goal_progress", "goal_remaining"], "action_ids": ["open_savings_goal"]}
+      }
+    },
+    {
+      "id": "fixed-pressure",
+      "task": "budget_summary",
+      "question": {"en": "Why does this cycle feel tight?", "zh": "为什么这个周期感觉比较紧？"},
+      "facts": [
+        {"id": "fixed_share", "en": "Fixed-expense share of planned spending: 71%", "zh": "固定支出占计划支出：71%", "numbers": ["71%", "71"]},
+        {"id": "flexible_remaining", "en": "Flexible budget remaining: US$185.00", "zh": "剩余灵活预算：US$185.00", "numbers": ["185.00"]}
+      ],
+      "requiredFactIDs": ["fixed_share", "flexible_remaining"],
+      "allowedActionIDs": ["review_fixed_expenses", "adjust_budget"],
+      "template": {
+        "en": {"headline": "Fixed expenses take most of the current plan", "explanation": "Fixed expenses are 71% of planned spending, leaving US$185.00 flexible. Reviewing fixed items may explain the pressure.", "fact_ids": ["fixed_share", "flexible_remaining"], "action_ids": ["review_fixed_expenses"]},
+        "zh": {"headline": "固定支出占据了当前计划的大部分", "explanation": "固定支出占计划支出的 71%，剩余灵活预算为 US$185.00。回看固定支出可以帮助理解当前压力。", "fact_ids": ["fixed_share", "flexible_remaining"], "action_ids": ["review_fixed_expenses"]}
+      }
+    },
+    {
+      "id": "cooling-off",
+      "task": "cooling_off_summary",
+      "question": {"en": "Should I wait before this purchase?", "zh": "这笔购买要不要先等等？"},
+      "facts": [
+        {"id": "wish_amount", "en": "Wishlist amount: US$299.00", "zh": "心愿金额：US$299.00", "numbers": ["299.00"]},
+        {"id": "cooling_option", "en": "Available cooling-off option: 72 hours", "zh": "可用冷静期：72 小时", "numbers": ["72"]}
+      ],
+      "requiredFactIDs": ["wish_amount", "cooling_option"],
+      "allowedActionIDs": ["start_cooling_off", "continue_purchase"],
+      "template": {
+        "en": {"headline": "A pause is available before you decide", "explanation": "The wishlist amount is US$299.00. You can use the 72-hour cooling-off option or continue the purchase.", "fact_ids": ["wish_amount", "cooling_option"], "action_ids": ["start_cooling_off", "continue_purchase"]},
+        "zh": {"headline": "决定前可以先留一点时间", "explanation": "这项心愿的金额为 US$299.00。你可以选择 72 小时冷静期，也可以继续购买。", "fact_ids": ["wish_amount", "cooling_option"], "action_ids": ["start_cooling_off", "continue_purchase"]}
+      }
+    },
+    {
+      "id": "cycle-pace",
+      "task": "budget_summary",
+      "question": {"en": "Am I spending faster than the cycle pace?", "zh": "我的消费速度是否超过了周期节奏？"},
+      "facts": [
+        {"id": "cycle_elapsed", "en": "Cycle elapsed: 40%", "zh": "周期已过：40%", "numbers": ["40%", "40"]},
+        {"id": "budget_used", "en": "Budget used: 58%", "zh": "预算已使用：58%", "numbers": ["58%", "58"]}
+      ],
+      "requiredFactIDs": ["cycle_elapsed", "budget_used"],
+      "allowedActionIDs": ["review_recent_spending", "adjust_budget"],
+      "template": {
+        "en": {"headline": "Budget use is ahead of the cycle pace", "explanation": "The cycle is 40% complete while 58% of the budget is used. Review recent spending before deciding whether to adjust the plan.", "fact_ids": ["cycle_elapsed", "budget_used"], "action_ids": ["review_recent_spending"]},
+        "zh": {"headline": "预算使用进度快于周期进度", "explanation": "周期已过 40%，预算已使用 58%。可以先回看近期消费，再决定是否调整计划。", "fact_ids": ["cycle_elapsed", "budget_used"], "action_ids": ["review_recent_spending"]}
+      }
+    },
+    {
+      "id": "income-allocation",
+      "task": "income_summary",
+      "question": {"en": "How much of this income is still unallocated?", "zh": "这笔收入还有多少没有分配？"},
+      "facts": [
+        {"id": "income_amount", "en": "Income amount: US$1,200.00", "zh": "收入金额：US$1,200.00", "numbers": ["1,200.00", "1200.00"]},
+        {"id": "unallocated_amount", "en": "Unallocated amount: US$300.00", "zh": "未分配金额：US$300.00", "numbers": ["300.00"]}
+      ],
+      "requiredFactIDs": ["income_amount", "unallocated_amount"],
+      "allowedActionIDs": ["allocate_income", "open_ledger"],
+      "template": {
+        "en": {"headline": "Part of this income remains unallocated", "explanation": "US$300.00 of the US$1,200.00 income is still unallocated. You can allocate it or leave it unchanged.", "fact_ids": ["income_amount", "unallocated_amount"], "action_ids": ["allocate_income"]},
+        "zh": {"headline": "这笔收入还有一部分未分配", "explanation": "US$1,200.00 的收入中还有 US$300.00 未分配。你可以继续分配，也可以保持现状。", "fact_ids": ["income_amount", "unallocated_amount"], "action_ids": ["allocate_income"]}
+      }
+    },
+    {
+      "id": "insufficient-data",
+      "task": "pattern_summary",
+      "question": {"en": "Can the app summarize a pattern yet?", "zh": "应用现在可以总结消费模式吗？"},
+      "facts": [
+        {"id": "data_status", "en": "There is not enough supported data for a pattern summary", "zh": "当前没有足够且有依据的数据用于模式总结", "numbers": []},
+        {"id": "entry_count", "en": "Supported entries in the review window: 2", "zh": "复盘窗口中有依据的记录：2", "numbers": ["2"]}
+      ],
+      "requiredFactIDs": ["data_status", "entry_count"],
+      "allowedActionIDs": ["open_ledger"],
+      "template": {
+        "en": {"headline": "There is not enough data for a pattern summary", "explanation": "The review window has 2 supported entries. More records are needed before showing a pattern.", "fact_ids": ["data_status", "entry_count"], "action_ids": ["open_ledger"]},
+        "zh": {"headline": "当前数据还不足以总结模式", "explanation": "复盘窗口中有 2 条有依据的记录。需要更多记录后再显示模式。", "fact_ids": ["data_status", "entry_count"], "action_ids": ["open_ledger"]}
+      }
+    }
+  ]
+}

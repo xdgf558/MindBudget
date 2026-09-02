@@ -270,18 +270,26 @@ under DEC-COM-091 after independent review approved exact PR
 The preparation chain remains exact head `11ab612`, hosted run `33488815168`, and PR #95 merge
 `d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
 The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. No tester assignment,
-Staging/Production or CloudKit-schema deployment, G1 decision, App Store review, distribution,
+Staging/Production or CloudKit-schema deployment, G1 completion, App Store review, distribution,
 public release, or Active Requirement completion follows. The owner explicitly entered G1 on
-2026-09-02. DEC-COM-092 and DEC-COM-093 record dated official OpenAI/Anthropic/Google/Apple/
-Cloudflare quotes and an integer-micro-USD planning envelope: US$0.011330 typical/P50 and
-US$0.033098 peak/P95 per successful use at 1,000 monthly successes, a provisional 10-use starter
-grant for the US$4.99 hypothesis, and provisional 10/25/65-use consumable cards. Independent
-review found no P1/P2 on exact PR #98 head `9226985`; hosted run `33570570896` passed and PR #98
-merged as `6e2d242`. DEC-COM-094 closes only that first evidence package and preserves the review
-P3 follow-ups. The mandatory bilingual provider Eval, account region/retention proof, exact App
-Store proceeds, final-decision review, and owner decision remain open; the interim outcome is
-`INSUFFICIENT_QUOTE_EVIDENCE`, not provider/offer/C7 acceptance. Public App Store observation is
-not an entry prerequisite. COM-C6.5 remains
+2026-09-02. DEC-COM-092 and DEC-COM-093 opened/recorded the quote work; DEC-COM-094 preserves the
+dated PR #98 quote package, exact head `9226985`,
+hosted run `33570570896`, merge `6e2d242`, and historical `INSUFFICIENT_QUOTE_EVIDENCE` result.
+DEC-COM-095 accepts the commercial policy: US$4.99 one-time Pro; an explicitly started 30-day trial
+covering local Pro/on-device AI but zero Luna credits; sole OpenAI `gpt-5.6-luna`; finite starter
+and consumable lots expiring after one user-calendar year; one credit only for a user-initiated,
+valid structured Luna result that is ultimately displayed; >=50% conservative peak contribution
+margin; no local-data deletion on refund; ordinary-test-user denial with an isolated capped Apple
+Review exception; and a separately reviewable local-only release path. The revised integer model
+is US$0.011330 typical/P50 and US$0.018986 peak/P95 at 1,000 monthly successes. DEC-COM-096 freezes
+the 24-case bilingual Eval and accepts exactly 10 starter credits plus 10/25/65-use cards at
+US$0.99/US$1.99/US$4.99. DEC-COM-097 records a dedicated Global/Luna-only Tier 1 project, bounded
+billing, and owner acceptance of standard up-to-30-day retention for synthetic Eval only while
+keeping production false. DEC-COM-098 records the admitted account and third live attempt's 24/24
+first-pass automated result after preserving two non-pass attempts. Independent review, StoreKit
+price-point/Product-ID evidence, hosted CI/merge, and owner `PROCEED_TO_R2` remain open. Actual US
+proceeds are unavailable pre-launch and become a post-launch recalibration input. The current
+result is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. COM-C6.5 remains
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs

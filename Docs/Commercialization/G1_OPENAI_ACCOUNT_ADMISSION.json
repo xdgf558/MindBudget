@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "evalAdmitted": true,
+  "productionAdmitted": false,
+  "approvedBaseURL": "https://api.openai.com/v1",
+  "evidenceDate": "2026-09-02",
+  "scope": "synthetic_eval_only",
+  "retention": {
+    "mode": "standard_up_to_30_days",
+    "store": false,
+    "background": false,
+    "promptCaching": "explicit_no_breakpoints"
+  },
+  "evidence": {
+    "dedicatedProject": true,
+    "noDataSharing": true,
+    "apiCallLoggingDisabled": true,
+    "standardRetentionAcknowledged": true,
+    "globalRegion": true,
+    "lunaOnlyModelAllowlist": true,
+    "endpointCompatibility": true,
+    "rateTier": true,
+    "billingControls": true,
+    "credentialIsolation": true
+  }
+}
