@@ -270,6 +270,9 @@ margin breaker before a consumable exists.
 
 The following remains mandatory before `PROCEED_TO_R2`:
 
+- a fixed bilingual three-way comparative Eval of the deterministic template, supported on-device
+  output, and OpenAI Luna, using one frozen dataset and review criteria to establish the incremental
+  user value of paid cloud credits;
 - implementation and independent review of the hard 1,000-success/50% server breaker before any
   starter grant or usage-card sale;
 - StoreKit configuration evidence for the US$4.99 price point and later post-launch recalibration

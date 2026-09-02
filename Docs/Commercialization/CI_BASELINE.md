@@ -2736,6 +2736,11 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - The validator deleted
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.lbMNy3/MindBudget.xcresult`;
   this is an execution pointer rather than a durable artifact.
+- PR #101 review found that the closeout had silently removed the still-unfulfilled three-way
+  template/on-device/Luna comparison from the `PROCEED_TO_R2` list. The remediation restores that
+  prerequisite, restores the historical DEC-COM-098 pointer text instead of rewriting it, and
+  validates the P3 count by type/range rather than freezing the entire review object. Exact-head
+  rereview and a new hosted run remain required.
 - DEC-COM-099 advances only to `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`. G1 stays In Progress,
   `productionAdmitted` stays false, and COM-C7 stays blocked. This documentation closeout still
   requires its own exact-head independent review, hosted CI, and merge.

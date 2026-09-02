@@ -2975,6 +2975,10 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`. Keep `productionAdmitted: false`, keep G1 In
   Progress, and keep COM-C7 blocked pending StoreKit US$4.99 Product-ID/price-point evidence, the
   remaining implementation/legal gates, and the owner's explicit `PROCEED_TO_R2`.
+- Scope preservation: The reviewed result scores Luna outputs only. It does not retire or satisfy
+  the existing fixed bilingual three-way comparative Eval across deterministic template,
+  supported on-device output, and Luna. That comparison remains mandatory before
+  `PROCEED_TO_R2` because G1 must establish the incremental user value of paid cloud credits.
 - Economics clarification: Ten starter credits are an owner-selected commercial policy constrained
   by the reviewed envelope, not a value derived from the current 72-use maximum. The current model
   deliberately reduces conservatism versus PR #98: removing the US$2 local-Pro reserve, separate

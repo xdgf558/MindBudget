@@ -3608,9 +3608,9 @@ remove only provider-unsupported strict-schema keywords while retaining equivale
 and record the third attempt's 24/24 first-pass automated result. This does not constitute
 independent review, complete G1, admit production, or enter COM-C7.
 
-Consequences: This entry records the automated result before its subsequent independent review;
-DEC-COM-099 owns that closeout. Customer traffic, COM-C7, product activation, App Privacy/consent
-claims, and release are not authorized.
+Consequences: Final privacy-setting confirmation and credential creation remain before any live
+request. Customer traffic, COM-C7, product activation, App Privacy/consent claims, and release are
+not authorized. The prior blocked result remains current until those two account actions complete.
 
 ## 2026-09-02 — Close reviewed Luna Eval evidence without closing G1
 

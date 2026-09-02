@@ -289,8 +289,9 @@ keeping production false. DEC-COM-098 records the admitted account and third liv
 first-pass automated result after preserving two non-pass attempts. Independent review found no
 P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and PR #100 merged as
 `7a473d2`. DEC-COM-099 closes only that account/Eval evidence delivery. StoreKit price-point/Product-
-ID evidence and owner `PROCEED_TO_R2` remain open. Actual US proceeds are unavailable pre-launch and
-become a post-launch recalibration input. The current result is
+ID evidence, the fixed bilingual three-way comparative Eval across deterministic template,
+supported on-device output, and Luna, and owner `PROCEED_TO_R2` remain open. Actual US proceeds are
+unavailable pre-launch and become a post-launch recalibration input. The current result is
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. The revised economics are a
 deliberate discontinuity from PR #98: removing the US$2 local-Pro reserve, separate 50% cloud
 holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.018986 and the 50%

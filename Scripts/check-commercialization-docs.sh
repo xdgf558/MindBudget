@@ -2613,6 +2613,7 @@ for g1_economics_file in \
     '50%' \
     'typical/P50' \
     'peak/P95' \
+    'three-way comparative Eval' \
     'EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE' \
     'consumable'; do
     grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
@@ -2685,18 +2686,36 @@ if value.get("finalPassCount") != 24 or value.get("firstPassCount") != 24:
     raise SystemExit("G1 Luna Eval pass counts drifted")
 if value.get("retryCaseCount") != 0 or value.get("hardFailures") != []:
     raise SystemExit("G1 Luna Eval retry/failure result drifted")
-expected_review = {
-    "status": "APPROVED_NO_P1_P2",
-    "reviewDate": "2026-09-02",
-    "reviewedPullRequest": 100,
-    "reviewedHead": "323d8d7904cf4d2413efa661b50e7d092a860af0",
-    "hostedCIRun": 33593253561,
-    "mergeCommit": "7a473d2f4123bef60615efd9f104cee2e473afd5",
-    "finalOutputRead": "24_OF_24",
-    "p3Findings": 4,
+review = value.get("independentReview")
+expected_review_keys = {
+    "status",
+    "reviewDate",
+    "reviewedPullRequest",
+    "reviewedHead",
+    "hostedCIRun",
+    "mergeCommit",
+    "finalOutputRead",
+    "p3Findings",
 }
-if value.get("independentReview") != expected_review:
+if not isinstance(review, dict) or set(review) != expected_review_keys:
     raise SystemExit("G1 Luna Eval independent-review record drifted")
+expected_review_core = {
+    "status": "APPROVED_NO_P1_P2",
+    "reviewedHead": "323d8d7904cf4d2413efa661b50e7d092a860af0",
+    "mergeCommit": "7a473d2f4123bef60615efd9f104cee2e473afd5",
+}
+if any(review.get(key) != expected for key, expected in expected_review_core.items()):
+    raise SystemExit("G1 Luna Eval independent-review provenance drifted")
+if not isinstance(review.get("reviewDate"), str) or not review["reviewDate"]:
+    raise SystemExit("G1 Luna Eval independent-review date must be recorded")
+if type(review.get("reviewedPullRequest")) is not int or review["reviewedPullRequest"] <= 0:
+    raise SystemExit("G1 Luna Eval reviewed pull request must be a positive integer")
+if type(review.get("hostedCIRun")) is not int or review["hostedCIRun"] <= 0:
+    raise SystemExit("G1 Luna Eval hosted CI run must be a positive integer")
+if review.get("finalOutputRead") != "24_OF_24":
+    raise SystemExit("G1 Luna Eval independent review must cover all final outputs")
+if type(review.get("p3Findings")) is not int or review["p3Findings"] < 0:
+    raise SystemExit("G1 Luna Eval P3 count must be a non-negative integer")
 
 artifacts = [value["passingTranscript"], *value["nonPassAttempts"]]
 for artifact in artifacts:
@@ -2893,6 +2912,7 @@ for g1_eval_anchor in \
   'd509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014' \
   'c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018' \
   'LIVE_LUNA_EVAL_AUTOMATED_PASS_INDEPENDENTLY_REVIEWED' \
+  'three-way comparative Eval' \
   '4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e' \
   '24/24' \
   'at least 95.00%' \

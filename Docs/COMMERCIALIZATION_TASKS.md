@@ -839,9 +839,10 @@ price-point/Product-ID evidence and the owner decision remain open; the current 
   found no P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and merge
   `7a473d2` delivered it. DEC-COM-099 preserves four nonblocking scorer/economics maintenance
   observations without admitting production or closing G1.
-- [ ] Obtain StoreKit price-point/Product-ID evidence, complete the remaining implementation/legal
-  gates, and record the final owner decision. Pre-launch actual US proceeds do not exist and are a
-  post-launch recalibration input. Current result:
+- [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,
+  supported on-device output, and Luna; obtain StoreKit price-point/Product-ID evidence; complete
+  the remaining implementation/legal gates; and record the final owner decision. Pre-launch actual
+  US proceeds do not exist and are a post-launch recalibration input. Current result:
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; only
   `PROCEED_TO_R2` can enter COM-C7.
 

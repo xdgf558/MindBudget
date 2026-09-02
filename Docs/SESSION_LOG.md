@@ -7176,6 +7176,14 @@ thresholds, and all 23 C6-02 runtime bindings. The UI summary contains exactly 1
 test-runner retry occurred. The deleted xcresult path is retained only as an execution pointer in
 the commercialization baseline.
 
+PR #101 review found one P2: the closeout had removed the still-unfulfilled fixed bilingual
+template/on-device/Luna comparison together with two evidence requirements that were genuinely
+complete. The remediation restores that three-way comparative Eval as a `PROCEED_TO_R2`
+prerequisite across current G1 surfaces and adds a DEC-COM-099 scope-preservation clause. It also
+restores the historical DEC-COM-098 pointer paragraph verbatim and changes the review-object gate
+to validate the P3 count by type/range instead of freezing the entire object. Exact-head rereview
+and a new hosted run remain required.
+
 G1 remains In Progress; StoreKit Product-ID/price-point evidence and owner `PROCEED_TO_R2` remain
 open. `productionAdmitted` stays false and COM-C7 stays blocked. This documentation closeout itself
 still requires exact-head independent review, hosted CI, and merge.

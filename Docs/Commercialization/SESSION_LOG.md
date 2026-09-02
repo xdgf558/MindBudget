@@ -4242,6 +4242,14 @@ coverage thresholds, and all 23 C6-02 runtime bindings. Exactly 18 UI executions
 no test-runner retry occurred. The validator deleted its xcresult; `CI_BASELINE.md` preserves only
 the execution pointer.
 
+PR #101 review remediation: Independent review found one P2 because the closeout had removed the
+unfulfilled fixed bilingual template/on-device/Luna comparison alongside two requirements that
+were actually delivered. Restored that three-way comparative Eval as a `PROCEED_TO_R2`
+prerequisite across current G1 state surfaces and added an explicit DEC-COM-099 scope-preservation
+clause. Restored the historical DEC-COM-098 pointer paragraph verbatim rather than rewriting it.
+Changed the review-object gate to pin status/head/merge provenance while validating the mutable P3
+count by type/range. This remediation still requires exact-head rereview and a new hosted run.
+
 Result: G1 remains In Progress. StoreKit Product-ID/US$4.99 price-point evidence, remaining
 implementation/legal gates, and owner `PROCEED_TO_R2` remain open. `productionAdmitted` remains
 false; COM-C7, backend/product work, customer traffic, App Store Connect mutation, distribution,

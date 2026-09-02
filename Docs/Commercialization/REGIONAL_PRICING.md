@@ -14,6 +14,8 @@ DEC-COM-098 records a 24/24 first-pass automated Luna Eval result after preservi
 attempts. Independent review found no P1/P2 on PR #100 head `323d8d7`; run `33593253561` passed and
 merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. The current result is
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not completed G1 or COM-C7 entry.
+The fixed bilingual three-way comparative Eval across deterministic template, supported on-device
+output, and Luna remains a separate `PROCEED_TO_R2` prerequisite.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction

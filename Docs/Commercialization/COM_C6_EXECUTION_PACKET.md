@@ -239,7 +239,8 @@ Global/Luna-only/Tier 1/billing controls while keeping production admission fals
 records completed synthetic account admission and a 24/24 first-pass automated Eval result after
 two explicit non-pass attempts. Independent review found no P1/P2 on exact PR #100 head `323d8d7`;
 hosted run `33593253561` passed and PR #100 merged as `7a473d2`. DEC-COM-099 closes only that
-account/Eval evidence delivery. StoreKit price-point/Product-ID evidence and owner decision remain
-open under `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
+account/Eval evidence delivery. The fixed bilingual three-way comparative Eval, StoreKit price-
+point/Product-ID evidence, and owner decision remain open under
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.
