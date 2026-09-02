@@ -47,15 +47,12 @@ class Workload:
     output_tokens: int
 
 
-# Quote date: 2026-09-02. These rates are deliberately the non-batch interactive rates.
-# The OpenAI quote includes the published 10% regional-processing uplift.
-PRIMARY_QUOTE = TokenQuote(
+# Quote date: 2026-09-02, rechecked against the official model page on 2026-09-02.
+# These rates are deliberately the non-batch interactive rates. The accepted planning quote
+# includes the documented 10% regional-processing uplift.
+LUNA_QUOTE = TokenQuote(
     input_micro_usd_per_million=220_000,
     output_micro_usd_per_million=1_320_000,
-)
-BACKUP_QUOTE = TokenQuote(
-    input_micro_usd_per_million=1_000_000,
-    output_micro_usd_per_million=5_000_000,
 )
 
 TYPICAL_WORKLOAD = Workload(input_tokens=2_000, output_tokens=500)
@@ -87,11 +84,12 @@ OFFER_GROSS_MICRO_USD = 4_990_000
 STANDARD_COMMISSION_BPS = 3_000
 TAX_AND_FX_RESERVE_BPS = 1_000
 REFUND_RESERVE_BPS = 500
-LOCAL_PRO_RESERVE_MICRO_USD = 2_000_000
-CLOUD_SAFETY_HOLD_BPS = 5_000
+MINIMUM_CONTRIBUTION_MARGIN_BPS = 5_000
+PEAK_LUNA_ATTEMPTS = 2
 
 STARTER_CANDIDATES = (5, 10, 15)
-CARD_CANDIDATES = (
+ACCEPTED_STARTER_USES = 10
+ACCEPTED_CARD_OFFERS = (
     (990_000, 10),
     (1_990_000, 25),
     (4_990_000, 65),
@@ -140,26 +138,24 @@ def provider_cost_with_reserve(amount: int) -> int:
 
 
 def unit_costs(monthly_successes: int = PLANNING_SUCCESSES_PER_MONTH) -> dict[str, int]:
-    typical_provider = PRIMARY_QUOTE.cost(
+    typical_provider = LUNA_QUOTE.cost(
         input_tokens=TYPICAL_WORKLOAD.input_tokens,
         output_tokens=TYPICAL_WORKLOAD.output_tokens,
     )
-    peak_primary = PRIMARY_QUOTE.cost(
+    peak_luna_per_attempt = LUNA_QUOTE.cost(
         input_tokens=PEAK_WORKLOAD.input_tokens,
         output_tokens=PEAK_WORKLOAD.output_tokens,
     )
-    peak_backup = BACKUP_QUOTE.cost(
-        input_tokens=PEAK_WORKLOAD.input_tokens,
-        output_tokens=PEAK_WORKLOAD.output_tokens,
-    )
+    peak_luna = peak_luna_per_attempt * PEAK_LUNA_ATTEMPTS
     backend = backend_cost_per_use(monthly_successes)
     return {
         "typical_provider": typical_provider,
-        "peak_primary": peak_primary,
-        "peak_backup": peak_backup,
+        "peak_luna_per_attempt": peak_luna_per_attempt,
+        "peak_luna_attempts": PEAK_LUNA_ATTEMPTS,
+        "peak_luna": peak_luna,
         "backend": backend,
         "typical_all_in": provider_cost_with_reserve(typical_provider) + backend,
-        "peak_all_in": provider_cost_with_reserve(peak_primary + peak_backup) + backend,
+        "peak_all_in": provider_cost_with_reserve(peak_luna) + backend,
     }
 
 
@@ -175,9 +171,8 @@ def conservative_net_proceeds(gross_micro_usd: int) -> int:
 def build_report() -> dict[str, object]:
     costs = unit_costs()
     offer_net = conservative_net_proceeds(OFFER_GROSS_MICRO_USD)
-    cloud_budget = offer_net - LOCAL_PRO_RESERVE_MICRO_USD
-    spendable_cloud_budget = cloud_budget - apply_basis_points(
-        cloud_budget, CLOUD_SAFETY_HOLD_BPS
+    maximum_fulfillment_cost = offer_net - apply_basis_points(
+        offer_net, MINIMUM_CONTRIBUTION_MARGIN_BPS
     )
 
     starter_rows = []
@@ -189,13 +184,14 @@ def build_report() -> dict[str, object]:
                 "uses": count,
                 "typical_cost": typical_cost,
                 "peak_cost": peak_cost,
-                "remaining_after_peak": cloud_budget - peak_cost,
-                "passes_safety_hold": peak_cost <= spendable_cloud_budget,
+                "peak_contribution": offer_net - peak_cost,
+                "peak_margin_bps": (offer_net - peak_cost) * BASIS_POINTS_PER_ONE // offer_net,
+                "passes_minimum_margin": peak_cost <= maximum_fulfillment_cost,
             }
         )
 
     card_rows = []
-    for gross, count in CARD_CANDIDATES:
+    for gross, count in ACCEPTED_CARD_OFFERS:
         net = conservative_net_proceeds(gross)
         typical_cost = count * costs["typical_all_in"]
         peak_cost = count * costs["peak_all_in"]
@@ -211,6 +207,7 @@ def build_report() -> dict[str, object]:
                 "peak_cost": peak_cost,
                 "peak_contribution": contribution,
                 "peak_margin_bps": margin_bps,
+                "passes_minimum_margin": margin_bps >= MINIMUM_CONTRIBUTION_MARGIN_BPS,
             }
         )
 
@@ -230,50 +227,115 @@ def build_report() -> dict[str, object]:
         "offer": {
             "gross": OFFER_GROSS_MICRO_USD,
             "net_after_store_tax_refund_reserves": offer_net,
-            "local_pro_reserve": LOCAL_PRO_RESERVE_MICRO_USD,
-            "cloud_budget": cloud_budget,
-            "spendable_cloud_budget_after_safety_hold": spendable_cloud_budget,
-            "maximum_typical_uses": spendable_cloud_budget // costs["typical_all_in"],
-            "maximum_peak_uses": spendable_cloud_budget // costs["peak_all_in"],
+            "minimum_contribution_margin_bps": MINIMUM_CONTRIBUTION_MARGIN_BPS,
+            "maximum_fulfillment_cost_at_margin_floor": maximum_fulfillment_cost,
+            "maximum_typical_uses": maximum_fulfillment_cost // costs["typical_all_in"],
+            "maximum_peak_uses": maximum_fulfillment_cost // costs["peak_all_in"],
         },
         "starter_candidates": starter_rows,
-        "card_candidates": card_rows,
+        "accepted_starter": next(
+            row for row in starter_rows if row["uses"] == ACCEPTED_STARTER_USES
+        ),
+        "accepted_cards": card_rows,
+        "server_breaker": {
+            "minimum_trailing_30_day_successes": PLANNING_SUCCESSES_PER_MONTH,
+            "minimum_peak_margin_bps": MINIMUM_CONTRIBUTION_MARGIN_BPS,
+            "action_below_gate": "disable_new_card_sales_and_new_starter_grants",
+            "honor_existing_unexpired_credits": True,
+        },
         "scale_sensitivity": scale_rows,
     }
 
 
 EXPECTED_DOC_ANCHORS = (
     "US$0.011330",
-    "US$0.033098",
-    "US$0.372250",
-    "maximum of 11 peak-envelope starter uses",
+    "US$0.018986",
+    "US$1.372250",
+    "maximum of 72 peak-envelope starter uses",
     "10 starter uses",
     "10 uses / US$0.99",
     "25 uses / US$1.99",
     "65 uses / US$4.99",
-    "INSUFFICIENT_QUOTE_EVIDENCE",
+    "65.13%",
+    "56.63%",
+    "55.03%",
+    "ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED",
 )
+
+
+def require_equal(actual: object, expected: object, label: str) -> None:
+    if actual != expected:
+        raise RuntimeError(f"{label}: expected {expected!r}, got {actual!r}")
 
 
 def self_test() -> None:
     report = build_report()
     unit = report["unit_costs"]
     offer = report["offer"]
-    assert unit["typical_provider"] == 1_100
-    assert unit["peak_primary"] == 3_740
-    assert unit["peak_backup"] == 15_500
-    assert unit["backend"] == 10_010
-    assert unit["typical_all_in"] == 11_330
-    assert unit["peak_all_in"] == 33_098
-    assert offer["net_after_store_tax_refund_reserves"] == 2_744_500
-    assert offer["cloud_budget"] == 744_500
-    assert offer["spendable_cloud_budget_after_safety_hold"] == 372_250
-    assert offer["maximum_typical_uses"] == 32
-    assert offer["maximum_peak_uses"] == 11
-    assert [row["passes_safety_hold"] for row in report["starter_candidates"]] == [True, True, False]
-    assert [row["peak_margin_bps"] for row in report["card_candidates"]] == [3921, 2439, 2161]
-    assert report["scale_sensitivity"][0]["peak_all_in"] == 123_098
-    assert report["scale_sensitivity"][-1]["peak_all_in"] == 24_098
+    require_equal(unit["typical_provider"], 1_100, "typical Luna cost")
+    require_equal(unit["peak_luna_per_attempt"], 3_740, "peak Luna attempt cost")
+    require_equal(unit["peak_luna_attempts"], 2, "bounded peak Luna attempts")
+    require_equal(unit["peak_luna"], 7_480, "peak Luna attempt total")
+    require_equal(unit["backend"], 10_010, "planning-floor backend cost")
+    require_equal(unit["typical_all_in"], 11_330, "typical all-in cost")
+    require_equal(unit["peak_all_in"], 18_986, "peak all-in cost")
+    require_equal(
+        offer["net_after_store_tax_refund_reserves"],
+        2_744_500,
+        "conservative offer net",
+    )
+    require_equal(
+        offer["maximum_fulfillment_cost_at_margin_floor"],
+        1_372_250,
+        "50% margin fulfillment ceiling",
+    )
+    require_equal(offer["maximum_typical_uses"], 121, "maximum typical uses")
+    require_equal(offer["maximum_peak_uses"], 72, "maximum peak uses")
+    require_equal(
+        [row["passes_minimum_margin"] for row in report["starter_candidates"]],
+        [True, True, True],
+        "starter margin checks",
+    )
+    require_equal(
+        report["accepted_starter"]["uses"],
+        ACCEPTED_STARTER_USES,
+        "accepted starter grant",
+    )
+    require_equal(
+        report["accepted_starter"]["peak_margin_bps"],
+        9_308,
+        "accepted starter peak margin",
+    )
+    require_equal(
+        [row["peak_margin_bps"] for row in report["accepted_cards"]],
+        [6513, 5663, 5503],
+        "card margins",
+    )
+    require_equal(
+        [row["passes_minimum_margin"] for row in report["accepted_cards"]],
+        [True, True, True],
+        "card margin checks",
+    )
+    require_equal(
+        [(row["gross"], row["uses"]) for row in report["accepted_cards"]],
+        list(ACCEPTED_CARD_OFFERS),
+        "accepted card offers",
+    )
+    require_equal(
+        report["server_breaker"]["minimum_trailing_30_day_successes"],
+        1_000,
+        "server breaker volume floor",
+    )
+    require_equal(
+        report["scale_sensitivity"][0]["peak_all_in"],
+        108_986,
+        "low-volume peak cost",
+    )
+    require_equal(
+        report["scale_sensitivity"][-1]["peak_all_in"],
+        9_986,
+        "high-volume peak cost",
+    )
 
 
 def check_document(path: Path) -> None:

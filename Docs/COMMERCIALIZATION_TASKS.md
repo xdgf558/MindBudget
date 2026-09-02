@@ -22,7 +22,9 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
+- Active phase: **G1 is In Progress under DEC-COM-095/096 with
+  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; COM-C7 remains blocked. Historical merged phase
+  evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
   `32494429474`. Reviewed C4B-03 product head `f49de94` passed Actions run `32571676058`,
@@ -106,24 +108,25 @@ detailed phase checklists; it added no paid product behavior.
   distinguishes the product carrying the active trial from the verified next-renewal product and
   keeps pending notification copy safe after the app process stops.
   Free iCloud sync and the verified-Pro local receipt-import pipeline are implemented through
-  COM-C4B/COM-C4C. Commercialization telemetry, Watch, cloud AI, and backend remain unstarted.
+  COM-C4B/COM-C4C. Commercialization telemetry is implemented and reviewed through COM-C5; Watch,
+  cloud AI, and its backend remain unstarted.
 - Release boundary: uploaded builds remain immutable. Verified purchase/restore and
   purchase presentation are complete through COM-C3. On 2026-08-16 the owner authorized a
   traceable 0.9.7 (8) Archive and transport upload only. A later explicit owner instruction
   authorized 0.9.8 (9), which App Store Connect accepted on 2026-08-17 as delivery
-  `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. Neither workflow assigned testers, submitted external
-  testing, or authorized App Store release; Production signed configuration stays conservative
-  while its service remains undeployed.
+  `dda1eb09-5d8b-43c6-a2fd-ea910fa422ac`. The later 0.9.9 (10) candidate was also archived and
+  accepted by App Store Connect under the reviewed COM-C6 baseline. None of these workflows
+  authorizes public App Store release; Production service gates remain separate.
 - Public launch: **paused** until the commercialization track reaches COM-C12 and all release
   gates pass.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
   derived from verified production transactions only.
-- Products: Pro Monthly (`com.xdgf558.mindbudget.pro.monthly`) and Pro Annual
-  (`com.xdgf558.mindbudget.pro.annual`) in the `MindBudget Pro` subscription group. C3-01 test
-  presentation uses US$1.99 Monthly, US$19.99 Annual, one P1W eligible trial, and HKG/USA/SGP/TWN;
-  final regional economics, included cloud calls, reset policy, and launch storefront availability
-  remain TBD until accepted cost analysis. Local Lifetime is deferred and must have no product,
-  entry point, or promise.
+- Products: the existing Pro Monthly/Annual/P1W StoreKit Configuration and TestFlight records are
+  historical nonpublic test fixtures. DEC-COM-095/096 accepts a future US$4.99 non-consumable Pro
+  offer with 10 starter Luna credits and consumable 10/25/65-use cards at
+  US$0.99/US$1.99/US$4.99; no replacement Product ID or App Store Connect price point has been
+  created yet. The explicit 30-day trial is local Pro/on-device AI only and grants zero Luna
+  credits.
 - Backend: a new, independent hardened service may follow the engineering pattern of the owner's
   other Cloudflare service, but it must not reuse its data, secrets, admin authorization, or
   deployment state.
@@ -245,8 +248,11 @@ Review closeout evidence: `Docs/Commercialization/SESSION_LOG.md`, Sessions 4–
 
 ### Technical debt
 
-- Prices, trial, included cloud calls/reset, storefronts, provider set/contracts, backend domains,
-  CloudKit architecture, and App Attest design remain deliberately `TBD`/`UNVERIFIED`.
+- DEC-COM-095/096 accept the US$4.99 one-time Pro policy, explicit local-only 30-day trial, sole
+  Luna, 10 starter credits, three exact usage-card tiers, one-year credit validity, and >=50%
+  conservative margin. New Product IDs/price points, launch storefronts, provider account proof,
+  backend domains, CloudKit release
+  architecture, and App Attest design remain deliberately `TBD`/`UNVERIFIED`.
 - SPEC-015 permits a future narrowly reviewed non-money Vision float boundary, but COM-C4C must
   update the scanner before adding Vision code.
 
@@ -787,30 +793,45 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **In Progress after independently reviewed PR #98 quote/planning evidence. DEC-COM-092 and
-DEC-COM-093 own the scope/interim result; exact head `9226985` passed GitHub Actions run
-`33570570896` and merged as `6e2d242`; DEC-COM-094 closes only that first evidence package. The
-bounded bilingual provider Eval, account-level privacy/region proof, exact App Store proceeds,
-final-decision review, and owner decision remain open.**
+Status: **In Progress after owner offer acceptance under DEC-COM-095/096. Exact PR #98 head `9226985`
+passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 preserves that first
+package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The fixed Eval protocol and exact
+starter/card choices are now frozen, but account admission, the live Luna run, StoreKit price-point
+evidence, final-decision review, and owner decision remain open; the current result is
+`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`.**
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
   These token envelopes remain estimates until the mandatory Eval measures them.
-- [x] Capture official OpenAI, Anthropic, Google, Apple, and Cloudflare rate cards. OpenAI Luna and
-  Anthropic Haiku are provisional primary/backup cost candidates only; no provider is selected.
-- [x] Calculate integer-micro-USD all-in cost per successful use, including one bounded failover,
-  invalid-output reserve, full paid-backend floor, D1/monitoring operations, and incident reserve.
-- [x] Evaluate the US$4.99 one-time local-Pro scenario at 5/10/15 starter uses. The quote envelope
-  provisionally recommends 10, but neither the price nor count is accepted.
-- [x] Evaluate 10/25/65-use consumable cards at US$0.99/US$1.99/US$4.99 and record exact ledger,
-  idempotency, retry, refund, deletion, non-expiry, and restore/recovery proposals.
+- [x] Capture official OpenAI, Anthropic, Google, Apple, and Cloudflare rate cards. The owner then
+  selected OpenAI `gpt-5.6-luna` as the sole cloud model; Anthropic/Google are historical quote
+  context only and there is no backup-provider failover.
+- [x] Calculate integer-micro-USD all-in cost per successful use, including one bounded same-model
+  retry, invalid-output reserve, full paid-backend floor, D1/monitoring operations, and incident
+  reserve. Each accepted SKU must retain at least a 50% conservative peak contribution margin.
+- [x] Accept the US$4.99 one-time Pro buyout policy, evaluate 5/10/15, and select exactly 10
+  post-purchase starter credits.
+- [x] Accept 10/25/65-use consumable cards at US$0.99/US$1.99/US$4.99 and record exact ledger,
+  idempotency, retry, refund, deletion, one-user-calendar-year expiry, and restore/recovery rules.
 - [x] Independently review and merge the first quote-backed planning package. PR #98 exact head
   `9226985` passed hosted run `33570570896` and merged as `6e2d242`. DEC-COM-094 preserves the
   `INSUFFICIENT_QUOTE_EVIDENCE` outcome and the review's low-volume breaker, explicit-self-test,
   and 30-day re-quote follow-ups.
-- [ ] Run the fixed Simplified-Chinese/English provider Eval, verify account region/retention/rate
-  settings and exact App Store proceeds, then independently review an owner decision. The current
-  interim result is `INSUFFICIENT_QUOTE_EVIDENCE`; only `PROCEED_TO_R2` can enter COM-C7.
+- [x] Record DEC-COM-095: the explicitly started 30-day trial includes local Pro/on-device AI but
+  zero Luna credits; a successful buyout grants a finite one-year starter lot; later use requires
+  one-year consumable lots; only a user-initiated valid structured Luna result ultimately displayed
+  consumes one credit;
+  ordinary test users cannot call Luna; Apple App Review may use an isolated capped environment;
+  refunds never delete local data; and a local-only release remains possible if cloud is not ready.
+- [x] Freeze DEC-COM-096's 24-case Simplified-Chinese/English Eval, explicit scorer thresholds,
+  10-credit starter lot, and 10/25/65-use cards at US$0.99/US$1.99/US$4.99. The scorer's synthetic
+  self-test is tooling evidence only and is not a live Luna pass.
+- [ ] Obtain dated account-level no-training, Zero Data Retention, region/subprocessor, rate-tier,
+  billing and credential-isolation evidence; independently review it; then run and blind-review
+  the fixed live Luna Eval. Also obtain StoreKit price-point evidence, exact-head review, and the
+  final owner decision. Pre-launch actual US proceeds do not exist and are a post-launch
+  recalibration input. Current result: `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; only
+  `PROCEED_TO_R2` can enter COM-C7.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
 
@@ -823,16 +844,17 @@ Status: **Blocked by G1.**
   reuse of another product's data or credentials.
 - [B] **C7-02 — Apple current-state authority.** Verify signed transactions/notifications with
   App Store Server Library; validate bundle/app/environment/product; derive `subjectHash` only on
-  server; query current subscription status; use short cache plus invalidation.
+  server; resolve the current non-consumable Pro transaction plus consumable grant/refund facts;
+  use short cache plus invalidation.
 - [B] **C7-03 — Attestation and session.** App Attest nonce/assertion, short-lived token, replay
   protection, fail-closed cloud access, and explicit local fallback.
 - [B] **C7-04 — License/usage/delete skeleton and economics.** Add minimal metadata structures and
   real-quote unit-economics document; do not connect a model provider.
 
-Exit gate: only current subscribed/grace production state can create an attested cloud session;
-historical/test/deferred/retry/expired/revoked state cannot. No model call exists.
+Exit gate: only current non-refunded Production Pro authority can create an attested cloud session;
+historical/test/refunded/revoked state cannot. No model call exists.
 
-## COM-C8 — Cloud Coach consent, redaction, and provider router
+## COM-C8 — Cloud Coach consent, redaction, and sole-provider adapter
 
 Status: **Blocked by COM-C7.**
 
@@ -840,10 +862,10 @@ Status: **Blocked by COM-C7.**
   Provider-scope renewal, and unreachable cloud path without current consent.
 - [B] **C8-02 — Dual minimization boundary.** Client `PrivacyRedactionService` plus server
   `CloudPayloadSanitizer`; forbidden fields reject and alert; logs never contain prompt/response.
-- [B] **C8-03 — Multi-provider router.** At least one primary and one independently evaluated
-  backup adapter, provider/model allow-lists, separate keys, minimal-retention settings, region and
-  policy records, and consent-aware failover. A domestic provider is eligible only after the same
-  quality/privacy/security evaluation.
+- [B] **C8-03 — Sole-Luna adapter.** Allow-list only OpenAI `gpt-5.6-luna`; isolate keys and
+  dev/staging/production/review environments; enforce accepted no-training, account-level Zero Data
+  Retention, region/subprocessor and policy records; never fail over to a second provider. Any
+  provider/account/network failure returns the complete local fallback without spending a credit.
 - [B] **C8-04 — Safe generation contract.** Stateless requests, at most six local summary turns,
   JSON Schema, app-owned actions, one repair attempt, timeout/cancel/idempotent short result cache,
   and deterministic/local fallback.
@@ -851,20 +873,24 @@ Status: **Blocked by COM-C7.**
   quality/latency/cost, policy-disclosure updates, and proof that cloud values never override local
   financial facts.
 
-Exit gate: no consent means no provider traffic; provider failover stays inside current consent;
+Exit gate: no consent means no provider traffic; only the consented Luna contract is reachable;
 forbidden content is absent from traffic/logs; local functionality remains complete.
 
 ## COM-C9 — Quota, rate limits, idempotency, and degradation
 
 Status: **Blocked by COM-C8 and accepted cost/config inputs.**
 
-- [B] **C9-01 — Authoritative plan quota.** Trial/Monthly/Annual/Connect included calls and reset
-  policy come from accepted signed server config; Annual still resets at the accepted monthly
-  boundary; no unlimited/fair-use or extra token pack.
-- [B] **C9-02 — Atomic usage and idempotency.** Concurrent/retry/offline calls produce one model
-  expense and one successful-user count; parse failures count cost/rate but not successful quota.
+- [B] **C9-01 — Authoritative credit lots.** The explicitly started local-only trial grants zero
+  cloud credits. Verified Pro purchase grants one finite starter lot; consumable cards grant
+  separate idempotent lots. Each lot expires one user-calendar year after grant; there is no
+  recurring reset, auto top-up, unlimited/fair-use promise, or cloud credit for ordinary testers.
+- [B] **C9-02 — Atomic usage and idempotency.** Reserve before a user-initiated cloud request;
+  commit exactly one credit only after a valid structured Luna result is displayed; release on
+  cancel, transport/policy failure, invalid output, or local fallback. Future cloud-AI features use
+  the same contract. Concurrent/retry/offline work cannot double-spend.
 - [B] **C9-03 — Abuse and spend controls.** Per-minute/hour/day/month, token cap, user parse-failure
-  breaker, App Attest/session checks, monitoring, and budget alarms.
+  breaker, App Attest/session checks, monitoring, budget alarms, and a server-enforced 50%-margin
+  breaker that stops new sales/grants while honoring already granted credits.
 - [B] **C9-04 — L1–L5 degradation and UI.** Independently triggerable/recoverable fallback levels;
   show included/used/remaining/reset without affecting local features when exhausted.
 
@@ -877,13 +903,16 @@ Status: **Blocked by COM-C9.**
 
 - [B] **C10-01 — V2 notification receiver.** Verify JWS, dedupe `notificationUUID`, reject
   forgeries, safely record unknown types, and invalidate related current-state cache.
-- [B] **C10-02 — State and order handling.** Handle subscribed/renew/fail/grace-expired/expired/
-  refund/revoke, out-of-order payloads, terminal temporary denial, and authoritative refresh.
+- [B] **C10-02 — State and order handling.** Handle non-consumable purchase/refund/revoke plus
+  consumable purchase/refund, out-of-order payloads, idempotent lot grant/removal, spent-lot credit
+  deficit, terminal temporary denial, and authoritative refresh without deleting local data.
 - [B] **C10-03 — Operations and reconciliation.** History lookup, retry/alert, sampled current-state
-  reconciliation and repair; plan change never resets current-period usage.
+  reconciliation and repair; reinstall never reissues consumed/expired lots and no state change
+  resets usage.
 
-Exit gate: cached/backend entitlement converges to Apple current state, refunds/revocations close
-cloud access promptly, grace remains allowed, retry does not.
+Exit gate: cached/backend authority converges to Apple current state; refunds/revocations close
+future cloud access promptly without deleting local data; card refunds remove unused credits or
+create only a non-monetary credit deficit.
 
 ## COM-C11 — Cloud operations, configuration, experiments, and cost dashboard
 
@@ -918,14 +947,18 @@ Status: **Blocked by COM-C11. Watch distribution is a separate later milestone.*
   test path/account where required, screenshots, localized release copy, archive/sign/upload,
   phased operational watch, and no release with open P0/P1.
 
-Exit gate: all v1.4 release gates are satisfied and recorded. Only then may the owner authorize
-formal 1.0 App Store submission and public launch.
+Exit gate: all enabled-path v1.4 release gates are satisfied and recorded. Only then may the owner
+authorize formal 1.0 App Store submission and public launch. A separately reviewed local-only
+release may omit Luna when cloud gates are not ready; it cannot represent G1 or COM-C7–C11 as Done.
 
 ## Technical debt and deferred decisions
 
-- Local Lifetime remains deferred; there must be no implementation placeholder or public promise.
-- Monthly/Annual prices, trial, included cloud calls, reset boundary, regions, and launch provider
-  set remain TBD until accepted evidence and cost analysis.
+- The owner accepted the US$4.99 one-time Pro policy, explicit 30-day local-only trial, sole Luna
+  model, 10 starter credits, 10/25/65-use cards at US$0.99/US$1.99/US$4.99, one-year credit lots,
+  and >=50% conservative contribution margin under DEC-COM-095/096. Product IDs, launch regions,
+  and Luna account/live-Eval evidence remain TBD.
+- Historical Monthly/Annual/P1W products are nonpublic test evidence and will be replaced rather
+  than grandfathered in a later authorized catalog phase; no current Product ID is mutated here.
 - Existing money infrastructure makes COM-C4A a delta audit, not an assumed rewrite.
 - First-party telemetry, Free iCloud, and third-party provider use follow accepted SPEC-012: the
   current version stays unchanged and each later channel remains disabled until its authorization,

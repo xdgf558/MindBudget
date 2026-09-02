@@ -2,84 +2,108 @@
 
 ## Status
 
-**Formal commercial values are TBD; provisional C3 test terms were accepted on 2026-08-14.**
-DEC-COM-092 reopened a one-time-offer hypothesis for G1 analysis on 2026-09-01. The owner entered
-G1 on 2026-09-02; DEC-COM-093 records quote-backed planning evidence and the interim result
-`INSUFFICIENT_QUOTE_EVIDENCE`. Independent review found no P1/P2 on exact PR #98 head `9226985`;
-run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes only that first evidence
-package. This remains an evidence/owner-acceptance surface, not authorization to create formal App
-Store Connect products or invent regional conversions. Engineering must render StoreKit values
-and must not choose customer-facing regional prices.
+**Owner policy and exact cloud-credit counts/consumable card tiers are accepted; StoreKit Product IDs/price
+points, OpenAI account admission, and the live Luna Eval remain pending.**
 
-The accepted nonpublic test configuration uses US$1.99 Monthly, US$19.99 Annual, and a 7-day free
-trial for StoreKit-eligible subscribers. The first test storefront set is HKG, USA, SGP, and TWN.
-These values support Configuration/Sandbox/TestFlight validation only and are not final launch
-pricing, proceeds, margin, or storefront authorization.
+DEC-COM-092 opened the one-time-offer hypothesis. DEC-COM-093 recorded the first quote-backed
+planning package and its historical `INSUFFICIENT_QUOTE_EVIDENCE` result. Independent review found
+no P1/P2 on exact PR #98 head `9226985`; run `33570570896` passed and PR #98 merged as `6e2d242`.
+DEC-COM-094 closed only that evidence package. DEC-COM-095 records the commercial and
+usage-accounting policy; DEC-COM-096 accepts 10 starter credits and the three card tiers. The
+current result is `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, not completed G1 or COM-C7 entry.
 
-The new working scenario is a US$4.99 one-time local-Pro unlock with finite starter cloud-AI
-credits and separately purchased consumable usage cards. It is not an accepted price or product.
-`G1_UNIT_ECONOMICS_PACKET.md` derives a provisional 10-use starter grant and 10/25/65-use card
-ladder from dated real quotes and deterministic typical/P50 plus peak/P95 planning envelopes. The
-envelopes are not measured distributions and remain unaccepted pending the provider Eval, account
-privacy/region proof, exact App Store proceeds, final-decision review, and an owner decision.
+This worksheet is not authorization to create or modify App Store Connect products, credentials,
+backend resources, or customer-facing prices. StoreKit remains the display and transaction
+authority. Because the product has not launched, actual United States proceeds do not exist yet;
+pre-launch analysis uses the conservative proceeds assumptions below, and post-launch operation
+must recalibrate from actual Financial Reports before widening any cloud allocation.
 
-Accepted technical products:
+## Accepted owner policy
 
-- `com.xdgf558.mindbudget.pro.monthly`
-- `com.xdgf558.mindbudget.pro.annual`
+- Pro is a one-time US$4.99 buyout; the exact StoreKit price point and regional equivalents remain
+  App Store Connect inputs for a later authorized phase.
+- The 30-day trial begins only after an explicit **Start Trial** action. It exposes local Pro and
+  on-device AI only, includes zero Luna credits, and does not auto-renew.
+- A completed buyout grants exactly 10 starter Luna credits once.
+- Additional cloud use uses three accepted card tiers: 10 uses / US$0.99, 25 uses / US$1.99, and
+  65 uses / US$4.99. Product IDs and actual App Store Connect price-point creation remain later.
+- Only a user-initiated valid structured Luna result ultimately displayed consumes one credit;
+  future cloud-AI features inherit the same rule.
+- Starter and purchased lots expire one user-calendar year after grant. No fixed-second
+  approximation is allowed.
+- Every accepted SKU must preserve at least a 50% contribution margin under the conservative peak
+  cost envelope. A server-enforced cost breaker stops new sales/grants when that cannot be proven,
+  while already granted credits remain honored.
+- The sole provider/model is OpenAI `gpt-5.6-luna`. There is no backup provider or provider
+  failover; network, policy, quota, account, or model failure returns the complete local fallback.
+- Ordinary TestFlight/Sandbox/test users receive no Luna access. Apple App Review may exercise real
+  Luna only through an isolated, capped review environment. That exception is not a customer or G1
+  usage sample.
 
-## Evidence required before a price becomes Accepted
+The prior US$1.99 Monthly, US$19.99 Annual, P1W introductory offer, and HKG/USA/SGP/TWN catalog are
+historical nonpublic Configuration/Sandbox/TestFlight evidence only. Because no public launch has
+occurred, a later authorized catalog migration replaces those products rather than grandfathering
+them. This document does not perform that mutation.
 
-- Apple storefront price point and effective date;
-- current proceeds rate/program status, taxes and expected refunds;
-- weighted storefront mix and currency basis;
-- fixed configuration/telemetry/backend/support costs;
-- cloud input/output/cache/retry/failover costs at low, expected and P95 use;
-- proposed included calls and reset boundary;
-- Monthly versus Annual discount and cannibalization assumptions;
-- target gross margin and downside scenario;
-- quote/source URL, capture date, owner and decision ID.
+## Evidence still required before Luna can be activated
 
-## Candidate storefront worksheet
+- fixed Simplified-Chinese/English Luna quality and structured-output Eval;
+- measured typical/P50 and peak/P95 input/output envelope from that Eval;
+- OpenAI account proof for no training, account-level Zero Data Retention eligibility, permitted
+  region/subprocessors, rate limits, price tier, and billing controls;
+- hard server enforcement of the 1,000-success/50% margin breaker before any grant or sale;
+- StoreKit price-point and regional-availability evidence;
+- independent exact-head review and final owner decision.
 
-Rows are evaluation candidates only; they do not promise launch availability.
+Actual US App Store net proceeds are a mandatory post-launch recalibration input, not a pre-launch
+G1 prerequisite. Until then, every candidate uses 30% Apple commission, 10% tax/FX reserve, and 5%
+refund reserve in the conservative direction.
 
-| Storefront | Monthly price point | Annual price point | Trial availability/terms | Included cloud calls/reset | Effective date | Net proceeds assumption | Evidence date/source | Status/owner |
-|---|---|---|---|---|---|---|---|---|
-| Hong Kong (HKG) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
-| United States (USA) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
-| Singapore (SGP) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
-| Taiwan (TWN) | StoreKit value; US$1.99 test anchor | StoreKit value; US$19.99 test anchor | 7 days when StoreKit eligible | TBD | Test only | TBD | Owner input, 2026-08-14 | Accepted nonpublic test / owner |
-| China mainland (CHN) | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Not in first test set |
-| Other launch storefronts | TBD | TBD | TBD | TBD | TBD | TBD | UNVERIFIED | Not selected |
+## Luna-only planning envelope
 
-## Unit-economics scenarios
+All values are integer micro-USD. Token counts are planning inputs, not measured percentiles.
+Peak allows two billable attempts against the same Luna model and never a second provider.
 
-| Scenario | Successful uses/month | Provider attempts per success | Input/output per attempt | Retry/failover | Monthly fixed/reserve | Typical all-in/use | Peak all-in/use | Evidence status |
-|---|---:|---:|---|---|---:|---:|---:|---|
-| Low volume sensitivity | 100 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.101330 | US$0.123098 | PROVISIONAL PLANNING, NOT MEASURED |
-| Planning floor | 1,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.011330 | US$0.033098 | PROVISIONAL PLANNING, NOT MEASURED |
-| High volume sensitivity | 10,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | Peak includes one Anthropic failover | US$10.00 | US$0.002330 | US$0.024098 | PROVISIONAL PLANNING, NOT MEASURED |
+| Scenario | Successful uses/month | Provider attempts/success | Input/output per attempt | Monthly backend floor | Typical all-in/use | Peak all-in/use | Evidence status |
+|---|---:|---:|---|---:|---:|---:|---|
+| Low-volume sensitivity | 100 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | US$10.00 | US$0.101330 | US$0.108986 | PLANNING, NOT MEASURED |
+| Planning floor | 1,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | US$10.00 | US$0.011330 | US$0.018986 | PLANNING, NOT MEASURED |
+| High-volume sensitivity | 10,000 | Typical 1; peak 2 | Typical 2,000/500; peak 8,000/1,500 | US$10.00 | US$0.002330 | US$0.009986 | PLANNING, NOT MEASURED |
 
-## One-time unlock and usage-card scenario
+The 1,000-success planning case uses US$2.744500 conservative net proceeds for US$4.99. A 50%
+minimum contribution margin caps all fulfillment cost at US$1.372250. This supports at most 121
+typical-envelope or 72 peak-envelope uses; those maxima are safety ceilings, not recommended grants.
 
-| Offer element | Candidate price | Credit count | Net proceeds | Typical fulfillment cost | Peak fulfillment cost | Refund/recovery terms | Evidence status |
-|---|---:|---:|---:|---:|---:|---|---|
-| One-time local-Pro unlock + starter credits | US$4.99 working assumption | 10 starter uses | US$2.744500 after 30% commission plus 10% tax/FX and 5% refund reserves | US$0.113300 | US$0.330980 | Non-consumable recovery anchor; starter/offer terms unaccepted | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
-| Usage card A | US$0.99 | 10 uses | US$0.544500 | US$0.113300 | US$0.330980 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
-| Usage card B | US$1.99 | 25 uses | US$1.094500 | US$0.283250 | US$0.827450 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
-| Usage card C | US$4.99 | 65 uses | US$2.744500 | US$0.736450 | US$2.151370 | Idempotent consumable lot; refund removes unused lot or creates a credit deficit | PROVISIONAL / `INSUFFICIENT_QUOTE_EVIDENCE` |
+## Accepted credit economics
 
-## Three-stage acceptance
+| Offer element | Accepted price | Accepted credits | Conservative net proceeds | Peak fulfillment cost | Peak contribution margin | Current status |
+|---|---:|---:|---:|---:|---:|---|
+| One-time Pro starter lot | US$4.99 accepted base price | **10** | US$2.744500 | US$0.189860 | **93.08%** | Accepted commercial allocation |
+| Usage card A | **US$0.99** | **10** | US$0.544500 | US$0.189860 | **65.13%** | Accepted tier; Product ID not created |
+| Usage card B | **US$1.99** | **25** | US$1.094500 | US$0.474650 | **56.63%** | Accepted tier; Product ID not created |
+| Usage card C | **US$4.99** | **65** | US$2.744500 | US$1.234090 | **55.03%** | Accepted tier; Product ID not created |
 
-1. Configuration stage: provisional, nonpublic StoreKit Configuration terms may support COM-C2/3
-   tests and create no price promise.
-2. Preliminary economics stage: an Accepted dated worksheet is required before formal App Store
-   Connect products and COM-C6.
-3. G1 stage: DEC-COM-092/093 require final provider, quality, measured typical/P50 and peak/P95
-   all-in cost, starter-credit, consumable-card, ledger/recovery, storefront price and margin
-   evidence before COM-C7. The 2026-09-02 planning worksheet does not satisfy that gate.
+The accepted commercial tiers pass the arithmetic envelope at 1,000 monthly successes. They are
+not yet StoreKit products. At low volume, fixed backend cost can make a card fail the 50% rule;
+therefore the trailing-volume, price, and measured-envelope breaker must be server-enforced before
+any sale or grant.
 
-The prior blanket exclusion of Local Lifetime is superseded only for this G1 hypothesis. No
-one-time Product ID, entitlement, price, credit count, or UI may be created until the reviewed G1
-worksheet is Accepted and a later implementation phase is explicitly entered.
+## Refund, expiry, and recovery accounting
+
+- Pro refund/revocation removes future Pro/cloud authority but never deletes local financial data.
+- Card refund removes unused credits from the matching idempotent lot. If already spent, the cloud
+  ledger records a non-monetary credit deficit that future grants satisfy first; no financial debt
+  and no local-data effect are created.
+- Starter/card expiry is persisted as one user-calendar year from the authoritative grant instant.
+- Reinstall/device recovery derives Pro from verified Apple authority and restores cloud lots from
+  the server ledger; it never reissues a consumed or expired lot.
+- Delete All may erase local data independently. Cloud-credit deletion and service sunset follow
+  explicit server/deletion contracts and do not reinterpret local financial facts.
+
+## Acceptance boundary
+
+DEC-COM-095/096 accept the product policy, sole-provider direction, and exact credit/card choices.
+G1 remains In Progress until account admission, the live Luna Eval, StoreKit price-point evidence,
+independent review, and the final owner decision are complete. Only the explicit `PROCEED_TO_R2`
+result may enter COM-C7. If the cloud path is not ready, the owner may instead authorize a separate
+local-only release with Luna absent; that path does not silently satisfy or bypass G1.

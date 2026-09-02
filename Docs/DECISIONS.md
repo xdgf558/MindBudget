@@ -3549,3 +3549,41 @@ Consequences: G1 remains In Progress. No provider, price, starter count, usage c
 backend, Product ID, ledger, App Store Connect mutation, customer-facing change, or COM-C7 entry is
 accepted. A separate owner authorization is still required before configuring candidate provider
 credentials or running the bounded non-production Eval.
+
+---
+
+## 2026-09-02 — Accept the commercial/credit policy but keep G1 open
+
+Context: The owner resolved the remaining product-policy questions while the app is still
+pre-launch and actual US App Store proceeds are unavailable.
+
+Decision: Detailed ownership is DEC-COM-095. Accept US$4.99 one-time Pro; an explicitly started
+30-day local Pro/on-device-AI trial with zero Luna credits; sole OpenAI `gpt-5.6-luna`; finite
+starter and consumable lots expiring after one user-calendar year; one credit only for a
+user-initiated valid structured result ultimately displayed; >=50% conservative peak contribution
+margin; refund without local-data deletion; ordinary-test-user denial plus isolated capped Apple
+Review access; and a separately reviewable local-only release path.
+
+Consequences: Exact starter/card values, Luna Eval and account no-training/ZDR/region/rate/billing
+evidence, StoreKit price-point evidence, independent review, and final owner `PROCEED_TO_R2` remain
+open. The revised planning costs are US$0.011330 typical/P50 and US$0.018986 peak/P95 at 1,000
+monthly successes. Current result is `EVAL_AND_ACCOUNT_EVIDENCE_PENDING`; no runtime, Product ID,
+credential, backend, App Store Connect, or COM-C7 action is authorized.
+
+---
+
+## 2026-09-02 — Freeze the Luna Eval and exact credit offer without inventing account evidence
+
+Context: The owner selected the exact post-purchase allocation and usage-card tiers and requested
+account privacy/region/rate proof plus the fixed Luna Eval. Public OpenAI evidence was available,
+but the dedicated account/project settings and credential were not.
+
+Decision: Detailed ownership is DEC-COM-096. Freeze the 24-case bilingual Eval and its dataset and
+prompt hashes. Accept 10 starter credits plus 10/25/65-use cards at US$0.99/US$1.99/US$4.99,
+subject to the hard trailing-volume and 50% peak-margin server breaker. Do not run Luna before the
+account matrix passes.
+
+Consequences: Formal results are `OPENAI_ACCOUNT_NOT_ADMITTED`,
+`LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`.
+G1 remains In Progress and COM-C7 remains blocked. No runtime, StoreKit, credential, backend,
+ledger, App Store Connect, or customer-facing mutation is authorized.

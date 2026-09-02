@@ -56,6 +56,9 @@ See `SOURCE_PROVENANCE.md` for the external-source boundary and mandatory re-aud
   REQ-CLOUD-CONSENT-001, REQ-CLOUD-USAGE-001.
 - Verification evidence: current source contains no CloudKit, telemetry, backend, URLSession, or
   third-party provider implementation; current privacy manifest declares no collection/tracking.
+- Current owner override: DEC-COM-095 narrows the previously accepted multi-provider possibility
+  to sole OpenAI `gpt-5.6-luna` with no provider failover. The authorization, consent, disclosure,
+  deletion, and release gates remain unchanged; only the provider topology is superseded.
 
 ### SPEC-013 — Watch dependency on G1 and COM-C7 is contradictory
 
@@ -89,9 +92,11 @@ See `SOURCE_PROVENANCE.md` for the external-source boundary and mandatory re-aud
   regional pricing, and cloud quota copy.
 - Owner resolution: use three explicit evidence gates: (a) configuration-only Monthly/Annual test
   products and provisional test terms for COM-C2/3; (b) accepted preliminary unit economics before
-  formal products and COM-C6; and (c) the G1 final provider/quota/cost decision. Monthly/Annual
-  prices, trial, included calls, reset policy, and public quota claims remain TBD until the
-  applicable worksheet is Accepted.
+  formal products and COM-C6; and (c) the G1 final provider/credit/cost decision. DEC-COM-095 now
+  accepts the commercial shape—US$4.99 one-time Pro, explicit 30-day local-only trial with zero
+  Luna credits, finite one-year starter/card lots, and >=50% conservative margin. DEC-COM-096
+  accepts 10 starter credits and 10/25/65-use card tiers, while Product IDs/price points, account
+  admission, and the live Eval remain gated.
 - Owner: Product owner with engineering/cost evidence.
 - Blocks: the circular specification conflict is closed. Formal products and public commercial
   terms remain operationally blocked until evidence gate (b); cloud quota/provider claims remain
@@ -99,10 +104,11 @@ See `SOURCE_PROVENANCE.md` for the external-source boundary and mandatory re-aud
 - Requirements: REQ-STOREKIT-LIFECYCLE-001, REQ-CLOUD-USAGE-001, REQ-G1-001.
 - Verification evidence: v1.4 explicitly leaves price/trial/quota `TBD`; no current Product ID or
   StoreKit catalog exists.
-- Current owner override: DEC-COM-092 supersedes only the pending G1 offer hypothesis. G1 now
-  evaluates a US$4.99 one-time local-Pro unlock with finite starter cloud credits and consumable
-  usage cards from dated real AI/backend quotes. It does not retroactively relabel the completed
-  Monthly/Annual TestFlight evidence, create a formal product, or accept a customer price/count.
+- Current owner override: DEC-COM-092 opened the one-time hypothesis; DEC-COM-095/096 accept the
+  policy and sole OpenAI `gpt-5.6-luna` direction. Because the app has not launched, the historical
+  Monthly/Annual/P1W products are nonpublic evidence and will be replaced rather than grandfathered
+  in a later authorized catalog phase. This decision creates no Product ID, backend, credential,
+  Product-ID implementation, account/live-Eval pass, or COM-C7 entry.
 
 ### SPEC-015 — Floating-point CI scope conflicts with receipt geometry/confidence
 

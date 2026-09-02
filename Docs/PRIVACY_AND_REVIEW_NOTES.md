@@ -291,6 +291,31 @@ implementation or the user's preference; the user setting defaults to off and re
 mandatory through a centralized availability gate. Generated wording is validated and is
 not persisted as a conversation or profile.
 
+DEC-COM-095 plans a separate future cloud-AI path but does not enable it. That path may use only
+OpenAI `gpt-5.6-luna` after explicit first-send consent and accepted account proof for no training,
+account-level Zero Data Retention, processing region/subprocessors, rate limits, price tier, and
+billing controls. There is no second provider or failover. The client sends only the consented,
+redacted, bounded schema through the independent MindBudget backend; raw ledger rows, notes,
+merchant lists, receipt images/OCR, identifiers, and arbitrary prompts remain forbidden.
+
+The explicitly started 30-day trial grants no Luna credits. One credit may be committed only when
+the person initiates a cloud analysis and a valid structured Luna result is ultimately displayed;
+cancellation, invalid output, unavailable on-device AI, policy/account/provider/network failure,
+or deterministic local fallback commits none. Future cloud-AI features inherit that same rule.
+Ordinary TestFlight/Sandbox/test users cannot call Luna. Apple App Review may use only an isolated,
+capped review environment disclosed in Review Notes. Refund/revocation can remove future Pro/cloud
+authority or adjust credit lots, but never deletes the person's local financial data. A separately
+reviewed local-only release remains possible with the cloud path absent.
+
+DEC-COM-096 freezes a 24-case synthetic bilingual Eval and exact 10-credit starter plus
+10/25/65-use card tiers, but it does not authorize a provider request. Public OpenAI pages establish
+published defaults and eligibility conditions only. The required organization/project ZDR,
+data-sharing, region, subprocessor, rate-tier, billing, and credential-isolation artifacts are
+missing; `G1_OPENAI_ACCOUNT_EVIDENCE.md` therefore returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the
+live result is `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`. A deterministic scorer self-test is
+not privacy, account, quality, or final-binary evidence. No Luna disclosure may imply activation
+until the matrix is independently reviewed and the fixed live Eval passes.
+
 ## Siri and Spotlight disclosure
 
 Siri integration and Spotlight indexing are off by default and independently

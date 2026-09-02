@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "admitted": false,
+  "approvedBaseURL": null,
+  "evidenceDate": null,
+  "evidence": {
+    "dedicatedProject": false,
+    "noDataSharing": false,
+    "zeroDataRetention": false,
+    "region": false,
+    "endpointCompatibility": false,
+    "subprocessorsAndTerms": false,
+    "rateTier": false,
+    "billingControls": false,
+    "credentialIsolation": false
+  }
+}

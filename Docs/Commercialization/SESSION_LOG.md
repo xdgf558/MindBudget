@@ -4084,3 +4084,77 @@ Result: The first quote/planning package is reviewed and merged, but its formal 
 price, starter count, card, credential, backend, Product ID, ledger, UI, App Store Connect, remote,
 distribution, or release action occurred. This closeout still requires independent review, green
 hosted CI, and merge on its own exact head.
+
+## 2026-09-02 — Session 209 — Lock the one-time Pro and sole-Luna owner policy
+
+Goal: Apply the owner's remaining G1 product decisions without inventing exact credit/card values,
+creating StoreKit products, enabling cloud traffic, or entering COM-C7.
+
+Actions: Added DEC-COM-095. Selected OpenAI `gpt-5.6-luna` as the sole future cloud model and
+recalculated the integer-micro-USD worksheet without a backup provider. Recorded US$4.99 one-time
+Pro; an explicitly started 30-day local Pro/on-device-AI trial with zero Luna credits; finite
+starter and consumable lots valid for one user-calendar year; one-credit commit only for a
+user-initiated valid structured Luna result ultimately displayed; >=50% conservative peak
+contribution margin; refund without local-data deletion; ordinary-test-user denial; isolated
+capped Apple App Review access; replacement rather than grandfathering of the nonpublic
+Monthly/Annual/P1W catalog; and a separately reviewable local-only release path. Synchronized the
+G1 packet, provider/privacy/pricing contracts, downstream C7–C12 phase graph, requirements, tasks,
+project memories, SPEC-014 override, and commercialization-document gate.
+
+Result: The recalculated 1,000-success planning envelope is US$0.011330 typical/P50 and
+US$0.018986 peak/P95. Candidate 5/10/15 starter lots and 10/25/65 cards remain evaluation rows,
+not accepted counts/SKUs. Exact Luna Eval/account no-training/ZDR/region/subprocessor/rate/billing
+proof, StoreKit price-point evidence, exact choices, final review, and owner `PROCEED_TO_R2` remain
+open. The current result is `EVAL_AND_ACCOUNT_EVIDENCE_PENDING`; G1 stays In Progress and COM-C7
+stays blocked. No Swift product behavior, credential, request, backend, Product ID, App Store
+Connect state, distribution, or release changed.
+
+Validation: The first `Scripts/validate.sh` invocation completed every static gate but inherited
+the system Command Line Tools selection and stopped before build because it had no full
+`xcodebuild`; this is an environment non-pass. A second invocation selected Xcode 27.0 beta 6
+(`27A5252f`) inside the restricted sandbox, completed the static gates, then stopped because the
+sandbox could not access CoreSimulator or its local build state; this is also an environment
+non-pass. The identical unrestricted Xcode invocation on the iOS 26.5 iPhone 17 Pro simulator
+passed Release, the strict Dashboard benchmark, 553 unit tests across 32 suites with four expected
+opt-in CloudKit physical skips, all 18 UI tests with 17 passed and one expected physical-only skip,
+every selected coverage threshold, and all 23 C6-02 runtime bindings. The UI summary contains
+exactly 18 executions, so no test-runner retry occurred. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.G71eft/MindBudget.xcresult`;
+that path is an execution pointer, not a durable artifact. Exact-head independent review, hosted
+CI, and merge remain required.
+
+## 2026-09-02 — Session 210 — Freeze the Luna Eval and exact credit offer
+
+Goal: Complete every credential-independent part of the owner's Luna Eval/account-proof/offer
+request without converting public policy into account evidence or sending traffic through an
+unreviewed retention/region configuration.
+
+Actions: Added DEC-COM-096, `G1_LUNA_EVAL_CASES.json`, `G1_LUNA_EVAL.md`,
+`G1_OPENAI_ACCOUNT_EVIDENCE.md`, and `Scripts/g1_luna_eval.py`. Frozen 12 deterministic scenarios
+into 24 English/Simplified-Chinese cases with closed facts/actions/numbers, strict structured
+output, safety/language gates, bounded retry, immutable dataset/prompt hashes, and explicit live-
+run credential/base-URL requirements. Re-ran integer economics and accepted 10 post-buyout
+starter credits plus 10/25/65-use cards at US$0.99/US$1.99/US$4.99. Added the mandatory server
+breaker below 1,000 trailing-30-day successes or 50% peak margin.
+
+Result: The deterministic Eval self-test is tooling evidence only. The dedicated OpenAI account
+identity, sharing state, ZDR approval/configuration, region, subprocessors/terms, actual rate tier,
+billing controls, and isolated credential are absent. No live request ran. Results are
+`OPENAI_ACCOUNT_NOT_ADMITTED`, `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
+`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; G1 remains In Progress and COM-C7 remains blocked. No
+Swift product code, remote request, credential, backend, Product ID, ledger, App Store Connect
+mutation, distribution, or release action occurred.
+
+Validation: Normal and optimized (`python3 -O`) Eval self-tests passed, 24 request fixtures were
+emitted, the Luna-only integer worksheet and document cross-check passed, and an explicit live-run
+attempt stopped before network access because the machine-readable account gate is not admitted.
+The first full-validator attempt passed the static gates but the restricted sandbox could not
+access CoreSimulator/build state; it is an environment non-pass. The identical unrestricted Xcode
+27.0 beta 6 (`27A5252f`) run on the iOS 26.5 iPhone 17 Pro simulator passed Release, the strict
+Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit physical
+skips, all 18 UI tests with 17 passed and one expected physical-only skip, every selected coverage
+threshold, and all 23 C6-02 runtime bindings. The UI summary contains exactly 18 executions, so no
+test-runner retry occurred. The validator deleted
+`/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.hu81QC/MindBudget.xcresult`;
+this path is an execution pointer rather than a durable artifact. Exact-head independent review,
+hosted CI, and merge remain required.

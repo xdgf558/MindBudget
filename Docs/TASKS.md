@@ -675,7 +675,18 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   `INSUFFICIENT_QUOTE_EVIDENCE`, the typical/P50 and peak/P95 planning costs, the provisional
   US$4.99/10-starter and 10/25/65-use consumable-card calculations, and all review P3 follow-ups
   without accepting an offer.
-- [ ] Complete the remaining G1 decision. Run the bounded bilingual provider Eval, verify account
-  region/retention/rate and exact App Store proceeds, harden the worksheet self-test, and obtain
-  independent review plus an owner decision. Do not create products, change the subscription UI,
-  configure credentials, deploy a provider/backend, or enter COM-C7 before `PROCEED_TO_R2`.
+- [x] Freeze the 24-case Luna Eval protocol and accept 10 post-buyout starter credits plus
+  10/25/65-use cards at US$0.99/US$1.99/US$4.99 under DEC-COM-096. This is an offer decision and
+  deterministic tooling baseline, not a live Luna pass or StoreKit Product-ID mutation.
+- [ ] Complete the remaining G1 decision. Verify account no-training/Zero Data Retention/region/
+  subprocessor/rate/billing controls for sole model `gpt-5.6-luna`, run and independently review
+  the fixed live Eval, obtain StoreKit
+  price-point evidence, independent review, and the final owner decision. DEC-COM-095 accepts the
+  US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,
+  starter/card lots valid for one user-calendar year, only a user-initiated valid structured Luna
+  result ultimately displayed consuming one credit, `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, >=50%
+  peak contribution margin, refund-without-local-deletion, ordinary test user denial, isolated
+  capped Apple App Review access, and a separate local-only release path. Actual US proceeds do not exist
+  pre-launch and are a post-launch recalibration input. Do not create products, change the current
+  subscription UI, configure credentials, deploy a provider/backend, or enter COM-C7 before
+  `PROCEED_TO_R2`.

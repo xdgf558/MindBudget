@@ -240,14 +240,16 @@ main product baseline remains in `Docs/PROJECT_MEMORY.md`. Accepted decisions in
 
 ## Commercial model
 
-- The existing reviewed TestFlight implementation remains Pro Monthly and Pro Annual. The formal
-  launch offer is now `TBD`: DEC-COM-092 reopens a US$4.99 one-time local-Pro unlock plus finite
-  starter AI credits and consumable usage cards for G1 evaluation only.
+- The existing reviewed TestFlight implementation remains Pro Monthly and Pro Annual as nonpublic
+  evidence. DEC-COM-095 accepts the formal launch policy as a US$4.99 one-time Pro unlock, an
+  explicitly started 30-day local-only trial with zero Luna credits, exactly 10 post-purchase
+  starter credits, and 10/25/65-use cards at US$0.99/US$1.99/US$4.99 under DEC-COM-096.
 - Subscription group internal reference: `MindBudget Pro`.
 - Monthly Product ID: `com.xdgf558.mindbudget.pro.monthly`.
 - Annual Product ID: `com.xdgf558.mindbudget.pro.annual`.
-- Monthly/Annual price, trial, included cloud calls, reset boundary, launch storefronts, and
-  provider set are `TBD` until their accepted evidence gates.
+- The old Monthly/Annual/P1W catalog will be replaced rather than grandfathered because it never
+  launched. Exact new Product IDs, credit/card values, regional price points, and launch regions
+  are `TBD`; the sole cloud model is OpenAI `gpt-5.6-luna` pending account/Eval gates.
 - The one-time offer is still deferred at runtime: zero product, zero entitlement constructor,
   zero UI entry, zero sale, and zero public promise until G1 accepts exact economics and later
   implementation/release gates pass.
@@ -277,9 +279,10 @@ cloud economics:
 
 1. COM-C2/3 may use configuration-only products and provisional test terms.
 2. Formal App Store Connect products and COM-C6 require accepted preliminary unit economics.
-3. Under DEC-COM-092, G1 accepts final provider, unit-cost, starter-credit, consumable-card,
-   accounting, circuit-breaker, and price inputs before COM-C7/cloud work. Its working scenario is
-   a US$4.99 one-time local-Pro unlock, not a presently accepted customer offer.
+3. Under DEC-COM-092/095/096, G1 accepts provider/account evidence, unit cost, exact starter-credit and
+   consumable-card values, accounting, circuit-breaker, and StoreKit price-point inputs before
+   COM-C7/cloud work. The US$4.99 one-time Pro policy and exact credit tiers are accepted; Product
+   IDs, account/live-Eval evidence, and implementation remain blocked.
 
 The app never hardcodes a customer price. Visible prices and subscription terms come from StoreKit
 or current SDK renewal information. `REGIONAL_PRICING.md` is the owner acceptance surface.
@@ -496,17 +499,24 @@ under DEC-COM-091 after independent review approved exact PR
 The preparation chain remains exact head `11ab612`, hosted run `33488815168`, and PR #95 merge
 `d5d0959`; delivery UUID `1b358d3b-4544-4617-ab47-5be69addc7a8` is immutable transport evidence.
 The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. Tester assignment,
-service/schema deployment, G1, App Store submission, distribution, public release, and Active
-Requirement completion remain unperformed or blocked. The owner explicitly entered G1 on
-2026-09-02. DEC-COM-093 records dated official OpenAI/Anthropic/Google/Apple/Cloudflare quotes and
-an integer-micro-USD planning envelope: US$0.011330 typical/P50 and US$0.033098 peak/P95 per
-successful use at 1,000 monthly successes, a provisional 10-use starter grant for the US$4.99
-hypothesis, and provisional 10/25/65-use cards. Independent review found no P1/P2 on exact PR #98
-head `9226985`; hosted run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes
-only that first evidence package and preserves the review P3 follow-ups. The mandatory bilingual
-provider Eval, account region/retention proof, exact App Store proceeds, final-decision review, and
-owner decision remain open; the interim outcome is `INSUFFICIENT_QUOTE_EVIDENCE`, not provider/
-offer/C7 acceptance. Public App Store observation is not an entry prerequisite. COM-C6.5 awaits
+service/schema deployment, G1 completion, App Store submission, distribution, public release, and
+Active Requirement completion remain unperformed or blocked. The owner explicitly entered G1 on
+2026-09-02. DEC-COM-093 records the quote work and DEC-COM-094 preserves the reviewed PR #98
+planning package, exact head `9226985`,
+hosted run `33570570896`, merge `6e2d242`, and historical `INSUFFICIENT_QUOTE_EVIDENCE` result.
+DEC-COM-095 accepts the current policy: US$4.99 one-time Pro; explicitly started 30-day local
+Pro/on-device-AI trial with zero Luna credits; sole OpenAI `gpt-5.6-luna`; finite starter and
+consumable lots expiring after one user-calendar year; one credit only when a user-initiated valid
+structured Luna result is ultimately displayed; >=50% conservative peak contribution margin;
+refunds never deleting local data; ordinary-test-user denial plus isolated capped Apple Review
+access; and an optional separately reviewed local-only release. The revised planning envelope is
+US$0.011330 typical/P50 and US$0.018986 peak/P95 per successful use at 1,000 monthly successes.
+DEC-COM-096 freezes the 24-case bilingual Eval and accepts 10 starter credits plus 10/25/65-use
+cards at US$0.99/US$1.99/US$4.99. Its account matrix returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the
+live Eval was not run. Account no-training/ZDR/region/rate/billing proof, live Luna evidence,
+StoreKit price-point evidence, final review, and owner `PROCEED_TO_R2` remain open. Actual US
+proceeds do not exist pre-launch and are a post-launch recalibration input. Current result:
+`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, not completed G1 or C7 acceptance. COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
