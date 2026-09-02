@@ -7187,3 +7187,34 @@ and a new hosted run remain required.
 G1 remains In Progress; StoreKit Product-ID/price-point evidence and owner `PROCEED_TO_R2` remain
 open. `productionAdmitted` stays false and COM-C7 stays blocked. This documentation closeout itself
 still requires exact-head independent review, hosted CI, and merge.
+
+## 2026-09-02 — Prepare the G1 template/on-device/Luna comparison
+
+Recorded DEC-COM-100 and added a test-only physical Foundation Models harness plus a fail-closed
+three-arm validator/blind-review packet builder. It reuses the frozen 24-case bilingual dataset and
+the already reviewed Luna transcript, so it makes no new OpenAI request. The shared Eval scheme
+cannot archive or run the App, ordinary schemes do not enable it, and the runner accepts only
+`拉沙的iPhone` while rejecting the previously excluded phone.
+
+The harness passed a generic unsigned iOS test build with Xcode 27 beta 6. The authorized phone was
+not available, so physical Apple output and independent blind review remain open. G1 remains In
+Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no downstream authority changed.
+
+After the owner connected `拉沙的iPhone`, the selected physical test passed and emitted all 24
+structured outputs. The normalized transcript, unfilled A/B/C scoring surface, and separately
+sealed post-score sidecar are now durable, but no subjective cloud-value conclusion is
+self-approved. Independent blind review remains open and no new Luna request occurred. PR #102
+review found that the first scoring packet leaked source/error fields and aggregate classifications;
+the remediation removes them from the scoring surface and makes duplicate candidate bodies
+ineligible to establish incremental value.
+The first remediated full-validator run built Release but failed the test build on a Swift 6 type-
+inference error in the new all-cases diagnostic; replacing split string concatenation with one
+interpolated string closed that local non-pass. The complete Xcode 27.0 beta 6 revalidation then
+passed: 554 unit tests across 33 suites, 18 UI executions with 17 passed and one expected
+physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. This
+validates the remediation and evidence wiring only; the sealed comparison remains unreviewed, G1
+remains In Progress, and no Luna or physical-device rerun occurred.
+
+GitHub Actions run `33623886226` on original head `9f04cee` is retained separately as a hosted
+non-pass: the AX5 multi-appearance case failed before passing under the configured retry, and the
+C6-02 verifier correctly rejected the resulting Failed-then-Passed repetition history.

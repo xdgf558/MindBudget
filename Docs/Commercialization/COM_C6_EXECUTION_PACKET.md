@@ -242,5 +242,8 @@ hosted run `33593253561` passed and PR #100 merged as `7a473d2`. DEC-COM-099 clo
 account/Eval evidence delivery. The fixed bilingual three-way comparative Eval, StoreKit price-
 point/Product-ID evidence, and owner decision remain open under
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
+DEC-COM-100 freezes only the comparison harness; physical `拉沙的iPhone` output and independent
+blind review are separate evidence. The physical output is captured, independent review remains
+open, and no new Luna request is needed for the unchanged reviewed transcript.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

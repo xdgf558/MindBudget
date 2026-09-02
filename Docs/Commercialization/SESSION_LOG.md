@@ -4255,3 +4255,58 @@ implementation/legal gates, and owner `PROCEED_TO_R2` remain open. `productionAd
 false; COM-C7, backend/product work, customer traffic, App Store Connect mutation, distribution,
 and release remain blocked. This closeout branch still requires exact-head independent review,
 hosted CI, and merge.
+
+## 2026-09-02 — Session 215 — Freeze the three-way Eval harness before physical evidence
+
+Goal: Execute the owner-authorized fixed bilingual comparison without making another Luna request,
+using the already reviewed cloud transcript and only the previously authorized physical iPhone.
+
+Actions: Recorded DEC-COM-100 and added `G1_THREE_WAY_EVAL.md`, a fail-closed Python
+extractor/validator/blind-packet builder, a Debug-only shared Xcode scheme, an opt-in Swift Testing
+Foundation Models harness, and a runner that accepts only `拉沙的iPhone` and explicitly rejects
+`Xiao li的 iPhone (2)`. The same 24 frozen cases and existing validator bind all three effective
+arms. Invalid Apple output becomes the existing deterministic template rather than hidden repair.
+The blind packet distinguishes an unreviewed null value decision from a reviewed false decision.
+
+Validation: Python normal and `-O`-safe explicit checks pass. The project and scheme XML parse, the
+runner passes shell syntax, and an unrestricted Xcode 27 beta 6 generic iOS test build passed with
+code signing disabled. A restricted build failed when the macro plugin server was sandboxed; that
+is a local-environment non-pass, not source evidence. The authorized phone was not available as an
+Xcode destination, so no physical Apple output or comparative result was produced.
+
+Result: Harness preparation is complete but the evidence task remains open. G1 stays In Progress
+at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production, COM-C7, StoreKit product creation,
+backend/credit implementation, customer traffic, distribution, and release remain blocked.
+
+Subsequent authorized physical run: After the owner connected the phone, Xcode selected only
+the exact destination string `拉沙的iPhone`. The single opt-in test passed and emitted structured
+Apple output for all 24 cases in 29.579 seconds. The normalized transcript proves only that Xcode
+destination plus privacy-reduced `device_model: iPhone` and iOS 26.6.1, not the marketing name or
+hardware identifier. Transcript SHA-256 is
+`d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`; the unfilled blind packet
+SHA-256 is `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`, and the sealed
+post-score sidecar SHA-256 is `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`.
+No Luna call was repeated. Comparative value remains unjudged pending independent blind review.
+
+PR #102 review remediation: The first scoring packet exposed aggregate source counts and per-case
+source/errors, while fallback residue made some source identities inferable. The scoring surface
+now excludes device/source/error/mapping data; those facts are retained only in the sidecar, which
+must remain unopened until every review field is locked. Duplicate candidate bodies are ineligible
+to prove material incremental value. Because the reporting reviewer had already read the Luna
+outputs and leaked packet, a different eligible independent reviewer must perform the blind score.
+The Apple `@Generable`/camelCase/`DATA START` prompt path differs from Luna's strict Responses API
+`json_schema` path, so the packet is product-path evidence rather than a controlled model benchmark.
+The first remediated full-validator run is retained as a local non-pass: Release built, but the
+test build stopped because Swift 6 could not infer a split `String + String` expression passed to
+`Issue.record`. The diagnostic was replaced by one interpolated string before revalidation.
+
+Original-head GitHub Actions run `33623886226` is also retained as a hosted non-pass. Its AX5
+multi-appearance UI case failed first, passed only under the configured retry, and therefore
+produced `Repetition:Failed` plus `Repetition:Passed`; the C6-02 verifier correctly refused to
+accept that as an exactly-once pass.
+
+Final validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6. All static gates passed;
+the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, all
+selected core files exceeded the 85% coverage floor, and the C6-02 evidence verifier confirmed 23
+exact runtime bindings. This validates the branch implementation and evidence wiring only; the
+blind comparison remains unreviewed and G1 remains In Progress.

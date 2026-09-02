@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-099 with
+- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-100 with
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
@@ -840,7 +840,12 @@ price-point/Product-ID evidence and the owner decision remain open; the current 
   `7a473d2` delivered it. DEC-COM-099 preserves four nonblocking scorer/economics maintenance
   observations without admitting production or closing G1.
 - [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna; obtain StoreKit price-point/Product-ID evidence; complete
+  supported on-device output, and Luna. DEC-COM-100 freezes a compiling, Debug-only,
+  non-archivable harness that reuses the reviewed Luna transcript without a new provider call; the
+  physical run using the exact Xcode destination `拉沙的iPhone` emitted structured Apple output for
+  24/24 cases. Source classifications and mappings are sealed outside the scoring surface; the
+  independent blind review remains open. Obtain StoreKit
+  price-point/Product-ID evidence; complete
   the remaining implementation/legal gates; and record the final owner decision. Pre-launch actual
   US proceeds do not exist and are a post-launch recalibration input. Current result:
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; only
