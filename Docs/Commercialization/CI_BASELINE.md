@@ -2670,3 +2670,19 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - No provider request, credential, Product ID, backend, ledger, App Store Connect mutation, or
   product runtime change is evidence in this entry. Exact-head independent review, hosted CI, and
   merge remain required.
+
+### G1 standard-controls synthetic-Eval admission — 2026-09-02
+
+- DEC-COM-097 supersedes only the earlier ZDR-as-fixed-Eval-prerequisite. ZDR is not claimed.
+- Owner-observed account evidence records the dedicated Global project, Luna-only allow-list,
+  Tier 1 500,000 TPM/500 RPM/5,000,000 TPD, US$5 project soft limit/alert, US$18.72 Pay-as-you-go
+  balance, and auto-reload off. No secret/account/payment identifier is durable evidence.
+- Machine admission schema version 2 pins `synthetic_eval_only`, standard abuse-monitoring
+  retention up to 30 days, `store=false`, `background=false`, explicit cache mode without
+  breakpoints, the exact Global base URL, and `productionAdmitted: false`.
+- Sharing/logging Saved-state confirmation and credential isolation remain false; therefore
+  `OPENAI_ACCOUNT_NOT_ADMITTED`, `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
+  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED` remain current. No live request is evidence here.
+- `Scripts/g1_luna_eval.py --self-test` and its optimized `python3 -O` form pass. The
+  commercialization document gate validates the exact schema/retention/scope/base-URL
+  relationships and rejects production admission or incomplete Eval admission.

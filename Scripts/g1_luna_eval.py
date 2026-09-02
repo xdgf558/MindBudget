@@ -10,11 +10,12 @@ regional base URL.
 from __future__ import annotations
 
 import argparse
+import getpass
 import hashlib
 import json
-import os
 import re
 import statistics
+import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -35,6 +36,7 @@ MAX_INPUT_P95 = 8_000
 MAX_OUTPUT_P95 = 1_500
 MAX_LATENCY_P95_MS = 8_000
 EXPECTED_CASE_COUNT = 24
+DEFAULT_KEYCHAIN_SERVICE = "MindBudget Luna Eval"
 ACCEPTED_BASE_URLS = {
     "https://api.openai.com/v1",
     "https://us.api.openai.com/v1",
@@ -117,40 +119,67 @@ def load_dataset(path: Path = DATASET_PATH) -> dict[str, Any]:
     return value
 
 
-def load_account_admission(path: Path = ACCOUNT_ADMISSION_PATH) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
+def validate_account_admission(value: dict[str, Any]) -> dict[str, Any]:
     expected_evidence = {
         "dedicatedProject",
         "noDataSharing",
-        "zeroDataRetention",
-        "region",
+        "apiCallLoggingDisabled",
+        "standardRetentionAcknowledged",
+        "globalRegion",
+        "lunaOnlyModelAllowlist",
         "endpointCompatibility",
-        "subprocessorsAndTerms",
         "rateTier",
         "billingControls",
         "credentialIsolation",
     }
-    if set(value) != {"schemaVersion", "admitted", "approvedBaseURL", "evidenceDate", "evidence"}:
+    if set(value) != {
+        "schemaVersion",
+        "evalAdmitted",
+        "productionAdmitted",
+        "approvedBaseURL",
+        "evidenceDate",
+        "scope",
+        "retention",
+        "evidence",
+    }:
         raise RuntimeError("unexpected OpenAI account-admission shape")
-    if value["schemaVersion"] != 1 or set(value["evidence"]) != expected_evidence:
+    if value["schemaVersion"] != 2 or set(value["evidence"]) != expected_evidence:
         raise RuntimeError("unsupported OpenAI account-admission schema")
-    if value["admitted"] is True:
+    if value["scope"] != "synthetic_eval_only":
+        raise RuntimeError("the G1 account gate is limited to synthetic Eval data")
+    if value["retention"] != {
+        "mode": "standard_up_to_30_days",
+        "store": False,
+        "background": False,
+        "promptCaching": "explicit_no_breakpoints",
+    }:
+        raise RuntimeError("unexpected standard-retention contract")
+    if value["productionAdmitted"] is not False:
+        raise RuntimeError("G1 account evidence cannot admit production customer traffic")
+    if any(type(item) is not bool for item in value["evidence"].values()):
+        raise RuntimeError("account evidence rows must be exact booleans")
+    if value["approvedBaseURL"] is not None and value["approvedBaseURL"] not in ACCEPTED_BASE_URLS:
+        raise RuntimeError("account base URL is not allow-listed")
+    if value["evidenceDate"] is not None and (
+        not isinstance(value["evidenceDate"], str)
+        or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value["evidenceDate"])
+    ):
+        raise RuntimeError("account evidence date must be null or ISO formatted")
+    if value["evalAdmitted"] is True:
         if not all(item is True for item in value["evidence"].values()):
-            raise RuntimeError("an admitted account requires every evidence row")
+            raise RuntimeError("an Eval-admitted account requires every evidence row")
         if value["approvedBaseURL"] not in ACCEPTED_BASE_URLS:
-            raise RuntimeError("admitted account base URL is not allow-listed")
-        if not isinstance(value["evidenceDate"], str) or not re.fullmatch(
-            r"\d{4}-\d{2}-\d{2}", value["evidenceDate"]
-        ):
-            raise RuntimeError("admitted account requires an ISO evidence date")
+            raise RuntimeError("Eval admission requires an allow-listed base URL")
+        if value["evidenceDate"] is None:
+            raise RuntimeError("Eval admission requires an evidence date")
     else:
-        if value["admitted"] is not False:
-            raise RuntimeError("account admitted must be an exact boolean")
-        if value["approvedBaseURL"] is not None or value["evidenceDate"] is not None:
-            raise RuntimeError("a non-admitted account cannot name a base URL or evidence date")
-        if any(item is not False for item in value["evidence"].values()):
-            raise RuntimeError("unreviewed account rows must remain false")
+        if value["evalAdmitted"] is not False:
+            raise RuntimeError("Eval admission must be an exact boolean")
     return value
+
+
+def load_account_admission(path: Path = ACCOUNT_ADMISSION_PATH) -> dict[str, Any]:
+    return validate_account_admission(json.loads(path.read_text(encoding="utf-8")))
 
 
 def expanded_cases(dataset: dict[str, Any]) -> list[dict[str, Any]]:
@@ -211,6 +240,8 @@ def request_body(case: dict[str, Any]) -> dict[str, Any]:
     return {
         "model": MODEL,
         "store": False,
+        "background": False,
+        "prompt_cache_options": {"mode": "explicit", "ttl": "30m"},
         "reasoning": {"effort": REASONING_EFFORT},
         "max_output_tokens": MAX_OUTPUT_TOKENS,
         "instructions": SYSTEM_PROMPT,
@@ -410,17 +441,47 @@ def call_responses_api(base_url: str, api_key: str, body: dict[str, Any]) -> tup
     return payload, int((time.monotonic() - started) * 1_000)
 
 
-def run_live(base_url: str, output_path: Path, cases: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def read_keychain_secret(service: str, account: str) -> str:
+    try:
+        result = subprocess.run(
+            [
+                "/usr/bin/security",
+                "find-generic-password",
+                "-s",
+                service,
+                "-a",
+                account,
+                "-w",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise RuntimeError("dedicated Luna Eval credential is unavailable in macOS Keychain") from error
+    secret = result.stdout.rstrip("\r\n")
+    if not secret:
+        raise RuntimeError("dedicated Luna Eval credential is empty")
+    return secret
+
+
+def run_live(
+    base_url: str,
+    output_path: Path,
+    cases: list[dict[str, Any]],
+    keychain_service: str,
+    keychain_account: str,
+) -> list[dict[str, Any]]:
     admission = load_account_admission()
-    if admission["admitted"] is not True:
+    if admission["evalAdmitted"] is not True:
         raise RuntimeError("OpenAI account is not admitted for live Luna Eval")
+    if admission["productionAdmitted"] is not False or admission["scope"] != "synthetic_eval_only":
+        raise RuntimeError("live G1 execution must remain synthetic-Eval-only")
     if admission["approvedBaseURL"] != base_url:
         raise RuntimeError("requested base URL does not match the admitted account evidence")
     if base_url not in ACCEPTED_BASE_URLS:
         raise RuntimeError("base URL is not in the reviewed regional allow-list")
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set")
+    api_key = read_keychain_secret(keychain_service, keychain_account)
     if output_path.exists():
         raise RuntimeError("refusing to overwrite an existing Eval transcript")
     records: list[dict[str, Any]] = []
@@ -473,6 +534,14 @@ def require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def require_account_rejection(value: dict[str, Any], message: str) -> None:
+    try:
+        validate_account_admission(value)
+    except RuntimeError:
+        return
+    raise RuntimeError(message)
+
+
 def self_test() -> None:
     dataset = load_dataset()
     cases = expanded_cases(dataset)
@@ -481,7 +550,27 @@ def self_test() -> None:
     require(report["deterministic_result"] == "PASS", "template transcript must pass")
     require(report["case_count"] == EXPECTED_CASE_COUNT, "case count drifted")
     admission = load_account_admission()
-    require(admission["admitted"] is False, "repository account admission must remain fail closed")
+    require(admission["productionAdmitted"] is False, "G1 must never admit production traffic")
+    require(admission["scope"] == "synthetic_eval_only", "G1 data scope drifted")
+    sample_request = request_body(cases[0])
+    require(sample_request["store"] is False, "Eval requests must remain stateless")
+    require(sample_request["background"] is False, "Eval requests cannot use background mode")
+    require(
+        sample_request["prompt_cache_options"] == {"mode": "explicit", "ttl": "30m"},
+        "Eval requests must disable implicit prompt caching",
+    )
+
+    production_escape = json.loads(json.dumps(admission))
+    production_escape["productionAdmitted"] = True
+    require_account_rejection(production_escape, "production admission must fail closed")
+
+    retention_escape = json.loads(json.dumps(admission))
+    retention_escape["retention"]["mode"] = "zero_data_retention"
+    require_account_rejection(retention_escape, "undeclared retention substitution must fail closed")
+
+    incomplete_admission = json.loads(json.dumps(admission))
+    incomplete_admission["evalAdmitted"] = True
+    require_account_rejection(incomplete_admission, "incomplete Eval admission must fail closed")
 
     unknown_fact = json.loads(json.dumps(records))
     unknown_fact[0]["output"]["fact_ids"].append("invented_fact")
@@ -528,6 +617,8 @@ def main() -> int:
     parser.add_argument("--score", type=Path)
     parser.add_argument("--run-live", type=Path)
     parser.add_argument("--base-url")
+    parser.add_argument("--keychain-service", default=DEFAULT_KEYCHAIN_SERVICE)
+    parser.add_argument("--keychain-account", default=getpass.getuser())
     args = parser.parse_args()
 
     dataset = load_dataset()
@@ -568,7 +659,13 @@ def main() -> int:
     if args.run_live is not None:
         if not args.base_url:
             raise RuntimeError("--run-live requires an account-proven --base-url")
-        records = run_live(args.base_url, args.run_live, cases)
+        records = run_live(
+            args.base_url,
+            args.run_live,
+            cases,
+            args.keychain_service,
+            args.keychain_account,
+        )
         report = score_transcript(records, cases)
         print(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True))
         if report["deterministic_result"] != "PASS":

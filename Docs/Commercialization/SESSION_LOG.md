@@ -4158,3 +4158,26 @@ test-runner retry occurred. The validator deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.hu81QC/MindBudget.xcresult`;
 this path is an execution pointer rather than a durable artifact. Exact-head independent review,
 hosted CI, and merge remain required.
+
+## 2026-09-02 — Session 211 — Configure standard-controls synthetic Luna Eval admission
+
+Goal: Incorporate the owner's real OpenAI project/privacy/rate/billing observations without
+claiming ZDR or admitting production customer traffic.
+
+Actions: Added DEC-COM-097 and changed the machine account artifact to schema version 2. Recorded
+the dedicated Global project, sole Luna allow-list, Tier 1 500,000 TPM/500 RPM/5,000,000 TPD,
+US$5 project soft limit/alert, US$18.72 Pay-as-you-go balance, and auto-reload off without storing
+identifiers or payment details. The owner accepted standard abuse-monitoring retention up to 30
+days for the synthetic Eval. The runner now pins `store=false`, `background=false`, explicit cache
+mode with no breakpoints, `scope: synthetic_eval_only`, and `productionAdmitted: false`.
+
+Result: ZDR remains an optional future enhancement rather than a fixed-Eval prerequisite. Final
+Saved sharing/logging confirmation and the isolated service-account credential remain false, so
+the live runner is still blocked and no provider request occurred. Passing the later Eval cannot
+activate production; customer consent, processor terms, server isolation, App Privacy, final-
+binary traffic, and release proof remain downstream gates. G1 stays In Progress and COM-C7 stays
+blocked.
+
+Validation: Normal and optimized Eval self-tests pass with exact standard-retention and no-
+production assertions. Full static/document validation is recorded separately in
+`CI_BASELINE.md`; no Xcode product validation is required for this product-code-free interim delta.

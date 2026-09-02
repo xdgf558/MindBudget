@@ -2888,3 +2888,43 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   only to hide low-volume cost; selling cards before the hard volume/margin breaker; counting
   failed/fallback results; or entering COM-C7 from an offer decision while account and live-Eval
   gates remain open.
+
+## DEC-COM-097 — Admit standard controls for synthetic Luna Eval, not production traffic
+
+- Status/date: **Accepted by product owner — 2026-09-02**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  `G1_OPENAI_ACCOUNT_EVIDENCE.md`; `G1_OPENAI_ACCOUNT_ADMISSION.json`; `G1_LUNA_EVAL.md`
+- Context: The owner configured a dedicated Global OpenAI project with a Luna-only model allow-
+  list, Tier 1 limits, a US$5 project soft spend limit/alert, Pay-as-you-go credit, and auto-reload
+  off. Official OpenAI documentation says API data is not used for training unless sharing is
+  enabled, while standard abuse-monitoring logs may retain customer content for up to 30 days.
+  ZDR requires prior approval and is not enabled for this account. The fixed Eval contains only
+  repository-authored synthetic cases and no customer, ledger, receipt, merchant, note, identifier,
+  or arbitrary free-text data.
+- Decision: ZDR is no longer a prerequisite for the fixed synthetic Eval. Accept the accurately
+  disclosed standard up-to-30-day abuse-monitoring boundary for that Eval only. Require
+  `store=false`, `background=false`, explicit prompt-cache mode without cache breakpoints, the
+  exact Global base URL, disabled voluntary sharing, disabled API call logging, the Luna-only
+  project, and a dedicated service-account credential stored in macOS Keychain outside
+  Git/chat/screenshots/environment variables. Machine admission uses
+  schema version 2 with `scope: synthetic_eval_only` and permanently keeps
+  `productionAdmitted: false` during G1.
+- Production consequence: This decision does not authorize customer traffic. Later COM phases
+  must independently review first-send consent naming OpenAI/Luna, Global processing, exact
+  outbound fields/purpose, and the configured up-to-30-day boundary; processor/subprocessor terms,
+  server credential isolation, deletion/policy-change handling, final-binary egress, App Privacy,
+  and Apple Review isolation remain release gates. ZDR remains an optional future enhancement and
+  must never be promised unless actually enabled.
+- Current consequence: Account observations may be recorded individually, but the live runner
+  remains fail closed until the owner confirms Saved sharing/logging settings and creates the
+  isolated service-account credential. `OPENAI_ACCOUNT_NOT_ADMITTED`,
+  `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
+  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED` remain the current results. G1 remains In Progress and
+  COM-C7 remains blocked.
+- Supersession: This decision supersedes only DEC-COM-096's ZDR-as-Eval-prerequisite and mandatory
+  pre-run independent-review wording. DEC-COM-096's frozen dataset/prompt/model/thresholds, exact
+  offer, credential secrecy, blind post-run review, and no-production-activation boundaries remain.
+- Alternatives rejected: Calling `store=false` zero retention; claiming ZDR from a missing control;
+  sending real user data in the Eval; enabling data sharing to obtain promotional free tokens;
+  using an organization/admin key; treating soft spend alerts as hard caps; admitting production
+  from synthetic quality evidence; or blocking a synthetic Eval on a sales-only ZDR approval.

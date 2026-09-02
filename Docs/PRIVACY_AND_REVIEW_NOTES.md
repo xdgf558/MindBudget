@@ -292,9 +292,11 @@ mandatory through a centralized availability gate. Generated wording is validate
 not persisted as a conversation or profile.
 
 DEC-COM-095 plans a separate future cloud-AI path but does not enable it. That path may use only
-OpenAI `gpt-5.6-luna` after explicit first-send consent and accepted account proof for no training,
-account-level Zero Data Retention, processing region/subprocessors, rate limits, price tier, and
-billing controls. There is no second provider or failover. The client sends only the consented,
+OpenAI `gpt-5.6-luna` after explicit first-send consent and accepted account proof for no voluntary
+training, configured retention, Global processing/subprocessors, rate limits, price tier, and
+billing controls. DEC-COM-097 accepts the standard up-to-30-day abuse-monitoring boundary only for
+the synthetic Eval and keeps production admission false; ZDR remains optional. There is no second
+provider or failover. The client sends only the consented,
 redacted, bounded schema through the independent MindBudget backend; raw ledger rows, notes,
 merchant lists, receipt images/OCR, identifiers, and arbitrary prompts remain forbidden.
 
@@ -308,13 +310,13 @@ authority or adjust credit lots, but never deletes the person's local financial 
 reviewed local-only release remains possible with the cloud path absent.
 
 DEC-COM-096 freezes a 24-case synthetic bilingual Eval and exact 10-credit starter plus
-10/25/65-use card tiers, but it does not authorize a provider request. Public OpenAI pages establish
-published defaults and eligibility conditions only. The required organization/project ZDR,
-data-sharing, region, subprocessor, rate-tier, billing, and credential-isolation artifacts are
-missing; `G1_OPENAI_ACCOUNT_EVIDENCE.md` therefore returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the
-live result is `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`. A deterministic scorer self-test is
-not privacy, account, quality, or final-binary evidence. No Luna disclosure may imply activation
-until the matrix is independently reviewed and the fixed live Eval passes.
+10/25/65-use card tiers, but it does not authorize a product provider route. DEC-COM-097 records
+the owner-observed dedicated Global project, Luna-only allow-list, Tier 1 limits, bounded billing,
+and accepted standard retention. Saved sharing/logging confirmation and the isolated credential
+remain, so `G1_OPENAI_ACCOUNT_EVIDENCE.md` still returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the live
+result is `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`. A deterministic scorer self-test is not
+privacy, account, quality, or final-binary evidence. Synthetic Eval admission can never imply
+production activation.
 
 ## Siri and Spotlight disclosure
 

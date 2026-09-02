@@ -7098,3 +7098,23 @@ validator deleted
 `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.hu81QC/MindBudget.xcresult`;
 the path is an execution pointer rather than a durable artifact. Exact-head independent review,
 hosted CI, and merge remain required.
+
+## 2026-09-02 — Adopt standard controls for synthetic Luna Eval
+
+The owner accepted DEC-COM-097 after configuring a dedicated Global OpenAI project. Dated account
+observations establish a Luna-only allow-list, Usage Tier 1 limits of 500,000 TPM/500 RPM/5,000,000
+TPD, a US$5 project soft spend limit/alert, Pay-as-you-go balance of US$18.72, and auto-reload off.
+No account, project, payment, or credential identifier is stored in the repository.
+
+Replaced ZDR as a synthetic-Eval prerequisite with an exact standard-controls contract:
+`scope: synthetic_eval_only`, `productionAdmitted: false`, standard abuse-monitoring retention up
+to 30 days, `store=false`, `background=false`, and explicit prompt-cache mode without breakpoints.
+Production customer traffic remains separately blocked behind consent, data minimization,
+processor/subprocessor, server credential, App Privacy, final-binary egress, and release gates.
+
+The machine evidence remains fail closed because final Saved-state confirmation for voluntary
+sharing/API call logging and the isolated service-account credential are still missing. No live
+Luna request ran; `OPENAI_ACCOUNT_NOT_ADMITTED`,
+`LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
+`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED` remain current. No Swift product behavior, StoreKit
+product, backend, COM-C7 entry, App Store Connect state, distribution, or release changed.

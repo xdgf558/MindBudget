@@ -12,10 +12,11 @@ choose an action, inspect a ledger, or replace the complete deterministic fallba
 template self-test proves only that the scorer and frozen fixtures agree; it is not Luna quality,
 latency, token, privacy, account, or release evidence.
 
-No live request was sent while the account-level Zero Data Retention, project region, limits, and
-billing evidence remained unavailable. The absence of a local `OPENAI_API_KEY`, organization ID,
-and project ID was checked without printing a secret. Browser access to the account settings was
-blocked by the browser security boundary; no indirect login or security bypass was attempted.
+No live request has been sent. Owner-supplied account settings now establish a dedicated Global
+project, Luna-only allow-list, Tier 1 rate limits, bounded billing, and acceptance of standard
+up-to-30-day abuse-monitoring retention for synthetic Eval data. Final Saved-state confirmation
+for sharing/logging plus an isolated credential remain open. ZDR is an optional enhancement, not a
+synthetic-Eval prerequisite, and no production customer-data permission follows.
 
 ## Frozen material
 
@@ -30,7 +31,7 @@ blocked by the browser security boundary; no indirect login or security bypass w
 | Reasoning | `low` |
 | Maximum output | 600 tokens |
 | Retry | At most one bounded retry against the same model |
-| Provider storage request | Responses API with `store: false`; account ZDR still separately required |
+| Provider storage request | Responses API with `store: false`, `background: false`, explicit cache mode with no breakpoints; standard abuse-monitoring retention may be up to 30 days |
 
 The scenarios cover positive/tight/over-budget states, category movement, self-tagged repeated
 spending, no-pattern evidence, savings pace, fixed-cost pressure, cooling-off state, cycle pace,
@@ -62,20 +63,22 @@ The run-level admission gates are:
 `Scripts/g1_luna_eval.py --self-test` proves the closed templates pass and that an unknown fact,
 invented amount, forbidden tone, retry overflow, and invalid final output fail loudly. The script
 retains one record per attempt so an invalid first attempt followed by a valid retry is visible.
-It refuses to overwrite an existing transcript and reads a credential only for explicit
-`--run-live` execution.
+It refuses to overwrite an existing transcript and reads the dedicated credential from macOS
+Keychain only for explicit `--run-live` execution. The default generic-password service name is
+`MindBudget Luna Eval`; the secret never belongs in a command argument, environment variable,
+repository file, PR, issue, screenshot, or chat transcript.
 
 ## Live-run admission and review
 
-A live run may start only after `G1_OPENAI_ACCOUNT_EVIDENCE.md` is independently reviewed, all
-mandatory account rows are `VERIFIED`, and the exact machine-readable
-`G1_OPENAI_ACCOUNT_ADMISSION.json` changes to an independently reviewed admitted state with one
-approved base URL. The owner supplies the credential through the local process
-environment; neither the key nor organization/project identifiers enter Git, logs, screenshots,
-or the Eval transcript. The selected base URL must match the proven account region.
+A live run may start only after the owner confirms the two Saved privacy settings, all synthetic-
+Eval account rows are `VERIFIED`, and the exact machine-readable
+`G1_OPENAI_ACCOUNT_ADMISSION.json` changes to `evalAdmitted: true` with one approved base URL while
+`productionAdmitted` remains false. The owner enters the credential into the local macOS Keychain;
+neither the key nor organization/project identifiers enter Git, logs, screenshots, environment
+variables, or the Eval transcript. The selected base URL must match the proven account region.
 
 The resulting JSONL and score report require an independent blind read of all 24 final responses
 against the same fact/tone rubric. Passing the automated scorer alone is insufficient. Any dataset,
 prompt, schema, model, endpoint feature, region, or threshold change creates a new hash and requires
-a new run. Until that happens, Luna remains disabled and the deterministic local template is the
-only admitted fallback.
+a new run. This admission is synthetic-Eval-only; Luna remains disabled in the app and the
+deterministic local template is the only admitted product fallback.

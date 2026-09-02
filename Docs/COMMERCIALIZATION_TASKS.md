@@ -826,8 +826,12 @@ evidence, final-decision review, and owner decision remain open; the current res
 - [x] Freeze DEC-COM-096's 24-case Simplified-Chinese/English Eval, explicit scorer thresholds,
   10-credit starter lot, and 10/25/65-use cards at US$0.99/US$1.99/US$4.99. The scorer's synthetic
   self-test is tooling evidence only and is not a live Luna pass.
-- [ ] Obtain dated account-level no-training, Zero Data Retention, region/subprocessor, rate-tier,
-  billing and credential-isolation evidence; independently review it; then run and blind-review
+- [x] Record DEC-COM-097's synthetic-Eval account boundary: dedicated Global project, Luna-only
+  allow-list, Tier 1 rate limits, bounded Pay-as-you-go billing, standard up-to-30-day retention,
+  `store=false`, no background mode, and production admission fixed false. ZDR is optional and is
+  not claimed.
+- [ ] Confirm the Saved disabled-sharing/API-logging settings, create the isolated project
+  credential, independently review the resulting account evidence, then run and blind-review
   the fixed live Luna Eval. Also obtain StoreKit price-point evidence, exact-head review, and the
   final owner decision. Pre-launch actual US proceeds do not exist and are a post-launch
   recalibration input. Current result: `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; only

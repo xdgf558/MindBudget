@@ -49,8 +49,8 @@ them. This document does not perform that mutation.
 
 - fixed Simplified-Chinese/English Luna quality and structured-output Eval;
 - measured typical/P50 and peak/P95 input/output envelope from that Eval;
-- OpenAI account proof for no training, account-level Zero Data Retention eligibility, permitted
-  region/subprocessors, rate limits, price tier, and billing controls;
+- OpenAI account proof for no voluntary training, configured standard retention, Global processing,
+  rate limits, price tier, billing controls, model isolation, and the synthetic-Eval credential;
 - hard server enforcement of the 1,000-success/50% margin breaker before any grant or sale;
 - StoreKit price-point and regional-availability evidence;
 - independent exact-head review and final owner decision.
@@ -102,7 +102,8 @@ any sale or grant.
 
 ## Acceptance boundary
 
-DEC-COM-095/096 accept the product policy, sole-provider direction, and exact credit/card choices.
+DEC-COM-095/096 accept the product policy, sole-provider direction, and exact credit/card choices;
+DEC-COM-097 accepts standard retention only for the synthetic Eval and keeps production false.
 G1 remains In Progress until account admission, the live Luna Eval, StoreKit price-point evidence,
 independent review, and the final owner decision are complete. Only the explicit `PROCEED_TO_R2`
 result may enter COM-C7. If the cloud path is not ready, the owner may instead authorize a separate

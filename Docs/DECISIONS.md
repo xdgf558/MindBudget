@@ -3587,3 +3587,20 @@ Consequences: Formal results are `OPENAI_ACCOUNT_NOT_ADMITTED`,
 `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`.
 G1 remains In Progress and COM-C7 remains blocked. No runtime, StoreKit, credential, backend,
 ledger, App Store Connect, or customer-facing mutation is authorized.
+
+---
+
+## 2026-09-02 — Permit standard-controls synthetic Eval without admitting production
+
+Context: The owner configured the dedicated OpenAI Luna Eval project and explicitly accepted the
+documented standard up-to-30-day abuse-monitoring boundary for synthetic Eval data instead of
+applying for ZDR now.
+
+Decision: Detailed ownership is DEC-COM-097. ZDR is optional for the fixed synthetic Eval. Require
+the Global project, Luna-only allow-list, disabled sharing/logging, `store=false`, no background
+mode, explicit cache mode without breakpoints, bounded billing, and a dedicated local credential.
+Machine scope is `synthetic_eval_only`; production remains expressly not admitted.
+
+Consequences: Final privacy-setting confirmation and credential creation remain before any live
+request. Customer traffic, COM-C7, product activation, App Privacy/consent claims, and release are
+not authorized. The prior blocked result remains current until those two account actions complete.

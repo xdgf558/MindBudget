@@ -512,8 +512,10 @@ refunds never deleting local data; ordinary-test-user denial plus isolated cappe
 access; and an optional separately reviewed local-only release. The revised planning envelope is
 US$0.011330 typical/P50 and US$0.018986 peak/P95 per successful use at 1,000 monthly successes.
 DEC-COM-096 freezes the 24-case bilingual Eval and accepts 10 starter credits plus 10/25/65-use
-cards at US$0.99/US$1.99/US$4.99. Its account matrix returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the
-live Eval was not run. Account no-training/ZDR/region/rate/billing proof, live Luna evidence,
+cards at US$0.99/US$1.99/US$4.99. DEC-COM-097 records the owner-observed Global/Luna-only Tier 1
+project, bounded billing, and standard up-to-30-day retention for synthetic Eval only; ZDR is
+optional and production remains false. Its account matrix returns `OPENAI_ACCOUNT_NOT_ADMITTED`,
+and the live Eval was not run. Saved sharing/logging confirmation, credential isolation, live Luna evidence,
 StoreKit price-point evidence, final review, and owner `PROCEED_TO_R2` remain open. Actual US
 proceeds do not exist pre-launch and are a post-launch recalibration input. Current result:
 `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, not completed G1 or C7 acceptance. COM-C6.5 awaits

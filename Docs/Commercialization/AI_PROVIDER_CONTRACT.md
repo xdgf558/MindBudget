@@ -5,14 +5,17 @@
 DEC-COM-092/093 and reviewed PR #98 (`9226985`, run `33570570896`, merge `6e2d242`) produced the
 historical `INSUFFICIENT_QUOTE_EVIDENCE` quote package closed by DEC-COM-094. DEC-COM-095 now
 selects OpenAI `gpt-5.6-luna` as the only permitted future cloud model and records
-`EVAL_AND_ACCOUNT_EVIDENCE_PENDING`. DEC-COM-096 subsequently freezes the exact Eval and offer but
-returns `OPENAI_ACCOUNT_NOT_ADMITTED`, `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and the G1
+`EVAL_AND_ACCOUNT_EVIDENCE_PENDING`. DEC-COM-096 subsequently freezes the exact Eval and offer;
+DEC-COM-097 accepts standard retention for synthetic Eval only while keeping production false.
+The account still returns `OPENAI_ACCOUNT_NOT_ADMITTED`,
+`LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and the G1
 state `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`. Selection is
 not activation: no credential, server adapter, client route, request, or customer promise exists
 until G1 and later gates pass.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
-product. If Luna is unavailable, unsupported, unapproved for ZDR, over budget, or never admitted,
+product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,
+or never admitted,
 the app stays correct through its deterministic local path. There is no provider failover.
 The current quote-backed planning envelope is US$0.011330 typical/P50 and US$0.018986 peak/P95 at
 1,000 monthly successes; these are not measured Eval distributions.
@@ -25,7 +28,7 @@ Every field requires dated account-level evidence. Published pricing alone is in
 |---|---|---|
 | Legal model identity | OpenAI contract, exact `gpt-5.6-luna` model ID, policy URL/version, quote date | Identity or material terms are ambiguous |
 | Processing and storage regions | Request, log, abuse-monitoring, backup and support-access regions | Accepted storefront/consent cannot lawfully cover them |
-| Retention and training | No training plus approved Zero Data Retention for the exact endpoint/features | ZDR is unavailable or retention/training is undisclosed |
+| Retention and training | No voluntary training; exact configured retention disclosed and accepted before first production use; `store=false`, no background mode, and no implicit cache breakpoint | Training sharing is enabled, retention is undisclosed, or consent does not match the configured policy |
 | Subprocessors | Current list and material-change notification | Hidden/uncontrolled subprocessor path exists |
 | Security | Transport, encryption, access controls, incident process, relevant certifications | Evidence cannot support the threat model |
 | Structured output | Fixed schema compliance and invalid-output rate | Output cannot be deterministically validated/fail closed |
@@ -98,6 +101,6 @@ need that Luna satisfies beyond the complete local path.
   analyses, or below the recomputed 50% margin, the server stops new card sales and starter grants
   without harming local Pro or unexpired purchased credits.
 - Request IDs, grants, reservations, commits, releases, refunds, and deletion are idempotent.
-- Exhaustion, denial, offline state, timeout, provider failure, invalid output, ZDR loss, and a cost
+- Exhaustion, denial, offline state, timeout, provider failure, invalid output, a material retention-policy change, and a cost
   breaker all return the complete local path.
 - No “unlimited,” “fair use,” provider substitution, or silent automatic top-up is permitted.

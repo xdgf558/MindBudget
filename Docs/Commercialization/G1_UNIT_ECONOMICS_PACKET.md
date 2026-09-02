@@ -105,10 +105,11 @@ questions/reasons, stable identifiers, tools, web search, files, provider conver
 model-authoritative money/rules/actions remain forbidden. OpenAI receives no direct client request.
 Client and future server redaction must both pass before a request can reach Luna.
 
-Luna activation additionally requires account-level proof of an accepted processing region,
-no-training treatment, Zero Data Retention approval, usable billing/rate tier, accepted
-subprocessors, and the exact server-side model allow-list. If ZDR or another admission item is
-unavailable, cloud AI stays off and the complete local path remains usable.
+The fixed synthetic Luna Eval additionally requires the owner-observed Global project, no voluntary
+training/data sharing, disabled API call logging, accepted standard up-to-30-day retention, usable
+billing/rate tier, Luna-only allow-list, and an isolated credential. DEC-COM-097 makes ZDR optional
+for that synthetic run. Production remains separately blocked until consent, processor terms,
+server isolation, and release evidence match the controls actually configured.
 
 ## Luna quote and planning workload
 
@@ -262,8 +263,8 @@ The following remains mandatory before `PROCEED_TO_R2`:
   on-device output, and OpenAI Luna for the accepted structured tasks;
 - measured structured-output validity, quality/safety/numeric failures, input/output token P50/P95,
   latency P50/P95, bounded same-provider retry rate, and dataset/rubric hashes;
-- account-level OpenAI proof for region, ZDR/retention, no training, subprocessors, rate tier,
-  credentials, and billing;
+- account-level OpenAI proof for Global processing, configured retention/no voluntary training,
+  rate tier, bounded billing, model allow-list, and an isolated synthetic-Eval credential;
 - implementation and independent review of the hard 1,000-success/50% server breaker before any
   starter grant or usage-card sale;
 - StoreKit configuration evidence for the US$4.99 price point and later post-launch recalibration

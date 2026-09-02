@@ -2597,6 +2597,7 @@ for g1_economics_file in \
   for g1_economics_anchor in \
     'DEC-COM-095' \
     'DEC-COM-096' \
+    'DEC-COM-097' \
     'US$4.99' \
     'gpt-5.6-luna' \
     '50%' \
@@ -2616,12 +2617,37 @@ import json
 import sys
 
 value = json.load(open(sys.argv[1], encoding="utf-8"))
-if value.get("admitted") is not False:
-    raise SystemExit("G1 account admission must remain false without reviewed account evidence")
-if value.get("approvedBaseURL") is not None or value.get("evidenceDate") is not None:
-    raise SystemExit("non-admitted G1 account cannot name a base URL/evidence date")
-if any(item is not False for item in value.get("evidence", {}).values()):
-    raise SystemExit("G1 account evidence rows cannot partially self-admit")
+expected_evidence = {
+    "dedicatedProject",
+    "noDataSharing",
+    "apiCallLoggingDisabled",
+    "standardRetentionAcknowledged",
+    "globalRegion",
+    "lunaOnlyModelAllowlist",
+    "endpointCompatibility",
+    "rateTier",
+    "billingControls",
+    "credentialIsolation",
+}
+if value.get("schemaVersion") != 2 or set(value.get("evidence", {})) != expected_evidence:
+    raise SystemExit("G1 account admission schema drifted")
+if value.get("scope") != "synthetic_eval_only" or value.get("productionAdmitted") is not False:
+    raise SystemExit("G1 may admit only synthetic Eval and never production traffic")
+if value.get("retention") != {
+    "mode": "standard_up_to_30_days",
+    "store": False,
+    "background": False,
+    "promptCaching": "explicit_no_breakpoints",
+}:
+    raise SystemExit("G1 standard-retention contract drifted")
+if value.get("approvedBaseURL") != "https://api.openai.com/v1":
+    raise SystemExit("G1 Global project must use the exact standard API base URL")
+if any(type(item) is not bool for item in value["evidence"].values()):
+    raise SystemExit("G1 account evidence rows must be exact booleans")
+if value.get("evalAdmitted") is True and not all(value["evidence"].values()):
+    raise SystemExit("G1 Eval cannot be admitted with an incomplete evidence matrix")
+if value.get("evalAdmitted") not in (True, False):
+    raise SystemExit("G1 Eval admission must be an exact boolean")
 PY
 
 for g1_decision_file in \
@@ -2648,6 +2674,10 @@ for g1_decision_file in \
   }
   grep -Fq 'DEC-COM-096' "${g1_decision_file}" || {
     echo "Frozen Luna Eval/offer decision is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+  grep -Fq 'DEC-COM-097' "${g1_decision_file}" || {
+    echo "Synthetic-Eval standard-retention decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
 done
@@ -2722,10 +2752,11 @@ done
 
 for g1_account_anchor in \
   'OPENAI_ACCOUNT_NOT_ADMITTED' \
-  'Zero Data Retention' \
-  'Project region/base URL' \
+  'synthetic_eval_only' \
+  'standard abuse-monitoring retention of up to 30 days' \
+  'productionAdmitted: false' \
   'Usage/rate tier' \
-  'Billing/price controls' \
+  'Billing controls' \
   'Credential isolation'; do
   grep -Fq "${g1_account_anchor}" "${G1_OPENAI_ACCOUNT_PACKET}" || {
     echo "OpenAI account-evidence packet is missing ${g1_account_anchor}" >&2
