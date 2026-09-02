@@ -7218,3 +7218,34 @@ remains In Progress, and no Luna or physical-device rerun occurred.
 GitHub Actions run `33623886226` on original head `9f04cee` is retained separately as a hosted
 non-pass: the AX5 multi-appearance case failed before passing under the configured retry, and the
 C6-02 verifier correctly rejected the resulting Failed-then-Passed repetition history.
+
+## 2026-09-02 — Close the reviewed three-way capture delivery without blind scoring
+
+Independent review accepted PR #102 exact remediation head
+`bb939d035ab11bd7845edd30363e19631f5fce1a`; GitHub Actions run `33628847476` passed on that exact
+head; and PR #102 merged it as `225490286a544bdb6141d47546ba7666185756fd`, whose second parent is
+the reviewed head. DEC-COM-101 closes only implementation, physical capture, sealed-artifact
+remediation, CI, and merge delivery.
+
+The review was not blind-value scoring: its reviewer had already read the Luna outputs and leaked
+packet. A different independent reviewer who has not read the sidecar, Luna transcript, leaked
+packet, mapping code, or diagnostics must complete only the exact blind JSON at SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+Comparative value remains unjudged. G1 remains In Progress at
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production remains false and COM-C7 remains blocked.
+This closeout branch still requires its own exact-head independent review, hosted CI, and merge.
+
+The first full-validator attempt selected `/Library/Developer/CommandLineTools` and stopped before
+Xcode execution because it is not a full Xcode developer directory. This is retained as a local
+environment non-pass; revalidation explicitly selects the recorded Xcode 27 beta 6 toolchain.
+The second restricted attempt reached Xcode but could not access CoreSimulatorService or the local
+bundle-ID configuration, so it is also an environment non-pass; final validation must run outside
+that restricted sandbox.
+
+The identical unrestricted validation then exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the
+iOS 26.5 iPhone 17 Pro simulator. Release compilation and the strict Dashboard benchmark passed;
+554 unit tests across 33 suites passed with four expected physical CloudKit skips; the UI suite
+executed exactly 18 tests with 17 passed, one expected physical-only skip, zero failures, and no
+test-runner retry. Every selected core file remained above the 85% coverage floor and the C6-02
+verifier confirmed all 23 exact runtime bindings. The validator removed its temporary xcresult
+after success; its path is retained only as an execution pointer in the commercialization baseline.

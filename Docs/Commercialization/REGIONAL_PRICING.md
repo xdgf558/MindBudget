@@ -17,7 +17,11 @@ merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. Th
 The fixed bilingual three-way comparative Eval across deterministic template, supported on-device
 output, and Luna remains a separate `PROCEED_TO_R2` prerequisite.
 DEC-COM-100 prepares only its Debug harness and reuses the reviewed Luna transcript; physical Apple
-output is captured and independent blind review remains open.
+output is captured. DEC-COM-101 closes the PR #102 delivery chain—exact reviewed remediation head
+`bb939d0`, hosted run `33628847476`, and merge `2254902`—without scoring comparative value. A
+different reviewer must score only blind JSON SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar;
+independent blind review remains open.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction

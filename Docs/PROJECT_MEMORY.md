@@ -301,7 +301,12 @@ unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus expl
 DEC-COM-100 freezes a Debug-only three-way Eval harness that reuses the reviewed Luna transcript
 without a new provider call and accepts only `拉沙的iPhone`. The physical run captured 24/24
 structured Apple outputs. Mappings and diagnostics are sealed outside the scoring surface;
-independent blind review remains open, so the evidence does not yet change G1 state.
+independent blind review remains open, so the evidence does not yet change G1 state. DEC-COM-101
+records that PR #102 exact remediation head `bb939d0` passed independent delivery review and hosted
+run `33628847476`, then merged as `2254902` with that head as second parent. This closes only the
+harness/capture delivery. A different reviewer must score only the exact
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` blind JSON before opening
+the sidecar; comparative value remains unjudged.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

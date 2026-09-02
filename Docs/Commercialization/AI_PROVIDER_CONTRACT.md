@@ -16,7 +16,11 @@ activation: no server adapter, client route, customer request, or customer promi
 and later gates pass. The Luna-only scorer result also does not satisfy the still-open fixed
 bilingual three-way comparative Eval across deterministic template, supported on-device output,
 and Luna. DEC-COM-100 freezes a Debug-only harness and reuses the reviewed Luna transcript without
-a new request. Physical Apple output is captured; independent blind review remains open.
+a new request. Physical Apple output is captured. DEC-COM-101 records independent delivery review
+of PR #102 exact remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902`; it does
+not score comparative value. A different eligible reviewer must score only blind JSON SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar,
+so independent blind review remains open.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,

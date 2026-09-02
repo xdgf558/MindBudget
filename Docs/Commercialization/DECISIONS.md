@@ -3048,3 +3048,35 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   call despite an unchanged accepted transcript; self-approving subjective value; weakening the
   validator or changing the dataset after seeing results; or treating deterministic safety as proof
   of material incremental value.
+
+## DEC-COM-101 — Close the reviewed three-way Eval capture delivery without scoring it
+
+- Status/date: **Accepted closeout record — 2026-09-02; this closeout PR still requires exact-head
+  independent review, hosted CI, and merge**
+- Requirements: REQ-G1-001; DEC-COM-099/100; `G1_THREE_WAY_EVAL.md`;
+  `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`;
+  `G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json`
+- Traceability: Independent PR #102 review accepted exact remediation head
+  `bb939d035ab11bd7845edd30363e19631f5fce1a` after confirming that the scoring surface no longer
+  exposed source/error/mapping data and that duplicate candidate bodies cannot prove incremental
+  cloud value. GitHub Actions run `33628847476` then passed on that exact head. PR #102 merged it as
+  `225490286a544bdb6141d47546ba7666185756fd`, whose second parent is the reviewed head.
+- Decision: Close only the implementation, physical-output capture, sealed-artifact construction,
+  review remediation, hosted-CI, and merge delivery. Preserve the unfilled blind scoring surface at
+  SHA-256 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` and post-score-only
+  sidecar at SHA-256 `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`.
+- Blind-review ownership: PR #102's reviewer is eligible to approve the delivery but is ineligible
+  to score comparative value because that reviewer had already read the Luna outputs and the first
+  leaked packet. A different independent reviewer who has not read the sidecar, Luna transcript,
+  leaked packet, mapping code, or diagnostic prose must complete every review field using only the
+  exact `bcbf943...` JSON before opening the sidecar. This closeout review likewise must not inspect
+  or score candidate content.
+- Consequences: The three-way comparison remains neither pass nor non-pass. G1 remains In Progress
+  at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; `productionAdmitted` remains false and COM-C7
+  remains blocked. Independent blind scoring, StoreKit US$4.99 Product-ID/price-point evidence,
+  server-breaker implementation/review, remaining legal gates, and the owner's explicit
+  `PROCEED_TO_R2` remain mandatory.
+- Alternatives rejected: Calling the PR #102 delivery review a blind-value review; opening the
+  sidecar during closeout; marking the full comparative Eval complete because all three candidate
+  arms exist; changing the sealed scoring surface after merge; treating hosted CI as subjective
+  value evidence; closing G1; or entering COM-C7.

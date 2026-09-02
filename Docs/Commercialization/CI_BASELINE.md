@@ -2778,3 +2778,34 @@ The closeout still needs independent review, a green hosted run on its exact hea
   selected core file remained above the 85% coverage floor, and the C6-02 verifier found all 23
   exact runtime bindings. This validates the repository change; it is not the independent blind
   comparison and does not advance G1.
+
+### G1 three-way capture reviewed-delivery closeout — 2026-09-02
+
+- Independent PR #102 review accepted exact remediation head
+  `bb939d035ab11bd7845edd30363e19631f5fce1a`. That review covered the implementation, captured
+  evidence, scoring-surface isolation, duplicate-candidate fail-close, and remediation; it was not
+  the later blind-value score.
+- GitHub Actions run `33628847476` completed successfully on that exact head. PR #102 merged it as
+  `225490286a544bdb6141d47546ba7666185756fd`, whose second parent is the reviewed head.
+- DEC-COM-101 closes only the delivery chain. The unfilled blind JSON remains SHA-256
+  `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`; the sidecar must remain
+  unopened by the different eligible reviewer until every review field is complete using only that
+  scoring surface.
+- G1 remains In Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production remains false
+  and COM-C7 remains blocked. This closeout branch still requires its own exact-head review, hosted
+  CI, and merge and cannot supply the pending subjective score.
+- The first closeout `Scripts/validate.sh` invocation selected
+  `/Library/Developer/CommandLineTools` and stopped before Xcode execution because it is not a full
+  Xcode developer directory. This is a local environment non-pass; corrected validation explicitly
+  selects Xcode 27 beta 6. The second restricted attempt reached Xcode but could not access
+  CoreSimulatorService or the local bundle-ID configuration; it is another local environment
+  non-pass. Final validation must run outside that restricted sandbox.
+- The identical unrestricted validation exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+  26.5 iPhone 17 Pro simulator: Release and the strict Dashboard benchmark passed; 554 unit tests
+  across 33 suites passed with four expected physical CloudKit skips; exactly 18 UI tests executed
+  with 17 passed, one expected physical-only skip, zero failures, and no retry; every selected core
+  file exceeded the 85% coverage floor; and all 23 C6-02 runtime bindings passed.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.upf8G2/MindBudget.xcresult`;
+  this path is an execution pointer, not a durable artifact. Exact-head independent review, hosted
+  CI, and merge remain open; the blind comparative score remains unperformed.

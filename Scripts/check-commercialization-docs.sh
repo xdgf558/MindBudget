@@ -2628,6 +2628,12 @@ for g1_economics_file in \
     'DEC-COM-097' \
     'DEC-COM-098' \
     'DEC-COM-099' \
+    'DEC-COM-100' \
+    'DEC-COM-101' \
+    'bb939d0' \
+    '33628847476' \
+    '2254902' \
+    'bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5' \
     'US$4.99' \
     'gpt-5.6-luna' \
     '50%' \
@@ -2830,6 +2836,10 @@ for g1_decision_file in \
     echo "Three-way Eval harness decision is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-101' "${g1_decision_file}" || {
+    echo "Reviewed three-way capture-delivery closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
 for g1_closeout_file in \
@@ -2925,6 +2935,32 @@ grep -Fq "Status: **In Progress after owner offer acceptance under DEC-COM-095/0
   echo "G1 current phase status must remain In Progress after owner policy acceptance" >&2
   exit 1
 }
+
+grep -Fq -- '- [x] Independently review and merge the three-way harness and physical-output capture delivery.' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "G1 closeout must mark only the reviewed three-way capture delivery complete" >&2
+  exit 1
+}
+grep -Fq -- '- [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "G1 independent three-way blind score must remain open" >&2
+  exit 1
+}
+
+if grep -Eqi '(^|[.!?][[:space:]])independent blind (review|score) (is )?(complete|completed|approved|passed)|(^|[.!?][[:space:]])comparative value (is )?(accepted|approved|proven|passed)' \
+    Docs/COMMERCIALIZATION_TASKS.md \
+    Docs/TASKS.md \
+    Docs/PROJECT_MEMORY.md \
+    Docs/Commercialization/PROJECT_MEMORY.md \
+    Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+    Docs/Commercialization/REQUIREMENTS_INDEX.md \
+    Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+    Docs/Commercialization/REGIONAL_PRICING.md \
+    "${G1_ECONOMICS_PACKET}" \
+    "${G1_THREE_WAY_EVAL_PACKET}"; then
+  echo "G1 closeout overclaims the unperformed blind-value review" >&2
+  exit 1
+fi
 
 python3 Scripts/g1_unit_economics.py --self-test >/dev/null
 python3 -O Scripts/g1_unit_economics.py --self-test >/dev/null
