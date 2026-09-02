@@ -4310,3 +4310,42 @@ the simulator UI suite executed 18 tests with 1 expected physical-only skip and 
 selected core files exceeded the 85% coverage floor, and the C6-02 evidence verifier confirmed 23
 exact runtime bindings. This validates the branch implementation and evidence wiring only; the
 blind comparison remains unreviewed and G1 remains In Progress.
+
+## 2026-09-02 — Session 216 — Close the reviewed three-way capture delivery
+
+Goal: Record the exact PR #102 review, hosted-CI, and merge chain while preserving the independent
+blind-value review as a separate unfinished G1 requirement.
+
+Traceability: Independent review accepted exact remediation head
+`bb939d035ab11bd7845edd30363e19631f5fce1a` after confirming that the scoring surface no longer
+exposed source/error/mapping data and duplicate-candidate cases cannot prove incremental value.
+GitHub Actions run `33628847476` passed on that exact head. PR #102 merged it as
+`225490286a544bdb6141d47546ba7666185756fd`; the merge commit's second parent is the reviewed head.
+
+Boundary: DEC-COM-101 closes only the harness, physical-output capture, sealed-artifact
+remediation, CI, and merge delivery. The unfilled scoring JSON remains pinned at SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`. Because the PR #102
+reviewer had already read the Luna outputs and leaked packet, a different independent reviewer who
+has not read the sidecar, Luna transcript, leaked packet, mapping code, or diagnostics must score
+only that JSON before opening the sidecar. This closeout does not inspect candidate content.
+
+Result: The comparative Eval remains neither pass nor non-pass. G1 stays In Progress at
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production stays false and COM-C7 stays blocked.
+Blind scoring, StoreKit US$4.99 Product-ID/price-point evidence, server-breaker implementation and
+review, remaining legal gates, and owner `PROCEED_TO_R2` remain open. This documentation closeout
+still requires its own exact-head independent review, hosted CI, and merge.
+
+Validation note: The first full-validator attempt selected
+`/Library/Developer/CommandLineTools` and stopped before Xcode execution because that path is not a
+full Xcode developer directory. It is an environment non-pass, not source evidence. Revalidation
+uses the repository's recorded Xcode 27 beta 6 toolchain explicitly. That second restricted attempt
+reached Xcode but could not access CoreSimulatorService or the local bundle-ID configuration; it is
+also an environment non-pass. The final validation must run outside that restricted sandbox.
+
+Final local validation: the identical unrestricted command exited 0 under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. Release compilation and the strict Dashboard
+benchmark passed; 554 unit tests across 33 suites passed with four expected physical CloudKit
+skips; the UI suite executed exactly 18 tests with 17 passed, one expected physical-only skip, zero
+failures, and no test-runner retry. Every selected core file exceeded the 85% coverage floor and
+all 23 C6-02 runtime bindings passed. This validates the closeout branch only; blind scoring,
+exact-head independent review, hosted CI, and merge remain open.

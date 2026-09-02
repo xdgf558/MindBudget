@@ -3638,3 +3638,18 @@ output for 24/24 cases. Mappings and diagnostics are sealed outside the scoring 
 independent review remains open. This
 does not change `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, admit production, close G1, enter
 COM-C7, or authorize a backend, Product ID, distribution, or release.
+
+## 2026-09-02 — Close the reviewed three-way Eval capture delivery without scoring it
+
+Decision: Detailed ownership is DEC-COM-101. Independent review accepted PR #102 exact remediation
+head `bb939d035ab11bd7845edd30363e19631f5fce1a`; hosted run `33628847476` passed on that head; and
+PR #102 merged it as `225490286a544bdb6141d47546ba7666185756fd`, with the reviewed head as its
+second parent. Close only the harness, physical capture, sealed-artifact remediation, CI, and merge
+delivery.
+
+Consequences: Comparative value remains unscored. A different independent reviewer who has not
+read the sidecar, Luna transcript, leaked scoring packet, mapping code, or diagnostic prose must
+score only the exact blind JSON with SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+G1 remains In Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, production remains false,
+and COM-C7 remains blocked.

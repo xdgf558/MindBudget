@@ -244,6 +244,9 @@ point/Product-ID evidence, and owner decision remain open under
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
 DEC-COM-100 freezes only the comparison harness; physical `拉沙的iPhone` output and independent
 blind review are separate evidence. The physical output is captured, independent review remains
-open, and no new Luna request is needed for the unchanged reviewed transcript.
+open, and no new Luna request is needed for the unchanged reviewed transcript. DEC-COM-101 records
+PR #102 exact reviewed remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902` as
+a closed delivery chain only. A different reviewer must score only exact blind JSON SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

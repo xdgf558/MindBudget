@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-100 with
+- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-101 with
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
@@ -839,13 +839,17 @@ price-point/Product-ID evidence and the owner decision remain open; the current 
   found no P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and merge
   `7a473d2` delivered it. DEC-COM-099 preserves four nonblocking scorer/economics maintenance
   observations without admitting production or closing G1.
+- [x] Independently review and merge the three-way harness and physical-output capture delivery.
+  DEC-COM-100 froze the harness and capture boundary. PR #102 review accepted exact remediation
+  head `bb939d0`; hosted run `33628847476` passed on that head; and merge `2254902` delivered it
+  with `bb939d0` as the second parent. DEC-COM-101 closes
+  only implementation, capture, sealed-artifact remediation, CI, and merge—not the blind score.
 - [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna. DEC-COM-100 freezes a compiling, Debug-only,
-  non-archivable harness that reuses the reviewed Luna transcript without a new provider call; the
-  physical run using the exact Xcode destination `拉沙的iPhone` emitted structured Apple output for
-  24/24 cases. Source classifications and mappings are sealed outside the scoring surface; the
-  independent blind review remains open. Obtain StoreKit
-  price-point/Product-ID evidence; complete
+  supported on-device output, and Luna. A different independent reviewer who has not read the
+  sidecar, Luna transcript, leaked packet, mapping code, or diagnostic prose must score only the
+  exact blind JSON with SHA-256 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`
+  before opening the sidecar. Duplicate-candidate cases cannot prove incremental value. Obtain
+  StoreKit price-point/Product-ID evidence; complete
   the remaining implementation/legal gates; and record the final owner decision. Pre-launch actual
   US proceeds do not exist and are a post-launch recalibration input. Current result:
   `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; only

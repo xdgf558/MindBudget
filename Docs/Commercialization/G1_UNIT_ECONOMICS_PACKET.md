@@ -12,6 +12,13 @@ account/Eval evidence delivery. The current formal state is
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not
 `PROCEED_TO_R2`.
 
+DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
+independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
+merge `2254902` retained that head as second parent. It does not score comparative value. A
+different reviewer who has not read the sidecar, Luna transcript, leaked packet, mapping code, or
+diagnostics must complete only the exact blind JSON with SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+
 ## Accepted owner policy
 
 The owner accepted these launch-policy constraints on 2026-09-02:
@@ -289,8 +296,10 @@ on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and merge `7a47
 DEC-COM-100 and `G1_THREE_WAY_EVAL.md` now freeze the separate comparison harness. It reuses that
 reviewed Luna transcript without a new provider call. Its physical Apple run captured 24/24 cases,
 with structured generation returned for every case. Mappings and validator diagnostics remain
-sealed outside the scoring surface. Independent blind value review remains open and therefore the
-capture does not yet change the formal state.
+sealed outside the scoring surface. DEC-COM-101 records the reviewed PR #102 delivery chain
+(`bb939d0`, run `33628847476`, merge `2254902`) without converting it into a blind-value result.
+Independent blind value review remains open and therefore the capture does not yet change the
+formal state.
 
 The current formal state is **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
 exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no

@@ -86,6 +86,16 @@ The pending packet is `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`, SHA-256
 `PENDING_BLIND_REVIEW`; all preference/value fields are unfilled. Therefore the physical run closes
 only output capture and deterministic validation, not comparative value.
 
+## Delivery closeout provenance
+
+Independent PR #102 review accepted exact remediation head
+`bb939d035ab11bd7845edd30363e19631f5fce1a`, GitHub Actions run `33628847476` passed on that head,
+and PR #102 merged it as `225490286a544bdb6141d47546ba7666185756fd`, whose second parent is the
+reviewed head. DEC-COM-101 closes only this implementation, capture, remediation, CI, and merge
+delivery. The reviewer who approved PR #102 had already read the Luna outputs and leaked packet,
+so that reviewer cannot perform the independent blind-value score. The sidecar remains unopened
+until a different eligible reviewer locks every field in the exact `bcbf943...` scoring JSON.
+
 Passing deterministic safety is necessary but not sufficient. G1 incremental-value acceptance
 requires the independent review to identify at least one task represented in both English and
 Simplified Chinese where Luna is preferred over both local arms and adds material user value

@@ -678,6 +678,10 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [x] Freeze the 24-case Luna Eval protocol and accept 10 post-buyout starter credits plus
   10/25/65-use cards at US$0.99/US$1.99/US$4.99 under DEC-COM-096. This is an offer decision and
   deterministic tooling baseline, not a live Luna pass or StoreKit Product-ID mutation.
+- [x] Close the reviewed three-way harness and physical-capture delivery. PR #102 independent
+  review accepted DEC-COM-100's exact remediation head `bb939d0`, hosted run `33628847476` passed
+  on that head, and merge `2254902` retained it as second parent. DEC-COM-101 explicitly excludes
+  blind scoring.
 - [ ] Complete the remaining G1 decision. DEC-COM-097 records the dedicated Global Tier 1 project
   with sole model `gpt-5.6-luna`,
   project, bounded billing, and accepted standard up-to-30-day retention for synthetic Eval only;
@@ -686,10 +690,10 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   first-pass automated Eval result. Independent review found no P1/P2 on PR #100 head `323d8d7`,
   hosted run `33593253561` passed, and PR #100 merged as `7a473d2`; DEC-COM-099 closes only that
   evidence delivery. The fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna remains open. DEC-COM-100 freezes its Debug-only harness
-  and reuses the accepted Luna transcript without a new call. The exact Xcode destination
-  `拉沙的iPhone` produced structured Apple output for 24/24 cases; mappings and diagnostics are
-  sealed outside the scoring surface and independent blind review remains open. Obtain StoreKit price-point/Product-ID
+  supported on-device output, and Luna remains open. A different reviewer who has not read the
+  sidecar, Luna transcript, leaked packet, mapping code, or diagnostics must score only the exact
+  `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` JSON before opening the
+  sidecar. Obtain StoreKit price-point/Product-ID
   evidence and record the final owner decision.
   DEC-COM-095 accepts the
   US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,
