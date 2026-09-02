@@ -285,11 +285,11 @@ is US$0.011330 typical/P50 and US$0.018986 peak/P95 at 1,000 monthly successes. 
 the 24-case bilingual Eval and accepts exactly 10 starter credits plus 10/25/65-use cards at
 US$0.99/US$1.99/US$4.99. DEC-COM-097 records a dedicated Global/Luna-only Tier 1 project, bounded
 billing, and owner acceptance of standard up-to-30-day retention for synthetic Eval only while
-keeping production false. The account matrix still returns `OPENAI_ACCOUNT_NOT_ADMITTED`; no live
-Luna run occurred. Saved sharing/logging confirmation, the isolated credential, live Eval,
-StoreKit price-point evidence, final review, and owner `PROCEED_TO_R2` remain open. Actual US proceeds are unavailable
-pre-launch and become a post-launch recalibration input. The current result is
-`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; COM-C7 remains blocked. COM-C6.5 remains
+keeping production false. DEC-COM-098 records the admitted account and third live attempt's 24/24
+first-pass automated result after preserving two non-pass attempts. Independent review, StoreKit
+price-point/Product-ID evidence, hosted CI/merge, and owner `PROCEED_TO_R2` remain open. Actual US
+proceeds are unavailable pre-launch and become a post-launch recalibration input. The current
+result is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. COM-C6.5 remains
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs

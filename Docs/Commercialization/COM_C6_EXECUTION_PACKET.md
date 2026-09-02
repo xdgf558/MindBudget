@@ -235,9 +235,10 @@ displayed-valid-result accounting,
 capped Apple Review access, and a separately reviewable local-only release path. The 24-case Eval
 protocol and exact 10-credit starter plus three usage-card tiers are frozen under DEC-COM-096.
 DEC-COM-097 accepts standard retention only for the fixed synthetic Eval and records the observed
-Global/Luna-only/Tier 1/billing controls while keeping production admission false. Saved
-sharing/logging confirmation, the isolated credential, live Luna run, StoreKit price-point
-evidence, final review, and owner decision remain open under
-`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; no product/backend mutation is authorized.
+Global/Luna-only/Tier 1/billing controls while keeping production admission false. DEC-COM-098
+records completed synthetic account admission and a 24/24 first-pass automated Eval result after
+two explicit non-pass attempts. Independent review, StoreKit price-point/Product-ID evidence,
+hosted CI/merge, and owner decision remain open under
+`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

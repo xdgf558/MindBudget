@@ -681,13 +681,15 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [ ] Complete the remaining G1 decision. DEC-COM-097 records the dedicated Global Tier 1 project
   with sole model `gpt-5.6-luna`,
   project, bounded billing, and accepted standard up-to-30-day retention for synthetic Eval only;
-  ZDR is optional and production remains false. Confirm Saved sharing/logging controls and the
-  isolated credential, then run and independently review
-  the fixed live Eval, obtain StoreKit
-  price-point evidence, independent review, and the final owner decision. DEC-COM-095 accepts the
+  ZDR is optional and production remains false. DEC-COM-098 records confirmed sharing/logging
+  controls, the isolated Keychain credential, two explicit non-pass attempts, and a third 24/24
+  first-pass automated Eval result. Independently review that evidence, obtain StoreKit
+  price-point/Product-ID evidence, pass hosted CI/merge, and record the final owner decision.
+  DEC-COM-095 accepts the
   US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,
   starter/card lots valid for one user-calendar year, only a user-initiated valid structured Luna
-  result ultimately displayed consuming one credit, `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`, >=50%
+  result ultimately displayed consuming one credit,
+  `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`, >=50%
   peak contribution margin, refund-without-local-deletion, ordinary test user denial, isolated
   capped Apple App Review access, and a separate local-only release path. Actual US proceeds do not exist
   pre-launch and are a post-launch recalibration input. Do not create products, change the current

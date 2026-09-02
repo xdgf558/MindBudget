@@ -7,11 +7,11 @@ historical `INSUFFICIENT_QUOTE_EVIDENCE` quote package closed by DEC-COM-094. DE
 selects OpenAI `gpt-5.6-luna` as the only permitted future cloud model and records
 `EVAL_AND_ACCOUNT_EVIDENCE_PENDING`. DEC-COM-096 subsequently freezes the exact Eval and offer;
 DEC-COM-097 accepts standard retention for synthetic Eval only while keeping production false.
-The account still returns `OPENAI_ACCOUNT_NOT_ADMITTED`,
-`LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and the G1
-state `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`. Selection is
-not activation: no credential, server adapter, client route, request, or customer promise exists
-until G1 and later gates pass.
+DEC-COM-098 records completed synthetic account admission and attempt 3's 24/24 first-pass
+automated result after preserving two non-pass attempts. The G1 state is
+`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`. Selection and an automated Eval pass are not
+activation: no server adapter, client route, customer request, or customer promise exists until G1
+and later gates pass.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,
@@ -81,7 +81,7 @@ G1 freezes the versioned 24-case Eval in `G1_LUNA_EVAL.md`, scoring Luna against
 facts/actions and deterministic template baseline. Supported on-device output remains a separate
 local path and is not misrepresented as a Luna/account run. Dataset SHA-256 is
 `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014`; prompt/schema SHA-256 is
-`1d3e1d874ef054e8a41038cea99154a47c484c21658218d4c58809e19820d40b`. For each task/language it
+`c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`. For each task/language it
 reports sample size, exclusions,
 structured-output validity, safety/numeric failures, input/output token P50/P95, latency P50/P95,
 and bounded same-model retry. DEC-COM-092 removed public-customer observation as a prerequisite; it

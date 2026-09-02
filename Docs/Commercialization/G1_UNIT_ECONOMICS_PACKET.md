@@ -4,9 +4,10 @@ Status: **In Progress after owner acceptance of the Luna-only offer policy.** PR
 `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 closed that
 first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVIDENCE`. DEC-COM-095
 now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
-accepts the exact 10-credit starter plus three usage-card tiers, while account admission and the
-live Eval remain blocked. The current formal state is `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`,
-not `PROCEED_TO_R2`.
+accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
+synthetic account and attempt 3's 24/24 first-pass automated result after two explicit non-passes.
+The current formal state is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`, not
+`PROCEED_TO_R2`.
 
 ## Accepted owner policy
 
@@ -274,11 +275,12 @@ The following remains mandatory before `PROCEED_TO_R2`:
 
 The fixed Eval protocol is recorded in `G1_LUNA_EVAL.md`; its dataset and prompt hashes are
 `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014` and
-`1d3e1d874ef054e8a41038cea99154a47c484c21658218d4c58809e19820d40b`. The account matrix in
-`G1_OPENAI_ACCOUNT_EVIDENCE.md` returns `OPENAI_ACCOUNT_NOT_ADMITTED`, so no live request ran and
-the Eval outcome is `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`.
+`c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`. DEC-COM-098 records
+confirmed synthetic-only account admission and attempt 3's 24/24 first-pass automated result;
+attempts 1 and 2 remain explicit non-passes.
 
-The current formal state is **`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`**. The provider/model and
-exact offer counts are owner-selected, but no credential, request, backend, Product ID, ledger, UI,
-App Store Connect product, cloud grant, COM-C7 entry, or public release is authorized here. Only a
-later independently reviewed and owner-accepted `PROCEED_TO_R2` may enter COM-C7.
+The current formal state is **`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`**. The
+provider/model and exact offer counts are owner-selected and the fixed synthetic run has automated
+evidence, but no backend, Product ID, ledger, UI, App Store Connect product, cloud grant, COM-C7
+entry, production request, or public release is authorized here. Only a later independently
+reviewed and owner-accepted `PROCEED_TO_R2` may enter COM-C7.

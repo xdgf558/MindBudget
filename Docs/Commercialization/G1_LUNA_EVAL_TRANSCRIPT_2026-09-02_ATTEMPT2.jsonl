@@ -1,0 +1,1 @@
+{"attempt": 1, "case_id": "budget-positive-en", "latency_ms": 0, "output": null, "provider_error": "HTTP_400:invalid_json_schema:text.format.schema", "usage": {"input_tokens": 0, "output_tokens": 0}}

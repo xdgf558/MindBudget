@@ -2928,3 +2928,35 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   sending real user data in the Eval; enabling data sharing to obtain promotional free tokens;
   using an organization/admin key; treating soft spend alerts as hard caps; admitting production
   from synthetic quality evidence; or blocking a synthetic Eval on a sales-only ZDR approval.
+
+## DEC-COM-098 — Accept the wire-schema compatibility repair and record the fixed Luna automated pass
+
+- Status/date: **Accepted execution record — 2026-09-02; independent PR review pending**
+- Requirements: REQ-G1-001; `G1_LUNA_EVAL.md`; `G1_LUNA_EVAL_RESULT_2026-09-02.json`;
+  `G1_OPENAI_ACCOUNT_ADMISSION.json`; `Scripts/g1_luna_eval.py`
+- Context: After the owner confirmed disabled voluntary sharing/API-call logging and stored the
+  dedicated service-account secret in macOS Keychain, the first live run produced 48 zero-token
+  `HTTPError` records because the runner did not preserve a safe HTTP status/code and retried every
+  case. Diagnostic hardening made terminal 4xx responses stop after one request and retain only a
+  sanitized status/code/parameter. The second attempt then identified
+  `HTTP_400:invalid_json_schema:text.format.schema`.
+- Decision: Treat both runs as explicit non-passes. Align the wire schema with OpenAI's documented
+  strict Structured Outputs subset by removing `minLength`, `maxLength`, and `uniqueItems` only.
+  Preserve the same restrictions in local `validate_output`, including non-empty/maximum text,
+  array cardinality, and uniqueness. The compatible prompt/schema hash is
+  `c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`; dataset hash remains
+  `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014`.
+- Result: Attempt 3 passed 24/24 on the first request with no retries or hard failures. Input tokens
+  were P50 296/P95 301, output tokens P50 128/P95 203, and end-to-end latency P50 3,614/P95 5,389
+  milliseconds. Passing transcript SHA-256 is
+  `4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e`. The implementation author
+  read all 24 final outputs with no additional finding; that is not independent review.
+- Consequences: Current Eval result is
+  `LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW`. The account is admitted only for
+  `synthetic_eval_only`; `productionAdmitted` remains false. G1 stays In Progress pending independent
+  review, StoreKit price-point/Product-ID evidence, hosted CI/merge, and the owner's final
+  `PROCEED_TO_R2`. COM-C7, product/backend work, customer requests, and release remain blocked.
+- Alternatives rejected: Discarding the failed transcripts; presenting the first or second run as
+  partial quality evidence; printing provider error bodies or credentials; continuing 24-case
+  retries after a terminal 4xx; weakening local length/cardinality/uniqueness validation; changing
+  the dataset to make Luna pass; or converting an automated pass into independent approval.

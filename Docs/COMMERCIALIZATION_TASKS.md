@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095/096 with
-  `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; COM-C7 remains blocked. Historical merged phase
+- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-098 with
+  `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
@@ -795,10 +795,10 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 Status: **In Progress after owner offer acceptance under DEC-COM-095/096. Exact PR #98 head `9226985`
 passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 preserves that first
-package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The fixed Eval protocol and exact
-starter/card choices are now frozen, but account admission, the live Luna run, StoreKit price-point
-evidence, final-decision review, and owner decision remain open; the current result is
-`ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`.**
+package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The synthetic-only account and fixed
+Luna run now have a 24/24 first-pass automated result under DEC-COM-098, but independent review,
+StoreKit price-point/Product-ID evidence, hosted CI/merge, and the owner decision remain open;
+the current result is `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`.**
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
@@ -830,11 +830,14 @@ evidence, final-decision review, and owner decision remain open; the current res
   allow-list, Tier 1 rate limits, bounded Pay-as-you-go billing, standard up-to-30-day retention,
   `store=false`, no background mode, and production admission fixed false. ZDR is optional and is
   not claimed.
-- [ ] Confirm the Saved disabled-sharing/API-logging settings, create the isolated project
-  credential, independently review the resulting account evidence, then run and blind-review
-  the fixed live Luna Eval. Also obtain StoreKit price-point evidence, exact-head review, and the
-  final owner decision. Pre-launch actual US proceeds do not exist and are a post-launch
-  recalibration input. Current result: `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED`; only
+- [x] Confirm Saved disabled-sharing/API-logging settings, isolate the project credential in
+  macOS Keychain, and run the fixed synthetic Eval. DEC-COM-098 preserves two non-pass attempts,
+  accepts only the provider-compatible wire-schema repair, and records the third run's 24/24
+  first-pass automated result with zero retries. Production admission remains false.
+- [ ] Independently review the account/Eval evidence, obtain StoreKit price-point/Product-ID
+  evidence, pass exact-head hosted CI/merge, and record the final owner decision. Pre-launch actual
+  US proceeds do not exist and are a post-launch recalibration input. Current result:
+  `EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; only
   `PROCEED_TO_R2` can enter COM-C7.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.

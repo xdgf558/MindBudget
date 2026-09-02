@@ -3601,6 +3601,13 @@ the Global project, Luna-only allow-list, disabled sharing/logging, `store=false
 mode, explicit cache mode without breakpoints, bounded billing, and a dedicated local credential.
 Machine scope is `synthetic_eval_only`; production remains expressly not admitted.
 
+## 2026-09-02 — G1 Luna Eval wire-schema compatibility and automated result
+
+Decision: Detailed ownership is DEC-COM-098. Preserve both failed live attempts as non-pass,
+remove only provider-unsupported strict-schema keywords while retaining equivalent local checks,
+and record the third attempt's 24/24 first-pass automated result. This does not constitute
+independent review, complete G1, admit production, or enter COM-C7.
+
 Consequences: Final privacy-setting confirmation and credential creation remain before any live
 request. Customer traffic, COM-C7, product activation, App Privacy/consent claims, and release are
 not authorized. The prior blocked result remains current until those two account actions complete.

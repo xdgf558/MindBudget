@@ -7118,3 +7118,35 @@ Luna request ran; `OPENAI_ACCOUNT_NOT_ADMITTED`,
 `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`, and
 `ACCOUNT_ADMISSION_AND_LIVE_EVAL_BLOCKED` remain current. No Swift product behavior, StoreKit
 product, backend, COM-C7 entry, App Store Connect state, distribution, or release changed.
+
+## 2026-09-02 — Run the admitted fixed Luna Eval
+
+The owner confirmed all voluntary-sharing choices and API call logging were Saved disabled, then
+stored a dedicated project service-account key in macOS Keychain without exposing it to Git, chat,
+screenshots, command arguments, or environment variables. DEC-COM-098 records synthetic-only
+admission; `productionAdmitted` remains false.
+
+Two live attempts remain explicit non-passes. The first produced 48 zero-token HTTP failures because
+the runner collapsed HTTP details and retried terminal errors. The hardened second attempt stopped
+after one request and identified `HTTP_400:invalid_json_schema:text.format.schema`. Removing only
+provider-unsupported `minLength`, `maxLength`, and `uniqueItems` from the wire schema—while retaining
+the same local checks—changed the prompt/schema hash to
+`c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`.
+
+Attempt 3 passed all 24 cases on the first request with no retries or hard failures. Input tokens
+were P50 296/P95 301, output tokens P50 128/P95 203, and latency P50 3,614/P95 5,389 milliseconds.
+The implementation author read all 24 final outputs with no additional finding; independent review
+is still pending. G1 remains In Progress under
+`EVAL_PASS_PENDING_REVIEW_AND_STOREFRONT_EVIDENCE`; StoreKit price-point/Product-ID evidence,
+hosted CI/merge, and owner `PROCEED_TO_R2` remain open. COM-C7 and all production/product paths stay
+blocked.
+
+The first full-validator invocation selected CommandLineTools, and the second referenced a stale
+Downloads Xcode path; both are environment non-passes. The exact Xcode 27.0 beta 6 (`27A5252f`)
+run from `/Applications/Xcode-27-beta-6.app` on the iOS 26.5 iPhone 17 Pro simulator then passed
+Release, the strict Dashboard benchmark, 553 unit tests across 32 suites with four expected
+physical CloudKit skips, 18 UI tests with 17 passed and one expected physical-only skip, every
+selected coverage threshold, and all 23 C6-02 runtime bindings. The UI summary contains exactly 18
+executions, so no test-runner retry occurred. The xcresult was deleted after validation; its path
+is retained in the commercialization baseline only as an execution pointer. Hosted CI and merge
+remain open.

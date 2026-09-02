@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "result": "AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW",
+  "evidenceDate": "2026-09-02",
+  "scope": "synthetic_eval_only",
+  "productionAdmitted": false,
+  "model": "gpt-5.6-luna",
+  "reasoningEffort": "low",
+  "datasetSHA256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+  "promptSchemaSHA256": "c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018",
+  "passingTranscript": {
+    "path": "Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT3.jsonl",
+    "sha256": "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e"
+  },
+  "caseCount": 24,
+  "attemptCount": 24,
+  "finalPassCount": 24,
+  "firstPassCount": 24,
+  "firstPassRateBasisPoints": 10000,
+  "retryCaseCount": 0,
+  "retryRateBasisPoints": 0,
+  "inputTokensP50": 296,
+  "inputTokensP95": 301,
+  "outputTokensP50": 128,
+  "outputTokensP95": 203,
+  "latencyMillisecondsP50": 3614,
+  "latencyMillisecondsP95": 5389,
+  "hardFailures": [],
+  "implementationAuthorRead": "24_OF_24_ACCEPTED_WITH_NO_ADDITIONAL_FINDING",
+  "independentReview": "PENDING",
+  "nonPassAttempts": [
+    {
+      "path": "Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02.jsonl",
+      "sha256": "f879f0752c525e6c3abae5791de5e524fdba7390b6af2ed24eb32b209618ddd4",
+      "result": "NON_PASS_48_UNDIFFERENTIATED_HTTP_ERRORS"
+    },
+    {
+      "path": "Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT2.jsonl",
+      "sha256": "5e7728f42c2145d6765c6f4d0efada050ffe30e8dc7211ba7a6c0df88be055a3",
+      "result": "NON_PASS_HTTP_400_INVALID_JSON_SCHEMA"
+    }
+  ]
+}

@@ -2686,3 +2686,31 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - `Scripts/g1_luna_eval.py --self-test` and its optimized `python3 -O` form pass. The
   commercialization document gate validates the exact schema/retention/scope/base-URL
   relationships and rejects production admission or incomplete Eval admission.
+
+### G1 Luna live Eval execution — 2026-09-02
+
+- DEC-COM-098 records two explicit non-passes and one automated pass; none is independent review.
+- Attempt 1: 48 zero-token undifferentiated HTTP failures, transcript SHA-256
+  `f879f0752c525e6c3abae5791de5e524fdba7390b6af2ed24eb32b209618ddd4`.
+- Attempt 2: one fail-fast `HTTP_400:invalid_json_schema:text.format.schema`, transcript SHA-256
+  `5e7728f42c2145d6765c6f4d0efada050ffe30e8dc7211ba7a6c0df88be055a3`.
+- Attempt 3: 24/24 first-pass valid, zero retries/hard failures; input tokens P50 296/P95 301,
+  output tokens P50 128/P95 203, latency P50 3,614/P95 5,389 ms. Passing transcript SHA-256
+  `4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e`.
+- Dataset SHA-256 remains `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014`;
+  provider-compatible prompt/schema SHA-256 is
+  `c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`.
+- Normal/optimized self-tests and transcript re-scoring pass. The first full-validator invocation
+  selected `/Library/Developer/CommandLineTools` and stopped before Xcode execution; a second
+  invocation referenced the no-longer-present `/Users/shaola/Downloads/软件/Xcode.app`. Both are
+  retained as environment non-passes.
+- The exact unrestricted run with Xcode 27.0 beta 6 (`27A5252f`) from
+  `/Applications/Xcode-27-beta-6.app` on the iOS 26.5 iPhone 17 Pro simulator passed Release, the
+  strict Dashboard benchmark, 553 unit tests across 32 suites with four expected opt-in CloudKit
+  physical skips, all 18 UI tests with 17 passed and one expected physical-only skip, every
+  selected coverage threshold, and all 23 C6-02 runtime bindings. The UI summary contains exactly
+  18 executions, so no test-runner retry occurred.
+- The validator deleted
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.vnH8ya/MindBudget.xcresult`;
+  the path is an execution pointer rather than a durable artifact. Exact-head independent review,
+  hosted CI, and merge remain open. G1 stays In Progress and production false.

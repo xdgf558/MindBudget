@@ -1,8 +1,8 @@
 # G1 OpenAI Luna Fixed Eval
 
-Status: **Protocol frozen; deterministic self-tests pass; live Luna run not executed because the
-dedicated OpenAI account/project has not passed the account-admission gate.** Formal outcome:
-`LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`.
+Status: **The admitted synthetic-only account completed the fixed Luna Eval with a 24/24 automated
+pass; independent review remains pending.** Formal outcome:
+`LIVE_LUNA_EVAL_AUTOMATED_PASS_PENDING_INDEPENDENT_REVIEW`.
 
 ## Purpose and non-claim
 
@@ -12,11 +12,11 @@ choose an action, inspect a ledger, or replace the complete deterministic fallba
 template self-test proves only that the scorer and frozen fixtures agree; it is not Luna quality,
 latency, token, privacy, account, or release evidence.
 
-No live request has been sent. Owner-supplied account settings now establish a dedicated Global
-project, Luna-only allow-list, Tier 1 rate limits, bounded billing, and acceptance of standard
-up-to-30-day abuse-monitoring retention for synthetic Eval data. Final Saved-state confirmation
-for sharing/logging plus an isolated credential remain open. ZDR is an optional enhancement, not a
-synthetic-Eval prerequisite, and no production customer-data permission follows.
+The owner confirmed Saved disabled-sharing/API-logging settings and stored the isolated project
+service-account key in macOS Keychain. The dedicated Global project, Luna-only allow-list, Tier 1
+rate limits, bounded billing, and standard up-to-30-day abuse-monitoring boundary admitted only the
+repository-authored synthetic cases. ZDR remains optional; production customer-data permission is
+still false.
 
 ## Frozen material
 
@@ -25,7 +25,7 @@ synthetic-Eval prerequisite, and no production customer-data permission follows.
 | Model | `gpt-5.6-luna` |
 | Dataset | `G1_LUNA_EVAL_CASES.json` |
 | Dataset SHA-256 | `d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014` |
-| Prompt/schema SHA-256 | `1d3e1d874ef054e8a41038cea99154a47c484c21658218d4c58809e19820d40b` |
+| Prompt/schema SHA-256 | `c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018` |
 | Scenarios | 12 deterministic product situations |
 | Cases | 24: every scenario once in English and once in Simplified Chinese |
 | Reasoning | `low` |
@@ -82,3 +82,41 @@ against the same fact/tone rubric. Passing the automated scorer alone is insuffi
 prompt, schema, model, endpoint feature, region, or threshold change creates a new hash and requires
 a new run. This admission is synthetic-Eval-only; Luna remains disabled in the app and the
 deterministic local template is the only admitted product fallback.
+
+## 2026-09-02 execution evidence
+
+The first run is an explicit non-pass: the original runner collapsed every HTTP rejection to
+`HTTPError`, retried all 24 cases, and produced 48 zero-token failures. A diagnostic hardening then
+made terminal 4xx responses stop after one request and retain only status, error code, and parameter.
+The second run stopped after one request with
+`HTTP_400:invalid_json_schema:text.format.schema`. The original schema used `minLength`,
+`maxLength`, and `uniqueItems`, which the current strict Structured Outputs subset rejected.
+
+The remediation removed only those provider-unsupported keywords from the wire schema. Local
+`validate_output` still enforces non-empty/maximum text lengths, array cardinality, and uniqueness.
+That compatibility change produced prompt/schema SHA-256
+`c1d9f76e6a87ce116cac009eafe56f1bd57b6118e04d9c5a421ba6fb78734018`; the dataset, model,
+reasoning, facts, allowed actions, numeric/tone checks, retry policy, and thresholds did not change.
+
+The third run passed:
+
+| Measure | Observed | Gate |
+|---|---:|---:|
+| Final valid | 24/24 | 24/24 |
+| First-pass valid | 24/24 (100.00%) | at least 95.00% |
+| Retry cases | 0/24 (0.00%) | at most 5.00% |
+| Input tokens P50 / P95 | 296 / 301 | P95 at most 8,000 |
+| Output tokens P50 / P95 | 128 / 203 | P95 at most 1,500 |
+| Latency P50 / P95 | 3,614 / 5,389 ms | P95 at most 8,000 ms |
+| Hard failures | 0 | 0 |
+
+Passing transcript:
+`G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT3.jsonl`, SHA-256
+`4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e`.
+The two non-pass transcript hashes and exact result are in
+`G1_LUNA_EVAL_RESULT_2026-09-02.json`; they are not quality, latency, or token evidence.
+
+The implementation author read all 24 final outputs and found no additional fact, number, tone,
+locale, or action issue. This is not independent review. G1 remains In Progress pending that review,
+StoreKit price-point/Product-ID evidence, hosted CI/merge, and the owner's final
+`PROCEED_TO_R2` decision. COM-C7 remains blocked.

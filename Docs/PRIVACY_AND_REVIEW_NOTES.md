@@ -312,11 +312,10 @@ reviewed local-only release remains possible with the cloud path absent.
 DEC-COM-096 freezes a 24-case synthetic bilingual Eval and exact 10-credit starter plus
 10/25/65-use card tiers, but it does not authorize a product provider route. DEC-COM-097 records
 the owner-observed dedicated Global project, Luna-only allow-list, Tier 1 limits, bounded billing,
-and accepted standard retention. Saved sharing/logging confirmation and the isolated credential
-remain, so `G1_OPENAI_ACCOUNT_EVIDENCE.md` still returns `OPENAI_ACCOUNT_NOT_ADMITTED`, and the live
-result is `LIVE_LUNA_EVAL_NOT_RUN_NO_ADMITTED_ACCOUNT`. A deterministic scorer self-test is not
-privacy, account, quality, or final-binary evidence. Synthetic Eval admission can never imply
-production activation.
+and accepted standard retention. DEC-COM-098 records the confirmed disabled sharing/logging state,
+Keychain-isolated credential, two explicit non-pass attempts, and the third attempt's 24/24
+first-pass automated result. The implementation-author read is not independent review, and a
+synthetic Eval pass is not final-binary or production evidence. Production admission remains false.
 
 ## Siri and Spotlight disclosure
 

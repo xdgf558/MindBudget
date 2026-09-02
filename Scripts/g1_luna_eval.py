@@ -43,6 +43,7 @@ ACCEPTED_BASE_URLS = {
     "https://eu.api.openai.com/v1",
     "https://sg.api.openai.com/v1",
 }
+TERMINAL_HTTP_STATUSES = {400, 401, 403, 404, 405, 422}
 
 SYSTEM_PROMPT = """You rewrite only the supplied deterministic MindBudget facts.
 Return exactly the requested JSON schema. Do not calculate, infer, diagnose, advise financially,
@@ -77,22 +78,20 @@ OUTPUT_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
     "required": ["case_id", "status", "headline", "explanation", "fact_ids", "action_ids"],
     "properties": {
-        "case_id": {"type": "string", "minLength": 1, "maxLength": 80},
+        "case_id": {"type": "string"},
         "status": {"type": "string", "enum": ["ok"]},
-        "headline": {"type": "string", "minLength": 1, "maxLength": 80},
-        "explanation": {"type": "string", "minLength": 1, "maxLength": 360},
+        "headline": {"type": "string"},
+        "explanation": {"type": "string"},
         "fact_ids": {
             "type": "array",
             "minItems": 1,
             "maxItems": 3,
-            "uniqueItems": True,
             "items": {"type": "string"},
         },
         "action_ids": {
             "type": "array",
             "minItems": 1,
             "maxItems": 2,
-            "uniqueItems": True,
             "items": {"type": "string"},
         },
     },
@@ -105,6 +104,24 @@ def canonical_json(value: Any) -> str:
 
 def sha256_json(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+class ProviderHTTPError(RuntimeError):
+    def __init__(self, status: int, code: str, parameter: str) -> None:
+        self.status = status
+        self.code = code
+        self.parameter = parameter
+        super().__init__(self.public_label)
+
+    @property
+    def public_label(self) -> str:
+        return f"HTTP_{self.status}:{self.code}:{self.parameter}"
+
+
+def safe_provider_field(value: Any) -> str:
+    if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", value):
+        return value
+    return "unspecified"
 
 
 def load_dataset(path: Path = DATASET_PATH) -> dict[str, Any]:
@@ -436,8 +453,20 @@ def call_responses_api(base_url: str, api_key: str, body: dict[str, Any]) -> tup
         method="POST",
     )
     started = time.monotonic()
-    with urllib.request.urlopen(request, timeout=30) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        try:
+            error_payload = json.loads(error.read().decode("utf-8"))
+            detail = error_payload.get("error", {})
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            detail = {}
+        raise ProviderHTTPError(
+            error.code,
+            safe_provider_field(detail.get("code") or detail.get("type")),
+            safe_provider_field(detail.get("param")),
+        ) from error
     return payload, int((time.monotonic() - started) * 1_000)
 
 
@@ -489,6 +518,7 @@ def run_live(
         for case in cases:
             for attempt in (1, 2):
                 provider_error: str | None = None
+                terminal_provider_error: ProviderHTTPError | None = None
                 parsed_output: Any = None
                 usage = {"input_tokens": 0, "output_tokens": 0}
                 latency_ms = 0
@@ -500,6 +530,10 @@ def run_live(
                         "output_tokens": int(usage_payload.get("output_tokens", 0)),
                     }
                     parsed_output = json.loads(extract_output_text(response))
+                except ProviderHTTPError as error:
+                    provider_error = error.public_label
+                    if error.status in TERMINAL_HTTP_STATUSES:
+                        terminal_provider_error = error
                 except (urllib.error.URLError, TimeoutError, RuntimeError, ValueError, json.JSONDecodeError) as error:
                     provider_error = type(error).__name__
                 record = {
@@ -513,6 +547,10 @@ def run_live(
                 records.append(record)
                 output_file.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
                 output_file.flush()
+                if terminal_provider_error is not None:
+                    raise RuntimeError(
+                        f"terminal provider rejection; stopped after one request: {terminal_provider_error.public_label}"
+                    ) from terminal_provider_error
                 if provider_error is None and not validate_output(case, parsed_output):
                     break
     return records
@@ -559,6 +597,8 @@ def self_test() -> None:
         sample_request["prompt_cache_options"] == {"mode": "explicit", "ttl": "30m"},
         "Eval requests must disable implicit prompt caching",
     )
+    require(safe_provider_field("invalid_request_error") == "invalid_request_error", "safe error code drifted")
+    require(safe_provider_field("secret value") == "unspecified", "provider error sanitization failed")
 
     production_escape = json.loads(json.dumps(admission))
     production_escape["productionAdmitted"] = True
@@ -570,6 +610,7 @@ def self_test() -> None:
 
     incomplete_admission = json.loads(json.dumps(admission))
     incomplete_admission["evalAdmitted"] = True
+    incomplete_admission["evidence"]["noDataSharing"] = False
     require_account_rejection(incomplete_admission, "incomplete Eval admission must fail closed")
 
     unknown_fact = json.loads(json.dumps(records))
