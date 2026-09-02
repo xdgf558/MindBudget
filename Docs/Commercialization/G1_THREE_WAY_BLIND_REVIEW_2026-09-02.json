@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "PENDING_BLIND_REVIEW",
+  "status": "INDEPENDENT_REVIEW_COMPLETE",
   "scope": "synthetic_three_way_comparison_only",
   "production_admitted": false,
   "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
@@ -20,9 +20,9 @@
     "duplicate_candidates": "Protocol residue may make candidate bodies identical. Score identical bodies equally and set material_incremental_value false for that case; do not infer arm identity."
   },
   "independent_review": {
-    "reviewer_kind": null,
-    "reviewed_at_utc": null,
-    "reviewed_head": null
+    "reviewer_kind": "independent_pr_reviewer",
+    "reviewed_at_utc": "2026-09-02T14:25:01Z",
+    "reviewed_head": "f73881f209054068520e3c736f9e312fe22869e8"
   },
   "cases": [
     {
@@ -94,12 +94,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "C",
+        "clarity_best_labels": ["C"],
+        "usefulness_best_labels": ["C"],
+        "locale_naturalness_best_labels": ["C"],
+        "material_incremental_value": false,
+        "review_notes": "C is preferred overall. A and B use exclamation marks; A also suggests an adjustment despite the positive budget. B was close to C on clarity, but that residual difference does not change the best-label arrays or establish material incremental value."
       },
       "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
@@ -172,12 +172,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "C",
+        "clarity_best_labels": ["C"],
+        "usefulness_best_labels": ["C"],
+        "locale_naturalness_best_labels": ["C"],
+        "material_incremental_value": false,
+        "review_notes": "C is preferred. B repeats the question in its headline and largely restates payload fields. The difference is copy refinement within the local template range, not material incremental value."
       },
       "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e"
     },
@@ -252,12 +252,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "C",
+        "clarity_best_labels": ["C"],
+        "usefulness_best_labels": ["C"],
+        "locale_naturalness_best_labels": ["C"],
+        "material_incremental_value": false,
+        "review_notes": "C is preferred. A's 'Budget Tight' headline reads as a judgment. The preference reflects wording polish only and is not material incremental value."
       },
       "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
@@ -331,12 +331,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "C",
+        "clarity_best_labels": ["C"],
+        "usefulness_best_labels": ["C"],
+        "locale_naturalness_best_labels": ["C"],
+        "material_incremental_value": false,
+        "review_notes": "C is preferred. A refuses despite sufficient facts; B uses an exclamatory, judgmental framing. The difference remains within ordinary template-expression quality."
       },
       "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e"
     },
@@ -410,12 +410,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "C",
+        "clarity_best_labels": ["C"],
+        "usefulness_best_labels": ["C"],
+        "locale_naturalness_best_labels": ["C"],
+        "material_incremental_value": false,
+        "review_notes": "C is preferred. A's 'Over budget!' headline is exclamatory and judgmental. The preference is not a material increment beyond local-template wording."
       },
       "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
@@ -489,12 +489,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. C's phrase '请合理安排开支' is somewhat directive. The observed difference is wording polish, not material incremental value."
       },
       "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
@@ -569,12 +569,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred, with C nearly tied. A explicitly avoids judgment. The small residual difference is not material incremental value."
       },
       "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
@@ -648,12 +648,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "C"],
+        "usefulness_best_labels": ["A", "C"],
+        "locale_naturalness_best_labels": ["A", "C"],
+        "material_incremental_value": false,
+        "review_notes": "A and C are identical duplicate bodies and are scored equally. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
@@ -726,12 +726,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. C's 'Pattern Detected' and 'manage this' language reads as diagnostic and directive. The difference is not material incremental value beyond local-template expression."
       },
       "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
@@ -805,12 +805,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred. B mainly repeats payload fields. The observed copy-quality difference is not material incremental value."
       },
       "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
@@ -879,12 +879,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred for the strongest forward-looking phrasing. That is ordinary wording polish within the local-template range, not material incremental value."
       },
       "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
@@ -953,12 +953,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. C's headline is generic and less informative. The difference does not establish material incremental value."
       },
       "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
@@ -1031,12 +1031,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. A and C are identical duplicate bodies and are scored equally below B. The preferred wording still does not provide material incremental value beyond the local-template range."
       },
       "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
@@ -1109,12 +1109,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "B"],
+        "usefulness_best_labels": ["A", "B"],
+        "locale_naturalness_best_labels": ["A", "B"],
+        "material_incremental_value": false,
+        "review_notes": "A and B are identical duplicate bodies and are scored equally. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
@@ -1189,12 +1189,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred for including both allowed actions with steady wording. The difference remains achievable by the established local templates and is not material incremental value."
       },
       "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
@@ -1268,12 +1268,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "B"],
+        "usefulness_best_labels": ["A", "B"],
+        "locale_naturalness_best_labels": ["A", "B"],
+        "material_incremental_value": false,
+        "review_notes": "A and B are identical duplicate bodies and are scored equally. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
@@ -1347,12 +1347,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred. B omits the required US$299.00 fact. A's advantage is correctness and wording within the existing local-template contract, not material incremental value."
       },
       "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
@@ -1426,12 +1426,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred. C mixes grammatical person and omits the start_cooling_off action. The difference is not material incremental value beyond local deterministic output."
       },
       "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
@@ -1505,12 +1505,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "C"],
+        "usefulness_best_labels": ["A", "C"],
+        "locale_naturalness_best_labels": ["A", "C"],
+        "material_incremental_value": false,
+        "review_notes": "A and C are identical duplicate bodies and are scored equally. B mostly repeats fields without synthesis. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
@@ -1586,12 +1586,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. C uses a question-mark headline but then states a direct conclusion. The preference is wording polish only, not material incremental value."
       },
       "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
@@ -1664,12 +1664,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "B"],
+        "usefulness_best_labels": ["A", "B"],
+        "locale_naturalness_best_labels": ["A", "B"],
+        "material_incremental_value": false,
+        "review_notes": "A and B are identical duplicate bodies and are scored equally. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
@@ -1742,12 +1742,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "TIE",
+        "clarity_best_labels": ["A", "C"],
+        "usefulness_best_labels": ["A", "C"],
+        "locale_naturalness_best_labels": ["A", "C"],
+        "material_incremental_value": false,
+        "review_notes": "A and C are identical duplicate bodies and are scored equally. Protocol residue makes this case ineligible to establish material incremental value."
       },
       "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
@@ -1816,12 +1816,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "B",
+        "clarity_best_labels": ["B"],
+        "usefulness_best_labels": ["B"],
+        "locale_naturalness_best_labels": ["B"],
+        "material_incremental_value": false,
+        "review_notes": "B is preferred. C's 'No entries' headline contradicts the two-entry fact. B's advantage is factual consistency within the local-template range, not material incremental value."
       },
       "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
@@ -1890,12 +1890,12 @@
         }
       ],
       "review": {
-        "preferred_label": null,
-        "clarity_best_labels": [],
-        "usefulness_best_labels": [],
-        "locale_naturalness_best_labels": [],
-        "material_incremental_value": null,
-        "review_notes": ""
+        "preferred_label": "A",
+        "clarity_best_labels": ["A"],
+        "usefulness_best_labels": ["A"],
+        "locale_naturalness_best_labels": ["A"],
+        "material_incremental_value": false,
+        "review_notes": "A is preferred. The difference is limited to wording quality within the existing local-template range and does not establish material incremental value."
       },
       "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     }
