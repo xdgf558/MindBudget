@@ -100,8 +100,10 @@ struct G1ThreeWayOnDeviceEvalTests {
                 "output": output.map { $0 as Any } ?? NSNull()
             ])
         }
-        guard successfulModelOutputCount > 0 else {
-            Issue.record("G1 on-device Eval produced no Apple model output")
+        guard successfulModelOutputCount == cases.count else {
+            Issue.record(
+                "G1 on-device Eval requires structured Apple output for all \(cases.count) cases; received \(successfulModelOutputCount)"
+            )
             return
         }
         #else

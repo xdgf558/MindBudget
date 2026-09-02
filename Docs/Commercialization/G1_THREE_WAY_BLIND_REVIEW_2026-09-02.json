@@ -4,37 +4,20 @@
   "scope": "synthetic_three_way_comparison_only",
   "production_admitted": false,
   "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
-  "luna_transcript_sha256": "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e",
-  "blinding_domain_sha256": "0ae37fdacbee7d7cf6832085cf820ae351ca399bc1c88c93a239d9d3da9960a6",
   "case_count": 24,
   "arm_count": 3,
-  "device": {
-    "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
-    "device_model": "iPhone",
-    "device_name": "iPhone",
-    "model_availability": "available",
-    "record_type": "metadata",
-    "schema_version": 1,
-    "system_name": "iOS",
-    "system_version": "26.6.1",
-    "xcode_destination_name": "拉沙的iPhone"
-  },
-  "on_device_effective_sources": {
-    "model": 17,
-    "template_fallback_generation_error": 0,
-    "template_fallback_validation_error": 7
-  },
   "acceptance_rule": {
     "deterministic_safety": "ALL_EFFECTIVE_OUTPUTS_PASS_EXISTING_VALIDATOR",
     "incremental_value": "OWNER_MUST_ACCEPT_AT_LEAST_ONE_BILINGUAL_TASK_NEED_WHERE_LUNA_MATERIALLY_EXCEEDS_BOTH_LOCAL_ARMS",
     "no_self_approval": true
   },
   "review_instructions": {
-    "blind_first": "Score candidates without deriving or reading their arm mapping.",
+    "blind_first": "Score and lock every review field before opening the transcript, sidecar, mapping code, or diagnostic prose.",
     "preferred_label": "A, B, C, or TIE",
     "best_label_arrays": "One or more of A, B, C; an empty array is incomplete.",
     "material_incremental_value": "True only when the preferred output adds user value without new facts, advice, judgment, or unsafe actions.",
-    "bilingual_task_gate": "A task qualifies only if an accepted need is supported in both English and Simplified Chinese cases."
+    "bilingual_task_gate": "A task qualifies only if an accepted need is supported in both English and Simplified Chinese cases.",
+    "duplicate_candidates": "Protocol residue may make candidate bodies identical. Score identical bodies equally and set material_incremental_value false for that case; do not infer arm identity."
   },
   "independent_review": {
     "reviewer_kind": null,
@@ -118,9 +101,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
     {
       "case_id": "budget-positive-zh",
@@ -198,9 +179,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e"
     },
     {
       "case_id": "budget-tight-en",
@@ -280,9 +259,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
     {
       "case_id": "budget-tight-zh",
@@ -361,9 +338,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e"
     },
     {
       "case_id": "budget-over-en",
@@ -442,9 +417,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f"
     },
     {
       "case_id": "budget-over-zh",
@@ -523,9 +496,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
     {
       "case_id": "category-shift-en",
@@ -605,9 +576,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
     {
       "case_id": "category-shift-zh",
@@ -686,11 +655,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
     {
       "case_id": "repeated-impulse-en",
@@ -768,9 +733,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
     {
       "case_id": "repeated-impulse-zh",
@@ -849,9 +812,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
     {
       "case_id": "no-pattern-en",
@@ -925,9 +886,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
     {
       "case_id": "no-pattern-zh",
@@ -1001,9 +960,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
     {
       "case_id": "savings-progress-en",
@@ -1081,11 +1038,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
     {
       "case_id": "savings-progress-zh",
@@ -1163,11 +1116,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
     {
       "case_id": "fixed-pressure-en",
@@ -1247,9 +1196,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
     {
       "case_id": "fixed-pressure-zh",
@@ -1328,11 +1275,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
     {
       "case_id": "cooling-off-en",
@@ -1411,9 +1354,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     },
     {
       "case_id": "cooling-off-zh",
@@ -1492,9 +1433,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
     {
       "case_id": "cycle-pace-en",
@@ -1573,11 +1512,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
     {
       "case_id": "cycle-pace-zh",
@@ -1658,9 +1593,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
     {
       "case_id": "income-allocation-en",
@@ -1738,12 +1671,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "unknown fact id",
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2"
     },
     {
       "case_id": "income-allocation-zh",
@@ -1821,11 +1749,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
-      "on_device_effective_source": "template_fallback_validation_error",
-      "on_device_raw_validation_errors": [
-        "invented or altered numeric token"
-      ]
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc"
     },
     {
       "case_id": "insufficient-data-en",
@@ -1899,9 +1823,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b"
     },
     {
       "case_id": "insufficient-data-zh",
@@ -1975,9 +1897,7 @@
         "material_incremental_value": null,
         "review_notes": ""
       },
-      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
-      "on_device_effective_source": "model",
-      "on_device_raw_validation_errors": []
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700"
     }
   ]
 }

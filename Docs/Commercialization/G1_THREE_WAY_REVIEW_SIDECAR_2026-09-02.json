@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "status": "SEALED_UNTIL_REVIEW_FIELDS_LOCKED",
+  "scope": "post_score_mapping_and_diagnostics_only",
+  "production_admitted": false,
+  "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+  "luna_transcript_sha256": "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e",
+  "device_transcript_sha256": "d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b",
+  "pending_review_packet_sha256": "bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5",
+  "blinding_domain_sha256": "0ae37fdacbee7d7cf6832085cf820ae351ca399bc1c88c93a239d9d3da9960a6",
+  "case_count": 24,
+  "device": {
+    "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+    "device_model": "iPhone",
+    "device_name": "iPhone",
+    "model_availability": "available",
+    "record_type": "metadata",
+    "schema_version": 1,
+    "system_name": "iOS",
+    "system_version": "26.6.1",
+    "xcode_destination_name": "拉沙的iPhone"
+  },
+  "on_device_effective_sources": {
+    "model": 17,
+    "template_fallback_generation_error": 0,
+    "template_fallback_validation_error": 7
+  },
+  "protocol_residue": {
+    "duplicate_effective_candidates_are_value_ineligible": true,
+    "open_only_after": "ALL_BLIND_REVIEW_FIELDS_LOCKED"
+  },
+  "cases": [
+    {
+      "case_id": "budget-positive-en",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "openai_luna",
+        "C": "deterministic_template"
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "budget-positive-zh",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "apple_on_device",
+        "C": "deterministic_template"
+      },
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "budget-tight-en",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "openai_luna",
+        "C": "deterministic_template"
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "budget-tight-zh",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "apple_on_device",
+        "C": "deterministic_template"
+      },
+      "sealed_mapping_commitment": "3260f9539410b8acff7ac6576f61cdfdf38af412dcbba372b46996b9132d252e",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "budget-over-en",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "openai_luna",
+        "C": "deterministic_template"
+      },
+      "sealed_mapping_commitment": "f90e89133a0faac209cae703bbd46a4f10c43ebff05f9f4273f17c7c5b2b6f6f",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "budget-over-zh",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "deterministic_template",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "category-shift-en",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "apple_on_device",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "category-shift-zh",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "openai_luna",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "repeated-impulse-en",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "deterministic_template",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "repeated-impulse-zh",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "apple_on_device",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "no-pattern-en",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "deterministic_template",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "no-pattern-zh",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "deterministic_template",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "savings-progress-en",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "openai_luna",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "savings-progress-zh",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "deterministic_template",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "fixed-pressure-en",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "deterministic_template",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "fixed-pressure-zh",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "deterministic_template",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "cooling-off-en",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "apple_on_device",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "cooling-off-zh",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "openai_luna",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "cycle-pace-en",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "openai_luna",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "cycle-pace-zh",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "deterministic_template",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "income-allocation-en",
+      "label_to_arm": {
+        "A": "apple_on_device",
+        "B": "deterministic_template",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "a0f06a0dc3c92b81b70387b15877c34cc161da3fa9cdb78f5d667c7aacaee6f2",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "unknown fact id",
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "income-allocation-zh",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "openai_luna",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "e0295da7cb67c753847bd66c713020f4f44acf6f248f548cf6e601926cead2dc",
+      "on_device_effective_source": "template_fallback_validation_error",
+      "on_device_raw_validation_errors": [
+        "invented or altered numeric token"
+      ],
+      "all_candidates_distinct": false,
+      "comparative_value_eligible": false
+    },
+    {
+      "case_id": "insufficient-data-en",
+      "label_to_arm": {
+        "A": "openai_luna",
+        "B": "deterministic_template",
+        "C": "apple_on_device"
+      },
+      "sealed_mapping_commitment": "de7a98f22b707b0fe684f3a8a9975a5709830e21c2ef4de35879baed454a9e2b",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    },
+    {
+      "case_id": "insufficient-data-zh",
+      "label_to_arm": {
+        "A": "deterministic_template",
+        "B": "apple_on_device",
+        "C": "openai_luna"
+      },
+      "sealed_mapping_commitment": "d445d8ed593069daaebf43f8c5ab31ee2cb21ff1cba9775b8a1fbf369cf97700",
+      "on_device_effective_source": "model",
+      "on_device_raw_validation_errors": [],
+      "all_candidates_distinct": true,
+      "comparative_value_eligible": true
+    }
+  ]
+}

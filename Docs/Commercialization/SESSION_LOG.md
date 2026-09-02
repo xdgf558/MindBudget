@@ -4279,13 +4279,26 @@ at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production, COM-C7, StoreKit pro
 backend/credit implementation, customer traffic, distribution, and release remain blocked.
 
 Subsequent authorized physical run: After the owner connected the phone, Xcode selected only
-`拉沙的iPhone` (iPhone Air/iPhone18,4, iOS 26.6.1). The single opt-in test passed and emitted all
-24 cases in 29.579 seconds. Seventeen Apple outputs passed the existing validator; seven failed
-closed to the template, including six numeric violations and one additional unknown fact ID. The
-normalized transcript SHA-256 is
+the exact destination string `拉沙的iPhone`. The single opt-in test passed and emitted structured
+Apple output for all 24 cases in 29.579 seconds. The normalized transcript proves only that Xcode
+destination plus privacy-reduced `device_model: iPhone` and iOS 26.6.1, not the marketing name or
+hardware identifier. Transcript SHA-256 is
 `d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`; the unfilled blind packet
-SHA-256 is `a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f`.
+SHA-256 is `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`, and the sealed
+post-score sidecar SHA-256 is `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`.
 No Luna call was repeated. Comparative value remains unjudged pending independent blind review.
+
+PR #102 review remediation: The first scoring packet exposed aggregate source counts and per-case
+source/errors, while fallback residue made some source identities inferable. The scoring surface
+now excludes device/source/error/mapping data; those facts are retained only in the sidecar, which
+must remain unopened until every review field is locked. Duplicate candidate bodies are ineligible
+to prove material incremental value. Because the reporting reviewer had already read the Luna
+outputs and leaked packet, a different eligible independent reviewer must perform the blind score.
+The Apple `@Generable`/camelCase/`DATA START` prompt path differs from Luna's strict Responses API
+`json_schema` path, so the packet is product-path evidence rather than a controlled model benchmark.
+The first remediated full-validator run is retained as a local non-pass: Release built, but the
+test build stopped because Swift 6 could not infer a split `String + String` expression passed to
+`Issue.record`. The diagnostic was replaced by one interpolated string before revalidation.
 
 Final validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6. All static gates passed;
 the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, all

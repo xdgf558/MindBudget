@@ -2757,13 +2757,17 @@ The closeout still needs independent review, a green hosted run on its exact hea
   that compile-only checkpoint, no test had run on either device, no Luna request occurred, and no
   three-way result was claimed.
 - After the owner connected the authorized phone, the exact selected physical test passed 1/1 and
-  emitted 24/24 cases in 29.579 seconds. The effective Apple arm retained 17 validated model
-  outputs and failed 7 closed to the deterministic template. This is physical synthetic Eval
+  emitted structured Apple output for 24/24 cases in 29.579 seconds. This is physical synthetic Eval
   output, not final-binary/customer/production evidence; comparative value awaits independent
   blind review. No OpenAI request occurred during this run.
 - `/private/tmp/mindbudget-g1-three-way-eval/on-device-eval.xcresult` and its Xcode log are local
-  execution pointers, not durable repository artifacts. The normalized JSONL transcript and the
-  still-unfilled blind packet are the durable evidence, pinned by exact hashes in DEC-COM-100.
+  execution pointers, not durable repository artifacts. The normalized JSONL transcript proves
+  only the exact Xcode destination string plus privacy-reduced iPhone/iOS metadata; it does not
+  durably prove a marketing name or hardware identifier. The still-unfilled blind packet and
+  post-score-only sidecar are separately pinned by exact hashes in DEC-COM-100.
+- PR #102 review reproduced source/count/error leakage in the first scoring packet. The remediated
+  scoring surface omits those fields; the sealed sidecar retains them and the A/B/C mapping for
+  post-score use. Duplicate candidate bodies are mechanically ineligible to prove cloud value.
 - The complete local validation run then exited 0 under Xcode 27.0 beta 6: all static gates passed,
   the simulator UI suite executed 18 tests with 1 expected physical-only skip and 0 failures, every
   selected core file remained above the 85% coverage floor, and the C6-02 verifier found all 23

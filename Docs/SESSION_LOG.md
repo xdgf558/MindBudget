@@ -7201,7 +7201,16 @@ not available, so physical Apple output and independent blind review remain open
 Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no downstream authority changed.
 
 After the owner connected `拉沙的iPhone`, the selected physical test passed and emitted all 24
-cases. Seventeen Apple outputs passed the existing safety validator; seven failed closed to the
-deterministic template. The normalized transcript and unfilled A/B/C packet are now durable, but
-no subjective cloud-value conclusion is self-approved. Independent blind review remains open and
-no new Luna request occurred.
+structured outputs. The normalized transcript, unfilled A/B/C scoring surface, and separately
+sealed post-score sidecar are now durable, but no subjective cloud-value conclusion is
+self-approved. Independent blind review remains open and no new Luna request occurred. PR #102
+review found that the first scoring packet leaked source/error fields and aggregate classifications;
+the remediation removes them from the scoring surface and makes duplicate candidate bodies
+ineligible to establish incremental value.
+The first remediated full-validator run built Release but failed the test build on a Swift 6 type-
+inference error in the new all-cases diagnostic; replacing split string concatenation with one
+interpolated string closed that local non-pass. The complete Xcode 27.0 beta 6 revalidation then
+passed: 554 unit tests across 33 suites, 18 UI executions with 17 passed and one expected
+physical-only skip, every selected coverage threshold, and all 23 C6-02 runtime bindings. This
+validates the remediation and evidence wiring only; the sealed comparison remains unreviewed, G1
+remains In Progress, and no Luna or physical-device rerun occurred.

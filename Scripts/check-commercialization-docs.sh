@@ -2574,6 +2574,7 @@ G1_LUNA_EVAL_PASS="Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATT
 G1_THREE_WAY_EVAL_PACKET="Docs/Commercialization/G1_THREE_WAY_EVAL.md"
 G1_APPLE_ON_DEVICE_TRANSCRIPT="Docs/Commercialization/G1_APPLE_ON_DEVICE_EVAL_TRANSCRIPT_2026-09-02.jsonl"
 G1_THREE_WAY_BLIND_REVIEW="Docs/Commercialization/G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json"
+G1_THREE_WAY_REVIEW_SIDECAR="Docs/Commercialization/G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json"
 test -f "${G1_ECONOMICS_PACKET}" || {
   echo "Missing G1 quote/economics packet" >&2
   exit 1
@@ -2604,6 +2605,10 @@ test -f "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" || {
 }
 test -f "${G1_THREE_WAY_BLIND_REVIEW}" || {
   echo "Missing pending G1 three-way blind-review packet" >&2
+  exit 1
+}
+test -f "${G1_THREE_WAY_REVIEW_SIDECAR}" || {
+  echo "Missing G1 post-score review sidecar: ${G1_THREE_WAY_REVIEW_SIDECAR}" >&2
   exit 1
 }
 
@@ -2930,7 +2935,8 @@ python3 Scripts/g1_three_way_eval.py --self-test >/dev/null
 python3 -O Scripts/g1_three_way_eval.py --self-test >/dev/null
 python3 Scripts/g1_three_way_eval.py \
   --check-review-packet "${G1_THREE_WAY_BLIND_REVIEW}" \
-  --on-device-transcript "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" >/dev/null
+  --on-device-transcript "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" \
+  --review-sidecar "${G1_THREE_WAY_REVIEW_SIDECAR}" >/dev/null
 
 test "$(shasum -a 256 "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" | awk '{print $1}')" = \
   'd6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b' || {
@@ -2938,8 +2944,13 @@ test "$(shasum -a 256 "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" | awk '{print $1}')" = 
   exit 1
 }
 test "$(shasum -a 256 "${G1_THREE_WAY_BLIND_REVIEW}" | awk '{print $1}')" = \
-  'a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f' || {
+  'bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5' || {
   echo "G1 pending blind-review packet hash drifted" >&2
+  exit 1
+}
+test "$(shasum -a 256 "${G1_THREE_WAY_REVIEW_SIDECAR}" | awk '{print $1}')" = \
+  'd29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507' || {
+  echo "G1 post-score review sidecar hash drifted" >&2
   exit 1
 }
 
@@ -2983,7 +2994,7 @@ for anchor in (
     'ProcessInfo.processInfo.environment["MINDBUDGET_G1_ON_DEVICE_EVAL"] == "1"',
     "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
     "SystemLanguageModel.default.supportsLocale",
-    "successfulModelOutputCount > 0",
+    "successfulModelOutputCount == cases.count",
     "MINDBUDGET_G1_ON_DEVICE_EVAL",
 ):
     if anchor not in test_source:
@@ -3005,8 +3016,8 @@ for anchor in (
     "PHYSICAL_OUTPUT_CAPTURED_PENDING_INDEPENDENT_BLIND_REVIEW",
     "does not perform or charge",
     "procedural blindness, not cryptographic secrecy",
-    "17 Apple outputs",
-    "7 template fallbacks",
+    "post-score-only",
+    "Apple prompt/schema mechanism differs from Luna",
     "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE",
 ):
     if anchor not in packet:

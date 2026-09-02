@@ -842,8 +842,9 @@ price-point/Product-ID evidence and the owner decision remain open; the current 
 - [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,
   supported on-device output, and Luna. DEC-COM-100 freezes a compiling, Debug-only,
   non-archivable harness that reuses the reviewed Luna transcript without a new provider call; the
-  physical `拉沙的iPhone` run emitted 24/24 cases, with 17 Apple outputs accepted and 7 failing
-  closed to the template. The independent blind review remains open. Obtain StoreKit
+  physical run using the exact Xcode destination `拉沙的iPhone` emitted structured Apple output for
+  24/24 cases. Source classifications and mappings are sealed outside the scoring surface; the
+  independent blind review remains open. Obtain StoreKit
   price-point/Product-ID evidence; complete
   the remaining implementation/legal gates; and record the final owner decision. Pre-launch actual
   US proceeds do not exist and are a post-launch recalibration input. Current result:

@@ -3015,23 +3015,34 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   do not make another OpenAI request. Add a Debug test-only, non-archivable scheme that runs only on
   `拉沙的iPhone`, captures Apple Foundation Models output, applies the existing deterministic Luna
   validator to every arm, and substitutes the frozen template whenever the Apple output fails or
-  is rejected. Build a deterministically shuffled A/B/C packet for independent review. Accept
+  is rejected. Build a deterministically shuffled A/B/C scoring surface with no arm/source/device
+  diagnostics; seal mappings and diagnostics in a post-score-only sidecar. Accept
   incremental value only if Luna is independently preferred over both local arms for at least one
   task in both English and Simplified Chinese without new facts, advice, judgment, or unsafe action.
-- Evidence: The authorized `拉沙的iPhone` run passed one selected test and emitted 24/24 cases.
-  Seventeen Apple outputs passed the existing validator; seven failed closed to the template, six
-  for altered/invented numeric tokens and one also for an invented fact ID. The normalized
-  transcript SHA-256 is `d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`;
-  the unfilled blind packet SHA-256 is
-  `a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f`.
+- Evidence: The authorized exact Xcode destination `拉沙的iPhone` passed one selected test and
+  emitted structured Apple output for 24/24 cases. The durable transcript proves that destination
+  string, privacy-reduced `device_model: iPhone`, and iOS 26.6.1, not a marketing name or hardware
+  identifier; its SHA-256 is
+  `d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`. The unfilled blind packet
+  SHA-256 is `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`; the sealed post-score
+  sidecar SHA-256 is `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`.
+- Review remediation: PR #102 review found that the first packet exposed per-case source/errors,
+  aggregate source counts, and source-identifying duplicate candidates while instructing reviewers
+  to score before seeing the mapping. The remediation removes those fields from the scoring
+  surface, moves mappings/diagnostics to the sealed sidecar, and makes any case with duplicate
+  candidate bodies ineligible to prove incremental value. A reviewer who read the leaked packet or
+  already knows the Luna outputs is ineligible for the later blind-value decision.
 - Consequences: A generic iOS build proves only that the harness compiles. Until the independent
   blind review is complete, the comparison is neither pass nor non-pass. G1
   remains In Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; production remains false and
   COM-C7 remains blocked. The comparison does not create a backend, credit ledger, Product ID,
   customer request path, distribution authority, or release claim.
-- Limitation carried: The Arabic-digit detector still does not prove number words. Independent
+- Limitations carried: The Arabic-digit detector still does not prove number words. Independent
   review must inspect factual/numeric meaning in every candidate, and this packet makes no complete
-  automated semantic-number claim. No provider retry or missing-usage path was introduced.
+  automated semantic-number claim. The Apple `@Generable`/camelCase/`DATA START` prompt mechanism
+  differs from Luna's Responses API strict `json_schema` prompt, so this is product-path evidence,
+  not a controlled model benchmark or causal model-quality comparison. No provider retry or
+  missing-usage path was introduced.
 - Alternatives rejected: Recalling the on-device output from memory; running on the excluded phone;
   using a simulator/Mac/template as if it were supported Apple generation; making another paid Luna
   call despite an unchanged accepted transcript; self-approving subjective value; weakening the

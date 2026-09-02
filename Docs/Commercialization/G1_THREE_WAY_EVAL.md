@@ -37,32 +37,52 @@ custom device name to the test. The extractor therefore requires the exact
 accepted as device-selection proof.
 
 The generic iOS test build under Xcode 27 beta 6 proves only that the harness compiles. The later
-authorized run on `拉沙的iPhone` (iPhone Air/iPhone18,4, iOS 26.6.1) passed its single selected test
-and emitted all 24 cases in 29.579 seconds. The normalized transcript is
+authorized run using the exact Xcode destination string `拉沙的iPhone` passed its single selected
+test and emitted structured Apple output for all 24 cases in 29.579 seconds. The normalized
+metadata proves only that destination string plus the privacy-reduced `device_model: iPhone`,
+`system_name: iOS`, and `system_version: 26.6.1`. The raw Xcode log and xcresult are not retained,
+so this durable transcript does not prove the marketing name `iPhone Air` or hardware identifier
+`iPhone18,4`. The normalized transcript is
 `G1_APPLE_ON_DEVICE_EVAL_TRANSCRIPT_2026-09-02.jsonl`, SHA-256
 `d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b`. Nearest-rank generation
 latency was P50 1,171 ms, P95 1,432 ms, and maximum 2,281 ms. These are Debug synthetic-device
 measurements, not final-binary/customer or production-service latency.
 
-Seventeen Apple outputs passed the existing deterministic validator. Seven failed closed and use
-the frozen template in the effective local arm: `category-shift-zh`, `savings-progress-en`,
-`savings-progress-zh`, `fixed-pressure-zh`, `cycle-pace-en`, `income-allocation-en`, and
-`income-allocation-zh`. Six introduced or altered a numeric token; `income-allocation-en` also
-invented a fact identifier. No rejected raw output is presented as acceptable model evidence.
-In compact form, the effective split is **17 Apple outputs / 7 template fallbacks / 0 generation
-errors**.
+The raw Apple output is passed through the existing deterministic validator, and invalid output
+fails closed to the frozen template. Exact source classifications, validation errors, arm mappings,
+and any affected case identifiers are deliberately absent from this pre-review document and blind
+packet. They are preserved only in the sealed post-score sidecar. No rejected raw output is
+presented as acceptable model evidence.
+
+This is a product-path comparison, not a controlled model benchmark. The Apple prompt/schema mechanism differs from Luna: the Apple path uses the
+Foundation Models `@Generable` schema, camelCase generated fields such as `factIDs`, and a prompt
+with `DATA START`/`DATA END` delimiters. The reused Luna path uses the previously frozen Responses
+API prompt and strict `json_schema` wire contract. The dataset, facts, task intent, allowed
+fact/action IDs, output fields after normalization, validator, and displayed candidates are shared;
+the prompt and schema mechanisms are not. Any observed difference therefore cannot be attributed
+to model quality alone.
 
 ## Blinded review contract
 
 `Scripts/g1_three_way_eval.py` validates and deterministically labels the three candidates A/B/C
-per case. It publishes only a SHA-256 commitment to the label mapping in the review packet. This is
-procedural blindness, not cryptographic secrecy: a reviewer must score candidates before reading
-or deriving the mapping. Every case requires one preferred label or TIE, non-empty best-label sets
+per case. The scoring surface contains only frozen inputs, candidate bodies, empty review fields,
+and a SHA-256 commitment to the label mapping. Device metadata, source counts, source/error fields,
+and the A/B/C answer key live only in this post-score-only artifact:
+`G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json`, SHA-256
+`d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`. This is procedural blindness, not cryptographic secrecy: a reviewer must score and lock every review field before
+opening the sidecar, raw device transcript, Luna transcript, mapping code, or diagnostic prose.
+A reviewer who read the pre-remediation leaked packet or already knows the Luna outputs cannot
+serve as this blind reviewer. Every case requires one preferred label or TIE, non-empty best-label sets
 for clarity/usefulness/locale naturalness, an explicit material-increment decision, and notes. A
 complete record must name an independent PR reviewer, UTC review time, and reviewed head.
 
+Fail-closed fallback can leave two candidate bodies identical. The blind packet discloses that
+generic protocol residue without naming a source or case: identical bodies must be scored equally,
+and the case cannot establish material incremental value. The post-score summarizer rechecks this
+from the sealed sidecar and fails closed if a reviewer marks such a case as material.
+
 The pending packet is `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`, SHA-256
-`a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f`. Its status is
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`. Its status is
 `PENDING_BLIND_REVIEW`; all preference/value fields are unfilled. Therefore the physical run closes
 only output capture and deterministic validation, not comparative value.
 

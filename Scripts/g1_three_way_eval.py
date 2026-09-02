@@ -23,12 +23,16 @@ LUNA_TRANSCRIPT = (
     ROOT / "Docs/Commercialization/G1_LUNA_EVAL_TRANSCRIPT_2026-09-02_ATTEMPT3.jsonl"
 )
 LUNA_RESULT = ROOT / "Docs/Commercialization/G1_LUNA_EVAL_RESULT_2026-09-02.json"
+DEVICE_TRANSCRIPT = (
+    ROOT / "Docs/Commercialization/G1_APPLE_ON_DEVICE_EVAL_TRANSCRIPT_2026-09-02.jsonl"
+)
 MARKER = "MINDBUDGET_G1_ON_DEVICE_EVAL "
 SCHEMA_VERSION = 1
 EXPECTED_DATASET_SHA256 = "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014"
 EXPECTED_LUNA_TRANSCRIPT_SHA256 = "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e"
 EXPECTED_DEVICE_TRANSCRIPT_SHA256 = "d6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b"
-EXPECTED_PENDING_REVIEW_PACKET_SHA256 = "a4c2686ba448a0afaa67a2c82a1feb6bbe23c7780f29eb8d305e4bd35612f57f"
+EXPECTED_PENDING_REVIEW_PACKET_SHA256 = "bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5"
+EXPECTED_REVIEW_SIDECAR_SHA256 = "d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507"
 BLINDING_DOMAIN = "MindBudget-G1-three-way-v1"
 ARM_IDS = ("deterministic_template", "apple_on_device", "openai_luna")
 BLIND_LABELS = ("A", "B", "C")
@@ -47,6 +51,14 @@ def sha256_file(path: Path) -> str:
 
 def canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def rendered_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, indent=2) + "\n"
+
+
+def rendered_json_sha256(value: Any) -> str:
+    return hashlib.sha256(rendered_json(value).encode()).hexdigest()
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -220,12 +232,24 @@ def blinded_order(case_id: str) -> list[str]:
     return [arm_id for _, arm_id in sorted(decorated)]
 
 
-def build_review_packet(records: list[dict[str, Any]]) -> dict[str, Any]:
+def candidate_payload(candidate: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "headline": candidate["headline"],
+        "explanation": candidate["explanation"],
+        "fact_ids": candidate["fact_ids"],
+        "action_ids": candidate["action_ids"],
+    }
+
+
+def build_review_artifacts(
+    records: list[dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, Any]]:
     cases = load_cases()
     metadata = validate_device_records(records, cases)
     device_by_case = {record["case_id"]: record for record in records[1:]}
     luna_outputs = load_luna_outputs(cases)
     review_cases: list[dict[str, Any]] = []
+    sidecar_cases: list[dict[str, Any]] = []
     fallback_counts = {
         "model": 0,
         "template_fallback_generation_error": 0,
@@ -247,6 +271,20 @@ def build_review_packet(records: list[dict[str, Any]]) -> dict[str, Any]:
                 f"effective {arm_id} output failed safety validation for {case['case_id']}",
             )
         order = blinded_order(case["case_id"])
+        mapping_commitment = hashlib.sha256(canonical_json(order).encode()).hexdigest()
+        candidates = [
+            {
+                "label": label,
+                "headline": outputs[arm_id]["headline"],
+                "explanation": outputs[arm_id]["explanation"],
+                "fact_ids": outputs[arm_id]["fact_ids"],
+                "action_ids": outputs[arm_id]["action_ids"],
+            }
+            for label, arm_id in zip(BLIND_LABELS, order)
+        ]
+        all_candidates_distinct = len(
+            {canonical_json(candidate_payload(candidate)) for candidate in candidates}
+        ) == len(BLIND_LABELS)
         review_cases.append(
             {
                 "case_id": case["case_id"],
@@ -256,10 +294,7 @@ def build_review_packet(records: list[dict[str, Any]]) -> dict[str, Any]:
                 "facts": case["facts"],
                 "required_fact_ids": case["required_fact_ids"],
                 "allowed_action_ids": case["allowed_action_ids"],
-                "candidates": [
-                    {"label": label, "headline": outputs[arm_id]["headline"], "explanation": outputs[arm_id]["explanation"], "fact_ids": outputs[arm_id]["fact_ids"], "action_ids": outputs[arm_id]["action_ids"]}
-                    for label, arm_id in zip(BLIND_LABELS, order)
-                ],
+                "candidates": candidates,
                 "review": {
                     "preferred_label": None,
                     "clarity_best_labels": [],
@@ -268,34 +303,40 @@ def build_review_packet(records: list[dict[str, Any]]) -> dict[str, Any]:
                     "material_incremental_value": None,
                     "review_notes": "",
                 },
-                "sealed_mapping_commitment": hashlib.sha256(canonical_json(order).encode()).hexdigest(),
-                "on_device_effective_source": local_source,
-                "on_device_raw_validation_errors": local_errors,
+                "sealed_mapping_commitment": mapping_commitment,
             }
         )
-    return {
+        sidecar_cases.append(
+            {
+                "case_id": case["case_id"],
+                "label_to_arm": dict(zip(BLIND_LABELS, order)),
+                "sealed_mapping_commitment": mapping_commitment,
+                "on_device_effective_source": local_source,
+                "on_device_raw_validation_errors": local_errors,
+                "all_candidates_distinct": all_candidates_distinct,
+                "comparative_value_eligible": all_candidates_distinct,
+            }
+        )
+    packet = {
         "schema_version": SCHEMA_VERSION,
         "status": "PENDING_BLIND_REVIEW",
         "scope": "synthetic_three_way_comparison_only",
         "production_admitted": False,
         "dataset_sha256": EXPECTED_DATASET_SHA256,
-        "luna_transcript_sha256": EXPECTED_LUNA_TRANSCRIPT_SHA256,
-        "blinding_domain_sha256": hashlib.sha256(BLINDING_DOMAIN.encode()).hexdigest(),
         "case_count": len(review_cases),
         "arm_count": len(ARM_IDS),
-        "device": metadata,
-        "on_device_effective_sources": fallback_counts,
         "acceptance_rule": {
             "deterministic_safety": "ALL_EFFECTIVE_OUTPUTS_PASS_EXISTING_VALIDATOR",
             "incremental_value": "OWNER_MUST_ACCEPT_AT_LEAST_ONE_BILINGUAL_TASK_NEED_WHERE_LUNA_MATERIALLY_EXCEEDS_BOTH_LOCAL_ARMS",
             "no_self_approval": True,
         },
         "review_instructions": {
-            "blind_first": "Score candidates without deriving or reading their arm mapping.",
+            "blind_first": "Score and lock every review field before opening the transcript, sidecar, mapping code, or diagnostic prose.",
             "preferred_label": "A, B, C, or TIE",
             "best_label_arrays": "One or more of A, B, C; an empty array is incomplete.",
             "material_incremental_value": "True only when the preferred output adds user value without new facts, advice, judgment, or unsafe actions.",
             "bilingual_task_gate": "A task qualifies only if an accepted need is supported in both English and Simplified Chinese cases.",
+            "duplicate_candidates": "Protocol residue may make candidate bodies identical. Score identical bodies equally and set material_incremental_value false for that case; do not infer arm identity.",
         },
         "independent_review": {
             "reviewer_kind": None,
@@ -304,6 +345,26 @@ def build_review_packet(records: list[dict[str, Any]]) -> dict[str, Any]:
         },
         "cases": review_cases,
     }
+    sidecar = {
+        "schema_version": SCHEMA_VERSION,
+        "status": "SEALED_UNTIL_REVIEW_FIELDS_LOCKED",
+        "scope": "post_score_mapping_and_diagnostics_only",
+        "production_admitted": False,
+        "dataset_sha256": EXPECTED_DATASET_SHA256,
+        "luna_transcript_sha256": EXPECTED_LUNA_TRANSCRIPT_SHA256,
+        "device_transcript_sha256": EXPECTED_DEVICE_TRANSCRIPT_SHA256,
+        "pending_review_packet_sha256": rendered_json_sha256(packet),
+        "blinding_domain_sha256": hashlib.sha256(BLINDING_DOMAIN.encode()).hexdigest(),
+        "case_count": len(sidecar_cases),
+        "device": metadata,
+        "on_device_effective_sources": fallback_counts,
+        "protocol_residue": {
+            "duplicate_effective_candidates_are_value_ineligible": True,
+            "open_only_after": "ALL_BLIND_REVIEW_FIELDS_LOCKED",
+        },
+        "cases": sidecar_cases,
+    }
+    return packet, sidecar
 
 
 def validate_review_packet(packet: dict[str, Any], *, require_complete: bool) -> None:
@@ -315,12 +376,8 @@ def validate_review_packet(packet: dict[str, Any], *, require_complete: bool) ->
             "scope",
             "production_admitted",
             "dataset_sha256",
-            "luna_transcript_sha256",
-            "blinding_domain_sha256",
             "case_count",
             "arm_count",
-            "device",
-            "on_device_effective_sources",
             "acceptance_rule",
             "review_instructions",
             "independent_review",
@@ -332,17 +389,8 @@ def validate_review_packet(packet: dict[str, Any], *, require_complete: bool) ->
     require(packet["scope"] == "synthetic_three_way_comparison_only", "review scope drifted")
     require(packet["production_admitted"] is False, "three-way Eval cannot admit production")
     require(packet["dataset_sha256"] == EXPECTED_DATASET_SHA256, "review dataset drifted")
-    require(packet["luna_transcript_sha256"] == EXPECTED_LUNA_TRANSCRIPT_SHA256, "review Luna arm drifted")
-    require(
-        packet["blinding_domain_sha256"] == hashlib.sha256(BLINDING_DOMAIN.encode()).hexdigest(),
-        "review blinding domain drifted",
-    )
     require(packet["case_count"] == 24 and packet["arm_count"] == 3, "review cardinality drifted")
     require(len(packet["cases"]) == 24, "review case list is incomplete")
-    source_counts = packet["on_device_effective_sources"]
-    require(set(source_counts) == {"model", "template_fallback_generation_error", "template_fallback_validation_error"}, "on-device source counts drifted")
-    require(all(type(value) is int and value >= 0 for value in source_counts.values()), "invalid on-device source count")
-    require(sum(source_counts.values()) == 24, "on-device source counts must cover every case")
     review_record = packet["independent_review"]
     require(set(review_record) == {"reviewer_kind", "reviewed_at_utc", "reviewed_head"}, "independent-review record shape drifted")
     if require_complete:
@@ -368,8 +416,6 @@ def validate_review_packet(packet: dict[str, Any], *, require_complete: bool) ->
                 "candidates",
                 "review",
                 "sealed_mapping_commitment",
-                "on_device_effective_source",
-                "on_device_raw_validation_errors",
             },
             "review case shape drifted",
         )
@@ -427,18 +473,112 @@ def validate_review_packet(packet: dict[str, Any], *, require_complete: bool) ->
             )
         else:
             require(
-                review["material_incremental_value"] is None
-                or type(review["material_incremental_value"]) is bool,
-                f"invalid pending value decision for {case_id}",
+                review
+                == {
+                    "preferred_label": None,
+                    "clarity_best_labels": [],
+                    "usefulness_best_labels": [],
+                    "locale_naturalness_best_labels": [],
+                    "material_incremental_value": None,
+                    "review_notes": "",
+                },
+                f"pending review fields must remain empty for {case_id}",
             )
     require(seen == set(cases_by_id), "review packet is missing cases")
 
 
-def validate_review_derivation(packet: dict[str, Any], transcript_path: Path) -> None:
-    expected = build_review_packet(read_jsonl(transcript_path))
+def validate_review_sidecar(sidecar: dict[str, Any]) -> None:
+    require(
+        set(sidecar)
+        == {
+            "schema_version",
+            "status",
+            "scope",
+            "production_admitted",
+            "dataset_sha256",
+            "luna_transcript_sha256",
+            "device_transcript_sha256",
+            "pending_review_packet_sha256",
+            "blinding_domain_sha256",
+            "case_count",
+            "device",
+            "on_device_effective_sources",
+            "protocol_residue",
+            "cases",
+        },
+        "review sidecar shape drifted",
+    )
+    require(sidecar["schema_version"] == SCHEMA_VERSION, "review sidecar schema drifted")
+    require(sidecar["status"] == "SEALED_UNTIL_REVIEW_FIELDS_LOCKED", "sidecar seal drifted")
+    require(sidecar["scope"] == "post_score_mapping_and_diagnostics_only", "sidecar scope drifted")
+    require(sidecar["production_admitted"] is False, "sidecar cannot admit production")
+    require(sidecar["dataset_sha256"] == EXPECTED_DATASET_SHA256, "sidecar dataset drifted")
+    require(sidecar["luna_transcript_sha256"] == EXPECTED_LUNA_TRANSCRIPT_SHA256, "sidecar Luna arm drifted")
+    require(sidecar["device_transcript_sha256"] == EXPECTED_DEVICE_TRANSCRIPT_SHA256, "sidecar device transcript drifted")
+    require(sidecar["pending_review_packet_sha256"] == EXPECTED_PENDING_REVIEW_PACKET_SHA256, "sidecar blind packet drifted")
+    require(sidecar["blinding_domain_sha256"] == hashlib.sha256(BLINDING_DOMAIN.encode()).hexdigest(), "sidecar blinding domain drifted")
+    require(sidecar["case_count"] == 24 and len(sidecar["cases"]) == 24, "sidecar cardinality drifted")
+    source_counts = sidecar["on_device_effective_sources"]
+    require(set(source_counts) == {"model", "template_fallback_generation_error", "template_fallback_validation_error"}, "on-device source counts drifted")
+    require(all(type(value) is int and value >= 0 for value in source_counts.values()), "invalid on-device source count")
+    require(sum(source_counts.values()) == 24, "on-device source counts must cover every case")
+    require(
+        sidecar["protocol_residue"]
+        == {
+            "duplicate_effective_candidates_are_value_ineligible": True,
+            "open_only_after": "ALL_BLIND_REVIEW_FIELDS_LOCKED",
+        },
+        "sidecar protocol residue rule drifted",
+    )
+    seen: set[str] = set()
+    for case in sidecar["cases"]:
+        require(
+            set(case)
+            == {
+                "case_id",
+                "label_to_arm",
+                "sealed_mapping_commitment",
+                "on_device_effective_source",
+                "on_device_raw_validation_errors",
+                "all_candidates_distinct",
+                "comparative_value_eligible",
+            },
+            "sidecar case shape drifted",
+        )
+        case_id = case["case_id"]
+        require(case_id not in seen, f"duplicate sidecar case {case_id}")
+        seen.add(case_id)
+        mapping = case["label_to_arm"]
+        require(set(mapping) == set(BLIND_LABELS), f"sidecar labels drifted for {case_id}")
+        require(set(mapping.values()) == set(ARM_IDS), f"sidecar arms drifted for {case_id}")
+        order = [mapping[label] for label in BLIND_LABELS]
+        require(
+            case["sealed_mapping_commitment"]
+            == hashlib.sha256(canonical_json(order).encode()).hexdigest(),
+            f"sidecar mapping commitment drifted for {case_id}",
+        )
+        require(
+            case["on_device_effective_source"]
+            in {"model", "template_fallback_generation_error", "template_fallback_validation_error"},
+            f"invalid sidecar source for {case_id}",
+        )
+        require(isinstance(case["on_device_raw_validation_errors"], list), f"invalid sidecar errors for {case_id}")
+        require(type(case["all_candidates_distinct"]) is bool, f"invalid distinctness for {case_id}")
+        require(
+            case["comparative_value_eligible"] is case["all_candidates_distinct"],
+            f"duplicate-candidate eligibility drifted for {case_id}",
+        )
+    require(seen == {case["case_id"] for case in load_cases()}, "review sidecar is missing cases")
+
+
+def pending_copy(packet: dict[str, Any]) -> dict[str, Any]:
     observed = json.loads(json.dumps(packet))
     observed["status"] = "PENDING_BLIND_REVIEW"
-    observed["independent_review"] = expected["independent_review"]
+    observed["independent_review"] = {
+        "reviewer_kind": None,
+        "reviewed_at_utc": None,
+        "reviewed_head": None,
+    }
     for case in observed["cases"]:
         case["review"] = {
             "preferred_label": None,
@@ -448,20 +588,53 @@ def validate_review_derivation(packet: dict[str, Any], transcript_path: Path) ->
             "material_incremental_value": None,
             "review_notes": "",
         }
-    require(observed == expected, "review packet does not derive exactly from the frozen arms")
+    return observed
 
 
-def summarize_complete_review(packet: dict[str, Any]) -> dict[str, Any]:
+def validate_review_derivation(
+    packet: dict[str, Any], sidecar: dict[str, Any], transcript_path: Path
+) -> None:
+    require(
+        sha256_file(transcript_path) == EXPECTED_DEVICE_TRANSCRIPT_SHA256,
+        "frozen device transcript hash drifted",
+    )
+    expected_packet, expected_sidecar = build_review_artifacts(read_jsonl(transcript_path))
+    observed = pending_copy(packet)
+    require(observed == expected_packet, "review packet does not derive exactly from the frozen arms")
+    require(sidecar == expected_sidecar, "review sidecar does not derive exactly from the frozen arms")
+    require(rendered_json_sha256(observed) == EXPECTED_PENDING_REVIEW_PACKET_SHA256, "pending review packet hash drifted")
+    require(rendered_json_sha256(sidecar) == EXPECTED_REVIEW_SIDECAR_SHA256, "review sidecar hash drifted")
+
+
+def summarize_complete_review(
+    packet: dict[str, Any], sidecar: dict[str, Any]
+) -> dict[str, Any]:
     validate_review_packet(packet, require_complete=True)
+    validate_review_sidecar(sidecar)
+    sidecar_by_case = {case["case_id"]: case for case in sidecar["cases"]}
     case_results: list[dict[str, Any]] = []
     qualifying_locales_by_task: dict[str, set[str]] = {}
     for case in packet["cases"]:
+        sealed = sidecar_by_case[case["case_id"]]
+        all_candidates_distinct = len(
+            {canonical_json(candidate_payload(candidate)) for candidate in case["candidates"]}
+        ) == len(BLIND_LABELS)
+        require(
+            all_candidates_distinct is sealed["all_candidates_distinct"],
+            f"candidate distinctness no longer matches sidecar for {case['case_id']}",
+        )
+        require(
+            sealed["comparative_value_eligible"]
+            or case["review"]["material_incremental_value"] is False,
+            f"duplicate candidates cannot establish incremental value: {case['case_id']}",
+        )
         preferred_label = case["review"]["preferred_label"]
         preferred_arm = None
         if preferred_label != "TIE":
-            label_to_arm = dict(zip(BLIND_LABELS, blinded_order(case["case_id"])))
-            preferred_arm = label_to_arm[preferred_label]
+            preferred_arm = sealed["label_to_arm"][preferred_label]
         luna_materially_preferred = (
+            sealed["comparative_value_eligible"]
+            and
             preferred_arm == "openai_luna"
             and case["review"]["material_incremental_value"] is True
         )
@@ -471,6 +644,7 @@ def summarize_complete_review(packet: dict[str, Any]) -> dict[str, Any]:
             {
                 "case_id": case["case_id"],
                 "preferred_arm": preferred_arm or "tie",
+                "comparative_value_eligible": sealed["comparative_value_eligible"],
                 "luna_materially_preferred": luna_materially_preferred,
             }
         )
@@ -497,37 +671,24 @@ def summarize_complete_review(packet: dict[str, Any]) -> dict[str, Any]:
 
 def self_test() -> None:
     cases = load_cases()
-    luna_outputs = load_luna_outputs(cases)
-    synthetic_records: list[dict[str, Any]] = [
-        {
-            "record_type": "metadata",
-            "schema_version": 1,
-            "dataset_sha256": EXPECTED_DATASET_SHA256,
-            "device_name": EXPECTED_DEVICE_NAME,
-            "device_model": "iPhone",
-            "system_name": "iOS",
-            "system_version": "26.6",
-            "model_availability": "available",
-            "xcode_destination_name": EXPECTED_DEVICE_NAME,
-        }
-    ]
-    for case in cases:
-        synthetic_records.append(
-            {
-                "record_type": "case",
-                "schema_version": 1,
-                "case_id": case["case_id"],
-                "latency_ms": 1,
-                "generation_error": None,
-                "output": luna_outputs[case["case_id"]],
-            }
-        )
-    packet = build_review_packet(synthetic_records)
+    require(
+        sha256_file(DEVICE_TRANSCRIPT) == EXPECTED_DEVICE_TRANSCRIPT_SHA256,
+        "self-test device transcript hash drifted",
+    )
+    device_records = read_jsonl(DEVICE_TRANSCRIPT)
+    packet, sidecar = build_review_artifacts(device_records)
     validate_review_packet(packet, require_complete=False)
+    validate_review_sidecar(sidecar)
+    validate_review_derivation(packet, sidecar, DEVICE_TRANSCRIPT)
     require(packet["case_count"] == 24, "self-test review count drifted")
     require(all(len(case["candidates"]) == 3 for case in packet["cases"]), "arm count drifted")
+    require("device" not in packet, "blind review packet must not expose device metadata")
+    require("on_device_effective_sources" not in packet, "blind review packet must not expose source counts")
+    for case in packet["cases"]:
+        require("on_device_effective_source" not in case, "blind review case leaked effective source")
+        require("on_device_raw_validation_errors" not in case, "blind review case leaked validation errors")
 
-    missing = json.loads(json.dumps(synthetic_records))
+    missing = json.loads(json.dumps(device_records))
     missing.pop()
     try:
         validate_device_records(missing, cases)
@@ -536,7 +697,7 @@ def self_test() -> None:
     else:
         raise RuntimeError("missing on-device case must fail closed")
 
-    wrong_hash = json.loads(json.dumps(synthetic_records))
+    wrong_hash = json.loads(json.dumps(device_records))
     wrong_hash[0]["dataset_sha256"] = "0" * 64
     try:
         validate_device_records(wrong_hash, cases)
@@ -545,11 +706,17 @@ def self_test() -> None:
     else:
         raise RuntimeError("wrong device dataset hash must fail closed")
 
-    fallback = json.loads(json.dumps(synthetic_records))
-    fallback[1]["output"]["fact_ids"].append("invented_fact")
-    fallback_packet = build_review_packet(fallback)
+    fallback = json.loads(json.dumps(device_records))
+    model_case_id = next(
+        case["case_id"] for case in sidecar["cases"]
+        if case["on_device_effective_source"] == "model"
+    )
+    source_record = next(record for record in fallback[1:] if record["case_id"] == model_case_id)
+    source_record["output"]["fact_ids"].append("invented_fact")
+    _, fallback_sidecar = build_review_artifacts(fallback)
     require(
-        fallback_packet["on_device_effective_sources"]["template_fallback_validation_error"] == 1,
+        fallback_sidecar["on_device_effective_sources"]["template_fallback_validation_error"]
+        == sidecar["on_device_effective_sources"]["template_fallback_validation_error"] + 1,
         "invalid on-device output must become the deterministic template",
     )
 
@@ -560,44 +727,83 @@ def self_test() -> None:
         "reviewed_at_utc": "2026-09-02T12:00:00Z",
         "reviewed_head": "abcdef0",
     }
-    task_counts = {
-        task: sum(case["task"] == task for case in cases)
-        for task in {case["task"] for case in cases}
-    }
-    selected_task = next(task for task, count in task_counts.items() if count == 2)
+    sealed_by_case = {case["case_id"]: case for case in sidecar["cases"]}
+    eligible_locales_by_task: dict[str, set[str]] = {}
+    for case in cases:
+        if sealed_by_case[case["case_id"]]["comparative_value_eligible"]:
+            eligible_locales_by_task.setdefault(case["task"], set()).add(case["locale"])
+    selected_task = next(
+        task for task, locales in eligible_locales_by_task.items()
+        if {"en", "zh"}.issubset(locales)
+    )
     selected_case_ids = {
         case["case_id"] for case in cases if case["task"] == selected_task
     }
     for case in complete["cases"]:
-        label_to_arm = dict(zip(BLIND_LABELS, blinded_order(case["case_id"])))
+        sealed = sealed_by_case[case["case_id"]]
+        label_to_arm = sealed["label_to_arm"]
         luna_label = next(label for label, arm in label_to_arm.items() if arm == "openai_luna")
         case["review"] = {
             "preferred_label": luna_label,
             "clarity_best_labels": [luna_label],
             "usefulness_best_labels": [luna_label],
             "locale_naturalness_best_labels": [luna_label],
-            "material_incremental_value": case["case_id"] in selected_case_ids,
+            "material_incremental_value": (
+                sealed["comparative_value_eligible"]
+                and case["case_id"] in selected_case_ids
+            ),
             "review_notes": "synthetic self-test decision",
         }
-    summary = summarize_complete_review(complete)
+    summary = summarize_complete_review(complete, sidecar)
     require(summary["result"] == "PASS", "bilingual Luna preference must pass")
     empty_notes = json.loads(json.dumps(complete))
     empty_notes["cases"][0]["review"]["review_notes"] = ""
     try:
-        summarize_complete_review(empty_notes)
+        summarize_complete_review(empty_notes, sidecar)
     except RuntimeError:
         pass
     else:
         raise RuntimeError("a complete review with empty notes must fail closed")
-    selected_zh = next(
-        case for case in complete["cases"]
-        if case["task"] == selected_task and case["locale"] == "zh"
-    )
-    selected_zh["review"]["material_incremental_value"] = False
+    for case in complete["cases"]:
+        if case["task"] == selected_task and case["locale"] == "zh":
+            case["review"]["material_incremental_value"] = False
     require(
-        summarize_complete_review(complete)["result"] == "NON_PASS",
+        summarize_complete_review(complete, sidecar)["result"] == "NON_PASS",
         "a one-locale Luna preference must fail closed",
     )
+    duplicate_claim = json.loads(json.dumps(packet))
+    duplicate_claim["status"] = "INDEPENDENT_REVIEW_COMPLETE"
+    duplicate_claim["independent_review"] = complete["independent_review"]
+    for case in duplicate_claim["cases"]:
+        case["review"] = {
+            "preferred_label": "A",
+            "clarity_best_labels": ["A"],
+            "usefulness_best_labels": ["A"],
+            "locale_naturalness_best_labels": ["A"],
+            "material_incremental_value": False,
+            "review_notes": "synthetic self-test decision",
+        }
+    ineligible_case = next(
+        case for case in duplicate_claim["cases"]
+        if not sealed_by_case[case["case_id"]]["comparative_value_eligible"]
+    )
+    ineligible_case["review"]["material_incremental_value"] = True
+    try:
+        summarize_complete_review(duplicate_claim, sidecar)
+    except RuntimeError:
+        pass
+    else:
+        raise RuntimeError("duplicate candidate bodies must be value-ineligible")
+
+    tampered_sidecar = json.loads(json.dumps(sidecar))
+    first_mapping = tampered_sidecar["cases"][0]["label_to_arm"]
+    first_mapping["A"], first_mapping["B"] = first_mapping["B"], first_mapping["A"]
+    try:
+        validate_review_sidecar(tampered_sidecar)
+    except RuntimeError:
+        pass
+    else:
+        raise RuntimeError("tampered sidecar mapping must fail closed")
 
 
 def main() -> int:
@@ -606,9 +812,11 @@ def main() -> int:
     parser.add_argument("--extract-on-device-log", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--build-review-packet", type=Path, metavar="ON_DEVICE_JSONL")
+    parser.add_argument("--sidecar-output", type=Path)
     parser.add_argument("--check-review-packet", type=Path)
     parser.add_argument("--summarize-review", type=Path)
     parser.add_argument("--on-device-transcript", type=Path)
+    parser.add_argument("--review-sidecar", type=Path)
     parser.add_argument("--require-complete-review", action="store_true")
     args = parser.parse_args()
 
@@ -631,26 +839,49 @@ def main() -> int:
         write_jsonl(args.output, extract_device_records(args.extract_on_device_log))
         return 0
     if args.build_review_packet is not None:
-        require(args.output is not None, "review-packet generation requires --output")
+        require(
+            args.output is not None and args.sidecar_output is not None,
+            "review-packet generation requires --output and --sidecar-output",
+        )
         records = read_jsonl(args.build_review_packet)
-        packet = build_review_packet(records)
-        if args.output.exists():
-            raise RuntimeError(f"refusing to overwrite {args.output}")
-        args.output.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        packet, sidecar = build_review_artifacts(records)
+        for path in (args.output, args.sidecar_output):
+            if path.exists():
+                raise RuntimeError(f"refusing to overwrite {path}")
+        args.output.write_text(rendered_json(packet), encoding="utf-8")
+        args.sidecar_output.write_text(rendered_json(sidecar), encoding="utf-8")
         return 0
     if args.check_review_packet is not None:
         packet = json.loads(args.check_review_packet.read_text(encoding="utf-8"))
         validate_review_packet(packet, require_complete=args.require_complete_review)
-        if args.on_device_transcript is not None:
-            validate_review_derivation(packet, args.on_device_transcript)
+        if packet["status"] == "PENDING_BLIND_REVIEW":
+            require(
+                sha256_file(args.check_review_packet) == EXPECTED_PENDING_REVIEW_PACKET_SHA256,
+                "pending blind-review packet hash drifted",
+            )
+        require(
+            (args.on_device_transcript is None) == (args.review_sidecar is None),
+            "derivation check requires both --on-device-transcript and --review-sidecar",
+        )
+        if args.on_device_transcript is not None and args.review_sidecar is not None:
+            sidecar = json.loads(args.review_sidecar.read_text(encoding="utf-8"))
+            validate_review_sidecar(sidecar)
+            validate_review_derivation(packet, sidecar, args.on_device_transcript)
         return 0
     if args.summarize_review is not None:
-        require(args.output is not None, "review summary requires --output")
+        require(
+            args.output is not None
+            and args.review_sidecar is not None
+            and args.on_device_transcript is not None,
+            "review summary requires --output, --review-sidecar, and --on-device-transcript",
+        )
         packet = json.loads(args.summarize_review.read_text(encoding="utf-8"))
-        summary = summarize_complete_review(packet)
+        sidecar = json.loads(args.review_sidecar.read_text(encoding="utf-8"))
+        validate_review_derivation(packet, sidecar, args.on_device_transcript)
+        summary = summarize_complete_review(packet, sidecar)
         if args.output.exists():
             raise RuntimeError(f"refusing to overwrite {args.output}")
-        args.output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        args.output.write_text(rendered_json(summary), encoding="utf-8")
         return 0
     raise RuntimeError("unreachable")
 

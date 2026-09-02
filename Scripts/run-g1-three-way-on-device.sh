@@ -13,6 +13,7 @@ BUILD_LOG="${OUTPUT_DIRECTORY}/on-device-xcodebuild.log"
 RESULT_BUNDLE="${OUTPUT_DIRECTORY}/on-device-eval.xcresult"
 TRANSCRIPT="${OUTPUT_DIRECTORY}/on-device-transcript.jsonl"
 REVIEW_PACKET="${OUTPUT_DIRECTORY}/three-way-blind-review.json"
+REVIEW_SIDECAR="${OUTPUT_DIRECTORY}/three-way-review-sidecar.json"
 
 if [[ "${MINDBUDGET_G1_DEVICE_NAME:-${EXPECTED_DEVICE_NAME}}" != "${EXPECTED_DEVICE_NAME}" ]]; then
   echo "G1 Eval is authorized only for ${EXPECTED_DEVICE_NAME}." >&2
@@ -22,7 +23,7 @@ if [[ "${MINDBUDGET_G1_DEVICE_NAME:-}" == "${EXCLUDED_DEVICE_NAME}" ]]; then
   echo "The explicitly excluded device must never run this Eval." >&2
   exit 1
 fi
-for path in "${BUILD_LOG}" "${RESULT_BUNDLE}" "${TRANSCRIPT}" "${REVIEW_PACKET}"; do
+for path in "${BUILD_LOG}" "${RESULT_BUNDLE}" "${TRANSCRIPT}" "${REVIEW_PACKET}" "${REVIEW_SIDECAR}"; do
   if [[ -e "${path}" ]]; then
     echo "Refusing to overwrite evidence path: ${path}" >&2
     exit 1
@@ -64,9 +65,14 @@ fi
 python3 -B Scripts/g1_three_way_eval.py \
   --extract-on-device-log "${BUILD_LOG}" --output "${TRANSCRIPT}"
 python3 -B Scripts/g1_three_way_eval.py \
-  --build-review-packet "${TRANSCRIPT}" --output "${REVIEW_PACKET}"
-python3 -B Scripts/g1_three_way_eval.py --check-review-packet "${REVIEW_PACKET}"
+  --build-review-packet "${TRANSCRIPT}" --output "${REVIEW_PACKET}" \
+  --sidecar-output "${REVIEW_SIDECAR}"
+python3 -B Scripts/g1_three_way_eval.py \
+  --check-review-packet "${REVIEW_PACKET}" \
+  --on-device-transcript "${TRANSCRIPT}" \
+  --review-sidecar "${REVIEW_SIDECAR}"
 
 echo "Physical G1 three-way outputs captured from ${EXPECTED_DEVICE_NAME}."
 echo "Transcript: ${TRANSCRIPT}"
 echo "Pending independent blind-review packet: ${REVIEW_PACKET}"
+echo "Post-score-only mapping/diagnostic sidecar: ${REVIEW_SIDECAR}"

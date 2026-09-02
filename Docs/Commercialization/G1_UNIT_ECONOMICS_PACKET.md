@@ -288,8 +288,9 @@ attempts 1 and 2 remain explicit non-passes. Independent review accepted the acc
 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and merge `7a473d2` delivered it.
 DEC-COM-100 and `G1_THREE_WAY_EVAL.md` now freeze the separate comparison harness. It reuses that
 reviewed Luna transcript without a new provider call. Its physical Apple run captured 24/24 cases,
-with 17 validated model outputs and 7 deterministic template fallbacks. Independent blind value
-review remains open and therefore the capture does not yet change the formal state.
+with structured generation returned for every case. Mappings and validator diagnostics remain
+sealed outside the scoring surface. Independent blind value review remains open and therefore the
+capture does not yet change the formal state.
 
 The current formal state is **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
 exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no
