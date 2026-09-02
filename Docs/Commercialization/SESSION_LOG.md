@@ -4349,3 +4349,44 @@ skips; the UI suite executed exactly 18 tests with 17 passed, one expected physi
 failures, and no test-runner retry. Every selected core file exceeded the 85% coverage floor and
 all 23 C6-02 runtime bindings passed. This validates the closeout branch only; blind scoring,
 exact-head independent review, hosted CI, and merge remain open.
+
+## 2026-09-02 — Session 217 — Lock, unseal, and record the independent three-way blind score
+
+Goal: Record the eligible reviewer's 24-case blind score without allowing sidecar knowledge to
+change any preference or material-value field, then compute the frozen comparative result.
+
+Blind lock: The reviewer stated that only the exact blind JSON at merge
+`f73881f209054068520e3c736f9e312fe22869e8` had been read and that the sidecar, transcript,
+mapping, and diagnostic prose remained unopened. The owner confirmed the mechanical completion
+rule: single preferences populate all three best-label arrays; identical duplicate bodies share
+those arrays; all 24 material-increment decisions are false. The completed packet passed the
+fail-closed schema check and was committed before unsealing as `cd579be`. Its SHA-256 is
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`.
+
+Unsealed result: The original sidecar SHA-256 remained
+`d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`. The deterministic
+summarizer reproduced all source artifacts and returned `NON_PASS`: 16 preferences map to the
+deterministic template, two to Luna, and six are ties. The Luna preference for
+`savings-progress-en` is duplicate-ineligible; the Luna preference for `fixed-pressure-en` is
+explicitly non-material. There are zero materially preferred Luna cases and no qualifying
+bilingual task. No second eligible blind score exists because the earlier delivery reviewers had
+already seen Luna/source diagnostics, so inter-rater overlap is unavailable rather than inferred.
+
+Boundary: DEC-COM-102 changes only the G1 evidence state to
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. G1 remains In Progress,
+`productionAdmitted` remains false, and COM-C7 remains blocked. Post-unseal regrading is forbidden.
+StoreKit price-point evidence, the breaker, and legal gates remain unfulfilled, but the owner must
+first resolve the Luna credit offer. This recording branch still requires its own exact-head
+independent review, hosted CI, and merge.
+
+Validation: Two preliminary attempts are retained as environment non-passes. One selected the
+now-absent `/Users/shaola/Downloads/软件/Xcode.app`; the other used the recorded Xcode inside the
+restricted sandbox but could not reach CoreSimulatorService or the local bundle-ID configuration.
+The identical unrestricted `Scripts/validate.sh` invocation then exited 0 under Xcode 27.0 beta 6
+(`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator. Release and the strict Dashboard benchmark
+passed; 554 unit tests across 33 suites passed with four expected physical CloudKit skips; the UI
+suite executed exactly 18 tests with 17 passed, one expected physical-only skip, zero failures,
+and no test-runner retry; all selected core files exceeded 85% coverage; and the C6-02 verifier
+confirmed all 23 exact runtime bindings. The temporary xcresult was deleted after success and is
+only an execution pointer. This is local branch validation, not owner approval or production
+authority.

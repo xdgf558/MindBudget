@@ -12,16 +12,21 @@ DEC-COM-094 closed only that evidence package. DEC-COM-095 records the commercia
 usage-accounting policy; DEC-COM-096 accepts 10 starter credits and the three card tiers.
 DEC-COM-098 records a 24/24 first-pass automated Luna Eval result after preserving two non-pass
 attempts. Independent review found no P1/P2 on PR #100 head `323d8d7`; run `33593253561` passed and
-merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. The current result is
+merge `7a473d2` delivered it. DEC-COM-099 closes only that evidence delivery. The former result was
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not completed G1 or COM-C7 entry.
 The fixed bilingual three-way comparative Eval across deterministic template, supported on-device
-output, and Luna remains a separate `PROCEED_TO_R2` prerequisite.
+output, and Luna remained a separate `PROCEED_TO_R2` prerequisite.
 DEC-COM-100 prepares only its Debug harness and reuses the reviewed Luna transcript; physical Apple
 output is captured. DEC-COM-101 closes the PR #102 delivery chain—exact reviewed remediation head
 `bb939d0`, hosted run `33628847476`, and merge `2254902`—without scoring comparative value. A
 different reviewer must score only blind JSON SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar;
-independent blind review remains open.
+independent blind review remained open at that delivery checkpoint. DEC-COM-102 records the later
+completed review at SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e` and its deterministic
+`NON_PASS`: zero materially preferred Luna cases and no qualifying bilingual task. Current state is
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; storefront work is not the sole remaining
+blocker and awaits the owner's cloud-offer disposition.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction

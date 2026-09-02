@@ -2809,3 +2809,32 @@ The closeout still needs independent review, a green hosted run on its exact hea
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.upf8G2/MindBudget.xcresult`;
   this path is an execution pointer, not a durable artifact. Exact-head independent review, hosted
   CI, and merge remain open; the blind comparative score remains unperformed.
+
+### G1 independent three-way blind-review result — 2026-09-02
+
+- The reviewer completed the exact blind packet from merge
+  `f73881f209054068520e3c736f9e312fe22869e8` before the sidecar was opened. The score lock is
+  commit `cd579be`; completed packet SHA-256 is
+  `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`.
+- `Scripts/g1_three_way_eval.py --check-review-packet ... --require-complete-review` validates all
+  24 reviews and re-derives the unchanged frozen inputs and sidecar from the physical transcript.
+- The post-lock summarizer reproduces
+  `G1_THREE_WAY_REVIEW_RESULT_2026-09-02.json`: `NON_PASS`, zero materially preferred Luna cases,
+  no qualifying bilingual task, `production_admitted: false`.
+- No second eligible blind score exists; earlier delivery reviewers were mapping/source-aware.
+  Inter-rater overlap is unavailable and is not treated as zero agreement or estimated evidence.
+- DEC-COM-102 advances only to `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. G1 remains In
+  Progress and COM-C7 remains blocked. This branch's exact-head independent review, hosted CI, and
+  merge remain required.
+- The first validation attempt selected the now-absent
+  `/Users/shaola/Downloads/软件/Xcode.app` path and stopped before tests; the second reached the
+  correct Xcode under the restricted sandbox but could not access CoreSimulatorService or the
+  local bundle-ID configuration. Both are environment non-passes.
+- The identical unrestricted validator then exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the
+  iOS 26.5 iPhone 17 Pro simulator. Release and the strict Dashboard benchmark passed; 554 unit
+  tests across 33 suites passed with four expected physical CloudKit skips; exactly 18 UI tests
+  executed with 17 passed, one expected physical-only skip, zero failures, and no retry; every
+  selected core file exceeded the 85% coverage floor; and all 23 C6-02 runtime bindings passed.
+- The deleted temporary bundle
+  `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.ntEklp/MindBudget.xcresult`
+  is an execution pointer only. No hosted result or independent review is claimed for this branch.

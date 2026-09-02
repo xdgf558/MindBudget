@@ -289,10 +289,13 @@ keeping production false. DEC-COM-098 records the admitted account and third liv
 first-pass automated result after preserving two non-pass attempts. Independent review found no
 P1/P2 on exact PR #100 head `323d8d7`; hosted run `33593253561` passed and PR #100 merged as
 `7a473d2`. DEC-COM-099 closes only that account/Eval evidence delivery. StoreKit price-point/Product-
-ID evidence, the fixed bilingual three-way comparative Eval across deterministic template,
-supported on-device output, and Luna, and owner `PROCEED_TO_R2` remain open. Actual US proceeds are
-unavailable pre-launch and become a post-launch recalibration input. The current result is
-`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. The revised economics are a
+ID evidence and owner `PROCEED_TO_R2` were open under the former
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state. Actual US proceeds are unavailable pre-launch
+and become a post-launch recalibration input. DEC-COM-102 now records the completed independent
+three-way comparative Eval blind review: completed score SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, deterministic result
+`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. The current
+state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked. The revised economics are a
 deliberate discontinuity from PR #98: removing the US$2 local-Pro reserve, separate 50% cloud
 holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.018986 and the 50%
 margin fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an owner policy
@@ -300,13 +303,14 @@ choice constrained by that envelope, not a value derived from the new 72-use cei
 unentered behind the 14-day no-P0/P1 gate, no earlier than 2026-09-15, plus explicit owner entry.
 DEC-COM-100 freezes a Debug-only three-way Eval harness that reuses the reviewed Luna transcript
 without a new provider call and accepts only `拉沙的iPhone`. The physical run captured 24/24
-structured Apple outputs. Mappings and diagnostics are sealed outside the scoring surface;
-independent blind review remains open, so the evidence does not yet change G1 state. DEC-COM-101
+structured Apple outputs. Mappings and diagnostics were sealed outside the scoring surface until
+the score was locked as commit `cd579be`. DEC-COM-101
 records that PR #102 exact remediation head `bb939d0` passed independent delivery review and hosted
 run `33628847476`, then merged as `2254902` with that head as second parent. This closes only the
 harness/capture delivery. A different reviewer must score only the exact
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` blind JSON before opening
-the sidecar; comparative value remains unjudged.
+the sidecar. The later eligible review completed that step and returned the DEC-COM-102 non-pass;
+no second eligible blind score exists, so inter-rater overlap is unavailable rather than inferred.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

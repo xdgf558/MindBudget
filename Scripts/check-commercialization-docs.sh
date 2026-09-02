@@ -2575,6 +2575,7 @@ G1_THREE_WAY_EVAL_PACKET="Docs/Commercialization/G1_THREE_WAY_EVAL.md"
 G1_APPLE_ON_DEVICE_TRANSCRIPT="Docs/Commercialization/G1_APPLE_ON_DEVICE_EVAL_TRANSCRIPT_2026-09-02.jsonl"
 G1_THREE_WAY_BLIND_REVIEW="Docs/Commercialization/G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json"
 G1_THREE_WAY_REVIEW_SIDECAR="Docs/Commercialization/G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json"
+G1_THREE_WAY_REVIEW_RESULT="Docs/Commercialization/G1_THREE_WAY_REVIEW_RESULT_2026-09-02.json"
 test -f "${G1_ECONOMICS_PACKET}" || {
   echo "Missing G1 quote/economics packet" >&2
   exit 1
@@ -2604,11 +2605,15 @@ test -f "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" || {
   exit 1
 }
 test -f "${G1_THREE_WAY_BLIND_REVIEW}" || {
-  echo "Missing pending G1 three-way blind-review packet" >&2
+  echo "Missing G1 three-way blind-review packet" >&2
   exit 1
 }
 test -f "${G1_THREE_WAY_REVIEW_SIDECAR}" || {
   echo "Missing G1 post-score review sidecar: ${G1_THREE_WAY_REVIEW_SIDECAR}" >&2
+  exit 1
+}
+test -f "${G1_THREE_WAY_REVIEW_RESULT}" || {
+  echo "Missing G1 three-way review result: ${G1_THREE_WAY_REVIEW_RESULT}" >&2
   exit 1
 }
 
@@ -2644,6 +2649,28 @@ for g1_economics_file in \
     'consumable'; do
     grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
       echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_comparative_result_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}"; do
+  for g1_comparative_result_anchor in \
+    'DEC-COM-102' \
+    'd2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e' \
+    'NON_PASS' \
+    'COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION'; do
+    grep -Fq "${g1_comparative_result_anchor}" "${g1_comparative_result_file}" || {
+      echo "G1 comparative non-pass is missing ${g1_comparative_result_anchor} in ${g1_comparative_result_file}" >&2
       exit 1
     }
   done
@@ -2840,6 +2867,10 @@ for g1_decision_file in \
     echo "Reviewed three-way capture-delivery closeout is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-102' "${g1_decision_file}" || {
+    echo "Independent three-way blind-review result is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
 for g1_closeout_file in \
@@ -2930,9 +2961,9 @@ for g1_current_followup_anchor in \
   }
 done
 
-grep -Fq "Status: **In Progress after owner offer acceptance under DEC-COM-095/096." \
+grep -Fq 'Status: **In Progress after the independent comparative Eval returned `NON_PASS` under DEC-COM-102.' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 current phase status must remain In Progress after owner policy acceptance" >&2
+  echo "G1 current phase status must remain In Progress after the comparative non-pass" >&2
   exit 1
 }
 
@@ -2941,13 +2972,13 @@ grep -Fq -- '- [x] Independently review and merge the three-way harness and phys
   echo "G1 closeout must mark only the reviewed three-way capture delivery complete" >&2
   exit 1
 }
-grep -Fq -- '- [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,' \
+grep -Fq -- '- [x] Complete the fixed bilingual three-way comparative Eval across deterministic template,' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 independent three-way blind score must remain open" >&2
+  echo "G1 independent three-way blind score must be recorded complete" >&2
   exit 1
 }
 
-if grep -Eqi '(^|[.!?][[:space:]])independent blind (review|score) (is )?(complete|completed|approved|passed)|(^|[.!?][[:space:]])comparative value (is )?(accepted|approved|proven|passed)' \
+if grep -Eqi '(^|[.!?][[:space:]])comparative value (is )?(accepted|approved|proven|passed)|three-way comparative Eval (result|is)[: ]+PASS' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \
@@ -2958,7 +2989,7 @@ if grep -Eqi '(^|[.!?][[:space:]])independent blind (review|score) (is )?(comple
     Docs/Commercialization/REGIONAL_PRICING.md \
     "${G1_ECONOMICS_PACKET}" \
     "${G1_THREE_WAY_EVAL_PACKET}"; then
-  echo "G1 closeout overclaims the unperformed blind-value review" >&2
+  echo "G1 record overclaims acceptance despite the comparative non-pass" >&2
   exit 1
 fi
 
@@ -2972,7 +3003,8 @@ python3 -O Scripts/g1_three_way_eval.py --self-test >/dev/null
 python3 Scripts/g1_three_way_eval.py \
   --check-review-packet "${G1_THREE_WAY_BLIND_REVIEW}" \
   --on-device-transcript "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" \
-  --review-sidecar "${G1_THREE_WAY_REVIEW_SIDECAR}" >/dev/null
+  --review-sidecar "${G1_THREE_WAY_REVIEW_SIDECAR}" \
+  --require-complete-review >/dev/null
 
 test "$(shasum -a 256 "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" | awk '{print $1}')" = \
   'd6236a29293e0c16068fb24b6b7a6392af9cfedc9dadb9c7cdc06b8fabb5a20b' || {
@@ -2980,8 +3012,8 @@ test "$(shasum -a 256 "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" | awk '{print $1}')" = 
   exit 1
 }
 test "$(shasum -a 256 "${G1_THREE_WAY_BLIND_REVIEW}" | awk '{print $1}')" = \
-  'bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5' || {
-  echo "G1 pending blind-review packet hash drifted" >&2
+  'd2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e' || {
+  echo "G1 completed blind-review packet hash drifted" >&2
   exit 1
 }
 test "$(shasum -a 256 "${G1_THREE_WAY_REVIEW_SIDECAR}" | awk '{print $1}')" = \
@@ -2989,6 +3021,40 @@ test "$(shasum -a 256 "${G1_THREE_WAY_REVIEW_SIDECAR}" | awk '{print $1}')" = \
   echo "G1 post-score review sidecar hash drifted" >&2
   exit 1
 }
+test "$(shasum -a 256 "${G1_THREE_WAY_REVIEW_RESULT}" | awk '{print $1}')" = \
+  'bf6b7212cc2ad4139a8e8f9d3eb877a5926ccc53378094dbcb12595f51b6f9f4' || {
+  echo "G1 three-way review result hash drifted" >&2
+  exit 1
+}
+
+g1_review_result_tmp_dir="$(mktemp -d)"
+g1_review_result_tmp="${g1_review_result_tmp_dir}/result.json"
+python3 Scripts/g1_three_way_eval.py \
+  --summarize-review "${G1_THREE_WAY_BLIND_REVIEW}" \
+  --on-device-transcript "${G1_APPLE_ON_DEVICE_TRANSCRIPT}" \
+  --review-sidecar "${G1_THREE_WAY_REVIEW_SIDECAR}" \
+  --output "${g1_review_result_tmp}" >/dev/null
+cmp -s "${g1_review_result_tmp}" "${G1_THREE_WAY_REVIEW_RESULT}" || {
+  rm -rf -- "${g1_review_result_tmp_dir}"
+  echo "G1 three-way review result does not match the sealed score/mapping" >&2
+  exit 1
+}
+rm -rf -- "${g1_review_result_tmp_dir}"
+
+python3 - "${G1_THREE_WAY_REVIEW_RESULT}" <<'PY'
+import json
+import sys
+
+result = json.load(open(sys.argv[1], encoding="utf-8"))
+if result["result"] != "NON_PASS":
+    raise SystemExit("G1 three-way review must preserve the computed NON_PASS")
+if result["production_admitted"] is not False:
+    raise SystemExit("G1 three-way review cannot admit production")
+if result["qualifying_bilingual_tasks"] != []:
+    raise SystemExit("G1 NON_PASS cannot claim a qualifying bilingual task")
+if result["luna_materially_preferred_case_count"] != 0:
+    raise SystemExit("G1 NON_PASS cannot claim a materially preferred Luna case")
+PY
 
 python3 - "${G1_THREE_WAY_EVAL_PACKET}" <<'PY'
 import pathlib

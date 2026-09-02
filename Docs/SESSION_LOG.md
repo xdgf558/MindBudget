@@ -7249,3 +7249,31 @@ executed exactly 18 tests with 17 passed, one expected physical-only skip, zero 
 test-runner retry. Every selected core file remained above the 85% coverage floor and the C6-02
 verifier confirmed all 23 exact runtime bindings. The validator removed its temporary xcresult
 after success; its path is retained only as an execution pointer in the commercialization baseline.
+
+## 2026-09-02 — Record the independent G1 three-way comparative non-pass
+
+An eligible independent reviewer completed every field using only the frozen blind JSON at merge
+`f73881f209054068520e3c736f9e312fe22869e8`; all 24 material-increment decisions were explicitly
+false. The completed packet was validated and locked before unsealing as commit `cd579be`, with
+SHA-256 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`.
+
+Only then was the original sealed sidecar opened. The deterministic result is `NON_PASS`: 16
+preferences map to the deterministic template, two to Luna, and six are ties; zero cases
+materially prefer Luna and no bilingual task qualifies. There is no second eligible blind score,
+so inter-rater overlap is unavailable. DEC-COM-102 moves G1 to
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` without admitting production or entering
+COM-C7. StoreKit, breaker, and legal gates remain unfulfilled, but owner disposition of the Luna
+credit offer is now the next decision. This branch still requires exact-head review, hosted CI,
+and merge.
+
+Validation retained two environment-only non-passes before the authoritative run: the first used
+the now-absent `/Users/shaola/Downloads/软件/Xcode.app` developer path and stopped before tests;
+the second used the correct Xcode under the restricted sandbox but could not reach
+CoreSimulatorService or the local bundle-ID configuration. The identical unrestricted command
+then exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro simulator:
+Release and the strict Dashboard benchmark passed; 554 unit tests across 33 suites passed with
+four expected physical CloudKit skips; exactly 18 UI tests executed with 17 passed, one expected
+physical-only skip, zero failures, and no test-runner retry; every selected core file exceeded the
+85% coverage floor; and all 23 C6-02 runtime bindings passed. The temporary xcresult was an
+execution pointer and was removed after validation. This local pass does not approve the owner
+decision, admit production, enter COM-C7, or replace this branch's hosted CI and review.

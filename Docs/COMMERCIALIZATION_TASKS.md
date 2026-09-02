@@ -793,13 +793,15 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **In Progress after owner offer acceptance under DEC-COM-095/096. Exact PR #98 head `9226985`
+Status: **In Progress after the independent comparative Eval returned `NON_PASS` under DEC-COM-102.
+Exact PR #98 head `9226985`
 passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 preserves that first
 package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The synthetic-only account and fixed
 Luna run now have a reviewed 24/24 first-pass result: independent review found no P1/P2 on exact PR
 #100 head `323d8d7`, hosted run `33593253561` passed, and PR #100 merged as `7a473d2`. StoreKit
-price-point/Product-ID evidence and the owner decision remain open; the current result is
-`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.**
+price-point/Product-ID evidence, server-breaker/legal gates, and the owner decision remain open.
+The former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state is superseded; the current state is
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
@@ -844,16 +846,23 @@ price-point/Product-ID evidence and the owner decision remain open; the current 
   head `bb939d0`; hosted run `33628847476` passed on that head; and merge `2254902` delivered it
   with `bb939d0` as the second parent. DEC-COM-101 closes
   only implementation, capture, sealed-artifact remediation, CI, and merge—not the blind score.
-- [ ] Complete the fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna. A different independent reviewer who has not read the
-  sidecar, Luna transcript, leaked packet, mapping code, or diagnostic prose must score only the
-  exact blind JSON with SHA-256 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`
-  before opening the sidecar. Duplicate-candidate cases cannot prove incremental value. Obtain
-  StoreKit price-point/Product-ID evidence; complete
-  the remaining implementation/legal gates; and record the final owner decision. Pre-launch actual
-  US proceeds do not exist and are a post-launch recalibration input. Current result:
-  `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; only
-  `PROCEED_TO_R2` can enter COM-C7.
+- [x] Complete the fixed bilingual three-way comparative Eval across deterministic template,
+  supported on-device output, and Luna. An eligible independent reviewer scored only the exact
+  frozen JSON with original SHA-256
+  `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before the sidecar was
+  opened, locked all 24 material decisions false, and produced
+  completed-review SHA-256
+  `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`. DEC-COM-102 records the
+  deterministic `NON_PASS`: 16 template preferences, two Luna preferences, six ties, zero
+  materially preferred Luna cases, and no qualifying bilingual task. There is no second eligible
+  blind score, so inter-rater overlap is unavailable. Post-unseal regrading is forbidden.
+- [ ] Record the final G1 owner disposition after the comparative non-pass. Until then do not spend
+  work or make state changes that assume the Luna credit offer proceeds. StoreKit US$4.99
+  Product-ID/price-point evidence, the server breaker, and remaining legal gates are still
+  unfulfilled, but they are no longer described as the only blockers. Pre-launch actual US proceeds
+  do not exist and remain a post-launch recalibration input. Current state:
+  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; only a later explicit `PROCEED_TO_R2` can
+  enter COM-C7.
 
 Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
 

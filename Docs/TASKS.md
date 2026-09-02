@@ -682,6 +682,13 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   review accepted DEC-COM-100's exact remediation head `bb939d0`, hosted run `33628847476` passed
   on that head, and merge `2254902` retained it as second parent. DEC-COM-101 explicitly excludes
   blind scoring.
+- [x] Complete the independent three-way blind score. The eligible reviewer locked every field in
+  the exact scoring surface with original SHA-256
+  `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before unsealing;
+  completed-review SHA-256 is
+  `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`. DEC-COM-102 records the
+  deterministic `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual
+  task. No second eligible blind score exists, so agreement is unavailable rather than inferred.
 - [ ] Complete the remaining G1 decision. DEC-COM-097 records the dedicated Global Tier 1 project
   with sole model `gpt-5.6-luna`,
   project, bounded billing, and accepted standard up-to-30-day retention for synthetic Eval only;
@@ -689,17 +696,16 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   controls, the isolated Keychain credential, two explicit non-pass attempts, and a third 24/24
   first-pass automated Eval result. Independent review found no P1/P2 on PR #100 head `323d8d7`,
   hosted run `33593253561` passed, and PR #100 merged as `7a473d2`; DEC-COM-099 closes only that
-  evidence delivery. The fixed bilingual three-way comparative Eval across deterministic template,
-  supported on-device output, and Luna remains open. A different reviewer who has not read the
-  sidecar, Luna transcript, leaked packet, mapping code, or diagnostics must score only the exact
-  `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` JSON before opening the
-  sidecar. Obtain StoreKit price-point/Product-ID
-  evidence and record the final owner decision.
+  evidence delivery. The fixed bilingual three-way comparative Eval is complete and returned
+  `NON_PASS`; the current state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. The owner
+  must first resolve the cloud-credit offer. StoreKit price-point/Product-ID evidence, server
+  breaker, and remaining legal gates stay unfulfilled and become actionable only if the later owner
+  disposition still seeks `PROCEED_TO_R2`.
   DEC-COM-095 accepts the
   US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,
   starter/card lots valid for one user-calendar year, only a user-initiated valid structured Luna
   result ultimately displayed consuming one credit,
-  `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, >=50%
+  the superseded `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state, >=50%
   peak contribution margin, refund-without-local-deletion, ordinary test user denial, isolated
   capped Apple App Review access, and a separate local-only release path. Actual US proceeds do not exist
   pre-launch and are a post-launch recalibration input. Do not create products, change the current

@@ -130,9 +130,11 @@ first attempt with explicit nonzero usage, and the reviewer found no invented nu
 outputs. These limitations must be resolved or explicitly re-reviewed before the scorer supports a
 future live Eval or implementation/release claim.
 
-G1 remains In Progress pending StoreKit price-point/Product-ID evidence, later implementation
-gates, and the owner's final `PROCEED_TO_R2` decision. This Luna-only scoring run does not satisfy
-the still-open fixed bilingual three-way comparative Eval of deterministic template, supported
-on-device output, and Luna needed to establish the incremental value of paid cloud credits.
-Production admission stays false and COM-C7 remains blocked. This closeout delta itself still
-requires exact-head independent review, hosted CI, and merge.
+This Luna-only scoring run did not by itself satisfy the then-open fixed bilingual three-way comparative Eval
+of deterministic template, supported on-device output, and Luna. That comparison
+is now complete under DEC-COM-102: completed-review SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, deterministic result
+`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. G1 remains In
+Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; production admission stays false
+and COM-C7 remains blocked. StoreKit price-point/Product-ID evidence, server-breaker/legal gates,
+and a final owner decision remain unfulfilled but do not override the comparative non-pass.
