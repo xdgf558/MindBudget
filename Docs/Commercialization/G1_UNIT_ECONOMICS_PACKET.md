@@ -1,11 +1,13 @@
 # G1 Cloud AI Unit Economics and Credit-Pack Packet
 
-Status: **In Progress after the owner's explicit 2026-09-02 entry. Dated public rate cards and a
-deterministic planning envelope are captured; the mandatory bounded provider Eval, account-level
-region/retention verification, and exact App Store proceeds exports remain open.**
+Status: **In Progress after independently reviewed PR #98 quote/planning evidence. Exact head
+`9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`; the mandatory bounded
+provider Eval, account-level region/retention verification, exact App Store proceeds, and final
+owner decision remain open.**
 
-DEC-COM-092 and DEC-COM-093 own this G1 scope and entered-G1 interim evidence boundary and record
-why the current formal result is not an offer or provider acceptance.
+DEC-COM-092 and DEC-COM-093 own this G1 scope and entered-G1 interim evidence boundary. DEC-COM-094
+records the reviewed first evidence package and why its formal result remains neither an offer nor
+provider acceptance.
 
 ## Decision boundary
 
@@ -256,6 +258,19 @@ prove transaction verification, original-transaction recovery, App Attest, idemp
 deletion, reinstall/device/account changes, and concurrency before a consumable can exist.
 
 ## Open evidence and current outcome
+
+### Reviewed first evidence package
+
+Independent review found no P1/P2 in exact PR #98 head `9226985`, manually reproduced the integer
+arithmetic and conservative rounding, and approved merge after hosted CI. GitHub Actions run
+`33570570896` passed on that exact head, and PR #98 merged to `main` as `6e2d242`.
+
+DEC-COM-094 closes only this quote/planning evidence package. It carries three implementation and
+evidence obligations forward: the low-volume/cost circuit breaker must become a
+server-enforced acceptance gate before any card exists; the worksheet must replace
+optimization-removable Python `assert` checks before it is implementation or release evidence;
+and every URL-only supplier rate must be re-quoted within the existing 30-day window. None of these
+notes changes the arithmetic or promotes a provisional offer.
 
 The following mandatory G1 evidence is still missing:
 

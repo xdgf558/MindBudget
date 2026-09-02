@@ -669,11 +669,13 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   head `3ed1357`, GitHub Actions run `33508360536` passed, and PR #96 merged as `246e7c1`.
   DEC-COM-091 marks C6-03/COM-C6 Done without entering G1, COM-C6.5, or any distribution/release
   action. COM-C6.5 remains behind its 14-day no-P0/P1 gate and explicit owner entry.
-- [ ] Complete the owner-entered G1 packet. The owner explicitly entered G1 on 2026-09-02;
-  DEC-COM-092 and DEC-COM-093 capture dated official AI/backend quotes, integer-micro-USD
-  typical/P50 and peak/P95 planning arithmetic, a provisional 10-use US$4.99 starter envelope,
-  and provisional 10/25/65-use consumable cards.
-  The bounded bilingual provider Eval, account region/retention proof, exact App Store proceeds,
-  independent review, and owner decision remain open, so the interim result is
-  `INSUFFICIENT_QUOTE_EVIDENCE`. Do not create products, change the subscription UI, configure
-  credentials, deploy a provider/backend, or enter COM-C7 from this evidence packet.
+- [x] Close the first owner-entered G1 quote/planning evidence package. Independent review found no
+  P1/P2 on exact PR #98 head `9226985`; GitHub Actions run `33570570896` passed and PR #98 merged
+  as `6e2d242`. DEC-COM-092 and DEC-COM-093 retain the scope/interim result; DEC-COM-094 preserves
+  `INSUFFICIENT_QUOTE_EVIDENCE`, the typical/P50 and peak/P95 planning costs, the provisional
+  US$4.99/10-starter and 10/25/65-use consumable-card calculations, and all review P3 follow-ups
+  without accepting an offer.
+- [ ] Complete the remaining G1 decision. Run the bounded bilingual provider Eval, verify account
+  region/retention/rate and exact App Store proceeds, harden the worksheet self-test, and obtain
+  independent review plus an owner decision. Do not create products, change the subscription UI,
+  configure credentials, deploy a provider/backend, or enter COM-C7 before `PROCEED_TO_R2`.

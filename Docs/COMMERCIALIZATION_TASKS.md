@@ -787,10 +787,11 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **In Progress after the owner's explicit 2026-09-02 entry. DEC-COM-092 and DEC-COM-093
-capture dated supplier quotes and a deterministic planning envelope; the bounded bilingual
-provider Eval, account-level privacy/region proof, exact App Store proceeds, review, and owner
-decision remain open. Public App Store observation is not an entry prerequisite.**
+Status: **In Progress after independently reviewed PR #98 quote/planning evidence. DEC-COM-092 and
+DEC-COM-093 own the scope/interim result; exact head `9226985` passed GitHub Actions run
+`33570570896` and merged as `6e2d242`; DEC-COM-094 closes only that first evidence package. The
+bounded bilingual provider Eval, account-level privacy/region proof, exact App Store proceeds,
+final-decision review, and owner decision remain open.**
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
@@ -803,6 +804,10 @@ decision remain open. Public App Store observation is not an entry prerequisite.
   provisionally recommends 10, but neither the price nor count is accepted.
 - [x] Evaluate 10/25/65-use consumable cards at US$0.99/US$1.99/US$4.99 and record exact ledger,
   idempotency, retry, refund, deletion, non-expiry, and restore/recovery proposals.
+- [x] Independently review and merge the first quote-backed planning package. PR #98 exact head
+  `9226985` passed hosted run `33570570896` and merged as `6e2d242`. DEC-COM-094 preserves the
+  `INSUFFICIENT_QUOTE_EVIDENCE` outcome and the review's low-volume breaker, explicit-self-test,
+  and 30-day re-quote follow-ups.
 - [ ] Run the fixed Simplified-Chinese/English provider Eval, verify account region/retention/rate
   settings and exact App Store proceeds, then independently review an owner decision. The current
   interim result is `INSUFFICIENT_QUOTE_EVIDENCE`; only `PROCEED_TO_R2` can enter COM-C7.

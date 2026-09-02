@@ -499,12 +499,15 @@ The accepted `0.9.9 (10)` delivery remains TestFlight transport evidence only. T
 service/schema deployment, G1, App Store submission, distribution, public release, and Active
 Requirement completion remain unperformed or blocked. The owner explicitly entered G1 on
 2026-09-02. DEC-COM-093 records dated official OpenAI/Anthropic/Google/Apple/Cloudflare quotes and
-an integer-micro-USD planning envelope: US$0.011330 typical/P50 and US$0.033098 peak/P95 per successful use
-at 1,000 monthly successes, a provisional 10-use starter grant for the US$4.99 hypothesis, and
-provisional 10/25/65-use cards. The mandatory bilingual provider Eval, account region/retention
-proof, exact App Store proceeds, independent review, and owner decision remain open; the interim
-outcome is `INSUFFICIENT_QUOTE_EVIDENCE`, not provider/offer/C7 acceptance. Public App Store
-observation is not an entry prerequisite. COM-C6.5 awaits its 14-day no-P0/P1 gate,
+an integer-micro-USD planning envelope: US$0.011330 typical/P50 and US$0.033098 peak/P95 per
+successful use at 1,000 monthly successes, a provisional 10-use starter grant for the US$4.99
+hypothesis, and provisional 10/25/65-use cards. Independent review found no P1/P2 on exact PR #98
+head `9226985`; hosted run `33570570896` passed and PR #98 merged as `6e2d242`. DEC-COM-094 closes
+only that first evidence package and preserves the review P3 follow-ups. The mandatory bilingual
+provider Eval, account region/retention proof, exact App Store proceeds, final-decision review, and
+owner decision remain open; the interim outcome is `INSUFFICIENT_QUOTE_EVIDENCE`, not provider/
+offer/C7 acceptance. Public App Store observation is not an entry prerequisite. COM-C6.5 awaits
+its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
 `buttons.element(boundBy: 0)` with App-window geometry, and the budget Save helper performs only
 bounded upward Form drags. Live bilingual
