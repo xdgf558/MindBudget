@@ -40,14 +40,16 @@ The owner entered FX-01 on 2026-09-03 as a separate local product phase after G1
 accepted first release is manual foreign-currency expense entry for local Pro and the active
 30-day local trial: consume the existing Pro snapshot without adding a trial clock, save both the
 original foreign amount and a user-controlled canonical rational rate derived from an eight-place
-stored decimal, while the existing expense amount/currency remain the locked accounting authority for every
-budget and aggregate. New rows use the current Settings currency; edits retain the row's persisted
-accounting currency. Optional enabled iCloud must use a separate thirteenth companion fact and may
-not change the existing `.expense` payload. FX-01 requests no location and adds no network
-provider. Automatic reference rates are deferred to FX-02. The detailed contract and ordered
-checklist are in `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`; Swift/Schema implementation must wait for that planning
-package's independent review, hosted CI, and merge. This product-phase entry does not enter
-COM-C12 or authorize Archive, distribution, or release.
+stored decimal, while the existing expense amount/currency remain the locked accounting authority
+for every budget and aggregate. New rows use the current Settings currency; edits retain the row's
+persisted accounting currency. Optional enabled iCloud must use a separate thirteenth companion
+fact and may not change the existing `.expense` payload. FX-01 requests no location and adds no
+network provider. Automatic reference rates are deferred to FX-02. The detailed contract and
+ordered checklist are in `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`. Independent rereview accepted exact planning
+head `0619d5e`, hosted run `33758966855` passed, and PR #108 merged it as `f2f57b4` with that head
+as second parent. Swift/Schema implementation remains unentered until this separate closeout is
+reviewed, hosted-green, and merged. This product-phase entry does not enter COM-C12 or authorize
+Archive, distribution, or release.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
@@ -666,9 +668,10 @@ app's private data are forbidden in V1.
 ## Current state
 
 Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interlude are complete;
-Phase 10 retains its signed-device and distribution release gates. FX-01 is In Progress at its
-planning gate: the owner-approved manual/local-only contract is recorded, but product code and
-Schema V7 have not started and must wait for review, hosted CI, and merge of the planning package.
+Phase 10 retains its signed-device and distribution release gates. FX-01 remains In Progress: its
+manual/local-only planning contract passed independent rereview and hosted CI and merged through
+PR #108, while product code and Schema V7 remain unstarted pending review, hosted CI, and merge of
+the separate planning closeout.
 The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule

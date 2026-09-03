@@ -7416,3 +7416,20 @@ ISO-8601 format with its IANA time-zone column and requires every FX column to b
 expenses and incomes. FX-01 consumes the existing Pro snapshot and cannot add or mutate the
 trial-start clock. No Swift, schema, sync, entitlement, or user-visible behavior changed. The new
 exact head still requires independent rereview, hosted CI, and merge before implementation starts.
+
+## 2026-09-03 — Record PR #108 planning merge and begin its separate closeout
+
+Independent rereview accepted PR #108 exact remediation head
+`0619d5ec59ab3dbea3e87412b16872b92c07d129` with no P1/P2 and one retained P3 observation about the
+User outcome's broad “current” wording. GitHub Actions run `33758966855` succeeded on that exact
+head in 38m14s. PR #108 then merged as
+`f2f57b45cb676d0dc5b08ceee109e50530a35707`; local commit topology confirms its parents are
+`4e7fbbbe7a302fdcf56a87e474b7cb8cd30d6bcf` followed by the reviewed head.
+
+This closeout marks only the FX-01 planning-package review/CI/merge prerequisite complete and
+clarifies the User outcome to match the already authoritative rule: new rows use the current
+Settings/accounting currency, while edits use the row's persisted `Expense.currencyCode`. FX-01
+remains In Progress; product code, Schema V7, project settings, localization, sync, entitlement,
+privacy, and network state are untouched. FX-01B, COM-C12, FX-02, Archive, upload, distribution,
+and release remain unentered. The closeout branch still requires independent review, exact-head
+hosted CI, and merge before implementation may begin.
