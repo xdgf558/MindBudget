@@ -7328,3 +7328,22 @@ backend, distribution, or release mutation. Local validation passed under Xcode 
 (`27A5252f`): Release build, 554 unit tests across 33 suites, 18 UI tests with 17 passed and one
 expected physical-only C6-02 skip, all selected coverage gates, and all 23 C6-02 runtime bindings
 passed. The recording branch still requires exact-head independent review, hosted CI, and merge.
+
+## 2026-09-03 — Remediate PR #106 local-only policy and C12 boundary findings
+
+Independent review of PR #106 exact head `f528db73f267a70f433fa96c8ca1e1e6fa485f18`
+found no P1, but raised two P2 findings: the current regional-pricing section still presented
+deferred Luna-credit rules as current policy, and the blocked COM-C12 checklist still required
+cloud-only work that DEC-COM-104 had deferred. GitHub Actions run `33714752713` passed on that
+exact original head; it does not validate this remediation.
+
+The remediation separates the active local-only launch policy from explicitly inactive historical
+cloud-credit evidence and replaces broad historical keyword checks with section-scoped assertions.
+COM-C12 now distinguishes four mandatory local-only release-review items from a cloud-only subset
+that remains with deferred COM-C7 through COM-C11 and a future cloud-enabled C12. The economics
+packet now distinguishes the owner outcome from the still-open review/merge/closeout process state,
+and the privacy chronology no longer presents the pre-DEC-COM-102 checkpoint as current. No frozen
+Eval evidence, Swift/product code, provider/account state, StoreKit/App Store Connect state, or
+release authority changed. The new exact head requires independent rereview and its own hosted CI
+before merge; G1 remains In Progress at
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` and COM-C7 remains deferred.

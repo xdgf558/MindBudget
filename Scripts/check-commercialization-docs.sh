@@ -2887,6 +2887,7 @@ for g1_owner_disposition_file in \
   Docs/Commercialization/PROJECT_MEMORY.md \
   Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
   Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/PRIVACY_AND_REVIEW_NOTES.md \
   Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
   Docs/Commercialization/REGIONAL_PRICING.md \
   "${G1_ECONOMICS_PACKET}" \
@@ -3350,25 +3351,76 @@ if grep -Eqi 'G1 .*frozen observation window|G1 .*actual proceeds|G1 .*customer 
   exit 1
 fi
 
-for g1_policy_file in \
-  Docs/COMMERCIALIZATION_TASKS.md \
-  Docs/TASKS.md \
-  Docs/Commercialization/REQUIREMENTS_INDEX.md \
-  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
-  Docs/Commercialization/REGIONAL_PRICING.md \
-  "${G1_ECONOMICS_PACKET}"; do
-  for g1_policy_anchor in \
-    'zero Luna credits' \
-    'one user-calendar year' \
-    'ultimately displayed' \
-    'ordinary test' \
-    'Apple App Review'; do
-    grep -Fiq "${g1_policy_anchor}" "${g1_policy_file}" || {
-      echo "G1 accepted policy is missing ${g1_policy_anchor} in ${g1_policy_file}" >&2
-      exit 1
-    }
-  done
-done
+python3 - Docs/Commercialization/REGIONAL_PRICING.md Docs/COMMERCIALIZATION_TASKS.md <<'PY'
+import pathlib
+import sys
+
+regional = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+tasks = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
+
+current = regional.split("## Current local-only launch policy", 1)[1].split("\n## ", 1)[0]
+current = " ".join(current.split())
+for required in (
+    "completed local-Pro buyout currently promises and grants no Luna credit",
+    "No Luna usage-card Product ID",
+    "local-only candidate has no Luna route",
+):
+    if current.count(required) != 1:
+        raise SystemExit(f"Current local-only pricing policy is missing: {required}")
+for historical_only in (
+    "ultimately displayed consumes one credit",
+    "one user-calendar year after grant",
+    "server-enforced cost breaker stops new sales/grants",
+    "sole provider/model is OpenAI",
+    "Apple App Review may exercise real Luna",
+):
+    if historical_only in current:
+        raise SystemExit(f"Deferred cloud policy leaked into the current local-only section: {historical_only}")
+
+historical = regional.split("## Historical cloud-credit policy evidence — inactive", 1)[1].split("\n## ", 1)[0]
+historical = " ".join(historical.split())
+if "They are not current policy, are not customer promises" not in historical:
+    raise SystemExit("Historical cloud-credit section does not disclaim current policy")
+for preserved in (
+    "ultimately displayed consumes one credit",
+    "one user-calendar year after grant",
+    "server-enforced cost breaker stops new sales/grants",
+    "sole provider/model is OpenAI",
+    "Apple App Review may exercise real Luna",
+):
+    if historical.count(preserved) != 1:
+        raise SystemExit(f"Historical cloud policy evidence drifted: {preserved}")
+
+c12 = tasks.split("## COM-C12 — Full-product security, privacy, review, and formal 1.0", 1)[1]
+local = c12.split("Local-only DEC-COM-104 subset, mandatory after separate owner entry:", 1)[1]
+local, deferred = local.split(
+    "Cloud-only deferred subset, not applicable to the DEC-COM-104 local-only candidate:", 1
+)
+local = " ".join(local.split())
+deferred = " ".join(deferred.split())
+for required in (
+    "C12-01 — Local end-to-end automated matrix",
+    "C12-02 — Local security and privacy release review",
+    "C12-03 — Local quality and StoreKit gate",
+    "C12-04 — Local App Review and 1.0 release",
+    "no Luna route, provider credential, cloud-credit",
+):
+    if local.count(required) != 1:
+        raise SystemExit(f"Local-only C12 subset drifted: {required}")
+for deferred_only in (
+    "cloud consent",
+    "dual redaction",
+    "context trimming",
+    "cloud deletion/TTL",
+    "quota",
+    "credit ledger",
+    "reconciliation",
+    "cloud-AI Eval/SLO/availability/unit economics",
+    "isolated Luna App Review route",
+):
+    if deferred_only not in deferred:
+        raise SystemExit(f"Cloud-only C12 deferral is missing: {deferred_only}")
+PY
 
 if grep -Eqi 'G1 (is )?(passed|approved|Done)|COM-C7 (is )?(In Progress|entered|Done)|LIVE_LUNA_EVAL_PASSED|ZDR_VERIFIED|OPENAI_ACCOUNT_ADMITTED' \
     Docs/COMMERCIALIZATION_TASKS.md \

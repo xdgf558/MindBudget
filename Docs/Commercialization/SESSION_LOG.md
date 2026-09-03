@@ -4452,3 +4452,27 @@ beta 6 (`27A5252f`): Release build, 554 unit tests across 33 suites, 18 UI tests
 one expected physical-only C6-02 skip, all selected coverage gates, and all 23 C6-02 runtime
 bindings passed. Exact-head independent review, hosted CI, and merge of this recording branch
 remain required.
+
+## 2026-09-03 — Session 220 — Remediate PR #106 local-only boundary findings
+
+Review: Independent review of exact head `f528db73f267a70f433fa96c8ca1e1e6fa485f18`
+found no P1 and two P2 findings. The regional-pricing current-policy section still carried the
+historical credit-consumption, expiry, breaker, sole-provider, and App Review rules, while the
+blocked COM-C12 checklist still mixed mandatory local-only release work with the deferred cloud
+provider/quota/consent/redaction/Eval/economics path. The review also recorded three non-blocking
+state-wording observations.
+
+Remediation: The current local-only pricing section now expressly excludes every Luna route,
+credential, cloud ledger/quota/breaker, and special tester/App Review access. DEC-COM-095/096 cloud
+terms remain intact only under an explicitly inactive historical section. COM-C12 now contains a
+four-item local-only subset and a separately named cloud-only deferred subset that cannot block or
+be marked satisfied by the DEC-COM-104 candidate. Section-aware gate checks prove both separations.
+The economics and privacy records also distinguish historical decisions, the owner outcome, and
+the current process state without rewriting the frozen evidence.
+
+Evidence boundary: GitHub Actions run `33714752713` succeeded on the reviewed original head only
+and cannot validate these changes. No Swift/JSON evidence, StoreKit/App Store Connect configuration,
+OpenAI account, provider/backend, credential, distribution, or release mutation occurred. G1 stays
+In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
+deferred and local-only COM-C12 remains unentered. The remediation head still requires independent
+rereview, hosted CI, and merge.

@@ -42,7 +42,7 @@ authority. Because the product has not launched, actual United States proceeds d
 pre-launch analysis uses the conservative proceeds assumptions below, and post-launch operation
 must recalibrate from actual Financial Reports before widening any cloud allocation.
 
-## Current local-only policy and deferred cloud design
+## Current local-only launch policy
 
 - Pro is a one-time US$4.99 buyout; the exact StoreKit price point and regional equivalents remain
   App Store Connect inputs for a later authorized phase.
@@ -52,6 +52,14 @@ must recalibrate from actual Financial Reports before widening any cloud allocat
   completed local-Pro buyout currently promises and grants no Luna credit.
 - No Luna usage-card Product ID or App Store Connect price point may be created on the local-only
   path.
+- The local-only candidate has no Luna route, cloud-credit ledger, provider credential, cloud-cost
+  breaker, customer cloud quota, or special cloud access for testers or App Review.
+
+## Historical cloud-credit policy evidence — inactive
+
+The following rules preserve the exact DEC-COM-095/096 planning record only. They are not current
+policy, are not customer promises, and do not apply to the DEC-COM-104 local-only candidate:
+
 - Only a user-initiated valid structured Luna result ultimately displayed consumes one credit;
   future cloud-AI features inherit the same rule.
 - Starter and purchased lots expire one user-calendar year after grant. No fixed-second
@@ -115,7 +123,7 @@ not yet StoreKit products. At low volume, fixed backend cost can make a card fai
 therefore the trailing-volume, price, and measured-envelope breaker must be server-enforced before
 any sale or grant.
 
-## Refund, expiry, and recovery accounting
+## Historical cloud refund, expiry, and recovery design — inactive
 
 - Pro refund/revocation removes future Pro/cloud authority but never deletes local financial data.
 - Card refund removes unused credits from the matching idempotent lot. If already spent, the cloud
@@ -129,7 +137,8 @@ any sale or grant.
 
 ## Acceptance boundary
 
-DEC-COM-095/096 accept the product policy, sole-provider direction, and exact credit/card choices;
+DEC-COM-095/096 historically accepted the product policy, sole-provider direction, and exact
+credit/card choices;
 DEC-COM-097 accepts standard retention only for the synthetic Eval and keeps production false.
 DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, without `PROCEED_TO_R2`; G1 remains In
 Progress only until that record is reviewed, merged, and closed. COM-C7 through COM-C11 remain deferred. A future cloud proposal must open fresh G1

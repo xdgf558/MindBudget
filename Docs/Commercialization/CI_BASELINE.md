@@ -2881,3 +2881,18 @@ The closeout still needs independent review, a green hosted run on its exact hea
   passed, one expected physical-only C6-02 skip, and zero failures; every selected coverage gate;
   and all 23 C6-02 runtime bindings passed. This branch's exact-head independent review, hosted CI,
   and merge remain required.
+
+### PR #106 local-only boundary remediation — 2026-09-03
+
+- Independent review of original head `f528db73f267a70f433fa96c8ca1e1e6fa485f18`
+  found no P1 and two P2 documentation/gate defects: deferred cloud-credit rules remained in a
+  current-policy section, and COM-C12 had not separated the DEC-COM-104 local-only release subset
+  from deferred cloud-only work.
+- GitHub Actions run `33714752713` completed successfully on that original head. It is retained as
+  exact historical evidence and does not certify the remediation head.
+- The remediation uses section-scoped checks to bind current local-only exclusions, historical
+  cloud-policy preservation, four local C12 responsibilities, and the separately deferred cloud
+  subset. It changes no product code or external state.
+- A new exact head, independent rereview, and hosted CI are required before merge. G1 remains In
+  Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
+  deferred and local-only COM-C12 remains unentered.

@@ -317,8 +317,13 @@ Keychain-isolated credential, two explicit non-pass attempts, and the third atte
 first-pass automated result. Independent review then read all 24 outputs and exact PR #100 head
 `323d8d7`, found no P1/P2, and accepted the synthetic result; hosted run `33593253561` passed and
 PR #100 merged as `7a473d2`. DEC-COM-099 closes only that evidence delivery. A reviewed synthetic
-Eval pass is not final-binary or production evidence. Production admission remains false, G1 stays
-In Progress, and COM-C7 stays blocked pending StoreKit evidence and owner `PROCEED_TO_R2`.
+Eval pass is not final-binary or production evidence. That checkpoint kept production false and
+COM-C7 blocked pending further evidence and owner `PROCEED_TO_R2`. DEC-COM-102 later recorded the
+comparative `NON_PASS`, DEC-COM-103 closed its reviewed delivery, and DEC-COM-104 selected
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: G1 now remains In Progress at
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only pending review/merge/closeout of that
+disposition; COM-C7 through COM-C11 and every Luna/card path are deferred, while local-only COM-C12
+requires a separate later owner entry.
 
 ## Siri and Spotlight disclosure
 

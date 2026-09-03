@@ -984,19 +984,29 @@ separate local-only owner entry. The
 cloud-enabled path remains deferred with COM-C7 through COM-C11. Watch distribution is a separate
 later milestone.**
 
-- [B] **C12-01 — End-to-end automated matrix.** Consent lifecycle, entitlement/cache/notification,
-  billing states, quota/reset, concurrency/idempotency, providers, cancellation, L1–L5, dual
-  redaction, context trimming, deletion/TTL, environment isolation, signed config, and offline
-  fallback.
-- [B] **C12-02 — Security and privacy release review.** Threat model, penetration/abuse review,
-  dependency and secret scans, data-flow map, App Privacy, policy, provider disclosure, egress,
-  Delete All, and actual TTL evidence.
-- [B] **C12-03 — Quality and economics gate.** Accepted model Evals, structured-output threshold,
-  P95/SLO, availability, current entitlement, reconciliation, quota, degradation, and actual unit
-  economics.
-- [B] **C12-04 — App Review and 1.0 release.** Final StoreKit metadata and products, Review Notes,
-  test path/account where required, screenshots, localized release copy, archive/sign/upload,
-  phased operational watch, and no release with open P0/P1.
+Local-only DEC-COM-104 subset, mandatory after separate owner entry:
+
+- [B] **C12-01 — Local end-to-end automated matrix.** Final local-Pro entitlement/trial and refund
+  states; on-device-AI availability plus deterministic fallback; receipt, optional iCloud,
+  first-party telemetry, export, Delete All, environment-isolation, accessibility, performance,
+  and offline regressions for every enabled path.
+- [B] **C12-02 — Local security and privacy release review.** Threat model, dependency and secret
+  scans, final data-flow map, App Privacy, data protection, first-party telemetry/iCloud disclosure
+  and deletion, and final-binary egress proof that no Luna route, provider credential, cloud-credit
+  product/ledger, or MindBudget backend dependency exists.
+- [B] **C12-03 — Local quality and StoreKit gate.** Final non-consumable local-Pro catalog and
+  storefront presentation; verified entitlement/refund behavior; bilingual on-device/template
+  quality; receipt, accessibility, localization, performance, and supported-device degradation.
+- [B] **C12-04 — Local App Review and 1.0 release.** Final local-Pro metadata and Review Notes,
+  screenshots, localized release copy, archive/sign/upload, phased operational watch, and no
+  release with open P0/P1.
+
+Cloud-only deferred subset, not applicable to the DEC-COM-104 local-only candidate: provider and
+backend lifecycle, cloud consent, dual redaction, context trimming, cloud deletion/TTL, quota,
+credit ledger, reconciliation, cloud-AI Eval/SLO/availability/unit economics, and an isolated Luna
+App Review route. These remain owned by deferred COM-C7 through COM-C11 plus a future cloud-enabled
+C12 review after fresh G1 evidence and explicit `PROCEED_TO_R2`; they cannot block or be marked
+satisfied by the local-only C12 path.
 
 Exit gate: all enabled-path v1.4 release gates are satisfied and recorded. Only then may the owner
 authorize formal 1.0 App Store submission and public launch. The DEC-COM-104 local-only path must

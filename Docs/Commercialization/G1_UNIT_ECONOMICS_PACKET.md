@@ -5,16 +5,18 @@ Status: **In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` und
 PR #98 exact head `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`;
 DEC-COM-094 closed that
 first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVIDENCE`. DEC-COM-095
-now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
-accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
+historically accepted the product-policy boundary below. DEC-COM-096 froze the 24-case bilingual
+Eval and historically accepted the exact 10-credit starter plus three usage-card tiers. DEC-COM-098
+records the admitted
 synthetic account and attempt 3's 24/24 first-pass automated result after two explicit non-passes.
 PR #100 independent review read all 24 outputs with no P1/P2; reviewed head `323d8d7` passed hosted
 run `33593253561` and merged as `7a473d2`. DEC-COM-099 closes only that independently reviewed
 account/Eval evidence delivery. The former formal state was
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not `PROCEED_TO_R2`. DEC-COM-102 now records the
-completed independent three-way comparative Eval and deterministic `NON_PASS`. The current state is
-`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: the cloud offer is deferred and only the local-Pro path
-remains eligible for launch review.
+completed independent three-way comparative Eval and deterministic `NON_PASS`. The owner outcome is
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; the process state remains
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`: the cloud offer is deferred and only the
+local-Pro path remains eligible for launch review.
 
 DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
 independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
@@ -65,8 +67,9 @@ but deliberately does not invent measured token, quality, latency, or failure di
 
 The packet separates:
 
-1. **Accepted product policy**: US$4.99 one-time Pro, local-only 30-day trial, Luna-only paid cloud
-   credits, one-year credit validity, no ordinary test traffic, and a 50% downside margin floor.
+1. **Historical product-policy evidence**: US$4.99 one-time Pro, local-only 30-day trial, Luna-only
+   paid cloud credits, one-year credit validity, no ordinary test traffic, and a 50% downside
+   margin floor. DEC-COM-104 retains only the local-Pro/trial portion and defers every cloud term.
 2. **Quote-backed planning arithmetic**: deterministic integer micro-USD calculations from dated
    supplier rates and explicit planning workloads.
 3. **Missing release evidence**: live bilingual Luna results, OpenAI account admission, reviewed
