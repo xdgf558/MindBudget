@@ -242,19 +242,26 @@ hosted run `33593253561` passed and PR #100 merged as `7a473d2`. DEC-COM-099 clo
 account/Eval evidence delivery. The fixed bilingual three-way comparative Eval was still open under
 the former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state; no product/backend mutation was
 authorized.
-DEC-COM-100 freezes only the comparison harness; physical `拉沙的iPhone` output and independent
-blind review are separate evidence. The physical output is captured, independent review remains
-open, and no new Luna request is needed for the unchanged reviewed transcript. DEC-COM-101 records
+DEC-COM-100 froze only the comparison harness; physical `拉沙的iPhone` output and independent
+blind review were separate evidence at that checkpoint. The physical output was captured and no
+new Luna request was needed for the unchanged reviewed transcript. DEC-COM-101 records
 PR #102 exact reviewed remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902` as
 a closed delivery chain only. A different reviewer must score only exact blind JSON SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
 DEC-COM-102 records that eligible review, completed packet SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, and deterministic
-`NON_PASS` with zero material Luna cases and no qualifying bilingual task. Current G1 state is
-`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; the StoreKit, breaker, legal, and owner gates
-remain unresolved, production remains false, and COM-C7 stays blocked.
+`NON_PASS` with zero material Luna cases and no qualifying bilingual task. At that DEC-COM-102
+checkpoint, G1 state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; the StoreKit,
+breaker, legal, and owner gates remained unresolved, production remained false, and COM-C7 stayed
+blocked.
 DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
-that head as second parent. The owner offer disposition remains the next G1 action.
+that head as second parent. At that delivery checkpoint, the owner offer disposition remained the
+next G1 action.
+DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In
+Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout of
+that record, Luna/cards and COM-C7 through COM-C11 are deferred, and only
+a separately owner-entered local-only COM-C12 path remains eligible. This does not alter COM-C6's
+historical evidence or authorize release.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

@@ -753,8 +753,8 @@ grep -Fq 'Current app-owned HTTP(S) | Accepted empty set' \
   exit 1
 }
 
-grep -Fq '**Owner policy, exact cloud-credit counts/consumable card tiers, and the independently reviewed' Docs/Commercialization/REGIONAL_PRICING.md || {
-  echo "Regional pricing must distinguish accepted offer values from pending StoreKit/account work" >&2
+grep -Fq '**DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; G1 remains In Progress at' Docs/Commercialization/REGIONAL_PRICING.md || {
+  echo "Regional pricing must distinguish the active local-only direction from deferred Luna/card planning" >&2
   exit 1
 }
 
@@ -2874,6 +2874,41 @@ for g1_decision_file in \
     echo "Reviewed comparative-result delivery closeout is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-104' "${g1_decision_file}" || {
+    echo "G1 Luna/card owner disposition is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+done
+
+for g1_owner_disposition_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}" \
+  "${G1_THREE_WAY_EVAL_PACKET}"; do
+  for g1_owner_disposition_anchor in \
+    'DEC-COM-104' \
+    'DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO' \
+    'LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT'; do
+    grep -Fq "${g1_owner_disposition_anchor}" "${g1_owner_disposition_file}" || {
+      echo "G1 owner deferral is missing ${g1_owner_disposition_anchor} in ${g1_owner_disposition_file}" >&2
+      exit 1
+    }
+  done
+done
+
+for g1_local_only_egress_anchor in \
+  'Deferred by DEC-COM-104; no domain or route' \
+  'Deferred by DEC-COM-104; forbidden in the local-only candidate'; do
+  grep -Fq "${g1_local_only_egress_anchor}" Docs/Commercialization/NETWORK_EGRESS_POLICY.md || {
+    echo "G1 local-only egress boundary is missing ${g1_local_only_egress_anchor}" >&2
+    exit 1
+  }
 done
 
 for g1_result_closeout_file in \
@@ -2997,24 +3032,41 @@ economics = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
 
 current_state = tasks.split("## Current state", 1)[1].split("\n## ", 1)[0]
 expected_active = (
-    "- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-103 with\n"
-    "  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked."
+    "- Active phase: **G1 is In Progress under DEC-COM-104 at\n"
+    "  `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 are deferred and no\n"
+    "  implementation phase is currently entered. After this decision record is independently reviewed,\n"
+    "  green, merged, and closed, the next eligible path is a separately owner-entered local-only\n"
+    "  COM-C12 release review."
 )
 if current_state.count(expected_active) != 1:
-    raise SystemExit("G1 top-level Active phase must identify DEC-COM-103 and the comparative non-pass")
+    raise SystemExit("G1 top-level Active phase must identify the DEC-COM-104 local-only deferral")
 if "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE" in current_state:
     raise SystemExit("G1 top-level Active phase still carries the superseded storefront-only state")
+if "COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION" in current_state:
+    raise SystemExit("G1 top-level Active phase still claims the owner disposition is pending")
 
 expected_economics_status = (
-    "Status: **In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**"
+    "Status: **In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` under DEC-COM-104.**"
 )
 if economics.splitlines()[2] != expected_economics_status:
-    raise SystemExit("G1 economics packet status must identify the comparative non-pass")
+    raise SystemExit("G1 economics packet status must identify the accepted local-only deferral")
 PY
 
-grep -Fq 'Status: **In Progress after the independent comparative Eval returned `NON_PASS` under DEC-COM-102.' \
+grep -Fq 'Status: **In Progress under DEC-COM-104 at' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 current phase status must remain In Progress after the comparative non-pass" >&2
+  echo "G1 current phase status must record the accepted local-only deferral" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Blocked; deferred by DEC-COM-104. Re-entry requires fresh G1 evidence and explicit' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "COM-C7 must remain deferred after the G1 owner disposition" >&2
+  exit 1
+}
+
+grep -Fq 'Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "Local-only COM-C12 must remain eligible but unentered" >&2
   exit 1
 }
 
@@ -3028,6 +3080,51 @@ grep -Fq -- '- [x] Complete the fixed bilingual three-way comparative Eval acros
   echo "G1 independent three-way blind score must be recorded complete" >&2
   exit 1
 }
+grep -Fq -- '- [x] Record the final G1 owner disposition after the comparative non-pass.' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "G1 owner disposition must be recorded complete" >&2
+  exit 1
+}
+
+python3 - Docs/COMMERCIALIZATION_TASKS.md Docs/Commercialization/REQUIREMENTS_INDEX.md <<'PY'
+import pathlib
+import sys
+
+tasks = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+requirements = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
+
+def normalized_section(title: str) -> str:
+    section = tasks.split(f"## {title}", 1)[1].split("\n## ", 1)[0]
+    return " ".join(section.split())
+
+expected_sections = {
+    "COM-C7 — Current entitlement, App Attest, and backend skeleton":
+        "Status: **Blocked; deferred by DEC-COM-104. Re-entry requires fresh G1 evidence and explicit `PROCEED_TO_R2`.**",
+    "COM-C8 — Cloud Coach consent, redaction, and sole-provider adapter":
+        "Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**",
+    "COM-C9 — Quota, rate limits, idempotency, and degradation":
+        "Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**",
+    "COM-C10 — Server notifications and reconciliation":
+        "Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**",
+    "COM-C11 — Cloud operations, configuration, experiments, and cost dashboard":
+        "Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**",
+    "COM-C12 — Full-product security, privacy, review, and formal 1.0":
+        "Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a separate local-only owner entry.",
+}
+for title, expected in expected_sections.items():
+    section = normalized_section(title)
+    if expected not in section:
+        raise SystemExit(f"{title} does not preserve the DEC-COM-104 phase boundary")
+
+for expected_row in (
+    "| REQ-CLOUD-AUTH-001 | Deferred by DEC-COM-104; absent from local-only launch |",
+    "| REQ-CLOUD-CONSENT-001 | Deferred by DEC-COM-104; production not admitted |",
+    "| REQ-CLOUD-USAGE-001 | Deferred by DEC-COM-104; no active credit offer |",
+    "| REQ-G1-001 | Active; owner selected `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, pending reviewed record closeout |",
+):
+    if requirements.count(expected_row) != 1:
+        raise SystemExit(f"G1 requirement disposition drifted: {expected_row}")
+PY
 
 if grep -Eqi '(^|[.!?][[:space:]])comparative value (is )?(accepted|approved|proven|passed)|three-way comparative Eval (result|is)[: ]+PASS' \
     Docs/COMMERCIALIZATION_TASKS.md \
@@ -3114,9 +3211,9 @@ import xml.etree.ElementTree as ET
 
 root = pathlib.Path.cwd()
 packet = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
-expected_packet_status = "Status: **COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION**"
+expected_packet_status = "Status: **LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT**"
 if packet.splitlines()[2] != expected_packet_status or packet.count(expected_packet_status) != 1:
-    raise SystemExit("G1 three-way Eval packet must have one exact current status at the header")
+    raise SystemExit("G1 three-way Eval packet must have one exact owner-deferral status at the header")
 scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-G1-OnDevice-Eval.xcscheme"
 default_scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
 test_path = root / "MindBudgetTests/G1ThreeWayOnDeviceEvalTests.swift"

@@ -14,9 +14,9 @@ only that evidence delivery. That former G1 state was
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
 Selection and a reviewed synthetic Eval pass are not
 activation: no server adapter, client route, customer request, or customer promise exists until G1
-and later gates pass. The Luna-only scorer result also does not satisfy the still-open fixed
-bilingual three-way comparative Eval across deterministic template, supported on-device output,
-and Luna. DEC-COM-100 freezes a Debug-only harness and reuses the reviewed Luna transcript without
+and later gates pass. At the DEC-COM-099 checkpoint, the Luna-only scorer result did not satisfy
+the then-open fixed bilingual three-way comparative Eval across deterministic template, supported
+on-device output, and Luna. DEC-COM-100 freezes a Debug-only harness and reuses the reviewed Luna transcript without
 a new request. Physical Apple output is captured. DEC-COM-101 records independent delivery review
 of PR #102 exact remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902`; it does
 not score comparative value. A different eligible reviewer must score only blind JSON SHA-256
@@ -25,11 +25,17 @@ so independent blind review remained open at that delivery checkpoint. DEC-COM-1
 completed review at SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`. The sealed summarizer
 returned `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. The
-current G1 state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; no second eligible blind
+DEC-COM-102 checkpoint state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; no second eligible blind
 score exists, so inter-rater overlap is unavailable rather than inferred.
 DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
-that head as second parent. The current state and owner-decision requirement are unchanged.
+that head as second parent. At that delivery checkpoint, the state and owner-decision requirement
+were unchanged.
+DEC-COM-104 now supplies the owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains
+In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout
+of that record. The Luna selection, account observations, and offer below are
+historical evidence only. No cloud provider is selected for the current local-only launch path;
+production remains unadmitted and COM-C7 through COM-C11 are deferred.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,
@@ -106,7 +112,10 @@ and bounded same-model retry. DEC-COM-092 removed public-customer observation as
 did not permit invented quality or workload inputs. At least one task must have an owner-accepted
 need that Luna satisfies beyond the complete local path.
 
-## Offer and failure contract
+## Deferred offer and failure contract
+
+The following is retained as the historical DEC-COM-095/096 design. It is not a current product,
+storefront instruction, customer promise, or implementation authorization under DEC-COM-104.
 
 - Formal launch policy is a US$4.99 non-consumable Pro buyout with exactly 10 post-purchase Luna
   credits and three separately purchased cards: 10 uses / US$0.99, 25 uses / US$1.99, and 65 uses /

@@ -22,8 +22,11 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-103 with
-  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked. Historical merged phase
+- Active phase: **G1 is In Progress under DEC-COM-104 at
+  `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 are deferred and no
+  implementation phase is currently entered. After this decision record is independently reviewed,
+  green, merged, and closed, the next eligible path is a separately owner-entered local-only
+  COM-C12 release review. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
@@ -122,11 +125,11 @@ detailed phase checklists; it added no paid product behavior.
 - Existing TestFlight users receive no production Pro entitlement. Production rights will be
   derived from verified production transactions only.
 - Products: the existing Pro Monthly/Annual/P1W StoreKit Configuration and TestFlight records are
-  historical nonpublic test fixtures. DEC-COM-095/096 accepts a future US$4.99 non-consumable Pro
-  offer with 10 starter Luna credits and consumable 10/25/65-use cards at
-  US$0.99/US$1.99/US$4.99; no replacement Product ID or App Store Connect price point has been
-  created yet. The explicit 30-day trial is local Pro/on-device AI only and grants zero Luna
-  credits.
+  historical nonpublic test fixtures. DEC-COM-104 retains the US$4.99 non-consumable local-Pro
+  direction and explicit 30-day local Pro/on-device-AI trial, but defers Luna starter credits and
+  all consumable usage cards. The earlier 10-credit starter and 10/25/65-use card schedule remains
+  historical planning evidence, not a launch offer. No replacement Product ID or App Store Connect
+  price point has been created yet.
 - Backend: a new, independent hardened service may follow the engineering pattern of the owner's
   other Cloudflare service, but it must not reuse its data, secrets, admin authorization, or
   deployment state.
@@ -152,13 +155,12 @@ COM-C0A -> COM-C0B -> COM-C1 -> COM-C2 -> COM-C3
                                                         | +-> COM-C6.5 (Watch, parallel)
                                                         v
                                               G1 decision gate
-                                                        |
-                                                        v
-                                      COM-C7 -> C8 -> C9 -> C10 -> C11
-                                                        |             |
-                                                        +-------------+
-                                                                      v
-                                                                  COM-C12
+                                                 /          \
+                            local-only deferral /            \ `PROCEED_TO_R2`
+                                               v              v
+                                           COM-C12    COM-C7 -> C8 -> C9 -> C10 -> C11
+                                               ^                                  |
+                                               +----------------------------------+
                                                                       |
                                                                       v
                                                               formal 1.0 launch
@@ -793,15 +795,20 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **In Progress after the independent comparative Eval returned `NON_PASS` under DEC-COM-102.
+Status: **In Progress under DEC-COM-104 at
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`. The independent comparative Eval remains
+`NON_PASS` under DEC-COM-102.
 Exact PR #98 head `9226985`
 passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 preserves that first
 package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The synthetic-only account and fixed
 Luna run now have a reviewed 24/24 first-pass result: independent review found no P1/P2 on exact PR
 #100 head `323d8d7`, hosted run `33593253561` passed, and PR #100 merged as `7a473d2`. StoreKit
-price-point/Product-ID evidence, server-breaker/legal gates, and the owner decision remain open.
-The former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state is superseded; the current state is
-`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**
+price-point/Product-ID evidence and server-breaker/legal gates remain unfulfilled historical
+cloud-path work; DEC-COM-104 supplies the later owner disposition.
+The earlier `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` and former
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` states are superseded. Luna/card
+development is deferred, production remains unadmitted, and the separately reviewed local-only
+release path remains available.**
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
@@ -861,19 +868,24 @@ The former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state is superseded; the 
   run `33701018178` passed on that head; and merge `e4b54af` retained it as second parent.
   DEC-COM-103 closes only the score-lock/unseal/result-recording delivery and preserves
   `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
-- [ ] Record the final G1 owner disposition after the comparative non-pass. Until then do not spend
-  work or make state changes that assume the Luna credit offer proceeds. StoreKit US$4.99
-  Product-ID/price-point evidence, the server breaker, and remaining legal gates are still
-  unfulfilled, but they are no longer described as the only blockers. Pre-launch actual US proceeds
-  do not exist and remain a post-launch recalibration input. Current state:
-  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; only a later explicit `PROCEED_TO_R2` can
-  enter COM-C7.
+- [x] Record the final G1 owner disposition after the comparative non-pass. DEC-COM-104 accepts
+  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: do not create or sell Luna starter credits or usage cards,
+  do not implement their backend or StoreKit products, and do not enter COM-C7. Preserve the
+  frozen offer/economics as historical evidence rather than a current promise. Continue only the
+  US$4.99 local-Pro direction, explicit 30-day local trial, on-device AI, and deterministic fallback
+  through a separately owner-entered local-only COM-C12 review. Pre-launch actual US proceeds do
+  not exist and remain a post-launch recalibration input for local Pro.
+- [ ] Independently review, pass hosted CI, merge, and close this exact owner-disposition record.
+  Until that closeout, G1 remains In Progress and local-only COM-C12 remains unentered.
 
-Exit gate: an Accepted G1 decision. Only `PROCEED_TO_R2` authorizes COM-C7.
+Exit gate: the DEC-COM-104 owner disposition plus exact-head independent review, hosted CI, merge,
+and post-merge closeout. Only then may G1 become Done. A future new owner decision, fresh G1
+evidence, and explicit `PROCEED_TO_R2` are required to reactivate COM-C7.
 
 ## COM-C7 — Current entitlement, App Attest, and backend skeleton
 
-Status: **Blocked by G1.**
+Status: **Blocked; deferred by DEC-COM-104. Re-entry requires fresh G1 evidence and explicit
+`PROCEED_TO_R2`.**
 
 - [B] **C7-01 — Independent backend foundation.** Separate dev/staging/prod Cloudflare resources,
   secrets, deployment state, allow-lists, TTL, logs, monitoring, and hardened admin boundary; no
@@ -892,7 +904,7 @@ historical/test/refunded/revoked state cannot. No model call exists.
 
 ## COM-C8 — Cloud Coach consent, redaction, and sole-provider adapter
 
-Status: **Blocked by COM-C7.**
+Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**
 
 - [B] **C8-01 — Versioned consent.** Explicit opt-in, pre-send preview, withdrawal, local history,
   Provider-scope renewal, and unreachable cloud path without current consent.
@@ -914,7 +926,7 @@ forbidden content is absent from traffic/logs; local functionality remains compl
 
 ## COM-C9 — Quota, rate limits, idempotency, and degradation
 
-Status: **Blocked by COM-C8 and accepted cost/config inputs.**
+Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**
 
 - [B] **C9-01 — Authoritative credit lots.** The explicitly started local-only trial grants zero
   cloud credits. Verified Pro purchase grants one finite starter lot; consumable cards grant
@@ -935,7 +947,7 @@ across reinstall/devices, and every cloud failure has a local fallback.
 
 ## COM-C10 — Server notifications and reconciliation
 
-Status: **Blocked by COM-C9.**
+Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**
 
 - [B] **C10-01 — V2 notification receiver.** Verify JWS, dedupe `notificationUUID`, reject
   forgeries, safely record unknown types, and invalidate related current-state cache.
@@ -952,7 +964,7 @@ create only a non-monetary credit deficit.
 
 ## COM-C11 — Cloud operations, configuration, experiments, and cost dashboard
 
-Status: **Blocked by COM-C10.**
+Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**
 
 - [B] **C11-01 — Safe operational configuration.** Signed/versioned/cached/rollback provider,
   model, token, quota, and consent-copy config; unknown IDs fail closed; rollback within five
@@ -967,7 +979,10 @@ consumer content; configuration and admin failures use safe defaults.
 
 ## COM-C12 — Full-product security, privacy, review, and formal 1.0
 
-Status: **Blocked by COM-C11. Watch distribution is a separate later milestone.**
+Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a
+separate local-only owner entry. The
+cloud-enabled path remains deferred with COM-C7 through COM-C11. Watch distribution is a separate
+later milestone.**
 
 - [B] **C12-01 — End-to-end automated matrix.** Consent lifecycle, entitlement/cache/notification,
   billing states, quota/reset, concurrency/idempotency, providers, cancellation, L1–L5, dual
@@ -984,15 +999,17 @@ Status: **Blocked by COM-C11. Watch distribution is a separate later milestone.*
   phased operational watch, and no release with open P0/P1.
 
 Exit gate: all enabled-path v1.4 release gates are satisfied and recorded. Only then may the owner
-authorize formal 1.0 App Store submission and public launch. A separately reviewed local-only
-release may omit Luna when cloud gates are not ready; it cannot represent G1 or COM-C7–C11 as Done.
+authorize formal 1.0 App Store submission and public launch. The DEC-COM-104 local-only path must
+prove the final binary contains no Luna route, cloud-credit product, provider credential, backend
+dependency, or customer cloud promise; it does not represent COM-C7–C11 as Done.
 
 ## Technical debt and deferred decisions
 
-- The owner accepted the US$4.99 one-time Pro policy, explicit 30-day local-only trial, sole Luna
-  model, 10 starter credits, 10/25/65-use cards at US$0.99/US$1.99/US$4.99, one-year credit lots,
-  and >=50% conservative contribution margin under DEC-COM-095/096. Product IDs, launch regions,
-  and Luna account/live-Eval evidence remain TBD.
+- DEC-COM-095/096 historically accepted the US$4.99 one-time Pro hypothesis, explicit 30-day
+  local-only trial, sole Luna model, 10 starter credits, 10/25/65-use cards, one-year credit lots,
+  and >=50% conservative contribution margin. DEC-COM-104 supersedes only the active offer:
+  local Pro/trial remain in scope, while every Luna/card element is deferred and absent from the
+  local-only launch candidate unless a future fresh G1 decision explicitly reactivates it.
 - Historical Monthly/Annual/P1W products are nonpublic test evidence and will be replaced rather
   than grandfathered in a later authorized catalog phase; no current Product ID is mutated here.
 - Existing money infrastructure makes COM-C4A a delta audit, not an assumed rewrite.

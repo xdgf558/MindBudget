@@ -693,25 +693,22 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   rereview accepted PR #104 exact remediation head `2fb2b64` with no P1/P2 and no new P3; hosted
   run `33701018178` passed; and PR #104 merged as `e4b54af` with that head as second parent.
   DEC-COM-103 preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
-- [ ] Complete the remaining G1 decision. DEC-COM-097 records the dedicated Global Tier 1 project
-  with sole model `gpt-5.6-luna`,
-  project, bounded billing, and accepted standard up-to-30-day retention for synthetic Eval only;
-  ZDR is optional and production remains false. DEC-COM-098 records confirmed sharing/logging
-  controls, the isolated Keychain credential, two explicit non-pass attempts, and a third 24/24
-  first-pass automated Eval result. Independent review found no P1/P2 on PR #100 head `323d8d7`,
-  hosted run `33593253561` passed, and PR #100 merged as `7a473d2`; DEC-COM-099 closes only that
-  evidence delivery. The fixed bilingual three-way comparative Eval is complete and returned
-  `NON_PASS`; the current state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. The owner
-  must first resolve the cloud-credit offer. StoreKit price-point/Product-ID evidence, server
-  breaker, and remaining legal gates stay unfulfilled and become actionable only if the later owner
-  disposition still seeks `PROCEED_TO_R2`.
-  DEC-COM-095 accepts the
-  US$4.99 one-time Pro policy, an explicitly started 30-day local-only trial with zero Luna credits,
-  starter/card lots valid for one user-calendar year, only a user-initiated valid structured Luna
-  result ultimately displayed consuming one credit,
-  the superseded `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state, >=50%
-  peak contribution margin, refund-without-local-deletion, ordinary test user denial, isolated
-  capped Apple App Review access, and a separate local-only release path. Actual US proceeds do not exist
-  pre-launch and are a post-launch recalibration input. Do not create products, change the current
-  subscription UI, configure credentials, deploy a provider/backend, or enter COM-C7 before
-  `PROCEED_TO_R2`.
+- [x] Complete the G1 owner disposition. DEC-COM-104 accepts
+  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` after the comparative `NON_PASS`: Luna starter credits,
+  consumable cards, their Product IDs, backend, provider route, and production credentials are
+  deferred. G1 remains In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` pending
+  review/merge/closeout of this record, no
+  `PROCEED_TO_R2` is granted, and COM-C7 through COM-C11 remain unentered.
+  The DEC-COM-095, DEC-COM-096, DEC-COM-097, DEC-COM-098, DEC-COM-099, DEC-COM-100,
+  DEC-COM-101, DEC-COM-102, and DEC-COM-103 offer, account, Eval, result, and economics records
+  remain historical evidence rather than current customer promises. They retain the sole
+  `gpt-5.6-luna`, consumable-card, 50% margin, typical/P50, peak/P95, and three-way comparative Eval
+  evidence without activating it, including reviewed head `323d8d7`, hosted run `33593253561`, and
+  merge `7a473d2` under the former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state. The US$4.99 one-time local-Pro direction, explicitly started
+  30-day local trial, on-device AI, and deterministic fallback continue toward a separately
+  reviewed local-only COM-C12 release path. That path requires its own owner entry and final-binary
+  proof that Luna, cloud-credit products, provider credentials, and cloud claims are absent.
+  Historical policy evidence—not an active offer—also records zero Luna credits in the trial,
+  one user-calendar year of credit validity, charging only for a user-initiated analysis that is
+  ultimately displayed, no Luna access for an ordinary test user, and a separate Apple App Review
+  allowance. DEC-COM-104 defers every one of those cloud-credit mechanics with the offer.

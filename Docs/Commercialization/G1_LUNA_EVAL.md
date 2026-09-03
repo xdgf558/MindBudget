@@ -134,7 +134,7 @@ This Luna-only scoring run did not by itself satisfy the then-open fixed bilingu
 of deterministic template, supported on-device output, and Luna. That comparison
 is now complete under DEC-COM-102: completed-review SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, deterministic result
-`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. G1 remains In
-Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; production admission stays false
-and COM-C7 remains blocked. StoreKit price-point/Product-ID evidence, server-breaker/legal gates,
-and a final owner decision remain unfulfilled but do not override the comparative non-pass.
+`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. DEC-COM-104
+later completed G1 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: production admission stays false,
+COM-C7 through COM-C11 and every Luna/card product are deferred, and the local-only release path
+must not reinterpret this synthetic run as customer or production evidence.

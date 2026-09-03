@@ -294,8 +294,9 @@ ID evidence and owner `PROCEED_TO_R2` were open under the former
 and become a post-launch recalibration input. DEC-COM-102 now records the completed independent
 three-way comparative Eval blind review: completed score SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, deterministic result
-`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. The current
-state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked. The revised economics are a
+`NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. That
+DEC-COM-102 checkpoint state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7
+remained blocked. The revised economics are a
 deliberate discontinuity from PR #98: removing the US$2 local-Pro reserve, separate 50% cloud
 holdback, and backup provider changed peak all-in cost from US$0.033098 to US$0.018986 and the 50%
 margin fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an owner policy
@@ -315,6 +316,13 @@ DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact 
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
 does not supply the owner offer disposition.
+DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In
+Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout of
+that record. Luna starter credits, consumable cards, COM-C7 through
+COM-C11, production provider traffic, and their StoreKit/backend work are deferred. The frozen
+offer and Eval remain historical evidence and are not current customer promises. The US$4.99
+one-time local-Pro direction, explicitly started 30-day local trial, on-device AI, and
+deterministic fallback remain eligible for a separately authorized local-only COM-C12 review.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.
