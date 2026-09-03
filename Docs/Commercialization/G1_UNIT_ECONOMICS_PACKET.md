@@ -1,19 +1,22 @@
 # G1 Cloud AI Unit Economics and Credit-Pack Packet
 
-Status: **In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**
+Status: **In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` under DEC-COM-104.**
 
 PR #98 exact head `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`;
 DEC-COM-094 closed that
 first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVIDENCE`. DEC-COM-095
-now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
-accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
+historically accepted the product-policy boundary below. DEC-COM-096 froze the 24-case bilingual
+Eval and historically accepted the exact 10-credit starter plus three usage-card tiers. DEC-COM-098
+records the admitted
 synthetic account and attempt 3's 24/24 first-pass automated result after two explicit non-passes.
 PR #100 independent review read all 24 outputs with no P1/P2; reviewed head `323d8d7` passed hosted
 run `33593253561` and merged as `7a473d2`. DEC-COM-099 closes only that independently reviewed
 account/Eval evidence delivery. The former formal state was
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not `PROCEED_TO_R2`. DEC-COM-102 now records the
-completed independent three-way review and deterministic `NON_PASS`. The current state is
-`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
+completed independent three-way comparative Eval and deterministic `NON_PASS`. The owner outcome is
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; the process state remains
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`: the cloud offer is deferred and only the
+local-Pro path remains eligible for launch review.
 
 DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
 independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
@@ -23,9 +26,11 @@ packet, mapping code, or diagnostics still had to complete only the exact blind 
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
 DEC-COM-102 records that this later review and ordered unsealing are now complete.
 
-## Accepted owner policy
+## Historical accepted cloud-offer policy, now deferred
 
-The owner accepted these launch-policy constraints on 2026-09-02:
+The owner accepted these planning constraints on 2026-09-02. DEC-COM-104 later deferred every
+Luna/card element after the comparative `NON_PASS`; only the local-Pro/trial terms remain part of
+the current launch direction:
 
 - the formal Pro offer is a US$4.99 non-consumable one-time purchase, not a subscription;
 - a new user may explicitly start one 30-user-calendar-day local Pro trial; it does not auto-renew,
@@ -62,8 +67,9 @@ but deliberately does not invent measured token, quality, latency, or failure di
 
 The packet separates:
 
-1. **Accepted product policy**: US$4.99 one-time Pro, local-only 30-day trial, Luna-only paid cloud
-   credits, one-year credit validity, no ordinary test traffic, and a 50% downside margin floor.
+1. **Historical product-policy evidence**: US$4.99 one-time Pro, local-only 30-day trial, Luna-only
+   paid cloud credits, one-year credit validity, no ordinary test traffic, and a 50% downside
+   margin floor. DEC-COM-104 retains only the local-Pro/trial portion and defers every cloud term.
 2. **Quote-backed planning arithmetic**: deterministic integer micro-USD calculations from dated
    supplier rates and explicit planning workloads.
 3. **Missing release evidence**: live bilingual Luna results, OpenAI account admission, reviewed
@@ -215,6 +221,9 @@ derived from the current 72-use peak ceiling and is not presented as an economic
 93.08% peak planning margin leaves a wide buffer against the 50% floor; any later measured envelope
 that invalidates the floor trips the server breaker before new grants or sales.
 
+**Current disposition:** DEC-COM-104 defers this starter grant. The current local-Pro offer grants
+zero Luna credits; the 10-credit row remains historical planning evidence only.
+
 ## Consumable usage-card analysis
 
 All rows apply the same conservative proceeds deductions and the Luna-only peak cost at the
@@ -233,6 +242,9 @@ margin is below 50%. Already granted unexpired credits remain honored. The tiers
 decisions, not App Store Connect products; Product IDs and Apple price-point availability still
 belong to a later authorized implementation phase. Actual USA proceeds after launch recalibrate,
 rather than retroactively justify, the pre-launch decision.
+
+**Current disposition:** DEC-COM-104 defers every usage-card tier and prohibits creating its
+StoreKit Product ID or backend ledger on the local-only path.
 
 ## Credit, refund, deletion, expiry, and recovery contract
 
@@ -277,17 +289,20 @@ margin breaker before a consumable exists.
 - If G1 or later cloud phases do not pass, the app may still pursue a separately reviewed local-only
   public release. No cloud promise may appear in that build.
 
-## Open evidence and current outcome
+## Deferred re-entry evidence and current outcome
 
-The following remains mandatory before `PROCEED_TO_R2`:
+A future proposal to reactivate Luna and seek `PROCEED_TO_R2` must start a fresh G1 decision and
+complete all of the following; none is required for a final binary that proves the entire cloud
+path absent:
 
-- a fixed bilingual three-way comparative Eval of the deterministic template, supported on-device
-  output, and OpenAI Luna, using one frozen dataset and review criteria to establish the incremental
-  user value of paid cloud credits;
-- implementation and independent review of the hard 1,000-success/50% server breaker before any
-  starter grant or usage-card sale;
+- a new value hypothesis and independently accepted bilingual comparison that demonstrates
+  material value beyond deterministic template and supported on-device output without rewriting
+  or regrading the frozen `NON_PASS` dataset;
+- implementation and independent review of a bootstrap-safe 50% server breaker before any starter
+  grant or usage-card sale; the historical below-1,000 rule cannot be reused unchanged because it
+  would deny every grant at zero launch traffic and prevent the system from reaching its threshold;
 - StoreKit configuration evidence for the US$4.99 price point and later post-launch recalibration
-  from actual USA proceeds; and
+  from actual USA proceeds if the cloud offer is again proposed; and
 - legal/product review of one-year credit expiry, destructive cloud deletion, refunds, Apple-review
   access, and service-sunset remedy.
 
@@ -311,10 +326,12 @@ DEC-COM-103 closes only that result-recording delivery after PR #104 exact remed
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. The frozen non-pass and owner-decision boundary do not change.
 
-The former formal state was **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
-exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no
-backend, Product ID, ledger, UI, App Store Connect product, cloud grant, COM-C7 entry, production
-request, or public release is authorized here. The current state is
-**`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`**. The owner must first resolve the Luna
-credit offer; only a later owner-accepted `PROCEED_TO_R2` after the remaining evidence may enter
-COM-C7.
+The former formal states were **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`** and
+**`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`**. DEC-COM-104 records the later owner
+disposition: **`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`**. G1 remains In Progress only until this
+decision record is reviewed, green, merged, and closed; no `PROCEED_TO_R2` is granted and no
+backend, Product ID, ledger, UI, App Store Connect card product, cloud grant, COM-C7 entry,
+production request, or public release is authorized here. The frozen model/count/card decisions
+remain historical planning evidence, not current customer promises. A separately owner-entered
+local-only COM-C12 review may continue the US$4.99 local-Pro direction, explicit 30-day local trial,
+on-device AI, and deterministic fallback while proving every Luna/card path absent.

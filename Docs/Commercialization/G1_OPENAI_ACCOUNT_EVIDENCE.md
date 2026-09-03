@@ -69,5 +69,7 @@ remain forbidden. ZDR may be adopted later, but production disclosure must descr
 actually configured rather than promising it in advance.
 
 The account gate admitted the fixed synthetic run recorded in `G1_LUNA_EVAL.md`. It does not admit
-customer data, establish a production processor route, complete G1, enter COM-C7, or activate Luna
-in the app. Those outcomes remain separately blocked.
+customer data, establish a production processor route, enter COM-C7, or activate Luna in the app.
+DEC-COM-104 later completed G1 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: the account evidence is
+historical synthetic-only material, production remains false, and Luna/cards are deferred from the
+local-only launch path.

@@ -4428,3 +4428,51 @@ failures, and no test-runner retry; every selected core file exceeded the 85% co
 all 23 C6-02 runtime bindings passed. The deleted temporary bundle under
 `mindbudget-validation.cX5Xch/MindBudget.xcresult` is an execution pointer only. This local pass
 does not replace this closeout branch's hosted CI or independent review.
+
+## 2026-09-03 — Session 219 — Defer Luna credits and retain local Pro
+
+Goal: Record the owner's disposition after the comparative `NON_PASS` without regrading the frozen
+evidence, entering COM-C7, or changing product/external state.
+
+Decision: DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In Progress pending
+review/merge/closeout of this record and grants no `PROCEED_TO_R2`. Luna starter credits, usage cards, Product IDs, provider/backend work, and COM-C7
+through COM-C11 are deferred. The historical account, Eval, quote, and exact card artifacts remain
+intact but are no longer current launch promises.
+
+Local-only boundary: Retain the US$4.99 one-time local-Pro direction, explicitly started 30-day
+local trial, on-device AI, and deterministic fallback. A local-only COM-C12 review is the next
+eligible path but requires a separate owner entry and final-binary/storefront proof that Luna,
+cloud credits, provider secrets, backend dependencies, and cloud claims are absent. No StoreKit,
+App Store Connect, credential, backend, provider, distribution, or release mutation occurred.
+
+Re-entry note: Any future Luna/card proposal requires fresh G1 value/economics/legal evidence and
+explicit `PROCEED_TO_R2`. It must also resolve the historical below-1,000-success launch deadlock
+instead of reusing that breaker unchanged. Local validation passed on 2026-09-03 under Xcode 27.0
+beta 6 (`27A5252f`): Release build, 554 unit tests across 33 suites, 18 UI tests with 17 passed and
+one expected physical-only C6-02 skip, all selected coverage gates, and all 23 C6-02 runtime
+bindings passed. Exact-head independent review, hosted CI, and merge of this recording branch
+remain required.
+
+## 2026-09-03 — Session 220 — Remediate PR #106 local-only boundary findings
+
+Review: Independent review of exact head `f528db73f267a70f433fa96c8ca1e1e6fa485f18`
+found no P1 and two P2 findings. The regional-pricing current-policy section still carried the
+historical credit-consumption, expiry, breaker, sole-provider, and App Review rules, while the
+blocked COM-C12 checklist still mixed mandatory local-only release work with the deferred cloud
+provider/quota/consent/redaction/Eval/economics path. The review also recorded three non-blocking
+state-wording observations.
+
+Remediation: The current local-only pricing section now expressly excludes every Luna route,
+credential, cloud ledger/quota/breaker, and special tester/App Review access. DEC-COM-095/096 cloud
+terms remain intact only under an explicitly inactive historical section. COM-C12 now contains a
+four-item local-only subset and a separately named cloud-only deferred subset that cannot block or
+be marked satisfied by the DEC-COM-104 candidate. Section-aware gate checks prove both separations.
+The economics and privacy records also distinguish historical decisions, the owner outcome, and
+the current process state without rewriting the frozen evidence.
+
+Evidence boundary: GitHub Actions run `33714752713` succeeded on the reviewed original head only
+and cannot validate these changes. No Swift/JSON evidence, StoreKit/App Store Connect configuration,
+OpenAI account, provider/backend, credential, distribution, or release mutation occurred. G1 stays
+In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
+deferred and local-only COM-C12 remains unentered. The remediation head still requires independent
+rereview, hosted CI, and merge.

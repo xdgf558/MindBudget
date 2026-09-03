@@ -2863,3 +2863,36 @@ The closeout still needs independent review, a green hosted run on its exact hea
   expected physical-only skip, zero failures, and no test-runner retry; every selected coverage
   file exceeded 85%; and all 23 C6-02 bindings passed. The deleted temporary xcresult is an
   execution pointer, not hosted evidence.
+
+### G1 Luna/card owner deferral — 2026-09-03
+
+- DEC-COM-104 records `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` after the frozen comparative `NON_PASS`.
+  G1 remains In Progress pending exact record review/merge/closeout, no `PROCEED_TO_R2` is granted,
+  production remains false, and COM-C7 through COM-C11 are
+  deferred.
+- This branch changes documentation and commercialization gates only. It performs no Luna request,
+  product/backend change, StoreKit or App Store Connect mutation, credential action, distribution,
+  or release.
+- The local-only COM-C12 path remains unentered. A later owner entry must prove the final binary and
+  storefront contain no Luna route, cloud-credit product, provider secret, backend dependency, or
+  cloud-AI promise.
+- Local validation passed on 2026-09-03 under Xcode 27.0 beta 6 (`27A5252f`): Release build; 554
+  unit tests across 33 suites with four expected physical CloudKit skips; 18 UI tests with 17
+  passed, one expected physical-only C6-02 skip, and zero failures; every selected coverage gate;
+  and all 23 C6-02 runtime bindings passed. This branch's exact-head independent review, hosted CI,
+  and merge remain required.
+
+### PR #106 local-only boundary remediation — 2026-09-03
+
+- Independent review of original head `f528db73f267a70f433fa96c8ca1e1e6fa485f18`
+  found no P1 and two P2 documentation/gate defects: deferred cloud-credit rules remained in a
+  current-policy section, and COM-C12 had not separated the DEC-COM-104 local-only release subset
+  from deferred cloud-only work.
+- GitHub Actions run `33714752713` completed successfully on that original head. It is retained as
+  exact historical evidence and does not certify the remediation head.
+- The remediation uses section-scoped checks to bind current local-only exclusions, historical
+  cloud-policy preservation, four local C12 responsibilities, and the separately deferred cloud
+  subset. It changes no product code or external state.
+- A new exact head, independent rereview, and hosted CI are required before merge. G1 remains In
+  Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
+  deferred and local-only COM-C12 remains unentered.

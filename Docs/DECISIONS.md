@@ -3682,3 +3682,18 @@ Consequences: Preserve the frozen `NON_PASS`, G1 In Progress at
 blocked. The next substantive action is a separate owner disposition of the cloud-credit offer;
 this closeout does not supply that decision or authorize StoreKit, breaker, legal, backend,
 customer, distribution, or production work.
+
+## 2026-09-03 — Defer Luna credits and keep the local-Pro launch path
+
+Decision: Detailed ownership is DEC-COM-104. After the frozen comparative Eval returned
+`NON_PASS` with zero materially preferred Luna cases, the owner selected
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In Progress only until this decision record is
+independently reviewed, green, merged, and closed; no `PROCEED_TO_R2` is granted. Luna starter credits,
+usage cards, provider/backend work, and COM-C7 through COM-C11 are deferred; their accepted
+historical planning artifacts remain evidence rather than current launch promises.
+
+Consequences: Retain the US$4.99 one-time local-Pro direction, explicitly started 30-day local
+trial, supported on-device AI, and deterministic fallback. A local-only COM-C12 review is the next
+eligible path but still requires separate owner entry and must prove the final binary/storefront
+contains no Luna route, cloud-credit product, provider secret, backend dependency, or cloud-AI
+claim. Production admission stays false and this decision performs no external or product mutation.

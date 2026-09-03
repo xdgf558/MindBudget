@@ -2,8 +2,10 @@
 
 ## Status
 
-**Owner policy, exact cloud-credit counts/consumable card tiers, and the independently reviewed
-synthetic Luna Eval are accepted; StoreKit Product IDs/price points remain pending.**
+**DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; G1 remains In Progress at
+`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` pending exact record review/merge/closeout. The
+US$4.99 local-Pro direction remains; Luna credits/consumable cards and their
+StoreKit Product IDs/price points are deferred.**
 
 DEC-COM-092 opened the one-time-offer hypothesis. DEC-COM-093 recorded the first quote-backed
 planning package and its historical `INSUFFICIENT_QUOTE_EVIDENCE` result. Independent review found
@@ -24,12 +26,15 @@ different reviewer must score only blind JSON SHA-256
 independent blind review remained open at that delivery checkpoint. DEC-COM-102 records the later
 completed review at SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e` and its deterministic
-`NON_PASS`: zero materially preferred Luna cases and no qualifying bilingual task. Current state is
-`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; storefront work is not the sole remaining
-blocker and awaits the owner's cloud-offer disposition.
+`NON_PASS`: zero materially preferred Luna cases and no qualifying bilingual task. At that
+checkpoint, state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; storefront work was not
+the sole remaining blocker and awaited the owner's cloud-offer disposition.
 DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. It does not create or approve a storefront product.
+DEC-COM-104 supplies the final G1 owner disposition after that `NON_PASS`: preserve this worksheet
+as historical planning evidence, do not create Luna/card products, and continue only the local-Pro
+path through a separately authorized local-only COM-C12 review.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction
@@ -37,15 +42,24 @@ authority. Because the product has not launched, actual United States proceeds d
 pre-launch analysis uses the conservative proceeds assumptions below, and post-launch operation
 must recalibrate from actual Financial Reports before widening any cloud allocation.
 
-## Accepted owner policy
+## Current local-only launch policy
 
 - Pro is a one-time US$4.99 buyout; the exact StoreKit price point and regional equivalents remain
   App Store Connect inputs for a later authorized phase.
 - The 30-day trial begins only after an explicit **Start Trial** action. It exposes local Pro and
   on-device AI only, includes zero Luna credits, and does not auto-renew.
-- A completed buyout grants exactly 10 starter Luna credits once.
-- Additional cloud use uses three accepted card tiers: 10 uses / US$0.99, 25 uses / US$1.99, and
-  65 uses / US$4.99. Product IDs and actual App Store Connect price-point creation remain later.
+- The earlier 10-credit starter and 10/25/65-use card schedule is deferred historical planning; a
+  completed local-Pro buyout currently promises and grants no Luna credit.
+- No Luna usage-card Product ID or App Store Connect price point may be created on the local-only
+  path.
+- The local-only candidate has no Luna route, cloud-credit ledger, provider credential, cloud-cost
+  breaker, customer cloud quota, or special cloud access for testers or App Review.
+
+## Historical cloud-credit policy evidence — inactive
+
+The following rules preserve the exact DEC-COM-095/096 planning record only. They are not current
+policy, are not customer promises, and do not apply to the DEC-COM-104 local-only candidate:
+
 - Only a user-initiated valid structured Luna result ultimately displayed consumes one credit;
   future cloud-AI features inherit the same rule.
 - Starter and purchased lots expire one user-calendar year after grant. No fixed-second
@@ -64,15 +78,17 @@ historical nonpublic Configuration/Sandbox/TestFlight evidence only. Because no 
 occurred, a later authorized catalog migration replaces those products rather than grandfathering
 them. This document does not perform that mutation.
 
-## Evidence still required before Luna can be activated
+## Evidence required only if Luna is re-proposed
 
-- fixed Simplified-Chinese/English Luna quality and structured-output Eval;
-- measured typical/P50 and peak/P95 input/output envelope from that Eval;
-- OpenAI account proof for no voluntary training, configured standard retention, Global processing,
-  rate limits, price tier, billing controls, model isolation, and the synthetic-Eval credential;
-- hard server enforcement of the 1,000-success/50% margin breaker before any grant or sale;
+- a fresh Simplified-Chinese/English value hypothesis and independently accepted comparison beyond
+  the frozen `NON_PASS`;
+- measured typical/P50 and peak/P95 input/output envelope for the newly proposed behavior;
+- current OpenAI account proof for training, retention, processing region, rate, price, billing,
+  model isolation, and a production credential boundary;
+- hard server enforcement of a bootstrap-safe 50% margin breaker before any grant or sale; the
+  historical below-1,000-success rule cannot be reused unchanged at zero launch traffic;
 - StoreKit price-point and regional-availability evidence;
-- independent exact-head review and final owner decision.
+- a new exact-head review and final owner re-entry decision.
 
 Actual US App Store net proceeds are a mandatory post-launch recalibration input, not a pre-launch
 G1 prerequisite. Until then, every candidate uses 30% Apple commission, 10% tax/FX reserve, and 5%
@@ -93,21 +109,21 @@ The 1,000-success planning case uses US$2.744500 conservative net proceeds for U
 minimum contribution margin caps all fulfillment cost at US$1.372250. This supports at most 121
 typical-envelope or 72 peak-envelope uses; those maxima are safety ceilings, not recommended grants.
 
-## Accepted credit economics
+## Historical accepted credit economics, now deferred
 
 | Offer element | Accepted price | Accepted credits | Conservative net proceeds | Peak fulfillment cost | Peak contribution margin | Current status |
 |---|---:|---:|---:|---:|---:|---|
-| One-time Pro starter lot | US$4.99 accepted base price | **10** | US$2.744500 | US$0.189860 | **93.08%** | Accepted commercial allocation |
-| Usage card A | **US$0.99** | **10** | US$0.544500 | US$0.189860 | **65.13%** | Accepted tier; Product ID not created |
-| Usage card B | **US$1.99** | **25** | US$1.094500 | US$0.474650 | **56.63%** | Accepted tier; Product ID not created |
-| Usage card C | **US$4.99** | **65** | US$2.744500 | US$1.234090 | **55.03%** | Accepted tier; Product ID not created |
+| One-time Pro starter lot | US$4.99 planning base price | **10** | US$2.744500 | US$0.189860 | **93.08%** | Deferred historical allocation |
+| Usage card A | **US$0.99** | **10** | US$0.544500 | US$0.189860 | **65.13%** | Deferred; Product ID not created |
+| Usage card B | **US$1.99** | **25** | US$1.094500 | US$0.474650 | **56.63%** | Deferred; Product ID not created |
+| Usage card C | **US$4.99** | **65** | US$2.744500 | US$1.234090 | **55.03%** | Deferred; Product ID not created |
 
 The accepted commercial tiers pass the arithmetic envelope at 1,000 monthly successes. They are
 not yet StoreKit products. At low volume, fixed backend cost can make a card fail the 50% rule;
 therefore the trailing-volume, price, and measured-envelope breaker must be server-enforced before
 any sale or grant.
 
-## Refund, expiry, and recovery accounting
+## Historical cloud refund, expiry, and recovery design — inactive
 
 - Pro refund/revocation removes future Pro/cloud authority but never deletes local financial data.
 - Card refund removes unused credits from the matching idempotent lot. If already spent, the cloud
@@ -121,9 +137,11 @@ any sale or grant.
 
 ## Acceptance boundary
 
-DEC-COM-095/096 accept the product policy, sole-provider direction, and exact credit/card choices;
+DEC-COM-095/096 historically accepted the product policy, sole-provider direction, and exact
+credit/card choices;
 DEC-COM-097 accepts standard retention only for the synthetic Eval and keeps production false.
-G1 remains In Progress until account admission, the live Luna Eval, StoreKit price-point evidence,
-independent review, and the final owner decision are complete. Only the explicit `PROCEED_TO_R2`
-result may enter COM-C7. If the cloud path is not ready, the owner may instead authorize a separate
-local-only release with Luna absent; that path does not silently satisfy or bypass G1.
+DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, without `PROCEED_TO_R2`; G1 remains In
+Progress only until that record is reviewed, merged, and closed. COM-C7 through COM-C11 remain deferred. A future cloud proposal must open fresh G1
+value, economics, storefront, privacy, and legal evidence before explicit re-entry. The current
+next eligible path is a separately owner-entered local-only COM-C12 review with Luna and all
+cloud-credit products absent.

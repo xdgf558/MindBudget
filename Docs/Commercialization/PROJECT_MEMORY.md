@@ -523,8 +523,8 @@ point/Product-ID evidence and owner `PROCEED_TO_R2` were open under the former
 are a post-launch recalibration input. DEC-COM-102 records the completed independent three-way comparative Eval blind review
 at SHA-256 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`: the deterministic
 summary is `NON_PASS`, with zero materially preferred Luna cases and no qualifying bilingual task.
-Current state: `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, not completed G1 or C7
-acceptance. The revised
+At that DEC-COM-102 checkpoint, state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, not
+completed G1 or C7 acceptance. The revised
 economics deliberately reduce conservatism versus PR #98: removing the US$2 local-Pro reserve,
 separate 50% cloud holdback, and backup provider changed peak all-in cost from US$0.033098 to
 US$0.018986 and the fulfillment budget from US$0.372250 to US$1.372250. Ten starter credits are an
@@ -539,11 +539,18 @@ same reviewer is ineligible for the later blind score; a different reviewer must
 blind JSON SHA-256 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`
 before opening the sidecar. That later eligible review is now complete under DEC-COM-102. There is
 no second eligible blind score, so inter-rater overlap is unavailable rather than inferred. G1
-remains In Progress and COM-C7 remains blocked.
+remained In Progress and COM-C7 remained blocked at that checkpoint.
 DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact remediation head
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
 does not supply the owner offer disposition.
+DEC-COM-104 records the later owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains
+In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout
+of that record; the frozen comparative result remains `NON_PASS` and
+production remains unadmitted. Luna starter credits, usage cards, StoreKit card products, provider
+traffic, backend work, and COM-C7 through COM-C11 are deferred. Local Pro, its explicit 30-day
+local trial, on-device AI, and deterministic fallback remain the only planned launch path and may
+advance only through a separately owner-entered local-only COM-C12 review.
 COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses

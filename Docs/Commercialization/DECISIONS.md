@@ -3157,3 +3157,39 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   treating the delivery review as a second blind score; describing storefront, breaker, or legal
   evidence as the sole remaining blocker; implementing the offer before owner disposition;
   entering COM-C7; or admitting production.
+
+## DEC-COM-104 — Defer Luna credits and retain the local-Pro launch path
+
+- Status/date: **Accepted owner disposition — 2026-09-03; this recording PR still requires
+  exact-head independent review, hosted CI, and merge**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  REQ-CLOUD-USAGE-001; DEC-COM-095 through DEC-COM-103
+- Context: The frozen bilingual three-way review returned `NON_PASS`, with zero materially
+  preferred Luna cases and no qualifying bilingual task. The owner then directed the project to
+  stop Luna usage-card development for now while retaining the local Pro launch path.
+- Decision: Accept `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` as the owner outcome. G1 remains In Progress
+  only until this decision record is independently reviewed, green, merged, and closed; it grants
+  no `PROCEED_TO_R2`. Defer Luna starter credits, consumable usage cards, their Product IDs, provider
+  adapter, production credential, credit ledger, backend, and COM-C7 through COM-C11. Preserve all
+  frozen Eval, account, quote, and offer artifacts as historical evidence; do not delete or relabel
+  them and do not expose their earlier offer as a current customer promise.
+- Local-only boundary: Retain the US$4.99 one-time local-Pro direction, the explicitly started
+  30-user-calendar-day local trial, supported on-device AI, and deterministic fallback. The next
+  eligible commercialization work is a separately owner-entered local-only COM-C12 review. Its
+  final binary and storefront must prove that no Luna route, cloud-credit product, provider secret,
+  backend dependency, or cloud-AI promise is enabled or shipped.
+- Re-entry boundary: A future Luna/card proposal requires a new owner decision, fresh provider and
+  storefront evidence, a new value hypothesis and comparative acceptance, legal review, and an
+  explicit `PROCEED_TO_R2`. It must also replace or justify the historical rule that stops all new
+  starter grants below 1,000 trailing-30-day successes, because applying that rule at zero launch
+  traffic would prevent the service from ever bootstrapping. Existing synthetic-Eval account and
+  Keychain evidence do not admit production.
+- Consequences: Current state is `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` and
+  `productionAdmitted` remains false. No App Store Connect mutation, StoreKit
+  Product-ID creation, credential change, backend deployment, provider request, distribution, or
+  public release is performed by this decision. Local Pro still requires explicit COM-C12 entry,
+  review, hosted evidence, final StoreKit/catalog work, and owner release authorization.
+- Alternatives rejected: Proceeding with paid Luna credits despite the comparative non-pass;
+  post-unseal regrading; silently treating the earlier card schedule as active; marking COM-C7
+  through COM-C11 Done; deleting the historical evidence; or using this G1 disposition as public
+  release authorization.
