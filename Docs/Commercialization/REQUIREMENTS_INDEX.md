@@ -174,3 +174,11 @@ assignment, App Privacy form completion, G1, distribution, or public release. In
 approved exact PR #96 head `3ed1357`, hosted run `33508360536` passed, and PR #96 merged as
 `246e7c1`; DEC-COM-091 closes C6-03/COM-C6 without marking any Active Requirement Done. G1 and
 COM-C6.5 remain unentered behind their own evidence, timing, and explicit-owner gates.
+
+## G1 comparative-result delivery closeout — 2026-09-03
+
+DEC-COM-103 closes only PR #104's comparative-result recording delivery. Independent rereview
+accepted exact remediation head `2fb2b64`, hosted run `33701018178` passed on that head, and merge
+`e4b54af` retained it as second parent. REQ-G1-001 remains Active at
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; the frozen `NON_PASS`, production-false
+boundary, and COM-C7 block remain unchanged pending a separate owner disposition.

@@ -2844,3 +2844,22 @@ The closeout still needs independent review, a green hosted run on its exact hea
   to identify DEC-COM-102 plus `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. A new exact-head
   hosted run and rereview remain required; the prior green run `33645828051` belongs to head
   `a4b5d19` and does not validate this remediation.
+
+### Reviewed PR #104 comparative-result delivery closeout — 2026-09-03
+
+- Independent rereview accepted exact remediation head
+  `2fb2b64afa5035a7a159a6b29a89243340f6e786` with no P1/P2 and no new P3.
+- GitHub Actions run `33701018178` passed on that exact head.
+- PR #104 merged as `e4b54af7eb3c17f1fd59b3869f42448c6d4e1d23`; local topology verification
+  confirms that its second parent is the reviewed head.
+- DEC-COM-103 closes only the score-lock/unseal/result-recording delivery and its state-wording
+  remediation. The three frozen SHA-256 values and `NON_PASS` remain unchanged.
+- G1 remains In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, production remains
+  false, and COM-C7 remains blocked. This closeout branch requires its own exact-head review,
+  hosted CI, and merge; no new OpenAI request, physical run, or product mutation was performed.
+- The full local validator exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17
+  Pro simulator: Release and the strict Dashboard benchmark passed; 554 unit tests across 33
+  suites passed with five expected physical-only skips; 18 UI tests executed with 17 passed, one
+  expected physical-only skip, zero failures, and no test-runner retry; every selected coverage
+  file exceeded 85%; and all 23 C6-02 bindings passed. The deleted temporary xcresult is an
+  execution pointer, not hosted evidence.

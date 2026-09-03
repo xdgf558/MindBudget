@@ -3123,3 +3123,37 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   bilingual task; treating the author or prior delivery reviewers as a second blind rater;
   continuing to describe storefront evidence as the sole remaining G1 blocker; closing G1;
   entering COM-C7; or admitting production.
+
+## DEC-COM-103 — Close the reviewed comparative-result delivery without deciding the offer
+
+- Status/date: **Accepted closeout record — 2026-09-03; this closeout PR still requires exact-head
+  independent review, hosted CI, and merge**
+- Requirements: REQ-G1-001; DEC-COM-102; `G1_THREE_WAY_EVAL.md`;
+  `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`;
+  `G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json`;
+  `G1_THREE_WAY_REVIEW_RESULT_2026-09-02.json`
+- Traceability: Independent rereview accepted PR #104 exact remediation head
+  `2fb2b64afa5035a7a159a6b29a89243340f6e786` with no P1/P2 and no new P3 after confirming that the
+  current-state wording and exact-header gates distinguish the completed review from historical
+  pending evidence. GitHub Actions run `33701018178` passed on that exact head. PR #104 merged it
+  as `e4b54af7eb3c17f1fd59b3869f42448c6d4e1d23`, whose second parent is the reviewed head.
+- Decision: Close only the score-lock, sidecar-unseal, deterministic-result recording,
+  current-state remediation, rereview, hosted-CI, and merge delivery. Preserve completed-review
+  SHA-256 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, sidecar SHA-256
+  `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`, result SHA-256
+  `bf6b7212cc2ad4139a8e8f9d3eb877a5926ccc53378094dbcb12595f51b6f9f4`, and `NON_PASS` unchanged.
+- Scope boundary: This closeout does not reinterpret the score, supply a second blind rater or
+  agreement statistic, or decide whether the Luna credit offer continues. Preserve the existing
+  limitations: reviewer eligibility is recorded from the off-platform review statement; the three
+  quality arrays follow the owner-approved completion convention rather than independent axis
+  judgments; and inter-rater overlap remains unavailable.
+- Consequences: G1 remains In Progress at
+  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; `productionAdmitted` remains false and
+  COM-C7 remains blocked. The next substantive action is a separate owner disposition of the
+  cloud-credit offer. StoreKit US$4.99 Product-ID/price-point evidence, server-breaker
+  implementation/review, and remaining legal gates are still unfulfilled and become downstream
+  work only if that disposition later authorizes `PROCEED_TO_R2`.
+- Alternatives rejected: Calling merge completion a G1 pass; relabeling the frozen non-pass;
+  treating the delivery review as a second blind score; describing storefront, breaker, or legal
+  evidence as the sole remaining blocker; implementing the offer before owner disposition;
+  entering COM-C7; or admitting production.

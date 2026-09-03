@@ -540,6 +540,10 @@ blind JSON SHA-256 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751a
 before opening the sidecar. That later eligible review is now complete under DEC-COM-102. There is
 no second eligible blind score, so inter-rater overlap is unavailable rather than inferred. G1
 remains In Progress and COM-C7 remains blocked.
+DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
+does not supply the owner offer disposition.
 COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses

@@ -22,7 +22,7 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-102 with
+- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-103 with
   `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
@@ -856,6 +856,11 @@ The former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state is superseded; the 
   deterministic `NON_PASS`: 16 template preferences, two Luna preferences, six ties, zero
   materially preferred Luna cases, and no qualifying bilingual task. There is no second eligible
   blind score, so inter-rater overlap is unavailable. Post-unseal regrading is forbidden.
+- [x] Close the reviewed comparative-result delivery without deciding the offer. Independent
+  rereview accepted PR #104 exact remediation head `2fb2b64` with no P1/P2 and no new P3; hosted
+  run `33701018178` passed on that head; and merge `e4b54af` retained it as second parent.
+  DEC-COM-103 closes only the score-lock/unseal/result-recording delivery and preserves
+  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
 - [ ] Record the final G1 owner disposition after the comparative non-pass. Until then do not spend
   work or make state changes that assume the Luna credit offer proceeds. StoreKit US$4.99
   Product-ID/price-point evidence, the server breaker, and remaining legal gates are still

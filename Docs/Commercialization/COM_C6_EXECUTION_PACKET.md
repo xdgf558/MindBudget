@@ -253,5 +253,8 @@ DEC-COM-102 records that eligible review, completed packet SHA-256
 `NON_PASS` with zero material Luna cases and no qualifying bilingual task. Current G1 state is
 `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; the StoreKit, breaker, legal, and owner gates
 remain unresolved, production remains false, and COM-C7 stays blocked.
+DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. The owner offer disposition remains the next G1 action.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

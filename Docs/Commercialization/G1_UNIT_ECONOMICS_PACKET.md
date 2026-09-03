@@ -307,6 +307,9 @@ That independent blind review is now complete. The locked score SHA-256 is
 sidecar opened. The deterministic result is `NON_PASS`, with zero materially preferred Luna cases
 and no qualifying bilingual task. No second eligible blind score exists, so inter-rater overlap is
 unavailable rather than inferred.
+DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. The frozen non-pass and owner-decision boundary do not change.
 
 The former formal state was **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
 exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no

@@ -27,6 +27,9 @@ completed review at SHA-256
 `NON_PASS`: zero materially preferred Luna cases and no qualifying bilingual task. Current state is
 `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; storefront work is not the sole remaining
 blocker and awaits the owner's cloud-offer disposition.
+DEC-COM-103 closes only that result-recording delivery after PR #104 exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. It does not create or approve a storefront product.
 
 This worksheet is not authorization to create or modify App Store Connect products, credentials,
 backend resources, or customer-facing prices. StoreKit remains the display and transaction

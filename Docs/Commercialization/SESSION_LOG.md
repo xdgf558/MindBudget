@@ -4398,3 +4398,33 @@ delivery evidence, changes all current headers to
 `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, and replaces the weak anywhere-in-file packet
 anchor with exact header/current-section checks. No score, sidecar, mapping, product code, or
 commercial authority changed. Exact-head rereview, hosted CI, and merge remain required.
+
+## 2026-09-03 — Session 218 — Close the reviewed comparative-result delivery
+
+Traceability: PR #104 exact remediation head
+`2fb2b64afa5035a7a159a6b29a89243340f6e786` passed independent rereview with no P1/P2 and no new P3
+and GitHub Actions run `33701018178`. PR #104 merged as
+`e4b54af7eb3c17f1fd59b3869f42448c6d4e1d23`; its second parent is the reviewed head.
+
+Decision: DEC-COM-103 closes only the score-lock, sidecar-unseal, deterministic-result recording,
+current-state remediation, rereview, hosted-CI, and merge delivery. The completed-review, sidecar,
+and result SHA-256 values remain respectively
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`,
+`d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`, and
+`bf6b7212cc2ad4139a8e8f9d3eb877a5926ccc53378094dbcb12595f51b6f9f4`; `NON_PASS` is unchanged.
+
+Boundary: G1 remains In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`,
+`productionAdmitted` remains false, and COM-C7 remains blocked. No second blind score, agreement
+claim, owner offer disposition, new OpenAI call, device run, product/backend mutation, StoreKit
+evidence, breaker implementation, legal approval, or release action occurred. The next substantive
+task is the owner's separate cloud-credit-offer disposition. This closeout branch still requires
+exact-head independent review, hosted CI, and merge.
+
+Validation: the full validator exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+iPhone 17 Pro simulator. Release and the strict Dashboard benchmark passed; 554 unit tests across
+33 suites passed with the expected Debug-only G1 physical Eval skip plus four expected physical
+CloudKit skips; exactly 18 UI tests executed with 17 passed, one expected physical-only skip, zero
+failures, and no test-runner retry; every selected core file exceeded the 85% coverage floor; and
+all 23 C6-02 runtime bindings passed. The deleted temporary bundle under
+`mindbudget-validation.cX5Xch/MindBudget.xcresult` is an execution pointer only. This local pass
+does not replace this closeout branch's hosted CI or independent review.

@@ -7286,3 +7286,29 @@ DEC-COM-102 state. The gate now parses the top-level Current state section and e
 instead of preserving the superseded status through an anywhere-in-file anchor. G1 remains In
 Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; exact-head rereview, a new hosted
 run, and merge remain required.
+
+## 2026-09-03 — Close reviewed PR #104 comparative-result delivery without closing G1
+
+PR #104 exact remediation head `2fb2b64afa5035a7a159a6b29a89243340f6e786` passed independent
+rereview with no P1/P2 and no new P3, plus GitHub Actions run `33701018178`. PR #104 then merged as
+`e4b54af7eb3c17f1fd59b3869f42448c6d4e1d23`; local topology verification confirms that its second
+parent is the reviewed head. DEC-COM-103 closes only the score-lock, sidecar-unseal,
+deterministic-result recording, current-state remediation, review, CI, and merge delivery.
+
+The frozen evidence is unchanged: completed-review SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, sidecar SHA-256
+`d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`, result SHA-256
+`bf6b7212cc2ad4139a8e8f9d3eb877a5926ccc53378094dbcb12595f51b6f9f4`, and deterministic
+`NON_PASS`. G1 remains In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`,
+production remains false, and COM-C7 remains blocked. No new OpenAI request, physical-device run,
+product code, StoreKit mutation, server breaker, legal approval, customer path, or owner offer
+decision occurred. This closeout branch still requires its own exact-head independent review,
+hosted CI, and merge.
+
+Local validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator. Release and the strict Dashboard benchmark passed; 554 unit tests
+across 33 suites passed with the expected Debug-only G1 physical Eval skip plus four expected
+physical CloudKit skips; the UI suite executed exactly 18 tests with 17 passed, one expected
+physical-only skip, zero failures, and no test-runner retry; all selected core files exceeded 85%
+coverage; and all 23 C6-02 runtime bindings passed. The validator removed its temporary xcresult;
+this is local closeout-branch evidence only and does not replace hosted CI or independent review.
