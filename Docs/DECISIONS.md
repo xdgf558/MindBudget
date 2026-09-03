@@ -3710,3 +3710,41 @@ Consequences: This is a completed deferral, not `PROCEED_TO_R2`. Preserve the co
 eligible only through a separate owner entry and remains unentered. Optional iCloud and first-party
 telemetry are release-matrix work only when enabled in the final candidate; this closeout enables
 neither and authorizes no product, external-system, distribution, or release action.
+
+## 2026-09-03 — Enter FX-01 as manual local foreign-currency expense entry
+
+Decision: After G1 closed at the local-Pro deferral outcome, enter a separate product phase for
+manual foreign-currency expenses. A person explicitly selects the foreign currency and original
+amount, supplies a local rate, sees the accounting-currency result, and may override that result
+before Save. Save-time values are immutable historical facts: the existing
+`Expense.amountMinorUnits` and `Expense.currencyCode` remain the only accounting authority for
+budgets, reminders, insights, and reports. Schema V7 will add an optional one-to-one
+`ExpenseForeignCurrencyMetadata` companion containing the original amount/currency, canonical
+positive integer-rational rate, calendar/time-zone-qualified rate date, and closed manual source.
+Decimal rate input is normalized at eight fractional places with round-half-to-even and only then
+reduced into its canonical numerator/denominator. Conversion uses checked integer/full-width
+arithmetic and round-half-to-even, never `Double` or `Float`. New expenses snapshot the current
+Settings/accounting currency; edits use only that row's persisted `Expense.currencyCode`, so a
+later Settings change cannot revalue history.
+
+The capability belongs to verified local Pro and its explicitly started 30-day local trial, but
+FX-01 only consumes the existing Pro snapshot and does not implement or mutate the trial clock. Once
+access ends, existing FX records remain viewable, editable, deletable, searchable, syncable through
+an already enabled optional iCloud path, and exportable; only a new FX record or conversion/
+duplication into a new FX record is denied. FX-01 does not add location use, country inference,
+automatic rates, a network host, foreign-currency income/budgets/wishlist values, receipt or Siri
+currency inference, or recurring foreign expenses. CSV preserves its existing accounting columns
+and appends the complete original/rate tuple, with the rate date in the existing UTC fractional-
+seconds ISO-8601 format, its IANA time zone beside it, and blank FX columns for ordinary expenses
+and all incomes. Optional enabled iCloud adds a separate thirteenth
+`expenseForeignCurrencyMetadata` type; the existing `.expense` envelope and payload remain
+unchanged, and `ICLOUD_SYNC_CONTRACT.md` plus the exact inventory/order gates must change with the
+implementation. Detailed invariants and ordered tasks live in
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md`.
+
+Consequences: FX-01 is In Progress only at its planning gate. No Swift, schema, entitlement,
+localization, sync-envelope, Archive, App Store Connect, or distribution mutation is authorized
+until this planning package passes independent review, exact-head hosted CI, and merge. FX-02
+automatic reference rates require a future owner entry plus provider, privacy, cache/failure,
+network-egress, and release review. G1 remains Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, Luna
+and cards remain deferred, and COM-C12 remains unentered.

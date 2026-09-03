@@ -224,6 +224,35 @@ Status: Done
   Archive from merged `main`, and upload it through the owner's current team. App Store Connect
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
+## FX-01 — Manual foreign-currency expense recording
+Status: In Progress — planning package recorded; implementation blocked pending review/CI/merge
+- [x] Record the owner-approved manual-only product contract in
+  `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
+  save-time lock, no historical revaluation, detail/CSV dual amounts, no location, and no network.
+- [ ] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
+  changing product code or Schema V7.
+- [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
+  close rate text through an eight-fractional-place half-even normalization before reduction,
+  prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
+- [ ] Add Schema V7's optional one-to-one foreign-currency companion while preserving
+  `Expense.amountMinorUnits`/`currencyCode` as the sole accounting authority; migrate V1–V6 with no
+  inferred metadata and keep create/update/delete atomic. New rows use the current Settings
+  currency; edits use only the row's persisted accounting currency.
+- [ ] Add the local-Pro/manual-entry UI and central feature-access gate. The active 30-day local
+  trial may create FX expenses; after access ends, existing FX records remain editable/exportable
+  while new, converted, or duplicated FX records are denied. Consume the existing Pro snapshot;
+  do not implement or mutate the trial clock in FX-01.
+- [ ] Update detail, CSV, optional enabled-iCloud compatibility, deletion, localization, VoiceOver,
+  AX5, and privacy boundaries. CSV exports the exact rate-date/time-zone tuple and blank FX fields
+  for ordinary expenses and incomes. Enabled iCloud adds a separate thirteenth companion type
+  without changing `.expense`; budgets, reminders, insights, Ask, and reports use only the locked
+  accounting amount.
+- [ ] Pass the dedicated negative gates and complete validation, independent review, hosted CI,
+  merge, and a separate closeout before marking FX-01 Done. Do not enter COM-C12 or FX-02 from an
+  FX-01 merge.
+- [ ] Keep FX-02 automatic reference rates deferred behind a new owner entry and separate provider,
+  privacy, cache/failure, network-egress, and release review.
+
 ## Commercialization and Pro development — separate COM track
 Status: COM-C0A through COM-C4C Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
 through PR #58 (`6f5fded`); C4B-02 Done through PR #59 (`211dff2`); C4B-03 product capability
