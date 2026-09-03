@@ -1,7 +1,9 @@
 # G1 Cloud AI Unit Economics and Credit-Pack Packet
 
-Status: **In Progress after owner acceptance of the Luna-only offer policy.** PR #98 exact head
-`9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 closed that
+Status: **In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**
+
+PR #98 exact head `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`;
+DEC-COM-094 closed that
 first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVIDENCE`. DEC-COM-095
 now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
 accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
@@ -15,10 +17,11 @@ completed independent three-way review and deterministic `NON_PASS`. The current
 
 DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
 independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
-merge `2254902` retained that head as second parent. It does not score comparative value. A
-different reviewer who has not read the sidecar, Luna transcript, leaked packet, mapping code, or
-diagnostics must complete only the exact blind JSON with SHA-256
+merge `2254902` retained that head as second parent. It did not score comparative value. At that
+delivery checkpoint, a different reviewer who had not read the sidecar, Luna transcript, leaked
+packet, mapping code, or diagnostics still had to complete only the exact blind JSON with SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+DEC-COM-102 records that this later review and ordered unsealing are now complete.
 
 ## Accepted owner policy
 

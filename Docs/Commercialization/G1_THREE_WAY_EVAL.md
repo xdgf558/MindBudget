@@ -1,6 +1,6 @@
 # G1 fixed bilingual three-way comparative Eval
 
-Status: **PHYSICAL_OUTPUT_CAPTURED_PENDING_INDEPENDENT_BLIND_REVIEW**
+Status: **COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION**
 
 This packet compares the user-visible value of three already-authorized local/cloud presentation
 paths without changing production code or admitting customer traffic:
@@ -81,10 +81,12 @@ generic protocol residue without naming a source or case: identical bodies must 
 and the case cannot establish material incremental value. The post-score summarizer rechecks this
 from the sealed sidecar and fails closed if a reviewer marks such a case as material.
 
-The pending packet is `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`, SHA-256
-`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`. Its status is
-`PENDING_BLIND_REVIEW`; all preference/value fields are unfilled. Therefore the physical run closes
-only output capture and deterministic validation, not comparative value.
+At the physical-capture delivery checkpoint, the pending packet was
+`G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`, SHA-256
+`bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5`. Its status was
+`PENDING_BLIND_REVIEW`; all preference/value fields were unfilled. Therefore that physical run
+closed only output capture and deterministic validation, not comparative value. The later completed
+review and result are recorded below.
 
 ## Delivery closeout provenance
 
@@ -93,8 +95,10 @@ Independent PR #102 review accepted exact remediation head
 and PR #102 merged it as `225490286a544bdb6141d47546ba7666185756fd`, whose second parent is the
 reviewed head. DEC-COM-101 closes only this implementation, capture, remediation, CI, and merge
 delivery. The reviewer who approved PR #102 had already read the Luna outputs and leaked packet,
-so that reviewer cannot perform the independent blind-value score. The sidecar remains unopened
-until a different eligible reviewer locks every field in the exact `bcbf943...` scoring JSON.
+so that reviewer could not perform the independent blind-value score. At that delivery checkpoint,
+the sidecar remained unopened pending a different eligible reviewer locking every field in the
+exact `bcbf943...` scoring JSON. DEC-COM-102 records that the later eligible review completed this
+requirement before unsealing.
 
 Passing deterministic safety is necessary but not sufficient. G1 incremental-value acceptance
 requires the independent review to identify at least one task represented in both English and

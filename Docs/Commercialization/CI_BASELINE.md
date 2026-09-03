@@ -2838,3 +2838,9 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - The deleted temporary bundle
   `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.ntEklp/MindBudget.xcresult`
   is an execution pointer only. No hosted result or independent review is claimed for this branch.
+- PR #104 review reproduced the two-commit lock/unseal chain and deterministic `NON_PASS`, then
+  found stale pending-review wording in three current-state surfaces. The remediation preserves
+  historical pending evidence while requiring exact current headers and the top-level Active phase
+  to identify DEC-COM-102 plus `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. A new exact-head
+  hosted run and rereview remain required; the prior green run `33645828051` belongs to head
+  `a4b5d19` and does not validate this remediation.

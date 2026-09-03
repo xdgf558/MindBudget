@@ -7277,3 +7277,12 @@ physical-only skip, zero failures, and no test-runner retry; every selected core
 85% coverage floor; and all 23 C6-02 runtime bindings passed. The temporary xcresult was an
 execution pointer and was removed after validation. This local pass does not approve the owner
 decision, admit production, enter COM-C7, or replace this branch's hosted CI and review.
+
+PR #104 independent review confirmed the two-commit score-lock/unseal ordering and reproduced the
+`NON_PASS`, but found that three current-state surfaces still spoke as if blind review were pending.
+The remediation updates the top-level active phase, the three-way packet header and delivery prose,
+and the economics packet's delivery prose to distinguish historical pending state from current
+DEC-COM-102 state. The gate now parses the top-level Current state section and exact packet headers
+instead of preserving the superseded status through an anywhere-in-file anchor. G1 remains In
+Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; exact-head rereview, a new hosted
+run, and merge remain required.

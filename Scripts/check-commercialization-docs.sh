@@ -2645,7 +2645,6 @@ for g1_economics_file in \
     'typical/P50' \
     'peak/P95' \
     'three-way comparative Eval' \
-    'EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE' \
     'consumable'; do
     grep -Fq "${g1_economics_anchor}" "${g1_economics_file}" || {
       echo "G1 economics scope is missing ${g1_economics_anchor} in ${g1_economics_file}" >&2
@@ -2961,6 +2960,30 @@ for g1_current_followup_anchor in \
   }
 done
 
+python3 - Docs/COMMERCIALIZATION_TASKS.md "${G1_ECONOMICS_PACKET}" <<'PY'
+import pathlib
+import sys
+
+tasks = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+economics = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
+
+current_state = tasks.split("## Current state", 1)[1].split("\n## ", 1)[0]
+expected_active = (
+    "- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-102 with\n"
+    "  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked."
+)
+if current_state.count(expected_active) != 1:
+    raise SystemExit("G1 top-level Active phase must identify DEC-COM-102 and the comparative non-pass")
+if "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE" in current_state:
+    raise SystemExit("G1 top-level Active phase still carries the superseded storefront-only state")
+
+expected_economics_status = (
+    "Status: **In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**"
+)
+if economics.splitlines()[2] != expected_economics_status:
+    raise SystemExit("G1 economics packet status must identify the comparative non-pass")
+PY
+
 grep -Fq 'Status: **In Progress after the independent comparative Eval returned `NON_PASS` under DEC-COM-102.' \
   Docs/COMMERCIALIZATION_TASKS.md || {
   echo "G1 current phase status must remain In Progress after the comparative non-pass" >&2
@@ -3063,6 +3086,9 @@ import xml.etree.ElementTree as ET
 
 root = pathlib.Path.cwd()
 packet = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+expected_packet_status = "Status: **COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION**"
+if packet.splitlines()[2] != expected_packet_status or packet.count(expected_packet_status) != 1:
+    raise SystemExit("G1 three-way Eval packet must have one exact current status at the header")
 scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-G1-OnDevice-Eval.xcscheme"
 default_scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
 test_path = root / "MindBudgetTests/G1ThreeWayOnDeviceEvalTests.swift"
@@ -3115,12 +3141,13 @@ if project.count("G1_LUNA_EVAL_CASES.json") != 6:
     raise SystemExit("G1 frozen dataset resource wiring drifted")
 
 for anchor in (
-    "PHYSICAL_OUTPUT_CAPTURED_PENDING_INDEPENDENT_BLIND_REVIEW",
     "does not perform or charge",
     "procedural blindness, not cryptographic secrecy",
     "post-score-only",
     "Apple prompt/schema mechanism differs from Luna",
-    "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE",
+    "DEC-COM-102",
+    "d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e",
+    "NON_PASS",
 ):
     if anchor not in packet:
         raise SystemExit(f"G1 three-way Eval packet is missing {anchor}")

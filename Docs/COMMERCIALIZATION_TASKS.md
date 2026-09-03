@@ -22,8 +22,8 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-101 with
-  `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; COM-C7 remains blocked. Historical merged phase
+- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-102 with
+  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run

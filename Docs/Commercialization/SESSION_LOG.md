@@ -4390,3 +4390,11 @@ and no test-runner retry; all selected core files exceeded 85% coverage; and the
 confirmed all 23 exact runtime bindings. The temporary xcresult was deleted after success and is
 only an execution pointer. This is local branch validation, not owner approval or production
 authority.
+
+PR #104 review independently reproduced the sealed derivation and found no issue with the
+`NON_PASS`, but identified stale present-tense state in the top task summary, three-way packet, and
+economics packet. The remediation preserves the original pending SHA/status only as historical
+delivery evidence, changes all current headers to
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, and replaces the weak anywhere-in-file packet
+anchor with exact header/current-section checks. No score, sidecar, mapping, product code, or
+commercial authority changed. Exact-head rereview, hosted CI, and merge remain required.
