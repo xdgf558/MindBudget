@@ -1,23 +1,27 @@
 # G1 Cloud AI Unit Economics and Credit-Pack Packet
 
-Status: **In Progress after owner acceptance of the Luna-only offer policy.** PR #98 exact head
-`9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 closed that
+Status: **In Progress at `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.**
+
+PR #98 exact head `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`;
+DEC-COM-094 closed that
 first quote/planning package with the historical result `INSUFFICIENT_QUOTE_EVIDENCE`. DEC-COM-095
 now accepts the product-policy boundary below. DEC-COM-096 freezes the 24-case bilingual Eval and
 accepts the exact 10-credit starter plus three usage-card tiers. DEC-COM-098 records the admitted
 synthetic account and attempt 3's 24/24 first-pass automated result after two explicit non-passes.
 PR #100 independent review read all 24 outputs with no P1/P2; reviewed head `323d8d7` passed hosted
 run `33593253561` and merged as `7a473d2`. DEC-COM-099 closes only that independently reviewed
-account/Eval evidence delivery. The current formal state is
-`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not
-`PROCEED_TO_R2`.
+account/Eval evidence delivery. The former formal state was
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not `PROCEED_TO_R2`. DEC-COM-102 now records the
+completed independent three-way review and deterministic `NON_PASS`. The current state is
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
 
 DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
 independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
-merge `2254902` retained that head as second parent. It does not score comparative value. A
-different reviewer who has not read the sidecar, Luna transcript, leaked packet, mapping code, or
-diagnostics must complete only the exact blind JSON with SHA-256
+merge `2254902` retained that head as second parent. It did not score comparative value. At that
+delivery checkpoint, a different reviewer who had not read the sidecar, Luna transcript, leaked
+packet, mapping code, or diagnostics still had to complete only the exact blind JSON with SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+DEC-COM-102 records that this later review and ordered unsealing are now complete.
 
 ## Accepted owner policy
 
@@ -298,11 +302,16 @@ reviewed Luna transcript without a new provider call. Its physical Apple run cap
 with structured generation returned for every case. Mappings and validator diagnostics remain
 sealed outside the scoring surface. DEC-COM-101 records the reviewed PR #102 delivery chain
 (`bb939d0`, run `33628847476`, merge `2254902`) without converting it into a blind-value result.
-Independent blind value review remains open and therefore the capture does not yet change the
-formal state.
+That independent blind review is now complete. The locked score SHA-256 is
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`; only afterward was the
+sidecar opened. The deterministic result is `NON_PASS`, with zero materially preferred Luna cases
+and no qualifying bilingual task. No second eligible blind score exists, so inter-rater overlap is
+unavailable rather than inferred.
 
-The current formal state is **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
+The former formal state was **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`**. The provider/model and
 exact offer counts are owner-selected and the fixed synthetic run has reviewed evidence, but no
 backend, Product ID, ledger, UI, App Store Connect product, cloud grant, COM-C7 entry, production
-request, or public release is authorized here. Only a later owner-accepted `PROCEED_TO_R2` after
-the remaining evidence may enter COM-C7.
+request, or public release is authorized here. The current state is
+**`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`**. The owner must first resolve the Luna
+credit offer; only a later owner-accepted `PROCEED_TO_R2` after the remaining evidence may enter
+COM-C7.

@@ -3653,3 +3653,19 @@ score only the exact blind JSON with SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
 G1 remains In Progress at `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, production remains false,
 and COM-C7 remains blocked.
+
+## 2026-09-02 — Record the independent G1 three-way comparative non-pass
+
+Decision: Detailed ownership is DEC-COM-102. An eligible independent reviewer completed every
+field in the frozen blind JSON before the sidecar was opened and explicitly marked all 24 cases as
+non-material. The locked review SHA-256 is
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`; deterministic unsealing
+returned `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task.
+
+Consequences: G1 remains In Progress at
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; `productionAdmitted` remains false and COM-C7
+remains blocked. The former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state is superseded. There
+is no second eligible blind score, so inter-rater overlap is unavailable rather than invented.
+Post-unseal regrading cannot turn a preferred Luna label into material value. A separate owner
+decision must resolve the cloud-credit offer before any `PROCEED_TO_R2` decision or downstream
+implementation.

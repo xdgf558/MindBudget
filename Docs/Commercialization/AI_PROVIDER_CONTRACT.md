@@ -10,7 +10,8 @@ DEC-COM-097 accepts standard retention for synthetic Eval only while keeping pro
 DEC-COM-098 records completed synthetic account admission and attempt 3's 24/24 first-pass
 automated result after preserving two non-pass attempts. Independent review found no P1/P2 on PR
 #100 head `323d8d7`; run `33593253561` passed and merge `7a473d2` delivered it. DEC-COM-099 closes
-only that evidence delivery. The G1 state is `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
+only that evidence delivery. That former G1 state was
+`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`.
 Selection and a reviewed synthetic Eval pass are not
 activation: no server adapter, client route, customer request, or customer promise exists until G1
 and later gates pass. The Luna-only scorer result also does not satisfy the still-open fixed
@@ -20,7 +21,12 @@ a new request. Physical Apple output is captured. DEC-COM-101 records independen
 of PR #102 exact remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902`; it does
 not score comparative value. A different eligible reviewer must score only blind JSON SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar,
-so independent blind review remains open.
+so independent blind review remained open at that delivery checkpoint. DEC-COM-102 now records the
+completed review at SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`. The sealed summarizer
+returned `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. The
+current G1 state is `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; no second eligible blind
+score exists, so inter-rater overlap is unavailable rather than inferred.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,

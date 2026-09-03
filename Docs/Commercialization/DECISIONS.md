@@ -3080,3 +3080,46 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   sidecar during closeout; marking the full comparative Eval complete because all three candidate
   arms exist; changing the sealed scoring surface after merge; treating hosted CI as subjective
   value evidence; closing G1; or entering COM-C7.
+
+## DEC-COM-102 — Preserve the independent three-way blind review as a comparative non-pass
+
+- Status/date: **Accepted evidence result — 2026-09-02; exact-head PR review, hosted CI, and merge
+  remain required for this recording branch**
+- Requirements: REQ-G1-001; DEC-COM-095/096/099/100/101; `G1_THREE_WAY_EVAL.md`;
+  `G1_THREE_WAY_BLIND_REVIEW_2026-09-02.json`;
+  `G1_THREE_WAY_REVIEW_SIDECAR_2026-09-02.json`;
+  `G1_THREE_WAY_REVIEW_RESULT_2026-09-02.json`
+- Blind-score provenance: A different eligible independent reviewer stated that only the exact
+  frozen blind JSON at merge `f73881f209054068520e3c736f9e312fe22869e8` was read before scoring;
+  the reviewer had not opened the sidecar, transcript, mapping, or diagnostic prose. The owner
+  confirmed the completion convention before unsealing: a single preferred label populates all
+  three best-label arrays, identical duplicate bodies share the three arrays, and all 24
+  `material_incremental_value` fields are false. The completed packet was schema-validated and
+  locked first as commit `cd579be`; its SHA-256 is
+  `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`.
+- Decision: Open the sealed sidecar only after the score lock, verify its original SHA-256
+  `d29fca8246df5641d876be19ea56a936edd975616d2b3101bc18cca9d7bff507`, and accept the deterministic
+  summary result `NON_PASS`. Sixteen non-tied preferences map to `deterministic_template`, two map
+  to `openai_luna`, and six are ties. `savings-progress-en` prefers Luna but contains duplicate
+  candidates and is comparison-ineligible; `fixed-pressure-en` prefers Luna but is explicitly
+  non-material. Zero cases materially prefer Luna and no bilingual task qualifies.
+- Agreement boundary: There is no second eligible blind score to compare. PR #102/#103 delivery
+  reviewers had already seen Luna outputs or source diagnostics and cannot be retroactively treated
+  as blind raters. Inter-rater overlap is recorded as unavailable; no score, mapping, or agreement
+  statistic is invented.
+- Consequences: Move G1 from the superseded
+  `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state to
+  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`. Keep G1 In Progress,
+  `productionAdmitted: false`, and COM-C7 blocked. Do not create the Luna Product ID, backend,
+  credit ledger, customer path, or production credentials from this result. StoreKit US$4.99
+  price-point evidence, the server breaker, and legal gates remain unfulfilled, but should not be
+  represented as the only blockers: the owner must first accept a disposition for the cloud-credit
+  offer. Only an explicit later `PROCEED_TO_R2` may enter COM-C7.
+- Review integrity: A preferred Luna label after unsealing cannot change a pre-locked false material
+  decision. Any later product hypothesis or evidence package must be separately authorized and
+  must not relabel, rewrite, or rerun this frozen dataset to manufacture a pass.
+- Alternatives rejected: Turning the two Luna preferences into material value after seeing the
+  mapping; counting a duplicate-ineligible preference; using a one-language preference as a
+  bilingual task; treating the author or prior delivery reviewers as a second blind rater;
+  continuing to describe storefront evidence as the sole remaining G1 blocker; closing G1;
+  entering COM-C7; or admitting production.

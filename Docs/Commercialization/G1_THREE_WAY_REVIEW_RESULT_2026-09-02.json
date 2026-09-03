@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "result": "NON_PASS",
+  "scope": "synthetic_three_way_comparison_only",
+  "production_admitted": false,
+  "dataset_sha256": "d509c8fee36578e66fe361bf0dd635fb25fb947891aff2f1a5e7fc9c7747c014",
+  "luna_transcript_sha256": "4800cc6c8458fa39b0bd4419d90fbf7ee4bfa47bc3deffa73475b751e947999e",
+  "reviewed_head": "f73881f209054068520e3c736f9e312fe22869e8",
+  "qualifying_bilingual_tasks": [],
+  "luna_materially_preferred_case_count": 0,
+  "case_results": [
+    {
+      "case_id": "budget-positive-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "budget-positive-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "budget-tight-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "budget-tight-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "budget-over-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "budget-over-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "category-shift-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "category-shift-zh",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "repeated-impulse-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "repeated-impulse-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "no-pattern-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "no-pattern-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "savings-progress-en",
+      "preferred_arm": "openai_luna",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "savings-progress-zh",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "fixed-pressure-en",
+      "preferred_arm": "openai_luna",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "fixed-pressure-zh",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "cooling-off-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "cooling-off-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "cycle-pace-en",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "cycle-pace-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "income-allocation-en",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "income-allocation-zh",
+      "preferred_arm": "tie",
+      "comparative_value_eligible": false,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "insufficient-data-en",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    },
+    {
+      "case_id": "insufficient-data-zh",
+      "preferred_arm": "deterministic_template",
+      "comparative_value_eligible": true,
+      "luna_materially_preferred": false
+    }
+  ]
+}

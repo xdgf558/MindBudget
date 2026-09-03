@@ -239,14 +239,19 @@ Global/Luna-only/Tier 1/billing controls while keeping production admission fals
 records completed synthetic account admission and a 24/24 first-pass automated Eval result after
 two explicit non-pass attempts. Independent review found no P1/P2 on exact PR #100 head `323d8d7`;
 hosted run `33593253561` passed and PR #100 merged as `7a473d2`. DEC-COM-099 closes only that
-account/Eval evidence delivery. The fixed bilingual three-way comparative Eval, StoreKit price-
-point/Product-ID evidence, and owner decision remain open under
-`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`; no product/backend mutation is authorized.
+account/Eval evidence delivery. The fixed bilingual three-way comparative Eval was still open under
+the former `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` state; no product/backend mutation was
+authorized.
 DEC-COM-100 freezes only the comparison harness; physical `拉沙的iPhone` output and independent
 blind review are separate evidence. The physical output is captured, independent review remains
 open, and no new Luna request is needed for the unchanged reviewed transcript. DEC-COM-101 records
 PR #102 exact reviewed remediation head `bb939d0`, hosted run `33628847476`, and merge `2254902` as
 a closed delivery chain only. A different reviewer must score only exact blind JSON SHA-256
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` before opening the sidecar.
+DEC-COM-102 records that eligible review, completed packet SHA-256
+`d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, and deterministic
+`NON_PASS` with zero material Luna cases and no qualifying bilingual task. Current G1 state is
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; the StoreKit, breaker, legal, and owner gates
+remain unresolved, production remains false, and COM-C7 stays blocked.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.
