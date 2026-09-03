@@ -31,6 +31,9 @@ must never revalue history.
 - The capability is part of local Pro and is available during the explicitly started 30-day local
   Pro trial. It uses the existing verified local-Pro entitlement authority and adds no StoreKit
   product or price.
+- FX-01 consumes only the current immutable Pro-access snapshot. It does not start, persist,
+  calculate, schedule, extend, or repair the 30-day trial clock; those remain owned by the existing
+  Commerce lifecycle.
 - When trial/Pro access ends, existing foreign-currency records remain viewable, editable,
   deletable, searchable, synchronizable through an already enabled optional iCloud path, and
   exportable. Only creating a new foreign-currency record, converting an ordinary record into a
@@ -59,6 +62,10 @@ expense UUID rather than changing the frozen V1 `Expense` shape. Its persisted f
 - `rateTimeZoneIdentifier: String`
 - `rateSourceRaw: String`, initially closed to `manualRate` and `manualHomeAmountOverride`
 
+`rateDate` represents the selected civil day as `Calendar.startOfDay(for:)` in the captured
+`rateTimeZoneIdentifier`; date arithmetic must use that calendar/time zone and never a fixed
+seconds-per-day constant.
+
 The metadata is all-or-none. Original amount, numerator, and denominator must be positive; both
 currency codes must be supported; original and accounting currencies must differ; the rate must
 be reduced to a canonical positive fraction; the rate date/time-zone must be valid; and applying
@@ -69,6 +76,13 @@ and must never enter budget arithmetic as a guessed value.
 V1 through V6 stores migrate to V7 with no companion rows and no inferred foreign-currency facts.
 Creation/update of an expense and its optional companion is one actor-owned transaction. Expense
 deletion, Delete All, and any existing enabled-path sync tombstone cascade to the companion.
+
+Accounting-currency selection is closed by operation type. A new expense snapshots the current
+form `accountingCurrencyCode` supplied from Settings and validates it against the owning budget as
+today. Editing an existing expense—including converting an ordinary row to FX while access is
+allowed—uses only that row's persisted `Expense.currencyCode`. The edit flow must not read a newer
+Settings currency for conversion, rewrite the row currency, or revalue the saved accounting
+amount. A missing, unsupported, or budget-incompatible persisted currency fails closed.
 
 ## Exact conversion contract
 
@@ -81,6 +95,16 @@ rate `N/D`, the authoritative preview is:
 
 `bankersRound(O × N × AS / (D × OS))`
 
+Manual rate text has one canonical closure into `N/D`. Lexical input permits at most ten integer
+digits and twelve fractional digits; the stored decimal precision is exactly eight fractional
+places. Input uses the active locale's decimal separator and decimal digits only—no sign, grouping
+separator, currency symbol, exponent, or surrounding text. The domain parser rejects a thirteenth
+fractional digit, normalizes one through twelve entered fractional digits to eight places with
+round-half-to-even, then removes the decimal separator and uses `100_000_000` as the initial
+denominator. It rejects a zero or out-of-range normalized numerator and reduces by the greatest
+common divisor. Thus `7.1234` always becomes `712340000/100000000`, then canonical `35617/5000`,
+independent of locale or typed trailing zeroes.
+
 The converter is a pure, stateless, `Sendable` value type. It uses checked `Int64` inputs,
 full-width integer operations, cross-cancellation where required, and deterministic round-half-to-
 even. It must not use `Double` or `Float`; parsing display text may follow the existing exact
@@ -92,6 +116,13 @@ recomputes a reduced effective rate that reproduces it exactly and saves source
 again restores source `manualRate` and recomputes the accounting preview. Zero, negative,
 unsupported, non-finite, divide-by-zero, unrepresentable, and overflow results fail closed without
 discarding the form.
+
+A manually entered eight-place decimal rate is displayed as its canonical decimal with unnecessary
+trailing zeroes removed. An exact effective override rate may be non-terminating in decimal; its
+display is then explicitly approximate and rounded half-even to at most eight fractional places,
+while the stored reduced fraction and locked accounting amount remain unchanged. Editing that
+displayed rate creates a new eight-place-decimal `manualRate` value; display formatting must never
+silently overwrite the saved fraction.
 
 ## Presentation and export contract
 
@@ -108,8 +139,11 @@ discarding the form.
   `original_currency_code`, `exchange_rate_numerator`, `exchange_rate_denominator`,
   `exchange_rate_date`, `exchange_rate_time_zone_identifier`, and `exchange_rate_source` in that
   order. `original_amount` uses the same locale-independent exact decimal convention as the
-  existing `amount` column. Ordinary rows leave those appended fields empty. Formula
-  neutralization, RFC 4180 escaping, UTF-8 BOM, disclosure, and in-memory sharing remain mandatory.
+  existing `amount` column. `exchange_rate_date` uses the existing UTC ISO-8601 formatter with
+  Internet date/time and fractional seconds; the adjacent IANA time-zone identifier preserves the
+  selected civil-day context. Ordinary expense rows and every income row leave all eight appended
+  FX fields empty. Formula neutralization, RFC 4180 escaping, UTF-8 BOM, disclosure, and in-memory
+  sharing remain mandatory.
 - All new English and Simplified Chinese copy follows `COPY_GUIDELINES.md`. VoiceOver reads the
   original amount, accounting approximation, and rate direction without ambiguity; AX5, dark
   appearance, validation errors, and keyboard flows remain usable.
@@ -117,9 +151,14 @@ discarding the form.
 ## Existing-channel compatibility
 
 - Optional iCloud remains Free, default-off, and is not enabled by FX-01. If it is already enabled,
-  the implementation must carry the complete companion as one versioned encrypted fact with
-  parent ownership, exact-key validation, conflict/tombstone handling, and legacy-peer tests. A
-  partial remote tuple must quarantine rather than overwrite the local accounting authority.
+  FX-01 adds `expenseForeignCurrencyMetadata` as the thirteenth closed `CloudSyncEntityType`,
+  ordered immediately after its parent `.expense`. It uses a separate record name/encrypted
+  envelope with exactly the complete companion fields; the existing `.expense` payload, key set,
+  digest meaning, and envelope version must not change. `ICLOUD_SYNC_CONTRACT.md`, the allow-list,
+  application order, parser, conflict/tombstone behavior, and exact 12-to-13 inventory gates change
+  together. Parent absence remains pending and any partial/unknown tuple quarantines without
+  overwriting the local accounting authority. Legacy-peer tests must prove an older 12-type client
+  cannot reinterpret the companion as `.expense` or mutate/delete the authoritative expense.
 - First-party telemetry remains independently default-off and its closed vocabulary receives no
   amount, currency, rate, date, country, trip, merchant, note, or FX-mode field.
 - Siri, Spotlight, `NSUserActivity`, notifications, and on-device/cloud model contexts receive no
@@ -143,18 +182,23 @@ discarding the form.
 ### FX-01B — Integer conversion and Schema V7
 
 - [ ] Add the closed rate/source domain and pure integer-rational converter, with table tests for
-  0-, 2-, and 3-decimal currencies (including JPY, USD, and KWD), inverse-direction mistakes,
-  reducible fractions, exact halves with even/odd quotients, limits, and every failure case.
+  the twelve-digit lexical/eight-place stored decimal-to-reduced-fraction closure, display-only
+  approximation, 0-, 2-, and 3-decimal currencies (including JPY, USD, and KWD), inverse-direction
+  mistakes, reducible fractions, exact halves with even/odd quotients, limits, and every failure
+  case.
 - [ ] Add the optional V7 companion and lightweight V6-to-V7 migration; prove real V1 through V6
   fixtures preserve every existing fact and gain no invented metadata.
 - [ ] Extend drafts, projections, `DataActor`, model counts, deletion, and edit flows so the
-  expense/accounting amount and companion are validated and committed atomically.
+  expense/accounting amount and companion are validated and committed atomically. Prove new rows
+  snapshot the current Settings/accounting currency while edits use only the row's persisted
+  `Expense.currencyCode`, including after Settings changes.
 
 ### FX-01C — Pro entry, form, detail, and edit behavior
 
 - [ ] Add one exhaustive `PremiumFeature` case and route new-FX access through the central
   entitlement snapshot. Pro and active local trial allow creation; exact Free and expired access
-  deny only new/conversion/duplication paths; ordinary expense entry remains Free.
+  deny only new/conversion/duplication paths; ordinary expense entry remains Free. Consume the
+  existing Pro snapshot only; do not add or mutate a trial-start clock or lifecycle.
 - [ ] Add the manual foreign-currency form and deterministic preview/override state machine.
   Currency, amount, rate, rate date, source, and accounting result must survive validation errors
   without triggering a location or network path.
@@ -168,10 +212,14 @@ discarding the form.
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.
 - [ ] Append the exact FX columns to CSV while preserving all existing columns and protections;
-  test ordinary/FX rows, multiple exponents, overrides, localization independence, and disclosure.
-- [ ] Extend the already enabled optional-iCloud path without enabling it: closed encrypted fact,
-  atomic parent linkage, conflict/replay/tombstone/delete semantics, old-peer handling, and full
-  disabled/offline failure behavior.
+  test the UTC fractional-seconds ISO-8601 rate date plus IANA time-zone column, blank FX columns
+  for ordinary expenses and every income row, multiple exponents, overrides, localization
+  independence, and disclosure.
+- [ ] Extend the already enabled optional-iCloud path without enabling it: add the thirteenth
+  `expenseForeignCurrencyMetadata` fact immediately after `.expense`, keep the existing `.expense`
+  envelope and payload unchanged, update `ICLOUD_SYNC_CONTRACT.md` and the exact inventory/order
+  gates, and prove atomic parent linkage, quarantine, conflict/replay/tombstone/delete semantics,
+  legacy 12-type peer safety, and full disabled/offline failure behavior.
 - [ ] Re-run privacy, telemetry, Siri, Spotlight, notification, Delete All, receipt, wishlist,
   recurring-rule, and App Intent boundaries. No new field may cross those surfaces by accident.
 

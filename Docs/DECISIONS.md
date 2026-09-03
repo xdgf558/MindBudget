@@ -3721,16 +3721,25 @@ before Save. Save-time values are immutable historical facts: the existing
 budgets, reminders, insights, and reports. Schema V7 will add an optional one-to-one
 `ExpenseForeignCurrencyMetadata` companion containing the original amount/currency, canonical
 positive integer-rational rate, calendar/time-zone-qualified rate date, and closed manual source.
-Conversion uses checked integer/full-width arithmetic and round-half-to-even, never `Double` or
-`Float`.
+Decimal rate input is normalized at eight fractional places with round-half-to-even and only then
+reduced into its canonical numerator/denominator. Conversion uses checked integer/full-width
+arithmetic and round-half-to-even, never `Double` or `Float`. New expenses snapshot the current
+Settings/accounting currency; edits use only that row's persisted `Expense.currencyCode`, so a
+later Settings change cannot revalue history.
 
-The capability belongs to verified local Pro and its explicitly started 30-day local trial. Once
+The capability belongs to verified local Pro and its explicitly started 30-day local trial, but
+FX-01 only consumes the existing Pro snapshot and does not implement or mutate the trial clock. Once
 access ends, existing FX records remain viewable, editable, deletable, searchable, syncable through
 an already enabled optional iCloud path, and exportable; only a new FX record or conversion/
 duplication into a new FX record is denied. FX-01 does not add location use, country inference,
 automatic rates, a network host, foreign-currency income/budgets/wishlist values, receipt or Siri
 currency inference, or recurring foreign expenses. CSV preserves its existing accounting columns
-and appends the complete original/rate tuple. Detailed invariants and ordered tasks live in
+and appends the complete original/rate tuple, with the rate date in the existing UTC fractional-
+seconds ISO-8601 format, its IANA time zone beside it, and blank FX columns for ordinary expenses
+and all incomes. Optional enabled iCloud adds a separate thirteenth
+`expenseForeignCurrencyMetadata` type; the existing `.expense` envelope and payload remain
+unchanged, and `ICLOUD_SYNC_CONTRACT.md` plus the exact inventory/order gates must change with the
+implementation. Detailed invariants and ordered tasks live in
 `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`.
 
 Consequences: FX-01 is In Progress only at its planning gate. No Swift, schema, entitlement,

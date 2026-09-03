@@ -38,11 +38,14 @@ App Intents, and Spotlight.
 
 The owner entered FX-01 on 2026-09-03 as a separate local product phase after G1 closeout. Its
 accepted first release is manual foreign-currency expense entry for local Pro and the active
-30-day local trial: save both the original foreign amount and a user-controlled rational rate,
-while the existing expense amount/currency remain the locked accounting authority for every
-budget and aggregate. FX-01 requests no location and adds no network provider. Automatic reference
-rates are deferred to FX-02. The detailed contract and ordered checklist are in
-`Docs/FX_01_MANUAL_CURRENCY_PLAN.md`; Swift/Schema implementation must wait for that planning
+30-day local trial: consume the existing Pro snapshot without adding a trial clock, save both the
+original foreign amount and a user-controlled canonical rational rate derived from an eight-place
+stored decimal, while the existing expense amount/currency remain the locked accounting authority for every
+budget and aggregate. New rows use the current Settings currency; edits retain the row's persisted
+accounting currency. Optional enabled iCloud must use a separate thirteenth companion fact and may
+not change the existing `.expense` payload. FX-01 requests no location and adds no network
+provider. Automatic reference rates are deferred to FX-02. The detailed contract and ordered
+checklist are in `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`; Swift/Schema implementation must wait for that planning
 package's independent review, hosted CI, and merge. This product-phase entry does not enter
 COM-C12 or authorize Archive, distribution, or release.
 

@@ -232,16 +232,21 @@ Status: In Progress — planning package recorded; implementation blocked pendin
 - [ ] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
   changing product code or Schema V7.
 - [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
-  prohibit `Double`/`Float` and test ISO exponent, tie, overflow, direction, and invalid-input cases.
+  close rate text through an eight-fractional-place half-even normalization before reduction,
+  prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
 - [ ] Add Schema V7's optional one-to-one foreign-currency companion while preserving
   `Expense.amountMinorUnits`/`currencyCode` as the sole accounting authority; migrate V1–V6 with no
-  inferred metadata and keep create/update/delete atomic.
+  inferred metadata and keep create/update/delete atomic. New rows use the current Settings
+  currency; edits use only the row's persisted accounting currency.
 - [ ] Add the local-Pro/manual-entry UI and central feature-access gate. The active 30-day local
   trial may create FX expenses; after access ends, existing FX records remain editable/exportable
-  while new, converted, or duplicated FX records are denied.
+  while new, converted, or duplicated FX records are denied. Consume the existing Pro snapshot;
+  do not implement or mutate the trial clock in FX-01.
 - [ ] Update detail, CSV, optional enabled-iCloud compatibility, deletion, localization, VoiceOver,
-  AX5, and privacy boundaries. Budgets, reminders, insights, Ask, and reports must use only the
-  locked accounting amount.
+  AX5, and privacy boundaries. CSV exports the exact rate-date/time-zone tuple and blank FX fields
+  for ordinary expenses and incomes. Enabled iCloud adds a separate thirteenth companion type
+  without changing `.expense`; budgets, reminders, insights, Ask, and reports use only the locked
+  accounting amount.
 - [ ] Pass the dedicated negative gates and complete validation, independent review, hosted CI,
   merge, and a separate closeout before marking FX-01 Done. Do not enter COM-C12 or FX-02 from an
   FX-01 merge.
