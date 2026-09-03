@@ -3748,3 +3748,21 @@ until this planning package passes independent review, exact-head hosted CI, and
 automatic reference rates require a future owner entry plus provider, privacy, cache/failure,
 network-egress, and release review. G1 remains Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, Luna
 and cards remain deferred, and COM-C12 remains unentered.
+
+## 2026-09-03 — Close the reviewed FX-01 planning delivery
+
+Decision: Independent rereview accepted PR #108 exact remediation head
+`0619d5ec59ab3dbea3e87412b16872b92c07d129` with no P1/P2 and one retained P3 observation that the
+User outcome summary still used “current” while the authoritative Persistence contract correctly
+distinguished new from edited rows. GitHub Actions run `33758966855` succeeded on that exact head,
+and PR #108 merged it as `f2f57b45cb676d0dc5b08ceee109e50530a35707`; local topology confirms
+that the reviewed head is the merge commit's second parent. Close the planning-package review/CI/
+merge prerequisite and clarify the non-authoritative summary to match the locked Persistence rule.
+
+Consequences: FX-01 remains In Progress and no implementation subphase is entered by this record.
+Swift, Schema V7, the project file, localization, sync envelopes, entitlements, network policy,
+COM-C12, FX-02, Archive, App Store Connect, distribution, and release remain unchanged and
+unauthorized. The next eligible action after this closeout itself passes independent review,
+exact-head hosted CI, and merge is a separate implementation entry that first completes the
+remaining FX-01A fail-closed contract gate before beginning FX-01B; the merge of this closeout must
+not be treated as runtime evidence.

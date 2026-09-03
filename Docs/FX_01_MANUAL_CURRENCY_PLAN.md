@@ -1,17 +1,24 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **Entered — product contract recorded; implementation is blocked until this planning
-package passes independent review, hosted CI, and merge.**
+Status: **Planning contract reviewed, hosted-green, and merged through PR #108; implementation
+remains unentered pending independent review, hosted CI, and merge of this separate closeout.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
 
+Planning-delivery evidence: independent rereview accepted exact remediation head
+`0619d5ec59ab3dbea3e87412b16872b92c07d129` with no P1/P2 and one retained P3 summary-wording
+observation; GitHub Actions run `33758966855` succeeded on that head; and PR #108 merged it as
+`f2f57b45cb676d0dc5b08ceee109e50530a35707`, whose second parent is the reviewed head. This
+evidence closes only the planning prerequisite and is not runtime or Schema V7 evidence.
+
 ## User outcome
 
 A person travelling may explicitly turn on foreign-currency entry for a new expense, choose an
-ISO 4217 currency, and enter the amount paid in that currency. MindBudget shows the converted
-amount in the current budget/accounting currency. The person may edit either the rate or the final
-accounting-currency result before Save.
+ISO 4217 currency, and enter the amount paid in that currency. For a new row, MindBudget shows the
+converted amount in the current Settings/accounting currency; an edit continues to use that row's
+persisted `Expense.currencyCode`. The person may edit either the rate or the final accounting-
+currency result before Save.
 
 After Save, the original amount remains the primary amount on the expense detail and the locked
 accounting amount appears as an approximate equivalent. Budget pressure, reminders, insights,
@@ -173,8 +180,9 @@ silently overwrite the saved fraction.
 
 - [x] Record the owner's product rules, local-Pro/trial boundary, manual-only scope, locked-history
   rule, Schema V7 direction, and FX-02 deferral in durable repository memory.
-- [ ] Obtain independent review, exact-head hosted CI, and merge for this planning package before
-  changing Swift, the project file, a schema, a localization catalog, or a sync envelope.
+- [x] Obtain independent review, exact-head hosted CI, and merge for this planning package before
+  changing Swift, the project file, a schema, a localization catalog, or a sync envelope. Exact
+  head `0619d5e` passed run `33758966855` and PR #108 merged it as `f2f57b4`.
 - [ ] At implementation start, add a fail-closed FX-01 contract gate that protects the active
   phase, accounting-authority fields, manual-only/no-domain boundary, and no-`Double` rule without
   claiming runtime evidence from prose.

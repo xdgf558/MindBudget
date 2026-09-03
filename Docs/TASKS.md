@@ -225,12 +225,14 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — planning package recorded; implementation blocked pending review/CI/merge
+Status: In Progress — planning package merged; implementation unentered pending closeout
+review/CI/merge
 - [x] Record the owner-approved manual-only product contract in
   `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
   save-time lock, no historical revaluation, detail/CSV dual amounts, no location, and no network.
-- [ ] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
-  changing product code or Schema V7.
+- [x] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
+  changing product code or Schema V7. Exact head `0619d5e` passed run `33758966855`; PR #108
+  merged it as `f2f57b4` with that head as second parent.
 - [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
   close rate text through an eight-fractional-place half-even normalization before reduction,
   prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
