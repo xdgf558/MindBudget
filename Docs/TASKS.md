@@ -225,14 +225,18 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — planning package merged; implementation unentered pending closeout
-review/CI/merge
+Status: In Progress — FX-01A contract gate implemented; FX-01B unentered pending review/CI/merge
 - [x] Record the owner-approved manual-only product contract in
   `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
   save-time lock, no historical revaluation, detail/CSV dual amounts, no location, and no network.
 - [x] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
   changing product code or Schema V7. Exact head `0619d5e` passed run `33758966855`; PR #108
-  merged it as `f2f57b4` with that head as second parent.
+  merged it as `f2f57b4` with that head as second parent. The separate closeout head `8de85e6`
+  passed run `33763718952`, and PR #109 merged it as `69050da` with that head as second parent.
+- [x] Add the machine-readable, self-testing FX-01A contract gate for the active phase, frozen
+  `Expense` accounting authority, manual-only/no-domain boundary, whole-app no-floating-point
+  rule, and static-evidence limitation. Keep FX-01B unentered until this gate passes independent
+  review, exact-head hosted CI, and merge.
 - [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
   close rate text through an eight-fractional-place half-even normalization before reduction,
   prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.

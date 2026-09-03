@@ -7433,3 +7433,40 @@ remains In Progress; product code, Schema V7, project settings, localization, sy
 privacy, and network state are untouched. FX-01B, COM-C12, FX-02, Archive, upload, distribution,
 and release remain unentered. The closeout branch still requires independent review, exact-head
 hosted CI, and merge before implementation may begin.
+
+## 2026-09-03 — Enter FX-01A and add the fail-closed contract gate
+
+PR #109 closeout head `8de85e61277f48914d2269701af00d86cf433f62` passed independent
+review with no P1/P2/P3 and GitHub Actions run `33763718952` in 40m10s. PR #109 merged as
+`69050da62305e8df076772a5638528442341933b`; its second parent is the reviewed head. After that
+merge, the owner separately entered FX-01A.
+
+Added the exact-key `Docs/FX_01_CONTRACT.json` and self-testing
+`Scripts/check-fx01-contract.sh`/`Scripts/fx01_contract.py`. The gate structurally parses the
+authoritative FX-01 plan and task section instead of accepting a repository-wide prose hit, checks
+the complete frozen `Expense` stored-property inventory and current `DataActor` accounting write
+anchors, scans app source against the closed floating-point/network exceptions, and forbids FX
+identifiers inside those exceptions. Negative fixtures cover early FX-01B entry, new domains,
+historical revaluation, unknown keys, runtime claims, summary-text status bypass, metadata embedded
+in `Expense`, floating-point FX arithmetic, automatic network rates, and exception-path hiding.
+
+The gate is wired into a dedicated hosted CI step, `Scripts/validate.sh`, and the C6 static-check
+inventory. It reports only static contract evidence and explicitly does not claim conversion,
+migration, runtime, Schema V7, UI, or release proof. No Swift product source, schema, project file,
+localization, entitlement, sync envelope, privacy manifest, or network allow-list changed. FX-01
+remains In Progress at FX-01A; FX-01B, FX-02, COM-C12, Archive, upload, distribution, and release
+remain unentered. This candidate still requires independent review, exact-head hosted CI, and
+merge before FX-01B may begin.
+
+Local verification on the complete candidate passed `Scripts/check-fx01-contract.sh`, the C6
+release-matrix gate, the no-floating-point-money gate, the network-egress gate, the
+commercialization-doc gate, the StoreKit catalog gate, JSON parsing, Python compilation, shell
+syntax, and `git diff --check`. The first complete-validator invocation selected Command Line Tools
+and therefore stopped before Xcode build/test; a second attempted invocation used the no-longer-
+present former download path and also stopped before build/test. Neither is product or passing
+evidence. The subsequent explicit
+`DEVELOPER_DIR=/Applications/Xcode-27-beta-6.app/Contents/Developer Scripts/validate.sh` run
+succeeded: Release build/test completed, the UI suite executed 18 tests with 1 signed-physical-
+iPhone-only skip and 0 failures, every selected core-service coverage result remained at or above
+85%, and the C6-02 result-bundle check found all 23 exact runtime bindings. This local run does not
+replace the required independent review or exact-head hosted CI for the FX-01A gate candidate.

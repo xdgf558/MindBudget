@@ -133,7 +133,8 @@
         }
       ],
       "staticChecks": [
-        "Scripts/check-no-floating-point-money.sh"
+        "Scripts/check-no-floating-point-money.sh",
+        "Scripts/check-fx01-contract.sh"
       ],
       "nonAutomatedBoundary": "C6-02 owns archive/device data-protection inspection; this row never rewrites a production customer store."
     },

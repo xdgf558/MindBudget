@@ -27,6 +27,7 @@ fi
 cd "${PROJECT_ROOT}"
 
 Scripts/check-release-readiness.sh
+Scripts/check-fx01-contract.sh
 Scripts/check-network-egress.sh
 Scripts/check-commercialization-docs.sh
 Scripts/check-public-configuration-contract.sh

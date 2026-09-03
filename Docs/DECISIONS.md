@@ -3766,3 +3766,25 @@ unauthorized. The next eligible action after this closeout itself passes indepen
 exact-head hosted CI, and merge is a separate implementation entry that first completes the
 remaining FX-01A fail-closed contract gate before beginning FX-01B; the merge of this closeout must
 not be treated as runtime evidence.
+
+## 2026-09-03 — Enter FX-01A and establish its fail-closed static contract gate
+
+Decision: Independent review accepted PR #109 exact head
+`8de85e61277f48914d2269701af00d86cf433f62` with no P1/P2/P3, GitHub Actions run
+`33763718952` succeeded on that head in 40m10s, and PR #109 merged it as
+`69050da62305e8df076772a5638528442341933b`; local topology confirms the reviewed head is the
+merge commit's second parent. The owner then separately entered FX-01A. Add
+`Docs/FX_01_CONTRACT.json` plus a self-testing static validator that binds the active phase to
+FX-01/FX-01A, keeps FX-01B unentered, preserves `Expense.amountMinorUnits` and
+`Expense.currencyCode` as the accounting authority, keeps foreign metadata in a separate
+companion, permits only manual/local rates with no location or new domain, and keeps money/rate
+arithmetic outside the three existing exact floating-point exceptions.
+
+Consequences: Run the gate directly in hosted CI, from the complete validator, and from the closed
+C6 static-check inventory. Its negative fixtures must fail for phase/status drift, summary-text
+bypasses, an `Expense` inventory change, a new domain, floating-point or network FX source, FX code
+hidden inside a prior exception, historical revaluation, unknown contract keys, or a prose-backed
+runtime claim. A pass is only static contract evidence. This change adds no Swift product code,
+Schema V7, localization, entitlement, sync-envelope, network, privacy, Archive, App Store Connect,
+distribution, release, COM-C12, or FX-02 mutation. FX-01B may begin only after this exact gate
+candidate passes independent review, exact-head hosted CI, and merge.

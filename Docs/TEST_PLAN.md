@@ -609,3 +609,11 @@ required. Hosted CI permits one retry for a transient first-launch timeout on a 
 migrated simulator; assertion failures must fail both attempts and remain blocking. The explicit
 wall-clock benchmark exclusion above is independent from retry behavior and cannot skip another
 correctness, localization, UI, or coverage assertion.
+
+The FX-01A static gate runs as a dedicated hosted step and from `Scripts/validate.sh`. Its own
+negative fixtures must reject a summary-prose status bypass, early FX-01B entry, changes to the
+frozen `Expense` property inventory, new FX domains, floating-point FX arithmetic, automatic FX
+network code, FX code hidden in a pre-existing source exception, unknown JSON keys, historical
+revaluation, and runtime-evidence claims. A green result proves only that reviewed source and
+configuration still satisfy the static contract; it does not prove conversion arithmetic,
+Schema V7 migration, UI behavior, or release readiness.
