@@ -311,6 +311,10 @@ harness/capture delivery. A different reviewer must score only the exact
 `bcbf943ba7d6a1a9d18442efc38e760cc798c30e8674c8d877f9e0cb751ab2a5` blind JSON before opening
 the sidecar. The later eligible review completed that step and returned the DEC-COM-102 non-pass;
 no second eligible blind score exists, so inter-rater overlap is unavailable rather than inferred.
+DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
+does not supply the owner offer disposition.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

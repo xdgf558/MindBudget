@@ -689,6 +689,10 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`. DEC-COM-102 records the
   deterministic `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual
   task. No second eligible blind score exists, so agreement is unavailable rather than inferred.
+- [x] Close the reviewed comparative-result delivery without deciding the offer. Independent
+  rereview accepted PR #104 exact remediation head `2fb2b64` with no P1/P2 and no new P3; hosted
+  run `33701018178` passed; and PR #104 merged as `e4b54af` with that head as second parent.
+  DEC-COM-103 preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
 - [ ] Complete the remaining G1 decision. DEC-COM-097 records the dedicated Global Tier 1 project
   with sole model `gpt-5.6-luna`,
   project, bounded billing, and accepted standard up-to-30-day retention for synthetic Eval only;

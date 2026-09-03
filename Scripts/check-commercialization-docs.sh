@@ -2870,6 +2870,34 @@ for g1_decision_file in \
     echo "Independent three-way blind-review result is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-103' "${g1_decision_file}" || {
+    echo "Reviewed comparative-result delivery closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
+done
+
+for g1_result_closeout_file in \
+  Docs/COMMERCIALIZATION_TASKS.md \
+  Docs/TASKS.md \
+  Docs/PROJECT_MEMORY.md \
+  Docs/Commercialization/PROJECT_MEMORY.md \
+  Docs/Commercialization/COM_C6_EXECUTION_PACKET.md \
+  Docs/Commercialization/REQUIREMENTS_INDEX.md \
+  Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
+  Docs/Commercialization/REGIONAL_PRICING.md \
+  "${G1_ECONOMICS_PACKET}" \
+  "${G1_THREE_WAY_EVAL_PACKET}"; do
+  for g1_result_closeout_anchor in \
+    'DEC-COM-103' \
+    '2fb2b64' \
+    '33701018178' \
+    'e4b54af' \
+    'COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION'; do
+    grep -Fq "${g1_result_closeout_anchor}" "${g1_result_closeout_file}" || {
+      echo "G1 comparative-result closeout is missing ${g1_result_closeout_anchor} in ${g1_result_closeout_file}" >&2
+      exit 1
+    }
+  done
 done
 
 for g1_closeout_file in \
@@ -2969,11 +2997,11 @@ economics = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
 
 current_state = tasks.split("## Current state", 1)[1].split("\n## ", 1)[0]
 expected_active = (
-    "- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-102 with\n"
+    "- Active phase: **G1 is In Progress under DEC-COM-095 through DEC-COM-103 with\n"
     "  `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`; COM-C7 remains blocked."
 )
 if current_state.count(expected_active) != 1:
-    raise SystemExit("G1 top-level Active phase must identify DEC-COM-102 and the comparative non-pass")
+    raise SystemExit("G1 top-level Active phase must identify DEC-COM-103 and the comparative non-pass")
 if "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE" in current_state:
     raise SystemExit("G1 top-level Active phase still carries the superseded storefront-only state")
 

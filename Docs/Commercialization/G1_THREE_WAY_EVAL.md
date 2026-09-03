@@ -2,6 +2,11 @@
 
 Status: **COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION**
 
+DEC-COM-103 closes only the reviewed PR #104 result-recording delivery: exact remediation head
+`2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
+that head as second parent. The frozen `NON_PASS`, G1 In Progress state, production-false boundary,
+and pending owner disposition are unchanged.
+
 This packet compares the user-visible value of three already-authorized local/cloud presentation
 paths without changing production code or admitting customer traffic:
 

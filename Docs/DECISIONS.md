@@ -3669,3 +3669,16 @@ is no second eligible blind score, so inter-rater overlap is unavailable rather 
 Post-unseal regrading cannot turn a preferred Luna label into material value. A separate owner
 decision must resolve the cloud-credit offer before any `PROCEED_TO_R2` decision or downstream
 implementation.
+
+## 2026-09-03 — Close the reviewed G1 comparative-result delivery without deciding the offer
+
+Decision: Detailed ownership is DEC-COM-103. Independent rereview accepted PR #104 exact
+remediation head `2fb2b64`, hosted run `33701018178` passed on that head, and PR #104 merged it as
+`e4b54af` with the reviewed head as second parent. Close only the score-lock/unseal/result-recording
+delivery and its current-state remediation.
+
+Consequences: Preserve the frozen `NON_PASS`, G1 In Progress at
+`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`, `productionAdmitted: false`, and COM-C7
+blocked. The next substantive action is a separate owner disposition of the cloud-credit offer;
+this closeout does not supply that decision or authorize StoreKit, breaker, legal, backend,
+customer, distribution, or production work.
