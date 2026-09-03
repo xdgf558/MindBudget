@@ -258,10 +258,12 @@ DEC-COM-103 closes only that result-recording delivery after PR #104 exact remed
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. At that delivery checkpoint, the owner offer disposition remained the
 next G1 action.
-DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In
-Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout of
-that record, Luna/cards and COM-C7 through COM-C11 are deferred, and only
-a separately owner-entered local-only COM-C12 path remains eligible. This does not alter COM-C6's
-historical evidence or authorize release.
+DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106 exact
+remediation head `961acc0` passed independent rereview and hosted run `33724552517`, then merged as
+`fdd511b` with that head as second parent. DEC-COM-105 closes G1 at that deferral outcome;
+Luna/cards and COM-C7 through COM-C11 remain deferred, and only a separately owner-entered
+local-only COM-C12 path is eligible. Optional iCloud and first-party telemetry are C12 regressions
+only when enabled in the final candidate. This does not alter COM-C6's historical evidence, enable
+either optional channel, enter COM-C12, or authorize release.
 COM-C6.5 remains unentered until its 14-day no-P0/P1 gate is met no earlier than 2026-09-15 and the
 owner separately enters it.

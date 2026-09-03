@@ -22,11 +22,10 @@ detailed phase checklists; it added no paid product behavior.
 
 ## Current state
 
-- Active phase: **G1 is In Progress under DEC-COM-104 at
-  `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 are deferred and no
-  implementation phase is currently entered. After this decision record is independently reviewed,
-  green, merged, and closed, the next eligible path is a separately owner-entered local-only
-  COM-C12 release review. Historical merged phase
+- Active phase: **No implementation phase is currently entered. G1 is Done under DEC-COM-105 at
+  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; COM-C7 through COM-C11 remain deferred, production remains
+  unadmitted, and no `PROCEED_TO_R2` was granted. The next eligible path is a separately
+  owner-entered local-only COM-C12 release review. Historical merged phase
   evidence follows. COM-C4C is Done. COM-C4B is Done. C4B-01 is Done through PR #57 (`90a1e66`),
   C4B-02P is Done through PR #58 (`6f5fded`), and C4B-02 is Done through PR #59
   (`211dff2`). PR #60 (`7138a9c`) closed the documentation gate after green Actions run
@@ -795,9 +794,9 @@ must not break iPhone R1 or block G1, COM-C7, COM-C12, or iPhone 1.0.
 
 ## G1 — Cloud AI unit-economics and credit-pack decision gate
 
-Status: **In Progress under DEC-COM-104 at
-`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`. The independent comparative Eval remains
-`NON_PASS` under DEC-COM-102.
+Status: **Done under DEC-COM-105 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` after reviewed PR #106
+merge `fdd511b`.** The independent
+comparative Eval remains **`NON_PASS` under DEC-COM-102.**
 Exact PR #98 head `9226985`
 passed GitHub Actions run `33570570896` and merged as `6e2d242`; DEC-COM-094 preserves that first
 package's historical `INSUFFICIENT_QUOTE_EVIDENCE` result. The synthetic-only account and fixed
@@ -808,7 +807,7 @@ cloud-path work; DEC-COM-104 supplies the later owner disposition.
 The earlier `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE` and former
 `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` states are superseded. Luna/card
 development is deferred, production remains unadmitted, and the separately reviewed local-only
-release path remains available.**
+release path remains available.
 
 - [x] Freeze the 2026-09-02 quote date, USD/USA scope, downside commission/tax/refund reserves,
   exact allow-listed AI task set, and reproducible typical/P50 plus peak/P95 planning envelopes.
@@ -875,12 +874,16 @@ release path remains available.**
   US$4.99 local-Pro direction, explicit 30-day local trial, on-device AI, and deterministic fallback
   through a separately owner-entered local-only COM-C12 review. Pre-launch actual US proceeds do
   not exist and remain a post-launch recalibration input for local Pro.
-- [ ] Independently review, pass hosted CI, merge, and close this exact owner-disposition record.
-  Until that closeout, G1 remains In Progress and local-only COM-C12 remains unentered.
+- [x] Independently review, pass hosted CI, merge, and close the exact owner-disposition record.
+  PR #106 independent rereview accepted exact remediation head `961acc0` with no P1/P2 and retained
+  one P3 enabled-path wording note. GitHub Actions run `33724552517` passed on that exact head, and
+  merge `fdd511b` retained it as second parent. DEC-COM-105 closes G1 at
+  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; local-only COM-C12 remains unentered pending a separate owner
+  entry.
 
-Exit gate: the DEC-COM-104 owner disposition plus exact-head independent review, hosted CI, merge,
-and post-merge closeout. Only then may G1 become Done. A future new owner decision, fresh G1
-evidence, and explicit `PROCEED_TO_R2` are required to reactivate COM-C7.
+Exit gate: **Satisfied by DEC-COM-105.** The DEC-COM-104 owner disposition, exact-head independent
+rereview, hosted CI, merge, and post-merge closeout are recorded. A future new owner decision,
+fresh G1 evidence, and explicit `PROCEED_TO_R2` are required to reactivate COM-C7.
 
 ## COM-C7 — Current entitlement, App Attest, and backend skeleton
 
@@ -979,8 +982,8 @@ consumer content; configuration and admin failures use safe defaults.
 
 ## COM-C12 — Full-product security, privacy, review, and formal 1.0
 
-Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a
-separate local-only owner entry. The
+Status: **Blocked pending a separate local-only owner entry after DEC-COM-105 closed the G1
+deferral record. The
 cloud-enabled path remains deferred with COM-C7 through COM-C11. Watch distribution is a separate
 later milestone.**
 
@@ -989,7 +992,9 @@ Local-only DEC-COM-104 subset, mandatory after separate owner entry:
 - [B] **C12-01 — Local end-to-end automated matrix.** Final local-Pro entitlement/trial and refund
   states; on-device-AI availability plus deterministic fallback; receipt, optional iCloud,
   first-party telemetry, export, Delete All, environment-isolation, accessibility, performance,
-  and offline regressions for every enabled path.
+  and offline regressions for every enabled path. Optional iCloud and first-party telemetry are in
+  scope only when enabled in the final candidate; this item does not authorize enabling either
+  channel.
 - [B] **C12-02 — Local security and privacy release review.** Threat model, dependency and secret
   scans, final data-flow map, App Privacy, data protection, first-party telemetry/iCloud disclosure
   and deletion, and final-binary egress proof that no Luna route, provider credential, cloud-credit

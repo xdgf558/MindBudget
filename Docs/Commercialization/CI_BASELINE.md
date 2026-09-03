@@ -2896,3 +2896,23 @@ The closeout still needs independent review, a green hosted run on its exact hea
 - A new exact head, independent rereview, and hosted CI are required before merge. G1 remains In
   Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
   deferred and local-only COM-C12 remains unentered.
+
+### Reviewed PR #106 G1 deferral closeout — 2026-09-03
+
+- Independent rereview accepted exact remediation head
+  `961acc046fb8c32870fb44cbecfc832e51354780` with no P1/P2 and one P3 clarification: optional
+  iCloud and first-party telemetry are C12 regressions only when enabled in the final candidate.
+- GitHub Actions run `33724552517` completed successfully on that exact head. The earlier green run
+  `33714752713` remains scoped to original head `f528db7` and is not used as remediation evidence.
+- PR #106 merged as `fdd511bd628e2b80bd24d1a7556e28cb82cfa58a`; local topology verification
+  confirms its second parent is the reviewed head.
+- DEC-COM-105 marks G1 Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` without changing the frozen
+  `NON_PASS`, admitting production, granting `PROCEED_TO_R2`, entering COM-C7/COM-C12, or enabling
+  optional iCloud/telemetry. This closeout branch requires its own exact-head review, hosted CI,
+  and merge.
+- Full local validation exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5 iPhone 17 Pro
+  simulator: Release and the strict Dashboard benchmark passed; 554 unit tests across 33 suites
+  passed with the expected Debug-only physical skips; 18 UI tests executed with 17 passed, one
+  expected physical-only skip, zero failures, and no retry; every selected core file exceeded 85%;
+  and all 23 C6-02 runtime bindings passed. The deleted
+  `mindbudget-validation.XU2lSP/MindBudget.xcresult` path is an execution pointer only.

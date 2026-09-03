@@ -135,6 +135,9 @@ of deterministic template, supported on-device output, and Luna. That comparison
 is now complete under DEC-COM-102: completed-review SHA-256
 `d2b9310f4471400825e666009f646a190d8ac2819f859c8e38d58ec05cbf040e`, deterministic result
 `NON_PASS`, zero materially preferred Luna cases, and no qualifying bilingual task. DEC-COM-104
-later completed G1 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: production admission stays false,
+later selected `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; DEC-COM-105 closes its reviewed delivery and
+marks G1 Done at that outcome after PR #106 exact remediation head `961acc0` passed independent
+rereview and hosted run `33724552517`, then merged as `fdd511b` with that head as second parent.
+Production admission stays false,
 COM-C7 through COM-C11 and every Luna/card product are deferred, and the local-only release path
 must not reinterpret this synthetic run as customer or production evidence.

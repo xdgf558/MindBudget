@@ -320,10 +320,12 @@ PR #100 merged as `7a473d2`. DEC-COM-099 closes only that evidence delivery. A r
 Eval pass is not final-binary or production evidence. That checkpoint kept production false and
 COM-C7 blocked pending further evidence and owner `PROCEED_TO_R2`. DEC-COM-102 later recorded the
 comparative `NON_PASS`, DEC-COM-103 closed its reviewed delivery, and DEC-COM-104 selected
-`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: G1 now remains In Progress at
-`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only pending review/merge/closeout of that
-disposition; COM-C7 through COM-C11 and every Luna/card path are deferred, while local-only COM-C12
-requires a separate later owner entry.
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106 exact remediation head `961acc0` then passed
+independent rereview and hosted run `33724552517`, and merged as `fdd511b` with that head as second
+parent. DEC-COM-105 marks G1 Done at the deferral outcome: COM-C7 through COM-C11 and every
+Luna/card path remain deferred, production remains false, and local-only COM-C12 requires a
+separate later owner entry. Optional iCloud and first-party telemetry are reviewed there only when
+enabled in the final candidate; this closeout does not enable either.
 
 ## Siri and Spotlight disclosure
 

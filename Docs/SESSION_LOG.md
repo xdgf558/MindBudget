@@ -7347,3 +7347,28 @@ Eval evidence, Swift/product code, provider/account state, StoreKit/App Store Co
 release authority changed. The new exact head requires independent rereview and its own hosted CI
 before merge; G1 remains In Progress at
 `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` and COM-C7 remains deferred.
+
+## 2026-09-03 — Close the reviewed G1 deferral record
+
+PR #106 exact remediation head `961acc046fb8c32870fb44cbecfc832e51354780` passed independent
+rereview with no P1/P2 and one retained P3 clarification that optional iCloud and first-party
+telemetry belong to local-only C12 only when enabled in the final candidate. GitHub Actions run
+`33724552517` succeeded on that exact head, and PR #106 merged as
+`fdd511bd628e2b80bd24d1a7556e28cb82cfa58a`; local topology confirms the reviewed head is its
+second parent. Earlier run `33714752713` proves only original head `f528db7`.
+
+DEC-COM-105 closes the DEC-COM-104 disposition delivery and marks G1 Done at
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. The result remains a deferral rather than comparative PASS or
+`PROCEED_TO_R2`: the frozen `NON_PASS` and production-false boundary remain, Luna/cards and
+COM-C7 through COM-C11 remain deferred, and local-only COM-C12 is eligible but unentered pending a
+separate owner decision. The C12 wording now makes optional iCloud/telemetry conditional on the
+final candidate and does not enable either. This closeout changes documentation and gates only and
+still requires its own exact-head independent review, hosted CI, and merge.
+
+Local validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS
+26.5 iPhone 17 Pro simulator. Release build and the strict Dashboard benchmark passed; 554 unit
+tests across 33 suites passed with the expected Debug-only physical skips; the UI suite executed
+18 tests with 17 passed, one expected physical-only skip, zero failures, and no retry; every
+selected core file exceeded the 85% coverage floor; and all 23 C6-02 runtime bindings passed. The
+validator removed `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XU2lSP/MindBudget.xcresult`
+after success; that path is an execution pointer only and does not replace hosted CI or review.

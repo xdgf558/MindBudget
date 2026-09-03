@@ -4476,3 +4476,31 @@ OpenAI account, provider/backend, credential, distribution, or release mutation 
 In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 remain
 deferred and local-only COM-C12 remains unentered. The remediation head still requires independent
 rereview, hosted CI, and merge.
+
+## 2026-09-03 — Session 221 — Close the reviewed G1 deferral record
+
+Traceability: PR #106 exact remediation head
+`961acc046fb8c32870fb44cbecfc832e51354780` passed independent rereview with no P1/P2 and one
+retained P3 enabled-path clarification. GitHub Actions run `33724552517` passed on that exact head.
+PR #106 merged as `fdd511bd628e2b80bd24d1a7556e28cb82cfa58a`; its second parent is the
+reviewed head. Original-head run `33714752713` remains historical evidence for `f528db7` only.
+
+Decision: DEC-COM-105 closes the reviewed DEC-COM-104 owner-disposition delivery and marks G1 Done
+at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. This is a completed deferral, not a comparative pass,
+production admission, or `PROCEED_TO_R2`. Preserve the three frozen comparative evidence hashes,
+the deterministic `NON_PASS`, and every historical quote/account/offer artifact without exposing
+the deferred Luna/card terms as current policy.
+
+Boundary: COM-C7 through COM-C11 remain deferred. Local-only COM-C12 becomes eligible only through
+a separate owner entry and is not entered here. Optional iCloud and first-party telemetry belong
+to its end-to-end matrix only if enabled in the final candidate; this closeout enables neither.
+No Swift/product, StoreKit/App Store Connect, provider/account/credential/backend, distribution,
+or release mutation occurred. This closeout branch still requires its own exact-head independent
+review, hosted CI, and merge.
+
+Validation: `Scripts/validate.sh` exited 0 under Xcode 27.0 beta 6 (`27A5252f`) on the iOS 26.5
+iPhone 17 Pro simulator. Release and the strict Dashboard benchmark passed; 554 unit tests across
+33 suites passed with the expected Debug-only physical skips; 18 UI tests executed with 17 passed,
+one expected physical-only skip, zero failures, and no retry; every selected core file exceeded the
+85% coverage floor; and all 23 C6-02 runtime bindings passed. The validator removed its temporary
+`mindbudget-validation.XU2lSP/MindBudget.xcresult`; it is an execution pointer, not hosted evidence.

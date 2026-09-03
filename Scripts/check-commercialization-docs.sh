@@ -753,7 +753,7 @@ grep -Fq 'Current app-owned HTTP(S) | Accepted empty set' \
   exit 1
 }
 
-grep -Fq '**DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; G1 remains In Progress at' Docs/Commercialization/REGIONAL_PRICING.md || {
+grep -Fq '**DEC-COM-105 closes the reviewed DEC-COM-104 disposition and marks G1 Done at' Docs/Commercialization/REGIONAL_PRICING.md || {
   echo "Regional pricing must distinguish the active local-only direction from deferred Luna/card planning" >&2
   exit 1
 }
@@ -2878,9 +2878,13 @@ for g1_decision_file in \
     echo "G1 Luna/card owner disposition is missing from ${g1_decision_file}" >&2
     exit 1
   }
+  grep -Fq 'DEC-COM-105' "${g1_decision_file}" || {
+    echo "Reviewed G1 owner-disposition closeout is missing from ${g1_decision_file}" >&2
+    exit 1
+  }
 done
 
-for g1_owner_disposition_file in \
+for g1_owner_closeout_file in \
   Docs/COMMERCIALIZATION_TASKS.md \
   Docs/TASKS.md \
   Docs/PROJECT_MEMORY.md \
@@ -2891,13 +2895,18 @@ for g1_owner_disposition_file in \
   Docs/Commercialization/AI_PROVIDER_CONTRACT.md \
   Docs/Commercialization/REGIONAL_PRICING.md \
   "${G1_ECONOMICS_PACKET}" \
-  "${G1_THREE_WAY_EVAL_PACKET}"; do
-  for g1_owner_disposition_anchor in \
+  "${G1_THREE_WAY_EVAL_PACKET}" \
+  "${G1_LUNA_EVAL_PACKET}" \
+  "${G1_OPENAI_ACCOUNT_PACKET}"; do
+  for g1_owner_closeout_anchor in \
+    'DEC-COM-105' \
     'DEC-COM-104' \
     'DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO' \
-    'LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT'; do
-    grep -Fq "${g1_owner_disposition_anchor}" "${g1_owner_disposition_file}" || {
-      echo "G1 owner deferral is missing ${g1_owner_disposition_anchor} in ${g1_owner_disposition_file}" >&2
+    '961acc0' \
+    '33724552517' \
+    'fdd511b'; do
+    grep -Fq "${g1_owner_closeout_anchor}" "${g1_owner_closeout_file}" || {
+      echo "G1 owner-deferral closeout is missing ${g1_owner_closeout_anchor} in ${g1_owner_closeout_file}" >&2
       exit 1
     }
   done
@@ -3033,29 +3042,30 @@ economics = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
 
 current_state = tasks.split("## Current state", 1)[1].split("\n## ", 1)[0]
 expected_active = (
-    "- Active phase: **G1 is In Progress under DEC-COM-104 at\n"
-    "  `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`; COM-C7 through COM-C11 are deferred and no\n"
-    "  implementation phase is currently entered. After this decision record is independently reviewed,\n"
-    "  green, merged, and closed, the next eligible path is a separately owner-entered local-only\n"
-    "  COM-C12 release review."
+    "- Active phase: **No implementation phase is currently entered. G1 is Done under DEC-COM-105 at\n"
+    "  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; COM-C7 through COM-C11 remain deferred, production remains\n"
+    "  unadmitted, and no `PROCEED_TO_R2` was granted. The next eligible path is a separately\n"
+    "  owner-entered local-only COM-C12 release review."
 )
 if current_state.count(expected_active) != 1:
-    raise SystemExit("G1 top-level Active phase must identify the DEC-COM-104 local-only deferral")
+    raise SystemExit("G1 top-level state must identify the reviewed DEC-COM-105 deferral closeout")
 if "EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE" in current_state:
     raise SystemExit("G1 top-level Active phase still carries the superseded storefront-only state")
 if "COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION" in current_state:
     raise SystemExit("G1 top-level Active phase still claims the owner disposition is pending")
+if "LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT" in current_state:
+    raise SystemExit("G1 top-level Active phase still claims the reviewed disposition is pending closeout")
 
 expected_economics_status = (
-    "Status: **In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` under DEC-COM-104.**"
+    "Status: **G1 Done under DEC-COM-105 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`.**"
 )
 if economics.splitlines()[2] != expected_economics_status:
-    raise SystemExit("G1 economics packet status must identify the accepted local-only deferral")
+    raise SystemExit("G1 economics packet status must identify the reviewed deferral closeout")
 PY
 
-grep -Fq 'Status: **In Progress under DEC-COM-104 at' \
+grep -Fq 'Status: **Done under DEC-COM-105 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` after reviewed PR #106' \
   Docs/COMMERCIALIZATION_TASKS.md || {
-  echo "G1 current phase status must record the accepted local-only deferral" >&2
+  echo "G1 current phase status must record the reviewed local-only deferral closeout" >&2
   exit 1
 }
 
@@ -3065,7 +3075,7 @@ grep -Fq 'Status: **Blocked; deferred by DEC-COM-104. Re-entry requires fresh G1
   exit 1
 }
 
-grep -Fq 'Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a' \
+grep -Fq 'Status: **Blocked pending a separate local-only owner entry after DEC-COM-105 closed the G1' \
   Docs/COMMERCIALIZATION_TASKS.md || {
   echo "Local-only COM-C12 must remain eligible but unentered" >&2
   exit 1
@@ -3084,6 +3094,11 @@ grep -Fq -- '- [x] Complete the fixed bilingual three-way comparative Eval acros
 grep -Fq -- '- [x] Record the final G1 owner disposition after the comparative non-pass.' \
   Docs/COMMERCIALIZATION_TASKS.md || {
   echo "G1 owner disposition must be recorded complete" >&2
+  exit 1
+}
+grep -Fq -- '- [x] Independently review, pass hosted CI, merge, and close the exact owner-disposition record.' \
+  Docs/COMMERCIALIZATION_TASKS.md || {
+  echo "G1 owner-disposition delivery must be recorded complete" >&2
   exit 1
 }
 
@@ -3110,7 +3125,7 @@ expected_sections = {
     "COM-C11 — Cloud operations, configuration, experiments, and cost dashboard":
         "Status: **Blocked; deferred with COM-C7 by DEC-COM-104.**",
     "COM-C12 — Full-product security, privacy, review, and formal 1.0":
-        "Status: **Blocked until the G1 deferral record is reviewed, merged, closed, and followed by a separate local-only owner entry.",
+        "Status: **Blocked pending a separate local-only owner entry after DEC-COM-105 closed the G1 deferral record.",
 }
 for title, expected in expected_sections.items():
     section = normalized_section(title)
@@ -3121,7 +3136,7 @@ for expected_row in (
     "| REQ-CLOUD-AUTH-001 | Deferred by DEC-COM-104; absent from local-only launch |",
     "| REQ-CLOUD-CONSENT-001 | Deferred by DEC-COM-104; production not admitted |",
     "| REQ-CLOUD-USAGE-001 | Deferred by DEC-COM-104; no active credit offer |",
-    "| REQ-G1-001 | Active; owner selected `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, pending reviewed record closeout |",
+    "| REQ-G1-001 | Accepted; G1 Done under DEC-COM-105 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` |",
 ):
     if requirements.count(expected_row) != 1:
         raise SystemExit(f"G1 requirement disposition drifted: {expected_row}")
@@ -3212,9 +3227,9 @@ import xml.etree.ElementTree as ET
 
 root = pathlib.Path.cwd()
 packet = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
-expected_packet_status = "Status: **LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT**"
+expected_packet_status = "Status: **G1_DONE_AT_DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO_UNDER_DEC-COM-105**"
 if packet.splitlines()[2] != expected_packet_status or packet.count(expected_packet_status) != 1:
-    raise SystemExit("G1 three-way Eval packet must have one exact owner-deferral status at the header")
+    raise SystemExit("G1 three-way Eval packet must have one exact reviewed-closeout status at the header")
 scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-G1-OnDevice-Eval.xcscheme"
 default_scheme_path = root / "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme"
 test_path = root / "MindBudgetTests/G1ThreeWayOnDeviceEvalTests.swift"
@@ -3422,7 +3437,7 @@ for deferred_only in (
         raise SystemExit(f"Cloud-only C12 deferral is missing: {deferred_only}")
 PY
 
-if grep -Eqi 'G1 (is )?(passed|approved|Done)|COM-C7 (is )?(In Progress|entered|Done)|LIVE_LUNA_EVAL_PASSED|ZDR_VERIFIED|OPENAI_ACCOUNT_ADMITTED' \
+if grep -Eqi 'G1 (is )?(passed|approved)|COM-C7 (is )?(In Progress|entered|Done)|LIVE_LUNA_EVAL_PASSED|ZDR_VERIFIED|OPENAI_ACCOUNT_ADMITTED' \
     Docs/COMMERCIALIZATION_TASKS.md \
     Docs/TASKS.md \
     Docs/PROJECT_MEMORY.md \

@@ -1,6 +1,6 @@
 # G1 Cloud AI Unit Economics and Credit-Pack Packet
 
-Status: **In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` under DEC-COM-104.**
+Status: **G1 Done under DEC-COM-105 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`.**
 
 PR #98 exact head `9226985` passed GitHub Actions run `33570570896` and merged as `6e2d242`;
 DEC-COM-094 closed that
@@ -14,9 +14,13 @@ run `33593253561` and merged as `7a473d2`. DEC-COM-099 closes only that independ
 account/Eval evidence delivery. The former formal state was
 `EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`, not `PROCEED_TO_R2`. DEC-COM-102 now records the
 completed independent three-way comparative Eval and deterministic `NON_PASS`. The owner outcome is
-`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; the process state remains
-`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT`: the cloud offer is deferred and only the
-local-Pro path remains eligible for launch review.
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; DEC-COM-105 closes its reviewed delivery and marks G1 Done:
+the cloud offer is deferred and only the separately owner-entered local-Pro path remains eligible
+for launch review.
+
+PR #106 exact remediation head `961acc0` passed independent rereview and hosted run `33724552517`,
+then merged as `fdd511b` with that head as second parent. The earlier green run `33714752713`
+belongs only to original head `f528db7` and is not closeout evidence.
 
 DEC-COM-101 separately closes only the PR #102 three-way harness and physical-capture delivery:
 independent review accepted exact remediation head `bb939d0`, hosted run `33628847476` passed, and
@@ -328,8 +332,9 @@ that head as second parent. The frozen non-pass and owner-decision boundary do n
 
 The former formal states were **`EVAL_REVIEWED_PENDING_STOREFRONT_EVIDENCE`** and
 **`COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`**. DEC-COM-104 records the later owner
-disposition: **`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`**. G1 remains In Progress only until this
-decision record is reviewed, green, merged, and closed; no `PROCEED_TO_R2` is granted and no
+disposition: **`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`**. At that recording checkpoint, G1 remained In
+Progress only for review, CI, merge, and closeout. DEC-COM-105 now marks G1 Done at the deferral
+outcome; no `PROCEED_TO_R2` is granted and no
 backend, Product ID, ledger, UI, App Store Connect card product, cloud grant, COM-C7 entry,
 production request, or public release is authorized here. The frozen model/count/card decisions
 remain historical planning evidence, not current customer promises. A separately owner-entered

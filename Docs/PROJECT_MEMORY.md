@@ -316,13 +316,17 @@ DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact 
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
 does not supply the owner offer disposition.
-DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains In
-Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout of
-that record. Luna starter credits, consumable cards, COM-C7 through
+DEC-COM-104 supplies that disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106 independent
+rereview accepted exact remediation head `961acc0` with no P1/P2 and one P3 enabled-path note;
+hosted run `33724552517` passed, and merge `fdd511b` retained that head as second parent.
+DEC-COM-105 closes the reviewed record and marks G1 Done at that deferral outcome. Luna starter
+credits, consumable cards, COM-C7 through
 COM-C11, production provider traffic, and their StoreKit/backend work are deferred. The frozen
 offer and Eval remain historical evidence and are not current customer promises. The US$4.99
 one-time local-Pro direction, explicitly started 30-day local trial, on-device AI, and
 deterministic fallback remain eligible for a separately authorized local-only COM-C12 review.
+That review is unentered and optional iCloud/first-party telemetry are in scope only if enabled in
+its final candidate; DEC-COM-105 enables neither.
 Preserve the final-review P3 notes that the back-button helper still uses
 `buttons.element(boundBy: 0)` with an App-window geometry check and the budget Save helper performs
 only bounded upward Form drags.

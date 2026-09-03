@@ -70,6 +70,8 @@ actually configured rather than promising it in advance.
 
 The account gate admitted the fixed synthetic run recorded in `G1_LUNA_EVAL.md`. It does not admit
 customer data, establish a production processor route, enter COM-C7, or activate Luna in the app.
-DEC-COM-104 later completed G1 at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: the account evidence is
-historical synthetic-only material, production remains false, and Luna/cards are deferred from the
-local-only launch path.
+DEC-COM-104 later selected `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106 exact remediation head
+`961acc0` passed independent rereview and hosted run `33724552517`, then merged as `fdd511b` with
+that head as second parent. DEC-COM-105 closes its reviewed delivery and marks G1 Done at that
+outcome. The account evidence is historical synthetic-only
+material, production remains false, and Luna/cards are deferred from the local-only launch path.

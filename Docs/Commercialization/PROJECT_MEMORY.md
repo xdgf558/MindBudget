@@ -544,13 +544,17 @@ DEC-COM-103 closes the reviewed PR #104 comparative-result delivery after exact 
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. It preserves `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION` and
 does not supply the owner offer disposition.
-DEC-COM-104 records the later owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains
-In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout
-of that record; the frozen comparative result remains `NON_PASS` and
-production remains unadmitted. Luna starter credits, usage cards, StoreKit card products, provider
+DEC-COM-104 records the later owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106
+independent rereview accepted exact remediation head `961acc0` with no P1/P2 and one P3
+enabled-path note; hosted run `33724552517` passed, and merge `fdd511b` retained that head as second
+parent. DEC-COM-105 closes the reviewed record and marks G1 Done at that deferral outcome; the
+frozen comparative result remains `NON_PASS` and production remains unadmitted. Luna starter
+credits, usage cards, StoreKit card products, provider
 traffic, backend work, and COM-C7 through COM-C11 are deferred. Local Pro, its explicit 30-day
 local trial, on-device AI, and deterministic fallback remain the only planned launch path and may
 advance only through a separately owner-entered local-only COM-C12 review.
+That path remains unentered; optional iCloud and first-party telemetry are release regressions only
+when enabled in the final candidate, and this closeout does not enable either.
 COM-C6.5 awaits
 its 14-day no-P0/P1 gate,
 no earlier than 2026-09-15, and explicit owner entry. Carry forward the two non-blocking final-review notes: the back-button helper still uses
