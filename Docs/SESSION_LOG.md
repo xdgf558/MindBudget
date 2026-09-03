@@ -7372,3 +7372,25 @@ tests across 33 suites passed with the expected Debug-only physical skips; the U
 selected core file exceeded the 85% coverage floor; and all 23 C6-02 runtime bindings passed. The
 validator removed `/var/folders/53/qdndcwrn6q1cw10rq6yl35xr0000gn/T/mindbudget-validation.XU2lSP/MindBudget.xcresult`
 after success; that path is an execution pointer only and does not replace hosted CI or review.
+
+## 2026-09-03 — Enter and plan FX-01 manual foreign-currency expenses
+
+The owner authorized a new product phase after G1 closeout for travel expenses paid in a currency
+different from the current budget/accounting currency. This change records the full task plan only;
+it does not change Swift, SwiftData, entitlements, localization catalogs, sync envelopes, privacy
+manifests, network policy, or release state.
+
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md` locks the manual-only behavior: explicit currency/original
+amount/rate entry, editable accounting result, save-time historical lock, original-first detail,
+dual-amount CSV, no location or country inference, and offline operation with no provider. Existing
+`Expense.amountMinorUnits`/`currencyCode` remain authoritative. Schema V7 is planned as an optional
+one-to-one companion with positive reduced `Int64` rational rate data and deterministic bankers
+rounding. Existing records gain no inferred metadata.
+
+The plan also fixes the entitlement lifecycle: verified local Pro and its active 30-day trial may
+create an FX expense; after access ends, existing FX records remain editable/exportable while new,
+converted, or duplicated FX records are denied. Optional iCloud compatibility is enabled-path
+work only and this phase does not enable sync. Automatic reference rates and every provider/domain
+remain deferred to a separately owner-entered FX-02. FX-01 is In Progress at the planning gate;
+implementation waits for independent review, exact-head hosted CI, and merge. COM-C12 remains
+unentered and no release action is authorized.

@@ -36,6 +36,16 @@ App Intents, and Spotlight.
 
 ## Current and later scope
 
+The owner entered FX-01 on 2026-09-03 as a separate local product phase after G1 closeout. Its
+accepted first release is manual foreign-currency expense entry for local Pro and the active
+30-day local trial: save both the original foreign amount and a user-controlled rational rate,
+while the existing expense amount/currency remain the locked accounting authority for every
+budget and aggregate. FX-01 requests no location and adds no network provider. Automatic reference
+rates are deferred to FX-02. The detailed contract and ordered checklist are in
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md`; Swift/Schema implementation must wait for that planning
+package's independent review, hosted CI, and merge. This product-phase entry does not enter
+COM-C12 or authorize Archive, distribution, or release.
+
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
 Signed-device, production-signing, Instruments, App Store Connect, screenshot, and upload checks
@@ -653,7 +663,10 @@ app's private data are forbidden in V1.
 ## Current state
 
 Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interlude are complete;
-Phase 10 retains its signed-device and distribution release gates. The app opens a versioned
+Phase 10 retains its signed-device and distribution release gates. FX-01 is In Progress at its
+planning gate: the owner-approved manual/local-only contract is recorded, but product code and
+Schema V7 have not started and must wait for review, hosted CI, and merge of the planning package.
+The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
 models. Schema V4 adds companion budget-authority metadata: absence means a migrated legacy plan,
