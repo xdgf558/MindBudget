@@ -696,8 +696,8 @@ assignment, G1, App Store submission, distribution, and public release remain bl
 - [x] Complete the G1 owner disposition. DEC-COM-104 accepts
   `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` after the comparative `NON_PASS`: Luna starter credits,
   consumable cards, their Product IDs, backend, provider route, and production credentials are
-  deferred. G1 remains In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` pending
-  review/merge/closeout of this record, no
+  deferred. At that recording checkpoint, G1 remained In Progress at
+  `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` pending review/merge/closeout, no
   `PROCEED_TO_R2` is granted, and COM-C7 through COM-C11 remain unentered.
   The DEC-COM-095, DEC-COM-096, DEC-COM-097, DEC-COM-098, DEC-COM-099, DEC-COM-100,
   DEC-COM-101, DEC-COM-102, and DEC-COM-103 offer, account, Eval, result, and economics records
@@ -712,3 +712,9 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   one user-calendar year of credit validity, charging only for a user-initiated analysis that is
   ultimately displayed, no Luna access for an ordinary test user, and a separate Apple App Review
   allowance. DEC-COM-104 defers every one of those cloud-credit mechanics with the offer.
+- [x] Close the reviewed G1 owner-disposition record. PR #106 independent rereview accepted exact
+  remediation head `961acc0` with no P1/P2 and one retained P3 enabled-path wording note; hosted
+  run `33724552517` passed; and merge `fdd511b` retained that head as second parent. DEC-COM-105
+  marks G1 Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` without `PROCEED_TO_R2`, production
+  admission, COM-C7 entry, or local-only COM-C12 entry. Optional iCloud and first-party telemetry
+  remain C12 regressions only if enabled in the final candidate; this closeout enables neither.

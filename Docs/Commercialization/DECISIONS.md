@@ -3193,3 +3193,38 @@ owner authorized formal C4B-03 entry only after this documentation closeout pass
   post-unseal regrading; silently treating the earlier card schedule as active; marking COM-C7
   through COM-C11 Done; deleting the historical evidence; or using this G1 disposition as public
   release authorization.
+
+## DEC-COM-105 — Close the reviewed G1 deferral record
+
+- Status/date: **Accepted closeout record — 2026-09-03; this closeout PR still requires its own
+  exact-head independent review, hosted CI, and merge**
+- Requirements: REQ-G1-001; REQ-CLOUD-AUTH-001; REQ-CLOUD-CONSENT-001;
+  REQ-CLOUD-USAGE-001; DEC-COM-104
+- Traceability: Independent review of PR #106 original head `f528db7` raised two P2 findings in the
+  current-policy/C12 boundary and three P3 observations. Remediation head
+  `961acc046fb8c32870fb44cbecfc832e51354780` separated current local-only policy from inactive
+  historical cloud rules, split local-only C12 responsibilities from deferred cloud work, and
+  corrected state chronology. Independent rereview found no P1/P2 and retained one P3 clarification:
+  optional iCloud and first-party telemetry belong to C12 only when enabled in the final candidate.
+  GitHub Actions run `33724552517` passed on that exact remediation head. PR #106 merged as
+  `fdd511bd628e2b80bd24d1a7556e28cb82cfa58a`, whose second parent is the reviewed head. Earlier
+  green run `33714752713` belongs only to original head `f528db7` and is not used as remediation
+  evidence.
+- Decision: Close the reviewed DEC-COM-104 owner-disposition delivery and mark G1 Done at
+  `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. This is a completed deferral decision, not a comparative
+  pass, provider admission, or `PROCEED_TO_R2`. Preserve the frozen `NON_PASS`, all three evidence
+  SHA-256 values, `productionAdmitted: false`, and the deferred status of Luna starter credits,
+  usage cards, provider/backend work, and COM-C7 through COM-C11.
+- Local-only boundary: A separately owner-entered local-only COM-C12 review is now eligible but
+  remains unentered. C12 must verify only paths enabled in its final candidate. Optional iCloud and
+  first-party telemetry require their existing consent, privacy, egress, deletion, and release
+  gates if enabled; this closeout does not enable either channel or make either a prerequisite to
+  opening the local-only path.
+- Consequences: REQ-G1-001 is accepted and G1 is Done. No Swift/product code, StoreKit or App Store
+  Connect configuration, provider/account/credential/backend state, distribution, or public release
+  changed. A future Luna/card proposal still requires fresh G1 evidence, a bootstrap-safe breaker,
+  legal review, a new owner decision, and explicit `PROCEED_TO_R2`.
+- Alternatives rejected: Treating a deferral as `PROCEED_TO_R2`; relabeling the comparative
+  `NON_PASS`; entering COM-C7 or COM-C12 from the closeout; making optional iCloud or telemetry
+  mandatory or enabled by implication; using the old-head green run for remediation; or treating
+  this documentation closeout as release authorization.

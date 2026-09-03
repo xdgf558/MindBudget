@@ -2,9 +2,9 @@
 
 ## Status
 
-**DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`; G1 remains In Progress at
-`LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` pending exact record review/merge/closeout. The
-US$4.99 local-Pro direction remains; Luna credits/consumable cards and their
+**DEC-COM-105 closes the reviewed DEC-COM-104 disposition and marks G1 Done at
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. The US$4.99 local-Pro direction remains; Luna
+credits/consumable cards and their
 StoreKit Product IDs/price points are deferred.**
 
 DEC-COM-092 opened the one-time-offer hypothesis. DEC-COM-093 recorded the first quote-backed
@@ -140,8 +140,10 @@ any sale or grant.
 DEC-COM-095/096 historically accepted the product policy, sole-provider direction, and exact
 credit/card choices;
 DEC-COM-097 accepts standard retention only for the synthetic Eval and keeps production false.
-DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, without `PROCEED_TO_R2`; G1 remains In
-Progress only until that record is reviewed, merged, and closed. COM-C7 through COM-C11 remain deferred. A future cloud proposal must open fresh G1
+DEC-COM-104 accepts `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`, without `PROCEED_TO_R2`. PR #106 exact
+remediation head `961acc0` passed independent rereview and hosted run `33724552517`, then merged as
+`fdd511b` with that head as second parent. DEC-COM-105 closes G1 at the deferral outcome. COM-C7
+through COM-C11 remain deferred. A future cloud proposal must open fresh G1
 value, economics, storefront, privacy, and legal evidence before explicit re-entry. The current
 next eligible path is a separately owner-entered local-only COM-C12 review with Luna and all
 cloud-credit products absent.

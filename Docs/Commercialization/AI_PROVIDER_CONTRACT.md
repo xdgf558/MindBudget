@@ -31,11 +31,12 @@ DEC-COM-103 closes only that result-recording delivery after PR #104 exact remed
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
 that head as second parent. At that delivery checkpoint, the state and owner-decision requirement
 were unchanged.
-DEC-COM-104 now supplies the owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. G1 remains
-In Progress at `LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT` only for review/merge/closeout
-of that record. The Luna selection, account observations, and offer below are
-historical evidence only. No cloud provider is selected for the current local-only launch path;
-production remains unadmitted and COM-C7 through COM-C11 are deferred.
+DEC-COM-104 supplies the owner disposition as `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`. PR #106 exact
+remediation head `961acc0` passed independent rereview and hosted run `33724552517`, then merged as
+`fdd511b` with that head as second parent. DEC-COM-105 closes G1 at that deferral outcome. The Luna
+selection, account observations, and offer below are historical evidence only. No cloud provider
+is selected for the current local-only launch path; production remains unadmitted and COM-C7
+through COM-C11 are deferred. Local-only COM-C12 remains unentered.
 
 Existing deterministic templates and optional on-device Foundation Models remain the complete
 product. If Luna is unavailable, unsupported, outside the disclosed retention policy, over budget,

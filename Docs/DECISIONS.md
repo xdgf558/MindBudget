@@ -3697,3 +3697,16 @@ trial, supported on-device AI, and deterministic fallback. A local-only COM-C12 
 eligible path but still requires separate owner entry and must prove the final binary/storefront
 contains no Luna route, cloud-credit product, provider secret, backend dependency, or cloud-AI
 claim. Production admission stays false and this decision performs no external or product mutation.
+
+## 2026-09-03 — Close the reviewed G1 deferral record
+
+Decision: Detailed ownership is DEC-COM-105. PR #106 remediation head `961acc0` passed independent
+rereview with no P1/P2 and one retained P3 enabled-path clarification, GitHub Actions run
+`33724552517`, and merge `fdd511b`, whose second parent is that exact head. Close the reviewed
+DEC-COM-104 delivery and mark G1 Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`.
+
+Consequences: This is a completed deferral, not `PROCEED_TO_R2`. Preserve the comparative
+`NON_PASS`, production-false boundary, and deferred COM-C7 through COM-C11. Local-only COM-C12 is
+eligible only through a separate owner entry and remains unentered. Optional iCloud and first-party
+telemetry are release-matrix work only when enabled in the final candidate; this closeout enables
+neither and authorizes no product, external-system, distribution, or release action.

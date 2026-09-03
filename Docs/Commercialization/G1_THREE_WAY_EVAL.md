@@ -1,6 +1,6 @@
 # G1 fixed bilingual three-way comparative Eval
 
-Status: **LUNA_CREDITS_DEFERRED_PENDING_REVIEW_AND_CLOSEOUT**
+Status: **G1_DONE_AT_DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO_UNDER_DEC-COM-105**
 
 DEC-COM-103 closes only the reviewed PR #104 result-recording delivery: exact remediation head
 `2fb2b64` passed independent rereview and hosted run `33701018178`, then merged as `e4b54af` with
@@ -8,6 +8,10 @@ that head as second parent. At that delivery checkpoint, the frozen `NON_PASS`, 
 state, production-false boundary, and pending owner disposition were unchanged. DEC-COM-104 later
 superseded only the pending state with the owner deferral recorded in this header.
 The former exact checkpoint state was `COMPARATIVE_EVAL_NON_PASS_PENDING_OWNER_DECISION`.
+PR #106 exact remediation head `961acc0` passed independent rereview and hosted run `33724552517`,
+then merged as `fdd511b` with that head as second parent. DEC-COM-105 closes that reviewed delivery
+and marks G1 Done without changing the frozen `NON_PASS`, admitting production, granting
+`PROCEED_TO_R2`, or entering COM-C7/COM-C12.
 
 This packet compares the user-visible value of three already-authorized local/cloud presentation
 paths without changing production code or admitting customer traffic:
@@ -144,8 +148,9 @@ unavailable rather than inferred. DEC-COM-102 records the result and forbids pos
 This harness/evidence task did not select a new provider, make a Luna call, configure production
 credentials, enable cloud traffic, implement credits or a backend, create a Product ID, or
 authorize distribution/release. DEC-COM-104 subsequently accepted
-`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: G1 remains In Progress only until this owner-decision record
-is reviewed, green, merged, and closed; no `PROCEED_TO_R2` is granted, the frozen `NON_PASS`
-remains unchanged, and COM-C7 through COM-C11 are deferred. A future cloud proposal must open fresh
+`DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO`: at that recording checkpoint, G1 remained In Progress only
+for review, CI, merge, and closeout. DEC-COM-105 now completes that closeout; no `PROCEED_TO_R2`
+is granted, the frozen `NON_PASS` remains unchanged, and COM-C7 through COM-C11 are deferred. A
+future cloud proposal must open fresh
 G1 evidence rather than regrade this packet. Only a separately authorized local-only COM-C12 path
 may proceed while proving Luna, credits, cloud products, and provider traffic absent.
