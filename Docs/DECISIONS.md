@@ -3864,3 +3864,30 @@ applies only to accepted run `33823593637`, not retained non-pass `33772144343`.
 attempts non-pass. The new exact head requires independent rereview and its own hosted success;
 the previous approval and local results do not authorize merge. No product or Swift test change,
 FX-01B, Schema V7, physical rerun, COM-C12, network channel, or release action is included.
+## 2026-09-04 — FX-01B owner entry
+
+Implementation decisions: normalize rate input to eight places before reduction and reject a
+rounding carry beyond ten integer digits; this keeps canonical manual-rate display parseable
+under the same lexical bounds. Use checked two-word unsigned intermediates for positive Int64
+money/rates, bounded quotient search and half-even rounding, never floating-point conversion.
+Home-amount-only edits preserve the original tuple/date/zone and compute an exact override rate.
+Unrecognized or inconsistent metadata fails closed, while deletion remains possible. Add a V7
+recovery marker; only known V5/V6/current V7 journals may be restored after checksum validation.
+V5 is the first recovery-envelope format-1 implementation (`83eed7e`); its journal and backup
+shape is the same verified format, not an arbitrary future-target allowance.
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.

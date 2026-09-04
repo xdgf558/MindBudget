@@ -1,7 +1,6 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01 In Progress; FX-01A Done through PR #110; closeout pending review/CI/merge;
-FX-01B unentered pending separate owner entry.**
+Status: **FX-01 In Progress; FX-01A Done; FX-01B In Progress by separate owner entry; FX-01C unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -29,7 +28,7 @@ evidence only; it is not conversion, migration, runtime, Schema V7, UI, or relea
 
 ## FX-01A post-merge closeout
 
-Status: **Pending independent review, exact-head hosted CI, and merge.**
+Status: **Owner merged with hosted non-pass retained; no independent rereview claimed.**
 
 Owner-supplied off-platform independent rereview accepted PR #110 exact head
 `4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf` (`4554d0e`) with no P1/P2. Hosted run
@@ -56,9 +55,11 @@ Both remain non-pass. The authorized remediation delays exact-ID simulator boot 
 static checks and builds, adds named timeout/fault diagnostics and ordering regressions, and
 retains all 67 CLI mutations and the 30-second deadline. Simulator-start contention is a risk
 suggested by timing, not a proven root cause. The new head needs independent rereview and hosted
-success; the older approval/run does not close this branch.
+success at that checkpoint; the subsequent owner exception below did not satisfy those criteria.
 
-FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+The original entry prerequisite was review, hosted success, merge and separate owner entry.
+PR #111 was instead merged under the explicit owner exception recorded below. The original
+combined acceptance checkbox stays unchecked because hosted success and new-head rereview did not occur.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.
 - [ ] Retain the C6 `migration-and-rollback` registry placement as a maintenance follow-up: the
@@ -67,9 +68,9 @@ FX-01B requires this closeout's independent review, exact-head hosted CI, merge,
   maintenance debt; do not claim new physical evidence or change product behavior in this closeout.
 
 The PR #110 self-tests mutate temporary copies of authoritative files, never the repository
-originals. Before FX-01B implementation, its first unchecked task below must extend the JSON and
-negative gate for eight-place decimal normalization and the thirteenth iCloud companion contract.
-This closeout records that obligation; it does not implement it. FX-01C–E, FX-02, COM-C12, network
+originals. That closeout retained a pre-B obligation to extend the JSON and negative gate for
+eight-place decimal normalization and the thirteenth iCloud companion contract. The separate
+FX-01B entry below now implements and tests that obligation. FX-01C–E, FX-02, COM-C12, network
 activation, Archive, distribution, and release remain unentered or unauthorized.
 
 ## User outcome
@@ -169,7 +170,8 @@ separator, currency symbol, exponent, or surrounding text. The domain parser rej
 fractional digit, normalizes one through twelve entered fractional digits to eight places with
 round-half-to-even, then removes the decimal separator and uses `100_000_000` as the initial
 denominator. It rejects a zero or out-of-range normalized numerator and reduces by the greatest
-common divisor. Thus `7.1234` always becomes `712340000/100000000`, then canonical `35617/5000`,
+common divisor. A rounding carry beyond ten integer digits is out of range, keeping the canonical
+manual display valid under the same parser. Thus `7.1234` becomes `712340000/100000000`, then `35617/5000`,
 independent of locale or typed trailing zeroes.
 
 The converter is a pure, stateless, `Sendable` value type. It uses checked `Int64` inputs,
@@ -251,9 +253,15 @@ Status: **Done — merged static contract-gate delivery only.**
 
 ### FX-01B — Integer conversion and Schema V7
 
-Status: **Blocked — unentered.**
+Status: **In Progress — implementation pending independent review, hosted CI, and merge.**
 
-- [ ] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+The unchecked implementation items below track reviewed acceptance, not absence of candidate
+code. Local execution evidence is recorded separately; only the pre-B static contract prerequisite
+is closed here. Completion does not authorize C.
+See [FX-01B implementation evidence](FX_01B_IMPLEMENTATION_EVIDENCE.md) for scope, fixture coverage,
+retained non-passes and final local validation; the static gate itself claims no runtime evidence.
+
+- [x] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
   normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
   and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
 - [ ] Add the closed rate/source domain and pure integer-rational converter, with table tests for
@@ -327,3 +335,20 @@ FX-01 may be marked Done only after every FX-01A through FX-01E item is complete
 hosted-green, merged source and a separate closeout records the evidence. Completion changes only
 the local product capability; COM-C12 and every release/distribution action remain separately
 blocked until expressly entered.
+## 2026-09-04 — FX-01B owner entry
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.

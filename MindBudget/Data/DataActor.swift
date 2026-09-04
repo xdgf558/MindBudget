@@ -297,6 +297,7 @@ actor DataActor {
     ) throws -> IntentExpenseWriteResult {
         try commit {
             guard draft.source == .siriIntent || draft.source == .shortcut,
+                  draft.foreignCurrency == nil,
                   dedupeSince <= draft.createdAt else {
                 throw DataValidationError.invalidIntentExpense
             }
@@ -345,6 +346,22 @@ actor DataActor {
             }
             try validateExpense(draft)
             try validateAccountingCurrency(draft.amount.currencyCode)
+
+            // Existing FX records retain their saved accounting currency, never Settings.currency.
+            let previousForeign = try foreignCurrency(for: expense)
+            if previousForeign != nil || draft.foreignCurrency != nil {
+                guard expense.currencyCode == draft.amount.currencyCode else {
+                    throw ForeignCurrencyError.currencyMismatch
+                }
+            }
+            var nextForeign = draft.foreignCurrency ?? previousForeign
+            // A legacy form cannot discard the tuple; a home amount edit becomes an exact override.
+            if draft.foreignCurrency == nil, let previousForeign,
+               expense.amountMinorUnits != draft.amount.minorUnits {
+                nextForeign = try previousForeign.overriding(accounting: draft.amount)
+            }
+            try validateForeignCurrency(nextForeign, draft: draft)
+            try saveForeignCurrency(nextForeign, expenseID: id)
 
             let previousNormalizedName = expense.normalizedMerchantName
             let wasRecurring = expense.isRecurring
@@ -771,6 +788,7 @@ actor DataActor {
             }
 
             let normalizedMerchantName = expense.normalizedMerchantName
+            try deleteForeignCurrency(expenseID: id)
             modelContext.delete(expense)
             if let normalizedMerchantName {
                 try rebuildMerchant(normalizedName: normalizedMerchantName, excludingExpenseID: id)
@@ -1577,7 +1595,8 @@ actor DataActor {
             recurringRules: try modelContext.fetchCount(FetchDescriptor<RecurringFixedExpenseRule>()),
             recurringOccurrences: try modelContext.fetchCount(FetchDescriptor<RecurringExpenseOccurrence>()),
             incomeAllocations: try modelContext.fetchCount(FetchDescriptor<IncomeAllocation>()),
-            merchantAccountingContexts: try modelContext.fetchCount(FetchDescriptor<MerchantAccountingContext>())
+            merchantAccountingContexts: try modelContext.fetchCount(FetchDescriptor<MerchantAccountingContext>()),
+            foreignCurrencyMetadata: try modelContext.fetchCount(FetchDescriptor<ExpenseForeignCurrencyMetadata>())
         )
     }
 
@@ -1667,6 +1686,7 @@ actor DataActor {
     }
 
     private func deleteAllLocalModels() throws {
+        for model in try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<CloudSyncOutboxItem>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>()) { modelContext.delete(model) }
@@ -1691,6 +1711,9 @@ actor DataActor {
     private func insertExpense(_ draft: ExpenseDraft) throws -> Expense {
         try validateExpense(draft)
         try validateAccountingCurrency(draft.amount.currencyCode)
+        try validateForeignCurrency(draft.foreignCurrency, draft: draft)
+        // Never let SwiftData's unique upsert turn create into a partial metadata replacement.
+        guard try fetchExpense(id: draft.id) == nil else { throw DataValidationError.identityMismatch }
         let normalizedName = draft.merchantName.flatMap(normalizedMerchantName)
 
         let expense = Expense(
@@ -1715,6 +1738,7 @@ actor DataActor {
             allowMerchantIndexing: draft.allowMerchantIndexing
         )
         modelContext.insert(expense)
+        try saveForeignCurrency(draft.foreignCurrency, expenseID: expense.id)
 
         if let normalizedName {
             try rebuildMerchant(normalizedName: normalizedName, including: expense)
@@ -2545,7 +2569,8 @@ actor DataActor {
     }
 
     private func expenseDetail(_ expense: Expense) throws -> ExpenseDetail {
-        ExpenseDetail(summary: try expenseSummary(expense), note: expense.note)
+        ExpenseDetail(summary: try expenseSummary(expense), note: expense.note,
+                      foreignCurrency: try foreignCurrency(for: expense))
     }
 
     private func incomeSummary(_ income: Income) throws -> IncomeSummary {

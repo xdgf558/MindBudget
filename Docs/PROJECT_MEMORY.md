@@ -51,24 +51,25 @@ as second parent. The separate closeout exact head `8de85e6` passed run `3376371
 merged it as `69050da` with that head as second parent. The owner then entered FX-01A.
 Owner-supplied off-platform independent rereview accepted its final head `4554d0e`; hosted run
 `33823593637` passed, and PR #110 merged it as `9322e3b` with that head as second parent.
-FX-01A is Done for the static contract-gate delivery only; FX-01 remains In Progress, and this
-separate closeout still needs its own independent review, hosted CI, and merge. The 572 hosted
+FX-01A is Done for the static contract-gate delivery only; FX-01 remains In Progress. The
+separate closeout merged under an owner exception, not a hosted-green acceptance. The 572 hosted
 test-detail records explain all 581 ordinary/argument runs without extra attempts or
 Failed-to-Passed. Run `33772144343` remains non-pass.
 
-The closeout is still pending: PR #111 run `33829310323` attempts 1 and 2 failed on `2539ed1`
+At the pre-merge checkpoint, PR #111 run `33829310323` attempts 1 and 2 failed on `2539ed1`
 (npm advisory timeout, then copied-validator CLI timeout). The owner authorized a CI-harness
 remediation, not a phase advance: delay exact-ID simulator boot until static checks/builds finish,
 preserve the 30-second child deadline and all negative checks, and require new-head rereview/CI.
 The underlying cause of the child timeout is unproven. The JSON field is now explicitly named
 `acceptedRunFailedToPassedObserved`, scoped to accepted run `33823593637` only.
 
-FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+The owner subsequently waived the hosted-success prerequisite for that merge and separately
+entered FX-01B. This is not independent rereview or permission to enter FX-01C.
 
-Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
-normalization and the thirteenth iCloud companion contract; this remains unchecked in the plan.
+The FX-01B entry extends the JSON and negative gate for eight-place decimal normalization and
+the future thirteenth iCloud companion contract before Swift implementation.
 The C6 registry placement and old AX5 `boundBy: 0` Back selector remain maintenance debts.
-Self-tests change temporary copies only. Swift/Schema V7 implementation remains unstarted;
+Self-tests change temporary copies only. Swift/Schema V7 implementation is now the active B scope;
 this product phase does not enter COM-C12 or authorize Archive, distribution, or release.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
@@ -691,9 +692,13 @@ Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interl
 Phase 10 retains its signed-device and distribution release gates. FX-01 remains In Progress.
 FX-01A is Done for the merged static contract gate: independently rereviewed head `4554d0e`
 passed hosted run `33823593637`, and PR #110 merged it as `9322e3b` (second parent `4554d0e`).
-Its separate documentation closeout is pending review/CI/merge; FX-01B remains unentered until
-that closeout completes and a separate owner entry occurs. Product code and Schema V7 remain
-unstarted, and neither the merged suite nor the static gate supplies FX runtime evidence.
+PR #111's closeout merged as `34ac3f3` under an explicit owner exception after hosted run
+`33834027746` failed on `33b8009`; that failure remains non-pass and no new-head independent
+rereview is claimed. The owner separately entered FX-01B. Its integer conversion, V7 companion
+and atomic persistence are an implementation candidate; FX-01C remains unentered. Neither the
+prior merged suite nor the static gate supplies FX runtime evidence.
+Candidate-specific scope and local verification are in `Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`;
+B still needs its own independent review, exact-head hosted CI and merge.
 The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
@@ -863,3 +868,20 @@ The optional local app lock is independent from accounts and cloud services. It 
 requires Face ID availability and owner authentication to enable, authenticates again to disable,
 and covers all app content on launch and foreground return until `LocalAuthentication` succeeds.
 The system passcode is an intentional recovery path; no biometric material enters app storage.
+## 2026-09-04 — FX-01B owner entry
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.

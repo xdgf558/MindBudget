@@ -1,5 +1,12 @@
 import SwiftData
 
+enum SchemaV7: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(7, 0, 0) }
+    static var models: [any PersistentModel.Type] {
+        SchemaV6.models + [ExpenseForeignCurrencyMetadata.self]
+    }
+}
+
 enum SchemaV2: VersionedSchema {
     static var versionIdentifier: Schema.Version {
         Schema.Version(2, 0, 0)

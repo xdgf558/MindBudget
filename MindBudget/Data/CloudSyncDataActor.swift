@@ -66,6 +66,7 @@ extension DataActor {
     @discardableResult
     func setCloudSyncEnabled(_ enabled: Bool, at date: Date = Date()) throws -> CloudSyncSnapshot {
         do {
+            if enabled { try requireNoForeignCurrencyForLegacySync() }
             let existingControl = try fetchCloudSyncControl()
             let control = existingControl ?? CloudSyncControl(
                 id: Self.cloudSyncControlID,
@@ -451,6 +452,9 @@ extension DataActor {
               control.isEnabled else {
             return false
         }
+        // Erasure is not ordinary upload. It must not block any local financial write.
+        guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }
+        try requireNoForeignCurrencyForLegacySync()
         modelContext.processPendingChanges()
         var changesByRecordName: [String: CloudSyncMutationProjection] = [:]
         for model in modelContext.insertedModelsArray + modelContext.changedModelsArray {
@@ -471,6 +475,8 @@ extension DataActor {
     }
 
     private func stageAllCurrentFacts(at date: Date) throws -> Bool {
+        // Covers both ordinary enable and the separate trust-boundary recovery/reupload entry.
+        try requireNoForeignCurrencyForLegacySync()
         let models = try allCloudSyncBusinessModels()
         var staged = false
         for model in models {

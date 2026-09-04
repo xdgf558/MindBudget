@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added the Schema V7 local-store foundation for future manual foreign-currency expenses.
+  Existing records retain their accounting amounts and gain no inferred exchange-rate data.
+  The foreign-currency entry UI is not available yet; no automatic rate or new network path is added.
+
 Every user-visible change must be added here when it is implemented. Before each TestFlight or
 App Store upload, move the included entries into a dated version/build section and use the same
 summary for the corresponding TestFlight “What to Test” or App Store “What's New” notes.

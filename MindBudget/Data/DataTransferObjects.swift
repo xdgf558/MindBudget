@@ -19,6 +19,7 @@ struct ExpenseDraft: Sendable {
     let source: ExpenseSource
     let allowMerchantIndexing: Bool
     let recurrenceCalendarIdentifier: Calendar.Identifier?
+    let foreignCurrency: ExpenseForeignCurrency?
 
     init(
         id: UUID,
@@ -38,7 +39,8 @@ struct ExpenseDraft: Sendable {
         isRecurring: Bool,
         source: ExpenseSource,
         allowMerchantIndexing: Bool,
-        recurrenceCalendarIdentifier: Calendar.Identifier? = nil
+        recurrenceCalendarIdentifier: Calendar.Identifier? = nil,
+        foreignCurrency: ExpenseForeignCurrency? = nil
     ) {
         self.id = id
         self.amount = amount
@@ -58,6 +60,7 @@ struct ExpenseDraft: Sendable {
         self.source = source
         self.allowMerchantIndexing = allowMerchantIndexing
         self.recurrenceCalendarIdentifier = recurrenceCalendarIdentifier
+        self.foreignCurrency = foreignCurrency
     }
 }
 

@@ -170,7 +170,7 @@ REQUIRED_RUNTIME_ANCHORS = {
         "await cloudSyncService.refreshAfterLocalDataDeletion()",
     ),
     "MindBudget/Data/DataController.swift": (
-        "Schema(versionedSchema: SchemaV6.self)",
+        "Schema(versionedSchema: SchemaV7.self)",
         "cloudKitDatabase: .none",
     ),
     "MindBudget/Data/CloudSyncDataActor.swift": (
