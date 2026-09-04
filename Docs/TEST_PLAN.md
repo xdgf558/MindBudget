@@ -807,3 +807,15 @@ or iteration flags in the actual validator's stubbed test invocations. Still ins
 ordinary method detail and retain all non-passes, including run `33892068800` despite its green
 GitHub status. FX's 32 unit / two UI bindings and complete local/hosted regression gates are not
 weakened by this remediation.
+
+## FX-01C ordinary About-history regression
+
+Retain the `221dcd9` complete-local non-pass: Settings history expanded but fixed five whole-app
+swipes stopped in `0.9.2`, before the deep `0.9.1` heading entered the accessibility tree. The
+focused remediation must exercise that same full Settings test once without XCTest retries.
+Confirm `0.9.8` as the first expanded historical heading, then independently require `0.9.1`.
+Scope gestures to the About CollectionView and require bounded position progress for each drag,
+using an unambiguous release-heading identifier rather than a mutable index or repeated body label.
+Success requires a nonempty complete target frame below navigation and inside the list; progress
+alone is not success. Preserve the maximum 20 drags and fail on no progress. Retain a final screenshot.
+This focused check cannot replace fresh complete local validation and new-head hosted acceptance.

@@ -712,11 +712,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(releaseHistory.isHittable)
         releaseHistory.tap()
-        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
-        for _ in 0..<5 where !previousRelease.exists {
-            app.swipeUp()
+        // Expansion and locating a deep, virtualized history row are separate outcomes.
+        // Five whole-app swipes previously stopped in 0.9.2's long row before 0.9.1 existed.
+        guard revealAboutHistoryText("settings.releaseNotes.history.0.9.8", in: app) else {
+            return
         }
+        guard revealAboutHistoryText("settings.releaseNotes.history.0.9.1", in: app) else {
+            return
+        }
+        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
         XCTAssertTrue(previousRelease.waitForExistence(timeout: 2))
+        XCTAssertEqual(previousRelease.label, "0.9.1")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "About expanded history reaches 0.9.1"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     @MainActor
@@ -1129,6 +1139,86 @@ final class MindBudgetPhase3UITests: XCTestCase {
             object: element
         )
         XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+    }
+
+    @MainActor
+    private func revealAboutHistoryText(_ identifier: String, in app: XCUIApplication) -> Bool {
+        // Scope gestures to the foreground list, not the dashboard behind the Settings sheet.
+        let list = app.collectionViews.matching(identifier: "settings.about.view").firstMatch
+        let targets = list.staticTexts.matching(identifier: identifier)
+        let target = targets.firstMatch
+        guard list.waitForExistence(timeout: 3) else {
+            XCTFail("About history list is unavailable")
+            return false
+        }
+        for step in 0...20 {
+            let listFrame = list.frame.intersection(app.frame)
+            let navigationBottom = app.navigationBars.firstMatch.frame.maxY
+            let top = max(listFrame.minY, navigationBottom) + 16
+            let bottom = listFrame.maxY - 24
+            let lane = CGRect(x: listFrame.minX + 16, y: top,
+                              width: listFrame.width - 32, height: bottom - top)
+            guard !lane.isEmpty, lane.height > 80 else {
+                XCTFail("About history has no unobscured scrolling lane")
+                return false
+            }
+            guard targets.count <= 1 else {
+                XCTFail("About history has an ambiguous target identity: \(identifier)")
+                return false
+            }
+            if target.exists, !target.frame.isEmpty, target.isHittable,
+               lane.contains(target.frame) {
+                return true
+            }
+            guard step < 20 else { break }
+            // Keep the nearest instantiated release heading's exact ID across this drag.
+            // A long cell can keep its heading in the tree above the visible body; its frame
+            // still measures progress. Repeated body labels and virtualized indices do not.
+            let headings = list.staticTexts.matching(NSPredicate(
+                format: "identifier BEGINSWITH %@", "settings.releaseNotes.history."
+            )).allElementsBoundByIndex.filter { $0.exists && !$0.frame.isEmpty }
+            guard let heading = headings.min(by: {
+                abs($0.frame.midY - lane.midY) < abs($1.frame.midY - lane.midY)
+            }) else {
+                XCTFail("About history has no instantiated release heading after expansion")
+                return false
+            }
+            let anchors = list.staticTexts.matching(identifier: heading.identifier)
+            guard anchors.count == 1 else {
+                XCTFail("About history has an ambiguous scroll-anchor identity")
+                return false
+            }
+            let anchor = anchors.firstMatch
+            let initialY = anchor.frame.midY
+            let movesTowardEarlierContent = target.exists && target.frame.minY < lane.minY
+            let startY = movesTowardEarlierContent ? lane.minY + lane.height * 0.2
+                                                   : lane.minY + lane.height * 0.8
+            let endY = movesTowardEarlierContent ? lane.minY + lane.height * 0.75
+                                                 : lane.minY + lane.height * 0.25
+            let origin = list.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(dx: lane.midX - list.frame.minX,
+                                                  dy: startY - list.frame.minY))
+            let end = origin.withOffset(CGVector(dx: lane.midX - list.frame.minX,
+                                                dy: endY - list.frame.minY))
+            XCTContext.runActivity(named: "Reveal \(identifier), bounded drag \(step + 1)") { _ in
+                start.press(forDuration: 0.1, thenDragTo: end)
+            }
+            let progress = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in
+                    guard targets.count <= 1, anchors.count <= 1 else { return false }
+                    return (target.exists && !target.frame.isEmpty && target.isHittable
+                            && lane.contains(target.frame))
+                        || !anchor.exists || abs(anchor.frame.midY - initialY) > 1
+                },
+                object: list
+            )
+            guard XCTWaiter.wait(for: [progress], timeout: 3) == .completed else {
+                XCTFail("About history made no observable scroll progress toward \(identifier)")
+                return false
+            }
+        }
+        XCTFail("About history did not reveal \(identifier) within 20 bounded drags")
+        return false
     }
 
     @MainActor

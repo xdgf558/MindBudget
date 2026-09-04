@@ -4091,3 +4091,25 @@ setting, rejects overrides/retry flags, and its stubbed normal test arguments mu
 retry or iteration flag. Full native acceptance is still mandatory; changing configuration
 does not prove execution. The new source needs independent review and fresh exact-head complete
 validation. C remains In Progress, and D is not entered.
+
+## 2026-09-05 — About history lookup follows scoped scroll progress
+
+Complete local validation of PR #114 head `221dcd9` failed in the ordinary Settings UI test at
+the `0.9.1` historical-release assertion. Native evidence records one Failed execution, not a
+retry. The final accessibility hierarchy and recorded frame show expanded history at `0.9.2`,
+with the list around 81% through eight pages. Therefore this failure is not evidence of a failed
+disclosure tap or missing product release notes. Five whole-application swipes did not reach the
+deep virtualized target. The About product source is unchanged from C's base.
+
+Keep the original `0.9.1` target. The test-only lookup scopes gestures to About's CollectionView,
+confirms the first historical `0.9.8` heading separately, and uses at most 20 short drags with a
+bounded progress wait after each. A uniquely identified instantiated release heading supplies
+position continuity; repeated body labels and virtualized indices cannot substitute identities.
+No progress fails the test. Progress only permits another lookup: success requires the target's
+nonempty full frame inside the list's unobscured lane below navigation. An instantiated target
+above that lane changes the drag direction. Do not repeat the disclosure tap, modify the product
+catalog, replace the deep target, or treat a focused pass as complete-validation acceptance.
+
+The failed full local run remains non-pass, including its unexecuted downstream coverage/C6/FX
+verification and dedicated FX UI stages. Source rereview, a new frozen head and fresh complete
+local/hosted validation are still required; no C completion or D entry follows.

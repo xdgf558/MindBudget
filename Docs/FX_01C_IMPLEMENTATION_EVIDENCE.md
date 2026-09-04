@@ -160,3 +160,28 @@ fresh complete local validation at `4d8a856` cannot substitute for the required 
 regression pass. The original hosted ZIP digest is recorded in `SESSION_LOG.md`; native-reader
 working databases are distinguished from original archive bytes. PR #114 remains Draft and
 unmerged. A new source remediation needs independent rereview and new exact-head evidence.
+
+## Full local ordinary Settings failure — retained non-pass
+
+At `221dcd9`, complete local validation exited 65 in the ordinary suite: 606 method records are
+589 Passed / 16 Skipped / 1 Failed, with device totals of 598 Passed / 16 Skipped / 1 Failed.
+`testSettingsShowsExportAndPrivacyControls()` ran once for 70.215324998s and failed at the `0.9.1`
+history existence assertion. Ordinary UI totals are 16 Passed / 3 Skipped / 1 Failed. The separate
+strict benchmark passed, but subsequent coverage, C6-02/FX unit verification and dedicated FX UI
+were not executed after the ordinary failure. None is claimed as this run's downstream pass.
+
+Independent read-only inspection of the closed result and the author's recorded-frame inspection
+establish that history was expanded and still showing `0.9.2` after the fixed five swipes. The
+final native hierarchy places the list at about 81% of eight pages. This is a deep-row lookup
+failure, not proven product corruption or a failed disclosure tap. The test-only candidate keeps
+`0.9.1`, scopes small drags to About's list and requires uniquely identified heading progress and
+full target visibility. Its focused result and independent source rereview are pending. Hosted
+run `33900664975` belongs to the older frozen `221dcd9`, not the new test-helper candidate.
+
+Subsequent focused evidence: the same Settings method ran once Passed in 91.640970945s, with
+no skipped/extra/Failed-to-Passed execution or native runtime warning. Independent native and
+activity review confirmed one disclosure tap, the separate `0.9.8` anchor, nine progress-checked
+drags and the original `0.9.1` target. Author and reviewer inspected the final retained screenshot.
+The five-file test/document source delta was independently accepted for freezing, not merging.
+This scoped result does not erase the failed full run; fresh exact-head complete local and
+hosted validation, including all downstream stages, remain mandatory.

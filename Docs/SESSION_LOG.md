@@ -8264,3 +8264,51 @@ readback predicates and one Save-to-Dashboard transition (12 input / 12 readback
 activities overall), with no failure-associated activities. This focused probe is English-only.
 Ordinary Chinese regressions and the separate Chinese AX5 FX host remain required in complete
 new-head validation, not claimed from probe 5.
+
+## 2026-09-05 — Complete local Settings-history non-pass and scoped lookup candidate
+
+Frozen head `221dcd9428033a2d891d7a6b1addab970c472cd7` completed its separate strict benchmark
+once Passed, independently verified with the strict prior inventory. Full local validation then
+exited 65 after ordinary UI, with retries disabled. Native summary is 606 methods: 589 Passed,
+16 Skipped and 1 Failed; concrete device totals are 598 Passed / 16 Skipped / 1 Failed. Ordinary
+UI is 16 Passed / 3 Skipped / 1 Failed. No coverage, C6-02/FX binding verification or dedicated
+FX UI stage ran after this failure. The strict pass and passed category cases do not erase it.
+
+The sole failed method is `testSettingsShowsExportAndPrivacyControls()`, one execution lasting
+70.215324998s, at the historical `0.9.1` assertion (then line 719). Budget save, appearance switch,
+privacy and About navigation had passed. The native final hierarchy shows the history already
+expanded at `0.9.2`, including its long body, and an eight-page list at about 81%. The original
+recording frame requested at 68s (actual 67.98s) agrees. Independent read-only review verified the
+closed summary/detail/activity records, hierarchy and frame. The failure is not evidence that
+the disclosure tap failed or product catalog entries disappeared; five whole-app swipes did
+not reveal the later virtualized row. About product source is unchanged from the C base.
+
+The candidate changes only that test's history lookup. It preserves `0.9.1`, first verifies the
+expanded `0.9.8` heading, scopes short drags to About's collection, and continues only with
+observable movement of the same uniquely identified instantiated heading. Success separately
+requires the target's full nonempty frame in the unobscured list lane; no progress or exhausting
+20 drags fails, including after the final drag. It can reverse for a target above the lane.
+No repeated disclosure tap, product mutation, deleted assertion or acceptance retry is added.
+Focused execution and independent implementation rereview remain pending. Hosted `33900664975`
+continues on the older frozen head; even a hosted pass cannot accept this new source or erase
+the full local non-pass. PR #114 remains Draft, C In Progress and D unentered.
+
+The settings-focused probe then passed once in 91.640970945s. Author and independent native
+audits agree on one method, one concrete Passed device/configuration/run, zero skips, extra
+attempts, Failed-to-Passed and runtime warnings. The independent activity audit found one
+disclosure tap, the `0.9.8` expansion anchor without dragging, and nine bounded drags toward
+`0.9.1`; the fixed heading identities progressed through `0.9.8`, `0.9.7`, `0.9.6`, `0.9.5`,
+`0.9.4` and `0.9.2` before the target became visible. Both reviewers inspected the retained
+final screenshot showing the `0.9.1` heading and beginning of its body. This verifies this
+mechanism on the specified simulator only, not a complete regression pass or physical evidence.
+
+Independent source review accepted the five-file test/document delta at UI-test SHA-256
+`57a3cdd442846f0a37653419244342aa3c57f46d4d541f39cc16dded18b3c9a8`, with no P1/P2. The initial
+static command passed the four existing shell gates but then used a nonexistent `.py` filename
+for the FX wrapper and exited 127; it is not an FX-gate pass. The corrected shell gate then
+passed, including 454 copied-CLI mutations, seven process faults, 3/21 ordering scenarios and
+six hosted no-retry negatives. A screenshot export filter initially matched no attachments; full export obtained
+the original screenshot without rerunning the test. The review agent's initial native read
+needed permission to create a TestReport derived cache; its subsequent read is not a test rerun.
+All original failures remain retained. New frozen-head complete local/hosted validation is still
+required before this PR can merge; source and focused acceptance alone do not close C.
