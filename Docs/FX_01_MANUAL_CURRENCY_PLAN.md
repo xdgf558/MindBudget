@@ -1,7 +1,7 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **Planning contract reviewed, hosted-green, and merged through PR #108; implementation
-remains unentered pending independent review, hosted CI, and merge of this separate closeout.**
+Status: **FX-01A contract gate implemented; FX-01B remains unentered pending independent review,
+exact-head hosted CI, and merge.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -11,6 +11,21 @@ Planning-delivery evidence: independent rereview accepted exact remediation head
 observation; GitHub Actions run `33758966855` succeeded on that head; and PR #108 merged it as
 `f2f57b45cb676d0dc5b08ceee109e50530a35707`, whose second parent is the reviewed head. This
 evidence closes only the planning prerequisite and is not runtime or Schema V7 evidence.
+
+Planning-closeout evidence: independent review accepted exact head
+`8de85e61277f48914d2269701af00d86cf433f62` with no P1/P2/P3; GitHub Actions run
+`33763718952` succeeded on that head in 40m10s; and PR #109 merged it as
+`69050da62305e8df076772a5638528442341933b`, whose second parent is the reviewed head. The owner
+then separately entered FX-01A. This author-side gate candidate still requires its own independent
+review, exact-head hosted CI, and merge before FX-01B may begin.
+
+`Docs/FX_01_CONTRACT.json` is the machine-readable contract authority. The self-testing
+`Scripts/check-fx01-contract.sh` validates its exact closed keys, the structurally scoped phase
+status in this plan and `Docs/TASKS.md`, the frozen `Expense` stored-property inventory, the actual
+`DataActor` accounting write anchors, whole-app floating-point/network exclusions, and the absence
+of FX identifiers from the pre-existing exception files. The gate is run directly in hosted CI,
+from `Scripts/validate.sh`, and from the closed C6 matrix inventory. Its success is static contract
+evidence only; it is not conversion, migration, runtime, Schema V7, UI, or release evidence.
 
 ## User outcome
 
@@ -183,7 +198,7 @@ silently overwrite the saved fraction.
 - [x] Obtain independent review, exact-head hosted CI, and merge for this planning package before
   changing Swift, the project file, a schema, a localization catalog, or a sync envelope. Exact
   head `0619d5e` passed run `33758966855` and PR #108 merged it as `f2f57b4`.
-- [ ] At implementation start, add a fail-closed FX-01 contract gate that protects the active
+- [x] At implementation start, add a fail-closed FX-01 contract gate that protects the active
   phase, accounting-authority fields, manual-only/no-domain boundary, and no-`Double` rule without
   claiming runtime evidence from prose.
 

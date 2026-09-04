@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "phase": {
+    "id": "FX-01",
+    "status": "IN_PROGRESS",
+    "activeSubphase": "FX-01A",
+    "nextSubphase": "FX-01B",
+    "nextSubphaseEntered": false,
+    "deferredPhases": [
+      "FX-02",
+      "COM-C12"
+    ]
+  },
+  "accountingAuthority": {
+    "model": "Expense",
+    "persistedFields": [
+      "amountMinorUnits",
+      "currencyCode"
+    ],
+    "foreignMetadataStorage": "separateCompanion",
+    "historyRevaluationAllowed": false
+  },
+  "manualBoundary": {
+    "rateMode": "manualOnly",
+    "automaticRateProviderAllowed": false,
+    "locationOrCountryInferenceAllowed": false,
+    "newNetworkDomains": []
+  },
+  "moneyBoundary": {
+    "storageType": "Int64",
+    "rateRepresentation": "reducedPositiveRational",
+    "rounding": "roundHalfToEven",
+    "floatingPointTypesAllowed": []
+  },
+  "sourceBoundary": {
+    "expenseModel": "MindBudget/Models/Expense.swift",
+    "writeAuthority": "MindBudget/Data/DataActor.swift",
+    "floatingPointExceptions": [
+      "MindBudget/AppIntents/IntentMoneyTransport.swift",
+      "MindBudget/Services/ReceiptRecognition/ReceiptGeometry.swift",
+      "MindBudget/Services/ReceiptRecognition/ReceiptVisionObservation.swift"
+    ],
+    "networkExceptions": [
+      "MindBudget/Commerce/PublicConfigurationTransport.swift",
+      "MindBudget/Services/TelemetryTransport.swift"
+    ]
+  },
+  "evidenceBoundary": {
+    "kind": "staticContractOnly",
+    "runtimeEvidenceClaimed": false,
+    "schemaV7EvidenceClaimed": false
+  }
+}

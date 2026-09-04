@@ -38,6 +38,9 @@ jobs:
       - name: Reject floating-point money paths
         run: Scripts/check-no-floating-point-money.sh
 
+      - name: Verify FX-01 phase and source boundary
+        run: Scripts/check-fx01-contract.sh
+
       - name: Reject unapproved app-owned network egress
         run: Scripts/check-network-egress.sh
 

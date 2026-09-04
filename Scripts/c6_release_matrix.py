@@ -27,6 +27,7 @@ ALLOWED_STATIC_CHECKS = frozenset(
     {
         "Scripts/check-commercialization-docs.sh",
         "Scripts/check-feature-access-boundary.sh",
+        "Scripts/check-fx01-contract.sh",
         "Scripts/check-network-egress.sh",
         "Scripts/check-no-floating-point-money.sh",
         "Scripts/check-public-configuration-contract.sh",
