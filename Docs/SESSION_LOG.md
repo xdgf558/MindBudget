@@ -7470,3 +7470,78 @@ succeeded: Release build/test completed, the UI suite executed 18 tests with 1 s
 iPhone-only skip and 0 failures, every selected core-service coverage result remained at or above
 85%, and the C6-02 result-bundle check found all 23 exact runtime bindings. This local run does not
 replace the required independent review or exact-head hosted CI for the FX-01A gate candidate.
+
+## 2026-09-04 — Diagnose PR #110 hosted non-pass without rerunning or merging
+
+The owner independently reviewed FX-01A head
+`b2b45f1155e6b393c17cac6c77f5208fb3792c41` with no P1/P2. The three retained P3 observations
+are that the PR description should say self-tests mutate temporary copies, not repository files;
+the FX static gate is currently registered under the completed C6 migration-and-rollback row;
+and the eight-decimal normalization/thirteenth iCloud companion contract must enter the machine
+gate when FX-01B is separately authorized. None authorizes FX-01B now.
+
+GitHub Actions run `33772144343` on that exact head is a **non-pass**, not pending or successful.
+The actual GitHub conclusion is `cancelled`: check-run `100704799053` records
+“The job has exceeded the maximum execution time of 45m0s”. All static steps, including FX-01A,
+passed; the unit log reports 554 tests in 33 suites passed. The UI suite did not complete before
+cancellation. This was not only a workflow time-budget problem: its first
+`testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance` attempt failed at
+`MindBudgetPhase3UITests.swift:895` with “Appearance selection did not settle: auroraGlow”.
+Its automatic second attempt passed, but the C6-02 runtime gate explicitly rejects Failed-to-Passed
+repetitions; neither that retry nor increasing the workflow timeout alone supplies passing evidence.
+
+Read-only inspection of the uploaded `MindBudget-xcresult-33772144343-1` artifact
+(artifact ID `9901906499`, uploaded ZIP SHA-256
+`5ce3ab29f15b9e991991a6adeb1e5d2db5f2f6472d7ced1187dc9063684fbc8f`)
+found that cancellation left `Data/` and `Staging/` but no `Info.plist`. Normal xcresult summary
+parsing therefore fails; this is not a complete result bundle or 23-binding acceptance proof.
+The preserved staging runner/app diagnostic logs do establish the selection failure mechanism:
+
+- At 15:53:45.390 UTC XCTest synthesized the Aurora tap at `{201.0, 404.8}`, within the button
+  frame `{{16.0, 215.3}, {370.0, 379.0}}` and the app window. This is not evidence for the
+  previously diagnosed navigation-bar occlusion mechanism.
+- At 15:53:45.694 the selected-state expectation started its two-second budget. Its first
+  predicate query started at 15:53:46.752; the outer waiter interrupted that still-pending query
+  at 15:53:47.983 with `Interrupted by waiter`.
+- The app-side query already contained Aurora's `value: Selected, Selected` by 15:53:47.667
+  and returned matching selected snapshots at 15:53:48.071, after the runner had interrupted
+  the query. Thus the observed assertion is an accessibility-query/wait-budget failure, not
+  evidence that the skin did not change. This diagnosis does not claim a remediation passed.
+
+This continuation downloaded/read evidence only and appended this record: no hosted rerun,
+test or product-code change, undraft, merge, phase completion, or FX-01B entry occurred.
+PR #110 remains Draft. A scoped test-wait remediation still needs implementation, validation,
+independent review of its new exact head, and hosted success before merge.
+
+## 2026-09-04 — Apply the owner-authorized PR #110 test-query remediation
+
+The owner authorized the diagnosed test-only fix. The simulator three-skin AX5 flow and its
+physical-only bilingual counterpart now use exact `app.buttons` queries and an explicit
+five-second selected-state wait. The shared assertion returns its outcome; both appearance flows
+stop immediately after a failed selection, so subsequent screenshots cannot be collected as if
+the intended skin had been confirmed. Selection still requires `isSelected == true`, with one tap
+and no sleep or retry. Other callers keep the two-second default. No product Swift, CI timeout,
+retry acceptance, phase status, Schema V7, or network contract changed; the physical-only test has
+not been rerun. Focused and full local validation, new-head independent review, and hosted success
+remain required before merge. The earlier `33772144343` non-pass is preserved above.
+
+Focused verification passed under Xcode 27.0 beta 6 on the iOS 26.5 iPhone 17 Pro simulator:
+`testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance` completed in 226.941 seconds
+without runner retry. Reading `FocusedAX5.xcresult` with the existing result parser returned exactly
+one `Passed` binding for that method, not an aggregate hiding repetitions. The retained bundle is
+`/private/tmp/mindbudget-pr110-remediation.Nl1FlF/FocusedAX5.xcresult`. This is focused simulator
+evidence only; the full validator was then started separately with retries disabled and the strict
+wall-clock benchmark enabled, using a fresh `FullValidation.xcresult` in the same directory.
+
+The complete validator exited 0: Release build, the separately executed strict Dashboard
+benchmark, full tests, all selected core-service coverage floors (at least 85%), and all 23 C6-02
+exact runtime bindings passed. The native full-result summary reports 572 tests: 558 Passed,
+14 Skipped, zero failures and zero expected failures (parameterized run counts are a separate
+summary field). The UI suite executed 18 tests: 17 Passed, one physical-only Skip, zero failures;
+the remediated three-skin AX5 method passed in 227.044 seconds. The native result tree contains
+no Repetition nodes, and no runner retry was enabled. The retained complete bundle is
+`/private/tmp/mindbudget-pr110-remediation.Nl1FlF/FullValidation.xcresult`; the earlier standalone
+focused result and failed hosted artifact remain separate evidence. No device evidence was added.
+Local success does not replace independent rereview or hosted success on the remediation head,
+and FX-01B remains unentered. The PR-description P3 wording is corrected to temporary-copy
+mutation; C6 registry ownership and FX-01B decimal/companion gate follow-ups remain explicit.

@@ -561,16 +561,22 @@ final class MindBudgetPhase3UITests: XCTestCase {
             XCTAssertTrue(appearance.waitForExistence(timeout: 2))
             appearance.tap()
 
-            let skinControl = element("settings.appearance.skin.\(skin)", in: app)
+            let skinControl = app.buttons["settings.appearance.skin.\(skin)"]
             for _ in 0..<4 where !skinControl.isHittable {
                 app.swipeUp()
             }
             XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
             skinControl.tap()
-            assertEventuallySelected(
+            // Hosted run 33772144343 returned a Selected snapshot only after the old
+            // two-second waiter had interrupted its first cross-process query. Keep
+            // the query button-specific and allow time for the query itself to finish.
+            guard assertEventuallySelected(
                 skinControl,
+                timeout: 5,
                 message: "Appearance selection did not settle: \(skin)"
-            )
+            ) else {
+                return
+            }
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
             let proEntry = element("settings.pro", in: app)
@@ -692,16 +698,20 @@ final class MindBudgetPhase3UITests: XCTestCase {
             XCTAssertTrue(appearance.waitForExistence(timeout: 2))
             appearance.tap()
 
-            let skinControl = element("settings.appearance.skin.\(variant.skin)", in: app)
+            let skinControl = app.buttons["settings.appearance.skin.\(variant.skin)"]
             for _ in 0..<4 where !skinControl.isHittable {
                 app.swipeUp()
             }
             XCTAssertTrue(skinControl.waitForExistence(timeout: 2))
             skinControl.tap()
-            assertEventuallySelected(
+            guard assertEventuallySelected(
                 skinControl,
+                timeout: 5,
                 message: "Physical AX5 appearance selection did not settle: \(variant.name)"
-            )
+            ) else {
+                app.terminate()
+                return
+            }
             assertNavigationBackButtonReady(
                 in: app,
                 message: "Physical AX5 Appearance navigation did not settle: \(variant.name)"
@@ -881,18 +891,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    @discardableResult
     private func assertEventuallySelected(
         _ element: XCUIElement,
         timeout: TimeInterval = 2,
         message: String
-    ) {
+    ) -> Bool {
         let expectation = XCTNSPredicateExpectation(
             predicate: NSPredicate { object, _ in
                 (object as? XCUIElement)?.isSelected == true
             },
             object: element
         )
-        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: timeout), .completed, message)
+        let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
+        XCTAssertEqual(result, .completed, message)
+        return result == .completed
     }
 
     @MainActor

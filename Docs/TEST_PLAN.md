@@ -605,8 +605,9 @@ target's deployment target is 17.0, dynamically create a compatible iOS 26 simul
 and execute build plus tests. GitHub-hosted macOS images currently do not include an
 iOS 17 runtime, so this is a deployment compatibility check rather than an iOS 17
 runtime claim. Release smoke testing on a real iOS 17 device or simulator remains
-required. Hosted CI permits one retry for a transient first-launch timeout on a newly
-migrated simulator; assertion failures must fail both attempts and remain blocking. The explicit
+required. Hosted CI permits one retry for a first-launch timeout on a newly
+migrated simulator; any failed concrete attempt of a required C6-02 binding remains blocking even
+when a later retry passes. The explicit
 wall-clock benchmark exclusion above is independent from retry behavior and cannot skip another
 correctness, localization, UI, or coverage assertion.
 
@@ -617,3 +618,14 @@ network code, FX code hidden in a pre-existing source exception, unknown JSON ke
 revaluation, and runtime-evidence claims. A green result proves only that reviewed source and
 configuration still satisfy the static contract; it does not prove conversion arithmetic,
 Schema V7 migration, UI behavior, or release readiness.
+
+PR #110 hosted run `33772144343` is a retained non-pass: it hit the workflow's 45-minute timeout
+after an AX5 appearance assertion failed and its automatic retry passed. The app-side diagnostic
+snapshot was already Selected; the test's two-second waiter interrupted the first cross-process
+query before its reply. For the scoped remediation, both AX5 appearance flows must query the exact
+skin button, retain the selected-state predicate with a five-second bound, and stop the flow on
+failure before collecting later appearance evidence. Other selected-state waits keep their
+two-second default. Run the focused simulator AX5 case and a fresh complete validator without
+runner retry. The physical-only variant remains unrun unless separately authorized; changed test
+code does not refresh prior device evidence. Do not treat the failed-then-passed hosted attempt,
+an incomplete xcresult, or an increased timeout as a passing C6-02 runtime result.
