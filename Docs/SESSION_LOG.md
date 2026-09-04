@@ -7864,3 +7864,47 @@ Only B is currently entered. Later implementation starts in order after its prer
 evidenced; FX-02 requires its own provider/privacy/network plan before network implementation.
 Preparing a Draft PR from the locally validated source. Independent review and hosted CI remain
 pending; no merge or later-phase implementation has occurred in this session.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. The separate read-only reviewer found no P1/P2/P3 in the product
+diff and independently verified 80,000 arithmetic-oracle cases plus bounded native macOS
+migration probes. Those probes do not replace the actual iOS full suite. The public review
+summary is linked in the B implementation packet; the reviewer also read the full hosted bundle.
+
+Hosted attempt 1 completed in 36m6s on Xcode 26.6. All 589 native details and the full case/parameter
+inventory match local full-5: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped,
+zero extra/failed attempts, 17 FX methods exactly once Passed, 23 C6 runtime bindings and core
+coverage passed. The summary's configuration-level "test repetitions" label did not correspond
+to any actual repeated attempt. The PR synthetic merge tree was independently distinguished
+from a direct head checkout, then verified equal through the GitHub commit API before merging.
+The normal merge used an exact-head guard, no administrator bypass and no branch deletion.
+
+During waiting, independent review found two defects in an external read-only audit utility:
+missing expected-inventory completeness and ordinary Device summaries accepted without an
+identified execution configuration. Both were repaired, negatively tested and rereviewed;
+all ordinary Device/configuration identities and parameter arguments now close exactly. It also
+accepts only the observed single Skipped leaf variants. The frozen tool hash is
+`4abb112e1cb158a7a834ad80c0655a0a6f16f935461e9d790332e16b00605567`.
+It was run with full-5 as the expected inventory, plus the separate 17-source-method binding
+check. The previous PR110 package correctly fails comparison by missing all 17 FX methods;
+an incomplete older package fails native parsing. Those auditor development failures were not
+product-test runs. A first sandboxed hosted read failed on Apple's TestReport cache permission;
+native summary was allowed to create that derived cache, after which the unchanged original
+bundle parsed successfully. No product test was rerun to hide a failure.
+
+Artifact: `/private/tmp/mindbudget-pr112-hosted.e2rr9q/Hosted.xcresult`; hosted log and both audit
+logs are in the same directory. This session now changes only docs/JSON/static gate for separate
+closeout; it does not add product code or claim that this new branch has already passed review/CI.
+
+Closeout preparation: integer-money, network, commercialization documents and StoreKit catalog
+checks passed. Final FX gate self-test rejects 202 copied-CLI mutations, seven invalid process
+outcomes and 16 ordering failures (three valid order paths pass). It additionally fixes phase
+task counts so deleting a task cannot leave an apparently complete checklist. `git diff --check`
+passed. A new complete local validation and this closeout's own independent review/hosted run
+remain pending at commit time; the unchanged Swift tree does not waive them.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.

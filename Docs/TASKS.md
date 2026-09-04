@@ -225,11 +225,11 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — FX-01B entered; FX-01C unentered
+Status: In Progress — FX-01B Done; B closeout pending review/CI/merge; FX-01C unentered
 
-The B implementation candidate and its runtime evidence are tracked in
-`Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`. Implementation checkboxes below remain pending reviewed
-acceptance; they must not be promoted using PR #111's owner-specific merge exception.
+The B delivery and its reviewed, hosted-green merged runtime evidence are tracked in
+`Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`. Only B implementation checkboxes are accepted;
+PR #111's owner-specific merge exception is not their acceptance basis. C waits for B closeout.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
@@ -257,10 +257,10 @@ The unmet combined closeout checkbox is retained as historical non-pass, not a c
   and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
 - [ ] Keep the FX gate's C6 registry placement and the existing AX5 `boundBy: 0` Back selector as
   maintenance follow-ups in the plan, not reasons to enter C6 or claim new physical evidence.
-- [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
+- [x] Implement the pure checked integer-rational converter and deterministic bankers rounding;
   close rate text through an eight-fractional-place half-even normalization before reduction,
   prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
-- [ ] Add Schema V7's optional one-to-one foreign-currency companion while preserving
+- [x] Add Schema V7's optional one-to-one foreign-currency companion while preserving
   `Expense.amountMinorUnits`/`currencyCode` as the sole accounting authority; migrate V1–V6 with no
   inferred metadata and keep create/update/delete atomic. New rows use the current Settings
   currency; edits use only the row's persisted accounting currency.
@@ -790,3 +790,14 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. B's local/hosted concrete execution and review boundaries are in
+`FX_01B_IMPLEMENTATION_EVIDENCE.md`. The earlier entry is historical, not a pending B delivery.
+No C–E/FX-02/COM-C12 implementation or release authorization follows from this closeout alone.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.

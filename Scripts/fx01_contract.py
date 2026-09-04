@@ -20,6 +20,7 @@ ROOT_KEYS = frozenset(
         "schemaVersion",
         "phase",
         "deliveryEvidence",
+        "implementationEvidence",
         "accountingAuthority",
         "manualBoundary",
         "moneyBoundary",
@@ -85,8 +86,8 @@ EXPECTED_PHASE = {
     "id": "FX-01",
     "status": "IN_PROGRESS",
     "activeSubphase": "FX-01B",
-    "activeSubphaseStatus": "IN_PROGRESS",
-    "closeoutStatus": "OWNER_MERGE_EXCEPTION_NON_PASS_RETAINED",
+    "activeSubphaseStatus": "DONE",
+    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
     "nextSubphase": "FX-01C",
     "nextSubphaseEntered": False,
     "deferredPhases": ["FX-02", "COM-C12"],
@@ -104,6 +105,23 @@ EXPECTED_ACCOUNTING_AUTHORITY = {
     "persistedFields": ["amountMinorUnits", "currencyCode"],
     "foreignMetadataStorage": "separateCompanion",
     "historyRevaluationAllowed": False,
+}
+EXPECTED_IMPLEMENTATION_EVIDENCE = {
+    "pullRequest": 112,
+    "reviewKind": "ownerAuthorizedIndependentAgent",
+    "reviewedHead": "a24cfa1f296defd1fb17f4a815bd8caa10039117",
+    "hostedRun": "33841868078",
+    "hostedAttempt": 1,
+    "testedSyntheticMerge": "ea6a17f91ccc50cd135537a22d47f15dc54c4d42",
+    "reviewedAndTestedTree": "1ac571400f2241c2f987b2fdab2ea71e318cf9f4",
+    "mergeCommit": "2e49acdc62bef9aac89b12b4c483f3d12008f5ac",
+    "casePassed": 575,
+    "caseSkipped": 14,
+    "concretePassed": 584,
+    "concreteSkipped": 14,
+    "requiredFXMethodsPassedExactlyOnce": 17,
+    "acceptedRunExtraAttempts": 0,
+    "acceptedRunFailedToPassedObserved": False,
 }
 EXPECTED_MANUAL_BOUNDARY = {
     "rateMode": "manualOnly",
@@ -152,13 +170,13 @@ EXPECTED_SYNC_COMPANION = {
 }
 
 EXPECTED_PLAN_STATUS = (
-    "FX-01 In Progress; FX-01A Done; FX-01B In Progress by separate owner entry; FX-01C unentered."
+    "FX-01 In Progress; FX-01A and FX-01B Done; B closeout pending review/CI/merge; FX-01C unentered."
 )
 EXPECTED_PLAN_STATUS_MARKDOWN = (
     f"Status: **{EXPECTED_PLAN_STATUS}**"
 )
 EXPECTED_TASK_STATUS = (
-    "In Progress — FX-01B entered; FX-01C unentered"
+    "In Progress — FX-01B Done; B closeout pending review/CI/merge; FX-01C unentered"
 )
 PLAN_HEADING = "# FX-01 Manual Foreign-Currency Expense Plan"
 TASK_HEADING = "## FX-01 — Manual foreign-currency expense recording"
@@ -169,9 +187,10 @@ SUBPHASE_HEADINGS = (
     "### FX-01D — Consumers, CSV, optional sync, and privacy",
     "### FX-01E — Release evidence and closeout",
 )
+SUBPHASE_TASK_COUNTS = (3, 4, 4, 4, 3)
 DONE_STATUS = "Done — merged static contract-gate delivery only."
 BLOCKED_STATUS = "Blocked — unentered."
-IMPLEMENTING_STATUS = "In Progress — implementation pending independent review, hosted CI, and merge."
+IMPLEMENTATION_DONE_STATUS = "Done — reviewed, hosted-green, merged integer conversion and Schema V7 only."
 CLOSEOUT_STATUS = "Owner merged with hosted non-pass retained; no independent rereview claimed."
 CLOSEOUT_TASK = (
     "- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout."
@@ -194,6 +213,16 @@ CLOSEOUT_SECTIONS = {
 CLOSEOUT_ANCHORS = (
     "PR #111", "`33b8009`", "`33834027746`", "`34ac3f3`",
     "Hosted failure is retained as non-pass, not a green result or independent rereview.", OWNER_ENTRY_BOUNDARY,
+)
+B_CLOSEOUT_HEADING = "## 2026-09-04 — FX-01B post-merge closeout"
+B_CLOSEOUT_DOCUMENTS = (*CLOSEOUT_SECTIONS, "Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md")
+B_PACKET_STATUS = "FX-01B delivery accepted; separate closeout pending independent review, hosted CI and merge."
+B_CLOSEOUT_TASK = "- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry."
+B_CLOSEOUT_ANCHORS = (
+    "PR #112", "`a24cfa1`", "`33841868078`", "`2e49acd`",
+    "owner-authorized independent agent review", "second parent",
+    "FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.",
+    "The 14 skips remain non-pass.", B_CLOSEOUT_TASK,
 )
 
 EXPECTED_EXPENSE_PROPERTIES = (
@@ -367,9 +396,10 @@ def validate_contract_data(data: Any) -> list[str]:
         ("evidenceBoundary", EVIDENCE_KEYS, EXPECTED_EVIDENCE_BOUNDARY),
         ("decimalRateContract", frozenset(EXPECTED_DECIMAL_RATE), EXPECTED_DECIMAL_RATE),
         ("syncCompanionContract", frozenset(EXPECTED_SYNC_COMPANION), EXPECTED_SYNC_COMPANION),
+        ("implementationEvidence", frozenset(EXPECTED_IMPLEMENTATION_EVIDENCE), EXPECTED_IMPLEMENTATION_EVIDENCE),
     )
-    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 3:
-        errors.append("schemaVersion must be exactly 3")
+    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 4:
+        errors.append("schemaVersion must be exactly 4")
     for key, expected_keys, expected_value in nested_contracts:
         if not _exact_keys(data[key], expected_keys):
             errors.append(f"{key} must contain exactly the reviewed keys")
@@ -411,6 +441,29 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
             if anchor not in _normalize_space(section):
                 errors.append(f"missing scoped closeout anchor: {relative}:{anchor}")
 
+    for relative in B_CLOSEOUT_DOCUMENTS:
+        path = project_root / relative
+        if not path.is_file():
+            errors.append(f"missing B closeout document: {relative}")
+            continue
+        b_section = _section(path.read_text(encoding="utf-8"), B_CLOSEOUT_HEADING, "## ")
+        if b_section is None:
+            errors.append(f"missing or duplicate B closeout section: {relative}")
+        else:
+            normalized_b = _normalize_space(b_section)
+            for anchor in B_CLOSEOUT_ANCHORS:
+                if normalized_b.count(anchor) != 1:
+                    errors.append(f"missing/duplicate scoped B closeout anchor: {relative}:{anchor}")
+            if re.search(r"^- \[[xX]\]", b_section, re.MULTILINE):
+                errors.append(f"this separate B closeout must remain pending: {relative}")
+    packet_path = project_root / "Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md"
+    if packet_path.is_file():
+        packet_status = _status_after_heading(
+            packet_path.read_text(encoding="utf-8"), "# FX-01B implementation evidence", bold=True,
+        )
+        if packet_status != B_PACKET_STATUS:
+            errors.append("B packet must have one exact current Status, not a pending implementation checkpoint")
+
     closeout_heading = "## FX-01A post-merge closeout"
     closeout = _section(plan_text, closeout_heading, "## ") or ""
     if _status_after_heading(plan_text, closeout_heading, bold=True) != CLOSEOUT_STATUS:
@@ -428,14 +481,14 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
             errors.append(f"retained PR #110 maintenance follow-up missing: {anchor}")
 
     for index, heading in enumerate(SUBPHASE_HEADINGS):
-        expected_status = DONE_STATUS if index == 0 else IMPLEMENTING_STATUS if index == 1 else BLOCKED_STATUS
+        expected_status = DONE_STATUS if index == 0 else IMPLEMENTATION_DONE_STATUS if index == 1 else BLOCKED_STATUS
         if _status_after_heading(plan_text, heading, bold=True) != expected_status:
             errors.append(f"subphase must have one exact scoped Status: {heading}")
         section = _section(plan_text, heading, "### ") or ""
         markers = re.findall(r"^- \[([^\]]+)\]", section, re.MULTILINE)
-        expected_markers = ["x"] + [" "] * (len(markers) - 1) if index == 1 else ["x" if index == 0 else " "] * len(markers)
-        if not markers or markers != expected_markers:
-            errors.append(f"subphase tasks must be {'checked' if index == 0 else 'unchecked'}: {heading}")
+        expected_markers = ["x" if index <= 1 else " "] * len(markers)
+        if len(markers) != SUBPHASE_TASK_COUNTS[index] or markers != expected_markers:
+            errors.append(f"subphase task inventory must be complete and {'checked' if index <= 1 else 'unchecked'}: {heading}")
 
     fx01a = _section(plan_text, "### FX-01A — Entry and contract lock", "### ")
     if fx01a is None:
@@ -537,7 +590,7 @@ def fail_if_invalid(data: Any, project_root: Path) -> None:
 
 def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
     required = (
-        *CLOSEOUT_SECTIONS,
+        *B_CLOSEOUT_DOCUMENTS,
         "Scripts/fx01_contract.py",
         "MindBudget/Models/Expense.swift",
         "MindBudget/Data/DataActor.swift",
@@ -649,10 +702,19 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         for relative, heading in CLOSEOUT_SECTIONS.items():
             for anchor in CLOSEOUT_ANCHORS:
                 reject_section_change(relative, heading, anchor, "removed closeout obligation")
+        for relative in B_CLOSEOUT_DOCUMENTS:
+            for anchor in B_CLOSEOUT_ANCHORS:
+                reject_section_change(relative, B_CLOSEOUT_HEADING, anchor, "removed B closeout obligation")
+            reject_section_change(relative, B_CLOSEOUT_HEADING, B_CLOSEOUT_TASK, B_CLOSEOUT_TASK.replace("[ ]", "[x]"))
+            reject_section_change(relative, B_CLOSEOUT_HEADING, B_CLOSEOUT_TASK, B_CLOSEOUT_TASK + "\n" + B_CLOSEOUT_TASK)
+        reject_section_change("Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md", "# FX-01B implementation evidence",
+                             f"Status: **{B_PACKET_STATUS}**", "Status: **Implementation pending.**")
+        reject_section_change("Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md", "# FX-01B implementation evidence",
+                             f"Status: **{B_PACKET_STATUS}**", f"Status: **{B_PACKET_STATUS}**\n\nStatus: **{B_PACKET_STATUS}**")
 
         plan = "Docs/FX_01_MANUAL_CURRENCY_PLAN.md"
         for index, heading in enumerate(SUBPHASE_HEADINGS):
-            status = DONE_STATUS if index == 0 else IMPLEMENTING_STATUS if index == 1 else BLOCKED_STATUS
+            status = DONE_STATUS if index == 0 else IMPLEMENTATION_DONE_STATUS if index == 1 else BLOCKED_STATUS
             reject_section_change(plan, heading, f"Status: **{status}**", "Status: **In Progress.**")
             reject_section_change(
                 plan, heading, f"Status: **{status}**",
@@ -662,12 +724,14 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             plan, SUBPHASE_HEADINGS[0], "- [x] At implementation start, add", "- [ ] At implementation start, add",
         )
         for heading, first_task in (
-            (SUBPHASE_HEADINGS[1], "- [ ] Add the closed rate/source domain"),
+            (SUBPHASE_HEADINGS[1], "- [x] Add the closed rate/source domain"),
             (SUBPHASE_HEADINGS[2], "- [ ] Add one exhaustive"),
             (SUBPHASE_HEADINGS[3], "- [ ] Prove budget, reminder, insight, Ask, Dashboard"),
             (SUBPHASE_HEADINGS[4], "- [ ] Pass money, network, commercialization-document"),
         ):
-            reject_section_change(plan, heading, first_task, first_task.replace("[ ]", "[x]"))
+            changed_task = first_task.replace("[x]", "[ ]") if "[x]" in first_task else first_task.replace("[ ]", "[x]")
+            reject_section_change(plan, heading, first_task, changed_task)
+            reject_section_change(plan, heading, first_task, "removed task marker")
         closeout_heading = "## FX-01A post-merge closeout"
         reject_section_change(plan, closeout_heading, f"Status: **{CLOSEOUT_STATUS}**", "Status: **Done.**")
         for relative, heading in ((plan, closeout_heading), ("Docs/TASKS.md", TASK_HEADING)):
@@ -683,7 +747,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
 
         contract_path = fixture / "Docs/FX_01_CONTRACT.json"
         for section, key, value in (
-            ("phase", "activeSubphaseStatus", "DONE"),
+            ("phase", "activeSubphaseStatus", "IN_PROGRESS"),
             ("phase", "closeoutStatus", "DONE"),
             ("phase", "nextSubphaseEntered", 0),
             ("deliveryEvidence", "reviewedHead", "b2b45f1155e6b393c17cac6c77f5208fb3792c41"),
@@ -696,7 +760,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             contract_path.write_text(json.dumps(mutation), encoding="utf-8")
             _require_fixture_cli(fixture, valid=False, description=f"{section}:{key}")
             mutation_count += 1
-        for section in ("decimalRateContract", "syncCompanionContract"):
+        for section in ("decimalRateContract", "syncCompanionContract", "implementationEvidence"):
             for key in data[section]:
                 mutation = copy.deepcopy(data)
                 mutation[section].pop(key)
@@ -777,13 +841,13 @@ def run_self_test(data: Any, project_root: Path) -> None:
         plan_path = fixture_root / "Docs/FX_01_MANUAL_CURRENCY_PLAN.md"
         plan_path.write_text(
             plan_path.read_text(encoding="utf-8").replace(
-                "- [ ] Add the closed rate/source domain",
                 "- [x] Add the closed rate/source domain",
+                "- [ ] Add the closed rate/source domain",
                 1,
             ),
             encoding="utf-8",
         )
-        _require_rejection("a checked FX-01B implementation task", data, fixture_root)
+        _require_rejection("a rolled-back FX-01B implementation task", data, fixture_root)
         _write_fixture(fixture_root, project_root, data)
 
         expense_path = fixture_root / EXPECTED_SOURCE_BOUNDARY["expenseModel"]

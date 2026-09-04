@@ -691,3 +691,18 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. Keep the exact source/hosted tree, full 589-case inventory,
+598 concrete results and 17 exact FX runtime bindings distinct from this static record gate.
+Require the B provenance/next-entry boundary independently in every named document section,
+reject duplicate or substituted evidence keys, rolled-back B status/task markers, premature C–E
+entry, missing/duplicated local status and a checked closeout task. Continue all existing
+accounting/decimal/sync/no-floating-point/no-network mutations and subprocess/order fault tests.
+Self-tests mutate temporary copies only. A green gate does not manufacture runtime proof.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.

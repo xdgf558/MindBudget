@@ -1,7 +1,8 @@
 # FX-01B implementation evidence
 
-Status: **Implementation candidate; final local validation passed; independent review,
-exact-head hosted CI and merge pending.** FX-01 remains In Progress. FX-01C–E, FX-02 and COM-C12
+Status: **FX-01B delivery accepted; separate closeout pending independent review, hosted CI and merge.**
+
+FX-01 remains In Progress. FX-01C–E, FX-02 and COM-C12
 remain unentered. This packet is not UI, automatic-rate, wire-protocol or release evidence.
 
 ## Source and scope
@@ -82,7 +83,8 @@ Artifacts:
 
 The frozen Swift/test/PBX/script/CI source inventory hash, unchanged before and after run 5, is
 `86ad1082d0462a2234421b3bcfb412b2cbaa29c37447e296b4c08ccf92df1bc2`.
-Reproduce from the repository root (includes tracked and new files, sorted before hashing):
+Reproduce from a checkout of reviewed head `a24cfa1`, not this later closeout's changed static
+script (includes tracked and new files, sorted before hashing):
 
 ```bash
 git ls-files -z -co --exclude-standard -- \
@@ -95,7 +97,8 @@ The 14 skips remain non-pass: six opt-in StoreKit runtime catalog/purchase cases
 configuration/telemetry probes, four physical CloudKit probes, one physical on-device Eval and
 one physical AX5 UI capture. None is an FX method. No physical, provider, live-cloud or StoreKit
 transaction observation is claimed by this run. The strict benchmark runs separately; the full
-bundle excludes its duplicate invocation. Hosted CI and independent review remain pending.
+bundle excludes its duplicate invocation. This was local evidence at the implementation checkpoint;
+subsequent independent review, hosted success and merge are recorded below.
 
 Earlier non-passes are retained in SESSION_LOG: compilation diagnostics, an incorrect half-tie
 test expectation, missing Node in an explicit PATH, and deliberately cancelled intermediate
@@ -103,3 +106,44 @@ full runs after source changes. Completed full run 4 passed on its earlier sourc
 recovery/erasure fix; it is intermediate regression evidence, not final-source acceptance.
 Focused passes before the final changes are supporting
 development evidence only. None replaces final-source validation or this branch's hosted CI.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. This new documentation/gate closeout has no Swift changes and
+does not inherit the implementation run as its own hosted success.
+
+| Provenance | Exact observation |
+| --- | --- |
+| Reviewed head | `a24cfa1f296defd1fb17f4a815bd8caa10039117`; no P1/P2/P3 product findings |
+| Review attribution | Owner explicitly authorized a separate read-only agent, not the implementation author; this is not a human or second GitHub account's APPROVED review |
+| Public review record | [Independent agent review summary](https://github.com/xdgf558/MindBudget/pull/112#issuecomment-5536380833) |
+| Hosted run | [CI attempt 1](https://github.com/xdgf558/MindBudget/actions/runs/33841868078), success, job 36m6s, Xcode 26.6 / iOS 26.5 simulator |
+| Actual Actions checkout | PR synthetic merge `ea6a17f91ccc50cd135537a22d47f15dc54c4d42`, parents base `34ac3f34dcfac5d5ee49a71b03fa83ef0193631f` and the reviewed head |
+| Exact source equality | Synthetic merge, reviewed head and final merge all have tree `1ac571400f2241c2f987b2fdab2ea71e318cf9f4`; checked through GitHub commit metadata and local Git |
+| Final merge | `2e49acdc62bef9aac89b12b4c483f3d12008f5ac`, 2026-09-04 06:32:31 UTC |
+| Artifact | `MindBudget-xcresult-33841868078-1`, ID `9925915001`; GitHub-reported artifact digest `sha256:2388e4d9323129db7b0e6b2e566b224658a08f69c9f588b26c7dc8d5f0026e9c` (not a locally rehashed directory) |
+
+Every one of the 589 native test-detail records was read by author and reviewer. The whole
+case/parameter/status inventory matches accepted local full-5, including 575 Passed / 14 Skipped.
+Four parameterized parents expand to 13 argument instances: 584 concrete Passed / 14 concrete
+Skipped, zero extra attempts or failed attempts. All 17 source-declared FX methods occur once as
+Passed; no Failed-to-Passed is accepted. The host's summary labels the retry-enabled configuration
+"test repetitions", but its actual individual records contain no repeated attempt. UI remains
+17 Passed / 1 physical-only Skipped; host core coverage and 23 C6 bindings passed.
+
+The reviewer separately compiled the original Money/conversion source and checked 50,000
+conversions, 10,000 overrides and 20,000 decimal inputs against a Python arbitrary-precision
+oracle (seed `0xF001B`): 80,000 cases, zero mismatches. A native macOS SwiftData probe migrated
+V1–V6 stores with five Expense rows each into V7 and reopened them without losing seeded fields
+or inventing FX. That bounded probe is not iOS all-table, actor, recovery or physical proof;
+the actual iOS full suite above supplies its own independently inspected evidence.
+
+This closeout leaves the C6 registry placement, old AX5 Back selector, historical hosted failures,
+14 opt-in non-passes and the B fixture population limits intact. No new device/provider/StoreKit
+call occurred. C owns UI/Pro, D owns CSV and the thirteenth encrypted fact; this closes neither.
+COM-C12, automatic rates, Archive, upload, distribution and release remain unauthorized.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.

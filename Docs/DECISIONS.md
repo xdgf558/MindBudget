@@ -3891,3 +3891,24 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. Accept only the integer converter, Schema V7 and atomic local
+persistence delivery, backed by its own exact source-tree tests rather than PR #111's exception.
+Review was performed by a separate read-only agent explicitly authorized by the owner, not a
+human/GitHub approval from a second account. Details and reproduction limits are in the B packet.
+
+Consequences: Retain A's historical delivery evidence and merge exception separately. Add a
+closed B implementation-evidence object, section-scoped per-file anchors and negative mutations;
+the static validator protects records but does not generate runtime evidence. The hosted PR
+synthetic merge and reviewed head share one exact tree, verified using remote commit metadata.
+Keep prior non-passes, C6 registry/AX5 selector maintenance debts and physical/live skips intact.
+No Swift, trial-clock, network/provider, C–E, FX-02 or COM-C12 implementation occurs here.
+No Archive, upload, distribution or release is authorized. This new closeout head must earn its
+own independent review and hosted success; the implementation run does not substitute for it.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
