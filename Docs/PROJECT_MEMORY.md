@@ -56,6 +56,13 @@ separate closeout still needs its own independent review, hosted CI, and merge. 
 test-detail records explain all 581 ordinary/argument runs without extra attempts or
 Failed-to-Passed. Run `33772144343` remains non-pass.
 
+The closeout is still pending: PR #111 run `33829310323` attempts 1 and 2 failed on `2539ed1`
+(npm advisory timeout, then copied-validator CLI timeout). The owner authorized a CI-harness
+remediation, not a phase advance: delay exact-ID simulator boot until static checks/builds finish,
+preserve the 30-second child deadline and all negative checks, and require new-head rereview/CI.
+The underlying cause of the child timeout is unproven. The JSON field is now explicitly named
+`acceptedRunFailedToPassedObserved`, scoped to accepted run `33823593637` only.
+
 FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
 
 Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal

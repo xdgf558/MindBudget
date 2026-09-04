@@ -60,6 +60,14 @@ xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   -destination "${DESTINATION}" -enableCodeCoverage YES build-for-testing
 
+# CI creates an exact-ID simulator but must not start it alongside the static gates.
+# bootstatus -b handles both a shut-down and an already booted simulator. A readiness
+# failure is fatal; no test may start on a partially booted destination. Other local
+# destination forms retain xcodebuild's normal destination resolution/boot behavior.
+if [[ "${DESTINATION}" =~ ^platform=iOS\ Simulator,id=([A-Fa-f0-9-]{36})$ ]]; then
+  xcrun simctl bootstatus "${BASH_REMATCH[1]}" -b
+fi
+
 test_arguments=(
   -destination "${DESTINATION}"
   -enableCodeCoverage YES

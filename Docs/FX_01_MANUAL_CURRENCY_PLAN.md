@@ -46,6 +46,18 @@ Run `33772144343` remains non-pass. It was cancelled at the 45-minute workflow t
 a real AX5 assertion failure and an automatic passing retry; neither the retry nor later green
 evidence relabels that run.
 
+`deliveryEvidence.acceptedRunFailedToPassedObserved: false` is scoped only to the adjacent
+accepted `hostedRun` (`33823593637`). It does not describe `retainedNonPassRun` (`33772144343`),
+which did contain Failed-to-Passed. The obsolete unscoped JSON key is rejected.
+
+PR #111 closeout head `2539ed1` received conditional independent approval but run `33829310323`
+failed twice: attempt 1 at the npm advisory endpoint; attempt 2 at a 30-second copied-CLI timeout.
+Both remain non-pass. The authorized remediation delays exact-ID simulator boot until after
+static checks and builds, adds named timeout/fault diagnostics and ordering regressions, and
+retains all 67 CLI mutations and the 30-second deadline. Simulator-start contention is a risk
+suggested by timing, not a proven root cause. The new head needs independent rereview and hosted
+success; the older approval/run does not close this branch.
+
 FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.

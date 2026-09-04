@@ -7613,3 +7613,97 @@ validator, or C6 matrix-list changes. The complete Xcode validator was not rerun
 documentation/static-gate-only delta; a new exact-head hosted run remains required. The candidate
 is to be submitted as a separate Draft PR, without claiming independent approval or automatic
 merge and without starting FX-01B.
+
+## 2026-09-04 — PR #111 review accepted; hosted audit-network failure retained
+
+The owner supplied independent review accepting exact closeout head
+`2539ed14b34bca23fbf293feb001b65dfeec7248` with no P1/P2 and conditional authorization to
+undraft/merge only after that head's hosted CI succeeds. Retain one P3: the field
+`deliveryEvidence.failedToPassedObserved: false` describes accepted run `33823593637` only,
+not all historical runs. Its adjacent `retainedNonPassRun` is `33772144343`, which did contain a
+Failed-to-Passed attempt. Clarify that field's scope in a future authorized change; do not amend
+the independently reviewed closeout head for this nonblocking observation.
+
+Read-only GitHub inspection found run `33829310323` attempt 1 completed with failure, not success.
+Job `100888677614` passed the FX gate and preceding static checks, but `npm audit --audit-level=high`
+timed out after about five minutes calling the npm security-advisories bulk endpoint. The log says
+`npm warn audit network timeout` and `npm error audit endpoint returned an error`; it contains no
+completed vulnerability verdict. The following Worker check and Xcode build/tests did not run.
+This attempt remains non-pass and cannot establish runtime acceptance.
+
+Triggered one rerun of the failed hosted job on the unchanged reviewed head. The same run now
+has `run_attempt: 2` and was observed In Progress. No code, lockfile, audit threshold, workflow,
+test retry rule, or reviewed commit was changed. PR #111 remains Draft and unmerged pending the
+complete second attempt. If it fails again, report the actual mechanism and seek direction rather
+than automatically rerunning or changing scope. The owner-authorized merge remains guarded by
+the exact head, required checks, and concrete-attempt acceptance. FX-01B and all later phase or
+release actions remain unentered. This local follow-up record is not part of the approved head.
+
+## 2026-09-04 — PR #111 second hosted attempt failed; merge follow-up paused
+
+The scheduled read-only check found run `33829310323` attempt 2 failed on the unchanged approved
+head `2539ed14b34bca23fbf293feb001b65dfeec7248`. Job `100892219703` ran from
+`2026-09-04T02:41:57Z` to `2026-09-04T02:54:23Z`. Both Worker audit/check steps passed this time;
+the npm endpoint timeout from attempt 1 is not the mechanism of this second failure.
+
+The dedicated FX gate had passed, but its second invocation inside `Scripts/validate.sh` failed
+before any Xcode build or test command. During a duplicate-subphase-Status negative mutation,
+`run_closeout_self_test` called `_require_fixture_cli`, whose `subprocess.run(..., timeout=30)`
+raised `subprocess.TimeoutExpired` for the copied validator CLI under hosted Python 3.14.7.
+This establishes a 30-second child-process timeout, not a passing negative test, completed
+23-binding acceptance, or an actual test Failed-to-Passed sequence. The available trace does not
+establish why the child exceeded that budget; runner pressure or a transient environment issue
+must not be asserted as the root cause without further evidence. Both hosted attempts remain
+non-pass.
+
+Paused the `pr-111-ci` follow-up under its stop-on-second-failure instruction. No third rerun,
+undraft, merge, source/workflow/timeout change, or modification of the approved commit was made.
+PR #111 remains Draft; the owner must authorize any CI remediation and its new review/hosted
+cycle. The existing P3 field-scope clarification remains a future obligation as recorded above.
+FX-01B, Schema V7, and all later phase/release actions remain unentered. This is a local handoff
+record only, not new evidence incorporated into approved head `2539ed1`.
+
+## 2026-09-04 — Authorized PR #111 CI-harness remediation candidate
+
+The owner said to begin the repair. Read the two retained hosted failures and reproduced the old
+FX self-test locally: all 67 child-CLI mutations were rejected in 2.46 seconds, so the 30-second overrun
+was not reproduced. Hosted attempt 2's first FX self-test passed in about 6.75 seconds before
+simulator creation; its second invocation failed after asynchronous simulator boot. This is an
+ordering risk, not sufficient evidence to claim CPU starvation or a transient root cause.
+
+Remove eager hosted simulator boot and explicitly boot/wait for the exact simulator-ID destination
+inside the complete validator after static checks and both builds, before tests. Native Xcode
+`simctl help bootstatus` confirms `-b` boots if needed and monitors readiness. Named local
+destinations retain xcodebuild behavior. Keep the 30-second child timeout, 45-minute workflow
+budget, 67 cross-process mutations, and 23-binding/concrete-attempt rejection unchanged. Timeout
+errors now identify their mutation and report non-pass explicitly. Add process-outcome fault tests
+and actual-validator ordering tests with stubs; stubs never call a real simulator or Xcode.
+
+Close the reviewed P3 by renaming the JSON field to `acceptedRunFailedToPassedObserved`, with
+explicit scope to `33823593637`; reject the obsolete unscoped key. Run `33772144343` and both
+attempts of `33829310323` remain non-pass. This is an author-side remediation pending independent
+rereview and exact-head hosted CI, not a new approval, merge, or FX-01B entry. The old-head merge
+follow-up stays paused. No Swift/product/physical/network/release change is made.
+
+Local remediation validation passed: money, network, commercialization documents, FX contract,
+StoreKit catalog (13 tests), C6 matrix, shell syntax, and diff whitespace. All 67 copied-CLI
+mutations still rejected. Seven process fault cases and the ordering harness's three success /
+16 failure paths passed. Optimized self-tests also passed on local Python 3.9.6 and 3.14.5;
+the latter is not the hosted Python 3.14.7 toolchain and is not hosted evidence.
+
+The complete `Scripts/validate.sh` then exited 0 under Xcode 27 beta 6 with a fresh isolated
+iPhone 17 Pro / iOS 26.5 simulator (`238FF288-C843-43CD-82CD-15536F107AE1`). Its log confirms static
+checks and both builds completed before `bootstatus -b` booted the new device and waited for
+readiness; both test commands followed. The separate strict Dashboard benchmark passed. The
+complete bundle summary/tree reports 572 cases: 558 Passed / 14 Skipped / 0 Failed, with zero
+expected failures and no Repetition nodes. UI executed 18 cases: 17 Passed / one physical-only
+Skip / zero failures, including the AX5 multi-appearance test in 224.974 seconds. Runner retries
+were disabled. Coverage passed for all selected core files (at least 85%), and the unchanged
+runtime verifier accepted all 23 bindings. This local tree check is not a new 572-detail-record
+hosted inspection; the accepted PR #110 evidence above remains separate.
+
+Retain `FullValidation.xcresult` and `validation.log` in
+`/private/tmp/mindbudget-pr111-remediation.44PWJl/`. No new physical evidence was collected.
+The remediation is ready to update the existing Draft PR #111 for independent rereview and a
+fresh exact-head hosted run; local success neither proves the old timeout's root cause nor
+replaces either merge prerequisite. No third rerun on `2539ed1`, undraft, merge, or FX-01B entry.

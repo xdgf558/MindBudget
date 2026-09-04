@@ -19,7 +19,7 @@
     "hostedRun": "33823593637",
     "mergeCommit": "9322e3bc8da59d5ea5b6d067d66fae879404b642",
     "retainedNonPassRun": "33772144343",
-    "failedToPassedObserved": false
+    "acceptedRunFailedToPassedObserved": false
   },
   "accountingAuthority": {
     "model": "Expense",

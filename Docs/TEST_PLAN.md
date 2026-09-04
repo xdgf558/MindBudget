@@ -650,3 +650,20 @@ they never change repository originals. Exercise the same validator through a ch
 nonzero exit for each new closeout mutation, and require the clean copied fixture to exit zero.
 Keep the existing accounting, no-floating-point, no-network/location, and static-only evidence
 tests. The C6 registry placement and AX5 Back-selector maintenance debts remain open in the plan.
+
+PR #111 remediation retains the 67 real child-CLI negative mutations. A separate injected-process
+self-test must reject timeouts on both valid and invalid fixtures, unexpected success, signal
+termination, another nonzero status, a missing verdict, and stderr. Timeout diagnostics must name
+the mutated file, section, replacement, and deadline; no retry or increased timeout is permitted.
+Reject the obsolete `failedToPassedObserved` JSON key: `acceptedRunFailedToPassedObserved` refers
+only to accepted run `33823593637`, not the retained failed-then-passed run.
+
+`validation_order_self_test.py`, invoked by the FX self-test, executes the actual `validate.sh`
+against command stubs in temporary copies. Check the exact order of every static gate, build
+settings, Release build, build-for-testing, exact-ID simulator boot/readiness, tests, coverage,
+and runtime acceptance. Exercise benchmark-on/off and the unchanged named-local-destination
+path. Fail each of the 12 static checks, three build commands, and boot readiness in turn: no
+later command may execute. Also reject an eager `simctl boot`/`bootstatus` in the workflow.
+These are harness regressions, not simulator or hosted runtime evidence. PR #111 run `33829310323`
+attempts 1 and 2 remain non-pass; only a fresh complete local run plus new-head independent review
+and hosted success can validate the remediation.

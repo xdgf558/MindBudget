@@ -10,6 +10,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -94,7 +95,7 @@ EXPECTED_DELIVERY_EVIDENCE = {
     "hostedRun": "33823593637",
     "mergeCommit": "9322e3bc8da59d5ea5b6d067d66fae879404b642",
     "retainedNonPassRun": "33772144343",
-    "failedToPassedObserved": False,
+    "acceptedRunFailedToPassedObserved": False,
 }
 EXPECTED_ACCOUNTING_AUTHORITY = {
     "model": "Expense",
@@ -537,15 +538,65 @@ def _require_rejection(description: str, data: Any, project_root: Path) -> None:
         raise RuntimeError(f"FX-01 self-test failed to reject {description}")
 
 
+CLI_TIMEOUT_SECONDS = 30
+
+
 def _require_fixture_cli(project_root: Path, *, valid: bool, description: str) -> None:
-    result = subprocess.run(
-        [sys.executable, "-B", str(project_root / "Scripts/fx01_contract.py")],
-        cwd=project_root, capture_output=True, text=True, timeout=30, check=False,
-    )
+    started = time.monotonic()
+    try:
+        result = subprocess.run(
+            [sys.executable, "-B", str(project_root / "Scripts/fx01_contract.py")],
+            cwd=project_root, capture_output=True, text=True,
+            timeout=CLI_TIMEOUT_SECONDS, check=False,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"FX-01 CLI self-test timed out: {description}; "
+            f"deadline={CLI_TIMEOUT_SECONDS}s, elapsed={time.monotonic() - started:.2f}s; "
+            "no validation verdict; timeout is non-pass"
+        ) from error
     expected_code = 0 if valid else 1
     expected_message = "FX-01 static contract passed" if valid else "FX-01 contract validation failed:"
     if result.returncode != expected_code or expected_message not in result.stdout or result.stderr:
-        raise RuntimeError(f"FX-01 CLI self-test did not {'accept' if valid else 'reject'} {description}")
+        raise RuntimeError(
+            f"FX-01 CLI self-test did not {'accept' if valid else 'reject'} {description}; "
+            f"exit={result.returncode}, expected={expected_code}, "
+            f"verdict_present={expected_message in result.stdout}, stderr_present={bool(result.stderr)}"
+        )
+
+
+def run_cli_failure_self_test(project_root: Path) -> None:
+    """Inject process failures, never replace the real 67 mutation executions."""
+    from unittest.mock import patch
+
+    verdict = "FX-01 contract validation failed: injected invalid contract"
+    for valid in (False, True):
+        with patch.object(subprocess, "run", side_effect=subprocess.TimeoutExpired("fixture", 30)) as run:
+            try:
+                _require_fixture_cli(project_root, valid=valid, description="injected timeout")
+            except RuntimeError as error:
+                if "injected timeout" not in str(error) or "timeout is non-pass" not in str(error):
+                    raise RuntimeError("FX-01 timeout diagnostic lost its mutation context") from error
+            else:
+                raise RuntimeError("FX-01 self-test accepted a process timeout")
+            if run.call_count != 1 or run.call_args.kwargs.get("timeout") != 30:
+                raise RuntimeError("FX-01 child deadline/retry policy drifted")
+
+    for code, stdout, stderr in (
+        (0, verdict, ""),                 # A negative test must not succeed.
+        (-9, verdict, ""),                # A crash is not a contract rejection.
+        (2, verdict, ""),                 # An unrelated CLI error is not a rejection.
+        (1, "", ""),                     # Nonzero alone is insufficient.
+        (1, verdict, "unexpected error"), # A stderr diagnostic invalidates the verdict.
+    ):
+        with patch.object(subprocess, "run", return_value=subprocess.CompletedProcess([], code, stdout, stderr)):
+            try:
+                _require_fixture_cli(project_root, valid=False, description="injected invalid verdict")
+            except RuntimeError:
+                pass
+            else:
+                raise RuntimeError("FX-01 self-test accepted an invalid process verdict")
+    print("FX-01 CLI fault self-test rejected 7 timeout/invalid-verdict outcomes")
 
 
 def run_closeout_self_test(data: Any, project_root: Path) -> None:
@@ -569,7 +620,10 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 raise RuntimeError(f"self-test mutation has an unexpected target count: {relative}:{old}")
             path.write_text(original.replace(section, changed, 1), encoding="utf-8")
             try:
-                _require_fixture_cli(fixture, valid=False, description=f"{relative}:{old}")
+                _require_fixture_cli(
+                    fixture, valid=False,
+                    description=f"mutation {mutation_count + 1}: {relative}:{heading}: {old} -> {new}",
+                )
                 mutation_count += 1
             finally:
                 path.write_text(original, encoding="utf-8")
@@ -617,7 +671,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             ("phase", "nextSubphaseEntered", 0),
             ("deliveryEvidence", "reviewedHead", "b2b45f1155e6b393c17cac6c77f5208fb3792c41"),
             ("deliveryEvidence", "hostedRun", "33772144343"),
-            ("deliveryEvidence", "failedToPassedObserved", True),
+            ("deliveryEvidence", "acceptedRunFailedToPassedObserved", True),
             ("evidenceBoundary", "schemaV7EvidenceClaimed", True),
         ):
             mutation = copy.deepcopy(data)
@@ -632,7 +686,10 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
 
 def run_self_test(data: Any, project_root: Path) -> None:
     fail_if_invalid(data, project_root)
+    run_cli_failure_self_test(project_root)
     run_closeout_self_test(data, project_root)
+    from validation_order_self_test import run_validation_order_self_test
+    run_validation_order_self_test(project_root)
 
     mutations: list[tuple[str, Any]] = []
     entered_b = copy.deepcopy(data)
@@ -654,6 +711,12 @@ def run_self_test(data: Any, project_root: Path) -> None:
     unknown_key = copy.deepcopy(data)
     unknown_key["manualBoundary"]["fallbackProvider"] = "silent"
     mutations.append(("an unknown contract key", unknown_key))
+
+    ambiguous_run_scope = copy.deepcopy(data)
+    ambiguous_run_scope["deliveryEvidence"]["failedToPassedObserved"] = ambiguous_run_scope[
+        "deliveryEvidence"
+    ].pop("acceptedRunFailedToPassedObserved")
+    mutations.append(("the obsolete unscoped Failed-to-Passed key", ambiguous_run_scope))
 
     for description, mutation in mutations:
         if not validate_contract_data(mutation):
