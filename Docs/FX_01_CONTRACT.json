@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
     "activeSubphase": "FX-01B",
-    "activeSubphaseStatus": "IN_PROGRESS",
-    "closeoutStatus": "OWNER_MERGE_EXCEPTION_NON_PASS_RETAINED",
+    "activeSubphaseStatus": "DONE",
+    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
     "nextSubphase": "FX-01C",
     "nextSubphaseEntered": false,
     "deferredPhases": [
@@ -19,6 +19,23 @@
     "hostedRun": "33823593637",
     "mergeCommit": "9322e3bc8da59d5ea5b6d067d66fae879404b642",
     "retainedNonPassRun": "33772144343",
+    "acceptedRunFailedToPassedObserved": false
+  },
+  "implementationEvidence": {
+    "pullRequest": 112,
+    "reviewKind": "ownerAuthorizedIndependentAgent",
+    "reviewedHead": "a24cfa1f296defd1fb17f4a815bd8caa10039117",
+    "hostedRun": "33841868078",
+    "hostedAttempt": 1,
+    "testedSyntheticMerge": "ea6a17f91ccc50cd135537a22d47f15dc54c4d42",
+    "reviewedAndTestedTree": "1ac571400f2241c2f987b2fdab2ea71e318cf9f4",
+    "mergeCommit": "2e49acdc62bef9aac89b12b4c483f3d12008f5ac",
+    "casePassed": 575,
+    "caseSkipped": 14,
+    "concretePassed": 584,
+    "concreteSkipped": 14,
+    "requiredFXMethodsPassedExactlyOnce": 17,
+    "acceptedRunExtraAttempts": 0,
     "acceptedRunFailedToPassedObserved": false
   },
   "accountingAuthority": {

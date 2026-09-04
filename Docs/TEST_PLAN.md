@@ -691,3 +691,36 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. Keep the exact source/hosted tree, full 589-case inventory,
+598 concrete results and 17 exact FX runtime bindings distinct from this static record gate.
+Require the B provenance/next-entry boundary independently in every named document section,
+reject duplicate or substituted evidence keys, rolled-back B status/task markers, premature C–E
+entry, missing/duplicated local status and a checked closeout task. Continue all existing
+accounting/decimal/sync/no-floating-point/no-network mutations and subprocess/order fault tests.
+Self-tests mutate temporary copies only. A green gate does not manufacture runtime proof.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — Strict JSON and main TASKS negative coverage
+
+PR #113's independent review of `2dff233` demonstrated that dictionary mutation cannot test raw
+duplicate JSON keys and that plan validation cannot imply main TASKS validation. Parse all object
+levels with duplicate-key rejection before constructing their dictionaries. Cover conflicting,
+identical and escaped duplicate keys plus non-standard constants through real child CLI input.
+Bind the full ordered main FX checklist text/states and test each of its 12 items for flipped
+checkbox, deletion, duplication and substituted text, plus loss of the B converter's task marker.
+The repaired gate rejects 258 copied-CLI mutations, retaining the existing seven process-fault
+and 3/16 ordering tests. Temporary fixtures must return to the passing source after mutation.
+
+Rereview of `cc4b7a0` required an additional canonical-syntax boundary: alternative CommonMark
+task markers must fail, never disappear from the inventory. The shared checker now applies to
+main TASKS, each A–E plan checklist, the historical A closeout and all seven B closeout sections.
+Real CLI negatives cover `*`, `+`, one-space/four-space indentation, Tab, both numbered-list
+markers, blockquote, uppercase/unknown status, and an extra inline checkbox. Final negative count
+is 332; the earlier 258 result is a superseded checkpoint, not complete acceptance.

@@ -1,6 +1,6 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01 In Progress; FX-01A Done; FX-01B In Progress by separate owner entry; FX-01C unentered.**
+Status: **FX-01 In Progress; FX-01A and FX-01B Done; B closeout pending review/CI/merge; FX-01C unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -253,25 +253,24 @@ Status: **Done — merged static contract-gate delivery only.**
 
 ### FX-01B — Integer conversion and Schema V7
 
-Status: **In Progress — implementation pending independent review, hosted CI, and merge.**
+Status: **Done — reviewed, hosted-green, merged integer conversion and Schema V7 only.**
 
-The unchecked implementation items below track reviewed acceptance, not absence of candidate
-code. Local execution evidence is recorded separately; only the pre-B static contract prerequisite
-is closed here. Completion does not authorize C.
+The implementation items below are accepted from PR #112's own reviewed, hosted-green merged
+source. Its separate post-merge closeout still requires review/CI/merge before C can start.
 See [FX-01B implementation evidence](FX_01B_IMPLEMENTATION_EVIDENCE.md) for scope, fixture coverage,
-retained non-passes and final local validation; the static gate itself claims no runtime evidence.
+retained non-passes and final local/hosted validation; the static gate itself claims no runtime evidence.
 
 - [x] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
   normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
   and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
-- [ ] Add the closed rate/source domain and pure integer-rational converter, with table tests for
+- [x] Add the closed rate/source domain and pure integer-rational converter, with table tests for
   the twelve-digit lexical/eight-place stored decimal-to-reduced-fraction closure, display-only
   approximation, 0-, 2-, and 3-decimal currencies (including JPY, USD, and KWD), inverse-direction
   mistakes, reducible fractions, exact halves with even/odd quotients, limits, and every failure
   case.
-- [ ] Add the optional V7 companion and lightweight V6-to-V7 migration; prove real V1 through V6
+- [x] Add the optional V7 companion and lightweight V6-to-V7 migration; prove real V1 through V6
   fixtures preserve every existing fact and gain no invented metadata.
-- [ ] Extend drafts, projections, `DataActor`, model counts, deletion, and edit flows so the
+- [x] Extend drafts, projections, `DataActor`, model counts, deletion, and edit flows so the
   expense/accounting amount and companion are validated and committed atomically. Prove new rows
   snapshot the current Settings/accounting currency while edits use only the row's persisted
   `Expense.currencyCode`, including after Settings changes.
@@ -352,3 +351,15 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. The complete evidence, synthetic-merge source-tree equality and
+review scope are in `FX_01B_IMPLEMENTATION_EVIDENCE.md`; no new physical or provider run occurred.
+The earlier B owner-entry section is a historical checkpoint, superseded by this closeout.
+No C–E/FX-02/COM-C12 implementation, network activation, Archive or distribution is included.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.

@@ -69,8 +69,9 @@ entered FX-01B. This is not independent rereview or permission to enter FX-01C.
 The FX-01B entry extends the JSON and negative gate for eight-place decimal normalization and
 the future thirteenth iCloud companion contract before Swift implementation.
 The C6 registry placement and old AX5 `boundBy: 0` Back selector remain maintenance debts.
-Self-tests change temporary copies only. Swift/Schema V7 implementation is now the active B scope;
-this product phase does not enter COM-C12 or authorize Archive, distribution, or release.
+Self-tests change temporary copies only. B's Swift/Schema V7 delivery is now reviewed, hosted-green
+and merged; its separate closeout remains pending review/CI/merge. This product phase does not
+enter C or COM-C12 or authorize Archive, distribution, or release.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
@@ -695,10 +696,10 @@ passed hosted run `33823593637`, and PR #110 merged it as `9322e3b` (second pare
 PR #111's closeout merged as `34ac3f3` under an explicit owner exception after hosted run
 `33834027746` failed on `33b8009`; that failure remains non-pass and no new-head independent
 rereview is claimed. The owner separately entered FX-01B. Its integer conversion, V7 companion
-and atomic persistence are an implementation candidate; FX-01C remains unentered. Neither the
-prior merged suite nor the static gate supplies FX runtime evidence.
-Candidate-specific scope and local verification are in `Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`;
-B still needs its own independent review, exact-head hosted CI and merge.
+and atomic persistence are accepted from PR #112's own independent agent review, hosted result
+and merge; FX-01C remains unentered pending the separate B closeout. Neither the prior merged
+suite nor the static gate supplies FX runtime evidence. Scope, local/hosted execution and review
+provenance are in `Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`.
 The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule
@@ -885,3 +886,15 @@ against coexistence, rather than sending a parent without its companion. Cloud e
 ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
 entry is authorized. B remains In Progress pending implementation verification, independent
 review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — FX-01B post-merge closeout
+
+PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
+`33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
+FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
+The 14 skips remain non-pass. All 589 hosted details match the local acceptance case/parameter
+inventory: 584 concrete passes, 14 concrete skips, no extra or failed attempts, 17/17 FX methods.
+This closes integer conversion/V7/local atomic persistence only; UI/Pro, CSV and the thirteenth
+sync fact remain C/D work. Older owner-entry text records its pre-acceptance checkpoint.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
