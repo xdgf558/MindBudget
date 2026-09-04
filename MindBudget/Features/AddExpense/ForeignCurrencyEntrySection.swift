@@ -99,7 +99,7 @@ struct ForeignCurrencyEntrySection: View {
 
     private func numericField(
         _ key: LocalizedStringKey, text: String, identifier: String,
-        set: @escaping (String) -> Void
+        set: @escaping @MainActor @Sendable (String) -> Void
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(key).font(.subheadline)

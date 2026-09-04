@@ -4143,3 +4143,22 @@ retained as local evidence only; it cannot erase the two no-retry hosted failure
 budget source. Current hosted execution also cannot accept this subsequent source candidate.
 The new candidate requires focused source/runtime rereview, a new frozen head, complete local and
 hosted native acceptance, and merge while C remains In Progress and D remains unentered.
+
+## 2026-09-05 — Preserve the FX numeric Binding actor contract
+
+PR #114 head `c2fd249` completed local and hosted execution without retries. Hosted run
+`33909424630` is green and its native artifact closes all 606 ordinary details plus both dedicated
+FX UI details without failure, repetition or extra attempt. Independent review nevertheless found
+one P2 in product source: `numericField` accepted a plain escaping setter and passed it to SwiftUI's
+`@Sendable @isolated(any)` `Binding` setter, erasing the caller's actor/sendability contract. The
+three callers mutate the main-actor `ExpenseFormViewModel`; ordinary main-thread UI execution is
+not proof that the erased contract is safe.
+
+Decision: declare this helper input as `@escaping @MainActor @Sendable (String) -> Void`. Do not
+use `@unchecked`, suppress the diagnostic or rely on the SDK's compatibility annotation. A local
+Xcode 27 build must omit the `ForeignCurrencyEntrySection.swift` setter warning, and the new exact
+head must receive fresh complete local validation, hosted Xcode 26.6 validation and independent
+review. The accepted c2fd249 execution remains remediation provenance, not evidence for changed
+product Swift. The two dedicated FX UI `Invalid frame dimension (negative or non-finite).`
+diagnostics remain explicit P3 observations; neither test retry nor a warning-free claim is allowed.
+C remains In Progress and D remains unentered.

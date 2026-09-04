@@ -263,3 +263,28 @@ readback per field. Each of the other four methods has one launch and correspond
 type/monthly/total/saving activity counts plus three exact readbacks. This is the complete focused
 scope for every method seen failing the superseded helper. It still permits only final source and
 runtime rereview before freeze; it is not complete-validation or merge evidence.
+
+## Exact-head green execution superseded by actor-contract P2
+
+Head `c2fd249a7467df995c898746b8e524efd0d4c553` passed a complete local validator without
+test retries or the local strict-benchmark skip. Its native ordinary inventory contains 606 test
+methods (590 Passed / 16 Skipped), 615 concrete executions (599 Passed / 16 Skipped), all 23 C6
+and 32 FX unit bindings, zero failed/extra attempts and exact inventory equality with the accepted
+prior full bundle. The separate strict 500 ms benchmark passed once. Both dedicated FX UI methods
+passed once and retain exactly one known layout diagnostic each.
+
+Hosted run `33909424630` also succeeded on that exact head without retries. Native inspection of
+the downloaded artifact confirms the same ordinary inventory and every one of its 606 details,
+plus two single-run dedicated FX UI passes. Hosted skips only the nondeterministic 500 ms wall-clock
+oracle; the deterministic 10,000-row projection test is present once and Passed. Artifact
+`9952259201` has upload SHA-256
+`34bf2f8d667a2c296857f401cc747b1092faab618df5c4995ecf3d20762cf205`.
+
+This green result is **not** merge acceptance. Independent final review found that
+`ForeignCurrencyEntrySection.numericField` erased its three main-actor form-update closures into a
+plain escaping parameter before passing them to SwiftUI's sendable `Binding` setter. The hosted
+Xcode 26.6 log emitted that warning. The helper now preserves `@MainActor @Sendable` explicitly;
+an Xcode 27 build completed without that source warning, but this compile check is not a new full
+acceptance run. Because product Swift changed, a new committed head requires fresh source review,
+complete local validation, hosted validation and native artifact audit. C remains In Progress and
+D remains unentered.

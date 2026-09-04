@@ -8396,3 +8396,30 @@ of the other four methods has one launch with the same per-setup counts. The add
 case therefore passes the candidate mechanism once; final implementation-separated source/runtime
 rereview is still required before freezing a new head, and complete local/hosted acceptance remains
 mandatory afterward.
+
+## 2026-09-05 — Exact-head hosted green followed by Binding actor-contract P2
+
+PR #114 head `c2fd249a7467df995c898746b8e524efd0d4c553` first completed the full local validator with
+no runner retry and with a separate strict benchmark. The ordinary native audit found 606 method
+details (590 Passed / 16 Skipped), 615 concrete executions (599 Passed / 16 Skipped), exact prior
+inventory equality, 23 C6 bindings, 32 FX unit bindings and no failed or extra attempt. The two
+dedicated FX UI cases each Passed once while retaining one known layout diagnostic.
+
+Hosted run `33909424630` then succeeded on the same head. Artifact `9952259201` upload SHA-256 is
+`34bf2f8d667a2c296857f401cc747b1092faab618df5c4995ecf3d20762cf205`. Independent native reading
+of an artifact copy reproduced 606 ordinary details at 590 Passed / 16 Skipped and 615 concrete
+results at 599 Passed / 16 Skipped, with no Repetition, failure or extra attempt and exact local
+inventory equality. Both dedicated FX UI details contain one Passed run and one known
+`Invalid frame dimension (negative or non-finite).` diagnostic. Hosted intentionally omits only
+the 500 ms wall-clock oracle; its deterministic 10,000-row projection method exists once Passed.
+
+Independent review then rejected merge with one P2: `ForeignCurrencyEntrySection.numericField`
+accepted its setter as a plain escaping closure and passed it to SwiftUI's
+`@Sendable @isolated(any)` `Binding` setter. All three callers mutate the main-actor
+`ExpenseFormViewModel`; the erased contract generated an Xcode 26.6 warning and a UI pass does not
+prove concurrency safety. The helper parameter is changed to
+`@escaping @MainActor @Sendable (String) -> Void`, with no unchecked conformance or warning
+suppression. A local Xcode 27 build-for-testing exited zero without that source warning; unrelated
+existing diagnostics remain. This is a compile check only. The product Swift change invalidates
+c2fd249 as merge evidence, so a new frozen head needs independent rereview plus complete local and
+hosted/native acceptance. C remains In Progress; D is not entered.
