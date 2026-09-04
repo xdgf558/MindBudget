@@ -132,6 +132,7 @@ enum PremiumFeature: String, Codable, CaseIterable, Hashable, Sendable {
     case advancedSiri
     case longRangeReports
     case appleWatchCompanion
+    case manualForeignCurrency
 }
 
 /// Free/trust capabilities that must remain structurally outside `PremiumFeature`.

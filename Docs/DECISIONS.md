@@ -3894,6 +3894,8 @@ review, hosted CI and merge. The previous merge exception does not waive those B
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -3911,7 +3913,39 @@ No Swift, trial-clock, network/provider, C–E, FX-02 or COM-C12 implementation 
 No Archive, upload, distribution or release is authorized. This new closeout head must earn its
 own independent review and hosted success; the implementation run does not substitute for it.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
 
 ## 2026-09-04 — Closeout JSON and TASKS fail-closed remediation
 
@@ -3939,3 +3973,61 @@ checkbox/list shapes, including quoted/inline/uppercase markers. Apply the same 
 TASKS, each plan subphase and both historical-A/current-B closeout checklists. Test these real
 CLI variants in each affected scope. This closes the original checklist P2 without changing the
 meaning of any completed task or weakening the historical non-pass/next-entry boundaries.
+
+## 2026-09-04 — FX-01C form and save-authority contract
+
+C uses one pure input state: explicit original currency, locale amount/rate text, selected rate
+day and saved zone, with either manual-rate or manual-home-override provenance. Rate edits switch
+to manual-rate and recompute the home preview; home edits switch to exact effective-rational
+override. Original edits preserve the selected mode (an override keeps the entered home amount);
+invalid fields remain visible, but no prior valid preview is eligible for Save or reminders.
+Opening an existing override never reparses its approximate rate label. Rate date is independent
+of expense date: new entry starts on the selected expense day in the user's calendar/zone; an
+existing tuple retains its rate day/zone, including when the current device zone differs.
+Editing that rate day uses its displayed saved zone, not an implicit current-zone conversion.
+
+At accessibility Dynamic Type sizes, the rate-date label wraps and opens a separate native
+wheel editor; ordinary sizes keep compact date selection. A compact date widened the AX5 form,
+while embedding its wheel in the long form consumed the available vertical pan region. The
+separate editor avoids both issues without reducing content font sizes. UI regressions assert
+real date mutation and saved/reopened year retention, localized input labels/values, and the
+combined original-before-accounting accessibility text. Actual physical spoken VoiceOver remains
+outside this simulator evidence claim.
+
+FX numeric fields own explicit focus and expose a localized keyboard Done action only while one
+of those fields is focused. This lets users finish entering the rate before reading the locked
+preview with the keyboard dismissed; it neither adds a completion toolbar to the ordinary budget
+keypad nor changes financial state. Automated flows must exercise that real action and observe
+the keyboard disappear instead of assuming a drag implies dismissal.
+
+The central immutable Pro evaluator gains one FX feature. UI uses its existing presentation
+snapshot; the final DataActor create/update transaction asks the injected live central authority
+synchronously, after asynchronous form/reminder work. Default injection is Free. The actor
+classifies stewardship from the persisted companion, never from a caller's flag. Ordinary
+records remain Free; new/conversion/duplicate FX needs access. Existing FX cannot be toggled off
+or silently stripped by a legacy form. No new trial clock or entitlement persistence is added.
+The until-D FX/legacy-iCloud exclusion and all nonmanual/recurring exclusions remain intact.
+
+C UI verification uses a separately compiled in-memory executable entry: `DEBUG` AND
+`targetEnvironment(simulator)` AND `MINDBUDGET_FX_UI_TEST_HOST`. The normal entry is excluded
+before AppBootstrap construction. The test-only scheme has no Launch/Profile/Archive action;
+its runner uses a separate DerivedData directory and never enables the flag in ordinary project
+configurations. Fixed Commerce fixtures exercise the real form, DataActor and detail view;
+neither arguments nor preferences choose paid rights. This preserves DEC-COM-013's production
+authority boundary. No AppEnvironment.live, Intent registration, StoreKit purchase, notification
+initialization, telemetry, sync or public-configuration lifecycle runs. The session receives a
+notification stub that fails if mistakenly called. Preferences use a dedicated cleared test suite;
+financial records are in memory. This is injected-right UI evidence, not purchase or device proof.
+
+Three attempted StoreKit UI configurations failed before entering the form and remain non-pass
+in SESSION_LOG; their temporary UI-runner resource/configuration was removed. The replacement
+does not claim to fix or bypass StoreKit authorization. Ordinary UI runs skip the two special
+host methods and those skips are non-pass. Complete validation separately runs the dedicated
+host and reads its fresh native xcresult, requiring both methods exactly once Passed. It also
+requires all 17 B plus 15 C unit methods in the ordinary bundle. FX's own native tree reader
+and per-method test-details must agree on identity/URL, one device/configuration and one concrete
+Passed execution. Missing, skipped, failed, parameterized, unknown-attempt, duplicate and
+Failed-to-Passed bindings fail. A single Passed repetition is accepted only with a single
+consistent concrete execution. The C6 inventory/parser is not reused as FX UI evidence.
+Static copied-source negatives enforce host isolation and validator-order probes require both
+new runtime stages; exact-head hosted execution and independent final review are still required.

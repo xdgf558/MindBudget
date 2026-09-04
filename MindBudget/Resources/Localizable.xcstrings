@@ -1,6 +1,406 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "fx.mode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local-currency expense"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当地货币记账"
+          }
+        }
+      }
+    },
+    "fx.help.offline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a currency and rate manually. No network or location is used."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动选择币种并输入汇率，不使用网络或定位。"
+          }
+        }
+      }
+    },
+    "fx.help.pro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local Pro includes new foreign-currency expenses. Existing records remain editable after access ends."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地 Pro 可新增外币记录。权限结束后，已有记录仍可编辑。"
+          }
+        }
+      }
+    },
+    "fx.originalCurrency": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original currency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原币币种"
+          }
+        }
+      }
+    },
+    "fx.selectCurrency": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a currency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择币种"
+          }
+        }
+      }
+    },
+    "fx.originalAmount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original amount"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原币金额"
+          }
+        }
+      }
+    },
+    "fx.rate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exchange rate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汇率"
+          }
+        }
+      }
+    },
+    "fx.direction.format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accounting currency per 1 %@, in %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每 1 %@ 折算多少 %@"
+          }
+        }
+      }
+    },
+    "fx.rateDate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate date"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汇率日期"
+          }
+        }
+      }
+    },
+    "fx.rateTimeZone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate date time zone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汇率日期时区"
+          }
+        }
+      }
+    },
+    "fx.accountingAmount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accounting amount (editable)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本币记账金额（可修改）"
+          }
+        }
+      }
+    },
+    "fx.accounting.format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approximately %@ · locked accounting amount"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "约等于 %@ · 保存时锁定"
+          }
+        }
+      }
+    },
+    "fx.source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汇率来源"
+          }
+        }
+      }
+    },
+    "fx.source.manual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manually entered rate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动输入汇率"
+          }
+        }
+      }
+    },
+    "fx.source.override": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate calculated from your accounting amount; display may be approximate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由您填写的本币金额推算汇率；显示值可能为近似值"
+          }
+        }
+      }
+    },
+    "fx.help.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved accounting amount drives budgets and reports. It will not change with later rates and is not a bank's final settlement price."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预算与统计只使用保存时锁定的本币金额，不随汇率变化，也不代表银行卡最终结算价。"
+          }
+        }
+      }
+    },
+    "fx.help.manualOnly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foreign-currency entry is for manual expenses only, not monthly recurring records, receipts or wishlist conversion."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外币记账仅用于手动支出，不用于每月重复记录、收据或心愿单转入。"
+          }
+        }
+      }
+    },
+    "fx.help.stewardship": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can edit this existing foreign-currency record without Pro. Its accounting currency stays unchanged."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需 Pro 也可编辑这条已有外币记录，本币币种保持不变。"
+          }
+        }
+      }
+    },
+    "fx.error.pro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New foreign-currency records require current Pro access. Your input has been kept."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增外币记录需要当前有效的 Pro 权限。已保留您的输入。"
+          }
+        }
+      }
+    },
+    "fx.error.manualOnly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use a manual, non-recurring expense for foreign-currency entry. Your input has been kept."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外币记账需使用手动、非重复支出。已保留您的输入。"
+          }
+        }
+      }
+    },
+    "fx.error.sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This version cannot save foreign-currency records while iCloud sync is enabled. Your input has been kept."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不支持在开启 iCloud 同步时保存外币记录。已保留您的输入。"
+          }
+        }
+      }
+    },
+    "fx.error.currency": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an original currency different from the saved accounting currency."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择与本币不同的原币币种。"
+          }
+        }
+      }
+    },
+    "fx.error.input": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No valid conversion yet. Check the currency, positive amounts and rate. Up to 12 rate decimal places are accepted and rounded to 8."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚无有效换算。请检查币种、正数金额和汇率。汇率最多输入 12 位小数，并舍入至 8 位。"
+          }
+        }
+      }
+    },
+    "fx.savedRate.exact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 %@ = %@ %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 %@ = %@ %@"
+          }
+        }
+      }
+    },
+    "fx.savedRate.approximate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 %@ ≈ %@ %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 %@ ≈ %@ %@"
+          }
+        }
+      }
+    },
     "brand.productName": {
       "localizations": {
         "en": {

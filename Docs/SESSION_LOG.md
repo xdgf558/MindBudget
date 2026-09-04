@@ -7867,6 +7867,8 @@ pending; no merge or later-phase implementation has occurred in this session.
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -7907,7 +7909,39 @@ task counts so deleting a task cannot leave an apparently complete checklist. `g
 passed. A new complete local validation and this closeout's own independent review/hosted run
 remain pending at commit time; the unchanged Swift tree does not waive them.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
 
 ## 2026-09-04 — PR #113 independent findings and remediation
 
@@ -7945,3 +7979,129 @@ xcodebuild PIDs and each validator returned 75; they remain intermediate cancell
 Their bundles/logs were retained, no result was relabelled, and no product behavior changed.
 The final repaired head will receive independent rereview before fresh complete local and hosted
 validation. No later stage has been entered.
+
+## 2026-09-04 — FX-01C implementation in progress
+
+After the independently accepted PR #113 merge, C entry was recorded before Swift edits. The
+independent read-only agent checked the entry-only nine-file diff (SHA-256
+`181a6a6b0f5e6f2da09a81c0efedfff4a9c46d7293566e16d88c0ed6d9136851`), found no P1/P2/P3,
+passed five static checks and 454 existing CLI negatives, and independently rejected 98 further
+entry/provenance mutations. This is entry review only, not approval of subsequent C source.
+
+Implemented the initial pure form state, live Commerce snapshot at actor create/conversion,
+existing-record stewardship, manual controls and dual-amount detail. The saved row controls edit
+currency. B fixtures now explicitly inject Pro for new FX creation; their original arithmetic,
+migration, rollback, sync-exclusion and delete assertions remain in place.
+The first Debug build passed. Focused run 1 failed two new assertions expecting `6.00` where the
+existing MoneyInputParser deliberately emits `6`. Both are assertion-format mistakes, not
+conversion discrepancies; the bundle is retained as non-pass. Focused run 2, after correction,
+passed all 50 methods in five suites, including 15 C methods and all 17 B methods, without retry.
+Logs/bundles are `/private/tmp/mindbudget-fx01c-focused-{1,2}.{log,xcresult}`.
+These focused results do not replace complete validation, UI evidence or independent review.
+
+Three local UI probes (`/private/tmp/mindbudget-fx01c-ui-{1,2,3}.{log,xcresult}`) failed before
+opening the form: SKTestSession configuration writes report SKInternalErrorDomain Code 3 and
+buyProduct throws notEntitled. They tested the default scheme, an isolated TestAction configuration,
+then the same configuration in LaunchAction. All remain non-pass; no UI success, purchase evidence,
+private simulator repair or real purchase is claimed. A test-isolation alternative is under
+independent boundary review. C remains In Progress; D/E and release actions remain unentered.
+
+The independent boundary review accepted the alternate compile-isolated host approach, not an
+ordinary Debug paid-right argument. Intermediate read-only product review found no P1/P2 and one
+P3: default AppSession notification construction touched UNUserNotificationCenter even without
+starting a lifecycle. The host now injects a no-side-effect notification stub; a call would fail
+the test. This intermediate review is not approval of the final C patch.
+
+Host UI runs 1–3 remain non-pass. Run 1 showed an AX5 switch label hit and gestures overlapping
+the fixed save area. Run 2 reached the menu but could not find its offscreen EUR row; the English
+edit helper also treated an obscured underlying host strip as the sheet's lower boundary. Run 3
+passed the full English create/detail/expired-edit flow, but its new width assertion rejected a
+457pt AX5 form in a 402pt window. The failure recording was inspected (no rerun was substituted for
+diagnosis): the compact localized date and duplicated field placeholders imposed unbreakable
+width. The next candidate uses native date wheels at accessibility sizes and separate visible
+field labels plus accessibility labels. Content is not globally capped. These are development
+iterations, not accepted whole-run UI evidence. Run 4 later reported old assertion line numbers
+and the removed EUR wait path; reused unsigned runner artifacts were not accepted as current-source
+proof. The permanent runner now requires a fresh DerivedData path and normal simulator signing.
+
+An initial FX-owned gate snapshot passed 19 copied-source isolation negatives and 238 required-
+binding negatives. The existing gate passes all 454 copied-CLI mutations and seven process-fault
+outcomes; validator ordering passes three success paths and 21 command failures, including the
+FX unit binding stage and dedicated UI host. No C completion is claimed by these static results.
+
+Independent gate review (gate SHA-256
+`056331e88b0873abaadd6b2f8cdd2ab7b8e1fe0e41244e562d8a2ae1103c0ceb`) found two P2s despite
+those negative tests: the reused C6 tree extractor accepted parameter/unknown-attempt/failed-parent
+shapes, and the fixed Commerce fixture could still choose its grant from a launch environment.
+The six real-CLI reproductions used finite native-command substitutes, never a simulator.
+FX now owns its strict tree reader plus per-required-method native test-details verification:
+identity/URL, one device/configuration, one concrete Passed run, no parameters or unknown attempts.
+The guarded Commerce fixture is compared against its fixed unconditional allow/revoke bodies.
+Remediation self-tests pass 22 copied-source, 374 tree, and 408 detail negatives, plus two real CLI
+positive cases and 12 CLI negative cases. The corrected reader also passed all 32 FX methods in
+focused bundle 2; that retrospective check does not validate later Swift edits. Independent
+gate rereview approved these two fixes at script SHA-256
+`5c98df17bcb1c6df51477e0f07d79b92d6919c8b0fbd622c0cc541862628e433`: four full-identity CLI
+positives, 38 runtime CLI negatives (including the original six), and four independent Commerce
+environment/argv/preferences/revoke negatives. It also read the real 32-method bundle. The
+reviewer changed no source and started no device; this closes only those gate findings, not C
+product/UI approval. No C6 parser was changed or C6 evidence scope expanded.
+
+Fresh host runs 5–7 passed English but failed Chinese AX5 preview visibility. Run 5 also exposed
+excessive UI failure duration; subsequent dedicated runs cap each method at 240 seconds. Runs
+6/7 showed the preview partially beneath fixed Save and no useful pan from the outer padding.
+Run 8 distinguished readable Text geometry from actionable controls, used proportional gestures
+inside scroll content and avoids a date wheel only when it actually intersects the gesture.
+Run 8 still failed Chinese visibility. Run 9 added slow end-held gestures and per-pan geometry;
+both languages failed. Its trace disproved momentum as the sole cause: the preview stopped moving
+across repeated pans once the pan origin intersected the accounting TextField (Chinese input frame
+302.7–375.7pt; preview 527.7–653pt, with Save starting at 455.3pt). The next helper selects an
+unobscured origin outside TextField/date-wheel bounds and retains complete target visibility.
+Run 10 passed English but rejected Chinese when the embedded AX5 date wheel occupied the
+available pan-origin interval. The product now uses a wrappable date button with a separate
+native wheel sheet at accessibility sizes, retaining compact selection at ordinary sizes.
+Run 11 completed Chinese creation but its edit pan activated that date button; it remained a
+whole-run non-pass. The helper now excludes buttons as well as text fields and wheels from pan
+origins. Run 12 additionally changes the actual year and verifies it after save/reopen, asserts
+localized accessible input labels/values and original-before-accounting combined announcement
+order. This is accessibility-tree coverage, not a physical spoken VoiceOver certification.
+Run 12 passed the new date/accessible-value assertions and English flow but still activated the
+date editor during Chinese editing with the keyboard occupying the lower viewport. Excluding
+button frames alone did not settle that interaction; it is retained as non-pass. The candidate
+now provides localized Done only while an FX numeric field owns focus, allowing the user/test to
+finish editing before inspecting the preview. The UI asserts that the button exists and the
+keyboard actually disappears; ordinary-entry/other-field keyboards are not opted in.
+Runs 1–12 remain non-pass. The source review
+of the earlier candidate remains attached to that earlier snapshot, not this added focus control.
+Hosted job timeout is 60 minutes: B closeout already took 35m25s and C adds a fresh isolated-host
+build/run and native binding reads after the full ordinary suite. No suite or runtime gate is
+removed and the dedicated host still has no retries.
+The strict iCloud storage inventory rejected an unnecessary host `.modelContainer` modifier;
+it was removed because both real views use the injected DataActor. No storage allowance widened.
+
+Host run 13 executed both cases once Passed (Chinese 104.530s, English 40.663s; zero skip/failure).
+Its original wrapper nevertheless exited 1: the native tree and details contain pure Runtime
+Warning leaves, initially treated as unknown attempts. Native activity timing places one warning
+per case after first focusing original amount and before input; the emitted source URL is empty.
+Four retained screenshots were read by the author and independent reviewer; neither identified
+the corresponding layout defect, but the warnings remain unresolved, not declared harmless.
+
+The FX reader now separates only exact two-key, nonempty Runtime Warning diagnostic leaves;
+results, identities, nested children and extra keys are rejected. Tree/detail warning multisets
+must agree and each warning is reported once, preserving two diagnoses rather than counting four
+observations. Self-tests pass 612 disguised-execution and 68 warning-mismatch negatives plus the
+existing execution/isolation negatives; four native CLI positives and 16 negatives also pass.
+Independent incremental review of gate SHA-256
+`17ab946e34d386e397e6a593446d389ddc8e44b0613817df0af61ad99a4f54fa` found no P1/P2/P3,
+rejected 26 further CLI negatives, passed two positives, and read run 13's tree and both details.
+The corrected reader passes both actual UI bindings and the earlier focused-2 32 unit bindings.
+Original run-13 wrapper failure remains non-pass; retrospective revalidation is remediation
+evidence, not a replacement for a fresh validator run or a frozen-head approval.
+
+Independent source-increment review also found no P1/P2/P3 for the new focus control at EntrySection
+SHA `493ec6d7c34acfd9993d6291f0821310803384ff92a127d66f9e39456fef83aa` and UI-test SHA
+`641ff3762e9d58a179d1a19f97a462ba29e668c0b3f0eed7631800f312a68f57`.
+Complete local `Scripts/validate.sh` is now running without retries or benchmark skips, using
+`/private/tmp/mindbudget-fx01c-full-1.xcresult` plus its separate `-FX-UI.xcresult`. Static gates
+completed and Release compilation started. Exact-head hosted CI and frozen-head review remain
+mandatory; C is not Done and D remains unentered.

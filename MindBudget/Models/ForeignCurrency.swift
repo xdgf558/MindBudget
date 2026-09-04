@@ -10,6 +10,7 @@ enum ForeignCurrencyError: Error, Equatable, Sendable {
     case unreadableMetadata
     case unsupportedSource
     case syncRequiresCompanionProtocol
+    case requiresProAccess
 }
 
 /// One original major unit buys N/D accounting major units. Always positive and reduced.

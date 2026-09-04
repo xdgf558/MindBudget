@@ -2,6 +2,215 @@ import XCTest
 
 final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
+    func testManualForeignCurrencyEnglishProCreateAndDetail() async throws {
+        try await exerciseForeignCurrency(language: "en", locale: "en_US", ax5: false)
+    }
+
+    @MainActor
+    func testManualForeignCurrencyChineseAX5ProCreateAndDetail() async throws {
+        try await exerciseForeignCurrency(language: "zh-Hans", locale: "zh_CN", ax5: true)
+    }
+
+    @MainActor
+    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+        guard ProcessInfo.processInfo.environment["MINDBUDGET_FX_UI_TESTS"] == "1" else {
+            throw XCTSkip("Requires the separately compiled FX UI host; this skip is not UI evidence.")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+        if ax5 {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        }
+        app.launch()
+        continueAfterFailure = false
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["fx.testHost"].waitForExistence(timeout: 8),
+                      "Normal AppBootstrap must never substitute for the compiled in-memory host")
+        XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
+        let toggle = app.switches["fx.enabled"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: toggle)
+        XCTAssertEqual(XCTWaiter.wait(for: [granted], timeout: 10), .completed,
+                       "The isolated fixture must reach the real Commerce access boundary")
+        revealFX(toggle, in: app)
+        // At AX5 the switch's accessibility frame includes its multiline label. Hit the
+        // trailing native switch, not the center of that combined label rectangle.
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.94, dy: 0.5)).tap()
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
+                                 app.windows.firstMatch.frame.width + 1,
+                                 "AX5 content must not force the form wider than the viewport")
+        let currency = app.buttons["fx.originalCurrency"]
+        revealFX(currency, in: app)
+        currency.tap()
+        let euro = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "EUR")).firstMatch
+        for _ in 0..<10 {
+            if euro.exists && euro.isHittable { break }
+            let menu = app.collectionViews.firstMatch
+            XCTAssertTrue(menu.waitForExistence(timeout: 2))
+            let top = menu.frame.minY
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            origin.withOffset(CGVector(dx: menu.frame.midX, dy: top + 300))
+                .press(forDuration: 0.05, thenDragTo: origin.withOffset(CGVector(dx: menu.frame.midX, dy: top + 80)))
+        }
+        XCTAssertTrue(euro.exists && euro.isHittable)
+        euro.tap()
+        if ax5 {
+            let date = app.buttons["fx.rateDate"]
+            revealFX(date, in: app)
+            XCTAssertFalse((date.value as? String ?? "").isEmpty)
+            date.tap()
+            XCTAssertTrue(app.pickerWheels.firstMatch.waitForExistence(timeout: 3))
+            app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "2024年")
+            XCTAssertEqual(app.pickerWheels.element(boundBy: 0).value as? String, "2024年")
+            let done = app.buttons["fx.rateDate.done"]
+            XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable)
+            done.tap()
+            XCTAssertTrue(app.buttons["fx.rateDate"].waitForExistence(timeout: 3))
+            XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
+        }
+        enterFX("3", into: app.textFields["fx.originalAmount"], in: app)
+        enterFX("2", into: app.textFields["fx.rate"], in: app)
+        XCTAssertEqual(app.textFields["fx.originalAmount"].label, ax5 ? "原币金额" : "Original amount")
+        XCTAssertEqual(app.textFields["fx.originalAmount"].value as? String, "3")
+        XCTAssertEqual(app.textFields["fx.rate"].value as? String, "2")
+        XCTAssertEqual(app.textFields["fx.accountingAmount"].value as? String, "6")
+        let direction = app.staticTexts["fx.direction"].label
+        XCTAssertTrue(direction.contains("EUR") && direction.contains("USD"))
+        if let original = direction.range(of: "EUR"), let accounting = direction.range(of: "USD") {
+            XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
+        } else { XCTFail("Accessible rate direction lost a currency identity") }
+        dismissFXKeyboard(in: app)
+        let preview = app.staticTexts["fx.preview"]
+        revealFX(preview, in: app)
+        XCTAssertTrue(preview.waitForExistence(timeout: 3))
+        XCTAssertTrue(preview.label.contains("USD"))
+        XCTAssertTrue(preview.label.contains("6"))
+        let formImage = XCTAttachment(screenshot: app.screenshot())
+        formImage.name = "FX manual form - \(language) - AX5 \(ax5)"
+        formImage.lifetime = .keepAlways
+        add(formImage)
+        let save = app.buttons["expense.save"]
+        revealFX(save, in: app)
+        save.tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
+        let detailImage = XCTAttachment(screenshot: app.screenshot())
+        detailImage.name = "FX saved detail - \(language) - AX5 \(ax5)"
+        detailImage.lifetime = .keepAlways
+        add(detailImage)
+        let spokenAmounts = app.staticTexts.containing(NSPredicate(
+            format: "label CONTAINS %@ AND label CONTAINS %@", "EUR", "USD"
+        )).firstMatch
+        XCTAssertTrue(spokenAmounts.waitForExistence(timeout: 3))
+        let spoken = spokenAmounts.label
+        // The combined accessibility element must announce original before accounting money.
+        XCTAssertTrue(spoken.contains("3 EUR") && spoken.contains("6 USD"))
+        if let original = spoken.range(of: "3 EUR"), let accounting = spoken.range(of: "6 USD") {
+            XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
+        } else { XCTFail("Combined accessibility amount lost its original/accounting values") }
+        let spokenRate = element("fx.detail.rate", in: app).label
+        XCTAssertTrue(spokenRate.contains("EUR") && spokenRate.contains("USD") && spokenRate.contains("2"))
+        if ax5 {
+            let savedDate = element("fx.detail.rateDate", in: app)
+            XCTAssertTrue((savedDate.label + (savedDate.value as? String ?? "")).contains("2024"))
+        }
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "EUR")).firstMatch.exists)
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "USD")).firstMatch.exists)
+        // Actual stored FX remains editable after access expires and Settings changes to JPY.
+        app.buttons["fx.testHost.revoke"].tap()
+        app.buttons["expense.edit"].tap()
+        XCTAssertTrue(app.switches["fx.enabled"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["fx.enabled"].isEnabled)
+        if ax5 {
+            XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
+        }
+        enterFX("3", into: app.textFields["fx.rate"], in: app)
+        dismissFXKeyboard(in: app)
+        revealFX(app.staticTexts["fx.preview"], in: app)
+        XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("USD"))
+        XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("9"))
+        revealFX(app.buttons["expense.save"], in: app)
+        app.buttons["expense.save"].tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
+        let updated = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "USD", "9")).firstMatch
+        XCTAssertTrue(updated.waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    private func dismissFXKeyboard(in app: XCUIApplication) {
+        let done = app.buttons["fx.keyboard.done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable,
+                      "FX numeric editing needs an accessible way to finish and read the result")
+        done.tap()
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"),
+                                                  object: app.keyboards.firstMatch)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 3), .completed)
+    }
+
+    @MainActor
+    private func enterFX(_ value: String, into field: XCUIElement, in app: XCUIApplication) {
+        revealFX(field, in: app)
+        field.tap()
+        if let existing = field.value as? String, existing != field.placeholderValue {
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
+        }
+        field.typeText(value)
+    }
+
+    @MainActor
+    private func revealFX(_ control: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<14 {
+            let navBottom = app.navigationBars.allElementsBoundByIndex.last(where: \.isHittable)?.frame.maxY ?? 0
+            let window = app.windows.firstMatch.frame
+            let sentinel = app.staticTexts["fx.testHost"]
+            let hostTop = sentinel.exists && sentinel.isHittable && sentinel.frame.minY > navBottom
+                ? sentinel.frame.minY : window.maxY
+            let keyboardTop = app.keyboards.firstMatch.exists
+                ? min(app.keyboards.firstMatch.frame.minY, hostTop) : hostTop
+            let save = app.buttons["expense.save"]
+            let contentBottom = save.exists && save.frame.minY > navBottom
+                ? min(save.frame.minY, keyboardTop) : keyboardTop
+            let isSave = control.exists && control.identifier == "expense.save"
+            let limit = isSave ? keyboardTop : contentBottom
+            let needsHitPoint = control.exists && control.elementType != .staticText
+            if control.exists && (!needsHitPoint || control.isHittable) && control.frame.minY > navBottom
+                && control.frame.maxY < limit { return }
+            let top = navBottom + 12
+            let height = contentBottom - top - 12
+            guard height > 60 else { XCTFail("No unobscured FX scroll viewport"); return }
+            let moveDown = control.exists && control.frame.minY < top
+            let center = top + height / 2
+            let distance = min(max(control.exists ? abs(control.frame.midY - center) : 120, 30), min(180, height * 0.45))
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            // A pan beginning inside a numeric TextField is consumed by its text interaction;
+            // the AX5 run stalled at exactly that frame. Date wheels also own vertical pans.
+            // Choose a gap in the actual scroll content, keeping BOTH endpoints unobscured.
+            let occupied = (app.textFields.allElementsBoundByIndex + app.pickerWheels.allElementsBoundByIndex
+                            + app.buttons.allElementsBoundByIndex)
+                .map(\.frame).filter { $0.minX <= window.midX && $0.maxX >= window.midX }
+            let lowerStart = moveDown ? top : top + distance
+            let upperStart = moveDown ? contentBottom - 12 - distance : contentBottom - 12
+            let candidates = stride(from: upperStart, through: lowerStart, by: -8.0)
+            guard let startY = candidates.first(where: { y in
+                !occupied.contains { $0.minY - 8 <= y && $0.maxY + 8 >= y }
+            }) else { XCTFail("No unobscured non-editor FX pan origin"); return }
+            let start = origin.withOffset(CGVector(dx: window.midX, dy: startY))
+            let end = origin.withOffset(CGVector(dx: window.midX, dy: startY + (moveDown ? distance : -distance)))
+            XCTContext.runActivity(named: "FX viewport target \(control.frame), visible \(top)...\(contentBottom), down \(moveDown)") { _ in
+                // End at rest: a default 500pt/s release adds momentum beyond the calculated
+                // displacement and can oscillate an AX5 label above/below the keyboard gap.
+                start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+            }
+        }
+        let failureImage = XCTAttachment(screenshot: app.screenshot())
+        failureImage.name = "FX failed viewport"
+        failureImage.lifetime = .keepAlways
+        add(failureImage)
+        XCTFail("FX control did not enter the unobscured viewport: \(control); frame=\(control.frame); \(app.debugDescription)")
+    }
+
+    @MainActor
     func testColdLaunchShowsLocalizedBrandAnimation() {
         let app = launchApp(
             language: "zh-Hans",

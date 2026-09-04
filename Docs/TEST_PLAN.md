@@ -694,6 +694,8 @@ review, hosted CI and merge. The previous merge exception does not waive those B
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -705,7 +707,68 @@ entry, missing/duplicated local status and a checked closeout task. Continue all
 accounting/decimal/sync/no-floating-point/no-network mutations and subprocess/order fault tests.
 Self-tests mutate temporary copies only. A green gate does not manufacture runtime proof.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
+## FX-01C candidate verification (not completion evidence)
+
+`ForeignCurrencyFormTests` adds 15 unparameterized methods covering explicit currency selection,
+8-place half-even rate normalization, exact override reopening, invalid-input retention, saved
+date/zone, currency exponents, new/conversion/duplicate authority, expired stewardship, asynchronous
+revocation, ordinary-mode restoration and nonmanual/recurring exclusions. The original 17 B
+arithmetic/migration/persistence methods remain required. Complete validation must read all 32
+from its own fresh ordinary-App bundle and their native per-test execution records.
+
+The separate `MindBudget-FX-UI` scheme uses a Debug + simulator + dedicated-flag entry, in-memory
+financial data and fixed Commerce fixtures. It must independently run both exact English/light
+and Chinese/AX5/dark create/detail/expired-edit methods. Those methods skip under the ordinary
+scheme; those skips are explicitly not substitutes for the dedicated run. The host's own bundle
+must prove both executed once and passed, including actual per-test device/configuration records.
+No StoreKit purchase, physical VoiceOver/device, network, CSV or iCloud protocol claim follows.
+The ordinary complete suite, coverage and isolated local strict benchmark remain separate gates.
+
+Host isolation has copied-source negatives for its three compile conditions, exclusion before
+normal bootstrap construction, fixed grant/revoke behavior, preferences/financial-store isolation,
+notification stub and default/test-only scheme separation. CLI probes reject the independently
+reproduced aggregate-tree bypasses and hidden extra/failed detail runs. Runtime native schema is
+not pinned to a local Xcode version; unknown execution shapes fail closed pending explicit review.
+
+Pure native Runtime Warning leaves are diagnostics, not execution attempts: accept only the exact
+`name`/`nodeType` key set with a nonempty name, require tree/detail multiset agreement, and report
+each diagnostic once. Fake warning leaves carrying result/identity/children/extra keys fail. Run
+13 exposed two layout warnings with no source location; keep them visible as unresolved diagnostics,
+not repaired bugs or retries. Full validation still requires its own fresh ordinary and UI bundles.
+
 
 ## 2026-09-04 — Strict JSON and main TASKS negative coverage
 
