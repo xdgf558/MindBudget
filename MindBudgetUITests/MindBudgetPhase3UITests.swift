@@ -1295,26 +1295,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
         continueAfterFailure = false
         app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
-        let monthlyIncome = app.textFields["budget.monthlyIncome"]
-        enterBudgetValue("3000", into: monthlyIncome, in: app)
+        let monthlyIncome = "budget.monthlyIncome"
+        guard enterBudgetValue("3000", into: monthlyIncome, in: app) else { return }
 
-        let totalBudget = app.textFields["budget.totalBudget"]
-        enterBudgetValue("2500", into: totalBudget, in: app)
+        let totalBudget = "budget.totalBudget"
+        guard enterBudgetValue("2500", into: totalBudget, in: app) else { return }
 
-        let savingGoal = app.textFields["budget.savingGoal"]
-        enterBudgetValue("500", into: savingGoal, in: app)
+        let savingGoal = "budget.savingGoal"
+        guard enterBudgetValue("500", into: savingGoal, in: app) else { return }
 
         // SwiftUI can leave the active editor's accessibility value stale. Move focus to the
         // first field without submitting or typing again, then only reveal fields while reading
         // them. This prevents readback from repeatedly changing focus or requiring a keyboard.
         // The exact three-value readback is the authority that detects text sent to the wrong
         // field; keyboard visibility and targeted typeText do not prove focus ownership.
-        prepareBudgetEditor(monthlyIncome, in: app, towardEarlierRow: true)
-        for (field, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
+        guard prepareBudgetEditor(monthlyIncome, in: app, towardEarlierRow: true) else { return }
+        for (identifier, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
             // AX5/pseudo-long Form rows can be virtualized, so reveal each in order.
             // Only the first return travels toward earlier rows; never assume all three
             // editors coexist in the accessibility tree.
-            revealBudgetField(field, in: app, towardEarlierRow: expected == "3000")
+            guard revealBudgetField(identifier, in: app, towardEarlierRow: expected == "3000") != nil else { return }
+            let field = app.textFields[identifier]
             let entered = XCTNSPredicateExpectation(
                 predicate: NSPredicate { object, _ in
                     (object as? XCUIElement)?.value as? String == expected
@@ -1322,11 +1323,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 object: field
             )
             XCTAssertEqual(XCTWaiter.wait(for: [entered], timeout: 5), .completed,
-                           "Budget value did not reach its intended field: \(field.identifier)")
+                           "Budget value did not reach its intended field: \(identifier)")
         }
 
         let save = app.buttons["budget.save"]
-        makeBudgetSaveReady(save, in: app)
+        guard makeBudgetSaveReady(save, in: app) else { return }
         let dashboard = element("dashboard.view", in: app)
         // The active SwiftUI TextField accessibility value can lag its rendered digits under
         // pseudo-localization. The bounded Dashboard transition is the end-to-end authority that
@@ -1344,28 +1345,230 @@ final class MindBudgetPhase3UITests: XCTestCase {
         )
     }
 
+    /// Value copy of one public XCUI snapshot, also usable by deterministic helper tests.
+    private struct BudgetSnapshotNode {
+        let type: XCUIElement.ElementType
+        let identifier: String
+        let frame: CGRect
+        var children: [BudgetSnapshotNode] = []
+
+        @MainActor
+        init(_ snapshot: any XCUIElementSnapshot) {
+            type = snapshot.elementType
+            identifier = snapshot.identifier
+            frame = snapshot.frame
+            children = snapshot.children.map { BudgetSnapshotNode($0) }
+        }
+
+        init(_ type: XCUIElement.ElementType, _ frame: CGRect,
+             identifier: String = "", children: [BudgetSnapshotNode] = []) {
+            self.type = type
+            self.identifier = identifier
+            self.frame = frame
+            self.children = children
+        }
+
+        var flattened: [BudgetSnapshotNode] { [self] + children.flatMap(\.flattened) }
+    }
+
+    private struct BudgetGeometryError: Error, CustomStringConvertible {
+        let description: String
+    }
+
+    private struct BudgetGeometry: CustomStringConvertible {
+        let application: CGRect
+        let navigation: [CGRect]
+        let keyboards: [CGRect]
+        let target: CGRect?
+        let navigationBottom: CGFloat
+        let safeBottom: CGFloat
+
+        init(targetIdentifier: String, targetType: XCUIElement.ElementType,
+             noKeyboardInset: CGFloat, snapshot: () throws -> BudgetSnapshotNode) throws {
+            // Capture errors must propagate: they are not evidence of keyboard absence.
+            let root = try snapshot()
+            func requireFrame(_ frame: CGRect, _ label: String, allowEmpty: Bool = false) throws {
+                guard !frame.isNull, !frame.isInfinite,
+                      [frame.origin.x, frame.origin.y, frame.width, frame.height].allSatisfy(\.isFinite),
+                      frame.width >= 0, frame.height >= 0, allowEmpty || !frame.isEmpty else {
+                    throw BudgetGeometryError(description: "Invalid \(label) frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "Budget snapshot root is not the application")
+            }
+            try requireFrame(root.frame, "application")
+            application = root.frame
+            let nodes = root.flattened
+            func visibleChrome(_ type: XCUIElement.ElementType) throws -> [CGRect] {
+                try nodes.filter { $0.type == type }.compactMap { node in
+                    try requireFrame(node.frame, "\(type)")
+                    return node.frame.intersects(root.frame) ? node.frame : nil
+                }
+            }
+            navigation = try visibleChrome(.navigationBar)
+            keyboards = try visibleChrome(.keyboard)
+            guard let navigationBottom = navigation.map(\.maxY).max() else {
+                throw BudgetGeometryError(description: "Budget snapshot has no visible navigation bar")
+            }
+            self.navigationBottom = navigationBottom
+            safeBottom = keyboards.map(\.minY).min().map { $0 - 8 }
+                ?? (root.frame.maxY - noKeyboardInset)
+            guard noKeyboardInset.isFinite, noKeyboardInset >= 0,
+                  navigationBottom + 8 < safeBottom, safeBottom <= root.frame.maxY else {
+                throw BudgetGeometryError(description: "Contradictory budget chrome: nav=\(navigation), keyboards=\(keyboards)")
+            }
+            let targets = nodes.filter { $0.identifier == targetIdentifier && $0.type == targetType }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate budget target: \(targetIdentifier)")
+            }
+            // A virtualized/empty target needs a bounded reveal, never a permissive tap.
+            if let frame = targets.first?.frame {
+                try requireFrame(frame, targetIdentifier, allowEmpty: true)
+                target = frame.isEmpty ? nil : frame
+            } else {
+                target = nil
+            }
+        }
+
+        var targetIsInLane: Bool {
+            guard let target else { return false }
+            return application.contains(target)
+                && target.minY > navigationBottom + 8 && target.maxY < safeBottom
+        }
+
+        var description: String {
+            "app=\(application), nav=\(navigation), keyboards=\(keyboards), "
+                + "target=\(String(describing: target)), lane=\(navigationBottom + 8)...\(safeBottom)"
+        }
+    }
+
+    @MainActor
+    func testBudgetGeometryUsesOneSnapshotAndConservativeChromeBounds() throws {
+        let target = BudgetSnapshotNode(.textField, CGRect(x: 20, y: 180, width: 300, height: 40),
+                                        identifier: "budget.test")
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let keyboard = BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 500, width: 400, height: 300))
+        var root = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800),
+                                      children: [nav, target, keyboard])
+        var captures = 0
+        let captured = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                          noKeyboardInset: 80) {
+            captures += 1
+            return root
+        }
+        // Model a keyboard disappearing after capture. Existing geometry must not re-query it.
+        root.children.removeLast()
+        XCTAssertEqual(captures, 1)
+        XCTAssertEqual(captured.safeBottom, 492)
+        XCTAssertTrue(captured.targetIsInLane)
+        XCTAssertEqual(captured.target, target.frame)
+        XCTAssertFalse(captured.description.isEmpty)
+        XCTAssertEqual(captures, 1)
+        let absent = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                       noKeyboardInset: 80) { root }
+        XCTAssertEqual(absent.safeBottom, 720)
+        XCTAssertTrue(absent.keyboards.isEmpty)
+        root.children += [keyboard,
+            BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 450, width: 400, height: 350)),
+            BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 80, width: 400, height: 60))]
+        let multiple = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                         noKeyboardInset: 80) { root }
+        XCTAssertEqual(multiple.navigationBottom, 140)
+        XCTAssertEqual(multiple.safeBottom, 442)
+        root.children.removeAll { $0.identifier == "budget.test" }
+        let virtualized = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                             noKeyboardInset: 80) { root }
+        XCTAssertNil(virtualized.target)
+        XCTAssertFalse(virtualized.targetIsInLane)
+        let covered = BudgetSnapshotNode(.button, CGRect(x: 20, y: 430, width: 300, height: 50),
+                                         identifier: "budget.save")
+        root.children.append(covered)
+        let save = try BudgetGeometry(targetIdentifier: "budget.save", targetType: .button,
+                                     noKeyboardInset: 8) { root }
+        XCTAssertFalse(save.targetIsInLane, "Partial overlap with the keyboard cannot accept Save")
+    }
+
+    @MainActor
+    func testBudgetGeometryRejectsFailedCaptureAndInvalidSnapshots() {
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let target = BudgetSnapshotNode(.textField, CGRect(x: 20, y: 180, width: 300, height: 40),
+                                        identifier: "budget.test")
+        let good = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800),
+                                      children: [nav, target])
+        var captures = 0
+        XCTAssertThrowsError(try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                                noKeyboardInset: 80) {
+            captures += 1
+            throw BudgetGeometryError(description: "capture failed")
+        })
+        XCTAssertEqual(captures, 1, "A failed capture cannot retry or become keyboard absence")
+        let invalidRoots: [BudgetSnapshotNode] = [
+            BudgetSnapshotNode(.application, .zero, children: good.children),
+            BudgetSnapshotNode(.other, good.frame, children: good.children),
+            BudgetSnapshotNode(.application, good.frame, children: [target]),
+            BudgetSnapshotNode(.application, good.frame, children: [nav, target, target]),
+            BudgetSnapshotNode(.application, good.frame, children: [nav,
+                BudgetSnapshotNode(.textField, CGRect(x: CGFloat.nan, y: 180, width: 300, height: 40),
+                                   identifier: "budget.test")]),
+            BudgetSnapshotNode(.application, good.frame, children: [target,
+                BudgetSnapshotNode(.navigationBar, .zero)]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, .zero)]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: CGFloat.infinity, width: 400, height: 300))]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 80, width: 400, height: 720))]),
+        ]
+        for (index, root) in invalidRoots.enumerated() {
+            XCTAssertThrowsError(try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                                    noKeyboardInset: 80) { root }, "Invalid snapshot \(index)")
+        }
+    }
+
+    @MainActor
+    private func captureBudgetGeometry(
+        targetIdentifier: String, targetType: XCUIElement.ElementType,
+        noKeyboardInset: CGFloat, in app: XCUIApplication
+    ) -> BudgetGeometry? {
+        do {
+            return try BudgetGeometry(targetIdentifier: targetIdentifier, targetType: targetType,
+                                      noKeyboardInset: noKeyboardInset) {
+                BudgetSnapshotNode(try app.snapshot())
+            }
+        } catch {
+            XCTFail("Unable to capture budget geometry for \(targetIdentifier): \(error)")
+            return nil
+        }
+    }
+
+    @MainActor
+    private func tapBudgetTarget(_ geometry: BudgetGeometry, in app: XCUIApplication) {
+        // Use the captured center instead of resolving the target's frame again at tap time.
+        guard let frame = geometry.target else {
+            XCTFail("No budget target in captured geometry: \(geometry)")
+            return
+        }
+        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: frame.midX - geometry.application.minX,
+            dy: frame.midY - geometry.application.minY
+        )).tap()
+    }
+
     @MainActor
     private func makeBudgetSaveReady(
         _ save: XCUIElement,
         in app: XCUIApplication
-    ) {
+    ) -> Bool {
         let budgetForm = app.collectionViews["budget.setup.view"]
+        var lastGeometry: BudgetGeometry?
 
         for _ in 0..<12 {
-            let navigationBottom = app.navigationBars.firstMatch.frame.maxY
-            let keyboard = app.keyboards.firstMatch
-            let safeBottom = keyboard.exists
-                ? keyboard.frame.minY - 8
-                : app.frame.maxY - 8
-            if save.exists {
-                let frame = save.frame
-                if save.isHittable,
-                   !frame.isEmpty,
-                   frame.midY > navigationBottom + 8,
-                   frame.maxY < safeBottom
-                {
-                    return
-                }
+            guard let geometry = captureBudgetGeometry(targetIdentifier: "budget.save", targetType: .button,
+                                                       noKeyboardInset: 8, in: app) else { return false }
+            lastGeometry = geometry
+            if geometry.targetIsInLane && save.isHittable {
+                return true
             }
 
             // isHittable can remain true while the decimal keyboard covers the lower part of the
@@ -1380,67 +1583,64 @@ final class MindBudgetPhase3UITests: XCTestCase {
             lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
         }
 
-        XCTFail("Budget Save did not enter the safe interaction lane")
+        XCTFail("Budget Save did not enter the safe interaction lane; last snapshot: \(String(describing: lastGeometry))")
+        return false
     }
 
     @MainActor
     private func enterBudgetValue(
         _ value: String,
-        into field: XCUIElement,
+        into identifier: String,
         in app: XCUIApplication
-    ) {
-        prepareBudgetEditor(field, in: app)
+    ) -> Bool {
+        guard prepareBudgetEditor(identifier, in: app) else { return false }
         // Type into the target exactly once. XCTest can still route targeted typeText to a stale
         // active editor, so the later three-field readback remains the fail-closed authority.
         // Never type through the application or correctively retype after a failed assertion.
-        field.typeText(value)
+        app.textFields[identifier].typeText(value)
+        return true
     }
 
     @MainActor
     private func prepareBudgetEditor(
-        _ field: XCUIElement,
+        _ identifier: String,
         in app: XCUIApplication,
         towardEarlierRow: Bool = false
-    ) {
-        revealBudgetField(field, in: app, towardEarlierRow: towardEarlierRow)
+    ) -> Bool {
+        guard let initial = revealBudgetField(identifier, in: app, towardEarlierRow: towardEarlierRow) else { return false }
 
-        field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        tapBudgetTarget(initial, in: app)
         let keyboard = app.keyboards.firstMatch
-        XCTAssertTrue(
-            keyboard.waitForExistence(timeout: 5),
-            "Budget keyboard did not appear after tapping \(field.identifier); "
-                + budgetGeometryDescription(field, in: app)
-        )
+        guard keyboard.waitForExistence(timeout: 5) else {
+            XCTFail("Budget keyboard did not appear; last pre-tap snapshot: \(initial)")
+            return false
+        }
 
         // The keyboard can move a SwiftUI Form after the first tap. Re-establish full geometry,
         // then tap the explicit center a second time because the first focus transfer may have
         // been consumed. Neither keyboard visibility nor geometry is treated as focus proof.
-        revealBudgetField(field, in: app, towardEarlierRow: towardEarlierRow)
-        field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        guard let ready = revealBudgetField(identifier, in: app, towardEarlierRow: towardEarlierRow) else { return false }
+        tapBudgetTarget(ready, in: app)
+        return true
     }
 
     @MainActor
     private func revealBudgetField(
-        _ field: XCUIElement,
+        _ identifier: String,
         in app: XCUIApplication,
         towardEarlierRow: Bool = false
-    ) {
+    ) -> BudgetGeometry? {
         let budgetForm = app.collectionViews["budget.setup.view"]
+        let field = app.textFields[identifier]
+        var lastGeometry: BudgetGeometry?
 
         for _ in 0..<12 {
-            if field.exists {
-                let navigationBottom = app.navigationBars.firstMatch.frame.maxY
-                let keyboard = app.keyboards.firstMatch
-                let safeBottom = keyboard.exists
-                    ? keyboard.frame.minY - 8
-                    : app.frame.maxY - 80
-                let frame = field.frame
-                if field.isHittable,
-                   !frame.isEmpty,
-                   frame.minY > navigationBottom + 8,
-                   frame.maxY < safeBottom
-                {
-                    return
+            guard let geometry = captureBudgetGeometry(targetIdentifier: identifier, targetType: .textField,
+                                                       noKeyboardInset: 80, in: app) else { return nil }
+            lastGeometry = geometry
+            if let frame = geometry.target {
+                if geometry.targetIsInLane && field.isHittable {
+                    return geometry
                 }
 
                 // A full-screen swipe can move a large AX5 field from behind the keyboard to
@@ -1453,7 +1653,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 let lowerPoint = budgetForm.coordinate(
                     withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
                 )
-                if frame.minY <= navigationBottom + 8 {
+                if frame.minY <= geometry.navigationBottom + 8 {
                     upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
                 } else {
                     lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
@@ -1474,25 +1674,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
 
         XCTFail(
-            "Budget field did not enter the safe interaction lane: \(field.identifier); "
-                + budgetGeometryDescription(field, in: app)
+            "Budget field did not enter the safe interaction lane: \(identifier); "
+                + "last snapshot: \(String(describing: lastGeometry))"
         )
-    }
-
-    @MainActor
-    private func budgetGeometryDescription(
-        _ field: XCUIElement,
-        in app: XCUIApplication
-    ) -> String {
-        let keyboard = app.keyboards.firstMatch
-        let navigation = app.navigationBars.firstMatch
-        let keyboardFrame = keyboard.exists ? String(describing: keyboard.frame) : "none"
-        let navigationFrame = navigation.exists ? String(describing: navigation.frame) : "none"
-        return "fieldExists=\(field.exists), fieldHittable=\(field.isHittable), "
-            + "fieldFrame=\(field.frame), keyboardExists=\(keyboard.exists), "
-            + "keyboardFrame=\(keyboardFrame), "
-            + "navigationExists=\(navigation.exists), "
-            + "navigationFrame=\(navigationFrame)"
+        return nil
     }
 
     @MainActor

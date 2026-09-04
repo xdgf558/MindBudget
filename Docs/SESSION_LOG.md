@@ -8441,3 +8441,92 @@ for the generic simulator completed successfully on both architectures; this is 
 probe only. After a new commit, implementation-separated review and complete fresh local/hosted
 validation with native artifact inspection remain mandatory. FX-01C stays In Progress and FX-01D
 is not entered.
+
+## 2026-09-05 — PR #114 provenance correction and hosted keyboard-snapshot non-pass
+
+The owner-supplied review found no product-source P1/P2 on `bed216b`, but required correcting
+the stale PR current-state section, recording complete local validation and waiting for this
+head's own hosted/native acceptance. The PR body was corrected without a code commit. It now
+identifies `bed216b408b7da8aed80d71d92d01fd574ba4a2c`, preserves `33917389140` on `add6231` as
+the pre-test compiler-crash non-pass and links the subsequent implementation-separated local
+audit. Complete local `Scripts/validate.sh` on bed216b had exited zero with retries disabled:
+606 ordinary method details (590 Passed / 16 Skipped), 615 concrete results (599 / 16), all
+23 C6 and 32 FX unit bindings, coverage, a separate strict benchmark and two dedicated FX UI
+methods once Passed. Its two known frame diagnostics remain. This completed local evidence
+postdates the preceding checked-in compile-probe checkpoint; it is not hosted acceptance.
+
+Hosted run `33921069764` attempt 1 then failed on that exact head. The checked-out synthetic
+merge `357f976116fe16856b482ed324a394823d91c608` and head have the same tree
+`0e0e685c85ee67cff6876108b204107b4b5066ee`. Release and test builds both succeeded under
+Xcode 26.6: the previous IRGen crash did not recur, but the overall run is non-pass. Ordinary
+native summary/tree report 606 methods: 589 Passed / 16 Skipped / 1 Failed; device totals are
+598 Passed / 16 Skipped / 1 Failed. Ordinary UI is 16 Passed / 3 Skipped / 1 Failed. Coverage,
+binding-verification and dedicated FX UI stages were not reached after the ordinary failure.
+
+The sole failure is `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable()`.
+Its native detail has one device, one configuration and one Failed execution lasting
+205.671247s. The call stack identifies the second, AX5 setup, after entering all three values
+and before their exact readback, while preparing monthly income. At `revealBudgetField` line
+1435, a successful keyboard existence query was followed by a separate frame query that could
+no longer resolve a Keyboard. The log and implementation-separated diagnosis identify a
+time-of-check/time-of-use defect in the test helper, not a proven product amount error or the
+dedicated FX UI runner's 240-second timeout. The tree contains no Repetition, but only the
+failed method's full detail was inspected in this diagnostic pass; this is not an all-detail
+retry-free acceptance audit. No test or workflow was rerun to erase the failure.
+
+Artifact `9956101379` is 246055592 bytes and matches GitHub upload SHA-256
+`fa8ae0ab77ac2b013bae868f99a7ae1c0f79af72da3e5a4a1ceda139336e7fd8`. It contains only the
+ordinary `MindBudget.xcresult`, consistent with the unexecuted downstream stage. The original
+ZIP and extraction were retained; Xcode 27 inspected a separate working copy. An initial native
+read was denied a derived TestReport-cache write by the sandbox, then the permitted read
+succeeded. Neither read launches the app or retries a test.
+
+The current PR body was updated again when this failure became terminal; it no longer calls
+`33921069764` running. PR #114 remains Draft. Product/test source is unchanged during this
+diagnosis. Any subsequent helper repair needs a new exact-head source review, complete local
+validation and hosted/native acceptance, not reuse of bed216b's local pass. C remains In Progress;
+merge still needs separate closeout before D entry. The owner's five non-blocking P3 observations
+remain recorded in the PR follow-up; none was silently treated as fixed.
+
+## 2026-09-05 — Owner-directed snapshot repair and direct PR handoff
+
+The owner requested implementation and PR handoff for personal review, without another
+agent-approval/new-head validation cycle. This supersedes the proposed additional agent review,
+not the historical evidence or merge status. A normal repair commit necessarily changes the
+existing branch head; no replacement PR, automated merge, C completion or D entry is authorized.
+
+The test-only repair replaces budget field/save/chrome `exists`/`frame` pairs with a single
+public App snapshot per sample and a pure geometry reducer. Captured frames and identifiers
+remain value copies, including diagnostic messages and input tap centers. Missing navigation,
+capture failure, invalid frames, duplicate typed target or contradictory chrome fail and return
+before subsequent input/Save. An absent virtualized target still requires bounded reveal.
+Save must fit wholly below navigation and above the keyboard. Live `isHittable` remains only an
+extra readiness condition. The input counts, all three exact readbacks, 12-drag limits and
+bounded Save-to-Dashboard handshake remain; product Swift, timeout and runner retry settings
+are unchanged. Two deterministic tests cover successful sampling and fail-closed cases.
+
+At UI-test SHA-256 `35cad00344527dfb07eb9300c85439164d2a9e7712b3bffd6a2608b31250a071`, the
+`snapshot-focus-1` build/test command passed six actual methods without runner retries:
+English AX1/AX5, language switching, both localized category cases and the two new geometry
+methods. Native summary, tree and all six details close at six concrete Passed executions,
+zero skips/failures/extra attempts and no runtime warning. AX1/AX5 lasted 73.841s, language
+switching 37.641s and category English/Chinese 86.517s/85.647s. These are local development
+measurements, not hosted timing bounds. The first command misspelled the intended seventh
+pseudo-long selector, so its result is explicitly six-method coverage, not seven; a separate
+fresh bundle with the actual method name is required to cover that missing case.
+
+Money, network-egress, commercialization-docs, StoreKit catalog and FX contract gates passed,
+including their existing negative self-tests. `git diff --check` passed. Existing unrelated
+build warnings remain (App Intents metadata and weak-session mutability); no warning-free build
+is claimed. No complete ordinary validator, dedicated FX UI run, physical run or independent
+source rereview is claimed for this test-only patch. PR #114 will carry the actual local
+coverage and current hosted status for the owner's review; old `33921069764` remains non-pass.
+
+The separate `snapshot-pseudolong-1` bundle subsequently ran the exact
+`testPseudoLongTextKeepsOnboardingAndPrimaryNavigationReachable()` method once Passed in
+58.140s, on the unchanged compiled test source. Native summary/tree/its sole detail close at
+one concrete Passed execution, no skip/failure/extra attempt and no runtime warning. Together
+the two fresh bundles cover seven distinct methods; no method was repeated between them.
+This closes the selector mistake's local coverage gap without relabeling the first bundle.
+The owner-review handoff contains only these focused results, not a current-head complete
+validator or hosted-green claim. The previous hosted failure and all earlier non-passes remain.

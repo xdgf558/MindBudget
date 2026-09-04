@@ -4182,3 +4182,33 @@ simulator architectures succeeds with this source, but it is only a compile prob
 committed exact head still requires implementation-separated source review, complete local
 validation, hosted Xcode 26.6 validation and native artifact audit. C remains In Progress and D
 remains unentered.
+
+## 2026-09-05 — Sample budget UI geometry from one public snapshot
+
+Hosted `33921069764` on `bed216b` failed in the ordinary AX5 budget setup because a
+`keyboard.exists` query succeeded but the following independent `keyboard.frame` query could
+no longer resolve the keyboard. The successful product build is not evidence that this test
+helper is sound. Preserve this run as non-pass and replace the helper's split field/save/chrome
+queries with one public `app.snapshot()` per geometry sample. Copy only public attributes into
+a value tree; derive navigation's maximum bottom, visible keyboards' minimum top and the unique
+typed target frame from that same tree. A failed capture, invalid chrome/root geometry,
+duplicate target or contradictory lane fails and returns before subsequent input or Save.
+Only a successful snapshot without an on-screen keyboard uses the App-bottom allowance.
+An absent/empty virtualized target permits bounded reveal but never a tap.
+
+The captured target must be fully inside the App and the navigation/keyboard lane; this also
+requires Save's top, not just its midpoint, to clear navigation. Center taps use captured
+coordinates. Live `isHittable` remains an additional readiness check, never a frame source.
+Failure diagnostics print captured values rather than resolving disappearing elements again.
+Keep the existing 12-drag bounds, two center taps per input preparation, one targeted typing
+operation per value, all three exact readbacks and at most two Save-to-Dashboard attempts.
+Do not change product code, disable the ordinary regression, increase timeouts or enable retries.
+Deterministic geometry tests cover keyboard disappearance after capture, conservative multi-
+chrome bounds, virtualization/occlusion and malformed or failed capture. Focused simulator
+results are development evidence, not a complete validator/hosted or physical pass.
+
+The owner requested direct PR handoff after repair and will perform the PR review personally.
+Do not add another agent-approval/freeze cycle or automatically merge. Update existing PR #114;
+a normal repair commit changes its head but does not create a new PR or claim acceptance.
+Hosted CI may run automatically on push; its outcome remains separate from local probes.
+C stays In Progress, with separate post-merge closeout still required before D entry.

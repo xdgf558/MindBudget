@@ -308,3 +308,38 @@ dedicated UI coverage. A local Xcode 27 Release build completed for arm64 and x8
 architectures. That compile probe neither proves Xcode 26.6 compatibility nor replaces a complete
 validator run. The working tree must be committed, rereviewed and receive fresh local plus hosted
 native acceptance. C remains In Progress and D remains unentered.
+
+## Budget snapshot repair — direct owner-review handoff
+
+Hosted `33921069764` attempt 1 on `bed216b` passed Release/test compilation but failed the
+ordinary AX5 budget setup: `keyboard.exists` and `keyboard.frame` resolved different UI states.
+Native summary/tree contain 606 methods (589 Passed / 16 Skipped / 1 Failed), and the failed
+detail is one Failed execution of 205.671247s, before exact amount readback. The verified ZIP
+SHA-256 is `fa8ae0ab77ac2b013bae868f99a7ae1c0f79af72da3e5a4a1ceda139336e7fd8`; it contains only
+the ordinary bundle. This remains non-pass; downstream binding checks and dedicated FX UI were
+not reached. The earlier complete local pass on bed216b does not substitute for hosted evidence.
+
+The test-only repair captures field/save/navigation/keyboard frames from one public application
+snapshot per sample. Errors and invalid/ambiguous geometry stop setup; diagnostics use already
+captured values. Multiple visible chrome frames narrow rather than widen the lane. An absent
+virtualized target only allows another bounded reveal. Save must fit completely below navigation
+and above the keyboard; captured target centers replace live frame resolution during input taps.
+The three exact readbacks, typing counts, 12-drag bounds, Save-to-Dashboard handshake and
+no-runner-retry configuration remain. Two deterministic helper tests cover coherent sampling,
+keyboard disappearance, conservative bounds and rejected capture/geometry failures.
+
+The owner will personally review this repair in existing PR #114 and requested direct handoff
+after implementation/local checks, without another agent-approval cycle. No new source review
+approval, complete-suite pass, hosted pass or merge is claimed for this repair at this checkpoint.
+Product Swift, schema, CSV/iCloud, network channels, timeouts and test retries are unchanged.
+C remains In Progress; D requires the separate post-merge closeout.
+
+Local repair verification now covers seven distinct methods on UI-test SHA-256
+`35cad00344527dfb07eb9300c85439164d2a9e7712b3bffd6a2608b31250a071`: two geometry contracts,
+English AX1/AX5, language switching, English/Chinese category charts and pseudo-long text.
+The first bundle contains six actual Passed methods, not the intended seven, because the
+pseudo-long selector was misspelled. A separate fresh bundle executes the correct missing
+method once Passed. Native summary/tree/all details across both bundles verify seven concrete
+Passed runs with zero skip, failure, extra attempt or runtime warning; no method is duplicated
+between bundles. Five static gates and `git diff --check` passed. These focused author checks
+do not replace full ordinary validation or the hosted workflow; the owner will review the PR.
