@@ -7,7 +7,7 @@ struct DataController: Sendable {
     let migrationRecoveryArtifactDeleter: any MigrationRecoveryArtifactDeleting
 
     init(isStoredInMemoryOnly: Bool = false, storeURL: URL? = nil) throws {
-        let schema = Schema(versionedSchema: SchemaV6.self)
+        let schema = Schema(versionedSchema: SchemaV7.self)
         let configuration: ModelConfiguration
         let recoveryCoordinator: StoreMigrationRecoveryCoordinator?
 

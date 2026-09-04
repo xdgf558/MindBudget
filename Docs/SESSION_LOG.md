@@ -7707,3 +7707,160 @@ Retain `FullValidation.xcresult` and `validation.log` in
 The remediation is ready to update the existing Draft PR #111 for independent rereview and a
 fresh exact-head hosted run; local success neither proves the old timeout's root cause nor
 replaces either merge prerequisite. No third rerun on `2539ed1`, undraft, merge, or FX-01B entry.
+
+## 2026-09-04 — Owner authorizes PR #111 merge after new-head hosted gates
+
+After delivery of remediation head `33b8009166a32968b761e83717bbb09c60e4c69c`, the owner explicitly
+said to merge it. Record this as owner merge authorization, not a fabricated independent rereview
+report or GitHub review artifact. Read-only inspection confirms PR #111 remains Open/Draft at that
+exact head. Its new hosted run `33834027746`, attempt 1, is still In Progress; the dedicated FX
+gate passed and Worker audit/build/test steps are not yet all complete. No green result or merge
+is claimed at this checkpoint.
+
+Updated the existing paused `pr-111-ci` follow-up to the new exact head/run and resumed it. It may
+undraft/merge only after hosted success, 23-binding acceptance, and actual-attempt inspection
+excluding Failed-to-Passed. Any failure, cancellation, changed head, blocking review, unavailable
+evidence, or new authority requirement stops the flow for owner attention; no automatic rerun,
+source change, gate relaxation, or admin bypass. Preserve both `33829310323` failures and the
+older `33772144343` non-pass. Verify merge topology before reporting completion, and then pause
+the follow-up. This local handoff is deliberately uncommitted so the authorized head is unchanged.
+No FX-01B, Schema V7, later phase, physical rerun, network, distribution, or release entry.
+
+## 2026-09-04 — PR #111 new-head hosted audit timed out; merge follow-up paused
+
+The scheduled check found run `33834027746` attempt 1 failed on authorized head
+`33b8009166a32968b761e83717bbb09c60e4c69c`. Job `100902732936` ran from
+`2026-09-04T03:40:04Z` to `2026-09-04T03:49:32Z`. The dedicated FX gate and preceding static
+checks passed. The public-configuration Worker audit then spent about five minutes waiting for
+`https://registry.npmjs.org/-/npm/v1/security/advisories/bulk` and exited 1 with
+`npm warn audit network timeout` and `npm error audit endpoint returned an error`. No completed
+vulnerability verdict exists; the subsequent Worker check and Xcode build/tests did not run.
+This is not evidence of an app test failure, a successful audit, or validation of the delayed-boot
+remediation under the complete hosted pipeline. Retain the run as non-pass.
+
+PR #111 remains Open/Draft at the same head, unmerged. Paused the existing `pr-111-ci` follow-up
+under its stop-on-failure instruction. No rerun, source/workflow modification, audit bypass,
+undraft, merge, or new phase entry was performed. The next CI-network investigation or rerun
+requires owner direction. Preserve the earlier authorization record and all earlier non-passes;
+this failure handoff is local and uncommitted, leaving the authorized head unchanged.
+
+## 2026-09-04 — Owner-directed PR #111 merge with hosted non-pass retained
+
+After being told that `33834027746` failed at the npm audit endpoint and that Xcode tests had
+not started, the owner explicitly said not to investigate and to merge directly. This instruction
+waives the successful-hosted-CI prerequisite for this merge only. It does not turn the audit into
+a pass, supply missing hosted runtime evidence, establish the prior timeout's root cause, or
+constitute an independently verifiable rereview report. Preserve that distinction and all three
+PR #111 non-pass attempts, as well as the older `33772144343` Failed-to-Passed evidence.
+
+Reconfirmed PR #111 was Open/Draft and mergeable at exact head
+`33b8009166a32968b761e83717bbb09c60e4c69c`. Marked it ready and used the ordinary merge command
+with that exact-head guard; no administrator bypass, auto-merge setting, branch deletion, rerun,
+source change, or gate relaxation was used. GitHub confirms it merged at `2026-09-04T03:59:29Z`
+as `34ac3f34dcfac5d5ee49a71b03fa83ef0193631f`. The commit API confirms first parent
+`9322e3bc8da59d5ea5b6d067d66fae879404b642` and second parent
+`33b8009166a32968b761e83717bbb09c60e4c69c`.
+
+The follow-up remains Paused. This local merge handoff is uncommitted; it does not rewrite the
+merged head, update phase-contract metadata, or claim a hosted-green closeout. FX-01 remains
+In Progress and FX-01B remains unentered. No Schema V7, physical rerun, FX-02, COM-C12, network,
+Archive, upload, distribution, or release action is authorized by this merge.
+## 2026-09-04 — FX-01B owner entry
+
+Implementation candidate: added `ForeignCurrencyRate`, a locale-aware closed decimal parser,
+checked two-word integer conversion with half-even rounding, display-only approximation and
+exact home-amount overrides. Added optional V7 `ExpenseForeignCurrencyMetadata`; Expense's
+19-field shape remains unchanged. Draft/detail/count/actor paths validate and commit the tuple
+with its accounting parent. Legacy form edits preserve metadata; deletion, Delete All and
+pending remote parent tombstones cascade it. Unsupported source/recurring/intent paths reject
+FX. Until D's thirteenth wire fact is implemented, ordinary iCloud uploads and FX are mutually
+exclusive; cloud erasure does not block local recording. Pending legacy parent upserts quarantine
+instead of overwriting FX. No new FX UI or entitlement changes.
+
+The pre-Swift contract gate passed with 89 subprocess mutations, seven injected process faults,
+and the existing 3-success / 16-failure validation-order harness. The new decimal and future-sync
+JSON fields are tested for both deletion and drift. All six known schema versions have real
+on-disk fixtures; every seeded row's fields are compared across upgrade and repeated restart.
+Separate tests cover V7 reopen, invalid tuples, downstream failures after both rows mutate,
+and checksummed known V5/V6 recovery journals versus an unknown V8 target. The recovery marker
+now targets V7; the last compatibility additions require the final complete validation below.
+
+Retained development non-passes: the first build had two incorrect `Money.isSupported` labels;
+focused run 1 rejected a test that incorrectly expected an even-maximum exact half to overflow
+(the arithmetic was correct); focused run 2 did not build because a throwing call inside
+`#require` lacked its inner `try`. Focused run 3 passed 13 methods, and expanded run 4 passed
+15 methods without retry; these precede the final V5-journal/intent and corruption additions.
+Full validation startup 1 exited 127 because the explicit PATH omitted `/usr/local/bin/node`;
+no Xcode work followed it. The PATH was corrected without weakening a gate. Full run 2 is an
+intermediate regression run, not final-source acceptance: the final recovery/intent additions
+were made after its builds. Its unit run passed; the superseded UI run was deliberately interrupted
+(exit 75) before completion. This cancelled run is non-pass, not final-source validation. A new
+complete run 3 rebuilds the final source with retry disabled.
+
+Author-side final entry-path inspection then found that the existing `AddExpenseView` constructor
+still accepted Settings currency even for an edit. The actor already rejected revaluation, but
+the actual form also needs to use the saved row currency. Corrected this one selection expression
+and added a real `ExpenseFormViewModel.submit` regression with changed Settings. This is B's
+new-versus-edit data contract, not C's new FX UI. Intermediate full run 3 was stopped with exit 75
+after passing unit tests but before UI completion; it also remains non-pass. Final acceptance
+will come from a fresh run after this correction, not either cancelled bundle.
+
+Focused run 5 passed 16 methods. Full run 4 completed with exit 0 (570 Swift Testing methods,
+strict benchmark, 17 UI passes / one opt-in physical skip, coverage and 23 C6 runtime bindings).
+It is intermediate evidence only: author-side entry-path inspection subsequently found that
+trust-boundary recovery calls staging directly, bypassing the ordinary enable guard, and that
+cloud erasure temporarily uses isEnabled without authorizing uploads. The final correction guards
+the shared full-staging entry and excludes erasure from ordinary staging / FX-write exclusion.
+A seventeenth test proves recovery rollback, local FX/ordinary create/edit during erasure,
+tombstone-only pending records and intact local data after erasure. Focused run 6 passed 17/17.
+No independent review is attributed to these author-side findings. Fresh complete run 5 rebuilds
+this frozen source with retries disabled; its final result is recorded below.
+
+Final local acceptance: `Scripts/validate.sh` full run 5 exited 0 on Xcode 27 beta 6 / iOS 26.5
+simulator, with no physical device or new provider request. Release/Debug builds, the separate
+strict serial benchmark, core coverage (every selected file >=85%) and 23 existing C6 runtime
+bindings passed. Native complete-bundle summary and Test Case tree agree: 575 Passed / 14 Skipped /
+0 Failed, 589 cases. Four parameterized parents contain 13 Passed Arguments (584 concrete
+ordinary/argument passes); every result node is Passed or Skipped and no Repetition node exists.
+All 17 FX methods independently match exactly one Passed in the complete result tree.
+The 14 opt-in skips stay non-pass, including StoreKit/live-network/physical evidence, not missing
+FX coverage. New converter and actor source coverage is 225/229 and 51/52 executable lines.
+Complete artifact: `/private/tmp/mindbudget-fx01b-full-5.xcresult`; log at the same prefix with
+`.log`. Focused run 6 is `/private/tmp/mindbudget-fx01b-focused-6.xcresult`.
+Sorted source inventory SHA-256 remained
+`86ad1082d0462a2234421b3bcfb412b2cbaa29c37447e296b4c08ccf92df1bc2` before/after the final run.
+See `FX_01B_IMPLEMENTATION_EVIDENCE.md` for reproduction, scope and retained intermediate results.
+This is author-run local evidence only; no PR, independent approval, hosted green, merge, B Done,
+C entry or release authorization is claimed.
+After recording the results, all five focused static checks passed again (integer money,
+network egress, commercialization documents, StoreKit catalog and the FX contract including
+89 CLI mutations / seven process faults / validation ordering); `git diff --check` is clean.
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.
+
+## 2026-09-04 — Owner-authorized sequential FX review workflow
+
+The owner requested review, correction if needed, and merge of FX-01B, followed by the same
+review/CI/merge/closeout sequence for C, D, E and later FX-02. The owner explicitly authorized a
+separate read-only review agent that did not participate in implementation. Its output will be
+recorded as an owner-authorized independent agent review, not a human review or a GitHub approval
+from another account. This instruction does not itself approve this implementation or bypass
+hosted CI, concrete-attempt checks, separate closeout, privacy/provider selection or release gates.
+Only B is currently entered. Later implementation starts in order after its prerequisites are
+evidenced; FX-02 requires its own provider/privacy/network plan before network implementation.
+Preparing a Draft PR from the locally validated source. Independent review and hosted CI remain
+pending; no merge or later-phase implementation has occurred in this session.

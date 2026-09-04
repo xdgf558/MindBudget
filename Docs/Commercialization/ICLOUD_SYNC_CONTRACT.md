@@ -55,6 +55,18 @@ indeterminate scheduling, and must not sync a public database. Sources:
 
 ## Why this architecture
 
+### FX-01B local-store foundation (not a sync protocol expansion)
+
+Schema V7 adds a local `ExpenseForeignCurrencyMetadata` companion while retaining all V6 sync
+models and the existing twelve-type wire allow-list. `.expense` payload keys, semantic digest
+and envelope version are unchanged. Before FX-01D supplies the separately reviewed thirteenth
+companion protocol, FX writes reject ordinary enabled iCloud, and enabling or recovering/reuploading
+iCloud rejects stored FX rows. Cloud erasure's enabled flag authorizes deletion only: ordinary and
+FX local recording remain available during erasure without staging parent-only upserts.
+Legacy parent-only upserts also reject this coexistence; parent tombstones delete companions.
+This interim isolation adds no UI or network activation. FX-01D must update this contract and
+the exact thirteen-type inventory together before removing these protections.
+
 ### Chosen: custom records plus `CKSyncEngine`
 
 The store has stable UUID identities, local-only derived caches, cascade edges, historical
@@ -101,8 +113,10 @@ an explicit recovery choice. It must never auto-purge/reupload after key reset. 
 `BudgetPlanSemantics`, and V5 adds `MerchantAccountingContext`. Schema V6 adds five local sync
 metadata models: `CloudSyncControl`, `CloudSyncRecordMetadata`, `CloudSyncOutboxItem`,
 `CloudSyncInboxItem`, and `CloudSyncEngineState`. They are transport/control state, never a
-business or financial authority. `ModelCounts` therefore still inventories **16** business tables
-(not 15): the prior C4A 15-table audit predates the V5 companion. UUIDs below are current
+business or financial authority. The V6 `ModelCounts` inventory covered **16** business tables
+(not 15): the prior C4A 15-table audit predates the V5 companion. FX-01B's Schema V7 adds
+`ExpenseForeignCurrencyMetadata`, bringing the local business/companion count to **17**, but
+does not add it to the twelve-type sync allow-list. UUIDs below are current
 unique business IDs; `BudgetPlanSemantics.planID` and `MerchantAccountingContext.merchantID` are
 stable companion keys.
 

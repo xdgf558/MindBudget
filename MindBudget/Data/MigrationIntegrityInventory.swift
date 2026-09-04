@@ -10,11 +10,13 @@ enum MigrationIntegrityInventory {
         case mixedAccountingCurrency
         case duplicateIdentity
         case invalidMerchantAggregate
+        case invalidForeignCurrencyMetadata
     }
 
     static func validateAndRepair(in container: ModelContainer) throws {
         let context = ModelContext(container)
         let expenses = try context.fetch(FetchDescriptor<Expense>())
+        let foreignCurrencyRows = try context.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>())
         let incomes = try context.fetch(FetchDescriptor<Income>())
         let plans = try context.fetch(FetchDescriptor<BudgetPlan>())
         let planSemantics = try context.fetch(FetchDescriptor<BudgetPlanSemantics>())
@@ -36,6 +38,19 @@ enum MigrationIntegrityInventory {
         _ = [planSemantics.count, categories.count, wishes.count, coolingOff.count, insights.count,
              reflections.count, reminders.count, occurrences.count]
         try requireUnique(expenses.map(\.id))
+        try requireUnique(foreignCurrencyRows.map(\.expenseID))
+        let expenseByID = Dictionary(uniqueKeysWithValues: expenses.map { ($0.id, $0) })
+        for row in foreignCurrencyRows {
+            guard let expense = expenseByID[row.expenseID],
+                  expense.sourceRaw == ExpenseSource.manual.rawValue, !expense.isRecurring else {
+                throw Error.invalidForeignCurrencyMetadata
+            }
+            do {
+                _ = try ExpenseForeignCurrency.read(row, accounting: Money.validated(
+                    minorUnits: expense.amountMinorUnits, currencyCode: expense.currencyCode
+                ))
+            } catch { throw Error.invalidForeignCurrencyMetadata }
+        }
         try requireUnique(incomes.map(\.id))
         try requireUnique(plans.map(\.id))
         try requireUnique(merchants.map(\.id))

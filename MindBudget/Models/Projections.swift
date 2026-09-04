@@ -22,6 +22,13 @@ struct ExpenseSummary: Hashable, Sendable {
 struct ExpenseDetail: Hashable, Sendable {
     let summary: ExpenseSummary
     let note: String?
+    let foreignCurrency: ExpenseForeignCurrency?
+
+    init(summary: ExpenseSummary, note: String?, foreignCurrency: ExpenseForeignCurrency? = nil) {
+        self.summary = summary
+        self.note = note
+        self.foreignCurrency = foreignCurrency
+    }
 }
 
 struct IncomeSummary: Hashable, Identifiable, Sendable {
@@ -253,6 +260,7 @@ struct MerchantSummary: Hashable, Sendable {
 }
 
 struct ModelCounts: Equatable, Sendable {
+    let foreignCurrencyMetadata: Int
     let expenses: Int
     let incomes: Int
     let budgetPlans: Int
@@ -306,6 +314,7 @@ struct ModelCounts: Equatable, Sendable {
             && recurringOccurrences == 0
             && incomeAllocations == 0
             && merchantAccountingContexts == 0
+            && foreignCurrencyMetadata == 0
     }
 
     init(
@@ -324,7 +333,8 @@ struct ModelCounts: Equatable, Sendable {
         recurringRules: Int,
         recurringOccurrences: Int,
         incomeAllocations: Int,
-        merchantAccountingContexts: Int
+        merchantAccountingContexts: Int,
+        foreignCurrencyMetadata: Int = 0
     ) {
         self.expenses = expenses
         self.incomes = incomes
@@ -342,5 +352,6 @@ struct ModelCounts: Equatable, Sendable {
         self.recurringOccurrences = recurringOccurrences
         self.incomeAllocations = incomeAllocations
         self.merchantAccountingContexts = merchantAccountingContexts
+        self.foreignCurrencyMetadata = foreignCurrencyMetadata
     }
 }

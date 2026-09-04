@@ -922,7 +922,8 @@ struct AddExpenseView: View {
         completed: @escaping () -> Void
     ) {
         self.dataActor = dataActor
-        self.accountingCurrencyCode = accountingCurrencyCode
+        // Editing uses the persisted row's authority, even if Settings changed after creation.
+        self.accountingCurrencyCode = existingExpense?.summary.amount.currencyCode ?? accountingCurrencyCode
         self.existingExpense = existingExpense
         self.wishlistSeed = wishlistSeed
         self.completed = completed

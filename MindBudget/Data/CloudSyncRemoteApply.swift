@@ -539,6 +539,7 @@ extension DataActor {
         }
         switch entityType {
         case .expense:
+            try deleteForeignCurrency(expenseID: id)
             var descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
             descriptor.fetchLimit = 1
             if let value = try modelContext.fetch(descriptor).first {
@@ -984,6 +985,8 @@ extension DataActor {
 
 extension DataActor {
     private func upsertCloudSyncExpense(_ reader: CloudSyncFieldReader, identity: String) throws {
+        // Until FX-01D a legacy parent-only upsert cannot update a local FX companion.
+        try requireNoForeignCurrencyForLegacySync()
         try reader.requireKeys(
             ["id", "amount", "currency", "category", "bucket", "spentAt", "spentTimeZone",
              "createdAt", "updatedAt", "isPlanned", "isRecurring", "source", "allowMerchantIndexing"],

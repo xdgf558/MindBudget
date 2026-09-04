@@ -640,11 +640,13 @@ Failed-to-Passed. All 23 C6-02 bindings passed; UI was 17 Passed / 1 physical-on
 Run `33772144343` remains non-pass. These are merged-head regression results, not FX arithmetic,
 V7 migration, a new physical run, or this documentation closeout's hosted evidence.
 
-FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+That checkpoint required review, hosted success, merge and separate owner entry. PR #111 later
+merged by explicit owner exception with hosted non-pass retained; the B owner-entry section
+below supersedes the former unentered/pending status, not the historical failed results.
 
-The FX validator must reject missing/substituted per-file closeout anchors, rollback or duplicate
-FX-01A Status, next-line FX-01B Status entry, checked FX-01B–E tasks, a claimed completed closeout,
-and removal/completion of the pre-B eight-place normalization / thirteenth companion gate task.
+At that checkpoint the FX validator rejected missing/substituted per-file closeout anchors,
+rollback/duplicate FX-01A Status and premature B–E entry. The B entry now pins B In Progress,
+C–E Blocked, the completed pre-B contract task and the explicit merge exception.
 Negative self-tests mutate temporary copies of the authoritative documents, JSON, and source;
 they never change repository originals. Exercise the same validator through a child CLI with
 nonzero exit for each new closeout mutation, and require the clean copied fixture to exit zero.
@@ -667,3 +669,25 @@ later command may execute. Also reject an eager `simctl boot`/`bootstatus` in th
 These are harness regressions, not simulator or hosted runtime evidence. PR #111 run `33829310323`
 attempts 1 and 2 remain non-pass; only a fresh complete local run plus new-head independent review
 and hosted success can validate the remediation.
+## 2026-09-04 — FX-01B owner entry
+
+Local final acceptance is in `FX_01B_IMPLEMENTATION_EVIDENCE.md`: complete run 5 has
+575 Passed / 14 opt-in Skipped / 0 Failed, no Repetition nodes, and 17/17 exact FX runtime bindings.
+The strict serial benchmark and core coverage gates passed. This does not substitute for
+independent review or exact-head hosted CI, and does not enter FX-01C.
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.

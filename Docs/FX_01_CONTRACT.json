@@ -1,12 +1,12 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
-    "activeSubphase": "FX-01A",
-    "activeSubphaseStatus": "DONE",
-    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
-    "nextSubphase": "FX-01B",
+    "activeSubphase": "FX-01B",
+    "activeSubphaseStatus": "IN_PROGRESS",
+    "closeoutStatus": "OWNER_MERGE_EXCEPTION_NON_PASS_RETAINED",
+    "nextSubphase": "FX-01C",
     "nextSubphaseEntered": false,
     "deferredPhases": [
       "FX-02",
@@ -41,6 +41,21 @@
     "rateRepresentation": "reducedPositiveRational",
     "rounding": "roundHalfToEven",
     "floatingPointTypesAllowed": []
+  },
+  "decimalRateContract": {
+    "maximumIntegerDigits": 10,
+    "maximumFractionalInputDigits": 12,
+    "storedDecimalPlaces": 8,
+    "normalization": "roundHalfToEvenThenReduce",
+    "orientation": "accountingMajorPerOriginalMajor"
+  },
+  "syncCompanionContract": {
+    "implementationPhase": "FX-01D",
+    "entityType": "expenseForeignCurrencyMetadata",
+    "futureEntityCount": 13,
+    "positionAfter": "expense",
+    "expensePayloadUnchanged": true,
+    "coordinatedContract": "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md"
   },
   "sourceBoundary": {
     "expenseModel": "MindBudget/Models/Expense.swift",

@@ -2,7 +2,7 @@ import SwiftData
 
 enum MindBudgetMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self, SchemaV6.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self, SchemaV6.self, SchemaV7.self]
     }
 
     static var stages: [MigrationStage] {
@@ -11,7 +11,8 @@ enum MindBudgetMigrationPlan: SchemaMigrationPlan {
             .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self),
             .lightweight(fromVersion: SchemaV3.self, toVersion: SchemaV4.self),
             .lightweight(fromVersion: SchemaV4.self, toVersion: SchemaV5.self),
-            .lightweight(fromVersion: SchemaV5.self, toVersion: SchemaV6.self)
+            .lightweight(fromVersion: SchemaV5.self, toVersion: SchemaV6.self),
+            .lightweight(fromVersion: SchemaV6.self, toVersion: SchemaV7.self)
         ]
     }
 }

@@ -225,7 +225,11 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — FX-01A Done through PR #110; closeout pending review/CI/merge; FX-01B unentered
+Status: In Progress — FX-01B entered; FX-01C unentered
+
+The B implementation candidate and its runtime evidence are tracked in
+`Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`. Implementation checkboxes below remain pending reviewed
+acceptance; they must not be promoted using PR #111's owner-specific merge exception.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
@@ -234,7 +238,8 @@ or Failed-to-Passed. Run `33772144343` remains non-pass. Its timeout and failed-
 retry are not superseded by the accepted run. This is static-gate delivery plus existing-suite
 regression evidence, not FX conversion or V7 evidence.
 
-FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+PR #111 merged under the explicit owner exception below, not hosted success or new-head rereview.
+The unmet combined closeout checkbox is retained as historical non-pass, not a current pending merge.
 
 - [x] Record the owner-approved manual-only product contract in
   `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
@@ -247,7 +252,7 @@ FX-01B requires this closeout's independent review, exact-head hosted CI, merge,
   `Expense` accounting authority, manual-only/no-domain boundary, whole-app no-floating-point
   rule, and static-evidence limitation. PR #110 completed the gate's review/CI/merge requirement.
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.
-- [ ] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+- [x] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
   normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
   and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
 - [ ] Keep the FX gate's C6 registry placement and the existing AX5 `boundBy: 0` Back selector as
@@ -768,3 +773,20 @@ assignment, G1, App Store submission, distribution, and public release remain bl
   marks G1 Done at `DEFER_LUNA_CREDITS_KEEP_LOCAL_PRO` without `PROCEED_TO_R2`, production
   admission, COM-C7 entry, or local-only COM-C12 entry. Optional iCloud and first-party telemetry
   remain C12 regressions only if enabled in the final candidate; this closeout enables neither.
+## 2026-09-04 — FX-01B owner entry
+
+PR #111 head `33b8009` merged as `34ac3f3` (second parent `33b8009`) after the owner
+explicitly requested direct merge despite run `33834027746` failing at the npm advisory endpoint.
+Hosted failure is retained as non-pass, not a green result or independent rereview.
+The older run `33829310323` attempts and run `33772144343` also remain non-pass.
+FX-01B has a separate owner entry; FX-01C remains unentered.
+
+B owns integer rational arithmetic, half-even normalization, Schema V7 and atomic local persistence.
+The JSON now binds 10 integer / 12 input fractional / 8 stored decimal places and the future 13th
+`expenseForeignCurrencyMetadata` encrypted fact. That wire implementation and coordinated
+`ICLOUD_SYNC_CONTRACT.md` changes belong to FX-01D; the existing `.expense` payload stays frozen.
+Until D, ordinary iCloud upload (including recovery/reupload) and FX writes must fail closed
+against coexistence, rather than sending a parent without its companion. Cloud erasure is not
+ordinary upload and must not block local recording. No new FX UI, Pro snapshot changes, trial clock, CSV, provider or release
+entry is authorized. B remains In Progress pending implementation verification, independent
+review, hosted CI and merge. The previous merge exception does not waive those B requirements.
