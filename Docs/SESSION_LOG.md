@@ -8170,3 +8170,85 @@ wrong/typed IDs, duplicate execution, Failed-to-Passed, missing main identity an
 diagnostics. It verified the actual native fixture is consumed in the complete 32-binding CLI
 inventory, and confirmed Swift/ordinary CI/validate/UI runner are unchanged. This accepts the
 source delta for freezing and new validation, not a product merge before hosted/native acceptance.
+
+## 2026-09-05 — FX-01C green hosted run rejected by independent native audit
+
+Head `4d8a856e8640c725e1560b4173b46f818c67bcf9` completed a fresh full local validator without
+test retries or a strict-benchmark skip. Independent inspection accepted all 606 ordinary method
+details (590 Passed / 16 Skipped), 615 concrete results (599 Passed / 16 Skipped), coverage,
+C6-02's 23 bindings, FX's 32 bindings, a separate strict benchmark, and two fresh dedicated FX UI
+cases each Passed once. Two layout warnings remain unresolved. These are local results only.
+
+Hosted run `33892068800` attempt 1 reports GitHub success on that exact head, but independent
+inspection of **all 606 native method details** found one ordinary UI Failed-to-Passed retry:
+`MindBudgetPhase3UITests/testCategoryChartLegendKeepsSixItemsReachableInEnglish()` first Failed
+in 137.990304947s, then Retry 1 Passed in 157.169077992s. Actual concrete results are 599 Passed,
+16 Skipped and 1 Failed (616 total, one extra attempt). The 590/16 aggregate method summary is
+not proof of retry-free execution. Keep this run as **CI green, acceptance non-pass**; no merge.
+
+The hosted log and native failure agree: `enterBudgetValue` called `typeText` for
+`budget.totalBudget` without that element acquiring keyboard focus after its tap. The diagnostic
+hierarchy still reports `budget.monthlyIncome` as Keyboard Focused. The target exists and its
+reported frame is visible; neither `isHittable` nor the presence of a keyboard proves ownership
+of focus. The reason the tap failed to transfer focus is not established; a rerun is not a fix.
+
+C6-02's 23 bindings, FX's 32 bindings and both dedicated FX UI bindings passed under the actual
+hosted Xcode 26.6 reader. The dedicated cases ran once (222.203539014s Chinese / 88.822316051s
+English), with two matching summary/tree/detail layout warnings. Four screenshots were inspected
+without treating readability as a warning fix or physical VoiceOver/StoreKit purchase evidence.
+The original artifact ZIP `9945969991` is 271949520 bytes, SHA-256
+`48977287d54b7e767b276bc338b67da02d0319065b5f12b67189cb0244a0b12f`, matching GitHub. It remains
+unchanged. Local Xcode 27 native re-reading can alter extracted database files; those working
+databases are not claimed to remain byte-identical to the original ZIP.
+
+The owner authorized publication without local paths. The independent rejection was relayed by
+the implementation account at PR #114 comment `5543850336`, explicitly not a separate-account
+approval. Source remediation and fresh exact-head independent/hosted acceptance remain pending;
+FX-01C remains In Progress, with no FX-01D/E/FX-02 or release entry.
+
+The first focus command was invalid (`-retry-tests-on-failure NO` treats `NO` as an unknown build
+action); it exited before testing and is not evidence. Corrected probe 2 omitted the retry flag
+and ran once: public `hasFocus` did not confirm any of the three text fields and the case failed.
+Probe 3 tested a strict `debugDescription` header parser plus English category flow (two methods
+Passed once). Independent review then cited the SDK's explicit unsupported-dependency warning;
+that parser and its temporary test were removed instead of treating a passing probe as sufficient.
+
+The current candidate uses only supported center taps, bounded keyboard/field geometry settling,
+one targeted `typeText` per value, then exact readbacks after leaving the final editor. Any setup
+failure terminates the test; no global typing, private focus KVC or corrective input is used.
+Hosted automatic test retries are disabled and six workflow negatives plus actual stubbed test
+argument checks enforce the no-retry caller. Focus probe 4 covers English category, Chinese AX5
+and pseudo-long navigation without retries; its results and independent implementation review
+remain pending at this checkpoint. No Swift product code changed for this remediation.
+
+Probe 4 then ended non-pass: Chinese AX5 Passed (82.014s), English category Passed (91.943s),
+pseudo-long Failed (54.902s). After entering all amounts, the first return to monthly income
+encountered a virtualized earlier Form row; the helper's missing-row branch scrolled only toward
+later rows. It never reached the readback assertion. Preserve this failure separately, rather
+than asserting the two passing cases close the fix. The next candidate supplies an explicit
+earlier-row direction for that return and reveals/prepares each readback row in sequence; it
+does not assume all three are present in the accessibility tree or type any amount again.
+Probe 5 is fresh, without XCTest retries; its three results remain pending.
+
+Independent review accepted only the unchanged CI no-retry delta and its finite-stub execution:
+three success paths, 21 command failures and six workflow negatives. That is not helper/source
+acceptance, new-head hosted evidence, or permission to merge.
+
+Independent source rereview then accepted the stable seven-file remediation delta, with no new
+P1/P2/P3. The reviewed UI-test SHA-256 is
+`5455e3824c7e8905d6b7eadb5132a895575022e6887a8e619fdabd3c75569890`; the workflow and ordering
+checks match their independently executed snapshots. The reviewer confirmed direction-aware
+missing-row scrolling, measured-frame scrolling for existing rows, sequential exact readbacks,
+only three targeted typing calls and fail-stop setup. No diagnostic-text focus predicate remains.
+This permits freezing and new verification only. Probe 5, new-head full local validation and
+hosted/native acceptance remain outstanding; no merge or C completion is claimed.
+
+Probe 5 subsequently completed with all three cases once Passed: Chinese AX5 100.444s, English
+category 97.211s and pseudo-long 72.208s. The author's native summary/tree/all-three-detail audit
+confirmed three concrete Passed results, zero extra attempts and no Failed-to-Passed. The first
+sandboxed native read failed with permission error 64 while creating a TestReport derived cache;
+the authorized native reread succeeded without a new test run. This does not erase probe 2 or 4.
+All five static gates passed: floating-point money, network egress, StoreKit catalog,
+commercialization documents and the FX contract (454 copied-CLI mutations, seven fault cases,
+3/21 ordering cases and the six new hosted retry-policy negatives). Final frozen-head complete
+local and hosted acceptance are still required after this focused remediation evidence.

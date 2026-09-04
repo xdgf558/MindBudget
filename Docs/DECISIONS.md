@@ -4055,3 +4055,37 @@ on an expiring artifact. Diagnostic success and local re-reads remain remediatio
 the initial failure and cancelled diagnostic-head ordinary run remain non-pass. The corrected
 head requires independent rereview and its own complete hosted validation before merge. No Swift
 product behavior changes, C completion, D entry, network/service enablement or release follows.
+
+## 2026-09-05 — Budget UI focus handshake and hosted no-retry acceptance
+
+PR #114's independently audited hosted run `33892068800` was green only after an ordinary
+English category-legend test Failed-to-Passed retry. Retain it as non-pass. The observed failure
+is typing into the total-budget field before it has keyboard focus; the cause of the missed
+focus transfer itself is unknown. Visibility and an existing keyboard are insufficient.
+
+The UI helper requires the full field frame between navigation and keyboard, explicitly taps
+its center, waits for two identical in-lane field/keyboard frames, then taps that center again
+and types into the target field exactly once. This prepares interaction; it does not assert that
+geometry proves keyboard ownership. Targeted `typeText` must still fail if focus did not transfer.
+After all three entries, return toward the earlier income row without typing, so the last field
+loses focus and its accessibility value can refresh. Reveal/prepare each row in order for exact
+readbacks of 3000/2500/500 before Save: AX5/pseudo-long Form rows may be virtualized, so do not
+assume all three exist in the accessibility tree at once. No global application typing,
+corrective retyping or assertion retry is permitted. Setup
+failure stops the current test. The Save-to-Dashboard handshake remains required.
+
+The first candidate used public `hasFocus`, but a local probe could not establish keyboard
+ownership with that UI-focus attribute; the failure is retained. A subsequent diagnostic-header
+parser probe passed locally but was withdrawn after independent review noted the public SDK
+explicitly calls dependence on `debugDescription` data unsupported. Neither candidate is retained
+as the implementation. No private `hasKeyboardFocus` KVC, debug-string predicate, or product
+accessibility/focus instrumentation is introduced. Actual English, Chinese AX5 and pseudo-long
+flows must validate the supported interaction/readback implementation.
+
+Hosted CI now disables ordinary test retries, making a first failure directly fail CI instead
+of relying only on the independent all-detail audit to reject a green run. The existing validator
+still has its explicit local diagnostic opt-in, but the hosted configuration has a single zero
+setting, rejects overrides/retry flags, and its stubbed normal test arguments must contain no
+retry or iteration flag. Full native acceptance is still mandatory; changing configuration
+does not prove execution. The new source needs independent review and fresh exact-head complete
+validation. C remains In Progress, and D is not entered.

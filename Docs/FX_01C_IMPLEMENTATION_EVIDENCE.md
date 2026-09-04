@@ -143,3 +143,20 @@ The temporary diagnostic workflow has been removed; its ordinary CI `33890321361
 as redundant before the reader was fixed and remains non-pass. The diagnostic success is not
 current-head acceptance. Swift product/tests, the normal workflow and validation order are
 unchanged. A new exact-head full hosted run and independent rereview/native audit remain required.
+
+## Subsequent hosted green run — independent acceptance non-pass
+
+Run `33892068800` attempt 1 on `4d8a856` is GitHub success but **not accepted**. The independent
+all-606-detail audit found `testCategoryChartLegendKeepsSixItemsReachableInEnglish()` Failed
+before Retry 1 Passed. There are 616 concrete results: 599 Passed, 16 Skipped and 1 Failed,
+with one extra attempt; the aggregate method inventory is still 590 Passed / 16 Skipped.
+The failure occurred when the budget helper typed into `budget.totalBudget` before that field
+had keyboard focus, while the preceding income field still did. The cause of the missed focus
+transfer is not proven. This is not a schema-reader mismatch or a transient accepted by rerun.
+
+C6-02's 23 bindings, FX's 32 unit bindings and two dedicated FX UI cases independently passed;
+the dedicated UI has no retry and retains two layout warnings. Those partial results and the
+fresh complete local validation at `4d8a856` cannot substitute for the required ordinary hosted
+regression pass. The original hosted ZIP digest is recorded in `SESSION_LOG.md`; native-reader
+working databases are distinguished from original archive bytes. PR #114 remains Draft and
+unmerged. A new source remediation needs independent rereview and new exact-head evidence.

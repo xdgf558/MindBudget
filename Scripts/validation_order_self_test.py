@@ -56,6 +56,9 @@ case "${command_name}" in
     [[ "$#" == 2 && "$2" == *-FX-UI.xcresult ]] || exit 96
     event="fx-ui-host" ;;
 esac
+if [[ "${event}" == "test" && ( " $* " == *" -retry-tests-on-failure "* || " $* " == *" -test-iterations "* ) ]]; then
+  exit 97
+fi
 printf '%s\n' "${event}" >> "${ORDER_TRACE}"
 if [[ "${ORDER_FAIL_AT:-}" == "${event}" ]]; then
   exit 73
@@ -66,10 +69,33 @@ fi
 '''
 
 
+def validate_hosted_retry_policy(workflow_code: str) -> None:
+    name = "MINDBUDGET_RETRY_TESTS_ON_FAILURE"
+    settings = re.findall(rf'^\s*{name}:\s*(.*?)\s*$', workflow_code, re.MULTILINE)
+    if (settings != ['"0"'] or workflow_code.count(name) != 1
+            or "-retry-tests-on-failure" in workflow_code or "-test-iterations" in workflow_code):
+        raise RuntimeError("hosted CI must disable test retries without another override")
+
+
 def run_validation_order_self_test(project_root: Path) -> None:
     workflow = (project_root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     # The actual complete validator is exercised below; its caller must not boot early.
     workflow_code = "\n".join(line for line in workflow.splitlines() if not line.lstrip().startswith("#"))
+    validate_hosted_retry_policy(workflow_code)
+    retry_setting = 'MINDBUDGET_RETRY_TESTS_ON_FAILURE: "0"'
+    for mutation in (
+        workflow_code.replace(retry_setting, 'MINDBUDGET_RETRY_TESTS_ON_FAILURE: "1"'),
+        workflow_code.replace(retry_setting, ''),
+        workflow_code + '\n      ' + retry_setting,
+        workflow_code + '\n        run: MINDBUDGET_RETRY_TESTS_ON_FAILURE=1 Scripts/validate.sh',
+        workflow_code + '\n        run: xcodebuild -retry-tests-on-failure test',
+        workflow_code + '\n        run: xcodebuild -test-iterations 2 test',
+    ):
+        try:
+            validate_hosted_retry_policy(mutation)
+        except RuntimeError:
+            continue
+        raise RuntimeError("hosted retry-policy mutation escaped rejection")
     if re.search(r"\bsimctl\s+boot(?:status)?\b", workflow_code):
         raise RuntimeError("CI must leave simulator boot/readiness to the complete validator")
     if workflow.count("run: Scripts/validate.sh") != 1:
@@ -138,3 +164,4 @@ def run_validation_order_self_test(project_root: Path) -> None:
         for index, failure in enumerate(["test", *after_test]):
             verify([*before_boot, "boot-ready", *["test", *after_test][:index + 1]], failure=failure)
     print("Validation ordering self-test passed: 3 success paths / 21 fail-closed command failures")
+    print("Hosted no-retry policy passed: actual validator arguments / 6 workflow negatives")

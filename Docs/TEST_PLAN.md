@@ -787,3 +787,21 @@ main TASKS, each A–E plan checklist, the historical A closeout and all seven B
 Real CLI negatives cover `*`, `+`, one-space/four-space indentation, Tab, both numbered-list
 markers, blockquote, uppercase/unknown status, and an extra inline checkbox. Final negative count
 is 332; the earlier 258 result is a superseded checkpoint, not complete acceptance.
+
+## FX-01C ordinary budget-focus regression
+
+Run the ordinary English category-legend, Chinese AX5 navigation and pseudo-long navigation cases
+without test retries. Each budget field must enter the full unobscured lane; the keyboard and
+target frames must settle between two explicit center taps before one targeted text entry. Exact
+3000/2500/500 readbacks after leaving the last editor must pass before Save reaches Dashboard.
+This does not infer keyboard focus from geometry: targeted typing remains allowed to fail.
+Retain the public `hasFocus` probe failure and the withdrawn diagnostic-parser probe separately;
+neither is acceptance of the supported implementation. No debug-description or private KVC
+focus predicates remain, and no product accessibility trait/value is changed for test signaling.
+
+The complete hosted caller must set ordinary retries to zero, with no alternative override.
+`validation_order_self_test.py` rejects six mutations of that real workflow and rejects retry
+or iteration flags in the actual validator's stubbed test invocations. Still inspect every native
+ordinary method detail and retain all non-passes, including run `33892068800` despite its green
+GitHub status. FX's 32 unit / two UI bindings and complete local/hosted regression gates are not
+weakened by this remediation.

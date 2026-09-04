@@ -1201,6 +1201,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     @MainActor
     private func completeBudgetSetup(in app: XCUIApplication) {
+        // A setup failure must end this test, not continue typing into later fields.
+        continueAfterFailure = false
         app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
         let monthlyIncome = app.textFields["budget.monthlyIncome"]
@@ -1211,6 +1213,25 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
         let savingGoal = app.textFields["budget.savingGoal"]
         enterBudgetValue("500", into: savingGoal, in: app)
+
+        // SwiftUI can leave the active editor's accessibility value stale. Leave the last
+        // editor without submitting or typing again, then verify every actual value. This
+        // detects text sent to the wrong field rather than treating keyboard visibility as
+        // focus evidence. No global app.typeText or corrective retyping is allowed.
+        for (field, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
+            // AX5/pseudo-long Form rows can be virtualized, so reveal each in order.
+            // Only the first return travels toward earlier rows; never assume all three
+            // editors coexist in the accessibility tree.
+            prepareBudgetEditor(field, in: app, towardEarlierRow: expected == "3000")
+            let entered = XCTNSPredicateExpectation(
+                predicate: NSPredicate { object, _ in
+                    (object as? XCUIElement)?.value as? String == expected
+                },
+                object: field
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [entered], timeout: 5), .completed,
+                           "Budget value did not reach its intended field: \(field.identifier)")
+        }
 
         let save = app.buttons["budget.save"]
         makeBudgetSaveReady(save, in: app)
@@ -1276,6 +1297,18 @@ final class MindBudgetPhase3UITests: XCTestCase {
         into field: XCUIElement,
         in app: XCUIApplication
     ) {
+        prepareBudgetEditor(field, in: app)
+        // Targeted typing itself must fail if this field still has no keyboard focus.
+        // Never type through the application or retry input after a failed assertion.
+        field.typeText(value)
+    }
+
+    @MainActor
+    private func prepareBudgetEditor(
+        _ field: XCUIElement,
+        in app: XCUIApplication,
+        towardEarlierRow: Bool = false
+    ) {
         let budgetForm = app.collectionViews["budget.setup.view"]
 
         for _ in 0..<12 {
@@ -1287,11 +1320,38 @@ final class MindBudgetPhase3UITests: XCTestCase {
                     : app.frame.maxY - 80
                 let frame = field.frame
                 if field.isHittable,
-                   frame.midY > navigationBottom + 8,
-                   frame.midY < safeBottom
+                   !frame.isEmpty,
+                   frame.minY > navigationBottom + 8,
+                   frame.maxY < safeBottom
                 {
-                    field.tap()
-                    field.typeText(value)
+                    field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                    // A tap can be consumed while SwiftUI is moving focus from the preceding
+                    // field. Wait for two matching in-lane field/keyboard snapshots, then tap
+                    // its explicit center again. This is bounded interaction preparation, not
+                    // a claim that public hasFocus describes keyboard focus, or a test retry.
+                    var previousField: CGRect?
+                    var previousKeyboard: CGRect?
+                    let settled = XCTNSPredicateExpectation(
+                        predicate: NSPredicate { object, _ in
+                            guard let target = object as? XCUIElement else { return false }
+                            guard target.exists, app.keyboards.firstMatch.exists else { return false }
+                            let currentField = target.frame
+                            let currentKeyboard = app.keyboards.firstMatch.frame
+                            let ready = target.isHittable && !currentField.isEmpty
+                                && !currentKeyboard.isEmpty
+                                && currentField.minY > app.navigationBars.firstMatch.frame.maxY + 8
+                                && currentField.maxY < currentKeyboard.minY - 8
+                            let stable = ready && previousField == currentField
+                                && previousKeyboard == currentKeyboard
+                            previousField = ready ? currentField : nil
+                            previousKeyboard = ready ? currentKeyboard : nil
+                            return stable
+                        },
+                        object: field
+                    )
+                    XCTAssertEqual(XCTWaiter.wait(for: [settled], timeout: 5), .completed,
+                                   "Budget editor and keyboard did not settle: \(field.identifier)")
+                    field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
                     return
                 }
 
@@ -1305,17 +1365,27 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 let lowerPoint = budgetForm.coordinate(
                     withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
                 )
-                if frame.midY <= navigationBottom + 8 {
+                if frame.minY <= navigationBottom + 8 {
                     upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
                 } else {
                     lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
                 }
             } else {
-                app.swipeUp()
+                let upperPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.38)
+                )
+                let lowerPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
+                )
+                if towardEarlierRow {
+                    upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
+                } else {
+                    lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
+                }
             }
         }
 
-        XCTFail("Budget field did not enter the safe interaction lane: \(field.identifier)")
+        XCTFail("Budget field did not enter the safe interaction lane")
     }
 
     @MainActor
