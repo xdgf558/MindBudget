@@ -1,15 +1,25 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
     "activeSubphase": "FX-01A",
+    "activeSubphaseStatus": "DONE",
+    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
     "nextSubphase": "FX-01B",
     "nextSubphaseEntered": false,
     "deferredPhases": [
       "FX-02",
       "COM-C12"
     ]
+  },
+  "deliveryEvidence": {
+    "pullRequest": 110,
+    "reviewedHead": "4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf",
+    "hostedRun": "33823593637",
+    "mergeCommit": "9322e3bc8da59d5ea5b6d067d66fae879404b642",
+    "retainedNonPassRun": "33772144343",
+    "acceptedRunFailedToPassedObserved": false
   },
   "accountingAuthority": {
     "model": "Expense",

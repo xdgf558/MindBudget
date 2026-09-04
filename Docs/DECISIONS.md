@@ -3807,3 +3807,60 @@ The 45-minute workflow budget and C6-02 concrete-attempt rejection remain unchan
 fresh focused AX5 run and the complete local suite without test-runner retry, then require
 independent rereview and hosted success on the new exact head. No physical rerun, product change,
 FX-01B, Schema V7, COM-C12, phase completion, or release action is authorized by this remediation.
+
+## 2026-09-04 — Close the reviewed FX-01A contract-gate delivery
+
+Decision: Owner-supplied off-platform independent rereview accepted PR #110 final head
+`4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf` (`4554d0e`) with no P1/P2 and a retained P3 about
+the existing AX5 Back selector. Hosted run `33823593637` succeeded on that exact head in 39m58s;
+PR #110 merged it as `9322e3bc8da59d5ea5b6d067d66fae879404b642` (`9322e3b`), with that head
+as second parent. Mark only FX-01A's static contract-gate delivery Done; FX-01 stays In Progress.
+The independent rereview was supplied by the owner outside GitHub, not a claimed GitHub review
+artifact or an author-side self-approval.
+
+The accepted hosted bundle has 572 unique cases (558 Passed / 14 Skipped / 0 Failed); reading all
+572 detail records accounts for 568 ordinary runs and 13 parameter-argument runs, exactly 581
+concrete runs with no extra attempts or Failed-to-Passed. UI was 17 Passed / 1 physical-only Skip /
+0 Failed, and 23 C6-02 runtime bindings passed. Run `33772144343` remains non-pass. It was
+cancelled by the 45-minute timeout after an AX5 failure and automatic passing retry. Preserve both
+the failure mechanism and non-pass classification; no physical rerun is claimed.
+
+Consequences: This separate closeout changes documentation, JSON phase/evidence metadata, and
+its static validator only. Bind the merged chain per document, require unique section-scoped
+statuses/checklists, reject premature completed closeout or later-subphase claims, and mutate only
+temporary file copies in self-tests. The new exact closeout head still requires independent
+review, hosted CI, and merge; the previous green run cannot satisfy that requirement.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+normalization and the thirteenth iCloud companion contract, including unchanged `.expense`
+payload and coordinated `ICLOUD_SYNC_CONTRACT.md` changes. Retain that obligation as an unchecked
+task, not delivered machinery. Keep the C6 `migration-and-rollback` registry placement and old
+`navigationBars.buttons.element(boundBy: 0)` Back selector as maintenance follow-ups. FX remains
+the gate owner; no reopening of completed C6 work or refreshed physical proof is implied. No
+Swift product/test changes, V7, trial clock, enabled network channel, FX-02, COM-C12, Archive,
+upload, distribution, or release is authorized by this closeout.
+
+## 2026-09-04 — Isolate closeout static checks from simulator startup
+
+Decision: The owner authorized remediation after both attempts of PR #111 hosted run
+`33829310323` failed on `2539ed1`. Attempt 1 timed out at the npm advisory endpoint; attempt 2
+passed the Worker checks but exceeded the FX copied-CLI 30-second deadline during a duplicate
+Status mutation. The dedicated FX self-test had passed before simulator creation; the second
+invocation ran after an asynchronous simulator boot. This establishes an ordering risk, not proof
+of CPU starvation or the underlying cause of the child timeout. Local reproduction passed.
+
+Create the hosted simulator without booting it. For the exact simulator-ID destination used by
+CI, let the complete validator boot and await readiness only after static checks and both builds,
+before either test run. Keep the child deadline at 30 seconds, all 67 existing CLI mutations,
+the 45-minute job limit, and the concrete-attempt/runtime binding acceptance unchanged. Add named
+timeout diagnostics and fault-injection checks: a timeout, crash, wrong status, missing verdict,
+or stderr is not a successful negative test. Test validation ordering with command stubs, including
+failure before boot and failure at boot; this is harness evidence, not a simulator pass.
+
+Consequences: Rename the reviewed P3 field to `acceptedRunFailedToPassedObserved`; its false value
+applies only to accepted run `33823593637`, not retained non-pass `33772144343`. Keep both PR #111
+attempts non-pass. The new exact head requires independent rereview and its own hosted success;
+the previous approval and local results do not authorize merge. No product or Swift test change,
+FX-01B, Schema V7, physical rerun, COM-C12, network channel, or release action is included.

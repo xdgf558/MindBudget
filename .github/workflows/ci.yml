@@ -114,7 +114,7 @@ jobs:
             'MindBudget CI' \
             "${device_type_id}" \
             "${runtime_id}")"
-          xcrun simctl boot "${simulator_id}"
+          # Leave it shut down: validate.sh runs static gates and builds before boot/readiness.
           echo "MINDBUDGET_TEST_DESTINATION=platform=iOS Simulator,id=${simulator_id}" >> "${GITHUB_ENV}"
 
       - name: Build and test

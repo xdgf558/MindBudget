@@ -629,3 +629,41 @@ two-second default. Run the focused simulator AX5 case and a fresh complete vali
 runner retry. The physical-only variant remains unrun unless separately authorized; changed test
 code does not refresh prior device evidence. Do not treat the failed-then-passed hosted attempt,
 an incomplete xcresult, or an increased timeout as a passing C6-02 runtime result.
+
+## FX-01A post-merge closeout validation
+
+PR #110's owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run
+`33823593637` passed, and merge `9322e3b` has that head as second parent. The hosted bundle's
+572 unique cases were 558 Passed / 14 Skipped / 0 Failed; all 572 detail records explain 581
+concrete runs (568 ordinary plus 13 parameter-argument runs), with zero extra attempts and no
+Failed-to-Passed. All 23 C6-02 bindings passed; UI was 17 Passed / 1 physical-only Skip / 0 Failed.
+Run `33772144343` remains non-pass. These are merged-head regression results, not FX arithmetic,
+V7 migration, a new physical run, or this documentation closeout's hosted evidence.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+The FX validator must reject missing/substituted per-file closeout anchors, rollback or duplicate
+FX-01A Status, next-line FX-01B Status entry, checked FX-01B–E tasks, a claimed completed closeout,
+and removal/completion of the pre-B eight-place normalization / thirteenth companion gate task.
+Negative self-tests mutate temporary copies of the authoritative documents, JSON, and source;
+they never change repository originals. Exercise the same validator through a child CLI with
+nonzero exit for each new closeout mutation, and require the clean copied fixture to exit zero.
+Keep the existing accounting, no-floating-point, no-network/location, and static-only evidence
+tests. The C6 registry placement and AX5 Back-selector maintenance debts remain open in the plan.
+
+PR #111 remediation retains the 67 real child-CLI negative mutations. A separate injected-process
+self-test must reject timeouts on both valid and invalid fixtures, unexpected success, signal
+termination, another nonzero status, a missing verdict, and stderr. Timeout diagnostics must name
+the mutated file, section, replacement, and deadline; no retry or increased timeout is permitted.
+Reject the obsolete `failedToPassedObserved` JSON key: `acceptedRunFailedToPassedObserved` refers
+only to accepted run `33823593637`, not the retained failed-then-passed run.
+
+`validation_order_self_test.py`, invoked by the FX self-test, executes the actual `validate.sh`
+against command stubs in temporary copies. Check the exact order of every static gate, build
+settings, Release build, build-for-testing, exact-ID simulator boot/readiness, tests, coverage,
+and runtime acceptance. Exercise benchmark-on/off and the unchanged named-local-destination
+path. Fail each of the 12 static checks, three build commands, and boot readiness in turn: no
+later command may execute. Also reject an eager `simctl boot`/`bootstatus` in the workflow.
+These are harness regressions, not simulator or hosted runtime evidence. PR #111 run `33829310323`
+attempts 1 and 2 remain non-pass; only a fresh complete local run plus new-head independent review
+and hosted success can validate the remediation.

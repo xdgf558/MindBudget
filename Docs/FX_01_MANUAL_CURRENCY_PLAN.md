@@ -1,7 +1,7 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01A contract gate implemented; FX-01B remains unentered pending independent review,
-exact-head hosted CI, and merge.**
+Status: **FX-01 In Progress; FX-01A Done through PR #110; closeout pending review/CI/merge;
+FX-01B unentered pending separate owner entry.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -16,8 +16,8 @@ Planning-closeout evidence: independent review accepted exact head
 `8de85e61277f48914d2269701af00d86cf433f62` with no P1/P2/P3; GitHub Actions run
 `33763718952` succeeded on that head in 40m10s; and PR #109 merged it as
 `69050da62305e8df076772a5638528442341933b`, whose second parent is the reviewed head. The owner
-then separately entered FX-01A. This author-side gate candidate still requires its own independent
-review, exact-head hosted CI, and merge before FX-01B may begin.
+then separately entered FX-01A. The resulting contract-gate delivery is closed below; this does
+not complete the overall FX-01 product phase.
 
 `Docs/FX_01_CONTRACT.json` is the machine-readable contract authority. The self-testing
 `Scripts/check-fx01-contract.sh` validates its exact closed keys, the structurally scoped phase
@@ -26,6 +26,51 @@ status in this plan and `Docs/TASKS.md`, the frozen `Expense` stored-property in
 of FX identifiers from the pre-existing exception files. The gate is run directly in hosted CI,
 from `Scripts/validate.sh`, and from the closed C6 matrix inventory. Its success is static contract
 evidence only; it is not conversion, migration, runtime, Schema V7, UI, or release evidence.
+
+## FX-01A post-merge closeout
+
+Status: **Pending independent review, exact-head hosted CI, and merge.**
+
+Owner-supplied off-platform independent rereview accepted PR #110 exact head
+`4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf` (`4554d0e`) with no P1/P2. Hosted run
+`33823593637` succeeded on that head in 39m58s. PR #110 merged it on 2026-09-04 as
+`9322e3bc8da59d5ea5b6d067d66fae879404b642` (`9322e3b`), whose second parent is that head.
+This closes the FX-01A static contract-gate delivery only, not FX-01B or Schema V7.
+
+The complete hosted bundle contains 572 unique cases: 558 Passed, 14 Skipped, 0 Failed.
+All 572 test-detail records were read: 568 ordinary runs plus 13 argument runs explain all
+581 concrete runs, with zero extra attempts and no Failed-to-Passed. UI was 17 Passed / 1
+physical-only Skip / 0 Failed; all 23 C6-02 runtime bindings passed. These are regression results
+for the merged head, not FX conversion/migration evidence or this closeout branch's own CI.
+Run `33772144343` remains non-pass. It was cancelled at the 45-minute workflow timeout after
+a real AX5 assertion failure and an automatic passing retry; neither the retry nor later green
+evidence relabels that run.
+
+`deliveryEvidence.acceptedRunFailedToPassedObserved: false` is scoped only to the adjacent
+accepted `hostedRun` (`33823593637`). It does not describe `retainedNonPassRun` (`33772144343`),
+which did contain Failed-to-Passed. The obsolete unscoped JSON key is rejected.
+
+PR #111 closeout head `2539ed1` received conditional independent approval but run `33829310323`
+failed twice: attempt 1 at the npm advisory endpoint; attempt 2 at a 30-second copied-CLI timeout.
+Both remain non-pass. The authorized remediation delays exact-ID simulator boot until after
+static checks and builds, adds named timeout/fault diagnostics and ordering regressions, and
+retains all 67 CLI mutations and the 30-second deadline. Simulator-start contention is a risk
+suggested by timing, not a proven root cause. The new head needs independent rereview and hosted
+success; the older approval/run does not close this branch.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.
+- [ ] Retain the C6 `migration-and-rollback` registry placement as a maintenance follow-up: the
+  FX gate also has its own hosted/validate entry and remains FX-owned, not new C6 completion work.
+- [ ] Retain the existing AX5 Back selector `navigationBars.buttons.element(boundBy: 0)` as
+  maintenance debt; do not claim new physical evidence or change product behavior in this closeout.
+
+The PR #110 self-tests mutate temporary copies of authoritative files, never the repository
+originals. Before FX-01B implementation, its first unchecked task below must extend the JSON and
+negative gate for eight-place decimal normalization and the thirteenth iCloud companion contract.
+This closeout records that obligation; it does not implement it. FX-01C–E, FX-02, COM-C12, network
+activation, Archive, distribution, and release remain unentered or unauthorized.
 
 ## User outcome
 
@@ -193,6 +238,8 @@ silently overwrite the saved fraction.
 
 ### FX-01A — Entry and contract lock
 
+Status: **Done — merged static contract-gate delivery only.**
+
 - [x] Record the owner's product rules, local-Pro/trial boundary, manual-only scope, locked-history
   rule, Schema V7 direction, and FX-02 deferral in durable repository memory.
 - [x] Obtain independent review, exact-head hosted CI, and merge for this planning package before
@@ -204,6 +251,11 @@ silently overwrite the saved fraction.
 
 ### FX-01B — Integer conversion and Schema V7
 
+Status: **Blocked — unentered.**
+
+- [ ] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+  normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
+  and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
 - [ ] Add the closed rate/source domain and pure integer-rational converter, with table tests for
   the twelve-digit lexical/eight-place stored decimal-to-reduced-fraction closure, display-only
   approximation, 0-, 2-, and 3-decimal currencies (including JPY, USD, and KWD), inverse-direction
@@ -218,6 +270,8 @@ silently overwrite the saved fraction.
 
 ### FX-01C — Pro entry, form, detail, and edit behavior
 
+Status: **Blocked — unentered.**
+
 - [ ] Add one exhaustive `PremiumFeature` case and route new-FX access through the central
   entitlement snapshot. Pro and active local trial allow creation; exact Free and expired access
   deny only new/conversion/duplication paths; ordinary expense entry remains Free. Consume the
@@ -231,6 +285,8 @@ silently overwrite the saved fraction.
   dark/light appearance, and ordinary-entry regression coverage.
 
 ### FX-01D — Consumers, CSV, optional sync, and privacy
+
+Status: **Blocked — unentered.**
 
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.
@@ -247,6 +303,8 @@ silently overwrite the saved fraction.
   recurring-rule, and App Intent boundaries. No new field may cross those surfaces by accident.
 
 ### FX-01E — Release evidence and closeout
+
+Status: **Blocked — unentered.**
 
 - [ ] Pass money, network, commercialization-document, StoreKit-catalog, full validation, migration,
   coverage, and dedicated FX negative gates on the exact review head.

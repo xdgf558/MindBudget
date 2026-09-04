@@ -7,7 +7,10 @@ import argparse
 import copy
 import json
 import re
+import subprocess
+import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +19,7 @@ ROOT_KEYS = frozenset(
     {
         "schemaVersion",
         "phase",
+        "deliveryEvidence",
         "accountingAuthority",
         "manualBoundary",
         "moneyBoundary",
@@ -28,6 +32,8 @@ PHASE_KEYS = frozenset(
         "id",
         "status",
         "activeSubphase",
+        "activeSubphaseStatus",
+        "closeoutStatus",
         "nextSubphase",
         "nextSubphaseEntered",
         "deferredPhases",
@@ -77,9 +83,19 @@ EXPECTED_PHASE = {
     "id": "FX-01",
     "status": "IN_PROGRESS",
     "activeSubphase": "FX-01A",
+    "activeSubphaseStatus": "DONE",
+    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
     "nextSubphase": "FX-01B",
     "nextSubphaseEntered": False,
     "deferredPhases": ["FX-02", "COM-C12"],
+}
+EXPECTED_DELIVERY_EVIDENCE = {
+    "pullRequest": 110,
+    "reviewedHead": "4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf",
+    "hostedRun": "33823593637",
+    "mergeCommit": "9322e3bc8da59d5ea5b6d067d66fae879404b642",
+    "retainedNonPassRun": "33772144343",
+    "acceptedRunFailedToPassedObserved": False,
 }
 EXPECTED_ACCOUNTING_AUTHORITY = {
     "model": "Expense",
@@ -119,18 +135,52 @@ EXPECTED_EVIDENCE_BOUNDARY = {
 }
 
 EXPECTED_PLAN_STATUS = (
-    "FX-01A contract gate implemented; FX-01B remains unentered pending independent review, "
-    "exact-head hosted CI, and merge."
+    "FX-01 In Progress; FX-01A Done through PR #110; closeout pending review/CI/merge; "
+    "FX-01B unentered pending separate owner entry."
 )
 EXPECTED_PLAN_STATUS_MARKDOWN = (
-    "Status: **FX-01A contract gate implemented; FX-01B remains unentered pending independent "
-    "review,\nexact-head hosted CI, and merge.**"
+    "Status: **FX-01 In Progress; FX-01A Done through PR #110; closeout pending review/CI/merge;\n"
+    "FX-01B unentered pending separate owner entry.**"
 )
 EXPECTED_TASK_STATUS = (
-    "In Progress — FX-01A contract gate implemented; FX-01B unentered pending review/CI/merge"
+    "In Progress — FX-01A Done through PR #110; closeout pending review/CI/merge; FX-01B unentered"
 )
 PLAN_HEADING = "# FX-01 Manual Foreign-Currency Expense Plan"
 TASK_HEADING = "## FX-01 — Manual foreign-currency expense recording"
+SUBPHASE_HEADINGS = (
+    "### FX-01A — Entry and contract lock",
+    "### FX-01B — Integer conversion and Schema V7",
+    "### FX-01C — Pro entry, form, detail, and edit behavior",
+    "### FX-01D — Consumers, CSV, optional sync, and privacy",
+    "### FX-01E — Release evidence and closeout",
+)
+DONE_STATUS = "Done — merged static contract-gate delivery only."
+BLOCKED_STATUS = "Blocked — unentered."
+CLOSEOUT_STATUS = "Pending independent review, exact-head hosted CI, and merge."
+CLOSEOUT_TASK = (
+    "- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout."
+)
+BEFORE_B_TASK = (
+    "- [ ] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal "
+    "normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload "
+    "and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation."
+)
+OWNER_ENTRY_BOUNDARY = (
+    "FX-01B requires this closeout's independent review, exact-head hosted CI, merge, "
+    "and a separate owner entry."
+)
+CLOSEOUT_SECTIONS = {
+    "Docs/FX_01_MANUAL_CURRENCY_PLAN.md": "## FX-01A post-merge closeout",
+    "Docs/TASKS.md": TASK_HEADING,
+    "Docs/PROJECT_MEMORY.md": "## Current and later scope",
+    "Docs/DECISIONS.md": "## 2026-09-04 — Close the reviewed FX-01A contract-gate delivery",
+    "Docs/SESSION_LOG.md": "## 2026-09-04 — FX-01A post-merge documentation closeout candidate",
+    "Docs/TEST_PLAN.md": "## FX-01A post-merge closeout validation",
+}
+CLOSEOUT_ANCHORS = (
+    "PR #110", "`4554d0e`", "`33823593637`", "`9322e3b`",
+    "Run `33772144343` remains non-pass.", OWNER_ENTRY_BOUNDARY,
+)
 
 EXPECTED_EXPENSE_PROPERTIES = (
     ("id", "UUID"),
@@ -215,14 +265,22 @@ def _status_after_heading(text: str, heading: str, *, bold: bool) -> str | None:
     if text.count(marker) != 1:
         return None
     remainder = text.split(marker, 1)[1]
-    lines = remainder.splitlines()
+    # Only the heading's introduction may supply its Status; summary prose or a
+    # nested section cannot. Also reject a second Status anywhere in that introduction.
+    lines: list[str] = []
+    for line in remainder.splitlines():
+        if line.startswith("#"):
+            break
+        lines.append(line)
+    if sum(line.startswith("Status:") for line in lines) != 1:
+        return None
     status_lines: list[str] = []
     for index, line in enumerate(lines):
         if line.startswith("Status:"):
             status_lines.append(line.removeprefix("Status:").strip())
             for continuation in lines[index + 1 :]:
                 stripped = continuation.strip()
-                if not stripped or stripped.startswith("#") or stripped.startswith("- "):
+                if not stripped or stripped.startswith(("#", "- ", "Status:")):
                     break
                 status_lines.append(stripped)
             break
@@ -245,7 +303,11 @@ def _section(text: str, heading: str, next_heading_prefix: str) -> str | None:
     remainder = text.split(marker, 1)[1]
     lines: list[str] = []
     for line in remainder.splitlines():
-        if line.startswith(next_heading_prefix):
+        # A higher-level heading also ends this section (not only a sibling).
+        match = re.match(r"^(#+) ", line)
+        if line.startswith(next_heading_prefix) or (
+            match and len(match.group(1)) <= len(heading.split(" ", 1)[0])
+        ):
             break
         lines.append(line)
     return "\n".join(lines)
@@ -283,18 +345,19 @@ def validate_contract_data(data: Any) -> list[str]:
     errors: list[str] = []
     nested_contracts = (
         ("phase", PHASE_KEYS, EXPECTED_PHASE),
+        ("deliveryEvidence", frozenset(EXPECTED_DELIVERY_EVIDENCE), EXPECTED_DELIVERY_EVIDENCE),
         ("accountingAuthority", ACCOUNTING_KEYS, EXPECTED_ACCOUNTING_AUTHORITY),
         ("manualBoundary", MANUAL_KEYS, EXPECTED_MANUAL_BOUNDARY),
         ("moneyBoundary", MONEY_KEYS, EXPECTED_MONEY_BOUNDARY),
         ("sourceBoundary", SOURCE_KEYS, EXPECTED_SOURCE_BOUNDARY),
         ("evidenceBoundary", EVIDENCE_KEYS, EXPECTED_EVIDENCE_BOUNDARY),
     )
-    if data["schemaVersion"] != 1:
-        errors.append("schemaVersion must be exactly 1")
+    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 2:
+        errors.append("schemaVersion must be exactly 2")
     for key, expected_keys, expected_value in nested_contracts:
         if not _exact_keys(data[key], expected_keys):
             errors.append(f"{key} must contain exactly the reviewed keys")
-        elif data[key] != expected_value:
+        elif json.dumps(data[key], sort_keys=True) != json.dumps(expected_value, sort_keys=True):
             errors.append(f"{key} drifted from the reviewed FX-01A boundary")
     return errors
 
@@ -315,9 +378,47 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     plan_text = plan_path.read_text(encoding="utf-8")
     tasks_text = tasks_path.read_text(encoding="utf-8")
     if _status_after_heading(plan_text, PLAN_HEADING, bold=True) != EXPECTED_PLAN_STATUS:
-        errors.append("FX-01 plan Status must identify the exact FX-01A candidate boundary")
+        errors.append("FX-01 plan must have one exact closeout Status before the next heading")
     if _status_after_heading(tasks_text, TASK_HEADING, bold=False) != EXPECTED_TASK_STATUS:
-        errors.append("TASKS FX-01 Status must identify the exact FX-01A candidate boundary")
+        errors.append("TASKS FX-01 must have one exact closeout Status in its own section")
+
+    for relative, heading in CLOSEOUT_SECTIONS.items():
+        path = project_root / relative
+        if not path.is_file():
+            errors.append(f"missing closeout document: {relative}")
+            continue
+        section = _section(path.read_text(encoding="utf-8"), heading, "## ")
+        if section is None:
+            errors.append(f"missing or duplicate closeout section: {relative}:{heading}")
+            continue
+        for anchor in CLOSEOUT_ANCHORS:
+            if anchor not in _normalize_space(section):
+                errors.append(f"missing scoped closeout anchor: {relative}:{anchor}")
+
+    closeout_heading = CLOSEOUT_SECTIONS["Docs/FX_01_MANUAL_CURRENCY_PLAN.md"]
+    closeout = _section(plan_text, closeout_heading, "## ") or ""
+    if _status_after_heading(plan_text, closeout_heading, bold=True) != CLOSEOUT_STATUS:
+        errors.append("the separate FX-01A closeout must remain pending review/CI/merge")
+    if re.search(r"^- \[[xX]\]", closeout, re.MULTILINE):
+        errors.append("the separate closeout and its maintenance follow-ups must remain unchecked")
+    for relative, section in (
+        ("plan closeout", closeout),
+        ("TASKS FX-01", _section(tasks_text, TASK_HEADING, "## ") or ""),
+    ):
+        if _normalize_space(section).count(CLOSEOUT_TASK) != 1:
+            errors.append(f"pending closeout task must occur exactly once: {relative}")
+    for anchor in ("migration-and-rollback", "navigationBars.buttons.element(boundBy: 0)"):
+        if anchor not in closeout:
+            errors.append(f"retained PR #110 maintenance follow-up missing: {anchor}")
+
+    for index, heading in enumerate(SUBPHASE_HEADINGS):
+        expected_status = DONE_STATUS if index == 0 else BLOCKED_STATUS
+        if _status_after_heading(plan_text, heading, bold=True) != expected_status:
+            errors.append(f"subphase must have one exact scoped Status: {heading}")
+        section = _section(plan_text, heading, "### ") or ""
+        markers = re.findall(r"^- \[([^\]]+)\]", section, re.MULTILINE)
+        if not markers or any(marker != ("x" if index == 0 else " ") for marker in markers):
+            errors.append(f"subphase tasks must be {'checked' if index == 0 else 'unchecked'}: {heading}")
 
     fx01a = _section(plan_text, "### FX-01A — Entry and contract lock", "### ")
     if fx01a is None:
@@ -332,11 +433,12 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
         if normalized.count(required_task) != 1:
             errors.append("FX-01A contract-gate task must be checked exactly once")
 
-    fx01b = _section(plan_text, "### FX-01B — Integer conversion and Schema V7", "### ")
-    if fx01b is None:
-        errors.append("FX-01B checklist section is missing or duplicated")
-    elif re.search(r"^- \[[xX]\]", fx01b, re.MULTILINE):
-        errors.append("FX-01B must remain unentered while the FX-01A candidate is under review")
+    for relative, section in (
+        ("plan FX-01B", _section(plan_text, SUBPHASE_HEADINGS[1], "### ") or ""),
+        ("TASKS FX-01", _section(tasks_text, TASK_HEADING, "## ") or ""),
+    ):
+        if _normalize_space(section).count(BEFORE_B_TASK) != 1:
+            errors.append(f"the unchecked pre-B machine-contract task must occur exactly once: {relative}")
 
     source_boundary = data["sourceBoundary"]
     expense_path = project_root / source_boundary["expenseModel"]
@@ -418,8 +520,8 @@ def fail_if_invalid(data: Any, project_root: Path) -> None:
 
 def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
     required = (
-        "Docs/FX_01_MANUAL_CURRENCY_PLAN.md",
-        "Docs/TASKS.md",
+        *CLOSEOUT_SECTIONS,
+        "Scripts/fx01_contract.py",
         "MindBudget/Models/Expense.swift",
         "MindBudget/Data/DataActor.swift",
     )
@@ -436,8 +538,158 @@ def _require_rejection(description: str, data: Any, project_root: Path) -> None:
         raise RuntimeError(f"FX-01 self-test failed to reject {description}")
 
 
+CLI_TIMEOUT_SECONDS = 30
+
+
+def _require_fixture_cli(project_root: Path, *, valid: bool, description: str) -> None:
+    started = time.monotonic()
+    try:
+        result = subprocess.run(
+            [sys.executable, "-B", str(project_root / "Scripts/fx01_contract.py")],
+            cwd=project_root, capture_output=True, text=True,
+            timeout=CLI_TIMEOUT_SECONDS, check=False,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"FX-01 CLI self-test timed out: {description}; "
+            f"deadline={CLI_TIMEOUT_SECONDS}s, elapsed={time.monotonic() - started:.2f}s; "
+            "no validation verdict; timeout is non-pass"
+        ) from error
+    expected_code = 0 if valid else 1
+    expected_message = "FX-01 static contract passed" if valid else "FX-01 contract validation failed:"
+    if result.returncode != expected_code or expected_message not in result.stdout or result.stderr:
+        raise RuntimeError(
+            f"FX-01 CLI self-test did not {'accept' if valid else 'reject'} {description}; "
+            f"exit={result.returncode}, expected={expected_code}, "
+            f"verdict_present={expected_message in result.stdout}, stderr_present={bool(result.stderr)}"
+        )
+
+
+def run_cli_failure_self_test(project_root: Path) -> None:
+    """Inject process failures, never replace the real 67 mutation executions."""
+    from unittest.mock import patch
+
+    verdict = "FX-01 contract validation failed: injected invalid contract"
+    for valid in (False, True):
+        with patch.object(subprocess, "run", side_effect=subprocess.TimeoutExpired("fixture", 30)) as run:
+            try:
+                _require_fixture_cli(project_root, valid=valid, description="injected timeout")
+            except RuntimeError as error:
+                if "injected timeout" not in str(error) or "timeout is non-pass" not in str(error):
+                    raise RuntimeError("FX-01 timeout diagnostic lost its mutation context") from error
+            else:
+                raise RuntimeError("FX-01 self-test accepted a process timeout")
+            if run.call_count != 1 or run.call_args.kwargs.get("timeout") != 30:
+                raise RuntimeError("FX-01 child deadline/retry policy drifted")
+
+    for code, stdout, stderr in (
+        (0, verdict, ""),                 # A negative test must not succeed.
+        (-9, verdict, ""),                # A crash is not a contract rejection.
+        (2, verdict, ""),                 # An unrelated CLI error is not a rejection.
+        (1, "", ""),                     # Nonzero alone is insufficient.
+        (1, verdict, "unexpected error"), # A stderr diagnostic invalidates the verdict.
+    ):
+        with patch.object(subprocess, "run", return_value=subprocess.CompletedProcess([], code, stdout, stderr)):
+            try:
+                _require_fixture_cli(project_root, valid=False, description="injected invalid verdict")
+            except RuntimeError:
+                pass
+            else:
+                raise RuntimeError("FX-01 self-test accepted an invalid process verdict")
+    print("FX-01 CLI fault self-test rejected 7 timeout/invalid-verdict outcomes")
+
+
+def run_closeout_self_test(data: Any, project_root: Path) -> None:
+    """Mutate copied authoritative sections, then exercise the production CLI."""
+    with tempfile.TemporaryDirectory(prefix="mindbudget-fx01-closeout-") as temporary:
+        fixture = Path(temporary)
+        _write_fixture(fixture, project_root, data)
+        _require_fixture_cli(fixture, valid=True, description="the clean copied contract")
+        mutation_count = 0
+
+        def reject_section_change(relative: str, heading: str, old: str, new: str) -> None:
+            nonlocal mutation_count
+            path = fixture / relative
+            original = (project_root / relative).read_text(encoding="utf-8")
+            section = _section(original, heading, "### " if heading.startswith("### ") else "## ")
+            if not section:
+                raise RuntimeError(f"missing self-test source section: {relative}:{heading}")
+            pattern = r"\s+".join(re.escape(part) for part in old.split())
+            changed, count = re.subn(pattern, lambda _: new, section)
+            if count < 1 or (old not in CLOSEOUT_ANCHORS and count != 1):
+                raise RuntimeError(f"self-test mutation has an unexpected target count: {relative}:{old}")
+            path.write_text(original.replace(section, changed, 1), encoding="utf-8")
+            try:
+                _require_fixture_cli(
+                    fixture, valid=False,
+                    description=f"mutation {mutation_count + 1}: {relative}:{heading}: {old} -> {new}",
+                )
+                mutation_count += 1
+            finally:
+                path.write_text(original, encoding="utf-8")
+
+        # Another file or an older historical section must not satisfy a removed anchor.
+        for relative, heading in CLOSEOUT_SECTIONS.items():
+            for anchor in CLOSEOUT_ANCHORS:
+                reject_section_change(relative, heading, anchor, "removed closeout obligation")
+
+        plan = "Docs/FX_01_MANUAL_CURRENCY_PLAN.md"
+        for index, heading in enumerate(SUBPHASE_HEADINGS):
+            status = DONE_STATUS if index == 0 else BLOCKED_STATUS
+            reject_section_change(plan, heading, f"Status: **{status}**", "Status: **In Progress.**")
+            reject_section_change(
+                plan, heading, f"Status: **{status}**",
+                f"Status: **{status}**\n\nStatus: **{status}**",
+            )
+        reject_section_change(
+            plan, SUBPHASE_HEADINGS[0], "- [x] At implementation start, add", "- [ ] At implementation start, add",
+        )
+        for heading, first_task in (
+            (SUBPHASE_HEADINGS[1], "- [ ] Before FX-01B implementation, extend"),
+            (SUBPHASE_HEADINGS[2], "- [ ] Add one exhaustive"),
+            (SUBPHASE_HEADINGS[3], "- [ ] Prove budget, reminder, insight, Ask, Dashboard"),
+            (SUBPHASE_HEADINGS[4], "- [ ] Pass money, network, commercialization-document"),
+        ):
+            reject_section_change(plan, heading, first_task, first_task.replace("[ ]", "[x]"))
+        closeout_heading = CLOSEOUT_SECTIONS[plan]
+        reject_section_change(plan, closeout_heading, f"Status: **{CLOSEOUT_STATUS}**", "Status: **Done.**")
+        for relative, heading in ((plan, closeout_heading), ("Docs/TASKS.md", TASK_HEADING)):
+            reject_section_change(relative, heading, CLOSEOUT_TASK, CLOSEOUT_TASK.replace("[ ]", "[x]"))
+        for relative, heading in ((plan, SUBPHASE_HEADINGS[1]), ("Docs/TASKS.md", TASK_HEADING)):
+            reject_section_change(relative, heading, BEFORE_B_TASK, "")
+            reject_section_change(relative, heading, BEFORE_B_TASK, BEFORE_B_TASK.replace("[ ]", "[x]"))
+        for relative, heading, status in (
+            (plan, PLAN_HEADING, f"Status: **{EXPECTED_PLAN_STATUS}**"),
+            ("Docs/TASKS.md", TASK_HEADING, f"Status: {EXPECTED_TASK_STATUS}"),
+        ):
+            reject_section_change(relative, heading, status, f"{status}\n\n{status}")
+
+        contract_path = fixture / "Docs/FX_01_CONTRACT.json"
+        for section, key, value in (
+            ("phase", "activeSubphaseStatus", "IN_PROGRESS"),
+            ("phase", "closeoutStatus", "DONE"),
+            ("phase", "nextSubphaseEntered", 0),
+            ("deliveryEvidence", "reviewedHead", "b2b45f1155e6b393c17cac6c77f5208fb3792c41"),
+            ("deliveryEvidence", "hostedRun", "33772144343"),
+            ("deliveryEvidence", "acceptedRunFailedToPassedObserved", True),
+            ("evidenceBoundary", "schemaV7EvidenceClaimed", True),
+        ):
+            mutation = copy.deepcopy(data)
+            mutation[section][key] = value
+            contract_path.write_text(json.dumps(mutation), encoding="utf-8")
+            _require_fixture_cli(fixture, valid=False, description=f"{section}:{key}")
+            mutation_count += 1
+        contract_path.write_text(json.dumps(data), encoding="utf-8")
+        _require_fixture_cli(fixture, valid=True, description="the restored copied contract")
+        print(f"FX-01 closeout self-test rejected {mutation_count} CLI mutations")
+
+
 def run_self_test(data: Any, project_root: Path) -> None:
     fail_if_invalid(data, project_root)
+    run_cli_failure_self_test(project_root)
+    run_closeout_self_test(data, project_root)
+    from validation_order_self_test import run_validation_order_self_test
+    run_validation_order_self_test(project_root)
 
     mutations: list[tuple[str, Any]] = []
     entered_b = copy.deepcopy(data)
@@ -460,6 +712,12 @@ def run_self_test(data: Any, project_root: Path) -> None:
     unknown_key["manualBoundary"]["fallbackProvider"] = "silent"
     mutations.append(("an unknown contract key", unknown_key))
 
+    ambiguous_run_scope = copy.deepcopy(data)
+    ambiguous_run_scope["deliveryEvidence"]["failedToPassedObserved"] = ambiguous_run_scope[
+        "deliveryEvidence"
+    ].pop("acceptedRunFailedToPassedObserved")
+    mutations.append(("the obsolete unscoped Failed-to-Passed key", ambiguous_run_scope))
+
     for description, mutation in mutations:
         if not validate_contract_data(mutation):
             raise RuntimeError(f"FX-01 self-test failed to reject {description}")
@@ -471,8 +729,7 @@ def run_self_test(data: Any, project_root: Path) -> None:
         tasks_path = fixture_root / "Docs/TASKS.md"
         tasks_text = tasks_path.read_text(encoding="utf-8")
         tasks_path.write_text(
-            "Summary: In Progress — FX-01A contract gate implemented; FX-01B unentered pending "
-            "review/CI/merge\n\n"
+            f"Summary: {EXPECTED_TASK_STATUS}\n\n"
             + tasks_text.replace(EXPECTED_TASK_STATUS, "Done", 1),
             encoding="utf-8",
         )
@@ -492,8 +749,8 @@ def run_self_test(data: Any, project_root: Path) -> None:
         plan_path = fixture_root / "Docs/FX_01_MANUAL_CURRENCY_PLAN.md"
         plan_path.write_text(
             plan_path.read_text(encoding="utf-8").replace(
-                "### FX-01B — Integer conversion and Schema V7\n\n- [ ]",
-                "### FX-01B — Integer conversion and Schema V7\n\n- [x]",
+                f"{SUBPHASE_HEADINGS[1]}\n\nStatus: **{BLOCKED_STATUS}**\n\n- [ ]",
+                f"{SUBPHASE_HEADINGS[1]}\n\nStatus: **{BLOCKED_STATUS}**\n\n- [x]",
                 1,
             ),
             encoding="utf-8",
