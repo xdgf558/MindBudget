@@ -8138,3 +8138,35 @@ Independent read-only review of diagnostic workflow SHA-256
 its diagnostic scope only. Shell and both embedded Python blocks parsed; money, network,
 commercialization, StoreKit and FX static gates passed. `sourceHead` denotes the PR source head,
 not the artifact's synthetic checkout SHA. Diagnostic success cannot replace the failed CI run.
+
+## 2026-09-04 — FX-01C native-format cause established and narrowly remediated
+
+Diagnostic run `33890321460` succeeded on `934cf50`, reading the frozen failed artifact with
+Xcode 26.6 build `17F113`. Its artifact `9943551554` ZIP SHA-256 is
+`ee6680bd2aa2d7367611a986dc3a8f19af741571e0d6cba5a6fd99e54b2fcb06`. The unchanged JSON is retained
+as `Scripts/Fixtures/fx_native_xcode26.json` with SHA-256
+`dbd4dd3b6546a64b1368b702582f8cba29d96eb3ffd622dcd5632b3f42387628`. Independent comparison
+proved the configuration node's absent `nodeIdentifierURL` was the only gate-relevant difference
+from the same bundle read by Xcode 27. All main identity/result and device/configuration IDs match.
+
+The checker now permits only that key's absence, validates any present URL exactly, and rejects
+non-string/empty device and configuration IDs without coercion. Both shapes have negative tests;
+the native sample goes through the actual CLI among the complete required inventory. Missing
+primary identity, null/empty/wrong configuration URL, bad IDs, extra runs and Failed-to-Passed
+remain rejected. Self-tests pass 1,428 detail negatives and nine CLI positives / 34 CLI negatives,
+plus the existing 22 isolation, 374 tree, 612 disguised-execution and 68 diagnostic-closure cases.
+
+The diagnostic workflow is removed, recoverable in commit `934cf50`; normal CI/validation order
+and all Swift source are unchanged. Normal CI `33890321361` on that diagnostic head was cancelled
+after the short diagnostic completed, rather than repeating the known unremediated gate failure.
+That cancellation and original failure `33885693529` remain non-pass. The corrected reader's
+source and new-head hosted execution still require independent review; C is In Progress, D unentered.
+
+Independent delta rereview then accepted checker SHA-256
+`979a82a41d41950d681a98245de24b253f7922a9d8fd5b6e963b4ff646f2909b` and the unchanged native
+fixture, with no P1/P2/P3 blocking findings. It independently ran the self-tests plus four
+additional complete-CLI positives and 44 negatives, including absent configuration URL with
+wrong/typed IDs, duplicate execution, Failed-to-Passed, missing main identity and mismatched
+diagnostics. It verified the actual native fixture is consumed in the complete 32-binding CLI
+inventory, and confirmed Swift/ordinary CI/validate/UI runner are unchanged. This accepts the
+source delta for freezing and new validation, not a product merge before hosted/native acceptance.

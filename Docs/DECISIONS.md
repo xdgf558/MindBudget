@@ -4031,3 +4031,27 @@ Failed-to-Passed bindings fail. A single Passed repetition is accepted only with
 consistent concrete execution. The C6 inventory/parser is not reused as FX UI evidence.
 Static copied-source negatives enforce host isolation and validator-order probes require both
 new runtime stages; exact-head hosted execution and independent final review are still required.
+
+## 2026-09-04 — FX native configuration identity across Xcode readers
+
+PR #114 run `33885693529` failed at configuration identity validation after ordinary tests,
+coverage and C6-02 passed; dedicated FX UI did not run. Do not infer the failure field from the
+combined error or use Xcode 27 re-reading a downloaded bundle as proof of Xcode 26's original JSON.
+The separate read-only hosted diagnostic `33890321460` used the fixed failed artifact with Xcode
+26.6 and established that only the configuration node's redundant `nodeIdentifierURL` is absent.
+Independent inspection reproduced the rejection with that native JSON and passed it by adding
+only the corresponding URL in memory; no other identity or execution field differed.
+
+Decision: accept that one key being absent, not an arbitrary default or permissive URL fallback.
+The main case/detail IDs and URLs still must agree, device/configuration IDs must be nonempty
+strings with exact metadata matches, and every required method must have one Passed concrete
+execution. A present configuration URL must match exactly; null/empty/type drift fail. No ID
+coercion, unknown attempt, parameterized substitute or Failed-to-Passed is accepted. Preserve the
+unchanged native JSON as a hash-pinned regression fixture and exercise both observed shapes
+through the production CLI, including missing-URL plus wrong identity/retry combinations.
+
+The short diagnostic workflow is removed after capture, with no new ordinary workflow dependency
+on an expiring artifact. Diagnostic success and local re-reads remain remediation evidence only;
+the initial failure and cancelled diagnostic-head ordinary run remain non-pass. The corrected
+head requires independent rereview and its own complete hosted validation before merge. No Swift
+product behavior changes, C completion, D entry, network/service enablement or release follows.

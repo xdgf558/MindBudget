@@ -107,3 +107,39 @@ are not retrospectively included in that snapshot.
 - [ ] Complete ordinary application validation, Release build, coverage and strict local performance check.
 - [ ] Final frozen-head independent review and exact-head hosted CI with native execution audit.
 - [ ] Merge, then separate reviewed/green documentation closeout before D entry.
+
+## Hosted native-format remediation — acceptance still pending
+
+PR #114's initial head `7460081` passed complete local validation and independent native review:
+606 ordinary method details (590 Passed / 16 Skipped), 615 concrete results, all 32 FX unit
+bindings, a separate strict benchmark and two fresh FX UI methods each Passed once. No extra
+attempt or Failed-to-Passed was observed. The two layout warnings remain unresolved; the logs
+also retain a Binding setter compiler warning and simulator diagnostic-collection error.
+
+Hosted run `33885693529` attempt 1 nevertheless failed. Ordinary tests, coverage and C6-02's
+23 bindings passed; FX's native configuration check then rejected the first required method.
+The dedicated FX UI stage never ran. This is a non-pass, not a hosted UI pass or a retried success.
+The downloaded ordinary artifact's SHA-256 is
+`fd8225714b4f128a51c382ba805922dfb4b199844ccf327f6f4cbc24dfa18a9e`. Xcode 27 re-reading it
+confirmed the full local inventory without extra attempts, but could not prove Xcode 26 output.
+
+Read-only diagnostic run `33890321460` on `934cf50` used Xcode 26.6 build `17F113` to read that
+fixed artifact, without a build, app launch or test. Its JSON proves the sole gate-relevant
+difference: the configuration execution node omits `nodeIdentifierURL`, while the main case and
+detail URLs, nonempty device/configuration IDs and single Passed execution agree. The native JSON
+is frozen unchanged at `Scripts/Fixtures/fx_native_xcode26.json`, SHA-256
+`dbd4dd3b6546a64b1368b702582f8cba29d96eb3ffd622dcd5632b3f42387628`; the diagnostic ZIP is
+`ee6680bd2aa2d7367611a986dc3a8f19af741571e0d6cba5a6fd99e54b2fcb06`.
+
+The remediation permits only absence of that redundant configuration URL. When present, it must
+match exactly; null, empty, wrong-typed or mismatched values fail. Main case/detail identity,
+nonempty string device/configuration IDs, one Passed execution and diagnostic closure remain
+mandatory. IDs are never stringified. Both configuration shapes receive the same negative tests,
+including missing main identity, wrong IDs, duplicate executions and hidden Failed-to-Passed.
+Self-tests cover the real native sample, 1,428 negative details and nine production-CLI positive /
+34 negative fixtures, alongside the existing isolation, tree and diagnostic negatives.
+
+The temporary diagnostic workflow has been removed; its ordinary CI `33890321361` was cancelled
+as redundant before the reader was fixed and remains non-pass. The diagnostic success is not
+current-head acceptance. Swift product/tests, the normal workflow and validation order are
+unchanged. A new exact-head full hosted run and independent rereview/native audit remain required.

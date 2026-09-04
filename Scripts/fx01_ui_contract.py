@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import json
@@ -22,9 +23,11 @@ MAIN = "MindBudget/App/MindBudgetApp.swift"
 ACCESS = "MindBudget/Commerce/FeatureAccessService.swift"
 SCHEME = "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget-FX-UI.xcscheme"
 PROJECT = "MindBudget.xcodeproj/project.pbxproj"
+NATIVE_26_FIXTURE = "Scripts/Fixtures/fx_native_xcode26.json"
+NATIVE_26_FIXTURE_SHA256 = "dbd4dd3b6546a64b1368b702582f8cba29d96eb3ffd622dcd5632b3f42387628"
 FIXTURE_FILES = (HOST, MAIN, ACCESS, SCHEME, PROJECT,
                  "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme",
-                 "Scripts/fx01_ui_contract.py")
+                 "Scripts/fx01_ui_contract.py", NATIVE_26_FIXTURE)
 FIXED_COMMERCE_FIXTURE = """enum FXUIFixtureAccess {
     static func allow(_ authority: LiveFeatureAccessAuthority) {
         authority.replaceEntitlements(.proSubscription)
@@ -207,14 +210,20 @@ def validate_detail(detail: object, case: dict) -> None:
     if any(not isinstance(value, list) or len(value) != 1 or not isinstance(value[0], dict) for value in (devices, configurations, runs)):
         raise ValueError(f"{identifier}: exactly one device, configuration and concrete run required")
     device = runs[0]
-    if device.get("nodeType") != "Device" or device.get("result") != "Passed" or not device.get("nodeIdentifier") or device["nodeIdentifier"] != devices[0].get("deviceId"):
+    if device.get("nodeType") != "Device" or device.get("result") != "Passed" or not isinstance(device.get("nodeIdentifier"), str) or not device["nodeIdentifier"] or device["nodeIdentifier"] != devices[0].get("deviceId"):
         raise ValueError(f"{identifier}: concrete device/result mismatch")
     children = device.get("children")
     if not isinstance(children, list) or len(children) != 1 or not isinstance(children[0], dict):
         raise ValueError(f"{identifier}: extra/missing device executions")
     configuration = children[0]
-    if configuration.get("nodeType") != "Test Plan Configuration" or configuration.get("result") != "Passed" or not configuration.get("nodeIdentifier") or configuration["nodeIdentifier"] != configurations[0].get("configurationId") or configuration.get("nodeIdentifierURL") != url:
+    if configuration.get("nodeType") != "Test Plan Configuration" or configuration.get("result") != "Passed" or not isinstance(configuration.get("nodeIdentifier"), str) or not configuration["nodeIdentifier"] or configuration["nodeIdentifier"] != configurations[0].get("configurationId"):
         raise ValueError(f"{identifier}: concrete configuration identity/result mismatch")
+    # Hosted Xcode 26.6 omits this redundant URL only on the configuration node
+    # (native diagnostic run 33890321460); Xcode 27 includes it. Never synthesize
+    # identity: case/detail URLs above and the device/configuration IDs remain
+    # mandatory. A present URL, including null/empty/wrong-typed values, must match.
+    if "nodeIdentifierURL" in configuration and configuration["nodeIdentifierURL"] != url:
+        raise ValueError(f"{identifier}: concrete configuration URL mismatch")
     attempts = execution_children(configuration.get("children", []))
     tree_warnings = Counter(child["name"] for child in case.get("children", [])
                             if child.get("nodeType") == "Runtime Warning")
@@ -304,13 +313,18 @@ def detail_fixture(case: dict) -> dict:
                                         "nodeIdentifierURL": case["nodeIdentifierURL"], "result": "Passed"}]}]}
 
 
-def detail_self_test(tree: dict) -> None:
+def detail_self_test(tree: dict, *, configuration_url: bool) -> int:
+    rejected = 0
     for case in tree["testNodes"]:
         valid = detail_fixture(case)
+        if not configuration_url:
+            del valid["testRuns"][0]["children"][0]["nodeIdentifierURL"]
         validate_detail(valid, case)
         mutations = []
         for kind in ("extra-run", "missing-run", "hidden-failed", "unknown-repetition", "wrong-id", "wrong-url",
-                     "wrong-device", "wrong-config", "extra-config", "count", "arguments", "null-children"):
+                     "wrong-device", "wrong-config", "extra-config", "count", "arguments", "null-children",
+                     "null-url", "empty-url", "typed-url", "missing-detail-url", "null-config-id",
+                     "numeric-config-id", "boolean-config-id", "numeric-device-id", "missing-config-id"):
             changed = copy.deepcopy(valid)
             configuration = changed["testRuns"][0]["children"][0]
             if kind == "extra-run": changed["testRuns"] *= 2
@@ -324,17 +338,40 @@ def detail_self_test(tree: dict) -> None:
             elif kind == "extra-config": changed["testRuns"][0]["children"] *= 2
             elif kind == "count": changed["testDescription"] = "Test case with 2 runs"
             elif kind == "arguments": configuration["children"] = [{"nodeType": "Arguments", "result": "Passed"}] * 2
-            else: configuration["children"] = None
+            elif kind == "null-children": configuration["children"] = None
+            elif kind == "null-url": configuration["nodeIdentifierURL"] = None
+            elif kind == "empty-url": configuration["nodeIdentifierURL"] = ""
+            elif kind == "typed-url": configuration["nodeIdentifierURL"] = [case["nodeIdentifierURL"]]
+            elif kind == "missing-detail-url": del changed["testIdentifierURL"]
+            elif kind == "missing-config-id": del configuration["nodeIdentifier"]
+            elif kind == "numeric-device-id":
+                changed["testRuns"][0]["nodeIdentifier"] = changed["devices"][0]["deviceId"] = 1
+            else:
+                value = {"null-config-id": None, "numeric-config-id": 1, "boolean-config-id": True}[kind]
+                configuration["nodeIdentifier"] = changed["testPlanConfigurations"][0]["configurationId"] = value
             mutations.append((kind, changed))
         for kind, changed in mutations:
             try:
                 validate_detail(changed, case)
             except ValueError:
+                rejected += 1
                 continue
             raise ValueError(f"FX detail self-test accepted {kind}: {case['nodeIdentifier']}")
+    return rejected
 
 
-def native_cli_self_test(root: Path, tree: dict, *, ui: bool) -> None:
+def native_26_fixture(root: Path) -> dict:
+    raw = (root / NATIVE_26_FIXTURE).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != NATIVE_26_FIXTURE_SHA256:
+        raise ValueError("frozen hosted Xcode 26.6 native fixture changed")
+    sample = json.loads(raw)
+    validate_detail(sample["detail"], sample["case"])
+    if "nodeIdentifierURL" in sample["detail"]["testRuns"][0]["children"][0]:
+        raise ValueError("native fixture must exercise Xcode 26's absent configuration URL")
+    return sample
+
+
+def native_cli_self_test(root: Path, tree: dict, *, ui: bool) -> tuple[int, int]:
     """Cross the real CLI/native-reader boundary with finite fake xcresulttool responses."""
     with tempfile.TemporaryDirectory(prefix="fx-native-cli-") as directory:
         base = Path(directory)
@@ -355,12 +392,25 @@ else:
         command.chmod(0o700)
         valid = {"tree": tree, "details": {case["nodeIdentifier"]: detail_fixture(case) for case in tree["testNodes"]}}
         identifier = tree["testNodes"][0]["nodeIdentifier"]
-        for kind in ("valid", "warning", "warning-execution", "warning-nested", "extra-detail", "failed-detail", "unknown-detail", "arguments-tree", "failed-parent", "unknown-tree"):
+        positive_kinds = {"valid", "warning", "absent-config-url", "absent-url-warning"}
+        kinds = ["valid", "warning", "warning-execution", "warning-nested", "extra-detail", "failed-detail", "unknown-detail", "arguments-tree", "failed-parent", "unknown-tree",
+                 "absent-config-url", "null-config-url", "empty-config-url", "wrong-config-url", "absent-top-url", "absent-url-duplicate", "absent-url-failed", "absent-url-wrong-config", "absent-url-warning", "absent-url-failed-then-passed", "absent-url-wrong-device"]
+        if not ui:
+            kinds.append("native-26-sample")
+            positive_kinds.add("native-26-sample")
+        for kind in kinds:
             payload = copy.deepcopy(valid)
             case = payload["tree"]["testNodes"][0]
             detail = payload["details"][identifier]
             configuration = detail["testRuns"][0]["children"][0]
-            if kind.startswith("warning"):
+            if kind == "native-26-sample":
+                sample = native_26_fixture(root)
+                target = sample["case"]["nodeIdentifier"]
+                if sum(node["nodeIdentifier"] == target for node in payload["tree"]["testNodes"]) != 1:
+                    raise ValueError("frozen native sample must replace exactly one required CLI binding")
+                payload["tree"]["testNodes"] = [copy.deepcopy(sample["case"]) if node["nodeIdentifier"] == target else node for node in payload["tree"]["testNodes"]]
+                payload["details"][target] = copy.deepcopy(sample["detail"])
+            elif kind.startswith("warning"):
                 diagnostic = {"nodeType": "Runtime Warning", "name": "Native layout diagnostic"}
                 if kind == "warning-execution": diagnostic["result"] = "Failed"
                 if kind == "warning-nested": diagnostic["children"] = [{"nodeType": "Repetition", "result": "Failed"}]
@@ -373,19 +423,37 @@ else:
             elif kind == "failed-parent":
                 case.update(result="Failed", children=[{"nodeType": "Repetition", "result": "Passed"}])
             elif kind == "unknown-tree": case["children"] = [{"nodeType": "Repetition"}, {"nodeType": "Repetition", "result": "Passed"}]
+            elif kind in {"null-config-url", "empty-config-url", "wrong-config-url"}:
+                configuration["nodeIdentifierURL"] = {"null-config-url": None, "empty-config-url": "", "wrong-config-url": "test://other"}[kind]
+            elif kind == "absent-top-url": del detail["testIdentifierURL"]
+            elif kind.startswith("absent-"):
+                del configuration["nodeIdentifierURL"]
+                if kind == "absent-url-duplicate": detail["testRuns"] *= 2
+                elif kind == "absent-url-failed": configuration["result"] = "Failed"
+                elif kind == "absent-url-wrong-config": configuration["nodeIdentifier"] = "other"
+                elif kind == "absent-url-wrong-device": detail["testRuns"][0]["nodeIdentifier"] = "other"
+                elif kind == "absent-url-failed-then-passed":
+                    configuration["children"] = [{"nodeType": "Repetition", "result": "Failed"}, {"nodeType": "Repetition", "result": "Passed"}]
+                elif kind == "absent-url-warning":
+                    diagnostic = {"nodeType": "Runtime Warning", "name": "Native layout diagnostic"}
+                    case["children"] = [copy.deepcopy(diagnostic)]
+                    configuration["children"] = [copy.deepcopy(diagnostic)]
             (bundle / "native.json").write_text(json.dumps(payload))
             completed = subprocess.run([sys.executable, "-B", str(root / "Scripts/fx01_ui_contract.py"),
                                         "--verify-ui-bundle" if ui else "--verify-unit-bundle", str(bundle)],
                                        env={"PATH": str(base) + os.pathsep + "/usr/bin:/bin"},
                                        capture_output=True, text=True, timeout=30, check=False)
-            expected = 0 if kind in {"valid", "warning"} else 1
-            if completed.returncode != expected or (expected == 0 and "passed exactly once" not in completed.stdout) or (expected == 1 and "validation failed" not in completed.stderr) or (kind == "warning" and "retained runtime diagnostic" not in completed.stdout):
+            expected = 0 if kind in positive_kinds else 1
+            if completed.returncode != expected or (expected == 0 and "passed exactly once" not in completed.stdout) or (expected == 1 and "validation failed" not in completed.stderr) or (kind in {"warning", "absent-url-warning"} and "retained runtime diagnostic" not in completed.stdout):
                 raise ValueError(f"FX native CLI self-test {ui}/{kind}: unexpected verdict {completed.returncode}")
+        return len(positive_kinds), len(kinds) - len(positive_kinds)
 
 
 def self_test(root: Path) -> None:
     if errors := isolation_errors(root):
         raise ValueError("\n".join(errors))
+    native_26_fixture(root)
+    detail_negatives = cli_positives = cli_negatives = 0
     mutations = (
         (HOST, GUARD, f"#if DEBUG || targetEnvironment(simulator) || {FLAG}"),
         (HOST, GUARD, f"#if DEBUG && {FLAG}"),
@@ -441,9 +509,12 @@ def self_test(root: Path) -> None:
                                 "result": "Passed"} for name in bindings]}
         if runtime_errors(valid, ui=ui):
             raise ValueError("valid runtime fixture rejected")
-        detail_self_test(valid)
+        for configuration_url in (False, True):
+            detail_negatives += detail_self_test(valid, configuration_url=configuration_url)
         diagnostic_self_test(valid, ui=ui)
-        native_cli_self_test(root, valid, ui=ui)
+        positive, negative = native_cli_self_test(root, valid, ui=ui)
+        cli_positives += positive
+        cli_negatives += negative
         for index in range(len(bindings)):
             for mutation in ("missing", "skipped", "failed", "duplicate", "not-test", "retry", "wrong-type", "arguments", "unknown-attempt", "failed-parent", "missing-url"):
                 changed = copy.deepcopy(valid)
@@ -479,7 +550,8 @@ def self_test(root: Path) -> None:
             raise ValueError("one concrete Passed repetition must be accepted")
     print(f"FX isolation self-test passed: {len(mutations) + 1} copied-source negatives")
     print(f"FX runtime self-test passed: {11 * (len(UNIT_BINDINGS) + len(UI_BINDINGS))} negative bindings")
-    print(f"FX concrete-detail self-test passed: {12 * (len(UNIT_BINDINGS) + len(UI_BINDINGS))} negative details; 4 CLI positives / 16 CLI negatives")
+    print(f"FX concrete-detail self-test passed: {detail_negatives} negative details; {cli_positives} CLI positives / {cli_negatives} CLI negatives")
+    print("FX native compatibility self-test passed: frozen hosted Xcode 26.6 sample and both configuration-URL shapes")
     print(f"FX diagnostic self-test passed: {18 * (len(UNIT_BINDINGS) + len(UI_BINDINGS))} disguised-execution negatives")
     print(f"FX diagnostic closure self-test passed: {2 * (len(UNIT_BINDINGS) + len(UI_BINDINGS))} missing-diagnostic negatives")
 
