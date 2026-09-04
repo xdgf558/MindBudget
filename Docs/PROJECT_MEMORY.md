@@ -48,11 +48,21 @@ network provider. Automatic reference rates are deferred to FX-02. The detailed 
 ordered checklist are in `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`. Independent rereview accepted exact planning
 head `0619d5e`, hosted run `33758966855` passed, and PR #108 merged it as `f2f57b4` with that head
 as second parent. The separate closeout exact head `8de85e6` passed run `33763718952`, and PR #109
-merged it as `69050da` with that head as second parent. The owner then entered FX-01A. Its
-machine-readable, self-testing static contract gate is implemented as a review candidate; FX-01B
-and Swift/Schema V7 implementation remain unentered until that gate itself is independently
-reviewed, hosted-green, and merged. This product phase does not enter COM-C12 or authorize Archive,
-distribution, or release.
+merged it as `69050da` with that head as second parent. The owner then entered FX-01A.
+Owner-supplied off-platform independent rereview accepted its final head `4554d0e`; hosted run
+`33823593637` passed, and PR #110 merged it as `9322e3b` with that head as second parent.
+FX-01A is Done for the static contract-gate delivery only; FX-01 remains In Progress, and this
+separate closeout still needs its own independent review, hosted CI, and merge. The 572 hosted
+test-detail records explain all 581 ordinary/argument runs without extra attempts or
+Failed-to-Passed. Run `33772144343` remains non-pass.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+normalization and the thirteenth iCloud companion contract; this remains unchecked in the plan.
+The C6 registry placement and old AX5 `boundBy: 0` Back selector remain maintenance debts.
+Self-tests change temporary copies only. Swift/Schema V7 implementation remains unstarted;
+this product phase does not enter COM-C12 or authorize Archive, distribution, or release.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
@@ -671,11 +681,12 @@ app's private data are forbidden in V1.
 ## Current state
 
 Phases 0 through 9, Phase 11, Phase 12, and the pre-Phase-10 UI/UX design interlude are complete;
-Phase 10 retains its signed-device and distribution release gates. FX-01 remains In Progress at
-FX-01A: its planning contract and separate closeout passed independent review, exact-head hosted
-CI, and merge through PR #109. The fail-closed contract gate is now an author-side candidate;
-product code, FX-01B, and Schema V7 remain unstarted pending review, hosted CI, and merge of that
-gate.
+Phase 10 retains its signed-device and distribution release gates. FX-01 remains In Progress.
+FX-01A is Done for the merged static contract gate: independently rereviewed head `4554d0e`
+passed hosted run `33823593637`, and PR #110 merged it as `9322e3b` (second parent `4554d0e`).
+Its separate documentation closeout is pending review/CI/merge; FX-01B remains unentered until
+that closeout completes and a separate owner entry occurs. Product code and Schema V7 remain
+unstarted, and neither the merged suite nor the static gate supplies FX runtime evidence.
 The app opens a versioned
 persistent SwiftData store. Schema V2 adds per-entry income to the nine original V1 model types,
 and Schema V3 adds companion income allocation, total savings-goal, and monthly recurring-rule

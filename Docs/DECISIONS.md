@@ -3807,3 +3807,37 @@ The 45-minute workflow budget and C6-02 concrete-attempt rejection remain unchan
 fresh focused AX5 run and the complete local suite without test-runner retry, then require
 independent rereview and hosted success on the new exact head. No physical rerun, product change,
 FX-01B, Schema V7, COM-C12, phase completion, or release action is authorized by this remediation.
+
+## 2026-09-04 — Close the reviewed FX-01A contract-gate delivery
+
+Decision: Owner-supplied off-platform independent rereview accepted PR #110 final head
+`4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf` (`4554d0e`) with no P1/P2 and a retained P3 about
+the existing AX5 Back selector. Hosted run `33823593637` succeeded on that exact head in 39m58s;
+PR #110 merged it as `9322e3bc8da59d5ea5b6d067d66fae879404b642` (`9322e3b`), with that head
+as second parent. Mark only FX-01A's static contract-gate delivery Done; FX-01 stays In Progress.
+The independent rereview was supplied by the owner outside GitHub, not a claimed GitHub review
+artifact or an author-side self-approval.
+
+The accepted hosted bundle has 572 unique cases (558 Passed / 14 Skipped / 0 Failed); reading all
+572 detail records accounts for 568 ordinary runs and 13 parameter-argument runs, exactly 581
+concrete runs with no extra attempts or Failed-to-Passed. UI was 17 Passed / 1 physical-only Skip /
+0 Failed, and 23 C6-02 runtime bindings passed. Run `33772144343` remains non-pass. It was
+cancelled by the 45-minute timeout after an AX5 failure and automatic passing retry. Preserve both
+the failure mechanism and non-pass classification; no physical rerun is claimed.
+
+Consequences: This separate closeout changes documentation, JSON phase/evidence metadata, and
+its static validator only. Bind the merged chain per document, require unique section-scoped
+statuses/checklists, reject premature completed closeout or later-subphase claims, and mutate only
+temporary file copies in self-tests. The new exact closeout head still requires independent
+review, hosted CI, and merge; the previous green run cannot satisfy that requirement.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+normalization and the thirteenth iCloud companion contract, including unchanged `.expense`
+payload and coordinated `ICLOUD_SYNC_CONTRACT.md` changes. Retain that obligation as an unchecked
+task, not delivered machinery. Keep the C6 `migration-and-rollback` registry placement and old
+`navigationBars.buttons.element(boundBy: 0)` Back selector as maintenance follow-ups. FX remains
+the gate owner; no reopening of completed C6 work or refreshed physical proof is implied. No
+Swift product/test changes, V7, trial clock, enabled network channel, FX-02, COM-C12, Archive,
+upload, distribution, or release is authorized by this closeout.

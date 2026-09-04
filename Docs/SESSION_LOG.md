@@ -7545,3 +7545,71 @@ focused result and failed hosted artifact remain separate evidence. No device ev
 Local success does not replace independent rereview or hosted success on the remediation head,
 and FX-01B remains unentered. The PR-description P3 wording is corrected to temporary-copy
 mutation; C6 registry ownership and FX-01B decimal/companion gate follow-ups remain explicit.
+
+## 2026-09-04 — Merge reviewed PR #110 after exact-head hosted and attempt verification
+
+The owner supplied independent rereview of exact remediation head
+`4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf`: no P1/P2, with one retained P3 that the simulator
+AX5 flow still uses `navigationBars.buttons.element(boundBy: 0)` for Back. That is existing harness
+debt, not a newly introduced change or a reason to expand this remediation. The owner conditioned
+undraft/merge on this head's hosted success and absence of Failed-to-Passed execution.
+
+GitHub Actions run `33823593637` succeeded on that exact head; job `100871356781` completed in
+39m58s. Its hosted log records all 23 C6-02 runtime bindings passed, UI 17 Passed / one physical-only
+Skipped / zero failures, and the repaired three-skin AX5 method Passed in 282.245 seconds. Downloaded
+artifact `9920030536` (`MindBudget-xcresult-33823593637-1`, GitHub-reported upload SHA-256
+`d82e8670f3411e043f247565a75eab8f43aa05c114681839ef67a4eef644d3ff`) is a complete readable bundle,
+retained locally at `/private/tmp/mindbudget-pr110-hosted-review.CvwTsA/Hosted.xcresult`.
+
+Read-only native result inspection reports 572 cases: 558 Passed, 14 Skipped, no failures. The
+summary's repetition-enabled configuration label was not mistaken for proof of a retry or its
+absence: every one of the 572 `test-details` records was checked. Their actual 581 runs exactly
+match the expected 568 non-parameterized runs plus 13 argument runs across four parameterized cases;
+there are no extra attempts and no failed run results. The tree contains no Repetition nodes, and
+the existing verifier separately accepts all 23 required bindings. Reading the downloaded bundle
+locally corroborates the hosted log; it is not a new local test run or a replacement for hosted CI.
+
+Only after those checks, PR #110 was marked ready and merged with an exact-head guard at
+`2026-09-04T01:41:12Z` as `9322e3bc8da59d5ea5b6d067d66fae879404b642`. The GitHub commit object
+confirms first parent `69050da62305e8df076772a5638528442341933b` and second parent
+`4554d0e21c714e44d2e5dec91d6026ae3cf7a7bf`. The old cancelled run `33772144343` and its
+Failed-to-Passed result remain non-pass evidence. No branch was deleted, no phase status was
+advanced, and FX-01B, Schema V7, FX-02, COM-C12, Archive, upload, distribution, and release remain
+unentered. This local handoff record is for the separate post-merge documentation closeout;
+it does not retroactively change the reviewed/merged head or start FX-01B.
+
+## 2026-09-04 — FX-01A post-merge documentation closeout candidate
+
+The owner requested a separate post-merge documentation closeout. Starting from PR #110 merge
+`9322e3b`, verified locally with full parents, record the owner-supplied off-platform independent
+rereview of `4554d0e` and exact-head hosted success `33823593637`. Its 572 unique cases were
+558 Passed / 14 Skipped / 0 Failed; all 572 test-detail records account for 581 ordinary/argument
+runs with no extra attempt or Failed-to-Passed. Run `33772144343` remains non-pass. Its
+45-minute timeout and failed-then-passed AX5 attempt remain part of the evidence history.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
+This candidate marks only FX-01A's merged static contract-gate delivery Done while FX-01 remains
+In Progress. Update both current memory summaries, the plan and task list; append the decision
+without rewriting historical entries. Contract schema version 2 records the delivery chain and
+the pending closeout separately from static-only evidence flags. No app schema version changes.
+The validator pins per-file scoped evidence and unique section statuses, rejects checked later
+tasks, and retains the unchecked eight-place normalization / thirteenth iCloud companion gate
+extension before FX-01B implementation. New negative tests execute the production CLI against
+temporary copies; repository originals are not mutated.
+
+Retain the FX gate's C6 registry-placement and old AX5 Back-selector maintenance debts. No Swift,
+UI tests, Schema V7, trial clock, network channel, physical rerun, FX-02, COM-C12, Archive, upload,
+distribution, or release changes are made. Validation results and the new candidate's review/CI
+state will be recorded below; the earlier run cannot serve as this branch's hosted proof.
+
+Local candidate validation: money, network-egress, commercialization-document, StoreKit catalog
+(13 tests), FX contract, and C6 release-matrix checks passed. FX self-tests rejected all 67 new
+cross-process closeout mutations plus the retained source/contract mutations, with a clean copied
+fixture accepted before and after; the same self-tests passed under `python3 -OB`. Exact JSON
+comparisons distinguish `false` from numeric `0`. `git diff --check` passed, and an explicit diff
+against merged main confirms no app/UI-test Swift, project/configuration, workflow, complete
+validator, or C6 matrix-list changes. The complete Xcode validator was not rerun locally for this
+documentation/static-gate-only delta; a new exact-head hosted run remains required. The candidate
+is to be submitted as a separate Draft PR, without claiming independent approval or automatic
+merge and without starting FX-01B.

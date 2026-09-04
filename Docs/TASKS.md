@@ -225,7 +225,17 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — FX-01A contract gate implemented; FX-01B unentered pending review/CI/merge
+Status: In Progress — FX-01A Done through PR #110; closeout pending review/CI/merge; FX-01B unentered
+
+Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
+passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
+All 572 hosted test-detail records account for 581 ordinary/argument runs, with no extra attempt
+or Failed-to-Passed. Run `33772144343` remains non-pass. Its timeout and failed-then-passed AX5
+retry are not superseded by the accepted run. This is static-gate delivery plus existing-suite
+regression evidence, not FX conversion or V7 evidence.
+
+FX-01B requires this closeout's independent review, exact-head hosted CI, merge, and a separate owner entry.
+
 - [x] Record the owner-approved manual-only product contract in
   `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
   save-time lock, no historical revaluation, detail/CSV dual amounts, no location, and no network.
@@ -235,8 +245,13 @@ Status: In Progress — FX-01A contract gate implemented; FX-01B unentered pendi
   passed run `33763718952`, and PR #109 merged it as `69050da` with that head as second parent.
 - [x] Add the machine-readable, self-testing FX-01A contract gate for the active phase, frozen
   `Expense` accounting authority, manual-only/no-domain boundary, whole-app no-floating-point
-  rule, and static-evidence limitation. Keep FX-01B unentered until this gate passes independent
-  review, exact-head hosted CI, and merge.
+  rule, and static-evidence limitation. PR #110 completed the gate's review/CI/merge requirement.
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.
+- [ ] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+  normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
+  and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
+- [ ] Keep the FX gate's C6 registry placement and the existing AX5 `boundBy: 0` Back selector as
+  maintenance follow-ups in the plan, not reasons to enter C6 or claim new physical evidence.
 - [ ] Implement the pure checked integer-rational converter and deterministic bankers rounding;
   close rate text through an eight-fractional-place half-even normalization before reduction,
   prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
