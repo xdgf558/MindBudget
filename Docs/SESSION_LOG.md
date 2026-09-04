@@ -8312,3 +8312,87 @@ the original screenshot without rerunning the test. The review agent's initial n
 needed permission to create a TestReport derived cache; its subsequent read is not a test rerun.
 All original failures remain retained. New frozen-head complete local/hosted validation is still
 required before this PR can merge; source and focused acceptance alone do not close C.
+
+## 2026-09-05 — Hosted budget-settle failures supersede the exact-frame wait
+
+Hosted run `33900664975` on old head `221dcd9` completed Failure with ordinary UI 15 Passed,
+three Skipped and two Failed. The run had retries disabled. Native inspection of its downloaded
+artifact closes all 606 methods at 588 Passed / 16 Skipped / two Failed, with device/configuration
+totals 597 Passed / 16 Skipped / two Failed. Both failures have one concrete Failed run and no
+Repetition. The English AX1/AX5 method failed in its first AX1 setup after entering 500 and before
+launching AX5; the Simplified Chinese category case failed before its first saving-goal typing.
+Both stopped at `Budget editor and keyboard did not settle: budget.savingGoal`. No failure
+attachments exist. The artifact upload is 206167652 bytes, SHA-256
+`66eb27e4c25860672a24c90cb07c585fa874c20f735528d9b5f610ece07e3c4c`. The downloaded extraction
+was not opened by the local native reader; a separate working copy received its derived index.
+
+The first failed flow's second settle poll found no keyboard; the second failed flow completed
+two keyboard/field/nav polls but had no accepted exact-equal pair before timeout. This proves that
+requiring two exact `CGRect` snapshots within five seconds is not a reliable hosted interaction
+precondition. The available artifact and log do not disclose actual frames or subcondition values,
+so they do not prove keyboard disappearance, geometry jitter, navigation failure or a product
+layout defect as root cause. Independent review retains the About focused pass and strict4 only
+conditionally and rejects whole-head merge.
+
+Current head `c332e53` local full run 4 then exited 0 with no test retries or strict-benchmark skip.
+Native all-detail audit reports 606 method details (590 Passed / 16 Skipped), 615 concrete entries
+(599 Passed / 16 Skipped), exact inventory equality with the previously accepted run, and no
+extra or failed attempt. Coverage, C6-02 23 bindings, FX 32 unit bindings, strict4 and two separate
+FX UI bindings also passed; both existing FX layout warnings remain. This local result cannot
+erase the two hosted failures because its budget helper is unchanged. Its current hosted run is
+also not evidence for the subsequent working-tree repair.
+
+That current hosted run `33903657605` later completed Failure on exact head `c332e53`, also with
+runner retries disabled. Native summary/tree show 606 methods: 587 Passed, 16 Skipped and three
+Failed; concrete device totals are 596 Passed, 16 Skipped and three Failed, with no runtime warning.
+Each failed detail contains exactly one device/configuration/concrete Failed run and no Repetition.
+English AX1/AX5 failed at the old monthly-income settle wait in 63.294551969s; language switching
+failed at total-budget settle in 60.428116918s; English category failed at monthly-income settle in
+50.726115108s. The 262437777-byte artifact upload SHA-256 is
+`e0c7c6d1d126cb6c115fa75f75849c148eb7620ccbe12d8e56cc856ad2e99406`; the original extraction is
+preserved and native reading occurred only on a separate working copy. This is another non-pass
+for the unchanged superseded helper and cannot evaluate the uncommitted replacement.
+
+The repair separates bounded no-tap reveal from input focus preparation. Each entry reveals,
+taps center, requires keyboard existence, re-reveals after layout, taps center again and performs
+one target `typeText`. After all inputs, monthly income gets the same two-tap preparation once,
+intended to move away from the final editor;
+the three fields are then only revealed and exactly read back. No global typing, corrective input,
+runner retry, private/debug focus inspection or product instrumentation is added. Diagnostics now
+report public geometry/condition state on failure. A focused no-retry probe, source/runtime
+rereview, freeze, full local and hosted native acceptance are pending; C remains In Progress.
+
+Budget replacement probe 1 failed during Swift compilation before any test executed: escaped
+inner literals made two diagnostic interpolations invalid. The compile failure is retained as
+non-pass. The correction computes the optional keyboard/navigation frame descriptions separately,
+without changing the interaction contract. Probe 2 must use a new result-bundle path.
+
+Probe 2 used that new path and passed the four requested UI methods once on the specified iOS 26.5
+simulator. Native summary reports 4 Passed / 0 Failed / 0 Skipped and no runtime warning; all-detail
+audit reports four detail records, four concrete Passed results, no Repetition, extra or failed
+attempt. Activity inspection confirms that the AX method's two launches are the intended AX1 and
+AX5 branches, while the other three methods launch once. Every setup types 3000, 2500 and 500 once,
+uses two explicit center taps per input, performs two further monthly-income preparation taps
+intended to move away from the final editor, and then evaluates each of the three exact readbacks
+without another field tap. All five static gates
+passed afterward.
+
+Implementation-separated read-only rereview found no P1/P2/P3 in the current source and focused
+runtime evidence. It independently read the native result and accepted UI-test SHA-256
+`5eb40d7670f684fa1d42fcffa371d0dd83b60f53e3f7bb0de26f34746d52a54b` for freezing only. The
+implementation GitHub account relays that conclusion; it is not another account's or a human's
+approval. A committed exact head and complete fresh local/hosted native evidence are still required
+before merge. Because the later hosted run additionally failed the language-switch method, the
+four-method focused result is not enough for freeze; a new focused path must include that fifth
+method. C remains In Progress with D unentered.
+
+Focused probe 3 then ran English AX1/AX5, language switching, both localized category cases and
+pseudo-long at a fresh result path without runner retries. Native summary and all five details
+close at 5 Passed / 0 Failed / 0 Skipped, five concrete Passed executions, no Repetition, extra
+attempt or runtime warning. Activity counts show the AX method's two intended launches; each
+launch has exactly one targeted type of 3000/2500/500, four monthly-income taps (the input pair and
+the later preparation pair), two taps on each other input, and one exact readback per field. Each
+of the other four methods has one launch with the same per-setup counts. The added language-switch
+case therefore passes the candidate mechanism once; final implementation-separated source/runtime
+rereview is still required before freezing a new head, and complete local/hosted acceptance remains
+mandatory afterward.

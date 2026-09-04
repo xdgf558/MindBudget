@@ -1304,15 +1304,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let savingGoal = app.textFields["budget.savingGoal"]
         enterBudgetValue("500", into: savingGoal, in: app)
 
-        // SwiftUI can leave the active editor's accessibility value stale. Leave the last
-        // editor without submitting or typing again, then verify every actual value. This
-        // detects text sent to the wrong field rather than treating keyboard visibility as
-        // focus evidence. No global app.typeText or corrective retyping is allowed.
+        // SwiftUI can leave the active editor's accessibility value stale. Move focus to the
+        // first field without submitting or typing again, then only reveal fields while reading
+        // them. This prevents readback from repeatedly changing focus or requiring a keyboard.
+        // The exact three-value readback is the authority that detects text sent to the wrong
+        // field; keyboard visibility and targeted typeText do not prove focus ownership.
+        prepareBudgetEditor(monthlyIncome, in: app, towardEarlierRow: true)
         for (field, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
             // AX5/pseudo-long Form rows can be virtualized, so reveal each in order.
             // Only the first return travels toward earlier rows; never assume all three
             // editors coexist in the accessibility tree.
-            prepareBudgetEditor(field, in: app, towardEarlierRow: expected == "3000")
+            revealBudgetField(field, in: app, towardEarlierRow: expected == "3000")
             let entered = XCTNSPredicateExpectation(
                 predicate: NSPredicate { object, _ in
                     (object as? XCUIElement)?.value as? String == expected
@@ -1388,13 +1390,37 @@ final class MindBudgetPhase3UITests: XCTestCase {
         in app: XCUIApplication
     ) {
         prepareBudgetEditor(field, in: app)
-        // Targeted typing itself must fail if this field still has no keyboard focus.
-        // Never type through the application or retry input after a failed assertion.
+        // Type into the target exactly once. XCTest can still route targeted typeText to a stale
+        // active editor, so the later three-field readback remains the fail-closed authority.
+        // Never type through the application or correctively retype after a failed assertion.
         field.typeText(value)
     }
 
     @MainActor
     private func prepareBudgetEditor(
+        _ field: XCUIElement,
+        in app: XCUIApplication,
+        towardEarlierRow: Bool = false
+    ) {
+        revealBudgetField(field, in: app, towardEarlierRow: towardEarlierRow)
+
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(
+            keyboard.waitForExistence(timeout: 5),
+            "Budget keyboard did not appear after tapping \(field.identifier); "
+                + budgetGeometryDescription(field, in: app)
+        )
+
+        // The keyboard can move a SwiftUI Form after the first tap. Re-establish full geometry,
+        // then tap the explicit center a second time because the first focus transfer may have
+        // been consumed. Neither keyboard visibility nor geometry is treated as focus proof.
+        revealBudgetField(field, in: app, towardEarlierRow: towardEarlierRow)
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
+    @MainActor
+    private func revealBudgetField(
         _ field: XCUIElement,
         in app: XCUIApplication,
         towardEarlierRow: Bool = false
@@ -1414,34 +1440,6 @@ final class MindBudgetPhase3UITests: XCTestCase {
                    frame.minY > navigationBottom + 8,
                    frame.maxY < safeBottom
                 {
-                    field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-                    // A tap can be consumed while SwiftUI is moving focus from the preceding
-                    // field. Wait for two matching in-lane field/keyboard snapshots, then tap
-                    // its explicit center again. This is bounded interaction preparation, not
-                    // a claim that public hasFocus describes keyboard focus, or a test retry.
-                    var previousField: CGRect?
-                    var previousKeyboard: CGRect?
-                    let settled = XCTNSPredicateExpectation(
-                        predicate: NSPredicate { object, _ in
-                            guard let target = object as? XCUIElement else { return false }
-                            guard target.exists, app.keyboards.firstMatch.exists else { return false }
-                            let currentField = target.frame
-                            let currentKeyboard = app.keyboards.firstMatch.frame
-                            let ready = target.isHittable && !currentField.isEmpty
-                                && !currentKeyboard.isEmpty
-                                && currentField.minY > app.navigationBars.firstMatch.frame.maxY + 8
-                                && currentField.maxY < currentKeyboard.minY - 8
-                            let stable = ready && previousField == currentField
-                                && previousKeyboard == currentKeyboard
-                            previousField = ready ? currentField : nil
-                            previousKeyboard = ready ? currentKeyboard : nil
-                            return stable
-                        },
-                        object: field
-                    )
-                    XCTAssertEqual(XCTWaiter.wait(for: [settled], timeout: 5), .completed,
-                                   "Budget editor and keyboard did not settle: \(field.identifier)")
-                    field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
                     return
                 }
 
@@ -1475,7 +1473,26 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
         }
 
-        XCTFail("Budget field did not enter the safe interaction lane")
+        XCTFail(
+            "Budget field did not enter the safe interaction lane: \(field.identifier); "
+                + budgetGeometryDescription(field, in: app)
+        )
+    }
+
+    @MainActor
+    private func budgetGeometryDescription(
+        _ field: XCUIElement,
+        in app: XCUIApplication
+    ) -> String {
+        let keyboard = app.keyboards.firstMatch
+        let navigation = app.navigationBars.firstMatch
+        let keyboardFrame = keyboard.exists ? String(describing: keyboard.frame) : "none"
+        let navigationFrame = navigation.exists ? String(describing: navigation.frame) : "none"
+        return "fieldExists=\(field.exists), fieldHittable=\(field.isHittable), "
+            + "fieldFrame=\(field.frame), keyboardExists=\(keyboard.exists), "
+            + "keyboardFrame=\(keyboardFrame), "
+            + "navigationExists=\(navigation.exists), "
+            + "navigationFrame=\(navigationFrame)"
     }
 
     @MainActor

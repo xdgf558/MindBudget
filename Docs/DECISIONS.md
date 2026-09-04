@@ -4113,3 +4113,33 @@ catalog, replace the deep target, or treat a focused pass as complete-validation
 The failed full local run remains non-pass, including its unexecuted downstream coverage/C6/FX
 verification and dedicated FX UI stages. Source rereview, a new frozen head and fresh complete
 local/hosted validation are still required; no C completion or D entry follows.
+
+## 2026-09-05 — Budget input preparation and readback use separate authorities
+
+Hosted run `33900664975` on older PR #114 head `221dcd9` ran without XCTest runner retries and
+failed two ordinary UI methods at the same `budget.savingGoal` settle assertion. The English
+AX1/AX5 method failed during its first AX1 setup after typing 500 and before the AX5 launch. The
+Simplified Chinese category method failed before typing its first saving-goal value. Native
+summary and both details confirm 606 methods, two failed methods, one concrete failed execution
+for each and no repetition. There are no failure attachments. The first log loses the keyboard
+on the second settle poll; the second obtains two keyboard/field polls but no accepted exact-equal
+pair before the five-second waiter expires. Those facts prove the settle predicate is unstable;
+they do not prove a keyboard, frame-jitter, navigation or product-layout root cause.
+
+Decision: supersede only the earlier two-identical-`CGRect` wait. Separate bounded reveal from
+focus preparation. Reveal performs no tap and only moves the Form until the field's complete
+frame is below navigation and above the keyboard or App bottom. Input preparation reveals, taps
+the explicit center, requires a keyboard, re-reveals after keyboard-driven layout, then taps the
+center again before exactly one targeted `typeText`. Keyboard presence and geometry remain
+preconditions, not focus proof. After all three inputs, perform that same two-tap preparation on
+monthly income once to move away from the final editor; then reveal each field without any tap and
+require exact 3000/2500/500 values. Those readbacks, not targeted typing, remain the fail-closed
+authority against stale-focus routing. Reveal/keyboard failures include public frame/condition
+diagnostics and terminate setup. No global typing, corrective retyping, runner retry, private
+focus API, unsupported debug parsing or product instrumentation is introduced.
+
+The complete local validation at later head `c332e53` passed with the superseded helper and is
+retained as local evidence only; it cannot erase the two no-retry hosted failures against the same
+budget source. Current hosted execution also cannot accept this subsequent source candidate.
+The new candidate requires focused source/runtime rereview, a new frozen head, complete local and
+hosted native acceptance, and merge while C remains In Progress and D remains unentered.

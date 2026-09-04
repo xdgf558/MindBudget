@@ -819,3 +819,27 @@ using an unambiguous release-heading identifier rather than a mutable index or r
 Success requires a nonempty complete target frame below navigation and inside the list; progress
 alone is not success. Preserve the maximum 20 drags and fail on no progress. Retain a final screenshot.
 This focused check cannot replace fresh complete local validation and new-head hosted acceptance.
+
+## FX-01C budget preparation supersession
+
+Retain hosted run `33900664975` as a no-retry non-pass: the English AX1/AX5 method failed in its
+AX1 setup and the Simplified Chinese category method failed in its setup, each exactly once at the
+same saving-goal settle assertion. The full method/tree/detail evidence contains no Repetition.
+Do not accept a later green run of unchanged budget-helper source as remediation.
+
+The replacement regression must keep reveal and readback independent of keyboard focus. A reveal
+may use at most 12 bounded small Form drags and succeeds only when the complete field frame is in
+the unobscured navigation/keyboard lane. Each of the three inputs then uses center tap, bounded
+keyboard existence, a fresh reveal after layout, a second center tap and exactly one targeted
+`typeText`. After the final input, prepare monthly income with the same two taps once; reveal the
+three rows without further taps and require exact 3000/2500/500 values before Save. No geometry,
+keyboard existence or targeted typing alone proves focus. No global typing, corrective retyping,
+runner retry, private/unsupported focus inspection or product test signal is allowed.
+
+Run English AX1/AX5, language switching, both localized category cases and pseudo-long once without
+runner retries as a focused probe. These five methods close over every method observed failing at
+the superseded budget helper plus the adjacent locale/layout shapes. A focused pass permits
+source/runtime rereview only. Complete
+local and hosted runs must still prove all 606 ordinary method details, the accepted inventory,
+coverage, 23 C6 bindings, 32 FX unit bindings and two dedicated FX UI bindings with no hidden
+failed attempt; the strict Dashboard benchmark remains separate.
