@@ -717,3 +717,10 @@ Bind the full ordered main FX checklist text/states and test each of its 12 item
 checkbox, deletion, duplication and substituted text, plus loss of the B converter's task marker.
 The repaired gate rejects 258 copied-CLI mutations, retaining the existing seven process-fault
 and 3/16 ordering tests. Temporary fixtures must return to the passing source after mutation.
+
+Rereview of `cc4b7a0` required an additional canonical-syntax boundary: alternative CommonMark
+task markers must fail, never disappear from the inventory. The shared checker now applies to
+main TASKS, each A–E plan checklist, the historical A closeout and all seven B closeout sections.
+Real CLI negatives cover `*`, `+`, one-space/four-space indentation, Tab, both numbered-list
+markers, blockquote, uppercase/unknown status, and an extra inline checkbox. Final negative count
+is 332; the earlier 258 result is a superseded checkpoint, not complete acceptance.

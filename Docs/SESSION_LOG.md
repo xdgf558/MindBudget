@@ -7927,3 +7927,21 @@ superseded by this required review fix; it is not accepted green evidence for th
 Local complete run 1 started from the old head and remains intermediate-only; its earlier gate
 execution cannot prove the repaired gate. Fresh complete validation, independent rereview and
 new-head hosted CI remain required. No C implementation has started.
+
+## 2026-09-04 — PR #113 checklist-format rereview remediation
+
+Independent rereview of `cc4b7a0` confirmed the original JSON and TASKS mutations were rejected,
+but adding a rendered CommonMark checkbox with `*`, `+`, indentation, Tab or a numbered-list
+marker was still silently ignored. The reviewer kept this P2 open. Added explicit rejection of
+noncanonical checkbox/list syntax to the shared parser; reused it for TASKS, A–E phase lists,
+the historical A closeout and all seven B closeout sections. Quoted/inline/uppercase variants
+also reject. There are now 332 real copied-CLI negatives, plus the unchanged seven process faults
+and three valid / sixteen failing validation-order paths, all passing locally.
+
+Hosted run `33846284169` on the partially repaired head was explicitly cancelled due to this
+required source fix, not an observation timeout. Both cancelled hosted runs remain non-pass.
+Local full-1 and full-2 were interrupted with SIGINT only to their resolved, task-specific
+xcodebuild PIDs and each validator returned 75; they remain intermediate cancelled non-passes.
+Their bundles/logs were retained, no result was relabelled, and no product behavior changed.
+The final repaired head will receive independent rereview before fresh complete local and hosted
+validation. No later stage has been entered.

@@ -430,7 +430,14 @@ def _checklist_items(section: str) -> list[str]:
     items: list[str] = []
     in_item = False
     for line in section.splitlines():
-        if re.match(r"^- \[[^\]]+\] ", line):
+        # Canonical repo checklist only. Do not silently discard alternative
+        # CommonMark list markers, indentation, blockquotes or inline checkboxes.
+        task_like = re.match(r"^\s*(?:>\s*)*(?:[-+*]|[0-9]+[.)])\s*\[[^\]\r\n]*\]", line)
+        checkbox_tokens = re.findall(r"\[\s*[xX]?\s*\]", line)
+        canonical = re.match(r"^- \[(?:x| )\] \S", line)
+        if (task_like or checkbox_tokens) and (canonical is None or len(checkbox_tokens) != 1):
+            raise ValueError("non-canonical checkbox/list syntax in an authoritative FX checklist")
+        if canonical:
             items.append(line)
             in_item = True
         elif in_item and line.startswith("  "):
@@ -497,8 +504,11 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     if _status_after_heading(tasks_text, TASK_HEADING, bold=False) != EXPECTED_TASK_STATUS:
         errors.append("TASKS FX-01 must have one exact closeout Status in its own section")
     tasks_section = _section(tasks_text, TASK_HEADING, "## ") or ""
-    if _checklist_items(tasks_section) != _checklist_items(EXPECTED_TASKS_CHECKLIST):
-        errors.append("TASKS FX-01 must retain its complete ordered task text and reviewed checkbox states")
+    try:
+        if _checklist_items(tasks_section) != _checklist_items(EXPECTED_TASKS_CHECKLIST):
+            errors.append("TASKS FX-01 must retain its complete ordered task text and reviewed checkbox states")
+    except ValueError as error:
+        errors.append(f"TASKS FX-01: {error}")
 
     for relative, heading in CLOSEOUT_SECTIONS.items():
         path = project_root / relative
@@ -526,8 +536,11 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
             for anchor in B_CLOSEOUT_ANCHORS:
                 if normalized_b.count(anchor) != 1:
                     errors.append(f"missing/duplicate scoped B closeout anchor: {relative}:{anchor}")
-            if re.search(r"^- \[[xX]\]", b_section, re.MULTILINE):
-                errors.append(f"this separate B closeout must remain pending: {relative}")
+            try:
+                if _checklist_items(b_section) != [B_CLOSEOUT_TASK]:
+                    errors.append(f"this separate B closeout must retain exactly one pending task: {relative}")
+            except ValueError as error:
+                errors.append(f"{relative} B closeout: {error}")
     packet_path = project_root / "Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md"
     if packet_path.is_file():
         packet_status = _status_after_heading(
@@ -540,8 +553,12 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     closeout = _section(plan_text, closeout_heading, "## ") or ""
     if _status_after_heading(plan_text, closeout_heading, bold=True) != CLOSEOUT_STATUS:
         errors.append("FX-01A closeout must retain the explicit owner exception and hosted non-pass")
-    if re.search(r"^- \[[xX]\]", closeout, re.MULTILINE):
-        errors.append("the separate closeout and its maintenance follow-ups must remain unchecked")
+    try:
+        closeout_items = _checklist_items(closeout)
+        if len(closeout_items) != 3 or any(not item.startswith("- [ ] ") for item in closeout_items):
+            errors.append("the historical A closeout and its two maintenance follow-ups must remain unchecked")
+    except ValueError as error:
+        errors.append(f"A closeout: {error}")
     for relative, section in (
         ("plan closeout", closeout),
         ("TASKS FX-01", _section(tasks_text, TASK_HEADING, "## ") or ""),
@@ -557,7 +574,12 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
         if _status_after_heading(plan_text, heading, bold=True) != expected_status:
             errors.append(f"subphase must have one exact scoped Status: {heading}")
         section = _section(plan_text, heading, "### ") or ""
-        markers = re.findall(r"^- \[([^\]]+)\]", section, re.MULTILINE)
+        try:
+            items = _checklist_items(section)
+        except ValueError as error:
+            errors.append(f"{heading}: {error}")
+            continue
+        markers = [item[3] for item in items]
         expected_markers = ["x" if index <= 1 else " "] * len(markers)
         if len(markers) != SUBPHASE_TASK_COUNTS[index] or markers != expected_markers:
             errors.append(f"subphase task inventory must be complete and {'checked' if index <= 1 else 'unchecked'}: {heading}")
@@ -779,6 +801,8 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 reject_section_change(relative, B_CLOSEOUT_HEADING, anchor, "removed B closeout obligation")
             reject_section_change(relative, B_CLOSEOUT_HEADING, B_CLOSEOUT_TASK, B_CLOSEOUT_TASK.replace("[ ]", "[x]"))
             reject_section_change(relative, B_CLOSEOUT_HEADING, B_CLOSEOUT_TASK, B_CLOSEOUT_TASK + "\n" + B_CLOSEOUT_TASK)
+            reject_section_change(relative, B_CLOSEOUT_HEADING, B_CLOSEOUT_TASK,
+                                  B_CLOSEOUT_TASK + "\n\n* [x] Premature closeout completion.")
         reject_section_change("Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md", "# FX-01B implementation evidence",
                              f"Status: **{B_PACKET_STATUS}**", "Status: **Implementation pending.**")
         reject_section_change("Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md", "# FX-01B implementation evidence",
@@ -806,6 +830,8 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             reject_section_change(plan, heading, first_task, "removed task marker")
         closeout_heading = "## FX-01A post-merge closeout"
         reject_section_change(plan, closeout_heading, f"Status: **{CLOSEOUT_STATUS}**", "Status: **Done.**")
+        reject_section_change(plan, closeout_heading, CLOSEOUT_TASK,
+                              CLOSEOUT_TASK + "\n\n* [x] Relabel the historical non-pass as complete.")
         for relative, heading in ((plan, closeout_heading), ("Docs/TASKS.md", TASK_HEADING)):
             reject_section_change(relative, heading, CLOSEOUT_TASK, CLOSEOUT_TASK.replace("[ ]", "[x]"))
         for relative, heading in ((plan, SUBPHASE_HEADINGS[1]), ("Docs/TASKS.md", TASK_HEADING)):
@@ -827,6 +853,25 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             "Docs/TASKS.md", TASK_HEADING,
             "- [x] Implement the pure checked integer-rational converter", "Implement the pure checked integer-rational converter",
         )
+        for relative, heading, anchor in (
+            ("Docs/TASKS.md", TASK_HEADING, _checklist_items(EXPECTED_TASKS_CHECKLIST)[-1]),
+            *((plan, heading, f"Status: **{DONE_STATUS if index == 0 else IMPLEMENTATION_DONE_STATUS if index == 1 else BLOCKED_STATUS}**")
+              for index, heading in enumerate(SUBPHASE_HEADINGS)),
+        ):
+            for extra in (
+                "* [x] Premature later-stage completion.",
+                "+ [x] Premature later-stage completion.",
+                " - [x] Premature later-stage completion.",
+                "-\t[x] Premature later-stage completion.",
+                "1. [x] Premature later-stage completion.",
+                "1) [x] Premature later-stage completion.",
+                "> - [x] Premature later-stage completion.",
+                "    - [x] Premature later-stage completion.",
+                "- [X] Premature later-stage completion.",
+                "- [B] Noncanonical stage marker.",
+                "- [ ] Canonical item with another [x] hidden inline.",
+            ):
+                reject_section_change(relative, heading, anchor, anchor + "\n\n" + extra)
 
         contract_path = fixture / "Docs/FX_01_CONTRACT.json"
         raw_contract = json.dumps(data)

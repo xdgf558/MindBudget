@@ -3928,3 +3928,14 @@ already lost duplicates), and mutate every main-list item for completion, remova
 and changed text. Also reproduce the removed converter marker. No product/Swift code changes.
 The new exact head requires independent rereview and fresh hosted CI; the old run is not reusable
 acceptance evidence. This repairs the B closeout, not an authorization to enter C.
+
+## 2026-09-04 — Canonical task syntax across FX state surfaces
+
+Independent rereview of `cc4b7a0` closed the duplicate-JSON finding but reproduced a remaining
+TASKS inventory bypass: valid CommonMark `*`, `+`, numbered, indented or tab-separated checked
+items were rendered yet ignored by the column-zero `- ` parser. Do not add a permissive general
+Markdown parser. Treat these authoritative lists as a closed canonical format and reject other
+checkbox/list shapes, including quoted/inline/uppercase markers. Apply the same parser to main
+TASKS, each plan subphase and both historical-A/current-B closeout checklists. Test these real
+CLI variants in each affected scope. This closes the original checklist P2 without changing the
+meaning of any completed task or weakening the historical non-pass/next-entry boundaries.
