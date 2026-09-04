@@ -8217,11 +8217,11 @@ The current candidate uses only supported center taps, bounded keyboard/field ge
 one targeted `typeText` per value, then exact readbacks after leaving the final editor. Any setup
 failure terminates the test; no global typing, private focus KVC or corrective input is used.
 Hosted automatic test retries are disabled and six workflow negatives plus actual stubbed test
-argument checks enforce the no-retry caller. Focus probe 4 covers English category, Chinese AX5
+argument checks enforce the no-retry caller. Focus probe 4 covers English category, English AX1/AX5
 and pseudo-long navigation without retries; its results and independent implementation review
 remain pending at this checkpoint. No Swift product code changed for this remediation.
 
-Probe 4 then ended non-pass: Chinese AX5 Passed (82.014s), English category Passed (91.943s),
+Probe 4 then ended non-pass: English AX1/AX5 Passed (82.014s), English category Passed (91.943s),
 pseudo-long Failed (54.902s). After entering all amounts, the first return to monthly income
 encountered a virtualized earlier Form row; the helper's missing-row branch scrolled only toward
 later rows. It never reached the readback assertion. Preserve this failure separately, rather
@@ -8243,7 +8243,7 @@ only three targeted typing calls and fail-stop setup. No diagnostic-text focus p
 This permits freezing and new verification only. Probe 5, new-head full local validation and
 hosted/native acceptance remain outstanding; no merge or C completion is claimed.
 
-Probe 5 subsequently completed with all three cases once Passed: Chinese AX5 100.444s, English
+Probe 5 subsequently completed with all three cases once Passed: English AX1/AX5 100.444s, English
 category 97.211s and pseudo-long 72.208s. The author's native summary/tree/all-three-detail audit
 confirmed three concrete Passed results, zero extra attempts and no Failed-to-Passed. The first
 sandboxed native read failed with permission error 64 while creating a TestReport derived cache;
@@ -8252,3 +8252,15 @@ All five static gates passed: floating-point money, network egress, StoreKit cat
 commercialization documents and the FX contract (454 copied-CLI mutations, seven fault cases,
 3/21 ordering cases and the six new hosted retry-policy negatives). Final frozen-head complete
 local and hosted acceptance are still required after this focused remediation evidence.
+
+Independent native review of probe 5 confirmed all three details each contain a single Passed
+device/configuration/run, zero skips/extra attempts/Failed-to-Passed and no runtime warnings.
+It also caught an evidence-label error in the first frozen remediation commit `aee3faa`:
+`testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable` launches in English at
+AX1 then AX5; it does not run Chinese. The focused-run descriptions above and the candidate test
+plan are corrected accordingly. Those two launches are the intended comparison inside one test,
+not retries. All four setup flows have exactly three targeted input activities, three exact
+readback predicates and one Save-to-Dashboard transition (12 input / 12 readback / four Save
+activities overall), with no failure-associated activities. This focused probe is English-only.
+Ordinary Chinese regressions and the separate Chinese AX5 FX host remain required in complete
+new-head validation, not claimed from probe 5.

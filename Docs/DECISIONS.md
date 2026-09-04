@@ -4079,8 +4079,10 @@ ownership with that UI-focus attribute; the failure is retained. A subsequent di
 parser probe passed locally but was withdrawn after independent review noted the public SDK
 explicitly calls dependence on `debugDescription` data unsupported. Neither candidate is retained
 as the implementation. No private `hasKeyboardFocus` KVC, debug-string predicate, or product
-accessibility/focus instrumentation is introduced. Actual English, Chinese AX5 and pseudo-long
-flows must validate the supported interaction/readback implementation.
+accessibility/focus instrumentation is introduced. The focused probe covers English category,
+English AX1/AX5 comparison and English pseudo-long flows only. Complete validation must also run
+the existing Chinese ordinary regressions and separate Chinese AX5 FX host; the focused English
+probe does not substitute for either scope.
 
 Hosted CI now disables ordinary test retries, making a first failure directly fail CI instead
 of relying only on the independent all-detail audit to reject a green run. The existing validator

@@ -790,7 +790,7 @@ is 332; the earlier 258 result is a superseded checkpoint, not complete acceptan
 
 ## FX-01C ordinary budget-focus regression
 
-Run the ordinary English category-legend, Chinese AX5 navigation and pseudo-long navigation cases
+Run the ordinary English category-legend, English AX1/AX5 navigation and English pseudo-long cases
 without test retries. Each budget field must enter the full unobscured lane; the keyboard and
 target frames must settle between two explicit center taps before one targeted text entry. Exact
 3000/2500/500 readbacks after leaving the last editor must pass before Save reaches Dashboard.
@@ -798,6 +798,8 @@ This does not infer keyboard focus from geometry: targeted typing remains allowe
 Retain the public `hasFocus` probe failure and the withdrawn diagnostic-parser probe separately;
 neither is acceptance of the supported implementation. No debug-description or private KVC
 focus predicates remain, and no product accessibility trait/value is changed for test signaling.
+This focused probe does not provide Chinese evidence. Complete validation still requires the
+existing Chinese ordinary regressions and the separately compiled Chinese AX5 FX host.
 
 The complete hosted caller must set ordinary retries to zero, with no alternative override.
 `validation_order_self_test.py` rejects six mutations of that real workflow and rejects retry
