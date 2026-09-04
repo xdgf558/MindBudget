@@ -288,3 +288,23 @@ an Xcode 27 build completed without that source warning, but this compile check 
 acceptance run. Because product Swift changed, a new committed head requires fresh source review,
 complete local validation, hosted validation and native artifact audit. C remains In Progress and
 D remains unentered.
+
+## Hosted Xcode 26.6 compiler-crash non-pass and replacement candidate
+
+Hosted run `33917389140` failed on exact head
+`add6231aab9ae731c57b01415eb8aa3f06c4ba97` during the Release build, before any test ran.
+Xcode 26.6's Swift 6.3.3 frontend aborted while emitting IR for a compiler-generated closure
+conversion thunk. The trigger was the explicit `@MainActor @Sendable (String) -> Void` parameter
+added to `ForeignCurrencyEntrySection.numericField`; the build ended with both architecture
+compilation and project-build failures. All preceding hosted static gates passed. This run is a
+non-pass and its uploaded report cannot be treated as runtime evidence.
+
+The replacement removes the function parameter rather than weakening its annotations. Callers
+now pass one of three `Sendable` field identities. `numericField` constructs the SwiftUI `Binding`
+setter directly in the view's actor-isolated context and exhaustively dispatches original amount,
+rate or accounting amount to the existing form-state mutation methods. No unchecked annotation,
+compatibility escape or warning suppression is used, and all three input behaviors remain in the
+dedicated UI coverage. A local Xcode 27 Release build completed for arm64 and x86_64 simulator
+architectures. That compile probe neither proves Xcode 26.6 compatibility nor replaces a complete
+validator run. The working tree must be committed, rereviewed and receive fresh local plus hosted
+native acceptance. C remains In Progress and D remains unentered.

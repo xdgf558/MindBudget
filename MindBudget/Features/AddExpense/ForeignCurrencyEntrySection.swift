@@ -56,23 +56,23 @@ struct ForeignCurrencyEntrySection: View {
         .pickerStyle(.menu)
         .accessibilityIdentifier("fx.originalCurrency")
 
-        numericField("fx.originalAmount", text: state.originalAmountText, identifier: "fx.originalAmount") { text in
-            model.updateForeignCurrency({ $0.setOriginalAmount(text) }, locale: locale)
-        }
+        numericField(
+            "fx.originalAmount", text: state.originalAmountText,
+            identifier: "fx.originalAmount", input: .originalAmount
+        )
         Text(direction(original: state.originalCurrencyCode ?? "—", accounting: state.accountingCurrencyCode))
             .font(.footnote)
             .accessibilityIdentifier("fx.direction")
-        numericField("fx.rate", text: state.rateText, identifier: "fx.rate") { text in
-            model.updateForeignCurrency({ $0.setRate(text) }, locale: locale)
-        }
+        numericField("fx.rate", text: state.rateText, identifier: "fx.rate", input: .rate)
         Text("fx.rateDate")
         rateDateControl(state)
         Text(state.rateTimeZoneIdentifier)
             .font(.caption)
             .accessibilityIdentifier("fx.rateTimeZone")
-        numericField("fx.accountingAmount", text: state.accountingAmountText, identifier: "fx.accountingAmount") { text in
-            model.updateForeignCurrency({ $0.setAccountingAmount(text) }, locale: locale)
-        }
+        numericField(
+            "fx.accountingAmount", text: state.accountingAmountText,
+            identifier: "fx.accountingAmount", input: .accountingAmount
+        )
         Text(state.accountingCurrencyCode)
             .font(.caption)
         Text(state.source == .manualRate ? "fx.source.manual" : "fx.source.override")
@@ -99,17 +99,37 @@ struct ForeignCurrencyEntrySection: View {
 
     private func numericField(
         _ key: LocalizedStringKey, text: String, identifier: String,
-        set: @escaping @MainActor @Sendable (String) -> Void
+        input: NumericInput
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(key).font(.subheadline)
-            TextField("", text: Binding(get: { text }, set: set))
+            TextField("", text: Binding(
+                get: { text },
+                set: { newText in
+                    model.updateForeignCurrency({ state in
+                        switch input {
+                        case .originalAmount:
+                            state.setOriginalAmount(newText)
+                        case .rate:
+                            state.setRate(newText)
+                        case .accountingAmount:
+                            state.setAccountingAmount(newText)
+                        }
+                    }, locale: locale)
+                }
+            ))
                 .focused($focusedNumericField, equals: identifier)
                 .accessibilityLabel(key)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(.roundedBorder)
                 .accessibilityIdentifier(identifier)
         }
+    }
+
+    private enum NumericInput: Sendable {
+        case originalAmount
+        case rate
+        case accountingAmount
     }
 
     @ViewBuilder private func rateDateControl(_ state: ForeignCurrencyFormState) -> some View {

@@ -8423,3 +8423,21 @@ suppression. A local Xcode 27 build-for-testing exited zero without that source 
 existing diagnostics remain. This is a compile check only. The product Swift change invalidates
 c2fd249 as merge evidence, so a new frozen head needs independent rereview plus complete local and
 hosted/native acceptance. C remains In Progress; D is not entered.
+
+## 2026-09-05 — Hosted Xcode 26.6 exposed a compiler crash in the annotated FX setter thunk
+
+PR #114 hosted run `33917389140` failed on exact head
+`add6231aab9ae731c57b01415eb8aa3f06c4ba97`. Every pre-build static step passed, but the Xcode
+26.6 Release build aborted before testing. The complete job log identifies Apple Swift 6.3.3 and
+a crash while emitting IR for a compiler-generated closure conversion thunk; the two reported
+failures are the Swift compile and enclosing project build, not test failures. This exact-head run
+is retained as a non-pass. The prior local success and c2fd249 hosted success cannot be reused.
+
+The replacement source no longer transports a form-mutating closure through the numeric-field
+helper. It passes an exhaustive `Sendable` field enum, creates the `Binding` setter directly in
+the SwiftUI view method and performs the existing main-actor model mutation there. It does not use
+`@unchecked`, a compatibility annotation or warning suppression. A local Xcode 27 Release build
+for the generic simulator completed successfully on both architectures; this is a focused compile
+probe only. After a new commit, implementation-separated review and complete fresh local/hosted
+validation with native artifact inspection remain mandatory. FX-01C stays In Progress and FX-01D
+is not entered.

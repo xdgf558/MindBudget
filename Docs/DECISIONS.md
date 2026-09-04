@@ -4162,3 +4162,23 @@ review. The accepted c2fd249 execution remains remediation provenance, not evide
 product Swift. The two dedicated FX UI `Invalid frame dimension (negative or non-finite).`
 diagnostics remain explicit P3 observations; neither test retry nor a warning-free claim is allowed.
 C remains In Progress and D remains unentered.
+
+## 2026-09-05 — Keep FX numeric mutation inside the Binding isolation context
+
+PR #114 hosted run `33917389140` failed on exact head
+`add6231aab9ae731c57b01415eb8aa3f06c4ba97` before any test execution. Xcode 26.6's Swift
+6.3.3 frontend aborted during Release whole-module IR generation for the compiler-generated
+conversion thunk introduced by the explicit `@MainActor @Sendable` setter parameter. Both
+simulator architectures were part of the failed build. This is a retained exact-head non-pass;
+the preceding local result and the older c2fd249 hosted success cannot substitute for it.
+
+Decision: do not pass a form-mutating function value through `numericField` at all. Pass a
+`Sendable` semantic field identity and construct the `Binding` setter directly inside the
+main-actor SwiftUI view method, where the setter switches exhaustively among original amount,
+rate and accounting amount before calling `ExpenseFormViewModel.updateForeignCurrency`. This
+keeps actor isolation at the SDK boundary without an erased closure, compatibility annotation,
+unchecked conformance or diagnostic suppression. A local Xcode 27 Release build for both
+simulator architectures succeeds with this source, but it is only a compile probe. The next
+committed exact head still requires implementation-separated source review, complete local
+validation, hosted Xcode 26.6 validation and native artifact audit. C remains In Progress and D
+remains unentered.
