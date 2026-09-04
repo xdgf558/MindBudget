@@ -7908,3 +7908,22 @@ passed. A new complete local validation and this closeout's own independent revi
 remain pending at commit time; the unchanged Swift tree does not waive them.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — PR #113 independent findings and remediation
+
+The independent agent reviewed exact closeout head `2dff233` and reproduced two P2 issues in
+temporary copies: `casePassed:999` followed by `casePassed:575` and premature-entry true followed
+by false survived default JSON last-wins parsing; TASKS could prematurely complete C's UI task,
+roll back B's converter checkbox or remove its marker while the plan remained correct. No P1/P3
+or product-code finding was reported. This was independent review, not an author-side discovery.
+
+Remediation rejects duplicate decoded keys at parse time (also identical/escaped keys) and
+non-standard constants; closes the entire ordered TASKS checklist and checkbox state. Seven raw
+JSON mutations and 49 real TASKS mutations extend the accepted self-test machinery from 202 to
+258 copied-CLI negatives; all reject with the expected failure verdict. The seven subprocess
+faults and 3 success / 16 failure validation-order paths still pass. No deadline or retry policy
+was weakened. The old hosted run `33845662761` was explicitly cancelled because its source is
+superseded by this required review fix; it is not accepted green evidence for the new head.
+Local complete run 1 started from the old head and remains intermediate-only; its earlier gate
+execution cannot prove the repaired gate. Fresh complete validation, independent rereview and
+new-head hosted CI remain required. No C implementation has started.

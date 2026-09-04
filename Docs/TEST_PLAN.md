@@ -706,3 +706,14 @@ accounting/decimal/sync/no-floating-point/no-network mutations and subprocess/or
 Self-tests mutate temporary copies only. A green gate does not manufacture runtime proof.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — Strict JSON and main TASKS negative coverage
+
+PR #113's independent review of `2dff233` demonstrated that dictionary mutation cannot test raw
+duplicate JSON keys and that plan validation cannot imply main TASKS validation. Parse all object
+levels with duplicate-key rejection before constructing their dictionaries. Cover conflicting,
+identical and escaped duplicate keys plus non-standard constants through real child CLI input.
+Bind the full ordered main FX checklist text/states and test each of its 12 items for flipped
+checkbox, deletion, duplication and substituted text, plus loss of the B converter's task marker.
+The repaired gate rejects 258 copied-CLI mutations, retaining the existing seven process-fault
+and 3/16 ordering tests. Temporary fixtures must return to the passing source after mutation.

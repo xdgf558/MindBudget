@@ -224,6 +224,45 @@ B_CLOSEOUT_ANCHORS = (
     "FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.",
     "The 14 skips remain non-pass.", B_CLOSEOUT_TASK,
 )
+EXPECTED_TASKS_CHECKLIST = """
+- [x] Record the owner-approved manual-only product contract in
+  `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`: explicit currency/rate entry, editable accounting result,
+  save-time lock, no historical revaluation, detail/CSV dual amounts, no location, and no network.
+- [x] Independently review, pass exact-head hosted CI, and merge the FX-01 planning package before
+  changing product code or Schema V7. Exact head `0619d5e` passed run `33758966855`; PR #108
+  merged it as `f2f57b4` with that head as second parent. The separate closeout head `8de85e6`
+  passed run `33763718952`, and PR #109 merged it as `69050da` with that head as second parent.
+- [x] Add the machine-readable, self-testing FX-01A contract gate for the active phase, frozen
+  `Expense` accounting authority, manual-only/no-domain boundary, whole-app no-floating-point
+  rule, and static-evidence limitation. PR #110 completed the gate's review/CI/merge requirement.
+- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout.
+- [x] Before FX-01B implementation, extend the JSON and negative gate for eight-place decimal
+  normalization and the thirteenth iCloud companion contract, preserving the `.expense` payload
+  and requiring `ICLOUD_SYNC_CONTRACT.md` to change with implementation.
+- [ ] Keep the FX gate's C6 registry placement and the existing AX5 `boundBy: 0` Back selector as
+  maintenance follow-ups in the plan, not reasons to enter C6 or claim new physical evidence.
+- [x] Implement the pure checked integer-rational converter and deterministic bankers rounding;
+  close rate text through an eight-fractional-place half-even normalization before reduction,
+  prohibit `Double`/`Float`, and test ISO exponent, tie, overflow, direction, and invalid inputs.
+- [x] Add Schema V7's optional one-to-one foreign-currency companion while preserving
+  `Expense.amountMinorUnits`/`currencyCode` as the sole accounting authority; migrate V1–V6 with no
+  inferred metadata and keep create/update/delete atomic. New rows use the current Settings
+  currency; edits use only the row's persisted accounting currency.
+- [ ] Add the local-Pro/manual-entry UI and central feature-access gate. The active 30-day local
+  trial may create FX expenses; after access ends, existing FX records remain editable/exportable
+  while new, converted, or duplicated FX records are denied. Consume the existing Pro snapshot;
+  do not implement or mutate the trial clock in FX-01.
+- [ ] Update detail, CSV, optional enabled-iCloud compatibility, deletion, localization, VoiceOver,
+  AX5, and privacy boundaries. CSV exports the exact rate-date/time-zone tuple and blank FX fields
+  for ordinary expenses and incomes. Enabled iCloud adds a separate thirteenth companion type
+  without changing `.expense`; budgets, reminders, insights, Ask, and reports use only the locked
+  accounting amount.
+- [ ] Pass the dedicated negative gates and complete validation, independent review, hosted CI,
+  merge, and a separate closeout before marking FX-01 Done. Do not enter COM-C12 or FX-02 from an
+  FX-01 merge.
+- [ ] Keep FX-02 automatic reference rates deferred behind a new owner entry and separate provider,
+  privacy, cache/failure, network-egress, and release review.
+"""
 
 EXPECTED_EXPENSE_PROPERTIES = (
     ("id", "UUID"),
@@ -374,9 +413,39 @@ def _function_region(text: str, declaration: str) -> str | None:
     return text[start:end]
 
 
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> Any:
+    raise ValueError(f"non-standard JSON constant: {value}")
+
+
+def _checklist_items(section: str) -> list[str]:
+    items: list[str] = []
+    in_item = False
+    for line in section.splitlines():
+        if re.match(r"^- \[[^\]]+\] ", line):
+            items.append(line)
+            in_item = True
+        elif in_item and line.startswith("  "):
+            items[-1] += " " + line.strip()
+        else:
+            in_item = False
+    return [_normalize_space(item) for item in items]
+
+
 def load_contract(path: Path) -> Any:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(
+            path.read_text(encoding="utf-8"), object_pairs_hook=_unique_json_object,
+            parse_constant=_reject_json_constant,
+        )
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise ValueError(f"unable to read strict FX-01 contract JSON: {error}") from error
 
@@ -427,6 +496,9 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
         errors.append("FX-01 plan must have one exact closeout Status before the next heading")
     if _status_after_heading(tasks_text, TASK_HEADING, bold=False) != EXPECTED_TASK_STATUS:
         errors.append("TASKS FX-01 must have one exact closeout Status in its own section")
+    tasks_section = _section(tasks_text, TASK_HEADING, "## ") or ""
+    if _checklist_items(tasks_section) != _checklist_items(EXPECTED_TASKS_CHECKLIST):
+        errors.append("TASKS FX-01 must retain its complete ordered task text and reviewed checkbox states")
 
     for relative, heading in CLOSEOUT_SECTIONS.items():
         path = project_root / relative
@@ -745,7 +817,34 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         ):
             reject_section_change(relative, heading, status, f"{status}\n\n{status}")
 
+        # The main TASKS checklist is a separate authoritative state surface, not
+        # implied by the plan's valid A–E status/marker inventory.
+        for item in _checklist_items(EXPECTED_TASKS_CHECKLIST):
+            flipped = item.replace("[x]", "[ ]", 1) if item.startswith("- [x]") else item.replace("[ ]", "[x]", 1)
+            for changed in (flipped, "", item + "\n" + item, item + " altered obligation"):
+                reject_section_change("Docs/TASKS.md", TASK_HEADING, item, changed)
+        reject_section_change(
+            "Docs/TASKS.md", TASK_HEADING,
+            "- [x] Implement the pure checked integer-rational converter", "Implement the pure checked integer-rational converter",
+        )
+
         contract_path = fixture / "Docs/FX_01_CONTRACT.json"
+        raw_contract = json.dumps(data)
+        for old, new in (
+            ('"schemaVersion": 4', '"schemaVersion": 999, "schemaVersion": 4'),
+            ('"casePassed": 575', '"casePassed": 999, "casePassed": 575'),
+            ('"casePassed": 575', '"casePassed": 575, "casePassed": 575'),
+            ('"casePassed": 575', '"case\\u0050assed": 999, "casePassed": 575'),
+            ('"nextSubphaseEntered": false', '"nextSubphaseEntered": true, "nextSubphaseEntered": false'),
+            ('"schemaVersion": 4', '"schemaVersion": NaN'),
+            ('"schemaVersion": 4', '"schemaVersion": Infinity'),
+        ):
+            if raw_contract.count(old) != 1:
+                raise RuntimeError(f"ambiguous raw JSON self-test target: {old}")
+            contract_path.write_text(raw_contract.replace(old, new, 1), encoding="utf-8")
+            _require_fixture_cli(fixture, valid=False, description=f"raw JSON mutation: {new}")
+            mutation_count += 1
+        contract_path.write_text(raw_contract, encoding="utf-8")
         for section, key, value in (
             ("phase", "activeSubphaseStatus", "IN_PROGRESS"),
             ("phase", "closeoutStatus", "DONE"),

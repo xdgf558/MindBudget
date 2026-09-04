@@ -3912,3 +3912,19 @@ No Archive, upload, distribution or release is authorized. This new closeout hea
 own independent review and hosted success; the implementation run does not substitute for it.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — Closeout JSON and TASKS fail-closed remediation
+
+Independent agent review of PR #113 head `2dff233` found two reproducible gate bypasses:
+default JSON parsing discarded an earlier duplicate key before exact evidence validation, and
+plan-only checkbox/count checks did not constrain the authoritative TASKS FX checklist.
+The review did not approve that head; existing 202 negative tests did not cover these cases.
+
+Decision: Reject duplicate decoded object keys at every JSON level during parsing, including
+escaped spelling and identical repeated values; reject non-standard numeric constants. Validate
+the complete ordered TASKS FX checklist, full normalized text and checkbox states, separately
+from the plan. Exercise raw JSON through the actual copied production CLI (not a dictionary that
+already lost duplicates), and mutate every main-list item for completion, removal, duplication
+and changed text. Also reproduce the removed converter marker. No product/Swift code changes.
+The new exact head requires independent rereview and fresh hosted CI; the old run is not reusable
+acceptance evidence. This repairs the B closeout, not an authorization to enter C.
