@@ -8105,3 +8105,36 @@ Complete local `Scripts/validate.sh` is now running without retries or benchmark
 `/private/tmp/mindbudget-fx01c-full-1.xcresult` plus its separate `-FX-UI.xcresult`. Static gates
 completed and Release compilation started. Exact-head hosted CI and frozen-head review remain
 mandatory; C is not Done and D remains unentered.
+
+## 2026-09-04 — FX-01C hosted native-format diagnostic
+
+The complete local validation of `7460081` subsequently exited 0, including the isolated strict
+benchmark, all ordinary tests, coverage, 32 FX unit bindings, and two freshly built FX UI methods.
+Independent native audit counted 606 ordinary details (590 Passed / 16 Skipped), 615 concrete
+results (599 Passed / 16 Skipped), no extra attempts, and no Failed-to-Passed. The original B
+inventory remained unchanged; additions were 15 C unit passes and two ordinary-scheme FX UI
+skips, separately executed once Passed in the dedicated host. Two layout runtime warnings,
+the Binding setter compiler warning and simulator diagnostic-collection error remain in logs.
+This is not zero-warning, physical accessibility or StoreKit purchase evidence.
+
+Hosted run `33885693529` attempt 1 on that head failed after ordinary tests, coverage and C6-02's
+23 bindings passed. The new FX reader rejected the first FX method with `concrete configuration
+identity/result mismatch`. The dedicated FX UI stage never started. The run remains non-pass.
+Artifact `9943119027` has SHA-256
+`fd8225714b4f128a51c382ba805922dfb4b199844ccf327f6f4cbc24dfa18a9e` and contains only the ordinary
+result bundle. Xcode 27 locally re-reading it gives matching configuration fields; that cannot
+prove what hosted Xcode 26.6 originally emitted. Independent inspection agrees the combined
+error does not identify which field differed, so no compatibility fallback has been added.
+
+A temporary read-only hosted diagnostic workflow pins that artifact/digest and reads the single
+rejected case with Xcode 26.6. It builds/launches no app and runs no test; its JSON is diagnostic
+evidence only, never current-head acceptance. The ordinary CI remains required and unchanged.
+The diagnostic workflow will be removed after obtaining the native sample; a remediation must
+retain exact identity, one Passed device/configuration/run, and no retry laundering, then receive
+independent rereview and new-head hosted validation. C remains In Progress; D is unentered.
+
+Independent read-only review of diagnostic workflow SHA-256
+`171161bd0162aaa221d8672ac2e05c6faa19b3ab4f4dcfac91c3538586d7740a` found no P1/P2 and accepted
+its diagnostic scope only. Shell and both embedded Python blocks parsed; money, network,
+commercialization, StoreKit and FX static gates passed. `sourceHead` denotes the PR source head,
+not the artifact's synthetic checkout SHA. Diagnostic success cannot replace the failed CI run.
