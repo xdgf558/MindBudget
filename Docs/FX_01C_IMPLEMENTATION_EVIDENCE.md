@@ -7,12 +7,24 @@ only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current repair checkpoint: parent head `bb4366b` did **not** pass complete acceptance. Hosted
-`33930201365` failed About-history progress observation, and local validation stopped at a
-808.754667 ms Dashboard load against the unchanged 500 ms limit. The current test-only repair
-and retained diagnostics are recorded in the session log. Earlier green/focused checkpoints
-below do not accept this candidate. Complete local and exact-head hosted/native validation plus
-the owner's personal review remain required; PR #114 remains Draft.
+Current runtime checkpoint: `b441df9` passed hosted `33952509502` and its native artifact audit,
+but **did not pass complete acceptance**. A complete local recapture exited 65 on neonPulse
+Terms navigation in the three-theme AX5 method. A previous local invocation's staged passes
+also retain an unresolved wrapper/log-continuity provenance gap; neither it nor a later focused
+pass is a complete local `validate.sh` pass. The earlier `bb4366b` hosted `33930201365` About
+failure and 808.754667 ms > 500 ms benchmark failure remain non-pass. The session log records
+these outcomes separately. The owner's latest review found no source P1/P2 but retained the
+local failure as a merge blocker and required this repository synchronization. PR #114 remains
+Draft. A repair requires new exact-head hosted/native evidence, one complete local validator
+pass and owner review; it does not close C or enter D.
+
+Post-review diagnostic checkpoint: the subsequent focused and complete ordinary-UI diagnostic
+experiments did not reproduce the Terms failure. The complete UI diagnostic contains 21 Passed
+and three existing Skipped methods, each once, but used temporary instrumentation and is **not**
+`validate.sh` acceptance or proof of a repair. All diagnostic Swift was removed; product, tests,
+scripts and project source again match b441df9. This documentation-only synchronization closes
+the missing-record gap, not the original wrapper gap, the Terms non-pass, or FX-01C. The next
+source repair still needs a captured mechanism; further green reruns alone cannot supply it.
 
 ## Implementation boundary
 

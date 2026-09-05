@@ -8601,3 +8601,137 @@ success and failure. The timed operation and 500 ms assertion are unchanged. Thi
 does not manufacture an explanation for the old slow sample. Five static gates and
 `git diff --check` passed before full validation. Complete local and hosted acceptance are
 still pending for the normal repair commit; the owner will review the existing Draft PR.
+
+## 2026-09-05 — b441df9 runtime results, owner review and Terms diagnosis
+
+The About repair was pushed to existing Draft PR #114 as
+`b441df93c4df251ceab44a52de5fc57aa5fe73d9`. Hosted run `33952509502` attempt 1 succeeded
+on that head. Artifact `9965854650` is 95412369 bytes, SHA-256
+`cb592452d935ed24882cc5ea8bfa8dde165004e333d0a5a47900e0fdf72e9b49`; all 2692 ZIP entries
+passed integrity/path checks. Synthetic checkout merge `80449d71cd7ef68109c7e11f54205a8270a6e366`
+has b441df9 as second parent and tree `ff7123f59a7a7f0688140482338e6779087faa4f`, identical
+to the candidate. All 610 ordinary native details were read: 594 Passed / 16 Skipped methods,
+603 Passed / 16 Skipped concrete results, no Repetition or extra attempt. The four existing
+parameterized methods account for 13 argument executions. Xcode 26.6 uses a shared method URL
+for argument nodes; unique full argument names, matching durations and exact tree/detail
+bijection were additionally checked rather than treating those URLs as distinct. Both dedicated
+FX methods ran once Passed (Chinese AX5 210.724155 s, English 65.599191 s), retaining both
+existing invalid-frame warnings. Ordinary runtime warnings were empty.
+
+The first local invocation produced a strict benchmark pass at 192.845917 ms and a complete
+ordinary native bundle with the same 610-method / 619-concrete-result counts, no failure,
+Repetition or extra attempts. Settings/About passed once in 83.879061 s. However, the external-
+volume text log stopped before ordinary completion and the expected downstream FX bundle was
+absent despite wrapper exit 0. This unresolved logging/stage-continuity discrepancy is **not**
+accepted as a complete `validate.sh` pass or called a proven test hang. Subsequent explicit
+coverage, 23 C6 bindings and 32 FX unit bindings passed on that ordinary bundle. A separate
+unchanged FX runner passed its two methods once (Chinese AX5 106.596832 s, English 41.216570 s),
+with both known frame warnings and a later simctl diagnostic-collection error retained. This
+staged tail did not rerun ordinary methods and does not close the wrapper provenance gap.
+
+A fresh single end-to-end recapture on the same clean b441df9 head used host-local temporary
+output, strict benchmark enabled and retries disabled. It **exited 65**: the benchmark passed
+at 194.260041 ms, but the ordinary bundle contains 610 methods, 593 Passed / 16 Skipped / 1 Failed
+(602 / 16 / 1 concrete results), no tree Repetition. Every native detail was captured. The sole
+failure was `testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance()` once in
+274.926175 s: neonPulse Terms did not appear in the five-second wait. Coverage, runtime bindings
+and dedicated FX UI were not reached. Its later simctl diagnostic-collection error is separate
+from the assertion failure. This non-pass was disclosed in the PR immediately; hosted green
+does not erase it.
+
+The actual synthesized tap was (201, 340.333) within the enabled Terms row
+(16, 262.667, 370, 155.333), below navigation (bottom 132). The recording and hierarchy remain
+on Pro. This rules out assigning this instance to navigation-bar occlusion, but did not yet
+explain why navigation failed. A focused diagnostic with pre-tap hierarchy capture passed once
+in 301.571937 s; all six legal destinations appeared on the first tap, so neither its late-
+arrival nor diagnostic second-tap probe ran. Those extra queries perturb timing and are not a
+fix. All temporary diagnostic Swift was removed before review. The failed bundle has no console
+log. The simulator's exact-window unified log confirms touch dispatch followed by run-loop and
+animation idleness, without directly explaining the missing navigation.
+
+The owner reviewed b441df9 with no source P1/P2 but retained this local non-pass as a merge
+blocker. On the subsequent explicit repair instruction, work resumes only on this diagnosis,
+evidence-backed repair, complete local validation, new exact-head hosted/native audit and this
+repository synchronization. No undraft, merge, C completion, D entry or physical run is claimed.
+
+Review P3 obligations remain open: before C closeout/D, address the Chinese AX5 FX method's
+210.7 s / 240 s timing margin by a separately reviewed split or evidence-based allowance decision;
+future zero-retry/ordinary-helper infrastructure work should be separated from feature PRs.
+The five earlier copy/reminder/dead-code observations remain unremediated. This repair does not
+silently widen the FX UI timeout, split its bindings, or implement those unrelated changes.
+
+Author-side Terms diagnostics after that review are **not remediation acceptance**:
+
+- `legal-touch-diagnostic-2`: one AX5 method Passed in 243.513509 s with a temporary
+  non-recognizing touch observer. Its intended `print` output was unavailable, so it supplied
+  no touch-target diagnosis. Native summary/tree/detail confirm one run, no repetition or
+  runtime warning.
+- `legal-touch-diagnostic-3`: no tests executed; temporary diagnostic compilation failed on
+  an invalid `UIView(window)` initializer. This was corrected for the next diagnostic only.
+- `legal-touch-diagnostic-4`: one AX5 method Passed in 245.257862 s. Temporary public UIKit
+  touch/scroll observation with OSLog captured actual event targets and deceleration changes;
+  native summary/tree/detail confirm one run, no repetition or runtime warning. An intended
+  three-cycle diagnostic edit had accidentally affected another, unselected theme loop, so
+  this bundle contains only the ordinary three skins once, not nine skins. That edit was
+  removed before the next probe. The complete exact-process log SHA-256 is
+  `df6e41801bab26475ab30ff73de24a78bb197109432a3ad5a3bb485ec7043181`.
+- `legal-touch-diagnostic-5`: tightened only the diagnostic reveal predicate to expose the
+  full legal row, matching the original failure geometry. The method Passed once in
+  241.687263 s, no native repetition or warning. neonPulse Terms was tapped at
+  (201, 340.333), inside the same (16, 262.667, 370, 155.333) cell geometry as the failure.
+  This passing tap reached the normal cell hosting view and observed no deceleration.
+  Consequently neither clipping nor deceleration has been established as the original cause.
+
+All four are distinct diagnostic experiments with temporary source, not reruns relabeling the
+failed complete validator. Added observation can perturb behavior. The view/recognizer/display-
+link probes were removed before a subsequent event-dispatch diagnostic, which leaves the
+original Pro view and legal-click assertions intact and includes the preceding Pro UI method.
+The original Terms failure remains open; no new source fix or merge authorization is claimed.
+
+`legal-touch-diagnostic-6` used the original Pro view, no added view/recognizer/display-link,
+and a temporary DEBUG hook of public `UIApplication.sendEvent(_:)` that called original
+dispatch before recording public touch/ancestor state. It ran the immediately preceding Pro
+entry method (38.094830 s) and the unchanged AX5 legal navigation method (246.135376 s), each
+once Passed, no Repetition or runtime warning. This still did not reproduce the failure.
+The exact-process event log SHA-256 is
+`6ac2fb272ab0e95506e837cd2b8c90a5fd4e6460be603af54ec033d2dbd882de`; temporary source patch
+SHA-256 is `7c3cf3c0e76c1fba33258b9aa105b00310bd392e9fe0eb27990c711713281fad`.
+The hook is diagnostic-only, must be removed before any commit, and is not a production change.
+
+`legal-touch-diagnostic-7-context` executed the complete ordinary UI class in its normal order
+once, using the same temporary dispatch diagnostic for the AX5 method. Native summary, tree and
+all 24 details contain 21 Passed / three existing Skipped methods, each one run, no failure or
+Repetition. The AX5 method passed in 245.438 s; the ordinary unit suite, coverage/binding checks
+and separate FX host are outside this diagnostic. The event log SHA-256 is
+`768ca97da24dbac68c5717cfcc97a2d8381c942f401f88b018a8467b91659cfd`. Neither the focused
+predecessor nor the full UI ordering reproduced the retained failure. Reading the original full
+log also shows its unit tests finished before UI began; direct concurrent unit execution is
+not an established cause. Extra frames around the original tap remain on Pro, but their sparse
+timestamps cannot prove whether a short touch highlight occurred between recorded frames.
+
+The investigation checkpoint is deliberately **unresolved**, not transient and not fixed.
+No speculative navigation repair, extra tap, skip, timeout expansion, new complete validator
+acceptance, or device run is claimed. Temporary Pro/background/touch/scroll/dispatch instrumentation
+and diagnostic launch arguments were all removed. `git diff` against b441df9 over product,
+unit/UI tests, scripts, project and workflow paths is empty; the UI-test file SHA-256 is restored
+to `700487bebd02f63bdd92596162e3d919148ebd5fcf0e9d4c099cf437dcf4cca4`.
+Only this session log and `FX_01C_IMPLEMENTATION_EVIDENCE.md` are synchronized for the requested
+durable record. PR #114 remains Draft and the original local Terms non-pass remains a merge
+blocker, independently of any CI run triggered by this documentation-only checkpoint.
+
+After the owner asked to continue, author inspection distinguished the geometry of the earlier
+successes: most Terms taps were on partially visible bottom rows; the fully visible neonPulse
+success in diagnostic 5 had an added gesture observer. `legal-geometry-diagnostic-8` therefore
+changed only the test reveal predicate to require a fully visible row, with **no App source
+change or observer**, retaining the original single tap and five-second destination assertion.
+It also passed once (240.951882 s; native summary/tree/detail, no repetition). This does not
+establish a deterministic full-row hit-region defect or close the original failure.
+The reveal-only diagnostic edit was then removed and source identity checked again.
+
+Original versus successful UIKit event dispatch logs have different down/up/system-gesture
+notification ordering, but the failed run does not identify which recognizer consumed or
+recognized that touch. Timing correlation alone is not a causal diagnosis and does not justify
+a longer press, retry, or product NavigationLink rewrite. The remaining blocker is an observed
+failed interaction whose mechanism has not been captured; neither these experiments nor the
+documentation synchronization resolve it. Five static gates and `git diff --check` pass for
+the documentation checkpoint; this is not a new full local or hosted runtime acceptance.
