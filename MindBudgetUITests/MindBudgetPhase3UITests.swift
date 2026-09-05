@@ -798,23 +798,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
-            let proEntry = element("settings.pro", in: app)
-            let settingsNavigationBottom = app.navigationBars.firstMatch.frame.maxY
-            for _ in 0..<7 where
-                !proEntry.isHittable || proEntry.frame.midY <= settingsNavigationBottom
-            {
-                app.swipeDown()
-            }
-            XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
-            XCTAssertGreaterThan(
-                proEntry.frame.midY,
-                settingsNavigationBottom,
-                "Pro row hit point remained behind the Settings navigation bar"
-            )
-            let proView = element("commerce.pro.view", in: app)
-            guard tapAndWaitForDestination(
-                proEntry,
-                destination: proView,
+            guard revealAndActivateNavigationTarget(
+                "settings.pro",
+                inList: "settings.view",
+                towardEarlierContentWhenVirtualized: true,
+                destination: app.collectionViews["commerce.pro.view"],
+                in: app,
                 message: "Pro destination did not settle after tapping its Settings row"
             ) else {
                 return
@@ -845,22 +834,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
 
             for destination in ["terms", "privacy"] {
-                let link = element("commerce.pro.\(destination)", in: app)
-                for _ in 0..<8 where !link.isHittable {
-                    app.swipeUp()
-                }
-                XCTAssertTrue(
-                    link.waitForExistence(timeout: 2),
-                    "Missing AX5 legal link: \(destination)"
-                )
-                XCTAssertTrue(link.isHittable, "Clipped AX5 legal link: \(destination)")
-                link.tap()
-
                 let destinationView = element("commerce.pro.\(destination).view", in: app)
-                XCTAssertTrue(
-                    destinationView.waitForExistence(timeout: 5),
-                    "Missing AX5 legal destination: \(destination)"
-                )
+                guard revealAndActivateNavigationTarget(
+                    "commerce.pro.\(destination)",
+                    inList: "commerce.pro.view",
+                    towardEarlierContentWhenVirtualized: false,
+                    destination: destinationView,
+                    in: app,
+                    message: "Missing AX5 legal destination: \(destination) / \(skin)"
+                ) else {
+                    return
+                }
                 XCTAssertGreaterThanOrEqual(destinationView.frame.minX, app.frame.minX)
                 XCTAssertLessThanOrEqual(destinationView.frame.maxX, app.frame.maxX)
 
@@ -1451,6 +1435,71 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    private func revealAndActivateNavigationTarget(
+        _ targetIdentifier: String,
+        inList listIdentifier: String,
+        towardEarlierContentWhenVirtualized: Bool,
+        destination: XCUIElement,
+        in app: XCUIApplication,
+        message: String
+    ) -> Bool {
+        var lastGeometry: NavigationTapGeometry?
+        for step in 0...8 {
+            let geometry: NavigationTapGeometry
+            do {
+                geometry = try NavigationTapGeometry(
+                    listIdentifier: listIdentifier,
+                    targetIdentifier: targetIdentifier
+                ) {
+                    BudgetSnapshotNode(try app.snapshot())
+                }
+            } catch {
+                XCTFail("Unable to capture navigation geometry for \(targetIdentifier): \(error)")
+                return false
+            }
+            lastGeometry = geometry
+            if geometry.targetIsReady, let frame = geometry.target {
+                let origin = app.coordinate(withNormalizedOffset: .zero)
+                origin.withOffset(CGVector(
+                    dx: frame.midX - geometry.application.minX,
+                    dy: frame.midY - geometry.application.minY
+                )).tap()
+                if destination.waitForExistence(timeout: 5) {
+                    return true
+                }
+                let attachment = XCTAttachment(string: "Single navigation tap did not settle. \(geometry)")
+                attachment.name = "Navigation tap geometry - \(targetIdentifier)"
+                attachment.lifetime = .keepAlways
+                add(attachment)
+                XCTFail(message)
+                return false
+            }
+            if geometry.target != nil, !geometry.targetEnabled {
+                XCTFail("Navigation target was disabled: \(geometry)")
+                return false
+            }
+            guard step < 8 else { break }
+
+            let towardEarlier = geometry.target.map { $0.minY < geometry.lane.minY }
+                ?? towardEarlierContentWhenVirtualized
+            let startY = geometry.lane.minY + geometry.lane.height * (towardEarlier ? 0.25 : 0.75)
+            let endY = geometry.lane.minY + geometry.lane.height * (towardEarlier ? 0.70 : 0.30)
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(
+                dx: geometry.lane.midX - geometry.application.minX,
+                dy: startY - geometry.application.minY
+            ))
+            let end = origin.withOffset(CGVector(
+                dx: geometry.lane.midX - geometry.application.minX,
+                dy: endY - geometry.application.minY
+            ))
+            start.press(forDuration: 0.05, thenDragTo: end)
+        }
+        XCTFail("Navigation target never entered the unobscured lane: \(String(describing: lastGeometry))")
+        return false
+    }
+
+    @MainActor
     private func tapAndWaitForDestination(
         _ source: XCUIElement,
         destination: XCUIElement,
@@ -1552,6 +1601,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let identifier: String
         let label: String
         let frame: CGRect
+        let enabled: Bool
         var children: [BudgetSnapshotNode] = []
 
         @MainActor
@@ -1560,15 +1610,18 @@ final class MindBudgetPhase3UITests: XCTestCase {
             identifier = snapshot.identifier
             label = snapshot.label
             frame = snapshot.frame
+            enabled = snapshot.isEnabled
             children = snapshot.children.map { BudgetSnapshotNode($0) }
         }
 
         init(_ type: XCUIElement.ElementType, _ frame: CGRect,
-             identifier: String = "", label: String = "", children: [BudgetSnapshotNode] = []) {
+             identifier: String = "", label: String = "", enabled: Bool = true,
+             children: [BudgetSnapshotNode] = []) {
             self.type = type
             self.identifier = identifier
             self.label = label
             self.frame = frame
+            self.enabled = enabled
             self.children = children
         }
 
@@ -1577,6 +1630,158 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     private struct BudgetGeometryError: Error, CustomStringConvertible {
         let description: String
+    }
+
+    /// A single public accessibility snapshot is the authority for the source row, foreground
+    /// list, navigation chrome and bottom occluders used by one navigation gesture. This avoids
+    /// composing a hit point from independently refreshed XCUIElement queries while a SwiftUI
+    /// List is being virtualized or its navigation stack is settling.
+    private struct NavigationTapGeometry: CustomStringConvertible {
+        let application: CGRect
+        let list: CGRect
+        let lane: CGRect
+        let target: CGRect?
+        let targetEnabled: Bool
+
+        init(listIdentifier: String, targetIdentifier: String,
+             snapshot: () throws -> BudgetSnapshotNode) throws {
+            let root = try snapshot()
+            func requireFrame(_ frame: CGRect, _ label: String, allowEmpty: Bool = false) throws {
+                guard !frame.isNull, !frame.isInfinite,
+                      [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite),
+                      frame.width >= 0, frame.height >= 0, allowEmpty || !frame.isEmpty else {
+                    throw BudgetGeometryError(description: "Invalid navigation \(label) frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "Navigation snapshot root is not the application")
+            }
+            try requireFrame(root.frame, "application")
+            application = root.frame
+            let nodes = root.flattened
+            let lists = nodes.filter { $0.type == .collectionView && $0.identifier == listIdentifier }
+            guard lists.count == 1, let foreground = lists.first else {
+                throw BudgetGeometryError(description: "Missing or ambiguous foreground list: \(listIdentifier)")
+            }
+            try requireFrame(foreground.frame, listIdentifier)
+            let visibleList = foreground.frame.intersection(root.frame)
+            try requireFrame(visibleList, "visible foreground list")
+            list = visibleList
+
+            let navigation = nodes.filter { $0.type == .navigationBar && $0.frame.intersects(root.frame) }
+            for node in navigation { try requireFrame(node.frame, "navigation bar") }
+            guard let navigationBottom = navigation.map(\.frame.maxY).max() else {
+                throw BudgetGeometryError(description: "Navigation snapshot has no visible navigation bar")
+            }
+            let bottomOccluders = nodes.filter {
+                ($0.type == .tabBar || $0.type == .keyboard)
+                    && $0.frame.intersects(visibleList)
+            }
+            for node in bottomOccluders { try requireFrame(node.frame, "bottom occluder") }
+            let safeBottom = min(
+                visibleList.maxY,
+                bottomOccluders.map(\.frame.minY).min() ?? visibleList.maxY
+            ) - 8
+            let safeTop = max(visibleList.minY, navigationBottom) + 8
+            lane = CGRect(
+                x: visibleList.minX + 16,
+                y: safeTop,
+                width: visibleList.width - 32,
+                height: safeBottom - safeTop
+            )
+            try requireFrame(lane, "interaction lane")
+            guard lane.height > 80 else {
+                throw BudgetGeometryError(description: "Navigation interaction lane is too small")
+            }
+
+            let targets = foreground.flattened.filter {
+                $0.type == .button && $0.identifier == targetIdentifier
+            }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate navigation target: \(targetIdentifier)")
+            }
+            if let node = targets.first {
+                try requireFrame(node.frame, targetIdentifier, allowEmpty: true)
+                target = node.frame.isEmpty ? nil : node.frame
+                targetEnabled = node.enabled
+            } else {
+                target = nil
+                targetEnabled = false
+            }
+        }
+
+        var targetIsReady: Bool {
+            guard let target else { return false }
+            return targetEnabled && application.contains(target) && lane.contains(target)
+        }
+
+        var description: String {
+            "app=\(application), list=\(list), lane=\(lane), "
+                + "target=\(String(describing: target)), enabled=\(targetEnabled)"
+        }
+    }
+
+    @MainActor
+    func testNavigationTapGeometryUsesOneSnapshotAndRejectsOcclusion() throws {
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let tab = BudgetSnapshotNode(.tabBar, CGRect(x: 0, y: 720, width: 400, height: 80))
+        let target = BudgetSnapshotNode(
+            .button,
+            CGRect(x: 32, y: 180, width: 336, height: 80),
+            identifier: "settings.pro"
+        )
+        var list = BudgetSnapshotNode(
+            .collectionView,
+            CGRect(x: 0, y: 60, width: 400, height: 740),
+            identifier: "settings.view",
+            children: [target]
+        )
+        var root = BudgetSnapshotNode(
+            .application,
+            CGRect(x: 0, y: 0, width: 400, height: 800),
+            children: [nav, list, tab]
+        )
+        var captures = 0
+        let captured = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) {
+            captures += 1
+            return root
+        }
+        list.children[0] = BudgetSnapshotNode(
+            .button,
+            CGRect(x: 32, y: 680, width: 336, height: 60),
+            identifier: "settings.pro"
+        )
+        root.children[1] = list
+        XCTAssertEqual(captures, 1)
+        XCTAssertTrue(captured.targetIsReady)
+        XCTAssertEqual(captured.target, target.frame)
+
+        let covered = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root }
+        XCTAssertFalse(covered.targetIsReady, "A row overlapping the tab bar cannot be tapped")
+        list.children[0] = BudgetSnapshotNode(
+            .button,
+            target.frame,
+            identifier: "settings.pro",
+            enabled: false
+        )
+        root.children[1] = list
+        let disabled = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root }
+        XCTAssertFalse(disabled.targetIsReady)
+        list.children.append(list.children[0])
+        root.children[1] = list
+        XCTAssertThrowsError(try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root })
     }
 
     private struct BudgetGeometry: CustomStringConvertible {

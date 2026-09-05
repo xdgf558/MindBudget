@@ -8735,3 +8735,90 @@ a longer press, retry, or product NavigationLink rewrite. The remaining blocker 
 failed interaction whose mechanism has not been captured; neither these experiments nor the
 documentation synchronization resolve it. Five static gates and `git diff --check` pass for
 the documentation checkpoint; this is not a new full local or hosted runtime acceptance.
+
+## 2026-09-05 — Post-1fbe47f public gesture/delivery diagnosis
+
+The owner reviewed documentation head `1fbe47f`: no source P1/P2, repository synchronization
+accepted, but the original Terms non-pass and complete local acceptance remain open. The owner
+then explicitly requested further repair. Existing PR #114 stays Draft; no navigation root cause,
+fix, new acceptance, merge, C closeout or D entry is inferred from that instruction.
+
+Diagnostic 9 adds simulator-only, DEBUG, explicit-launch-argument instrumentation which must
+be removed before a source repair is committed. It attaches observation targets to existing
+recognizers, records public state before/after UIApplication event dispatch, and wraps the actual
+touch target's public UIResponder delivery methods while retaining their original implementations.
+It adds no recognizer/view, changes no delegate/prevention/priority rule, uses no private selector,
+KVC or protected state setter, and cannot grant Commerce authority. This remains timing-perturbing
+diagnostic code, not a shipped capability. Failed/reset transitions can occur between snapshots;
+action callbacks alone do not cover them, as documented by Apple's gesture state machine.
+
+`diagnostic-9.xcresult` ran the AX5 three-skin method once Passed in 240.395847 s. Its temporary
+reveal condition reproduces the fully visible legal-row geometry; the single legal tap and
+five-second destination assertion remain unchanged. Native summary/tree and its one complete
+detail agree on one device/configuration/concrete Passed execution, no Repetition, extra attempt
+or runtime warning. The event trace contains 3778 consecutive sequence records, including a
+positive cancellation observation on a budget UITextField. All six legal clicks deliver began
+and ended events to their cell hosting views and navigate successfully. In neonPulse, the Terms
+tap is again (201, 340.333) in the (16, 262.667, 370, 155.333) row. No legal-tap cancellation or
+recognized scroll/sheet pan action was observed in this passing sample. This is not evidence
+that the original failed tap had the same delivery chain or that the fault is transient.
+
+The diagnostic source-patch SHA-256 is
+`49232dc7b9109c21e56761c161b5ff6a747c1615f65240bf920d07bf11b62fc1`;
+the exact-process event log SHA-256 is
+`a00b07175efaacad036e911ec2462d2e7ef9608a16a87c089880412d724f20fb`.
+The public state-machine reference is
+[Apple's gesture recognizer state machine](https://developer.apple.com/documentation/uikit/about-the-gesture-recognizer-state-machine),
+checked 2026-09-05. Diagnostic compilation succeeded; its log retains the unrelated weak-variable
+and App Intents metadata-extraction warnings rather than claiming warning-free compilation.
+
+A complete ordinary-suite context diagnostic with the same temporary observer also passed and
+did not reproduce the lost navigation. All diagnostic App code, launch arguments and hooks were
+then removed. These passing probes narrow the investigation but do not identify which UIKit
+recognizer, if any, consumed the original failed touch, so no exact OS-level recognizer cause is
+claimed.
+
+Re-reading the original failed full bundle exposed a repository-test mechanism the earlier
+record had missed. In the same AX5 method, the first `settings.pro` tap also failed to navigate;
+the existing `tapAndWaitForDestination` helper silently issued a second tap after its five-second
+wait and masked that loss. The later Terms path used a single live-element tap and surfaced the
+same class of outcome. Both source paths composed `exists`/`isHittable`/`frame`/`tap` from
+independently refreshed XCUIElement queries while a SwiftUI List and navigation stack could
+change. The bundle proves two unbound navigation attempts and one hidden retry; it does not prove
+the precise system recognizer responsible.
+
+The repair therefore removes that weak control from this AX5 evidence path. A new pure
+`NavigationTapGeometry` captures exactly one public application accessibility snapshot per
+bounded reveal step and derives the unique foreground list, unique enabled target button,
+navigation bottom, bottom occluders and fully unobscured interaction lane from that immutable
+tree. Invalid, duplicate, disabled or occluded geometry fails closed. Once ready, the helper taps
+the snapshot-derived center exactly once and either observes the destination within five seconds
+or fails with the captured geometry; it never retries the tap. Pro, Terms and Privacy now use
+this contract. No product navigation code, timeout, XCTest retry, skip or extra-tap allowance was
+changed. A deterministic test proves one snapshot invocation and rejects tab-bar occlusion,
+disabled targets and duplicate targets. The repaired UI-test source SHA-256 is
+`cc715389b8f84b079b04c3f4b44897d140498cb31537e2995a5de58e48c86172`.
+
+The first focused candidate produced a false test failure after Terms had actually navigated:
+the destination identifier is attached to a `StaticText`, while the candidate queried only
+`collectionViews`. Simulator hierarchy/unified-log inspection established that mismatch; the
+query was restored to the repository's any-element lookup. The corrected focused AX5 method then
+passed once in 207.772 seconds, with no native Repetition, failure, skip or runtime warning. That
+focused probe is remediation evidence, not complete acceptance.
+
+A fresh complete working-tree validation then ran with Xcode 27 beta 6 on the iOS 26.5 iPhone 17
+Pro simulator `238FF288-C843-43CD-82CD-15536F107AE1`, explicit result paths and
+`MINDBUDGET_RETRY_TESTS_ON_FAILURE=0`. `Scripts/validate.sh` exited 0. The ordinary native tree
+contains 611 method nodes: 595 Passed and 16 existing Skipped, with no Failed method or
+`Repetition`; its summary has zero failures, expected failures or runtime warnings. The ordinary
+UI class executed 25 methods (22 Passed / three existing physical-only Skipped); the repaired AX5
+method passed once in 206.818 seconds and the new geometry contract passed once. The strict local
+benchmark, coverage gate, 23 C6 bindings and 32 FX unit bindings passed. The isolated FX bundle
+contains exactly the two required methods Passed once (Chinese AX5 104.679 seconds; English
+41.171 seconds), no skip/failure/Repetition/extra attempt, and only the two already retained
+invalid-frame diagnostics. The dedicated validator accepted both bindings exactly once.
+
+This run validates the final test source plus the pre-document working tree; it is not yet an
+exact committed-head or hosted result. The exact-head complete local run, hosted CI and native
+artifact audit remain mandatory after this record is committed. PR #114 remains Draft, C remains
+In Progress, and D remains unentered.

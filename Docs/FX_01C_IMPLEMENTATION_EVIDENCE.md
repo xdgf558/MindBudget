@@ -362,3 +362,44 @@ method once Passed. Native summary/tree/all details across both bundles verify s
 Passed runs with zero skip, failure, extra attempt or runtime warning; no method is duplicated
 between bundles. Five static gates and `git diff --check` passed. These focused author checks
 do not replace full ordinary validation or the hosted workflow; the owner will review the PR.
+
+## AX5 navigation snapshot repair — pre-freeze validation
+
+The retained `b441df9` full-validator bundle contains two lost navigation attempts in the same
+AX5 method, not only the reported neonPulse Terms failure. The first `settings.pro` tap remained
+on Settings until `tapAndWaitForDestination` issued its second tap after five seconds; the later
+Terms tap remained on Pro and failed. Both attempts used normal 50 ms synthesized taps within
+enabled, visible rows. Diagnostic observer runs did not reproduce the loss and cannot identify
+the exact UIKit recognizer responsible. They are not reclassified as passes or a causal repair.
+
+The replacement test infrastructure binds each reveal/activation decision to one immutable,
+public accessibility snapshot. `NavigationTapGeometry` requires one foreground list and at most
+one target button, derives navigation and bottom-occluder bounds from the same tree, and accepts
+only a fully contained enabled row. Each reveal obtains a new coherent snapshot; once accepted,
+the helper taps that snapshot's center exactly once. A missing destination fails after the
+existing five-second wait and attaches the captured geometry. No tap retry, timeout increase,
+skip, product navigation change or private API is present. Its pure contract test checks the
+single-capture property plus occluded, disabled and duplicate-target rejection. The repaired
+UI-test source SHA-256 is
+`cc715389b8f84b079b04c3f4b44897d140498cb31537e2995a5de58e48c86172`.
+
+One initial focused candidate incorrectly restricted legal destination lookup to a collection
+view. The app had navigated and exposed `commerce.pro.terms.view` on a `StaticText`; simulator
+hierarchy/log inspection established the false-negative query and the repository-wide any-type
+lookup was restored. The corrected focused AX5 result passed once in 207.772 seconds with no
+failure, skip, Repetition or warning.
+
+The subsequent fresh pre-document `Scripts/validate.sh` run used Xcode 27 beta 6, iOS 26.5,
+iPhone 17 Pro simulator `238FF288-C843-43CD-82CD-15536F107AE1`, explicit fresh ordinary/FX
+result bundles and `MINDBUDGET_RETRY_TESTS_ON_FAILURE=0`; it exited 0. The ordinary tree contains
+611 methods (595 Passed / 16 existing Skipped), no Failed case or Repetition, and no runtime
+warning. The repaired AX5 method passed once in 206.818 seconds in the complete normal UI order;
+all three skins reached Pro, Terms and Privacy from one tap per transition. The strict local
+benchmark, coverage, 23 C6 bindings and 32 FX unit bindings passed. The isolated FX bundle has
+exactly two Passed methods, no skip/failure/Repetition/extra attempt, with Chinese AX5 at 104.679
+seconds and English at 41.171 seconds; its two previously accepted invalid-frame diagnostics
+remain diagnostics rather than executions.
+
+This is a complete working-tree validation before the documentation/freeze commit. A fresh
+complete exact-head local run plus hosted CI/native artifact audit are still required. The owner
+will review existing Draft PR #114. C is not complete and D remains unentered.
