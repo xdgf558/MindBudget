@@ -8530,3 +8530,74 @@ the two fresh bundles cover seven distinct methods; no method was repeated betwe
 This closes the selector mistake's local coverage gap without relabeling the first bundle.
 The owner-review handoff contains only these focused results, not a current-head complete
 validator or hosted-green claim. The previous hosted failure and all earlier non-passes remain.
+
+## 2026-09-05 — Retain bb4366b failures and diagnose About progress observation
+
+Following the owner's request to repair before personal review, continue on existing PR #114
+branch `codex/fx01c-manual-entry`, based on `bb4366b7ea79f44e47cc9e515143f141ecc8387f`.
+These prior audit facts were already reported in the PR; they are not new test runs:
+
+- Complete local `Scripts/validate.sh` exited 65 at the separate strict 10,000-row Dashboard
+  benchmark: 808.754667 ms exceeded 500 ms. Static gates and compilation had passed; the ordinary
+  suite, coverage/bindings and dedicated FX UI did not start. No benchmark root cause was proven.
+- Hosted `33930201365`, attempt 1, failed on that exact head. Native ordinary inventory was
+  608 methods (591 Passed / 16 Skipped / 1 Failed), with 600 / 16 / 1 concrete results and no
+  tree Repetition. Four details were inspected diagnostically, not all 608 for acceptance.
+  The sole failure was `testSettingsShowsExportAndPrivacyControls()` once, 120.715643 s; its
+  fifth bounded drag toward 0.9.1 failed the selected 0.9.4-heading progress wait despite movement
+  visible in the recording. This proves a detector false negative, not its precise internal
+  frame/virtualization cause. Coverage, bindings and dedicated FX UI were not reached.
+- The previously verified hosted ZIP was artifact `9958992190`, 268952052 bytes, SHA-256
+  `190b0abcb514a1aaabbb978baedfab4220b7d6449675da09f834293a09118d75`. Prior temporary audit
+  directories are no longer present; this session does not claim to have re-read that ZIP.
+
+Temporary timing of the real Dashboard path produced two diagnostic strict-benchmark passes.
+The first measured approximately 267 ms across ensure-plan, cooling, fetch/projection, snapshot
+and pace stages. The second measured approximately 214 ms, including 129.508 ms model fetch and
+70.790 ms projection. These sums are diagnostic stage measurements, not a replacement exact
+whole-load metric, full validation, or an explanation of the earlier 808.754667 ms. All temporary
+product timing code was removed; DashboardView and DataActor match the parent commit.
+
+Retained development non-passes in ignored `TestResults/fx01c-repair-20260905.5S4ppF/`:
+
+- `scroll-and-perf-build.log`: compilation stopped at an ambiguous `.nan` test fixture; corrected
+  to `CGFloat.nan`. No tests executed in that build.
+- `scroll-and-perf-focus-1.xcresult`: 3 Passed / 1 Failed / 0 Skipped. Both geometry methods and
+  the instrumented strict benchmark passed; the Settings flow failed after nine drags because
+  the first reducer reported no visible unique anchor with 0.9.1 just below the safe lane.
+  The bundle also logged a subsequent simctl diagnostic-collection error.
+- `scroll-focus-2.xcresult`: runner launch was refused by SBMainWorkspace with Busy / application
+  preflight checks. No selected method executed. A subsequent device query found no booted
+  simulator; explicit boot and successful bootstatus preceded a fresh bundle. This establishes
+  a launch failure and recovery sequence, not the unobserved cause of the shutdown.
+- `scroll-focus-3.xcresult`: 2 Passed / 1 Failed. Including uniquely labeled combined `Other`
+  nodes did not repair the no-anchor case. This hypothesis was not promoted to a proven fix.
+  A subsequent diagnostic candidate records all public foreground nodes from the same snapshot
+  so the excluded body identity can be established rather than guessed.
+
+Complete local validation, new exact-head hosted evidence and the owner's PR review remain
+pending at this checkpoint. Non-passes remain distinct from subsequent development probes.
+PR #114 stays Draft; C stays In Progress and D stays unentered.
+
+`scroll-diagnostic-4.xcresult` retained the same Settings failure with diagnostic-only source
+changes. Its complete foreground value-tree dump established the actual missing-anchor cause:
+each visible body was two `StaticText` nodes, an ancestor and its child, with identical public
+type, identifier, label and frame. It was not an `Other`-node omission. The replacement collapses
+only that exact ancestor echo before uniqueness indexing. New deterministic assertions keep
+duplicate siblings/rows and differing descendant geometry ambiguous. Full-label/type matching,
+list-relative directional movement, visibility, bounded dragging and exact target checks remain.
+The superseded probes stay non-pass; a new focused bundle tests this source correction.
+
+`scroll-focus-5.xcresult` passed the corrected source (UI-test SHA-256
+`700487bebd02f63bdd92596162e3d919148ebd5fcf0e9d4c099cf437dcf4cca4`). Native summary, tree and
+all three details contain exactly three Passed executions, no skips/failures/Repetition/extra
+attempts and no runtime warnings. Settings took 83.925299 s; both pure geometry methods also
+passed once. The ninth drag's immutable attachment contains visible unique 0.9.2 body text
+and the target moving from y=893.667 to y=517.667, wholly inside the y=148...850 lane.
+This is direct runtime evidence for the repaired progress path, not a complete validator pass.
+
+The strict benchmark now prints its already measured interval after the timed load, on both
+success and failure. The timed operation and 500 ms assertion are unchanged. This diagnostic
+does not manufacture an explanation for the old slow sample. Five static gates and
+`git diff --check` passed before full validation. Complete local and hosted acceptance are
+still pending for the normal repair commit; the owner will review the existing Draft PR.

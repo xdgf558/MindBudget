@@ -1143,82 +1143,283 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     @MainActor
     private func revealAboutHistoryText(_ identifier: String, in app: XCUIApplication) -> Bool {
-        // Scope gestures to the foreground list, not the dashboard behind the Settings sheet.
         let list = app.collectionViews.matching(identifier: "settings.about.view").firstMatch
-        let targets = list.staticTexts.matching(identifier: identifier)
-        let target = targets.firstMatch
+        let target = list.staticTexts.matching(identifier: identifier).firstMatch
         guard list.waitForExistence(timeout: 3) else {
             XCTFail("About history list is unavailable")
             return false
         }
         for step in 0...20 {
-            let listFrame = list.frame.intersection(app.frame)
-            let navigationBottom = app.navigationBars.firstMatch.frame.maxY
-            let top = max(listFrame.minY, navigationBottom) + 16
-            let bottom = listFrame.maxY - 24
-            let lane = CGRect(x: listFrame.minX + 16, y: top,
-                              width: listFrame.width - 32, height: bottom - top)
-            guard !lane.isEmpty, lane.height > 80 else {
-                XCTFail("About history has no unobscured scrolling lane")
+            let before: AboutScrollGeometry
+            do {
+                before = try AboutScrollGeometry(targetIdentifier: identifier) {
+                    BudgetSnapshotNode(try app.snapshot())
+                }
+            } catch {
+                XCTFail("About history capture failed: \(error)")
                 return false
             }
-            guard targets.count <= 1 else {
-                XCTFail("About history has an ambiguous target identity: \(identifier)")
-                return false
-            }
-            if target.exists, !target.frame.isEmpty, target.isHittable,
-               lane.contains(target.frame) {
-                return true
-            }
+            if before.targetIsInLane && target.isHittable { return true }
             guard step < 20 else { break }
-            // Keep the nearest instantiated release heading's exact ID across this drag.
-            // A long cell can keep its heading in the tree above the visible body; its frame
-            // still measures progress. Repeated body labels and virtualized indices do not.
-            let headings = list.staticTexts.matching(NSPredicate(
-                format: "identifier BEGINSWITH %@", "settings.releaseNotes.history."
-            )).allElementsBoundByIndex.filter { $0.exists && !$0.frame.isEmpty }
-            guard let heading = headings.min(by: {
-                abs($0.frame.midY - lane.midY) < abs($1.frame.midY - lane.midY)
-            }) else {
-                XCTFail("About history has no instantiated release heading after expansion")
+            guard !before.visibleAnchors.isEmpty else {
+                XCTFail("About history has no unique visible content anchor: \(before)")
                 return false
             }
-            let anchors = list.staticTexts.matching(identifier: heading.identifier)
-            guard anchors.count == 1 else {
-                XCTFail("About history has an ambiguous scroll-anchor identity")
-                return false
-            }
-            let anchor = anchors.firstMatch
-            let initialY = anchor.frame.midY
-            let movesTowardEarlierContent = target.exists && target.frame.minY < lane.minY
-            let startY = movesTowardEarlierContent ? lane.minY + lane.height * 0.2
-                                                   : lane.minY + lane.height * 0.8
-            let endY = movesTowardEarlierContent ? lane.minY + lane.height * 0.75
-                                                 : lane.minY + lane.height * 0.25
-            let origin = list.coordinate(withNormalizedOffset: .zero)
-            let start = origin.withOffset(CGVector(dx: lane.midX - list.frame.minX,
-                                                  dy: startY - list.frame.minY))
-            let end = origin.withOffset(CGVector(dx: lane.midX - list.frame.minX,
-                                                dy: endY - list.frame.minY))
+            let towardEarlier = before.target.map { $0.minY < before.lane.minY } ?? false
+            let startY = before.lane.minY + before.lane.height * (towardEarlier ? 0.2 : 0.8)
+            let endY = before.lane.minY + before.lane.height * (towardEarlier ? 0.75 : 0.25)
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(dx: before.lane.midX - before.application.minX,
+                                                   dy: startY - before.application.minY))
+            let end = origin.withOffset(CGVector(dx: before.lane.midX - before.application.minX,
+                                                 dy: endY - before.application.minY))
             XCTContext.runActivity(named: "Reveal \(identifier), bounded drag \(step + 1)") { _ in
                 start.press(forDuration: 0.1, thenDragTo: end)
             }
+            var after: AboutScrollGeometry?
+            var captureError: String?
             let progress = XCTNSPredicateExpectation(
                 predicate: NSPredicate { _, _ in
-                    guard targets.count <= 1, anchors.count <= 1 else { return false }
-                    return (target.exists && !target.frame.isEmpty && target.isHittable
-                            && lane.contains(target.frame))
-                        || !anchor.exists || abs(anchor.frame.midY - initialY) > 1
+                    do {
+                        let sample = try AboutScrollGeometry(targetIdentifier: identifier) {
+                            BudgetSnapshotNode(try app.snapshot())
+                        }
+                        after = sample
+                        return (sample.targetIsInLane && target.isHittable)
+                            || sample.progressed(from: before, towardEarlier: towardEarlier)
+                    } catch {
+                        // End this wait and fail below; a failed capture is never progress.
+                        captureError = String(describing: error)
+                        return true
+                    }
                 },
                 object: list
             )
-            guard XCTWaiter.wait(for: [progress], timeout: 3) == .completed else {
-                XCTFail("About history made no observable scroll progress toward \(identifier)")
+            let outcome = XCTWaiter.wait(for: [progress], timeout: 3)
+            let diagnostic = XCTAttachment(string:
+                "target=\(identifier), earlier=\(towardEarlier)\nbefore=\(before)\n"
+                + "after=\(String(describing: after))\ncaptureError=\(String(describing: captureError))")
+            diagnostic.name = "About scroll geometry - drag \(step + 1)"
+            diagnostic.lifetime = .keepAlways
+            add(diagnostic)
+            guard captureError == nil, outcome == .completed else {
+                XCTFail("About history made no observable scroll progress toward \(identifier); "
+                        + "before=\(before); after=\(String(describing: after)); error=\(String(describing: captureError))")
                 return false
             }
         }
         XCTFail("About history did not reveal \(identifier) within 20 bounded drags")
         return false
+    }
+
+    /// One immutable foreground-list sample. Never compare separately resolved XCUI frames.
+    private struct AboutScrollGeometry: CustomStringConvertible {
+        enum Anchor: Hashable {
+            case heading(String)
+            case uniqueText(XCUIElement.ElementType, String)
+        }
+        let application: CGRect
+        let list: CGRect
+        let lane: CGRect
+        let target: CGRect?
+        let anchors: [Anchor: CGRect]
+        let contentDiagnostic: String
+
+        init(targetIdentifier: String, snapshot: () throws -> BudgetSnapshotNode) throws {
+            let root = try snapshot()
+            func valid(_ frame: CGRect, emptyAllowed: Bool = false) -> Bool {
+                !frame.isNull && !frame.isInfinite
+                    && [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite)
+                    && frame.width >= 0 && frame.height >= 0 && (emptyAllowed || !frame.isEmpty)
+            }
+            guard root.type == .application, valid(root.frame) else {
+                throw BudgetGeometryError(description: "Invalid About application snapshot")
+            }
+            application = root.frame
+            let nodes = root.flattened
+            let lists = nodes.filter { $0.type == .collectionView && $0.identifier == "settings.about.view" }
+            guard lists.count == 1, let foreground = lists.first, valid(foreground.frame) else {
+                throw BudgetGeometryError(description: "Missing, ambiguous or invalid About list")
+            }
+            list = foreground.frame
+            contentDiagnostic = foreground.flattened.map {
+                "type=\($0.type.rawValue) id=\($0.identifier) label=\($0.label) frame=\($0.frame)"
+            }.joined(separator: "\n")
+            let navigation = nodes.filter { $0.type == .navigationBar }
+            guard navigation.allSatisfy({ valid($0.frame) }),
+                  let navBottom = navigation.filter({ $0.frame.intersects(root.frame) }).map(\.frame.maxY).max() else {
+                throw BudgetGeometryError(description: "Invalid About navigation snapshot")
+            }
+            let viewport = foreground.frame.intersection(root.frame)
+            let top = max(viewport.minY, navBottom) + 16
+            lane = CGRect(x: viewport.minX + 16, y: top,
+                          width: viewport.width - 32, height: viewport.maxY - 24 - top)
+            guard valid(lane), lane.height > 80 else {
+                throw BudgetGeometryError(description: "About has no unobscured scrolling lane")
+            }
+            let rawTexts = foreground.flattened.filter { $0.type == .staticText }
+            guard rawTexts.allSatisfy({ valid($0.frame, emptyAllowed: true) }) else {
+                throw BudgetGeometryError(description: "Invalid About text frame")
+            }
+            // SwiftUI's combined Label exposes both a StaticText parent and its Text child
+            // with the same public label, identifier and frame. Collapse only this exact
+            // ancestor echo, never identical siblings or nodes with differing geometry.
+            var texts: [BudgetSnapshotNode] = []
+            func collect(_ node: BudgetSnapshotNode, ancestors: [BudgetSnapshotNode]) {
+                if node.type == .staticText && !ancestors.contains(where: {
+                    $0.type == node.type && $0.identifier == node.identifier
+                        && $0.label == node.label && $0.frame == node.frame
+                }) {
+                    texts.append(node)
+                }
+                for child in node.children { collect(child, ancestors: ancestors + [node]) }
+            }
+            collect(foreground, ancestors: [])
+            let targets = texts.filter { $0.identifier == targetIdentifier }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate About target: \(targetIdentifier)")
+            }
+            target = targets.first.flatMap { $0.frame.isEmpty ? nil : $0.frame }
+
+            var indexed: [Anchor: CGRect] = [:]
+            let prefix = "settings.releaseNotes.history."
+            for node in texts where node.identifier.hasPrefix(prefix) {
+                let suffix = node.identifier.dropFirst(prefix.count)
+                guard suffix.split(separator: ".").allSatisfy({ Int($0) != nil }), !suffix.isEmpty else { continue }
+                let key = Anchor.heading(node.identifier)
+                guard indexed[key] == nil else {
+                    throw BudgetGeometryError(description: "Duplicate About heading: \(node.identifier)")
+                }
+                indexed[key] = node.frame
+            }
+            // A long release can fill the viewport without its heading. Use public text
+            // only when unique in this foreground snapshot AND the next one. Duplicates,
+            // virtualized indices, offscreen-only anchors and text changes cannot prove progress.
+            let grouped = Dictionary(grouping: texts.filter { !$0.label.isEmpty }) {
+                Anchor.uniqueText($0.type, $0.label)
+            }
+            for (key, matches) in grouped where matches.count == 1 {
+                indexed[key] = matches[0].frame
+            }
+            anchors = indexed.filter { !$0.value.isEmpty }
+        }
+
+        var targetIsInLane: Bool { target.map { application.contains($0) && lane.contains($0) } ?? false }
+        var visibleAnchors: [Anchor: CGRect] { anchors.filter { lane.intersects($0.value) } }
+
+        func progressed(from before: Self, towardEarlier: Bool) -> Bool {
+            before.visibleAnchors.contains { key, old in
+                guard let next = anchors[key],
+                      abs(next.width - old.width) <= 1, abs(next.height - old.height) <= 1 else { return false }
+                // Relative coordinates reject movement of the sheet/list itself. Only a shared
+                // identity moving in the requested direction counts; appearance/disappearance
+                // alone, a stationary stale heading or sub-point jitter do not.
+                let delta = (next.midY - list.minY) - (old.midY - before.list.minY)
+                return towardEarlier ? delta > 1 : delta < -1
+            }
+        }
+
+        var description: String {
+            let positions = visibleAnchors.map { key, frame in "\(key):\(frame)" }.sorted().joined(separator: "; ")
+            return "app=\(application), list=\(list), lane=\(lane), target=\(String(describing: target)), visible=[\(positions)]"
+                + (visibleAnchors.isEmpty ? "\nforeground=\(contentDiagnostic)" : "")
+        }
+    }
+
+    @MainActor
+    func testAboutScrollProgressUsesVisibleUniqueAnchorsFromOneSnapshot() throws {
+        func sample(_ rows: [BudgetSnapshotNode], offset: CGFloat = 0) throws -> AboutScrollGeometry {
+            try AboutScrollGeometry(targetIdentifier: "settings.releaseNotes.history.0.9.1") {
+                BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800), children: [
+                    BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60)),
+                    BudgetSnapshotNode(.collectionView, CGRect(x: 0, y: offset, width: 400, height: 800 - offset),
+                                       identifier: "settings.about.view", children: rows)
+                ])
+            }
+        }
+        let heading = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 160, width: 300, height: 30),
+                                         identifier: "settings.releaseNotes.history.0.9.4")
+        let body = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 320, width: 300, height: 100),
+                                      identifier: "shared.body", label: "Unique body")
+        let before = try sample([heading, body])
+        let movedBody = BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: -90),
+                                           identifier: body.identifier, label: body.label)
+        let after = try sample([heading, movedBody])
+        XCTAssertTrue(after.progressed(from: before, towardEarlier: false), "A stationary heading cannot hide real body movement")
+        XCTAssertFalse(after.progressed(from: before, towardEarlier: true))
+        XCTAssertFalse(before.progressed(from: before, towardEarlier: false))
+        let translated = try sample([
+            BudgetSnapshotNode(.staticText, heading.frame.offsetBy(dx: 0, dy: 20), identifier: heading.identifier),
+            BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: 20), identifier: body.identifier, label: body.label)
+        ], offset: 20)
+        XCTAssertFalse(translated.progressed(from: before, towardEarlier: true), "Sheet translation is not scroll progress")
+        let duplicated = try sample([heading, movedBody, movedBody])
+        XCTAssertFalse(duplicated.progressed(from: before, towardEarlier: false), "Repeated labels cannot identify an anchor")
+        let replaced = try sample([BudgetSnapshotNode(.staticText, movedBody.frame, label: "Different body")])
+        XCTAssertFalse(replaced.progressed(from: before, towardEarlier: false), "Virtualization alone cannot prove progress")
+        let jitter = try sample([heading, BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: -0.5), label: body.label)])
+        XCTAssertFalse(jitter.progressed(from: before, towardEarlier: false))
+        let offscreen = try sample([BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 1000, width: 300, height: 100), label: body.label)])
+        XCTAssertFalse(after.progressed(from: offscreen, towardEarlier: false), "Offscreen-only content is not an anchor")
+        func combined(_ node: BudgetSnapshotNode, child: BudgetSnapshotNode) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.staticText, node.frame, identifier: node.identifier,
+                               label: node.label, children: [child])
+        }
+        let echoedBefore = try sample([combined(body, child: body)])
+        let echoedAfter = try sample([combined(movedBody, child: movedBody)])
+        XCTAssertEqual(echoedBefore.visibleAnchors.count, 1)
+        XCTAssertTrue(echoedAfter.progressed(from: echoedBefore, towardEarlier: false),
+                      "A combined Label's exact descendant echo is one logical text anchor")
+        let mismatchedDescendant = try sample([combined(movedBody, child: body)])
+        XCTAssertFalse(mismatchedDescendant.progressed(from: echoedBefore, towardEarlier: false),
+                       "Different descendant geometry remains ambiguous")
+        let duplicatedRows = try sample([combined(movedBody, child: movedBody), combined(movedBody, child: movedBody)])
+        XCTAssertFalse(duplicatedRows.progressed(from: echoedBefore, towardEarlier: false),
+                       "An ancestor echo rule must not coalesce duplicate rows or siblings")
+        let target = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 240, width: 300, height: 30),
+                                        identifier: "settings.releaseNotes.history.0.9.1")
+        XCTAssertTrue(try sample([target]).targetIsInLane)
+        XCTAssertFalse(try sample([BudgetSnapshotNode(.staticText, target.frame.offsetBy(dx: 0, dy: -150),
+                                                    identifier: target.identifier)]).targetIsInLane)
+        var captures = 0
+        var root = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800), children: [
+            BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60)),
+            BudgetSnapshotNode(.collectionView, CGRect(x: 0, y: 0, width: 400, height: 800),
+                               identifier: "settings.about.view", children: [target])
+        ])
+        let frozen = try AboutScrollGeometry(targetIdentifier: target.identifier) {
+            captures += 1
+            return root
+        }
+        root.children.removeAll()
+        XCTAssertTrue(frozen.targetIsInLane)
+        XCTAssertEqual(captures, 1)
+    }
+
+    @MainActor
+    func testAboutScrollGeometryRejectsFailedAndAmbiguousSnapshots() {
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            throw BudgetGeometryError(description: "capture failed")
+        })
+        let appFrame = CGRect(x: 0, y: 0, width: 400, height: 800)
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let target = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 200, width: 300, height: 30), identifier: "target")
+        let list = BudgetSnapshotNode(.collectionView, appFrame, identifier: "settings.about.view", children: [target])
+        for children in [[nav], [list], [nav, list, list], [nav,
+            BudgetSnapshotNode(.collectionView, appFrame, identifier: list.identifier, children: [target, target])]] {
+            XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+                BudgetSnapshotNode(.application, appFrame, children: children)
+            })
+        }
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            BudgetSnapshotNode(.application, .zero, children: [nav, list])
+        })
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            BudgetSnapshotNode(.application, appFrame, children: [nav,
+                BudgetSnapshotNode(.collectionView, appFrame, identifier: list.identifier, children: [
+                    BudgetSnapshotNode(.staticText, CGRect(x: 20, y: CGFloat.nan, width: 100, height: 40), identifier: "target")
+                ])])
+        })
     }
 
     @MainActor
@@ -1349,6 +1550,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
     private struct BudgetSnapshotNode {
         let type: XCUIElement.ElementType
         let identifier: String
+        let label: String
         let frame: CGRect
         var children: [BudgetSnapshotNode] = []
 
@@ -1356,14 +1558,16 @@ final class MindBudgetPhase3UITests: XCTestCase {
         init(_ snapshot: any XCUIElementSnapshot) {
             type = snapshot.elementType
             identifier = snapshot.identifier
+            label = snapshot.label
             frame = snapshot.frame
             children = snapshot.children.map { BudgetSnapshotNode($0) }
         }
 
         init(_ type: XCUIElement.ElementType, _ frame: CGRect,
-             identifier: String = "", children: [BudgetSnapshotNode] = []) {
+             identifier: String = "", label: String = "", children: [BudgetSnapshotNode] = []) {
             self.type = type
             self.identifier = identifier
+            self.label = label
             self.frame = frame
             self.children = children
         }

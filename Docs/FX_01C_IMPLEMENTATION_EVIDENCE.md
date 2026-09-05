@@ -7,6 +7,13 @@ only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
+Current repair checkpoint: parent head `bb4366b` did **not** pass complete acceptance. Hosted
+`33930201365` failed About-history progress observation, and local validation stopped at a
+808.754667 ms Dashboard load against the unchanged 500 ms limit. The current test-only repair
+and retained diagnostics are recorded in the session log. Earlier green/focused checkpoints
+below do not accept this candidate. Complete local and exact-head hosted/native validation plus
+the owner's personal review remain required; PR #114 remains Draft.
+
 ## Implementation boundary
 
 - `ForeignCurrencyFormState` retains user inputs and resolves through the accepted B integer

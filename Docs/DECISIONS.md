@@ -4212,3 +4212,34 @@ Do not add another agent-approval/freeze cycle or automatically merge. Update ex
 a normal repair commit changes its head but does not create a new PR or claim acceptance.
 Hosted CI may run automatically on push; its outcome remains separate from local probes.
 C stays In Progress, with separate post-merge closeout still required before D entry.
+
+## 2026-09-05 — Observe About scrolling through coherent, unique visible content
+
+Hosted `33930201365` on `bb4366b` failed the ordinary About-history regression. The native
+recording showed list movement, while the selected-heading predicate did not accept it. That
+is a detector false negative; the prior evidence did not establish a precise stale-frame or
+virtualization cause. Keep that run as non-pass and supersede the single-heading predicate.
+
+Each before/after sample copies one public App snapshot and derives the foreground About list,
+navigation-safe lane, exact version target and visible text anchors from that value tree.
+The first candidate exposed a separate no-anchor failure in a long release body. A diagnostic
+capture proved that each combined SwiftUI Label exposed a `StaticText` parent and descendant
+with identical type, identifier, label and frame. Collapse only that exact ancestor echo before
+indexing. Equal siblings, different descendant frames and repeated labels across separate rows
+remain ambiguous; neither flat deduplication nor virtualized element indices identify a row.
+
+Match unique headings by identifier or unique body text by public type and complete label in
+both snapshots. Require a shared, previously visible anchor to move in the requested direction
+relative to the list origin, with stable dimensions. Appearance/disappearance alone, changed
+text, offscreen-only preloaded content, sub-point jitter and whole-sheet translation do not
+count. Capture/geometry errors fail closed. Preserve the existing 20-drag bound, three-second
+wait and exact 0.9.8/0.9.1 targets; target success requires its complete frame within the safe
+lane plus hittability. Keep immutable per-drag diagnostics. Pure geometry tests supplement,
+not replace, the original complete Settings flow.
+
+The separate local 10,000-row benchmark failure (808.754667 ms against 500 ms) also remains
+non-pass. Temporary stage timing did not reproduce it; that is not a proven performance fix
+or permission to call it transient. Remove the timing instrumentation, retain the strict
+threshold and run complete validation on the repair. Product Swift, retries, timeouts and FX
+scope remain unchanged. The owner reviews existing PR #114; no merge, C closeout or D entry
+is authorized by a focused pass.
