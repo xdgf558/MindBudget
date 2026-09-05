@@ -3894,6 +3894,8 @@ review, hosted CI and merge. The previous merge exception does not waive those B
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -3911,7 +3913,39 @@ No Swift, trial-clock, network/provider, C–E, FX-02 or COM-C12 implementation 
 No Archive, upload, distribution or release is authorized. This new closeout head must earn its
 own independent review and hosted success; the implementation run does not substitute for it.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
 
 ## 2026-09-04 — Closeout JSON and TASKS fail-closed remediation
 
@@ -3939,3 +3973,273 @@ checkbox/list shapes, including quoted/inline/uppercase markers. Apply the same 
 TASKS, each plan subphase and both historical-A/current-B closeout checklists. Test these real
 CLI variants in each affected scope. This closes the original checklist P2 without changing the
 meaning of any completed task or weakening the historical non-pass/next-entry boundaries.
+
+## 2026-09-04 — FX-01C form and save-authority contract
+
+C uses one pure input state: explicit original currency, locale amount/rate text, selected rate
+day and saved zone, with either manual-rate or manual-home-override provenance. Rate edits switch
+to manual-rate and recompute the home preview; home edits switch to exact effective-rational
+override. Original edits preserve the selected mode (an override keeps the entered home amount);
+invalid fields remain visible, but no prior valid preview is eligible for Save or reminders.
+Opening an existing override never reparses its approximate rate label. Rate date is independent
+of expense date: new entry starts on the selected expense day in the user's calendar/zone; an
+existing tuple retains its rate day/zone, including when the current device zone differs.
+Editing that rate day uses its displayed saved zone, not an implicit current-zone conversion.
+
+At accessibility Dynamic Type sizes, the rate-date label wraps and opens a separate native
+wheel editor; ordinary sizes keep compact date selection. A compact date widened the AX5 form,
+while embedding its wheel in the long form consumed the available vertical pan region. The
+separate editor avoids both issues without reducing content font sizes. UI regressions assert
+real date mutation and saved/reopened year retention, localized input labels/values, and the
+combined original-before-accounting accessibility text. Actual physical spoken VoiceOver remains
+outside this simulator evidence claim.
+
+FX numeric fields own explicit focus and expose a localized keyboard Done action only while one
+of those fields is focused. This lets users finish entering the rate before reading the locked
+preview with the keyboard dismissed; it neither adds a completion toolbar to the ordinary budget
+keypad nor changes financial state. Automated flows must exercise that real action and observe
+the keyboard disappear instead of assuming a drag implies dismissal.
+
+The central immutable Pro evaluator gains one FX feature. UI uses its existing presentation
+snapshot; the final DataActor create/update transaction asks the injected live central authority
+synchronously, after asynchronous form/reminder work. Default injection is Free. The actor
+classifies stewardship from the persisted companion, never from a caller's flag. Ordinary
+records remain Free; new/conversion/duplicate FX needs access. Existing FX cannot be toggled off
+or silently stripped by a legacy form. No new trial clock or entitlement persistence is added.
+The until-D FX/legacy-iCloud exclusion and all nonmanual/recurring exclusions remain intact.
+
+C UI verification uses a separately compiled in-memory executable entry: `DEBUG` AND
+`targetEnvironment(simulator)` AND `MINDBUDGET_FX_UI_TEST_HOST`. The normal entry is excluded
+before AppBootstrap construction. The test-only scheme has no Launch/Profile/Archive action;
+its runner uses a separate DerivedData directory and never enables the flag in ordinary project
+configurations. Fixed Commerce fixtures exercise the real form, DataActor and detail view;
+neither arguments nor preferences choose paid rights. This preserves DEC-COM-013's production
+authority boundary. No AppEnvironment.live, Intent registration, StoreKit purchase, notification
+initialization, telemetry, sync or public-configuration lifecycle runs. The session receives a
+notification stub that fails if mistakenly called. Preferences use a dedicated cleared test suite;
+financial records are in memory. This is injected-right UI evidence, not purchase or device proof.
+
+Three attempted StoreKit UI configurations failed before entering the form and remain non-pass
+in SESSION_LOG; their temporary UI-runner resource/configuration was removed. The replacement
+does not claim to fix or bypass StoreKit authorization. Ordinary UI runs skip the two special
+host methods and those skips are non-pass. Complete validation separately runs the dedicated
+host and reads its fresh native xcresult, requiring both methods exactly once Passed. It also
+requires all 17 B plus 15 C unit methods in the ordinary bundle. FX's own native tree reader
+and per-method test-details must agree on identity/URL, one device/configuration and one concrete
+Passed execution. Missing, skipped, failed, parameterized, unknown-attempt, duplicate and
+Failed-to-Passed bindings fail. A single Passed repetition is accepted only with a single
+consistent concrete execution. The C6 inventory/parser is not reused as FX UI evidence.
+Static copied-source negatives enforce host isolation and validator-order probes require both
+new runtime stages; exact-head hosted execution and independent final review are still required.
+
+## 2026-09-04 — FX native configuration identity across Xcode readers
+
+PR #114 run `33885693529` failed at configuration identity validation after ordinary tests,
+coverage and C6-02 passed; dedicated FX UI did not run. Do not infer the failure field from the
+combined error or use Xcode 27 re-reading a downloaded bundle as proof of Xcode 26's original JSON.
+The separate read-only hosted diagnostic `33890321460` used the fixed failed artifact with Xcode
+26.6 and established that only the configuration node's redundant `nodeIdentifierURL` is absent.
+Independent inspection reproduced the rejection with that native JSON and passed it by adding
+only the corresponding URL in memory; no other identity or execution field differed.
+
+Decision: accept that one key being absent, not an arbitrary default or permissive URL fallback.
+The main case/detail IDs and URLs still must agree, device/configuration IDs must be nonempty
+strings with exact metadata matches, and every required method must have one Passed concrete
+execution. A present configuration URL must match exactly; null/empty/type drift fail. No ID
+coercion, unknown attempt, parameterized substitute or Failed-to-Passed is accepted. Preserve the
+unchanged native JSON as a hash-pinned regression fixture and exercise both observed shapes
+through the production CLI, including missing-URL plus wrong identity/retry combinations.
+
+The short diagnostic workflow is removed after capture, with no new ordinary workflow dependency
+on an expiring artifact. Diagnostic success and local re-reads remain remediation evidence only;
+the initial failure and cancelled diagnostic-head ordinary run remain non-pass. The corrected
+head requires independent rereview and its own complete hosted validation before merge. No Swift
+product behavior changes, C completion, D entry, network/service enablement or release follows.
+
+## 2026-09-05 — Budget UI focus handshake and hosted no-retry acceptance
+
+PR #114's independently audited hosted run `33892068800` was green only after an ordinary
+English category-legend test Failed-to-Passed retry. Retain it as non-pass. The observed failure
+is typing into the total-budget field before it has keyboard focus; the cause of the missed
+focus transfer itself is unknown. Visibility and an existing keyboard are insufficient.
+
+The UI helper requires the full field frame between navigation and keyboard, explicitly taps
+its center, waits for two identical in-lane field/keyboard frames, then taps that center again
+and types into the target field exactly once. This prepares interaction; it does not assert that
+geometry proves keyboard ownership. Targeted `typeText` must still fail if focus did not transfer.
+After all three entries, return toward the earlier income row without typing, so the last field
+loses focus and its accessibility value can refresh. Reveal/prepare each row in order for exact
+readbacks of 3000/2500/500 before Save: AX5/pseudo-long Form rows may be virtualized, so do not
+assume all three exist in the accessibility tree at once. No global application typing,
+corrective retyping or assertion retry is permitted. Setup
+failure stops the current test. The Save-to-Dashboard handshake remains required.
+
+The first candidate used public `hasFocus`, but a local probe could not establish keyboard
+ownership with that UI-focus attribute; the failure is retained. A subsequent diagnostic-header
+parser probe passed locally but was withdrawn after independent review noted the public SDK
+explicitly calls dependence on `debugDescription` data unsupported. Neither candidate is retained
+as the implementation. No private `hasKeyboardFocus` KVC, debug-string predicate, or product
+accessibility/focus instrumentation is introduced. The focused probe covers English category,
+English AX1/AX5 comparison and English pseudo-long flows only. Complete validation must also run
+the existing Chinese ordinary regressions and separate Chinese AX5 FX host; the focused English
+probe does not substitute for either scope.
+
+Hosted CI now disables ordinary test retries, making a first failure directly fail CI instead
+of relying only on the independent all-detail audit to reject a green run. The existing validator
+still has its explicit local diagnostic opt-in, but the hosted configuration has a single zero
+setting, rejects overrides/retry flags, and its stubbed normal test arguments must contain no
+retry or iteration flag. Full native acceptance is still mandatory; changing configuration
+does not prove execution. The new source needs independent review and fresh exact-head complete
+validation. C remains In Progress, and D is not entered.
+
+## 2026-09-05 — About history lookup follows scoped scroll progress
+
+Complete local validation of PR #114 head `221dcd9` failed in the ordinary Settings UI test at
+the `0.9.1` historical-release assertion. Native evidence records one Failed execution, not a
+retry. The final accessibility hierarchy and recorded frame show expanded history at `0.9.2`,
+with the list around 81% through eight pages. Therefore this failure is not evidence of a failed
+disclosure tap or missing product release notes. Five whole-application swipes did not reach the
+deep virtualized target. The About product source is unchanged from C's base.
+
+Keep the original `0.9.1` target. The test-only lookup scopes gestures to About's CollectionView,
+confirms the first historical `0.9.8` heading separately, and uses at most 20 short drags with a
+bounded progress wait after each. A uniquely identified instantiated release heading supplies
+position continuity; repeated body labels and virtualized indices cannot substitute identities.
+No progress fails the test. Progress only permits another lookup: success requires the target's
+nonempty full frame inside the list's unobscured lane below navigation. An instantiated target
+above that lane changes the drag direction. Do not repeat the disclosure tap, modify the product
+catalog, replace the deep target, or treat a focused pass as complete-validation acceptance.
+
+The failed full local run remains non-pass, including its unexecuted downstream coverage/C6/FX
+verification and dedicated FX UI stages. Source rereview, a new frozen head and fresh complete
+local/hosted validation are still required; no C completion or D entry follows.
+
+## 2026-09-05 — Budget input preparation and readback use separate authorities
+
+Hosted run `33900664975` on older PR #114 head `221dcd9` ran without XCTest runner retries and
+failed two ordinary UI methods at the same `budget.savingGoal` settle assertion. The English
+AX1/AX5 method failed during its first AX1 setup after typing 500 and before the AX5 launch. The
+Simplified Chinese category method failed before typing its first saving-goal value. Native
+summary and both details confirm 606 methods, two failed methods, one concrete failed execution
+for each and no repetition. There are no failure attachments. The first log loses the keyboard
+on the second settle poll; the second obtains two keyboard/field polls but no accepted exact-equal
+pair before the five-second waiter expires. Those facts prove the settle predicate is unstable;
+they do not prove a keyboard, frame-jitter, navigation or product-layout root cause.
+
+Decision: supersede only the earlier two-identical-`CGRect` wait. Separate bounded reveal from
+focus preparation. Reveal performs no tap and only moves the Form until the field's complete
+frame is below navigation and above the keyboard or App bottom. Input preparation reveals, taps
+the explicit center, requires a keyboard, re-reveals after keyboard-driven layout, then taps the
+center again before exactly one targeted `typeText`. Keyboard presence and geometry remain
+preconditions, not focus proof. After all three inputs, perform that same two-tap preparation on
+monthly income once to move away from the final editor; then reveal each field without any tap and
+require exact 3000/2500/500 values. Those readbacks, not targeted typing, remain the fail-closed
+authority against stale-focus routing. Reveal/keyboard failures include public frame/condition
+diagnostics and terminate setup. No global typing, corrective retyping, runner retry, private
+focus API, unsupported debug parsing or product instrumentation is introduced.
+
+The complete local validation at later head `c332e53` passed with the superseded helper and is
+retained as local evidence only; it cannot erase the two no-retry hosted failures against the same
+budget source. Current hosted execution also cannot accept this subsequent source candidate.
+The new candidate requires focused source/runtime rereview, a new frozen head, complete local and
+hosted native acceptance, and merge while C remains In Progress and D remains unentered.
+
+## 2026-09-05 — Preserve the FX numeric Binding actor contract
+
+PR #114 head `c2fd249` completed local and hosted execution without retries. Hosted run
+`33909424630` is green and its native artifact closes all 606 ordinary details plus both dedicated
+FX UI details without failure, repetition or extra attempt. Independent review nevertheless found
+one P2 in product source: `numericField` accepted a plain escaping setter and passed it to SwiftUI's
+`@Sendable @isolated(any)` `Binding` setter, erasing the caller's actor/sendability contract. The
+three callers mutate the main-actor `ExpenseFormViewModel`; ordinary main-thread UI execution is
+not proof that the erased contract is safe.
+
+Decision: declare this helper input as `@escaping @MainActor @Sendable (String) -> Void`. Do not
+use `@unchecked`, suppress the diagnostic or rely on the SDK's compatibility annotation. A local
+Xcode 27 build must omit the `ForeignCurrencyEntrySection.swift` setter warning, and the new exact
+head must receive fresh complete local validation, hosted Xcode 26.6 validation and independent
+review. The accepted c2fd249 execution remains remediation provenance, not evidence for changed
+product Swift. The two dedicated FX UI `Invalid frame dimension (negative or non-finite).`
+diagnostics remain explicit P3 observations; neither test retry nor a warning-free claim is allowed.
+C remains In Progress and D remains unentered.
+
+## 2026-09-05 — Keep FX numeric mutation inside the Binding isolation context
+
+PR #114 hosted run `33917389140` failed on exact head
+`add6231aab9ae731c57b01415eb8aa3f06c4ba97` before any test execution. Xcode 26.6's Swift
+6.3.3 frontend aborted during Release whole-module IR generation for the compiler-generated
+conversion thunk introduced by the explicit `@MainActor @Sendable` setter parameter. Both
+simulator architectures were part of the failed build. This is a retained exact-head non-pass;
+the preceding local result and the older c2fd249 hosted success cannot substitute for it.
+
+Decision: do not pass a form-mutating function value through `numericField` at all. Pass a
+`Sendable` semantic field identity and construct the `Binding` setter directly inside the
+main-actor SwiftUI view method, where the setter switches exhaustively among original amount,
+rate and accounting amount before calling `ExpenseFormViewModel.updateForeignCurrency`. This
+keeps actor isolation at the SDK boundary without an erased closure, compatibility annotation,
+unchecked conformance or diagnostic suppression. A local Xcode 27 Release build for both
+simulator architectures succeeds with this source, but it is only a compile probe. The next
+committed exact head still requires implementation-separated source review, complete local
+validation, hosted Xcode 26.6 validation and native artifact audit. C remains In Progress and D
+remains unentered.
+
+## 2026-09-05 — Sample budget UI geometry from one public snapshot
+
+Hosted `33921069764` on `bed216b` failed in the ordinary AX5 budget setup because a
+`keyboard.exists` query succeeded but the following independent `keyboard.frame` query could
+no longer resolve the keyboard. The successful product build is not evidence that this test
+helper is sound. Preserve this run as non-pass and replace the helper's split field/save/chrome
+queries with one public `app.snapshot()` per geometry sample. Copy only public attributes into
+a value tree; derive navigation's maximum bottom, visible keyboards' minimum top and the unique
+typed target frame from that same tree. A failed capture, invalid chrome/root geometry,
+duplicate target or contradictory lane fails and returns before subsequent input or Save.
+Only a successful snapshot without an on-screen keyboard uses the App-bottom allowance.
+An absent/empty virtualized target permits bounded reveal but never a tap.
+
+The captured target must be fully inside the App and the navigation/keyboard lane; this also
+requires Save's top, not just its midpoint, to clear navigation. Center taps use captured
+coordinates. Live `isHittable` remains an additional readiness check, never a frame source.
+Failure diagnostics print captured values rather than resolving disappearing elements again.
+Keep the existing 12-drag bounds, two center taps per input preparation, one targeted typing
+operation per value, all three exact readbacks and at most two Save-to-Dashboard attempts.
+Do not change product code, disable the ordinary regression, increase timeouts or enable retries.
+Deterministic geometry tests cover keyboard disappearance after capture, conservative multi-
+chrome bounds, virtualization/occlusion and malformed or failed capture. Focused simulator
+results are development evidence, not a complete validator/hosted or physical pass.
+
+The owner requested direct PR handoff after repair and will perform the PR review personally.
+Do not add another agent-approval/freeze cycle or automatically merge. Update existing PR #114;
+a normal repair commit changes its head but does not create a new PR or claim acceptance.
+Hosted CI may run automatically on push; its outcome remains separate from local probes.
+C stays In Progress, with separate post-merge closeout still required before D entry.
+
+## 2026-09-05 — Observe About scrolling through coherent, unique visible content
+
+Hosted `33930201365` on `bb4366b` failed the ordinary About-history regression. The native
+recording showed list movement, while the selected-heading predicate did not accept it. That
+is a detector false negative; the prior evidence did not establish a precise stale-frame or
+virtualization cause. Keep that run as non-pass and supersede the single-heading predicate.
+
+Each before/after sample copies one public App snapshot and derives the foreground About list,
+navigation-safe lane, exact version target and visible text anchors from that value tree.
+The first candidate exposed a separate no-anchor failure in a long release body. A diagnostic
+capture proved that each combined SwiftUI Label exposed a `StaticText` parent and descendant
+with identical type, identifier, label and frame. Collapse only that exact ancestor echo before
+indexing. Equal siblings, different descendant frames and repeated labels across separate rows
+remain ambiguous; neither flat deduplication nor virtualized element indices identify a row.
+
+Match unique headings by identifier or unique body text by public type and complete label in
+both snapshots. Require a shared, previously visible anchor to move in the requested direction
+relative to the list origin, with stable dimensions. Appearance/disappearance alone, changed
+text, offscreen-only preloaded content, sub-point jitter and whole-sheet translation do not
+count. Capture/geometry errors fail closed. Preserve the existing 20-drag bound, three-second
+wait and exact 0.9.8/0.9.1 targets; target success requires its complete frame within the safe
+lane plus hittability. Keep immutable per-drag diagnostics. Pure geometry tests supplement,
+not replace, the original complete Settings flow.
+
+The separate local 10,000-row benchmark failure (808.754667 ms against 500 ms) also remains
+non-pass. Temporary stage timing did not reproduce it; that is not a proven performance fix
+or permission to call it transient. Remove the timing instrumentation, retain the strict
+threshold and run complete validation on the repair. Product Swift, retries, timeouts and FX
+scope remain unchanged. The owner reviews existing PR #114; no merge, C closeout or D entry
+is authorized by a focused pass.

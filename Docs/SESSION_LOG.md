@@ -7867,6 +7867,8 @@ pending; no merge or later-phase implementation has occurred in this session.
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -7907,7 +7909,39 @@ task counts so deleting a task cannot leave an apparently complete checklist. `g
 passed. A new complete local validation and this closeout's own independent review/hosted run
 remain pending at commit time; the unchanged Swift tree does not waive them.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
 
 ## 2026-09-04 — PR #113 independent findings and remediation
 
@@ -7945,3 +7979,846 @@ xcodebuild PIDs and each validator returned 75; they remain intermediate cancell
 Their bundles/logs were retained, no result was relabelled, and no product behavior changed.
 The final repaired head will receive independent rereview before fresh complete local and hosted
 validation. No later stage has been entered.
+
+## 2026-09-04 — FX-01C implementation in progress
+
+After the independently accepted PR #113 merge, C entry was recorded before Swift edits. The
+independent read-only agent checked the entry-only nine-file diff (SHA-256
+`181a6a6b0f5e6f2da09a81c0efedfff4a9c46d7293566e16d88c0ed6d9136851`), found no P1/P2/P3,
+passed five static checks and 454 existing CLI negatives, and independently rejected 98 further
+entry/provenance mutations. This is entry review only, not approval of subsequent C source.
+
+Implemented the initial pure form state, live Commerce snapshot at actor create/conversion,
+existing-record stewardship, manual controls and dual-amount detail. The saved row controls edit
+currency. B fixtures now explicitly inject Pro for new FX creation; their original arithmetic,
+migration, rollback, sync-exclusion and delete assertions remain in place.
+The first Debug build passed. Focused run 1 failed two new assertions expecting `6.00` where the
+existing MoneyInputParser deliberately emits `6`. Both are assertion-format mistakes, not
+conversion discrepancies; the bundle is retained as non-pass. Focused run 2, after correction,
+passed all 50 methods in five suites, including 15 C methods and all 17 B methods, without retry.
+Logs/bundles are `/private/tmp/mindbudget-fx01c-focused-{1,2}.{log,xcresult}`.
+These focused results do not replace complete validation, UI evidence or independent review.
+
+Three local UI probes (`/private/tmp/mindbudget-fx01c-ui-{1,2,3}.{log,xcresult}`) failed before
+opening the form: SKTestSession configuration writes report SKInternalErrorDomain Code 3 and
+buyProduct throws notEntitled. They tested the default scheme, an isolated TestAction configuration,
+then the same configuration in LaunchAction. All remain non-pass; no UI success, purchase evidence,
+private simulator repair or real purchase is claimed. A test-isolation alternative is under
+independent boundary review. C remains In Progress; D/E and release actions remain unentered.
+
+The independent boundary review accepted the alternate compile-isolated host approach, not an
+ordinary Debug paid-right argument. Intermediate read-only product review found no P1/P2 and one
+P3: default AppSession notification construction touched UNUserNotificationCenter even without
+starting a lifecycle. The host now injects a no-side-effect notification stub; a call would fail
+the test. This intermediate review is not approval of the final C patch.
+
+Host UI runs 1–3 remain non-pass. Run 1 showed an AX5 switch label hit and gestures overlapping
+the fixed save area. Run 2 reached the menu but could not find its offscreen EUR row; the English
+edit helper also treated an obscured underlying host strip as the sheet's lower boundary. Run 3
+passed the full English create/detail/expired-edit flow, but its new width assertion rejected a
+457pt AX5 form in a 402pt window. The failure recording was inspected (no rerun was substituted for
+diagnosis): the compact localized date and duplicated field placeholders imposed unbreakable
+width. The next candidate uses native date wheels at accessibility sizes and separate visible
+field labels plus accessibility labels. Content is not globally capped. These are development
+iterations, not accepted whole-run UI evidence. Run 4 later reported old assertion line numbers
+and the removed EUR wait path; reused unsigned runner artifacts were not accepted as current-source
+proof. The permanent runner now requires a fresh DerivedData path and normal simulator signing.
+
+An initial FX-owned gate snapshot passed 19 copied-source isolation negatives and 238 required-
+binding negatives. The existing gate passes all 454 copied-CLI mutations and seven process-fault
+outcomes; validator ordering passes three success paths and 21 command failures, including the
+FX unit binding stage and dedicated UI host. No C completion is claimed by these static results.
+
+Independent gate review (gate SHA-256
+`056331e88b0873abaadd6b2f8cdd2ab7b8e1fe0e41244e562d8a2ae1103c0ceb`) found two P2s despite
+those negative tests: the reused C6 tree extractor accepted parameter/unknown-attempt/failed-parent
+shapes, and the fixed Commerce fixture could still choose its grant from a launch environment.
+The six real-CLI reproductions used finite native-command substitutes, never a simulator.
+FX now owns its strict tree reader plus per-required-method native test-details verification:
+identity/URL, one device/configuration, one concrete Passed run, no parameters or unknown attempts.
+The guarded Commerce fixture is compared against its fixed unconditional allow/revoke bodies.
+Remediation self-tests pass 22 copied-source, 374 tree, and 408 detail negatives, plus two real CLI
+positive cases and 12 CLI negative cases. The corrected reader also passed all 32 FX methods in
+focused bundle 2; that retrospective check does not validate later Swift edits. Independent
+gate rereview approved these two fixes at script SHA-256
+`5c98df17bcb1c6df51477e0f07d79b92d6919c8b0fbd622c0cc541862628e433`: four full-identity CLI
+positives, 38 runtime CLI negatives (including the original six), and four independent Commerce
+environment/argv/preferences/revoke negatives. It also read the real 32-method bundle. The
+reviewer changed no source and started no device; this closes only those gate findings, not C
+product/UI approval. No C6 parser was changed or C6 evidence scope expanded.
+
+Fresh host runs 5–7 passed English but failed Chinese AX5 preview visibility. Run 5 also exposed
+excessive UI failure duration; subsequent dedicated runs cap each method at 240 seconds. Runs
+6/7 showed the preview partially beneath fixed Save and no useful pan from the outer padding.
+Run 8 distinguished readable Text geometry from actionable controls, used proportional gestures
+inside scroll content and avoids a date wheel only when it actually intersects the gesture.
+Run 8 still failed Chinese visibility. Run 9 added slow end-held gestures and per-pan geometry;
+both languages failed. Its trace disproved momentum as the sole cause: the preview stopped moving
+across repeated pans once the pan origin intersected the accounting TextField (Chinese input frame
+302.7–375.7pt; preview 527.7–653pt, with Save starting at 455.3pt). The next helper selects an
+unobscured origin outside TextField/date-wheel bounds and retains complete target visibility.
+Run 10 passed English but rejected Chinese when the embedded AX5 date wheel occupied the
+available pan-origin interval. The product now uses a wrappable date button with a separate
+native wheel sheet at accessibility sizes, retaining compact selection at ordinary sizes.
+Run 11 completed Chinese creation but its edit pan activated that date button; it remained a
+whole-run non-pass. The helper now excludes buttons as well as text fields and wheels from pan
+origins. Run 12 additionally changes the actual year and verifies it after save/reopen, asserts
+localized accessible input labels/values and original-before-accounting combined announcement
+order. This is accessibility-tree coverage, not a physical spoken VoiceOver certification.
+Run 12 passed the new date/accessible-value assertions and English flow but still activated the
+date editor during Chinese editing with the keyboard occupying the lower viewport. Excluding
+button frames alone did not settle that interaction; it is retained as non-pass. The candidate
+now provides localized Done only while an FX numeric field owns focus, allowing the user/test to
+finish editing before inspecting the preview. The UI asserts that the button exists and the
+keyboard actually disappears; ordinary-entry/other-field keyboards are not opted in.
+Runs 1–12 remain non-pass. The source review
+of the earlier candidate remains attached to that earlier snapshot, not this added focus control.
+Hosted job timeout is 60 minutes: B closeout already took 35m25s and C adds a fresh isolated-host
+build/run and native binding reads after the full ordinary suite. No suite or runtime gate is
+removed and the dedicated host still has no retries.
+The strict iCloud storage inventory rejected an unnecessary host `.modelContainer` modifier;
+it was removed because both real views use the injected DataActor. No storage allowance widened.
+
+Host run 13 executed both cases once Passed (Chinese 104.530s, English 40.663s; zero skip/failure).
+Its original wrapper nevertheless exited 1: the native tree and details contain pure Runtime
+Warning leaves, initially treated as unknown attempts. Native activity timing places one warning
+per case after first focusing original amount and before input; the emitted source URL is empty.
+Four retained screenshots were read by the author and independent reviewer; neither identified
+the corresponding layout defect, but the warnings remain unresolved, not declared harmless.
+
+The FX reader now separates only exact two-key, nonempty Runtime Warning diagnostic leaves;
+results, identities, nested children and extra keys are rejected. Tree/detail warning multisets
+must agree and each warning is reported once, preserving two diagnoses rather than counting four
+observations. Self-tests pass 612 disguised-execution and 68 warning-mismatch negatives plus the
+existing execution/isolation negatives; four native CLI positives and 16 negatives also pass.
+Independent incremental review of gate SHA-256
+`17ab946e34d386e397e6a593446d389ddc8e44b0613817df0af61ad99a4f54fa` found no P1/P2/P3,
+rejected 26 further CLI negatives, passed two positives, and read run 13's tree and both details.
+The corrected reader passes both actual UI bindings and the earlier focused-2 32 unit bindings.
+Original run-13 wrapper failure remains non-pass; retrospective revalidation is remediation
+evidence, not a replacement for a fresh validator run or a frozen-head approval.
+
+Independent source-increment review also found no P1/P2/P3 for the new focus control at EntrySection
+SHA `493ec6d7c34acfd9993d6291f0821310803384ff92a127d66f9e39456fef83aa` and UI-test SHA
+`641ff3762e9d58a179d1a19f97a462ba29e668c0b3f0eed7631800f312a68f57`.
+Complete local `Scripts/validate.sh` is now running without retries or benchmark skips, using
+`/private/tmp/mindbudget-fx01c-full-1.xcresult` plus its separate `-FX-UI.xcresult`. Static gates
+completed and Release compilation started. Exact-head hosted CI and frozen-head review remain
+mandatory; C is not Done and D remains unentered.
+
+## 2026-09-04 — FX-01C hosted native-format diagnostic
+
+The complete local validation of `7460081` subsequently exited 0, including the isolated strict
+benchmark, all ordinary tests, coverage, 32 FX unit bindings, and two freshly built FX UI methods.
+Independent native audit counted 606 ordinary details (590 Passed / 16 Skipped), 615 concrete
+results (599 Passed / 16 Skipped), no extra attempts, and no Failed-to-Passed. The original B
+inventory remained unchanged; additions were 15 C unit passes and two ordinary-scheme FX UI
+skips, separately executed once Passed in the dedicated host. Two layout runtime warnings,
+the Binding setter compiler warning and simulator diagnostic-collection error remain in logs.
+This is not zero-warning, physical accessibility or StoreKit purchase evidence.
+
+Hosted run `33885693529` attempt 1 on that head failed after ordinary tests, coverage and C6-02's
+23 bindings passed. The new FX reader rejected the first FX method with `concrete configuration
+identity/result mismatch`. The dedicated FX UI stage never started. The run remains non-pass.
+Artifact `9943119027` has SHA-256
+`fd8225714b4f128a51c382ba805922dfb4b199844ccf327f6f4cbc24dfa18a9e` and contains only the ordinary
+result bundle. Xcode 27 locally re-reading it gives matching configuration fields; that cannot
+prove what hosted Xcode 26.6 originally emitted. Independent inspection agrees the combined
+error does not identify which field differed, so no compatibility fallback has been added.
+
+A temporary read-only hosted diagnostic workflow pins that artifact/digest and reads the single
+rejected case with Xcode 26.6. It builds/launches no app and runs no test; its JSON is diagnostic
+evidence only, never current-head acceptance. The ordinary CI remains required and unchanged.
+The diagnostic workflow will be removed after obtaining the native sample; a remediation must
+retain exact identity, one Passed device/configuration/run, and no retry laundering, then receive
+independent rereview and new-head hosted validation. C remains In Progress; D is unentered.
+
+Independent read-only review of diagnostic workflow SHA-256
+`171161bd0162aaa221d8672ac2e05c6faa19b3ab4f4dcfac91c3538586d7740a` found no P1/P2 and accepted
+its diagnostic scope only. Shell and both embedded Python blocks parsed; money, network,
+commercialization, StoreKit and FX static gates passed. `sourceHead` denotes the PR source head,
+not the artifact's synthetic checkout SHA. Diagnostic success cannot replace the failed CI run.
+
+## 2026-09-04 — FX-01C native-format cause established and narrowly remediated
+
+Diagnostic run `33890321460` succeeded on `934cf50`, reading the frozen failed artifact with
+Xcode 26.6 build `17F113`. Its artifact `9943551554` ZIP SHA-256 is
+`ee6680bd2aa2d7367611a986dc3a8f19af741571e0d6cba5a6fd99e54b2fcb06`. The unchanged JSON is retained
+as `Scripts/Fixtures/fx_native_xcode26.json` with SHA-256
+`dbd4dd3b6546a64b1368b702582f8cba29d96eb3ffd622dcd5632b3f42387628`. Independent comparison
+proved the configuration node's absent `nodeIdentifierURL` was the only gate-relevant difference
+from the same bundle read by Xcode 27. All main identity/result and device/configuration IDs match.
+
+The checker now permits only that key's absence, validates any present URL exactly, and rejects
+non-string/empty device and configuration IDs without coercion. Both shapes have negative tests;
+the native sample goes through the actual CLI among the complete required inventory. Missing
+primary identity, null/empty/wrong configuration URL, bad IDs, extra runs and Failed-to-Passed
+remain rejected. Self-tests pass 1,428 detail negatives and nine CLI positives / 34 CLI negatives,
+plus the existing 22 isolation, 374 tree, 612 disguised-execution and 68 diagnostic-closure cases.
+
+The diagnostic workflow is removed, recoverable in commit `934cf50`; normal CI/validation order
+and all Swift source are unchanged. Normal CI `33890321361` on that diagnostic head was cancelled
+after the short diagnostic completed, rather than repeating the known unremediated gate failure.
+That cancellation and original failure `33885693529` remain non-pass. The corrected reader's
+source and new-head hosted execution still require independent review; C is In Progress, D unentered.
+
+Independent delta rereview then accepted checker SHA-256
+`979a82a41d41950d681a98245de24b253f7922a9d8fd5b6e963b4ff646f2909b` and the unchanged native
+fixture, with no P1/P2/P3 blocking findings. It independently ran the self-tests plus four
+additional complete-CLI positives and 44 negatives, including absent configuration URL with
+wrong/typed IDs, duplicate execution, Failed-to-Passed, missing main identity and mismatched
+diagnostics. It verified the actual native fixture is consumed in the complete 32-binding CLI
+inventory, and confirmed Swift/ordinary CI/validate/UI runner are unchanged. This accepts the
+source delta for freezing and new validation, not a product merge before hosted/native acceptance.
+
+## 2026-09-05 — FX-01C green hosted run rejected by independent native audit
+
+Head `4d8a856e8640c725e1560b4173b46f818c67bcf9` completed a fresh full local validator without
+test retries or a strict-benchmark skip. Independent inspection accepted all 606 ordinary method
+details (590 Passed / 16 Skipped), 615 concrete results (599 Passed / 16 Skipped), coverage,
+C6-02's 23 bindings, FX's 32 bindings, a separate strict benchmark, and two fresh dedicated FX UI
+cases each Passed once. Two layout warnings remain unresolved. These are local results only.
+
+Hosted run `33892068800` attempt 1 reports GitHub success on that exact head, but independent
+inspection of **all 606 native method details** found one ordinary UI Failed-to-Passed retry:
+`MindBudgetPhase3UITests/testCategoryChartLegendKeepsSixItemsReachableInEnglish()` first Failed
+in 137.990304947s, then Retry 1 Passed in 157.169077992s. Actual concrete results are 599 Passed,
+16 Skipped and 1 Failed (616 total, one extra attempt). The 590/16 aggregate method summary is
+not proof of retry-free execution. Keep this run as **CI green, acceptance non-pass**; no merge.
+
+The hosted log and native failure agree: `enterBudgetValue` called `typeText` for
+`budget.totalBudget` without that element acquiring keyboard focus after its tap. The diagnostic
+hierarchy still reports `budget.monthlyIncome` as Keyboard Focused. The target exists and its
+reported frame is visible; neither `isHittable` nor the presence of a keyboard proves ownership
+of focus. The reason the tap failed to transfer focus is not established; a rerun is not a fix.
+
+C6-02's 23 bindings, FX's 32 bindings and both dedicated FX UI bindings passed under the actual
+hosted Xcode 26.6 reader. The dedicated cases ran once (222.203539014s Chinese / 88.822316051s
+English), with two matching summary/tree/detail layout warnings. Four screenshots were inspected
+without treating readability as a warning fix or physical VoiceOver/StoreKit purchase evidence.
+The original artifact ZIP `9945969991` is 271949520 bytes, SHA-256
+`48977287d54b7e767b276bc338b67da02d0319065b5f12b67189cb0244a0b12f`, matching GitHub. It remains
+unchanged. Local Xcode 27 native re-reading can alter extracted database files; those working
+databases are not claimed to remain byte-identical to the original ZIP.
+
+The owner authorized publication without local paths. The independent rejection was relayed by
+the implementation account at PR #114 comment `5543850336`, explicitly not a separate-account
+approval. Source remediation and fresh exact-head independent/hosted acceptance remain pending;
+FX-01C remains In Progress, with no FX-01D/E/FX-02 or release entry.
+
+The first focus command was invalid (`-retry-tests-on-failure NO` treats `NO` as an unknown build
+action); it exited before testing and is not evidence. Corrected probe 2 omitted the retry flag
+and ran once: public `hasFocus` did not confirm any of the three text fields and the case failed.
+Probe 3 tested a strict `debugDescription` header parser plus English category flow (two methods
+Passed once). Independent review then cited the SDK's explicit unsupported-dependency warning;
+that parser and its temporary test were removed instead of treating a passing probe as sufficient.
+
+The current candidate uses only supported center taps, bounded keyboard/field geometry settling,
+one targeted `typeText` per value, then exact readbacks after leaving the final editor. Any setup
+failure terminates the test; no global typing, private focus KVC or corrective input is used.
+Hosted automatic test retries are disabled and six workflow negatives plus actual stubbed test
+argument checks enforce the no-retry caller. Focus probe 4 covers English category, English AX1/AX5
+and pseudo-long navigation without retries; its results and independent implementation review
+remain pending at this checkpoint. No Swift product code changed for this remediation.
+
+Probe 4 then ended non-pass: English AX1/AX5 Passed (82.014s), English category Passed (91.943s),
+pseudo-long Failed (54.902s). After entering all amounts, the first return to monthly income
+encountered a virtualized earlier Form row; the helper's missing-row branch scrolled only toward
+later rows. It never reached the readback assertion. Preserve this failure separately, rather
+than asserting the two passing cases close the fix. The next candidate supplies an explicit
+earlier-row direction for that return and reveals/prepares each readback row in sequence; it
+does not assume all three are present in the accessibility tree or type any amount again.
+Probe 5 is fresh, without XCTest retries; its three results remain pending.
+
+Independent review accepted only the unchanged CI no-retry delta and its finite-stub execution:
+three success paths, 21 command failures and six workflow negatives. That is not helper/source
+acceptance, new-head hosted evidence, or permission to merge.
+
+Independent source rereview then accepted the stable seven-file remediation delta, with no new
+P1/P2/P3. The reviewed UI-test SHA-256 is
+`5455e3824c7e8905d6b7eadb5132a895575022e6887a8e619fdabd3c75569890`; the workflow and ordering
+checks match their independently executed snapshots. The reviewer confirmed direction-aware
+missing-row scrolling, measured-frame scrolling for existing rows, sequential exact readbacks,
+only three targeted typing calls and fail-stop setup. No diagnostic-text focus predicate remains.
+This permits freezing and new verification only. Probe 5, new-head full local validation and
+hosted/native acceptance remain outstanding; no merge or C completion is claimed.
+
+Probe 5 subsequently completed with all three cases once Passed: English AX1/AX5 100.444s, English
+category 97.211s and pseudo-long 72.208s. The author's native summary/tree/all-three-detail audit
+confirmed three concrete Passed results, zero extra attempts and no Failed-to-Passed. The first
+sandboxed native read failed with permission error 64 while creating a TestReport derived cache;
+the authorized native reread succeeded without a new test run. This does not erase probe 2 or 4.
+All five static gates passed: floating-point money, network egress, StoreKit catalog,
+commercialization documents and the FX contract (454 copied-CLI mutations, seven fault cases,
+3/21 ordering cases and the six new hosted retry-policy negatives). Final frozen-head complete
+local and hosted acceptance are still required after this focused remediation evidence.
+
+Independent native review of probe 5 confirmed all three details each contain a single Passed
+device/configuration/run, zero skips/extra attempts/Failed-to-Passed and no runtime warnings.
+It also caught an evidence-label error in the first frozen remediation commit `aee3faa`:
+`testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable` launches in English at
+AX1 then AX5; it does not run Chinese. The focused-run descriptions above and the candidate test
+plan are corrected accordingly. Those two launches are the intended comparison inside one test,
+not retries. All four setup flows have exactly three targeted input activities, three exact
+readback predicates and one Save-to-Dashboard transition (12 input / 12 readback / four Save
+activities overall), with no failure-associated activities. This focused probe is English-only.
+Ordinary Chinese regressions and the separate Chinese AX5 FX host remain required in complete
+new-head validation, not claimed from probe 5.
+
+## 2026-09-05 — Complete local Settings-history non-pass and scoped lookup candidate
+
+Frozen head `221dcd9428033a2d891d7a6b1addab970c472cd7` completed its separate strict benchmark
+once Passed, independently verified with the strict prior inventory. Full local validation then
+exited 65 after ordinary UI, with retries disabled. Native summary is 606 methods: 589 Passed,
+16 Skipped and 1 Failed; concrete device totals are 598 Passed / 16 Skipped / 1 Failed. Ordinary
+UI is 16 Passed / 3 Skipped / 1 Failed. No coverage, C6-02/FX binding verification or dedicated
+FX UI stage ran after this failure. The strict pass and passed category cases do not erase it.
+
+The sole failed method is `testSettingsShowsExportAndPrivacyControls()`, one execution lasting
+70.215324998s, at the historical `0.9.1` assertion (then line 719). Budget save, appearance switch,
+privacy and About navigation had passed. The native final hierarchy shows the history already
+expanded at `0.9.2`, including its long body, and an eight-page list at about 81%. The original
+recording frame requested at 68s (actual 67.98s) agrees. Independent read-only review verified the
+closed summary/detail/activity records, hierarchy and frame. The failure is not evidence that
+the disclosure tap failed or product catalog entries disappeared; five whole-app swipes did
+not reveal the later virtualized row. About product source is unchanged from the C base.
+
+The candidate changes only that test's history lookup. It preserves `0.9.1`, first verifies the
+expanded `0.9.8` heading, scopes short drags to About's collection, and continues only with
+observable movement of the same uniquely identified instantiated heading. Success separately
+requires the target's full nonempty frame in the unobscured list lane; no progress or exhausting
+20 drags fails, including after the final drag. It can reverse for a target above the lane.
+No repeated disclosure tap, product mutation, deleted assertion or acceptance retry is added.
+Focused execution and independent implementation rereview remain pending. Hosted `33900664975`
+continues on the older frozen head; even a hosted pass cannot accept this new source or erase
+the full local non-pass. PR #114 remains Draft, C In Progress and D unentered.
+
+The settings-focused probe then passed once in 91.640970945s. Author and independent native
+audits agree on one method, one concrete Passed device/configuration/run, zero skips, extra
+attempts, Failed-to-Passed and runtime warnings. The independent activity audit found one
+disclosure tap, the `0.9.8` expansion anchor without dragging, and nine bounded drags toward
+`0.9.1`; the fixed heading identities progressed through `0.9.8`, `0.9.7`, `0.9.6`, `0.9.5`,
+`0.9.4` and `0.9.2` before the target became visible. Both reviewers inspected the retained
+final screenshot showing the `0.9.1` heading and beginning of its body. This verifies this
+mechanism on the specified simulator only, not a complete regression pass or physical evidence.
+
+Independent source review accepted the five-file test/document delta at UI-test SHA-256
+`57a3cdd442846f0a37653419244342aa3c57f46d4d541f39cc16dded18b3c9a8`, with no P1/P2. The initial
+static command passed the four existing shell gates but then used a nonexistent `.py` filename
+for the FX wrapper and exited 127; it is not an FX-gate pass. The corrected shell gate then
+passed, including 454 copied-CLI mutations, seven process faults, 3/21 ordering scenarios and
+six hosted no-retry negatives. A screenshot export filter initially matched no attachments; full export obtained
+the original screenshot without rerunning the test. The review agent's initial native read
+needed permission to create a TestReport derived cache; its subsequent read is not a test rerun.
+All original failures remain retained. New frozen-head complete local/hosted validation is still
+required before this PR can merge; source and focused acceptance alone do not close C.
+
+## 2026-09-05 — Hosted budget-settle failures supersede the exact-frame wait
+
+Hosted run `33900664975` on old head `221dcd9` completed Failure with ordinary UI 15 Passed,
+three Skipped and two Failed. The run had retries disabled. Native inspection of its downloaded
+artifact closes all 606 methods at 588 Passed / 16 Skipped / two Failed, with device/configuration
+totals 597 Passed / 16 Skipped / two Failed. Both failures have one concrete Failed run and no
+Repetition. The English AX1/AX5 method failed in its first AX1 setup after entering 500 and before
+launching AX5; the Simplified Chinese category case failed before its first saving-goal typing.
+Both stopped at `Budget editor and keyboard did not settle: budget.savingGoal`. No failure
+attachments exist. The artifact upload is 206167652 bytes, SHA-256
+`66eb27e4c25860672a24c90cb07c585fa874c20f735528d9b5f610ece07e3c4c`. The downloaded extraction
+was not opened by the local native reader; a separate working copy received its derived index.
+
+The first failed flow's second settle poll found no keyboard; the second failed flow completed
+two keyboard/field/nav polls but had no accepted exact-equal pair before timeout. This proves that
+requiring two exact `CGRect` snapshots within five seconds is not a reliable hosted interaction
+precondition. The available artifact and log do not disclose actual frames or subcondition values,
+so they do not prove keyboard disappearance, geometry jitter, navigation failure or a product
+layout defect as root cause. Independent review retains the About focused pass and strict4 only
+conditionally and rejects whole-head merge.
+
+Current head `c332e53` local full run 4 then exited 0 with no test retries or strict-benchmark skip.
+Native all-detail audit reports 606 method details (590 Passed / 16 Skipped), 615 concrete entries
+(599 Passed / 16 Skipped), exact inventory equality with the previously accepted run, and no
+extra or failed attempt. Coverage, C6-02 23 bindings, FX 32 unit bindings, strict4 and two separate
+FX UI bindings also passed; both existing FX layout warnings remain. This local result cannot
+erase the two hosted failures because its budget helper is unchanged. Its current hosted run is
+also not evidence for the subsequent working-tree repair.
+
+That current hosted run `33903657605` later completed Failure on exact head `c332e53`, also with
+runner retries disabled. Native summary/tree show 606 methods: 587 Passed, 16 Skipped and three
+Failed; concrete device totals are 596 Passed, 16 Skipped and three Failed, with no runtime warning.
+Each failed detail contains exactly one device/configuration/concrete Failed run and no Repetition.
+English AX1/AX5 failed at the old monthly-income settle wait in 63.294551969s; language switching
+failed at total-budget settle in 60.428116918s; English category failed at monthly-income settle in
+50.726115108s. The 262437777-byte artifact upload SHA-256 is
+`e0c7c6d1d126cb6c115fa75f75849c148eb7620ccbe12d8e56cc856ad2e99406`; the original extraction is
+preserved and native reading occurred only on a separate working copy. This is another non-pass
+for the unchanged superseded helper and cannot evaluate the uncommitted replacement.
+
+The repair separates bounded no-tap reveal from input focus preparation. Each entry reveals,
+taps center, requires keyboard existence, re-reveals after layout, taps center again and performs
+one target `typeText`. After all inputs, monthly income gets the same two-tap preparation once,
+intended to move away from the final editor;
+the three fields are then only revealed and exactly read back. No global typing, corrective input,
+runner retry, private/debug focus inspection or product instrumentation is added. Diagnostics now
+report public geometry/condition state on failure. A focused no-retry probe, source/runtime
+rereview, freeze, full local and hosted native acceptance are pending; C remains In Progress.
+
+Budget replacement probe 1 failed during Swift compilation before any test executed: escaped
+inner literals made two diagnostic interpolations invalid. The compile failure is retained as
+non-pass. The correction computes the optional keyboard/navigation frame descriptions separately,
+without changing the interaction contract. Probe 2 must use a new result-bundle path.
+
+Probe 2 used that new path and passed the four requested UI methods once on the specified iOS 26.5
+simulator. Native summary reports 4 Passed / 0 Failed / 0 Skipped and no runtime warning; all-detail
+audit reports four detail records, four concrete Passed results, no Repetition, extra or failed
+attempt. Activity inspection confirms that the AX method's two launches are the intended AX1 and
+AX5 branches, while the other three methods launch once. Every setup types 3000, 2500 and 500 once,
+uses two explicit center taps per input, performs two further monthly-income preparation taps
+intended to move away from the final editor, and then evaluates each of the three exact readbacks
+without another field tap. All five static gates
+passed afterward.
+
+Implementation-separated read-only rereview found no P1/P2/P3 in the current source and focused
+runtime evidence. It independently read the native result and accepted UI-test SHA-256
+`5eb40d7670f684fa1d42fcffa371d0dd83b60f53e3f7bb0de26f34746d52a54b` for freezing only. The
+implementation GitHub account relays that conclusion; it is not another account's or a human's
+approval. A committed exact head and complete fresh local/hosted native evidence are still required
+before merge. Because the later hosted run additionally failed the language-switch method, the
+four-method focused result is not enough for freeze; a new focused path must include that fifth
+method. C remains In Progress with D unentered.
+
+Focused probe 3 then ran English AX1/AX5, language switching, both localized category cases and
+pseudo-long at a fresh result path without runner retries. Native summary and all five details
+close at 5 Passed / 0 Failed / 0 Skipped, five concrete Passed executions, no Repetition, extra
+attempt or runtime warning. Activity counts show the AX method's two intended launches; each
+launch has exactly one targeted type of 3000/2500/500, four monthly-income taps (the input pair and
+the later preparation pair), two taps on each other input, and one exact readback per field. Each
+of the other four methods has one launch with the same per-setup counts. The added language-switch
+case therefore passes the candidate mechanism once; final implementation-separated source/runtime
+rereview is still required before freezing a new head, and complete local/hosted acceptance remains
+mandatory afterward.
+
+## 2026-09-05 — Exact-head hosted green followed by Binding actor-contract P2
+
+PR #114 head `c2fd249a7467df995c898746b8e524efd0d4c553` first completed the full local validator with
+no runner retry and with a separate strict benchmark. The ordinary native audit found 606 method
+details (590 Passed / 16 Skipped), 615 concrete executions (599 Passed / 16 Skipped), exact prior
+inventory equality, 23 C6 bindings, 32 FX unit bindings and no failed or extra attempt. The two
+dedicated FX UI cases each Passed once while retaining one known layout diagnostic.
+
+Hosted run `33909424630` then succeeded on the same head. Artifact `9952259201` upload SHA-256 is
+`34bf2f8d667a2c296857f401cc747b1092faab618df5c4995ecf3d20762cf205`. Independent native reading
+of an artifact copy reproduced 606 ordinary details at 590 Passed / 16 Skipped and 615 concrete
+results at 599 Passed / 16 Skipped, with no Repetition, failure or extra attempt and exact local
+inventory equality. Both dedicated FX UI details contain one Passed run and one known
+`Invalid frame dimension (negative or non-finite).` diagnostic. Hosted intentionally omits only
+the 500 ms wall-clock oracle; its deterministic 10,000-row projection method exists once Passed.
+
+Independent review then rejected merge with one P2: `ForeignCurrencyEntrySection.numericField`
+accepted its setter as a plain escaping closure and passed it to SwiftUI's
+`@Sendable @isolated(any)` `Binding` setter. All three callers mutate the main-actor
+`ExpenseFormViewModel`; the erased contract generated an Xcode 26.6 warning and a UI pass does not
+prove concurrency safety. The helper parameter is changed to
+`@escaping @MainActor @Sendable (String) -> Void`, with no unchecked conformance or warning
+suppression. A local Xcode 27 build-for-testing exited zero without that source warning; unrelated
+existing diagnostics remain. This is a compile check only. The product Swift change invalidates
+c2fd249 as merge evidence, so a new frozen head needs independent rereview plus complete local and
+hosted/native acceptance. C remains In Progress; D is not entered.
+
+## 2026-09-05 — Hosted Xcode 26.6 exposed a compiler crash in the annotated FX setter thunk
+
+PR #114 hosted run `33917389140` failed on exact head
+`add6231aab9ae731c57b01415eb8aa3f06c4ba97`. Every pre-build static step passed, but the Xcode
+26.6 Release build aborted before testing. The complete job log identifies Apple Swift 6.3.3 and
+a crash while emitting IR for a compiler-generated closure conversion thunk; the two reported
+failures are the Swift compile and enclosing project build, not test failures. This exact-head run
+is retained as a non-pass. The prior local success and c2fd249 hosted success cannot be reused.
+
+The replacement source no longer transports a form-mutating closure through the numeric-field
+helper. It passes an exhaustive `Sendable` field enum, creates the `Binding` setter directly in
+the SwiftUI view method and performs the existing main-actor model mutation there. It does not use
+`@unchecked`, a compatibility annotation or warning suppression. A local Xcode 27 Release build
+for the generic simulator completed successfully on both architectures; this is a focused compile
+probe only. After a new commit, implementation-separated review and complete fresh local/hosted
+validation with native artifact inspection remain mandatory. FX-01C stays In Progress and FX-01D
+is not entered.
+
+## 2026-09-05 — PR #114 provenance correction and hosted keyboard-snapshot non-pass
+
+The owner-supplied review found no product-source P1/P2 on `bed216b`, but required correcting
+the stale PR current-state section, recording complete local validation and waiting for this
+head's own hosted/native acceptance. The PR body was corrected without a code commit. It now
+identifies `bed216b408b7da8aed80d71d92d01fd574ba4a2c`, preserves `33917389140` on `add6231` as
+the pre-test compiler-crash non-pass and links the subsequent implementation-separated local
+audit. Complete local `Scripts/validate.sh` on bed216b had exited zero with retries disabled:
+606 ordinary method details (590 Passed / 16 Skipped), 615 concrete results (599 / 16), all
+23 C6 and 32 FX unit bindings, coverage, a separate strict benchmark and two dedicated FX UI
+methods once Passed. Its two known frame diagnostics remain. This completed local evidence
+postdates the preceding checked-in compile-probe checkpoint; it is not hosted acceptance.
+
+Hosted run `33921069764` attempt 1 then failed on that exact head. The checked-out synthetic
+merge `357f976116fe16856b482ed324a394823d91c608` and head have the same tree
+`0e0e685c85ee67cff6876108b204107b4b5066ee`. Release and test builds both succeeded under
+Xcode 26.6: the previous IRGen crash did not recur, but the overall run is non-pass. Ordinary
+native summary/tree report 606 methods: 589 Passed / 16 Skipped / 1 Failed; device totals are
+598 Passed / 16 Skipped / 1 Failed. Ordinary UI is 16 Passed / 3 Skipped / 1 Failed. Coverage,
+binding-verification and dedicated FX UI stages were not reached after the ordinary failure.
+
+The sole failure is `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable()`.
+Its native detail has one device, one configuration and one Failed execution lasting
+205.671247s. The call stack identifies the second, AX5 setup, after entering all three values
+and before their exact readback, while preparing monthly income. At `revealBudgetField` line
+1435, a successful keyboard existence query was followed by a separate frame query that could
+no longer resolve a Keyboard. The log and implementation-separated diagnosis identify a
+time-of-check/time-of-use defect in the test helper, not a proven product amount error or the
+dedicated FX UI runner's 240-second timeout. The tree contains no Repetition, but only the
+failed method's full detail was inspected in this diagnostic pass; this is not an all-detail
+retry-free acceptance audit. No test or workflow was rerun to erase the failure.
+
+Artifact `9956101379` is 246055592 bytes and matches GitHub upload SHA-256
+`fa8ae0ab77ac2b013bae868f99a7ae1c0f79af72da3e5a4a1ceda139336e7fd8`. It contains only the
+ordinary `MindBudget.xcresult`, consistent with the unexecuted downstream stage. The original
+ZIP and extraction were retained; Xcode 27 inspected a separate working copy. An initial native
+read was denied a derived TestReport-cache write by the sandbox, then the permitted read
+succeeded. Neither read launches the app or retries a test.
+
+The current PR body was updated again when this failure became terminal; it no longer calls
+`33921069764` running. PR #114 remains Draft. Product/test source is unchanged during this
+diagnosis. Any subsequent helper repair needs a new exact-head source review, complete local
+validation and hosted/native acceptance, not reuse of bed216b's local pass. C remains In Progress;
+merge still needs separate closeout before D entry. The owner's five non-blocking P3 observations
+remain recorded in the PR follow-up; none was silently treated as fixed.
+
+## 2026-09-05 — Owner-directed snapshot repair and direct PR handoff
+
+The owner requested implementation and PR handoff for personal review, without another
+agent-approval/new-head validation cycle. This supersedes the proposed additional agent review,
+not the historical evidence or merge status. A normal repair commit necessarily changes the
+existing branch head; no replacement PR, automated merge, C completion or D entry is authorized.
+
+The test-only repair replaces budget field/save/chrome `exists`/`frame` pairs with a single
+public App snapshot per sample and a pure geometry reducer. Captured frames and identifiers
+remain value copies, including diagnostic messages and input tap centers. Missing navigation,
+capture failure, invalid frames, duplicate typed target or contradictory chrome fail and return
+before subsequent input/Save. An absent virtualized target still requires bounded reveal.
+Save must fit wholly below navigation and above the keyboard. Live `isHittable` remains only an
+extra readiness condition. The input counts, all three exact readbacks, 12-drag limits and
+bounded Save-to-Dashboard handshake remain; product Swift, timeout and runner retry settings
+are unchanged. Two deterministic tests cover successful sampling and fail-closed cases.
+
+At UI-test SHA-256 `35cad00344527dfb07eb9300c85439164d2a9e7712b3bffd6a2608b31250a071`, the
+`snapshot-focus-1` build/test command passed six actual methods without runner retries:
+English AX1/AX5, language switching, both localized category cases and the two new geometry
+methods. Native summary, tree and all six details close at six concrete Passed executions,
+zero skips/failures/extra attempts and no runtime warning. AX1/AX5 lasted 73.841s, language
+switching 37.641s and category English/Chinese 86.517s/85.647s. These are local development
+measurements, not hosted timing bounds. The first command misspelled the intended seventh
+pseudo-long selector, so its result is explicitly six-method coverage, not seven; a separate
+fresh bundle with the actual method name is required to cover that missing case.
+
+Money, network-egress, commercialization-docs, StoreKit catalog and FX contract gates passed,
+including their existing negative self-tests. `git diff --check` passed. Existing unrelated
+build warnings remain (App Intents metadata and weak-session mutability); no warning-free build
+is claimed. No complete ordinary validator, dedicated FX UI run, physical run or independent
+source rereview is claimed for this test-only patch. PR #114 will carry the actual local
+coverage and current hosted status for the owner's review; old `33921069764` remains non-pass.
+
+The separate `snapshot-pseudolong-1` bundle subsequently ran the exact
+`testPseudoLongTextKeepsOnboardingAndPrimaryNavigationReachable()` method once Passed in
+58.140s, on the unchanged compiled test source. Native summary/tree/its sole detail close at
+one concrete Passed execution, no skip/failure/extra attempt and no runtime warning. Together
+the two fresh bundles cover seven distinct methods; no method was repeated between them.
+This closes the selector mistake's local coverage gap without relabeling the first bundle.
+The owner-review handoff contains only these focused results, not a current-head complete
+validator or hosted-green claim. The previous hosted failure and all earlier non-passes remain.
+
+## 2026-09-05 — Retain bb4366b failures and diagnose About progress observation
+
+Following the owner's request to repair before personal review, continue on existing PR #114
+branch `codex/fx01c-manual-entry`, based on `bb4366b7ea79f44e47cc9e515143f141ecc8387f`.
+These prior audit facts were already reported in the PR; they are not new test runs:
+
+- Complete local `Scripts/validate.sh` exited 65 at the separate strict 10,000-row Dashboard
+  benchmark: 808.754667 ms exceeded 500 ms. Static gates and compilation had passed; the ordinary
+  suite, coverage/bindings and dedicated FX UI did not start. No benchmark root cause was proven.
+- Hosted `33930201365`, attempt 1, failed on that exact head. Native ordinary inventory was
+  608 methods (591 Passed / 16 Skipped / 1 Failed), with 600 / 16 / 1 concrete results and no
+  tree Repetition. Four details were inspected diagnostically, not all 608 for acceptance.
+  The sole failure was `testSettingsShowsExportAndPrivacyControls()` once, 120.715643 s; its
+  fifth bounded drag toward 0.9.1 failed the selected 0.9.4-heading progress wait despite movement
+  visible in the recording. This proves a detector false negative, not its precise internal
+  frame/virtualization cause. Coverage, bindings and dedicated FX UI were not reached.
+- The previously verified hosted ZIP was artifact `9958992190`, 268952052 bytes, SHA-256
+  `190b0abcb514a1aaabbb978baedfab4220b7d6449675da09f834293a09118d75`. Prior temporary audit
+  directories are no longer present; this session does not claim to have re-read that ZIP.
+
+Temporary timing of the real Dashboard path produced two diagnostic strict-benchmark passes.
+The first measured approximately 267 ms across ensure-plan, cooling, fetch/projection, snapshot
+and pace stages. The second measured approximately 214 ms, including 129.508 ms model fetch and
+70.790 ms projection. These sums are diagnostic stage measurements, not a replacement exact
+whole-load metric, full validation, or an explanation of the earlier 808.754667 ms. All temporary
+product timing code was removed; DashboardView and DataActor match the parent commit.
+
+Retained development non-passes in ignored `TestResults/fx01c-repair-20260905.5S4ppF/`:
+
+- `scroll-and-perf-build.log`: compilation stopped at an ambiguous `.nan` test fixture; corrected
+  to `CGFloat.nan`. No tests executed in that build.
+- `scroll-and-perf-focus-1.xcresult`: 3 Passed / 1 Failed / 0 Skipped. Both geometry methods and
+  the instrumented strict benchmark passed; the Settings flow failed after nine drags because
+  the first reducer reported no visible unique anchor with 0.9.1 just below the safe lane.
+  The bundle also logged a subsequent simctl diagnostic-collection error.
+- `scroll-focus-2.xcresult`: runner launch was refused by SBMainWorkspace with Busy / application
+  preflight checks. No selected method executed. A subsequent device query found no booted
+  simulator; explicit boot and successful bootstatus preceded a fresh bundle. This establishes
+  a launch failure and recovery sequence, not the unobserved cause of the shutdown.
+- `scroll-focus-3.xcresult`: 2 Passed / 1 Failed. Including uniquely labeled combined `Other`
+  nodes did not repair the no-anchor case. This hypothesis was not promoted to a proven fix.
+  A subsequent diagnostic candidate records all public foreground nodes from the same snapshot
+  so the excluded body identity can be established rather than guessed.
+
+Complete local validation, new exact-head hosted evidence and the owner's PR review remain
+pending at this checkpoint. Non-passes remain distinct from subsequent development probes.
+PR #114 stays Draft; C stays In Progress and D stays unentered.
+
+`scroll-diagnostic-4.xcresult` retained the same Settings failure with diagnostic-only source
+changes. Its complete foreground value-tree dump established the actual missing-anchor cause:
+each visible body was two `StaticText` nodes, an ancestor and its child, with identical public
+type, identifier, label and frame. It was not an `Other`-node omission. The replacement collapses
+only that exact ancestor echo before uniqueness indexing. New deterministic assertions keep
+duplicate siblings/rows and differing descendant geometry ambiguous. Full-label/type matching,
+list-relative directional movement, visibility, bounded dragging and exact target checks remain.
+The superseded probes stay non-pass; a new focused bundle tests this source correction.
+
+`scroll-focus-5.xcresult` passed the corrected source (UI-test SHA-256
+`700487bebd02f63bdd92596162e3d919148ebd5fcf0e9d4c099cf437dcf4cca4`). Native summary, tree and
+all three details contain exactly three Passed executions, no skips/failures/Repetition/extra
+attempts and no runtime warnings. Settings took 83.925299 s; both pure geometry methods also
+passed once. The ninth drag's immutable attachment contains visible unique 0.9.2 body text
+and the target moving from y=893.667 to y=517.667, wholly inside the y=148...850 lane.
+This is direct runtime evidence for the repaired progress path, not a complete validator pass.
+
+The strict benchmark now prints its already measured interval after the timed load, on both
+success and failure. The timed operation and 500 ms assertion are unchanged. This diagnostic
+does not manufacture an explanation for the old slow sample. Five static gates and
+`git diff --check` passed before full validation. Complete local and hosted acceptance are
+still pending for the normal repair commit; the owner will review the existing Draft PR.
+
+## 2026-09-05 — b441df9 runtime results, owner review and Terms diagnosis
+
+The About repair was pushed to existing Draft PR #114 as
+`b441df93c4df251ceab44a52de5fc57aa5fe73d9`. Hosted run `33952509502` attempt 1 succeeded
+on that head. Artifact `9965854650` is 95412369 bytes, SHA-256
+`cb592452d935ed24882cc5ea8bfa8dde165004e333d0a5a47900e0fdf72e9b49`; all 2692 ZIP entries
+passed integrity/path checks. Synthetic checkout merge `80449d71cd7ef68109c7e11f54205a8270a6e366`
+has b441df9 as second parent and tree `ff7123f59a7a7f0688140482338e6779087faa4f`, identical
+to the candidate. All 610 ordinary native details were read: 594 Passed / 16 Skipped methods,
+603 Passed / 16 Skipped concrete results, no Repetition or extra attempt. The four existing
+parameterized methods account for 13 argument executions. Xcode 26.6 uses a shared method URL
+for argument nodes; unique full argument names, matching durations and exact tree/detail
+bijection were additionally checked rather than treating those URLs as distinct. Both dedicated
+FX methods ran once Passed (Chinese AX5 210.724155 s, English 65.599191 s), retaining both
+existing invalid-frame warnings. Ordinary runtime warnings were empty.
+
+The first local invocation produced a strict benchmark pass at 192.845917 ms and a complete
+ordinary native bundle with the same 610-method / 619-concrete-result counts, no failure,
+Repetition or extra attempts. Settings/About passed once in 83.879061 s. However, the external-
+volume text log stopped before ordinary completion and the expected downstream FX bundle was
+absent despite wrapper exit 0. This unresolved logging/stage-continuity discrepancy is **not**
+accepted as a complete `validate.sh` pass or called a proven test hang. Subsequent explicit
+coverage, 23 C6 bindings and 32 FX unit bindings passed on that ordinary bundle. A separate
+unchanged FX runner passed its two methods once (Chinese AX5 106.596832 s, English 41.216570 s),
+with both known frame warnings and a later simctl diagnostic-collection error retained. This
+staged tail did not rerun ordinary methods and does not close the wrapper provenance gap.
+
+A fresh single end-to-end recapture on the same clean b441df9 head used host-local temporary
+output, strict benchmark enabled and retries disabled. It **exited 65**: the benchmark passed
+at 194.260041 ms, but the ordinary bundle contains 610 methods, 593 Passed / 16 Skipped / 1 Failed
+(602 / 16 / 1 concrete results), no tree Repetition. Every native detail was captured. The sole
+failure was `testProSubscriptionKeepsAX5ControlsReachableAcrossEveryAppearance()` once in
+274.926175 s: neonPulse Terms did not appear in the five-second wait. Coverage, runtime bindings
+and dedicated FX UI were not reached. Its later simctl diagnostic-collection error is separate
+from the assertion failure. This non-pass was disclosed in the PR immediately; hosted green
+does not erase it.
+
+The actual synthesized tap was (201, 340.333) within the enabled Terms row
+(16, 262.667, 370, 155.333), below navigation (bottom 132). The recording and hierarchy remain
+on Pro. This rules out assigning this instance to navigation-bar occlusion, but did not yet
+explain why navigation failed. A focused diagnostic with pre-tap hierarchy capture passed once
+in 301.571937 s; all six legal destinations appeared on the first tap, so neither its late-
+arrival nor diagnostic second-tap probe ran. Those extra queries perturb timing and are not a
+fix. All temporary diagnostic Swift was removed before review. The failed bundle has no console
+log. The simulator's exact-window unified log confirms touch dispatch followed by run-loop and
+animation idleness, without directly explaining the missing navigation.
+
+The owner reviewed b441df9 with no source P1/P2 but retained this local non-pass as a merge
+blocker. On the subsequent explicit repair instruction, work resumes only on this diagnosis,
+evidence-backed repair, complete local validation, new exact-head hosted/native audit and this
+repository synchronization. No undraft, merge, C completion, D entry or physical run is claimed.
+
+Review P3 obligations remain open: before C closeout/D, address the Chinese AX5 FX method's
+210.7 s / 240 s timing margin by a separately reviewed split or evidence-based allowance decision;
+future zero-retry/ordinary-helper infrastructure work should be separated from feature PRs.
+The five earlier copy/reminder/dead-code observations remain unremediated. This repair does not
+silently widen the FX UI timeout, split its bindings, or implement those unrelated changes.
+
+Author-side Terms diagnostics after that review are **not remediation acceptance**:
+
+- `legal-touch-diagnostic-2`: one AX5 method Passed in 243.513509 s with a temporary
+  non-recognizing touch observer. Its intended `print` output was unavailable, so it supplied
+  no touch-target diagnosis. Native summary/tree/detail confirm one run, no repetition or
+  runtime warning.
+- `legal-touch-diagnostic-3`: no tests executed; temporary diagnostic compilation failed on
+  an invalid `UIView(window)` initializer. This was corrected for the next diagnostic only.
+- `legal-touch-diagnostic-4`: one AX5 method Passed in 245.257862 s. Temporary public UIKit
+  touch/scroll observation with OSLog captured actual event targets and deceleration changes;
+  native summary/tree/detail confirm one run, no repetition or runtime warning. An intended
+  three-cycle diagnostic edit had accidentally affected another, unselected theme loop, so
+  this bundle contains only the ordinary three skins once, not nine skins. That edit was
+  removed before the next probe. The complete exact-process log SHA-256 is
+  `df6e41801bab26475ab30ff73de24a78bb197109432a3ad5a3bb485ec7043181`.
+- `legal-touch-diagnostic-5`: tightened only the diagnostic reveal predicate to expose the
+  full legal row, matching the original failure geometry. The method Passed once in
+  241.687263 s, no native repetition or warning. neonPulse Terms was tapped at
+  (201, 340.333), inside the same (16, 262.667, 370, 155.333) cell geometry as the failure.
+  This passing tap reached the normal cell hosting view and observed no deceleration.
+  Consequently neither clipping nor deceleration has been established as the original cause.
+
+All four are distinct diagnostic experiments with temporary source, not reruns relabeling the
+failed complete validator. Added observation can perturb behavior. The view/recognizer/display-
+link probes were removed before a subsequent event-dispatch diagnostic, which leaves the
+original Pro view and legal-click assertions intact and includes the preceding Pro UI method.
+The original Terms failure remains open; no new source fix or merge authorization is claimed.
+
+`legal-touch-diagnostic-6` used the original Pro view, no added view/recognizer/display-link,
+and a temporary DEBUG hook of public `UIApplication.sendEvent(_:)` that called original
+dispatch before recording public touch/ancestor state. It ran the immediately preceding Pro
+entry method (38.094830 s) and the unchanged AX5 legal navigation method (246.135376 s), each
+once Passed, no Repetition or runtime warning. This still did not reproduce the failure.
+The exact-process event log SHA-256 is
+`6ac2fb272ab0e95506e837cd2b8c90a5fd4e6460be603af54ec033d2dbd882de`; temporary source patch
+SHA-256 is `7c3cf3c0e76c1fba33258b9aa105b00310bd392e9fe0eb27990c711713281fad`.
+The hook is diagnostic-only, must be removed before any commit, and is not a production change.
+
+`legal-touch-diagnostic-7-context` executed the complete ordinary UI class in its normal order
+once, using the same temporary dispatch diagnostic for the AX5 method. Native summary, tree and
+all 24 details contain 21 Passed / three existing Skipped methods, each one run, no failure or
+Repetition. The AX5 method passed in 245.438 s; the ordinary unit suite, coverage/binding checks
+and separate FX host are outside this diagnostic. The event log SHA-256 is
+`768ca97da24dbac68c5717cfcc97a2d8381c942f401f88b018a8467b91659cfd`. Neither the focused
+predecessor nor the full UI ordering reproduced the retained failure. Reading the original full
+log also shows its unit tests finished before UI began; direct concurrent unit execution is
+not an established cause. Extra frames around the original tap remain on Pro, but their sparse
+timestamps cannot prove whether a short touch highlight occurred between recorded frames.
+
+The investigation checkpoint is deliberately **unresolved**, not transient and not fixed.
+No speculative navigation repair, extra tap, skip, timeout expansion, new complete validator
+acceptance, or device run is claimed. Temporary Pro/background/touch/scroll/dispatch instrumentation
+and diagnostic launch arguments were all removed. `git diff` against b441df9 over product,
+unit/UI tests, scripts, project and workflow paths is empty; the UI-test file SHA-256 is restored
+to `700487bebd02f63bdd92596162e3d919148ebd5fcf0e9d4c099cf437dcf4cca4`.
+Only this session log and `FX_01C_IMPLEMENTATION_EVIDENCE.md` are synchronized for the requested
+durable record. PR #114 remains Draft and the original local Terms non-pass remains a merge
+blocker, independently of any CI run triggered by this documentation-only checkpoint.
+
+After the owner asked to continue, author inspection distinguished the geometry of the earlier
+successes: most Terms taps were on partially visible bottom rows; the fully visible neonPulse
+success in diagnostic 5 had an added gesture observer. `legal-geometry-diagnostic-8` therefore
+changed only the test reveal predicate to require a fully visible row, with **no App source
+change or observer**, retaining the original single tap and five-second destination assertion.
+It also passed once (240.951882 s; native summary/tree/detail, no repetition). This does not
+establish a deterministic full-row hit-region defect or close the original failure.
+The reveal-only diagnostic edit was then removed and source identity checked again.
+
+Original versus successful UIKit event dispatch logs have different down/up/system-gesture
+notification ordering, but the failed run does not identify which recognizer consumed or
+recognized that touch. Timing correlation alone is not a causal diagnosis and does not justify
+a longer press, retry, or product NavigationLink rewrite. The remaining blocker is an observed
+failed interaction whose mechanism has not been captured; neither these experiments nor the
+documentation synchronization resolve it. Five static gates and `git diff --check` pass for
+the documentation checkpoint; this is not a new full local or hosted runtime acceptance.
+
+## 2026-09-05 — Post-1fbe47f public gesture/delivery diagnosis
+
+The owner reviewed documentation head `1fbe47f`: no source P1/P2, repository synchronization
+accepted, but the original Terms non-pass and complete local acceptance remain open. The owner
+then explicitly requested further repair. Existing PR #114 stays Draft; no navigation root cause,
+fix, new acceptance, merge, C closeout or D entry is inferred from that instruction.
+
+Diagnostic 9 adds simulator-only, DEBUG, explicit-launch-argument instrumentation which must
+be removed before a source repair is committed. It attaches observation targets to existing
+recognizers, records public state before/after UIApplication event dispatch, and wraps the actual
+touch target's public UIResponder delivery methods while retaining their original implementations.
+It adds no recognizer/view, changes no delegate/prevention/priority rule, uses no private selector,
+KVC or protected state setter, and cannot grant Commerce authority. This remains timing-perturbing
+diagnostic code, not a shipped capability. Failed/reset transitions can occur between snapshots;
+action callbacks alone do not cover them, as documented by Apple's gesture state machine.
+
+`diagnostic-9.xcresult` ran the AX5 three-skin method once Passed in 240.395847 s. Its temporary
+reveal condition reproduces the fully visible legal-row geometry; the single legal tap and
+five-second destination assertion remain unchanged. Native summary/tree and its one complete
+detail agree on one device/configuration/concrete Passed execution, no Repetition, extra attempt
+or runtime warning. The event trace contains 3778 consecutive sequence records, including a
+positive cancellation observation on a budget UITextField. All six legal clicks deliver began
+and ended events to their cell hosting views and navigate successfully. In neonPulse, the Terms
+tap is again (201, 340.333) in the (16, 262.667, 370, 155.333) row. No legal-tap cancellation or
+recognized scroll/sheet pan action was observed in this passing sample. This is not evidence
+that the original failed tap had the same delivery chain or that the fault is transient.
+
+The diagnostic source-patch SHA-256 is
+`49232dc7b9109c21e56761c161b5ff6a747c1615f65240bf920d07bf11b62fc1`;
+the exact-process event log SHA-256 is
+`a00b07175efaacad036e911ec2462d2e7ef9608a16a87c089880412d724f20fb`.
+The public state-machine reference is
+[Apple's gesture recognizer state machine](https://developer.apple.com/documentation/uikit/about-the-gesture-recognizer-state-machine),
+checked 2026-09-05. Diagnostic compilation succeeded; its log retains the unrelated weak-variable
+and App Intents metadata-extraction warnings rather than claiming warning-free compilation.
+
+A complete ordinary-suite context diagnostic with the same temporary observer also passed and
+did not reproduce the lost navigation. All diagnostic App code, launch arguments and hooks were
+then removed. These passing probes narrow the investigation but do not identify which UIKit
+recognizer, if any, consumed the original failed touch, so no exact OS-level recognizer cause is
+claimed.
+
+Re-reading the original failed full bundle exposed a repository-test mechanism the earlier
+record had missed. In the same AX5 method, the first `settings.pro` tap also failed to navigate;
+the existing `tapAndWaitForDestination` helper silently issued a second tap after its five-second
+wait and masked that loss. The later Terms path used a single live-element tap and surfaced the
+same class of outcome. Both source paths composed `exists`/`isHittable`/`frame`/`tap` from
+independently refreshed XCUIElement queries while a SwiftUI List and navigation stack could
+change. The bundle proves two unbound navigation attempts and one hidden retry; it does not prove
+the precise system recognizer responsible.
+
+The repair therefore removes that weak control from this AX5 evidence path. A new pure
+`NavigationTapGeometry` captures exactly one public application accessibility snapshot per
+bounded reveal step and derives the unique foreground list, unique enabled target button,
+navigation bottom, bottom occluders and fully unobscured interaction lane from that immutable
+tree. Invalid, duplicate, disabled or occluded geometry fails closed. Once ready, the helper taps
+the snapshot-derived center exactly once and either observes the destination within five seconds
+or fails with the captured geometry; it never retries the tap. Pro, Terms and Privacy now use
+this contract. No product navigation code, timeout, XCTest retry, skip or extra-tap allowance was
+changed. A deterministic test proves one snapshot invocation and rejects tab-bar occlusion,
+disabled targets and duplicate targets. The repaired UI-test source SHA-256 is
+`cc715389b8f84b079b04c3f4b44897d140498cb31537e2995a5de58e48c86172`.
+
+The first focused candidate produced a false test failure after Terms had actually navigated:
+the destination identifier is attached to a `StaticText`, while the candidate queried only
+`collectionViews`. Simulator hierarchy/unified-log inspection established that mismatch; the
+query was restored to the repository's any-element lookup. The corrected focused AX5 method then
+passed once in 207.772 seconds, with no native Repetition, failure, skip or runtime warning. That
+focused probe is remediation evidence, not complete acceptance.
+
+A fresh complete working-tree validation then ran with Xcode 27 beta 6 on the iOS 26.5 iPhone 17
+Pro simulator `238FF288-C843-43CD-82CD-15536F107AE1`, explicit result paths and
+`MINDBUDGET_RETRY_TESTS_ON_FAILURE=0`. `Scripts/validate.sh` exited 0. The ordinary native tree
+contains 611 method nodes: 595 Passed and 16 existing Skipped, with no Failed method or
+`Repetition`; its summary has zero failures, expected failures or runtime warnings. The ordinary
+UI class executed 25 methods (22 Passed / three existing physical-only Skipped); the repaired AX5
+method passed once in 206.818 seconds and the new geometry contract passed once. The strict local
+benchmark, coverage gate, 23 C6 bindings and 32 FX unit bindings passed. The isolated FX bundle
+contains exactly the two required methods Passed once (Chinese AX5 104.679 seconds; English
+41.171 seconds), no skip/failure/Repetition/extra attempt, and only the two already retained
+invalid-frame diagnostics. The dedicated validator accepted both bindings exactly once.
+
+This run validates the final test source plus the pre-document working tree; it is not yet an
+exact committed-head or hosted result. The exact-head complete local run, hosted CI and native
+artifact audit remain mandatory after this record is committed. PR #114 remains Draft, C remains
+In Progress, and D remains unentered.

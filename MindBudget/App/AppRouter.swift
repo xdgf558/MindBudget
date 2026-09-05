@@ -7,6 +7,10 @@ private struct ExistingPremiumEntryAccessEnvironmentKey: EnvironmentKey {
     static let defaultValue = ExistingPremiumEntryAccess()
 }
 
+private struct FeatureAccessAuthorityEnvironmentKey: EnvironmentKey {
+    static let defaultValue: any FeatureAccessChecking = FeatureAccessService()
+}
+
 private struct ReceiptImageLifecycleEnvironmentKey: EnvironmentKey {
     static let defaultValue: any ReceiptImageLifecycleHandling = NoopReceiptImageLifecycle()
 }
@@ -29,6 +33,11 @@ private struct TelemetryEventRecorderEnvironmentKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
+    var featureAccessAuthority: any FeatureAccessChecking {
+        get { self[FeatureAccessAuthorityEnvironmentKey.self] }
+        set { self[FeatureAccessAuthorityEnvironmentKey.self] = newValue }
+    }
+
     var existingPremiumEntryAccess: ExistingPremiumEntryAccess {
         get { self[ExistingPremiumEntryAccessEnvironmentKey.self] }
         set { self[ExistingPremiumEntryAccessEnvironmentKey.self] = newValue }
@@ -130,6 +139,8 @@ final class AppSession: ObservableObject {
     private var publicConfigurationExpiryTask: Task<Void, Never>?
     private var telemetryCaptureTail: Task<Void, Never>?
 
+    let featureAccessAuthority: any FeatureAccessChecking
+
     var notificationDataIntegrityWarning: Bool {
         invalidCoolingOffRecordCount > 0
     }
@@ -177,6 +188,7 @@ final class AppSession: ObservableObject {
         appLockInitiallyEnabled: Bool = false
     ) {
         self.dataActor = dataActor
+        self.featureAccessAuthority = featureAccessService
         self.notificationScheduler = notificationScheduler
         self.searchIndexCleaner = searchIndexCleaner
         self.spotlightIndexer = spotlightIndexer
@@ -996,6 +1008,7 @@ struct AppRouter: View {
             }
         }
         .environment(\.existingPremiumEntryAccess, session.existingPremiumEntryAccess)
+        .environment(\.featureAccessAuthority, session.featureAccessAuthority)
         .environment(\.receiptImageLifecycle, session.receiptImageLifecycle)
         .environment(
             \.telemetryEventRecorder,

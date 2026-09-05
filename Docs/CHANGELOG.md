@@ -4,7 +4,12 @@
 
 - Added the Schema V7 local-store foundation for future manual foreign-currency expenses.
   Existing records retain their accounting amounts and gain no inferred exchange-rate data.
-  The foreign-currency entry UI is not available yet; no automatic rate or new network path is added.
+  No automatic rate or new network path is added.
+- Added manual foreign-currency expense entry for the existing Pro access snapshot, with explicit
+  currency/rate/date entry, integer conversion and editable locked accounting amounts. Existing
+  foreign-currency records remain editable after access ends; detail shows original and accounting
+  amounts, rate date/zone and source. Invalid input is retained and cannot reuse a stale preview.
+  CSV and the optional iCloud companion protocol remain deferred to FX-01D.
 
 Every user-visible change must be added here when it is implemented. Before each TestFlight or
 App Store upload, move the included entries into a dated version/build section and use the same

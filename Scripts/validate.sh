@@ -97,3 +97,7 @@ xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
 
 Scripts/check-coverage.sh "${RESULT_BUNDLE}"
 Scripts/check_c6_02_acceptance.py --verify-result-bundle "${RESULT_BUNDLE}"
+Scripts/fx01_ui_contract.py --verify-unit-bundle "${RESULT_BUNDLE}"
+# FX owns this additional, compile-isolated UI host. Its pass cannot substitute for the
+# normal application suite above, StoreKit purchase evidence, or physical accessibility.
+Scripts/run-fx01-ui-tests.sh "${DESTINATION}" "${RESULT_BUNDLE%.xcresult}-FX-UI.xcresult"

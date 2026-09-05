@@ -694,6 +694,8 @@ review, hosted CI and merge. The previous merge exception does not waive those B
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -705,7 +707,68 @@ entry, missing/duplicated local status and a checked closeout task. Continue all
 accounting/decimal/sync/no-floating-point/no-network mutations and subprocess/order fault tests.
 Self-tests mutate temporary copies only. A green gate does not manufacture runtime proof.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
+## FX-01C candidate verification (not completion evidence)
+
+`ForeignCurrencyFormTests` adds 15 unparameterized methods covering explicit currency selection,
+8-place half-even rate normalization, exact override reopening, invalid-input retention, saved
+date/zone, currency exponents, new/conversion/duplicate authority, expired stewardship, asynchronous
+revocation, ordinary-mode restoration and nonmanual/recurring exclusions. The original 17 B
+arithmetic/migration/persistence methods remain required. Complete validation must read all 32
+from its own fresh ordinary-App bundle and their native per-test execution records.
+
+The separate `MindBudget-FX-UI` scheme uses a Debug + simulator + dedicated-flag entry, in-memory
+financial data and fixed Commerce fixtures. It must independently run both exact English/light
+and Chinese/AX5/dark create/detail/expired-edit methods. Those methods skip under the ordinary
+scheme; those skips are explicitly not substitutes for the dedicated run. The host's own bundle
+must prove both executed once and passed, including actual per-test device/configuration records.
+No StoreKit purchase, physical VoiceOver/device, network, CSV or iCloud protocol claim follows.
+The ordinary complete suite, coverage and isolated local strict benchmark remain separate gates.
+
+Host isolation has copied-source negatives for its three compile conditions, exclusion before
+normal bootstrap construction, fixed grant/revoke behavior, preferences/financial-store isolation,
+notification stub and default/test-only scheme separation. CLI probes reject the independently
+reproduced aggregate-tree bypasses and hidden extra/failed detail runs. Runtime native schema is
+not pinned to a local Xcode version; unknown execution shapes fail closed pending explicit review.
+
+Pure native Runtime Warning leaves are diagnostics, not execution attempts: accept only the exact
+`name`/`nodeType` key set with a nonempty name, require tree/detail multiset agreement, and report
+each diagnostic once. Fake warning leaves carrying result/identity/children/extra keys fail. Run
+13 exposed two layout warnings with no source location; keep them visible as unresolved diagnostics,
+not repaired bugs or retries. Full validation still requires its own fresh ordinary and UI bundles.
+
 
 ## 2026-09-04 — Strict JSON and main TASKS negative coverage
 
@@ -724,3 +787,59 @@ main TASKS, each A–E plan checklist, the historical A closeout and all seven B
 Real CLI negatives cover `*`, `+`, one-space/four-space indentation, Tab, both numbered-list
 markers, blockquote, uppercase/unknown status, and an extra inline checkbox. Final negative count
 is 332; the earlier 258 result is a superseded checkpoint, not complete acceptance.
+
+## FX-01C ordinary budget-focus regression
+
+Run the ordinary English category-legend, English AX1/AX5 navigation and English pseudo-long cases
+without test retries. Each budget field must enter the full unobscured lane; the keyboard and
+target frames must settle between two explicit center taps before one targeted text entry. Exact
+3000/2500/500 readbacks after leaving the last editor must pass before Save reaches Dashboard.
+This does not infer keyboard focus from geometry: targeted typing remains allowed to fail.
+Retain the public `hasFocus` probe failure and the withdrawn diagnostic-parser probe separately;
+neither is acceptance of the supported implementation. No debug-description or private KVC
+focus predicates remain, and no product accessibility trait/value is changed for test signaling.
+This focused probe does not provide Chinese evidence. Complete validation still requires the
+existing Chinese ordinary regressions and the separately compiled Chinese AX5 FX host.
+
+The complete hosted caller must set ordinary retries to zero, with no alternative override.
+`validation_order_self_test.py` rejects six mutations of that real workflow and rejects retry
+or iteration flags in the actual validator's stubbed test invocations. Still inspect every native
+ordinary method detail and retain all non-passes, including run `33892068800` despite its green
+GitHub status. FX's 32 unit / two UI bindings and complete local/hosted regression gates are not
+weakened by this remediation.
+
+## FX-01C ordinary About-history regression
+
+Retain the `221dcd9` complete-local non-pass: Settings history expanded but fixed five whole-app
+swipes stopped in `0.9.2`, before the deep `0.9.1` heading entered the accessibility tree. The
+focused remediation must exercise that same full Settings test once without XCTest retries.
+Confirm `0.9.8` as the first expanded historical heading, then independently require `0.9.1`.
+Scope gestures to the About CollectionView and require bounded position progress for each drag,
+using an unambiguous release-heading identifier rather than a mutable index or repeated body label.
+Success requires a nonempty complete target frame below navigation and inside the list; progress
+alone is not success. Preserve the maximum 20 drags and fail on no progress. Retain a final screenshot.
+This focused check cannot replace fresh complete local validation and new-head hosted acceptance.
+
+## FX-01C budget preparation supersession
+
+Retain hosted run `33900664975` as a no-retry non-pass: the English AX1/AX5 method failed in its
+AX1 setup and the Simplified Chinese category method failed in its setup, each exactly once at the
+same saving-goal settle assertion. The full method/tree/detail evidence contains no Repetition.
+Do not accept a later green run of unchanged budget-helper source as remediation.
+
+The replacement regression must keep reveal and readback independent of keyboard focus. A reveal
+may use at most 12 bounded small Form drags and succeeds only when the complete field frame is in
+the unobscured navigation/keyboard lane. Each of the three inputs then uses center tap, bounded
+keyboard existence, a fresh reveal after layout, a second center tap and exactly one targeted
+`typeText`. After the final input, prepare monthly income with the same two taps once; reveal the
+three rows without further taps and require exact 3000/2500/500 values before Save. No geometry,
+keyboard existence or targeted typing alone proves focus. No global typing, corrective retyping,
+runner retry, private/unsupported focus inspection or product test signal is allowed.
+
+Run English AX1/AX5, language switching, both localized category cases and pseudo-long once without
+runner retries as a focused probe. These five methods close over every method observed failing at
+the superseded budget helper plus the adjacent locale/layout shapes. A focused pass permits
+source/runtime rereview only. Complete
+local and hosted runs must still prove all 606 ordinary method details, the accepted inventory,
+coverage, 23 C6 bindings, 32 FX unit bindings and two dedicated FX UI bindings with no hidden
+failed attempt; the strict Dashboard benchmark remains separate.

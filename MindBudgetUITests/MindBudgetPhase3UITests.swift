@@ -2,6 +2,215 @@ import XCTest
 
 final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
+    func testManualForeignCurrencyEnglishProCreateAndDetail() async throws {
+        try await exerciseForeignCurrency(language: "en", locale: "en_US", ax5: false)
+    }
+
+    @MainActor
+    func testManualForeignCurrencyChineseAX5ProCreateAndDetail() async throws {
+        try await exerciseForeignCurrency(language: "zh-Hans", locale: "zh_CN", ax5: true)
+    }
+
+    @MainActor
+    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+        guard ProcessInfo.processInfo.environment["MINDBUDGET_FX_UI_TESTS"] == "1" else {
+            throw XCTSkip("Requires the separately compiled FX UI host; this skip is not UI evidence.")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+        if ax5 {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        }
+        app.launch()
+        continueAfterFailure = false
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["fx.testHost"].waitForExistence(timeout: 8),
+                      "Normal AppBootstrap must never substitute for the compiled in-memory host")
+        XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
+        let toggle = app.switches["fx.enabled"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: toggle)
+        XCTAssertEqual(XCTWaiter.wait(for: [granted], timeout: 10), .completed,
+                       "The isolated fixture must reach the real Commerce access boundary")
+        revealFX(toggle, in: app)
+        // At AX5 the switch's accessibility frame includes its multiline label. Hit the
+        // trailing native switch, not the center of that combined label rectangle.
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.94, dy: 0.5)).tap()
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
+                                 app.windows.firstMatch.frame.width + 1,
+                                 "AX5 content must not force the form wider than the viewport")
+        let currency = app.buttons["fx.originalCurrency"]
+        revealFX(currency, in: app)
+        currency.tap()
+        let euro = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "EUR")).firstMatch
+        for _ in 0..<10 {
+            if euro.exists && euro.isHittable { break }
+            let menu = app.collectionViews.firstMatch
+            XCTAssertTrue(menu.waitForExistence(timeout: 2))
+            let top = menu.frame.minY
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            origin.withOffset(CGVector(dx: menu.frame.midX, dy: top + 300))
+                .press(forDuration: 0.05, thenDragTo: origin.withOffset(CGVector(dx: menu.frame.midX, dy: top + 80)))
+        }
+        XCTAssertTrue(euro.exists && euro.isHittable)
+        euro.tap()
+        if ax5 {
+            let date = app.buttons["fx.rateDate"]
+            revealFX(date, in: app)
+            XCTAssertFalse((date.value as? String ?? "").isEmpty)
+            date.tap()
+            XCTAssertTrue(app.pickerWheels.firstMatch.waitForExistence(timeout: 3))
+            app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "2024年")
+            XCTAssertEqual(app.pickerWheels.element(boundBy: 0).value as? String, "2024年")
+            let done = app.buttons["fx.rateDate.done"]
+            XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable)
+            done.tap()
+            XCTAssertTrue(app.buttons["fx.rateDate"].waitForExistence(timeout: 3))
+            XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
+        }
+        enterFX("3", into: app.textFields["fx.originalAmount"], in: app)
+        enterFX("2", into: app.textFields["fx.rate"], in: app)
+        XCTAssertEqual(app.textFields["fx.originalAmount"].label, ax5 ? "原币金额" : "Original amount")
+        XCTAssertEqual(app.textFields["fx.originalAmount"].value as? String, "3")
+        XCTAssertEqual(app.textFields["fx.rate"].value as? String, "2")
+        XCTAssertEqual(app.textFields["fx.accountingAmount"].value as? String, "6")
+        let direction = app.staticTexts["fx.direction"].label
+        XCTAssertTrue(direction.contains("EUR") && direction.contains("USD"))
+        if let original = direction.range(of: "EUR"), let accounting = direction.range(of: "USD") {
+            XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
+        } else { XCTFail("Accessible rate direction lost a currency identity") }
+        dismissFXKeyboard(in: app)
+        let preview = app.staticTexts["fx.preview"]
+        revealFX(preview, in: app)
+        XCTAssertTrue(preview.waitForExistence(timeout: 3))
+        XCTAssertTrue(preview.label.contains("USD"))
+        XCTAssertTrue(preview.label.contains("6"))
+        let formImage = XCTAttachment(screenshot: app.screenshot())
+        formImage.name = "FX manual form - \(language) - AX5 \(ax5)"
+        formImage.lifetime = .keepAlways
+        add(formImage)
+        let save = app.buttons["expense.save"]
+        revealFX(save, in: app)
+        save.tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
+        let detailImage = XCTAttachment(screenshot: app.screenshot())
+        detailImage.name = "FX saved detail - \(language) - AX5 \(ax5)"
+        detailImage.lifetime = .keepAlways
+        add(detailImage)
+        let spokenAmounts = app.staticTexts.containing(NSPredicate(
+            format: "label CONTAINS %@ AND label CONTAINS %@", "EUR", "USD"
+        )).firstMatch
+        XCTAssertTrue(spokenAmounts.waitForExistence(timeout: 3))
+        let spoken = spokenAmounts.label
+        // The combined accessibility element must announce original before accounting money.
+        XCTAssertTrue(spoken.contains("3 EUR") && spoken.contains("6 USD"))
+        if let original = spoken.range(of: "3 EUR"), let accounting = spoken.range(of: "6 USD") {
+            XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
+        } else { XCTFail("Combined accessibility amount lost its original/accounting values") }
+        let spokenRate = element("fx.detail.rate", in: app).label
+        XCTAssertTrue(spokenRate.contains("EUR") && spokenRate.contains("USD") && spokenRate.contains("2"))
+        if ax5 {
+            let savedDate = element("fx.detail.rateDate", in: app)
+            XCTAssertTrue((savedDate.label + (savedDate.value as? String ?? "")).contains("2024"))
+        }
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "EUR")).firstMatch.exists)
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "USD")).firstMatch.exists)
+        // Actual stored FX remains editable after access expires and Settings changes to JPY.
+        app.buttons["fx.testHost.revoke"].tap()
+        app.buttons["expense.edit"].tap()
+        XCTAssertTrue(app.switches["fx.enabled"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["fx.enabled"].isEnabled)
+        if ax5 {
+            XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
+        }
+        enterFX("3", into: app.textFields["fx.rate"], in: app)
+        dismissFXKeyboard(in: app)
+        revealFX(app.staticTexts["fx.preview"], in: app)
+        XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("USD"))
+        XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("9"))
+        revealFX(app.buttons["expense.save"], in: app)
+        app.buttons["expense.save"].tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
+        let updated = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "USD", "9")).firstMatch
+        XCTAssertTrue(updated.waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    private func dismissFXKeyboard(in app: XCUIApplication) {
+        let done = app.buttons["fx.keyboard.done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable,
+                      "FX numeric editing needs an accessible way to finish and read the result")
+        done.tap()
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"),
+                                                  object: app.keyboards.firstMatch)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 3), .completed)
+    }
+
+    @MainActor
+    private func enterFX(_ value: String, into field: XCUIElement, in app: XCUIApplication) {
+        revealFX(field, in: app)
+        field.tap()
+        if let existing = field.value as? String, existing != field.placeholderValue {
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
+        }
+        field.typeText(value)
+    }
+
+    @MainActor
+    private func revealFX(_ control: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<14 {
+            let navBottom = app.navigationBars.allElementsBoundByIndex.last(where: \.isHittable)?.frame.maxY ?? 0
+            let window = app.windows.firstMatch.frame
+            let sentinel = app.staticTexts["fx.testHost"]
+            let hostTop = sentinel.exists && sentinel.isHittable && sentinel.frame.minY > navBottom
+                ? sentinel.frame.minY : window.maxY
+            let keyboardTop = app.keyboards.firstMatch.exists
+                ? min(app.keyboards.firstMatch.frame.minY, hostTop) : hostTop
+            let save = app.buttons["expense.save"]
+            let contentBottom = save.exists && save.frame.minY > navBottom
+                ? min(save.frame.minY, keyboardTop) : keyboardTop
+            let isSave = control.exists && control.identifier == "expense.save"
+            let limit = isSave ? keyboardTop : contentBottom
+            let needsHitPoint = control.exists && control.elementType != .staticText
+            if control.exists && (!needsHitPoint || control.isHittable) && control.frame.minY > navBottom
+                && control.frame.maxY < limit { return }
+            let top = navBottom + 12
+            let height = contentBottom - top - 12
+            guard height > 60 else { XCTFail("No unobscured FX scroll viewport"); return }
+            let moveDown = control.exists && control.frame.minY < top
+            let center = top + height / 2
+            let distance = min(max(control.exists ? abs(control.frame.midY - center) : 120, 30), min(180, height * 0.45))
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            // A pan beginning inside a numeric TextField is consumed by its text interaction;
+            // the AX5 run stalled at exactly that frame. Date wheels also own vertical pans.
+            // Choose a gap in the actual scroll content, keeping BOTH endpoints unobscured.
+            let occupied = (app.textFields.allElementsBoundByIndex + app.pickerWheels.allElementsBoundByIndex
+                            + app.buttons.allElementsBoundByIndex)
+                .map(\.frame).filter { $0.minX <= window.midX && $0.maxX >= window.midX }
+            let lowerStart = moveDown ? top : top + distance
+            let upperStart = moveDown ? contentBottom - 12 - distance : contentBottom - 12
+            let candidates = stride(from: upperStart, through: lowerStart, by: -8.0)
+            guard let startY = candidates.first(where: { y in
+                !occupied.contains { $0.minY - 8 <= y && $0.maxY + 8 >= y }
+            }) else { XCTFail("No unobscured non-editor FX pan origin"); return }
+            let start = origin.withOffset(CGVector(dx: window.midX, dy: startY))
+            let end = origin.withOffset(CGVector(dx: window.midX, dy: startY + (moveDown ? distance : -distance)))
+            XCTContext.runActivity(named: "FX viewport target \(control.frame), visible \(top)...\(contentBottom), down \(moveDown)") { _ in
+                // End at rest: a default 500pt/s release adds momentum beyond the calculated
+                // displacement and can oscillate an AX5 label above/below the keyboard gap.
+                start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+            }
+        }
+        let failureImage = XCTAttachment(screenshot: app.screenshot())
+        failureImage.name = "FX failed viewport"
+        failureImage.lifetime = .keepAlways
+        add(failureImage)
+        XCTFail("FX control did not enter the unobscured viewport: \(control); frame=\(control.frame); \(app.debugDescription)")
+    }
+
+    @MainActor
     func testColdLaunchShowsLocalizedBrandAnimation() {
         let app = launchApp(
             language: "zh-Hans",
@@ -503,11 +712,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(releaseHistory.isHittable)
         releaseHistory.tap()
-        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
-        for _ in 0..<5 where !previousRelease.exists {
-            app.swipeUp()
+        // Expansion and locating a deep, virtualized history row are separate outcomes.
+        // Five whole-app swipes previously stopped in 0.9.2's long row before 0.9.1 existed.
+        guard revealAboutHistoryText("settings.releaseNotes.history.0.9.8", in: app) else {
+            return
         }
+        guard revealAboutHistoryText("settings.releaseNotes.history.0.9.1", in: app) else {
+            return
+        }
+        let previousRelease = element("settings.releaseNotes.history.0.9.1", in: app)
         XCTAssertTrue(previousRelease.waitForExistence(timeout: 2))
+        XCTAssertEqual(previousRelease.label, "0.9.1")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "About expanded history reaches 0.9.1"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     @MainActor
@@ -579,23 +798,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
             app.navigationBars.buttons.element(boundBy: 0).tap()
 
-            let proEntry = element("settings.pro", in: app)
-            let settingsNavigationBottom = app.navigationBars.firstMatch.frame.maxY
-            for _ in 0..<7 where
-                !proEntry.isHittable || proEntry.frame.midY <= settingsNavigationBottom
-            {
-                app.swipeDown()
-            }
-            XCTAssertTrue(proEntry.waitForExistence(timeout: 2))
-            XCTAssertGreaterThan(
-                proEntry.frame.midY,
-                settingsNavigationBottom,
-                "Pro row hit point remained behind the Settings navigation bar"
-            )
-            let proView = element("commerce.pro.view", in: app)
-            guard tapAndWaitForDestination(
-                proEntry,
-                destination: proView,
+            guard revealAndActivateNavigationTarget(
+                "settings.pro",
+                inList: "settings.view",
+                towardEarlierContentWhenVirtualized: true,
+                destination: app.collectionViews["commerce.pro.view"],
+                in: app,
                 message: "Pro destination did not settle after tapping its Settings row"
             ) else {
                 return
@@ -626,22 +834,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
             }
 
             for destination in ["terms", "privacy"] {
-                let link = element("commerce.pro.\(destination)", in: app)
-                for _ in 0..<8 where !link.isHittable {
-                    app.swipeUp()
-                }
-                XCTAssertTrue(
-                    link.waitForExistence(timeout: 2),
-                    "Missing AX5 legal link: \(destination)"
-                )
-                XCTAssertTrue(link.isHittable, "Clipped AX5 legal link: \(destination)")
-                link.tap()
-
                 let destinationView = element("commerce.pro.\(destination).view", in: app)
-                XCTAssertTrue(
-                    destinationView.waitForExistence(timeout: 5),
-                    "Missing AX5 legal destination: \(destination)"
-                )
+                guard revealAndActivateNavigationTarget(
+                    "commerce.pro.\(destination)",
+                    inList: "commerce.pro.view",
+                    towardEarlierContentWhenVirtualized: false,
+                    destination: destinationView,
+                    in: app,
+                    message: "Missing AX5 legal destination: \(destination) / \(skin)"
+                ) else {
+                    return
+                }
                 XCTAssertGreaterThanOrEqual(destinationView.frame.minX, app.frame.minX)
                 XCTAssertLessThanOrEqual(destinationView.frame.maxX, app.frame.maxX)
 
@@ -923,6 +1126,287 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    private func revealAboutHistoryText(_ identifier: String, in app: XCUIApplication) -> Bool {
+        let list = app.collectionViews.matching(identifier: "settings.about.view").firstMatch
+        let target = list.staticTexts.matching(identifier: identifier).firstMatch
+        guard list.waitForExistence(timeout: 3) else {
+            XCTFail("About history list is unavailable")
+            return false
+        }
+        for step in 0...20 {
+            let before: AboutScrollGeometry
+            do {
+                before = try AboutScrollGeometry(targetIdentifier: identifier) {
+                    BudgetSnapshotNode(try app.snapshot())
+                }
+            } catch {
+                XCTFail("About history capture failed: \(error)")
+                return false
+            }
+            if before.targetIsInLane && target.isHittable { return true }
+            guard step < 20 else { break }
+            guard !before.visibleAnchors.isEmpty else {
+                XCTFail("About history has no unique visible content anchor: \(before)")
+                return false
+            }
+            let towardEarlier = before.target.map { $0.minY < before.lane.minY } ?? false
+            let startY = before.lane.minY + before.lane.height * (towardEarlier ? 0.2 : 0.8)
+            let endY = before.lane.minY + before.lane.height * (towardEarlier ? 0.75 : 0.25)
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(dx: before.lane.midX - before.application.minX,
+                                                   dy: startY - before.application.minY))
+            let end = origin.withOffset(CGVector(dx: before.lane.midX - before.application.minX,
+                                                 dy: endY - before.application.minY))
+            XCTContext.runActivity(named: "Reveal \(identifier), bounded drag \(step + 1)") { _ in
+                start.press(forDuration: 0.1, thenDragTo: end)
+            }
+            var after: AboutScrollGeometry?
+            var captureError: String?
+            let progress = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in
+                    do {
+                        let sample = try AboutScrollGeometry(targetIdentifier: identifier) {
+                            BudgetSnapshotNode(try app.snapshot())
+                        }
+                        after = sample
+                        return (sample.targetIsInLane && target.isHittable)
+                            || sample.progressed(from: before, towardEarlier: towardEarlier)
+                    } catch {
+                        // End this wait and fail below; a failed capture is never progress.
+                        captureError = String(describing: error)
+                        return true
+                    }
+                },
+                object: list
+            )
+            let outcome = XCTWaiter.wait(for: [progress], timeout: 3)
+            let diagnostic = XCTAttachment(string:
+                "target=\(identifier), earlier=\(towardEarlier)\nbefore=\(before)\n"
+                + "after=\(String(describing: after))\ncaptureError=\(String(describing: captureError))")
+            diagnostic.name = "About scroll geometry - drag \(step + 1)"
+            diagnostic.lifetime = .keepAlways
+            add(diagnostic)
+            guard captureError == nil, outcome == .completed else {
+                XCTFail("About history made no observable scroll progress toward \(identifier); "
+                        + "before=\(before); after=\(String(describing: after)); error=\(String(describing: captureError))")
+                return false
+            }
+        }
+        XCTFail("About history did not reveal \(identifier) within 20 bounded drags")
+        return false
+    }
+
+    /// One immutable foreground-list sample. Never compare separately resolved XCUI frames.
+    private struct AboutScrollGeometry: CustomStringConvertible {
+        enum Anchor: Hashable {
+            case heading(String)
+            case uniqueText(XCUIElement.ElementType, String)
+        }
+        let application: CGRect
+        let list: CGRect
+        let lane: CGRect
+        let target: CGRect?
+        let anchors: [Anchor: CGRect]
+        let contentDiagnostic: String
+
+        init(targetIdentifier: String, snapshot: () throws -> BudgetSnapshotNode) throws {
+            let root = try snapshot()
+            func valid(_ frame: CGRect, emptyAllowed: Bool = false) -> Bool {
+                !frame.isNull && !frame.isInfinite
+                    && [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite)
+                    && frame.width >= 0 && frame.height >= 0 && (emptyAllowed || !frame.isEmpty)
+            }
+            guard root.type == .application, valid(root.frame) else {
+                throw BudgetGeometryError(description: "Invalid About application snapshot")
+            }
+            application = root.frame
+            let nodes = root.flattened
+            let lists = nodes.filter { $0.type == .collectionView && $0.identifier == "settings.about.view" }
+            guard lists.count == 1, let foreground = lists.first, valid(foreground.frame) else {
+                throw BudgetGeometryError(description: "Missing, ambiguous or invalid About list")
+            }
+            list = foreground.frame
+            contentDiagnostic = foreground.flattened.map {
+                "type=\($0.type.rawValue) id=\($0.identifier) label=\($0.label) frame=\($0.frame)"
+            }.joined(separator: "\n")
+            let navigation = nodes.filter { $0.type == .navigationBar }
+            guard navigation.allSatisfy({ valid($0.frame) }),
+                  let navBottom = navigation.filter({ $0.frame.intersects(root.frame) }).map(\.frame.maxY).max() else {
+                throw BudgetGeometryError(description: "Invalid About navigation snapshot")
+            }
+            let viewport = foreground.frame.intersection(root.frame)
+            let top = max(viewport.minY, navBottom) + 16
+            lane = CGRect(x: viewport.minX + 16, y: top,
+                          width: viewport.width - 32, height: viewport.maxY - 24 - top)
+            guard valid(lane), lane.height > 80 else {
+                throw BudgetGeometryError(description: "About has no unobscured scrolling lane")
+            }
+            let rawTexts = foreground.flattened.filter { $0.type == .staticText }
+            guard rawTexts.allSatisfy({ valid($0.frame, emptyAllowed: true) }) else {
+                throw BudgetGeometryError(description: "Invalid About text frame")
+            }
+            // SwiftUI's combined Label exposes both a StaticText parent and its Text child
+            // with the same public label, identifier and frame. Collapse only this exact
+            // ancestor echo, never identical siblings or nodes with differing geometry.
+            var texts: [BudgetSnapshotNode] = []
+            func collect(_ node: BudgetSnapshotNode, ancestors: [BudgetSnapshotNode]) {
+                if node.type == .staticText && !ancestors.contains(where: {
+                    $0.type == node.type && $0.identifier == node.identifier
+                        && $0.label == node.label && $0.frame == node.frame
+                }) {
+                    texts.append(node)
+                }
+                for child in node.children { collect(child, ancestors: ancestors + [node]) }
+            }
+            collect(foreground, ancestors: [])
+            let targets = texts.filter { $0.identifier == targetIdentifier }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate About target: \(targetIdentifier)")
+            }
+            target = targets.first.flatMap { $0.frame.isEmpty ? nil : $0.frame }
+
+            var indexed: [Anchor: CGRect] = [:]
+            let prefix = "settings.releaseNotes.history."
+            for node in texts where node.identifier.hasPrefix(prefix) {
+                let suffix = node.identifier.dropFirst(prefix.count)
+                guard suffix.split(separator: ".").allSatisfy({ Int($0) != nil }), !suffix.isEmpty else { continue }
+                let key = Anchor.heading(node.identifier)
+                guard indexed[key] == nil else {
+                    throw BudgetGeometryError(description: "Duplicate About heading: \(node.identifier)")
+                }
+                indexed[key] = node.frame
+            }
+            // A long release can fill the viewport without its heading. Use public text
+            // only when unique in this foreground snapshot AND the next one. Duplicates,
+            // virtualized indices, offscreen-only anchors and text changes cannot prove progress.
+            let grouped = Dictionary(grouping: texts.filter { !$0.label.isEmpty }) {
+                Anchor.uniqueText($0.type, $0.label)
+            }
+            for (key, matches) in grouped where matches.count == 1 {
+                indexed[key] = matches[0].frame
+            }
+            anchors = indexed.filter { !$0.value.isEmpty }
+        }
+
+        var targetIsInLane: Bool { target.map { application.contains($0) && lane.contains($0) } ?? false }
+        var visibleAnchors: [Anchor: CGRect] { anchors.filter { lane.intersects($0.value) } }
+
+        func progressed(from before: Self, towardEarlier: Bool) -> Bool {
+            before.visibleAnchors.contains { key, old in
+                guard let next = anchors[key],
+                      abs(next.width - old.width) <= 1, abs(next.height - old.height) <= 1 else { return false }
+                // Relative coordinates reject movement of the sheet/list itself. Only a shared
+                // identity moving in the requested direction counts; appearance/disappearance
+                // alone, a stationary stale heading or sub-point jitter do not.
+                let delta = (next.midY - list.minY) - (old.midY - before.list.minY)
+                return towardEarlier ? delta > 1 : delta < -1
+            }
+        }
+
+        var description: String {
+            let positions = visibleAnchors.map { key, frame in "\(key):\(frame)" }.sorted().joined(separator: "; ")
+            return "app=\(application), list=\(list), lane=\(lane), target=\(String(describing: target)), visible=[\(positions)]"
+                + (visibleAnchors.isEmpty ? "\nforeground=\(contentDiagnostic)" : "")
+        }
+    }
+
+    @MainActor
+    func testAboutScrollProgressUsesVisibleUniqueAnchorsFromOneSnapshot() throws {
+        func sample(_ rows: [BudgetSnapshotNode], offset: CGFloat = 0) throws -> AboutScrollGeometry {
+            try AboutScrollGeometry(targetIdentifier: "settings.releaseNotes.history.0.9.1") {
+                BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800), children: [
+                    BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60)),
+                    BudgetSnapshotNode(.collectionView, CGRect(x: 0, y: offset, width: 400, height: 800 - offset),
+                                       identifier: "settings.about.view", children: rows)
+                ])
+            }
+        }
+        let heading = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 160, width: 300, height: 30),
+                                         identifier: "settings.releaseNotes.history.0.9.4")
+        let body = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 320, width: 300, height: 100),
+                                      identifier: "shared.body", label: "Unique body")
+        let before = try sample([heading, body])
+        let movedBody = BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: -90),
+                                           identifier: body.identifier, label: body.label)
+        let after = try sample([heading, movedBody])
+        XCTAssertTrue(after.progressed(from: before, towardEarlier: false), "A stationary heading cannot hide real body movement")
+        XCTAssertFalse(after.progressed(from: before, towardEarlier: true))
+        XCTAssertFalse(before.progressed(from: before, towardEarlier: false))
+        let translated = try sample([
+            BudgetSnapshotNode(.staticText, heading.frame.offsetBy(dx: 0, dy: 20), identifier: heading.identifier),
+            BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: 20), identifier: body.identifier, label: body.label)
+        ], offset: 20)
+        XCTAssertFalse(translated.progressed(from: before, towardEarlier: true), "Sheet translation is not scroll progress")
+        let duplicated = try sample([heading, movedBody, movedBody])
+        XCTAssertFalse(duplicated.progressed(from: before, towardEarlier: false), "Repeated labels cannot identify an anchor")
+        let replaced = try sample([BudgetSnapshotNode(.staticText, movedBody.frame, label: "Different body")])
+        XCTAssertFalse(replaced.progressed(from: before, towardEarlier: false), "Virtualization alone cannot prove progress")
+        let jitter = try sample([heading, BudgetSnapshotNode(.staticText, body.frame.offsetBy(dx: 0, dy: -0.5), label: body.label)])
+        XCTAssertFalse(jitter.progressed(from: before, towardEarlier: false))
+        let offscreen = try sample([BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 1000, width: 300, height: 100), label: body.label)])
+        XCTAssertFalse(after.progressed(from: offscreen, towardEarlier: false), "Offscreen-only content is not an anchor")
+        func combined(_ node: BudgetSnapshotNode, child: BudgetSnapshotNode) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.staticText, node.frame, identifier: node.identifier,
+                               label: node.label, children: [child])
+        }
+        let echoedBefore = try sample([combined(body, child: body)])
+        let echoedAfter = try sample([combined(movedBody, child: movedBody)])
+        XCTAssertEqual(echoedBefore.visibleAnchors.count, 1)
+        XCTAssertTrue(echoedAfter.progressed(from: echoedBefore, towardEarlier: false),
+                      "A combined Label's exact descendant echo is one logical text anchor")
+        let mismatchedDescendant = try sample([combined(movedBody, child: body)])
+        XCTAssertFalse(mismatchedDescendant.progressed(from: echoedBefore, towardEarlier: false),
+                       "Different descendant geometry remains ambiguous")
+        let duplicatedRows = try sample([combined(movedBody, child: movedBody), combined(movedBody, child: movedBody)])
+        XCTAssertFalse(duplicatedRows.progressed(from: echoedBefore, towardEarlier: false),
+                       "An ancestor echo rule must not coalesce duplicate rows or siblings")
+        let target = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 240, width: 300, height: 30),
+                                        identifier: "settings.releaseNotes.history.0.9.1")
+        XCTAssertTrue(try sample([target]).targetIsInLane)
+        XCTAssertFalse(try sample([BudgetSnapshotNode(.staticText, target.frame.offsetBy(dx: 0, dy: -150),
+                                                    identifier: target.identifier)]).targetIsInLane)
+        var captures = 0
+        var root = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800), children: [
+            BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60)),
+            BudgetSnapshotNode(.collectionView, CGRect(x: 0, y: 0, width: 400, height: 800),
+                               identifier: "settings.about.view", children: [target])
+        ])
+        let frozen = try AboutScrollGeometry(targetIdentifier: target.identifier) {
+            captures += 1
+            return root
+        }
+        root.children.removeAll()
+        XCTAssertTrue(frozen.targetIsInLane)
+        XCTAssertEqual(captures, 1)
+    }
+
+    @MainActor
+    func testAboutScrollGeometryRejectsFailedAndAmbiguousSnapshots() {
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            throw BudgetGeometryError(description: "capture failed")
+        })
+        let appFrame = CGRect(x: 0, y: 0, width: 400, height: 800)
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let target = BudgetSnapshotNode(.staticText, CGRect(x: 20, y: 200, width: 300, height: 30), identifier: "target")
+        let list = BudgetSnapshotNode(.collectionView, appFrame, identifier: "settings.about.view", children: [target])
+        for children in [[nav], [list], [nav, list, list], [nav,
+            BudgetSnapshotNode(.collectionView, appFrame, identifier: list.identifier, children: [target, target])]] {
+            XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+                BudgetSnapshotNode(.application, appFrame, children: children)
+            })
+        }
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            BudgetSnapshotNode(.application, .zero, children: [nav, list])
+        })
+        XCTAssertThrowsError(try AboutScrollGeometry(targetIdentifier: "target") {
+            BudgetSnapshotNode(.application, appFrame, children: [nav,
+                BudgetSnapshotNode(.collectionView, appFrame, identifier: list.identifier, children: [
+                    BudgetSnapshotNode(.staticText, CGRect(x: 20, y: CGFloat.nan, width: 100, height: 40), identifier: "target")
+                ])])
+        })
+    }
+
+    @MainActor
     private func assertNavigationBackButtonReady(
         in app: XCUIApplication,
         timeout: TimeInterval = 5,
@@ -948,6 +1432,71 @@ final class MindBudgetPhase3UITests: XCTestCase {
         // that non-evidence frame only after the button geometry is ready, then let the caller
         // retain the following capture.
         XCTAssertFalse(app.screenshot().pngRepresentation.isEmpty, message)
+    }
+
+    @MainActor
+    private func revealAndActivateNavigationTarget(
+        _ targetIdentifier: String,
+        inList listIdentifier: String,
+        towardEarlierContentWhenVirtualized: Bool,
+        destination: XCUIElement,
+        in app: XCUIApplication,
+        message: String
+    ) -> Bool {
+        var lastGeometry: NavigationTapGeometry?
+        for step in 0...8 {
+            let geometry: NavigationTapGeometry
+            do {
+                geometry = try NavigationTapGeometry(
+                    listIdentifier: listIdentifier,
+                    targetIdentifier: targetIdentifier
+                ) {
+                    BudgetSnapshotNode(try app.snapshot())
+                }
+            } catch {
+                XCTFail("Unable to capture navigation geometry for \(targetIdentifier): \(error)")
+                return false
+            }
+            lastGeometry = geometry
+            if geometry.targetIsReady, let frame = geometry.target {
+                let origin = app.coordinate(withNormalizedOffset: .zero)
+                origin.withOffset(CGVector(
+                    dx: frame.midX - geometry.application.minX,
+                    dy: frame.midY - geometry.application.minY
+                )).tap()
+                if destination.waitForExistence(timeout: 5) {
+                    return true
+                }
+                let attachment = XCTAttachment(string: "Single navigation tap did not settle. \(geometry)")
+                attachment.name = "Navigation tap geometry - \(targetIdentifier)"
+                attachment.lifetime = .keepAlways
+                add(attachment)
+                XCTFail(message)
+                return false
+            }
+            if geometry.target != nil, !geometry.targetEnabled {
+                XCTFail("Navigation target was disabled: \(geometry)")
+                return false
+            }
+            guard step < 8 else { break }
+
+            let towardEarlier = geometry.target.map { $0.minY < geometry.lane.minY }
+                ?? towardEarlierContentWhenVirtualized
+            let startY = geometry.lane.minY + geometry.lane.height * (towardEarlier ? 0.25 : 0.75)
+            let endY = geometry.lane.minY + geometry.lane.height * (towardEarlier ? 0.70 : 0.30)
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(
+                dx: geometry.lane.midX - geometry.application.minX,
+                dy: startY - geometry.application.minY
+            ))
+            let end = origin.withOffset(CGVector(
+                dx: geometry.lane.midX - geometry.application.minX,
+                dy: endY - geometry.application.minY
+            ))
+            start.press(forDuration: 0.05, thenDragTo: end)
+        }
+        XCTFail("Navigation target never entered the unobscured lane: \(String(describing: lastGeometry))")
+        return false
     }
 
     @MainActor
@@ -992,19 +1541,43 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     @MainActor
     private func completeBudgetSetup(in app: XCUIApplication) {
+        // A setup failure must end this test, not continue typing into later fields.
+        continueAfterFailure = false
         app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
-        let monthlyIncome = app.textFields["budget.monthlyIncome"]
-        enterBudgetValue("3000", into: monthlyIncome, in: app)
+        let monthlyIncome = "budget.monthlyIncome"
+        guard enterBudgetValue("3000", into: monthlyIncome, in: app) else { return }
 
-        let totalBudget = app.textFields["budget.totalBudget"]
-        enterBudgetValue("2500", into: totalBudget, in: app)
+        let totalBudget = "budget.totalBudget"
+        guard enterBudgetValue("2500", into: totalBudget, in: app) else { return }
 
-        let savingGoal = app.textFields["budget.savingGoal"]
-        enterBudgetValue("500", into: savingGoal, in: app)
+        let savingGoal = "budget.savingGoal"
+        guard enterBudgetValue("500", into: savingGoal, in: app) else { return }
+
+        // SwiftUI can leave the active editor's accessibility value stale. Move focus to the
+        // first field without submitting or typing again, then only reveal fields while reading
+        // them. This prevents readback from repeatedly changing focus or requiring a keyboard.
+        // The exact three-value readback is the authority that detects text sent to the wrong
+        // field; keyboard visibility and targeted typeText do not prove focus ownership.
+        guard prepareBudgetEditor(monthlyIncome, in: app, towardEarlierRow: true) else { return }
+        for (identifier, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
+            // AX5/pseudo-long Form rows can be virtualized, so reveal each in order.
+            // Only the first return travels toward earlier rows; never assume all three
+            // editors coexist in the accessibility tree.
+            guard revealBudgetField(identifier, in: app, towardEarlierRow: expected == "3000") != nil else { return }
+            let field = app.textFields[identifier]
+            let entered = XCTNSPredicateExpectation(
+                predicate: NSPredicate { object, _ in
+                    (object as? XCUIElement)?.value as? String == expected
+                },
+                object: field
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [entered], timeout: 5), .completed,
+                           "Budget value did not reach its intended field: \(identifier)")
+        }
 
         let save = app.buttons["budget.save"]
-        makeBudgetSaveReady(save, in: app)
+        guard makeBudgetSaveReady(save, in: app) else { return }
         let dashboard = element("dashboard.view", in: app)
         // The active SwiftUI TextField accessibility value can lag its rendered digits under
         // pseudo-localization. The bounded Dashboard transition is the end-to-end authority that
@@ -1022,28 +1595,389 @@ final class MindBudgetPhase3UITests: XCTestCase {
         )
     }
 
+    /// Value copy of one public XCUI snapshot, also usable by deterministic helper tests.
+    private struct BudgetSnapshotNode {
+        let type: XCUIElement.ElementType
+        let identifier: String
+        let label: String
+        let frame: CGRect
+        let enabled: Bool
+        var children: [BudgetSnapshotNode] = []
+
+        @MainActor
+        init(_ snapshot: any XCUIElementSnapshot) {
+            type = snapshot.elementType
+            identifier = snapshot.identifier
+            label = snapshot.label
+            frame = snapshot.frame
+            enabled = snapshot.isEnabled
+            children = snapshot.children.map { BudgetSnapshotNode($0) }
+        }
+
+        init(_ type: XCUIElement.ElementType, _ frame: CGRect,
+             identifier: String = "", label: String = "", enabled: Bool = true,
+             children: [BudgetSnapshotNode] = []) {
+            self.type = type
+            self.identifier = identifier
+            self.label = label
+            self.frame = frame
+            self.enabled = enabled
+            self.children = children
+        }
+
+        var flattened: [BudgetSnapshotNode] { [self] + children.flatMap(\.flattened) }
+    }
+
+    private struct BudgetGeometryError: Error, CustomStringConvertible {
+        let description: String
+    }
+
+    /// A single public accessibility snapshot is the authority for the source row, foreground
+    /// list, navigation chrome and bottom occluders used by one navigation gesture. This avoids
+    /// composing a hit point from independently refreshed XCUIElement queries while a SwiftUI
+    /// List is being virtualized or its navigation stack is settling.
+    private struct NavigationTapGeometry: CustomStringConvertible {
+        let application: CGRect
+        let list: CGRect
+        let lane: CGRect
+        let target: CGRect?
+        let targetEnabled: Bool
+
+        init(listIdentifier: String, targetIdentifier: String,
+             snapshot: () throws -> BudgetSnapshotNode) throws {
+            let root = try snapshot()
+            func requireFrame(_ frame: CGRect, _ label: String, allowEmpty: Bool = false) throws {
+                guard !frame.isNull, !frame.isInfinite,
+                      [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite),
+                      frame.width >= 0, frame.height >= 0, allowEmpty || !frame.isEmpty else {
+                    throw BudgetGeometryError(description: "Invalid navigation \(label) frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "Navigation snapshot root is not the application")
+            }
+            try requireFrame(root.frame, "application")
+            application = root.frame
+            let nodes = root.flattened
+            let lists = nodes.filter { $0.type == .collectionView && $0.identifier == listIdentifier }
+            guard lists.count == 1, let foreground = lists.first else {
+                throw BudgetGeometryError(description: "Missing or ambiguous foreground list: \(listIdentifier)")
+            }
+            try requireFrame(foreground.frame, listIdentifier)
+            let visibleList = foreground.frame.intersection(root.frame)
+            try requireFrame(visibleList, "visible foreground list")
+            list = visibleList
+
+            let navigation = nodes.filter { $0.type == .navigationBar && $0.frame.intersects(root.frame) }
+            for node in navigation { try requireFrame(node.frame, "navigation bar") }
+            guard let navigationBottom = navigation.map(\.frame.maxY).max() else {
+                throw BudgetGeometryError(description: "Navigation snapshot has no visible navigation bar")
+            }
+            let bottomOccluders = nodes.filter {
+                ($0.type == .tabBar || $0.type == .keyboard)
+                    && $0.frame.intersects(visibleList)
+            }
+            for node in bottomOccluders { try requireFrame(node.frame, "bottom occluder") }
+            let safeBottom = min(
+                visibleList.maxY,
+                bottomOccluders.map(\.frame.minY).min() ?? visibleList.maxY
+            ) - 8
+            let safeTop = max(visibleList.minY, navigationBottom) + 8
+            lane = CGRect(
+                x: visibleList.minX + 16,
+                y: safeTop,
+                width: visibleList.width - 32,
+                height: safeBottom - safeTop
+            )
+            try requireFrame(lane, "interaction lane")
+            guard lane.height > 80 else {
+                throw BudgetGeometryError(description: "Navigation interaction lane is too small")
+            }
+
+            let targets = foreground.flattened.filter {
+                $0.type == .button && $0.identifier == targetIdentifier
+            }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate navigation target: \(targetIdentifier)")
+            }
+            if let node = targets.first {
+                try requireFrame(node.frame, targetIdentifier, allowEmpty: true)
+                target = node.frame.isEmpty ? nil : node.frame
+                targetEnabled = node.enabled
+            } else {
+                target = nil
+                targetEnabled = false
+            }
+        }
+
+        var targetIsReady: Bool {
+            guard let target else { return false }
+            return targetEnabled && application.contains(target) && lane.contains(target)
+        }
+
+        var description: String {
+            "app=\(application), list=\(list), lane=\(lane), "
+                + "target=\(String(describing: target)), enabled=\(targetEnabled)"
+        }
+    }
+
+    @MainActor
+    func testNavigationTapGeometryUsesOneSnapshotAndRejectsOcclusion() throws {
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let tab = BudgetSnapshotNode(.tabBar, CGRect(x: 0, y: 720, width: 400, height: 80))
+        let target = BudgetSnapshotNode(
+            .button,
+            CGRect(x: 32, y: 180, width: 336, height: 80),
+            identifier: "settings.pro"
+        )
+        var list = BudgetSnapshotNode(
+            .collectionView,
+            CGRect(x: 0, y: 60, width: 400, height: 740),
+            identifier: "settings.view",
+            children: [target]
+        )
+        var root = BudgetSnapshotNode(
+            .application,
+            CGRect(x: 0, y: 0, width: 400, height: 800),
+            children: [nav, list, tab]
+        )
+        var captures = 0
+        let captured = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) {
+            captures += 1
+            return root
+        }
+        list.children[0] = BudgetSnapshotNode(
+            .button,
+            CGRect(x: 32, y: 680, width: 336, height: 60),
+            identifier: "settings.pro"
+        )
+        root.children[1] = list
+        XCTAssertEqual(captures, 1)
+        XCTAssertTrue(captured.targetIsReady)
+        XCTAssertEqual(captured.target, target.frame)
+
+        let covered = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root }
+        XCTAssertFalse(covered.targetIsReady, "A row overlapping the tab bar cannot be tapped")
+        list.children[0] = BudgetSnapshotNode(
+            .button,
+            target.frame,
+            identifier: "settings.pro",
+            enabled: false
+        )
+        root.children[1] = list
+        let disabled = try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root }
+        XCTAssertFalse(disabled.targetIsReady)
+        list.children.append(list.children[0])
+        root.children[1] = list
+        XCTAssertThrowsError(try NavigationTapGeometry(
+            listIdentifier: "settings.view",
+            targetIdentifier: "settings.pro"
+        ) { root })
+    }
+
+    private struct BudgetGeometry: CustomStringConvertible {
+        let application: CGRect
+        let navigation: [CGRect]
+        let keyboards: [CGRect]
+        let target: CGRect?
+        let navigationBottom: CGFloat
+        let safeBottom: CGFloat
+
+        init(targetIdentifier: String, targetType: XCUIElement.ElementType,
+             noKeyboardInset: CGFloat, snapshot: () throws -> BudgetSnapshotNode) throws {
+            // Capture errors must propagate: they are not evidence of keyboard absence.
+            let root = try snapshot()
+            func requireFrame(_ frame: CGRect, _ label: String, allowEmpty: Bool = false) throws {
+                guard !frame.isNull, !frame.isInfinite,
+                      [frame.origin.x, frame.origin.y, frame.width, frame.height].allSatisfy(\.isFinite),
+                      frame.width >= 0, frame.height >= 0, allowEmpty || !frame.isEmpty else {
+                    throw BudgetGeometryError(description: "Invalid \(label) frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "Budget snapshot root is not the application")
+            }
+            try requireFrame(root.frame, "application")
+            application = root.frame
+            let nodes = root.flattened
+            func visibleChrome(_ type: XCUIElement.ElementType) throws -> [CGRect] {
+                try nodes.filter { $0.type == type }.compactMap { node in
+                    try requireFrame(node.frame, "\(type)")
+                    return node.frame.intersects(root.frame) ? node.frame : nil
+                }
+            }
+            navigation = try visibleChrome(.navigationBar)
+            keyboards = try visibleChrome(.keyboard)
+            guard let navigationBottom = navigation.map(\.maxY).max() else {
+                throw BudgetGeometryError(description: "Budget snapshot has no visible navigation bar")
+            }
+            self.navigationBottom = navigationBottom
+            safeBottom = keyboards.map(\.minY).min().map { $0 - 8 }
+                ?? (root.frame.maxY - noKeyboardInset)
+            guard noKeyboardInset.isFinite, noKeyboardInset >= 0,
+                  navigationBottom + 8 < safeBottom, safeBottom <= root.frame.maxY else {
+                throw BudgetGeometryError(description: "Contradictory budget chrome: nav=\(navigation), keyboards=\(keyboards)")
+            }
+            let targets = nodes.filter { $0.identifier == targetIdentifier && $0.type == targetType }
+            guard targets.count <= 1 else {
+                throw BudgetGeometryError(description: "Duplicate budget target: \(targetIdentifier)")
+            }
+            // A virtualized/empty target needs a bounded reveal, never a permissive tap.
+            if let frame = targets.first?.frame {
+                try requireFrame(frame, targetIdentifier, allowEmpty: true)
+                target = frame.isEmpty ? nil : frame
+            } else {
+                target = nil
+            }
+        }
+
+        var targetIsInLane: Bool {
+            guard let target else { return false }
+            return application.contains(target)
+                && target.minY > navigationBottom + 8 && target.maxY < safeBottom
+        }
+
+        var description: String {
+            "app=\(application), nav=\(navigation), keyboards=\(keyboards), "
+                + "target=\(String(describing: target)), lane=\(navigationBottom + 8)...\(safeBottom)"
+        }
+    }
+
+    @MainActor
+    func testBudgetGeometryUsesOneSnapshotAndConservativeChromeBounds() throws {
+        let target = BudgetSnapshotNode(.textField, CGRect(x: 20, y: 180, width: 300, height: 40),
+                                        identifier: "budget.test")
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let keyboard = BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 500, width: 400, height: 300))
+        var root = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800),
+                                      children: [nav, target, keyboard])
+        var captures = 0
+        let captured = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                          noKeyboardInset: 80) {
+            captures += 1
+            return root
+        }
+        // Model a keyboard disappearing after capture. Existing geometry must not re-query it.
+        root.children.removeLast()
+        XCTAssertEqual(captures, 1)
+        XCTAssertEqual(captured.safeBottom, 492)
+        XCTAssertTrue(captured.targetIsInLane)
+        XCTAssertEqual(captured.target, target.frame)
+        XCTAssertFalse(captured.description.isEmpty)
+        XCTAssertEqual(captures, 1)
+        let absent = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                       noKeyboardInset: 80) { root }
+        XCTAssertEqual(absent.safeBottom, 720)
+        XCTAssertTrue(absent.keyboards.isEmpty)
+        root.children += [keyboard,
+            BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 450, width: 400, height: 350)),
+            BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 80, width: 400, height: 60))]
+        let multiple = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                         noKeyboardInset: 80) { root }
+        XCTAssertEqual(multiple.navigationBottom, 140)
+        XCTAssertEqual(multiple.safeBottom, 442)
+        root.children.removeAll { $0.identifier == "budget.test" }
+        let virtualized = try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                             noKeyboardInset: 80) { root }
+        XCTAssertNil(virtualized.target)
+        XCTAssertFalse(virtualized.targetIsInLane)
+        let covered = BudgetSnapshotNode(.button, CGRect(x: 20, y: 430, width: 300, height: 50),
+                                         identifier: "budget.save")
+        root.children.append(covered)
+        let save = try BudgetGeometry(targetIdentifier: "budget.save", targetType: .button,
+                                     noKeyboardInset: 8) { root }
+        XCTAssertFalse(save.targetIsInLane, "Partial overlap with the keyboard cannot accept Save")
+    }
+
+    @MainActor
+    func testBudgetGeometryRejectsFailedCaptureAndInvalidSnapshots() {
+        let nav = BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 40, width: 400, height: 60))
+        let target = BudgetSnapshotNode(.textField, CGRect(x: 20, y: 180, width: 300, height: 40),
+                                        identifier: "budget.test")
+        let good = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 400, height: 800),
+                                      children: [nav, target])
+        var captures = 0
+        XCTAssertThrowsError(try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                                noKeyboardInset: 80) {
+            captures += 1
+            throw BudgetGeometryError(description: "capture failed")
+        })
+        XCTAssertEqual(captures, 1, "A failed capture cannot retry or become keyboard absence")
+        let invalidRoots: [BudgetSnapshotNode] = [
+            BudgetSnapshotNode(.application, .zero, children: good.children),
+            BudgetSnapshotNode(.other, good.frame, children: good.children),
+            BudgetSnapshotNode(.application, good.frame, children: [target]),
+            BudgetSnapshotNode(.application, good.frame, children: [nav, target, target]),
+            BudgetSnapshotNode(.application, good.frame, children: [nav,
+                BudgetSnapshotNode(.textField, CGRect(x: CGFloat.nan, y: 180, width: 300, height: 40),
+                                   identifier: "budget.test")]),
+            BudgetSnapshotNode(.application, good.frame, children: [target,
+                BudgetSnapshotNode(.navigationBar, .zero)]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, .zero)]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: CGFloat.infinity, width: 400, height: 300))]),
+            BudgetSnapshotNode(.application, good.frame, children: good.children + [
+                BudgetSnapshotNode(.keyboard, CGRect(x: 0, y: 80, width: 400, height: 720))]),
+        ]
+        for (index, root) in invalidRoots.enumerated() {
+            XCTAssertThrowsError(try BudgetGeometry(targetIdentifier: "budget.test", targetType: .textField,
+                                                    noKeyboardInset: 80) { root }, "Invalid snapshot \(index)")
+        }
+    }
+
+    @MainActor
+    private func captureBudgetGeometry(
+        targetIdentifier: String, targetType: XCUIElement.ElementType,
+        noKeyboardInset: CGFloat, in app: XCUIApplication
+    ) -> BudgetGeometry? {
+        do {
+            return try BudgetGeometry(targetIdentifier: targetIdentifier, targetType: targetType,
+                                      noKeyboardInset: noKeyboardInset) {
+                BudgetSnapshotNode(try app.snapshot())
+            }
+        } catch {
+            XCTFail("Unable to capture budget geometry for \(targetIdentifier): \(error)")
+            return nil
+        }
+    }
+
+    @MainActor
+    private func tapBudgetTarget(_ geometry: BudgetGeometry, in app: XCUIApplication) {
+        // Use the captured center instead of resolving the target's frame again at tap time.
+        guard let frame = geometry.target else {
+            XCTFail("No budget target in captured geometry: \(geometry)")
+            return
+        }
+        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: frame.midX - geometry.application.minX,
+            dy: frame.midY - geometry.application.minY
+        )).tap()
+    }
+
     @MainActor
     private func makeBudgetSaveReady(
         _ save: XCUIElement,
         in app: XCUIApplication
-    ) {
+    ) -> Bool {
         let budgetForm = app.collectionViews["budget.setup.view"]
+        var lastGeometry: BudgetGeometry?
 
         for _ in 0..<12 {
-            let navigationBottom = app.navigationBars.firstMatch.frame.maxY
-            let keyboard = app.keyboards.firstMatch
-            let safeBottom = keyboard.exists
-                ? keyboard.frame.minY - 8
-                : app.frame.maxY - 8
-            if save.exists {
-                let frame = save.frame
-                if save.isHittable,
-                   !frame.isEmpty,
-                   frame.midY > navigationBottom + 8,
-                   frame.maxY < safeBottom
-                {
-                    return
-                }
+            guard let geometry = captureBudgetGeometry(targetIdentifier: "budget.save", targetType: .button,
+                                                       noKeyboardInset: 8, in: app) else { return false }
+            lastGeometry = geometry
+            if geometry.targetIsInLane && save.isHittable {
+                return true
             }
 
             // isHittable can remain true while the decimal keyboard covers the lower part of the
@@ -1058,32 +1992,64 @@ final class MindBudgetPhase3UITests: XCTestCase {
             lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
         }
 
-        XCTFail("Budget Save did not enter the safe interaction lane")
+        XCTFail("Budget Save did not enter the safe interaction lane; last snapshot: \(String(describing: lastGeometry))")
+        return false
     }
 
     @MainActor
     private func enterBudgetValue(
         _ value: String,
-        into field: XCUIElement,
+        into identifier: String,
         in app: XCUIApplication
-    ) {
+    ) -> Bool {
+        guard prepareBudgetEditor(identifier, in: app) else { return false }
+        // Type into the target exactly once. XCTest can still route targeted typeText to a stale
+        // active editor, so the later three-field readback remains the fail-closed authority.
+        // Never type through the application or correctively retype after a failed assertion.
+        app.textFields[identifier].typeText(value)
+        return true
+    }
+
+    @MainActor
+    private func prepareBudgetEditor(
+        _ identifier: String,
+        in app: XCUIApplication,
+        towardEarlierRow: Bool = false
+    ) -> Bool {
+        guard let initial = revealBudgetField(identifier, in: app, towardEarlierRow: towardEarlierRow) else { return false }
+
+        tapBudgetTarget(initial, in: app)
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.waitForExistence(timeout: 5) else {
+            XCTFail("Budget keyboard did not appear; last pre-tap snapshot: \(initial)")
+            return false
+        }
+
+        // The keyboard can move a SwiftUI Form after the first tap. Re-establish full geometry,
+        // then tap the explicit center a second time because the first focus transfer may have
+        // been consumed. Neither keyboard visibility nor geometry is treated as focus proof.
+        guard let ready = revealBudgetField(identifier, in: app, towardEarlierRow: towardEarlierRow) else { return false }
+        tapBudgetTarget(ready, in: app)
+        return true
+    }
+
+    @MainActor
+    private func revealBudgetField(
+        _ identifier: String,
+        in app: XCUIApplication,
+        towardEarlierRow: Bool = false
+    ) -> BudgetGeometry? {
         let budgetForm = app.collectionViews["budget.setup.view"]
+        let field = app.textFields[identifier]
+        var lastGeometry: BudgetGeometry?
 
         for _ in 0..<12 {
-            if field.exists {
-                let navigationBottom = app.navigationBars.firstMatch.frame.maxY
-                let keyboard = app.keyboards.firstMatch
-                let safeBottom = keyboard.exists
-                    ? keyboard.frame.minY - 8
-                    : app.frame.maxY - 80
-                let frame = field.frame
-                if field.isHittable,
-                   frame.midY > navigationBottom + 8,
-                   frame.midY < safeBottom
-                {
-                    field.tap()
-                    field.typeText(value)
-                    return
+            guard let geometry = captureBudgetGeometry(targetIdentifier: identifier, targetType: .textField,
+                                                       noKeyboardInset: 80, in: app) else { return nil }
+            lastGeometry = geometry
+            if let frame = geometry.target {
+                if geometry.targetIsInLane && field.isHittable {
+                    return geometry
                 }
 
                 // A full-screen swipe can move a large AX5 field from behind the keyboard to
@@ -1096,17 +2062,31 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 let lowerPoint = budgetForm.coordinate(
                     withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
                 )
-                if frame.midY <= navigationBottom + 8 {
+                if frame.minY <= geometry.navigationBottom + 8 {
                     upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
                 } else {
                     lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
                 }
             } else {
-                app.swipeUp()
+                let upperPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.38)
+                )
+                let lowerPoint = budgetForm.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)
+                )
+                if towardEarlierRow {
+                    upperPoint.press(forDuration: 0.05, thenDragTo: lowerPoint)
+                } else {
+                    lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
+                }
             }
         }
 
-        XCTFail("Budget field did not enter the safe interaction lane: \(field.identifier)")
+        XCTFail(
+            "Budget field did not enter the safe interaction lane: \(identifier); "
+                + "last snapshot: \(String(describing: lastGeometry))"
+        )
+        return nil
     }
 
     @MainActor

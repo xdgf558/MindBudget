@@ -13,15 +13,14 @@ jobs:
   validate:
     name: Build and test
     runs-on: macos-26
-    # Runs land between 18 and 29 minutes on hosted macOS, so a 30-minute budget
-    # left no headroom: a normal commit could exceed it purely on runner variance,
-    # and GitHub reports that timeout as "cancelled", which reads like a human
-    # cancelled the job rather than like a limit being hit.
-    timeout-minutes: 45
+    # B closeout used 35m25s. C adds a fresh, separately compiled UI host after the
+    # complete ordinary suite plus native per-binding reads. Give those additional
+    # mandatory stages room without skipping a suite or enabling UI-host retries.
+    timeout-minutes: 60
     env:
-      # A newly migrated hosted simulator can time out on its first UI launch.
-      # Retry once without weakening any localization assertion.
-      MINDBUDGET_RETRY_TESTS_ON_FAILURE: "1"
+      # A passing retry cannot satisfy release acceptance. Surface the first failure
+      # directly in hosted CI; retain its artifact for independent native inspection.
+      MINDBUDGET_RETRY_TESTS_ON_FAILURE: "0"
       # Hosted CPU contention is not a product-performance oracle. CI still runs the
       # deterministic 10,000-row projection contract and skips only the 500 ms clock.
       MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK: "1"
@@ -128,7 +127,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: MindBudget-xcresult-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/MindBudget.xcresult
+          path: |
+            ${{ runner.temp }}/MindBudget.xcresult
+            ${{ runner.temp }}/MindBudget-FX-UI.xcresult
           if-no-files-found: ignore
           retention-days: 14
 
