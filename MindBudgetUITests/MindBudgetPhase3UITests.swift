@@ -27,17 +27,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["fx.testHost"].waitForExistence(timeout: 8),
                       "Normal AppBootstrap must never substitute for the compiled in-memory host")
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
-        let toggle = app.switches["fx.enabled"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: toggle)
-        XCTAssertEqual(XCTWaiter.wait(for: [granted], timeout: 10), .completed,
-                       "The isolated fixture must reach the real Commerce access boundary")
-        revealFX(toggle, in: app)
-        // At AX5 the switch's accessibility frame includes its multiline label. Hit the
-        // trailing native switch, not the center of that combined label rectangle.
-        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.94, dy: 0.5)).tap()
-        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
-        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        try enableFXSwitch(in: app)
         XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
                                  app.windows.firstMatch.frame.width + 1,
                                  "AX5 content must not force the form wider than the viewport")
@@ -156,6 +146,36 @@ final class MindBudgetPhase3UITests: XCTestCase {
             field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
         }
         field.typeText(value)
+    }
+
+    @MainActor
+    private func enableFXSwitch(in app: XCUIApplication) throws {
+        let toggle = app.switches["fx.enabled"]
+        guard toggle.waitForExistence(timeout: 5) else {
+            throw BudgetGeometryError(description: "FX switch did not appear")
+        }
+        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: toggle)
+        guard XCTWaiter.wait(for: [granted], timeout: 10) == .completed else {
+            throw BudgetGeometryError(description: "The isolated fixture did not reach the real Commerce access boundary")
+        }
+        revealFX(toggle, in: app)
+        // SwiftUI exposes a labelled switch row containing the actual native switch. Bind
+        // the hit point to that child in one snapshot, never a percentage of the live row.
+        let activation = try FXSwitchTapGeometry { BudgetSnapshotNode(try app.snapshot()) }
+        let attachment = XCTAttachment(string: activation.description)
+        attachment.name = "FX single switch activation geometry"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: activation.nativeSwitch.midX - activation.application.minX,
+            dy: activation.nativeSwitch.midY - activation.application.minY
+        )).tap()
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
+        guard XCTWaiter.wait(for: [enabled], timeout: 3) == .completed else {
+            // An assertion alone did not stop the retained async hosted test. Throwing prevents
+            // dependent form operations from running until the method's time allowance.
+            throw BudgetGeometryError(description: "FX switch did not enable after one tap: \(activation)")
+        }
     }
 
     @MainActor
@@ -1602,6 +1622,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let label: String
         let frame: CGRect
         let enabled: Bool
+        let value: String?
         var children: [BudgetSnapshotNode] = []
 
         @MainActor
@@ -1611,17 +1632,19 @@ final class MindBudgetPhase3UITests: XCTestCase {
             label = snapshot.label
             frame = snapshot.frame
             enabled = snapshot.isEnabled
+            value = snapshot.value as? String
             children = snapshot.children.map { BudgetSnapshotNode($0) }
         }
 
         init(_ type: XCUIElement.ElementType, _ frame: CGRect,
-             identifier: String = "", label: String = "", enabled: Bool = true,
+             identifier: String = "", label: String = "", enabled: Bool = true, value: String? = nil,
              children: [BudgetSnapshotNode] = []) {
             self.type = type
             self.identifier = identifier
             self.label = label
             self.frame = frame
             self.enabled = enabled
+            self.value = value
             self.children = children
         }
 
@@ -1630,6 +1653,121 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     private struct BudgetGeometryError: Error, CustomStringConvertible {
         let description: String
+    }
+
+    private struct FXSwitchTapGeometry: CustomStringConvertible {
+        let application: CGRect
+        let row: CGRect
+        let nativeSwitch: CGRect
+        let lane: CGRect
+
+        init(snapshot: () throws -> BudgetSnapshotNode) throws {
+            let root = try snapshot()
+            func requireFrame(_ frame: CGRect) throws {
+                guard !frame.isNull, !frame.isInfinite, !frame.isEmpty,
+                      [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite) else {
+                    throw BudgetGeometryError(description: "Invalid FX activation frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "FX activation requires an application snapshot")
+            }
+            try requireFrame(root.frame)
+            application = root.frame
+            let nodes = root.flattened
+            let forms = nodes.filter { $0.type == .scrollView && $0.identifier == "expense.form" }
+            guard forms.count == 1, let form = forms.first else {
+                throw BudgetGeometryError(description: "Missing or ambiguous FX form")
+            }
+            try requireFrame(form.frame)
+            let visibleForm = form.frame.intersection(application)
+            try requireFrame(visibleForm)
+            let rows = form.flattened.filter { $0.identifier == "fx.enabled" }
+            guard rows.count == 1, let target = rows.first, target.type == .switch,
+                  target.enabled, target.value == "0" else {
+                throw BudgetGeometryError(description: "FX activation requires one enabled, off switch row")
+            }
+            let switches = target.children.flatMap(\.flattened).filter { $0.type == .switch }
+            guard switches.count == 1, let child = switches.first,
+                  child.enabled, child.value == "0" else {
+                throw BudgetGeometryError(description: "FX activation requires one enabled, off native switch child")
+            }
+            try requireFrame(target.frame)
+            try requireFrame(child.frame)
+            row = target.frame
+            nativeSwitch = child.frame
+            let navigation = nodes.filter { $0.type == .navigationBar && $0.frame.intersects(root.frame) }
+            guard !navigation.isEmpty else {
+                throw BudgetGeometryError(description: "FX activation has no visible navigation bar")
+            }
+            let bottom = nodes.filter {
+                ($0.type == .keyboard || $0.type == .tabBar || $0.identifier == "expense.save"
+                    || $0.identifier == "fx.testHost") && $0.frame.intersects(visibleForm)
+            }
+            for node in navigation + bottom { try requireFrame(node.frame) }
+            let top = max(visibleForm.minY, navigation.map(\.frame.maxY).max()!) + 8
+            let end = min(visibleForm.maxY, bottom.map(\.frame.minY).min() ?? visibleForm.maxY) - 8
+            guard end > top else {
+                throw BudgetGeometryError(description: "Contradictory FX activation chrome")
+            }
+            lane = CGRect(x: visibleForm.minX + 8, y: top,
+                          width: visibleForm.width - 16, height: end - top)
+            try requireFrame(lane)
+            // The native control can extend slightly past its labelled parent (seen in the
+            // failed hosted snapshot). Require its full frame in the safe lane, and its center
+            // in the parent; do not inflate either rectangle or assume trailing alignment.
+            guard application.contains(nativeSwitch), lane.contains(nativeSwitch),
+                  row.contains(CGPoint(x: nativeSwitch.midX, y: nativeSwitch.midY)) else {
+                throw BudgetGeometryError(description: "FX native switch is occluded or outside its row")
+            }
+        }
+
+        var description: String {
+            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), rowValue=0, childValue=0"
+        }
+    }
+
+    @MainActor
+    func testFXSwitchTapGeometryUsesOneSnapshotAndRejectsUnsafeState() throws {
+        // Geometry from the retained hosted failure: the identified row includes the label,
+        // while the native control is a distinct child, not the row's normalized 0.94 point.
+        let child = BudgetSnapshotNode(.switch, CGRect(x: 305.3, y: 132, width: 63, height: 28), value: "0")
+        var row = BudgetSnapshotNode(.switch, CGRect(x: 36, y: 132, width: 330.5, height: 28),
+                                     identifier: "fx.enabled", value: "0", children: [child])
+        func tree(_ rows: [BudgetSnapshotNode], navigationBottom: CGFloat = 116) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 402, height: 874), children: [
+                BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 62, width: 402, height: navigationBottom - 62)),
+                BudgetSnapshotNode(.scrollView, CGRect(x: 0, y: 0, width: 402.3, height: 874),
+                                   identifier: "expense.form", children: rows),
+                BudgetSnapshotNode(.button, CGRect(x: 20, y: 750, width: 362, height: 50), identifier: "expense.save")
+            ])
+        }
+        var captures = 0
+        let captured = try FXSwitchTapGeometry { captures += 1; return tree([row]) }
+        XCTAssertEqual(captures, 1)
+        XCTAssertEqual(captured.nativeSwitch, child.frame)
+        XCTAssertNotEqual(captured.nativeSwitch.midX, row.frame.minX + row.frame.width * 0.94)
+        let offCenter = BudgetSnapshotNode(.switch, CGRect(x: 285, y: 210, width: 63, height: 28), value: "0")
+        row = BudgetSnapshotNode(.switch, CGRect(x: 36, y: 132, width: 330, height: 140),
+                                 identifier: "fx.enabled", value: "0", children: [offCenter])
+        let ax5 = try FXSwitchTapGeometry { tree([row]) }
+        XCTAssertEqual(ax5.nativeSwitch, offCenter.frame)
+        XCTAssertNotEqual(ax5.nativeSwitch.midY, row.frame.midY)
+        XCTAssertEqual(captured.nativeSwitch, child.frame, "Later layout cannot mutate captured hit geometry")
+        XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row, row]) })
+        XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row], navigationBottom: 225) })
+        for children in [[], [offCenter, offCenter],
+                         [BudgetSnapshotNode(.switch, .zero, value: "0")],
+                         [BudgetSnapshotNode(.switch, offCenter.frame, enabled: false, value: "0")],
+                         [BudgetSnapshotNode(.switch, offCenter.frame, value: "1")],
+                         [BudgetSnapshotNode(.switch, offCenter.frame)],
+                         [BudgetSnapshotNode(.switch, CGRect(x: 285, y: 760, width: 63, height: 28), value: "0")]] {
+            row.children = children
+            XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row]) })
+        }
+        XCTAssertThrowsError(try FXSwitchTapGeometry {
+            throw BudgetGeometryError(description: "Snapshot capture failed")
+        })
     }
 
     /// A single public accessibility snapshot is the authority for the source row, foreground

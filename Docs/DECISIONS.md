@@ -4243,3 +4243,30 @@ or permission to call it transient. Remove the timing instrumentation, retain th
 threshold and run complete validation on the repair. Product Swift, retries, timeouts and FX
 scope remain unchanged. The owner reviews existing PR #114; no merge, C closeout or D entry
 is authorized by a focused pass.
+
+## 2026-09-06 — Activate the FX native switch from one public snapshot
+
+Retain hosted `33968054298` on `1fbe47f` as non-pass, including the initially omitted English
+FX activation failure. Its public failure hierarchy exposes a labelled `fx.enabled` Switch row
+and a distinct native Switch descendant, both off. The old normalized row-relative `(0.94, 0.5)`
+tap and separate live readiness/frame queries do not bind the tap to the actual child. This
+does not identify the exact OS recognizer responsible, and the old point being within a later
+captured child rectangle is not proof of a coherent pre-tap geometry sample.
+
+Use one public `app.snapshot()` after bounded no-tap reveal. Require one foreground expense
+form, one enabled off row, one enabled off native Switch child and an unobscured child frame
+below navigation and above Save, fixture footer and keyboard. Derive every bound and the fixed
+child-center hit point from that same immutable value tree. The child may extend slightly past
+its labelled parent, as the hosted attachment shows; its center must be in that parent and its
+entire frame must be in the safe lane. Do not fall back to an inferred trailing percentage.
+Ambiguous/missing/invalid geometry or state fails closed. Record the captured geometry even on
+success, tap exactly once and keep the existing three-second `value == '1'` wait. Throw on
+failure so the async caller cannot continue into missing FX controls and hit its allowance.
+The synchronous main-actor activation helper uses the synchronous XCTest waiter in its supported
+context; it does not hide a second tap or a retry in an async wrapper.
+
+Pure geometry regression and both real FX UI cases are required, followed by complete local
+validation, exact-head hosted CI and native audit. No product code, timeout, retry policy,
+schema, network, CSV or iCloud change is included. Existing physical Pro/ordinary budget
+two-attempt helpers remain explicit separate infrastructure debt. C remains In Progress and D
+remains unentered; the owner reviews the existing Draft PR #114 before any merge.

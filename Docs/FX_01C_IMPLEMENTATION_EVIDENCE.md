@@ -7,7 +7,18 @@ only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current runtime checkpoint: `b441df9` passed hosted `33952509502` and its native artifact audit,
+Current runtime checkpoint: **PR #114 remains Draft: the FX switch repair still requires new-head
+complete local validation, hosted CI and native audit.** Hosted `33968054298` attempt 1 on
+`1fbe47f47dd147ba4447a8083237ee635b26bb01` failed in the dedicated English FX method. Its
+three-second `fx.enabled == '1'` wait failed after the normalized `(0.94, 0.5)` tap; dependent
+form operations continued and the method reached the 240-second allowance. The missing run was
+identified by owner-supplied independent review and is now explicitly retained as non-pass.
+The exact-head local/hosted passes on `856a085` established the ordinary AX5 navigation repair,
+not closure of this separate FX activation defect. Historical green runs do not erase it.
+C remains In Progress; D remains unentered. See the latest session entry for the repair and
+its evidence boundaries.
+
+Historical `1fbe47f` documentation checkpoint: `b441df9` passed hosted `33952509502` and its native artifact audit,
 but **did not pass complete acceptance**. A complete local recapture exited 65 on neonPulse
 Terms navigation in the three-theme AX5 method. A previous local invocation's staged passes
 also retain an unresolved wrapper/log-continuity provenance gap; neither it nor a later focused
@@ -18,7 +29,7 @@ local failure as a merge blocker and required this repository synchronization. P
 Draft. A repair requires new exact-head hosted/native evidence, one complete local validator
 pass and owner review; it does not close C or enter D.
 
-Post-review diagnostic checkpoint: the subsequent focused and complete ordinary-UI diagnostic
+Historical pre-`856a085` diagnostic checkpoint: the subsequent focused and complete ordinary-UI diagnostic
 experiments did not reproduce the Terms failure. The complete UI diagnostic contains 21 Passed
 and three existing Skipped methods, each once, but used temporary instrumentation and is **not**
 `validate.sh` acceptance or proof of a repair. All diagnostic Swift was removed; product, tests,
@@ -403,3 +414,38 @@ remain diagnostics rather than executions.
 This is a complete working-tree validation before the documentation/freeze commit. A fresh
 complete exact-head local run plus hosted CI/native artifact audit are still required. The owner
 will review existing Draft PR #114. C is not complete and D remains unentered.
+
+## FX native switch activation repair — pending new-head acceptance
+
+Retained non-pass `33968054298` attempt 1 on `1fbe47f` failed the dedicated English FX case's
+single-tap activation and subsequently its time allowance. The downloaded raw artifact ZIP
+SHA-256 `d7b8c97d17f9b5d5d118b7f70ccf1574688f18ead74fa0dfc035e2f11f65f089` matches GitHub.
+The old query targeted a labelled Switch row, while the public hierarchy also exposes the
+distinct native Switch child. Both remained off in failure attachments. No exact recognizer
+cause or statistical failure-rate estimate is claimed from the small hosted sample.
+
+The replacement requires one public snapshot with a unique enabled/off row and enabled/off
+child. The child's entire frame must fit in the same snapshot's foreground form/App and
+navigation/Save/footer/keyboard-safe lane; its center must lie inside the labelled row. It taps
+that fixed child center once and waits the unchanged three seconds for the row value to become
+1. Capture, geometry, state and wait failures throw before dependent form operations. Geometry
+is attached on success as well as failure. Pure regression uses the failed hosted rectangles
+and an asymmetric large-text row; it tests single capture, immutable geometry, duplicates,
+occlusion, absent children, disabled/unknown/on state and capture failure. No retap, timeout
+increase, skipped binding, runner retry or product behavior change is included.
+
+Focus 1 failed compilation before execution because the synchronous XCTest waiter was placed
+directly in an async `guard`; the final implementation uses a synchronous main-actor throwing
+activation helper. This development non-pass is retained in the session log. The prior exact
+`856a085` local pass and hosted `33975893005` success close the previous ordinary AX5 blocker,
+not this FX defect. The new source still requires full local validation and hosted/native
+acceptance on its committed head. Existing physical Pro and budget two-attempt helpers, Chinese
+FX AX5 timeout margin and earlier copy/reminder/dead-code findings remain separate open debt.
+C remains In Progress, PR #114 Draft, and D unentered.
+
+Focused candidate evidence: UI-test source SHA-256
+`f6a876bafc505a1420214b0d0677ad24be7948379c6446ea6c36e9e7b1d29bed` passed both required FX
+UI cases once (Chinese AX5 106.778656s / English 40.484546s) and both new-switch/existing-navigation
+pure geometry methods. Snapshot attachments and logs retain the actual child-center tap followed
+by value 1 for each UI case; the two existing invalid-frame diagnostics remain non-execution
+warnings. These focused runs are development evidence, not full committed-head acceptance.

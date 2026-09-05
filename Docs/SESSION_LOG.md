@@ -8822,3 +8822,79 @@ This run validates the final test source plus the pre-document working tree; it 
 exact committed-head or hosted result. The exact-head complete local run, hosted CI and native
 artifact audit remain mandatory after this record is committed. PR #114 remains Draft, C remains
 In Progress, and D remains unentered.
+
+## 2026-09-06 — PR #114 missed hosted FX non-pass and activation repair
+
+The owner-supplied independent review identified a missing provenance record. GitHub confirms
+hosted `33968054298` attempt 1 on `1fbe47f47dd147ba4447a8083237ee635b26bb01` concluded failure.
+The Build and test step failed after the ordinary suite; the dedicated English
+`testManualForeignCurrencyEnglishProCreateAndDetail` failed its three-second `value == '1'`
+expectation at line 40 after one normalized `(0.94, 0.5)` tap on `fx.enabled`. The test then
+continued to look for unavailable FX controls and reached its 240-second allowance. The Chinese
+FX case passed once in 161.947 seconds. This run is **retained non-pass**, not transient and not
+accepted by the later green run. Omitting it from the earlier repository/PR checkpoint was an
+author-side evidence-completeness error; this entry and the PR correction restore the record.
+
+The subsequent ordinary-navigation repair `856a085556bbefe9eaf2e74e2d07b197a57e3363` passed a
+fresh complete exact-head local `Scripts/validate.sh` with retries disabled. Its ordinary bundle
+contains 611 methods (595 Passed / 16 existing Skipped), 620 concrete executions (604 Passed /
+16 Skipped), and no failed or repeated execution. The two FX methods passed once (Chinese
+104.502 seconds / English 40.362 seconds). The strict benchmark, coverage, 23 C6 bindings and
+32 FX unit bindings passed. Local paths are `/private/tmp/mindbudget-fx114-856a085-exact.xcresult`
+and `/private/tmp/mindbudget-fx114-856a085-exact-FX-UI.xcresult`.
+
+Hosted `33975893005` attempt 1 succeeded on that exact `856a085` head. All 611 ordinary native
+method details were read: 595 Passed / 16 Skipped, 620 concrete executions (604 / 16), no
+Repetition or extra attempt. Its two FX methods passed once (Chinese 195.865204 seconds /
+English 70.334809 seconds). The ordinary AX5 method passed in 254.642133 seconds. Artifact
+`9972827414` carries GitHub's reported digest
+`5e7e0fddba8374d3c22ac2ebefc77caf7be2da3f99f98d5c9815b72f72460f4b`;
+that report is not a locally rehashed raw-ZIP claim. Two existing dedicated-host invalid-frame
+warnings remain explicit. These passes meet the prior ordinary-navigation requirement only;
+they do not close the newly identified FX switch non-pass or authorize merge.
+
+The current repair is limited to the dedicated FX test's activation: bind the native switch
+child's frame and state to one public application snapshot, tap once, and fail immediately if
+the existing three-second value wait is not satisfied. No additional tap, timeout allowance,
+runner retry or product change is authorized. New committed-head complete local validation and
+hosted/native acceptance are still required. C remains In Progress; D remains unentered.
+
+Known ordinary-test debt, explicitly not removed in this FX repair: the existing
+`tapAndWaitForDestination(attempts: 2)` call sites in physical AX5 Pro navigation and budget setup
+still permit a second navigation/Save tap. They are not evidence of single-tap acceptance and
+must be addressed in a separate infrastructure PR. The Chinese AX5 FX method's 195.9/240-second
+hosted margin, the five previously recorded copy/reminder/dead-code findings, and the obligation
+to separate future zero-retry/general UI infrastructure work from FX product PRs remain open.
+
+The missed run's raw artifact ZIP (`9970701761`, 113120030 bytes) was downloaded and hashed as
+`d7b8c97d17f9b5d5d118b7f70ccf1574688f18ead74fa0dfc035e2f11f65f089`, matching GitHub. Native
+ordinary summary: 610 methods (594 Passed / 16 Skipped), 619 concrete executions (603 / 16),
+zero failures/warnings. The failed FX method's first predicate-debug attachments at
+13:49:50/51 UTC retain row `{{36,132},{330.5,28}}`, value 0, and a native child
+`{{305.3,132},{63,28}}`, value 0. A later full hierarchy confirms the parent-child relationship.
+The child extends beyond the parent's right edge; the repair requires its center inside the
+row but its full frame inside the navigation/Save-safe lane, without padding the captured bounds.
+The original percentage point lies in that later rectangle; this is not proof that the original
+live queries captured the same state or that a specific recognizer consumed the tap.
+
+Development focus 1 (`/private/tmp/pr114-fx-switch-focus-1.log`) exited 65 at compilation, before
+any test ran: directly calling synchronous `XCTWaiter.wait` in the async method's new `guard` was
+unavailable in Xcode 27. The activation operation was moved into a synchronous main-actor
+throwing helper, retaining the same timeouts and explicit early exit. Focus 1 remains a
+development non-pass, not runtime evidence; focus 2 uses a fresh result/DerivedData path.
+
+Focus 2 completed with exit 0 on the final candidate UI-test source SHA-256
+`f6a876bafc505a1420214b0d0677ad24be7948379c6446ea6c36e9e7b1d29bed`.
+`/private/tmp/pr114-fx-switch-focus-2.xcresult` contains the two actual UI bindings once Passed:
+Chinese AX5 106.778656 seconds and English 40.484546 seconds. The native binding verifier
+accepted both tree/detail executions with no skipped/retried binding. Both existing invalid-frame
+diagnostics remain recorded. The retained activation attachments show Chinese row
+`(36,132,330,125.3333)` / native child `(305,180.6667,63,28)` and English row
+`(36,132,330.5,28)` / native child `(305.3333,132,63,28)`, initially enabled and off. The logs
+record one child-center tap and subsequent value 1 per case, without an additional activation.
+
+The separate `/private/tmp/pr114-fx-switch-geometry-1.xcresult` contains exactly two Passed
+methods: the new switch geometry contract (0.047423 seconds) and existing navigation geometry
+contract (0.040389 seconds). This checks actual native method selection, not only command exit.
+These focused passes do not replace the required complete local validator or new-head hosted
+CI/native audit. No physical device, new schema, product change, D entry or C closeout occurred.
