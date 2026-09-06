@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
+import fx01_ui_runner
 
 FLAG = "MINDBUDGET_FX_UI_TEST_HOST"
 GUARD = f"#if DEBUG && targetEnvironment(simulator) && {FLAG}"
@@ -27,7 +28,8 @@ NATIVE_26_FIXTURE = "Scripts/Fixtures/fx_native_xcode26.json"
 NATIVE_26_FIXTURE_SHA256 = "dbd4dd3b6546a64b1368b702582f8cba29d96eb3ffd622dcd5632b3f42387628"
 FIXTURE_FILES = (HOST, MAIN, ACCESS, SCHEME, PROJECT,
                  "MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme",
-                 "Scripts/fx01_ui_contract.py", NATIVE_26_FIXTURE)
+                 "Scripts/fx01_ui_contract.py", "Scripts/fx01_ui_runner.py",
+                 "Scripts/run-fx01-ui-tests.sh", NATIVE_26_FIXTURE)
 FIXED_COMMERCE_FIXTURE = """enum FXUIFixtureAccess {
     static func allow(_ authority: LiveFeatureAccessAuthority) {
         authority.replaceEntitlements(.proSubscription)
@@ -75,6 +77,7 @@ UNIT_BINDINGS = (
 UI_BINDINGS = (
     "MindBudgetPhase3UITests/testManualForeignCurrencyEnglishProCreateAndDetail",
     "MindBudgetPhase3UITests/testManualForeignCurrencyChineseAX5ProCreateAndDetail",
+    "MindBudgetPhase3UITests/testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit",
 )
 
 
@@ -85,6 +88,9 @@ def isolation_errors(root: Path) -> list[str]:
     host = (root / HOST).read_text()
     main = (root / MAIN).read_text()
     access = (root / ACCESS).read_text()
+    runner = (root / "Scripts/run-fx01-ui-tests.sh").read_text()
+    if 'exec python3 -B Scripts/fx01_ui_runner.py "${FX_DESTINATION}" "${FX_RESULT_BUNDLE}"' not in runner or "xcodebuild" in runner:
+        errors.append("FX shell entry must delegate build/test only to the isolated simulator runner")
     if not host.startswith(GUARD + "\n") or not host.rstrip().endswith("\n#endif"):
         errors.append("FX UI host must be wholly Debug AND simulator AND dedicated-flag compiled")
     if len(re.findall(r"^\s*#(?:if|else|elseif|endif)\b", host, re.M)) != 2:
@@ -140,7 +146,7 @@ def isolation_errors(root: Path) -> list[str]:
         selected = tuple(node.get("Identifier", "").removesuffix("()")
                          for node in tree.findall(".//SelectedTests/Test"))
         if selected != UI_BINDINGS:
-            errors.append("FX UI scheme must retain its two exact runtime methods")
+            errors.append("FX UI scheme must retain its three exact runtime methods")
     return errors
 
 
@@ -249,11 +255,15 @@ def native_result(bundle: Path, command: str, *extra: str) -> object:
     return json.loads(completed.stdout)
 
 
-def verify_bundle(bundle: Path, *, ui: bool) -> None:
+def verify_bundle(bundle: Path, *, ui: bool, expected_device_id: str | None = None) -> None:
     cases = required_cases(native_result(bundle, "tests"), ui=ui)
 
     def verify(case: dict) -> None:
-        validate_detail(native_result(bundle, "test-details", "--test-id", case["nodeIdentifier"]), case)
+        detail = native_result(bundle, "test-details", "--test-id", case["nodeIdentifier"])
+        validate_detail(detail, case)
+        if expected_device_id is not None:
+            if fx01_ui_runner.device_uuid(detail["devices"][0]["deviceId"]) != expected_device_id:
+                raise ValueError(f"{case['nodeIdentifier']}: execution did not use the newly created FX simulator")
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         list(executor.map(verify, cases.values()))
@@ -398,11 +408,24 @@ else:
         if not ui:
             kinds.append("native-26-sample")
             positive_kinds.add("native-26-sample")
+        else:
+            kinds.extend(["expected-device", "wrong-expected-device", "invalid-expected-device"])
+            positive_kinds.add("expected-device")
         for kind in kinds:
             payload = copy.deepcopy(valid)
             case = payload["tree"]["testNodes"][0]
             detail = payload["details"][identifier]
             configuration = detail["testRuns"][0]["children"][0]
+            extra = []
+            if kind in {"expected-device", "wrong-expected-device", "invalid-expected-device"}:
+                device = "22222222-2222-4222-8222-222222222222"
+                for case_detail in payload["details"].values():
+                    case_detail["devices"][0]["deviceId"] = device
+                    case_detail["testRuns"][0]["nodeIdentifier"] = device
+                requested = {"expected-device": device,
+                             "wrong-expected-device": "11111111-1111-4111-8111-111111111111",
+                             "invalid-expected-device": "booted"}[kind]
+                extra = ["--expected-device-id", requested]
             if kind == "native-26-sample":
                 sample = native_26_fixture(root)
                 target = sample["case"]["nodeIdentifier"]
@@ -440,7 +463,7 @@ else:
                     configuration["children"] = [copy.deepcopy(diagnostic)]
             (bundle / "native.json").write_text(json.dumps(payload))
             completed = subprocess.run([sys.executable, "-B", str(root / "Scripts/fx01_ui_contract.py"),
-                                        "--verify-ui-bundle" if ui else "--verify-unit-bundle", str(bundle)],
+                                        "--verify-ui-bundle" if ui else "--verify-unit-bundle", str(bundle), *extra],
                                        env={"PATH": str(base) + os.pathsep + "/usr/bin:/bin"},
                                        capture_output=True, text=True, timeout=30, check=False)
             expected = 0 if kind in positive_kinds else 1
@@ -453,6 +476,7 @@ def self_test(root: Path) -> None:
     if errors := isolation_errors(root):
         raise ValueError("\n".join(errors))
     native_26_fixture(root)
+    fx01_ui_runner.self_test()
     detail_negatives = cli_positives = cli_negatives = 0
     mutations = (
         (HOST, GUARD, f"#if DEBUG || targetEnvironment(simulator) || {FLAG}"),
@@ -474,6 +498,8 @@ def self_test(root: Path) -> None:
         (SCHEME, 'buildConfiguration="Debug"', 'buildConfiguration="Release"'),
         (SCHEME, "</Scheme>", "<ArchiveAction buildConfiguration=\"Release\"/></Scheme>"),
         (SCHEME, UI_BINDINGS[0] + "()", "MindBudgetPhase3UITests/unrelated()"),
+        (SCHEME, '<Test Identifier="' + UI_BINDINGS[2] + '()"/>', ''),
+        ("Scripts/run-fx01-ui-tests.sh", "exec python3 -B Scripts/fx01_ui_runner.py", "python3 -B unrelated.py"),
         (PROJECT, "// !$*UTF8*$!", "// !$*UTF8*$!\n// " + FLAG),
         ("MindBudget.xcodeproj/xcshareddata/xcschemes/MindBudget.xcscheme",
          "</Scheme>", "<!-- MINDBUDGET_FX_UI_TESTS --></Scheme>"),
@@ -562,13 +588,17 @@ def main() -> int:
     action.add_argument("--self-test", action="store_true")
     action.add_argument("--verify-unit-bundle", type=Path)
     action.add_argument("--verify-ui-bundle", type=Path)
+    parser.add_argument("--expected-device-id")
     args = parser.parse_args()
     try:
         if args.self_test:
             self_test(Path(__file__).resolve().parent.parent)
         else:
             ui = args.verify_ui_bundle is not None
-            verify_bundle(args.verify_ui_bundle if ui else args.verify_unit_bundle, ui=ui)
+            expected = fx01_ui_runner.device_uuid(args.expected_device_id) if args.expected_device_id else None
+            if expected is not None and not ui:
+                raise ValueError("fresh simulator identity is only applicable to the FX UI bundle")
+            verify_bundle(args.verify_ui_bundle if ui else args.verify_unit_bundle, ui=ui, expected_device_id=expected)
             print(f"FX {'UI host' if ui else 'unit'} runtime bindings passed exactly once: "
                   f"{len(UI_BINDINGS if ui else UNIT_BINDINGS)}; no skipped/retried binding accepted")
     except (OSError, ValueError, ET.ParseError, subprocess.TimeoutExpired) as error:

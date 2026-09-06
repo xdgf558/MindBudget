@@ -72,7 +72,11 @@ The C6 registry placement and old AX5 `boundBy: 0` Back selector remain maintena
 Self-tests change temporary copies only. B's Swift/Schema V7 delivery is now reviewed, hosted-green
 and merged. PR #113's reviewed head `642eb50` passed `33847157685` attempt 2 and merged as
 `ebd5785`, completing B closeout. The owner separately entered C under the sequential instruction:
-manual form, existing Pro access and detail/edit behavior only. C remains In Progress; D and
+manual form, existing Pro access and detail/edit behavior only. PR #114's independently reviewed
+`18f11cc` passed hosted `33996904935` and full local validation, then merged as `9d592d6` with
+that head as second parent. The owner entered separate closeout: split the long Chinese AX5
+scenario and use a fresh FX-only simulator to isolate system permissions. New runtime and review
+evidence is still required for these harness changes. C remains In Progress; D and
 COM-C12 remain unentered. No Archive, distribution, or release is authorized.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
@@ -933,3 +937,34 @@ New records use current Settings currency; edits use only that row's persisted a
 No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
 COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
 FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.
+
+## 2026-09-06 — FX-01C implementation merge and independent closeout
+
+Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
+
+PR #114 received owner-supplied off-platform independent review on `18f11cc` with no P1/P2.
+Hosted `33996904935` attempt 1 passed on that exact head, full local `Scripts/validate.sh`
+exited 0, and merge `9d592d6` retains the reviewed head as second parent. The accepted tree is
+`24bbc0ca1d843fb11f87bf30b104d0c6b2762dd6`; artifact ZIP SHA-256 is
+`a6690799424940d07ca8f721940f8923542ab58b09dd81bec9c85ce18c6effad`. The native audit covers
+612 ordinary methods (596 Passed / 16 opt-in Skipped), 621 concrete executions (605 / 16),
+and two FX methods each Passed once, without extra attempts or Failed-to-Passed in this accepted
+run. Historical non-passes remain non-pass.
+
+The owner separately entered this closeout. Its two-method evidence does not validate the
+three-method closeout: the Chinese AX5 create/detail and expired stewardship scenarios now need
+separate fresh execution evidence, while English retains its end-to-end flow. Keep the
+240-second per-method allowance and zero retries. A fresh non-cloned simulator isolates the FX
+host from the ordinary suite's system authorization/pending-notification state, not just its
+in-memory store and preferences. The prior hosted notification Allow interruption is retained;
+its exact origin remains unproven and it was not a second FX switch tap. The new runner must
+verify its own created UUID in native details and clean up only that owned temporary simulator.
+
+The implementation's Chinese AX5 duration was 219.3/240 seconds. The split and isolation are new
+test-harness changes, not production behavior, and require this branch's complete local
+validation, exact-head hosted success, native audit and independent review. The two existing
+ordinary hidden-retap call sites, copy/reminder/dead-code observations and separate-infrastructure
+PR obligation remain open. There is no C Done or D entry from this implementation merge or
+unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.

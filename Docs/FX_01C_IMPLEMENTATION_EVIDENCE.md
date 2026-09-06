@@ -1,14 +1,20 @@
 # FX-01C manual-entry implementation evidence
 
-Status: **FX-01C In Progress; candidate validation and independent review pending.**
+Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
 
 This packet covers the manual entry, saved detail, edit, and existing Commerce access boundary
 only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services, or authorize
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current runtime checkpoint: **PR #114 remains Draft: the FX switch repair still requires new-head
-complete local validation, hosted CI and native audit.** Hosted `33968054298` attempt 1 on
+Current runtime checkpoint: **PR #114 merged as `9d592d6`; the separate three-method closeout
+requires its own validation and review.** Reviewed `18f11cc` passed hosted `33996904935`, native
+audit and complete local validation. See the final closeout section and SESSION_LOG for the
+accepted source tree, full counts and the permission interruption; no historical checkpoint below
+is a current merge blocker or substitute for the new harness's execution evidence.
+
+Historical pre-`18f11cc` checkpoint: the FX switch repair still required new-head complete local
+validation, hosted CI and native audit at that point. Hosted `33968054298` attempt 1 on
 `1fbe47f47dd147ba4447a8083237ee635b26bb01` failed in the dedicated English FX method. Its
 three-second `fx.enabled == '1'` wait failed after the normalized `(0.94, 0.5)` tap; dependent
 form operations continued and the method reached the 240-second allowance. The missing run was
@@ -26,7 +32,7 @@ pass is a complete local `validate.sh` pass. The earlier `bb4366b` hosted `33930
 failure and 808.754667 ms > 500 ms benchmark failure remain non-pass. The session log records
 these outcomes separately. The owner's latest review found no source P1/P2 but retained the
 local failure as a merge blocker and required this repository synchronization. PR #114 remains
-Draft. A repair requires new exact-head hosted/native evidence, one complete local validator
+Draft at that historical checkpoint. A repair required new exact-head hosted/native evidence, one complete local validator
 pass and owner review; it does not close C or enter D.
 
 Historical pre-`856a085` diagnostic checkpoint: the subsequent focused and complete ordinary-UI diagnostic
@@ -67,12 +73,15 @@ it does not construct AppBootstrap, StoreKit or network/system lifecycles. The n
 dependency is a fail-on-call stub. These UI results cannot prove a StoreKit purchase or physical
 VoiceOver behavior, and their compile-time fixture cannot grant normal-app paid rights.
 
-`Scripts/fx01_ui_contract.py` owns 32 exact FX unit bindings (17 B and 15 C) and two UI bindings.
+`Scripts/fx01_ui_contract.py` owns 32 exact FX unit bindings (17 B and 15 C) and three UI bindings
+in this closeout. PR #114's two-binding acceptance is historical and separately identified below.
 It reads this run's native tree and each required test's native details, requires one Passed
 device/configuration/execution, and rejects skipped, failed, duplicate, parameterized or unknown
 attempt shapes. No schema-version override or C6 tree-reader dependency is used. The UI runner
 requires fresh result and DerivedData paths, normal simulator signing and no test retries.
-Hosted artifacts must retain both ordinary and dedicated UI bundles.
+Each invocation creates a non-cloned simulator matching the ordinary destination's exact runtime
+and device type. Its UUID must match every native FX detail; only that owned simulator is cleaned
+up afterward. Hosted artifacts retain both bundles and the FX simulator provenance JSON.
 
 ## Retained local development non-passes
 
@@ -449,3 +458,70 @@ UI cases once (Chinese AX5 106.778656s / English 40.484546s) and both new-switch
 pure geometry methods. Snapshot attachments and logs retain the actual child-center tap followed
 by value 1 for each UI case; the two existing invalid-frame diagnostics remain non-execution
 warnings. These focused runs are development evidence, not full committed-head acceptance.
+
+## 2026-09-06 — FX-01C implementation merge and independent closeout
+
+Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
+
+PR #114 received owner-supplied off-platform independent review on `18f11cc` with no P1/P2.
+Hosted `33996904935` attempt 1 passed on that exact head, full local `Scripts/validate.sh`
+exited 0, and merge `9d592d6` retains the reviewed head as second parent. The accepted tree is
+`24bbc0ca1d843fb11f87bf30b104d0c6b2762dd6`; artifact ZIP SHA-256 is
+`a6690799424940d07ca8f721940f8923542ab58b09dd81bec9c85ce18c6effad`. The native audit covers
+612 ordinary methods (596 Passed / 16 opt-in Skipped), 621 concrete executions (605 / 16),
+and two FX methods each Passed once, without extra attempts or Failed-to-Passed in this accepted
+run. Historical non-passes remain non-pass.
+
+The owner separately entered this closeout. Its two-method evidence does not validate the
+three-method closeout: the Chinese AX5 create/detail and expired stewardship scenarios now need
+separate fresh execution evidence, while English retains its end-to-end flow. Keep the
+240-second per-method allowance and zero retries. A fresh non-cloned simulator isolates the FX
+host from the ordinary suite's system authorization/pending-notification state, not just its
+in-memory store and preferences. The prior hosted notification Allow interruption is retained;
+its exact origin remains unproven and it was not a second FX switch tap. The new runner must
+verify its own created UUID in native details and clean up only that owned temporary simulator.
+
+The implementation's Chinese AX5 duration was 219.3/240 seconds. The split and isolation are new
+test-harness changes, not production behavior, and require this branch's complete local
+validation, exact-head hosted success, native audit and independent review. The two existing
+ordinary hidden-retap call sites, copy/reminder/dead-code observations and separate-infrastructure
+PR obligation remain open. There is no C Done or D entry from this implementation merge or
+unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
+
+## 2026-09-06 — FX-01C closeout development verification checkpoint
+
+The first closeout focus used a newly created, non-cloned simulator
+`709B4F2A-6DCF-4890-BD15-D5821F9907D7` (iPhone 17 Pro / iOS 26.5), distinct from the ordinary
+source destination. `/private/tmp/fx01c-closeout-focus-1.xcresult` passed all three UI methods
+exactly once: Chinese AX5 expired stewardship 37.181 seconds, Chinese AX5 create/detail
+77.488 seconds, English end-to-end 40.712 seconds. All native details match that fresh UUID.
+The runner shut down and deleted only its created simulator; the result, log and
+`fx01c-closeout-focus-1.simulator.json` remain retained. No notification-permission interruption
+appeared in this log; this is one observation, not proof that OS interruptions can never occur.
+
+Three native invalid-frame warnings remain, one per method; splitting the previously combined
+Chinese flow exposes the same diagnostic in each independent method. The first author-side
+audit invocation incorrectly requested the old count of two warnings and failed; re-reading the
+same bundle with its actual three warnings passed (three details / three concrete Passed /
+zero Repetition or extra attempt). No test was rerun to obtain that corrected audit.
+Xcode also logged a post-test diagnostic-collection warning: its diagnostic subprocess could not
+find `simctl` (error 72). The runner's explicit developer environment successfully booted,
+tested, read the bundle and cleaned up. This warning is retained, not a claim of complete
+supplemental diagnostics or a product failure.
+
+The first expanded static-gate run failed because its old C checklist mutation still searched
+for the now-accepted unchecked "Add one exhaustive" item. The mutation was updated to flip the
+accepted checkbox back to unchecked, preserving the negative check. The next run passed all
+586 copied-CLI closeout mutations, native binding/detail negatives and ordering/no-retry checks.
+The initial sandbox-only simulator inventory read was denied before test activity; its authorized
+read succeeded. These are development/infrastructure observations, not failed product tests.
+
+Subsequent runner-only changes accept an absent redundant runtime `platform` field only when
+the exact registered iOS runtime identifier already establishes the platform; persist provenance
+inside ownership-checked cleanup; reject reuse before touching a simulator; and retain the
+provenance JSON in hosted artifacts. They require the upcoming complete run. This focus does
+not replace complete local validation or exact-head hosted/native acceptance. The old PR #114
+two-method bundle does not validate these three methods. The owner will review the new Draft
+closeout PR; no independent approval, C completion or D entry is claimed here.

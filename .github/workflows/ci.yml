@@ -130,6 +130,7 @@ jobs:
           path: |
             ${{ runner.temp }}/MindBudget.xcresult
             ${{ runner.temp }}/MindBudget-FX-UI.xcresult
+            ${{ runner.temp }}/MindBudget-FX-UI.simulator.json
           if-no-files-found: ignore
           retention-days: 14
 

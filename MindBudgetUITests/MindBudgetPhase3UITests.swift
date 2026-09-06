@@ -12,7 +12,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+    func testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit() async throws {
+        let app = try launchFXHost(language: "zh-Hans", locale: "zh_CN", ax5: true)
+        defer { app.terminate() }
+        // This method never depends on another test's creation or store. The compile-isolated
+        // fixture writes one fixed record through DataActor, revokes Pro and changes Settings.
+        let existing = app.buttons["fx.testHost.existing"]
+        XCTAssertTrue(existing.waitForExistence(timeout: 3) && existing.isHittable)
+        existing.tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 8))
+        let amounts = app.staticTexts.containing(NSPredicate(
+            format: "label CONTAINS %@ AND label CONTAINS %@", "3 EUR", "6 USD"
+        )).firstMatch
+        XCTAssertTrue(amounts.waitForExistence(timeout: 3))
+        try exerciseForeignCurrencyStewardship(in: app, ax5: true)
+    }
+
+    @MainActor
+    private func launchFXHost(language: String, locale: String, ax5: Bool) throws -> XCUIApplication {
         guard ProcessInfo.processInfo.environment["MINDBUDGET_FX_UI_TESTS"] == "1" else {
             throw XCTSkip("Requires the separately compiled FX UI host; this skip is not UI evidence.")
         }
@@ -23,9 +40,15 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         app.launch()
         continueAfterFailure = false
-        defer { app.terminate() }
         XCTAssertTrue(app.staticTexts["fx.testHost"].waitForExistence(timeout: 8),
                       "Normal AppBootstrap must never substitute for the compiled in-memory host")
+        return app
+    }
+
+    @MainActor
+    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+        let app = try launchFXHost(language: language, locale: locale, ax5: ax5)
+        defer { app.terminate() }
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
         try enableFXSwitch(in: app)
         XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
@@ -107,8 +130,16 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "EUR")).firstMatch.exists)
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "USD")).firstMatch.exists)
+        // Chinese AX5 stewardship has its own fresh-host method and fixed persisted fixture.
+        // English retains the original create -> expire -> edit end-to-end sequence.
+        if ax5 { return }
         // Actual stored FX remains editable after access expires and Settings changes to JPY.
         app.buttons["fx.testHost.revoke"].tap()
+        try exerciseForeignCurrencyStewardship(in: app, ax5: false)
+    }
+
+    @MainActor
+    private func exerciseForeignCurrencyStewardship(in app: XCUIApplication, ax5: Bool) throws {
         app.buttons["expense.edit"].tap()
         XCTAssertTrue(app.switches["fx.enabled"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.switches["fx.enabled"].isEnabled)
@@ -125,6 +156,14 @@ final class MindBudgetPhase3UITests: XCTestCase {
         XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
         let updated = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "USD", "9")).firstMatch
         XCTAssertTrue(updated.waitForExistence(timeout: 5))
+        if ax5 {
+            let savedDate = element("fx.detail.rateDate", in: app)
+            XCTAssertTrue((savedDate.label + (savedDate.value as? String ?? "")).contains("2024"))
+        }
+        let image = XCTAttachment(screenshot: app.screenshot())
+        image.name = "FX expired stewardship - AX5 \(ax5)"
+        image.lifetime = .keepAlways
+        add(image)
     }
 
     @MainActor

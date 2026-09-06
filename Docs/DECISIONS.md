@@ -4270,3 +4270,66 @@ validation, exact-head hosted CI and native audit. No product code, timeout, ret
 schema, network, CSV or iCloud change is included. Existing physical Pro/ordinary budget
 two-attempt helpers remain explicit separate infrastructure debt. C remains In Progress and D
 remains unentered; the owner reviews the existing Draft PR #114 before any merge.
+
+## 2026-09-06 — FX-01C closeout: split AX5 coverage and isolate system state
+
+The owner entered a separate closeout after PR #114 merged as `9d592d6`, with independently
+reviewed head `18f11cc` as second parent and accepted hosted `33996904935`. C remains In Progress
+until this closeout is reviewed, validated and merged; D remains unentered.
+
+Split only the long Chinese AX5 scenario: retain real manual creation and saved-detail checks
+in its existing method, and move expired-access stewardship editing into a third independently
+required method. The new method starts a fresh host and explicitly loads one fixed in-memory
+EUR 3 / USD 6 / rate 2 / 2024-01-15 UTC record through the real DataActor, then revokes fixture
+Pro and changes Settings to JPY. It must prove stored USD and the rate day survive editing.
+The fixture has no launch-argument or preference selector for paid rights and remains wholly
+inside the Debug/simulator/dedicated-host compile guard. The English end-to-end method remains
+unchanged in scope. No test depends on order or on another method's saved record. Keep the
+240-second per-method allowance, one switch activation and zero runner retries.
+
+Use a newly created simulator, never a clone, for each FX runner invocation. Resolve the source
+destination uniquely to its device type and exact runtime, create and verify a new UUID, and
+send every FX build/test command to that UUID. No ordinary app has run there, so ordinary-suite
+notification authorization/pending requests are not inherited. Do not reset or erase the source
+simulator, change product permissions, or approve unexpected dialogs in test code. Delete only
+the simulator created and identity-verified by this invocation, even after failure; cleanup
+failure must be visible and cannot convert a failed test to a pass. Retain result bundles and
+source/fresh-device provenance. A fresh device removes cross-suite state contamination, not
+all possible OS interruptions, and does not establish the previous prompt's exact origin.
+
+Bind all three method identities in the scheme and FX-owned native verifier, test missing/
+failed/repeated bindings and isolated-runner failure paths, and obtain fresh complete local and
+hosted evidence. PR #114's accepted two-method bundle remains historical implementation evidence,
+not execution proof for the new three-method closeout. Product behavior and all other P3 debts
+remain unchanged; this is not FX-01D, a physical run or a release authorization.
+
+## 2026-09-06 — FX-01C implementation merge and independent closeout
+
+Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
+
+PR #114 received owner-supplied off-platform independent review on `18f11cc` with no P1/P2.
+Hosted `33996904935` attempt 1 passed on that exact head, full local `Scripts/validate.sh`
+exited 0, and merge `9d592d6` retains the reviewed head as second parent. The accepted tree is
+`24bbc0ca1d843fb11f87bf30b104d0c6b2762dd6`; artifact ZIP SHA-256 is
+`a6690799424940d07ca8f721940f8923542ab58b09dd81bec9c85ce18c6effad`. The native audit covers
+612 ordinary methods (596 Passed / 16 opt-in Skipped), 621 concrete executions (605 / 16),
+and two FX methods each Passed once, without extra attempts or Failed-to-Passed in this accepted
+run. Historical non-passes remain non-pass.
+
+The owner separately entered this closeout. Its two-method evidence does not validate the
+three-method closeout: the Chinese AX5 create/detail and expired stewardship scenarios now need
+separate fresh execution evidence, while English retains its end-to-end flow. Keep the
+240-second per-method allowance and zero retries. A fresh non-cloned simulator isolates the FX
+host from the ordinary suite's system authorization/pending-notification state, not just its
+in-memory store and preferences. The prior hosted notification Allow interruption is retained;
+its exact origin remains unproven and it was not a second FX switch tap. The new runner must
+verify its own created UUID in native details and clean up only that owned temporary simulator.
+
+The implementation's Chinese AX5 duration was 219.3/240 seconds. The split and isolation are new
+test-harness changes, not production behavior, and require this branch's complete local
+validation, exact-head hosted success, native audit and independent review. The two existing
+ordinary hidden-retap call sites, copy/reminder/dead-code observations and separate-infrastructure
+PR obligation remain open. There is no C Done or D entry from this implementation merge or
+unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.

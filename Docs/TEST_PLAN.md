@@ -750,10 +750,15 @@ arithmetic/migration/persistence methods remain required. Complete validation mu
 from its own fresh ordinary-App bundle and their native per-test execution records.
 
 The separate `MindBudget-FX-UI` scheme uses a Debug + simulator + dedicated-flag entry, in-memory
-financial data and fixed Commerce fixtures. It must independently run both exact English/light
-and Chinese/AX5/dark create/detail/expired-edit methods. Those methods skip under the ordinary
+financial data and fixed Commerce fixtures. The closeout now requires three exact methods:
+English/light create/detail/expired-edit, Chinese/AX5/dark create/detail, and Chinese/AX5/dark
+expired stewardship against a fresh fixed persisted fixture. Those methods skip under the ordinary
 scheme; those skips are explicitly not substitutes for the dedicated run. The host's own bundle
-must prove both executed once and passed, including actual per-test device/configuration records.
+must prove all three executed once and passed, including actual per-test device/configuration
+records matching the newly created non-cloned simulator UUID. No saved record or authorization
+state from the ordinary suite or another test supplies the new method's precondition. The
+240-second allowance and zero retries remain unchanged. The runner's simulator provenance JSON
+is uploaded beside the native FX bundle; ownership-checked cleanup never removes evidence.
 No StoreKit purchase, physical VoiceOver/device, network, CSV or iCloud protocol claim follows.
 The ordinary complete suite, coverage and isolated local strict benchmark remain separate gates.
 
@@ -843,3 +848,34 @@ source/runtime rereview only. Complete
 local and hosted runs must still prove all 606 ordinary method details, the accepted inventory,
 coverage, 23 C6 bindings, 32 FX unit bindings and two dedicated FX UI bindings with no hidden
 failed attempt; the strict Dashboard benchmark remains separate.
+
+## 2026-09-06 — FX-01C implementation merge and independent closeout
+
+Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
+
+PR #114 received owner-supplied off-platform independent review on `18f11cc` with no P1/P2.
+Hosted `33996904935` attempt 1 passed on that exact head, full local `Scripts/validate.sh`
+exited 0, and merge `9d592d6` retains the reviewed head as second parent. The accepted tree is
+`24bbc0ca1d843fb11f87bf30b104d0c6b2762dd6`; artifact ZIP SHA-256 is
+`a6690799424940d07ca8f721940f8923542ab58b09dd81bec9c85ce18c6effad`. The native audit covers
+612 ordinary methods (596 Passed / 16 opt-in Skipped), 621 concrete executions (605 / 16),
+and two FX methods each Passed once, without extra attempts or Failed-to-Passed in this accepted
+run. Historical non-passes remain non-pass.
+
+The owner separately entered this closeout. Its two-method evidence does not validate the
+three-method closeout: the Chinese AX5 create/detail and expired stewardship scenarios now need
+separate fresh execution evidence, while English retains its end-to-end flow. Keep the
+240-second per-method allowance and zero retries. A fresh non-cloned simulator isolates the FX
+host from the ordinary suite's system authorization/pending-notification state, not just its
+in-memory store and preferences. The prior hosted notification Allow interruption is retained;
+its exact origin remains unproven and it was not a second FX switch tap. The new runner must
+verify its own created UUID in native details and clean up only that owned temporary simulator.
+
+The implementation's Chinese AX5 duration was 219.3/240 seconds. The split and isolation are new
+test-harness changes, not production behavior, and require this branch's complete local
+validation, exact-head hosted success, native audit and independent review. The two existing
+ordinary hidden-retap call sites, copy/reminder/dead-code observations and separate-infrastructure
+PR obligation remain open. There is no C Done or D entry from this implementation merge or
+unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
