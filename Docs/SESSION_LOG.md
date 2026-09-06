@@ -8985,6 +8985,46 @@ unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release a
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
 
+Historical checkpoint above: its pending language records the pre-acceptance state;
+use the following final acceptance section for current status.
+
+## 2026-09-06 — FX-01C final acceptance after PR #115
+
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+
+The owner-supplied off-platform independent review accepted `ea71ea1` with no P1/P2;
+review scope is merge-only, not C Done. Hosted `34033715080` attempt 1 succeeded on
+that exact head. PR #115 merged as `396b271` on 2026-09-06 at 13:26:30 UTC, with the
+reviewed head as second parent. Both reviewed and merged trees are
+`cc1f2d450c100834757fe621b6b55bbd0829ddbe`. This records the supplied review, not a
+fabricated GitHub review or a new independent review by the implementation author.
+
+Native artifact audit accounts for 614 ordinary methods / 623 concrete executions:
+597 Passed / 17 existing opt-in Skipped methods, 606 Passed / 17 Skipped concrete
+executions, 13 argument executions and no Repetition or extra attempt. The isolated
+host has three FX methods Passed exactly once, each bound to its newly created
+simulator UUID. Exact-head complete local validation exited 0. Artifact digests,
+device binding, method durations and the local/hosted evidence distinction are in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`.
+
+Accepted corrective controls do not prove the original failed event cause.
+`34026066152` remains non-pass; the original event mechanism remains unproven.
+Historical non-passes remain non-pass. The later snapshot repair's independent
+merge acceptance is distinct from the earlier diagnostic-only green run. This
+record proposes explicit final acceptance on those reviewed corrective controls
+and their tests, not a retrospective causal claim or an unrecorded waiver.
+
+This final acceptance record is pending independent review and merge.
+C's fourth item stays unchecked for that explicit phase acceptance, not an
+unimplemented simulator requirement or a new physical VoiceOver prerequisite.
+The separate final record requires its own exact-head hosted success and native
+audit; the accepted base run cannot substitute for it. The existing physical
+VoiceOver/release matrix and the retained P3 obligations are not silently closed.
+C remains In Progress; FX-01D remains unentered.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+
 ## 2026-09-06 — FX-01C closeout development verification checkpoint
 
 The first closeout focus used a newly created, non-cloned simulator
@@ -9166,3 +9206,86 @@ The initial standalone Foundation-only Swift probe failed compilation; the CoreG
 succeeded. Focus 2 predates the raw-size correction and cannot validate the final source by
 inference. Neither synthetic malformed frames nor later passes establish the original hosted
 keyboard cause. Full frozen-head validation and independent causal/repair acceptance remain open.
+
+## 2026-09-06 — PR #115 merged after independent final acceptance; C not Done
+
+The owner supplied final independent review of exact `ea71ea18fe94a76232eba22354b7ef3e5260a209`:
+no P1/P2, approved to merge, with the explicit boundaries that this PR does not mark C Done
+or enter FX-01D. The owner confirmed hosted `34033715080`, their native artifact audit and
+their isolated local FX run passed on that exact head. This is an owner-supplied off-platform
+review, not an invented GitHub review or author self-approval. It permits this bounded merge;
+it does not retroactively identify the original touch consumer or relabel any retained non-pass.
+
+Read-only pre-merge verification confirmed hosted attempt 1 success and all three checks green:
+Ordinary build and test, FX UI build and test, and Build and test. The exact-head default full
+local validator also finished successfully with zero retries and the strict benchmark at
+218.981291 ms < 500 ms. Its ordinary native audit contains 614 methods (597 Passed / 17 existing
+Skipped), 623 concrete executions (606 / 17), 13 argument executions, zero Repetition or extra
+attempt, exact parameter tree/detail bijection and no runtime warnings. Its final isolated FX
+methods passed once: stewardship 50.138s, Chinese create/detail 82.503s, English 44.730s;
+all runtime bindings match fresh `A4139C99-A93C-46AC-8403-4958BA5E8B6F` in provenance.
+The independently captured local FX bundle was also re-read: three methods / three concrete
+Passed, zero Repetition/extra attempt, fresh `8C3916D6-7060-4D33-832B-25E8035B7855` matching
+its non-cloned simulator record. The three known FX invalid-frame diagnostics remain retained.
+No tests were rerun during this merge session.
+
+The PR body was synchronized with the current passing evidence and the owner's bounded approval
+before undrafting. GitHub merged PR #115 at `2026-09-06T13:26:30Z` using ordinary merge commit
+`396b271c9ef9d2afa038592429fc6bbf9f527e60`. Its first parent is
+`9d592d691b251949e6493d6631be486b0d24f2c7`; its second parent is reviewed `ea71ea1` above.
+The merge tree `cc1f2d450c100834757fe621b6b55bbd0829ddbe` exactly matches the reviewed head.
+The merge command pinned the reviewed head; no squash, rebase, force push, branch deletion or
+branch-protection mutation occurred. The user's existing old-main working directory was left
+unchanged; only the dedicated repair worktree was advanced to this merge for the handoff.
+
+This entry is a local post-merge handoff for a later separately reviewed documentation update,
+not a new commit inside the accepted PR. C remains In Progress, its fourth acceptance checkbox
+is unchanged, FX-01D is unentered, and no COM-C12, physical run, Archive, upload or release is
+authorized. All historical non-passes and capacity/required-check/hidden-retap/copy/reminder/
+dead-code observations remain retained. This merge must not be used as an implicit C Done or
+D-entry authorization.
+
+## 2026-09-06 — Final FX-01C record preparation after accepted PR #115
+
+The owner requested the next independent final documentation closeout. A new
+`codex/fx01c-final-acceptance-closeout` branch starts at the accepted PR #115 merge; the user's
+separate main checkout was not switched or edited. This includes the preceding local handoff
+as a durable record, not an amendment to the already accepted PR. Current headers, C's active
+status and seven scoped final-acceptance sections now distinguish accepted implementation/harness
+from outstanding final phase approval. C remains In Progress with its fourth checkbox unchecked;
+FX-01D remains unentered. Historical decision bodies and non-pass observations are retained.
+
+The author re-downloaded both accepted run ZIPs, verified exact-head attempt-1/job success,
+artifact digests and byte counts, safe extraction/CRC, every ordinary native method detail and
+all three FX details/device bindings. The measured hosted split durations and capacity margins
+are recorded in `FX_01C_IMPLEMENTATION_EVIDENCE.md`, not estimated from local timings. This
+author reproducibility audit is not an additional independent review.
+
+Two audit-environment failures are retained: the initial ordinary `xcresulttool` invocation
+exited 64 because its TestReport cache directory was not writable in the sandbox; it succeeded
+with authorized cache access. The initial repository FX verifier exited 1 because the default
+CommandLineTools selection could not locate `xcresulttool`; rerunning the read-only verifier
+with explicit Xcode 27 developer directory passed. Neither invocation ran tests or changed the
+accepted ZIP/bundle contents to manufacture a result. These are audit-tool setup failures,
+not previously unreported hosted or product passes.
+
+The JSON metadata contract changes from format 6 to 7 for typed harness provenance; it does
+not change SwiftData Schema V7. The gate checks each current section's exact Status, unique
+anchors and unchecked final-acceptance task; its copied-file self-tests reject missing and
+duplicate evidence or premature C/D completion. Source fixtures remain temporary copies.
+No product Swift, UI test, runner, workflow or release configuration was changed. No Xcode
+test run, physical operation, cloud activation, COM entry or distribution action occurred.
+
+Initial validation passed the FX contract/self-test (763 cross-process closeout mutations),
+whole-app integer-money/network checks, commercialization-document gate, StoreKit catalog
+and the three native FX runtime bindings. Duplicate-anchor mutation coverage was then added;
+the final validation result is recorded below before committing. The new PR's hosted evidence
+remains pending and must not be replaced by the accepted base run.
+
+Final local validation of this documentation/gate candidate passed: integer-money, network,
+commercialization-document, StoreKit catalog and FX contract gates, plus `git diff --check`.
+The FX self-test rejected 861 cross-process closeout mutations (including unique-anchor
+duplicates), and retained the isolation/runtime/detail/diagnostic/validation-order/split-job
+negative suites. No test retry was used. This session did not rerun the full Xcode validator:
+its accepted exact-base result is recorded above, while this new head requires its own hosted
+run and native audit. The PR will remain Draft pending independent review and those checks.

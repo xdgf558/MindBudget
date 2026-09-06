@@ -1,5 +1,10 @@
 # TEST_PLAN
 
+Current FX acceptance inventory and limitations are recorded in the dated final acceptance
+section below and `FX_01C_IMPLEMENTATION_EVIDENCE.md`: PR #115 has three isolated FX methods,
+not the historical two-method inventory. Its accepted runtime evidence does not approve this
+new documentation/gate head or complete C; D remains unentered.
+
 ## Framework and determinism
 
 - Unit tests use Swift Testing (`import Testing`, `@Test`, and `#expect`).
@@ -879,3 +884,42 @@ PR obligation remain open. There is no C Done or D entry from this implementatio
 unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
+
+Historical checkpoint above: its pending language records the pre-acceptance state;
+use the following final acceptance section for current status.
+
+## 2026-09-06 — FX-01C final acceptance after PR #115
+
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+
+The owner-supplied off-platform independent review accepted `ea71ea1` with no P1/P2;
+review scope is merge-only, not C Done. Hosted `34033715080` attempt 1 succeeded on
+that exact head. PR #115 merged as `396b271` on 2026-09-06 at 13:26:30 UTC, with the
+reviewed head as second parent. Both reviewed and merged trees are
+`cc1f2d450c100834757fe621b6b55bbd0829ddbe`. This records the supplied review, not a
+fabricated GitHub review or a new independent review by the implementation author.
+
+Native artifact audit accounts for 614 ordinary methods / 623 concrete executions:
+597 Passed / 17 existing opt-in Skipped methods, 606 Passed / 17 Skipped concrete
+executions, 13 argument executions and no Repetition or extra attempt. The isolated
+host has three FX methods Passed exactly once, each bound to its newly created
+simulator UUID. Exact-head complete local validation exited 0. Artifact digests,
+device binding, method durations and the local/hosted evidence distinction are in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`.
+
+Accepted corrective controls do not prove the original failed event cause.
+`34026066152` remains non-pass; the original event mechanism remains unproven.
+Historical non-passes remain non-pass. The later snapshot repair's independent
+merge acceptance is distinct from the earlier diagnostic-only green run. This
+record proposes explicit final acceptance on those reviewed corrective controls
+and their tests, not a retrospective causal claim or an unrecorded waiver.
+
+This final acceptance record is pending independent review and merge.
+C's fourth item stays unchecked for that explicit phase acceptance, not an
+unimplemented simulator requirement or a new physical VoiceOver prerequisite.
+The separate final record requires its own exact-head hosted success and native
+audit; the accepted base run cannot substitute for it. The existing physical
+VoiceOver/release matrix and the retained P3 obligations are not silently closed.
+C remains In Progress; FX-01D remains unentered.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.

@@ -75,25 +75,30 @@ and merged. PR #113's reviewed head `642eb50` passed `33847157685` attempt 2 and
 manual form, existing Pro access and detail/edit behavior only. PR #114's independently reviewed
 `18f11cc` passed hosted `33996904935` and full local validation, then merged as `9d592d6` with
 that head as second parent. The owner entered separate closeout: split the long Chinese AX5
-scenario and use a fresh FX-only simulator to isolate system permissions. New runtime and review
-evidence is still required for these harness changes. C remains In Progress; D and
+scenario and use a fresh FX-only simulator to isolate system permissions. PR #115 delivered those
+harness changes and the subsequent snapshot keyboard repair with independent merge approval,
+exact-head hosted/native audit and full local validation. Final phase acceptance is still pending.
+C remains In Progress; D and
 COM-C12 remain unentered. No Archive, distribution, or release is authorized.
 
 PR #115's `577c528` passed complete local validation, but hosted `34026066152` was cancelled
 at the 60-minute job deadline and also exposed FX keyboard-dismissal/AX5 timeout failures.
-It is retained non-pass, not an accepted closeout. The repair splits ordinary/FX CI into two
+It is retained non-pass, not an accepted closeout. The accepted repair splits ordinary/FX CI into two
 mandatory jobs joined by `Build and test`, clarifies C's fourth acceptance checkbox, and makes
 failed keyboard dismissal throw before dependent pans/Save while capturing public snapshots.
-The keyboard mechanism remains unresolved; local non-reproduction is not a fix. Fresh exact-head
-validation, hosted/native evidence and review are still required. See the current C evidence
-packet for the raw artifact hash, incomplete FX bundle and all retained observations.
+The original keyboard mechanism remains unresolved; local non-reproduction is not a fix. See
+the current C evidence packet for the raw artifact hash, incomplete failed FX bundle, retained
+observations and the separately accepted corrective delivery.
 
 `4f4111f` subsequently passed hosted `34030127867` and complete local validation, but independent
 review did not accept those passes as closure of the keyboard non-pass. The owner requested
-continued repair. The current test-only candidate binds one Done tap to immutable snapshot
+continued repair. The subsequently accepted test-only repair binds one Done tap to immutable snapshot
 geometry and observes both Done removal and keyboard viewport occupancy; invalid frames fail
-closed. The failed hosted event's cause remains unproven, blocking C Done, D entry and acceptance
-of this repair path until independently resolved. No phase advance or merge waiver was given.
+closed. Independent final review accepted `ea71ea1` for merge only after hosted `34033715080`,
+native audit and full-local success; PR #115 merged as `396b271`. That acceptance is not forensic
+proof of the original failed event or C completion. This final record requests explicit phase
+acceptance of the corrective controls while retaining that limitation. Until independent final
+review, exact-head CI, merge and explicit C acceptance, C Done and D entry remain blocked.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
@@ -984,3 +989,42 @@ PR obligation remain open. There is no C Done or D entry from this implementatio
 unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
+
+Historical checkpoint above: its pending language records the pre-acceptance state;
+use the following final acceptance section for current status.
+
+## 2026-09-06 — FX-01C final acceptance after PR #115
+
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+
+The owner-supplied off-platform independent review accepted `ea71ea1` with no P1/P2;
+review scope is merge-only, not C Done. Hosted `34033715080` attempt 1 succeeded on
+that exact head. PR #115 merged as `396b271` on 2026-09-06 at 13:26:30 UTC, with the
+reviewed head as second parent. Both reviewed and merged trees are
+`cc1f2d450c100834757fe621b6b55bbd0829ddbe`. This records the supplied review, not a
+fabricated GitHub review or a new independent review by the implementation author.
+
+Native artifact audit accounts for 614 ordinary methods / 623 concrete executions:
+597 Passed / 17 existing opt-in Skipped methods, 606 Passed / 17 Skipped concrete
+executions, 13 argument executions and no Repetition or extra attempt. The isolated
+host has three FX methods Passed exactly once, each bound to its newly created
+simulator UUID. Exact-head complete local validation exited 0. Artifact digests,
+device binding, method durations and the local/hosted evidence distinction are in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`.
+
+Accepted corrective controls do not prove the original failed event cause.
+`34026066152` remains non-pass; the original event mechanism remains unproven.
+Historical non-passes remain non-pass. The later snapshot repair's independent
+merge acceptance is distinct from the earlier diagnostic-only green run. This
+record proposes explicit final acceptance on those reviewed corrective controls
+and their tests, not a retrospective causal claim or an unrecorded waiver.
+
+This final acceptance record is pending independent review and merge.
+C's fourth item stays unchecked for that explicit phase acceptance, not an
+unimplemented simulator requirement or a new physical VoiceOver prerequisite.
+The separate final record requires its own exact-head hosted success and native
+audit; the accepted base run cannot substitute for it. The existing physical
+VoiceOver/release matrix and the retained P3 obligations are not silently closed.
+C remains In Progress; FX-01D remains unentered.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
