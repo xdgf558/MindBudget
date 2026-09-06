@@ -1,12 +1,12 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
-    "activeSubphase": "FX-01B",
-    "activeSubphaseStatus": "DONE",
-    "closeoutStatus": "PENDING_REVIEW_CI_MERGE",
-    "nextSubphase": "FX-01C",
+    "activeSubphase": "FX-01C",
+    "activeSubphaseStatus": "IN_PROGRESS",
+    "closeoutStatus": "NOT_YET_DELIVERED",
+    "nextSubphase": "FX-01D",
     "nextSubphaseEntered": false,
     "deferredPhases": [
       "FX-02",
@@ -35,6 +35,20 @@
     "concretePassed": 584,
     "concreteSkipped": 14,
     "requiredFXMethodsPassedExactlyOnce": 17,
+    "acceptedRunExtraAttempts": 0,
+    "acceptedRunFailedToPassedObserved": false
+  },
+  "priorCloseoutEvidence": {
+    "pullRequest": 113,
+    "reviewKind": "ownerAuthorizedIndependentAgent",
+    "reviewedHead": "642eb50ac779885ade3d1d100abb8f88afa894b4",
+    "hostedRun": "33847157685",
+    "acceptedAttempt": 2,
+    "retainedNonPassAttempts": [1],
+    "testedSyntheticMerge": "acd87297699fac04afef20dbeb2dd3e8b63fdb59",
+    "reviewedAndTestedTree": "fef0a2eae85f3f6bb26601f43f7388690a2314ee",
+    "mergeCommit": "ebd57858f9fe94bd3bf6abac8c3793c49a4bf4c9",
+    "artifactZipSHA256": "6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8",
     "acceptedRunExtraAttempts": 0,
     "acceptedRunFailedToPassedObserved": false
   },

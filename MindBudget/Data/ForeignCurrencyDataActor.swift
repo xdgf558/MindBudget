@@ -2,6 +2,15 @@ import Foundation
 import SwiftData
 
 extension DataActor {
+    func requireForeignCurrencyCreationAccess(
+        _ value: ExpenseForeignCurrency?, featureAccess: any FeatureAccessChecking
+    ) throws {
+        guard value != nil else { return }
+        guard ExistingPremiumEntryAccess(featureAccess: featureAccess).permitsNewForeignCurrency else {
+            throw ForeignCurrencyError.requiresProAccess
+        }
+    }
+
     func foreignCurrency(for expense: Expense) throws -> ExpenseForeignCurrency? {
         let id = expense.id
         let rows = try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>(

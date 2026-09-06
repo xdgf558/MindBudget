@@ -10,6 +10,7 @@ struct InlineBudgetImpact: Equatable, Sendable {
 
 enum ExpenseFormError: Error, Equatable, Sendable {
     case amount(MoneyInputError)
+    case foreignCurrency(ForeignCurrencyError)
     case invalidTimeZone
     case accountingCurrencyMismatch
     case invalidStoredData
@@ -98,6 +99,8 @@ final class ExpenseFormViewModel: ObservableObject {
     @Published private(set) var hasImportedReceipt = false
     @Published private(set) var receiptRecognitionPhase: ReceiptRecognitionPhase = .none
     @Published private(set) var receiptThumbnailData: Data?
+    @Published private(set) var foreignCurrencyForm: ForeignCurrencyFormState?
+    private var ordinaryAmountBeforeForeignCurrency = ""
 
     let existingExpense: ExpenseDetail?
     let wishlistSeed: WishlistExpenseSeed?
@@ -152,7 +155,7 @@ final class ExpenseFormViewModel: ObservableObject {
         purchaseReason = summary?.purchaseReason ?? wishlistSeed?.purchaseReason
     }
 
-    func prepareInput(locale: Locale) {
+    func prepareInput(locale: Locale, calendar: Calendar = .current) {
         guard !didPrepareInput else { return }
         if let existingExpense {
             amountText = MoneyInputParser().inputText(
@@ -162,7 +165,62 @@ final class ExpenseFormViewModel: ObservableObject {
         } else if let estimatedPrice = wishlistSeed?.estimatedPrice {
             amountText = MoneyInputParser().inputText(for: estimatedPrice, locale: locale)
         }
+        if let existingExpense, let foreign = existingExpense.foreignCurrency {
+            do {
+                foreignCurrencyForm = try ForeignCurrencyFormState(
+                    existing: foreign, accounting: existingExpense.summary.amount,
+                    calendar: calendar, locale: locale
+                )
+            } catch {
+                self.error = .foreignCurrency(.unreadableMetadata)
+            }
+        }
         didPrepareInput = true
+    }
+
+    var offersForeignCurrencyMode: Bool {
+        wishlistSeed == nil && !hasImportedReceipt && !isRecurring
+            && (existingExpense == nil || existingExpense?.summary.source == .manual)
+            && receiptRecognitionPhase == .none
+    }
+
+    func setForeignCurrencyEnabled(
+        _ enabled: Bool, access: ExistingPremiumEntryAccess,
+        accountingCurrency: String, locale: Locale, calendar: Calendar
+    ) {
+        if enabled {
+            guard foreignCurrencyForm == nil else { return }
+            guard offersForeignCurrencyMode else {
+                error = .foreignCurrency(.unsupportedSource)
+                return
+            }
+            guard access.permitsNewForeignCurrency else {
+                error = .foreignCurrency(.requiresProAccess)
+                return
+            }
+            ordinaryAmountBeforeForeignCurrency = amountText
+            foreignCurrencyForm = ForeignCurrencyFormState(
+                accountingCurrencyCode: existingExpense?.summary.amount.currencyCode ?? accountingCurrency,
+                selectedDate: spentAt, calendar: calendar, locale: locale
+            )
+            amountText = ""
+        } else {
+            guard existingExpense?.foreignCurrency == nil else { return }
+            foreignCurrencyForm = nil
+            amountText = ordinaryAmountBeforeForeignCurrency
+        }
+        error = nil
+    }
+
+    func updateForeignCurrency(_ change: (inout ForeignCurrencyFormState) -> Void, locale: Locale) {
+        guard var state = foreignCurrencyForm else { return }
+        change(&state)
+        foreignCurrencyForm = state
+        // Blank authority prevents stale valid amounts feeding reminders or Save.
+        amountText = (try? state.resolve()).map {
+            MoneyInputParser().inputText(for: $0.accounting, locale: locale)
+        } ?? ""
+        error = nil
     }
 
     func enterKeypad(_ key: String, decimalSeparator: String) {
@@ -530,6 +588,7 @@ final class ExpenseFormViewModel: ObservableObject {
         bucket: BudgetBucket,
         aiEnhancementEnabled: Bool = false,
         premiumEntryAccess: ExistingPremiumEntryAccess = ExistingPremiumEntryAccess(),
+        featureAccess: any FeatureAccessChecking = FeatureAccessService(),
         locale: Locale,
         now: Date,
         timeZone: TimeZone,
@@ -537,10 +596,15 @@ final class ExpenseFormViewModel: ObservableObject {
         calendar: Calendar
     ) async -> ExpenseSubmitResult {
         guard !isSaving else { return .failed }
+        if let state = foreignCurrencyForm, (try? state.resolve()) == nil {
+            error = .foreignCurrency(.invalidRateText)
+            return .failed
+        }
         guard existingExpense == nil, wishlistSeed == nil,
               let snapshot = budgetSnapshot, let candidate = pendingCandidate else {
             return await save(
                 dataActor: dataActor,
+                featureAccess: featureAccess,
                 currencyCode: currencyCode,
                 bucket: bucket,
                 locale: locale,
@@ -614,6 +678,7 @@ final class ExpenseFormViewModel: ObservableObject {
 
         let saved = await save(
             dataActor: dataActor,
+            featureAccess: featureAccess,
             currencyCode: currencyCode,
             bucket: isRecurring ? .fixed : bucket,
             locale: locale,
@@ -630,6 +695,7 @@ final class ExpenseFormViewModel: ObservableObject {
     func continueAfterReminder(
         eventID: UUID,
         dataActor: DataActor,
+        featureAccess: any FeatureAccessChecking = FeatureAccessService(),
         currencyCode: String,
         bucket: BudgetBucket,
         locale: Locale,
@@ -647,6 +713,7 @@ final class ExpenseFormViewModel: ObservableObject {
         )
         let saved = await save(
             dataActor: dataActor,
+            featureAccess: featureAccess,
             currencyCode: currencyCode,
             bucket: isRecurring ? .fixed : bucket,
             locale: locale,
@@ -711,6 +778,7 @@ final class ExpenseFormViewModel: ObservableObject {
 
     func save(
         dataActor: DataActor,
+        featureAccess: any FeatureAccessChecking = FeatureAccessService(),
         currencyCode: String,
         bucket: BudgetBucket,
         locale: Locale,
@@ -722,12 +790,26 @@ final class ExpenseFormViewModel: ObservableObject {
         isSaving = true
         defer { isSaving = false }
         let amount: Money
+        let foreign: ExpenseForeignCurrency?
         do {
-            amount = try MoneyInputParser().money(
-                from: amountText,
-                currencyCode: currencyCode,
-                locale: locale
-            )
+            if let foreignCurrencyForm {
+                let resolved = try foreignCurrencyForm.resolve()
+                amount = resolved.accounting
+                foreign = resolved.foreign
+                guard !isRecurring, !hasImportedReceipt, wishlistSeed == nil else {
+                    throw ForeignCurrencyError.unsupportedSource
+                }
+            } else {
+                amount = try MoneyInputParser().money(
+                    from: amountText,
+                    currencyCode: existingExpense?.summary.amount.currencyCode ?? currencyCode,
+                    locale: locale
+                )
+                foreign = nil
+            }
+        } catch let foreignError as ForeignCurrencyError {
+            error = .foreignCurrency(foreignError)
+            return false
         } catch let inputError as MoneyInputError {
             error = .amount(inputError)
             return false
@@ -760,7 +842,8 @@ final class ExpenseFormViewModel: ObservableObject {
             source: existingSummary?.source
                 ?? (wishlistSeed != nil ? .wishlistConversion : (hasImportedReceipt ? .receiptImport : .manual)),
             allowMerchantIndexing: existingSummary?.allowMerchantIndexing ?? false,
-            recurrenceCalendarIdentifier: calendar.identifier
+            recurrenceCalendarIdentifier: calendar.identifier,
+            foreignCurrency: foreign
         )
         do {
             let coverage = try await dataActor.ensurePlanCovering(
@@ -779,9 +862,9 @@ final class ExpenseFormViewModel: ObservableObject {
                     at: now
                 )
             } else if let existingSummary {
-                _ = try await dataActor.updateExpense(id: existingSummary.id, with: draft)
+                _ = try await dataActor.updateExpense(id: existingSummary.id, with: draft, featureAccess: featureAccess)
             } else {
-                _ = try await dataActor.createExpense(draft)
+                _ = try await dataActor.createExpense(draft, featureAccess: featureAccess)
             }
             error = nil
             return true
@@ -867,6 +950,9 @@ final class ExpenseFormViewModel: ObservableObject {
     }
 
     private func formError(from error: Error) -> ExpenseFormError {
+        if let foreignError = error as? ForeignCurrencyError {
+            return .foreignCurrency(foreignError)
+        }
         if let validationError = error as? DataValidationError {
             switch validationError {
             case .accountingCurrencyMismatch:
@@ -904,6 +990,7 @@ struct AddExpenseView: View {
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @Environment(\.existingPremiumEntryAccess) private var premiumEntryAccess
+    @Environment(\.featureAccessAuthority) private var featureAccessAuthority
     @Environment(\.receiptImageLifecycle) private var receiptImageLifecycle
     @Environment(\.telemetryEventRecorder) private var telemetryEventRecorder
     @StateObject private var viewModel: ExpenseFormViewModel
@@ -949,7 +1036,14 @@ struct AddExpenseView: View {
 
                 receiptRecognitionSurface
 
-                amountEntry
+                if viewModel.offersForeignCurrencyMode || viewModel.foreignCurrencyForm != nil {
+                    ForeignCurrencyEntrySection(model: viewModel, accountingCurrency: accountingCurrencyCode)
+                }
+                if viewModel.foreignCurrencyForm == nil {
+                    amountEntry
+                } else {
+                    impactView
+                }
 
                 if receiptRecognitionBaseline != .unavailable,
                    viewModel.receiptRecognitionPhase == .none {
@@ -961,7 +1055,7 @@ struct AddExpenseView: View {
                     importedReceiptNotice
                 }
 
-                keypad
+                if viewModel.foreignCurrencyForm == nil { keypad }
 
                 if viewModel.showsReasonablenessWarning {
                     reasonablenessWarning
@@ -975,7 +1069,7 @@ struct AddExpenseView: View {
                 optionalFields
                 contextFields
 
-                if existingExpense == nil, wishlistSeed == nil {
+                if existingExpense == nil, wishlistSeed == nil, viewModel.foreignCurrencyForm == nil {
                     Button("expense.addToWishlist") {
                         presentsWishlistConversion = true
                     }
@@ -1035,7 +1129,7 @@ struct AddExpenseView: View {
             }
         }
         .task {
-            viewModel.prepareInput(locale: locale)
+            viewModel.prepareInput(locale: locale, calendar: calendar)
         }
         .task(id: viewModel.spentAt) {
             do {
@@ -1082,11 +1176,13 @@ struct AddExpenseView: View {
         }) { presentation in
             ExpenseReminderSheet(
                 presentation: presentation,
+                permitsWishlist: viewModel.foreignCurrencyForm == nil,
                 continuePurchase: {
                     Task {
                         let saved = await viewModel.continueAfterReminder(
                             eventID: presentation.id,
                             dataActor: dataActor,
+                            featureAccess: featureAccessAuthority,
                             currencyCode: accountingCurrencyCode,
                             bucket: viewModel.isRecurring
                                 ? .fixed
@@ -1211,7 +1307,7 @@ struct AddExpenseView: View {
     }
 
     private var receiptRecognitionBaseline: LocalReceiptRecognitionBaseline {
-        guard existingExpense == nil, wishlistSeed == nil else { return .unavailable }
+        guard existingExpense == nil, wishlistSeed == nil, viewModel.foreignCurrencyForm == nil else { return .unavailable }
         return premiumEntryAccess.receiptRecognitionBaseline(
             productScopeEnabled: FeatureFlags.enableReceiptImport,
             localModelAvailable: settings.enableAIEnhancement
@@ -1565,7 +1661,7 @@ struct AddExpenseView: View {
                 .disabled(wishlistSeed != nil)
                 .tint(theme.accent)
             Toggle("expense.recurring.monthly", isOn: $viewModel.isRecurring)
-                .disabled(wishlistSeed != nil)
+                .disabled(wishlistSeed != nil || viewModel.foreignCurrencyForm != nil)
                 .tint(theme.accent)
                 .accessibilityIdentifier("expense.recurring.monthly")
             if viewModel.isRecurring {
@@ -1643,6 +1739,7 @@ struct AddExpenseView: View {
                     : settings.bucket(for: viewModel.category),
                 aiEnhancementEnabled: settings.enableAIEnhancement,
                 premiumEntryAccess: premiumEntryAccess,
+                featureAccess: featureAccessAuthority,
                 locale: locale,
                 now: Date(),
                 timeZone: .current,
@@ -1742,6 +1839,16 @@ struct AddExpenseView: View {
 
     private func errorKey(_ error: ExpenseFormError) -> LocalizedStringKey {
         switch error {
+        case let .foreignCurrency(foreignError):
+            switch foreignError {
+            case .requiresProAccess: "fx.error.pro"
+            case .unsupportedSource: "fx.error.manualOnly"
+            case .syncRequiresCompanionProtocol: "fx.error.sync"
+            case .currencyMismatch: "fx.error.currency"
+            case .unreadableMetadata: "expense.error.invalidStoredData"
+            case .overflow: "expense.error.amount.range"
+            case .invalidRate, .invalidRateText, .invalidAmount: "fx.error.input"
+            }
         case let .amount(inputError):
             switch inputError {
             case .empty: "expense.error.amount.empty"
@@ -1823,6 +1930,7 @@ private struct ReceiptRecognitionSkeleton: View {
 private struct ExpenseReminderSheet: View {
     @Environment(\.mindBudgetTheme) private var theme
     let presentation: ExpenseReminderPresentation
+    let permitsWishlist: Bool
     let continuePurchase: () -> Void
     let addToWishlist: () -> Void
     let close: () -> Void
@@ -1878,7 +1986,10 @@ private struct ExpenseReminderSheet: View {
                     .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 18))
                 }
                 Spacer()
-                Button("reminder.action.addToWishlist", action: addToWishlist)
+                Button(
+                    permitsWishlist ? "reminder.action.addToWishlist" : "common.close",
+                    action: permitsWishlist ? addToWishlist : close
+                )
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 52)
                     .foregroundStyle(theme.dark)

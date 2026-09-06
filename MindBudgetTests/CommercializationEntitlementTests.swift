@@ -124,6 +124,7 @@ struct CommercializationEntitlementTests {
             .advancedSiri,
             .longRangeReports,
             .appleWatchCompanion,
+            .manualForeignCurrency,
         ]))
     }
 

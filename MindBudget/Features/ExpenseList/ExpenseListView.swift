@@ -256,6 +256,7 @@ struct ExpenseListView: View {
             } label: {
                 ExpenseRow(expense: expense)
             }
+            .accessibilityIdentifier("expense.row.\(expense.id.uuidString)")
             .ledgerRowStyle()
             .swipeActions {
                 Button("common.delete", role: .destructive) {
@@ -428,6 +429,7 @@ struct ExpenseDetailView: View {
     @ObservedObject var session: AppSession
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
     @State private var expense: ExpenseSummary
     @State private var detail: ExpenseDetail?
     @State private var showsEdit = false
@@ -444,11 +446,20 @@ struct ExpenseDetailView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    MoneyText(
-                        money: expense.amount,
-                        font: .system(.largeTitle, design: .rounded),
-                        weight: .bold
-                    )
+                    if let foreign = detail?.foreignCurrency {
+                        Text(ForeignCurrencyPresentation.amount(foreign.original, locale: locale))
+                            .font(.largeTitle.bold())
+                            .accessibilityIdentifier("fx.detail.original")
+                        Text(ForeignCurrencyPresentation.accountingAmount(expense.amount, locale: locale))
+                            .font(.headline)
+                            .accessibilityIdentifier("fx.detail.accounting")
+                    } else {
+                        MoneyText(
+                            money: expense.amount,
+                            font: .system(.largeTitle, design: .rounded),
+                            weight: .bold
+                        )
+                    }
                     Label(
                         LocalizedStringKey(expense.category.localizedNameKey),
                         systemImage: expense.category.symbolName
@@ -459,6 +470,9 @@ struct ExpenseDetailView: View {
             }
 
             Section("expense.details") {
+                if let foreign = detail?.foreignCurrency {
+                    ForeignCurrencyDetailRows(value: foreign, accountingCurrency: expense.amount.currencyCode)
+                }
                 LabeledContent("expense.date") {
                     Text(expense.spentAt, format: .dateTime.year().month().day().hour().minute())
                 }

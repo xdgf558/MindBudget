@@ -281,9 +281,12 @@ actor DataActor {
     /// fetched CloudKit record back into the durable outbox.
     var isApplyingCloudSyncMutation = false
 
-    func createExpense(_ draft: ExpenseDraft) throws -> ExpenseSummary {
+    func createExpense(
+        _ draft: ExpenseDraft,
+        featureAccess: any FeatureAccessChecking = FeatureAccessService()
+    ) throws -> ExpenseSummary {
         try commit {
-            let expense = try insertExpense(draft)
+            let expense = try insertExpense(draft, featureAccess: featureAccess)
             if draft.isRecurring {
                 _ = try createOrUpdateRecurringRule(from: draft, existingRule: nil)
             }
@@ -338,7 +341,8 @@ actor DataActor {
         }
     }
 
-    func updateExpense(id: UUID, with draft: ExpenseDraft) throws -> ExpenseSummary {
+    func updateExpense(id: UUID, with draft: ExpenseDraft,
+                       featureAccess: any FeatureAccessChecking = FeatureAccessService()) throws -> ExpenseSummary {
         try commit {
             guard id == draft.id else { throw DataValidationError.identityMismatch }
             guard let expense = try fetchExpense(id: id) else {
@@ -349,6 +353,9 @@ actor DataActor {
 
             // Existing FX records retain their saved accounting currency, never Settings.currency.
             let previousForeign = try foreignCurrency(for: expense)
+            if previousForeign == nil {
+                try requireForeignCurrencyCreationAccess(draft.foreignCurrency, featureAccess: featureAccess)
+            }
             if previousForeign != nil || draft.foreignCurrency != nil {
                 guard expense.currencyCode == draft.amount.currencyCode else {
                     throw ForeignCurrencyError.currencyMismatch
@@ -1708,7 +1715,9 @@ actor DataActor {
         for model in try modelContext.fetch(FetchDescriptor<Income>()) { modelContext.delete(model) }
     }
 
-    private func insertExpense(_ draft: ExpenseDraft) throws -> Expense {
+    private func insertExpense(_ draft: ExpenseDraft,
+                               featureAccess: any FeatureAccessChecking = FeatureAccessService()) throws -> Expense {
+        try requireForeignCurrencyCreationAccess(draft.foreignCurrency, featureAccess: featureAccess)
         try validateExpense(draft)
         try validateAccountingCurrency(draft.amount.currencyCode)
         try validateForeignCurrency(draft.foreignCurrency, draft: draft)

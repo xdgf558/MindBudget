@@ -24,6 +24,9 @@ struct Phase10ReleaseReadinessTests {
     func localDashboardFirstLoadBenchmarkWithTenThousandDiverseExpensesStaysBelowFiveHundredMilliseconds() async throws {
         let result = try await loadDashboardFixture()
 
+        // Emit the same measured interval on success as well as failure; this is outside
+        // the timed production load and does not change its strict release threshold.
+        print("Dashboard first-load measured interval: \(result.elapsed); limit: 500 ms")
         #expect(
             result.elapsed < .milliseconds(500),
             "Dashboard first load took \(result.elapsed); the local release budget is 500 ms"

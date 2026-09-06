@@ -1,0 +1,65 @@
+{
+  "case": {
+    "duration": "13s",
+    "durationInSeconds": 13.52263617515564,
+    "name": "exponentsOrientationAndEvenOddTiesAreExact()",
+    "nodeIdentifier": "ForeignCurrencyTests/exponentsOrientationAndEvenOddTiesAreExact()",
+    "nodeIdentifierURL": "test://com.apple.xcode/MindBudget/MindBudgetTests/ForeignCurrencyTests/exponentsOrientationAndEvenOddTiesAreExact()",
+    "nodeType": "Test Case",
+    "result": "Passed"
+  },
+  "detail": {
+    "devices": [
+      {
+        "architecture": "arm64",
+        "deviceId": "5D064666-732F-425C-8EF0-9519A65F0ABE",
+        "deviceName": "MindBudget CI",
+        "modelName": "iPhone 17 Pro",
+        "osBuildNumber": "23F77",
+        "osVersion": "26.5",
+        "platform": "iOS Simulator"
+      }
+    ],
+    "duration": "Ran for 13 seconds",
+    "durationInSeconds": 13.52263617515564,
+    "hasMediaAttachments": false,
+    "hasPerformanceMetrics": false,
+    "testDescription": "Test case with 1 run",
+    "testIdentifier": "ForeignCurrencyTests/exponentsOrientationAndEvenOddTiesAreExact()",
+    "testIdentifierURL": "test://com.apple.xcode/MindBudget/MindBudgetTests/ForeignCurrencyTests/exponentsOrientationAndEvenOddTiesAreExact()",
+    "testName": "exponentsOrientationAndEvenOddTiesAreExact()",
+    "testPlanConfigurations": [
+      {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    ],
+    "testResult": "Passed",
+    "testRuns": [
+      {
+        "children": [
+          {
+            "duration": "13s",
+            "durationInSeconds": 13.52263617515564,
+            "name": "Test Scheme Action",
+            "nodeIdentifier": "1",
+            "nodeType": "Test Plan Configuration",
+            "result": "Passed"
+          }
+        ],
+        "details": "iOS Simulator 26.5",
+        "duration": "13s",
+        "durationInSeconds": 13.52263617515564,
+        "name": "iPhone 17 Pro",
+        "nodeIdentifier": "5D064666-732F-425C-8EF0-9519A65F0ABE",
+        "nodeType": "Device",
+        "result": "Passed"
+      }
+    ]
+  },
+  "reader": "Xcode 26.6\nBuild version 17F113",
+  "scope": "prior failed run only; not current-head runtime acceptance",
+  "sourceAttempt": 1,
+  "sourceHead": "746008131a939a06b476aa52b1b9f8de02031740",
+  "sourceRun": "33885693529"
+}

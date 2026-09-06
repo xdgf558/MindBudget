@@ -1,3 +1,4 @@
+#if !MINDBUDGET_FX_UI_TEST_HOST
 import SwiftData
 import SwiftUI
 
@@ -105,3 +106,4 @@ private struct StoreRecoveryView: View {
         .accessibilityIdentifier("storage.recovery.view")
     }
 }
+#endif

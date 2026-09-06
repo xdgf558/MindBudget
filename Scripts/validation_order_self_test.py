@@ -49,7 +49,16 @@ case "${command_name}" in
     else
       exit 94
     fi ;;
+  fx01_ui_contract.py)
+    [[ "${1:-}" == "--verify-unit-bundle" ]] || exit 95
+    event="fx-unit-bindings" ;;
+  run-fx01-ui-tests.sh)
+    [[ "$#" == 2 && "$2" == *-FX-UI.xcresult ]] || exit 96
+    event="fx-ui-host" ;;
 esac
+if [[ "${event}" == "test" && ( " $* " == *" -retry-tests-on-failure "* || " $* " == *" -test-iterations "* ) ]]; then
+  exit 97
+fi
 printf '%s\n' "${event}" >> "${ORDER_TRACE}"
 if [[ "${ORDER_FAIL_AT:-}" == "${event}" ]]; then
   exit 73
@@ -60,10 +69,33 @@ fi
 '''
 
 
+def validate_hosted_retry_policy(workflow_code: str) -> None:
+    name = "MINDBUDGET_RETRY_TESTS_ON_FAILURE"
+    settings = re.findall(rf'^\s*{name}:\s*(.*?)\s*$', workflow_code, re.MULTILINE)
+    if (settings != ['"0"'] or workflow_code.count(name) != 1
+            or "-retry-tests-on-failure" in workflow_code or "-test-iterations" in workflow_code):
+        raise RuntimeError("hosted CI must disable test retries without another override")
+
+
 def run_validation_order_self_test(project_root: Path) -> None:
     workflow = (project_root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     # The actual complete validator is exercised below; its caller must not boot early.
     workflow_code = "\n".join(line for line in workflow.splitlines() if not line.lstrip().startswith("#"))
+    validate_hosted_retry_policy(workflow_code)
+    retry_setting = 'MINDBUDGET_RETRY_TESTS_ON_FAILURE: "0"'
+    for mutation in (
+        workflow_code.replace(retry_setting, 'MINDBUDGET_RETRY_TESTS_ON_FAILURE: "1"'),
+        workflow_code.replace(retry_setting, ''),
+        workflow_code + '\n      ' + retry_setting,
+        workflow_code + '\n        run: MINDBUDGET_RETRY_TESTS_ON_FAILURE=1 Scripts/validate.sh',
+        workflow_code + '\n        run: xcodebuild -retry-tests-on-failure test',
+        workflow_code + '\n        run: xcodebuild -test-iterations 2 test',
+    ):
+        try:
+            validate_hosted_retry_policy(mutation)
+        except RuntimeError:
+            continue
+        raise RuntimeError("hosted retry-policy mutation escaped rejection")
     if re.search(r"\bsimctl\s+boot(?:status)?\b", workflow_code):
         raise RuntimeError("CI must leave simulator boot/readiness to the complete validator")
     if workflow.count("run: Scripts/validate.sh") != 1:
@@ -77,7 +109,9 @@ def run_validation_order_self_test(project_root: Path) -> None:
         commands.mkdir()
         validator = scripts / "validate.sh"
         validator.write_text((project_root / "Scripts/validate.sh").read_text(encoding="utf-8"), encoding="utf-8")
-        for name in {step.split()[0] for step in STATIC_STEPS} | {"check-coverage.sh"}:
+        for name in {step.split()[0] for step in STATIC_STEPS} | {
+            "check-coverage.sh", "fx01_ui_contract.py", "run-fx01-ui-tests.sh"
+        }:
             path = scripts / name
             path.write_text(COMMAND_STUB, encoding="utf-8")
             path.chmod(0o700)
@@ -120,11 +154,14 @@ def run_validation_order_self_test(project_root: Path) -> None:
                     f"exit={result.returncode}, observed={observed}, stderr={result.stderr!r}"
                 )
 
-        after_test = ["check-coverage.sh", "acceptance"]
+        after_test = ["check-coverage.sh", "acceptance", "fx-unit-bindings", "fx-ui-host"]
         verify([*before_boot, "boot-ready", "test", *after_test])
         verify([*before_boot, "boot-ready", "test", "test", *after_test], benchmark=True)
         # Named local destinations keep xcodebuild's existing boot behavior.
         verify([*before_boot, "test", *after_test], destination="platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5")
         for index, failure in enumerate([*before_boot, "boot-ready"]):
             verify([*before_boot, "boot-ready"][:index + 1], failure=failure)
-    print("Validation ordering self-test passed: 3 success paths / 16 fail-closed command failures")
+        for index, failure in enumerate(["test", *after_test]):
+            verify([*before_boot, "boot-ready", *["test", *after_test][:index + 1]], failure=failure)
+    print("Validation ordering self-test passed: 3 success paths / 21 fail-closed command failures")
+    print("Hosted no-retry policy passed: actual validator arguments / 6 workflow negatives")

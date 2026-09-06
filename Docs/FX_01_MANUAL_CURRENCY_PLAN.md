@@ -1,6 +1,6 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01 In Progress; FX-01A and FX-01B Done; B closeout pending review/CI/merge; FX-01C unentered.**
+Status: **FX-01 In Progress; FX-01A and FX-01B Done; B closeout merged; FX-01C In Progress; FX-01D unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -256,7 +256,7 @@ Status: **Done — merged static contract-gate delivery only.**
 Status: **Done — reviewed, hosted-green, merged integer conversion and Schema V7 only.**
 
 The implementation items below are accepted from PR #112's own reviewed, hosted-green merged
-source. Its separate post-merge closeout still requires review/CI/merge before C can start.
+source. PR #113 completed the separate B closeout; the owner separately entered C below.
 See [FX-01B implementation evidence](FX_01B_IMPLEMENTATION_EVIDENCE.md) for scope, fixture coverage,
 retained non-passes and final local/hosted validation; the static gate itself claims no runtime evidence.
 
@@ -277,7 +277,7 @@ retained non-passes and final local/hosted validation; the static gate itself cl
 
 ### FX-01C — Pro entry, form, detail, and edit behavior
 
-Status: **Blocked — unentered.**
+Status: **In Progress — owner entered after reviewed, hosted-green, merged B closeout.**
 
 - [ ] Add one exhaustive `PremiumFeature` case and route new-FX access through the central
   entitlement snapshot. Pro and active local trial allow creation; exact Free and expired access
@@ -354,6 +354,8 @@ review, hosted CI and merge. The previous merge exception does not waive those B
 
 ## 2026-09-04 — FX-01B post-merge closeout
 
+Historical preparation checkpoint; the completed task and C entry below record its resolution.
+
 PR #112 received owner-authorized independent agent review on `a24cfa1`, passed hosted run
 `33841868078`, and merged as `2e49acd` with the reviewed head as second parent.
 FX-01B is Done; FX-01 remains In Progress; FX-01C remains unentered.
@@ -362,4 +364,35 @@ review scope are in `FX_01B_IMPLEMENTATION_EVIDENCE.md`; no new physical or prov
 The earlier B owner-entry section is a historical checkpoint, superseded by this closeout.
 No C–E/FX-02/COM-C12 implementation, network activation, Archive or distribution is included.
 
-- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+- [x] Independently review, pass exact-head hosted CI, and merge this separate FX-01B closeout before FX-01C entry.
+
+## 2026-09-04 — FX-01C owner entry after B closeout
+
+Status: **FX-01C In Progress; implementation and independent acceptance pending; FX-01D unentered.**
+
+PR #113 received owner-authorized independent agent review on `642eb50`, passed hosted run
+`33847157685` attempt 2, and merged as `ebd5785` with the reviewed head as second parent.
+The tested synthetic merge `acd8729` and reviewed/merged source share tree
+`fef0a2eae85f3f6bb26601f43f7388690a2314ee`. All 589 hosted case details match the final local
+inventory: 575 Passed / 14 Skipped, 584 concrete Passed / 14 concrete Skipped, 17 FX methods
+exactly once Passed, zero extra attempts and no Failed-to-Passed in this accepted attempt.
+The 14 skips remain non-pass. Hosted configuration permits retries; concrete details show none.
+Strict performance acceptance is from the separate local serial bundle, not hosted wall-clock
+waiver. Independent source and final hosted audits are publicly recorded at
+[the final review](https://github.com/xdgf558/MindBudget/pull/113#issuecomment-5537555248).
+
+The downloaded raw artifact ZIP matches GitHub's SHA-256
+`6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8`.
+Attempt 1 remains non-pass: npm's advisory endpoint timed out before Xcode ran. Earlier cancelled
+runs `33845662761` and `33846284169`, and interrupted local full-1/full-2, remain non-pass.
+No failing test was hidden by retry. Local full-3 and hosted attempt 2 are the accepted evidence.
+
+The owner's previously explicit sequential B/C/D/E/FX-02 instruction now enters C separately,
+after B's implementation and closeout requirements are satisfied; merge alone is not entry.
+C owns the existing central Pro snapshot, manual form/preview/override, original-first detail,
+stewardship edits and localized accessible UI. Creation, ordinary-to-FX conversion and duplication
+need current Pro access; editing a persisted FX record remains available after access ends.
+New records use current Settings currency; edits use only that row's persisted accounting currency.
+No trial-start clock, CSV change, thirteenth sync fact, automatic rate, network enablement,
+COM-C12, Archive, upload, physical rerun, distribution or release is authorized by C.
+FX-01 remains In Progress; C requires its own review, hosted CI, merge and separate closeout.

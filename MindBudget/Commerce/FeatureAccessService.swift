@@ -48,7 +48,8 @@ struct FeatureAccessService: FeatureAccessChecking, Sendable {
              .shareExtension,
              .advancedSiri,
              .longRangeReports,
-             .appleWatchCompanion:
+             .appleWatchCompanion,
+             .manualForeignCurrency:
             .proSubscription
         }
 
@@ -94,6 +95,7 @@ struct ExistingPremiumEntryAccess: Equatable, Sendable {
     private let receiptScanDecision: FeatureAccessDecision
     private let receiptImportDecision: FeatureAccessDecision
     private let advancedSiriDecision: FeatureAccessDecision
+    private let manualForeignCurrencyDecision: FeatureAccessDecision
 
     init(featureAccess: any FeatureAccessChecking = FeatureAccessService()) {
         advancedLocalInsightsDecision = featureAccess.decision(for: .advancedLocalInsights)
@@ -104,6 +106,7 @@ struct ExistingPremiumEntryAccess: Equatable, Sendable {
         receiptScanDecision = featureAccess.decision(for: .receiptScan)
         receiptImportDecision = featureAccess.decision(for: .receiptImport)
         advancedSiriDecision = featureAccess.decision(for: .advancedSiri)
+        manualForeignCurrencyDecision = featureAccess.decision(for: .manualForeignCurrency)
     }
 
     var permitsAdvancedLocalInsights: Bool {
@@ -152,6 +155,10 @@ struct ExistingPremiumEntryAccess: Equatable, Sendable {
     var permitsAdvancedSiri: Bool {
         advancedSiriDecision.isAllowed
     }
+
+    var permitsNewForeignCurrency: Bool {
+        manualForeignCurrencyDecision.isAllowed
+    }
 }
 
 /// The only execution tiers that the local receipt pipeline may select in later C4C packets.
@@ -179,6 +186,20 @@ struct DebugFeatureAccessProvider: FeatureAccessChecking, Sendable {
 
     func decision(for feature: PremiumFeature) -> FeatureAccessDecision {
         service.decision(for: feature)
+    }
+}
+#endif
+
+#if DEBUG && targetEnvironment(simulator) && MINDBUDGET_FX_UI_TEST_HOST
+/// Fixed, process-local fixtures for the separately compiled UI host only. No argument,
+/// preference, product, receipt, or network value can enable these in the normal app.
+enum FXUIFixtureAccess {
+    static func allow(_ authority: LiveFeatureAccessAuthority) {
+        authority.replaceEntitlements(.proSubscription)
+    }
+
+    static func revoke(_ authority: LiveFeatureAccessAuthority) {
+        authority.replaceEntitlements(.free)
     }
 }
 #endif

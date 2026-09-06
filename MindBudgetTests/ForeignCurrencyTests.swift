@@ -57,7 +57,7 @@ struct ForeignCurrencyMigrationTests {
                 spentTimeZoneIdentifier: calendar.timeZone.identifier, createdAt: stamp, updatedAt: stamp,
                 paymentMethod: nil, emotionTag: nil, purchaseReason: nil, isPlanned: true,
                 isRecurring: false, source: .manual, allowMerchantIndexing: false, foreignCurrency: foreign)
-            _ = try await controller.dataActor.createExpense(draft)
+            _ = try await controller.dataActor.createExpense(draft, featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         do {
             let controller = try DataController(storeURL: url)
@@ -362,7 +362,7 @@ struct ForeignCurrencyPersistenceTests {
         let id = UUID()
         let value = try facts()
         #expect(value.rateDate == calendar.startOfDay(for: date))
-        _ = try await actor.createExpense(draft(id: id, foreign: value))
+        _ = try await actor.createExpense(draft(id: id, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         #expect(try await actor.modelCounts().foreignCurrencyMetadata == 1)
         #expect(try await actor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
         _ = try await actor.updateExpense(id: id, with: draft(id: id, note: "edited"))
@@ -394,7 +394,7 @@ struct ForeignCurrencyPersistenceTests {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let id = UUID()
         let value = try facts()
-        _ = try await actor.createExpense(draft(id: id, foreign: value))
+        _ = try await actor.createExpense(draft(id: id, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         let detail = try #require(try await actor.fetchExpenseDetail(id: id))
         let changedSettingsCurrency = "JPY"
         let newForm = AddExpenseView(dataActor: actor, accountingCurrencyCode: changedSettingsCurrency,
@@ -421,23 +421,23 @@ struct ForeignCurrencyPersistenceTests {
         let value = try facts()
         for source in ExpenseSource.allCases where source != .manual {
             await #expect(throws: ForeignCurrencyError.unsupportedSource) {
-                _ = try await actor.createExpense(draft(foreign: value, source: source))
+                _ = try await actor.createExpense(draft(foreign: value, source: source), featureAccess: FeatureAccessService(entitlements: .proSubscription))
             }
         }
         await #expect(throws: ForeignCurrencyError.unsupportedSource) {
-            _ = try await actor.createExpense(draft(foreign: value, recurring: true))
+            _ = try await actor.createExpense(draft(foreign: value, recurring: true), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         await #expect(throws: ForeignCurrencyError.invalidRate) {
-            _ = try await actor.createExpense(draft(amount: 601, foreign: value))
+            _ = try await actor.createExpense(draft(amount: 601, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         await #expect(throws: DataValidationError.invalidIntentExpense) {
             _ = try await actor.createIntentExpense(draft(foreign: value, source: .siriIntent), dedupeSince: date)
         }
         #expect(try await actor.modelCounts().isEmpty)
         let id = UUID()
-        _ = try await actor.createExpense(draft(id: id, foreign: value))
+        _ = try await actor.createExpense(draft(id: id, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         await #expect(throws: DataValidationError.identityMismatch) {
-            _ = try await actor.createExpense(draft(id: id))
+            _ = try await actor.createExpense(draft(id: id), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         #expect(try await actor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
         try await actor.deleteAllUserData()
@@ -448,11 +448,11 @@ struct ForeignCurrencyPersistenceTests {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         _ = try await actor.setCloudSyncEnabled(true)
         await #expect(throws: ForeignCurrencyError.syncRequiresCompanionProtocol) {
-            _ = try await actor.createExpense(draft(foreign: facts()))
+            _ = try await actor.createExpense(draft(foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         #expect(try await actor.modelCounts().foreignCurrencyMetadata == 0)
         _ = try await actor.setCloudSyncEnabled(false)
-        _ = try await actor.createExpense(draft(foreign: facts()))
+        _ = try await actor.createExpense(draft(foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         await #expect(throws: ForeignCurrencyError.syncRequiresCompanionProtocol) {
             _ = try await actor.setCloudSyncEnabled(true)
         }
@@ -467,8 +467,8 @@ struct ForeignCurrencyPersistenceTests {
         let id = UUID()
         let otherID = UUID()
         let value = try facts()
-        _ = try await controller.dataActor.createExpense(draft(id: id, foreign: value))
-        _ = try await controller.dataActor.createExpense(draft(id: otherID))
+        _ = try await controller.dataActor.createExpense(draft(id: id, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
+        _ = try await controller.dataActor.createExpense(draft(id: otherID), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         // A corrupt adjacent legacy row forces merchant rebuilding to fail AFTER both the
         // expense and its companion have been mutated, not merely during input validation.
         let context = ModelContext(controller.container)
@@ -482,7 +482,7 @@ struct ForeignCurrencyPersistenceTests {
         }
         #expect(try await actor.fetchExpenseDetail(id: id) == before)
         await #expect(throws: (any Error).self) {
-            _ = try await actor.createExpense(draft(foreign: value))
+            _ = try await actor.createExpense(draft(foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         }
         #expect(try await actor.modelCounts().expenses == 2)
         #expect(try await actor.modelCounts().foreignCurrencyMetadata == 1)
@@ -494,7 +494,7 @@ struct ForeignCurrencyPersistenceTests {
     @Test func recoveryCannotReuploadFXAndCloudErasureNeverBlocksLocalRecording() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let id = UUID()
-        _ = try await controller.dataActor.createExpense(draft(id: id, foreign: facts()))
+        _ = try await controller.dataActor.createExpense(draft(id: id, foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         let context = ModelContext(controller.container)
         context.insert(CloudSyncControl(id: "primary", isEnabled: false,
             statusRaw: CloudSyncStatus.pausedRemoteZoneDeleted.rawValue, accountIdentifierHash: "test",
@@ -508,8 +508,8 @@ struct ForeignCurrencyPersistenceTests {
         #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
         // This flag enables the DELETE operation, not normal sync. Local recording stays usable.
         _ = try await actor.beginCloudDeletion(at: date)
-        _ = try await actor.createExpense(draft(foreign: facts()))
-        _ = try await actor.createExpense(draft())
+        _ = try await actor.createExpense(draft(foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
+        _ = try await actor.createExpense(draft(), featureAccess: FeatureAccessService(entitlements: .proSubscription))
         _ = try await actor.updateExpense(id: id, with: draft(id: id, amount: 100))
         #expect(try await actor.modelCounts().expenses == 3)
         #expect(try await actor.modelCounts().foreignCurrencyMetadata == 2)
@@ -529,7 +529,7 @@ struct ForeignCurrencyPersistenceTests {
             let controller = try DataController(isStoredInMemoryOnly: true)
             let id = UUID()
             let value = try facts()
-            _ = try await controller.dataActor.createExpense(draft(id: id, foreign: value))
+            _ = try await controller.dataActor.createExpense(draft(id: id, foreign: value), featureAccess: FeatureAccessService(entitlements: .proSubscription))
             let envelope: CloudSyncEnvelope
             if tombstone {
                 envelope = try CloudSyncCodec.makeEnvelope(payload: nil, entityType: .expense,
@@ -538,7 +538,7 @@ struct ForeignCurrencyPersistenceTests {
             } else {
                 let source = try DataController(isStoredInMemoryOnly: true).dataActor
                 _ = try await source.setCloudSyncEnabled(true)
-                _ = try await source.createExpense(draft(id: id, amount: 900))
+                _ = try await source.createExpense(draft(id: id, amount: 900), featureAccess: FeatureAccessService(entitlements: .proSubscription))
                 let name = try CloudSyncCodec.canonicalRecordName(entityType: .expense, identity: id.uuidString.lowercased())
                 let pending = try #require(try await source.pendingCloudSyncRecord(named: name))
                 envelope = try CloudSyncCodec.decodeEnvelope(pending.envelopeData)
@@ -578,7 +578,7 @@ struct ForeignCurrencyPersistenceTests {
         ] {
             let controller = try DataController(isStoredInMemoryOnly: true)
             let id = UUID()
-            _ = try await controller.dataActor.createExpense(draft(id: id, foreign: facts()))
+            _ = try await controller.dataActor.createExpense(draft(id: id, foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
             let context = ModelContext(controller.container)
             let row = try #require(context.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>()).first)
             corrupt(row)
