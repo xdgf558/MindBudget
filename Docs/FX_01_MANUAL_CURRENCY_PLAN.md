@@ -300,6 +300,13 @@ when changing the checkbox and C status together; a green run alone does not com
 Physical spoken VoiceOver and release-device evidence remain separate FX-01E/COM-C12 gates;
 these simulator results neither satisfy nor add those gates to C.
 
+The unresolved keyboard non-pass in `34026066152` explicitly blocks C Done and FX-01D entry.
+The owner requested continued causal repair after reviewing green `4f4111f`/`34030127867`, not
+permission to merge diagnostics with the defect deferred. A green rerun cannot close this
+blocker; retain independent causal/repair acceptance and new-head complete validation as gates.
+This PR must not mark C Done. `Build and test` is a fail-closed join but main currently has no
+enforced required-check rule; owner repository-policy configuration remains separate.
+
 Run `34026066152` exceeded the 60-minute job limit, so the 55-minute capacity trigger has fired.
 The closeout repair splits the FX host into an independently required job; the original
 `Build and test` check must require both ordinary and FX jobs to succeed, including when either

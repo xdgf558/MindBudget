@@ -4352,3 +4352,27 @@ Exercise the join's result combinations and missing/conditional/bypassed-job mut
 both real validator command paths with fake commands. No workflow rerun or larger time budget
 may stand in for this correction. These are FX closeout acceptance changes only, not product
 Swift or FX-01D entry; a new head needs independent review and fresh runtime/hosted evidence.
+
+## 2026-09-06 — FX keyboard snapshot repair, without inferred causal closure
+
+The owner chose continued repair after the independent review of `4f4111f`, not a merge waiver.
+Preserve `577c528`/`34026066152` as non-pass. Its failed trace proves live element re-resolution
+and an existence-only timeout, but does not contain a failed keyboard frame or identify the
+touch consumer. A subsequent pass cannot establish that missing causal evidence.
+
+For this candidate, keep the scope inside the FX test helper: one public snapshot per bounded
+observation, one captured native Done midpoint tap, and a three-second postcondition that both
+the conditional Done toolbar is absent and no keyboard occupies the application. A disabled
+visible keyboard remains blocking. Finite zero/offscreen AX nodes are not viewport occlusion;
+negative/non-finite geometry and unreadable snapshots fail closed. The FX pan helper uses the
+same classification and propagates errors before dependent actions. Do not add a retap, sleep,
+runner retry, larger allowance, product focus hook, private API, or automatic dialog dismissal.
+Keep every observation and its elapsed time in the result attachment, including invalid states.
+
+Deterministic geometry tests demonstrate the corrected helper contract, not a reproduction of
+the old hosted event. C Done and FX-01D entry remain explicitly blocked until independent causal
+and repair acceptance plus new-head full-local/hosted/native evidence. This PR must not mark C
+Done. Main has no effective required-check protection as independently checked via GitHub;
+the `Build and test` join is not itself a repository merge rule. Owner policy configuration is
+still separate and was not changed here. Preserve the 600-second simulator boot capacity note,
+240-second FX timing curve and all earlier maintenance debts.

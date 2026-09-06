@@ -8,7 +8,12 @@ COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 close
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
 Current runtime checkpoint: **PR #114 merged as `9d592d6`; PR #115's three-method closeout remains
-In Progress.** Owner-supplied independent review of `577c528` found no P1/P2 and retained
+In Progress; keyboard P2 remains open pending causal evidence and repair review.** Run
+`34030127867` passed on `4f4111f`, but the owner explicitly rejected treating that green run as
+closure of `34026066152`'s keyboard failure. The owner requested continued repair, not the
+alternative merge-with-deferred-blocker path. No C Done, D entry, undraft or merge is authorized
+by this repair. See the final section for the new snapshot candidate and evidence limitations.
+At the earlier checkpoint, owner-supplied independent review of `577c528` found no P1/P2 and retained
 exact-head hosted success/native audit as merge prerequisites. Complete local validation of
 that head exited 0, but hosted `34026066152` was cancelled at the job deadline and contains FX
 failures. The subsequent CI split and keyboard-failure containment are not retrospectively included
@@ -585,9 +590,10 @@ have separate 60-minute jobs and an always-evaluated `Build and test` join requi
 succeed. Default local `validate.sh` remains complete; its GitHub-only `--ci-ordinary-only`
 mode explicitly reports partial evidence and cannot replace the FX job. Every FX method keeps
 240 seconds and zero retries. Both jobs, both per-attempt artifacts and FX provenance require
-new hosted validation and independent review. Hosted successful method durations and three
-native device bindings are still missing; the split-duration obligation is not closed by
-the non-pass timings below.
+new hosted validation and independent review. At that pre-`4f4111f` checkpoint, successful method
+durations and three native device bindings were still missing. The later run and owner-supplied
+native review are recorded below; neither closes the retained keyboard mechanism nor makes the
+non-pass timings accepted measurements.
 
 The two main-existing hidden-retap call sites, `fx.mode` / `fx.accounting.format` copy, duplicate
 reminder Close and `isFinite` dead branch remain explicit follow-ups. General UI/zero-retry
@@ -650,3 +656,84 @@ Static verification of the split candidate passed the 588 copied-CLI closeout mu
 and CI source-simulator creation's 1 success / 6 failures with fake commands only. Money,
 network, commercialization, StoreKit (13 tests), shell syntax and whitespace checks passed.
 These test infrastructure checks are not new product or runtime acceptance.
+
+### `4f4111f` results and the next keyboard repair candidate
+
+GitHub run `34030127867`, attempt 1, completed successfully on exact
+`4f4111fd0eecc6f5f83bad56a77de664d1666049`. Ordinary job: 11:23:57Z–11:56:12Z (32m15s);
+FX job: 11:23:57Z–11:37:37Z (13m40s); the `Build and test` join passed at 11:56:18Z.
+GitHub lists ordinary artifact `9988796829`, 26,905,877 bytes, digest
+`d89cbc1fda54697d2dfde28a505a0c75a2c7560b721cd85980c61c6e0f178d61`, and FX artifact
+`9988515264`, 91,132,078 bytes, digest
+`c98a64c26f33e82248a87f083a6ca84351bf24b8af235fb22c15151ce3859262`.
+These are API-reported digests, not a claim of a fresh author download/hash audit in this session.
+The owner supplied independent native-audit acceptance in the conversation and reported healthy
+Chinese create/detail at 148.6/240 seconds. That is head-specific evidence, not acceptance for
+the following source change or proof that the previous failure was transient.
+
+The complete local validator on `4f4111f` also exited 0 with zero retries and the strict benchmark
+at 200.937834 ms < 500 ms. FX local log durations: Chinese stewardship 40.862s, Chinese
+create/detail 77.498s, English 40.972s. Its native FX summary reports three Passed / no failed
+or skipped tests on fresh `677D980B-C06D-4021-B6A3-61DD997FC74B`; all three known invalid-frame
+runtime warnings remain. These observations do not establish the failed hosted keyboard frame.
+
+The retained failed log records an additional live Done lookup between readiness and event
+synthesis. It has no pre/post-failure frame capture; subsequent keyboard disappearance cannot
+distinguish lost touch, delayed keyboard animation, or delayed AX publication. The review's
+invalid-frame hypothesis is not proven merely by the runtime warning text. This session therefore
+does not claim a reproduced cause for the original `577c528` event.
+
+The new test-only candidate uses one immutable public snapshot per bounded readiness/dismissal
+observation. A unique enabled native Done button (not its duplicate-identifier `other` wrapper)
+must lie wholly within the application and outside visible keyboard rectangles. That same
+captured midpoint supplies exactly one coordinate tap. There is no live Done re-query, second
+tap, added sleep, retry, or increased three-second/240-second allowance. Each snapshot and elapsed
+observation time is retained in one trace attachment; snapshot errors fail closed. Dismissal
+requires both no Done button and no keyboard intersection with the application. A finite zero
+or offscreen AX node is not occupying the viewport; negative/non-finite/unknown frames throw,
+and even a disabled but visible keyboard still blocks. The FX pan helper consumes this same
+keyboard classification and propagates failures out of the async flow before dependent actions.
+This is a tested contract correction candidate, not inferred causal closure of the old run.
+
+A deterministic native XCTest covers the retained successful AX5 geometry, duplicate wrapper,
+one immutable capture, lost-tap states, lingering offscreen/zero nodes, partial overlap,
+disabled-visible keyboards, malformed frames, unsafe/missing/duplicate Done, and interruption.
+Synthetic negative cases must not be presented as a reproduction of the old runner's failure.
+The first focused build failed before tests due to a Swift initializer closure capturing `self`
+before all properties were initialized. The closure now uses its local snapshot input; that
+failed log/provenance is retained, not overwritten. Fresh focused, full-local and hosted results
+must be recorded separately after execution.
+
+**Hard acceptance condition:** the unresolved keyboard non-pass blocks C Done and FX-01D entry.
+For the owner's chosen repair path it also blocks undraft/merge until causal evidence and the
+repair receive independent acceptance, alongside fresh exact-head full-local validation,
+hosted success and native no-retry/device audit. Green reruns alone cannot clear this condition.
+Do not mark C Done in this PR. The `Build and test` job is only a join, not an enforced required
+check today: read-only GitHub checks found no main branch protection and no applicable branch
+rules. Owner configuration remains outstanding; this session did not change repository policy.
+Keep simulator boot's 600-second deadline as a capacity observation and compare hosted method
+duration before adding D coverage. Existing hidden-retap/copy/duplicate-Close/dead-code debts stay open.
+
+#### Candidate development results (not exact-head closeout acceptance)
+
+Focus 2 passed three FX methods exactly once on new, non-cloned
+`19C38C16-43E9-4E10-916D-566833AFEF40`: Chinese stewardship 40.223s, Chinese create/detail
+78.092s, English 40.823s. Native audit: three details / three concrete Passed, no Repetition or
+extra attempt, all UUID bindings match provenance, three retained invalid-frame warnings.
+The runner removed only its own simulator. Both Chinese traces record one Done midpoint
+`(349.8333, 542)`, then a snapshot with neither Done nor keyboard and unchanged entered values.
+The Chinese manual-form screenshot also shows the preview and Save without the keyboard.
+This is one successful transition observation, not failure reproduction.
+
+The first deterministic geometry test failed: a negative raw width was not rejected because
+`CGRect.width` standardizes the width (raw -1 becomes +1). A local CoreGraphics probe confirmed
+`width=1, size.width=-1, minX=-1`. The guard now validates `size.width`/`size.height` before
+intersection, including new negative-height coverage. The new geometry result passes one
+method / one concrete execution, zero warning / Repetition / extra attempt (0.053s log duration).
+The first failed result is retained. This fixes a defect found in this candidate's validation,
+not evidence that a negative keyboard frame caused the earlier hosted non-pass.
+
+Focus 2 preceded that raw-size guard correction; it is not runtime acceptance of the final source.
+The first standalone probe importing Foundation alone did not compile; the explicit CoreGraphics
+probe ran successfully. These development observations are separate from the main test results.
+The upcoming frozen-head full validator and hosted jobs must re-exercise the final source.

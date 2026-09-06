@@ -9101,3 +9101,68 @@ network, commercialization, StoreKit's 13 tests, shell syntax and diff checks al
 new frozen source still needs full local validation, both hosted jobs/native artifacts and
 independent review. PR #115 remains Draft; no blanket claim that all P3s or the keyboard issue
 are resolved is made.
+
+## 2026-09-06 — PR #115 keyboard P2 repair requested, not a merge waiver
+
+The owner reviewed `4f4111f`, reported green hosted `34030127867` and their independent native
+audit, and retained keyboard P2. They then requested continued repair after being offered the
+alternative of merging diagnostics with C/D blocked. No undraft, merge, branch-protection change,
+C Done, or D entry occurred. The active checkout had moved to clean old main `f73881f`; work
+there was preserved. A separate detached worktree at exact PR head `4f4111f` is used for repair.
+
+Read-only GitHub verification confirmed attempt 1 success on that exact SHA: ordinary job
+32m15s, FX job 13m40s, and successful `Build and test` join. GitHub-reported artifact IDs/digests
+are retained in the C evidence packet. The owner-supplied native audit is attributed to this
+conversation, not fabricated as an author audit or GitHub review. The prior head's complete
+local validator also passed, with strict benchmark 200.937834 ms and local FX durations
+40.862s / 77.498s / 40.972s (stewardship / Chinese create / English), fresh UUID
+`677D980B-C06D-4021-B6A3-61DD997FC74B`. These are historical head-specific results only.
+
+Read the retained failure trace: Done readiness and activation used separate live lookups;
+the later `Keyboard.exists == false` wait timed out. No failure-frame snapshot exists in that
+interrupted bundle, and it still lacks Info.plist. The warning about invalid frame dimensions
+is not evidence that the keyboard AX frame itself was invalid. No causal reproduction of that
+hosted event is claimed. Synthetic tests must not be substituted for that missing observation.
+
+Implemented a test-only candidate using immutable snapshots for bounded readiness, exact native
+Done midpoint activation, and post-tap viewport occupancy. Both Done disappearance and absence
+of visible keyboard rectangles are required. Disabled visible keyboards, partial overlap,
+ambiguous controls, unreadable snapshots and negative/non-finite geometry cannot pass. Finite
+zero/offscreen nodes have an explicit distinct classification used by both dismissal and the
+FX pan helper. One trace records every observation and elapsed time; failures throw before
+dependent actions. No retap, new sleep, timeout increase or ordinary-suite helper change.
+A deterministic native test exercises these states using the retained successful local AX5
+geometry; this is regression-contract evidence, not a recreated failing-run snapshot.
+
+The first focused build (`fx-keyboard-repair-focus-1`) failed before test execution: Swift
+rejected an initializer closure capturing self before `visibleKeyboards` initialization. The
+closure now uses local `root.frame`; the failed log and simulator provenance remain retained.
+The runner removed only its own fresh device. Focus 2 uses new evidence/DerivedData paths and
+a different newly created non-cloned simulator. Its results and the upcoming full-local/native
+tests must be appended after completion, not assumed from the initial static gate pass.
+The first static check passed the existing 588 copied-CLI mutations, validator/no-retry/join
+negatives, money and network gates. Final document/static checks remain required after edits.
+
+Current acceptance stays open: P2's original keyboard mechanism is unproven; C Done and D entry
+are hard-blocked. For this continued-repair path, PR #115 stays Draft pending causal/repair
+review and new-head complete validation. Main protection endpoint returned "Branch not protected"
+and the branch-rules API returned an empty list; owner enforcement of `Build and test` remains
+outstanding. The boot-capacity, method-duration and existing P3 debts remain explicit.
+
+Candidate development results: focus 2 passed Chinese stewardship 40.223s, Chinese create/detail
+78.092s and English 40.823s exactly once. Native audit found three details/three concrete Passed,
+zero Repetition/extra attempt and the three known invalid-frame diagnostics, all on fresh
+`19C38C16-43E9-4E10-916D-566833AFEF40`. The owned simulator was cleaned up and its provenance,
+xcresult and exported attachments retained. Chinese trace files show one native Done center
+`(349.8333, 542)` followed by no Done/keyboard and unchanged values; the saved form screenshot
+shows preview/Save without the keyboard. No failure was reproduced by this focus.
+
+The first geometry result (`fx-keyboard-geometry-1`) failed one negative-width assertion.
+`CGRect.width` standardizes negative size; a minimal CoreGraphics probe printed width=1,
+rawWidth=-1, minX=-1. The new guard checks raw `size.width`/`size.height` before standardization
+and adds a negative-height case. Geometry result 2 Passed one native method/concrete execution
+once (0.053s), no Repetition/extra attempt/runtime warnings. Result 1 remains non-pass.
+The initial standalone Foundation-only Swift probe failed compilation; the CoreGraphics probe
+succeeded. Focus 2 predates the raw-size correction and cannot validate the final source by
+inference. Neither synthetic malformed frames nor later passes establish the original hosted
+keyboard cause. Full frozen-head validation and independent causal/repair acceptance remain open.

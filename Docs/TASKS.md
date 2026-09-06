@@ -239,6 +239,11 @@ keyboard-dismissal failure before dependent UI actions. Its underlying mechanism
 C's fourth checklist item awaits closeout acceptance, not a new physical VoiceOver requirement.
 No successful hosted three-method duration/device audit or C completion is claimed from that run.
 
+Later `4f4111f` passed hosted `34030127867` and full local validation; the owner supplied a native
+audit but retained the unresolved keyboard P2. Continued single-snapshot repair is in progress,
+not the alternative merge-with-deferred-defect path. C Done and FX-01D entry remain hard-blocked
+on causal/repair acceptance, not merely another green run. This PR must not mark C Done.
+
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
 All 572 hosted test-detail records account for 581 ordinary/argument runs, with no extra attempt

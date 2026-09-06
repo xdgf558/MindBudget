@@ -88,6 +88,13 @@ The keyboard mechanism remains unresolved; local non-reproduction is not a fix. 
 validation, hosted/native evidence and review are still required. See the current C evidence
 packet for the raw artifact hash, incomplete FX bundle and all retained observations.
 
+`4f4111f` subsequently passed hosted `34030127867` and complete local validation, but independent
+review did not accept those passes as closure of the keyboard non-pass. The owner requested
+continued repair. The current test-only candidate binds one Done tap to immutable snapshot
+geometry and observes both Done removal and keyboard viewport occupancy; invalid frames fail
+closed. The failed hosted event's cause remains unproven, blocking C Done, D entry and acceptance
+of this repair path until independently resolved. No phase advance or merge waiver was given.
+
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
 Signed-device, production-signing, Instruments, App Store Connect, screenshot, and upload checks
