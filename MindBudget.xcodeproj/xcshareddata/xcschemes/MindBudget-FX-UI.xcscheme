@@ -17,6 +17,7 @@
             <SelectedTests>
                <Test Identifier="MindBudgetPhase3UITests/testManualForeignCurrencyEnglishProCreateAndDetail()"/>
                <Test Identifier="MindBudgetPhase3UITests/testManualForeignCurrencyChineseAX5ProCreateAndDetail()"/>
+               <Test Identifier="MindBudgetPhase3UITests/testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit()"/>
             </SelectedTests>
          </TestableReference>
       </Testables>

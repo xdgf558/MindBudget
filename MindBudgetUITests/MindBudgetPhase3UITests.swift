@@ -12,7 +12,24 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+    func testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit() async throws {
+        let app = try launchFXHost(language: "zh-Hans", locale: "zh_CN", ax5: true)
+        defer { app.terminate() }
+        // This method never depends on another test's creation or store. The compile-isolated
+        // fixture writes one fixed record through DataActor, revokes Pro and changes Settings.
+        let existing = app.buttons["fx.testHost.existing"]
+        XCTAssertTrue(existing.waitForExistence(timeout: 3) && existing.isHittable)
+        existing.tap()
+        XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 8))
+        let amounts = app.staticTexts.containing(NSPredicate(
+            format: "label CONTAINS %@ AND label CONTAINS %@", "3 EUR", "6 USD"
+        )).firstMatch
+        XCTAssertTrue(amounts.waitForExistence(timeout: 3))
+        try exerciseForeignCurrencyStewardship(in: app, ax5: true)
+    }
+
+    @MainActor
+    private func launchFXHost(language: String, locale: String, ax5: Bool) throws -> XCUIApplication {
         guard ProcessInfo.processInfo.environment["MINDBUDGET_FX_UI_TESTS"] == "1" else {
             throw XCTSkip("Requires the separately compiled FX UI host; this skip is not UI evidence.")
         }
@@ -23,16 +40,22 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         app.launch()
         continueAfterFailure = false
-        defer { app.terminate() }
         XCTAssertTrue(app.staticTexts["fx.testHost"].waitForExistence(timeout: 8),
                       "Normal AppBootstrap must never substitute for the compiled in-memory host")
+        return app
+    }
+
+    @MainActor
+    private func exerciseForeignCurrency(language: String, locale: String, ax5: Bool) async throws {
+        let app = try launchFXHost(language: language, locale: locale, ax5: ax5)
+        defer { app.terminate() }
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
         try enableFXSwitch(in: app)
         XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
                                  app.windows.firstMatch.frame.width + 1,
                                  "AX5 content must not force the form wider than the viewport")
         let currency = app.buttons["fx.originalCurrency"]
-        revealFX(currency, in: app)
+        try revealFX(currency, in: app)
         currency.tap()
         let euro = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "EUR")).firstMatch
         for _ in 0..<10 {
@@ -48,7 +71,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         euro.tap()
         if ax5 {
             let date = app.buttons["fx.rateDate"]
-            revealFX(date, in: app)
+            try revealFX(date, in: app)
             XCTAssertFalse((date.value as? String ?? "").isEmpty)
             date.tap()
             XCTAssertTrue(app.pickerWheels.firstMatch.waitForExistence(timeout: 3))
@@ -60,8 +83,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
             XCTAssertTrue(app.buttons["fx.rateDate"].waitForExistence(timeout: 3))
             XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
         }
-        enterFX("3", into: app.textFields["fx.originalAmount"], in: app)
-        enterFX("2", into: app.textFields["fx.rate"], in: app)
+        try enterFX("3", into: app.textFields["fx.originalAmount"], in: app)
+        try enterFX("2", into: app.textFields["fx.rate"], in: app)
         XCTAssertEqual(app.textFields["fx.originalAmount"].label, ax5 ? "原币金额" : "Original amount")
         XCTAssertEqual(app.textFields["fx.originalAmount"].value as? String, "3")
         XCTAssertEqual(app.textFields["fx.rate"].value as? String, "2")
@@ -71,9 +94,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
         if let original = direction.range(of: "EUR"), let accounting = direction.range(of: "USD") {
             XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
         } else { XCTFail("Accessible rate direction lost a currency identity") }
-        dismissFXKeyboard(in: app)
+        try dismissFXKeyboard(in: app)
         let preview = app.staticTexts["fx.preview"]
-        revealFX(preview, in: app)
+        try revealFX(preview, in: app)
         XCTAssertTrue(preview.waitForExistence(timeout: 3))
         XCTAssertTrue(preview.label.contains("USD"))
         XCTAssertTrue(preview.label.contains("6"))
@@ -82,7 +105,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         formImage.lifetime = .keepAlways
         add(formImage)
         let save = app.buttons["expense.save"]
-        revealFX(save, in: app)
+        try revealFX(save, in: app)
         save.tap()
         XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
         let detailImage = XCTAttachment(screenshot: app.screenshot())
@@ -107,40 +130,107 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "EUR")).firstMatch.exists)
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "USD")).firstMatch.exists)
+        // Chinese AX5 stewardship has its own fresh-host method and fixed persisted fixture.
+        // English retains the original create -> expire -> edit end-to-end sequence.
+        if ax5 { return }
         // Actual stored FX remains editable after access expires and Settings changes to JPY.
         app.buttons["fx.testHost.revoke"].tap()
+        try exerciseForeignCurrencyStewardship(in: app, ax5: false)
+    }
+
+    @MainActor
+    private func exerciseForeignCurrencyStewardship(in app: XCUIApplication, ax5: Bool) throws {
         app.buttons["expense.edit"].tap()
         XCTAssertTrue(app.switches["fx.enabled"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.switches["fx.enabled"].isEnabled)
         if ax5 {
             XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
         }
-        enterFX("3", into: app.textFields["fx.rate"], in: app)
-        dismissFXKeyboard(in: app)
-        revealFX(app.staticTexts["fx.preview"], in: app)
+        try enterFX("3", into: app.textFields["fx.rate"], in: app)
+        try dismissFXKeyboard(in: app)
+        try revealFX(app.staticTexts["fx.preview"], in: app)
         XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("USD"))
         XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("9"))
-        revealFX(app.buttons["expense.save"], in: app)
+        try revealFX(app.buttons["expense.save"], in: app)
         app.buttons["expense.save"].tap()
         XCTAssertTrue(app.buttons["expense.edit"].waitForExistence(timeout: 5))
         let updated = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "USD", "9")).firstMatch
         XCTAssertTrue(updated.waitForExistence(timeout: 5))
+        if ax5 {
+            let savedDate = element("fx.detail.rateDate", in: app)
+            XCTAssertTrue((savedDate.label + (savedDate.value as? String ?? "")).contains("2024"))
+        }
+        let image = XCTAttachment(screenshot: app.screenshot())
+        image.name = "FX expired stewardship - AX5 \(ax5)"
+        image.lifetime = .keepAlways
+        add(image)
     }
 
     @MainActor
-    private func dismissFXKeyboard(in app: XCUIApplication) {
-        let done = app.buttons["fx.keyboard.done"]
-        XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable,
-                      "FX numeric editing needs an accessible way to finish and read the result")
-        done.tap()
-        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"),
-                                                  object: app.keyboards.firstMatch)
-        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 3), .completed)
+    private func dismissFXKeyboard(in app: XCUIApplication) throws {
+        // Each observation is one immutable public snapshot. Never re-resolve a live Done
+        // element between checking its geometry and the one activation, or use AX existence
+        // alone as evidence that a keyboard still occupies the application's viewport.
+        var observations: [String] = []
+        let started = ContinuousClock.now
+        func capture(_ phase: String) throws -> FXKeyboardSnapshot {
+            let root = BudgetSnapshotNode(try app.snapshot())
+            observations.append("\(phase) at \(started.duration(to: .now)): \(FXKeyboardSnapshot.describe(root))")
+            return try FXKeyboardSnapshot(root: root)
+        }
+        defer {
+            let attachment = XCTAttachment(string: observations.joined(separator: "\n\n"))
+            attachment.name = "FX keyboard single-tap snapshot trace"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        var readySnapshot: FXKeyboardSnapshot?
+        var readinessFailure: String?
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            do {
+                let state = try capture("before tap")
+                guard (try? state.doneTapOffset()) != nil else { return false }
+                readySnapshot = state
+                return true
+            } catch {
+                readinessFailure = String(describing: error)
+                return true
+            }
+        }, object: nil)
+        let readyResult = XCTWaiter.wait(for: [ready], timeout: 3)
+        if let readinessFailure {
+            throw BudgetGeometryError(description: "FX Done readiness observation failed: \(readinessFailure)")
+        }
+        guard readyResult == .completed, let before = readySnapshot else {
+            throw BudgetGeometryError(description: "FX Done did not enter a safe snapshot frame; no tap sent")
+        }
+        let point = try before.doneTapOffset()
+        observations.append("one Done tap at app offset \(point)")
+        app.coordinate(withNormalizedOffset: .zero).withOffset(point).tap()
+        var observationFailure: String?
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            do {
+                let state = try capture("after tap")
+                return state.isDismissed
+            } catch {
+                // End this wait on an unreadable/invalid snapshot, then throw below. Unknown
+                // geometry is not permission to pan, Save, wait longer or send a second tap.
+                observationFailure = String(describing: error)
+                return true
+            }
+        }, object: nil)
+        let result = XCTWaiter.wait(for: [dismissed], timeout: 3)
+        if let observationFailure {
+            throw BudgetGeometryError(description: "FX dismissal observation failed: \(observationFailure)")
+        }
+        guard result == .completed else {
+            throw BudgetGeometryError(description: "FX Done or visible keyboard remained after one tap; no dependent pan or Save allowed")
+        }
     }
 
     @MainActor
-    private func enterFX(_ value: String, into field: XCUIElement, in app: XCUIApplication) {
-        revealFX(field, in: app)
+    private func enterFX(_ value: String, into field: XCUIElement, in app: XCUIApplication) throws {
+        try revealFX(field, in: app)
         field.tap()
         if let existing = field.value as? String, existing != field.placeholderValue {
             field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
@@ -158,7 +248,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         guard XCTWaiter.wait(for: [granted], timeout: 10) == .completed else {
             throw BudgetGeometryError(description: "The isolated fixture did not reach the real Commerce access boundary")
         }
-        revealFX(toggle, in: app)
+        try revealFX(toggle, in: app)
         // SwiftUI exposes a labelled switch row containing the actual native switch. Bind
         // the hit point to that child in one snapshot, never a percentage of the live row.
         let activation = try FXSwitchTapGeometry { BudgetSnapshotNode(try app.snapshot()) }
@@ -179,15 +269,15 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func revealFX(_ control: XCUIElement, in app: XCUIApplication) {
+    private func revealFX(_ control: XCUIElement, in app: XCUIApplication) throws {
         for _ in 0..<14 {
             let navBottom = app.navigationBars.allElementsBoundByIndex.last(where: \.isHittable)?.frame.maxY ?? 0
             let window = app.windows.firstMatch.frame
             let sentinel = app.staticTexts["fx.testHost"]
             let hostTop = sentinel.exists && sentinel.isHittable && sentinel.frame.minY > navBottom
                 ? sentinel.frame.minY : window.maxY
-            let keyboardTop = app.keyboards.firstMatch.exists
-                ? min(app.keyboards.firstMatch.frame.minY, hostTop) : hostTop
+            let keyboard = try FXKeyboardSnapshot(root: BudgetSnapshotNode(app.snapshot()))
+            let keyboardTop = min(keyboard.visibleKeyboards.map(\.minY).min() ?? hostTop, hostTop)
             let save = app.buttons["expense.save"]
             let contentBottom = save.exists && save.frame.minY > navBottom
                 ? min(save.frame.minY, keyboardTop) : keyboardTop
@@ -198,7 +288,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
                 && control.frame.maxY < limit { return }
             let top = navBottom + 12
             let height = contentBottom - top - 12
-            guard height > 60 else { XCTFail("No unobscured FX scroll viewport"); return }
+            guard height > 60 else { throw BudgetGeometryError(description: "No unobscured FX scroll viewport") }
             let moveDown = control.exists && control.frame.minY < top
             let center = top + height / 2
             let distance = min(max(control.exists ? abs(control.frame.midY - center) : 120, 30), min(180, height * 0.45))
@@ -214,7 +304,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
             let candidates = stride(from: upperStart, through: lowerStart, by: -8.0)
             guard let startY = candidates.first(where: { y in
                 !occupied.contains { $0.minY - 8 <= y && $0.maxY + 8 >= y }
-            }) else { XCTFail("No unobscured non-editor FX pan origin"); return }
+            }) else { throw BudgetGeometryError(description: "No unobscured non-editor FX pan origin") }
             let start = origin.withOffset(CGVector(dx: window.midX, dy: startY))
             let end = origin.withOffset(CGVector(dx: window.midX, dy: startY + (moveDown ? distance : -distance)))
             XCTContext.runActivity(named: "FX viewport target \(control.frame), visible \(top)...\(contentBottom), down \(moveDown)") { _ in
@@ -227,7 +317,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         failureImage.name = "FX failed viewport"
         failureImage.lifetime = .keepAlways
         add(failureImage)
-        XCTFail("FX control did not enter the unobscured viewport: \(control); frame=\(control.frame); \(app.debugDescription)")
+        throw BudgetGeometryError(description: "FX control did not enter the unobscured viewport: \(control); frame=\(control.frame); \(app.debugDescription)")
     }
 
     @MainActor
@@ -1653,6 +1743,137 @@ final class MindBudgetPhase3UITests: XCTestCase {
 
     private struct BudgetGeometryError: Error, CustomStringConvertible {
         let description: String
+    }
+
+    /// Snapshot existence, enablement and viewport occupancy are different facts. Keep zero
+    /// or offscreen keyboard nodes as observations; reject negative/non-finite geometry rather
+    /// than guessing that a broken AX rectangle means the software keyboard has disappeared.
+    private struct FXKeyboardSnapshot {
+        let application: CGRect
+        let doneButtons: [BudgetSnapshotNode]
+        let visibleKeyboards: [CGRect]
+
+        init(root: BudgetSnapshotNode) throws {
+            func validate(_ frame: CGRect, allowEmpty: Bool = false) throws {
+                // CGRect.width/height standardize negative sizes; inspect the stored size
+                // before any intersection/standardization can disguise an invalid AX frame.
+                guard !frame.isNull, !frame.isInfinite,
+                      [frame.origin.x, frame.origin.y, frame.size.width, frame.size.height].allSatisfy(\.isFinite),
+                      frame.size.width >= 0, frame.size.height >= 0, allowEmpty || !frame.isEmpty else {
+                    throw BudgetGeometryError(description: "Invalid FX keyboard observation frame: \(frame)")
+                }
+            }
+            guard root.type == .application else {
+                throw BudgetGeometryError(description: "FX keyboard observation requires an application snapshot")
+            }
+            try validate(root.frame)
+            application = root.frame
+            let nodes = root.flattened
+            let forms = nodes.filter { $0.type == .scrollView && $0.identifier == "expense.form" }
+            guard forms.count == 1, let form = forms.first else {
+                throw BudgetGeometryError(description: "FX keyboard observation lost the foreground form")
+            }
+            try validate(form.frame)
+            guard form.frame.intersects(application), !nodes.contains(where: { $0.type == .alert }) else {
+                throw BudgetGeometryError(description: "FX form is offscreen or interrupted by an alert")
+            }
+            // The real toolbar has an `other` wrapper with the same identifier as its button.
+            // Select the native button by type; duplicate actual buttons are still ambiguous.
+            doneButtons = nodes.filter { $0.type == .button && $0.identifier == "fx.keyboard.done" }
+            guard doneButtons.count <= 1 else {
+                throw BudgetGeometryError(description: "Ambiguous FX keyboard Done buttons")
+            }
+            for button in doneButtons { try validate(button.frame, allowEmpty: true) }
+            let keyboards = nodes.filter { $0.type == .keyboard }
+            for keyboard in keyboards { try validate(keyboard.frame, allowEmpty: true) }
+            visibleKeyboards = keyboards.compactMap {
+                let overlap = $0.frame.intersection(root.frame)
+                return overlap.isNull || overlap.isEmpty ? nil : overlap
+            }
+        }
+
+        func doneTapOffset() throws -> CGVector {
+            guard let done = doneButtons.first, done.enabled, !done.frame.isEmpty,
+                  application.contains(done.frame), !visibleKeyboards.isEmpty,
+                  !visibleKeyboards.contains(where: { $0.intersects(done.frame) }) else {
+                throw BudgetGeometryError(description: "FX Done is missing, disabled, offscreen or keyboard-occluded")
+            }
+            return CGVector(dx: done.frame.midX - application.minX, dy: done.frame.midY - application.minY)
+        }
+
+        // A disappearing keyboard alone must not hide a lost tap: the conditional Done
+        // toolbar must also be gone. A disabled but still onscreen keyboard still blocks.
+        var isDismissed: Bool { doneButtons.isEmpty && visibleKeyboards.isEmpty }
+
+        static func describe(_ root: BudgetSnapshotNode) -> String {
+            "app=\(root.frame)\n" + root.flattened.filter {
+                $0.type == .keyboard || $0.identifier == "fx.keyboard.done"
+                    || $0.identifier == "expense.form"
+                    || ($0.type == .textField && $0.identifier.hasPrefix("fx."))
+            }.map {
+                "\($0.type):\($0.identifier) frame=\($0.frame) enabled=\($0.enabled) value=\($0.value ?? "nil")"
+            }.joined(separator: "\n")
+        }
+    }
+
+    @MainActor
+    func testFXKeyboardSnapshotRejectsLostTapAndUnknownGeometry() throws {
+        // Captured local Chinese AX5 frames, not invented evidence for the cancelled runner.
+        let doneFrame = CGRect(x: 318.6667, y: 524, width: 62.3333, height: 36)
+        let keyboardFrame = CGRect(x: 0, y: 583, width: 402, height: 233)
+        let done = BudgetSnapshotNode(.button, doneFrame, identifier: "fx.keyboard.done")
+        let keyboard = BudgetSnapshotNode(.keyboard, keyboardFrame)
+        func tree(_ children: [BudgetSnapshotNode]) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 402, height: 874), children: [
+                BudgetSnapshotNode(.scrollView, CGRect(x: 0, y: 62, width: 402, height: 740),
+                                   identifier: "expense.form")
+            ] + children)
+        }
+        var reads = 0
+        func capture() -> BudgetSnapshotNode {
+            reads += 1
+            return tree([BudgetSnapshotNode(.other, doneFrame, identifier: "fx.keyboard.done", children: [done]), keyboard])
+        }
+        let before = try FXKeyboardSnapshot(root: capture())
+        XCTAssertEqual(reads, 1)
+        let offset = try before.doneTapOffset()
+        XCTAssertEqual(offset.dx, doneFrame.midX)
+        XCTAssertEqual(offset.dy, doneFrame.midY)
+        XCTAssertEqual(reads, 1, "Activation must not re-resolve a live Done element")
+        XCTAssertFalse(before.isDismissed, "One lost tap must stay non-pass")
+        XCTAssertFalse(try FXKeyboardSnapshot(root: tree([keyboard])).isDismissed)
+        XCTAssertFalse(try FXKeyboardSnapshot(root: tree([done])).isDismissed)
+        XCTAssertFalse(try FXKeyboardSnapshot(root: tree([
+            BudgetSnapshotNode(.keyboard, keyboardFrame, enabled: false)
+        ])).isDismissed, "Enablement is not viewport occupancy")
+        for frame in [CGRect.zero, CGRect(x: 0, y: 874, width: 402, height: 233),
+                      CGRect(x: 403, y: 583, width: 402, height: 233)] {
+            let hidden = try FXKeyboardSnapshot(root: tree([BudgetSnapshotNode(.keyboard, frame)]))
+            XCTAssertTrue(hidden.isDismissed, "A finite non-occupying AX node alone cannot block the viewport")
+            XCTAssertTrue(hidden.visibleKeyboards.isEmpty, "The pan helper must use the same classification")
+        }
+        XCTAssertTrue(try FXKeyboardSnapshot(root: tree([])).isDismissed)
+        for frame in [CGRect(x: 0, y: 800, width: 402, height: 233),
+                      CGRect(x: 0, y: 873, width: 402, height: 1)] {
+            XCTAssertFalse(try FXKeyboardSnapshot(root: tree([BudgetSnapshotNode(.keyboard, frame)])).isDismissed)
+        }
+        for frame in [CGRect(x: 0, y: 583, width: -1, height: 233),
+                      CGRect(x: 0, y: 583, width: 402, height: -1),
+                      CGRect(x: 0, y: 583, width: 402, height: CGFloat.nan), CGRect.null, CGRect.infinite] {
+            XCTAssertThrowsError(try FXKeyboardSnapshot(root: tree([BudgetSnapshotNode(.keyboard, frame)])), "raw size: \(frame.size)")
+        }
+        for buttons in [[], [done, done],
+                        [BudgetSnapshotNode(.button, doneFrame, identifier: "fx.keyboard.done", enabled: false)],
+                        [BudgetSnapshotNode(.button, .zero, identifier: "fx.keyboard.done")],
+                        [BudgetSnapshotNode(.button, keyboardFrame, identifier: "fx.keyboard.done")],
+                        [BudgetSnapshotNode(.button, CGRect(x: 400, y: 524, width: 60, height: 36), identifier: "fx.keyboard.done")]] {
+            XCTAssertThrowsError(try FXKeyboardSnapshot(root: tree(buttons + [keyboard])).doneTapOffset())
+        }
+        XCTAssertThrowsError(try FXKeyboardSnapshot(root: tree([done])).doneTapOffset())
+        XCTAssertThrowsError(try FXKeyboardSnapshot(root: tree([done, keyboard,
+            BudgetSnapshotNode(.alert, CGRect(x: 0, y: 0, width: 300, height: 300))])))
+        XCTAssertThrowsError(try FXKeyboardSnapshot(root: BudgetSnapshotNode(.application,
+            CGRect(x: 0, y: 0, width: 402, height: 874))))
     }
 
     private struct FXSwitchTapGeometry: CustomStringConvertible {

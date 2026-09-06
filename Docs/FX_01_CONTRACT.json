@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
     "activeSubphase": "FX-01C",
     "activeSubphaseStatus": "IN_PROGRESS",
-    "closeoutStatus": "NOT_YET_DELIVERED",
+    "closeoutStatus": "IN_PROGRESS",
     "nextSubphase": "FX-01D",
     "nextSubphaseEntered": false,
     "deferredPhases": [
@@ -51,6 +51,25 @@
     "artifactZipSHA256": "6f9e58db993049663fa2fc3ee9e00981d68f646f2e9982c8d72ac1efe66d9cb8",
     "acceptedRunExtraAttempts": 0,
     "acceptedRunFailedToPassedObserved": false
+  },
+  "cDeliveryEvidence": {
+    "pullRequest": 114,
+    "reviewKind": "ownerSuppliedIndependentReview",
+    "reviewedHead": "18f11ccbe8b9b9f954c74f17d813c2c64ced698a",
+    "hostedRun": "33996904935",
+    "acceptedAttempt": 1,
+    "mergeCommit": "9d592d691b251949e6493d6631be486b0d24f2c7",
+    "reviewedAndMergedTree": "24bbc0ca1d843fb11f87bf30b104d0c6b2762dd6",
+    "artifactZipSHA256": "a6690799424940d07ca8f721940f8923542ab58b09dd81bec9c85ce18c6effad",
+    "ordinaryMethods": 612,
+    "ordinaryPassed": 596,
+    "ordinarySkipped": 16,
+    "concretePassed": 605,
+    "concreteSkipped": 16,
+    "requiredUIBindingsPassedExactlyOnce": 2,
+    "acceptedRunExtraAttempts": 0,
+    "acceptedRunFailedToPassedObserved": false,
+    "fullLocalValidatorExitCode": 0
   },
   "accountingAuthority": {
     "model": "Expense",

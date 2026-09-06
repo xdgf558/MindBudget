@@ -16,14 +16,4 @@ SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIRECTORY}/.."
 
 Scripts/fx01_ui_contract.py --self-test
-arguments=(
-  -project MindBudget.xcodeproj -scheme MindBudget-FX-UI -configuration Debug
-  -sdk iphonesimulator -destination "${FX_DESTINATION}"
-  -derivedDataPath "${FX_DERIVED_DATA}" -parallel-testing-enabled NO
-  -test-timeouts-enabled YES -maximum-test-execution-time-allowance 240
-  -enableCodeCoverage YES
-  'SWIFT_ACTIVE_COMPILATION_CONDITIONS=DEBUG MINDBUDGET_FX_UI_TEST_HOST'
-)
-xcodebuild "${arguments[@]}" build-for-testing
-xcodebuild "${arguments[@]}" -resultBundlePath "${FX_RESULT_BUNDLE}" test-without-building
-Scripts/fx01_ui_contract.py --verify-ui-bundle "${FX_RESULT_BUNDLE}"
+exec python3 -B Scripts/fx01_ui_runner.py "${FX_DESTINATION}" "${FX_RESULT_BUNDLE}"

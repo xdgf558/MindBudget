@@ -24,6 +24,7 @@ private final class FXUITestHost: ObservableObject {
     @Published var saved: ExpenseSummary?
     @Published var accessRevision = 0
     @Published var saveFailed = false
+    @Published var seeding = false
 
     init() {
         do {
@@ -77,6 +78,35 @@ private final class FXUITestHost: ObservableObject {
         FXUIFixtureAccess.allow(authority)
         accessRevision += 1
     }
+
+    func loadExistingFixture() {
+        guard saved == nil, !seeding else { return }
+        seeding = true
+        Task {
+            do {
+                var calendar = Calendar(identifier: .gregorian)
+                calendar.timeZone = TimeZone(identifier: "UTC")!
+                let date = calendar.date(from: DateComponents(year: 2024, month: 1, day: 15))!
+                let foreign = try ExpenseForeignCurrency(
+                    original: Money(minorUnits: 300, currencyCode: "EUR"),
+                    rate: ForeignCurrencyRate(numerator: 2, denominator: 1),
+                    selectedDate: date, calendar: calendar, source: .manualRate
+                )
+                let draft = ExpenseDraft(
+                    id: UUID(), amount: Money(minorUnits: 600, currencyCode: "USD"), category: .food,
+                    bucket: .discretionary, merchantName: nil, note: nil, spentAt: date,
+                    spentTimeZoneIdentifier: calendar.timeZone.identifier, createdAt: date, updatedAt: date,
+                    paymentMethod: nil, emotionTag: nil, purchaseReason: nil, isPlanned: false,
+                    isRecurring: false, source: .manual, allowMerchantIndexing: false, foreignCurrency: foreign
+                )
+                saved = try await controller.dataActor.createExpense(draft, featureAccess: authority)
+                revoke()
+            } catch {
+                saveFailed = true
+            }
+            seeding = false
+        }
+    }
 }
 
 private struct FXUINotificationStub: NotificationScheduling {
@@ -122,6 +152,11 @@ private struct FXUITestRoot: View {
                         .accessibilityIdentifier("fx.testHost.revoke")
                     Button(action: host.restoreFixture) { Text(verbatim: "Fixture") }
                         .accessibilityIdentifier("fx.testHost.restore")
+                    if host.saved == nil {
+                        Button(action: host.loadExistingFixture) { Text(verbatim: "Saved") }
+                            .accessibilityIdentifier("fx.testHost.existing")
+                            .disabled(host.seeding)
+                    }
                 }
                 .font(.caption)
                 .dynamicTypeSize(.medium)

@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+FX_VALIDATION_MODE="complete"
+if [[ "$#" != 0 ]]; then
+  if [[ "$#" == 1 && "$1" == "--ci-ordinary-only" && "${GITHUB_ACTIONS:-}" == "true" ]]; then
+    FX_VALIDATION_MODE="ci-ordinary-only"
+  else
+    echo "Usage: validate.sh (complete); --ci-ordinary-only is restricted to GitHub Actions" >&2
+    exit 2
+  fi
+fi
+
 SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/.." && pwd)"
 DESTINATION="${MINDBUDGET_TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5}"
@@ -100,4 +110,9 @@ Scripts/check_c6_02_acceptance.py --verify-result-bundle "${RESULT_BUNDLE}"
 Scripts/fx01_ui_contract.py --verify-unit-bundle "${RESULT_BUNDLE}"
 # FX owns this additional, compile-isolated UI host. Its pass cannot substitute for the
 # normal application suite above, StoreKit purchase evidence, or physical accessibility.
-Scripts/run-fx01-ui-tests.sh "${DESTINATION}" "${RESULT_BUNDLE%.xcresult}-FX-UI.xcresult"
+if [[ "${FX_VALIDATION_MODE}" == "complete" ]]; then
+  Scripts/run-fx01-ui-tests.sh "${DESTINATION}" "${RESULT_BUNDLE%.xcresult}-FX-UI.xcresult"
+  echo "Complete local validation passed, including the FX UI host"
+else
+  echo "PARTIAL ordinary CI validation passed; the independent FX UI job is still mandatory"
+fi
