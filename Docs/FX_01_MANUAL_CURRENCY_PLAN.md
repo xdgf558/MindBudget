@@ -1,6 +1,6 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01 In Progress; FX-01A and FX-01B Done; C implementation merged; FX-01C closeout In Progress; FX-01D unentered.**
+Status: **FX-01 In Progress; FX-01A and FX-01B Done; C implementation and harness accepted; FX-01C final closeout pending review; FX-01D unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -277,7 +277,7 @@ retained non-passes and final local/hosted validation; the static gate itself cl
 
 ### FX-01C — Pro entry, form, detail, and edit behavior
 
-Status: **In Progress — implementation accepted; independent closeout pending.**
+Status: **In Progress — implementation and harness accepted; final closeout pending review.**
 
 - [x] Add one exhaustive `PremiumFeature` case and route new-FX access through the central
   entitlement snapshot. Pro and active local trial allow creation; exact Free and expired access
@@ -292,26 +292,32 @@ Status: **In Progress — implementation accepted; independent closeout pending.
   dark/light appearance, and ordinary-entry regression coverage.
 
 The fourth item is an acceptance checkpoint, not an unimplemented UI requirement or a new
-physical VoiceOver prerequisite. PR #114 and PR #115's three-method candidate implement its
+physical VoiceOver prerequisite. Accepted PR #114 and PR #115's three-method harness implement its
 simulator localization/accessibility-metadata, AX5, keyboard, appearance and ordinary-entry
-coverage. It stays unchecked until this separate closeout has independent review, exact-head
-hosted success, native no-retry/device-provenance audit, and merge. Record those evidence links
-when changing the checkbox and C status together; a green run alone does not complete C.
+coverage. The implementation and harness have exact-head hosted, complete-local and native
+no-retry/device-provenance evidence. The remaining gap is explicit final phase acceptance, not
+missing simulator coverage. It stays unchecked while this final record awaits independent review,
+its own exact-head hosted success and merge. Change the checkbox and C status together only with
+explicit final acceptance; neither the earlier merge-only approval nor a green run completes C.
 Physical spoken VoiceOver and release-device evidence remain separate FX-01E/COM-C12 gates;
 these simulator results neither satisfy nor add those gates to C.
 
-The unresolved keyboard non-pass in `34026066152` explicitly blocks C Done and FX-01D entry.
-The owner requested continued causal repair after reviewing green `4f4111f`/`34030127867`, not
-permission to merge diagnostics with the defect deferred. A green rerun cannot close this
-blocker; retain independent causal/repair acceptance and new-head complete validation as gates.
-This PR must not mark C Done. `Build and test` is a fail-closed join but main currently has no
-enforced required-check rule; owner repository-policy configuration remains separate.
+The earlier keyboard blocker is not closed by green `4f4111f`/`34030127867`. Subsequent
+single-snapshot corrective controls on `ea71ea1`, complete local validation, hosted success and
+native audit received independent no-P1/P2 merge approval. PR #115 merged those controls; that
+approval explicitly did not complete C. The original `34026066152` failure cause remains unproven
+and the run stays non-pass. This record proposes final acceptance on the reviewed corrective
+controls, not retrospective causal proof or a silent waiver. Its independent final review and
+explicit phase acceptance remain outstanding; C Done and D entry remain blocked in the meantime.
+This PR must not mark C Done. `Build and test` is a fail-closed join, but the last repository-policy
+inspection found no enforced required-check rule; owner configuration remains separate and is
+not asserted complete here.
 
 Run `34026066152` exceeded the 60-minute job limit, so the 55-minute capacity trigger has fired.
-The closeout repair splits the FX host into an independently required job; the original
+The accepted PR #115 repair splits the FX host into a separate job; the original
 `Build and test` check must require both ordinary and FX jobs to succeed, including when either
-is cancelled or skipped. This test-infrastructure correction needs its own review and hosted
-evidence before D implementation; do not raise the timeout or enable retries. A faster later
+is cancelled or skipped. Its independent review and hosted evidence are now recorded below;
+do not raise the timeout or enable retries. A faster later
 run does not erase the retained cancellation or the need to validate both independent jobs.
 Record each of the three hosted FX durations against its unchanged 240-second allowance in
 `FX_01C_IMPLEMENTATION_EVIDENCE.md`. These are evidence obligations, not permission to enter D.
@@ -452,3 +458,42 @@ PR obligation remain open. There is no C Done or D entry from this implementatio
 unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
+
+Historical checkpoint above: its pending language records the pre-acceptance state;
+use the following final acceptance section for current status.
+
+## 2026-09-06 — FX-01C final acceptance after PR #115
+
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+
+The owner-supplied off-platform independent review accepted `ea71ea1` with no P1/P2;
+review scope is merge-only, not C Done. Hosted `34033715080` attempt 1 succeeded on
+that exact head. PR #115 merged as `396b271` on 2026-09-06 at 13:26:30 UTC, with the
+reviewed head as second parent. Both reviewed and merged trees are
+`cc1f2d450c100834757fe621b6b55bbd0829ddbe`. This records the supplied review, not a
+fabricated GitHub review or a new independent review by the implementation author.
+
+Native artifact audit accounts for 614 ordinary methods / 623 concrete executions:
+597 Passed / 17 existing opt-in Skipped methods, 606 Passed / 17 Skipped concrete
+executions, 13 argument executions and no Repetition or extra attempt. The isolated
+host has three FX methods Passed exactly once, each bound to its newly created
+simulator UUID. Exact-head complete local validation exited 0. Artifact digests,
+device binding, method durations and the local/hosted evidence distinction are in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`.
+
+Accepted corrective controls do not prove the original failed event cause.
+`34026066152` remains non-pass; the original event mechanism remains unproven.
+Historical non-passes remain non-pass. The later snapshot repair's independent
+merge acceptance is distinct from the earlier diagnostic-only green run. This
+record proposes explicit final acceptance on those reviewed corrective controls
+and their tests, not a retrospective causal claim or an unrecorded waiver.
+
+This final acceptance record is pending independent review and merge.
+C's fourth item stays unchecked for that explicit phase acceptance, not an
+unimplemented simulator requirement or a new physical VoiceOver prerequisite.
+The separate final record requires its own exact-head hosted success and native
+audit; the accepted base run cannot substitute for it. The existing physical
+VoiceOver/release matrix and the retained P3 obligations are not silently closed.
+C remains In Progress; FX-01D remains unentered.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.

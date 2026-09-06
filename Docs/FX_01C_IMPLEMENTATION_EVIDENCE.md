@@ -1,18 +1,19 @@
 # FX-01C manual-entry implementation evidence
 
-Status: **FX-01C In Progress; PR #114 implementation accepted; closeout validation and review pending; FX-01D unentered.**
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
 
 This packet covers the manual entry, saved detail, edit, and existing Commerce access boundary
 only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services, or authorize
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current runtime checkpoint: **PR #114 merged as `9d592d6`; PR #115's three-method closeout remains
-In Progress; keyboard P2 remains open pending causal evidence and repair review.** Run
-`34030127867` passed on `4f4111f`, but the owner explicitly rejected treating that green run as
-closure of `34026066152`'s keyboard failure. The owner requested continued repair, not the
-alternative merge-with-deferred-blocker path. No C Done, D entry, undraft or merge is authorized
-by this repair. See the final section for the new snapshot candidate and evidence limitations.
+Current runtime checkpoint: **PR #114 implementation and PR #115 corrective harness are merged;
+final phase acceptance remains pending.** The independent no-P1/P2 approval of `ea71ea1` was
+merge-only, after exact-head hosted/native and complete-local acceptance. It did not establish
+the original `34026066152` event cause or mark C Done. The final acceptance section below records
+that disposition explicitly; the older chronological checkpoints describe what was outstanding
+then, not new current merge blockers. This final record still needs independent review, its own
+exact-head hosted success and merge. D remains unentered.
 At the earlier checkpoint, owner-supplied independent review of `577c528` found no P1/P2 and retained
 exact-head hosted success/native audit as merge prerequisites. Complete local validation of
 that head exited 0, but hosted `34026066152` was cancelled at the job deadline and contains FX
@@ -498,6 +499,46 @@ unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release a
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
 
+Historical checkpoint above: its pending language records the pre-acceptance state;
+use the following final acceptance section for current status.
+
+## 2026-09-06 — FX-01C final acceptance after PR #115
+
+Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+
+The owner-supplied off-platform independent review accepted `ea71ea1` with no P1/P2;
+review scope is merge-only, not C Done. Hosted `34033715080` attempt 1 succeeded on
+that exact head. PR #115 merged as `396b271` on 2026-09-06 at 13:26:30 UTC, with the
+reviewed head as second parent. Both reviewed and merged trees are
+`cc1f2d450c100834757fe621b6b55bbd0829ddbe`. This records the supplied review, not a
+fabricated GitHub review or a new independent review by the implementation author.
+
+Native artifact audit accounts for 614 ordinary methods / 623 concrete executions:
+597 Passed / 17 existing opt-in Skipped methods, 606 Passed / 17 Skipped concrete
+executions, 13 argument executions and no Repetition or extra attempt. The isolated
+host has three FX methods Passed exactly once, each bound to its newly created
+simulator UUID. Exact-head complete local validation exited 0. Artifact digests,
+device binding, method durations and the local/hosted evidence distinction are in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`.
+
+Accepted corrective controls do not prove the original failed event cause.
+`34026066152` remains non-pass; the original event mechanism remains unproven.
+Historical non-passes remain non-pass. The later snapshot repair's independent
+merge acceptance is distinct from the earlier diagnostic-only green run. This
+record proposes explicit final acceptance on those reviewed corrective controls
+and their tests, not a retrospective causal claim or an unrecorded waiver.
+
+This final acceptance record is pending independent review and merge.
+C's fourth item stays unchecked for that explicit phase acceptance, not an
+unimplemented simulator requirement or a new physical VoiceOver prerequisite.
+The separate final record requires its own exact-head hosted success and native
+audit; the accepted base run cannot substitute for it. The existing physical
+VoiceOver/release matrix and the retained P3 obligations are not silently closed.
+C remains In Progress; FX-01D remains unentered.
+
+- [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+
 ## 2026-09-06 — FX-01C closeout development verification checkpoint
 
 The first closeout focus used a newly created, non-cloned simulator
@@ -737,3 +778,81 @@ Focus 2 preceded that raw-size guard correction; it is not runtime acceptance of
 The first standalone probe importing Foundation alone did not compile; the explicit CoreGraphics
 probe ran successfully. These development observations are separate from the main test results.
 The upcoming frozen-head full validator and hosted jobs must re-exercise the final source.
+
+## PR #115 accepted native evidence — final-record input, not this PR's CI
+
+The preceding development checkpoints are historical. Independent final review subsequently
+accepted head `ea71ea18fe94a76232eba22354b7ef3e5260a209` for the bounded PR #115 merge,
+not C Done. Run [34033715080](https://github.com/xdgf558/MindBudget/actions/runs/34033715080)
+completed successfully on that exact head at attempt 1. During this documentation session the
+author downloaded both original ZIPs again, verified their published SHA-256 and byte counts,
+checked ZIP CRC/path safety, and read the complete native summary/tree and every method detail.
+This is a reproducibility check of the accepted evidence, not another independent review or
+a new execution of the tests. No xcresult schema flag, synthesized Info.plist, reconstructed
+summary, hidden retry or Failed-to-Passed execution was used to obtain these results.
+
+| Artifact | ID / bytes | Original ZIP SHA-256 |
+| --- | --- | --- |
+| MindBudget-ordinary-xcresult-34033715080-1 | 9990031302 / 26,977,110 | `57243e1d353b86aeec3fb3c2646b05d9c518ec7dd9319c006b83379b871b2bb0` |
+| MindBudget-fx-xcresult-34033715080-1 | 9989722175 / 74,152,848 | `74510bb0206a62cad3f120136ff082430e9e486aebe0fc9f2ef00187c7ade0cf` |
+
+Ordinary summary/tree: 614 methods, 597 Passed and 17 existing opt-in Skipped. All 614 native
+details close to 623 concrete executions (606 Passed / 17 Skipped), including 13 argument
+executions with exact tree/detail identity-result-duration bijection. Zero Failed, Repetition,
+extra attempt or runtime warning was observed in this accepted run. This statement is scoped
+to this run; it does not assert that historical runs never failed or retried.
+
+FX summary/tree/details: three methods and three concrete Passed executions, no skip, failure,
+Repetition or extra attempt. Every detail's device is `C2E17CB2-ECF1-4A13-AAE6-AB7053AA2460`,
+matching `createdDevice` in the paired simulator provenance. It was a newly created, non-cloned
+iPhone 17 Pro / iOS 26.5 simulator, distinct from ordinary source
+`8949EEB2-7137-4BC7-A318-D730E29E08D5`. The repository runtime verifier independently of the
+ad-hoc audit also accepted all three UUID-bound methods exactly once. The three known
+"Invalid frame dimension (negative or non-finite)." diagnostics remain retained, one per method;
+their presence does not prove the original keyboard failure mechanism.
+
+| Hosted FX method (testManualForeignCurrency suffix) | Seconds | Margin to unchanged 240s limit |
+| --- | ---: | ---: |
+| ChineseAX5ExpiredStewardshipEdit | 122.158 | 117.842 |
+| ChineseAX5ProCreateAndDetail | 145.573 | 94.427 |
+| EnglishProCreateAndDetail | 74.368 | 165.632 |
+
+These measurements complete the requested post-split duration record. They do not establish
+performance on every runner or erase the earlier slow-runner timeout. Ordinary job elapsed
+36m55s (12:38:47–13:15:42 UTC); parallel FX job 16m44s (12:38:46–12:55:30 UTC); the final join
+took 3s (13:15:46–13:15:49 UTC). All succeeded. No method allowance, job timeout or retry policy
+was relaxed. Slow fresh-device boot near the 600s deadline remains a hosted-capacity observation.
+
+Exact-head complete local `Scripts/validate.sh` exited 0. Its strict benchmark was
+218.981291ms < 500ms, ordinary native inventory matched 614 methods / 623 concrete executions,
+and FX used fresh `A4139C99-A93C-46AC-8403-4958BA5E8B6F`. Local FX durations were 50.138s
+stewardship, 82.503s Chinese create/detail and 44.730s English. The owner's separate isolated
+local FX evidence used fresh `8C3916D6-7060-4D33-832B-25E8035B7855`, with three native Passed
+executions and no extra attempt. These local results are not hosted timings or proof of this
+new documentation/gate commit. No new Xcode test run was performed during this final-record work.
+
+## Final-record scope and outstanding maintenance
+
+The JSON contract format advances from 6 to 7 to add typed `cHarnessEvidence`, including bounded
+review scope, exact provenance, artifact hashes, counts and a retained non-pass/cause limitation.
+This is not a new SwiftData schema: no model, migration, product Swift, UI helper, runner or CI
+workflow changes occur here. The static gate checks current sections separately in all seven
+status documents; historical prose or another file cannot replace a missing current anchor.
+This gate checks consistency, not live GitHub truth or native runtime evidence by itself.
+
+C's fourth checklist item covers implemented simulator en/zh-Hans strings, accessibility
+order/value metadata, AX5, keyboard, dark/light appearance and ordinary-entry regression.
+It is intentionally held for explicit final phase acceptance, not missing code or physical
+spoken VoiceOver. The latter remains an existing FX-01E/COM-C12 release obligation.
+This record itself stays pending independent review, exact-head CI/native audit and merge.
+Any C Done update must record explicit final acceptance; D still needs separate owner entry.
+
+Retained P3 obligations: assess fresh-simulator boot capacity without blindly raising 600s;
+check the 240s method-duration curve before adding D coverage; the last main-policy inspection
+found no enforced required-check rule, so the `Build and test` join is not claimed to enforce
+the GitHub merge button. Repository-policy changes require separate owner action. The two
+existing `tapAndWaitForDestination(attempts: 2)` call sites, `fx.mode`/`fx.accounting.format`
+copy, duplicate Close in the reminder sheet and `isFinite` dead branch remain maintenance debt.
+General UI infrastructure/zero-retry changes should be separated from future FX product PRs.
+No optional iCloud/telemetry channel, network service, CSV/sync implementation, physical run,
+COM-C12 entry, Archive, upload, distribution or release is enabled by this record.

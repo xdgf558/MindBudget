@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
@@ -70,6 +70,29 @@
     "acceptedRunExtraAttempts": 0,
     "acceptedRunFailedToPassedObserved": false,
     "fullLocalValidatorExitCode": 0
+  },
+  "cHarnessEvidence": {
+    "pullRequest": 115,
+    "reviewKind": "ownerSuppliedIndependentReview",
+    "reviewScope": "MERGE_ONLY_NOT_C_DONE",
+    "reviewedHead": "ea71ea18fe94a76232eba22354b7ef3e5260a209",
+    "hostedRun": "34033715080",
+    "acceptedAttempt": 1,
+    "mergeCommit": "396b271c9ef9d2afa038592429fc6bbf9f527e60",
+    "reviewedAndMergedTree": "cc1f2d450c100834757fe621b6b55bbd0829ddbe",
+    "ordinaryArtifactZipSHA256": "57243e1d353b86aeec3fb3c2646b05d9c518ec7dd9319c006b83379b871b2bb0",
+    "fxArtifactZipSHA256": "74510bb0206a62cad3f120136ff082430e9e486aebe0fc9f2ef00187c7ade0cf",
+    "ordinaryMethods": 614,
+    "ordinaryPassed": 597,
+    "ordinarySkipped": 17,
+    "concretePassed": 606,
+    "concreteSkipped": 17,
+    "requiredUIBindingsPassedExactlyOnce": 3,
+    "acceptedRunExtraAttempts": 0,
+    "acceptedRunFailedToPassedObserved": false,
+    "fullLocalValidatorExitCode": 0,
+    "retainedNonPassRun": "34026066152",
+    "retainedKeyboardFailureCause": "UNPROVEN"
   },
   "accountingAuthority": {
     "model": "Expense",
