@@ -4333,3 +4333,22 @@ PR obligation remain open. There is no C Done or D entry from this implementatio
 unreviewed closeout, and no physical, network, CSV, iCloud, COM-C12 or release authorization.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this FX-01C closeout before owner entry into FX-01D.
+
+## 2026-09-06 — Split hosted FX validation after the measured job deadline
+
+PR #115's `577c528` run `34026066152` reached GitHub's 60-minute job deadline; the check annotation
+states "The job has exceeded the maximum execution time of 1h0m0s". Preserve the whole run as
+non-pass regardless of individual completed methods. This turns the owner's P3 capacity
+observation into a blocking harness correction, not permission to raise the timeout or retry.
+
+Keep default local `Scripts/validate.sh` complete and sequential. Expose one explicitly named,
+GitHub-Actions-only ordinary-suite mode for the hosted ordinary job; it must announce that it
+is partial and may not be presented as complete acceptance. A separate required FX job runs
+the unchanged three-method fresh-simulator runner. Both jobs use the same checked-out head,
+zero retries and existing method allowances. Keep both artifacts, including FX provenance.
+The existing required check name `Build and test` becomes an always-evaluated join that fails
+unless both jobs succeeded; skipped, cancelled, timed-out or failed jobs cannot make it green.
+Exercise the join's result combinations and missing/conditional/bypassed-job mutations, plus
+both real validator command paths with fake commands. No workflow rerun or larger time budget
+may stand in for this correction. These are FX closeout acceptance changes only, not product
+Swift or FX-01D entry; a new head needs independent review and fresh runtime/hosted evidence.

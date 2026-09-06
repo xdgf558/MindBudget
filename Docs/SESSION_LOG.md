@@ -9020,3 +9020,84 @@ provenance JSON in hosted artifacts. They require the upcoming complete run. Thi
 not replace complete local validation or exact-head hosted/native acceptance. The old PR #114
 two-method bundle does not validate these three methods. The owner will review the new Draft
 closeout PR; no independent approval, C completion or D entry is claimed here.
+
+## 2026-09-06 — PR #115 independent-review documentation repair
+
+The owner supplied an off-platform independent review of `577c528` with no P1/P2. Its merge
+acceptance remained conditional on exact-head hosted `34026066152` success, no-Repetition/no-extra-
+attempt native audit, and all three FX details matching the newly created simulator's provenance.
+The owner then requested this repair. This review is not attributed to a GitHub review record,
+and it does not retrospectively cover the following documentation delta.
+
+Clarify C's fourth unchecked item in the plan and evidence packet: its simulator coverage is
+implemented; the remaining gap is separate closeout review/hosted/native/merge acceptance, not
+an unannounced physical VoiceOver session. Record the accepted chain when checking that item
+and C status together. Physical/release evidence remains in its existing FX-01E/COM-C12 scope.
+The 60-minute CI job and 240-second per-method limits are unchanged. The reviewed capacity
+follow-up is now explicit: if the accepted job takes 55 minutes or more, deliver an independently
+required FX job in a separate test-infrastructure PR before D implementation, without retries
+or higher allowances. D entry itself still requires the owner.
+
+The complete local `Scripts/validate.sh` on frozen `577c528` exited 0, with a clean unchanged
+worktree, no retries and the strict local benchmark enabled. Ordinary native audit: 613 methods
+(596 Passed / 17 Skipped), 622 concrete executions (605 / 17), 13 argument executions, zero
+Repetition/extra attempt, exact parameter tree/detail bijection and zero runtime warnings.
+The benchmark's own bundle passed once at 190.616208 ms < 500 ms. Three-theme AX5 passed once
+in 203.482 seconds. Final FX create/detail Chinese AX5 took 77.633 seconds, expired stewardship
+39.374 seconds and English full flow 41.144 seconds, each exactly one concrete Passed. Every
+native FX detail matched fresh `D0E60243-5928-4931-8721-C73CE9487094`, distinct from the source
+simulator and recorded as not cloned. Only that owned device was cleaned up; evidence remains.
+Three known invalid-frame warnings and Xcode's supplemental diagnostic `simctl` error 72 remain
+disclosed; these are not warning-free or complete-diagnostic claims. These results belong to
+`577c528`, not automatically to this new documentation head.
+
+The clarification passed the FX static gate with 588 copied-CLI closeout mutations, native
+reader/runner negative self-tests, money/network gates, commercialization documentation,
+StoreKit's 13 catalog tests and `git diff --check` at the initial documentation checkpoint. All prior non-passes
+and existing hidden-retap/copy/duplicate-Close/dead-code obligations remain unchanged. No C Done,
+D entry, production Swift/JSON, physical run, network, Archive, upload or release is included.
+
+Subsequent hosted outcome: `34026066152` attempt 1 on `577c528` is **cancelled/non-pass**.
+GitHub annotated the 60-minute job deadline. The Build/test step was cancelled at 10:57:37Z;
+job metadata 09:57:22Z–11:00:13Z includes final artifact upload/cleanup (62m51s). Ordinary
+native audit completed with the same 613-method/622-concrete inventory, no Repetition or extra
+attempt, but cannot accept the whole run. Diagnostic artifact `9987954810`, 51,855,749 bytes,
+matches SHA-256 `7dc815a3992cf97aacc6f18c25bb809f25c5bc23ba6e4d8ee0a1e6336f81ef0f`.
+FX provenance names fresh `CE5343DE-B784-4F33-BC9D-C99B781656C3`; its interrupted bundle lacks
+Info.plist and native reading fails. That reader failure is retained, not repaired by editing
+the bundle or claiming log-derived native acceptance.
+
+The logs also expose failures independent of the total deadline: Chinese stewardship's Done
+tap was followed by a three-second keyboard-existence timeout, then continued into preview pans
+and Save, failing after 201.214s. Chinese create/detail exceeded its 240s allowance and later
+also failed the dismissal assertion; English was incomplete at cancellation. No three-method
+Passed/timing closure is possible. The exact cause of keyboard dismissal is still unresolved.
+Replace the async path's non-terminating assertion with a thrown failure and capture one public
+snapshot of keyboard/Done/numeric-field state per observation. Preserve one tap and the existing
+three-second wait; this contains failure and improves diagnostics, not proof of a keyboard fix.
+
+The actual job timeout requires moving the FX runner into a separate mandatory hosted job now,
+with both ordinary and FX results joined by the existing `Build and test` check. Do not just
+rerun the same overloaded job or raise a timeout. Keep complete local validation as the default;
+its explicit GitHub-only ordinary mode announces partial evidence. The extracted CI source-
+simulator helper preserves exact runtime/device selection and leaves boot to the owning runner.
+New gates reject conditional/missing/bypassed jobs, missing provenance, ignored artifacts and
+weakened join results; fake-command tests cover complete and partial execution failure paths.
+These later changes are no longer documentation-only and need fresh source review/validation.
+There is still no production Swift change, C Done, D entry, skipped method or accepted retry.
+
+The focused containment/diagnostic invocation then passed all three required FX methods once:
+Chinese stewardship 59.835s, Chinese create/detail 82.145s, English 41.062s. Native audit confirms
+three methods/three concrete Passed, zero Repetition/extra attempt, three retained invalid-frame
+warnings, and fresh device `2B1A55B8-C40A-4F49-AB01-48E586D7E5E1` matching the provenance JSON.
+The runner cleaned up only that owned device. Both Chinese before snapshots show enabled Done
+above the keyboard; both after snapshots have neither. No local failure was reproduced, so
+the hosted keyboard cause is not closed. Supplemental `simctl` diagnostic error 72 recurred.
+
+The expanded static gates pass: 588 copied-CLI mutations; complete/partial validator 4 success
+paths, 41 command failures and 3 invalid-invocation failures; 6 no-retry negatives; 14 split-job
+mutations and 36 executed join outcomes; CI source-creation 1 success / 6 fake failures. Money,
+network, commercialization, StoreKit's 13 tests, shell syntax and diff checks also pass. The
+new frozen source still needs full local validation, both hosted jobs/native artifacts and
+independent review. PR #115 remains Draft; no blanket claim that all P3s or the keyboard issue
+are resolved is made.

@@ -94,7 +94,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         if let original = direction.range(of: "EUR"), let accounting = direction.range(of: "USD") {
             XCTAssertLessThan(original.lowerBound, accounting.lowerBound)
         } else { XCTFail("Accessible rate direction lost a currency identity") }
-        dismissFXKeyboard(in: app)
+        try dismissFXKeyboard(in: app)
         let preview = app.staticTexts["fx.preview"]
         revealFX(preview, in: app)
         XCTAssertTrue(preview.waitForExistence(timeout: 3))
@@ -147,7 +147,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
             XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
         }
         enterFX("3", into: app.textFields["fx.rate"], in: app)
-        dismissFXKeyboard(in: app)
+        try dismissFXKeyboard(in: app)
         revealFX(app.staticTexts["fx.preview"], in: app)
         XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("USD"))
         XCTAssertTrue(app.staticTexts["fx.preview"].label.contains("9"))
@@ -167,14 +167,33 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func dismissFXKeyboard(in app: XCUIApplication) {
+    private func dismissFXKeyboard(in app: XCUIApplication) throws {
         let done = app.buttons["fx.keyboard.done"]
-        XCTAssertTrue(done.waitForExistence(timeout: 3) && done.isHittable,
-                      "FX numeric editing needs an accessible way to finish and read the result")
+        guard done.waitForExistence(timeout: 3) && done.isHittable else {
+            throw BudgetGeometryError(description: "FX numeric editing has no accessible Done action")
+        }
+        func recordState(_ phase: String) {
+            let snapshot = (try? app.snapshot()).map { BudgetSnapshotNode($0) }
+            let nodes = snapshot?.flattened.filter {
+                $0.type == .keyboard || $0.identifier == "fx.keyboard.done"
+                    || ($0.type == .textField && $0.identifier.hasPrefix("fx."))
+            }.map { "\($0.type):\($0.identifier) frame=\($0.frame) enabled=\($0.enabled) value=\($0.value ?? "nil")" }
+            let attachment = XCTAttachment(string: nodes?.joined(separator: "\n") ?? "Snapshot unavailable")
+            attachment.name = "FX keyboard \(phase) - one public snapshot"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        recordState("before one Done tap")
         done.tap()
         let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"),
                                                   object: app.keyboards.firstMatch)
-        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 3), .completed)
+        guard XCTWaiter.wait(for: [dismissed], timeout: 3) == .completed else {
+            recordState("failed dismissal")
+            // The retained hosted async case continued after an assertion into 14 pans and
+            // Save. Throw instead; this contains the failure but does not claim its cause fixed.
+            throw BudgetGeometryError(description: "FX keyboard remained after one Done tap; no dependent pan or Save allowed")
+        }
+        recordState("dismissed")
     }
 
     @MainActor

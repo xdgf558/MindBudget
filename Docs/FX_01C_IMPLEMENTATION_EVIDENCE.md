@@ -7,11 +7,14 @@ only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current runtime checkpoint: **PR #114 merged as `9d592d6`; the separate three-method closeout
-requires its own validation and review.** Reviewed `18f11cc` passed hosted `33996904935`, native
-audit and complete local validation. See the final closeout section and SESSION_LOG for the
-accepted source tree, full counts and the permission interruption; no historical checkpoint below
-is a current merge blocker or substitute for the new harness's execution evidence.
+Current runtime checkpoint: **PR #114 merged as `9d592d6`; PR #115's three-method closeout remains
+In Progress.** Owner-supplied independent review of `577c528` found no P1/P2 and retained
+exact-head hosted success/native audit as merge prerequisites. Complete local validation of
+that head exited 0, but hosted `34026066152` was cancelled at the job deadline and contains FX
+failures. The subsequent CI split and keyboard-failure containment are not retrospectively included
+in that review or run. See the final evidence section for each head's scope and outstanding
+acceptance. Reviewed implementation `18f11cc` passed hosted `33996904935`, native audit and
+complete local validation; its two-method evidence does not validate the new three-method host.
 
 Historical pre-`18f11cc` checkpoint: the FX switch repair still required new-head complete local
 validation, hosted CI and native audit at that point. Hosted `33968054298` attempt 1 on
@@ -525,3 +528,125 @@ provenance JSON in hosted artifacts. They require the upcoming complete run. Thi
 not replace complete local validation or exact-head hosted/native acceptance. The old PR #114
 two-method bundle does not validate these three methods. The owner will review the new Draft
 closeout PR; no independent approval, C completion or D entry is claimed here.
+
+## 2026-09-06 — PR #115 review clarification and exact-head evidence
+
+Owner-supplied off-platform independent review of `577c52889435eb6a5d99ad00d54296fa42406121`
+found no P1/P2. It did not authorize merging before this head's hosted success and native audit.
+The review requested an explicit reason for C's fourth unchecked item and measured hosted
+method/job durations. The initial documentation clarification was followed by the observed
+hosted cancellation and FX failures below, requiring a CI split and test-failure containment.
+Production Swift, method allowances, retries, simulator ownership and the deferred phase boundary
+remain unchanged. The new head needs its own validation and review; `577c528` results below
+are not acceptance evidence for a later head.
+
+### Fourth checklist item: coverage versus acceptance
+
+C's fourth item covers simulator English/Simplified Chinese localization, accessibility
+order/value metadata, AX5, keyboard, dark/light appearance, and ordinary-entry regressions.
+PR #114 and this three-method candidate provide that implementation/coverage. The remaining
+gap is acceptance of the separate closeout: independent review, exact-head hosted success,
+native audit and merge. It is deliberately not checked before those conditions are met. The
+subsequent C status/checkbox update must cite that accepted chain together. It does not create
+a new physical spoken VoiceOver prerequisite, claim such a session occurred, or waive the
+separate physical/release obligations in FX-01E and COM-C12. D still needs a separate owner entry.
+
+### Complete local validation on `577c528`
+
+`Scripts/validate.sh` exited 0 with `MINDBUDGET_RETRY_TESTS_ON_FAILURE=0` and the local wall-clock
+benchmark enabled. The head/tree remained unchanged and the worktree was clean after the run.
+All static checks (including 588 copied-CLI closeout mutations), Release/Debug builds, coverage,
+32 FX unit bindings and 23 C6 bindings passed. The ordinary native audit found 613 methods
+(596 Passed / 17 Skipped), 622 concrete executions (605 Passed / 17 Skipped), 13 argument
+executions, zero Repetition/extra attempts, and a tree/detail parameter bijection. Ordinary
+runtime warnings: zero. The separate strict benchmark passed once at 190.616208 ms < 500 ms;
+the three-theme AX5 method passed once in 203.482 seconds. Skips are not promoted to passes.
+
+| Dedicated FX method | Local seconds | Result |
+| --- | ---: | --- |
+| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 77.633 | Passed once |
+| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 39.374 | Passed once |
+| `testManualForeignCurrencyEnglishProCreateAndDetail` | 41.144 | Passed once |
+
+The three FX native details and provenance JSON identify fresh device
+`D0E60243-5928-4931-8721-C73CE9487094`, different from source
+`238FF288-C843-43CD-82CD-15536F107AE1`, with `cloned: false`. The runner removed only the fresh
+device and retained both result bundles and provenance. Native audit found three concrete
+Passed executions, no Repetition or extra attempt, and exact tree/detail closure. Three known
+invalid-frame warnings remain, one per method. Xcode's supplemental diagnostic collector again
+reported error 72 locating `simctl`; native reading, device verification and cleanup succeeded.
+Neither warning-free behavior nor complete supplemental diagnostics is claimed.
+
+### CI capacity and unchanged follow-ups
+
+Measure jobs from GitHub `startedAt`/`completedAt`, not queue time or estimates. The timed-out
+run below already triggered the 55-minute capacity obligation. Ordinary and FX execution now
+have separate 60-minute jobs and an always-evaluated `Build and test` join requiring both to
+succeed. Default local `validate.sh` remains complete; its GitHub-only `--ci-ordinary-only`
+mode explicitly reports partial evidence and cannot replace the FX job. Every FX method keeps
+240 seconds and zero retries. Both jobs, both per-attempt artifacts and FX provenance require
+new hosted validation and independent review. Hosted successful method durations and three
+native device bindings are still missing; the split-duration obligation is not closed by
+the non-pass timings below.
+
+The two main-existing hidden-retap call sites, `fx.mode` / `fx.accounting.format` copy, duplicate
+reminder Close and `isFinite` dead branch remain explicit follow-ups. General UI/zero-retry
+infrastructure stays separate from future feature delivery. This clarification does not fix
+or silently close those observations, mark C Done, or enter D.
+
+### Retained hosted non-pass: `34026066152` on `577c528`
+
+Attempt 1 finished `cancelled`, not green. GitHub's annotation states that the job exceeded
+`1h0m0s`; `Build and test` was cancelled at `2026-09-06T10:57:37Z`. Job metadata spans
+`09:57:22Z` to `11:00:13Z` (62m51s), including post-cancellation artifact upload/cleanup, not
+an increased execution allowance. Ordinary tests had completed, but that cannot pass the run.
+Their native audit found 613 methods (596 Passed / 17 Skipped), 622 concrete executions
+(605 / 17), 13 argument executions, zero Repetition/extra attempts/runtime warnings, and
+an exact tree/detail parameter bijection.
+
+The raw diagnostic artifact is `9987954810` (51,855,749 bytes), verified against GitHub's SHA-256
+`7dc815a3992cf97aacc6f18c25bb809f25c5bc23ba6e4d8ee0a1e6336f81ef0f`. It retains the ordinary
+bundle, the interrupted FX bundle and simulator provenance. The latter records fresh
+`CE5343DE-B784-4F33-BC9D-C99B781656C3`; the FX bundle lacks `Info.plist` and the native reader
+rejects it. Do not reconstruct it, claim a complete native FX audit, or infer three bindings
+from logs/provenance alone. Whole-run acceptance is false.
+
+| Hosted FX method | Retained log observation | Acceptance |
+| --- | --- | --- |
+| Chinese AX5 expired stewardship | Failed after 201.214s; keyboard dismissal predicate timed out at about 102.5s, but dependent preview pans and Save continued | Non-pass |
+| Chinese AX5 create/detail | Hit the 240s method allowance; a later keyboard-dismissal assertion also failed | Non-pass; not a usable passed duration |
+| English create/detail | Started before job cancellation; no complete result available | Non-pass/incomplete |
+
+The keyboard log shows one Done tap followed by a three-second `Keyboard.exists == false`
+timeout. The subsequent code eventually queried a state without a keyboard frame, but this
+does not establish whether touch targeting, delayed UI/accessibility delivery, or another
+mechanism caused the failure. It is unresolved, not transient and not fixed merely by the CI
+split. The containment repair throws on failed Done readiness/dismissal rather than relying
+on `XCTAssert` inside the async test; no dependent pan/Save may follow a failed dismissal. It
+retains the one tap and three-second bound, adding single-public-snapshot state attachments
+before/after the action or at failure. This is containment and diagnostic instrumentation, not
+a claim to have repaired the underlying keyboard mechanism. Fresh focused and complete
+validation plus the new hosted artifacts must establish the next result. PR #115 stays Draft.
+
+### Local containment/diagnostic probe (not keyboard-root-cause closure)
+
+The instrumented three-method source passed one focused fresh-simulator invocation: Chinese
+expired stewardship 59.835s, Chinese AX5 create/detail 82.145s, English 41.062s. The native audit
+found three methods/three concrete Passed, no Repetition/extra attempt, and the three retained
+invalid-frame warnings. Every detail matched new `2B1A55B8-C40A-4F49-AB01-48E586D7E5E1`; only
+that owned device was cleaned up. Supplemental diagnostic collection again logged `simctl`
+error 72. The bundle and all public state/text/image attachments remain retained.
+
+Both Chinese pre-tap snapshots show the enabled Done button at approximately
+`(318.7, 524.0, 62.3, 36.0)` and keyboard `(0, 583, 402, 233)`; post-wait snapshots contain
+neither Done nor keyboard. This confirms the diagnostic attachments are usable and shows a
+successful local transition, not the state of the failed hosted tap. It neither reproduces nor
+explains that failure, does not turn the cancelled run into a pass, and does not substitute for
+complete validation of the frozen repair head.
+
+Static verification of the split candidate passed the 588 copied-CLI closeout mutations,
+4 validator success paths / 41 injected command failures / 3 invalid invocation cases,
+6 retry-policy and 14 split-workflow negatives, all 36 executed join-result combinations,
+and CI source-simulator creation's 1 success / 6 failures with fake commands only. Money,
+network, commercialization, StoreKit (13 tests), shell syntax and whitespace checks passed.
+These test infrastructure checks are not new product or runtime acceptance.

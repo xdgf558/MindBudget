@@ -291,6 +291,24 @@ Status: **In Progress — implementation accepted; independent closeout pending.
 - [ ] Complete English/Simplified Chinese localization, VoiceOver order/value tests, AX5, keyboard,
   dark/light appearance, and ordinary-entry regression coverage.
 
+The fourth item is an acceptance checkpoint, not an unimplemented UI requirement or a new
+physical VoiceOver prerequisite. PR #114 and PR #115's three-method candidate implement its
+simulator localization/accessibility-metadata, AX5, keyboard, appearance and ordinary-entry
+coverage. It stays unchecked until this separate closeout has independent review, exact-head
+hosted success, native no-retry/device-provenance audit, and merge. Record those evidence links
+when changing the checkbox and C status together; a green run alone does not complete C.
+Physical spoken VoiceOver and release-device evidence remain separate FX-01E/COM-C12 gates;
+these simulator results neither satisfy nor add those gates to C.
+
+Run `34026066152` exceeded the 60-minute job limit, so the 55-minute capacity trigger has fired.
+The closeout repair splits the FX host into an independently required job; the original
+`Build and test` check must require both ordinary and FX jobs to succeed, including when either
+is cancelled or skipped. This test-infrastructure correction needs its own review and hosted
+evidence before D implementation; do not raise the timeout or enable retries. A faster later
+run does not erase the retained cancellation or the need to validate both independent jobs.
+Record each of the three hosted FX durations against its unchanged 240-second allowance in
+`FX_01C_IMPLEMENTATION_EVIDENCE.md`. These are evidence obligations, not permission to enter D.
+
 ### FX-01D — Consumers, CSV, optional sync, and privacy
 
 Status: **Blocked — unentered.**

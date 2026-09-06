@@ -79,6 +79,15 @@ scenario and use a fresh FX-only simulator to isolate system permissions. New ru
 evidence is still required for these harness changes. C remains In Progress; D and
 COM-C12 remain unentered. No Archive, distribution, or release is authorized.
 
+PR #115's `577c528` passed complete local validation, but hosted `34026066152` was cancelled
+at the 60-minute job deadline and also exposed FX keyboard-dismissal/AX5 timeout failures.
+It is retained non-pass, not an accepted closeout. The repair splits ordinary/FX CI into two
+mandatory jobs joined by `Build and test`, clarifies C's fourth acceptance checkbox, and makes
+failed keyboard dismissal throw before dependent pans/Save while capturing public snapshots.
+The keyboard mechanism remains unresolved; local non-reproduction is not a fix. Fresh exact-head
+validation, hosted/native evidence and review are still required. See the current C evidence
+packet for the raw artifact hash, incomplete FX bundle and all retained observations.
+
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
 Signed-device, production-signing, Instruments, App Store Connect, screenshot, and upload checks

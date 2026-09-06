@@ -545,6 +545,12 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     if errors:
         return errors
 
+    from validation_order_self_test import workflow_jobs
+    try:
+        workflow_jobs((project_root / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
+    except (OSError, RuntimeError) as error:
+        errors.append(f"hosted split-suite acceptance contract: {error}")
+
     plan_path = project_root / "Docs/FX_01_MANUAL_CURRENCY_PLAN.md"
     tasks_path = project_root / "Docs/TASKS.md"
     for path in (plan_path, tasks_path):
@@ -775,6 +781,10 @@ def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
         *B_CLOSEOUT_DOCUMENTS,
         *C_CLOSEOUT_DOCUMENTS,
         "Scripts/fx01_contract.py",
+        "Scripts/validation_order_self_test.py",
+        ".github/workflows/ci.yml",
+        "Scripts/validate.sh",
+        "Scripts/create-ci-simulator.sh",
         *fx01_ui_contract.FIXTURE_FILES,
         "MindBudget/Models/Expense.swift",
         "MindBudget/Data/DataActor.swift",

@@ -233,6 +233,12 @@ PR #111's owner-specific merge exception is not their acceptance basis. PR #113 
 the owner separately entered C below. PR #114 merged C implementation as `9d592d6`; its separate
 closeout now addresses split AX5 coverage and system-state isolation without entering D or completing C.
 
+PR #115's hosted `34026066152` on `577c528` is retained cancelled/non-pass. The current repair
+separates mandatory ordinary/FX jobs, preserves a fail-closed combined check, and contains a
+keyboard-dismissal failure before dependent UI actions. Its underlying mechanism remains open;
+C's fourth checklist item awaits closeout acceptance, not a new physical VoiceOver requirement.
+No successful hosted three-method duration/device audit or C completion is claimed from that run.
+
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
 All 572 hosted test-detail records account for 581 ordinary/argument runs, with no extra attempt
