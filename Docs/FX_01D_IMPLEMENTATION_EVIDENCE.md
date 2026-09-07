@@ -1,12 +1,12 @@
 # FX-01D implementation evidence
 
-Status: **In Progress — CSV/consumer and optional-sync/privacy source candidate implemented; complete validation blocked by the 500 ms Dashboard benchmark.**
+Status: **In Progress — PR #117 remains Draft; full-local Dashboard benchmark and exact-head hosted FX switch failure block acceptance.**
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
-not validate this D candidate. This packet is being prepared for the owner's requested Draft PR;
-its published commit and live hosted status belong to the PR provenance, not the historical
-working-tree checkpoints below. No D hosted acceptance, independent review or merge is claimed.
+not validate this D candidate. Draft PR #117 published head `f3538f943afc26c2804740195b890d9361205b81`.
+The owner's independent review found no P1 and two acceptance-blocking P2 findings below.
+No D hosted acceptance or merge is claimed, and the review is not approval to merge.
 D's four plan checkboxes stay open; E is unentered. The unresolved complete-local benchmark
 failure blocks acceptance even if a later hosted run passes.
 
@@ -255,3 +255,83 @@ Insights income/sharing is queued separately after D. Its approved card content 
 total income, total spending and spending-category totals only, with Product Design required
 when UI work begins. No share-card implementation, iCloud activation, real provider request,
 physical run, COM-C12/FX-02 entry, Archive, upload or release is authorized by this D checkpoint.
+
+## PR #117 review and repair diagnostics — 2026-09-07
+
+Retain run `34072691064`, attempt 1, head `f3538f9`, as **failure/non-pass**: ordinary job
+`101592835329` succeeded, FX job `101592835535` failed, and the `Build and test` join failed.
+Hosted ordinary skips the wall-clock benchmark; its success cannot close local P2-1.
+The FX artifact is `MindBudget-fx-xcresult-34072691064-1`, ID `10001187217`.
+Its native tree shows Chinese AX5 stewardship edit Passed in 101.374 s and Chinese AX5
+create/detail Passed in 123.291 s; English create/detail Failed in 22.748 s after one switch tap.
+The three methods ran on provenance UUID `8A2A2702-B4B5-49C6-AC8E-6610AF280E01`; this is a
+failed-bundle observation, not admission. The hosted compiler is Xcode 26.6; the artifact's
+simulator runtime is iOS 26.5 (23F77), distinct from the local Xcode 27 beta 6 compiler.
+
+The retained activation attachment has native switch frame `(305.3333,132,63,28)`, value 0,
+and a safe lane beginning at y=124. The synthesized event really targets `(336.8333,146)`.
+Subsequent AX descriptions still report 0; video frames show a stationary, visually off switch.
+The helper already uses a single snapshot for activation geometry. These observations do not
+identify a stale-coordinate race, a specific recognizer, or a rejected model binding. Additional
+temporary public event/control-action diagnostics are investigation only, not a fix or acceptance.
+Downloaded originals and exported attachments/video frames are retained under
+`/private/tmp/pr117-hosted-34072691064-fx`.
+
+Performance segmentation uses temporary clock-only instrumentation, removed after two probes.
+`pr117-perf-stages-1` and `pr117-perf-stages-coverage-1` both exited 0, measuring 195.579 ms and
+190.097 ms respectively; the latter explicitly uses `-enableCodeCoverage YES`. Fetching 10,000
+models took 114.595/112.553 ms and summary projection 64.233/64.505 ms; budget snapshot/pace were
+small. These diagnostic probes did **not reproduce 814.6 ms**, do not establish coverage as its
+cause, and do not close the failed complete validator. No timing threshold or fixture changed.
+
+The first attempt to start the temporary touch diagnostic was rejected before process creation
+because the tool approval service reported a usage-limit error. No test ran and no result was
+accepted from that attempt. The subsequent owner continuation permits the same isolated
+diagnostic to proceed; its result must be recorded before interpretation.
+
+Review follow-ups remain explicit: ReminderEngine ordinary/FX equality was a coverage gap;
+the saved-rate-date/current-calendar reconstruction needs cross-calendar scrutiny; owner C/D
+authority is off-platform, not a GitHub approval; prior required-check/boot/time-limit/hidden-retap
+and copy issues remain. D's four checkboxes stay open. New-head complete local success, hosted
+ordinary/FX/join success and native no-extra-attempt/device audits, followed by independent
+rereview, are still required before undraft; D Done and E entry are not included.
+
+### Completed local diagnostics and next hosted observation
+
+`pr117-touch-diagnostic-1` exited 0 on fresh simulator
+`5F2E1988-0CC0-4AE9-B02E-8916FE33DC90` (Xcode 27 beta 6 / iOS 26.5): three FX methods
+Passed once, bound to that UUID, with the existing three invalid-frame warnings retained.
+Chinese edit/create and English create durations were 38.946 / 79.458 / 41.189 s.
+The observer recorded the English `(337,146)` touch reaching a native UISwitch, followed by
+`toggleStateChanged:` with `isOn=true`. This is a successful local observation, not the missing
+failed hosted recipient trace. Logging may perturb timing. The original temporary observer
+was removed and its patch retained separately; no product/performance correction was inferred.
+Log SHA-256: `7cf7525cb69cd8b7360b65ca517a15b2018edba587cf1b5248ec070fb96ec3dc`;
+event-log SHA-256: `d29d51e4965590c5b098cc525767917496fd94eedba886f5cd3c6264e95041ea`.
+
+Native diagnostics exported from the original failed hosted bundle include the simulator's
+system logarchive. Between 01:31:08.663 and 01:31:08.681 UTC UIKit dispatched two events to the
+App window, then reported TouchEventsCompleted and an idle main run loop. These logs do not
+identify the touch recipient/control action or establish the touch phases from dispatch times
+alone. The scoped App log export has SHA-256
+`b9add4cb85fbda3c6721ad8eb0611e5f1562dffd1151cbb0eaedf0e97deb4144`.
+
+The candidate now adds the missing real ReminderEngine ordinary/manual-rate/home-override
+byte comparisons for template messages, model-error fallback messages and captured redacted
+prompts, in both languages and all three tones. The local model double never sends requests.
+`pr117-reminder-1` exited 0; native audit verified one Passed method/execution, no Repetition,
+extra attempt or runtime warning. Log SHA-256:
+`e964f7f6024acfabed6350fce5cc730b3f23ed18fa21a79cd819492e6dc1ff4b`.
+The current mandatory count is 49 FX unit bindings and 165 privacy mutations across 15 sinks
+(adding ReminderEngine). Earlier 48-binding/154-mutation evidence remains historical, not
+acceptance for this additional test.
+
+A **temporary hosted diagnostic candidate** reinstates the public UIApplication/UIControl
+dispatch observer exclusively in the Debug-only simulator FX test executable. Installation is
+one-time and fail-closed; original dispatch forwards once. It adds no gesture, retap, delay,
+threshold/allowance change, private API, production logging or real-data capture. Ordinary and
+Release executables exclude this source branch. Existing xcresult diagnostics retain its logs;
+the runner lifecycle and isolated-device cleanup are unchanged. This candidate must not be
+merged as a fix: remove the observer after investigation, then validate a final repair head.
+Neither a successful instrumented hosted run nor another focused benchmark closes the two P2
+findings. Complete local acceptance and final-head hosted/native acceptance remain open.

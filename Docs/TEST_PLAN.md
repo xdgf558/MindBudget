@@ -967,9 +967,13 @@ totals; Product Design is required for its future UI work. See its separate plan
 - Existing CloudSync tests exercise offline/account/quota/recovery and ordinary twelve-type
   behavior; no live account tests are enabled. Existing Phase 7/8A/9 and typed telemetry suites
   cover fallback, model data minimization, Siri/Spotlight, onscreen and notification boundaries.
-- The unit admission gate requires 48 FX methods Passed once; isolated FX UI remains three
+- ReminderEngine compares actual detector-driven ordinary/manual-rate/home-override sheet
+  reminders and local-double error fallbacks byte-for-byte for en/zh-Hans and all three tones;
+  its actual redacted model prompt must execute once and contain no original FX fields.
+- The unit admission gate requires 49 FX methods Passed once; isolated FX UI remains three
   methods. Native artifacts reject Repetition/extra attempts and bind the FX UI device ID.
-- `check_fx01_privacy.py` rejects 154 private-field/type injections in fourteen existing sinks.
+- `check_fx01_privacy.py` rejects 165 private-field/type injections in fifteen existing sinks,
+  including ReminderEngine.
   It is not arbitrary alias/reflection/new-sink or final-binary proof. The iCloud gate additionally
   pins the exact thirteen-type order, frozen parent projection and current companion contract.
 

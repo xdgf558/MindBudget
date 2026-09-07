@@ -9552,3 +9552,44 @@ results, retain every non-pass from this evidence packet, and prominently record
 0.814581125 s versus 0.500 s complete-validator failure. Hosted status is pending until observed
 on that exact head; no author self-check is independent approval. Opening the PR does not waive
 the complete-local requirement, mark D Done, enter E or implement the queued Insights/share work.
+
+## 2026-09-07 — PR #117 P2 investigation
+
+Draft PR #117 published head `f3538f9`. Owner-supplied independent review found no P1, but P2-1
+is the retained 814.6 ms full-local failure and P2-2 is hosted FX failure. Run `34072691064`
+finished failure: ordinary succeeded, FX failed, join failed. Downloaded FX artifact `10001187217`
+and inspected original native trees, switch snapshots, synthesized event and video. Chinese AX5
+methods Passed (101.374 / 123.291 s); English Failed (22.748 s). Single-snapshot geometry and
+the actual event agree on `(336.8333,146)`; subsequent snapshots and video remain off. There is
+no observed layout movement or direct touch-recipient evidence, so no root cause is asserted.
+
+Two temporary segmented benchmark probes exited 0 at 195.579 / 190.097 ms; the second explicitly
+enabled coverage. Fetch/projection dominate this smaller interval; original 814.6 ms was not
+reproduced. Temporary timing instrumentation was removed, with Dashboard/DataActor back to
+the PR head. Focused diagnostic success does not close full-local P2-1. A temporary, test-host-only
+public UIApplication/UIControl dispatch observer preserves original methods and adds no gesture
+or retap; it is not product code to ship. Its first launch was blocked before execution by an
+approval-service usage error; after the owner's continuation the isolated diagnostic is started,
+not yet evidence of repair. Detailed outcomes and retained P3 obligations are in D evidence.
+
+Continuation: the isolated touch diagnostic completed with all three methods Passed once;
+it observed successful native UISwitch activation, not the failed hosted recipient. Original
+hosted system-log export confirms events reached the App window, but does not identify the
+control/recognizer. The new ReminderEngine ordinary/FX fixture passed one focused native-audited
+method (both languages, three tones, real redaction seam with local throwing double). The gate
+now requires 49 unit bindings and rejects 165 injections across 15 sinks. No real AI is invoked.
+Hashes and exact limitations are recorded in D evidence. PR #117's body now explicitly records
+`34072691064` as failure/non-pass and both P2 findings as unresolved; Draft is unchanged.
+
+Preparing a temporary hosted-observation commit: reinstate a one-time public event/action observer
+inside only the isolated Debug simulator executable, forwarding original dispatch once and not
+changing UI interaction logic. No ordinary/Release product change or performance fix is claimed.
+The observer must be removed before final repair acceptance; the diagnostic commit is not
+merge-ready even if CI passes. No new acceptance run has completed at this checkpoint.
+
+Pre-dispatch checks completed: FX contract including negative/self-tests, integer-money,
+network-egress, commercialization-document and StoreKit catalog gates all exit 0;
+`git diff --check` passes. The guarded hosted-observation variant compiled with local Xcode
+27 beta 6 (`pr117-hosted-touch-build.log`, build-for-testing exit 0); no tests were run by this
+compile command. These are preparation evidence only. Full local validation and hosted
+observation on the new diagnostic commit remain outstanding; the two P2 findings stay open.

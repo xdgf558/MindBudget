@@ -82,6 +82,7 @@ UNIT_BINDINGS = (
     "Phase11FreeTierTests/unifiedCSVExportsIncomeExactlyAndNeutralizesSpreadsheetFormulas",
     "ForeignCurrencyPersistenceTests/foreignExportIsAnImmutableValidatedSnapshotAndCorruptionFailsClosed",
     "ForeignCurrencyPersistenceTests/lockedAccountingConsumersMatchOrdinaryRowsAcrossForeignMetadataVariants",
+    "ForeignCurrencyPersistenceTests/lockedAccountingReminderMessagesAndRedactedPromptsMatchOrdinaryRows",
     "ForeignCurrencyPersistenceTests/foreignSyncFrozenParentAndCompleteCompanionRoundTripInAnyArrivalOrder",
     "ForeignCurrencyPersistenceTests/foreignSyncUpdatesWaitForMatchingParentAndCommitBothOrNeither",
     "ForeignCurrencyPersistenceTests/foreignSyncMalformedCohortsQuarantineWithoutChangingAccountingOrCreatingOrphans",

@@ -621,6 +621,85 @@ struct ForeignCurrencyPersistenceTests {
         }
     }
 
+    @Test func lockedAccountingReminderMessagesAndRedactedPromptsMatchOrdinaryRows() async throws {
+        let id = UUID()
+        let cycle = try BudgetCycleCalculator().interval(containing: date, startDay: 1, calendar: calendar)
+        let plan = BudgetPlanDraft(id: UUID(), cycleStart: cycle.start, cycleEnd: cycle.end,
+            currencyCode: "USD", monthlyIncomeMinorUnits: 10_000, totalBudgetMinorUnits: 1_000,
+            fixedExpensesMinorUnits: 100, savingGoalMinorUnits: 100,
+            createdAt: date, updatedAt: date, categoryBudgets: [])
+        let original = Money(minorUnits: 999_999, currencyCode: "JPY")
+        let override = try ExpenseForeignCurrency(original: original,
+            rate: ForeignCurrencyConverter().effectiveRate(original: original,
+                accounting: Money(minorUnits: 600, currencyCode: "USD")),
+            selectedDate: date, calendar: calendar, source: .manualHomeAmountOverride)
+        func bytes(_ message: ReminderMessage) throws -> Data {
+            try JSONSerialization.data(withJSONObject: [
+                "title": message.title, "body": message.body,
+                "details": message.supportingDetails, "actions": message.actions.map(\.rawValue),
+                "severity": message.severity.rawValue, "channel": message.channel.rawValue,
+                "source": message.source.rawValue
+            ], options: [.sortedKeys])
+        }
+        let access = ExistingPremiumEntryAccess(featureAccess: DebugFeatureAccessProvider(entitlements: .proSubscription))
+        for locale in [Locale(identifier: "en_US"), Locale(identifier: "zh_Hans_CN")] {
+            for tone in [ReminderTone.soft, .direct, .minimal] {
+                var templateBytes: [Data] = []
+                var fallbackBytes: [Data] = []
+                var capturedPrompts: [[String]] = []
+                // First result is the ordinary reference; the same accounting row receives
+                // either complete FX variant. The potential purchase uses only that summary.
+                for foreign in [nil, try facts(), override] as [ExpenseForeignCurrency?] {
+                    let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+                    _ = try await actor.createBudgetPlan(plan)
+                    _ = try await actor.createExpense(draft(id: id, foreign: foreign),
+                        featureAccess: FeatureAccessService(entitlements: .proSubscription))
+                    let rows = try await actor.fetchExpenseSummaries()
+                    let row = try #require(rows.first)
+                    let dashboard = DashboardViewModel()
+                    await dashboard.load(dataActor: actor, currencyCode: "JPY", cycleStartDay: 1,
+                        calendar: calendar, now: date)
+                    guard case let .configured(snapshot, _, _, _) = dashboard.state else {
+                        Issue.record("Expected configured reminder fixture"); return
+                    }
+                    let candidate = PurchaseCandidate(name: nil, amount: row.amount, category: row.category,
+                        bucket: row.bucket, reason: row.purchaseReason, emotionTag: row.emotionTag)
+                    let impact = try BudgetEngine().impact(of: candidate.amount, category: candidate.category,
+                        bucket: candidate.bucket, snapshot: snapshot, categoryBudgets: [])
+                    let drafts = SpendingPatternDetector().evaluatePotentialPurchase(candidate: candidate,
+                        expenses: rows, snapshot: .configured(snapshot), categoryBudgets: [], historicalCycles: [],
+                        config: .defaults(currencyCode: "USD"), now: date, calendar: calendar)
+                    #expect(!drafts.isEmpty, "Do not compare two absent reminders")
+                    let engine = ReminderEngine()
+                    let context = engine.buildContext(candidate: candidate, impact: impact,
+                        snapshot: .configured(snapshot), drafts: drafts, tone: tone)
+                    let template = try #require(await engine.generateReminder(context: context, channel: .sheet, locale: locale))
+                    #expect(template.source == .template)
+                    #expect((2...4).contains(template.actions.count))
+                    #expect(template.actions.contains(.continuePurchase))
+                    templateBytes.append(try bytes(template))
+
+                    let probe = FXPrivacyModelProbe()
+                    let modelEngine = ReminderEngine(aiEnhancementEnabled: true, premiumEntryAccess: access,
+                        aiGenerator: probe, aiRuntimeAvailability: { _ in .available })
+                    let fallback = try #require(await modelEngine.generateReminder(context: context, channel: .sheet, locale: locale))
+                    #expect(fallback.source == .modelErrorFallback)
+                    fallbackBytes.append(try bytes(fallback))
+                    let prompts = await probe.prompts
+                    #expect(prompts.count == 1, "The actual reminder redaction seam must execute")
+                    capturedPrompts.append(prompts)
+                    for secret in ["EUR", "JPY", "999999", "America/New_York", "rateNumerator", "manualRate", "manualHomeAmountOverride", "trip", "Cafe"] {
+                        #expect(!prompts.joined().contains(secret))
+                    }
+                }
+                #expect(templateBytes.count == 3 && Set(templateBytes).count == 1)
+                #expect(fallbackBytes.count == 3 && Set(fallbackBytes).count == 1)
+                let first = try #require(capturedPrompts.first?.first)
+                #expect(capturedPrompts.allSatisfy { $0.count == 1 && Array($0[0].utf8) == Array(first.utf8) })
+            }
+        }
+    }
+
     @Test func foreignSyncStagesSeparateFactsAndDisabledWritesStayLocal() async throws {
         let actor = try DataController(isStoredInMemoryOnly: true).dataActor
         let id = UUID()

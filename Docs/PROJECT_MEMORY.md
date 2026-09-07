@@ -21,9 +21,13 @@ companion protocol are implemented as a working-tree candidate. The old `.expens
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
 not real models/accounts. Complete local validation is blocked by an 814.6 ms Dashboard benchmark
-against its unchanged 500 ms ceiling; the cause is not established. All 48 required FX unit
+against its unchanged 500 ms ceiling; the cause is not established. PR #117 head `f3538f9` also
+has retained hosted non-pass `34072691064`: ordinary succeeded, English FX switch activation
+failed and the join failed. Its Draft status and both P2 blockers remain. The original 48 FX unit
 bindings and three isolated UI bindings have supplementary local native audits, not a complete
-validation pass. Hosted acceptance and independent review also remain outstanding;
+validation pass. The repair candidate adds a 49th ReminderEngine binding (one local focused pass)
+and a temporary isolated-host touch observer for hosted diagnosis, not a shipping fix. Remove
+that observer before final repair acceptance. Hosted acceptance and independent rereview remain outstanding;
 see `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 No D Done or E entry is claimed.
 

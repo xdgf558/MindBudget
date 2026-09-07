@@ -16,6 +16,7 @@ SINKS = (
     "MindBudget/Services/AskMindBudgetService.swift",
     "MindBudget/Services/CycleSummaryService.swift",
     "MindBudget/Services/AIAdviceGenerator.swift",
+    "MindBudget/Services/ReminderEngine.swift",
     "MindBudget/Services/NotificationScheduler.swift",
     "MindBudget/Services/SpotlightIndexingService.swift",
     "MindBudget/Services/OnscreenAwareness.swift",
