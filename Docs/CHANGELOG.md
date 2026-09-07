@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Unreleased UI reliability candidate — pending validation and review
+
+- Replaced the foreign-currency entry switch with explicit Enable/Cancel buttons. Existing
+  saved foreign-currency records remain editable and cannot have their FX mode cancelled.
+  New-entry access and save rules are unchanged; cancelling a draft restores its prior
+  ordinary amount. English and Simplified Chinese labels wrap at large text sizes.
+
 ## Unreleased
 
 - Added the Schema V7 local-store foundation for future manual foreign-currency expenses.

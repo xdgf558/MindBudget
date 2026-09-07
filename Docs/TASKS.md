@@ -6,7 +6,14 @@ Status: **Investigation In Progress; FX-01D In Progress; PR #118 Draft; FX-01E u
 
 - [x] Separate the investigation branch from #118 and inspect both original failed runs.
 - [ ] Resolve the Chinese AX5 FX activation failure with evidence, without retap/long press.
+  Owner authorized explicit Enable/Cancel buttons on 2026-09-08. Final-source focused local
+  checks passed (17 ordinary/unit plus three isolated FX methods once, with native audits).
+  Complete-local/hosted/independent acceptance is pending; original switch cause remains
+  UNPROVEN, not relabelled as fixed/transient.
 - [ ] Resolve the visible-500 versus budget AX readback discrepancy without weakening validation.
+  The keyboard-Done candidate was withdrawn after violating the existing one-commit UI contract.
+  Current test-only candidate: one Save, no second focus tap, exact independently loaded Settings
+  budget readback. Historical cause/full-validation acceptance remain open.
 - [x] Implement a private notification-source fixture and pass its three focused checks; original sender and full-suite acceptance remain unproven.
 - [x] Extend private sources to all ten explicit synthetic service construction sites; 40 focused checks passed, four physical CloudKit checks skipped and left on their real notification path.
 - [x] Correct TASKS / planning current state to merged #117, separate from Draft #118.

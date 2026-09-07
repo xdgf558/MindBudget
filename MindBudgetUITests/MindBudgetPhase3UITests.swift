@@ -50,7 +50,22 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let app = try launchFXHost(language: language, locale: locale, ax5: ax5)
         defer { app.terminate() }
         XCTAssertTrue(element("expense.form", in: app).waitForExistence(timeout: 5))
-        try enableFXSwitch(in: app)
+        if !ax5 {
+            try verifyFreeCannotActivateFX(in: app)
+        }
+        XCTAssertEqual(app.buttons["fx.enable"].label,
+                       ax5 ? "启用外币记账" : "Enable foreign-currency entry")
+        let entryImage = XCTAttachment(screenshot: app.screenshot())
+        entryImage.name = "FX explicit entry button - \(language) - AX5 \(ax5)"
+        entryImage.lifetime = .keepAlways
+        add(entryImage)
+        try changeFXMode(.enable, in: app)
+        if !ax5 {
+            // Explicit cancellation followed by a fresh activation, never a failed-tap retry.
+            try changeFXMode(.disable, in: app)
+            XCTAssertFalse(app.textFields["fx.originalAmount"].exists)
+            try changeFXMode(.enable, in: app)
+        }
         XCTAssertLessThanOrEqual(app.scrollViews["expense.form"].frame.width,
                                  app.windows.firstMatch.frame.width + 1,
                                  "AX5 content must not force the form wider than the viewport")
@@ -141,8 +156,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
     private func exerciseForeignCurrencyStewardship(in app: XCUIApplication, ax5: Bool) throws {
         app.buttons["expense.edit"].tap()
-        XCTAssertTrue(app.switches["fx.enabled"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.switches["fx.enabled"].isEnabled)
+        XCTAssertTrue(app.staticTexts["fx.active"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["fx.enable"].exists)
+        XCTAssertFalse(app.buttons["fx.disable"].exists,
+                       "Stored FX metadata must never have a cancellation action, even after Pro expires")
         if ax5 {
             XCTAssertTrue((app.buttons["fx.rateDate"].value as? String ?? "").contains("2024"))
         }
@@ -239,30 +256,55 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
-    private func enableFXSwitch(in app: XCUIApplication) throws {
-        let toggle = app.switches["fx.enabled"]
-        guard toggle.waitForExistence(timeout: 5) else {
-            throw BudgetGeometryError(description: "FX switch did not appear")
+    private func verifyFreeCannotActivateFX(in app: XCUIApplication) throws {
+        app.buttons["fx.testHost.revoke"].tap()
+        let blocked = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == false"),
+                                               object: app.buttons["fx.enable"])
+        guard XCTWaiter.wait(for: [blocked], timeout: 3) == .completed else {
+            throw BudgetGeometryError(description: "Free must not enable new FX entry")
         }
-        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: toggle)
+        XCTAssertFalse(app.staticTexts["fx.active"].exists)
+        app.buttons["fx.testHost.restore"].tap()
+    }
+
+    @MainActor
+    private func changeFXMode(_ action: FXModeSnapshot.Action, in app: XCUIApplication) throws {
+        let button = app.buttons[action.rawValue]
+        guard button.waitForExistence(timeout: 5) else {
+            throw BudgetGeometryError(description: "FX mode button did not appear: \(action)")
+        }
+        let granted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: button)
         guard XCTWaiter.wait(for: [granted], timeout: 10) == .completed else {
             throw BudgetGeometryError(description: "The isolated fixture did not reach the real Commerce access boundary")
         }
-        try revealFX(toggle, in: app)
-        // SwiftUI exposes a labelled switch row containing the actual native switch. Bind
-        // the hit point to that child in one snapshot, never a percentage of the live row.
-        let activation = try FXSwitchTapGeometry { BudgetSnapshotNode(try app.snapshot()) }
-        let attachment = XCTAttachment(string: activation.description)
-        attachment.name = "FX single switch activation geometry"
-        attachment.lifetime = .keepAlways
-        add(attachment)
-        app.coordinate(withNormalizedOffset: .zero).withOffset(activation.tapOffset).tap()
-        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
-        guard XCTWaiter.wait(for: [enabled], timeout: 3) == .completed else {
-            attachInputFailureSnapshot(in: app, reason: "FX single activation failed")
-            // An assertion alone did not stop the retained async hosted test. Throwing prevents
-            // dependent form operations from running until the method's time allowance.
-            throw BudgetGeometryError(description: "FX switch did not enable after one tap: \(activation)")
+        try revealFX(button, in: app)
+        // Capture the entire button and its surrounding state once. No native switch track,
+        // live second query, extra tap, long press or synthetic model-state change.
+        let before = try FXModeSnapshot(root: BudgetSnapshotNode(app.snapshot()))
+        let offset = try before.tapOffset(for: action)
+        var observations = ["before \(action): \(before); single center tap \(offset)"]
+        defer {
+            let attachment = XCTAttachment(string: observations.joined(separator: "\n"))
+            attachment.name = "FX explicit mode transition \(action)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        app.coordinate(withNormalizedOffset: .zero).withOffset(offset).tap()
+        var failure: String?
+        let changed = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            do {
+                let state = try FXModeSnapshot(root: BudgetSnapshotNode(app.snapshot()))
+                observations.append("after: \(state)")
+                return state.active == (action == .enable)
+            } catch {
+                failure = String(describing: error)
+                return true
+            }
+        }, object: nil)
+        let result = XCTWaiter.wait(for: [changed], timeout: 3)
+        guard result == .completed, failure == nil else {
+            attachInputFailureSnapshot(in: app, reason: "FX explicit mode transition failed")
+            throw BudgetGeometryError(description: "FX mode did not change after one tap: \(failure ?? observations.last ?? "no observation")")
         }
     }
 
@@ -1662,53 +1704,207 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let savingGoal = "budget.savingGoal"
         guard enterBudgetValue("500", into: savingGoal, in: app) else { return }
 
-        // SwiftUI can leave the active editor's accessibility value stale. Move focus to the
-        // first field without submitting or typing again, then only reveal fields while reading
-        // them. This prevents readback from repeatedly changing focus or requiring a keyboard.
-        // The exact three-value readback is the authority that detects text sent to the wrong
-        // field; keyboard visibility and targeted typeText do not prove focus ownership.
-        guard prepareBudgetEditor(monthlyIncome, in: app, towardEarlierRow: true) else { return }
-        for (identifier, expected) in [(monthlyIncome, "3000"), (totalBudget, "2500"), (savingGoal, "500")] {
-            // AX5/pseudo-long Form rows can be virtualized, so reveal each in order.
-            // Only the first return travels toward earlier rows; never assume all three
-            // editors coexist in the accessibility tree.
-            guard revealBudgetField(identifier, in: app, towardEarlierRow: expected == "3000") != nil else { return }
-            let field = app.textFields[identifier]
-            var lastObservedValue = "predicate was not evaluated"
-            let entered = XCTNSPredicateExpectation(
-                predicate: NSPredicate { object, _ in
-                    let observed = (object as? XCUIElement)?.value
-                    lastObservedValue = String(reflecting: observed)
-                    return observed as? String == expected
-                },
-                object: field
-            )
-            let readback = XCTWaiter.wait(for: [entered], timeout: 5)
-            if readback != .completed {
-                attachInputFailureSnapshot(in: app, reason:
-                    "Budget readback failed: \(identifier); last predicate value=\(lastObservedValue)")
-            }
-            XCTAssertEqual(readback, .completed,
-                           "Budget value did not reach its intended field: \(identifier)")
-        }
-
+        // Keep the accepted product contract: Save Budget is the sole commit/dismiss action.
+        // Do not double-tap income to "commit" saving or read the still-active editor as proof
+        // of persistence. Verify all three exact amounts from a newly loaded Settings form below.
         let save = app.buttons["budget.save"]
         guard makeBudgetSaveReady(save, in: app) else { return }
         let dashboard = element("dashboard.view", in: app)
-        // The active SwiftUI TextField accessibility value can lag its rendered digits under
-        // pseudo-localization. The bounded Dashboard transition is the end-to-end authority that
-        // all three values reached the view model, validated, persisted, and dismissed the form.
-        // Under hosted load, a Form can report the Save control hittable while its first
-        // synthesized tap is consumed by the still-focused decimal keyboard/scroll transaction.
-        // Retry only while the authoritative destination is absent; this is an interaction
-        // handshake, not an XCTest runner retry that could hide a failed assertion.
-        _ = tapAndWaitForDestination(
-            save,
-            destination: dashboard,
-            attempts: 2,
-            timeout: 5,
-            message: "Budget setup did not accept and persist all entered values"
-        )
+        do {
+            let geometry = try NavigationTapGeometry(listIdentifier: "budget.setup.view", targetIdentifier: "budget.save") {
+                BudgetSnapshotNode(try app.snapshot())
+            }
+            guard geometry.targetIsReady, let frame = geometry.target else {
+                XCTFail("Budget Save lost its safe final geometry: \(geometry)")
+                return
+            }
+            app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+                dx: frame.midX - geometry.application.minX,
+                dy: frame.midY - geometry.application.minY
+            )).tap()
+            XCTAssertTrue(dashboard.waitForExistence(timeout: 5), "Budget setup did not persist after one Save tap")
+        } catch {
+            XCTFail("Budget Save snapshot failed: \(error)")
+            return
+        }
+        verifySavedBudget(in: app)
+    }
+
+    @MainActor
+    private func verifySavedBudget(in app: XCUIApplication) {
+        let settings = app.buttons["dashboard.settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 5))
+        settings.tap()
+        let settingsView = app.collectionViews["settings.view"]
+        XCTAssertTrue(settingsView.waitForExistence(timeout: 5))
+        guard revealAndActivateNavigationTarget("settings.budget", inList: "settings.view",
+            towardEarlierContentWhenVirtualized: true,
+            destination: app.collectionViews["settings.budget.view"], in: app,
+            message: "Saved budget verification did not open its independent Settings form") else { return }
+
+        // BudgetSettingsView.load() calls DataActor.previewPlanCoverage and initializes new
+        // strings from the stored plan. No editor focus, typing or Settings Save is permitted.
+        // This proves exact amounts in the synthetic SwiftData store, not disk/relaunch durability.
+        var observations: [String] = []
+        defer {
+            let attachment = XCTAttachment(string: observations.joined(separator: "\n"))
+            attachment.name = "Saved budget independent Settings readback"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        for (field, expected) in [("monthlyIncome", "3000"), ("totalBudget", "2500"), ("savingGoal", "500")] {
+            let identifier = "settings.budget.\(field)"
+            guard revealBudgetField(identifier, in: app, formIdentifier: "settings.budget.view") != nil else { return }
+            var failure: String?
+            let correct = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                do {
+                    let snapshot = try SavedBudgetFieldSnapshot(root: BudgetSnapshotNode(app.snapshot()), identifier: identifier)
+                    observations.append("\(identifier)=\(String(reflecting: snapshot.value)); expected=\(expected)")
+                    return snapshot.matches(expected)
+                } catch {
+                    failure = String(describing: error)
+                    return true
+                }
+            }, object: nil)
+            let result = XCTWaiter.wait(for: [correct], timeout: 5)
+            guard result == .completed, failure == nil else {
+                attachInputFailureSnapshot(in: app, reason: "Stored budget mismatch: \(identifier); \(failure ?? observations.last ?? "no observation")")
+                XCTFail("Stored budget is not the exact intended amount: \(identifier)")
+                return
+            }
+        }
+        guard tapBudgetVerificationNavigation(in: app, returningToSettings: true) else { return }
+        XCTAssertTrue(settingsView.waitForExistence(timeout: 5))
+        guard tapBudgetVerificationNavigation(in: app, returningToSettings: false) else { return }
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: settingsView)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
+        XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    private func tapBudgetVerificationNavigation(in app: XCUIApplication, returningToSettings: Bool) -> Bool {
+        do {
+            let geometry = try BudgetVerificationNavigation(root: BudgetSnapshotNode(app.snapshot()), back: returningToSettings)
+            app.coordinate(withNormalizedOffset: .zero).withOffset(geometry.offset).tap()
+            return true
+        } catch {
+            attachInputFailureSnapshot(in: app, reason: "Budget verification navigation failed: \(error)")
+            XCTFail("Budget verification cannot restore its destination: \(error)")
+            return false
+        }
+    }
+
+    private struct BudgetVerificationNavigation {
+        let offset: CGVector
+
+        init(root: BudgetSnapshotNode, back: Bool) throws {
+            let formID = back ? "settings.budget.view" : "settings.view"
+            let nodes = root.flattened
+            let forms = nodes.filter { $0.type == .collectionView && $0.identifier == formID }
+            guard root.type == .application, root.hasFinitePositiveFrame,
+                  forms.count == 1, let form = forms.first, form.hasFinitePositiveFrame,
+                  form.frame.intersects(root.frame),
+                  !nodes.contains(where: { $0.type == .keyboard || $0.type == .menu || $0.type == .alert }) else {
+                throw BudgetGeometryError(description: "Wrong/interrupted budget verification destination")
+            }
+            let rawButtons = nodes.filter { $0.type == .navigationBar }.flatMap(\.children).flatMap(\.flattened)
+                .filter { $0.type == .button }
+            guard rawButtons.allSatisfy(\.hasFinitePositiveFrame) else {
+                throw BudgetGeometryError(description: "Invalid budget verification navigation geometry")
+            }
+            let buttons = rawButtons.filter { root.frame.contains($0.frame) }
+            // The captured native budget child has BackButton. Settings root source has exactly
+            // one toolbar action (dismiss), and no Back. Do not use boundBy:0 or localized labels:
+            // pseudo-localization changes the text. Additional actions make this contract fail.
+            let matches = back ? buttons.filter { $0.identifier == "BackButton" } : buttons
+            guard matches.count == 1, let button = matches.first, button.enabled,
+                  back ? button.frame.midX < root.frame.midX : button.frame.midX > root.frame.midX else {
+                throw BudgetGeometryError(description: "Ambiguous/disabled budget verification navigation: \(buttons.map(\.identifier))")
+            }
+            offset = CGVector(dx: button.frame.midX - root.frame.minX, dy: button.frame.midY - root.frame.minY)
+        }
+    }
+
+    private struct SavedBudgetFieldSnapshot {
+        let value: String?
+
+        init(root: BudgetSnapshotNode, identifier: String) throws {
+            guard ["monthlyIncome", "totalBudget", "savingGoal"].map({ "settings.budget.\($0)" }).contains(identifier),
+                  root.type == .application, root.hasFinitePositiveFrame,
+                  !root.flattened.contains(where: { $0.type == .keyboard || $0.type == .menu || $0.type == .alert }) else {
+                throw BudgetGeometryError(description: "Saved budget readback is interrupted or still editing")
+            }
+            let forms = root.flattened.filter { $0.type == .collectionView && $0.identifier == "settings.budget.view" }
+            guard forms.count == 1, let form = forms.first, form.hasFinitePositiveFrame, form.frame.intersects(root.frame) else {
+                throw BudgetGeometryError(description: "Missing or ambiguous saved-budget Settings form")
+            }
+            let matches = form.flattened.filter { $0.type == .textField && $0.identifier == identifier }
+            guard matches.count == 1, let field = matches.first, field.enabled,
+                  field.hasFinitePositiveFrame,
+                  root.frame.contains(field.frame) else {
+                throw BudgetGeometryError(description: "Missing, ambiguous or offscreen saved-budget field: \(identifier)")
+            }
+            value = field.value
+        }
+
+        func matches(_ expected: String) -> Bool { value == expected }
+    }
+
+    @MainActor
+    func testBudgetSettingsReadbackRejectsIncorrectAmountsAndActiveEditors() throws {
+        let frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        let id = "settings.budget.savingGoal"
+        let field = BudgetSnapshotNode(.textField, CGRect(x: 30, y: 200, width: 340, height: 44), identifier: id, value: "500")
+        func tree(_ fields: [BudgetSnapshotNode], formID: String = "settings.budget.view", extras: [BudgetSnapshotNode] = []) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.application, frame, children: [BudgetSnapshotNode(.collectionView, frame, identifier: formID, children: fields)] + extras)
+        }
+        XCTAssertTrue(try SavedBudgetFieldSnapshot(root: tree([field]), identifier: id).matches("500"))
+        for value in ["0", "5000", "2500", "", "500 "] {
+            let wrong = BudgetSnapshotNode(.textField, field.frame, identifier: id, value: value)
+            XCTAssertFalse(try SavedBudgetFieldSnapshot(root: tree([wrong]), identifier: id).matches("500"))
+        }
+        let absent = BudgetSnapshotNode(.textField, field.frame, identifier: id)
+        XCTAssertFalse(try SavedBudgetFieldSnapshot(root: tree([absent]), identifier: id).matches("500"))
+        XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([]), identifier: id))
+        XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([field, field]), identifier: id))
+        XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([field], formID: "budget.setup.view"), identifier: id))
+        for type in [XCUIElement.ElementType.keyboard, .menu, .alert] {
+            XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([field], extras: [BudgetSnapshotNode(type, frame)]), identifier: id))
+        }
+        for invalid in [CGRect.zero, .infinite, CGRect(x: 30, y: 200, width: -10, height: 44),
+                        CGRect(x: CGFloat.nan, y: 200, width: 340, height: 44)] {
+            XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([BudgetSnapshotNode(.textField, invalid, identifier: id, value: "500")]), identifier: id))
+        }
+        XCTAssertThrowsError(try SavedBudgetFieldSnapshot(root: tree([BudgetSnapshotNode(.textField, field.frame, identifier: id, enabled: false, value: "500")]), identifier: id))
+    }
+
+    @MainActor
+    func testBudgetSavedAmountsLoadIntoFreshSettingsWithoutEditing() {
+        let app = launchApp(language: "zh-Hans", locale: "zh_CN")
+        completeBudgetSetup(in: app)
+    }
+
+    @MainActor
+    func testBudgetVerificationNavigationRejectsWrongSurfaceAndExtraActions() throws {
+        let frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        let back = BudgetSnapshotNode(.button, CGRect(x: 16, y: 78, width: 44, height: 44), identifier: "BackButton")
+        let done = BudgetSnapshotNode(.button, CGRect(x: 325, y: 78, width: 56, height: 36), label: "localized dismissal")
+        func tree(_ id: String, _ buttons: [BudgetSnapshotNode]) -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.application, frame, children: [
+                BudgetSnapshotNode(.collectionView, frame, identifier: id),
+                BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 62, width: 402, height: 80), children: buttons)
+            ])
+        }
+        XCTAssertEqual(try BudgetVerificationNavigation(root: tree("settings.budget.view", [back]), back: true).offset, CGVector(dx: 38, dy: 100))
+        XCTAssertEqual(try BudgetVerificationNavigation(root: tree("settings.view", [done]), back: false).offset, CGVector(dx: 353, dy: 96))
+        XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.view", [back, done]), back: false))
+        XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.view", [back]), back: true))
+        XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.budget.view", [done]), back: true))
+        XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.view", []), back: false))
+        for invalid in [CGRect.zero, .infinite, CGRect(x: 325, y: 78, width: -56, height: 36)] {
+            XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.view", [BudgetSnapshotNode(.button, invalid)]), back: false))
+        }
+        XCTAssertThrowsError(try BudgetVerificationNavigation(root: tree("settings.view", [BudgetSnapshotNode(.button, done.frame, enabled: false)]), back: false))
     }
 
     /// Failure-only public snapshots retain actual post-action values. They neither retry an
@@ -1720,6 +1916,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
             let root = BudgetSnapshotNode(try app.snapshot())
             let controls = root.flattened.filter {
                 $0.type == .textField || $0.type == .switch || $0.type == .keyboard || $0.type == .menu
+                    || $0.identifier == "fx.enable" || $0.identifier == "fx.disable" || $0.identifier == "fx.active"
             }
             text = ([reason, "app=\(root.frame)"] + controls.map {
                 "type=\($0.type.rawValue), id=\($0.identifier), label=\($0.label), "
@@ -1772,6 +1969,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
 
         var flattened: [BudgetSnapshotNode] { [self] + children.flatMap(\.flattened) }
+
+        var hasFinitePositiveFrame: Bool {
+            !frame.isNull && !frame.isInfinite && frame.size.width > 0 && frame.size.height > 0
+                && [frame.origin.x, frame.origin.y, frame.size.width, frame.size.height].allSatisfy(\.isFinite)
+        }
     }
 
     private struct BudgetGeometryError: Error, CustomStringConvertible {
@@ -1909,157 +2111,147 @@ final class MindBudgetPhase3UITests: XCTestCase {
             CGRect(x: 0, y: 0, width: 402, height: 874))))
     }
 
-    private struct FXSwitchTapGeometry: CustomStringConvertible {
-        let application: CGRect
-        let row: CGRect
-        let nativeSwitch: CGRect
-        let lane: CGRect
-        let preTapRowValue: String?
-        let preTapChildValue: String?
+    private struct FXModeSnapshot: CustomStringConvertible {
+        enum Action: String { case enable = "fx.enable", disable = "fx.disable" }
+        let root: BudgetSnapshotNode
+        let form: BudgetSnapshotNode
+        let active: Bool
+        let button: BudgetSnapshotNode?
 
-        // These fixtures are English / Simplified Chinese (left-to-right) and activate only
-        // an off switch. The retained hosted trace shows the centre lands on its draggable
-        // thumb: touches arrive but no control action follows. Use the off track's trailing
-        // quarter, not the thumb or a fraction of the multi-line label row. Still one tap.
-        var tapPoint: CGPoint {
-            CGPoint(x: nativeSwitch.minX + nativeSwitch.width * 0.75, y: nativeSwitch.midY)
-        }
-        var tapOffset: CGVector {
-            CGVector(dx: tapPoint.x - application.minX, dy: tapPoint.y - application.minY)
-        }
-
-        init(snapshot: () throws -> BudgetSnapshotNode) throws {
-            let root = try snapshot()
-            func requireFrame(_ frame: CGRect) throws {
-                guard !frame.isNull, !frame.isInfinite, !frame.isEmpty,
-                      [frame.minX, frame.minY, frame.width, frame.height].allSatisfy(\.isFinite) else {
-                    throw BudgetGeometryError(description: "Invalid FX activation frame: \(frame)")
-                }
+        init(root: BudgetSnapshotNode) throws {
+            guard root.type == .application, root.hasFinitePositiveFrame else {
+                throw BudgetGeometryError(description: "Invalid FX application snapshot")
             }
-            guard root.type == .application else {
-                throw BudgetGeometryError(description: "FX activation requires an application snapshot")
-            }
-            try requireFrame(root.frame)
-            application = root.frame
             let nodes = root.flattened
+            let keyboard = try FXKeyboardSnapshot(root: root)
+            guard keyboard.isDismissed,
+                  !nodes.contains(where: { [.alert, .menu].contains($0.type) }),
+                  !nodes.contains(where: { $0.identifier == "fx.enabled" }) else {
+                throw BudgetGeometryError(description: "FX transition is occluded or still exposes a switch")
+            }
             let forms = nodes.filter { $0.type == .scrollView && $0.identifier == "expense.form" }
-            guard forms.count == 1, let form = forms.first else {
+            guard forms.count == 1, let form = forms.first, form.hasFinitePositiveFrame else {
                 throw BudgetGeometryError(description: "Missing or ambiguous FX form")
             }
-            try requireFrame(form.frame)
-            let visibleForm = form.frame.intersection(application)
-            try requireFrame(visibleForm)
-            let rows = form.flattened.filter { $0.identifier == "fx.enabled" }
-            guard rows.count == 1, let target = rows.first, target.type == .switch,
-                  target.enabled, target.value == "0" else {
-                throw BudgetGeometryError(description: "FX activation requires one enabled, off switch row")
+            let content = form.flattened
+            let enable = content.filter { $0.identifier == Action.enable.rawValue }
+            let disable = content.filter { $0.identifier == Action.disable.rawValue }
+            let headings = content.filter { $0.identifier == "fx.active" }
+            let identifiers = ["fx.originalAmount", "fx.rate", "fx.accountingAmount"]
+            let fields = content.filter { identifiers.contains($0.identifier) }
+            let active = headings.count == 1 && headings[0].type == .staticText
+            if active {
+                guard enable.isEmpty, disable.count <= 1, fields.count == 3,
+                      identifiers.allSatisfy({ id in fields.filter {
+                          $0.identifier == id && $0.type == .textField && $0.enabled && $0.hasFinitePositiveFrame
+                      }.count == 1 }) else {
+                    throw BudgetGeometryError(description: "Active FX must expose its three real editors and no Enable button")
+                }
+            } else {
+                guard headings.isEmpty, enable.count == 1, disable.isEmpty, fields.isEmpty else {
+                    throw BudgetGeometryError(description: "Inactive FX must expose only Enable, without stale FX fields")
+                }
             }
-            let switches = target.children.flatMap(\.flattened).filter { $0.type == .switch }
-            guard switches.count == 1, let child = switches.first,
-                  child.enabled, child.value == "0" else {
-                throw BudgetGeometryError(description: "FX activation requires one enabled, off native switch child")
+            let button = active ? disable.first : enable.first
+            guard button == nil || button?.type == .button else {
+                throw BudgetGeometryError(description: "FX action is not a button")
             }
-            try requireFrame(target.frame)
-            try requireFrame(child.frame)
-            row = target.frame
-            nativeSwitch = child.frame
-            preTapRowValue = target.value
-            preTapChildValue = child.value
+            self.root = root
+            self.form = form
+            self.active = active
+            self.button = button
+        }
+
+        func tapOffset(for action: Action) throws -> CGVector {
+            guard active == (action == .disable), let button,
+                  button.identifier == action.rawValue, button.enabled, button.hasFinitePositiveFrame,
+                  button.frame.width >= 44, button.frame.height >= 44 else {
+                throw BudgetGeometryError(description: "Wrong, absent, disabled or undersized FX action")
+            }
+            let nodes = root.flattened
             let navigation = nodes.filter { $0.type == .navigationBar && $0.frame.intersects(root.frame) }
-            guard !navigation.isEmpty else {
-                throw BudgetGeometryError(description: "FX activation has no visible navigation bar")
-            }
             let bottom = nodes.filter {
-                ($0.type == .keyboard || $0.type == .tabBar || $0.identifier == "expense.save"
-                    || $0.identifier == "fx.testHost") && $0.frame.intersects(visibleForm)
+                ($0.type == .tabBar || $0.identifier == "expense.save" || $0.identifier == "fx.testHost")
+                    && $0.frame.intersects(root.frame)
             }
-            for node in navigation + bottom { try requireFrame(node.frame) }
-            let top = max(visibleForm.minY, navigation.map(\.frame.maxY).max()!) + 8
-            let end = min(visibleForm.maxY, bottom.map(\.frame.minY).min() ?? visibleForm.maxY) - 8
-            guard end > top else {
-                throw BudgetGeometryError(description: "Contradictory FX activation chrome")
+            guard !navigation.isEmpty, (navigation + bottom).allSatisfy(\.hasFinitePositiveFrame) else {
+                throw BudgetGeometryError(description: "Missing or invalid FX chrome")
             }
-            lane = CGRect(x: visibleForm.minX + 8, y: top,
-                          width: visibleForm.width - 16, height: end - top)
-            try requireFrame(lane)
-            // The native control can extend slightly past its labelled parent (seen in the
-            // failed hosted snapshot). Require its full frame in the safe lane, and its center
-            // in the parent; do not inflate either rectangle or infer control placement
-            // from the label row. Both the centre and the off-track tap must be in the row.
-            guard application.contains(nativeSwitch), lane.contains(nativeSwitch),
-                  nativeSwitch.width > nativeSwitch.height,
-                  row.contains(CGPoint(x: nativeSwitch.midX, y: nativeSwitch.midY)),
-                  row.contains(tapPoint), lane.contains(tapPoint), nativeSwitch.contains(tapPoint) else {
-                throw BudgetGeometryError(description: "FX native switch is occluded or outside its row")
+            let visible = form.frame.intersection(root.frame)
+            let top = max(visible.minY, navigation.map(\.frame.maxY).max()!) + 8
+            let end = min(visible.maxY, bottom.map(\.frame.minY).min() ?? visible.maxY) - 8
+            guard end > top, visible.width > 16 else {
+                throw BudgetGeometryError(description: "Contradictory FX viewport")
             }
+            let lane = CGRect(x: visible.minX + 8, y: top, width: visible.width - 16, height: end - top)
+            guard lane.contains(button.frame) else {
+                throw BudgetGeometryError(description: "FX button is not wholly inside the safe viewport")
+            }
+            return CGVector(dx: button.frame.midX - root.frame.minX, dy: button.frame.midY - root.frame.minY)
         }
 
         var description: String {
-            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), preTapRowValue=\(preTapRowValue ?? "nil"), preTapChildValue=\(preTapChildValue ?? "nil")"
+            "active=\(active), action=\(button?.identifier ?? "none"), enabled=\(button?.enabled.description ?? "none"), frame=\(String(describing: button?.frame))"
         }
     }
 
     @MainActor
-    func testFXSwitchTapGeometryUsesOneSnapshotAndRejectsUnsafeState() throws {
-        // Geometry from the retained hosted failure: the identified row includes the label,
-        // while the native control is a distinct child, not the row's normalized 0.94 point.
-        let child = BudgetSnapshotNode(.switch, CGRect(x: 305.3, y: 132, width: 63, height: 28), value: "0")
-        var row = BudgetSnapshotNode(.switch, CGRect(x: 36, y: 132, width: 330.5, height: 28),
-                                     identifier: "fx.enabled", value: "0", children: [child])
-        func tree(_ rows: [BudgetSnapshotNode], navigationBottom: CGFloat = 116) -> BudgetSnapshotNode {
-            BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 402, height: 874), children: [
-                BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 62, width: 402, height: navigationBottom - 62)),
-                BudgetSnapshotNode(.scrollView, CGRect(x: 0, y: 0, width: 402.3, height: 874),
-                                   identifier: "expense.form", children: rows),
+    func testFXModeButtonsRejectUnsafeStateAndObserveRealTransition() throws {
+        let frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        let enable = BudgetSnapshotNode(.button, CGRect(x: 36, y: 132, width: 330, height: 48), identifier: "fx.enable")
+        let disable = BudgetSnapshotNode(.button, CGRect(x: 36, y: 230, width: 330, height: 120), identifier: "fx.disable")
+        let heading = BudgetSnapshotNode(.staticText, CGRect(x: 36, y: 132, width: 330, height: 88), identifier: "fx.active")
+        let fields = ["fx.originalAmount", "fx.rate", "fx.accountingAmount"].enumerated().map {
+            BudgetSnapshotNode(.textField, CGRect(x: 36, y: 400 + $0.offset * 60, width: 330, height: 44), identifier: $0.element)
+        }
+        func tree(_ content: [BudgetSnapshotNode], extra: [BudgetSnapshotNode] = [], formID: String = "expense.form") -> BudgetSnapshotNode {
+            BudgetSnapshotNode(.application, frame, children: [
+                BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 62, width: 402, height: 54)),
+                BudgetSnapshotNode(.scrollView, frame, identifier: formID, children: content),
                 BudgetSnapshotNode(.button, CGRect(x: 20, y: 750, width: 362, height: 50), identifier: "expense.save")
-            ])
+            ] + extra)
         }
-        var captures = 0
-        let captured = try FXSwitchTapGeometry { captures += 1; return tree([row]) }
-        XCTAssertEqual(captures, 1)
-        XCTAssertEqual(captured.nativeSwitch, child.frame)
-        XCTAssertEqual(captured.preTapRowValue, row.value)
-        XCTAssertEqual(captured.preTapChildValue, child.value)
-        XCTAssertEqual(captured.tapPoint.x, child.frame.minX + child.frame.width * 0.75)
-        XCTAssertEqual(captured.tapPoint.y, child.frame.midY)
-        // Original failed native trace: the off thumb ends at x=344. The new point stays
-        // inside the 63pt switch but outside that thumb; no second event is sent.
-        XCTAssertGreaterThan(captured.tapPoint.x, 344.3)
-        XCTAssertTrue(child.frame.contains(captured.tapPoint))
-        XCTAssertNotEqual(captured.nativeSwitch.midX, row.frame.minX + row.frame.width * 0.94)
-        let offCenter = BudgetSnapshotNode(.switch, CGRect(x: 285, y: 210, width: 63, height: 28), value: "0")
-        row = BudgetSnapshotNode(.switch, CGRect(x: 36, y: 132, width: 330, height: 140),
-                                 identifier: "fx.enabled", value: "0", children: [offCenter])
-        let ax5 = try FXSwitchTapGeometry { tree([row]) }
-        XCTAssertEqual(ax5.nativeSwitch, offCenter.frame)
-        XCTAssertNotEqual(ax5.nativeSwitch.midY, row.frame.midY)
-        XCTAssertEqual(ax5.tapPoint.y, offCenter.frame.midY)
-        let observedAX5Child = BudgetSnapshotNode(.switch,
-            CGRect(x: 305, y: 180.66666666666666, width: 63, height: 28), value: "0")
-        let observedAX5Row = BudgetSnapshotNode(.switch,
-            CGRect(x: 36, y: 132, width: 330, height: 125.33334350585938),
-            identifier: "fx.enabled", value: "0", children: [observedAX5Child])
-        let observedAX5 = try FXSwitchTapGeometry { tree([observedAX5Row]) }
-        XCTAssertEqual(observedAX5.tapPoint.x, 352.25)
-        XCTAssertEqual(observedAX5.tapPoint.y, observedAX5Child.frame.midY)
-        XCTAssertGreaterThan(observedAX5.tapPoint.x, 344)
-        XCTAssertTrue(observedAX5Child.frame.contains(observedAX5.tapPoint))
-        XCTAssertEqual(captured.nativeSwitch, child.frame, "Later layout cannot mutate captured hit geometry")
-        XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row, row]) })
-        XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row], navigationBottom: 225) })
-        for children in [[], [offCenter, offCenter],
-                         [BudgetSnapshotNode(.switch, .zero, value: "0")],
-                         [BudgetSnapshotNode(.switch, offCenter.frame, enabled: false, value: "0")],
-                         [BudgetSnapshotNode(.switch, offCenter.frame, value: "1")],
-                         [BudgetSnapshotNode(.switch, offCenter.frame)],
-                         [BudgetSnapshotNode(.switch, CGRect(x: 285, y: 210, width: 28, height: 63), value: "0")],
-                         [BudgetSnapshotNode(.switch, CGRect(x: 285, y: 760, width: 63, height: 28), value: "0")]] {
-            row.children = children
-            XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row]) })
+        let off = try FXModeSnapshot(root: tree([enable]))
+        XCTAssertFalse(off.active, "A lost tap must never satisfy Enable")
+        XCTAssertEqual(try off.tapOffset(for: .enable), CGVector(dx: 201, dy: 156))
+        XCTAssertThrowsError(try off.tapOffset(for: .disable))
+        let on = try FXModeSnapshot(root: tree([heading, disable] + fields))
+        XCTAssertTrue(on.active)
+        XCTAssertEqual(try on.tapOffset(for: .disable), CGVector(dx: 201, dy: 290))
+        XCTAssertThrowsError(try on.tapOffset(for: .enable))
+        let stored = try FXModeSnapshot(root: tree([heading] + fields))
+        XCTAssertTrue(stored.active)
+        XCTAssertThrowsError(try stored.tapOffset(for: .disable), "Stored metadata cannot be removed")
+        XCTAssertFalse(try FXModeSnapshot(root: tree([enable])).active, "Cancel must remove all FX editors")
+        for invalid in [CGRect.zero, .null, .infinite,
+                        CGRect(x: 36, y: 132, width: -330, height: 48),
+                        CGRect(x: 36, y: 132, width: 330, height: CGFloat.nan),
+                        CGRect(x: 36, y: 90, width: 330, height: 48),
+                        CGRect(x: 36, y: 730, width: 330, height: 48),
+                        CGRect(x: 36, y: 132, width: 330, height: 28)] {
+            let value = BudgetSnapshotNode(.button, invalid, identifier: "fx.enable")
+            XCTAssertThrowsError(try FXModeSnapshot(root: tree([value])).tapOffset(for: .enable))
         }
-        XCTAssertThrowsError(try FXSwitchTapGeometry {
-            throw BudgetGeometryError(description: "Snapshot capture failed")
-        })
+        let blocked = BudgetSnapshotNode(.button, enable.frame, identifier: "fx.enable", enabled: false)
+        XCTAssertThrowsError(try FXModeSnapshot(root: tree([blocked])).tapOffset(for: .enable))
+        for content in [[], [enable, enable], [enable, disable], [enable] + fields,
+                        [heading, disable], [heading, disable, disable] + fields,
+                        [heading, disable, fields[0], fields[0], fields[2]]] {
+            XCTAssertThrowsError(try FXModeSnapshot(root: tree(content)))
+        }
+        XCTAssertThrowsError(try FXModeSnapshot(root: tree([enable], formID: "wrong.form")))
+        for type in [XCUIElement.ElementType.alert, .menu, .keyboard] {
+            XCTAssertThrowsError(try FXModeSnapshot(root: tree([enable], extra: [BudgetSnapshotNode(type, frame)])))
+        }
+        for invalid in [CGRect.null, .infinite, CGRect(x: 0, y: 500, width: 402, height: -1),
+                        CGRect(x: 0, y: 500, width: 402, height: CGFloat.nan)] {
+            XCTAssertThrowsError(try FXModeSnapshot(root: tree([enable], extra: [BudgetSnapshotNode(.keyboard, invalid)])))
+        }
+        let legacy = BudgetSnapshotNode(.switch, enable.frame, identifier: "fx.enabled", value: "0")
+        XCTAssertThrowsError(try FXModeSnapshot(root: tree([legacy])))
+        XCTAssertThrowsError(try FXModeSnapshot(root: tree([enable], extra: [
+            BudgetSnapshotNode(.scrollView, frame, identifier: "expense.form")
+        ])))
     }
 
     /// A single public accessibility snapshot is the authority for the source row, foreground
@@ -2455,11 +2647,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
             return false
         }
 
-        // The keyboard can move a SwiftUI Form after the first tap. Re-establish full geometry,
-        // then tap the explicit center a second time because the first focus transfer may have
-        // been consumed. Neither keyboard visibility nor geometry is treated as focus proof.
-        guard let ready = revealBudgetField(identifier, in: app, towardEarlierRow: towardEarlierRow) else { return false }
-        tapBudgetTarget(ready, in: app)
+        // A second tap can open the native selection menu. Type once after one focus tap;
+        // exact values must subsequently be reloaded from the saved budget, not inferred here.
         return true
     }
 
@@ -2467,9 +2656,10 @@ final class MindBudgetPhase3UITests: XCTestCase {
     private func revealBudgetField(
         _ identifier: String,
         in app: XCUIApplication,
-        towardEarlierRow: Bool = false
+        towardEarlierRow: Bool = false,
+        formIdentifier: String = "budget.setup.view"
     ) -> BudgetGeometry? {
-        let budgetForm = app.collectionViews["budget.setup.view"]
+        let budgetForm = app.collectionViews[formIdentifier]
         let field = app.textFields[identifier]
         var lastGeometry: BudgetGeometry?
 

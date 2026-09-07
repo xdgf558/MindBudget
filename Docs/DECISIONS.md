@@ -1,5 +1,57 @@
 # DECISIONS
 
+## 2026-09-08 — Owner-authorized explicit FX entry buttons
+
+Context: the owner explicitly permits replacing the FX sliding switch with an “启用外币记账”
+button. The native-switch failure's original cause remains UNPROVEN; the retained failures
+are not relabelled. This is an authorized interaction replacement, not a UIKit diagnosis.
+
+Decision: reuse the existing secondary button style in the FX card. An inactive draft shows
+Enable foreign-currency entry (disabled without the existing Pro/trial access snapshot).
+An active, unsaved FX draft shows its mode and Cancel foreign-currency entry. Cancellation
+uses the existing model transition: discard that FX draft and restore the prior ordinary
+amount. A persisted FX expense shows the active mode, never a cancellation control; expired
+stewardship and saved accounting currency remain authoritative. Keep all model/actor checks.
+Use localized wrapping labels and no content Dynamic Type cap, new gesture or network path.
+
+Alternatives rejected: retap/long press, longer waits, synthetic state changes, a second budget
+commit action, or declaring the old switch root cause solved. Tests must perform one captured
+button tap per explicit transition and observe the real fields/control state. A deliberate
+enable → cancel → enable lifecycle is not a retry of a failed transition.
+
+Consequences: this only authorizes the separate #119 repair. Full default local validation,
+exact-head hosted/native evidence and independent review still gate acceptance. #118 remains
+untouched/Draft; D completion and E/sharing are not authorized by this change.
+
+Affected files: ForeignCurrencyEntrySection, localization, UI tests and investigation records.
+
+## 2026-09-07 — Verify the stored budget after one original Save
+
+Context: the retained category-legend failure shows visible amounts and a text-selection menu
+after the helper's two focus taps. The original failed AX value was not captured. A new keyboard
+Done attempt was withdrawn when full validation caught its conflict with the accepted 2026-08-07
+single-commit decision. The author missed that earlier decision; the original no-toolbar tests
+remain, and all product UI code is restored. The rejected attempt is retained in the packet/log.
+
+Decision: in automation, focus each amount field once, type once and activate the existing Save
+once from safe snapshot geometry, while input remains active. Then open a fresh BudgetSettingsView
+and verify exact 3000/2500/500 values from its independent DataActor plan load. Never focus/type in
+or save that second form. Reject wrong values, absent/duplicate/invalid/offscreen controls and
+active keyboards/menus; retain bounded five-second comparisons and actual observed-value traces.
+Return using the observed native BackButton and the Settings root's sole navigation action,
+with unique snapshot geometry rather than boundBy:0, hardcoded translated text or a second tap.
+
+Alternatives rejected: Dashboard-only amount proof, another focus/Save tap, a keyboard toolbar,
+private focus APIs, changed timeouts or a benchmark waiver. This is stronger stored-plan
+verification, not a claim that the original AX discrepancy is forensically explained.
+
+Consequences: product code, the one-commit UI rule, money/calendar/Pro behavior and network
+boundaries remain unchanged. The store is synthetic/in-memory, not disk/relaunch durability
+evidence. Focused local results do not replace complete local, exact-head hosted/native or
+independent review; FX activation and D closeout remain open. No E entry or release authorization.
+
+Affected files: MindBudgetPhase3UITests.swift and the investigation documentation.
+
 ## 2026-09-07 — Complete synthetic notification isolation without isolating real CloudKit
 
 Review found the initial source injection covered only two synthetic fixtures. Extend it to

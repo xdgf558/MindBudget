@@ -6,15 +6,33 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Local-currency expense"
+            "value": "Foreign-currency expense"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当地货币记账"
+            "value": "外币记账"
           }
         }
+      }
+    },
+    "fx.enable": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Enable foreign-currency entry" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "启用外币记账" } }
+      }
+    },
+    "fx.disable": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cancel foreign-currency entry" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "取消外币记账" } }
+      }
+    },
+    "fx.help.cancel": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cancel clears these foreign-currency inputs and restores the previous ordinary amount." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "取消将清除当前外币输入，并恢复此前的普通记账金额。" } }
       }
     },
     "fx.help.offline": {
