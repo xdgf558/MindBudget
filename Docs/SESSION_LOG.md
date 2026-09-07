@@ -1,5 +1,7 @@
 # SESSION_LOG
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 ## 2026-08-02 — Session 1 — Phase 0
 
 Goal: Initialize the repository, Xcode targets, project constraints, and durable agent memory.
@@ -9666,3 +9668,63 @@ FX contract including negative/self-tests) passed after the evidence synchroniza
 or runtime binding was weakened. `git diff --check` passed and non-Docs diff against `8e57283`
 is empty. Publish only this evidence update to the existing Draft PR and identify its new
 documentation head/CI separately in the PR body; independent rereview is still pending.
+
+## 2026-09-07 — Owner-authorized PR #117 implementation merge (local handoff note)
+
+The owner supplied independent approval to merge the D implementation candidate, then explicitly
+instructed “合并吧”. Verified exact reviewed head `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`,
+Draft/open/mergeable state and hosted `34090503092` attempt 1 success: ordinary `101642813577`,
+FX `101642813753` and join `101652174130` all succeeded. No new test invocation or native-audit
+claim was made during this merge operation; retain the previously recorded audit attribution.
+
+Removed Draft and used a merge commit with an exact-head match, without admin bypass or branch
+deletion. GitHub confirms PR #117 MERGED at `2026-09-07T07:28:23Z`, merge
+`d19c6401bc14d2b43365b0936a37fe270e39c481`. The API confirms first parent
+`7e9d69389d88dabb5bfcc5e77709b282801d3df0` and second parent equal to the reviewed `7e901f2`.
+
+This local post-merge note is not part of the merged commit and is not an independent D closeout.
+D's four checkboxes remain untouched, D remains In Progress, and FX-01E remains unentered.
+No new closeout PR, product change, Insights/share implementation or release action was started.
+
+## 2026-09-07 — Owner enters independent FX-01D documentation closeout
+
+The owner now explicitly requests the separate D closeout. Created
+`codex/fx01d-implementation-closeout` at verified merge `d19c640`, carrying forward only the
+local merge-session note. No product implementation, real-account run or phase transition.
+New canonical `FX_01D_CLOSEOUT.md` records the unchanged four-item assessment, exact review/
+hosted/merge chain, local versus hosted toolchains, original non-passes and remaining limits.
+Current memory/tasks/plan/evidence/privacy/sync statements now say implementation merged and
+closeout pending rather than incorrectly describing #117 as Draft or unmerged. The eight state
+documents have short scoped pointers; the FX gate and copied-CLI negatives reject missing,
+duplicate or historically displaced pointers and changed canonical boundaries/provenance.
+
+Downloaded accepted `34090503092` artifacts `10007720280` / `10007144902`. Native read-only
+audits used local Xcode 27 beta 6 to inspect hosted Xcode 26.6 results: ordinary 627 methods,
+610 Passed / 17 Skipped, 619 concrete Passed; FX three Passed once, three retained warnings.
+Every method detail has zero Repetition/extra attempt and matching tree/detail structure.
+FX provenance/detail UUID is `1D772EA9-44AC-44FA-8AD7-9DEE828F1CB7`; durations are
+108.765 / 171.399 / 96.387 s (Chinese stewardship/create, English create). Separate repository
+verifiers accepted all 49 unit bindings and three device-bound UI bindings. Hashes and paths
+are in the canonical packet. No new test execution occurred to produce these audit results.
+
+Retained audit setup failures: the first repository verifier omitted DEVELOPER_DIR and could
+not find xcresulttool; after explicit selection it rejected the ordinary extracted directory
+without an .xcresult suffix. Renaming that directory without content changes resolved the
+input convention and verification passed. These are read-only audit failures, not hidden
+test retries or relabelled hosted results. The original 814.581125 ms / exit 65 and both failed
+hosted runs remain non-pass, with original causes unproven.
+
+Legacy-shaped parent fixtures/frozen payload checks are not an executed pre-D client. The
+Calendar.current companion reconstruction has no cross-calendar evidence. Keep the original
+D requirement open to independent sufficiency review, without creating a waiver or implying
+real CloudKit success. D stays In Progress with four unchecked items; E and sharing remain
+unentered. Prepare the separate Draft closeout for owner review after static validation;
+this preparation is not approval, D completion, a release action or automatic merge.
+
+Preparation validation passed: integer-money, network, commercialization-document, StoreKit
+catalog and FX contract gates; FX closeout copied-CLI mutations increased from 1021 to 1077
+(56 new canonical/pointer negatives). Existing 49 runtime bindings, 165 privacy injections,
+payload/order checks and no-retry controls are unchanged. `git diff --check` passed; no diff in
+MindBudget, MindBudgetTests, MindBudgetUITests, project, workflow or FX JSON. No new complete
+local/runtime validation is claimed for this Docs/gate-only head. Publish a separate Draft PR;
+its exact head and own hosted run must be recorded in its body, never replaced with #117's run.

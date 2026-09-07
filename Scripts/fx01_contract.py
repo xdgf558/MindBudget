@@ -35,6 +35,36 @@ ROOT_KEYS = frozenset(
         "syncCompanionContract",
     }
 )
+D_CLOSEOUT_FILE = "Docs/FX_01D_CLOSEOUT.md"
+D_CLOSEOUT_STATUS = "PENDING_INDEPENDENT_REVIEW_AND_MERGE; D In Progress; FX-01E unentered."
+D_CLOSEOUT_POINTER = (
+    "Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` "
+    "(implementation merged; D In Progress; E unentered)."
+)
+D_CLOSEOUT_CONTEXT = (
+    "Docs/PROJECT_MEMORY.md", "Docs/TASKS.md", "Docs/DECISIONS.md", "Docs/SESSION_LOG.md",
+    "Docs/FX_01_MANUAL_CURRENCY_PLAN.md", "Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md",
+    "Docs/PRIVACY_AND_REVIEW_NOTES.md", "Docs/FX_01D_SWITCH_DIAGNOSTIC.md",
+)
+D_CLOSEOUT_ANCHORS = (
+    "Reviewed head: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
+    "Hosted run: `34090503092`; attempt 1; ordinary, FX and join succeeded.",
+    "Merge commit: `d19c6401bc14d2b43365b0936a37fe270e39c481`.",
+    "Merge second parent: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
+    "Reviewed and merged tree: `0337e7b6ffa6267285b5b7a904e711d62c7f6535`.",
+    "Review scope: owner-supplied independent implementation approval; not D Done.",
+    "Full-local runtime head: `8e572832073f84be6513b7da4f3d7bbf5e67941b`; default validate exit 0.",
+    "Strict benchmark: 217.09825 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Retained non-passes: `34072691064`, `34077058451`, original 814.581125 ms / exit 65.",
+    "Original benchmark and gesture causes remain unproven.",
+)
+D_CLOSEOUT_BOUNDARIES = (
+    "D remains In Progress; its four checkboxes remain unchecked.",
+    "FX-01E, FX-02, COM-C12 and Insights/share implementation remain unentered here.",
+    "No Archive, upload, tester assignment, distribution, release or automatic merge is authorized.",
+    "Cross-calendar companion reconstruction remains unverified:",
+    "this record does not silently move an unmet D requirement into E or waive it.",
+)
 PHASE_KEYS = frozenset(
     {
         "id",
@@ -604,6 +634,31 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     if errors:
         return errors
 
+    # One canonical body plus scoped pointers: another document/historical paragraph cannot
+    # satisfy a missing current statement. This pins provenance, not runtime correctness.
+    packet_path = project_root / D_CLOSEOUT_FILE
+    if not packet_path.is_file():
+        errors.append("missing canonical D closeout record")
+    else:
+        packet = packet_path.read_text(encoding="utf-8")
+        if _status_after_heading(packet, "# FX-01D independent post-merge closeout", bold=True) != D_CLOSEOUT_STATUS:
+            errors.append("D closeout must retain its unique pending Status")
+        for heading, anchors in (
+            ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
+            ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
+        ):
+            section = _section(packet, heading, "## ")
+            normalized = _normalize_space(section or "")
+            for anchor in anchors:
+                if normalized.count(_normalize_space(anchor)) != 1:
+                    errors.append(f"D closeout missing/duplicate scoped anchor: {heading}:{anchor}")
+    for relative in D_CLOSEOUT_CONTEXT:
+        path = project_root / relative
+        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        introductory_section = text.split("\n## ", 1)[0]
+        if introductory_section.count(D_CLOSEOUT_POINTER) != 1 or text.count(D_CLOSEOUT_POINTER) != 1:
+            errors.append(f"missing/duplicate current D closeout pointer: {relative}")
+
     from validation_order_self_test import workflow_jobs
     try:
         workflow_jobs((project_root / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
@@ -866,6 +921,8 @@ def fail_if_invalid(data: Any, project_root: Path) -> None:
 
 def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
     required = (
+        D_CLOSEOUT_FILE,
+        *D_CLOSEOUT_CONTEXT,
         *B_CLOSEOUT_DOCUMENTS,
         *C_CLOSEOUT_DOCUMENTS,
         "Scripts/fx01_contract.py",
@@ -981,6 +1038,23 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 path.write_text(original, encoding="utf-8")
 
         # Another file or an older historical section must not satisfy a removed anchor.
+        for heading, anchors in (
+            ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
+            ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
+        ):
+            for anchor in anchors:
+                reject_section_change(D_CLOSEOUT_FILE, heading, anchor, "removed D closeout anchor")
+                reject_section_change(D_CLOSEOUT_FILE, heading, anchor, anchor + "\n" + anchor)
+        for replacement in ("DONE", D_CLOSEOUT_STATUS + "**\n\nStatus: **" + D_CLOSEOUT_STATUS):
+            reject_section_change(D_CLOSEOUT_FILE, "# FX-01D independent post-merge closeout",
+                                  D_CLOSEOUT_STATUS, replacement)
+        for relative in D_CLOSEOUT_CONTEXT:
+            title = (project_root / relative).read_text(encoding="utf-8").splitlines()[0]
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER, "removed current pointer")
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER,
+                                  D_CLOSEOUT_POINTER + "\n" + D_CLOSEOUT_POINTER)
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER,
+                                  "\n## Misplaced historical pointer\n" + D_CLOSEOUT_POINTER)
         for relative in C_CLOSEOUT_DOCUMENTS:
             for anchor in D_ENTRY_ANCHORS:
                 reject_section_change(relative, D_ENTRY_HEADING, anchor, "removed D entry anchor")

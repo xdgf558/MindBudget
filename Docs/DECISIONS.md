@@ -1,5 +1,7 @@
 # DECISIONS
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 Use this format for decisions: context, decision, alternatives, consequences, and affected files.
 
 ## 2026-07-29 — Store money as Int64 minor units
@@ -4513,3 +4515,22 @@ observers before final-head validation and reject direct native dispatch replace
 host source gate. Record `34072691064` and `34077058451` as non-pass, retain the original 814.6ms
 complete-local failure, and require complete local/hosted/native evidence plus independent
 rereview. This decision changes only the UI-test interaction, not the FX product or phase status.
+
+## 2026-09-07 — FX-01D independent post-merge documentation closeout
+
+The owner authorizes a separate D closeout after implementation PR #117 merged; no sharing or
+FX-01E entry is inferred. Keep the original four D obligation texts and unchecked states.
+Use `FX_01D_CLOSEOUT.md` as one canonical provenance/checklist/limits record with short current
+pointers, rather than copying its entire evidence block across state files. The existing FX
+gate pins the scoped canonical provenance, non-pass/phase boundaries and each pointer, with
+copied-file negative tests for omission, duplication and displacement into historical sections.
+No JSON phase transition, new runtime binding, Swift, UI helper or acceptance threshold changes.
+
+The merged implementation has independent approval, exact `7e901f2` hosted success and merge
+`d19c640` with that second parent. New read-only native audits verify the original ordinary/FX
+artifacts without rerunning tests; complete local evidence belongs to `8e57283`, not this new
+closeout head. The canonical assessment distinguishes fixture/source proof from unexecuted old
+client, mixed-version CloudKit and cross-calendar behavior. Do not silently waive or move an
+unmet D requirement into E. Independent review must decide sufficiency before final acceptance;
+author documentation and green CI alone cannot complete D. This record itself needs review,
+its own hosted/native evidence and merge; no automatic phase completion or next-task entry.

@@ -1,5 +1,7 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 Status: **FX-01 In Progress; FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
@@ -322,10 +324,12 @@ Record each of the three hosted FX durations against its unchanged 240-second al
 
 Status: **In Progress — owner entered consumers, CSV, optional sync, and privacy only.**
 
-The CSV/consumer and separate thirteenth-fact sync/privacy source candidate, regression fixtures
-and retained probe outcomes are tracked in `FX_01D_IMPLEMENTATION_EVIDENCE.md`. The interim
-FX/sync guard is replaced by the atomic companion protocol in this unmerged candidate; it is
-not an accepted D completion. Full local/hosted/native validation and independent review remain.
+PR #117 merged the CSV/consumer and separate thirteenth-fact protocol after independent
+implementation approval of `7e901f2`, hosted `34090503092` success and merge `d19c640`.
+The owner now enters separate documentation closeout, not E or D Done. `FX_01D_CLOSEOUT.md`
+maps each unchanged obligation below to concrete evidence and limits, including legacy-peer
+and cross-calendar sufficiency still needing independent assessment. All four boxes stay open
+until explicit final acceptance; this does not turn synthetic fixtures into real CloudKit proof.
 
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.

@@ -1,5 +1,7 @@
 # TASKS
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 Status values: Todo, In Progress, Blocked, Done.
 A phase may only be marked Done after both `xcodebuild build` and `xcodebuild test` pass.
 
@@ -242,10 +244,12 @@ not missing simulator coverage or a new physical VoiceOver requirement. PR #116 
 passed independent review and exact-head hosted/native checks and merged. The owner now explicitly
 accepts C Done and enters D; the current entry below records this authority without erasing the
 original failure's unproven cause. D's CSV/consumer and optional-sync/privacy candidate is now
-implemented in Draft PR #117. Observer-free `8e57283` completed default full-local validation
+merged in PR #117 (`d19c640`, reviewed `7e901f2`, hosted `34090503092` success).
+The owner has entered independent D documentation closeout; see `FX_01D_CLOSEOUT.md` for the
+four-item evidence assessment and remaining limits. Observer-free `8e57283` completed full-local validation
 exit 0 (217.09825 ms under the unchanged 500 ms ceiling, zero retry, isolated FX host included)
-and hosted `34080624727` success. Evidence synchronization and independent rereview remain
-outstanding before undraft; the original benchmark failure and both hosted non-passes remain
+and hosted `34080624727` success. The implementation merge is not D completion;
+the original benchmark failure and both hosted non-passes remain
 retained, not relabelled. D's four items remain open. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`

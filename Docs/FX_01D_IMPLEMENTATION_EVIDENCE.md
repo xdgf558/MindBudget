@@ -1,10 +1,16 @@
 # FX-01D implementation evidence
 
-Status: **In Progress — PR #117 remains Draft; observer-free head 8e57283 has full-local exit 0 and hosted success; evidence rereview pending.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
-not validate this D candidate. Original head `f3538f9` and diagnostic head `c1f0db2` retain their
+not validate this D candidate. PR #117 subsequently received independent approval and merged
+reviewed `7e901f2` after hosted `34090503092` passed. Its exact merge and fresh original-artifact
+audit are in `FX_01D_CLOSEOUT.md`; D's four items remain unchecked pending independent closeout.
+The following pre-merge evidence checkpoints are retained history, not current Draft status.
+Original head `f3538f9` and diagnostic head `c1f0db2` retain their
 non-passes below. Observer-free head `8e572832073f84be6513b7da4f3d7bbf5e67941b` now has
 completed full-local evidence and hosted `34080624727` success. The owner's latest supplied
 review accepts the hosted/native switch evidence but requires this complete-local result to be

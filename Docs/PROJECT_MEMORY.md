@@ -1,5 +1,7 @@
 # PROJECT_MEMORY
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 ## Product
 
 MindBudget V1 is an iPhone-only, local-first budgeting coach. Its core purpose is to
@@ -20,14 +22,18 @@ Current D work: CSV/locked-accounting consumers and the separate thirteenth opti
 companion protocol are implemented in Draft PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
-not real models/accounts. PR #117 remains Draft. Observer-free repair head `8e57283` completed
+not real models/accounts. PR #117 merged reviewed `7e901f2` as `d19c640`, after hosted
+`34090503092` attempt 1 succeeded. Independent D closeout is now in progress; its canonical
+checklist assessment and original hosted artifact audit are in `FX_01D_CLOSEOUT.md`.
+Observer-free repair head `8e57283` completed
 default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark
 (217.09825 ms), ordinary suite/coverage, 49 FX unit bindings and all three isolated FX UI methods.
 Local Xcode 27 beta 6 / iOS 26.5 native audits found no Repetition or extra attempt; FX method
 details matched the fresh provenance UUID. Hosted Xcode 26.6 run `34080624727` attempt 1 also
 succeeded on exact `8e57283`; the owner's supplied review accepts its hosted/native switch proof.
-Evidence synchronization and independent rereview remain required before undraft. This later
-Docs-only update is not the head used by those runtime results.
+The subsequent implementation review approved merging, not D Done. The Docs-only `7e901f2`
+update is not the head used by that local run. D's four items stay unchecked; real mixed-version
+CloudKit and cross-calendar behavior are not silently certified by synthetic fixtures.
 
 Retain the original 814.581125 ms complete-local failure and both hosted non-passes:
 `34072691064` on `f3538f9` (English switch) and `34077058451` on diagnostic `c1f0db2` (Chinese
