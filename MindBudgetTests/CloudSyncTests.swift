@@ -2,6 +2,7 @@ import CloudKit
 import Foundation
 import SwiftData
 import Testing
+import XCTest
 @testable import MindBudget
 
 private enum CloudSyncDelegateTaskContext {
@@ -72,7 +73,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
         )
         await service.start()
 
@@ -85,6 +87,57 @@ struct CloudSyncTests {
 
         #expect(service.snapshot.status == .pausedAccountChanged)
         #expect(probe.adapter.synchronizeCount == 1)
+        await service.stop()
+    }
+
+    @Test
+    func isolatedNotificationSourceControlsTransportWakeups() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let notifications = NotificationCenter()
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: notifications
+        )
+        await service.start()
+        await service.retry()
+        #expect(probe.adapter.synchronizeCount == 1)
+
+        // A different in-memory store posts the same global notification used by concurrent
+        // suites. A private remote-application event proves the injected observer is alive,
+        // without accepting a sleep as evidence that a global event was ignored.
+        let otherActor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await otherActor.setCloudSyncEnabled(true, at: fixedDate)
+        let refreshed = XCTestExpectation(description: "injected remote application observed")
+        service.onSnapshotChange = { _ in refreshed.fulfill() }
+        notifications.post(name: CloudSyncRemoteApplicationSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [refreshed], timeout: 5) == .completed)
+        service.onSnapshotChange = nil
+        #expect(probe.adapter.synchronizeCount == 1)
+
+        let synchronized = XCTestExpectation(description: "injected local change synchronized")
+        probe.adapter.onSynchronize = { synchronized.fulfill() }
+        notifications.post(name: CloudSyncLocalChangeSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [synchronized], timeout: 5) == .completed)
+        probe.adapter.onSynchronize = nil
+        #expect(probe.adapter.synchronizeCount == 2)
+
+        #expect(try await actor.bindCloudSyncAccount(identifierHash: "account-a", at: fixedDate))
+        #expect(!(try await actor.bindCloudSyncAccount(identifierHash: "account-b", at: fixedDate)))
+        let paused = XCTestExpectation(description: "injected change observed while paused")
+        service.onSnapshotChange = { snapshot in
+            if snapshot.status == .pausedAccountChanged { paused.fulfill() }
+        }
+        notifications.post(name: CloudSyncLocalChangeSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [paused], timeout: 5) == .completed)
+        service.onSnapshotChange = nil
+        await service.retry()
+        #expect(service.snapshot.status == .pausedAccountChanged)
+        #expect(probe.adapter.synchronizeCount == 2)
+        await service.stop()
     }
 
     @Test
@@ -1726,9 +1779,13 @@ final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
     private(set) var deleteCloudDataCount = 0
     var deletionOutcome = CloudSyncCloudDeletionOutcome.deleted
     var deleteHandler: (@MainActor () async -> CloudSyncCloudDeletionOutcome)?
+    var onSynchronize: (@MainActor () -> Void)?
 
     func start() async { startCount += 1 }
-    func synchronize() async { synchronizeCount += 1 }
+    func synchronize() async {
+        synchronizeCount += 1
+        onSynchronize?()
+    }
     func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
         deleteCloudDataCount += 1
         if let deleteHandler { return await deleteHandler() }

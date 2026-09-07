@@ -1,5 +1,20 @@
 # DECISIONS
 
+## 2026-09-07 — Isolate synchronization notification sources in retry fixtures
+
+The separate post-#118 reliability investigation permits `CloudSyncService` to receive a
+NotificationCenter dependency with the unchanged production default `.default`. The explicit
+retry unit fixture must own a private center: process-global notifications from concurrent
+in-memory stores are not part of that method's one-retry contract. Preserve exact transport
+counts and the sticky-account pause checks; add a positive controlled-source wakeup test so
+isolation does not silently disable observers. No publisher, transport policy, account guard,
+production caller, CloudKit capability, phase or release authorization changes.
+
+The original `34108994597` sender is unobserved. A fixture isolation correction does not prove
+that sender or fix the two UI failures. The rejected single-label-tap probe remains non-pass;
+UI work currently only retains post-failure public snapshots. D remains In Progress, #118
+Draft, E unentered. See `FX_UI_RELIABILITY_INVESTIGATION.md` for evidence and remaining gates.
+
 Use this format for decisions: context, decision, alternatives, consequences, and affected files.
 
 ## 2026-07-29 — Store money as Int64 minor units

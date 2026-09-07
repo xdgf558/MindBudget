@@ -259,6 +259,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         app.coordinate(withNormalizedOffset: .zero).withOffset(activation.tapOffset).tap()
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
         guard XCTWaiter.wait(for: [enabled], timeout: 3) == .completed else {
+            attachInputFailureSnapshot(in: app, reason: "FX single activation failed")
             // An assertion alone did not stop the retained async hosted test. Throwing prevents
             // dependent form operations from running until the method's time allowance.
             throw BudgetGeometryError(description: "FX switch did not enable after one tap: \(activation)")
@@ -1673,13 +1674,21 @@ final class MindBudgetPhase3UITests: XCTestCase {
             // editors coexist in the accessibility tree.
             guard revealBudgetField(identifier, in: app, towardEarlierRow: expected == "3000") != nil else { return }
             let field = app.textFields[identifier]
+            var lastObservedValue = "predicate was not evaluated"
             let entered = XCTNSPredicateExpectation(
                 predicate: NSPredicate { object, _ in
-                    (object as? XCUIElement)?.value as? String == expected
+                    let observed = (object as? XCUIElement)?.value
+                    lastObservedValue = String(reflecting: observed)
+                    return observed as? String == expected
                 },
                 object: field
             )
-            XCTAssertEqual(XCTWaiter.wait(for: [entered], timeout: 5), .completed,
+            let readback = XCTWaiter.wait(for: [entered], timeout: 5)
+            if readback != .completed {
+                attachInputFailureSnapshot(in: app, reason:
+                    "Budget readback failed: \(identifier); last predicate value=\(lastObservedValue)")
+            }
+            XCTAssertEqual(readback, .completed,
                            "Budget value did not reach its intended field: \(identifier)")
         }
 
@@ -1700,6 +1709,33 @@ final class MindBudgetPhase3UITests: XCTestCase {
             timeout: 5,
             message: "Budget setup did not accept and persist all entered values"
         )
+    }
+
+    /// Failure-only public snapshots retain actual post-action values. They neither retry an
+    /// interaction nor replace the original assertion. These UI fixtures contain synthetic data.
+    @MainActor
+    private func attachInputFailureSnapshot(in app: XCUIApplication, reason: String) {
+        let text: String
+        do {
+            let root = BudgetSnapshotNode(try app.snapshot())
+            let controls = root.flattened.filter {
+                $0.type == .textField || $0.type == .switch || $0.type == .keyboard || $0.type == .menu
+            }
+            text = ([reason, "app=\(root.frame)"] + controls.map {
+                "type=\($0.type.rawValue), id=\($0.identifier), label=\($0.label), "
+                    + "value=\(String(reflecting: $0.value)), enabled=\($0.enabled), frame=\($0.frame)"
+            }).joined(separator: "\n")
+        } catch {
+            text = "\(reason)\nPublic post-failure snapshot failed: \(error)"
+        }
+        let trace = XCTAttachment(string: text)
+        trace.name = "Actual post-failure input snapshot"
+        trace.lifetime = .keepAlways
+        add(trace)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Post-failure synthetic input screen"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     /// Value copy of one public XCUI snapshot, also usable by deterministic helper tests.
@@ -1955,7 +1991,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
 
         var description: String {
-            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), rowValue=0, childValue=0"
+            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), preTapRowValue=0, preTapChildValue=0"
         }
     }
 

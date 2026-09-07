@@ -1,5 +1,19 @@
 # TASKS
 
+## 2026-09-07 — Separate UI / synchronization test reliability scope
+
+Status: **Investigation In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
+
+- [x] Separate the investigation branch from #118 and inspect both original failed runs.
+- [ ] Resolve the Chinese AX5 FX activation failure with evidence, without retap/long press.
+- [ ] Resolve the visible-500 versus budget AX readback discrepancy without weakening validation.
+- [x] Implement a private notification-source fixture and pass its three focused checks; original sender and full-suite acceptance remain unproven.
+- [ ] Complete exact-head full local / hosted / native validation and independent review.
+
+See `FX_UI_RELIABILITY_INVESTIGATION.md`. No D completion checkbox is earned here. The
+documentation closeout must retain both `34097606992` and `34108994597`; it is not rerun
+merely to obtain another result on unchanged source.
+
 Status values: Todo, In Progress, Blocked, Done.
 A phase may only be marked Done after both `xcodebuild build` and `xcodebuild test` pass.
 

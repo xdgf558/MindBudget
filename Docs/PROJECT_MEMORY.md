@@ -16,7 +16,14 @@ including the queued Insights income tile and share card. Follow the skill's con
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
 
-Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
+Current investigation: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
+Draft after `34097606992` and `34108994597` failed. Owner authorized the separate
+`codex/fx-ui-reliability` UI / synchronization test investigation from that merged base,
+not helper changes inside #118 or another doc-only rerun. See
+`Docs/FX_UI_RELIABILITY_INVESTIGATION.md`. D stays In Progress, all four D completion
+items remain open, E is unentered and Insights income/sharing remains queued.
+
+Historical PR #117 pre-merge checkpoint: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
 companion protocol are implemented in Draft PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,

@@ -1,5 +1,49 @@
 # SESSION_LOG
 
+## 2026-09-07 — Separate UI / synchronization reliability investigation
+
+Owner authorized a new repair scope after PR #118's second failed hosted run. Created
+`codex/fx-ui-reliability` from merged #117 `d19c640` in a separate worktree; the #118 Draft
+branch is unchanged. No doc-only CI rerun, undraft, D checkbox, D Done, E or sharing entry.
+Downloaded original ordinary/FX artifacts from `34097606992` and `34108994597` and inspected
+native summaries, failure details, activities, AX text and exported videos. These remain
+non-pass alongside the previous implementation non-passes; no transient classification.
+
+The first ordinary video visibly has 3000 / 2500 / 500 despite the saving-goal AX readback
+failure; the post-entry income double tap opens a text-selection menu. The actual failing
+AX value was not retained. The second ordinary failure is instead CloudSyncTests line 87,
+synchronizeCount 2 vs 1; the test observes process-global notifications while other suites
+can post changes from different in-memory stores. The exact triggering sender is unproven.
+Both FX runs fail Chinese AX5 create at the same off-track point. Post-tap AX text and video
+confirm off in the second run, whereas the error's childValue=0 is only a pre-tap literal.
+See `FX_UI_RELIABILITY_INVESTIGATION.md` for exact heads, artifacts and attribution.
+
+No new runtime test or corrective acceptance has occurred at this investigation checkpoint.
+Local Xcode 27 beta 6 was used to read hosted artifacts, not to substitute for hosted 26.6.
+
+Later in this session, a single controlled label-route probe failed: local isolated
+`fx-reliability-label-probe-1`, UI source SHA `dc695dc7a96a072a9d93f68724056a362dbd7bf3161b631aaa66abb5c136a7fe`,
+one stewardship pass / two create failures, xcodebuild exit 65 / wrapper exit 1. Reverted the
+candidate rather than trying another coordinate, retapping or relabelling the run. Owned
+simulator `3D1B617A-AEE2-4E6F-BF85-73DE99CE8B2D` was removed by the runner; evidence retained.
+Added failure-only public UI snapshots, not a claimed UI fix. Added the private notification
+source candidate and its positive/paused regression test; focused validation is in progress.
+
+Native verification rejected `fx-reliability-sync-probe-1` as non-pass: missing `()` in Swift
+Testing filters selected zero tests despite command exit 0. Corrected selectors in the new
+`fx-reliability-sync-probe-2` bundle ran three methods once, all Passed, with an author native
+no-Repetition/no-extra-attempt audit. No source changed between these two probes. The Chinese
+category-legend diagnostic also Passed once (109.900s), with native audit; this did not reproduce
+or resolve the budget failure. Added last-predicate-value retention afterwards and queued its
+compile check. Five static gates passed. Record paths/hashes and toolchain boundaries in the
+investigation packet; do not label any focused run complete local/hosted acceptance.
+
+Prepare a separate Draft investigation PR for synchronization isolation and failure-only UI
+evidence capture. It is not mergeable while the two UI mechanisms remain unresolved. #118 is
+unchanged, D four items remain open, D is not Done, and E/sharing have not been entered.
+The final last-predicate-value capture compiled successfully in
+`fx-reliability-trace-build-1.log`; this is a compile check, not another runtime result.
+
 ## 2026-08-02 — Session 1 — Phase 0
 
 Goal: Initialize the repository, Xcode targets, project constraints, and durable agent memory.

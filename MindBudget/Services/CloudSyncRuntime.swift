@@ -47,6 +47,7 @@ final class CloudSyncService: CloudSyncServicing {
     private let dataActor: DataActor
     private let adapterFactory: AdapterFactory
     private let retentionStore: any CloudSyncRetentionPersisting
+    private let notificationCenter: NotificationCenter
     private var adapter: (any CloudSyncEngineAdapting)?
     private var adapterOperationTask: Task<Void, Never>?
     private var adapterOperationToken: UUID?
@@ -59,11 +60,13 @@ final class CloudSyncService: CloudSyncServicing {
     init(
         dataActor: DataActor,
         adapterFactory: @escaping AdapterFactory = { CKSyncEngineAdapter(dataActor: $0) },
-        retentionStore: any CloudSyncRetentionPersisting = UserDefaultsCloudSyncRetentionStore()
+        retentionStore: any CloudSyncRetentionPersisting = UserDefaultsCloudSyncRetentionStore(),
+        notificationCenter: NotificationCenter = .default
     ) {
         self.dataActor = dataActor
         self.adapterFactory = adapterFactory
         self.retentionStore = retentionStore
+        self.notificationCenter = notificationCenter
         snapshot = CloudSyncSnapshot(
             isEnabled: false,
             status: .disabled,
@@ -255,9 +258,12 @@ final class CloudSyncService: CloudSyncServicing {
     }
 
     private func installSignalObserversIfNeeded() {
+        // Production continues to use the process-wide signals. Tests of explicit retry can
+        // own a private source instead of also consuming unrelated in-memory stores' events.
+        let notificationCenter = notificationCenter
         if localChangeTask == nil {
             localChangeTask = Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(
+                for await _ in notificationCenter.notifications(
                     named: CloudSyncLocalChangeSignal.notification
                 ) {
                     guard !Task.isCancelled, let self else { return }
@@ -268,7 +274,7 @@ final class CloudSyncService: CloudSyncServicing {
         }
         if remoteApplicationTask == nil {
             remoteApplicationTask = Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(
+                for await _ in notificationCenter.notifications(
                     named: CloudSyncRemoteApplicationSignal.notification
                 ) {
                     guard !Task.isCancelled, let self else { return }
