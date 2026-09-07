@@ -4,6 +4,12 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 
 Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
 
+Current closeout blocker: PR #118 `5200816` run `34097606992` attempt 1 failed in ordinary,
+FX and join (Chinese savingGoal value timeout and Chinese AX5 switch remaining off).
+See `FX_01D_CLOSEOUT.md` for the retained run/artifact IDs and reviewer-attributed observations.
+The earlier green implementation evidence below does not admit this failed closeout head;
+no helper change, D checkbox, D Done or E entry is authorized by this documentation correction.
+
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
 not validate this D candidate. PR #117 subsequently received independent approval and merged

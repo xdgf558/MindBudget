@@ -251,6 +251,10 @@ exit 0 (217.09825 ms under the unchanged 500 ms ceiling, zero retry, isolated FX
 and hosted `34080624727` success. The implementation merge is not D completion;
 the original benchmark failure and both hosted non-passes remain
 retained, not relabelled. D's four items remain open. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+Closeout PR #118 also retains its own `5200816` / `34097606992` attempt 1 non-pass: ordinary,
+FX and join failed. The stale Draft-#117 sentence is corrected; new exact-head CI/native
+evidence and rereview remain required, without UI helper changes or weaker gates in this document PR.
+The accepted #117 run cannot substitute; D completion and FX-01E entry remain unauthorized.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.

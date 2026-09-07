@@ -9728,3 +9728,35 @@ payload/order checks and no-retry controls are unchanged. `git diff --check` pas
 MindBudget, MindBudgetTests, MindBudgetUITests, project, workflow or FX JSON. No new complete
 local/runtime validation is claimed for this Docs/gate-only head. Publish a separate Draft PR;
 its exact head and own hosted run must be recorded in its body, never replaced with #117's run.
+
+## 2026-09-07 — PR #118 review: stale Draft wording and its own hosted non-pass
+
+The review found that Current D work still said "implemented in Draft PR #117" despite the
+next sentence correctly recording merge d19c640. The previous session's claim of completely
+synchronized current wording was too broad. Correct that missed sentence to "were merged in
+PR #117"; retain this correction rather than rewriting the prior session as if it had succeeded.
+
+Verified GitHub metadata: exact head `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`, run
+`34097606992` attempt 1 failure, ordinary `101664622832`, FX `101664623020` and join
+`101673689351` all failed. Preserve original artifacts FX `10009729091` and ordinary
+`10010259290`. The owner's independent artifact review reports Chinese AX5 create failed
+29.8 s after offTrackTap (352.25,194.67), native child (305,180.67,63,28), row height 125.33,
+rowValue=0/childValue=0 on a fresh non-cloned device (reported UUID prefix FE266090-).
+Chinese stewardship/English create Passed 163.3/101.5 s, not FX admission. Ordinary Chinese
+category-legend test failed at UI line 1682: budget.savingGoal did not become "500" within 5 s;
+the English counterpart's 106 s pass does not close it. These detail observations are
+reviewer-supplied, not a fresh author native audit of the failed artifacts.
+
+Update canonical closeout evidence, implementation evidence, current memory/tasks and PR body.
+Keep 34097606992 as non-pass alongside 814.581125 ms / exit 65, 34072691064 and 34077058451.
+Neither new failure mechanism is inferred; 0.75 off-track single-tap success is not stable-hosted
+proof. This is a documentation-only correction, not a switch/filling fix. No Swift, UI helper,
+threshold, allowance, retry, workflow, gate or JSON changes. A new head must receive its own
+ordinary/FX/join success and native audit/rereview; do not reuse #117's run or retry until green.
+P2-2 stays open pending that evidence. Keep Draft, all four D boxes unchecked, D In Progress,
+E and sharing unentered; no undraft or merge authorized by this repair preparation.
+
+Documentation correction checks passed: all five unchanged static gates, including 1077 FX
+closeout CLI mutations, and git diff --check. Non-Docs diff from 5200816 is empty. Publish this
+five-document correction on the existing Draft PR and record its new exact head/run in the
+body; no new hosted/native acceptance is claimed before that run completes and is audited.

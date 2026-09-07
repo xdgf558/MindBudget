@@ -19,12 +19,17 @@ selection/verification workflow and preserve this app's existing design system. 
 does not authorize parallel phase implementation or deployment.
 
 Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
-companion protocol are implemented in Draft PR #117. The old `.expense` payload is
+companion protocol were merged in PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
 not real models/accounts. PR #117 merged reviewed `7e901f2` as `d19c640`, after hosted
 `34090503092` attempt 1 succeeded. Independent D closeout is now in progress; its canonical
 checklist assessment and original hosted artifact audit are in `FX_01D_CLOSEOUT.md`.
+Closeout PR #118 remains Draft: its `5200816` run `34097606992` attempt 1 failed in ordinary,
+FX and join. The review observed a Chinese AX5 off-track switch activation failure and a
+Chinese category-legend budget.savingGoal value timeout. These are retained non-passes, not
+closed by #117's green run. This documentation correction changes no helper or acceptance gate;
+a new exact-head ordinary/FX/join success and independent rereview remain required.
 Observer-free repair head `8e57283` completed
 default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark
 (217.09825 ms), ordinary suite/coverage, 49 FX unit bindings and all three isolated FX UI methods.

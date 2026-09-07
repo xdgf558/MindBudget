@@ -4,9 +4,42 @@ Status: **PENDING_INDEPENDENT_REVIEW_AND_MERGE; D In Progress; FX-01E unentered.
 
 The owner authorized this separate documentation closeout after PR #117 merged. This is the
 canonical record; other current-state documents point here rather than copying the evidence
-table. Author evidence checking is not a second independent source review. No product Swift,
-UI helper, threshold, retry, model request, CloudKit activation or new runtime test is part of
-this closeout preparation. This PR must receive its own independent review and hosted evidence.
+table. Author evidence checking is not a second independent source review. This documentation
+PR changes no product Swift, UI helper, threshold or retry policy and authorizes no model request
+or CloudKit activation. Its own hosted tests did execute and failed as recorded below; it must
+obtain new exact-head evidence and independent rereview before any merge.
+
+## Current closeout non-pass — 34097606992
+
+PR #118 head `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`, hosted
+[34097606992](https://github.com/xdgf558/MindBudget/actions/runs/34097606992), attempt 1:
+**failure / retained non-pass**. Ordinary `101664622832`, FX `101664623020` and join
+`101673689351` all failed. Run/head/job metadata and original artifact IDs were checked directly;
+the failure details below are attributed to the owner's supplied independent artifact review,
+not a newly performed author native audit of this failed run.
+
+| Suite / artifact | Reviewer-observed failure | Other observed methods, not suite admission |
+| --- | --- | --- |
+| FX / `10009729091` | `testManualForeignCurrencyChineseAX5ProCreateAndDetail` failed in 29.8 s after one off-track tap. Row `(36,132,330,125.33)`, native child `(305,180.67,63,28)`, offTrackTap `(352.25,194.67)`; both rowValue and childValue remained 0. Reviewer reports a fresh non-cloned device with UUID prefix `FE266090-`. | Chinese stewardship Passed 163.3 s; English create Passed 101.5 s. Neither makes the failed three-method bundle pass. |
+| Ordinary / `10010259290` | `testCategoryChartLegendKeepsSixItemsReachableInSimplifiedChinese` failed at `MindBudgetPhase3UITests.swift:1682`: budget.savingGoal did not become `"500"` in the bounded 5 s wait (`XCTWaiter.timedOut`). | The English counterpart Passed in 106 s; not proof that the Chinese state transition succeeded. |
+
+The 0.75 off-track single tap is therefore not a demonstrated stable hosted-26.6 solution;
+its earlier success remains a bounded observation, not cause closure or universal reliability.
+The filling timeout's mechanism is not established here either. No helper, longer press,
+retap, allowance, benchmark ceiling or retry setting changes in this documentation PR.
+Retain both failures without calling them transient, blaming the documentation, or reusing
+`34090503092` as this PR's acceptance. The status correction requires one new-head hosted run;
+it is not a code repair of either observed failure or approval to rerun until green.
+
+P2-1's missed Current D work sentence is corrected from "implemented in Draft PR #117" to
+"were merged in PR #117". P2-2 remains open until this closeout's new exact head has ordinary,
+FX and join success with zero retry and the required native audit/rereview. Keep Draft; D's
+four checkboxes remain unchecked, D is not Done and FX-01E remains unentered. The original
+814.581125 ms failure and `34072691064` / `34077058451` remain retained alongside this run.
+
+The accepted implementation provenance and audit below refer only to #117's `34090503092`,
+not to the failed closeout bundle or its replacement head. This pending packet must not be
+self-approved after merging; explicit final acceptance is still required.
 
 ## Accepted implementation provenance
 
@@ -55,7 +88,7 @@ methods reserved for the separate host. They are not transport passes.
 | Chinese AX5 create/detail | 171.399 | 240 |
 | English create/detail | 96.387 | 240 |
 
-The current maximum uses 71.4% of the allowance, with 68.6 s remaining. This is an observation,
+That accepted implementation run's maximum uses 71.4% of the allowance, with 68.6 s remaining. This is an observation,
 not a future performance guarantee or permission to raise allowances/retry. The 600 s boot
 capacity obligation and zero-retap boundaries remain. Hosted ordinary skips the strict wall-clock
 benchmark; only the complete local run in the implementation evidence satisfies that signal.
