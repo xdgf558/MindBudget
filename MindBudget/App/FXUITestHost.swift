@@ -1,63 +1,6 @@
 #if DEBUG && targetEnvironment(simulator) && MINDBUDGET_FX_UI_TEST_HOST
 import SwiftData
 import SwiftUI
-import UIKit
-import OSLog
-
-// TEMPORARY PR #117 hosted diagnostic, not a corrective control or release candidate.
-// This entire executable is excluded from ordinary Debug and every Release build.
-// Observe public dispatch only: forward exactly once, add no gesture/action/retry.
-private enum FX117TouchDiagnostic {
-    static let logger = Logger(subsystem: "MindBudget.FX117Diagnostic", category: "touch")
-    @MainActor static var installed = false
-
-    @MainActor static func install() {
-        guard !installed else { return }
-        guard let event = class_getInstanceMethod(UIApplication.self, #selector(UIApplication.sendEvent(_:))),
-              let observedEvent = class_getInstanceMethod(UIApplication.self, #selector(UIApplication.fx117_sendEvent(_:))),
-              let action = class_getInstanceMethod(UIControl.self, #selector(UIControl.sendAction(_:to:for:))),
-              let observedAction = class_getInstanceMethod(UIControl.self, #selector(UIControl.fx117_sendAction(_:to:for:))) else {
-            fatalError("FX117 diagnostic could not observe public dispatch")
-        }
-        installed = true
-        method_exchangeImplementations(event, observedEvent)
-        method_exchangeImplementations(action, observedAction)
-    }
-
-    @MainActor static func describe(_ touch: UITouch, stage: String) {
-        var view = touch.view
-        var chain: [String] = []
-        while let current = view {
-            let recognizers = (current.gestureRecognizers ?? []).map {
-                "\(type(of: $0)):\($0.state.rawValue):enabled=\($0.isEnabled):delaysBegan=\($0.delaysTouchesBegan):delaysEnded=\($0.delaysTouchesEnded):cancels=\($0.cancelsTouchesInView)"
-            }.joined(separator: ",")
-            let control = current as? UIControl
-            let toggle = current as? UISwitch
-            chain.append("\(type(of: current)) frame=\(current.convert(current.bounds, to: touch.window)) enabled=\(String(describing: control?.isEnabled)) on=\(String(describing: toggle?.isOn)) gestures=[\(recognizers)]")
-            view = current.superview
-        }
-        // Synthetic fixture geometry/state only; no labels, text input or user data.
-        let text = "\(stage) phase=\(touch.phase.rawValue) time=\(touch.timestamp) point=\(touch.location(in: touch.window)) targetChain=\(chain.joined(separator: " -> "))"
-        logger.notice("\(text, privacy: .public)")
-    }
-}
-
-private extension UIApplication {
-    @objc func fx117_sendEvent(_ event: UIEvent) {
-        let touches = event.allTouches ?? []
-        for touch in touches { FX117TouchDiagnostic.describe(touch, stage: "before") }
-        fx117_sendEvent(event)
-        for touch in touches { FX117TouchDiagnostic.describe(touch, stage: "after") }
-    }
-}
-
-private extension UIControl {
-    @objc func fx117_sendAction(_ action: Selector, to target: Any?, for event: UIEvent?) {
-        let text = "ACTION \(type(of: self)) selector=\(action) enabled=\(isEnabled) on=\(String(describing: (self as? UISwitch)?.isOn))"
-        FX117TouchDiagnostic.logger.notice("\(text, privacy: .public)")
-        fx117_sendAction(action, to: target, for: event)
-    }
-}
 
 /// A different executable entry, not a branch inside AppBootstrap. It never constructs
 /// AppEnvironment.live(), registers Intents, or starts StoreKit/network/system lifecycles.
@@ -84,7 +27,6 @@ private final class FXUITestHost: ObservableObject {
     @Published var seeding = false
 
     init() {
-        FX117TouchDiagnostic.install()
         do {
             controller = try DataController(isStoredInMemoryOnly: true)
         } catch {

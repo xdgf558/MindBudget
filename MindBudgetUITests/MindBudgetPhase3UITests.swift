@@ -256,10 +256,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         attachment.name = "FX single switch activation geometry"
         attachment.lifetime = .keepAlways
         add(attachment)
-        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
-            dx: activation.nativeSwitch.midX - activation.application.minX,
-            dy: activation.nativeSwitch.midY - activation.application.minY
-        )).tap()
+        app.coordinate(withNormalizedOffset: .zero).withOffset(activation.tapOffset).tap()
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '1'"), object: toggle)
         guard XCTWaiter.wait(for: [enabled], timeout: 3) == .completed else {
             // An assertion alone did not stop the retained async hosted test. Throwing prevents
@@ -1882,6 +1879,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let nativeSwitch: CGRect
         let lane: CGRect
 
+        // These fixtures are English / Simplified Chinese (left-to-right) and activate only
+        // an off switch. The retained hosted trace shows the centre lands on its draggable
+        // thumb: touches arrive but no control action follows. Use the off track's trailing
+        // quarter, not the thumb or a fraction of the multi-line label row. Still one tap.
+        var tapPoint: CGPoint {
+            CGPoint(x: nativeSwitch.minX + nativeSwitch.width * 0.75, y: nativeSwitch.midY)
+        }
+        var tapOffset: CGVector {
+            CGVector(dx: tapPoint.x - application.minX, dy: tapPoint.y - application.minY)
+        }
+
         init(snapshot: () throws -> BudgetSnapshotNode) throws {
             let root = try snapshot()
             func requireFrame(_ frame: CGRect) throws {
@@ -1936,15 +1944,18 @@ final class MindBudgetPhase3UITests: XCTestCase {
             try requireFrame(lane)
             // The native control can extend slightly past its labelled parent (seen in the
             // failed hosted snapshot). Require its full frame in the safe lane, and its center
-            // in the parent; do not inflate either rectangle or assume trailing alignment.
+            // in the parent; do not inflate either rectangle or infer control placement
+            // from the label row. Both the centre and the off-track tap must be in the row.
             guard application.contains(nativeSwitch), lane.contains(nativeSwitch),
-                  row.contains(CGPoint(x: nativeSwitch.midX, y: nativeSwitch.midY)) else {
+                  nativeSwitch.width > nativeSwitch.height,
+                  row.contains(CGPoint(x: nativeSwitch.midX, y: nativeSwitch.midY)),
+                  row.contains(tapPoint), lane.contains(tapPoint), nativeSwitch.contains(tapPoint) else {
                 throw BudgetGeometryError(description: "FX native switch is occluded or outside its row")
             }
         }
 
         var description: String {
-            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), rowValue=0, childValue=0"
+            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), rowValue=0, childValue=0"
         }
     }
 
@@ -1967,6 +1978,12 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let captured = try FXSwitchTapGeometry { captures += 1; return tree([row]) }
         XCTAssertEqual(captures, 1)
         XCTAssertEqual(captured.nativeSwitch, child.frame)
+        XCTAssertEqual(captured.tapPoint.x, child.frame.minX + child.frame.width * 0.75)
+        XCTAssertEqual(captured.tapPoint.y, child.frame.midY)
+        // Original failed native trace: the off thumb ends at x=344. The new point stays
+        // inside the 63pt switch but outside that thumb; no second event is sent.
+        XCTAssertGreaterThan(captured.tapPoint.x, 344.3)
+        XCTAssertTrue(child.frame.contains(captured.tapPoint))
         XCTAssertNotEqual(captured.nativeSwitch.midX, row.frame.minX + row.frame.width * 0.94)
         let offCenter = BudgetSnapshotNode(.switch, CGRect(x: 285, y: 210, width: 63, height: 28), value: "0")
         row = BudgetSnapshotNode(.switch, CGRect(x: 36, y: 132, width: 330, height: 140),
@@ -1974,6 +1991,17 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let ax5 = try FXSwitchTapGeometry { tree([row]) }
         XCTAssertEqual(ax5.nativeSwitch, offCenter.frame)
         XCTAssertNotEqual(ax5.nativeSwitch.midY, row.frame.midY)
+        XCTAssertEqual(ax5.tapPoint.y, offCenter.frame.midY)
+        let observedAX5Child = BudgetSnapshotNode(.switch,
+            CGRect(x: 305, y: 180.66666666666666, width: 63, height: 28), value: "0")
+        let observedAX5Row = BudgetSnapshotNode(.switch,
+            CGRect(x: 36, y: 132, width: 330, height: 125.33334350585938),
+            identifier: "fx.enabled", value: "0", children: [observedAX5Child])
+        let observedAX5 = try FXSwitchTapGeometry { tree([observedAX5Row]) }
+        XCTAssertEqual(observedAX5.tapPoint.x, 352.25)
+        XCTAssertEqual(observedAX5.tapPoint.y, observedAX5Child.frame.midY)
+        XCTAssertGreaterThan(observedAX5.tapPoint.x, 344)
+        XCTAssertTrue(observedAX5Child.frame.contains(observedAX5.tapPoint))
         XCTAssertEqual(captured.nativeSwitch, child.frame, "Later layout cannot mutate captured hit geometry")
         XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row, row]) })
         XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row], navigationBottom: 225) })
@@ -1982,6 +2010,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
                          [BudgetSnapshotNode(.switch, offCenter.frame, enabled: false, value: "0")],
                          [BudgetSnapshotNode(.switch, offCenter.frame, value: "1")],
                          [BudgetSnapshotNode(.switch, offCenter.frame)],
+                         [BudgetSnapshotNode(.switch, CGRect(x: 285, y: 210, width: 28, height: 63), value: "0")],
                          [BudgetSnapshotNode(.switch, CGRect(x: 285, y: 760, width: 63, height: 28), value: "0")]] {
             row.children = children
             XCTAssertThrowsError(try FXSwitchTapGeometry { tree([row]) })

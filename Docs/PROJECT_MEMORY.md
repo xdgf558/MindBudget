@@ -26,8 +26,12 @@ has retained hosted non-pass `34072691064`: ordinary succeeded, English FX switc
 failed and the join failed. Its Draft status and both P2 blockers remain. The original 48 FX unit
 bindings and three isolated UI bindings have supplementary local native audits, not a complete
 validation pass. The repair candidate adds a 49th ReminderEngine binding (one local focused pass)
-and a temporary isolated-host touch observer for hosted diagnosis, not a shipping fix. Remove
-that observer before final repair acceptance. Hosted acceptance and independent rereview remain outstanding;
+and the diagnostic `c1f0db2` retained hosted non-pass `34077058451` (Chinese AX5 switch; ordinary
+succeeded, FX/join failed). Its original xcresult contains readable touch records: centre tap
+reached the thumb but emitted no control action. The working repair taps the native off track
+once; local trace confirms a changed target path and successful action, not a complete causal
+proof. The observer is now removed and the host restored to `f3538f9`; a source gate rejects
+dispatch replacement. Complete local, final-head hosted acceptance and independent rereview remain outstanding;
 see `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 No D Done or E entry is claimed.
 

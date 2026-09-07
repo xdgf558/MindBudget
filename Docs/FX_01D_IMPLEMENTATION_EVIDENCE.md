@@ -335,3 +335,32 @@ the runner lifecycle and isolated-device cleanup are unchanged. This candidate m
 merged as a fix: remove the observer after investigation, then validate a final repair head.
 Neither a successful instrumented hosted run nor another focused benchmark closes the two P2
 findings. Complete local acceptance and final-head hosted/native acceptance remain open.
+
+### Diagnostic head c1f0db2 retained non-pass and readable trace
+
+Hosted `34077058451` attempt 1 failed on `c1f0db2`: ordinary succeeded; FX and join failed.
+Chinese AX5 create failed at one switch tap (33.247 s); Chinese stewardship and English create
+Passed in 169.446 / 100.488 s. The observer is not a fix and this is not acceptance. The full
+local 814.6 ms benchmark remains open independently. Preserve both failed hosted runs.
+
+The review correctly keeps both P2 findings open. Its statement that no readable dispatch was
+retained is corrected by the original exported App console lines 105681–105684 and the native
+system.logarchive: the failed thumb receives began/ended, then its native long-press/pan fail,
+with no control action. The 125pt row contains a 28pt native switch; the recorded tap already
+matches the latter's centre. See `FX_01D_SWITCH_DIAGNOSTIC.md` for exact extraction, artifact
+identity, geometry, scoped log hash and limitations. No unavailable internal cause is asserted.
+
+A working-tree candidate moves the same one tap to the native off track outside the observed
+thumb. One deterministic geometry test Passed locally; a single isolated instrumented run is
+underway to verify the target path, not to admit the candidate. The observer must then be
+removed. Complete local validation, final-head hosted/native audits and rereview remain required.
+
+The candidate's isolated diagnostic has now completed: three Passed once, strict UUID binding,
+existing warnings retained; the off-track dispatch is observed to avoid the thumb and emit one
+control action. This is local path evidence, not a complete causal proof or hosted acceptance.
+The observer was then entirely removed and the FX host restored exactly to `f3538f9`; the static
+isolation gate rejects three dispatch-replacement APIs. Exact hashes, durations and the limitation
+that native long-press still participates are appended to `FX_01D_SWITCH_DIAGNOSTIC.md`.
+Prepare an observer-free repair candidate with the one-tap geometry control only; no benchmark
+code, 500ms ceiling, retry/allowance or product view has changed. Both P2 findings remain open
+until the complete validation and independent rereview conditions are actually satisfied.

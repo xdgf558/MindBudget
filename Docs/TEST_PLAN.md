@@ -972,6 +972,10 @@ totals; Product Design is required for its future UI work. See its separate plan
   its actual redacted model prompt must execute once and contain no original FX fields.
 - The unit admission gate requires 49 FX methods Passed once; isolated FX UI remains three
   methods. Native artifacts reject Repetition/extra attempts and bind the FX UI device ID.
+- The FX activation geometry test includes the retained English 28pt and Chinese AX5 125pt-row /
+  28pt-control cases; one off-track point must stay in the captured child, row and unobscured lane.
+  No observer may remain in an acceptance host; copied-source negatives reject native dispatch
+  replacement. Instrumented diagnostic passes are not observer-free hosted/local acceptance.
 - `check_fx01_privacy.py` rejects 165 private-field/type injections in fifteen existing sinks,
   including ReminderEngine.
   It is not arbitrary alias/reflection/new-sink or final-binary proof. The iCloud gate additionally

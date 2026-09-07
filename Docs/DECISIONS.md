@@ -4497,3 +4497,19 @@ mismatch, or choose a wall-clock winner. Local authoring stages both facts atomi
 opt-out stages neither. Parent deletion stages both tombstones; child deletion never deletes the
 accounting parent. Conflicts preserve local authority until explicit resolution. This grants no
 Pro entry, iCloud opt-in, provider, production schema or release authority.
+
+## 2026-09-07 — FX single activation uses the native off track
+
+The `c1f0db2` failed hosted trace proves centre activation reached the native switch thumb,
+remained off and emitted no control action. The 125pt AX5 label row contains a 28pt control;
+changing row height would not correct the observed target. For the English/Chinese LTR test
+fixtures only, retain one immutable snapshot and one tap, placed at the native off track's
+trailing quarter inside the safe lane. Preserve enabled/off/unique-child checks, the same
+bounded value wait and fail-closed throw; no retap, longer press, sleep or larger allowance.
+
+Local trace verifies the changed target path and successful activation, but not the internal
+cause of hosted gesture arbitration or universal robustness. Remove all temporary dispatch
+observers before final-head validation and reject direct native dispatch replacement in the FX
+host source gate. Record `34072691064` and `34077058451` as non-pass, retain the original 814.6ms
+complete-local failure, and require complete local/hosted/native evidence plus independent
+rereview. This decision changes only the UI-test interaction, not the FX product or phase status.

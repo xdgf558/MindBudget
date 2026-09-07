@@ -9593,3 +9593,39 @@ network-egress, commercialization-document and StoreKit catalog gates all exit 0
 27 beta 6 (`pr117-hosted-touch-build.log`, build-for-testing exit 0); no tests were run by this
 compile command. These are preparation evidence only. Full local validation and hosted
 observation on the new diagnostic commit remain outstanding; the two P2 findings stay open.
+
+## 2026-09-07 — c1f0db2 review and switch-target correction investigation
+
+`34077058451` failed: ordinary success, FX/join failure. The failed method is Chinese AX5
+create (33.247 s), not English; the other two Passed (169.446 / 100.488 s). Downloaded original
+artifact `10002713432` and exported diagnostics/attachments without rerunning it. The original
+App console and system.logarchive do contain readable observer records for the failed process.
+They show the touch arriving on the native thumb, staying off and ending without a control
+action. The 125pt label row and 28pt child have matching vertical centres; geometry was not
+observed to shift. Details/extraction/hash are in `FX_01D_SWITCH_DIAGNOSTIC.md`; internal gesture
+failure cause is not proven. Keep this run and the original local/hosted failures as non-pass.
+
+Implementing a bounded helper candidate: one snapshot and one tap on the off track outside
+the observed thumb, preserving all waiting, zero-retry and lane checks. The real 125pt AX5
+fixture plus invalid/ambiguous/occluded geometries Passed one focused deterministic method.
+An instrumented isolated run `pr117-offtrack-diagnostic-1` is in progress; its result is pending,
+not corrective acceptance. Remove the observer before the final repair head, then require
+complete local `validate.sh`, hosted ordinary/FX/join and native audit plus independent rereview.
+Neither P2 is closed at this checkpoint, and D/E status is unchanged.
+
+The off-track diagnostic completed exit 0, three methods Passed once with UUID binding, retaining
+three existing invalid-frame warnings. Chinese trace confirms the target moved from the thumb
+to track UIViews and a single control action followed. Because the native long-press also began,
+this is changed-path/local-success evidence, not proof all timing failures are eliminated. The
+whole observer was then removed; host bytes match `f3538f9`. Added source negatives rejecting
+three native dispatch replacement APIs. Prepare the observer-free repair head and require one
+complete local validator (including unchanged 500ms) plus exact-head hosted/native evidence.
+No extra test iteration, retap, product behavior change or D/E phase transition occurred.
+
+Observer-free candidate preparation passed all five static gates (including copied-source
+dispatch-replacement negatives), and `git diff --check` is clean. The instrumented diagnostic's
+native audit independently checked three concrete Passed executions, zero Repetition/extra
+attempt, three retained warnings and a tree/detail bijection; it remains diagnostic only.
+Commit the observer-free helper correction and the readable evidence packet, then run complete
+local validation once and new-head hosted jobs. Their outcomes are pending, not inferred from
+the static or focused results. Keep PR #117 Draft for subsequent independent rereview.
