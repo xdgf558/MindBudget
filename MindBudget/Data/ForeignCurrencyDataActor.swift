@@ -29,10 +29,6 @@ extension DataActor {
     func validateForeignCurrency(_ value: ExpenseForeignCurrency?, draft: ExpenseDraft) throws {
         guard let value else { return }
         guard draft.source == .manual, !draft.isRecurring else { throw ForeignCurrencyError.unsupportedSource }
-        let sync = try cloudSyncSnapshot()
-        guard !sync.isEnabled || sync.status == .deletingCloudData else {
-            throw ForeignCurrencyError.syncRequiresCompanionProtocol
-        }
         try value.validate(accounting: draft.amount)
     }
 
@@ -62,9 +58,14 @@ extension DataActor {
         )) { modelContext.delete(row) }
     }
 
-    func requireNoForeignCurrencyForLegacySync() throws {
-        guard try modelContext.fetchCount(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) == 0 else {
-            throw ForeignCurrencyError.syncRequiresCompanionProtocol
+    func validateForeignCurrencySyncFacts() throws {
+        for row in try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) {
+            let id = row.expenseID
+            let parents = try modelContext.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))
+            guard parents.count == 1, let parent = parents.first else {
+                throw ForeignCurrencyError.unreadableMetadata
+            }
+            _ = try foreignCurrency(for: parent)
         }
     }
 }

@@ -46,11 +46,13 @@ ALLOWED_STATIC_CHECKS = frozenset(
 # row checks. The matrix contract is its own bootstrap entry point, while coverage requires the
 # complete full-suite xcresult produced by Scripts/validate.sh rather than the selected C6 bundle.
 # Discovery below requires every future check script to be either a matrix check or one of these
-# three exact reviewed special cases.
+# three C6 special cases or the explicitly nested FX-01D gate below. The latter
+# remains FX-owned; it is not a new requirement in the completed C6 migration row.
 SPECIAL_CHECK_CLASSIFICATIONS = {
     "Scripts/check-c6-release-matrix.sh": "matrix-bootstrap",
     "Scripts/check-coverage.sh": "full-suite-xcresult",
     "Scripts/check_c6_02_acceptance.py": "c6-02-bounded-acceptance",
+    "Scripts/check_fx01_privacy.py": "fx-01d-nested-privacy",
 }
 
 EXPECTED_WORKER_CHECKS = (
@@ -151,6 +153,10 @@ def validate_manifest_data(
             "repository check-script classification drifted; "
             f"unclassified={unclassified}, missing={missing}"
         )
+
+    fx_wrapper = project_root / "Scripts/check-fx01-contract.sh"
+    if not fx_wrapper.is_file() or "python3 -B Scripts/check_fx01_privacy.py --self-test" not in fx_wrapper.read_text(encoding="utf-8").splitlines():
+        errors.append("FX-01D nested privacy check must execute through the FX wrapper")
 
     worker_checks = data["workerChecks"]
     observed_worker_checks: list[tuple[str, str]] = []

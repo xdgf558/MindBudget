@@ -449,7 +449,8 @@ actor DataActor {
                 isPlanned: summary.isPlanned,
                 isRecurring: summary.isRecurring,
                 source: summary.source,
-                allowMerchantIndexing: summary.allowMerchantIndexing
+                allowMerchantIndexing: summary.allowMerchantIndexing,
+                foreignCurrency: try foreignCurrency(for: expense)
             )
         }
     }

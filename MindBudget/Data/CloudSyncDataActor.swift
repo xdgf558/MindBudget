@@ -66,7 +66,7 @@ extension DataActor {
     @discardableResult
     func setCloudSyncEnabled(_ enabled: Bool, at date: Date = Date()) throws -> CloudSyncSnapshot {
         do {
-            if enabled { try requireNoForeignCurrencyForLegacySync() }
+            if enabled { try validateForeignCurrencySyncFacts() }
             let existingControl = try fetchCloudSyncControl()
             let control = existingControl ?? CloudSyncControl(
                 id: Self.cloudSyncControlID,
@@ -454,7 +454,6 @@ extension DataActor {
         }
         // Erasure is not ordinary upload. It must not block any local financial write.
         guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }
-        try requireNoForeignCurrencyForLegacySync()
         modelContext.processPendingChanges()
         var changesByRecordName: [String: CloudSyncMutationProjection] = [:]
         for model in modelContext.insertedModelsArray + modelContext.changedModelsArray {
@@ -476,7 +475,7 @@ extension DataActor {
 
     private func stageAllCurrentFacts(at date: Date) throws -> Bool {
         // Covers both ordinary enable and the separate trust-boundary recovery/reupload entry.
-        try requireNoForeignCurrencyForLegacySync()
+        try validateForeignCurrencySyncFacts()
         let models = try allCloudSyncBusinessModels()
         var staged = false
         for model in models {
@@ -535,6 +534,7 @@ extension DataActor {
     private func allCloudSyncBusinessModels() throws -> [any PersistentModel] {
         var models: [any PersistentModel] = []
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<Expense>()))
+        models.append(contentsOf: try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<Income>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<IncomeAllocation>()))
         models.append(contentsOf: try modelContext.fetch(FetchDescriptor<SavingsGoal>()))
@@ -662,17 +662,56 @@ extension DataActor {
         }
     }
 
+    /// Used only inside an explicit paired conflict transaction. Reuses the frozen projections
+    /// instead of constructing an alternate expense or companion field map in the resolver.
+    func localFXConflictPayload(type: CloudSyncEntityType, identity: String) throws -> CloudSyncPayload? {
+        guard let id = UUID(uuidString: identity) else { throw CloudSyncValidationError.invalidIdentity }
+        switch type {
+        case .expense:
+            let rows = try modelContext.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))
+            guard rows.count == 1, let row = rows.first else { throw CloudSyncApplicationError.validationFailed }
+            return try cloudSyncProjection(for: row, operation: .upsert)?.payload
+        case .expenseForeignCurrencyMetadata:
+            let rows = try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>(predicate: #Predicate { $0.expenseID == id }))
+            guard rows.count == 1, let row = rows.first else { throw CloudSyncApplicationError.validationFailed }
+            return try cloudSyncProjection(for: row, operation: .upsert)?.payload
+        default: throw CloudSyncApplicationError.validationFailed
+        }
+    }
+
     private func cloudSyncProjection(
         for model: any PersistentModel,
         operation: CloudSyncOperation
     ) throws -> CloudSyncMutationProjection? {
         if let model = model as? Expense {
+            if operation == .upsert { _ = try foreignCurrency(for: model) }
             return projection(
                 type: .expense,
                 id: model.id,
                 operation: operation,
                 fields: expenseFields(model)
             )
+        }
+        if let model = model as? ExpenseForeignCurrencyMetadata {
+            if operation == .upsert {
+                let id = model.expenseID
+                let parents = try modelContext.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id }))
+                guard parents.count == 1, let parent = parents.first else {
+                    throw ForeignCurrencyError.unreadableMetadata
+                }
+                _ = try foreignCurrency(for: parent)
+            }
+            return projection(type: .expenseForeignCurrencyMetadata, id: model.expenseID,
+                operation: operation, fields: [
+                    "expenseID": commonID(model.expenseID),
+                    "originalAmountMinorUnits": .integer(model.originalAmountMinorUnits),
+                    "originalCurrencyCode": .string(model.originalCurrencyCode),
+                    "rateNumerator": .integer(model.rateNumerator),
+                    "rateDenominator": .integer(model.rateDenominator),
+                    "rateDate": .unsigned(model.rateDate.cloudSyncBits),
+                    "rateTimeZoneIdentifier": .string(model.rateTimeZoneIdentifier),
+                    "rateSourceRaw": .string(model.rateSourceRaw)
+                ])
         }
         if let model = model as? Income {
             return projection(type: .income, id: model.id, operation: operation, fields: incomeFields(model))

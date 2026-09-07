@@ -76,7 +76,7 @@ struct ExportDataView: View {
             async let expenseRequest = dataActor.fetchExpenseExportRecords()
             async let incomeRequest = dataActor.fetchIncomeExportRecords()
             let (expenses, incomes) = try await (expenseRequest, incomeRequest)
-            let result = CSVExporter().export(
+            let result = try CSVExporter().export(
                 expenses: expenses,
                 incomes: incomes
             )

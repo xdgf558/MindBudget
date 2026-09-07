@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from collections import Counter
 from dataclasses import dataclass
 import plistlib
@@ -136,6 +137,7 @@ SWIFT_IMPORT_KINDS = {
 
 EXPECTED_SYNC_ENTITY_CASES = {
     "expense",
+    "expenseForeignCurrencyMetadata",
     "income",
     "incomeAllocation",
     "savingsGoal",
@@ -148,6 +150,46 @@ EXPECTED_SYNC_ENTITY_CASES = {
     "coolingOffPlan",
     "reflectionLog",
 }
+
+FX_PARENT_PROJECTION_SHA256 = "204bec476a14f6ef169d094b73ddeae4bdde125c12c296983daa43ba3a9144cd"
+FX_APPLICATION_ORDER = ["budgetPlan", "expense", "expenseForeignCurrencyMetadata", "income",
+    "savingsGoal", "recurringRule", "wishItem", "budgetPlanSemantics", "categoryBudget",
+    "incomeAllocation", "recurringOccurrence", "coolingOffPlan", "reflectionLog"]
+FX_CONTRACT_ANCHORS = (
+    "Wire inventory: exactly 13 entity types",
+    "Frozen parent: `.expense` payload keys, field types, semantic digest algorithm and envelope version 1 remain unchanged.",
+    "Closed fields: `expenseID`, `originalAmountMinorUnits`, `originalCurrencyCode`, `rateNumerator`, `rateDenominator`, `rateDate`, `rateTimeZoneIdentifier`, `rateSourceRaw`.",
+    "Atomic cohort:", "Pending parent:", "Quarantine:", "Conflict choice:", "Deletion:",
+    "Local continuity:", "Sync remains default off;", "not reviewed/merged runtime acceptance",
+)
+
+
+def validate_fx_companion_contract(domain: str, actor: str, contract: str) -> list[str]:
+    errors: list[str] = []
+    tokens = [token.value for token in _swift_code_tokens(domain)]
+    marker = ["static", "let", "applicationOrder", ":", "[", "CloudSyncEntityType", "]", "=", "["]
+    starts = [index + len(marker) for index in range(len(tokens))
+              if tokens[index:index + len(marker)] == marker]
+    observed: list[str] = []
+    if len(starts) == 1 and "]" in tokens[starts[0]:]:
+        observed = tokens[starts[0]:tokens.index("]", starts[0])]
+        if observed and observed[-1] == ",":
+            observed = observed[:-1]
+    expected = [token for name in FX_APPLICATION_ORDER for token in (".", name, ",")][:-1]
+    if observed != expected:
+        errors.append("FX companion must follow expense in the exact 13-type application order")
+    try:
+        projection = actor.split("    private func expenseFields(", 1)[1].split("    private func incomeFields(", 1)[0]
+    except IndexError:
+        projection = ""
+    if hashlib.sha256(re.sub(r"\s+", "", projection).encode()).hexdigest() != FX_PARENT_PROJECTION_SHA256:
+        errors.append("FX cannot change the frozen pre-D expense field projection")
+    current = contract.split("### FX-01D companion transport — current source candidate", 1)
+    section = current[1].split("\n### ", 1)[0] if len(current) == 2 else ""
+    for anchor in FX_CONTRACT_ANCHORS:
+        if anchor not in section:
+            errors.append(f"current FX companion contract missing {anchor!r}")
+    return errors
 
 REQUIRED_RUNTIME_ANCHORS = {
     "MindBudget/Services/CloudSyncRuntime.swift": (
@@ -792,11 +834,17 @@ def validate_custom_sync_runtime(project_root: Path) -> list[str]:
         cases = _enum_cases(_swift_code_tokens(domain_text), "CloudSyncEntityType")
         if cases != EXPECTED_SYNC_ENTITY_CASES:
             errors.append(
-                f"{domain_path}: CloudSyncEntityType must be exactly the 12 accepted facts; "
+                f"{domain_path}: CloudSyncEntityType must be exactly the 13 accepted facts; "
                 f"found {sorted(cases or set())}"
             )
 
     combined_runtime = "\n".join(source_text.values())
+    contract_path = project_root / "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md"
+    errors.extend(validate_fx_companion_contract(
+        source_text.get("MindBudget/Services/CloudSyncDomain.swift", ""),
+        source_text.get("MindBudget/Data/CloudSyncDataActor.swift", ""),
+        contract_path.read_text(encoding="utf-8") if contract_path.is_file() else "",
+    ))
     for forbidden in (
         "publicCloudDatabase",
         "sharedCloudDatabase",
@@ -889,6 +937,28 @@ def validate_cloudkit_entitlements(project_root: Path) -> list[str]:
 
 
 def self_test() -> None:
+    actual = Path(__file__).resolve().parents[1]
+    fx_sources = [
+        (actual / "MindBudget/Services/CloudSyncDomain.swift").read_text(encoding="utf-8"),
+        (actual / "MindBudget/Data/CloudSyncDataActor.swift").read_text(encoding="utf-8"),
+        (actual / "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md").read_text(encoding="utf-8"),
+    ]
+    if validate_fx_companion_contract(*fx_sources):
+        raise AssertionError("authoritative FX companion sources failed")
+    mutations = [(0, ".expenseForeignCurrencyMetadata,", ""),
+        (0, ".expenseForeignCurrencyMetadata,", "/* .expenseForeignCurrencyMetadata, */"),
+        (0, ".expenseForeignCurrencyMetadata,", '".expenseForeignCurrencyMetadata,"'),
+        (0, ".expenseForeignCurrencyMetadata,", ".expenseForeignCurrencyMetadata, .expenseForeignCurrencyMetadata,"),
+        (0, ".expense,\n        .expenseForeignCurrencyMetadata,", ".expenseForeignCurrencyMetadata,\n        .expense,"),
+        (1, '"amount": .integer(value.amountMinorUnits)', '"foreignAmount": .integer(value.amountMinorUnits)')]
+    mutations += [(2, anchor, "retired") for anchor in FX_CONTRACT_ANCHORS]
+    for index, old, replacement in mutations:
+        changed = list(fx_sources)
+        if old not in changed[index]:
+            raise AssertionError(f"FX mutation target missing: {old}")
+        changed[index] = changed[index].replace(old, replacement)
+        if not validate_fx_companion_contract(*changed):
+            raise AssertionError(f"FX companion mutation escaped: {old}")
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         contract = root / "contract.md"

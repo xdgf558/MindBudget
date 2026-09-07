@@ -370,8 +370,10 @@ struct Phase11FreeTierTests {
             updatedAt: TestFixtures.now
         )
 
-        let result = CSVExporter().export(expenses: [], incomes: [income])
+        let result = try CSVExporter().export(expenses: [], incomes: [income])
         let row = try #require(parseCSV(result.data).last)
+        #expect(row.count == 30)
+        #expect(Array(row.suffix(8)) == Array(repeating: "", count: 8))
 
         #expect(result.rowCount == 1)
         #expect(row[0] == "income")

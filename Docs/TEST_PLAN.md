@@ -1,9 +1,11 @@
 # TEST_PLAN
 
-Current FX acceptance inventory and limitations are recorded in the dated final acceptance
-section below and `FX_01C_IMPLEMENTATION_EVIDENCE.md`: PR #115 has three isolated FX methods,
-not the historical two-method inventory. Its accepted runtime evidence does not approve this
-new documentation/gate head or complete C; D remains unentered.
+Current FX acceptance is recorded in the dated owner C-completion/D-entry section below.
+PR #116's independent review, exact-head hosted/native success and merge support the owner's
+C Done decision. D is In Progress; its new source needs its own validation and review and is not
+covered by the accepted C runs. The isolated FX inventory remains three UI methods; the new D
+CSV/consumer tests extend the required unit inventory from 32 to 41. Focused D tests do not
+substitute for full validation or acceptance of the still-unimplemented iCloud companion.
 
 ## Framework and determinism
 
@@ -923,3 +925,54 @@ VoiceOver/release matrix and the retained P3 obligations are not silently closed
 C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.
+
+### FX-01D working-tree regression map (acceptance pending)
+
+- `ForeignCurrencyPersistenceTests` compares fixed-accounting consumers, captures actual
+  redacted Ask/cycle prompts through a local throwing model double, and compares Spotlight
+  documents/typed entities for ordinary versus manual-rate/override FX rows in both languages.
+- Seven mandatory companion methods cover the frozen parent payload/digest, exact eight-field
+  child, reversed/separate arrival, duplicate replay, changed amount waiting for a matching pair,
+  malformed and undecodable cohorts, second-lineage rollback, explicit keep-local/use-cloud
+  (including local note-only edits), scoped deletion and tombstone resurrection refusal.
+- Existing CloudSync tests exercise offline/account/quota/recovery and ordinary twelve-type
+  behavior; no live account tests are enabled. Existing Phase 7/8A/9 and typed telemetry suites
+  cover fallback, model data minimization, Siri/Spotlight, onscreen and notification boundaries.
+- The unit admission gate requires 48 FX methods Passed once; isolated FX UI remains three
+  methods. Native artifacts reject Repetition/extra attempts and bind the FX UI device ID.
+- `check_fx01_privacy.py` rejects 154 private-field/type injections in fourteen existing sinks.
+  It is not arbitrary alias/reflection/new-sink or final-binary proof. The iCloud gate additionally
+  pins the exact thirteen-type order, frozen parent projection and current companion contract.
+
+These fixtures do not authorize enabling optional sync, real provider/device tests, distribution,
+automatic-rate FX-02, E entry, or the queued Insights income/share feature. Full candidate results
+and retained non-passes belong in `FX_01D_IMPLEMENTATION_EVIDENCE.md`, not inferred from this map.

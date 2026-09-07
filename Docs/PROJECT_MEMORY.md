@@ -11,6 +11,22 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Owner workflow preference (2026-09-06): use the Product Design skill for UI-design tasks,
+including the queued Insights income tile and share card. Follow the skill's context/visual
+selection/verification workflow and preserve this app's existing design system. This preference
+does not authorize parallel phase implementation or deployment.
+
+Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
+companion protocol are implemented as a working-tree candidate. The old `.expense` payload is
+frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
+isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
+not real models/accounts. Complete local validation is blocked by an 814.6 ms Dashboard benchmark
+against its unchanged 500 ms ceiling; the cause is not established. All 48 required FX unit
+bindings and three isolated UI bindings have supplementary local native audits, not a complete
+validation pass. Hosted acceptance and independent review also remain outstanding;
+see `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+No D Done or E entry is claimed.
+
 1. Track an amount and category in about ten seconds.
 2. Understand pressure inside the current budget cycle.
 3. Notice possible stress, impulse, social, or image-related spending patterns.
@@ -18,6 +34,13 @@ line is `温和的预算与消费复盘工具`.
 5. Ask questions in-app or through Siri without exposing financial data to a remote service.
 
 ## What MindBudget is not
+
+Queued owner request (2026-09-06), after FX-01D: add actual current-cycle income to Insights and
+a locally rendered, previewable share card with cycle dates, total income, total spending and
+spending-category totals only. No remaining budget or per-entry/merchant/note data. The existing
+recent-30-day category chart is not the cycle-card source. WeChat Moments/X delivery remains
+user-invoked and requires implementation/device verification, not automatic posting or new SDK
+authorization. See `Docs/INSIGHT_SHARE_01_PLAN.md`; this is not an extra D completion gate.
 
 It is not a full accounting system, mental-health tool, financial adviser, or social app.
 
@@ -77,9 +100,10 @@ manual form, existing Pro access and detail/edit behavior only. PR #114's indepe
 that head as second parent. The owner entered separate closeout: split the long Chinese AX5
 scenario and use a fresh FX-only simulator to isolate system permissions. PR #115 delivered those
 harness changes and the subsequent snapshot keyboard repair with independent merge approval,
-exact-head hosted/native audit and full local validation. Final phase acceptance is still pending.
-C remains In Progress; D and
-COM-C12 remain unentered. No Archive, distribution, or release is authorized.
+exact-head hosted/native audit and full local validation. PR #116's final record then passed
+independent review, exact-head hosted/native checks and merged. The owner explicitly authorized
+C Done and D entry; only D's consumers/CSV/enabled-sync/privacy scope is active. Sharing/income
+UI is queued after D. COM-C12 remains unentered. No Archive, distribution, or release is authorized.
 
 PR #115's `577c528` passed complete local validation, but hosted `34026066152` was cancelled
 at the 60-minute job deadline and also exposed FX keyboard-dismissal/AX5 timeout failures.
@@ -96,9 +120,9 @@ continued repair. The subsequently accepted test-only repair binds one Done tap 
 geometry and observes both Done removal and keyboard viewport occupancy; invalid frames fail
 closed. Independent final review accepted `ea71ea1` for merge only after hosted `34033715080`,
 native audit and full-local success; PR #115 merged as `396b271`. That acceptance is not forensic
-proof of the original failed event or C completion. This final record requests explicit phase
-acceptance of the corrective controls while retaining that limitation. Until independent final
-review, exact-head CI, merge and explicit C acceptance, C Done and D entry remain blocked.
+proof of the original failed event or C completion. PR #116's review explicitly accepts the
+corrective controls as resolving the engineering P2. Its merge and the subsequent explicit owner
+C Done / D-entry authorization now complete C without relabelling the original non-pass.
 
 Phase 10's source-level release polish, accessibility/performance automation, TestFlight
 documentation, and explicit repair flow for unreadable or orphaned cooling-off rows are complete.
@@ -1028,3 +1052,32 @@ VoiceOver/release matrix and the retained P3 obligations are not silently closed
 C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.

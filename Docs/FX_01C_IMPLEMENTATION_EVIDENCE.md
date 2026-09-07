@@ -1,19 +1,19 @@
 # FX-01C manual-entry implementation evidence
 
-Status: **FX-01C In Progress; PR #115 harness accepted; final closeout review and merge pending; FX-01D unentered.**
+Status: **FX-01C Done; owner accepted final record at FX-01D entry; no release authorization.**
 
 This packet covers the manual entry, saved detail, edit, and existing Commerce access boundary
 only. It does not close FX-01, enter FX-01D/E or FX-02, enable optional services, or authorize
 COM-C12, physical runs, Archive, upload, distribution, or release. PR #113 closed B separately;
 the C owner entry and its exact provenance remain in `FX_01_MANUAL_CURRENCY_PLAN.md`.
 
-Current runtime checkpoint: **PR #114 implementation and PR #115 corrective harness are merged;
-final phase acceptance remains pending.** The independent no-P1/P2 approval of `ea71ea1` was
+Current runtime checkpoint: **PR #114 implementation, PR #115 corrective harness and PR #116
+final record are merged; the owner has accepted C Done at D entry.** The independent no-P1/P2 approval of `ea71ea1` was
 merge-only, after exact-head hosted/native and complete-local acceptance. It did not establish
 the original `34026066152` event cause or mark C Done. The final acceptance section below records
 that disposition explicitly; the older chronological checkpoints describe what was outstanding
-then, not new current merge blockers. This final record still needs independent review, its own
-exact-head hosted success and merge. D remains unentered.
+then, not new current merge blockers. PR #116 supplied its own independent review, exact-head
+hosted/native success and merge. D is now separately authorized; no D runtime proof is implied.
 At the earlier checkpoint, owner-supplied independent review of `577c528` found no P1/P2 and retained
 exact-head hosted success/native audit as merge prerequisites. Complete local validation of
 that head exited 0, but hosted `34026066152` was cancelled at the job deadline and contains FX
@@ -538,6 +538,36 @@ C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
 
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.
+
+
 
 ## 2026-09-06 — FX-01C closeout development verification checkpoint
 
@@ -826,8 +856,8 @@ was relaxed. Slow fresh-device boot near the 600s deadline remains a hosted-capa
 Exact-head complete local `Scripts/validate.sh` exited 0. Its strict benchmark was
 218.981291ms < 500ms, ordinary native inventory matched 614 methods / 623 concrete executions,
 and FX used fresh `A4139C99-A93C-46AC-8403-4958BA5E8B6F`. Local FX durations were 50.138s
-stewardship, 82.503s Chinese create/detail and 44.730s English. The owner's separate isolated
-local FX evidence used fresh `8C3916D6-7060-4D33-832B-25E8035B7855`, with three native Passed
+stewardship, 82.503s Chinese create/detail and 44.730s English. The reviewer-supplied separate isolated
+local FX evidence used Xcode 27 beta 6 / iOS 26.5 and fresh `8C3916D6-7060-4D33-832B-25E8035B7855`, with three native Passed
 executions and no extra attempt. These local results are not hosted timings or proof of this
 new documentation/gate commit. No new Xcode test run was performed during this final-record work.
 
@@ -842,10 +872,11 @@ This gate checks consistency, not live GitHub truth or native runtime evidence b
 
 C's fourth checklist item covers implemented simulator en/zh-Hans strings, accessibility
 order/value metadata, AX5, keyboard, dark/light appearance and ordinary-entry regression.
-It is intentionally held for explicit final phase acceptance, not missing code or physical
-spoken VoiceOver. The latter remains an existing FX-01E/COM-C12 release obligation.
-This record itself stays pending independent review, exact-head CI/native audit and merge.
-Any C Done update must record explicit final acceptance; D still needs separate owner entry.
+It was held for explicit final phase acceptance, not missing code or physical spoken VoiceOver.
+PR #116 subsequently passed independent review, exact-head hosted/native checks and merge;
+the dated owner C-completion/D-entry section above now records that explicit acceptance.
+Physical VoiceOver remains an existing FX-01E/COM-C12 release obligation. D needs its own
+implementation acceptance and cannot inherit C's runtime evidence.
 
 Retained P3 obligations: assess fresh-simulator boot capacity without blindly raising 600s;
 check the 240s method-duration curve before adding D coverage; the last main-policy inspection

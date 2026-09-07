@@ -9,7 +9,16 @@
   currency/rate/date entry, integer conversion and editable locked accounting amounts. Existing
   foreign-currency records remain editable after access ends; detail shows original and accounting
   amounts, rate date/zone and source. Invalid input is retained and cannot reuse a stale preview.
-  CSV and the optional iCloud companion protocol remain deferred to FX-01D.
+  Optional iCloud compatibility is implemented in the FX-01D candidate and remains pending acceptance.
+- Extended explicit CSV export with each foreign-currency expense's original amount/currency,
+  exact saved rate, rate date/time zone and source, without changing the existing accounting
+  columns. Ordinary expenses and income leave the new fields blank. An unreadable FX tuple
+  prevents export instead of producing a silently incomplete file. This D implementation is
+  not yet accepted for release.
+- Added a separate encrypted iCloud fact for saved foreign-currency details on already opted-in
+  sync paths. Matching expense/rate changes and explicit paired conflict choices are atomic;
+  missing matches wait and malformed data is isolated. Sync remains off by default, with no new
+  provider, automatic exchange rate, or cloud activation. Settings explains the additional fields.
 
 Every user-visible change must be added here when it is implemented. Before each TestFlight or
 App Store upload, move the included entries into a dated version/build section and use the same

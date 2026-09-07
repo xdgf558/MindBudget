@@ -225,7 +225,7 @@ Status: Done
   transport accepted build 7 for processing on 2026-08-10; tester-group assignment remains manual.
 
 ## FX-01 — Manual foreign-currency expense recording
-Status: In Progress — FX-01B Done; C implementation and harness accepted; FX-01C final closeout pending review; FX-01D unentered
+Status: In Progress — FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered
 
 The B delivery and its reviewed, hosted-green merged runtime evidence are tracked in
 `Docs/FX_01B_IMPLEMENTATION_EVIDENCE.md`. B and reviewed C implementation checkboxes are accepted;
@@ -237,9 +237,13 @@ PR #115's hosted `34026066152` on `577c528` stays cancelled/non-pass with an unp
 keyboard mechanism. Green `4f4111f` alone did not close it. The later single-snapshot repair on
 `ea71ea1` has independent no-P1/P2 merge approval, exact-head hosted/full-local success and native
 audit, and merged as `396b271`. The accepted controls and CI split are not retrospective proof
-of the failed event. C's fourth item is held for explicit final phase acceptance of this evidence,
-not missing simulator coverage or a new physical VoiceOver requirement. This final record still
-needs independent review, its own exact-head CI and merge; C remains In Progress and D unentered.
+of the failed event. C's fourth item was held for explicit final phase acceptance of this evidence,
+not missing simulator coverage or a new physical VoiceOver requirement. PR #116 subsequently
+passed independent review and exact-head hosted/native checks and merged. The owner now explicitly
+accepts C Done and enters D; the current entry below records this authority without erasing the
+original failure's unproven cause. D's CSV/consumer and optional-sync/privacy candidate is now
+implemented and submitted for Draft review preparation; acceptance remains outstanding, including
+the unresolved full-local Dashboard benchmark non-pass. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
@@ -288,6 +292,23 @@ The unmet combined closeout checkbox is retained as historical non-pass, not a c
   FX-01 merge.
 - [ ] Keep FX-02 automatic reference rates deferred behind a new owner entry and separate provider,
   privacy, cache/failure, network-egress, and release review.
+
+## INSIGHT-SHARE-01 — Current-cycle income and share card
+
+Status: Queued after FX-01D; implementation unentered
+
+- [ ] Show recorded current-cycle income in Insights without treating planned income or income
+  allocations as additional receipts or spending permission.
+- [ ] Add a previewable local card with only current-cycle dates, total income, total spending
+  and spending-category totals; no remaining budget, merchants, notes or per-entry records.
+- [ ] Use current-cycle rather than recent-30-day categories, saved accounting money, checked
+  Int64 totals and one immutable preview/export snapshot. Never mix currencies or revalue FX.
+- [ ] Confirm access policy, implement explicit user-invoked sharing, and verify WeChat Moments/X
+  delivery without automatic posting or new provider/SDK access. Complete the privacy, failure,
+  accessibility, localization and review/CI checklist in `Docs/INSIGHT_SHARE_01_PLAN.md`.
+
+This separate task does not expand D's completion criteria or authorize implementing two phases
+at once. The owner's latest content choice includes income and supersedes the earlier exclusion.
 
 ## Commercialization and Pro development — separate COM track
 Status: COM-C0A through COM-C4C Done; C4B-01 Done through PR #57 (`90a1e66`); C4B-02P Done
@@ -914,3 +935,32 @@ VoiceOver/release matrix and the retained P3 obligations are not silently closed
 C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.

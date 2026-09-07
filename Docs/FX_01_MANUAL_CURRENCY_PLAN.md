@@ -1,6 +1,6 @@
 # FX-01 Manual Foreign-Currency Expense Plan
 
-Status: **FX-01 In Progress; FX-01A and FX-01B Done; C implementation and harness accepted; FX-01C final closeout pending review; FX-01D unentered.**
+Status: **FX-01 In Progress; FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered.**
 
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
@@ -277,7 +277,7 @@ retained non-passes and final local/hosted validation; the static gate itself cl
 
 ### FX-01C — Pro entry, form, detail, and edit behavior
 
-Status: **In Progress — implementation and harness accepted; final closeout pending review.**
+Status: **Done — reviewed corrective controls and final record accepted by owner at D entry.**
 
 - [x] Add one exhaustive `PremiumFeature` case and route new-FX access through the central
   entitlement snapshot. Pro and active local trial allow creation; exact Free and expired access
@@ -288,17 +288,14 @@ Status: **In Progress — implementation and harness accepted; final closeout pe
   without triggering a location or network path.
 - [x] Show the original amount first on detail and allow stewardship edits after entitlement loss.
   Prevent FX plus recurring-rule creation in this phase with truthful localized copy.
-- [ ] Complete English/Simplified Chinese localization, VoiceOver order/value tests, AX5, keyboard,
+- [x] Complete English/Simplified Chinese localization, VoiceOver order/value tests, AX5, keyboard,
   dark/light appearance, and ordinary-entry regression coverage.
 
-The fourth item is an acceptance checkpoint, not an unimplemented UI requirement or a new
-physical VoiceOver prerequisite. Accepted PR #114 and PR #115's three-method harness implement its
-simulator localization/accessibility-metadata, AX5, keyboard, appearance and ordinary-entry
-coverage. The implementation and harness have exact-head hosted, complete-local and native
-no-retry/device-provenance evidence. The remaining gap is explicit final phase acceptance, not
-missing simulator coverage. It stays unchecked while this final record awaits independent review,
-its own exact-head hosted success and merge. Change the checkbox and C status together only with
-explicit final acceptance; neither the earlier merge-only approval nor a green run completes C.
+The fourth item is now accepted with the owner's explicit C Done / D-entry authorization after
+PR #116's independent approval, exact-head hosted/native success and merge. PR #114 and PR #115
+provide its simulator localization/accessibility-metadata, AX5, keyboard, appearance and ordinary
+regression coverage. The checkbox and C status change together here; neither a green run alone
+nor PR #115's earlier merge-only approval is the phase-completion authority.
 Physical spoken VoiceOver and release-device evidence remain separate FX-01E/COM-C12 gates;
 these simulator results neither satisfy nor add those gates to C.
 
@@ -306,10 +303,9 @@ The earlier keyboard blocker is not closed by green `4f4111f`/`34030127867`. Sub
 single-snapshot corrective controls on `ea71ea1`, complete local validation, hosted success and
 native audit received independent no-P1/P2 merge approval. PR #115 merged those controls; that
 approval explicitly did not complete C. The original `34026066152` failure cause remains unproven
-and the run stays non-pass. This record proposes final acceptance on the reviewed corrective
-controls, not retrospective causal proof or a silent waiver. Its independent final review and
-explicit phase acceptance remain outstanding; C Done and D entry remain blocked in the meantime.
-This PR must not mark C Done. `Build and test` is a fail-closed join, but the last repository-policy
+and the run stays non-pass. PR #116's independent review explicitly accepted those corrective
+controls as resolving the engineering P2; the owner now completes C and enters D. This is not
+retrospective causal proof or a relabelled failure. `Build and test` is a fail-closed join, but the last repository-policy
 inspection found no enforced required-check rule; owner configuration remains separate and is
 not asserted complete here.
 
@@ -324,7 +320,12 @@ Record each of the three hosted FX durations against its unchanged 240-second al
 
 ### FX-01D — Consumers, CSV, optional sync, and privacy
 
-Status: **Blocked — unentered.**
+Status: **In Progress — owner entered consumers, CSV, optional sync, and privacy only.**
+
+The CSV/consumer and separate thirteenth-fact sync/privacy source candidate, regression fixtures
+and retained probe outcomes are tracked in `FX_01D_IMPLEMENTATION_EVIDENCE.md`. The interim
+FX/sync guard is replaced by the atomic companion protocol in this unmerged candidate; it is
+not an accepted D completion. Full local/hosted/native validation and independent review remain.
 
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.
@@ -497,3 +498,32 @@ VoiceOver/release matrix and the retained P3 obligations are not silently closed
 C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
+
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.

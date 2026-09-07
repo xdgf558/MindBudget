@@ -352,8 +352,10 @@ struct CloudSyncTests {
             )
         }
 
-        #expect(recordNames.count == CloudSyncEntityType.allCases.count)
-        #expect(projectedTypes == Set(CloudSyncEntityType.allCases))
+        // This retained V6 fixture has no V7 FX companion; separate FX fixtures cover type 13.
+        let legacyTypes = Set(CloudSyncEntityType.allCases).subtracting([.expenseForeignCurrencyMetadata])
+        #expect(recordNames.count == legacyTypes.count)
+        #expect(projectedTypes == legacyTypes)
 
         let destinationActor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
         _ = try await destinationActor.setCloudSyncEnabled(true, at: fixedDate)
