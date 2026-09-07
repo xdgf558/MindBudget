@@ -1,6 +1,17 @@
 # PR #117 switch dispatch investigation
 
-Status: **Diagnostic evidence, not acceptance. Both P2 findings remain open.**
+Status: **Historical diagnostic evidence; observer-free 8e57283 has hosted success and full-local exit 0; PR #117 remains Draft pending evidence rereview.**
+
+The investigation checkpoints below are retained history, not the current validation status.
+Hosted `34080624727` passed on observer-free `8e57283`; the owner's supplied independent review
+accepts its hosted/native switch evidence. The already-started default full local validator on
+that same exact head subsequently completed exit 0, including 217.09825 ms under the unchanged
+500 ms ceiling and three FX methods Passed once with device binding and no extra attempt.
+See `FX_01D_IMPLEMENTATION_EVIDENCE.md` for toolchains, artifacts, hashes and audit attribution.
+Both failed hosted runs remain non-pass; original gesture arbitration cause remains unproven.
+No further helper change, retap or longer press was made. The trailing-quarter choice is scoped
+to the existing English/Chinese LTR, off-state fixtures. `width > height` rejects non-horizontal
+geometry; it does not itself detect RTL. D stays In Progress and E remains unentered.
 
 ## Retained failed hosted run
 

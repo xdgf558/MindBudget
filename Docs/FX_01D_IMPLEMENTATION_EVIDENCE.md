@@ -1,14 +1,81 @@
 # FX-01D implementation evidence
 
-Status: **In Progress — PR #117 remains Draft; full-local Dashboard benchmark and exact-head hosted FX switch failure block acceptance.**
+Status: **In Progress — PR #117 remains Draft; observer-free head 8e57283 has full-local exit 0 and hosted success; evidence rereview pending.**
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
-not validate this D candidate. Draft PR #117 published head `f3538f943afc26c2804740195b890d9361205b81`.
-The owner's independent review found no P1 and two acceptance-blocking P2 findings below.
-No D hosted acceptance or merge is claimed, and the review is not approval to merge.
-D's four plan checkboxes stay open; E is unentered. The unresolved complete-local benchmark
-failure blocks acceptance even if a later hosted run passes.
+not validate this D candidate. Original head `f3538f9` and diagnostic head `c1f0db2` retain their
+non-passes below. Observer-free head `8e572832073f84be6513b7da4f3d7bbf5e67941b` now has
+completed full-local evidence and hosted `34080624727` success. The owner's latest supplied
+review accepts the hosted/native switch evidence but requires this complete-local result to be
+recorded and rereviewed. This update supplies that evidence; it is not independent approval or
+permission to undraft/merge. D's four plan checkboxes stay open; E is unentered.
+
+## Current observer-free validation evidence — 2026-09-07
+
+The already-started, single full invocation on exact clean head
+`8e572832073f84be6513b7da4f3d7bbf5e67941b` completed **exit 0**. No source was edited during
+that invocation. This is default complete `Scripts/validate.sh` with no command-line arguments,
+not a focused selection or `--ci-ordinary-only`. Local toolchain is **Xcode 27 beta 6 / iOS 26.5**,
+not hosted Xcode 26.6. Environment selected that toolchain, task-owned unit simulator
+`45F3E708-A2DC-4CFE-BDEC-6F41002F3B43`, retained result path
+`/private/tmp/pr117-offtrack-complete-1.xcresult`, `MINDBUDGET_RETRY_TESTS_ON_FAILURE=0` and
+`MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK=0`.
+
+The log ends `Complete local validation passed, including the FX UI host`. Static gates,
+Release build, coverage-enabled test build, the separate serial benchmark, ordinary suite,
+coverage thresholds, 23 C6-02 bindings, **49 FX unit bindings**, and the isolated FX host all
+completed. The benchmark measured **0.21709825 s (217.09825 ms) < unchanged 500 ms**, once.
+Its later exclusion from the ordinary suite is the existing serial-benchmark arrangement,
+not omission from the full validator. No threshold, fixture, timing interval, retry setting,
+switch helper or allowance was changed to obtain this completed result.
+
+Native audit reads each original tree and method detail, not just the xcodebuild summary:
+
+| Artifact | Native result | Repetition / extra attempt | Runtime warnings |
+| --- | --- | --- | --- |
+| Serial benchmark `Test-MindBudget-2026.09.07_11-46-16-+0800.xcresult` in the existing DerivedData test log directory | 1 method / 1 concrete Passed | 0 / 0 | 0 |
+| `pr117-offtrack-complete-1.xcresult` | 627 methods: 610 Passed / 17 Skipped; 619 concrete Passed, including 13 argument executions across four parameterized methods | 0 / 0 | 0 |
+| `pr117-offtrack-complete-1-FX-UI.xcresult` | 3 methods / 3 concrete Passed | 0 / 0 | 3 |
+
+All tree/detail parameter bijections passed. The 17 ordinary skips remain skips, not transport
+or physical-device passes: four physical CloudKit, one on-device Eval, one physical C6-02,
+two live configuration/telemetry, six opt-in StoreKit runtime methods and the three FX methods
+reserved for the separate host. Those three FX methods did execute in the complete validator's
+isolated host below; the ordinary skips are not their runtime evidence.
+The FX verifier also checked each method detail against freshly
+created, non-cloned provenance UUID **`1C487684-0638-434F-82A6-FCD54EDB17EE`**; scoped cleanup
+completed. Chinese AX5 stewardship / Chinese AX5 create / English create took
+**39.339 / 78.040 / 41.725 s**. Three existing invalid-frame warnings and diagnostic collection's
+`simctl` lookup error 72 remain recorded; they are not test failures or extra attempts, and this
+is not a zero-diagnostic claim. No physical CloudKit or real-account transport was tested.
+
+Retained full log: `/private/tmp/pr117-offtrack-complete-1.log`, SHA-256
+`78c2f4c79f31106be7debf5374dcd4a24459dc49af7078d4fa4eba92aa8390c2`.
+FX provenance: `/private/tmp/pr117-offtrack-complete-1-FX-UI.simulator.json`, SHA-256
+`0ca4dfec5345130c6689f86f54ef9e08958023dbcb733b3d5ca0421263d3e024`.
+Native audit directories use the same basename with `-native`, `-fx-native` and
+`-benchmark-native` suffixes. These local artifacts are not embedded in this repository.
+
+Hosted [34080624727](https://github.com/xdgf558/MindBudget/actions/runs/34080624727), attempt 1,
+is **success on exact head 8e57283**: ordinary job `101615078191`, FX job `101615078310`, and
+join `101622038054` all succeeded. Artifact IDs are ordinary `10004308058` and FX `10003779754`.
+Run/head/job metadata was checked directly. Hosted native switch acceptance is the
+owner-supplied independent review in this conversation; the new native audits described above
+are author-performed **local** audits, not a claim of a second independent hosted audit.
+
+Original full-local **814.581125 ms / exit 65**, hosted **34072691064** and **34077058451**
+remain retained non-passes. The original benchmark cause and native gesture arbitration cause
+are still unproven; this complete result does not retroactively relabel them or claim a
+performance fix. The latest review specifically requested complete default validation and
+evidence synchronization, without another helper change. Its completed evidence is now ready
+for rereview; no author self-approval, D Done or E entry follows.
+
+This evidence-sync change is Docs-only relative to `8e57283`. Its later commit/hosted run must
+be identified separately in the PR: neither the full-local invocation nor `34080624727` ran on
+that later documentation commit. Identical non-Docs source is provenance, not an invented
+exact-head runtime result. The sections below retain earlier checkpoint wording as history;
+this current section governs the present acceptance state.
 
 ## Implemented CSV and consumer slice
 

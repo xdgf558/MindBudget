@@ -9629,3 +9629,40 @@ attempt, three retained warnings and a tree/detail bijection; it remains diagnos
 Commit the observer-free helper correction and the readable evidence packet, then run complete
 local validation once and new-head hosted jobs. Their outcomes are pending, not inferred from
 the static or focused results. Keep PR #117 Draft for subsequent independent rereview.
+
+## 2026-09-07 — PR #117 complete-local result and evidence synchronization
+
+Following the owner's latest review, inspect the already-started full validator rather than
+change the switch helper or run another focused probe. Exact clean observer-free head
+`8e572832073f84be6513b7da4f3d7bbf5e67941b` completed default `Scripts/validate.sh` **exit 0**:
+static/build gates, serial strict benchmark **217.09825 ms < unchanged 500 ms**, ordinary
+suite/coverage, 23 C6-02 bindings, 49 FX unit bindings and the isolated FX host. Zero retry,
+no benchmark skip; no source edit during execution. This is local Xcode 27 beta 6 / iOS 26.5.
+
+Native audits confirmed benchmark 1/1 Passed; ordinary 627 methods (610 Passed / 17 Skipped),
+619 concrete Passed including 13 argument executions; FX 3/3 Passed. All three audits have
+zero Repetition/extra attempt and tree/detail bijections. FX details bind to fresh, non-cloned
+UUID `1C487684-0638-434F-82A6-FCD54EDB17EE`, with scoped cleanup complete. Local FX durations
+are stewardship 39.339 s / Chinese create 78.040 s / English create 41.725 s. Retain the three
+FX invalid-frame warnings and diagnostic collector's simctl lookup error; no zero-warning claim.
+The full log SHA-256 is `78c2f4c79f31106be7debf5374dcd4a24459dc49af7078d4fa4eba92aa8390c2`;
+paths, provenance hash and audit details are in `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+
+Hosted `34080624727` attempt 1 is success on exact `8e57283`: ordinary `101615078191`, FX
+`101615078310`, join `101622038054`. Metadata was checked directly; its native switch acceptance
+is attributed to the owner's supplied independent review, not a newly performed author hosted
+audit. This session's full-local native audits are author checks offered for rereview.
+
+Synchronize the evidence header, PROJECT_MEMORY, TASKS and diagnostic current status; keep historical
+814.581125 ms / exit 65, `34072691064` and `34077058451` as non-pass. No new benchmark root
+cause or universal native-gesture fix is claimed. No Swift, test, gate, retry, allowance or
+threshold change in this documentation update. Runtime results belong to `8e57283`, not to
+the later Docs-only synchronization commit; its CI must be identified separately. Keep Draft
+pending independent rereview. D's four boxes remain open, D is not Done, E is unentered and
+the queued Insights income/share feature is untouched.
+
+The five static gates (integer money, network, commercialization documents, StoreKit catalog,
+FX contract including negative/self-tests) passed after the evidence synchronization; no gate
+or runtime binding was weakened. `git diff --check` passed and non-Docs diff against `8e57283`
+is empty. Publish only this evidence update to the existing Draft PR and identify its new
+documentation head/CI separately in the PR body; independent rereview is still pending.

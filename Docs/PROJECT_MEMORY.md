@@ -17,22 +17,26 @@ selection/verification workflow and preserve this app's existing design system. 
 does not authorize parallel phase implementation or deployment.
 
 Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
-companion protocol are implemented as a working-tree candidate. The old `.expense` payload is
+companion protocol are implemented in Draft PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
-not real models/accounts. Complete local validation is blocked by an 814.6 ms Dashboard benchmark
-against its unchanged 500 ms ceiling; the cause is not established. PR #117 head `f3538f9` also
-has retained hosted non-pass `34072691064`: ordinary succeeded, English FX switch activation
-failed and the join failed. Its Draft status and both P2 blockers remain. The original 48 FX unit
-bindings and three isolated UI bindings have supplementary local native audits, not a complete
-validation pass. The repair candidate adds a 49th ReminderEngine binding (one local focused pass)
-and the diagnostic `c1f0db2` retained hosted non-pass `34077058451` (Chinese AX5 switch; ordinary
-succeeded, FX/join failed). Its original xcresult contains readable touch records: centre tap
-reached the thumb but emitted no control action. The working repair taps the native off track
-once; local trace confirms a changed target path and successful action, not a complete causal
-proof. The observer is now removed and the host restored to `f3538f9`; a source gate rejects
-dispatch replacement. Complete local, final-head hosted acceptance and independent rereview remain outstanding;
-see `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+not real models/accounts. PR #117 remains Draft. Observer-free repair head `8e57283` completed
+default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark
+(217.09825 ms), ordinary suite/coverage, 49 FX unit bindings and all three isolated FX UI methods.
+Local Xcode 27 beta 6 / iOS 26.5 native audits found no Repetition or extra attempt; FX method
+details matched the fresh provenance UUID. Hosted Xcode 26.6 run `34080624727` attempt 1 also
+succeeded on exact `8e57283`; the owner's supplied review accepts its hosted/native switch proof.
+Evidence synchronization and independent rereview remain required before undraft. This later
+Docs-only update is not the head used by those runtime results.
+
+Retain the original 814.581125 ms complete-local failure and both hosted non-passes:
+`34072691064` on `f3538f9` (English switch) and `34077058451` on diagnostic `c1f0db2` (Chinese
+AX5 switch). Neither original cause is proven or relabelled as transient. Readable failed touch
+records show the centre tap reached the thumb without a control action. The repair uses one
+native off-track tap in the current LTR fixtures; local trace confirms a changed path/action,
+not universal gesture-cause proof. The observer is removed, the host matches `f3538f9`, and a
+source gate rejects dispatch replacement. See `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md` for
+exact local/hosted provenance, retained warnings, historical non-passes and review boundaries.
 No D Done or E entry is claimed.
 
 1. Track an amount and category in about ten seconds.

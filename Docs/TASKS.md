@@ -242,8 +242,11 @@ not missing simulator coverage or a new physical VoiceOver requirement. PR #116 
 passed independent review and exact-head hosted/native checks and merged. The owner now explicitly
 accepts C Done and enters D; the current entry below records this authority without erasing the
 original failure's unproven cause. D's CSV/consumer and optional-sync/privacy candidate is now
-implemented and submitted for Draft review preparation; acceptance remains outstanding, including
-the unresolved full-local Dashboard benchmark non-pass. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+implemented in Draft PR #117. Observer-free `8e57283` completed default full-local validation
+exit 0 (217.09825 ms under the unchanged 500 ms ceiling, zero retry, isolated FX host included)
+and hosted `34080624727` success. Evidence synchronization and independent rereview remain
+outstanding before undraft; the original benchmark failure and both hosted non-passes remain
+retained, not relabelled. D's four items remain open. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.
