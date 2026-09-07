@@ -53,9 +53,9 @@ UNIT_BINDINGS = (
     "ForeignCurrencyPersistenceTests/createEditOverrideAndDeleteAreAtomicAndRetainTheSavedCurrency",
     "ForeignCurrencyPersistenceTests/formEntryUsesSettingsForNewRowsButTheSavedCurrencyForEdits",
     "ForeignCurrencyPersistenceTests/failedCreatesUnsupportedSourcesAndDuplicateIDsLeaveNoPartialRows",
-    "ForeignCurrencyPersistenceTests/legacySyncAndForeignWritesCannotCoexistBeforeD",
+    "ForeignCurrencyPersistenceTests/foreignSyncStagesSeparateFactsAndDisabledWritesStayLocal",
     "ForeignCurrencyPersistenceTests/downstreamFailureRollsBackBothTheExpenseAndCompanion",
-    "ForeignCurrencyPersistenceTests/recoveryCannotReuploadFXAndCloudErasureNeverBlocksLocalRecording",
+    "ForeignCurrencyPersistenceTests/explicitFXRecoveryStagesBothFactsAndCloudErasureNeverBlocksLocalRecording",
     "ForeignCurrencyPersistenceTests/pendingLegacyParentReplayCannotOverwriteFXButTombstoneCascades",
     "ForeignCurrencyPersistenceTests/unreadableTupleIsRejectedButStewardshipDeletionStillWorks",
     "ForeignCurrencyFormTests/explicitCurrencySelectionIsRequiredAndSameCurrencyIsRejected",
@@ -73,6 +73,23 @@ UNIT_BINDINGS = (
     "ForeignCurrencyFormTests/togglingNewModeOffRestoresOrdinaryAmountAndFreeCannotEnableIt",
     "ForeignCurrencyFormTests/recurringAndWishlistCannotEnterForeignModeAndForgedRecurringFailsSave",
     "ForeignCurrencyFormTests/localizedAmountPresentationAlwaysKeepsBothCurrencyIdentities",
+    "Phase6FeatureTests/emptyCSVHasUTF8BOMAndHeaderOnly",
+    "Phase6FeatureTests/csvEscapesUserTextAndFormatsMinorUnitsExactly",
+    "Phase6FeatureTests/csvSupportsZeroExponentAndNeutralizesSpreadsheetFormulas",
+    "Phase6FeatureTests/foreignCSVPreservesPrefixAndExactRateDateZoneAcrossExponents",
+    "Phase6FeatureTests/foreignCSVManualBankersRateAndDSTDayAreSavedFacts",
+    "Phase6FeatureTests/foreignCSVRefusesContradictoryTupleWithoutReturningPartialExport",
+    "Phase11FreeTierTests/unifiedCSVExportsIncomeExactlyAndNeutralizesSpreadsheetFormulas",
+    "ForeignCurrencyPersistenceTests/foreignExportIsAnImmutableValidatedSnapshotAndCorruptionFailsClosed",
+    "ForeignCurrencyPersistenceTests/lockedAccountingConsumersMatchOrdinaryRowsAcrossForeignMetadataVariants",
+    "ForeignCurrencyPersistenceTests/lockedAccountingReminderMessagesAndRedactedPromptsMatchOrdinaryRows",
+    "ForeignCurrencyPersistenceTests/foreignSyncFrozenParentAndCompleteCompanionRoundTripInAnyArrivalOrder",
+    "ForeignCurrencyPersistenceTests/foreignSyncUpdatesWaitForMatchingParentAndCommitBothOrNeither",
+    "ForeignCurrencyPersistenceTests/foreignSyncMalformedCohortsQuarantineWithoutChangingAccountingOrCreatingOrphans",
+    "ForeignCurrencyPersistenceTests/foreignSyncUndecodableCompanionCannotBecomeAParentOnlyImport",
+    "ForeignCurrencyPersistenceTests/foreignSyncSecondLineageFailureRollsBackTheWholeCohort",
+    "ForeignCurrencyPersistenceTests/foreignSyncConflictsRequireOneExplicitAtomicFinancialChoice",
+    "ForeignCurrencyPersistenceTests/foreignSyncDeletionIsScopedAndParentTombstonesPreventResurrection",
 )
 UI_BINDINGS = (
     "MindBudgetPhase3UITests/testManualForeignCurrencyEnglishProCreateAndDetail",
@@ -110,6 +127,9 @@ def isolation_errors(root: Path) -> list[str]:
         if marker in fixture[0]:
             errors.append("fixture authority escaped its compile-time guard")
     code = re.sub(r"//[^\n]*", "", host)
+    for operation in ("method_exchangeImplementations", "method_setImplementation", "class_replaceMethod"):
+        if re.search(r"\b" + operation + r"\s*\(", code):
+            errors.append("FX acceptance host must not replace native dispatch: " + operation)
     for forbidden in (r"\bAppEnvironment\b", r"\bAppBootstrap\b", r"\bProcessInfo\b",
                       r"\bregister\s*\(", r"\.prepare\s*\(", r"\bstart\w*Lifecycle\s*\(",
                       r"\bStoreKit\b", r"\bURLSession\b", r"\.standard\b"):
@@ -485,6 +505,9 @@ def self_test(root: Path) -> None:
         (HOST, GUARD, "#if DEBUG && targetEnvironment(simulator)"),
         (HOST, GUARD, "#if DEBUG"),
         (HOST, "DataController(isStoredInMemoryOnly: true)", "DataController()"),
+        (HOST, "DataController(isStoredInMemoryOnly: true)", "method_exchangeImplementations(old, new); DataController(isStoredInMemoryOnly: true)"),
+        (HOST, "DataController(isStoredInMemoryOnly: true)", "method_setImplementation(method, replacement); DataController(isStoredInMemoryOnly: true)"),
+        (HOST, "DataController(isStoredInMemoryOnly: true)", "class_replaceMethod(type, selector, replacement, encoding); DataController(isStoredInMemoryOnly: true)"),
         (HOST, "SettingsStore(defaults: defaults)", "SettingsStore()"),
         (HOST, "notificationScheduler: FXUINotificationStub(),", ""),
         (HOST, "FXUIFixtureAccess.allow(authority)", "if ProcessInfo.processInfo.arguments.contains(\"pro\") { FXUIFixtureAccess.allow(authority) }"),

@@ -4373,6 +4373,36 @@ C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
 
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.
+
+
 
 ## 2026-09-06 — Split hosted FX validation after the measured job deadline
 
@@ -4416,3 +4446,70 @@ Done. Main has no effective required-check protection as independently checked v
 the `Build and test` join is not itself a repository merge rule. Owner policy configuration is
 still separate and was not changed here. Preserve the 600-second simulator boot capacity note,
 240-second FX timing curve and all earlier maintenance debts.
+
+## 2026-09-06 — Queue current-cycle income and sharing separately from FX-01D
+
+The owner requests current-cycle income in Insights and an image card shareable to WeChat
+Moments and X. The latest clarification explicitly adds income after the earlier instruction
+to show only dates/spending/categories. Accepted content is cycle dates, total recorded income,
+total spending and spending-category totals; remaining budget and transaction details stay out.
+Record the implementation checklist in `INSIGHT_SHARE_01_PLAN.md` as a separate queued task,
+not added scope in D's consumer/CSV/sync/privacy acceptance. No sharing code is implemented now.
+
+Inspection found that current Insights categories summarize recent 30 days whereas its cycle
+total uses a budget interval. The card must have a separate current-cycle category projection
+with a matching income interval and currency, not a relabelled chart. Planned salary and income
+allocations are not additional receipts; displaying income does not alter budget authority.
+Preview and outgoing image must use one immutable local snapshot, explicit user consent and no
+hidden ledger payload. Exact destination behavior and Free/Pro policy remain to be confirmed;
+no direct-post capability, SDK, social login, domain or release permission is inferred.
+
+## 2026-09-06 — FX-01D CSV snapshot and consumer authority
+
+Implement CSV as a validated immutable `ExpenseExportRecord` snapshot carrying optional
+`ExpenseForeignCurrency`. Keep the first 22 columns unchanged and append exactly the eight
+reviewed FX columns. The actor validates the persisted companion before projecting, and the
+pure exporter validates it again against the saved accounting Money before returning any bytes.
+Both export overloads throw; the existing view clears its result/count and shows its localized
+failure state instead of sharing a partial file. No persisted CSV, locale-dependent number
+conversion, rate refresh, network request, or raw metadata inference is introduced.
+
+Consumer arithmetic remains on `ExpenseSummary.amount` with no foreign-amount branch. Test
+otherwise-identical ordinary/manual-rate/home-override records through Dashboard, budget pace
+and impact, Insights/category totals, ledger projections, template Ask and cycle summaries.
+The native runtime gate adds nine required CSV/consumer bindings to the accepted 32 B/C unit
+bindings, without weakening exact-once or accepting skipped/retried methods.
+
+This is a partial D checkpoint. Do not remove the existing FX/sync exclusion or change the
+12-type allow-list until the separate companion protocol, frozen parent payload preservation,
+atomic parent/companion application, conflict/deletion and legacy-peer tests are implemented
+together. No D checkbox or completion is earned from CSV-only evidence.
+
+## 2026-09-07 — FX-01D atomic companion transport
+
+Add `expenseForeignCurrencyMetadata` immediately after expense, with exactly the eight persisted
+companion fields and expense UUID identity. Preserve parent fields, digest semantics and version.
+Validate both lineage and the full tuple before accepting a parent/companion cohort in one save.
+A well-formed child without a matching parent stays pending; partial/unknown tuples and inconsistent
+complete cohorts quarantine without partial local mutation. A lone parent cannot invalidate FX
+facts or change their accounting currency/source. Never guess a rate, delete metadata to repair a
+mismatch, or choose a wall-clock winner. Local authoring stages both facts atomically even offline;
+opt-out stages neither. Parent deletion stages both tombstones; child deletion never deletes the
+accounting parent. Conflicts preserve local authority until explicit resolution. This grants no
+Pro entry, iCloud opt-in, provider, production schema or release authority.
+
+## 2026-09-07 — FX single activation uses the native off track
+
+The `c1f0db2` failed hosted trace proves centre activation reached the native switch thumb,
+remained off and emitted no control action. The 125pt AX5 label row contains a 28pt control;
+changing row height would not correct the observed target. For the English/Chinese LTR test
+fixtures only, retain one immutable snapshot and one tap, placed at the native off track's
+trailing quarter inside the safe lane. Preserve enabled/off/unique-child checks, the same
+bounded value wait and fail-closed throw; no retap, longer press, sleep or larger allowance.
+
+Local trace verifies the changed target path and successful activation, but not the internal
+cause of hosted gesture arbitration or universal robustness. Remove all temporary dispatch
+observers before final-head validation and reject direct native dispatch replacement in the FX
+host source gate. Record `34072691064` and `34077058451` as non-pass, retain the original 814.6ms
+complete-local failure, and require complete local/hosted/native evidence plus independent
+rereview. This decision changes only the UI-test interaction, not the FX product or phase status.

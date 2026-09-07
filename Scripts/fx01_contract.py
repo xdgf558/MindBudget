@@ -25,6 +25,7 @@ ROOT_KEYS = frozenset(
         "priorCloseoutEvidence",
         "cDeliveryEvidence",
         "cHarnessEvidence",
+        "cFinalEvidence",
         "accountingAuthority",
         "manualBoundary",
         "moneyBoundary",
@@ -89,10 +90,10 @@ EVIDENCE_KEYS = frozenset(
 EXPECTED_PHASE = {
     "id": "FX-01",
     "status": "IN_PROGRESS",
-    "activeSubphase": "FX-01C",
+    "activeSubphase": "FX-01D",
     "activeSubphaseStatus": "IN_PROGRESS",
     "closeoutStatus": "IN_PROGRESS",
-    "nextSubphase": "FX-01D",
+    "nextSubphase": "FX-01E",
     "nextSubphaseEntered": False,
     "deferredPhases": ["FX-02", "COM-C12"],
 }
@@ -182,6 +183,18 @@ EXPECTED_MANUAL_BOUNDARY = {
     "locationOrCountryInferenceAllowed": False,
     "newNetworkDomains": [],
 }
+EXPECTED_C_FINAL = {
+    "pullRequest": 116,
+    "reviewedHead": "f7b0bffb2fee2c232ff10735a231b328934406f9",
+    "hostedRun": "34038682330",
+    "acceptedAttempt": 1,
+    "mergeCommit": "7e9d69389d88dabb5bfcc5e77709b282801d3df0",
+    "reviewedAndMergedTree": "eaf10ff4440df8255ebaf2ac1984dd59384c2664",
+    "reviewKind": "ownerSuppliedIndependentReview",
+    "correctiveControlsAccepted": True,
+    "originalFailureCauseProven": False,
+    "ownerAcceptedCAndEnteredD": True,
+}
 EXPECTED_MONEY_BOUNDARY = {
     "storageType": "Int64",
     "rateRepresentation": "reducedPositiveRational",
@@ -223,13 +236,13 @@ EXPECTED_SYNC_COMPANION = {
 }
 
 EXPECTED_PLAN_STATUS = (
-    "FX-01 In Progress; FX-01A and FX-01B Done; C implementation and harness accepted; FX-01C final closeout pending review; FX-01D unentered."
+    "FX-01 In Progress; FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered."
 )
 EXPECTED_PLAN_STATUS_MARKDOWN = (
     f"Status: **{EXPECTED_PLAN_STATUS}**"
 )
 EXPECTED_TASK_STATUS = (
-    "In Progress — FX-01B Done; C implementation and harness accepted; FX-01C final closeout pending review; FX-01D unentered"
+    "In Progress — FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered"
 )
 PLAN_HEADING = "# FX-01 Manual Foreign-Currency Expense Plan"
 TASK_HEADING = "## FX-01 — Manual foreign-currency expense recording"
@@ -244,8 +257,18 @@ SUBPHASE_TASK_COUNTS = (3, 4, 4, 4, 3)
 DONE_STATUS = "Done — merged static contract-gate delivery only."
 BLOCKED_STATUS = "Blocked — unentered."
 IMPLEMENTATION_DONE_STATUS = "Done — reviewed, hosted-green, merged integer conversion and Schema V7 only."
-C_ACTIVE_STATUS = "In Progress — implementation and harness accepted; final closeout pending review."
-SUBPHASE_STATUSES = (DONE_STATUS, IMPLEMENTATION_DONE_STATUS, C_ACTIVE_STATUS, BLOCKED_STATUS, BLOCKED_STATUS)
+C_ACTIVE_STATUS = "Done — reviewed corrective controls and final record accepted by owner at D entry."
+D_ACTIVE_STATUS = "In Progress — owner entered consumers, CSV, optional sync, and privacy only."
+SUBPHASE_STATUSES = (DONE_STATUS, IMPLEMENTATION_DONE_STATUS, C_ACTIVE_STATUS, D_ACTIVE_STATUS, BLOCKED_STATUS)
+D_ENTRY_HEADING = "## 2026-09-06 — Owner completes C and enters FX-01D"
+D_ENTRY_STATUS = "FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately."
+D_ENTRY_ANCHORS = (
+    "`f7b0bff`", "`34038682330` attempt 1", "`7e9d693`", "second parent",
+    "owner-supplied independent review", "corrective controls accepted; original cause unproven",
+    "Owner completes C and separately authorizes D.",
+    "No D completion or E entry is claimed.",
+    "INSIGHT-SHARE-01 is queued after D, not implemented in D.",
+)
 CLOSEOUT_STATUS = "Owner merged with hosted non-pass retained; no independent rereview claimed."
 CLOSEOUT_TASK = (
     "- [ ] Independently review, pass exact-head hosted CI, and merge this separate FX-01A closeout."
@@ -564,9 +587,10 @@ def validate_contract_data(data: Any) -> list[str]:
         ("priorCloseoutEvidence", frozenset(EXPECTED_PRIOR_CLOSEOUT), EXPECTED_PRIOR_CLOSEOUT),
         ("cDeliveryEvidence", frozenset(EXPECTED_C_DELIVERY), EXPECTED_C_DELIVERY),
         ("cHarnessEvidence", frozenset(EXPECTED_C_HARNESS), EXPECTED_C_HARNESS),
+        ("cFinalEvidence", frozenset(EXPECTED_C_FINAL), EXPECTED_C_FINAL),
     )
-    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 7:
-        errors.append("schemaVersion must be exactly 7")
+    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 8:
+        errors.append("schemaVersion must be exactly 8")
     for key, expected_keys, expected_value in nested_contracts:
         if not _exact_keys(data[key], expected_keys):
             errors.append(f"{key} must contain exactly the reviewed keys")
@@ -667,8 +691,19 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
         except ValueError as error:
             errors.append(f"C closeout: {relative}: {error}")
     c_packet = project_root / "Docs/FX_01C_IMPLEMENTATION_EVIDENCE.md"
-    if not c_packet.is_file() or _status_after_heading(c_packet.read_text(), "# FX-01C manual-entry implementation evidence", bold=True) != C_FINAL_STATUS:
-        errors.append("C packet must use the current final-acceptance Status, not an old checkpoint")
+    if not c_packet.is_file() or _status_after_heading(c_packet.read_text(), "# FX-01C manual-entry implementation evidence", bold=True) != "FX-01C Done; owner accepted final record at FX-01D entry; no release authorization.":
+        errors.append("C packet must use the completed C Status, not an old checkpoint")
+    for relative in C_CLOSEOUT_DOCUMENTS:
+        text = (project_root / relative).read_text(encoding="utf-8")
+        section = _section(text, D_ENTRY_HEADING, "## ")
+        if section is None or _status_after_heading(text, D_ENTRY_HEADING, bold=True) != D_ENTRY_STATUS:
+            errors.append(f"missing/duplicate D entry Status: {relative}")
+            continue
+        for anchor in D_ENTRY_ANCHORS:
+            if _normalize_space(section).count(anchor) != 1:
+                errors.append(f"missing/duplicate scoped D entry anchor: {relative}:{anchor}")
+        if _checklist_items(section):
+            errors.append(f"D entry must not claim implementation acceptance: {relative}")
     # Bind current evidence inside each current section. Another file, an old section or
     # summary prose cannot substitute for a missing/duplicated current acceptance field.
     for relative in C_CLOSEOUT_DOCUMENTS:
@@ -726,9 +761,9 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
             errors.append(f"{heading}: {error}")
             continue
         markers = [item[3] for item in items]
-        expected_markers = ["x", "x", "x", " "] if index == 2 else ["x" if index <= 1 else " "] * len(markers)
+        expected_markers = ["x" if index <= 2 else " "] * len(markers)
         if len(markers) != SUBPHASE_TASK_COUNTS[index] or markers != expected_markers:
-            errors.append(f"subphase task inventory must be complete and {'checked' if index <= 1 else 'unchecked'}: {heading}")
+            errors.append(f"subphase task inventory must be complete and {'checked' if index <= 2 else 'unchecked'}: {heading}")
 
     fx01a = _section(plan_text, "### FX-01A — Entry and contract lock", "### ")
     if fx01a is None:
@@ -947,6 +982,12 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
 
         # Another file or an older historical section must not satisfy a removed anchor.
         for relative in C_CLOSEOUT_DOCUMENTS:
+            for anchor in D_ENTRY_ANCHORS:
+                reject_section_change(relative, D_ENTRY_HEADING, anchor, "removed D entry anchor")
+                reject_section_change(relative, D_ENTRY_HEADING, anchor, anchor + "\n" + anchor)
+            reject_section_change(relative, D_ENTRY_HEADING, f"Status: **{D_ENTRY_STATUS}**", "Status: **FX-01D Done.**")
+            reject_section_change(relative, D_ENTRY_HEADING, f"Status: **{D_ENTRY_STATUS}**", f"Status: **{D_ENTRY_STATUS}**\n- [x] Premature D completion.")
+        for relative in C_CLOSEOUT_DOCUMENTS:
             for anchor in C_FINAL_ANCHORS:
                 reject_section_change(relative, C_FINAL_HEADING, anchor, "removed final acceptance anchor")
                 reject_section_change(relative, C_FINAL_HEADING, anchor, anchor + "\n" + anchor)
@@ -1003,7 +1044,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         for heading, first_task in (
             (SUBPHASE_HEADINGS[1], "- [x] Add the closed rate/source domain"),
             (SUBPHASE_HEADINGS[2], "- [x] Add one exhaustive"),
-            (SUBPHASE_HEADINGS[2], "- [ ] Complete English/Simplified Chinese localization"),
+            (SUBPHASE_HEADINGS[2], "- [x] Complete English/Simplified Chinese localization"),
             (SUBPHASE_HEADINGS[3], "- [ ] Prove budget, reminder, insight, Ask, Dashboard"),
             (SUBPHASE_HEADINGS[4], "- [ ] Pass money, network, commercialization-document"),
         ):
@@ -1058,13 +1099,13 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         contract_path = fixture / "Docs/FX_01_CONTRACT.json"
         raw_contract = json.dumps(data)
         for old, new in (
-            ('"schemaVersion": 7', '"schemaVersion": 999, "schemaVersion": 7'),
+            ('"schemaVersion": 8', '"schemaVersion": 999, "schemaVersion": 8'),
             ('"casePassed": 575', '"casePassed": 999, "casePassed": 575'),
             ('"casePassed": 575', '"casePassed": 575, "casePassed": 575'),
             ('"casePassed": 575', '"case\\u0050assed": 999, "casePassed": 575'),
             ('"nextSubphaseEntered": false', '"nextSubphaseEntered": true, "nextSubphaseEntered": false'),
-            ('"schemaVersion": 7', '"schemaVersion": NaN'),
-            ('"schemaVersion": 7', '"schemaVersion": Infinity'),
+            ('"schemaVersion": 8', '"schemaVersion": NaN'),
+            ('"schemaVersion": 8', '"schemaVersion": Infinity'),
         ):
             if raw_contract.count(old) != 1:
                 raise RuntimeError(f"ambiguous raw JSON self-test target: {old}")
@@ -1086,7 +1127,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             contract_path.write_text(json.dumps(mutation), encoding="utf-8")
             _require_fixture_cli(fixture, valid=False, description=f"{section}:{key}")
             mutation_count += 1
-        for section in ("decimalRateContract", "syncCompanionContract", "implementationEvidence", "priorCloseoutEvidence", "cDeliveryEvidence", "cHarnessEvidence"):
+        for section in ("decimalRateContract", "syncCompanionContract", "implementationEvidence", "priorCloseoutEvidence", "cDeliveryEvidence", "cHarnessEvidence", "cFinalEvidence"):
             for key in data[section]:
                 mutation = copy.deepcopy(data)
                 mutation[section].pop(key)
@@ -1112,7 +1153,7 @@ def run_self_test(data: Any, project_root: Path) -> None:
     mutations: list[tuple[str, Any]] = []
     entered_next = copy.deepcopy(data)
     entered_next["phase"]["nextSubphaseEntered"] = True
-    mutations.append(("premature FX-01D entry", entered_next))
+    mutations.append(("premature FX-01E entry", entered_next))
 
     new_domain = copy.deepcopy(data)
     new_domain["manualBoundary"]["newNetworkDomains"] = ["rates.example.invalid"]

@@ -2375,7 +2375,7 @@ if grep -Eqi 'C6-02 (awaits|remains In Progress|is implementation/evidence compl
 fi
 
 grep -Fq 'three exact C6 special checks' Docs/Commercialization/COM_C6_EXECUTION_PACKET.md || {
-  echo "COM-C6 packet lost the current three-special-check classification" >&2
+  echo "COM-C6 packet lost the historical three-C6-special-check classification" >&2
   exit 1
 }
 

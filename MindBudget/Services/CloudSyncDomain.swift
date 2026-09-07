@@ -19,6 +19,7 @@ enum CloudSyncRemoteApplicationSignal {
 
 enum CloudSyncEntityType: String, Codable, CaseIterable, Sendable {
     case expense
+    case expenseForeignCurrencyMetadata
     case income
     case incomeAllocation
     case savingsGoal
@@ -34,6 +35,7 @@ enum CloudSyncEntityType: String, Codable, CaseIterable, Sendable {
     static let applicationOrder: [CloudSyncEntityType] = [
         .budgetPlan,
         .expense,
+        .expenseForeignCurrencyMetadata,
         .income,
         .savingsGoal,
         .recurringRule,

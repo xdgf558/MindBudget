@@ -99,6 +99,7 @@ extension DataActor {
             )
         )
         var decoded: [DecodedCloudSyncInboxItem] = []
+        var duplicates: [(CloudSyncInboxItem, CloudSyncInboxItem)] = []
         for item in pending {
             do {
                 guard let data = item.envelopeData else {
@@ -108,7 +109,15 @@ extension DataActor {
                 guard envelope.recordName == item.recordName else {
                     throw CloudSyncValidationError.invalidIdentity
                 }
-                decoded.append(DecodedCloudSyncInboxItem(item: item, envelope: envelope))
+                // Exact transport replay may arrive twice before either copy is applied.
+                // Do not mistake it for two competing companion revisions.
+                if let original = decoded.first(where: {
+                    $0.item.recordName == item.recordName && $0.item.envelopeData == data
+                }) {
+                    duplicates.append((item, original.item))
+                } else {
+                    decoded.append(DecodedCloudSyncInboxItem(item: item, envelope: envelope))
+                }
             } catch {
                 item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
                 item.reasonRaw = cloudSyncReason(for: error).rawValue
@@ -124,21 +133,78 @@ extension DataActor {
             cloudSyncCandidatePrecedes($0, $1, reversesTopology: true)
         }
         for candidate in upserts + tombstones {
+            guard candidate.item.statusRaw == CloudSyncInboxStatus.pending.rawValue else { continue }
+            let companions = upserts.filter {
+                $0.item.statusRaw == CloudSyncInboxStatus.pending.rawValue
+                    && $0.envelope.entityType == .expenseForeignCurrencyMetadata
+                    && $0.envelope.payload?.identity == candidate.envelope.payload?.identity
+            }
+            let cohort = candidate.envelope.entityType == .expense && candidate.envelope.operation == .upsert
+                ? [candidate] + companions : [candidate]
             do {
-                try applyCloudSyncCandidate(candidate, at: date)
+                if candidate.envelope.entityType == .expense, candidate.envelope.operation == .upsert {
+                    let identity = try CloudSyncCodec.identity(from: candidate.envelope.recordName)
+                    let childName = try CloudSyncCodec.canonicalRecordName(
+                        entityType: .expenseForeignCurrencyMetadata, identity: identity)
+                    // An undecodable companion in this durable batch is still evidence of a
+                    // two-fact mutation. Never silently reduce it to a valid parent-only import.
+                    if pending.contains(where: { $0.recordName == childName
+                        && $0.statusRaw == CloudSyncInboxStatus.quarantined.rawValue }) {
+                        throw CloudSyncApplicationError.invalidPayload
+                    }
+                }
+                if cohort.count > 1 {
+                    guard cohort.count == 2, let parent = candidate.envelope.payload,
+                          let fields = companions.first?.envelope.payload?.fields else {
+                        throw CloudSyncApplicationError.invalidPayload
+                    }
+                    let foreign = try readCloudSyncForeignCurrency(CloudSyncFieldReader(fields: fields),
+                        identity: parent.identity)
+                    let parentReader = CloudSyncFieldReader(fields: parent.fields)
+                    try foreign.validate(accounting: Money.validated(minorUnits: parentReader.integer("amount"),
+                        currencyCode: parentReader.string("currency")))
+                    try applyCloudSyncCandidate(candidate, at: date, persists: false, foreignReplacement: foreign)
+                    guard candidate.item.statusRaw == CloudSyncInboxStatus.applied.rawValue else {
+                        throw CloudSyncApplicationError.divergentConflict
+                    }
+                    try applyCloudSyncCandidate(cohort[1], at: date, persists: false)
+                    guard cohort.allSatisfy({ $0.item.statusRaw == CloudSyncInboxStatus.applied.rawValue }) else {
+                        throw CloudSyncApplicationError.divergentConflict
+                    }
+                    try modelContext.save()
+                    CloudSyncRemoteApplicationSignal.post()
+                } else {
+                    try applyCloudSyncCandidate(candidate, at: date)
+                }
             } catch CloudSyncApplicationError.missingParent {
                 modelContext.rollback()
-                candidate.item.reasonRaw = CloudSyncReasonCode.missingParent.rawValue
-                candidate.item.updatedAt = date
+                for member in cohort {
+                    member.item.reasonRaw = CloudSyncReasonCode.missingParent.rawValue
+                    member.item.updatedAt = date
+                }
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
-                candidate.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
-                candidate.item.reasonRaw = cloudSyncReason(for: error).rawValue
-                candidate.item.updatedAt = date
+                for member in cohort {
+                    member.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
+                    member.item.reasonRaw = cloudSyncReason(for: error).rawValue
+                    member.item.updatedAt = date
+                    if cohort.count > 1 {
+                        let metadata = try cloudSyncMetadata(recordName: member.envelope.recordName)
+                        metadata?.stateRaw = CloudSyncRecordState.conflicted.rawValue
+                        let outbox = try cloudSyncOutbox(recordName: member.envelope.recordName)
+                        outbox?.statusRaw = CloudSyncOutboxStatus.blockedByConflict.rawValue
+                    }
+                }
                 try modelContext.save()
             }
         }
+        for (duplicate, original) in duplicates {
+            duplicate.statusRaw = original.statusRaw
+            duplicate.reasonRaw = original.reasonRaw
+            duplicate.updatedAt = date
+        }
+        if !duplicates.isEmpty { try modelContext.save() }
         // The inbox is a crash-safe staging boundary, not an unbounded copy of accepted private
         // content. Metadata retains the accepted lineage; only unresolved/quarantined candidates
         // remain for review.
@@ -196,7 +262,9 @@ extension DataActor {
 
     private func applyCloudSyncCandidate(
         _ candidate: DecodedCloudSyncInboxItem,
-        at date: Date
+        at date: Date,
+        persists: Bool = true,
+        foreignReplacement: ExpenseForeignCurrency? = nil
     ) throws {
         let envelope = candidate.envelope
         let metadata = try cloudSyncMetadata(recordName: envelope.recordName)
@@ -213,7 +281,7 @@ extension DataActor {
             if outbox?.semanticDigest == envelope.semanticDigest, let outbox {
                 modelContext.delete(outbox)
             }
-            try modelContext.save()
+            if persists { try modelContext.save() }
             return
         }
 
@@ -231,7 +299,7 @@ extension DataActor {
             candidate.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
             candidate.item.reasonRaw = CloudSyncReasonCode.divergentConflict.rawValue
             candidate.item.updatedAt = date
-            try modelContext.save()
+            if persists { try modelContext.save() }
             return
         }
 
@@ -251,7 +319,7 @@ extension DataActor {
                     inbox: candidate.item,
                     outboxToDelete: outbox,
                     encodedSystemFields: candidate.item.encodedSystemFields,
-                    at: date
+                    at: date, persists: persists
                 )
                 return
             }
@@ -264,23 +332,23 @@ extension DataActor {
             candidate.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
             candidate.item.reasonRaw = CloudSyncReasonCode.divergentConflict.rawValue
             candidate.item.updatedAt = date
-            try modelContext.save()
+            if persists { try modelContext.save() }
             return
         }
 
         let previousSuppression = isApplyingCloudSyncMutation
         isApplyingCloudSyncMutation = true
         defer { isApplyingCloudSyncMutation = previousSuppression }
-        try applyCloudSyncMutation(envelope)
+        try applyCloudSyncMutation(envelope, foreignReplacement: foreignReplacement)
         try acceptCloudSyncEnvelope(
             envelope,
             metadata: metadata,
             inbox: candidate.item,
             outboxToDelete: nil,
             encodedSystemFields: candidate.item.encodedSystemFields,
-            at: date
+            at: date, persists: persists
         )
-        CloudSyncRemoteApplicationSignal.post()
+        if persists { CloudSyncRemoteApplicationSignal.post() }
     }
 
     private func acceptCloudSyncEnvelope(
@@ -289,7 +357,8 @@ extension DataActor {
         inbox: CloudSyncInboxItem,
         outboxToDelete: CloudSyncOutboxItem?,
         encodedSystemFields: Data?,
-        at date: Date
+        at date: Date,
+        persists: Bool = true
     ) throws {
         let metadata = existingMetadata ?? CloudSyncRecordMetadata(
             recordName: envelope.recordName,
@@ -313,7 +382,7 @@ extension DataActor {
         inbox.reasonRaw = nil
         inbox.updatedAt = date
         if let outboxToDelete { modelContext.delete(outboxToDelete) }
-        try modelContext.save()
+        if persists { try modelContext.save() }
     }
 
     private func cloudSyncMetadata(recordName: String) throws -> CloudSyncRecordMetadata? {
@@ -383,6 +452,99 @@ extension DataActor {
         resolution: CloudSyncConflictResolution,
         at date: Date = Date()
     ) throws {
+        guard recordName.hasPrefix("expense/") || recordName.hasPrefix("expenseForeignCurrencyMetadata/") else {
+            try resolveCloudSyncConflictSingle(recordName: recordName, resolution: resolution, at: date)
+            return
+        }
+        let identity = try CloudSyncCodec.identity(from: recordName)
+        let parentName = try CloudSyncCodec.canonicalRecordName(entityType: .expense, identity: identity)
+        let childName = try CloudSyncCodec.canonicalRecordName(entityType: .expenseForeignCurrencyMetadata, identity: identity)
+        guard recordName == parentName || recordName == childName else {
+            try resolveCloudSyncConflictSingle(recordName: recordName, resolution: resolution, at: date)
+            return
+        }
+        let candidates = try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>(
+            predicate: #Predicate { $0.statusRaw == "quarantined" && $0.reasonRaw == "divergentConflict" }
+        ))
+        let parents = candidates.filter { $0.recordName == parentName }
+        let children = candidates.filter { $0.recordName == childName }
+        guard parents.count == 1, children.count == 1,
+              let parentData = parents.first?.envelopeData, let childData = children.first?.envelopeData else {
+            try resolveCloudSyncConflictSingle(recordName: recordName, resolution: resolution, at: date)
+            return
+        }
+        do {
+            let parent = try CloudSyncCodec.decodeEnvelope(parentData)
+            let child = try CloudSyncCodec.decodeEnvelope(childData)
+            guard parent.operation == child.operation else { throw CloudSyncApplicationError.validationFailed }
+            // A pair can conflict even when only one local half was edited. Capture the other
+            // half before applying either choice; it must not make the pair unresolvable.
+            for envelope in [parent, child] {
+                try prepareFXConflictLocalCandidate(envelope, at: date)
+            }
+            let replacement: ExpenseForeignCurrency?
+            if resolution == .useCloud, parent.operation == .upsert {
+                guard let payload = child.payload, let parentPayload = parent.payload else {
+                    throw CloudSyncApplicationError.invalidPayload
+                }
+                replacement = try readCloudSyncForeignCurrency(CloudSyncFieldReader(fields: payload.fields), identity: identity)
+                let reader = CloudSyncFieldReader(fields: parentPayload.fields)
+                try replacement?.validate(accounting: Money.validated(minorUnits: reader.integer("amount"),
+                    currencyCode: reader.string("currency")))
+            } else { replacement = nil }
+            // The explicit local/cloud choice is one expense+FX choice, never two half-saves.
+            for (item, envelope) in [(parents[0], parent), (children[0], child)] {
+                if try cloudSyncOutbox(recordName: envelope.recordName) == nil {
+                    // No outbox after preparation means the local payload already equals this
+                    // exact cloud candidate. Both choices have the same content for this half.
+                    try applyCloudSyncCandidate(DecodedCloudSyncInboxItem(item: item, envelope: envelope),
+                        at: date, persists: false, foreignReplacement: replacement)
+                    guard item.statusRaw == CloudSyncInboxStatus.applied.rawValue else {
+                        throw CloudSyncApplicationError.validationFailed
+                    }
+                    modelContext.delete(item)
+                } else {
+                    try resolveCloudSyncConflictSingle(recordName: envelope.recordName, resolution: resolution,
+                        at: date, persists: false, foreignReplacement: replacement)
+                }
+            }
+            try modelContext.save()
+            if resolution == .keepLocal { CloudSyncLocalChangeSignal.post() }
+            CloudSyncRemoteApplicationSignal.post()
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
+    }
+
+    private func prepareFXConflictLocalCandidate(_ cloud: CloudSyncEnvelope, at date: Date) throws {
+        guard try cloudSyncOutbox(recordName: cloud.recordName) == nil else { return }
+        guard cloud.operation == .upsert,
+              let metadata = try cloudSyncMetadata(recordName: cloud.recordName),
+              metadata.acceptedOperationRaw != CloudSyncOperation.tombstone.rawValue,
+              cloud.revision == (try CloudSyncCodec.nextRevision(after: metadata.acceptedRevision)),
+              cloud.parentSemanticDigest == metadata.acceptedSemanticDigest else {
+            throw CloudSyncApplicationError.validationFailed
+        }
+        let identity = try CloudSyncCodec.identity(from: cloud.recordName)
+        let payload = try localFXConflictPayload(type: cloud.entityType, identity: identity)
+        let local = try CloudSyncCodec.makeEnvelope(payload: payload, entityType: cloud.entityType,
+            identity: identity, operation: .upsert, revision: cloud.revision,
+            parentSemanticDigest: cloud.parentSemanticDigest, modifiedAt: date)
+        guard local.semanticDigest != cloud.semanticDigest else { return }
+        modelContext.insert(CloudSyncOutboxItem(id: UUID(), recordName: cloud.recordName,
+            entityTypeRaw: cloud.entityType.rawValue, envelopeData: try CloudSyncCodec.encodeEnvelope(local),
+            semanticDigest: local.semanticDigest, statusRaw: CloudSyncOutboxStatus.blockedByConflict.rawValue,
+            createdAt: date, updatedAt: date, attemptCount: 0))
+    }
+
+    private func resolveCloudSyncConflictSingle(
+        recordName: String,
+        resolution: CloudSyncConflictResolution,
+        at date: Date,
+        persists: Bool = true,
+        foreignReplacement: ExpenseForeignCurrency? = nil
+    ) throws {
         do {
             let quarantined = try modelContext.fetch(
                 FetchDescriptor<CloudSyncInboxItem>(
@@ -450,7 +612,7 @@ extension DataActor {
                 let previousSuppression = isApplyingCloudSyncMutation
                 isApplyingCloudSyncMutation = true
                 defer { isApplyingCloudSyncMutation = previousSuppression }
-                try applyCloudSyncMutation(cloudEnvelope)
+                try applyCloudSyncMutation(cloudEnvelope, foreignReplacement: foreignReplacement)
                 modelContext.delete(localOutbox)
             }
 
@@ -464,16 +626,19 @@ extension DataActor {
                 : CloudSyncRecordState.accepted.rawValue
             metadata.updatedAt = date
             for item in quarantined { modelContext.delete(item) }
-            try modelContext.save()
-            if resolution == .keepLocal { CloudSyncLocalChangeSignal.post() }
-            CloudSyncRemoteApplicationSignal.post()
+            if persists {
+                try modelContext.save()
+                if resolution == .keepLocal { CloudSyncLocalChangeSignal.post() }
+                CloudSyncRemoteApplicationSignal.post()
+            }
         } catch {
             modelContext.rollback()
             throw error
         }
     }
 
-    private func applyCloudSyncMutation(_ envelope: CloudSyncEnvelope) throws {
+    private func applyCloudSyncMutation(_ envelope: CloudSyncEnvelope,
+                                       foreignReplacement: ExpenseForeignCurrency? = nil) throws {
         let identity = try CloudSyncCodec.identity(from: envelope.recordName)
         if envelope.operation == .tombstone {
             try applyCloudSyncTombstone(entityType: envelope.entityType, identity: identity)
@@ -486,7 +651,8 @@ extension DataActor {
         }
         let reader = CloudSyncFieldReader(fields: payload.fields)
         switch envelope.entityType {
-        case .expense: try upsertCloudSyncExpense(reader, identity: identity)
+        case .expense: try upsertCloudSyncExpense(reader, identity: identity, foreignReplacement: foreignReplacement)
+        case .expenseForeignCurrencyMetadata: try upsertCloudSyncForeignCurrency(reader, identity: identity)
         case .income: try upsertCloudSyncIncome(reader, identity: identity)
         case .incomeAllocation: try upsertCloudSyncIncomeAllocation(reader, identity: identity)
         case .savingsGoal: try upsertCloudSyncSavingsGoal(reader, identity: identity)
@@ -538,6 +704,8 @@ extension DataActor {
             throw CloudSyncApplicationError.invalidPayload
         }
         switch entityType {
+        case .expenseForeignCurrencyMetadata:
+            try deleteForeignCurrency(expenseID: id)
         case .expense:
             try deleteForeignCurrency(expenseID: id)
             var descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
@@ -984,9 +1152,65 @@ extension DataActor {
 }
 
 extension DataActor {
-    private func upsertCloudSyncExpense(_ reader: CloudSyncFieldReader, identity: String) throws {
-        // Until FX-01D a legacy parent-only upsert cannot update a local FX companion.
-        try requireNoForeignCurrencyForLegacySync()
+    private func readCloudSyncForeignCurrency(_ reader: CloudSyncFieldReader,
+                                              identity: String) throws -> ExpenseForeignCurrency {
+        try reader.requireKeys(["expenseID", "originalAmountMinorUnits", "originalCurrencyCode",
+            "rateNumerator", "rateDenominator", "rateDate", "rateTimeZoneIdentifier", "rateSourceRaw"])
+        let id = try reader.identifier("expenseID")
+        guard id.uuidString.lowercased() == identity,
+              let source = ForeignCurrencyRateSource(rawValue: try reader.string("rateSourceRaw")),
+              let zone = TimeZone(identifier: try reader.string("rateTimeZoneIdentifier")) else {
+            throw CloudSyncApplicationError.invalidPayload
+        }
+        let original = try Money.validated(minorUnits: reader.integer("originalAmountMinorUnits"),
+            currencyCode: reader.string("originalCurrencyCode"))
+        guard original.minorUnits > 0 else { throw CloudSyncApplicationError.invalidPayload }
+        let numerator = try reader.integer("rateNumerator")
+        let denominator = try reader.integer("rateDenominator")
+        let rate = try ForeignCurrencyRate(numerator: numerator, denominator: denominator)
+        guard rate.numerator == numerator, rate.denominator == denominator else {
+            throw CloudSyncApplicationError.invalidPayload
+        }
+        if source == .manualRate {
+            guard 100_000_000 % denominator == 0, numerator / denominator < 10_000_000_000 else {
+                throw CloudSyncApplicationError.invalidPayload
+            }
+        }
+        var calendar = Calendar.current
+        calendar.timeZone = zone
+        let rateDate = try reader.date("rateDate")
+        let value = try ExpenseForeignCurrency(original: original, rate: rate, selectedDate: rateDate,
+            calendar: calendar, source: source)
+        guard value.rateDate == rateDate else { throw CloudSyncApplicationError.invalidPayload }
+        return value
+    }
+
+    private func upsertCloudSyncForeignCurrency(_ reader: CloudSyncFieldReader, identity: String) throws {
+        // Parse before checking the parent so malformed children never hide as pending orphans.
+        let foreign = try readCloudSyncForeignCurrency(reader, identity: identity)
+        let id = try reader.identifier("expenseID")
+        let descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
+        guard let parent = try modelContext.fetch(descriptor).first else {
+            let name = try CloudSyncCodec.canonicalRecordName(entityType: .expense, identity: identity)
+            if try cloudSyncMetadata(recordName: name)?.acceptedOperationRaw == CloudSyncOperation.tombstone.rawValue {
+                throw CloudSyncApplicationError.divergentConflict
+            }
+            throw CloudSyncApplicationError.missingParent
+        }
+        guard parent.sourceRaw == ExpenseSource.manual.rawValue, !parent.isRecurring else {
+            throw CloudSyncApplicationError.invalidPayload
+        }
+        do {
+            try foreign.validate(accounting: Money.validated(minorUnits: parent.amountMinorUnits,
+                currencyCode: parent.currencyCode))
+        } catch ForeignCurrencyError.invalidRate {
+            throw CloudSyncApplicationError.missingParent
+        }
+        try saveForeignCurrency(foreign, expenseID: id)
+    }
+
+    private func upsertCloudSyncExpense(_ reader: CloudSyncFieldReader, identity: String,
+                                       foreignReplacement: ExpenseForeignCurrency? = nil) throws {
         try reader.requireKeys(
             ["id", "amount", "currency", "category", "bucket", "spentAt", "spentTimeZone",
              "createdAt", "updatedAt", "isPlanned", "isRecurring", "source", "allowMerchantIndexing"],
@@ -1021,6 +1245,20 @@ extension DataActor {
         descriptor.fetchLimit = 1
         let existing = try modelContext.fetch(descriptor).first
         let previousMerchant = existing?.normalizedMerchantName
+        if let existing, let retained = try foreignCurrency(for: existing) {
+            guard existing.currencyCode == currency, source == ExpenseSource.manual.rawValue,
+                  try !reader.boolean("isRecurring") else { throw CloudSyncApplicationError.validationFailed }
+            if foreignReplacement == nil {
+                do { try retained.validate(accounting: Money.validated(minorUnits: amount, currencyCode: currency)) }
+                catch ForeignCurrencyError.invalidRate { throw CloudSyncApplicationError.missingParent }
+            }
+        }
+        if let foreignReplacement {
+            guard source == ExpenseSource.manual.rawValue, try !reader.boolean("isRecurring") else {
+                throw CloudSyncApplicationError.validationFailed
+            }
+            try foreignReplacement.validate(accounting: Money.validated(minorUnits: amount, currencyCode: currency))
+        }
         let expense = try existing ?? Expense(
             id: id, amountMinorUnits: amount, currencyCode: currency, categoryRaw: category,
             bucketRaw: bucket, merchantName: merchantName, normalizedMerchantName: normalized,
@@ -1034,6 +1272,7 @@ extension DataActor {
             sourceRaw: source, allowMerchantIndexing: try reader.boolean("allowMerchantIndexing")
         )
         if existing == nil { modelContext.insert(expense) }
+        try saveForeignCurrency(foreignReplacement, expenseID: id)
         expense.amountMinorUnits = amount
         expense.currencyCode = currency
         expense.categoryRaw = category

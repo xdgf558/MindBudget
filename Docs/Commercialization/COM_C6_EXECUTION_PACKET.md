@@ -77,11 +77,14 @@ and method basename while their argument rows remain subordinate evidence. Worke
 may typecheck, test, profile, and perform local dry-runs; they may not deploy.
 
 Repository check discovery is also closed. Every `Scripts/**/check-*.sh` or
-`Scripts/**/check_*.py` file must be either one of the twelve row-driven matrix checks or one of
-three exact special classifications: `check-c6-release-matrix.sh` is the matrix bootstrap,
+`Scripts/**/check_*.py` file must be either one of the row-driven matrix checks or one of
+four exact special classifications: `check-c6-release-matrix.sh` is the matrix bootstrap,
 `check-coverage.sh` is the full-suite coverage consumer, and
-`check_c6_02_acceptance.py` is the bounded C6-02 result verifier. These roles are closed rather
-than inferred from filenames; all other checks must be row-driven. `check-coverage.sh` consumes
+`check_c6_02_acceptance.py` is the bounded C6-02 result verifier, and the later FX-01D
+`check_fx01_privacy.py` is executed by `check-fx01-contract.sh` (that exact nested invocation is
+also checked). The latter remains FX-owned, not new C6 completion evidence or a new migration-row
+obligation. These roles are closed rather than inferred from filenames; all other checks must
+be explicitly classified. `check-coverage.sh` consumes
 the full-suite xcresult produced by `Scripts/validate.sh`. A newly
 added but unclassified check makes the C6 contract fail instead of silently falling outside the
 release matrix.
@@ -210,7 +213,7 @@ still reported hittable. DEC-COM-087 replaces those assumptions with App-window 
 geometry and a full Save frame inside the keyboard-safe interaction lane. Its corrected focused
 regression passes 2/2 without test-runner retry. A fresh complete validator passes Release, the
 strict Dashboard benchmark, all unit tests, all 18 UI tests with 17 passed and one expected
-physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. The repository now has
+physical-only skip, coverage, and 23/23 C6-02 bindings without a UI retry. At that C6 checkpoint there were
 three exact C6 special checks: matrix bootstrap, full-suite coverage consumption, and bounded
 C6-02 acceptance. Exact head `016dd33` passed hosted run `33405016652`
 and merged as `c940e8e`. Final review retained two non-blocking C6-03/C12 harness notes: the back-

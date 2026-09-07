@@ -528,6 +528,7 @@ private struct CloudSyncConflictListView: View {
     private func entityName(_ entity: CloudSyncEntityType?) -> LocalizedStringKey {
         switch entity {
         case .expense: "settings.icloudSync.conflicts.entity.expense"
+        case .expenseForeignCurrencyMetadata: "settings.icloudSync.conflicts.entity.foreignCurrency"
         case .income: "settings.icloudSync.conflicts.entity.income"
         case .savingsGoal: "settings.icloudSync.conflicts.entity.savingsGoal"
         case .budgetPlan: "settings.icloudSync.conflicts.entity.budgetPlan"

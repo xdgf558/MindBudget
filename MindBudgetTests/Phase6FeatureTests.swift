@@ -7,7 +7,7 @@ import Testing
 struct Phase6FeatureTests {
     @Test
     func emptyCSVHasUTF8BOMAndHeaderOnly() throws {
-        let result = CSVExporter().export([])
+        let result = try CSVExporter().export([])
         let bytes = [UInt8](result.data)
         let text = try #require(String(data: result.data.dropFirst(3), encoding: .utf8))
         let stableHeader = [
@@ -33,6 +33,14 @@ struct Phase6FeatureTests {
             "updated_at_utc",
             "income_allocated_to_budget_minor_units",
             "income_allocated_to_savings_minor_units",
+            "original_amount",
+            "original_amount_minor_units",
+            "original_currency_code",
+            "exchange_rate_numerator",
+            "exchange_rate_denominator",
+            "exchange_rate_date",
+            "exchange_rate_time_zone_identifier",
+            "exchange_rate_source",
         ]
 
         #expect(Array(bytes.prefix(3)) == [0xEF, 0xBB, 0xBF])
@@ -48,7 +56,7 @@ struct Phase6FeatureTests {
             merchantName: "Cafe, \"East\"",
             note: "first line\nsecond line"
         )
-        let result = CSVExporter().export([record])
+        let result = try CSVExporter().export([record])
         let rows = try parseCSV(result.data)
 
         #expect(rows.count == 2)
@@ -58,6 +66,7 @@ struct Phase6FeatureTests {
         #expect(rows[1][9] == "Cafe, \"East\"")
         #expect(rows[1][10] == "first line\nsecond line")
         #expect(rows[1].count == CSVExporter.header.count)
+        #expect(Array(rows[1].suffix(8)) == Array(repeating: "", count: 8))
     }
 
     @Test
@@ -72,6 +81,63 @@ struct Phase6FeatureTests {
         #expect(row[4] == "123456")
         #expect(row[9].hasPrefix("'="))
         #expect(row[10].hasPrefix("'  +"))
+    }
+
+    @Test
+    func foreignCSVPreservesPrefixAndExactRateDateZoneAcrossExponents() throws {
+        var calendar = TestFixtures.utcCalendar
+        calendar.timeZone = try #require(TimeZone(identifier: "Asia/Shanghai"))
+        let selectedDate = try #require(ISO8601DateFormatter().date(from: "2026-09-06T04:00:00Z"))
+        for (code, minorUnits, exact) in [("JPY", Int64(123), "123"),
+                                        ("EUR", 123, "1.23"), ("KWD", 123, "0.123")] {
+            let original = Money(minorUnits: minorUnits, currencyCode: code)
+            let home = Money(minorUnits: 789, currencyCode: "USD")
+            let foreign = try ExpenseForeignCurrency(original: original,
+                rate: ForeignCurrencyConverter().effectiveRate(original: original, accounting: home),
+                selectedDate: selectedDate, calendar: calendar, source: .manualHomeAmountOverride)
+            let record = expenseExportRecord(amount: home, merchantName: "=private", note: "a,\"b\"\nc",
+                                             foreignCurrency: foreign)
+            let row = try #require(parseCSV(CSVExporter().export([record]).data).last)
+            let ordinary = expenseExportRecord(amount: home, merchantName: "=private", note: "a,\"b\"\nc")
+            let ordinaryRow = try #require(parseCSV(CSVExporter().export([ordinary]).data).last)
+            #expect(Array(row.prefix(22)) == Array(ordinaryRow.prefix(22)))
+            #expect(Array(row.suffix(8)) == [exact, String(minorUnits), code,
+                String(foreign.rate.numerator), String(foreign.rate.denominator),
+                "2026-09-05T16:00:00.000Z", "Asia/Shanghai", "manualHomeAmountOverride"])
+            #expect(row[4] == "7.89" && row[5] == "789" && row[6] == "USD")
+        }
+    }
+
+    @Test
+    func foreignCSVManualBankersRateAndDSTDayAreSavedFacts() throws {
+        var calendar = TestFixtures.utcCalendar
+        calendar.timeZone = try #require(TimeZone(identifier: "America/New_York"))
+        let selectedDate = try #require(ISO8601DateFormatter().date(from: "2026-03-08T18:00:00Z"))
+        let foreign = try ExpenseForeignCurrency(original: Money(minorUnits: 5, currencyCode: "EUR"),
+            rate: ForeignCurrencyRate(numerator: 1, denominator: 2), selectedDate: selectedDate,
+            calendar: calendar)
+        let record = expenseExportRecord(amount: Money(minorUnits: 2, currencyCode: "USD"),
+            merchantName: nil, note: nil, foreignCurrency: foreign)
+        let row = try #require(parseCSV(CSVExporter().export([record]).data).last)
+        #expect(Array(row.suffix(8)) == ["0.05", "5", "EUR", "1", "2",
+            "2026-03-08T05:00:00.000Z", "America/New_York", "manualRate"])
+        #expect(row[4] == "0.02")
+        // Repeated export never advances the rate date or fetches/applies another rate.
+        #expect(try CSVExporter().export([record]) == CSVExporter().export([record]))
+    }
+
+    @Test
+    func foreignCSVRefusesContradictoryTupleWithoutReturningPartialExport() throws {
+        let foreign = try ExpenseForeignCurrency(original: Money(minorUnits: 100, currencyCode: "EUR"),
+            rate: ForeignCurrencyRate(numerator: 1, denominator: 1),
+            selectedDate: TestFixtures.now, calendar: TestFixtures.utcCalendar)
+        let ordinary = expenseExportRecord(amount: Money(minorUnits: 50, currencyCode: "USD"),
+                                          merchantName: nil, note: nil)
+        let invalid = expenseExportRecord(amount: Money(minorUnits: 101, currencyCode: "USD"),
+            merchantName: nil, note: nil, foreignCurrency: foreign)
+        #expect(throws: ForeignCurrencyError.invalidRate) {
+            try CSVExporter().export([ordinary, invalid])
+        }
     }
 
     @Test
@@ -660,7 +726,8 @@ struct Phase6FeatureTests {
     private func expenseExportRecord(
         amount: Money,
         merchantName: String?,
-        note: String?
+        note: String?,
+        foreignCurrency: ExpenseForeignCurrency? = nil
     ) -> ExpenseExportRecord {
         ExpenseExportRecord(
             id: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
@@ -679,7 +746,8 @@ struct Phase6FeatureTests {
             isPlanned: false,
             isRecurring: false,
             source: .manual,
-            allowMerchantIndexing: false
+            allowMerchantIndexing: false,
+            foreignCurrency: foreignCurrency
         )
     }
 

@@ -9024,6 +9024,36 @@ C remains In Progress; FX-01D remains unentered.
 
 - [ ] Independently review, pass exact-head hosted CI, and merge this final FX-01C acceptance record; C Done requires explicit final acceptance and D requires separate owner entry.
 
+Historical preparation checkpoint above; its pending wording is superseded by the
+explicit owner authorization below, not silently rewritten as a historical pass.
+
+## 2026-09-06 — Owner completes C and enters FX-01D
+
+Status: **FX-01C Done; FX-01D In Progress; FX-01E unentered; sharing queued separately.**
+
+PR #116 received owner-supplied independent review of `f7b0bff`, with no P1/P2:
+corrective controls accepted; original cause unproven. Hosted `34038682330` attempt 1
+passed on that exact head; the reviewer supplied successful native no-extra-attempt
+audits of both artifacts and all three FX device bindings. Merge `7e9d693` has the
+reviewed head as second parent and matching tree
+`eaf10ff4440df8255ebaf2ac1984dd59384c2664`.
+
+Owner completes C and separately authorizes D.
+This follows the explicit instruction “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+C's fourth simulator-coverage acceptance item is checked together with C Done.
+The original non-passes and unobserved event mechanism are retained, not relabelled.
+The prior local FX UUID `8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied
+Xcode 27 beta 6 / iOS 26.5 evidence, not hosted Xcode 26.6 evidence.
+
+D covers locked-accounting consumers, exact CSV export, optional enabled-iCloud
+companion compatibility and privacy only. Existing sync remains disabled by default;
+no network provider, currency inference, trial clock or release action is added.
+No D completion or E entry is claimed.
+INSIGHT-SHARE-01 is queued after D, not implemented in D.
+Its approved fields are current-cycle dates, income, spending and spending-category
+totals; Product Design is required for its future UI work. See its separate plan.
+
+
 
 ## 2026-09-06 — FX-01C closeout development verification checkpoint
 
@@ -9289,3 +9319,350 @@ duplicates), and retained the isolation/runtime/detail/diagnostic/validation-ord
 negative suites. No test retry was used. This session did not rerun the full Xcode validator:
 its accepted exact-base result is recorded above, while this new head requires its own hosted
 run and native audit. The PR will remain Draft pending independent review and those checks.
+
+## 2026-09-06 — PR #116 owner-authorized merge; phase markers unchanged
+
+The owner supplied independent final review of `f7b0bffb2fee2c232ff10735a231b328934406f9`:
+no P1/P2, all four review focuses verified, and the exact-head native audits passed with no
+Repetition/extra attempt and three once-passed FX methods bound to simulator provenance.
+The reviewer explicitly accepts the `ea71ea1` corrective controls as resolving the engineering
+P2, while the original event cause stays unobserved. No C engineering blocker remains in that
+review. C Done is still the owner's phase decision, eligible to be combined with a later
+separately authorized D-entry change; it is not executed by this merge.
+
+On the owner's explicit instruction to merge, read-only checks confirmed PR #116 was mergeable
+at that exact head and hosted `34038682330` attempt 1 succeeded with ordinary, FX and join jobs
+all successful. Native audit acceptance here is reviewer-supplied, not a new author audit.
+The PR body was synchronized with the accepted review/CI and optional P3 attribution correction
+without changing the source head. The independent local FX evidence with UUID
+`8C3916D6-7060-4D33-832B-25E8035B7855` is reviewer-supplied on Xcode 27 beta 6 / iOS 26.5,
+not hosted Xcode 26.6 evidence. Its in-packet wording correction remains deferred to the next
+authorized change; no new commit or test run was introduced for that optional P3.
+
+After undrafting, the merge command pinned the reviewed head and used a merge commit. GitHub
+confirmed MERGED at `2026-09-06T14:55:47Z`: `7e9d69389d88dabb5bfcc5e77709b282801d3df0`.
+First parent: `396b271c9ef9d2afa038592429fc6bbf9f527e60`; second parent: the reviewed head
+above. The merged tree `eaf10ff4440df8255ebaf2ac1984dd59384c2664` exactly matches that head.
+No squash, rebase, force push, branch deletion or branch-protection change occurred.
+
+This is a local post-merge handoff, not another commit or a recursively opened closeout PR.
+The user's separate main checkout remains untouched. C remains In Progress, its fourth checkbox
+unchanged, D unentered; no physical, COM-C12, Archive, upload or release action was authorized.
+Historical non-passes and the remaining P3 maintenance obligations are preserved. Carry this
+handoff into the next owner-authorized change rather than treating it as phase completion.
+
+## 2026-09-06 — D-entry preparation and separate Insights/share request
+
+The user asked to begin the proposed D work and added current-cycle share cards, then explicitly
+added recorded current-cycle income both to Insights and to the card. The card content is dates,
+total income, total spending and spending-category totals, without remaining budget or detailed
+records. A separate queued plan captures these requirements after D to preserve one-phase work.
+Source inspection identified the existing recent-30-day category projection; a current-cycle
+card cannot safely reuse it. No product/share/network/UI implementation has been changed.
+
+The dedicated worktree fetched the accepted #116 merge and created
+`codex/fx01d-consumers-export-sync`, carrying only the existing local merge handoff. The separate
+user main checkout was not switched or edited. A proposed patch to mark C Done, enter D and bind
+the #116 acceptance chain was rejected by the execution approval guard as lacking explicit phase
+authorization. Verification showed it made no changes: the JSON remains format 7, C In Progress
+and D unentered. This was an approval rejection, not a test failure. No alternate tool, smaller
+equivalent patch or indirect command was used to bypass it. Explicit owner confirmation is being
+requested before retrying that phase-gate operation; D product implementation has not started.
+
+Unaffected work records the independent sharing/income backlog in its plan, TASKS, PROJECT_MEMORY
+and DECISIONS. No existing acceptance marker or static-gate requirement was relaxed. Current
+share access policy and destination verification remain open, not invented implementation facts.
+
+The owner additionally requires Product Design skills for UI-design work. The router, critical
+overrides, communication protocol and user-context instructions were read; the requirement is
+recorded in the project memory and queued card checklist. No design, prototype, image generation,
+server or deployment was started as part of saving that preference. The queued requirements
+passed the existing FX static contract, commercialization-doc gate and `git diff --check`.
+
+## 2026-09-06 — Explicit C completion / D entry and first CSV implementation
+
+The owner explicitly authorized “授权将 FX-01C 标 Done、进入 FX-01D，并将洞察收入与分享功能排在 D 之后开发”.
+This resolves the preceding phase-authorization rejection; the complete phase-gate patch was
+retried only after that new authority and succeeded. C Done and its fourth checklist item now
+bind the #116 independent review, exact-head hosted/native acceptance and merge in seven scoped
+status sections and typed JSON `cFinalEvidence`. Contract format 7 becomes 8, not a new SwiftData
+schema. D is In Progress; E, COM-C12, FX-02 and release remain unentered. Old checkpoints and all
+non-passes remain historical; current introductory text points to the later owner decision.
+The reviewer-supplied local FX UUID is correctly attributed to Xcode 27 beta 6 / iOS 26.5.
+
+Implemented the first D slice: immutable/validated FX CSV projections, the unchanged 22-column
+accounting prefix plus eight exact FX columns, throwing export on unreadable/contradictory
+tuples, ordinary/income blank columns, and updated en/zh-Hans export disclosure. Added exact
+JPY/EUR/KWD, bankers half, UTC/date-zone/DST, formula/escaping and snapshot/stewardship tests.
+Consumer regression uses identical saved USD authority with ordinary, manual-rate and markedly
+different JPY override facts, including different rate dates and changed Settings currency;
+Dashboard/budget pace/impact, Insights/categories, ledger, template Ask and cycle reports remain
+equal. Model enhancement stays off in those tests. No product consumer arithmetic changed.
+
+Retained non-pass: `/private/tmp/fx01d-csv-focus-1.xcresult` / `.log` exited 65 before tests.
+Swift Testing's `#expect` expansion of `allSatisfy(\.isEmpty)` in the new blank-column assertion
+produced an unhandled-throw compile diagnostic. Replaced both new key-path assertions with
+explicit array equality; the test expectation is unchanged. This is a test compilation defect,
+not a transient or a passing runtime result.
+
+The corrected source passed `/private/tmp/fx01d-csv-focus-2.xcresult` / `.log`, exit 0:
+30 methods Passed, 32 concrete executions (one existing three-argument method), no skipped or
+failed methods, no native Repetition/extra attempt, no runtime warnings and a tree/detail
+bijection. Read-only native audit output is `/private/tmp/fx01d-csv-focus-2-native`. Local toolchain:
+Xcode 27 beta 6, iOS 26.5 simulator `6E0EA9FF-E886-45F4-B752-79C6F60B0235`. This is a focused
+working-tree result, not hosted proof, independent review, or full `Scripts/validate.sh`.
+
+Entry/static checks passed before the final test-binding expansion: FX self-test rejected 1021
+closeout mutations, all existing native/isolation/diagnostic negatives passed, and commercialization
+documents passed. A final static pass and the expanded FX unit binding run are recorded below
+after completion. The normal unit-test app emitted existing sandbox AppTransaction/public-config
+startup diagnostics; they are not billing/provider or network acceptance evidence.
+
+No iCloud wire code, server, production schema, permission, model request, UI helper or workflow
+was changed. The legacy 12-type sync guards still deliberately reject coexistence with FX until
+D's atomic companion protocol is complete. D's four acceptance checkboxes remain open. Insights
+income/sharing is only queued after D; no new UI was designed here, and the stored Product Design
+requirement applies when that UI work starts. No D PR, commit, hosted run or merge exists yet.
+
+Expanded-run retained non-pass: `/private/tmp/fx01d-all-fx-unit-1.xcresult` / `.log` exited 65.
+`SBMainWorkspace` denied simulator app launch as Busy / failed preflight checks, before any FX
+method started. Its native summary has zero Passed methods and one synthetic runner-launch
+error. Diagnostic collection additionally failed to locate `simctl` through its subprocess
+lookup. A sandbox `ps` read was denied; no unrestricted process control or shared simulator
+reset was used to work around it. These facts do not establish the underlying Busy cause.
+
+Created task-owned empty simulator `45F3E708-A2DC-4CFE-BDEC-6F41002F3B43`, iPhone 17 Pro /
+iOS 26.5, and observed successful boot in 26 seconds. A separate single invocation on unchanged
+product/test source passed `/private/tmp/fx01d-all-fx-unit-isolated-1.xcresult` / `.log`, exit 0.
+Read-only native audit verified 54 Passed methods / 56 concrete executions, one existing
+three-argument method, no Repetition/extra attempt, zero runtime warnings and a tree/detail
+bijection. The repository verifier confirmed all 41 required FX unit bindings Passed once.
+The source/log hashes and exact probe limits are in `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+The successful isolated observation does not erase or prove the cause of the launch failure.
+
+Final static suite passed integer-money, network, StoreKit catalog (13 Python tests),
+commercialization documents and FX contract/self-tests, then `git diff --check`. The expanded
+gate rejects 1021 closeout mutations, 484 binding negatives, 1848 detail negatives, 792 disguised
+executions and 88 missing diagnostics. Subsequent edits only record these results and current
+scope; the complete validator, hosted jobs and independent review remain pending. D remains
+In Progress with optional-sync implementation and full privacy/consumer acceptance outstanding.
+
+## 2026-09-07 — FX-01D optional iCloud compatibility and privacy regression
+
+Owner requested completion of iCloud compatibility and privacy regression. Work remains in
+`codex/fx01d-consumers-export-sync`, based on `7e9d693`; no D commit, PR, hosted run or review
+exists yet. C Done / D In Progress / E unentered are unchanged. No new agent, physical device,
+real CloudKit account, provider call, opt-in, deployment or queued sharing implementation was used.
+
+The current source supersedes yesterday's CSV checkpoint's temporary twelve-type isolation:
+it adds the separate encrypted thirteenth companion, never fields inside `.expense`. The updated
+iCloud contract describes parent/child arrival, full-tuple validation, atomic lineage acceptance,
+pending missing matches, quarantine, exact replays, scoped tombstones and explicit paired
+conflict choice. Source review also found the note-only local edit case (no dirty child outbox);
+the explicit paired resolver now captures that unchanged half before making either choice.
+
+The existing Settings controls received localized entity/disclosure/conflict text only. No
+layout was designed; Product Design remains required for the queued Insights UI. Privacy tests
+compare actual accounting summaries, Spotlight documents and locally captured Ask/report prompts
+between ordinary and FX records in English/Chinese. Original currency, rate and source remain
+absent from private sinks. A source gate covers fourteen existing sinks with 154 negative
+injections; its limitations around renamed/reflected fields/new sinks are explicit.
+
+Retained non-passes and fixes (full details in `FX_01D_IMPLEMENTATION_EVIDENCE.md`):
+`fx01d-sync-focus-1` exited 65 before tests for the omitted Settings enum case;
+`fx01d-sync-focus-2` exited 65 for a new test comparing informational envelope staging time;
+`fx01d-privacy-sync-1` exited 65 for a new Spotlight total-count assertion that included eleven
+existing non-expense documents. The fixed assertion binds the exact expense identifier, while
+all-document equality still protects privacy. Failed diagnostic collection separately could
+not resolve `simctl`; it is not the cause of those deterministic test failures. The first new
+privacy source checker used the wrong projection owner and failed closed; correcting to
+Models/Projections plus all 154 mutations passed.
+
+`fx01d-sync-focus-3` exited 0 (native summary 53 Passed / 4 physical-cloud skips / 0 failures,
+57 methods, no warnings). `fx01d-privacy-sync-2` exited 0 (test log 152 methods across six suites).
+These are Xcode 27 beta 6 / iOS 26.5 local synthetic probes on the task-owned simulator
+`45F3E708-A2DC-4CFE-BDEC-6F41002F3B43`, not hosted or real-account proof. The later note-only
+conflict change requires its own validation. Matching logs/xcresults are under `/private/tmp`.
+Current FX unit binding count is 48; the three UI bindings remain unchanged. Full validator,
+native artifact audits and independent review are still pending at this checkpoint.
+
+Subsequent native audit accepted the privacy focus (152 methods: 147 Passed / 5 intentional
+live-environment skips; 149 concrete Passed executions), then the note-only conflict focus
+`fx01d-sync-conflict-1` exited 0 and passed native audit (58 methods: 54 Passed / 4 physical skips).
+Both trees have zero Repetition/extra attempts/warnings and a parameter tree/detail bijection.
+Exact log/source hashes and local evidence limits are appended to the D evidence file.
+One full `Scripts/validate.sh` invocation was started with zero retry and no wall-clock benchmark
+skip, using result path `/private/tmp/fx01d-complete-1.xcresult` and matching `.log`. Its result
+must be recorded after completion; starting it does not close the remaining acceptance gates.
+
+Full-validator retained non-pass: `fx01d-complete-1.log` exited 1 at static C6 repository-script
+discovery, before compilation or tests. It found the new privacy checker unclassified. Added
+the explicit `fx-01d-nested-privacy` classification and required its actual FX-wrapper invocation;
+the completed C6 migration row is unchanged. The COM packet now distinguishes the three
+historical C6 special cases from this fourth, later FX-owned nested checker. The C6 contract
+then passed. No result bundle was created and this is not runtime evidence. Product/test source
+is unchanged; a fresh complete validator is still required.
+
+`fx01d-complete-2.log` retained non-pass: exit 65 after static gates, Release and coverage-enabled
+test build succeeded. The separate serial strict Dashboard benchmark measured 0.814581125 s
+against the unchanged 0.500 s ceiling and failed at Phase10ReleaseReadinessTests line 30.
+The full ordinary suite and FX UI host were not reached. The benchmark artifact location and
+precise evidence boundary are recorded in D evidence. Source comparison shows no D change to
+DashboardView/ViewModel, BudgetEngine, that benchmark fixture or fetchExpenseSummaries; this
+does not prove the observed cause, a transient explanation or a pre-existing-only failure.
+No performance threshold, benchmark skip, test/helper code or retry policy was changed to get
+past it. Complete local acceptance remains blocked.
+
+Supplementary `fx01d-final-targeted-1` selected methods passed, but the author mistyped rate/form
+suite names in the command. The FX gate rejected 21 absent required methods; this artifact is
+non-admissible for all 48 bindings. A new targeted selection is derived mechanically from
+UNIT_BINDINGS, keeping the erroneous selection and its rejection distinct from test failures.
+
+Final-source supplementary completion: `fx01d-final-targeted-2` exited 0 and its native audit
+verified 228 methods (223 Passed / five existing live-environment skips; 227 concrete Passed
+executions). The strict binding gate accepted all 48 required FX methods exactly once; the
+parameter tree/detail bijection, zero Repetition and zero extra attempts were verified.
+The source diff is still `1db088798cabfb87c644c6afb2b4118bd4d44312030a4324d849b0e311f3c0d2`.
+
+Isolated `fx01d-ui-1` completed successfully: the same three FX UI methods each Passed once,
+each native device ID bound to runner-created `AA1C462C-FC75-4B38-886A-16597242B227`.
+The runner removed only its temporary simulator and retained the evidence. Native audit
+verified no Repetition/extra attempts and preserved three existing invalid-frame warnings.
+Chinese AX5 edit/create and English create durations were 68.879 / 91.653 / 49.149 seconds.
+Log/provenance hashes and limitations are recorded in D evidence. These are local Xcode 27
+beta 6 / iOS 26.5 results, not hosted or physical-cloud proof. They do not close the unresolved
+814.6 ms complete-validator benchmark non-pass; D remains In Progress, E unentered.
+
+Supplementary boundary completion: `fx01d-boundaries-1` exited 0. Its ten suites cover receipts
+(lifecycle/import/OCR privacy/structured extraction), reminders, wishlist/cooling-off, patterns,
+DataActor, SettingsStore and model contracts. Native audit verified all 157 methods/executions
+Passed once, zero skips/Repetition/extra attempts/runtime warnings and a tree/detail bijection.
+The result uses the same unchanged source diff and task-owned unit simulator. Final-source
+supplementary privacy/consumer coverage is complete; full local validation, hosted validation,
+independent review and D acceptance are not. No additional product changes, benchmark retries,
+real iCloud activation, physical runs or queued Insights/share implementation occurred.
+
+## 2026-09-07 — Owner-requested FX-01D Draft review preparation
+
+The owner requests a PR for independent review of the current D implementation. Prepare a
+single candidate commit on `codex/fx01d-consumers-export-sync`, based on main `7e9d693`, without
+changing the tested product/test source diff. Publish as Draft, not accepted or ready to merge.
+The PR body must identify its exact committed head, local toolchain and native-audited focused
+results, retain every non-pass from this evidence packet, and prominently record the unresolved
+0.814581125 s versus 0.500 s complete-validator failure. Hosted status is pending until observed
+on that exact head; no author self-check is independent approval. Opening the PR does not waive
+the complete-local requirement, mark D Done, enter E or implement the queued Insights/share work.
+
+## 2026-09-07 — PR #117 P2 investigation
+
+Draft PR #117 published head `f3538f9`. Owner-supplied independent review found no P1, but P2-1
+is the retained 814.6 ms full-local failure and P2-2 is hosted FX failure. Run `34072691064`
+finished failure: ordinary succeeded, FX failed, join failed. Downloaded FX artifact `10001187217`
+and inspected original native trees, switch snapshots, synthesized event and video. Chinese AX5
+methods Passed (101.374 / 123.291 s); English Failed (22.748 s). Single-snapshot geometry and
+the actual event agree on `(336.8333,146)`; subsequent snapshots and video remain off. There is
+no observed layout movement or direct touch-recipient evidence, so no root cause is asserted.
+
+Two temporary segmented benchmark probes exited 0 at 195.579 / 190.097 ms; the second explicitly
+enabled coverage. Fetch/projection dominate this smaller interval; original 814.6 ms was not
+reproduced. Temporary timing instrumentation was removed, with Dashboard/DataActor back to
+the PR head. Focused diagnostic success does not close full-local P2-1. A temporary, test-host-only
+public UIApplication/UIControl dispatch observer preserves original methods and adds no gesture
+or retap; it is not product code to ship. Its first launch was blocked before execution by an
+approval-service usage error; after the owner's continuation the isolated diagnostic is started,
+not yet evidence of repair. Detailed outcomes and retained P3 obligations are in D evidence.
+
+Continuation: the isolated touch diagnostic completed with all three methods Passed once;
+it observed successful native UISwitch activation, not the failed hosted recipient. Original
+hosted system-log export confirms events reached the App window, but does not identify the
+control/recognizer. The new ReminderEngine ordinary/FX fixture passed one focused native-audited
+method (both languages, three tones, real redaction seam with local throwing double). The gate
+now requires 49 unit bindings and rejects 165 injections across 15 sinks. No real AI is invoked.
+Hashes and exact limitations are recorded in D evidence. PR #117's body now explicitly records
+`34072691064` as failure/non-pass and both P2 findings as unresolved; Draft is unchanged.
+
+Preparing a temporary hosted-observation commit: reinstate a one-time public event/action observer
+inside only the isolated Debug simulator executable, forwarding original dispatch once and not
+changing UI interaction logic. No ordinary/Release product change or performance fix is claimed.
+The observer must be removed before final repair acceptance; the diagnostic commit is not
+merge-ready even if CI passes. No new acceptance run has completed at this checkpoint.
+
+Pre-dispatch checks completed: FX contract including negative/self-tests, integer-money,
+network-egress, commercialization-document and StoreKit catalog gates all exit 0;
+`git diff --check` passes. The guarded hosted-observation variant compiled with local Xcode
+27 beta 6 (`pr117-hosted-touch-build.log`, build-for-testing exit 0); no tests were run by this
+compile command. These are preparation evidence only. Full local validation and hosted
+observation on the new diagnostic commit remain outstanding; the two P2 findings stay open.
+
+## 2026-09-07 — c1f0db2 review and switch-target correction investigation
+
+`34077058451` failed: ordinary success, FX/join failure. The failed method is Chinese AX5
+create (33.247 s), not English; the other two Passed (169.446 / 100.488 s). Downloaded original
+artifact `10002713432` and exported diagnostics/attachments without rerunning it. The original
+App console and system.logarchive do contain readable observer records for the failed process.
+They show the touch arriving on the native thumb, staying off and ending without a control
+action. The 125pt label row and 28pt child have matching vertical centres; geometry was not
+observed to shift. Details/extraction/hash are in `FX_01D_SWITCH_DIAGNOSTIC.md`; internal gesture
+failure cause is not proven. Keep this run and the original local/hosted failures as non-pass.
+
+Implementing a bounded helper candidate: one snapshot and one tap on the off track outside
+the observed thumb, preserving all waiting, zero-retry and lane checks. The real 125pt AX5
+fixture plus invalid/ambiguous/occluded geometries Passed one focused deterministic method.
+An instrumented isolated run `pr117-offtrack-diagnostic-1` is in progress; its result is pending,
+not corrective acceptance. Remove the observer before the final repair head, then require
+complete local `validate.sh`, hosted ordinary/FX/join and native audit plus independent rereview.
+Neither P2 is closed at this checkpoint, and D/E status is unchanged.
+
+The off-track diagnostic completed exit 0, three methods Passed once with UUID binding, retaining
+three existing invalid-frame warnings. Chinese trace confirms the target moved from the thumb
+to track UIViews and a single control action followed. Because the native long-press also began,
+this is changed-path/local-success evidence, not proof all timing failures are eliminated. The
+whole observer was then removed; host bytes match `f3538f9`. Added source negatives rejecting
+three native dispatch replacement APIs. Prepare the observer-free repair head and require one
+complete local validator (including unchanged 500ms) plus exact-head hosted/native evidence.
+No extra test iteration, retap, product behavior change or D/E phase transition occurred.
+
+Observer-free candidate preparation passed all five static gates (including copied-source
+dispatch-replacement negatives), and `git diff --check` is clean. The instrumented diagnostic's
+native audit independently checked three concrete Passed executions, zero Repetition/extra
+attempt, three retained warnings and a tree/detail bijection; it remains diagnostic only.
+Commit the observer-free helper correction and the readable evidence packet, then run complete
+local validation once and new-head hosted jobs. Their outcomes are pending, not inferred from
+the static or focused results. Keep PR #117 Draft for subsequent independent rereview.
+
+## 2026-09-07 — PR #117 complete-local result and evidence synchronization
+
+Following the owner's latest review, inspect the already-started full validator rather than
+change the switch helper or run another focused probe. Exact clean observer-free head
+`8e572832073f84be6513b7da4f3d7bbf5e67941b` completed default `Scripts/validate.sh` **exit 0**:
+static/build gates, serial strict benchmark **217.09825 ms < unchanged 500 ms**, ordinary
+suite/coverage, 23 C6-02 bindings, 49 FX unit bindings and the isolated FX host. Zero retry,
+no benchmark skip; no source edit during execution. This is local Xcode 27 beta 6 / iOS 26.5.
+
+Native audits confirmed benchmark 1/1 Passed; ordinary 627 methods (610 Passed / 17 Skipped),
+619 concrete Passed including 13 argument executions; FX 3/3 Passed. All three audits have
+zero Repetition/extra attempt and tree/detail bijections. FX details bind to fresh, non-cloned
+UUID `1C487684-0638-434F-82A6-FCD54EDB17EE`, with scoped cleanup complete. Local FX durations
+are stewardship 39.339 s / Chinese create 78.040 s / English create 41.725 s. Retain the three
+FX invalid-frame warnings and diagnostic collector's simctl lookup error; no zero-warning claim.
+The full log SHA-256 is `78c2f4c79f31106be7debf5374dcd4a24459dc49af7078d4fa4eba92aa8390c2`;
+paths, provenance hash and audit details are in `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+
+Hosted `34080624727` attempt 1 is success on exact `8e57283`: ordinary `101615078191`, FX
+`101615078310`, join `101622038054`. Metadata was checked directly; its native switch acceptance
+is attributed to the owner's supplied independent review, not a newly performed author hosted
+audit. This session's full-local native audits are author checks offered for rereview.
+
+Synchronize the evidence header, PROJECT_MEMORY, TASKS and diagnostic current status; keep historical
+814.581125 ms / exit 65, `34072691064` and `34077058451` as non-pass. No new benchmark root
+cause or universal native-gesture fix is claimed. No Swift, test, gate, retry, allowance or
+threshold change in this documentation update. Runtime results belong to `8e57283`, not to
+the later Docs-only synchronization commit; its CI must be identified separately. Keep Draft
+pending independent rereview. D's four boxes remain open, D is not Done, E is unentered and
+the queued Insights income/share feature is untouched.
+
+The five static gates (integer money, network, commercialization documents, StoreKit catalog,
+FX contract including negative/self-tests) passed after the evidence synchronization; no gate
+or runtime binding was weakened. `git diff --check` passed and non-Docs diff against `8e57283`
+is empty. Publish only this evidence update to the existing Draft PR and identify its new
+documentation head/CI separately in the PR body; independent rereview is still pending.

@@ -29,16 +29,24 @@ struct CSVExporter: Sendable {
         "updated_at_utc",
         "income_allocated_to_budget_minor_units",
         "income_allocated_to_savings_minor_units",
+        "original_amount",
+        "original_amount_minor_units",
+        "original_currency_code",
+        "exchange_rate_numerator",
+        "exchange_rate_denominator",
+        "exchange_rate_date",
+        "exchange_rate_time_zone_identifier",
+        "exchange_rate_source",
     ]
 
-    func export(_ records: [ExpenseExportRecord]) -> CSVExportResult {
-        export(expenses: records, incomes: [])
+    func export(_ records: [ExpenseExportRecord]) throws -> CSVExportResult {
+        try export(expenses: records, incomes: [])
     }
 
     func export(
         expenses: [ExpenseExportRecord],
         incomes: [IncomeExportRecord]
-    ) -> CSVExportResult {
+    ) throws -> CSVExportResult {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -50,7 +58,7 @@ struct CSVExporter: Sendable {
             let fields: [String]
             switch row {
             case let .expense(record):
-                fields = expenseFields(record, dateFormatter: dateFormatter)
+                fields = try expenseFields(record, dateFormatter: dateFormatter)
             case let .income(record):
                 fields = incomeFields(record, dateFormatter: dateFormatter)
             }
@@ -66,8 +74,28 @@ struct CSVExporter: Sendable {
     private func expenseFields(
         _ record: ExpenseExportRecord,
         dateFormatter: ISO8601DateFormatter
-    ) -> [String] {
-        [
+    ) throws -> [String] {
+        let foreignFields: [String]
+        if let foreign = record.foreignCurrency {
+            guard record.source == .manual, !record.isRecurring else {
+                throw ForeignCurrencyError.unsupportedSource
+            }
+            // Refuse a contradictory tuple instead of omitting metadata or recomputing history.
+            try foreign.validate(accounting: record.amount)
+            foreignFields = [
+                exactMajorUnits(foreign.original),
+                String(foreign.original.minorUnits),
+                foreign.original.currencyCode,
+                String(foreign.rate.numerator),
+                String(foreign.rate.denominator),
+                dateFormatter.string(from: foreign.rateDate),
+                foreign.rateTimeZoneIdentifier,
+                foreign.source.rawValue,
+            ]
+        } else {
+            foreignFields = Array(repeating: "", count: 8)
+        }
+        return [
             "expense",
             record.id.uuidString.lowercased(),
             dateFormatter.string(from: record.spentAt),
@@ -90,7 +118,7 @@ struct CSVExporter: Sendable {
             dateFormatter.string(from: record.updatedAt),
             "",
             "",
-        ]
+        ] + foreignFields
     }
 
     private func incomeFields(
@@ -120,7 +148,7 @@ struct CSVExporter: Sendable {
             dateFormatter.string(from: record.updatedAt),
             String(record.allocatedToBudgetMinorUnits),
             String(record.allocatedToSavingsMinorUnits),
-        ]
+        ] + Array(repeating: "", count: 8)
     }
 
     private enum ExportRow {

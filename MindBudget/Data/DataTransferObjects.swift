@@ -82,6 +82,7 @@ struct ExpenseExportRecord: Equatable, Sendable {
     let isRecurring: Bool
     let source: ExpenseSource
     let allowMerchantIndexing: Bool
+    let foreignCurrency: ExpenseForeignCurrency?
 }
 
 struct IncomeDraft: Sendable {

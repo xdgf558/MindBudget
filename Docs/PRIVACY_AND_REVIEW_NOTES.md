@@ -35,6 +35,15 @@ CSV punctuation/newlines are escaped. The export is transferred from memory, so 
 does not retain a second CSV file in its container. It is a ledger export, not a
 full internal-database backup.
 
+FX-01D's in-progress CSV implementation appends the original amount/minor units/currency,
+exact saved rate numerator/denominator, UTC ISO-8601 rate date (fractional seconds), original
+IANA rate time zone and manual source. Existing accounting columns retain the saved home
+amount and currency. Income and ordinary-expense rows leave all eight appended fields blank.
+The in-memory snapshot is validated as a whole; an unreadable or contradictory FX tuple fails
+preparation, clears the shareable result and does not silently omit FX details. The existing
+localized export disclosure lists the added fields. This explicit CSV export does not grant
+permission for cloud sync, telemetry, model input or automatic social sharing.
+
 Delete All is implemented with a confirmation dialog followed by a localized confirmation
 word. It performs these steps in order: cancel app notifications, delete and await all
 app-owned Spotlight index removal, delete all current SwiftData model types, reset app
@@ -42,6 +51,20 @@ preferences while leaving system language untouched, and return to onboarding. P
 names the current stage. After deletion, the app re-queries every current model count and resets
 preferences only when every count is zero. The flow stops and names the failed stage if any
 operation or verification fails; a partial failure is never reported as complete deletion.
+
+The V7 foreign-currency companion is part of each expense's local deletion and Delete All
+verification, including damaged metadata. Exporting does not create an extra persistent FX
+copy. FX-01D does not change the existing distinction between local deletion and explicit
+deletion of iCloud copies. The D source candidate now carries a separate thirteenth encrypted
+`expenseForeignCurrencyMetadata` fact under the existing explicit opt-in. It contains the original
+amount/currency, exact rate, saved date/time zone/source and parent identity, never added to the
+frozen accounting Expense envelope or plaintext CloudKit fields. Settings disclosure names these
+fields in English and Chinese. This does not enable iCloud or claim real-account transport proof.
+Parent/companion validation, durable pending, atomic conflict choice and scoped tombstones are
+specified in `Commercialization/ICLOUD_SYNC_CONTRACT.md`; malformed data cannot silently strip FX.
+Expense summaries remain accounting-only: no FX metadata is added to model contexts, Spotlight,
+App Entities, notifications, telemetry, or logs. D regression uses synthetic records and local
+model/transport doubles; it does not send financial data to a provider.
 
 The unreleased C4B-03 source keeps Delete All explicitly local-only. It stops sync and clears local
 facts plus local sync metadata while retaining a device marker that an iCloud copy may exist. A

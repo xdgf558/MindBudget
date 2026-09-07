@@ -55,7 +55,7 @@ indeterminate scheduling, and must not sync a public database. Sources:
 
 ## Why this architecture
 
-### FX-01B local-store foundation (not a sync protocol expansion)
+### Historical FX-01B local-store foundation (superseded in the D source candidate)
 
 Schema V7 adds a local `ExpenseForeignCurrencyMetadata` companion while retaining all V6 sync
 models and the existing twelve-type wire allow-list. `.expense` payload keys, semantic digest
@@ -66,6 +66,32 @@ FX local recording remain available during erasure without staging parent-only u
 Legacy parent-only upserts also reject this coexistence; parent tombstones delete companions.
 This interim isolation adds no UI or network activation. FX-01D must update this contract and
 the exact thirteen-type inventory together before removing these protections.
+
+### FX-01D companion transport — current source candidate
+
+Status: FX-01D In Progress; source candidate only, not reviewed/merged runtime acceptance.
+Sync remains default off; this compatibility work does not enable a channel, deploy a schema,
+request an account, or authorize a real CloudKit run. Existing enabled paths alone are in scope.
+
+- Wire inventory: exactly 13 entity types; `expenseForeignCurrencyMetadata` is the new companion.
+- Frozen parent: `.expense` payload keys, field types, semantic digest algorithm and envelope version 1 remain unchanged.
+- Companion identity: canonical `expenseForeignCurrencyMetadata/<expenseID>`; payload schema 1.
+- Closed fields: `expenseID`, `originalAmountMinorUnits`, `originalCurrencyCode`, `rateNumerator`, `rateDenominator`, `rateDate`, `rateTimeZoneIdentifier`, `rateSourceRaw`.
+- Transport: encrypted payload only; no extra plaintext, indexed content, receipt/OCR data or new endpoint.
+- Atomic cohort: available matching expense/companion upserts validate both lineages and the complete tuple in one transaction before save; neither half is accepted on failure.
+- Pending parent: a well-formed companion without its matching parent remains durable pending; changing a retained FX parent's amount waits for the matching companion. It never revalues history from current Settings or today's rate.
+- Quarantine: unknown/partial/noncanonical fields, contradictory available tuples, ambiguous competing cohorts, or invalid lineage fail closed. An undecodable companion cannot silently become a parent-only import. Exact duplicate envelopes are idempotent.
+- Conflict choice: an available divergent expense/companion pair uses one explicit keep-local/use-iCloud choice for both records, atomically; no wall-clock winner and no separately accepted financial half.
+- Deletion: parent deletion cascades to local FX metadata and stages both logical tombstones; a companion tombstone only removes metadata, never the expense. Accepted tombstones prevent background resurrection.
+- Local continuity: disabled sync, offline transfer, quota, cloud erasure and quarantined remote candidates do not prevent valid local recording or stewardship. Local Delete All removes the FX and transport state without implying remote deletion.
+
+Pre-D clients retain the twelve-type allow-list and reject the new type; they continue to read the
+unchanged accounting parent. A D client preserves its valid retained FX tuple when a legacy-only
+parent edit would contradict it, leaving the edit pending until an explicit compatible update is
+available. No incomplete metadata is invented and absence of a companion is not an instruction
+to delete one. The unchanged independent per-record lineage format cannot establish a transaction
+ID across arbitrary competing remote revisions; ambiguous cohorts therefore remain quarantined,
+not resolved by time. Real mixed-version CloudKit delivery is not claimed by in-memory tests.
 
 ### Chosen: custom records plus `CKSyncEngine`
 
@@ -115,14 +141,16 @@ metadata models: `CloudSyncControl`, `CloudSyncRecordMetadata`, `CloudSyncOutbox
 `CloudSyncInboxItem`, and `CloudSyncEngineState`. They are transport/control state, never a
 business or financial authority. The V6 `ModelCounts` inventory covered **16** business tables
 (not 15): the prior C4A 15-table audit predates the V5 companion. FX-01B's Schema V7 adds
-`ExpenseForeignCurrencyMetadata`, bringing the local business/companion count to **17**, but
-does not add it to the twelve-type sync allow-list. UUIDs below are current
+`ExpenseForeignCurrencyMetadata`, bringing the local business/companion count to **17**.
+FX-01D's current source candidate adds its separate thirteenth sync type; the twelve legacy
+types retain their payload contracts. UUIDs below are current
 unique business IDs; `BudgetPlanSemantics.planID` and `MerchantAccountingContext.merchantID` are
 stable companion keys.
 
 | V6 business owner | Identity / relationship | C4B treatment |
 |---|---|---|
 | Expense | `id`; scalar recurrence/merchant provenance | Sync authoritative envelope |
+| ExpenseForeignCurrencyMetadata (V7) | unique `expenseID`, expense parent required | D candidate: separate encrypted companion, never added to the Expense payload |
 | Income | `id` | Sync authoritative envelope |
 | IncomeAllocation | `id`, unique `incomeID`, optional `budgetPlanID` | Sync; missing parent queues, never guesses |
 | SavingsGoal | `id` | Sync authoritative envelope |
