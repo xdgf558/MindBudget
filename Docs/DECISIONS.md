@@ -1,5 +1,16 @@
 # DECISIONS
 
+## 2026-09-07 — Complete synthetic notification isolation without isolating real CloudKit
+
+Review found the initial source injection covered only two synthetic fixtures. Extend it to
+all ten explicit synthetic service construction sites across CloudSyncTests and Phase6FeatureTests;
+the offline restart case shares a private center within its own lifecycle. Stop synthetic
+services at completion and retain the controlled positive local/remote observer test. Keep
+the four opt-in physical CloudKit methods on the default notification source: isolating them
+would remove the production integration behavior they are meant to prove. They are not run
+in this investigation. Original sender remains unknown. No UI corrective acceptance follows
+from this change or from a green diagnostic hosted run; #118/#119 remain Draft, D open, E unentered.
+
 ## 2026-09-07 — Isolate synchronization notification sources in retry fixtures
 
 The separate post-#118 reliability investigation permits `CloudSyncService` to receive a

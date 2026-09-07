@@ -23,6 +23,14 @@ not helper changes inside #118 or another doc-only rerun. See
 `Docs/FX_UI_RELIABILITY_INVESTIGATION.md`. D stays In Progress, all four D completion
 items remain open, E is unentered and Insights income/sharing remains queued.
 
+PR #119 diagnostic head `e83017f` hosted `34116397624` passed with author native audits,
+but its default complete local validator failed all three FX methods plus a runner error.
+The 496.448167 ms benchmark pass is close to the unchanged 500 ms limit. This is not
+corrective acceptance. The review follow-up isolates all explicit synthetic sync service
+fixtures; real physical notification paths stay unchanged. Switch / budget mechanisms and
+complete-local acceptance remain open; the new 40-pass / 4-physical-skip focused check is not
+a replacement for them. Canonical details are in the investigation packet above.
+
 Historical PR #117 pre-merge checkpoint: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
 companion protocol are implemented in Draft PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays

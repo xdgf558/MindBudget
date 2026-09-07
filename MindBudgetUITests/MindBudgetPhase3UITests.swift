@@ -1914,6 +1914,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let row: CGRect
         let nativeSwitch: CGRect
         let lane: CGRect
+        let preTapRowValue: String?
+        let preTapChildValue: String?
 
         // These fixtures are English / Simplified Chinese (left-to-right) and activate only
         // an off switch. The retained hosted trace shows the centre lands on its draggable
@@ -1961,6 +1963,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
             try requireFrame(child.frame)
             row = target.frame
             nativeSwitch = child.frame
+            preTapRowValue = target.value
+            preTapChildValue = child.value
             let navigation = nodes.filter { $0.type == .navigationBar && $0.frame.intersects(root.frame) }
             guard !navigation.isEmpty else {
                 throw BudgetGeometryError(description: "FX activation has no visible navigation bar")
@@ -1991,7 +1995,7 @@ final class MindBudgetPhase3UITests: XCTestCase {
         }
 
         var description: String {
-            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), preTapRowValue=0, preTapChildValue=0"
+            "app=\(application), row=\(row), nativeSwitch=\(nativeSwitch), lane=\(lane), offTrackTap=\(tapPoint), preTapRowValue=\(preTapRowValue ?? "nil"), preTapChildValue=\(preTapChildValue ?? "nil")"
         }
     }
 
@@ -2014,6 +2018,8 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let captured = try FXSwitchTapGeometry { captures += 1; return tree([row]) }
         XCTAssertEqual(captures, 1)
         XCTAssertEqual(captured.nativeSwitch, child.frame)
+        XCTAssertEqual(captured.preTapRowValue, row.value)
+        XCTAssertEqual(captured.preTapChildValue, child.value)
         XCTAssertEqual(captured.tapPoint.x, child.frame.minX + child.frame.width * 0.75)
         XCTAssertEqual(captured.tapPoint.y, child.frame.midY)
         // Original failed native trace: the off thumb ends at x=344. The new point stays

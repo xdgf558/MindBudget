@@ -1,5 +1,37 @@
 # SESSION_LOG
 
+## 2026-09-07 — PR #119 review follow-up; UI blockers remain open
+
+Kept #118 and #119 Draft with no merge or D/E advancement. Fixed TASKS' stale Draft #117
+current-state paragraph and the plan's unmerged D candidate statement: implementation merged
+as `d19c640`, reviewed `7e901f2`, hosted `34090503092`; closeout is still blocked separately.
+Completed private NotificationCenter injection at all ten explicit synthetic service sites,
+including the resumed-service and Phase 6 deletion fixtures; stopped synthetic lifecycles.
+Four opt-in real CloudKit tests retain the production source and were skipped, not run.
+Switch geometry now stores pre-tap values from the captured nodes instead of literal zeroes;
+no hit point, gesture, predicate, wait or threshold changed. The values remain pre-tap only.
+
+Confirmed `e83017f` hosted `34116397624` succeeded. Downloaded ordinary artifact `10017878005`
+and FX `10017015334`; author native audits passed (628 ordinary details, 611 Passed / 17
+Skipped methods, 620 Passed concrete executions; FX three methods once and UUID
+`712A528C-3E65-4964-9EFD-7AD9552EF2DC` matches non-cloned provenance). No Repetition/extra
+attempt; three FX invalid-frame warnings retained. No independent approval or UI fix inferred.
+
+Completed reading the same head's default complete local run: wrapper exit 1. Ordinary passed,
+benchmark 496.448167 ms passed with narrow margin, but FX three methods failed plus runner
+exit 75. Chinese failures are after Edit / Save, English fails typing with no keyboard focus
+and XCTest-internal failed synthesis retries. These are distinct from #118's off-switch
+failure, not explanations for it. Exported all attachments, not just failure-associated ones;
+recorded exact durations, hierarchy hashes and complete log hash in
+`FX_UI_RELIABILITY_INVESTIGATION.md`. Both #118 failures and all earlier non-passes stay retained.
+
+Incremental build passed. First focused invocation failed before tests because the author
+incorrectly wrote `-retry-tests-on-failure NO`; retained command non-pass. Corrected invocation
+omits that flag: 40 Passed / 4 opt-in physical Skipped, all 44 native details audited without
+Repetition, extra attempt or runtime warnings. Five static gates and diff whitespace checks
+passed. No new complete-local or FX functional acceptance is claimed. Original switch/budget
+mechanisms, complete-local acceptance, branch protection and physical integration remain open.
+
 ## 2026-09-07 — Separate UI / synchronization reliability investigation
 
 Owner authorized a new repair scope after PR #118's second failed hosted run. Created

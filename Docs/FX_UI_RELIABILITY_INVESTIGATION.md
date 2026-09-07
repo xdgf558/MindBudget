@@ -86,6 +86,14 @@ Do not interpret this as a failed hosted retest or as proof of a UIKit recognize
 
 ## Current corrective / diagnostic work
 
+Review follow-up: all ten explicit synthetic `CloudSyncService` construction sites now inject
+a fixture-owned center (nine in `CloudSyncTests`, one in `Phase6FeatureTests`). The offline
+deletion/restart fixture shares its private center between the stopped and resumed services.
+Synthetic service lifecycles are explicitly stopped. The four opt-in physical CloudKit methods
+retain the production default notification path and real adapters; they were not executed.
+No production publisher or default changed in this follow-up. The original sender remains
+unobserved; this broader isolation does not close the switch or budget mechanism investigation.
+
 The synchronization candidate adds an injectable `NotificationCenter`, defaulting to `.default`
 for all production callers. The explicit-retry fixture owns a private source; its original
 exact count and paused-account assertions remain. A new controlled-source test requires an
@@ -100,6 +108,11 @@ post-action text-field/switch values, frames and enabled state. Existing gesture
 waits and limits are unchanged. Geometry logs now label captured values `preTapRowValue` and
 `preTapChildValue`. No dispatch observer/private API is present. These traces are not a switch
 or budget root-cause fix and do not remove either acceptance blocker.
+
+The review follow-up stores those pre-tap values from the same captured row/child instead of
+formatting literal zeroes. Their guards still require off state. They are explicitly **not**
+post-tap observations; the failure attachment remains the separate post-action capture. No
+gesture, hit point, focus workaround, retap or timeout changed.
 
 The budget predicate also retains the last value from its **existing** query, without a second
 query or a changed comparison. A later full snapshot is distinct from that exact failed read.
@@ -138,6 +151,76 @@ The later last-predicate-value diagnostic passed incremental `build-for-testing`
 (`fx-reliability-trace-build-1.log`); no additional runtime pass is inferred. The separate PR is a
 Draft investigation checkpoint, not a merge recommendation; a green diagnostic run cannot by
 itself establish a UI root cause or satisfy the still-open correction gate.
+
+## Reviewed-head results and follow-up (not corrective acceptance)
+
+Exact diagnostic head `e83017f6aab59e63f31857723ea54c6edcf2dd53` hosted run `34116397624`,
+attempt 1, finished **success**: ordinary `101724123651`, FX `101724123782`, join `101736517662`.
+Original artifacts are ordinary `10017878005` and FX `10017015334`. Author native audit of
+all 628 ordinary method details found 611 Passed / 17 Skipped methods, 620 Passed concrete
+executions, no Repetition/extra attempt, and no runtime warnings. FX's three methods each
+Passed once, with no Repetition/extra attempt and each detail bound to provenance UUID
+`712A528C-3E65-4964-9EFD-7AD9552EF2DC` (`cloned: false`). Stewardship / Chinese create /
+English durations were 93.247 / 133.536 / 72.540 seconds. Three invalid-frame warnings remain
+retained. This is hosted Xcode 26.6 execution with iOS 26.5; the author inspected the downloaded
+artifacts with local Xcode 27 beta 6. Green diagnostic execution is not mechanism evidence.
+
+The **default complete local validator on that same clean head failed**, wrapper exit 1.
+Log `fx-reliability-e83017f-complete-1.log` SHA-256:
+`bc5ab379902133604002d627714d3c7dd03efedd7c03212acb04d5e199b6e3d4`.
+Local Xcode 27 beta 6 / iOS 26.5, zero retry, no benchmark skip. The strict benchmark measured
+496.448167 ms under the unchanged 500 ms limit, with only 3.551833 ms margin; this is not a
+performance improvement claim. Ordinary summary was 611 Passed / 17 Skipped methods (620
+Passed concrete executions). That partial result does not make the full command pass.
+
+The isolated local FX device was `28330F90-72C9-4DDD-8138-7F6FF3EDFEAE`. All three methods
+failed, and the native summary additionally includes a runner error (4 failed records, 0
+Passed):
+
+| Method | Duration | Observed failure on `e83017f` |
+| --- | --- | --- |
+| Chinese AX5 stewardship | 67.695s | Line 144: no `fx.enabled` after Edit; failure hierarchy still shows Details. Synthesized Edit event is `(349.8333,84)`, inside the recorded button, not evidence of recognizer delivery. |
+| Chinese AX5 create | 188.312s | Line 110: no `expense.edit` after Save; hierarchy still shows the entry form with FX enabled and entered rate 2. |
+| English create/stewardship | 95.508s | Line 236: deletion into rate field fails because neither it nor a descendant has keyboard focus; the edit sheet exists, rate remains 2. XCTest internally retries synthesis twice and still fails. This is not an accepted single-input result. |
+
+The runner also exited with code 75 before finishing tests; its mechanism is unproven. Two
+invalid-frame warnings remain. None of these local failures reproduces the original hosted
+off-switch state, and none explains it. Original attachments were exported without the
+`--only-failures` filter because the Chinese failure hierarchies are not marked failure-associated.
+Hierarchy attachments and SHA-256:
+
+- Stewardship `D2BE2C92-F9D3-4390-8126-7E8E1AE1D0FC.txt`:
+  `7057a4b3c9eae7fac219d8e6696a3a0373df644955e4901a46c7aeda6b2a250d`.
+- Chinese create `56991187-8E09-4624-86C3-1C62D47B1F2C.txt`:
+  `a7ca52408403ae9ce08ea499fa22ac1b85427731e502d7df587e8f5bcd5b429a`.
+- English edit `637379B9-D356-400B-8370-B8320272C335.txt`:
+  `6b91c6c8864f773da8f7511f8fbaf76ef7df588c826402ad23ca88cf7c4f7d06`.
+
+Follow-up source validation (working-tree candidate, not `e83017f` execution):
+
+- `fx119-review-followup-build-1`: incremental `build-for-testing` exit 0.
+- `fx119-review-followup-probe-1`: command error, exit 65 before tests. The author incorrectly
+  supplied `-retry-tests-on-failure NO`; this option takes no Boolean argument, so `NO` was
+  rejected as a build action. No test execution or retry is counted; retained non-pass.
+- `fx119-review-followup-probe-2`: removed the retry option entirely, unchanged built source.
+  Whole `CloudSyncTests`, the Phase 6 privacy-deletion integration fixture and the switch
+  snapshot geometry test: **40 Passed / 4 Skipped**, native audit of all 44 details confirms
+  no Repetition/extra attempt and no runtime warnings. The four skips are the opt-in physical
+  CloudKit methods, not synthetic checks. Device `1B6529A0-D847-4757-9A08-C7DEDC08E376`.
+  This tests fixture isolation and captured values, not FX tap reliability or full validation.
+
+Follow-up compiled source SHA-256: CloudSyncTests
+`72de9eda7a10440b7cb3c5940473fab75ff08b17e426a458ba5c4f7b9f8f10d6`, Phase6FeatureTests
+`ef4f5992411f1d72fb189ce01c01f1720f741d34db1e0f37d4e763089d3d5ec2`, Phase3UITests
+`ba0c922ad672467b20d9e656bd270ea1ade7e4637a2d7d077c1f3ae521065bf7`.
+CloudSyncRuntime is unchanged from the earlier tested hash above. Focused probe-2 log SHA-256:
+`0e7aaf391ad7dd7da844b071b1ec4ca6ce2f767ccd697224ae17923fd075c2e1`.
+
+The five static gates and `git diff --check` passed after these source changes. TASKS and
+the manual-currency plan now distinguish merged #117 implementation from blocked #118
+closeout. No new full-local/UI run is claimed, and no unchanged-source rerun is used to close
+the open UI mechanisms. Main required-check protection and physical CloudKit / mixed-peer /
+cross-calendar evidence remain open.
 
 ## Completion boundary (still open)
 

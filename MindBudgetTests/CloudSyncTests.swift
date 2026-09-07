@@ -51,7 +51,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
         )
 
         await service.start()
@@ -63,6 +64,7 @@ struct CloudSyncTests {
 
         #expect(probe.creationCount == 1)
         #expect(probe.adapter.startCount == 1)
+        await service.stop()
     }
 
     @Test
@@ -1230,7 +1232,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         await service.setEnabled(true)
@@ -1241,6 +1244,7 @@ struct CloudSyncTests {
         await service.setEnabled(true, reimportConfirmed: true)
         #expect(service.snapshot.isEnabled)
         #expect(probe.creationCount == 1)
+        await service.stop()
     }
 
     @Test
@@ -1283,13 +1287,15 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in TestCloudSyncAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         await service.start()
 
         #expect(retention.cloudCopyMayExist)
         #expect(service.snapshot.cloudCopyMayExist)
+        await service.stop()
     }
 
     @Test
@@ -1308,7 +1314,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         let outcome = await service.deleteCloudData()
@@ -1319,6 +1326,7 @@ struct CloudSyncTests {
         #expect(!service.snapshot.isEnabled)
         #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
         #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+        await service.stop()
     }
 
     @Test
@@ -1331,10 +1339,12 @@ struct CloudSyncTests {
         let probe = CloudSyncAdapterProbe()
         probe.adapter.deletionOutcome = .pending(.networkUnavailable)
         let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let notifications = NotificationCenter()
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: notifications
         )
 
         #expect(await service.deleteCloudData() == .pending(.networkUnavailable))
@@ -1362,13 +1372,15 @@ struct CloudSyncTests {
         let resumedService = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in resumedProbe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: notifications
         )
         await resumedService.start()
         #expect(resumedProbe.adapter.deleteCloudDataCount == 1)
         #expect(!resumedService.snapshot.isEnabled)
         #expect(!retention.cloudCopyMayExist)
         #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        await resumedService.stop()
     }
 
     @Test
@@ -1387,7 +1399,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true),
+            notificationCenter: NotificationCenter()
         )
         await service.start()
         #expect(probe.creationCount == 0)
@@ -1397,6 +1410,7 @@ struct CloudSyncTests {
         #expect(try await actor.pendingCloudSyncRecordNames() == [
             "expense/\(expense.id.uuidString.lowercased())"
         ])
+        await service.stop()
     }
 
     @Test(.enabled(if: Self.runsPhysicalCloudKitRuntimeTests))
