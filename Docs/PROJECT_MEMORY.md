@@ -13,10 +13,117 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Current authorized work: resume independent documentation closeout #118 after accepted #120
+merged reviewed `705d2a7` as `10e5b13` (second parent verified), with complete local exit 0
+(194.901083ms / unchanged 500ms), hosted `34241669738` attempt 1 success and independent
+native/no-P1/P2 acceptance. `FX_01D_CLOSEOUT.md` owns the exact evidence and remaining limits.
+Import accepted main without new product/test changes; obtain this closeout head's own CI,
+native audit and independent review. Keep all three #118 failures and original UNPROVEN causes.
+D's four items stay unchecked, D In Progress; E and Insights income/sharing remain unentered.
+
+### Prior investigative checkpoint (before repair authorization)
+
+Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
+separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
+at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
+`DASHBOARD_FIRST_LOAD_INVESTIGATION.md` owns diagnosis only; no product optimization, waiver,
+publication, D Done or E/share entry is authorized. Earlier UI-focused passes remain scoped.
+The bounded investigation now identifies expense fetch + mapping as 93–96% of observed
+10,000-record load time, but the original 883.249166 ms cause remains UNPROVEN. Cold/warm
+diagnostics do not close it. Temporary Swift probes are removed; only local records remain.
+The UI readiness repair is paused at that full-validation blocker, not accepted by this report.
+
+### Continuing product/workflow boundaries
+
 Owner workflow preference (2026-09-06): use the Product Design skill for UI-design tasks,
 including the queued Insights income tile and share card. Follow the skill's context/visual
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
+
+### Historical main-side checkpoints (before #120 acceptance)
+
+Current work: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
+acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
+PR #118 remains Draft after three exact-head non-passes: `34097606992`, `34108994597`,
+`34218693463`. Owner now authorized separate branch `codex/fx-ui-readiness-repair` from
+merged main for Done observation, the Settings final pan and Wishlist single Save. See
+`Docs/FX_UI_READINESS_REPAIR.md`. Candidate/focused checks are not full or hosted acceptance.
+D remains In Progress with four open items; E and Insights income/sharing remain unentered.
+
+### Historical #119 investigation/source-freeze checkpoints (superseded by b364444 acceptance)
+
+The following paragraphs preserve the evidence available before that accepted merge; their
+pending/Draft wording is not the current #119 status. Original causes remain UNPROVEN.
+
+At that checkpoint: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
+Draft after `34097606992` and `34108994597` failed. Owner authorized the separate
+`codex/fx-ui-reliability` UI / synchronization test investigation from that merged base,
+not helper changes inside #118 or another doc-only rerun. See
+`Docs/FX_UI_RELIABILITY_INVESTIGATION.md`. D stays In Progress, all four D completion
+items remain open, E is unentered and Insights income/sharing remains queued.
+
+Latest working corrective candidate (2026-09-08): budget amount rows explicitly request their
+existing FocusState after one simultaneous tap, with no visual redesign, new toolbar or retap.
+English/Chinese AX5 label tests exercise a point outside the native editor and require exact
+independent saved-budget readback. The original AX1→AX5 editor-center path is preserved.
+This is a new focus control, not a proven explanation of the historical lost click; full
+local/hosted/native and independent acceptance remain required before #119 can be accepted.
+
+2026-09-08 owner explicitly authorized replacing the FX switch with an Enable button. The
+working candidate uses localized Enable/Cancel, with no cancellation for saved FX. Existing
+access/model/actor controls remain; one-tap field-state tests replace the old track geometry.
+Final-source focused local verification passed 17 ordinary/unit checks and all three isolated
+FX methods once, with native audits, plus Debug/Release simulator builds and English/Chinese
+AX5 screenshot inspection. Three FX invalid-frame warnings and diagnostic archive collection's
+exit 72 remain recorded. These Xcode 27 beta 6 / iOS 26.5 checks do not replace default full
+validation (including the 500 ms benchmark), exact-head hosted or independent review.
+This supersedes the earlier pending-control-choice checkpoint, not the historical failures or
+their UNPROVEN cause. No #118/#119 acceptance or D/E advance.
+
+The subsequent exact-head `2c61da2` run `34169377668` failed ordinary and join; FX passed.
+The owner's artifact review identifies the ordinary AX1→AX5 budget focus/keyboard failure,
+not a failure of the new FX buttons. Full-local validation still has not passed this candidate.
+The earlier focused results and any diagnostic green are not substitutes. The failure is
+retained in the investigation packet/log; #118/#119 remain Draft and D/E boundaries unchanged.
+
+PR #119 diagnostic head `e83017f` hosted `34116397624` passed with author native audits,
+but its default complete local validator failed all three FX methods plus a runner error.
+The 496.448167 ms benchmark pass is close to the unchanged 500 ms limit. This is not
+corrective acceptance. The review follow-up isolates all explicit synthetic sync service
+fixtures; real physical notification paths stay unchanged. Switch / budget mechanisms and
+complete-local acceptance remain open; the new 40-pass / 4-physical-skip focused check is not
+a replacement for them. Canonical details are in the investigation packet above.
+
+The owner-supplied independent rereview of `604caa9` confirms hosted `34123406554`
+success and closes the prior documentation-state / synthetic-isolation findings only.
+The switch and budget-readback mechanisms remain open; the diagnostic run is not corrective
+acceptance, a replacement for the failed complete-local run, or D closeout. Both PRs stay Draft.
+
+The earlier local switch investigation produced a controlled non-pass: temporary 50 ms main-thread
+stalls reproduced the Chinese AX5 off-switch geometry with no binding/model/value-changed event;
+baseline and stall-withdrawal probes passed. The original hosted cause remains unproven and no
+corrective control is accepted. All temporary probe/fault code was removed, with artifacts and
+the induced failure retained in the canonical investigation packet. Budget readback, complete
+local validation and D closeout were not resolved by those probes; they were not product repairs.
+
+The first working candidate added a localized budget keyboard Done action, but default validation
+caught its conflict with the accepted no-toolbar/single-commit UI contract. It was withdrawn;
+the original assertion remains. Full-1 is incomplete non-pass (contract failure plus author
+cancellation), despite its separate 217.268 ms benchmark pass. Current test-only work saves once
+with the existing active keyboard, then verifies exact 3000/2500/500 from the independently loaded
+Settings budget. It does not edit that second form or claim disk durability. Six focused methods
+passed once (large text, bilingual legends, fresh stored values and negative contracts), then
+three final-source guard/round-trip checks passed once; all five static gates passed. No new
+complete-local or hosted acceptance is claimed. A separate six-condition minimal switch experiment
+did not reproduce the failure; all temporary code was removed. FX activation, complete validation,
+hosted evidence and independent review remain open. #118/#119 stay Draft; no D/E advance.
+
+Historical PR #117 pre-merge checkpoint (superseded by merge `d19c640`): CSV/locked-accounting
+consumers and the separate thirteenth optional-iCloud companion protocol were implemented
+while PR #117 was Draft. The old `.expense` payload is
+frozen. These paragraphs are retained checkpoints, not the current closeout status.
+
+### Closeout-side checkpoint before #120 integration
 
 Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
 companion protocol were merged in PR #117. The old `.expense` payload is

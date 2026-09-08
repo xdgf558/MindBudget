@@ -191,9 +191,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         var observations: [String] = []
         let started = ContinuousClock.now
         func capture(_ phase: String) throws -> FXKeyboardSnapshot {
+            let captureStarted = started.duration(to: .now)
             let root = BudgetSnapshotNode(try app.snapshot())
-            observations.append("\(phase) at \(started.duration(to: .now)): \(FXKeyboardSnapshot.describe(root))")
-            return try FXKeyboardSnapshot(root: root)
+            let state = try FXKeyboardSnapshot(root: root)
+            observations.append("\(phase) capture \(captureStarted)...\(started.duration(to: .now)): \(FXKeyboardSnapshot.describe(root))")
+            return state
         }
         defer {
             let attachment = XCTAttachment(string: observations.joined(separator: "\n\n"))
@@ -201,48 +203,97 @@ final class MindBudgetPhase3UITests: XCTestCase {
             attachment.lifetime = .keepAlways
             add(attachment)
         }
-        var readySnapshot: FXKeyboardSnapshot?
-        var readinessFailure: String?
-        let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+        let readinessStarted = ContinuousClock.now
+        let before = try pollSnapshotWithinDeadline(
+            timeout: .seconds(3), elapsed: { readinessStarted.duration(to: .now) },
+            pause: { RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05)) }
+        ) {
+            let state = try capture("before tap")
             do {
-                let state = try capture("before tap")
-                guard (try? state.doneTapOffset()) != nil else { return false }
-                readySnapshot = state
-                return true
+                _ = try state.doneTapOffset()
+                observations.append("Done geometry accepted at \(readinessStarted.duration(to: .now))")
+                return state
             } catch {
-                readinessFailure = String(describing: error)
-                return true
+                observations.append("Done geometry not ready: \(error)")
+                return nil
             }
-        }, object: nil)
-        let readyResult = XCTWaiter.wait(for: [ready], timeout: 3)
-        if let readinessFailure {
-            throw BudgetGeometryError(description: "FX Done readiness observation failed: \(readinessFailure)")
         }
-        guard readyResult == .completed, let before = readySnapshot else {
-            throw BudgetGeometryError(description: "FX Done did not enter a safe snapshot frame; no tap sent")
+        guard let before else {
+            observations.append("Done readiness deadline exceeded at \(readinessStarted.duration(to: .now)); no tap")
+            throw BudgetGeometryError(description: "FX Done has no accepted snapshot within 3 seconds; no tap sent")
         }
         let point = try before.doneTapOffset()
         observations.append("one Done tap at app offset \(point)")
         app.coordinate(withNormalizedOffset: .zero).withOffset(point).tap()
-        var observationFailure: String?
-        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            do {
-                let state = try capture("after tap")
-                return state.isDismissed
-            } catch {
-                // End this wait on an unreadable/invalid snapshot, then throw below. Unknown
-                // geometry is not permission to pan, Save, wait longer or send a second tap.
-                observationFailure = String(describing: error)
-                return true
+        let dismissalStarted = ContinuousClock.now
+        let dismissed = try pollSnapshotWithinDeadline(
+            timeout: .seconds(3), elapsed: { dismissalStarted.duration(to: .now) },
+            pause: { RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05)) }
+        ) {
+            let state = try capture("after tap")
+            return state.isDismissed ? state : nil
+        }
+        guard dismissed != nil else {
+            observations.append("Dismissal deadline exceeded at \(dismissalStarted.duration(to: .now))")
+            throw BudgetGeometryError(description: "FX dismissal not observed within 3 seconds after one tap; no dependent pan or Save allowed")
+        }
+    }
+
+    /// Read immediately instead of spending part of a short observation budget waiting for
+    /// an expectation's first timer callback. Count capture AND classification time. A valid
+    /// but late snapshot still fails; capture errors propagate and never trigger activation.
+    private func pollSnapshotWithinDeadline<Value>(
+        timeout: Duration, elapsed: () -> Duration, pause: () -> Void,
+        observe: () throws -> Value?
+    ) rethrows -> Value? {
+        while elapsed() < timeout {
+            let value = try observe()
+            guard elapsed() < timeout else { return nil }
+            if let value { return value }
+            pause()
+        }
+        return nil
+    }
+
+    @MainActor
+    func testFXSnapshotPollingUsesImmediateBoundedObservation() throws {
+        var elapsed: Duration = .zero
+        var reads = 0
+        var pauses = 0
+        let ready: Int? = pollSnapshotWithinDeadline(timeout: .seconds(3), elapsed: { elapsed },
+            pause: { pauses += 1; elapsed += .milliseconds(50) }) {
+            reads += 1
+            XCTAssertEqual(elapsed, .zero, "No first-callback delay before observing an already-ready UI")
+            elapsed += .milliseconds(2100)
+            return 7
+        }
+        XCTAssertEqual(ready, 7)
+        XCTAssertEqual(reads, 1)
+        XCTAssertEqual(pauses, 0)
+
+        for cost: Duration in [.seconds(3), .milliseconds(3001)] {
+            elapsed = .zero
+            let late: Int? = pollSnapshotWithinDeadline(timeout: .seconds(3), elapsed: { elapsed },
+                pause: { XCTFail("No extra observation after the deadline") }) {
+                elapsed += cost
+                return 7
             }
-        }, object: nil)
-        let result = XCTWaiter.wait(for: [dismissed], timeout: 3)
-        if let observationFailure {
-            throw BudgetGeometryError(description: "FX dismissal observation failed: \(observationFailure)")
+            XCTAssertNil(late, "Never accept an otherwise valid late snapshot")
         }
-        guard result == .completed else {
-            throw BudgetGeometryError(description: "FX Done or visible keyboard remained after one tap; no dependent pan or Save allowed")
+        elapsed = .zero
+        reads = 0
+        let missing: Int? = pollSnapshotWithinDeadline(timeout: .seconds(3), elapsed: { elapsed },
+            pause: { elapsed += .seconds(1) }) {
+            reads += 1
+            return nil
         }
+        XCTAssertNil(missing)
+        XCTAssertEqual(reads, 3)
+        elapsed = .zero
+        XCTAssertThrowsError(try pollSnapshotWithinDeadline(timeout: .seconds(3), elapsed: { elapsed },
+            pause: { XCTFail("Invalid snapshots must not be retried") }) { () throws -> Int? in
+            throw BudgetGeometryError(description: "invalid capture")
+        })
     }
 
     @MainActor
@@ -587,16 +638,9 @@ final class MindBudgetPhase3UITests: XCTestCase {
     @MainActor
     func testWishlistAndCoolingOffFlow() {
         let app = launchApp(language: "en", locale: "en_US")
-
-        app.buttons["onboarding.continue"].tap()
-        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
-        app.textFields["budget.monthlyIncome"].tap()
-        app.textFields["budget.monthlyIncome"].typeText("3000")
-        app.textFields["budget.totalBudget"].tap()
-        app.textFields["budget.totalBudget"].typeText("2500")
-        app.textFields["budget.savingGoal"].tap()
-        app.textFields["budget.savingGoal"].typeText("500")
-        app.buttons["budget.save"].tap()
+        // Do not rely on XCTest's implicit scroll/tap to commit an active budget editor.
+        // Use the same single safe Save and independent exact readback as the other flows.
+        completeBudgetSetup(in: app)
 
         XCTAssertTrue(element("dashboard.view", in: app).waitForExistence(timeout: 5))
         app.buttons["tab.wishlist"].tap()
@@ -2723,16 +2767,18 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let budgetForm = app.collectionViews[formIdentifier]
         let field = app.textFields[identifier]
         var lastGeometry: BudgetGeometry?
-
-        for _ in 0..<12 {
+        var captureFailed = false
+        let result: BudgetGeometry? = observeAfterBoundedMoves(maximumMoves: 12, observe: {
             guard let geometry = captureBudgetGeometry(targetIdentifier: identifier, targetType: .textField,
-                                                       noKeyboardInset: 80, in: app) else { return nil }
+                                                       noKeyboardInset: 80, in: app) else {
+                captureFailed = true
+                return nil
+            }
             lastGeometry = geometry
+            return geometry.targetIsInLane && field.isHittable ? geometry : nil
+        }, move: {
+            guard !captureFailed, let geometry = lastGeometry else { return false }
             if let frame = geometry.target {
-                if geometry.targetIsInLane && field.isHittable {
-                    return geometry
-                }
-
                 // A full-screen swipe can move a large AX5 field from behind the keyboard to
                 // behind the navigation bar (and back again) without ever exposing its hit point.
                 // Move only a small portion of the budget form so the field converges into the
@@ -2761,13 +2807,62 @@ final class MindBudgetPhase3UITests: XCTestCase {
                     lowerPoint.press(forDuration: 0.05, thenDragTo: upperPoint)
                 }
             }
-        }
+            return true
+        })
+        if let result { return result }
+        if captureFailed { return nil }
 
         XCTFail(
             "Budget field did not enter the safe interaction lane: \(identifier); "
                 + "last snapshot: \(String(describing: lastGeometry))"
         )
         return nil
+    }
+
+    /// N permitted pans have N + 1 observations, including the effect of the final pan.
+    /// This never permits an N + 1th gesture, changes the lane or retries an activation.
+    private func observeAfterBoundedMoves<Value>(
+        maximumMoves: Int, observe: () -> Value?, move: () -> Bool
+    ) -> Value? {
+        for completedMoves in 0...maximumMoves {
+            if let value = observe() { return value }
+            guard completedMoves < maximumMoves, move() else { return nil }
+        }
+        return nil
+    }
+
+    @MainActor
+    func testBudgetRevealObservesFinalMoveWithoutExtraGesture() throws {
+        var moves = 0
+        var observations = 0
+        let result: Int? = observeAfterBoundedMoves(maximumMoves: 12, observe: {
+            observations += 1
+            return moves == 12 ? 500 : nil
+        }, move: { moves += 1; return true })
+        XCTAssertEqual(result, 500, "Inspect the twelfth pan's result before declaring failure")
+        XCTAssertEqual(observations, 13)
+        XCTAssertEqual(moves, 12)
+        moves = 0
+        let absent: Int? = observeAfterBoundedMoves(maximumMoves: 12, observe: { nil },
+            move: { moves += 1; return true })
+        XCTAssertNil(absent)
+        XCTAssertEqual(moves, 12, "No thirteenth pan when the target remains outside the lane")
+        let invalid: Int? = observeAfterBoundedMoves(maximumMoves: 12, observe: { nil }, move: { false })
+        XCTAssertNil(invalid)
+        let visible: Int? = observeAfterBoundedMoves(maximumMoves: 0, observe: { 500 },
+            move: { XCTFail("An already visible target needs no pan"); return false })
+        XCTAssertEqual(visible, 500)
+
+        // Last pre-pan frame recorded by run 34218693463, not a new AX runtime result.
+        let field = BudgetSnapshotNode(.textField,
+            CGRect(x: 196, y: 734.3333333333333, width: 174, height: 65), identifier: "settings.budget.monthlyIncome")
+        let root = BudgetSnapshotNode(.application, CGRect(x: 0, y: 0, width: 402, height: 874), children: [
+            BudgetSnapshotNode(.navigationBar, CGRect(x: 0, y: 78, width: 402, height: 54)), field
+        ])
+        let geometry = try BudgetGeometry(targetIdentifier: field.identifier, targetType: .textField,
+            noKeyboardInset: 80) { root }
+        XCTAssertEqual(geometry.safeBottom, 794)
+        XCTAssertFalse(geometry.targetIsInLane, "The old unsafe frame is still rejected, not waived")
     }
 
     @MainActor

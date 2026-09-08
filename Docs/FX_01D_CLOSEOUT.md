@@ -7,16 +7,69 @@ canonical record; other current-state documents point here rather than copying t
 table. Author evidence checking is not a second independent source review. This documentation
 PR's diff against accepted main changes no product Swift, UI helper, threshold or retry policy
 and authorizes no model request or CloudKit activation. Its own hosted tests failed three times below.
-The owner now resumes #118 after the separately reviewed #119 repair merged into main. Main is
+The owner now resumes #118 after the separately reviewed #119 and #120 repairs merged into main. Main is
 merged into this branch without reimplementing its repair; the remaining diff is documentation
 and fail-closed evidence gates only. New exact-head evidence and independent rereview remain
-required before any merge. #119's green is not this closeout's own green.
+required before any merge. Neither repair's green is this closeout's own green.
 
-Current acceptance: **blocked by `98345d3` / `34218693463` attempt 1 failure**. Ordinary, FX and
-join all failed. The identical product tree's accepted #119 run does not override this result
-or establish a documentation-induced source regression. No same-head rerun or documentation-only
-replacement run is authorized as a cure. Record/correct documentation locally; investigate the
-three new runtime failure paths under a separately authorized repair scope before resuming CI.
+Current acceptance: **RESUMED_AFTER_PR120_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.
+The three failed closeout heads remain non-pass. The independently accepted #120 correction
+now supplies a changed runtime baseline; importing that merged baseline is not an unchanged
+head rerun or a new helper fix inside this documentation PR. This resumed head still needs
+its own ordinary/FX/join green, native audit and independent review. D is not Done.
+
+## Accepted second corrective repair provenance
+
+Second repair reviewed head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.
+Second repair hosted run: `34241669738`; attempt 1; ordinary, FX and join succeeded.
+Second repair merge commit: `10e5b13937fb4960d85acbb6f30ede0a44e39dfd`.
+Second repair merge second parent: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.
+Second repair full-local runtime head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`; default validate exit 0.
+Second repair strict benchmark: 194.901083 ms; unchanged ceiling 500 ms; zero retry; FX host included.
+Second repair does not relabel any #118 failure or prove the original 883.249166 ms event cause.
+
+[PR #120](https://github.com/xdgf558/MindBudget/pull/120) merged at 2026-09-08T16:03:46Z
+after owner-supplied independent no-P1/P2 review and explicit ready/merge authorization.
+Direct GitHub checks verified the exact head, attempt, three job conclusions and two-parent
+merge chain (first parent `b364444`, second parent above). This is an off-platform review,
+not an invented GitHub approval. The review accepts corrective controls, not D completion.
+
+Its accepted source observes the final permitted Settings pan, performs immediate
+capture-inclusive FX Done/keyboard observation within the unchanged three-second deadlines,
+and routes Wishlist through one safe Save with exact independent Settings readback. Dashboard
+mapping reads each Expense identity once; full fetch/population/sort/validation remain intact.
+Rejected partial-fetch candidate and original 883.249166ms exit 65 remain in the investigation.
+No comparison probe, selector, dispatch observer, retap, changed 500ms or 240s limit is imported.
+
+| Evidence on 705d2a7 only | Result and attribution |
+| --- | --- |
+| Complete local | Local Xcode 27 beta 6 / iOS 26.5; default validator exit 0, 194.901083ms. 622 Passed / 17 Skipped methods, 631 concrete Passed; 23 C6-02 and 49 FX unit bindings each once; selected core coverage >=85%. Author receipt/native checks independently reviewed; not a local run on this closeout head. |
+| Local FX | Three methods Passed once, no Repetition/extra attempt, bound to fresh non-cloned `558FE3CB-0361-4E57-ADC0-C62AA226EA51`. Stewardship/create-zh/create-en 44.906 / 74.543 / 50.690s. |
+| Hosted metadata | Xcode 26.6 / iOS 26.5; ordinary `102113124749`, FX `102113125136`, join `102130361276` success. Artifacts ordinary `10064250004`, FX `10063045432`. |
+| Hosted native | Owner-supplied independent audit: 622 Passed / 17 Skipped / 0 Failed methods, 631 concrete Passed, 49 FX bindings each once, zero Repetition/extra attempt. FX three Passed once bound to non-cloned `36B43ECD-2060-471D-93B1-F9B7D537D02B`. Reviewer read artifacts with local Xcode 27 beta 6, not a hosted-toolchain rerun. |
+
+The three third-closeout failed paths Passed on this repair head: pseudo-long 110.227s,
+Wishlist 60.379s, FX stewardship 93.742s. These results do not backfill their failed heads.
+All three existing FX Invalid-frame warnings remain. Exact hosted method attribution:
+
+| Hosted FX method | Seconds | Result |
+| --- | ---: | --- |
+| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 93.742 | Passed once |
+| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 183.322 | Passed once |
+| `testManualForeignCurrencyEnglishProCreateAndDetail` | 113.153 | Passed once |
+
+Complete-local receipt SHA-256: `ca06b925c5328bb5c9de40d060c3619e4e4113966080bebace80eac9682ffae8`.
+Full-local log SHA-256: `b73c60136137e3b8abaf26a16a32c07d09ec874d42d570bb6e0cd4e158405c85`.
+Local FX provenance SHA-256: `20d00b80cd776b78f3efc4adcea1c3a944104f87e8f0441995788054a0536302`.
+The initial local audit refused nested enum Test Value display metadata; its non-pass verdict
+is retained. A closed recursive metadata adapter (2 positive/6 negative checks) reread the
+same bundle without a test rerun or repository-gate change. Final counts above were accepted
+in independent review. Raw artifacts remain local; hashes alone are not remotely accessible proof.
+
+Source-freeze pending checklists in #120 predated its execution and review. This post-merge
+record supersedes their current acceptance status without pretending that the frozen files
+already contained the later proof. Its packet/PR receipts remain attributable to 705d2a7.
+The independent review's five P3 obligations remain below; no new scope is implemented here.
 
 ## Accepted corrective repair provenance
 
@@ -74,7 +127,7 @@ against matching an unlabeled sequence of numbers with the wrong methods.
 Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.
 Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.
 Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.
-None of the three closeout failures is transient, waived, or relabelled by the accepted #119 repair.
+None of the three closeout failures is transient, waived, or relabelled by the accepted #119 or #120 repairs.
 
 Third-run jobs: ordinary `102036452111`, FX `102036451825`, join `102050557510`; original
 artifacts ordinary `10054527101` and FX `10053466531`. GitHub metadata and original job logs
@@ -243,8 +296,11 @@ Retain the existing maintenance debts: last observed absence of main required-ch
 callers outside the repaired path, fx.mode/fx.accounting.format copy, duplicate reminder Close,
 and the dead isFinite branch. The old 0.75 switch point is retired by #119's explicit FX
 buttons, not certified as reliable. Settings budget rows lack BudgetSetup's whole-row focus.
-The accepted repair's hosted Chinese FX create used 153.332s / 240s; failed #118 run
-`34218693463` increased it to 195.580s / 240s. Three Invalid frame warnings remain.
+The #119 repair's hosted Chinese FX create used 153.332s / 240s; failed #118 run
+`34218693463` used 195.580s / 240s; #120 used 183.322s / 240s (56.678s margin).
+These observations do not guarantee future runner latency. Three Invalid frame warnings remain.
+`makeBudgetSaveReady` still uses `0..<12` without a final post-pan observation; #120 corrected
+only `revealBudgetField`. Keep this maintenance debt; no additional helper change in #118.
 Failure-only public snapshots remain. Original event causes are UNPROVEN;
 no second click or longer press is authorized. Earlier C and D non-passes are untouched.
 

@@ -4,15 +4,27 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 
 Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
 
-Current closeout checkpoint: #118 resumes after the separate repair #119 merged `70fc7c1`
-as `b364444`, with exact-head full-local, hosted `34182518433`, native audits and independent
-acceptance. #118 failed runs `34097606992`, `34108994597` and `34218693463` remain non-pass.
-The third run (`98345d3`) failed FX Done safe geometry plus ordinary Settings safe-lane and
-Wishlist budget Save paths. The accepted product tree is unchanged; causes remain unproven.
-No unchanged/document-only rerun or helper changes in this record. Separate repair scope is pending.
+Current closeout checkpoint: #118 resumes after separately accepted #119 (`70fc7c1` /
+`34182518433` / `b364444`) and #120 (`705d2a7` / `34241669738` / `10e5b13`). Both have
+exact-head complete-local, hosted/native and independent corrective acceptance. #118 failed
+runs `34097606992`, `34108994597` and `34218693463` remain non-pass. #120 changes the runtime
+baseline; its inherited controls are not a helper repair inside this documentation PR.
+Original causes remain UNPROVEN. This closeout's own evidence is still pending.
 See `FX_01D_CLOSEOUT.md` for provenance and sufficiency limits. #118 needs its own new exact-head
 CI/native audit and rereview; earlier green implementation/repair evidence is not a substitute.
 No helper change relative to accepted main, D checkbox, D Done or E entry is authorized here.
+
+### Historical main-side source-freeze checkpoint (superseded by #120 acceptance)
+
+Status: **D In Progress — #117 implementation merged d19c640; #118 closeout remains Draft.**
+
+Current pointer: accepted #119 merge `b364444` does not replace the three failed #118 runs
+`34097606992`, `34108994597`, `34218693463`. The owner-authorized separate readiness repair
+and its unresolved acceptance are in `FX_UI_READINESS_REPAIR.md`. Four D boxes stay open;
+E is unentered. Everything in the 8e57283 validation sections below is a historical
+implementation checkpoint, not the current #117 PR state or #118 closeout evidence.
+
+### Continuing implementation history and obligations
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do

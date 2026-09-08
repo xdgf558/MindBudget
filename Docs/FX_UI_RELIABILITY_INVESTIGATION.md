@@ -4,7 +4,14 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 
 Status: **CORRECTIVE_DELIVERY_REVIEWED_AND_MERGED; original causes UNPROVEN; PR #118 remains Draft.**
 
-## Current resumed-closeout blocker — 34218693463
+## Current resumed closeout after separately accepted PR #120
+
+The owner resumes #118 after #120 merged `705d2a7` as `10e5b13`, with default full-local
+exit 0, hosted `34241669738` and independent/native acceptance. The separate readiness and
+Dashboard packets are now accepted corrective history. `FX_01D_CLOSEOUT.md` owns the new
+receipt and pending exact-head closeout gates; D's four items stay unchecked and E unentered.
+
+## Historical resumed-closeout blocker — 34218693463 (before PR #120)
 
 The accepted #119 delivery is retained history, not proof of current closeout success. #118
 `98345d3` hosted `34218693463` attempt 1 failed ordinary/FX/join, its third retained non-pass.
@@ -33,6 +40,18 @@ recorded above. All three #118 non-passes stay retained. Its own accepted correc
 and exact-head CI/native/rereview are still required. D's four items remain
 unchecked; no D Done or E/share entry. All following investigation checkpoints describe their
 then-current state, not an outstanding requirement to re-prove the accepted #119 correction.
+
+### Historical main-side source-freeze checkpoint (superseded by #120 acceptance)
+
+Status: **Historical #119 source-freeze record; accepted merge b364444; PR #118 remains Draft.**
+
+Current pointer: #119 subsequently passed default full local and hosted `34182518433` on
+`70fc7c1`, received independent acceptance and merged as `b364444`. The pending wording below
+is preserved as a historical checkpoint, not current #119 status or a reversal of that review.
+The third #118 non-pass `34218693463` requires the owner-authorized separate repair in
+`FX_UI_READINESS_REPAIR.md`; neither #119 acceptance nor this pointer completes D or enters E.
+
+### Continuing implementation history and obligations
 
 The owner authorized a separate investigation/repair after the second PR #118 review.
 Branch `codex/fx-ui-reliability` starts at merged PR #117, `d19c6401bc14d2b43365b0936a37fe270e39c481`.

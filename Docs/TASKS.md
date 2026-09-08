@@ -2,7 +2,24 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## 2026-09-08 — Third #118 non-pass; separate runtime repair scope pending
+## 2026-09-09 — Resume independent D closeout after PR #120
+
+Status: **Closeout preparation In Progress; PR #118 Draft; D's four items open; E unentered.**
+
+- [x] Accept the separately reviewed #120 readiness/performance repair: exact `705d2a7`,
+  complete local exit 0 with 194.901083ms / 500ms, hosted `34241669738`, native audits and
+  owner-authorized merge `10e5b13` with reviewed head as second parent.
+- [x] Retain #118 failures `34097606992`, `34108994597`, `34218693463` and original unknown
+  causes; synchronize #119 method/duration mapping and #120's post-freeze receipt.
+- [ ] Pass this resumed closeout's own exact-head ordinary / FX / join and native audit.
+- [ ] Obtain independent review and separate owner merge authorization for #118.
+- [ ] Resolve the unchanged D checklist sufficiency explicitly before any D Done decision.
+
+The source-freeze checklists below are retained history, not still-open #120 execution gates.
+The original 883.249166ms event remains non-pass/UNPROVEN; accepted correction is not cause proof.
+No D checkbox, E entry, live CloudKit/mixed-version/cross-calendar evidence or share work is earned.
+
+## Historical 2026-09-08 — Third #118 non-pass before separately accepted PR #120
 
 Status: **Blocked from closeout acceptance; PR #118 Draft; FX-01D In Progress; FX-01E unentered.**
 
@@ -19,7 +36,57 @@ Documentation locally corrects #119's mislabeled hosted durations and adds metho
 the third failure ledger anchor, and the investigation file's required current pointer. This
 does not clear runtime blockers, change D's four obligations, or authorize a new phase.
 
-## 2026-09-07 — Separate UI / synchronization test reliability scope
+## Historical 2026-09-08 — Dashboard first-load repair source-freeze checklist
+
+Status: **In Progress; candidate only; D open, #118 Draft, E unentered.**
+
+- [x] Optimize complete summary reads without changing money/validation/ordering/data scope (candidate only).
+- [x] Prove projection parity, errors, pending changes and edit/delete/reopen freshness in focused tests.
+- [x] Demonstrate useful baseline/candidate improvement; remove comparison instrumentation.
+- [ ] Freeze a corrective head and pass default complete local validation with unchanged 500 ms.
+- [ ] Obtain separately authorized hosted/native and independent acceptance before merge.
+
+Canonical packet: `DASHBOARD_FIRST_LOAD_REPAIR.md`. Original non-pass remains preserved;
+later diagnostics are not a reclassification of its historical cause.
+
+## Historical 2026-09-08 — Dashboard first-load investigation before repair acceptance
+
+Status: **In Progress; investigation only; no UI repair acceptance or D/E advancement.**
+
+- [x] Retain the `b9cebd1` default-full non-pass: 883.249166 ms > unchanged 500 ms; exit 65.
+- [x] Isolate the investigation from the UI repair and #118 in its own worktree.
+- [x] Measure the existing first-load stages with temporary bounded instrumentation.
+- [x] Distinguish observed bottlenecks from unproven historical causes, remove probes and report.
+- [ ] Close the original 883.249166 ms non-pass with an authorized, evidenced corrective path.
+
+The bounded diagnostic report identifies expense fetch/mapping (93–96% of observed 10,000-row
+load time). Two diagnostic methods passed once; neither reproduces/explains the original
+failure or supplies full-validation acceptance. All temporary Swift changes are withdrawn.
+
+See `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`. No production performance fix or acceptance rerun
+is implied; original full ordinary/FX stages were not reached.
+
+## Historical 2026-09-08 — UI readiness repair source-freeze checklist
+
+Status: **In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
+
+PR #119 merged as `b364444` after review and full-local/hosted acceptance of `70fc7c1`.
+Its earlier freeze checklist below is historical, not the current validation status.
+Owner authorized `codex/fx-ui-readiness-repair` from that merged main, not edits to #118's
+test helpers. Retain #118 non-passes `34097606992`, `34108994597`, `34218693463`.
+See `FX_UI_READINESS_REPAIR.md` for the original-method evidence and causal limits.
+
+- [x] Inspect the three original failed-method attachments/activity paths separately.
+- [x] Focused validation of final-pan observation with the unchanged twelve-pan cap and strict lane.
+- [x] Focused validation of immediate FX snapshot observation within unchanged three-second deadlines.
+- [x] Focused validation of Wishlist through one safe Save and independent exact saved-value readback.
+- [ ] Freeze the repair head; pass default full local / exact-head hosted / native audit and independent review.
+
+No D completion box is earned here; #118 remains Draft, E/sharing remain unentered.
+The three checked items mean candidate-focused checks only; full-local, hosted and independent
+acceptance are still pending at source freeze, as detailed in `FX_UI_READINESS_REPAIR.md`.
+
+## Historical 2026-09-07/#119 source-freeze checklist — superseded by accepted merge b364444
 
 Status: **Corrective delivery reviewed and merged in PR #119; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
 

@@ -46,6 +46,8 @@ D_CLOSEOUT_CONTEXT = (
     "Docs/FX_01_MANUAL_CURRENCY_PLAN.md", "Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md",
     "Docs/PRIVACY_AND_REVIEW_NOTES.md", "Docs/FX_01D_SWITCH_DIAGNOSTIC.md",
     "Docs/FX_UI_RELIABILITY_INVESTIGATION.md",
+    "Docs/FX_UI_READINESS_REPAIR.md", "Docs/DASHBOARD_FIRST_LOAD_REPAIR.md",
+    "Docs/DASHBOARD_FIRST_LOAD_INVESTIGATION.md",
 )
 D_CLOSEOUT_ANCHORS = (
     "Reviewed head: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
@@ -80,14 +82,34 @@ D_CLOSEOUT_NON_PASS_ANCHORS = (
     "Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.",
     "Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.",
     "Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.",
-    "None of the three closeout failures is transient, waived, or relabelled by the accepted #119 repair.",
+    "None of the three closeout failures is transient, waived, or relabelled by the accepted #119 or #120 repairs.",
 )
 D_CLOSEOUT_REPAIR_TIMINGS = (
     "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 81.518 | Passed once |",
     "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 153.332 | Passed once |",
     "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 87.676 | Passed once |",
 )
+D_CLOSEOUT_SECOND_REPAIR_TIMINGS = (
+    "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 93.742 | Passed once |",
+    "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 183.322 | Passed once |",
+    "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 113.153 | Passed once |",
+)
+D_CLOSEOUT_SECOND_REPAIR_ANCHORS = (
+    "Second repair reviewed head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.",
+    "Second repair hosted run: `34241669738`; attempt 1; ordinary, FX and join succeeded.",
+    "Second repair merge commit: `10e5b13937fb4960d85acbb6f30ede0a44e39dfd`.",
+    "Second repair merge second parent: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.",
+    "Second repair full-local runtime head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`; default validate exit 0.",
+    "Second repair strict benchmark: 194.901083 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Second repair does not relabel any #118 failure or prove the original 883.249166 ms event cause.",
+    *D_CLOSEOUT_SECOND_REPAIR_TIMINGS,
+)
+D_CLOSEOUT_CURRENT_ANCHORS = (
+    "Current acceptance: **RESUMED_AFTER_PR120_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.",
+)
 D_CLOSEOUT_SECTIONS = (
+    ("# FX-01D independent post-merge closeout", D_CLOSEOUT_CURRENT_ANCHORS),
+    ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_ANCHORS),
     ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
     ("## Accepted corrective repair provenance", D_CLOSEOUT_REPAIR_ANCHORS),
     ("## Accepted repair hosted FX duration mapping", D_CLOSEOUT_REPAIR_TIMINGS),
@@ -1068,18 +1090,21 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             for anchor in anchors:
                 reject_section_change(D_CLOSEOUT_FILE, heading, anchor, "removed D closeout anchor")
                 reject_section_change(D_CLOSEOUT_FILE, heading, anchor, anchor + "\n" + anchor)
-                if anchors in (D_CLOSEOUT_REPAIR_ANCHORS, D_CLOSEOUT_NON_PASS_ANCHORS, D_CLOSEOUT_REPAIR_TIMINGS):
+                if anchors in (D_CLOSEOUT_REPAIR_ANCHORS, D_CLOSEOUT_NON_PASS_ANCHORS,
+                               D_CLOSEOUT_REPAIR_TIMINGS, D_CLOSEOUT_SECOND_REPAIR_ANCHORS,
+                               D_CLOSEOUT_CURRENT_ANCHORS):
                     reject_section_change(
                         D_CLOSEOUT_FILE, heading, anchor,
                         "\n## Misplaced historical repair evidence\n" + anchor,
                     )
-        for index, row in enumerate(D_CLOSEOUT_REPAIR_TIMINGS):
-            duration = row.split("|")[2].strip()
-            wrong_duration = D_CLOSEOUT_REPAIR_TIMINGS[(index + 1) % 3].split("|")[2].strip()
-            reject_section_change(
-                D_CLOSEOUT_FILE, "## Accepted repair hosted FX duration mapping",
-                row, row.replace(duration, wrong_duration),
-            )
+        for heading, timings in (
+            ("## Accepted repair hosted FX duration mapping", D_CLOSEOUT_REPAIR_TIMINGS),
+            ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_TIMINGS),
+        ):
+            for index, row in enumerate(timings):
+                duration = row.split("|")[2].strip()
+                wrong_duration = timings[(index + 1) % 3].split("|")[2].strip()
+                reject_section_change(D_CLOSEOUT_FILE, heading, row, row.replace(duration, wrong_duration))
         for replacement in ("DONE", D_CLOSEOUT_STATUS + "**\n\nStatus: **" + D_CLOSEOUT_STATUS):
             reject_section_change(D_CLOSEOUT_FILE, "# FX-01D independent post-merge closeout",
                                   D_CLOSEOUT_STATUS, replacement)

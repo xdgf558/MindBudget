@@ -2,6 +2,45 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Resume #118 after owner-authorized PR #120 merge
+
+Owner requested independent closeout, not D Done or sharing. Verified #120 MERGED, reviewed
+head `705d2a776c56f6722beb73ec00fc093b9ca3ed16`, hosted `34241669738` attempt 1 all three jobs
+success; merge `10e5b13937fb4960d85acbb6f30ede0a44e39dfd` has that reviewed head as second parent.
+Independent native review and full-local acceptance were supplied by the owner; no new runtime
+execution or GitHub review event is claimed. #118 started OPEN/Draft at `98345d3`.
+
+Preserved the nine existing local #118 ledger/timing/pointer corrections as local commit
+`71bfbe6`, then began merging accepted main without rewriting failed heads. Conflicts were
+documentation-only. Preserved both sides' historical decisions/session/checkpoint records and
+made their source-freeze timing explicit; latest current pointers now refer to the canonical
+second-repair receipt. A proposed memory conflict resolution was rejected for dropping one
+side's historical text; used a lossless two-sided historical merge instead. An oversized log
+read was refused by the local output guard; subsequent conflict inspection used bounded sections.
+
+Recorded #120 local 194.901083ms / unchanged 500ms, ordinary 622/17 and 631 concrete, FX UUIDs
+and exact timing attribution, review/native provenance, and retained original 883.249166ms
+failure and rejected partial-fetch comparison. All three #118 non-passes stay in their scoped
+ledger. Corrective acceptance is not original-cause proof. Post-run source-freeze pending items
+are historical, not a new requirement to rerun #120 or an implicit D completion.
+
+Static/self-test validation and this resumed head's hosted/native audit are pending at this
+preparation checkpoint. No full-local runtime is newly claimed for Docs/gate-only preparation.
+Keep Draft; D's four checkboxes open, D In Progress, E/Insights sharing unentered. No external
+channel, physical CloudKit, mixed-version or cross-calendar test, release or branch-rule change.
+
+Preparation validation passed: money, network, commercialization documents, StoreKit catalog,
+iCloud contract and complete FX self-tests, including 1173 copied-CLI mutations (45 new versus
+the preserved prior correction), 165 private-sink mutations and all existing native/no-retry
+contracts. Initial preparation failed closed because a historical subheading accidentally ended
+the parsed D section before its checklist; nested that subheading correctly, preserving all four
+texts/unchecked states, then passed the complete FX gate. No runtime test failure or rerun.
+`git diff --check` and product/test/workflow/validator/runner equality against accepted main
+`10e5b13` passed. Recomputed the #120 local receipt/log/provenance hashes from retained files;
+they match the canonical record. Their pre-hosted review fields remain historical, not rewritten.
+Freeze this Docs/gate-only merge for existing #118; its own exact-head hosted/native remains
+pending and must be recorded separately. No older green pre-approves it.
+
 ## 2026-09-08 — Third #118 failure and duration-attribution correction (local; no push)
 
 Owner supplied independent no-P1/two-P2 review: #118 remains unmergeable. Direct GitHub checks
@@ -88,6 +127,133 @@ test, project, workflow, FX JSON, validator, runner and privacy checker are unch
 No new full local/runtime run is claimed for this documentation/gate-only head. Freeze and
 publish it to existing Draft #118, record its own new run in the PR body, and await native
 artifact audit plus independent review. Neither accepted historical green substitutes.
+
+## Dashboard repair: retain identity-only candidate, withdraw comparison probes
+
+Comparison 2 isolated one id read per mapped Expense; the original fetch stayed exact.
+Fixed ABBA: 195.435708 / 164.186125 / 161.508875 / 190.064625 ms, a 15.51% pair-total
+improvement with both orders improving. Kept this narrow candidate, not partial-fetch
+candidate 1. Neither comparison explains/reclassifies the original 883.249166 ms event.
+Native comparison details each show one Passed method/device/configuration and no Repetition.
+Normal and optimized-Python analysis outputs match; hashes are in DASHBOARD_FIRST_LOAD_REPAIR.
+
+Removed all alternate projection selectors, baseline copies and temporary ABBA test before
+focused validation. Added four regression methods for full projection/disk/detail/export,
+all corrupt enum/currency identities, pending and saved changes. All 29 selected methods
+passed once under Xcode 27 beta 6 / iOS 26.5. Phase10 benchmark source and limits unchanged.
+Static gates and source-freeze preparation follow; no complete-local/hosted acceptance yet.
+No remote write, new PR, #118 undraft, D checkbox or E/share work.
+
+Pre-freeze five static gates passed, including the complete FX contract/self-test battery.
+`git diff --check` passed. Comparison and focused metadata identify the exact local simulator;
+the focused native summary is 29 Passed / 0 Failed / 0 Skipped. Will commit this local candidate
+and run the default complete validator once, retaining its exact-head log and original result.
+
+## Dashboard repair: partial-fetch candidate rejected
+
+The fixed ABBA diagnostic completed once with four fresh 10,000-row fixtures. Baseline was
+210.223917 / 201.636166 ms; partial-fetch + cached-identity candidate was
+242.055792 / 248.426541 ms. Both temporal orders regressed. Removed the propertiesToFetch
+change; no acceptance is claimed. Next comparison isolates the per-record identity read
+while preserving the original fetch. Comparison 1 artifact/log/patch are retained locally.
+First native metadata extraction was denied write access to xcresult TestReport (exit 64);
+repeat only extraction with required permission, not the executed test.
+
+## 2026-09-08 — Begin owner-authorized Dashboard performance repair
+
+Locally committed investigation-only records as `fbc24e0`, then created
+`codex/dashboard-first-load-repair`; no push or CI. Original UI/#118 worktrees remain untouched.
+Read current memory/tasks/decisions/session/diagnostic report and the existing summary, model,
+tests and SwiftData SDK interface. Apple propertiesToFetch documentation and local iOS 17
+availability support a narrow explicit-attribute candidate; no includePendingChanges override,
+partial population or storage bypass. Registered parity/freshness/error and performance proof
+requirements in `DASHBOARD_FIRST_LOAD_REPAIR.md` before implementation. Historical 883 ms remains
+non-pass and causal certainty is not upgraded. Documentation web markdown fetches were unsupported;
+the primary indexed API text and local SDK declarations were available. No third-party advice used.
+
+## 2026-09-08 — Dashboard diagnostic report; original non-pass remains open
+
+Executed exactly the two pre-registered diagnostics on the owned iOS 26.5 simulator, local
+Xcode 27 beta 6, serial coverage-enabled Debug. Instrumented original first-load method:
+206.517541 ms (one Passed native execution). Separate fixed 1,000/10,000 cold/warm method:
+22.732291/18.471042 and 182.934167/185.523250 ms, one Passed native method/execution, complete
+record sets and configured budget/pace equal across cold/warm loads. No Repetition or extra
+native attempt in either bundle. The four explicitly planned load calls in diagnostic 2 are
+not acceptance retries. Original benchmark was not selected for diagnostic 2.
+
+Buffered observations locate 93–96% of the 10,000-record interval in SwiftData full fetch and
+ExpenseSummary mapping; snapshot plus pace are about 3 ms. Actor dispatch was microseconds
+in these observations. Process CPU is shared across threads; current 16 GiB RAM / about 12 GiB
+swap and four booted simulators are context, not historical cause proof. Existing StoreKit
+sandbox/public-configuration console messages remain unexplained context. Neither diagnostic
+reproduced 883.249166 ms. Do not call it transient or infer no regression from later fast runs.
+
+Retained all logs, native metadata, source/patch hashes, original failure metadata copies and
+an explicit-failure analysis script/JSON. Canonical report: `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`.
+Removed temporary probes via scoped apply_patch; all product/test/runner sources match frozen
+`b9cebd1` exactly again. No performance fix or full validator rerun. No new commit/push/PR,
+#118 mutation, D checkbox/Done or E/share entry. Original UI repair workspace is unchanged.
+
+Inspection-only issues retained: an incorrect BudgetEngine path and an unmatched shell glob
+were corrected with rg; a restoration orchestration syntax error and reversed-diff prefix
+guard stopped before mutation. The subsequent whitelist-scoped restoration and source equality
+check succeeded. These were not test failures or additional diagnostic executions.
+Post-withdrawal money/network/commercialization-doc/StoreKit checks, normal FX static contract
+and diff checks passed. Normal and optimized Python reproduced identical analysis JSON.
+No FX mutation self-test battery, complete runtime suite or hosted validation was rerun.
+
+## 2026-09-08 — Begin separately authorized Dashboard first-load investigation
+
+Owner explicitly authorized diagnosis after frozen UI repair `b9cebd1` failed default full
+validation at 883.249166 ms / exit 65. Created separate investigation worktree from that head;
+the original worktree and its uncommitted failure receipts stay untouched. Read current memory,
+tasks, decisions, session history, benchmark scheduling decision and measured production path.
+Pre-registered stage/CPU instrumentation in `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`; no fix or
+full validator rerun. Current RAM/swap/multiple-simulator observations do not prove the earlier
+cause. A sandbox-denied process listing was retried read-only with approval; no process stopped.
+
+## 2026-09-08 — Owner starts a separate UI readiness repair from accepted main
+
+Created `codex/fx-ui-readiness-repair` at `b364444` after the owner approved a separate repair
+of #118's third hosted failure, not another documentation-only rerun. #118 stays Draft and
+its uncommitted ledger corrections remain in its own worktree. No D checkbox/Done, E or
+sharing entry. Current status pointers now distinguish accepted #119 from its frozen older
+pending notes; the old evidence remains historical, not erased or rewritten as a pass.
+
+Read the original failed-method attachments/activities from retained `34218693463` ordinary
+and FX bundles. Settings performs twelve pans but omits the last post-pan sample; the final
+original video frame visibly shows the income editor in the unobscured area. FX's one logged
+snapshot satisfies existing Done geometry but no activation follows; the actual waiter result
+and predicate completion were not logged, so its scheduling cause remains UNPROVEN. A bounded
+macOS XCTest probe demonstrates first-callback budget consumption, not the exact hosted cause.
+Wishlist bypasses the shared safe setup; its planned event is not receipt/recognizer evidence.
+Details, reviewer-attributed all-method counts and source-artifact hashes are in
+`FX_UI_READINESS_REPAIR.md`.
+
+Candidate changes only UI-test controls: final observation after at most twelve pans,
+immediate FX observation with strict three-second capture-inclusive deadlines, and Wishlist
+using one safe Save/independent exact readback. New deterministic negative tests keep absent,
+late, invalid and unsafe states failing. Existing product UI, money/date rules, zero retry,
+500 ms benchmark and 240 s FX allowance are unchanged. No Product Design action is needed
+for this test-only repair; no product visuals were redesigned.
+
+Six focused ordinary regressions passed once on a newly created owned iOS 26.5 simulator
+with local Xcode 27 beta 6. Native audit confirms six Passed, no Repetition/extra attempt or
+warning. The isolated FX runner then passed all three methods once (61.229/79.834/58.119 s),
+each bound to its new non-cloned UUID. Native audit retains all three Invalid-frame warnings;
+the runner ownership-checked and removed only that FX simulator. Source remained unchanged.
+Five static gates and `git diff --check` passed. The FX gate retained its existing 1021 copied
+CLI mutations, runtime/identity negatives and 165 privacy-sink mutations. The immediate-poll
+macOS counterpart accepts a 2.1 s sample but rejects a 3.1 s sample under the same 3 s budget.
+Hashes/identities and the causal limits are recorded in the packet.
+
+Freeze this candidate before one default full `Scripts/validate.sh`; record later execution
+against the resulting exact head, without editing source during the run. No full-local,
+hosted 26.6 proof, independent corrective acceptance or phase completion is claimed here.
+Inspection tool failures retained: obsolete app
+dependency alias unavailable; bundled Python has no imageio_ffmpeg. Video extraction used
+public AVFoundation instead, with requested/actual times and its deprecated-API warning
+recorded; original media was untouched. No temporary observer/swizzle was put in the App.
 
 ## 2026-09-08 — Budget-row corrective candidate frozen before full validation
 

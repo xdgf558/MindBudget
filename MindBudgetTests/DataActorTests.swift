@@ -697,6 +697,164 @@ struct DataActorTests {
     }
 }
 
+struct ExpenseSummaryIdentityTests {
+    @Test
+    func everySummaryFieldAndDetailSurviveDiskReopen() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("SummaryIdentity-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let storeURL = directory.appendingPathComponent("MindBudget.store")
+        let fixtures = try (0..<Money.supportedCurrencyCodes.count).map { try projectionFixture(index: $0) }
+        do {
+            let controller = try DataController(storeURL: storeURL)
+            try await ExpenseProjectionSeeder(modelContainer: controller.container).seed(fixtures)
+        }
+        let reopened = try DataController(storeURL: storeURL)
+        let actor = reopened.dataActor
+        let expected = fixtures.reversed().map(projectionExpectation)
+        #expect(try await actor.fetchExpenseSummaries() == expected)
+        for draft in fixtures {
+            let detail = try #require(try await actor.fetchExpenseDetail(id: draft.id))
+            #expect(detail.summary == projectionExpectation(draft))
+            #expect(detail.note == draft.note)
+            #expect(detail.foreignCurrency == nil)
+            let inspector = ExpenseStorageInspector(modelContainer: reopened.container)
+            #expect(try await inspector.normalizedMerchantName(id: draft.id) == draft.merchantName?.lowercased())
+        }
+        let exported = try await actor.fetchExpenseExportRecords()
+        #expect(exported.map(\.id) == fixtures.map(\.id))
+        #expect(exported.map(\.note) == fixtures.map(\.note))
+        #expect(exported.map(\.amount) == fixtures.map(\.amount))
+        #expect(exported.allSatisfy { $0.foreignCurrency == nil })
+        #expect(try await actor.fetchExpenseSummaries() == expected)
+    }
+
+    @Test
+    func corruptRowKeepsItsOwnIdentityAndValidationOrder() async throws {
+        let fields = ["currencyCode", "categoryRaw", "bucketRaw", "paymentMethodRaw",
+                      "emotionTagRaw", "purchaseReasonRaw", "sourceRaw"]
+        // The final case proves the first error is still currency, not a later enum error.
+        for corruptedFields in fields.map({ [$0] }) + [["currencyCode", "sourceRaw"]] {
+            let controller = try DataController(isStoredInMemoryOnly: true)
+            let bad = try projectionFixture(index: 0)
+            let good = try projectionFixture(index: 1)
+            let seeder = ExpenseProjectionSeeder(modelContainer: controller.container)
+            try await seeder.seed([good])
+            try await seeder.seed([bad], corruptedFields: corruptedFields)
+            let field = try #require(corruptedFields.first)
+            let expected: PersistedModelError = field == "currencyCode"
+                ? .unsupportedCurrency(entity: "Expense", id: bad.id, currencyCode: "invalid")
+                : .invalidRawValue(entity: "Expense", id: bad.id, field: field, rawValue: "invalid")
+            // The valid, newer row maps first; no cached identity may leak into the bad row.
+            await #expect(throws: expected) { _ = try await controller.dataActor.fetchExpenseSummaries() }
+            await #expect(throws: expected) { _ = try await controller.dataActor.fetchExpenseDetail(id: bad.id) }
+            await #expect(throws: expected) { _ = try await controller.dataActor.fetchExpenseExportRecords() }
+        }
+    }
+
+    @Test
+    func unsavedInsertEditAndDeleteRemainVisibleWithoutAProjectionCache() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let draft = try projectionFixture(index: 0)
+        let edited = try projectionFixture(index: 0, id: draft.id, amountMinorUnits: 9_876)
+        let phases = try await actor.exerciseUnsavedProjection(draft, editedAmount: edited.amount.minorUnits)
+        #expect(phases == [[projectionExpectation(draft)], [projectionExpectation(edited)], []])
+        #expect(try await actor.fetchExpenseSummaries().isEmpty)
+    }
+
+    @Test
+    func savedEditAndDeleteDoNotReuseAnEarlierProjection() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let draft = try projectionFixture(index: 0)
+        let edited = try projectionFixture(index: 0, id: draft.id, amountMinorUnits: 9_876)
+        _ = try await actor.createExpense(draft)
+        #expect(try await actor.fetchExpenseSummaries() == [projectionExpectation(draft)])
+        _ = try await actor.updateExpense(id: draft.id, with: edited)
+        #expect(try await actor.fetchExpenseSummaries() == [projectionExpectation(edited)])
+        #expect(try await actor.fetchExpenseDetail(id: draft.id)?.note == edited.note)
+        try await actor.deleteExpense(id: draft.id)
+        #expect(try await actor.fetchExpenseSummaries().isEmpty)
+    }
+}
+
+private func projectionFixture(index: Int, id: UUID = UUID(), amountMinorUnits: Int64? = nil) throws -> ExpenseDraft {
+    let date = try #require(TestFixtures.utcCalendar.date(byAdding: .minute, value: index, to: TestFixtures.now))
+    let nilOptionals = index % 12 == 11
+    return ExpenseDraft(
+        id: id, amount: Money(minorUnits: amountMinorUnits ?? Int64(index + 1),
+                             currencyCode: Money.supportedCurrencyCodes[index % Money.supportedCurrencyCodes.count]),
+        category: ExpenseCategory.allCases[index % ExpenseCategory.allCases.count],
+        bucket: BudgetBucket.allCases[index % BudgetBucket.allCases.count],
+        merchantName: nilOptionals ? nil : "Merchant \(index)", note: "私密备注 / private note \(index)",
+        spentAt: date, spentTimeZoneIdentifier: "Asia/Singapore", createdAt: TestFixtures.now,
+        updatedAt: date, paymentMethod: nilOptionals ? nil : PaymentMethod.allCases[index % PaymentMethod.allCases.count],
+        emotionTag: nilOptionals ? nil : EmotionTag.allCases[index % EmotionTag.allCases.count],
+        purchaseReason: nilOptionals ? nil : PurchaseReason.allCases[index % PurchaseReason.allCases.count],
+        isPlanned: index % 2 == 1, isRecurring: index % 3 == 1,
+        source: ExpenseSource.allCases[index % ExpenseSource.allCases.count], allowMerchantIndexing: index % 2 == 1
+    )
+}
+
+private func projectionExpectation(_ draft: ExpenseDraft) -> ExpenseSummary {
+    ExpenseSummary(id: draft.id, amount: draft.amount, category: draft.category, bucket: draft.bucket,
+                   merchantName: draft.merchantName, spentAt: draft.spentAt,
+                   spentTimeZoneIdentifier: draft.spentTimeZoneIdentifier, createdAt: draft.createdAt,
+                   updatedAt: draft.updatedAt, paymentMethod: draft.paymentMethod, emotionTag: draft.emotionTag,
+                   purchaseReason: draft.purchaseReason, isPlanned: draft.isPlanned, isRecurring: draft.isRecurring,
+                   source: draft.source, allowMerchantIndexing: draft.allowMerchantIndexing)
+}
+
+private func projectionModel(_ draft: ExpenseDraft) -> Expense {
+    Expense(id: draft.id, amountMinorUnits: draft.amount.minorUnits, currencyCode: draft.amount.currencyCode,
+            categoryRaw: draft.category.rawValue, bucketRaw: draft.bucket.rawValue,
+            merchantName: draft.merchantName, normalizedMerchantName: draft.merchantName?.lowercased(), note: draft.note,
+            spentAt: draft.spentAt, spentTimeZoneIdentifier: draft.spentTimeZoneIdentifier, createdAt: draft.createdAt,
+            updatedAt: draft.updatedAt, paymentMethodRaw: draft.paymentMethod?.rawValue,
+            emotionTagRaw: draft.emotionTag?.rawValue, purchaseReasonRaw: draft.purchaseReason?.rawValue,
+            isPlanned: draft.isPlanned, isRecurring: draft.isRecurring, sourceRaw: draft.source.rawValue,
+            allowMerchantIndexing: draft.allowMerchantIndexing)
+}
+
+@ModelActor
+private actor ExpenseProjectionSeeder {
+    func seed(_ drafts: [ExpenseDraft], corruptedFields: [String] = []) throws {
+        modelContext.autosaveEnabled = false
+        for draft in drafts {
+            let model = projectionModel(draft)
+            for field in corruptedFields {
+                switch field {
+                case "currencyCode": model.currencyCode = "invalid"
+                case "categoryRaw": model.categoryRaw = "invalid"
+                case "bucketRaw": model.bucketRaw = "invalid"
+                case "paymentMethodRaw": model.paymentMethodRaw = "invalid"
+                case "emotionTagRaw": model.emotionTagRaw = "invalid"
+                case "purchaseReasonRaw": model.purchaseReasonRaw = "invalid"
+                case "sourceRaw": model.sourceRaw = "invalid"
+                default: throw DataValidationError.modelNotFound
+                }
+            }
+            modelContext.insert(model)
+        }
+        try modelContext.save()
+    }
+}
+
+private extension DataActor {
+    func exerciseUnsavedProjection(_ draft: ExpenseDraft, editedAmount: Int64) throws -> [[ExpenseSummary]] {
+        let wasAutosaveEnabled = modelContext.autosaveEnabled
+        modelContext.autosaveEnabled = false
+        defer { modelContext.rollback(); modelContext.autosaveEnabled = wasAutosaveEnabled }
+        let model = projectionModel(draft)
+        modelContext.insert(model)
+        let inserted = try fetchExpenseSummaries()
+        model.amountMinorUnits = editedAmount
+        let edited = try fetchExpenseSummaries()
+        modelContext.delete(model)
+        return [inserted, edited, try fetchExpenseSummaries()]
+    }
+}
+
 @ModelActor
 private actor CorruptedDataSeeder {
     func insertExpense(id: UUID, currencyCode: String, sourceRaw: String) throws {
