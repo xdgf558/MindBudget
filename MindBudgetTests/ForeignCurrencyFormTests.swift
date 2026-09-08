@@ -233,9 +233,21 @@ struct ForeignCurrencyFormTests {
         #expect(value.amountText == "12.34")
         value.setForeignCurrencyEnabled(true, access: ExistingPremiumEntryAccess(featureAccess: pro),
                                         accountingCurrency: "USD", locale: locale, calendar: calendar)
+        #expect(value.foreignCurrencyForm != nil)
+        #expect(value.amountText.isEmpty)
+        value.updateForeignCurrency({ $0.setOriginalAmount("8") }, locale: locale)
+        // Button activation must retain the model's idempotency; no second grant/reset.
+        value.setForeignCurrencyEnabled(true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+                                        accountingCurrency: "USD", locale: locale, calendar: calendar)
+        #expect(value.foreignCurrencyForm?.originalAmountText == "8")
         value.setForeignCurrencyEnabled(false, access: ExistingPremiumEntryAccess(),
                                         accountingCurrency: "USD", locale: locale, calendar: calendar)
+        #expect(value.foreignCurrencyForm == nil)
         #expect(value.amountText == "12.34")
+        value.setForeignCurrencyEnabled(true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+                                        accountingCurrency: "USD", locale: locale, calendar: calendar)
+        #expect(value.foreignCurrencyForm?.originalAmountText == "")
+        #expect(value.foreignCurrencyForm?.originalCurrencyCode == nil)
     }
 
     @Test func recurringAndWishlistCannotEnterForeignModeAndForgedRecurringFailsSave() async throws {

@@ -4,11 +4,12 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 
 Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
 
-Current closeout blocker: PR #118 `5200816` run `34097606992` attempt 1 failed in ordinary,
-FX and join (Chinese savingGoal value timeout and Chinese AX5 switch remaining off).
-See `FX_01D_CLOSEOUT.md` for the retained run/artifact IDs and reviewer-attributed observations.
-The earlier green implementation evidence below does not admit this failed closeout head;
-no helper change, D checkbox, D Done or E entry is authorized by this documentation correction.
+Current closeout checkpoint: #118 resumes after the separate repair #119 merged `70fc7c1`
+as `b364444`, with exact-head full-local, hosted `34182518433`, native audits and independent
+acceptance. Both #118 failed runs `34097606992` and `34108994597` remain non-pass.
+See `FX_01D_CLOSEOUT.md` for provenance and sufficiency limits. #118 needs its own new exact-head
+CI/native audit and rereview; earlier green implementation/repair evidence is not a substitute.
+No helper change relative to accepted main, D checkbox, D Done or E entry is authorized here.
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
@@ -23,7 +24,7 @@ review accepts the hosted/native switch evidence but requires this complete-loca
 recorded and rereviewed. This update supplies that evidence; it is not independent approval or
 permission to undraft/merge. D's four plan checkboxes stay open; E is unentered.
 
-## Current observer-free validation evidence — 2026-09-07
+## Historical observer-free implementation validation — 2026-09-07
 
 The already-started, single full invocation on exact clean head
 `8e572832073f84be6513b7da4f3d7bbf5e67941b` completed **exit 0**. No source was edited during

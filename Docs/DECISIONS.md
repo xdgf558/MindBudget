@@ -2,6 +2,128 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-08 — Resume D closeout on independently accepted repair, not another unchanged rerun
+
+Context: #118's two exact-head runs failed; the owner required a separate repair scope. #119
+has now completed independent no-P1/P2 review, exact `70fc7c1` full-local/hosted/native checks,
+and explicit owner-authorized merge `b364444`. The owner requests resuming #118, not D Done.
+
+Decision: merge accepted main into the existing Draft branch without changing product/test
+source relative to main. Preserve both failed runs in the canonical closeout, add the repair
+review/head/CI/merge chain and later full-local execution receipt, and update stale current
+investigation states. Historical decisions and experiments remain history. Repair acceptance
+does not convert UNPROVEN original causes into causal proof or clear D's four obligations.
+
+Strengthen the existing scoped document gate: canonical repair and both non-pass ledger rows
+must each appear once in their own sections, with copied-CLI deletion, duplication and historical
+displacement negatives. No runtime binding, retry, 500ms ceiling, 240s allowance, source/private
+sink gate or phase JSON change. The resumed #118 needs its own exact-head hosted/native audit
+and independent review; neither #117 nor #119 green can substitute. Unexecuted mixed-version
+CloudKit/cross-calendar requirements are neither waived nor silently moved into E.
+
+## 2026-09-08 — Candidate explicit budget-row focus, pending corrective acceptance
+
+The owner requested repair before another push to PR #119. Original run `34169377668`
+shows one income-editor center tap without a keyboard at the second AX5 launch. Its event
+record does not establish app receipt or the consuming recognizer. The previous two local
+hit probes do not reproduce that failure and cannot close it.
+
+Candidate: keep the existing HStack/TextField, fonts, layout, native decimal keyboard and
+sole Save Budget action. Extend the amount row's rectangular touch area with a simultaneous
+single TapGesture that assigns the existing field-specific FocusState. This is a real user
+interaction in all builds, not a test focus hook, observer, selection replacement, automatic
+focus, second synthetic tap or product save shortcut. Simultaneous composition is chosen
+to preserve the text editor's own gestures and the Form's scrolling rather than using a
+high-priority gesture. Native text-field accessibility remains intact; stable label identifiers
+allow an end-to-end test to prove a tap outside the editor activates the intended field.
+Apple's public API contract is at
+https://developer.apple.com/documentation/swiftui/view/simultaneousgesture(_:including:).
+
+The English/Chinese AX5 label path must start with no keyboard, tap once outside the editor,
+type once per field, Save once and independently read exact 3000/2500/500 from Settings.
+The original AX1→AX5 editor-center method remains unchanged. A controlled before/after
+comparison can prove the new focus action, not the unobserved historical lost-tap cause.
+Default complete local validation, unchanged 500ms, exact-head hosted/native evidence and
+independent corrective review remain required. No D completion or E entry follows.
+
+## 2026-09-08 — Owner-authorized explicit FX entry buttons
+
+Context: the owner explicitly permits replacing the FX sliding switch with an “启用外币记账”
+button. The native-switch failure's original cause remains UNPROVEN; the retained failures
+are not relabelled. This is an authorized interaction replacement, not a UIKit diagnosis.
+
+Decision: reuse the existing secondary button style in the FX card. An inactive draft shows
+Enable foreign-currency entry (disabled without the existing Pro/trial access snapshot).
+An active, unsaved FX draft shows its mode and Cancel foreign-currency entry. Cancellation
+uses the existing model transition: discard that FX draft and restore the prior ordinary
+amount. A persisted FX expense shows the active mode, never a cancellation control; expired
+stewardship and saved accounting currency remain authoritative. Keep all model/actor checks.
+Use localized wrapping labels and no content Dynamic Type cap, new gesture or network path.
+
+Alternatives rejected: retap/long press, longer waits, synthetic state changes, a second budget
+commit action, or declaring the old switch root cause solved. Tests must perform one captured
+button tap per explicit transition and observe the real fields/control state. A deliberate
+enable → cancel → enable lifecycle is not a retry of a failed transition.
+
+Consequences: this only authorizes the separate #119 repair. Full default local validation,
+exact-head hosted/native evidence and independent review still gate acceptance. #118 remains
+untouched/Draft; D completion and E/sharing are not authorized by this change.
+
+Affected files: ForeignCurrencyEntrySection, localization, UI tests and investigation records.
+
+## 2026-09-07 — Verify the stored budget after one original Save
+
+Context: the retained category-legend failure shows visible amounts and a text-selection menu
+after the helper's two focus taps. The original failed AX value was not captured. A new keyboard
+Done attempt was withdrawn when full validation caught its conflict with the accepted 2026-08-07
+single-commit decision. The author missed that earlier decision; the original no-toolbar tests
+remain, and all product UI code is restored. The rejected attempt is retained in the packet/log.
+
+Decision: in automation, focus each amount field once, type once and activate the existing Save
+once from safe snapshot geometry, while input remains active. Then open a fresh BudgetSettingsView
+and verify exact 3000/2500/500 values from its independent DataActor plan load. Never focus/type in
+or save that second form. Reject wrong values, absent/duplicate/invalid/offscreen controls and
+active keyboards/menus; retain bounded five-second comparisons and actual observed-value traces.
+Return using the observed native BackButton and the Settings root's sole navigation action,
+with unique snapshot geometry rather than boundBy:0, hardcoded translated text or a second tap.
+
+Alternatives rejected: Dashboard-only amount proof, another focus/Save tap, a keyboard toolbar,
+private focus APIs, changed timeouts or a benchmark waiver. This is stronger stored-plan
+verification, not a claim that the original AX discrepancy is forensically explained.
+
+Consequences: product code, the one-commit UI rule, money/calendar/Pro behavior and network
+boundaries remain unchanged. The store is synthetic/in-memory, not disk/relaunch durability
+evidence. Focused local results do not replace complete local, exact-head hosted/native or
+independent review; FX activation and D closeout remain open. No E entry or release authorization.
+
+Affected files: MindBudgetPhase3UITests.swift and the investigation documentation.
+
+## 2026-09-07 — Complete synthetic notification isolation without isolating real CloudKit
+
+Review found the initial source injection covered only two synthetic fixtures. Extend it to
+all ten explicit synthetic service construction sites across CloudSyncTests and Phase6FeatureTests;
+the offline restart case shares a private center within its own lifecycle. Stop synthetic
+services at completion and retain the controlled positive local/remote observer test. Keep
+the four opt-in physical CloudKit methods on the default notification source: isolating them
+would remove the production integration behavior they are meant to prove. They are not run
+in this investigation. Original sender remains unknown. No UI corrective acceptance follows
+from this change or from a green diagnostic hosted run; #118/#119 remain Draft, D open, E unentered.
+
+## 2026-09-07 — Isolate synchronization notification sources in retry fixtures
+
+The separate post-#118 reliability investigation permits `CloudSyncService` to receive a
+NotificationCenter dependency with the unchanged production default `.default`. The explicit
+retry unit fixture must own a private center: process-global notifications from concurrent
+in-memory stores are not part of that method's one-retry contract. Preserve exact transport
+counts and the sticky-account pause checks; add a positive controlled-source wakeup test so
+isolation does not silently disable observers. No publisher, transport policy, account guard,
+production caller, CloudKit capability, phase or release authorization changes.
+
+The original `34108994597` sender is unobserved. A fixture isolation correction does not prove
+that sender or fix the two UI failures. The rejected single-label-tap probe remains non-pass;
+UI work currently only retains post-failure public snapshots. D remains In Progress, #118
+Draft, E unentered. See `FX_UI_RELIABILITY_INVESTIGATION.md` for evidence and remaining gates.
+
 Use this format for decisions: context, decision, alternatives, consequences, and affected files.
 
 ## 2026-07-29 — Store money as Int64 minor units

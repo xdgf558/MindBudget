@@ -2,6 +2,40 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-07 — Separate UI / synchronization test reliability scope
+
+Status: **Corrective delivery reviewed and merged in PR #119; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
+
+- [x] Separate the investigation branch from #118 and inspect both original failed runs.
+- [x] Accept the owner-authorized replacement for Chinese AX5 FX activation, without retap/long press.
+  Owner authorized explicit Enable/Cancel buttons on 2026-09-08. Final-source focused local
+  checks passed (17 ordinary/unit plus three isolated FX methods once, with native audits).
+  Exact `70fc7c1` later passed complete local, hosted `34182518433`, native audit and independent
+  corrective review, merging as `b364444`. Original switch cause remains UNPROVEN, not transient.
+- [x] Accept independently loaded saved-budget verification without weakening value validation.
+  The keyboard-Done candidate was withdrawn after violating the existing one-commit UI contract.
+  Accepted control: one Save, no second focus tap, exact independently loaded Settings budget
+  readback, with explicit BudgetSetup row focus. Historical AX-readback cause remains UNPROVEN.
+- [x] Implement a private notification-source fixture and pass its controlled-source checks; full-suite evidence is accepted on `70fc7c1`, while the original ambient sender remains unproven.
+- [x] Extend private sources to all ten explicit synthetic service construction sites; 40 focused checks passed, four physical CloudKit checks skipped and left on their real notification path.
+- [x] Correct TASKS / planning current state to merged #117, separate from Draft #118.
+- [x] Complete repair exact-head full local / hosted / native validation and independent review.
+  `2c61da2` hosted `34169377668` failed ordinary AX1→AX5 budget keyboard focus and join,
+  despite FX passing; that run remains non-pass. Reviewed `70fc7c1` passed complete local
+  (216.419208ms / 500ms, zero retry, isolated FX host) and hosted `34182518433`, with native audits.
+  The accepted control explicitly focuses the budget row's editor from one simultaneous tap;
+  bilingual AX5 outside-editor tests supplement, not replace, the original AX1→AX5 path.
+  Treat the before/after control proof separately from the UNPROVEN original event cause.
+
+`e83017f` hosted `34116397624` passed with author native audit; its default full local run
+failed all three FX methods plus a runner error. The 496.448167 ms benchmark was a partial
+pass only. Original causes remain open; accepted later repair evidence does not relabel them
+or complete D. See `FX_01D_CLOSEOUT.md` for review attribution and the exact merge chain.
+
+See `FX_UI_RELIABILITY_INVESTIGATION.md`. No D completion checkbox is earned here. The
+documentation closeout must retain both `34097606992` and `34108994597`; it is not rerun
+merely to obtain another result on unchanged source.
+
 Status values: Todo, In Progress, Blocked, Done.
 A phase may only be marked Done after both `xcodebuild build` and `xcodebuild test` pass.
 
@@ -252,9 +286,10 @@ and hosted `34080624727` success. The implementation merge is not D completion;
 the original benchmark failure and both hosted non-passes remain
 retained, not relabelled. D's four items remain open. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
 Closeout PR #118 also retains its own `5200816` / `34097606992` attempt 1 non-pass: ordinary,
-FX and join failed. The stale Draft-#117 sentence is corrected; new exact-head CI/native
-evidence and rereview remain required, without UI helper changes or weaker gates in this document PR.
-The accepted #117 run cannot substitute; D completion and FX-01E entry remain unauthorized.
+FX and join failed, as did `9c3c6b1` / `34108994597`. The separate #119 repair is now reviewed
+and merged (`70fc7c1`, `34182518433`, `b364444`); resume this closeout on accepted main, not
+by changing its own helpers. New exact-head CI/native evidence and rereview remain required.
+Neither accepted implementation nor repair run substitutes; D completion/E entry remain unauthorized.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.

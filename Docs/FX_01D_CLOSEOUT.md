@@ -5,11 +5,68 @@ Status: **PENDING_INDEPENDENT_REVIEW_AND_MERGE; D In Progress; FX-01E unentered.
 The owner authorized this separate documentation closeout after PR #117 merged. This is the
 canonical record; other current-state documents point here rather than copying the evidence
 table. Author evidence checking is not a second independent source review. This documentation
-PR changes no product Swift, UI helper, threshold or retry policy and authorizes no model request
-or CloudKit activation. Its own hosted tests did execute and failed as recorded below; it must
-obtain new exact-head evidence and independent rereview before any merge.
+PR's diff against accepted main changes no product Swift, UI helper, threshold or retry policy
+and authorizes no model request or CloudKit activation. Its own hosted tests failed twice below.
+The owner now resumes #118 after the separately reviewed #119 repair merged into main. Main is
+merged into this branch without reimplementing its repair; the remaining diff is documentation
+and fail-closed evidence gates only. New exact-head evidence and independent rereview remain
+required before any merge. #119's green is not this closeout's own green.
 
-## Current closeout non-pass — 34097606992
+## Accepted corrective repair provenance
+
+Repair reviewed head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.
+Repair hosted run: `34182518433`; attempt 1; ordinary, FX and join succeeded.
+Repair merge commit: `b3644444d2a56b6b1d42e564c57a1e1784809975`.
+Repair merge second parent: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.
+Repair full-local runtime head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`; default validate exit 0.
+Repair strict benchmark: 216.419208 ms; unchanged ceiling 500 ms; zero retry; FX host included.
+Repair acceptance is corrective, not proof of the original switch, AX-readback or ambient-sender cause.
+This closeout requires its own exact-head ordinary/FX/join success and native audit; repair evidence is not a substitute.
+
+[PR #119](https://github.com/xdgf558/MindBudget/pull/119) merged at 2026-09-08T08:41:21Z after
+the owner supplied independent no-P1/P2 rereview and explicitly authorized ready/merge. GitHub
+head/run/jobs/merge parents were checked directly. This off-platform review is not invented as
+a GitHub review event. Accepted controls are localized explicit FX Enable/Cancel, a single Save
+followed by independently loaded exact budget readback, explicit one-tap BudgetSetup row focus,
+and private NotificationCenter sources at all ten synthetic service construction sites. Real
+CloudKit/production defaults remain unchanged. Original mechanisms remain **UNPROVEN**;
+failure-only public snapshots remain in the accepted tests, not temporary dispatch observers.
+
+The source-freeze documents in `70fc7c1` predate its full execution; the authorized PR body
+and retained local artifacts carried the later evidence before final rereview. This record
+now preserves it in the repository without pretending that the frozen documents contained it.
+
+| Evidence | Result and attribution |
+| --- | --- |
+| Exact-head complete local validator | Local Xcode 27 beta 6 / iOS 26.5; ordinary 633 methods = 616 Passed / 17 Skipped / 0 Failed, 625 concrete Passed, 13 argument executions; no Repetition/extra attempt. Coverage >=85% per selected core file, 23 C6-02 and 49 FX unit bindings each once. Author native audits and original log retained. |
+| Local isolated FX | Three methods each Passed once; native details bound to fresh non-cloned `9788331F-61FB-48C4-BAE5-647F8F4F7934`; stewardship/create-zh/create-en 51.753 / 78.525 / 54.359s. Three Invalid frame warnings and diagnostic archive missing-simctl exit 72 retained; no complete diagnostic archive claimed. |
+| Hosted metadata | Xcode 26.6 / iOS 26.5 run above; ordinary `101924294267`, FX `101924294076`, join `101932209214` all success. Direct API verification, not a test re-execution. |
+| Hosted native audit | Attributed to the owner's supplied independent review: 616 Passed / 17 Skipped methods, 625 concrete executions, 49 unit bindings each once, no Repetition/extra attempt. FX three once, bound to fresh non-cloned `FE74F87B-0125-4F7B-94A2-F53DD05BB01E`; create-en/create-zh/stewardship 81.518 / 153.332 / 87.676s. Reviewer used local Xcode 27 beta 6 to read hosted artifacts, not rerun hosted 26.6. |
+
+Full-local log SHA-256: `d428f94f79a3e94126882dd17e33a12ce399124ab80a1001fd1ec1c31899704d`.
+Local FX provenance SHA-256: `f5c004b2f664f3ee49a2b96c517cff7362c216808646572b1c62e3037f50f4a7`.
+Retained local artifact prefix: `fx119-70fc7c1-full-1`, with separate benchmark/native-audit
+bundles. This is not a new full-local run on #118. New #118 head/run/native results will be
+identified in its PR execution checkpoint after source freeze; no result is pre-approved here.
+
+## Retained closeout non-pass ledger
+
+Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.
+Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.
+Neither closeout failure is transient, waived, or relabelled by the accepted #119 repair.
+
+The second run's jobs are ordinary `101700573464`, FX `101700573721`, join `101711782743`;
+head/attempt/conclusions were checked directly. Original artifacts are ordinary `10014896092`
+and FX `10014180442`. The prior investigation's native audit records ordinary
+`retryRunsOneTransportPassAndPausedAccountChangeRunsNone()` line 87: synchronize count 2 vs 1,
+not another budget-field failure; FX Chinese AX5 create remained off after one off-track tap.
+Each ordinary bundle has 609 Passed / 1 Failed / 17 Skipped methods, 618 concrete Passed;
+each FX bundle is 2 Passed / 1 Failed. The fresh non-cloned FX UUIDs were respectively
+`FE266090-65CD-4ADC-9D71-08A5712AC89F` and `D3932B37-3B3C-4A3B-85BC-D97E2B62B201`.
+The original ambient notification sender is unobserved. Detailed original inspection is
+retained in `FX_UI_RELIABILITY_INVESTIGATION.md`; no new failed-bundle audit is claimed here.
+
+## Historical first-closeout failure detail — 34097606992
 
 PR #118 head `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`, hosted
 [34097606992](https://github.com/xdgf558/MindBudget/actions/runs/34097606992), attempt 1:
@@ -23,13 +80,18 @@ not a newly performed author native audit of this failed run.
 | FX / `10009729091` | `testManualForeignCurrencyChineseAX5ProCreateAndDetail` failed in 29.8 s after one off-track tap. Row `(36,132,330,125.33)`, native child `(305,180.67,63,28)`, offTrackTap `(352.25,194.67)`; both rowValue and childValue remained 0. Reviewer reports a fresh non-cloned device with UUID prefix `FE266090-`. | Chinese stewardship Passed 163.3 s; English create Passed 101.5 s. Neither makes the failed three-method bundle pass. |
 | Ordinary / `10010259290` | `testCategoryChartLegendKeepsSixItemsReachableInSimplifiedChinese` failed at `MindBudgetPhase3UITests.swift:1682`: budget.savingGoal did not become `"500"` in the bounded 5 s wait (`XCTWaiter.timedOut`). | The English counterpart Passed in 106 s; not proof that the Chinese state transition succeeded. |
 
+The later #119 inspection clarifies that the error's rowValue/childValue literals were captured
+pre-tap, not independent post-tap measurements. Separate video/AX attachments establish the
+failed activation. Retain this distinction alongside the original reviewer report above.
+
 The 0.75 off-track single tap is therefore not a demonstrated stable hosted-26.6 solution;
 its earlier success remains a bounded observation, not cause closure or universal reliability.
 The filling timeout's mechanism is not established here either. No helper, longer press,
 retap, allowance, benchmark ceiling or retry setting changes in this documentation PR.
 Retain both failures without calling them transient, blaming the documentation, or reusing
-`34090503092` as this PR's acceptance. The status correction requires one new-head hosted run;
-it is not a code repair of either observed failure or approval to rerun until green.
+`34090503092` as this PR's acceptance. The earlier status-only correction did not repair either
+failure; its new run also failed. Resumption now follows the separately accepted #119 source
+repair, not a documentation-only rerun until green.
 
 P2-1's missed Current D work sentence is corrected from "implemented in Draft PR #117" to
 "were merged in PR #117". P2-2 remains open until this closeout's new exact head has ordinary,
@@ -138,9 +200,11 @@ they are not new waivers of FX compatibility. No channel is enabled by this reco
 Retain the existing maintenance debts: last observed absence of main required-check enforcement
 (no settings change here), 600 s boot capacity, 240 s timing curve, two existing hidden-retap
 callers outside the repaired path, fx.mode/fx.accounting.format copy, duplicate reminder Close,
-and the dead isFinite branch. The 0.75 point is limited to the current LTR/off fixtures;
-width > height is not RTL detection. Native long-press can still participate; failure stays
-fail-closed without a second click or longer press. Earlier C and D non-passes are untouched.
+and the dead isFinite branch. The old 0.75 switch point is retired by #119's explicit FX
+buttons, not certified as reliable. Settings budget rows lack BudgetSetup's whole-row focus.
+The accepted repair's hosted Chinese FX create used 153.332s / 240s and retained three Invalid
+frame warnings. Failure-only public snapshots remain. Original event causes are UNPROVEN;
+no second click or longer press is authorized. Earlier C and D non-passes are untouched.
 
 D remains In Progress; its four checkboxes remain unchecked.
 FX-01E, FX-02, COM-C12 and Insights/share implementation remain unentered here.

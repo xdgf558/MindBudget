@@ -65,6 +65,27 @@ D_CLOSEOUT_BOUNDARIES = (
     "Cross-calendar companion reconstruction remains unverified:",
     "this record does not silently move an unmet D requirement into E or waive it.",
 )
+D_CLOSEOUT_REPAIR_ANCHORS = (
+    "Repair reviewed head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.",
+    "Repair hosted run: `34182518433`; attempt 1; ordinary, FX and join succeeded.",
+    "Repair merge commit: `b3644444d2a56b6b1d42e564c57a1e1784809975`.",
+    "Repair merge second parent: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.",
+    "Repair full-local runtime head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`; default validate exit 0.",
+    "Repair strict benchmark: 216.419208 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Repair acceptance is corrective, not proof of the original switch, AX-readback or ambient-sender cause.",
+    "This closeout requires its own exact-head ordinary/FX/join success and native audit; repair evidence is not a substitute.",
+)
+D_CLOSEOUT_NON_PASS_ANCHORS = (
+    "Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.",
+    "Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.",
+    "Neither closeout failure is transient, waived, or relabelled by the accepted #119 repair.",
+)
+D_CLOSEOUT_SECTIONS = (
+    ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
+    ("## Accepted corrective repair provenance", D_CLOSEOUT_REPAIR_ANCHORS),
+    ("## Retained closeout non-pass ledger", D_CLOSEOUT_NON_PASS_ANCHORS),
+    ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
+)
 PHASE_KEYS = frozenset(
     {
         "id",
@@ -643,10 +664,7 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
         packet = packet_path.read_text(encoding="utf-8")
         if _status_after_heading(packet, "# FX-01D independent post-merge closeout", bold=True) != D_CLOSEOUT_STATUS:
             errors.append("D closeout must retain its unique pending Status")
-        for heading, anchors in (
-            ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
-            ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
-        ):
+        for heading, anchors in D_CLOSEOUT_SECTIONS:
             section = _section(packet, heading, "## ")
             normalized = _normalize_space(section or "")
             for anchor in anchors:
@@ -1038,13 +1056,15 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 path.write_text(original, encoding="utf-8")
 
         # Another file or an older historical section must not satisfy a removed anchor.
-        for heading, anchors in (
-            ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
-            ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
-        ):
+        for heading, anchors in D_CLOSEOUT_SECTIONS:
             for anchor in anchors:
                 reject_section_change(D_CLOSEOUT_FILE, heading, anchor, "removed D closeout anchor")
                 reject_section_change(D_CLOSEOUT_FILE, heading, anchor, anchor + "\n" + anchor)
+                if anchors in (D_CLOSEOUT_REPAIR_ANCHORS, D_CLOSEOUT_NON_PASS_ANCHORS):
+                    reject_section_change(
+                        D_CLOSEOUT_FILE, heading, anchor,
+                        "\n## Misplaced historical repair evidence\n" + anchor,
+                    )
         for replacement in ("DONE", D_CLOSEOUT_STATUS + "**\n\nStatus: **" + D_CLOSEOUT_STATUS):
             reject_section_change(D_CLOSEOUT_FILE, "# FX-01D independent post-merge closeout",
                                   D_CLOSEOUT_STATUS, replacement)

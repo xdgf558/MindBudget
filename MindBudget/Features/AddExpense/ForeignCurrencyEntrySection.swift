@@ -12,20 +12,19 @@ struct ForeignCurrencyEntrySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Toggle("fx.mode", isOn: Binding(
-                get: { model.foreignCurrencyForm != nil },
-                set: { model.setForeignCurrencyEnabled(
-                    $0, access: access, accountingCurrency: accountingCurrency,
-                    locale: locale, calendar: calendar
-                ) }
-            ))
-            .disabled(model.existingExpense?.foreignCurrency != nil
-                      || (!access.permitsNewForeignCurrency && model.foreignCurrencyForm == nil))
-            .accessibilityIdentifier("fx.enabled")
-
             if let state = model.foreignCurrencyForm {
+                Text("fx.mode")
+                    .font(.headline)
+                    .accessibilityIdentifier("fx.active")
+                if model.existingExpense?.foreignCurrency == nil {
+                    modeButton("fx.disable", enabled: false)
+                    Text("fx.help.cancel").font(.footnote)
+                }
                 fields(state)
             } else {
+                modeButton("fx.enable", enabled: true)
+                    .disabled(model.existingExpense?.foreignCurrency != nil
+                              || !access.permitsNewForeignCurrency)
                 Text(access.permitsNewForeignCurrency ? "fx.help.offline" : "fx.help.pro")
                     .font(.footnote)
             }
@@ -40,6 +39,24 @@ struct ForeignCurrencyEntrySection: View {
                 }
             }
         }
+    }
+
+    private func modeButton(_ key: LocalizedStringKey, enabled: Bool) -> some View {
+        Button {
+            focusedNumericField = nil
+            model.setForeignCurrencyEnabled(
+                enabled, access: access, accountingCurrency: accountingCurrency,
+                locale: locale, calendar: calendar
+            )
+        } label: {
+            Text(key)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+        }
+        .buttonStyle(MindBudgetSecondaryButtonStyle())
+        .accessibilityIdentifier(enabled ? "fx.enable" : "fx.disable")
     }
 
     @ViewBuilder private func fields(_ state: ForeignCurrencyFormState) -> some View {

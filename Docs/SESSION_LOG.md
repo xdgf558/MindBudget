@@ -2,6 +2,414 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-08 — Resume Draft #118 after accepted #119 integration
+
+Owner requested resuming D documentation closeout. Verified #119 MERGED at
+2026-09-08T08:41:21Z: `b3644444d2a56b6b1d42e564c57a1e1784809975` has second parent
+`70fc7c13e361268c44b3cdf3a467eed2aa0fab17`. Its hosted `34182518433` attempt 1 is success
+in ordinary/FX/join. Independent no-P1/P2 rereview and explicit merge authorization were
+supplied by the owner off-platform. Full default local exit 0 and native audits on that
+frozen head preceded final review; its 216.419208ms benchmark and isolated FX remain bounded
+evidence, not original gesture-cause proof. Synchronized the record into the canonical closeout.
+
+Fetched accepted main and merged it into existing #118 without rebasing or rewriting history.
+Conflicts were documentation-only; preserved the earlier decisions/session history and current
+closeout pointers, and updated obsolete current-state wording. Product/test source is inherited
+from accepted main, not a new UI repair in this PR. The investigation checklist now distinguishes
+accepted corrective delivery from unproven original causes; D's four boxes remain untouched.
+
+Verified #118's second run `34108994597` on `9c3c6b1` failed all three jobs; retained it with
+`34097606992` in the canonical ledger. Added scoped exact repair/non-pass anchors and copied-CLI
+omission/duplication/historical-displacement negatives. No runtime gate or privacy boundary was
+weakened. A first documentation patch had a mismatched context and failed without edits; corrected
+the context. A whole historical log read was truncated, so conflict resolution used bounded
+sections instead; it did not truncate the file. Validation and this resumed head's hosted/native
+checks are pending at preparation. No new complete local runtime or independent acceptance claim.
+
+Keep #118 Draft; no D Done, E, sharing, physical device/CloudKit activation or release action.
+
+Preparation validation: all five static gates exited 0, including 1110 copied-CLI closeout
+mutations (33 additional repair/ledger negatives), 165 private-sink injections and unchanged
+49 unit / three FX UI runtime binding contracts. The iCloud contract and `git diff --check`
+also passed. Diff against accepted `b364444` is Docs plus document-gate scripts only; product,
+test, project, workflow, FX JSON, validator, runner and privacy checker are unchanged.
+No new full local/runtime run is claimed for this documentation/gate-only head. Freeze and
+publish it to existing Draft #118, record its own new run in the PR body, and await native
+artifact audit plus independent review. Neither accepted historical green substitutes.
+
+## 2026-09-08 — Budget-row corrective candidate frozen before full validation
+
+The owner permitted the sanitized #119 evidence update and requested repair before push.
+Used Product Design preflight (no saved context) and the existing budget Form/AX5 screenshot
+as the target. Kept its appearance and sole Save action; each amount row now assigns the
+existing field-specific FocusState from a simultaneous single tap. No automatic focus,
+priority gesture, observer, timer, swizzle, toolbar, retap or testing-only product path.
+Details and Apple public-API reference are in the new decision and investigation packet.
+
+Added English/Chinese AX5 label activation regressions that start without a keyboard, prove
+the single tap is outside the native editor and verify exact saved 3000/2500/500 through
+the independent Settings form. Shared Save/readback is extracted without changing behavior;
+the original AX1→AX5 editor-center path remains. The identifiers-only before candidate
+failed its one English label case (15.563s / exit 65). This establishes absent label focus,
+not reproduction of the original hosted center-tap cause. Diagnostic collection exit 72 is
+also retained. Explicit Xcode selection corrected an initial CLI inspection error; no
+global toolchain setting was changed.
+
+With only the six-line product gesture/content-shape addition, four selected methods passed
+once: original AX1→AX5 107.353s, Chinese AX5 label 56.344s, English label 63.748s, Chinese
+legend 93.386s. Native audit confirms four concrete Passed, zero Repetition/extra attempt
+and zero warnings. Before/after screenshot comparison preserves the design, apart from
+capture clock/minor scroll offset. Artifacts and source/image hashes are indexed in the
+investigation packet; machine-local paths are omitted from this new publication summary.
+
+This commit-preparation checkpoint is not full-local or hosted acceptance. Freeze the source
+locally before the default complete `Scripts/validate.sh` (unchanged 500ms and isolated FX);
+publish its exact-commit execution result in the PR before acceptance. Do not push a claimed
+repair after a failed full validator. Original causes remain UNPROVEN and all non-passes
+remain. #118/#119 stay Draft, D checkboxes/Done and E entry remain blocked. Independent
+corrective review is still the owner's next acceptance gate, not author self-approval.
+
+## 2026-09-08 — Exact-head hosted ordinary keyboard failure retained
+
+Owner rereview rejects acceptance of `2c61da2`. GitHub run `34169377668`, attempt 1, is
+failure: ordinary `101886617002` and join `101893454890` failed; FX `101886616887` succeeded.
+Downloaded-artifact inspection is completed below; API metadata identifies ordinary artifact
+`10035940628` and FX artifact `10035486867`. The owner's native review reports the AX1→AX5
+ordinary method `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable`
+failed at the keyboard wait (175.411s), with pre-tap target `(185,494.67,185,64)` and no
+keyboard. The previous final-source 17 focused checks did not cover this method; no claim
+of full-local validation was made. A prior six-method pre-final candidate covered it but
+cannot substitute for this exact-source failure. Do not classify it as transient.
+
+Owner-reported FX native results: three methods Passed once on hosted Xcode 26.6 / iOS 26.5,
+UUID `0AF194A1-40F4-45B2-8134-947D8E293C17`, not cloned, durations 103.876/148.216/114.280s;
+three invalid-frame diagnostics remain. Chinese ordinary legend passed 165.608s, which does
+not close the AX1→AX5 failure. Author artifact inspection is recorded below, not a
+new local execution. Full default validator/unchanged 500ms/FX host and exact-head hosted
+ordinary+FX+join/native/independent acceptance remain mandatory. Both PRs stay Draft, no D
+completion checkbox/Done or E entry. Next work targets budget input focus, not a second tap.
+
+Author inspected the original native summary/detail/activity tree, ordinary job log, archived
+pre/post snapshots, synthesized-event record and screen recording. Ordinary has 613 Passed,
+1 Failed and 17 Skipped methods (622 concrete Passed). The AX1 setup finished; failure is
+the first `budget.monthlyIncome` focus in the second AX5 launch, before typing or Settings
+readback. The field remains at the same frame in the final failure hierarchy; no keyboard
+or visible overlay appears. Event recording describes one planned center tap, not proof
+of app receipt or recognizer consumption. Unit tests finished before ordinary UI started;
+unit/UI concurrency is not established as a cause. Author native FX audit confirms three
+Passed once, no Repetition/extra attempt and three warnings; this cannot cover ordinary.
+
+Two bounded local public-UIKit hit-geometry probes ran only the AX1→AX5 method, once each,
+on Xcode 27 beta 6 / iOS 26.5. Both native audits report one Passed, zero Repetition/extra
+attempt/warning. Probe 1 did not activate its launch flag and produced no app trace: it is
+diagnostic non-evidence. Probe 2 explicitly enabled a read-only timer that sampled public
+view geometry/hitTest/first-responder state. At AX5, the 185×64 income field's center hit
+the native UITextField and it subsequently became first responder. Its y position differed
+from hosted; this does not reproduce or explain the original failure. The blank-center
+hypothesis lacks support, and local success is not corrective acceptance. No touch/gesture
+hook, swizzle, fault injection, long press or second tap was introduced. The timer can still
+perturb timing; all temporary probe code and launch configuration were removed afterward.
+
+Native-cache and video-decoder sandbox failures were corrected by permitted execution;
+they are inspection-tool failures, not test results. Video extraction reported actual frame
+timestamps separately from requested timestamps. Probe patches/logs/bundles/audits remain
+locally retained and indexed in the investigation packet. Product and test source are again
+byte-identical to `2c61da2`. No actual corrective change, full validator, new hosted run,
+commit or push occurred in this investigation checkpoint. PR provenance was updated to
+retain the failed hosted run; no P2 is closed and no phase state was advanced.
+
+The subsequent PR-body update containing the completed inspection/probe summary was blocked
+by external-publication approval. It was not retried or sent indirectly; the prepared body
+remains local pending owner authorization. This differs from the earlier successfully
+published failure-status update. No Git commit/push accompanies these documentation edits.
+Documentation and FX contract gates exited 0; `git diff --check` passed. These are static
+checks, not the missing full default local validator or a correction of the hosted failure.
+
+## 2026-09-08 — Owner requests Draft PR publication of the repair candidate
+
+The owner requested a PR for their own independent review. Read-only GitHub inspection found
+the existing OPEN/Draft PR #119 on `codex/fx-ui-reliability`, still at `604caa9`, so this candidate
+is prepared as a normal follow-up commit there rather than a duplicate PR or changes to #118.
+The previous `604caa9` hosted run `34123406554` is confirmed success, not still running; it
+remains historical diagnostic evidence and cannot cover the new button/budget source.
+
+Publication includes the previously implemented single-Save stored-budget readback, explicit
+Enable/Cancel product control, tests and all retained investigation/non-pass documentation.
+No additional product or test code changed during PR preparation. Rechecked the four recorded
+final source hashes and the 17-method ordinary / three-method FX native audit verdicts.
+The PR must remain Draft, with complete default local validation, exact-head hosted/native
+audits and independent corrective review explicitly pending. No undraft/merge, D completion,
+E/sharing, real device or release action is authorized. This publication checkpoint supersedes
+the previous session's no-commit/no-push checkpoint, not its evidence or acceptance limits.
+
+## 2026-09-08 — Explicit FX buttons implemented and selectively verified
+
+Completed the owner-authorized Enable/Cancel replacement using the existing Product Design
+context, native card and secondary style. Cancellation is available only for unsaved FX;
+persisted records retain their existing mode and stewardship. Pro/trial denial, model/actor
+checks, all monetary/calendar code, runner, project/schemes and phase boundaries are unchanged.
+English tests cover denied Free access and distinct enable/cancel/re-enable transitions;
+Chinese AX5 create/detail and expired stewardship retain their fixed method identities.
+Each successful transition is one snapshot-bound button tap followed by actual field-state
+observation. No retap/long press, observer, timeout increase or synthetic activation was added.
+
+First candidate failed both compiles before any runtime test: synchronous XCTest wait inside
+an async method. Retained the exit-65 logs/source; moved that check to a synchronous MainActor
+helper. Candidate 2's focused ordinary and FX suites passed, but their frozen binary preceded
+restoring the existing-FX Enable guard; they are explicitly not final-source evidence.
+Final candidate 3 rebuilt and passed 17 focused ordinary/unit checks plus the three isolated
+FX methods once. Native audits show no Repetition/extra attempt and exact fresh FX device
+binding. FX durations: expired AX5 edit 66.318s, Chinese AX5 create/detail 85.490s, English
+80.195s. Three invalid-frame warnings and diagnostic archive collection's missing-simctl
+exit 72 remain recorded. Final Debug and Release simulator builds passed; no Archive/IPA.
+
+Inspected final English/Chinese AX5 screenshots against the previous switch: wrapped labels
+are visible within the existing card. This is synthetic test-host visual evidence, not a
+physical VoiceOver/complete appearance or contrast matrix. Exact source hashes, logs,
+screenshots, transition traces and native audits are in `FX_UI_RELIABILITY_INVESTIGATION.md`.
+All execution used local Xcode 27 beta 6 / iOS 26.5, not hosted Xcode 26.6. The original switch
+and historical AX-value causes remain UNPROVEN; no previous non-pass was relabelled.
+
+No default complete `Scripts/validate.sh`/500 ms benchmark or new hosted run was executed
+for this replacement. Full-local/hosted/native and independent review remain acceptance
+requirements. No commit/push/PR mutation, merge, real iPhone, D checkbox/D Done or E/share
+entry occurred. The owned FX runner devices were removed by its existing scoped cleanup.
+Final money/network/COM-document/StoreKit/FX static gates and `git diff --check` all exited 0;
+project/scheme and `Scripts/` diffs remain empty. Static success is not runtime acceptance.
+
+## 2026-09-08 — Owner authorizes explicit FX entry buttons; validation pending
+
+The owner explicitly authorized replacing the sliding switch. Product Design context/brief
+preflight found no saved context; used the existing native FX card and secondary button style.
+Localized Enable/Cancel labels wrap at Dynamic Type sizes. Persisted FX shows an active mode
+without Cancel. Model/actor authority, restore-on-cancel and accounting rules are unchanged.
+No budget keyboard toolbar, alternate product flow, cloud channel or phase entry is added.
+
+Replaced only the obsolete switch test geometry with one-snapshot button geometry and real
+field-state postconditions. English exercises denied Free access, enable/cancel/re-enable as
+distinct successful transitions; Chinese AX5 retains create/detail and expired-edit coverage.
+The three isolated FX method identities, 240s allowance, zero retry and fresh-device runner
+are unchanged. Added negative button-state/geometry checks and strengthened the existing
+cancel/Free unit case. All runtime results and visual inspection are pending at this checkpoint.
+The prior budget-only candidate and all non-passes remain; no hosted/complete-local acceptance,
+commit/push, merge, D Done or E entry is claimed. Historical switch cause remains UNPROVEN.
+
+## 2026-09-07 — Test-only stored-budget correction candidate validated locally
+
+Finished the replacement without product UI changes: one focus tap/type per field, one safe
+original Save, then a fresh Settings budget load through DataActor. Read all three exact
+stored values without editing the verification form, then return with unique captured
+navigation geometry. No second focus/Save, keyboard Done, translated-label selector or
+boundBy:0 was added to this path. The synthetic in-memory store is not disk durability proof.
+The original keyboard-toolbar prohibition and all FX control/timeout/benchmark rules remain.
+
+`persisted-2` passed two methods and provided actual 3000/2500/500 plus native BackButton
+identity. `persisted-3` passed six methods once, including ordinary large text, both language
+legends, full Settings round trip and negative value/navigation contracts. After raw-frame
+guard hardening and removal of the no-return diagnostic parameter, final-source `persisted-4`
+passed three methods once. Native audits of all three bundles found no Repetition/extra
+attempt or warnings. Exact boundaries, durations and hashes are in the canonical packet;
+six-method evidence is not misattributed to the later cleanup source. All five static gates
+(money/network/COM docs/StoreKit/FX) and `git diff --check` passed.
+
+The earlier full-1 UI conflict/cancellation and failed replacement compilation remain
+non-pass. One malformed documentation patch was rejected without edits and reapplied with
+correct hunk prefixes; no historical owner decision was changed. Current work remains an
+uncommitted #119 budget correction candidate, not complete-local/hosted/independent acceptance.
+The original AX-value cause remains unproven, and FX activation is still unresolved. Owner
+choice about changing that control is pending; no UI change is assumed. No push/PR mutation,
+merge, D completion, E/share entry, real iPhone or CloudKit action occurred.
+
+## 2026-09-07 — Withdraw incompatible keyboard UI; implement stored-plan readback instead
+
+The default full-1 validator caught an author-introduced regression: the new keyboard Done
+violates the accepted 2026-08-07 one-commit rule and explicit no-toolbar UI test. The author
+missed that earlier decision. Did not delete or relax the assertion. After confirming the
+owned process, interrupted only its xcodebuild with SIGINT; wrapper exit 75. Native bundle
+retains the real conflict and one cancellation, 605 Passed / 2 Failed / 17 Skipped methods,
+614 Passed concrete executions and ten invalid-frame warnings. No FX host/full pass claimed.
+The separate benchmark passed once at 217.268 ms, unchanged 500 ms ceiling, and was retained
+with a native one-run audit; it cannot substitute for the failed complete command.
+
+Restored product and UI source with a scoped apply_patch (first header conversion failed
+without edits). Retained the rejected source patches, logs, snapshots and screenshots; removed
+its changelog promise. Current replacement is test-only: one original Save while the keyboard
+is active, then open a newly loaded BudgetSettingsView, read exact stored 3000/2500/500 values
+without editing, and return. This follows the original Save contract and avoids a second focus
+tap or Dashboard-only numeric proof. The store is synthetic/in-memory, not disk durability.
+First replacement build (`fx119-budget-persisted-1`) failed because two negative fixtures
+attempted to assign immutable snapshot values; no tests ran. Corrected them to construct
+distinct immutable snapshots. All these failures are retained; no PR/head/phase advance.
+
+## 2026-09-07 — Actual budget end-editing candidate; FX activation still open
+
+After the owner's actual-repair request, ran a six-condition minimal-control comparison:
+UIKit direct/scroll and SwiftUI scroll toggles, with/without display-link-only bounded load.
+All six methods passed once; the previous observer-perturbed induced failure was not
+reproduced. Removed the temporary host, scheme and test probes before product edits. The
+canonical packet records artifacts/hashes and rejects historical-cause or reliability claims.
+
+Applied Product Design to the small native UI change: reused the existing FX localized
+keyboard Done pattern in BudgetSetupView, with no new screen, typography or money rule.
+The skill's saved-context preflight found no saved user-context file; no setup or external
+prototype was created. One focus tap per field now precedes one explicit Done operation,
+strict keyboard/toolbar dismissal, unchanged exact 3000/2500/500 readback and one safe Save.
+Removed both implicit double focus and the budget two-Save handshake. Added deterministic
+surface/identifier/occlusion/menu/lost-tap tests without relaxing any deadline or benchmark.
+
+Incremental build passed. Focused `fx119-budget-keyboard-repair-2` four methods Passed once,
+native audit confirmed no Repetition/extra attempt and two retained invalid-frame warnings.
+The first audit expected zero warnings and correctly failed; summary inspection established
+two, then the audit completed without rerunning tests. Xcode's simctl diagnostic-collection
+exit 72 is retained, not presented as a complete diagnostic archive. The before/after AX
+traces have exact amounts with Done/keyboard removed after one tap. Added optional screenshots
+to the category-legend paths afterward for visual QA; full validation of that source is pending.
+
+The historical saving-goal AX value and hosted switch event cause remain unproven. This is
+a budget correction candidate, not full PR #119 acceptance. Asked the owner whether an
+explicit FX activation button is acceptable before changing the existing control; no such
+UI change is currently made. #118 remains untouched/Draft, #119 Draft, D open, E and sharing
+unentered. No real device, CloudKit, API credential or new network path used.
+
+## 2026-09-07 — Bounded switch mechanism experiments; no corrective acceptance
+
+After the owner authorized continuing the separate investigation, inspected the switch binding,
+normal budget field bindings, retained native touch records and current helper contracts. Added
+temporary public target/action observers in the compile-isolated FX host, plus binding/result
+logs and two switch-only UI probe methods. No swizzle, dispatch replacement, recognizer setting,
+extra tap, long press, timeout/benchmark change or production authorization change was used.
+
+On owned non-cloned F7A155D9-9C37-4D00-BC13-0F3D439B3F5D, Xcode 27 beta 6 / iOS 26.5,
+probes 1 and 2 passed both languages. Probe 1's aggregate logs were partially truncated;
+probe 2 split them into short per-recognizer messages. Probe 3 added an explicit 50 ms
+main-thread stall in samples for 30 seconds and reproduced Chinese AX5 switch activation
+failure at the exact old #118 geometry: post-action row/child both off, hit-path long-press
+sampled failed, no binding/model/control action. English passed. This induced exit 65 is
+retained, not a hosted failure or product acceptance. Probe 4 removed only the stall and
+both methods passed again. Source equivalence to probe 2 was verified with full-index diffs.
+Native audits/details show no Repetition/extra execution; this is four separately identified
+diagnostic conditions, not runner retries. Full scope and SHA-256s are in the investigation packet.
+
+The 10 ms public recognizer duration / compressed event-processing explanation remains a
+candidate, not the original hosted cause: failure sampling is incomplete and the injected
+stall also affects observer callbacks. No app binding overwrite occurred in the induced
+failure, but no safe corrective control has yet been accepted. Budget readback remains open.
+Do not replace the missing full local pass or exact-head hosted acceptance with these probes.
+
+Removed all four temporary source/scheme changes with apply_patch and verified no differences
+from 604caa9 on those paths. Exported the induced failure's complete diagnostics and retained
+its screenshots, actual AX state, event logs, source patches and result bundle. Shut down only
+the session-owned simulator without deleting its data. One initial reverse-patch application
+was rejected before edits due to reversed Git header parsing; corrected the path parser and
+verified the scoped restoration. An initial read-only simctl call using the default developer
+directory failed (utility unavailable); all experiment commands explicitly selected Xcode 27
+beta 6. No real device or unrelated simulator was changed. This remains local investigation
+documentation only: no commit/push, PR mutation, merge, D completion or E entry.
+
+After removal, all five static gates passed: no-floating-point money, network egress,
+commercialization documents, StoreKit catalog and FX contract (including its negative
+self-tests). `git diff --check` passed. These source/document checks do not replace the
+missing default complete local validator, corrective control or hosted runtime acceptance.
+
+## 2026-09-07 — Receive `604caa9` independent rereview; keep investigation blocked
+
+Owner supplied an independent rereview closing only the prior P2 documentation-state and
+synthetic-notification isolation findings. The remaining P2 is unchanged: switch activation /
+visible-500 versus budget AX readback mechanisms are unproven, diagnostics remain, and no
+complete-local acceptance exists for this head. Confirmed GitHub `34123406554` attempt 1
+success on exact `604caa9d056e36136344d7feb2f136db0152f98b`, with ordinary `101746396714`,
+FX `101746396403`, join `101759354956`. Confirmed #119 OPEN + Draft at that head and #118
+OPEN + Draft at unchanged `9c3c6b1`. No merge/undraft or phase advancement.
+
+Recorded the supplied native audit separately from the author's metadata check: ordinary
+611 Passed / 17 Skipped, 620 concrete executions, 49 FX bindings once; FX three Passed once
+bound to non-cloned `A40DF0A0-6946-46BE-95DD-4BFB3D7DFB70`, with three invalid-frame warnings.
+Chinese create 178.567s under unchanged 240s. The reviewer's local Xcode 27 beta 6 inspected
+hosted Xcode 26.6 / iOS 26.5 artifacts, not a replacement runtime. Its interrupted scan is
+not evidence; the ten private synthetic sites were established by a separate direct source read.
+The original sender, local FX failures / runner exit 75, #118's two failures, and all other
+unproven mechanisms remain retained. See the canonical investigation packet.
+
+Changed PROJECT_MEMORY's historical pre-merge description to past tense with its superseding
+#117 merge pointer. These are local review-record edits only: no code, test execution, new
+commit/push, new hosted rerun, PR-body mutation, or D/E acceptance. `git diff --check` passed.
+
+## 2026-09-07 — PR #119 review follow-up; UI blockers remain open
+
+Kept #118 and #119 Draft with no merge or D/E advancement. Fixed TASKS' stale Draft #117
+current-state paragraph and the plan's unmerged D candidate statement: implementation merged
+as `d19c640`, reviewed `7e901f2`, hosted `34090503092`; closeout is still blocked separately.
+Completed private NotificationCenter injection at all ten explicit synthetic service sites,
+including the resumed-service and Phase 6 deletion fixtures; stopped synthetic lifecycles.
+Four opt-in real CloudKit tests retain the production source and were skipped, not run.
+Switch geometry now stores pre-tap values from the captured nodes instead of literal zeroes;
+no hit point, gesture, predicate, wait or threshold changed. The values remain pre-tap only.
+
+Confirmed `e83017f` hosted `34116397624` succeeded. Downloaded ordinary artifact `10017878005`
+and FX `10017015334`; author native audits passed (628 ordinary details, 611 Passed / 17
+Skipped methods, 620 Passed concrete executions; FX three methods once and UUID
+`712A528C-3E65-4964-9EFD-7AD9552EF2DC` matches non-cloned provenance). No Repetition/extra
+attempt; three FX invalid-frame warnings retained. No independent approval or UI fix inferred.
+
+Completed reading the same head's default complete local run: wrapper exit 1. Ordinary passed,
+benchmark 496.448167 ms passed with narrow margin, but FX three methods failed plus runner
+exit 75. Chinese failures are after Edit / Save, English fails typing with no keyboard focus
+and XCTest-internal failed synthesis retries. These are distinct from #118's off-switch
+failure, not explanations for it. Exported all attachments, not just failure-associated ones;
+recorded exact durations, hierarchy hashes and complete log hash in
+`FX_UI_RELIABILITY_INVESTIGATION.md`. Both #118 failures and all earlier non-passes stay retained.
+
+Incremental build passed. First focused invocation failed before tests because the author
+incorrectly wrote `-retry-tests-on-failure NO`; retained command non-pass. Corrected invocation
+omits that flag: 40 Passed / 4 opt-in physical Skipped, all 44 native details audited without
+Repetition, extra attempt or runtime warnings. Five static gates and diff whitespace checks
+passed. No new complete-local or FX functional acceptance is claimed. Original switch/budget
+mechanisms, complete-local acceptance, branch protection and physical integration remain open.
+
+## 2026-09-07 — Separate UI / synchronization reliability investigation
+
+Owner authorized a new repair scope after PR #118's second failed hosted run. Created
+`codex/fx-ui-reliability` from merged #117 `d19c640` in a separate worktree; the #118 Draft
+branch is unchanged. No doc-only CI rerun, undraft, D checkbox, D Done, E or sharing entry.
+Downloaded original ordinary/FX artifacts from `34097606992` and `34108994597` and inspected
+native summaries, failure details, activities, AX text and exported videos. These remain
+non-pass alongside the previous implementation non-passes; no transient classification.
+
+The first ordinary video visibly has 3000 / 2500 / 500 despite the saving-goal AX readback
+failure; the post-entry income double tap opens a text-selection menu. The actual failing
+AX value was not retained. The second ordinary failure is instead CloudSyncTests line 87,
+synchronizeCount 2 vs 1; the test observes process-global notifications while other suites
+can post changes from different in-memory stores. The exact triggering sender is unproven.
+Both FX runs fail Chinese AX5 create at the same off-track point. Post-tap AX text and video
+confirm off in the second run, whereas the error's childValue=0 is only a pre-tap literal.
+See `FX_UI_RELIABILITY_INVESTIGATION.md` for exact heads, artifacts and attribution.
+
+No new runtime test or corrective acceptance has occurred at this investigation checkpoint.
+Local Xcode 27 beta 6 was used to read hosted artifacts, not to substitute for hosted 26.6.
+
+Later in this session, a single controlled label-route probe failed: local isolated
+`fx-reliability-label-probe-1`, UI source SHA `dc695dc7a96a072a9d93f68724056a362dbd7bf3161b631aaa66abb5c136a7fe`,
+one stewardship pass / two create failures, xcodebuild exit 65 / wrapper exit 1. Reverted the
+candidate rather than trying another coordinate, retapping or relabelling the run. Owned
+simulator `3D1B617A-AEE2-4E6F-BF85-73DE99CE8B2D` was removed by the runner; evidence retained.
+Added failure-only public UI snapshots, not a claimed UI fix. Added the private notification
+source candidate and its positive/paused regression test; focused validation is in progress.
+
+Native verification rejected `fx-reliability-sync-probe-1` as non-pass: missing `()` in Swift
+Testing filters selected zero tests despite command exit 0. Corrected selectors in the new
+`fx-reliability-sync-probe-2` bundle ran three methods once, all Passed, with an author native
+no-Repetition/no-extra-attempt audit. No source changed between these two probes. The Chinese
+category-legend diagnostic also Passed once (109.900s), with native audit; this did not reproduce
+or resolve the budget failure. Added last-predicate-value retention afterwards and queued its
+compile check. Five static gates passed. Record paths/hashes and toolchain boundaries in the
+investigation packet; do not label any focused run complete local/hosted acceptance.
+
+Prepare a separate Draft investigation PR for synchronization isolation and failure-only UI
+evidence capture. It is not mergeable while the two UI mechanisms remain unresolved. #118 is
+unchanged, D four items remain open, D is not Done, and E/sharing have not been entered.
+The final last-predicate-value capture compiled successfully in
+`fx-reliability-trace-build-1.log`; this is a compile check, not another runtime result.
+
 ## 2026-08-02 — Session 1 — Phase 0
 
 Goal: Initialize the repository, Xcode targets, project constraints, and durable agent memory.

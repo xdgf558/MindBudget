@@ -2,6 +2,7 @@ import CloudKit
 import Foundation
 import SwiftData
 import Testing
+import XCTest
 @testable import MindBudget
 
 private enum CloudSyncDelegateTaskContext {
@@ -50,7 +51,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
         )
 
         await service.start()
@@ -62,6 +64,7 @@ struct CloudSyncTests {
 
         #expect(probe.creationCount == 1)
         #expect(probe.adapter.startCount == 1)
+        await service.stop()
     }
 
     @Test
@@ -72,7 +75,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
         )
         await service.start()
 
@@ -85,6 +89,57 @@ struct CloudSyncTests {
 
         #expect(service.snapshot.status == .pausedAccountChanged)
         #expect(probe.adapter.synchronizeCount == 1)
+        await service.stop()
+    }
+
+    @Test
+    func isolatedNotificationSourceControlsTransportWakeups() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let notifications = NotificationCenter()
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: notifications
+        )
+        await service.start()
+        await service.retry()
+        #expect(probe.adapter.synchronizeCount == 1)
+
+        // A different in-memory store posts the same global notification used by concurrent
+        // suites. A private remote-application event proves the injected observer is alive,
+        // without accepting a sleep as evidence that a global event was ignored.
+        let otherActor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await otherActor.setCloudSyncEnabled(true, at: fixedDate)
+        let refreshed = XCTestExpectation(description: "injected remote application observed")
+        service.onSnapshotChange = { _ in refreshed.fulfill() }
+        notifications.post(name: CloudSyncRemoteApplicationSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [refreshed], timeout: 5) == .completed)
+        service.onSnapshotChange = nil
+        #expect(probe.adapter.synchronizeCount == 1)
+
+        let synchronized = XCTestExpectation(description: "injected local change synchronized")
+        probe.adapter.onSynchronize = { synchronized.fulfill() }
+        notifications.post(name: CloudSyncLocalChangeSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [synchronized], timeout: 5) == .completed)
+        probe.adapter.onSynchronize = nil
+        #expect(probe.adapter.synchronizeCount == 2)
+
+        #expect(try await actor.bindCloudSyncAccount(identifierHash: "account-a", at: fixedDate))
+        #expect(!(try await actor.bindCloudSyncAccount(identifierHash: "account-b", at: fixedDate)))
+        let paused = XCTestExpectation(description: "injected change observed while paused")
+        service.onSnapshotChange = { snapshot in
+            if snapshot.status == .pausedAccountChanged { paused.fulfill() }
+        }
+        notifications.post(name: CloudSyncLocalChangeSignal.notification, object: nil)
+        #expect(await XCTWaiter.fulfillment(of: [paused], timeout: 5) == .completed)
+        service.onSnapshotChange = nil
+        await service.retry()
+        #expect(service.snapshot.status == .pausedAccountChanged)
+        #expect(probe.adapter.synchronizeCount == 2)
+        await service.stop()
     }
 
     @Test
@@ -1177,7 +1232,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         await service.setEnabled(true)
@@ -1188,6 +1244,7 @@ struct CloudSyncTests {
         await service.setEnabled(true, reimportConfirmed: true)
         #expect(service.snapshot.isEnabled)
         #expect(probe.creationCount == 1)
+        await service.stop()
     }
 
     @Test
@@ -1230,13 +1287,15 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in TestCloudSyncAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         await service.start()
 
         #expect(retention.cloudCopyMayExist)
         #expect(service.snapshot.cloudCopyMayExist)
+        await service.stop()
     }
 
     @Test
@@ -1255,7 +1314,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
 
         let outcome = await service.deleteCloudData()
@@ -1266,6 +1326,7 @@ struct CloudSyncTests {
         #expect(!service.snapshot.isEnabled)
         #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
         #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+        await service.stop()
     }
 
     @Test
@@ -1278,10 +1339,12 @@ struct CloudSyncTests {
         let probe = CloudSyncAdapterProbe()
         probe.adapter.deletionOutcome = .pending(.networkUnavailable)
         let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+        let notifications = NotificationCenter()
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: notifications
         )
 
         #expect(await service.deleteCloudData() == .pending(.networkUnavailable))
@@ -1309,13 +1372,15 @@ struct CloudSyncTests {
         let resumedService = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in resumedProbe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: notifications
         )
         await resumedService.start()
         #expect(resumedProbe.adapter.deleteCloudDataCount == 1)
         #expect(!resumedService.snapshot.isEnabled)
         #expect(!retention.cloudCopyMayExist)
         #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        await resumedService.stop()
     }
 
     @Test
@@ -1334,7 +1399,8 @@ struct CloudSyncTests {
         let service = CloudSyncService(
             dataActor: actor,
             adapterFactory: { _ in probe.makeAdapter() },
-            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true),
+            notificationCenter: NotificationCenter()
         )
         await service.start()
         #expect(probe.creationCount == 0)
@@ -1344,6 +1410,7 @@ struct CloudSyncTests {
         #expect(try await actor.pendingCloudSyncRecordNames() == [
             "expense/\(expense.id.uuidString.lowercased())"
         ])
+        await service.stop()
     }
 
     @Test(.enabled(if: Self.runsPhysicalCloudKitRuntimeTests))
@@ -1726,9 +1793,13 @@ final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
     private(set) var deleteCloudDataCount = 0
     var deletionOutcome = CloudSyncCloudDeletionOutcome.deleted
     var deleteHandler: (@MainActor () async -> CloudSyncCloudDeletionOutcome)?
+    var onSynchronize: (@MainActor () -> Void)?
 
     func start() async { startCount += 1 }
-    func synchronize() async { synchronizeCount += 1 }
+    func synchronize() async {
+        synchronizeCount += 1
+        onSynchronize?()
+    }
     func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
         deleteCloudDataCount += 1
         if let deleteHandler { return await deleteHandler() }

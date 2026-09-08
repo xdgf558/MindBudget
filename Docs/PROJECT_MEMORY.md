@@ -25,11 +25,16 @@ isolated, and deletion is scoped. Privacy regression uses synthetic records and 
 not real models/accounts. PR #117 merged reviewed `7e901f2` as `d19c640`, after hosted
 `34090503092` attempt 1 succeeded. Independent D closeout is now in progress; its canonical
 checklist assessment and original hosted artifact audit are in `FX_01D_CLOSEOUT.md`.
-Closeout PR #118 remains Draft: its `5200816` run `34097606992` attempt 1 failed in ordinary,
-FX and join. The review observed a Chinese AX5 off-track switch activation failure and a
-Chinese category-legend budget.savingGoal value timeout. These are retained non-passes, not
-closed by #117's green run. This documentation correction changes no helper or acceptance gate;
-a new exact-head ordinary/FX/join success and independent rereview remain required.
+Closeout PR #118 resumes as Draft after the separate corrective PR #119 merged reviewed
+`70fc7c1` as `b364444`, following hosted `34182518433` attempt 1 success, complete local exit 0
+(216.419208ms / unchanged 500ms), native audit and independent no-P1/P2 rereview. Accepted
+controls replace FX activation with explicit buttons, verify independently loaded saved-budget
+values, focus BudgetSetup rows explicitly and isolate synthetic notification sources. Original
+switch/AX-readback/sender causes remain UNPROVEN; acceptance is corrective, not forensic.
+The canonical closeout records that exact chain and the frozen-source/PR-evidence timing.
+Both #118 runs `34097606992` and `34108994597` remain non-pass; neither #117 nor #119 green
+substitutes for the resumed closeout's own exact-head ordinary/FX/join/native/rereview gate.
+The diff against accepted main changes no product/test source. D's four items remain open.
 Observer-free repair head `8e57283` completed
 default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark
 (217.09825 ms), ordinary suite/coverage, 49 FX unit bindings and all three isolated FX UI methods.
@@ -43,10 +48,10 @@ CloudKit and cross-calendar behavior are not silently certified by synthetic fix
 Retain the original 814.581125 ms complete-local failure and both hosted non-passes:
 `34072691064` on `f3538f9` (English switch) and `34077058451` on diagnostic `c1f0db2` (Chinese
 AX5 switch). Neither original cause is proven or relabelled as transient. Readable failed touch
-records show the centre tap reached the thumb without a control action. The repair uses one
-native off-track tap in the current LTR fixtures; local trace confirms a changed path/action,
-not universal gesture-cause proof. The observer is removed, the host matches `f3538f9`, and a
-source gate rejects dispatch replacement. See `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md` for
+records show the centre tap reached the thumb without a control action. The historical #117
+repair used one native off-track tap in LTR fixtures; #118 subsequently failed again, and #119
+replaced that interaction with explicit buttons. Its earlier local trace was not universal
+gesture-cause proof. Temporary dispatch observers remain removed. See `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md` for
 exact local/hosted provenance, retained warnings, historical non-passes and review boundaries.
 No D Done or E entry is claimed.
 
