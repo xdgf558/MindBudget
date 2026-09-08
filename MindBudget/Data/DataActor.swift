@@ -2517,26 +2517,29 @@ actor DataActor {
     }
 
     private func expenseSummary(_ expense: Expense) throws -> ExpenseSummary {
+        // SwiftData properties are accessor-backed; the immutable identity is needed
+        // repeatedly for validation but cannot change during this synchronous mapping.
+        let id = expense.id
         return ExpenseSummary(
-            id: expense.id,
+            id: id,
             amount: try persistedMoney(
                 minorUnits: expense.amountMinorUnits,
                 currencyCode: expense.currencyCode,
                 entity: "Expense",
-                id: expense.id
+                id: id
             ),
             category: try persistedEnum(
                 ExpenseCategory.self,
                 rawValue: expense.categoryRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "categoryRaw"
             ),
             bucket: try persistedEnum(
                 BudgetBucket.self,
                 rawValue: expense.bucketRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "bucketRaw"
             ),
             merchantName: expense.merchantName,
@@ -2548,21 +2551,21 @@ actor DataActor {
                 PaymentMethod.self,
                 rawValue: expense.paymentMethodRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "paymentMethodRaw"
             ),
             emotionTag: try persistedEnumIfPresent(
                 EmotionTag.self,
                 rawValue: expense.emotionTagRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "emotionTagRaw"
             ),
             purchaseReason: try persistedEnumIfPresent(
                 PurchaseReason.self,
                 rawValue: expense.purchaseReasonRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "purchaseReasonRaw"
             ),
             isPlanned: expense.isPlanned,
@@ -2571,7 +2574,7 @@ actor DataActor {
                 ExpenseSource.self,
                 rawValue: expense.sourceRaw,
                 entity: "Expense",
-                id: expense.id,
+                id: id,
                 field: "sourceRaw"
             ),
             allowMerchantIndexing: expense.allowMerchantIndexing

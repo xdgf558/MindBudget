@@ -11,6 +11,13 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Current authorized work: owner entered the Dashboard storage-projection performance repair.
+`DASHBOARD_FIRST_LOAD_REPAIR.md` supersedes the investigation-only scope for implementation,
+not its UNPROVEN historical cause or retained 883.249166 ms non-pass. Keep full data, validation,
+500 ms and all full-local/hosted/review gates. #118 remains Draft; D/E are unchanged.
+
+### Prior investigative checkpoint (before repair authorization)
+
 Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
 separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
 at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
@@ -20,6 +27,8 @@ The bounded investigation now identifies expense fetch + mapping as 93–96% of 
 10,000-record load time, but the original 883.249166 ms cause remains UNPROVEN. Cold/warm
 diagnostics do not close it. Temporary Swift probes are removed; only local records remain.
 The UI readiness repair is paused at that full-validation blocker, not accepted by this report.
+
+### Continuing product/workflow boundaries
 
 Owner workflow preference (2026-09-06): use the Product Design skill for UI-design tasks,
 including the queued Insights income tile and share card. Follow the skill's context/visual

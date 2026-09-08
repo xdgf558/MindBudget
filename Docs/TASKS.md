@@ -1,5 +1,18 @@
 # TASKS
 
+## 2026-09-08 — Owner-authorized Dashboard first-load repair
+
+Status: **In Progress; candidate only; D open, #118 Draft, E unentered.**
+
+- [x] Optimize complete summary reads without changing money/validation/ordering/data scope (candidate only).
+- [x] Prove projection parity, errors, pending changes and edit/delete/reopen freshness in focused tests.
+- [x] Demonstrate useful baseline/candidate improvement; remove comparison instrumentation.
+- [ ] Freeze a corrective head and pass default complete local validation with unchanged 500 ms.
+- [ ] Obtain separately authorized hosted/native and independent acceptance before merge.
+
+Canonical packet: `DASHBOARD_FIRST_LOAD_REPAIR.md`. Original non-pass remains preserved;
+later diagnostics are not a reclassification of its historical cause.
+
 ## 2026-09-08 — Owner-authorized Dashboard first-load investigation
 
 Status: **In Progress; investigation only; no UI repair acceptance or D/E advancement.**

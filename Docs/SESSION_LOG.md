@@ -1,5 +1,48 @@
 # SESSION_LOG
 
+## Dashboard repair: retain identity-only candidate, withdraw comparison probes
+
+Comparison 2 isolated one id read per mapped Expense; the original fetch stayed exact.
+Fixed ABBA: 195.435708 / 164.186125 / 161.508875 / 190.064625 ms, a 15.51% pair-total
+improvement with both orders improving. Kept this narrow candidate, not partial-fetch
+candidate 1. Neither comparison explains/reclassifies the original 883.249166 ms event.
+Native comparison details each show one Passed method/device/configuration and no Repetition.
+Normal and optimized-Python analysis outputs match; hashes are in DASHBOARD_FIRST_LOAD_REPAIR.
+
+Removed all alternate projection selectors, baseline copies and temporary ABBA test before
+focused validation. Added four regression methods for full projection/disk/detail/export,
+all corrupt enum/currency identities, pending and saved changes. All 29 selected methods
+passed once under Xcode 27 beta 6 / iOS 26.5. Phase10 benchmark source and limits unchanged.
+Static gates and source-freeze preparation follow; no complete-local/hosted acceptance yet.
+No remote write, new PR, #118 undraft, D checkbox or E/share work.
+
+Pre-freeze five static gates passed, including the complete FX contract/self-test battery.
+`git diff --check` passed. Comparison and focused metadata identify the exact local simulator;
+the focused native summary is 29 Passed / 0 Failed / 0 Skipped. Will commit this local candidate
+and run the default complete validator once, retaining its exact-head log and original result.
+
+## Dashboard repair: partial-fetch candidate rejected
+
+The fixed ABBA diagnostic completed once with four fresh 10,000-row fixtures. Baseline was
+210.223917 / 201.636166 ms; partial-fetch + cached-identity candidate was
+242.055792 / 248.426541 ms. Both temporal orders regressed. Removed the propertiesToFetch
+change; no acceptance is claimed. Next comparison isolates the per-record identity read
+while preserving the original fetch. Comparison 1 artifact/log/patch are retained locally.
+First native metadata extraction was denied write access to xcresult TestReport (exit 64);
+repeat only extraction with required permission, not the executed test.
+
+## 2026-09-08 — Begin owner-authorized Dashboard performance repair
+
+Locally committed investigation-only records as `fbc24e0`, then created
+`codex/dashboard-first-load-repair`; no push or CI. Original UI/#118 worktrees remain untouched.
+Read current memory/tasks/decisions/session/diagnostic report and the existing summary, model,
+tests and SwiftData SDK interface. Apple propertiesToFetch documentation and local iOS 17
+availability support a narrow explicit-attribute candidate; no includePendingChanges override,
+partial population or storage bypass. Registered parity/freshness/error and performance proof
+requirements in `DASHBOARD_FIRST_LOAD_REPAIR.md` before implementation. Historical 883 ms remains
+non-pass and causal certainty is not upgraded. Documentation web markdown fetches were unsupported;
+the primary indexed API text and local SDK declarations were available. No third-party advice used.
+
 ## 2026-09-08 — Dashboard diagnostic report; original non-pass remains open
 
 Executed exactly the two pre-registered diagnostics on the owned iOS 26.5 simulator, local

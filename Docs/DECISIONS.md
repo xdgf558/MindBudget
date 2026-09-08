@@ -1,5 +1,20 @@
 # DECISIONS
 
+## 2026-09-08 — Owner enters complete-projection performance repair
+
+After the scoped investigation, owner authorizes optimization of expense fetch/mapping.
+Try explicit summary attribute fetching plus once-per-row identity reads; preserve all records,
+sort, pending changes, errors and full detail/edit/export behavior. Do not change the benchmark,
+budget algorithm, consumer projection, schema or cache validity contract. Compare original and
+candidate implementations before acceptance and withdraw probes before complete frozen-head
+validation. The original 883.249166 ms event remains UNPROVEN and retained non-pass.
+See `DASHBOARD_FIRST_LOAD_REPAIR.md`; no publication, merge or D/E advancement is implied.
+
+Implementation disposition: reject partial attribute fetching after both fixed ABBA orders
+regressed. Retain only the once-per-record identity read after the separate ABBA comparison
+improved both orders (15.51% pair-total reduction). Original fetch and benchmark remain exact;
+this bounded mechanism reduction is not a retrospective cause claim or full acceptance.
+
 ## 2026-09-08 — Isolate Dashboard first-load diagnosis from corrective acceptance
 
 Owner authorizes investigation of `b9cebd1`'s 883.249166 ms local non-pass, not a larger
