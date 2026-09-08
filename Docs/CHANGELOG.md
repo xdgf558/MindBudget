@@ -2,10 +2,16 @@
 
 ## Unreleased UI reliability candidate — pending validation and review
 
+- Budget amount rows now request their editor when tapped, including the label and empty
+  area. Existing text-field editing, layout and the single Save Budget action are retained.
+
 - Replaced the foreign-currency entry switch with explicit Enable/Cancel buttons. Existing
   saved foreign-currency records remain editable and cannot have their FX mode cancelled.
   New-entry access and save rules are unchanged; cancelling a draft restores its prior
   ordinary amount. English and Simplified Chinese labels wrap at large text sizes.
+- Renamed the FX mode heading from “Local-currency expense / 当地货币记账” to
+  “Foreign-currency expense / 外币记账” to distinguish original-currency entry from the
+  authoritative accounting currency. This remains part of the unaccepted UI candidate.
 
 ## Unreleased
 

@@ -1116,6 +1116,62 @@ final class MindBudgetPhase3UITests: XCTestCase {
     }
 
     @MainActor
+    func testBudgetAmountLabelFocusesIncomeInEnglishAX5() throws {
+        try exerciseBudgetAmountLabelFocus(language: "en", locale: "en_US")
+    }
+
+    @MainActor
+    func testBudgetAmountLabelFocusesIncomeInChineseAX5() throws {
+        try exerciseBudgetAmountLabelFocus(language: "zh-Hans", locale: "zh_CN")
+    }
+
+    @MainActor
+    private func exerciseBudgetAmountLabelFocus(language: String, locale: String) throws {
+        continueAfterFailure = false
+        let app = launchApp(language: language, locale: locale, additionalArguments: [
+            "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL",
+        ])
+        defer { app.terminate() }
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(element("budget.setup.view", in: app).waitForExistence(timeout: 5))
+        guard revealBudgetField("budget.monthlyIncome", in: app) != nil else { return }
+        // The label, not the editor, must activate the real product FocusState in one tap.
+        // Derive both from one final snapshot; reject any point that also hits the editor.
+        let root = BudgetSnapshotNode(try app.snapshot())
+        let geometry = try BudgetGeometry(targetIdentifier: "budget.monthlyIncome.label",
+            targetType: .staticText, noKeyboardInset: 80) { root }
+        let fields = root.flattened.filter { $0.type == .textField && $0.identifier == "budget.monthlyIncome" }
+        guard geometry.keyboards.isEmpty, fields.count == 1, let label = geometry.target else {
+            XCTFail("Label focus requires an unfocused visible budget form: \(geometry)")
+            return
+        }
+        let lane = CGRect(x: geometry.application.minX, y: geometry.navigationBottom + 8,
+                          width: geometry.application.width,
+                          height: geometry.safeBottom - geometry.navigationBottom - 8)
+        let visible = label.intersection(lane)
+        guard !visible.isNull, visible.width > 16, visible.height > 16 else {
+            XCTFail("Income label has no safe activation area: \(geometry)")
+            return
+        }
+        let point = CGPoint(x: visible.midX, y: visible.midY)
+        XCTAssertFalse(fields[0].frame.contains(point), "The regression must not tap the native editor")
+        let before = XCTAttachment(screenshot: app.screenshot())
+        before.name = "Budget AX5 label focus before - \(language)"
+        before.lifetime = .keepAlways
+        add(before)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+            dx: point.x - geometry.application.minX,
+            dy: point.y - geometry.application.minY
+        )).tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5),
+                      "One income-label tap must focus its editor; point=\(point); \(geometry)")
+        app.textFields["budget.monthlyIncome"].typeText("3000")
+        guard enterBudgetValue("2500", into: "budget.totalBudget", in: app),
+              enterBudgetValue("500", into: "budget.savingGoal", in: app) else { return }
+        saveAndVerifyBudgetSetup(in: app)
+    }
+
+    @MainActor
     func testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable() {
         let accessibility1App = launchApp(
             language: "en",
@@ -1704,6 +1760,11 @@ final class MindBudgetPhase3UITests: XCTestCase {
         let savingGoal = "budget.savingGoal"
         guard enterBudgetValue("500", into: savingGoal, in: app) else { return }
 
+        saveAndVerifyBudgetSetup(in: app)
+    }
+
+    @MainActor
+    private func saveAndVerifyBudgetSetup(in app: XCUIApplication) {
         // Keep the accepted product contract: Save Budget is the sole commit/dismiss action.
         // Do not double-tap income to "commit" saving or read the still-active editor as proof
         // of persistence. Verify all three exact amounts from a newly loaded Settings form below.

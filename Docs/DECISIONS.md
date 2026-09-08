@@ -1,5 +1,30 @@
 # DECISIONS
 
+## 2026-09-08 — Candidate explicit budget-row focus, pending corrective acceptance
+
+The owner requested repair before another push to PR #119. Original run `34169377668`
+shows one income-editor center tap without a keyboard at the second AX5 launch. Its event
+record does not establish app receipt or the consuming recognizer. The previous two local
+hit probes do not reproduce that failure and cannot close it.
+
+Candidate: keep the existing HStack/TextField, fonts, layout, native decimal keyboard and
+sole Save Budget action. Extend the amount row's rectangular touch area with a simultaneous
+single TapGesture that assigns the existing field-specific FocusState. This is a real user
+interaction in all builds, not a test focus hook, observer, selection replacement, automatic
+focus, second synthetic tap or product save shortcut. Simultaneous composition is chosen
+to preserve the text editor's own gestures and the Form's scrolling rather than using a
+high-priority gesture. Native text-field accessibility remains intact; stable label identifiers
+allow an end-to-end test to prove a tap outside the editor activates the intended field.
+Apple's public API contract is at
+https://developer.apple.com/documentation/swiftui/view/simultaneousgesture(_:including:).
+
+The English/Chinese AX5 label path must start with no keyboard, tap once outside the editor,
+type once per field, Save once and independently read exact 3000/2500/500 from Settings.
+The original AX1→AX5 editor-center method remains unchanged. A controlled before/after
+comparison can prove the new focus action, not the unobserved historical lost-tap cause.
+Default complete local validation, unchanged 500ms, exact-head hosted/native evidence and
+independent corrective review remain required. No D completion or E entry follows.
+
 ## 2026-09-08 — Owner-authorized explicit FX entry buttons
 
 Context: the owner explicitly permits replacing the FX sliding switch with an “启用外币记账”

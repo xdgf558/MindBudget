@@ -402,6 +402,7 @@ struct BudgetSetupView: View {
     ) -> some View {
         HStack {
             Text(key)
+                .accessibilityIdentifier(identifier + ".label")
             Spacer()
             TextField("money.amount.placeholder", text: text)
                 .keyboardType(.decimalPad)
@@ -409,6 +410,12 @@ struct BudgetSetupView: View {
                 .focused($focusedField, equals: field)
                 .accessibilityIdentifier(identifier)
         }
+        .contentShape(Rectangle())
+        .simultaneousGesture(TapGesture().onEnded {
+            // One row tap explicitly requests its editor, including the label/empty area.
+            // Keep native text selection and Form scrolling; do not synthesize another tap.
+            focusedField = field
+        })
     }
 
     private func currencyLabel(_ code: String) -> String {

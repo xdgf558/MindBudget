@@ -18,6 +18,11 @@ Status: **Investigation In Progress; FX-01D In Progress; PR #118 Draft; FX-01E u
 - [x] Extend private sources to all ten explicit synthetic service construction sites; 40 focused checks passed, four physical CloudKit checks skipped and left on their real notification path.
 - [x] Correct TASKS / planning current state to merged #117, separate from Draft #118.
 - [ ] Complete exact-head full local / hosted / native validation and independent review.
+  `2c61da2` hosted `34169377668` failed ordinary AX1→AX5 budget keyboard focus and join,
+  despite FX passing; that failure must be corrected before any acceptance recommendation.
+  New candidate explicitly focuses the budget row's editor from one simultaneous tap;
+  bilingual AX5 outside-editor tests supplement, not replace, the original AX1→AX5 path.
+  Treat the before/after control proof separately from the UNPROVEN original event cause.
 
 `e83017f` hosted `34116397624` passed with author native audit; its default full local run
 failed all three FX methods plus a runner error. The 496.448167 ms benchmark was a partial

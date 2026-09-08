@@ -23,6 +23,13 @@ not helper changes inside #118 or another doc-only rerun. See
 `Docs/FX_UI_RELIABILITY_INVESTIGATION.md`. D stays In Progress, all four D completion
 items remain open, E is unentered and Insights income/sharing remains queued.
 
+Latest working corrective candidate (2026-09-08): budget amount rows explicitly request their
+existing FocusState after one simultaneous tap, with no visual redesign, new toolbar or retap.
+English/Chinese AX5 label tests exercise a point outside the native editor and require exact
+independent saved-budget readback. The original AX1→AX5 editor-center path is preserved.
+This is a new focus control, not a proven explanation of the historical lost click; full
+local/hosted/native and independent acceptance remain required before #119 can be accepted.
+
 2026-09-08 owner explicitly authorized replacing the FX switch with an Enable button. The
 working candidate uses localized Enable/Cancel, with no cancellation for saved FX. Existing
 access/model/actor controls remain; one-tap field-state tests replace the old track geometry.
@@ -33,6 +40,12 @@ exit 72 remain recorded. These Xcode 27 beta 6 / iOS 26.5 checks do not replace 
 validation (including the 500 ms benchmark), exact-head hosted or independent review.
 This supersedes the earlier pending-control-choice checkpoint, not the historical failures or
 their UNPROVEN cause. No #118/#119 acceptance or D/E advance.
+
+The subsequent exact-head `2c61da2` run `34169377668` failed ordinary and join; FX passed.
+The owner's artifact review identifies the ordinary AX1→AX5 budget focus/keyboard failure,
+not a failure of the new FX buttons. Full-local validation still has not passed this candidate.
+The earlier focused results and any diagnostic green are not substitutes. The failure is
+retained in the investigation packet/log; #118/#119 remain Draft and D/E boundaries unchanged.
 
 PR #119 diagnostic head `e83017f` hosted `34116397624` passed with author native audits,
 but its default complete local validator failed all three FX methods plus a runner error.

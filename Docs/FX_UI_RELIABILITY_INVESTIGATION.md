@@ -9,7 +9,113 @@ check D's four completion items, mark D Done, or enter E. Sharing remains queued
 Zero retries, single activation, the 240-second FX allowance and the default local 500 ms
 benchmark are unchanged. A diagnostic success is not a repair or acceptance.
 
-## Current owner-authorized button replacement (2026-09-08; not accepted)
+## Current budget-row focus candidate (2026-09-08; not accepted)
+
+Owner requested the actual repair before pushing to #119 and allowed the sanitized evidence
+summary to be published there. Product Design context/brief reused the existing budget Form
+and AX5 screenshot: no layout, font, copy, new button or keyboard toolbar is introduced.
+The three amount HStacks now have a rectangular touch area and a simultaneous single tap
+that assigns their existing field-specific FocusState. Native TextField interaction remains;
+no focus-on-launch, high-priority/long-press gesture, second tap, observer or debug override.
+The original AX1→AX5 field-center activation test and its five-second keyboard wait are
+unchanged. The shared Save/readback code is only extracted, not weakened or bypassed.
+
+Two new real-app English/Chinese AX5 regressions begin without a keyboard, capture label and
+editor from one snapshot, prove their tap point is outside the native editor, activate once,
+type 3000/2500/500, Save once and independently read the exact stored amounts in Settings.
+This is a product focus-control test, not a test-only model injection or live AX-value waiver.
+The before candidate adds only label identifiers/tests, without the gesture: its single English
+regression failed once (15.563s, exit 65), with no keyboard after tapping label `(104.5,541)`.
+Native detail confirms one Failed, no expected failure or retry; diagnostic archive collection
+also retained the existing missing-simctl exit 72. This demonstrates missing label activation,
+not reproduction of the historical editor-center failure. No historical cause is relabelled.
+
+Before/after locally retained source patches are `fx119-row-focus-before-source.patch` and
+`fx119-row-focus-after-source.patch`, SHA-256 respectively
+`ae90aec852296cbbb4b01256163f896259e4ea62873f90cda6885c61dd30a482` and
+`79730b0223bda59136fb1548c38a298958a5056269fa1b7f9de430d2f5818edf`.
+Their only product behavior difference is the six-line row gesture/content shape. Logs and
+native bundles use `fx119-row-focus-before` and `fx119-row-focus-after` artifact prefixes.
+Current OnboardingView SHA-256: `e1a62517e63532a5782662a4b0a7ec829be58a8c132a712ac63813318e134fb3`;
+UI-test SHA-256: `2669a25ab2f4894946aba03244b90c20992c36ffc12f1efabb2bfb418573ae6a`.
+After candidate passed four focused methods once (exit 0): original AX1→AX5 107.353s,
+Chinese AX5 label 56.344s, English AX5 label 63.748s and Chinese legend 93.386s. Native
+`fx119-row-focus-after-audit` confirms four concrete Passed, no Repetition/extra attempt,
+and zero runtime warnings. All use local Xcode 27 beta 6 / iOS 26.5, not hosted 26.6.
+Side-by-side English AX5 pre-activation screenshots retain the same layout, typography,
+colors and controls; small scroll-offset/clock differences are not claimed pixel equality.
+Before/after PNG SHA-256: `d9a9bce7a98813a1e6633c8acbbde13584ab5138dc38ff141aa7a015c94d7eb3` /
+`a17d71adde36bb2d200aaf5373733cf08a0188c930ac4eed7fe21853f7697c8e`.
+
+**Source-freeze checkpoint:** the full default validator has not run at commit preparation.
+Freeze this source first, then run it once with only the selected Xcode/destination/result-path
+environment, no skip/retry override. Its later exact-commit result and hosted run must be
+reported in the PR execution checkpoint before acceptance; the focused result above does not
+pre-approve those executions. Do not push as a completed repair if the full validator fails.
+Original dispatch/recognizer cause remains UNPROVEN. Corrective acceptance requires complete
+local validation, unchanged 500ms, exact-head hosted/native and independent review, not the
+bounded before/after result alone. #118/#119 remain Draft; no D checkbox/Done or E entry.
+
+## Previous owner-authorized button checkpoint (2026-09-08; not accepted)
+
+**Subsequent hosted non-pass:** exact head `2c61da2`, run `34169377668` attempt 1 failed
+ordinary `101886617002` and join `101893454890`; FX `101886616887` passed. GitHub artifact
+IDs: ordinary `10035940628`, FX `10035486867`. The owner's native review reports ordinary
+AX1→AX5 `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable` failed at
+line 2646 after one budget focus tap (175.411s), pre-tap target `(185,494.67,185,64)`,
+`keyboards=[]`. The 17 focused final-source checks did not include that method. Author
+artifact inspection is recorded below; no transient/root-cause or complete-local claim is made.
+The reviewer reports all three FX methods once, device-bound to fresh non-cloned
+`0AF194A1-40F4-45B2-8134-947D8E293C17`, durations 103.876/148.216/114.280s and three
+invalid-frame warnings. The Chinese legend pass (165.608s) is not AX1→AX5 acceptance.
+The complete-local/hosted/native/review gate remains open; both PRs stay Draft and D/E locked.
+
+### AX1→AX5 budget focus: artifact inspection and rejected hypothesis
+
+Author native inspection of the downloaded ordinary artifact confirms 613 Passed / 1 Failed /
+17 Skipped methods, 622 concrete Passed, and only the 175.410755s accessibility method failing.
+The call stack identifies `completeBudgetSetup` line 1699 (`budget.monthlyIncome`), invoked
+from the second AX5 launch at line 1146. AX1 setup and its stored-value verification finished.
+Failure precedes AX5 typing, Save or Settings readback. The final hierarchy retains the same
+`(185,494.6667,185,64)` income field and no keyboard. Original pre-tap/final snapshots and
+video show no obvious intervening overlay or field displacement. The archived synthesized
+event specifies `(277.5,526.6667)` down/up with a planned 0.05s offset; that is not app-side
+receipt or gesture-consumption evidence. Slow event/query processing is observable, its
+cause is not. Unit execution finished before ordinary UI, so concurrent units are not a
+supported explanation. Original artifacts remain non-pass, not transient or corrected.
+
+Author FX audit confirms three methods/three concrete Passed, no Repetition/extra attempt,
+and three runtime warnings. Device provenance records `cloned: false` and the UUID above.
+This is local Xcode 27 beta 6 artifact reading, not hosted 26.6 re-execution or ordinary repair.
+Locally retained evidence prefixes: `fx119-34169377668-ordinary-artifact`,
+`fx119-34169377668-fx-artifact`, `...-ax-attachments`, `...-fx-audit`;
+native ordinary summary/detail/activity JSON and job log use the same run-number prefix.
+Video files named `...-ax-video-149.png` and `...-ax-video-173.png` have actual decoded
+timestamps 139.22s and 164.276667s respectively, not the requested filename timestamps.
+
+Two local one-method probes investigated whether the AX field center misses its native editor.
+Both used Xcode 27 beta 6 / iOS 26.5, owned ordinary simulator
+`1B6529A0-D847-4757-9A08-C7DEDC08E376`, zero retry, no parallel testing and unchanged 240s
+allowance. Each native audit reports one Passed once, zero extra attempts/Repetition/warnings.
+Probe 1's environment flag did not reach the runner: no activation or app trace, so no
+mechanism evidence. Probe 2 explicitly enabled the flag and a temporary DEBUG-only public
+UIKit timer logging view bounds, textRect, hitTest and first-responder state. At AX5, the
+income field `(185,509,185,64)` center hit UITextField before focus; it subsequently became
+first responder at `(185,501.3333,185,65)`. Same dimensions do not mean the identical hosted
+state. The blank-center hypothesis is unsupported locally; the hosted focus failure remains
+UNPROVEN. A timing-affecting sampler and a passing probe are not corrective acceptance.
+
+Retained `fx119-budget-hit-probe-1` and `fx119-budget-hit-probe-2` prefixes include source patches,
+build/runtime logs, xcresult bundles and native audit directories. Probe-1 source SHA-256:
+`79ee944917ff01849322a6f0fe609f945d05fd5f0a22b56d507bcd7f27a625fc`;
+probe-2 source SHA-256: `cfdccbd0a271d52c0f76831d834d402d63b687d281e3ca8edbb8b108b3f4ca9a`;
+probe-2 unified app log SHA-256:
+`da2973bbcd1077565aee741493c8bc647d9a895f3c4c805848cf14ce4fe1095f`.
+No gesture/touch observer, swizzle, fault injection, long press or retap was used. All probe
+code and launch flags were removed; product/test source matches `2c61da2` exactly again.
+No full validator, new hosted run, new source commit or corrective acceptance follows from
+these observations. Next investigation must distinguish focus/event delivery with evidence;
+do not change coordinates or repeat activation merely to obtain a green result.
 
 The owner permitted replacing the sliding switch with explicit localized Enable/Cancel buttons.
 The product reuses its existing card/secondary style; saved FX has no Cancel. Existing Pro/trial,

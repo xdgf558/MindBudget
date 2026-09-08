@@ -1,5 +1,93 @@
 # SESSION_LOG
 
+## 2026-09-08 — Budget-row corrective candidate frozen before full validation
+
+The owner permitted the sanitized #119 evidence update and requested repair before push.
+Used Product Design preflight (no saved context) and the existing budget Form/AX5 screenshot
+as the target. Kept its appearance and sole Save action; each amount row now assigns the
+existing field-specific FocusState from a simultaneous single tap. No automatic focus,
+priority gesture, observer, timer, swizzle, toolbar, retap or testing-only product path.
+Details and Apple public-API reference are in the new decision and investigation packet.
+
+Added English/Chinese AX5 label activation regressions that start without a keyboard, prove
+the single tap is outside the native editor and verify exact saved 3000/2500/500 through
+the independent Settings form. Shared Save/readback is extracted without changing behavior;
+the original AX1→AX5 editor-center path remains. The identifiers-only before candidate
+failed its one English label case (15.563s / exit 65). This establishes absent label focus,
+not reproduction of the original hosted center-tap cause. Diagnostic collection exit 72 is
+also retained. Explicit Xcode selection corrected an initial CLI inspection error; no
+global toolchain setting was changed.
+
+With only the six-line product gesture/content-shape addition, four selected methods passed
+once: original AX1→AX5 107.353s, Chinese AX5 label 56.344s, English label 63.748s, Chinese
+legend 93.386s. Native audit confirms four concrete Passed, zero Repetition/extra attempt
+and zero warnings. Before/after screenshot comparison preserves the design, apart from
+capture clock/minor scroll offset. Artifacts and source/image hashes are indexed in the
+investigation packet; machine-local paths are omitted from this new publication summary.
+
+This commit-preparation checkpoint is not full-local or hosted acceptance. Freeze the source
+locally before the default complete `Scripts/validate.sh` (unchanged 500ms and isolated FX);
+publish its exact-commit execution result in the PR before acceptance. Do not push a claimed
+repair after a failed full validator. Original causes remain UNPROVEN and all non-passes
+remain. #118/#119 stay Draft, D checkboxes/Done and E entry remain blocked. Independent
+corrective review is still the owner's next acceptance gate, not author self-approval.
+
+## 2026-09-08 — Exact-head hosted ordinary keyboard failure retained
+
+Owner rereview rejects acceptance of `2c61da2`. GitHub run `34169377668`, attempt 1, is
+failure: ordinary `101886617002` and join `101893454890` failed; FX `101886616887` succeeded.
+Downloaded-artifact inspection is completed below; API metadata identifies ordinary artifact
+`10035940628` and FX artifact `10035486867`. The owner's native review reports the AX1→AX5
+ordinary method `testAccessibilityExtraLargeKeepsPrimaryActionsAndNavigationReachable`
+failed at the keyboard wait (175.411s), with pre-tap target `(185,494.67,185,64)` and no
+keyboard. The previous final-source 17 focused checks did not cover this method; no claim
+of full-local validation was made. A prior six-method pre-final candidate covered it but
+cannot substitute for this exact-source failure. Do not classify it as transient.
+
+Owner-reported FX native results: three methods Passed once on hosted Xcode 26.6 / iOS 26.5,
+UUID `0AF194A1-40F4-45B2-8134-947D8E293C17`, not cloned, durations 103.876/148.216/114.280s;
+three invalid-frame diagnostics remain. Chinese ordinary legend passed 165.608s, which does
+not close the AX1→AX5 failure. Author artifact inspection is recorded below, not a
+new local execution. Full default validator/unchanged 500ms/FX host and exact-head hosted
+ordinary+FX+join/native/independent acceptance remain mandatory. Both PRs stay Draft, no D
+completion checkbox/Done or E entry. Next work targets budget input focus, not a second tap.
+
+Author inspected the original native summary/detail/activity tree, ordinary job log, archived
+pre/post snapshots, synthesized-event record and screen recording. Ordinary has 613 Passed,
+1 Failed and 17 Skipped methods (622 concrete Passed). The AX1 setup finished; failure is
+the first `budget.monthlyIncome` focus in the second AX5 launch, before typing or Settings
+readback. The field remains at the same frame in the final failure hierarchy; no keyboard
+or visible overlay appears. Event recording describes one planned center tap, not proof
+of app receipt or recognizer consumption. Unit tests finished before ordinary UI started;
+unit/UI concurrency is not established as a cause. Author native FX audit confirms three
+Passed once, no Repetition/extra attempt and three warnings; this cannot cover ordinary.
+
+Two bounded local public-UIKit hit-geometry probes ran only the AX1→AX5 method, once each,
+on Xcode 27 beta 6 / iOS 26.5. Both native audits report one Passed, zero Repetition/extra
+attempt/warning. Probe 1 did not activate its launch flag and produced no app trace: it is
+diagnostic non-evidence. Probe 2 explicitly enabled a read-only timer that sampled public
+view geometry/hitTest/first-responder state. At AX5, the 185×64 income field's center hit
+the native UITextField and it subsequently became first responder. Its y position differed
+from hosted; this does not reproduce or explain the original failure. The blank-center
+hypothesis lacks support, and local success is not corrective acceptance. No touch/gesture
+hook, swizzle, fault injection, long press or second tap was introduced. The timer can still
+perturb timing; all temporary probe code and launch configuration were removed afterward.
+
+Native-cache and video-decoder sandbox failures were corrected by permitted execution;
+they are inspection-tool failures, not test results. Video extraction reported actual frame
+timestamps separately from requested timestamps. Probe patches/logs/bundles/audits remain
+locally retained and indexed in the investigation packet. Product and test source are again
+byte-identical to `2c61da2`. No actual corrective change, full validator, new hosted run,
+commit or push occurred in this investigation checkpoint. PR provenance was updated to
+retain the failed hosted run; no P2 is closed and no phase state was advanced.
+
+The subsequent PR-body update containing the completed inspection/probe summary was blocked
+by external-publication approval. It was not retried or sent indirectly; the prepared body
+remains local pending owner authorization. This differs from the earlier successfully
+published failure-status update. No Git commit/push accompanies these documentation edits.
+Documentation and FX contract gates exited 0; `git diff --check` passed. These are static
+checks, not the missing full default local validator or a correction of the hosted failure.
+
 ## 2026-09-08 — Owner requests Draft PR publication of the repair candidate
 
 The owner requested a PR for their own independent review. Read-only GitHub inspection found
