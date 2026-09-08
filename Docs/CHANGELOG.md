@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased Dashboard performance candidate — pending full validation and review
+
+- Reduced repeated SwiftData identity reads while loading complete expense summaries.
+  Amounts, sorting, validation and saved records are unchanged; no history cache or record
+  limit is introduced. Local paired measurements improved, but are not a production guarantee.
+
 ## Unreleased UI reliability candidate — pending validation and review
 
 - Budget amount rows now request their editor when tapped, including the label and empty

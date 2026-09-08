@@ -11,12 +11,44 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Current authorized work: owner entered the Dashboard storage-projection performance repair.
+`DASHBOARD_FIRST_LOAD_REPAIR.md` supersedes the investigation-only scope for implementation,
+not its UNPROVEN historical cause or retained 883.249166 ms non-pass. Keep full data, validation,
+500 ms and all full-local/hosted/review gates. #118 remains Draft; D/E are unchanged.
+
+### Prior investigative checkpoint (before repair authorization)
+
+Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
+separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
+at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
+`DASHBOARD_FIRST_LOAD_INVESTIGATION.md` owns diagnosis only; no product optimization, waiver,
+publication, D Done or E/share entry is authorized. Earlier UI-focused passes remain scoped.
+The bounded investigation now identifies expense fetch + mapping as 93–96% of observed
+10,000-record load time, but the original 883.249166 ms cause remains UNPROVEN. Cold/warm
+diagnostics do not close it. Temporary Swift probes are removed; only local records remain.
+The UI readiness repair is paused at that full-validation blocker, not accepted by this report.
+
+### Continuing product/workflow boundaries
+
 Owner workflow preference (2026-09-06): use the Product Design skill for UI-design tasks,
 including the queued Insights income tile and share card. Follow the skill's context/visual
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
 
-Current investigation: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
+Current work: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
+acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
+PR #118 remains Draft after three exact-head non-passes: `34097606992`, `34108994597`,
+`34218693463`. Owner now authorized separate branch `codex/fx-ui-readiness-repair` from
+merged main for Done observation, the Settings final pan and Wishlist single Save. See
+`Docs/FX_UI_READINESS_REPAIR.md`. Candidate/focused checks are not full or hosted acceptance.
+D remains In Progress with four open items; E and Insights income/sharing remain unentered.
+
+### Historical #119 investigation/source-freeze checkpoints (superseded by b364444 acceptance)
+
+The following paragraphs preserve the evidence available before that accepted merge; their
+pending/Draft wording is not the current #119 status. Original causes remain UNPROVEN.
+
+At that checkpoint: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
 Draft after `34097606992` and `34108994597` failed. Owner authorized the separate
 `codex/fx-ui-reliability` UI / synchronization test investigation from that merged base,
 not helper changes inside #118 or another doc-only rerun. See

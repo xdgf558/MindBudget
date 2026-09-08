@@ -1,5 +1,46 @@
 # DECISIONS
 
+## 2026-09-08 — Owner enters complete-projection performance repair
+
+After the scoped investigation, owner authorizes optimization of expense fetch/mapping.
+Try explicit summary attribute fetching plus once-per-row identity reads; preserve all records,
+sort, pending changes, errors and full detail/edit/export behavior. Do not change the benchmark,
+budget algorithm, consumer projection, schema or cache validity contract. Compare original and
+candidate implementations before acceptance and withdraw probes before complete frozen-head
+validation. The original 883.249166 ms event remains UNPROVEN and retained non-pass.
+See `DASHBOARD_FIRST_LOAD_REPAIR.md`; no publication, merge or D/E advancement is implied.
+
+Implementation disposition: reject partial attribute fetching after both fixed ABBA orders
+regressed. Retain only the once-per-record identity read after the separate ABBA comparison
+improved both orders (15.51% pair-total reduction). Original fetch and benchmark remain exact;
+this bounded mechanism reduction is not a retrospective cause claim or full acceptance.
+
+## 2026-09-08 — Isolate Dashboard first-load diagnosis from corrective acceptance
+
+Owner authorizes investigation of `b9cebd1`'s 883.249166 ms local non-pass, not a larger
+ceiling, changed fixture/interval, production fix or repeated full validation to obtain green.
+Use a separate worktree, temporary Debug-only buffered boundary/CPU observations, the original
+serial benchmark and native artifacts. Observers change execution and cannot produce release
+acceptance. Remove them before delivery; record findings and request any subsequent fix scope.
+PR #118 stays Draft, D open, E unentered. Canonical packet: `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`.
+
+## 2026-09-08 — Separate bounded readiness controls after the third #118 failure
+
+Owner authorized a repair branch from merged main, separate from documentation-only #118.
+Use `FX_UI_READINESS_REPAIR.md` for original evidence, precise causal limits and acceptance.
+Correct Settings' omitted observation after its final allowed pan, without increasing twelve
+gestures or relaxing the lane. Replace FX's timer-delayed predicate with immediate snapshot
+observation under the same monotonic three-second deadline, counting capture/classification
+and rejecting late or invalid data. Activate once; only observation may repeat. Reuse the
+accepted single safe Save plus independent saved-budget readback for the Wishlist setup.
+No product UI redesign, extra commit action, retap, long press, wider geometry, larger test
+allowance, retry or new test-only product behavior is authorized. Original FX waiter and
+Wishlist dispatch causes are not retrospectively proven. Keep errors and unknowns visible.
+
+The deterministic observation tests and focused UI checks do not replace default full local
+validation (unchanged 500 ms and isolated FX), exact-head hosted/native and independent review.
+PR #119 acceptance remains scoped to its merged head; #118 remains Draft, D open, E unentered.
+
 ## 2026-09-08 — Candidate explicit budget-row focus, pending corrective acceptance
 
 The owner requested repair before another push to PR #119. Original run `34169377668`

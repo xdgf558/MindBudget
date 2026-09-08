@@ -1,6 +1,12 @@
 # Separate UI / synchronization test investigation
 
-Status: **INVESTIGATION_IN_PROGRESS; no corrective acceptance; PR #118 remains Draft.**
+Status: **Historical #119 source-freeze record; accepted merge b364444; PR #118 remains Draft.**
+
+Current pointer: #119 subsequently passed default full local and hosted `34182518433` on
+`70fc7c1`, received independent acceptance and merged as `b364444`. The pending wording below
+is preserved as a historical checkpoint, not current #119 status or a reversal of that review.
+The third #118 non-pass `34218693463` requires the owner-authorized separate repair in
+`FX_UI_READINESS_REPAIR.md`; neither #119 acceptance nor this pointer completes D or enters E.
 
 The owner authorized a separate investigation/repair after the second PR #118 review.
 Branch `codex/fx-ui-reliability` starts at merged PR #117, `d19c6401bc14d2b43365b0936a37fe270e39c481`.

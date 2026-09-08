@@ -1,6 +1,12 @@
 # FX-01D implementation evidence
 
-Status: **In Progress — PR #117 remains Draft; observer-free head 8e57283 has full-local exit 0 and hosted success; evidence rereview pending.**
+Status: **D In Progress — #117 implementation merged d19c640; #118 closeout remains Draft.**
+
+Current pointer: accepted #119 merge `b364444` does not replace the three failed #118 runs
+`34097606992`, `34108994597`, `34218693463`. The owner-authorized separate readiness repair
+and its unresolved acceptance are in `FX_UI_READINESS_REPAIR.md`. Four D boxes stay open;
+E is unentered. Everything in the 8e57283 validation sections below is a historical
+implementation checkpoint, not the current #117 PR state or #118 closeout evidence.
 
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do

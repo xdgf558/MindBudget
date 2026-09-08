@@ -326,10 +326,11 @@ The CSV/consumer and separate thirteenth-fact sync/privacy implementation merged
 as `d19c640`, with reviewed head `7e901f2` and hosted `34090503092`. The merged implementation
 replaces the interim FX/sync guard with the atomic companion protocol; this is not D completion.
 Implementation fixtures and retained outcomes are in `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
-Documentation closeout PR #118 remains Draft after hosted `34097606992` and `34108994597`
-failed. Separate investigation PR #119 has unresolved UI mechanisms and complete-local
-validation failures; see `FX_UI_RELIABILITY_INVESTIGATION.md`. Accepted corrective evidence,
-exact-head validation and independent review are still required before D closeout.
+Documentation closeout PR #118 remains Draft after hosted `34097606992`, `34108994597` and
+`34218693463` failed. Separate PR #119 was accepted and merged as `b364444`; its green result
+does not cover the third closeout failure. The newly authorized `FX_UI_READINESS_REPAIR.md`
+records the separate candidate controls, original evidence and remaining full-local/hosted/
+native/independent review gates. Original unknown causes remain unknown; D is not complete.
 
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.
