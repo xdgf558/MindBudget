@@ -1,5 +1,22 @@
 # TASKS
 
+## 2026-09-08 — Owner-authorized Dashboard first-load investigation
+
+Status: **In Progress; investigation only; no UI repair acceptance or D/E advancement.**
+
+- [x] Retain the `b9cebd1` default-full non-pass: 883.249166 ms > unchanged 500 ms; exit 65.
+- [x] Isolate the investigation from the UI repair and #118 in its own worktree.
+- [x] Measure the existing first-load stages with temporary bounded instrumentation.
+- [x] Distinguish observed bottlenecks from unproven historical causes, remove probes and report.
+- [ ] Close the original 883.249166 ms non-pass with an authorized, evidenced corrective path.
+
+The bounded diagnostic report identifies expense fetch/mapping (93–96% of observed 10,000-row
+load time). Two diagnostic methods passed once; neither reproduces/explains the original
+failure or supplies full-validation acceptance. All temporary Swift changes are withdrawn.
+
+See `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`. No production performance fix or acceptance rerun
+is implied; original full ordinary/FX stages were not reached.
+
 ## 2026-09-08 — Separate UI readiness repair after #118's third non-pass
 
 Status: **In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**

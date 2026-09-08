@@ -11,6 +11,16 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
+separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
+at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
+`DASHBOARD_FIRST_LOAD_INVESTIGATION.md` owns diagnosis only; no product optimization, waiver,
+publication, D Done or E/share entry is authorized. Earlier UI-focused passes remain scoped.
+The bounded investigation now identifies expense fetch + mapping as 93–96% of observed
+10,000-record load time, but the original 883.249166 ms cause remains UNPROVEN. Cold/warm
+diagnostics do not close it. Temporary Swift probes are removed; only local records remain.
+The UI readiness repair is paused at that full-validation blocker, not accepted by this report.
+
 Owner workflow preference (2026-09-06): use the Product Design skill for UI-design tasks,
 including the queued Insights income tile and share card. Follow the skill's context/visual
 selection/verification workflow and preserve this app's existing design system. This preference

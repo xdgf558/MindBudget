@@ -1,5 +1,14 @@
 # DECISIONS
 
+## 2026-09-08 — Isolate Dashboard first-load diagnosis from corrective acceptance
+
+Owner authorizes investigation of `b9cebd1`'s 883.249166 ms local non-pass, not a larger
+ceiling, changed fixture/interval, production fix or repeated full validation to obtain green.
+Use a separate worktree, temporary Debug-only buffered boundary/CPU observations, the original
+serial benchmark and native artifacts. Observers change execution and cannot produce release
+acceptance. Remove them before delivery; record findings and request any subsequent fix scope.
+PR #118 stays Draft, D open, E unentered. Canonical packet: `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`.
+
 ## 2026-09-08 — Separate bounded readiness controls after the third #118 failure
 
 Owner authorized a repair branch from merged main, separate from documentation-only #118.

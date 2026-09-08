@@ -1,5 +1,46 @@
 # SESSION_LOG
 
+## 2026-09-08 — Dashboard diagnostic report; original non-pass remains open
+
+Executed exactly the two pre-registered diagnostics on the owned iOS 26.5 simulator, local
+Xcode 27 beta 6, serial coverage-enabled Debug. Instrumented original first-load method:
+206.517541 ms (one Passed native execution). Separate fixed 1,000/10,000 cold/warm method:
+22.732291/18.471042 and 182.934167/185.523250 ms, one Passed native method/execution, complete
+record sets and configured budget/pace equal across cold/warm loads. No Repetition or extra
+native attempt in either bundle. The four explicitly planned load calls in diagnostic 2 are
+not acceptance retries. Original benchmark was not selected for diagnostic 2.
+
+Buffered observations locate 93–96% of the 10,000-record interval in SwiftData full fetch and
+ExpenseSummary mapping; snapshot plus pace are about 3 ms. Actor dispatch was microseconds
+in these observations. Process CPU is shared across threads; current 16 GiB RAM / about 12 GiB
+swap and four booted simulators are context, not historical cause proof. Existing StoreKit
+sandbox/public-configuration console messages remain unexplained context. Neither diagnostic
+reproduced 883.249166 ms. Do not call it transient or infer no regression from later fast runs.
+
+Retained all logs, native metadata, source/patch hashes, original failure metadata copies and
+an explicit-failure analysis script/JSON. Canonical report: `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`.
+Removed temporary probes via scoped apply_patch; all product/test/runner sources match frozen
+`b9cebd1` exactly again. No performance fix or full validator rerun. No new commit/push/PR,
+#118 mutation, D checkbox/Done or E/share entry. Original UI repair workspace is unchanged.
+
+Inspection-only issues retained: an incorrect BudgetEngine path and an unmatched shell glob
+were corrected with rg; a restoration orchestration syntax error and reversed-diff prefix
+guard stopped before mutation. The subsequent whitelist-scoped restoration and source equality
+check succeeded. These were not test failures or additional diagnostic executions.
+Post-withdrawal money/network/commercialization-doc/StoreKit checks, normal FX static contract
+and diff checks passed. Normal and optimized Python reproduced identical analysis JSON.
+No FX mutation self-test battery, complete runtime suite or hosted validation was rerun.
+
+## 2026-09-08 — Begin separately authorized Dashboard first-load investigation
+
+Owner explicitly authorized diagnosis after frozen UI repair `b9cebd1` failed default full
+validation at 883.249166 ms / exit 65. Created separate investigation worktree from that head;
+the original worktree and its uncommitted failure receipts stay untouched. Read current memory,
+tasks, decisions, session history, benchmark scheduling decision and measured production path.
+Pre-registered stage/CPU instrumentation in `DASHBOARD_FIRST_LOAD_INVESTIGATION.md`; no fix or
+full validator rerun. Current RAM/swap/multiple-simulator observations do not prove the earlier
+cause. A sandbox-denied process listing was retried read-only with approval; no process stopped.
+
 ## 2026-09-08 — Owner starts a separate UI readiness repair from accepted main
 
 Created `codex/fx-ui-readiness-repair` at `b364444` after the owner approved a separate repair
