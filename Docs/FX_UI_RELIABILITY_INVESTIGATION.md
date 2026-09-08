@@ -1,6 +1,20 @@
 # Separate UI / synchronization test investigation
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 Status: **CORRECTIVE_DELIVERY_REVIEWED_AND_MERGED; original causes UNPROVEN; PR #118 remains Draft.**
+
+## Current resumed-closeout blocker — 34218693463
+
+The accepted #119 delivery is retained history, not proof of current closeout success. #118
+`98345d3` hosted `34218693463` attempt 1 failed ordinary/FX/join, its third retained non-pass.
+See the canonical closeout for exact run/head/jobs/artifacts and independently reported counts.
+New failures are FX expired-edit Done never entering safe geometry before any tap, pseudo-long
+Settings income field extending beyond the safe lane, and Wishlist setup Save not reaching
+Dashboard. None is proven to have the old activation/AX-readback cause. Do not blame a changed
+product tree: the product/tests match accepted main. No same-head or document-only rerun to
+obtain green. Separate runtime investigation/repair authorization is required; no helper or
+product modification is made here. D's four boxes remain open and FX-01E stays unentered.
 
 ## Current accepted correction and resumed D closeout — 2026-09-08
 
@@ -14,8 +28,9 @@ switch, historical AX-readback or ambient-sender event. Failure-only public snap
 accepted diagnostics; temporary observers/probes are removed. Settings budget whole-row focus,
 three Invalid frame warnings, timing/boot capacity and required checks remain maintenance debt.
 
-The owner now resumes #118 against the accepted main repair. Both earlier #118 non-passes stay
-retained and its own exact-head CI/native/rereview are still required. D's four items remain
+The owner resumed #118 against the accepted main repair; that run subsequently failed as
+recorded above. All three #118 non-passes stay retained. Its own accepted corrective evidence
+and exact-head CI/native/rereview are still required. D's four items remain
 unchecked; no D Done or E/share entry. All following investigation checkpoints describe their
 then-current state, not an outstanding requirement to re-prove the accepted #119 correction.
 

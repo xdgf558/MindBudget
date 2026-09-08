@@ -6,7 +6,10 @@ Status: **In Progress — PR #117 implementation merged as d19c640; independent 
 
 Current closeout checkpoint: #118 resumes after the separate repair #119 merged `70fc7c1`
 as `b364444`, with exact-head full-local, hosted `34182518433`, native audits and independent
-acceptance. Both #118 failed runs `34097606992` and `34108994597` remain non-pass.
+acceptance. #118 failed runs `34097606992`, `34108994597` and `34218693463` remain non-pass.
+The third run (`98345d3`) failed FX Done safe geometry plus ordinary Settings safe-lane and
+Wishlist budget Save paths. The accepted product tree is unchanged; causes remain unproven.
+No unchanged/document-only rerun or helper changes in this record. Separate repair scope is pending.
 See `FX_01D_CLOSEOUT.md` for provenance and sufficiency limits. #118 needs its own new exact-head
 CI/native audit and rereview; earlier green implementation/repair evidence is not a substitute.
 No helper change relative to accepted main, D checkbox, D Done or E entry is authorized here.

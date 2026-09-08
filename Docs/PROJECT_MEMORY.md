@@ -32,8 +32,13 @@ controls replace FX activation with explicit buttons, verify independently loade
 values, focus BudgetSetup rows explicitly and isolate synthetic notification sources. Original
 switch/AX-readback/sender causes remain UNPROVEN; acceptance is corrective, not forensic.
 The canonical closeout records that exact chain and the frozen-source/PR-evidence timing.
-Both #118 runs `34097606992` and `34108994597` remain non-pass; neither #117 nor #119 green
-substitutes for the resumed closeout's own exact-head ordinary/FX/join/native/rereview gate.
+#118 now retains three non-passes: `34097606992`, `34108994597`, and `98345d3` /
+`34218693463`. The third failed FX expired-edit Done geometry, pseudo-long Settings income
+safe-lane geometry, and Wishlist budget Save-to-Dashboard. Neither #117 nor #119 green
+substitutes for the closeout gate; no changed product tree or proven original cause is inferred.
+Keep Draft without another unchanged/document-only rerun. A separate runtime repair scope is
+needed before continuing acceptance. The #119 hosted duration label error is corrected in the
+canonical packet by exact method: stewardship 81.518s, create-zh 153.332s, create-en 87.676s.
 The diff against accepted main changes no product/test source. D's four items remain open.
 Observer-free repair head `8e57283` completed
 default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark

@@ -2,6 +2,23 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-08 — Third #118 non-pass; separate runtime repair scope pending
+
+Status: **Blocked from closeout acceptance; PR #118 Draft; FX-01D In Progress; FX-01E unentered.**
+
+Retain `98345d3` / `34218693463` attempt 1 failure alongside `34097606992` and `34108994597`.
+Original #119 acceptance remains bounded to that head/run, not this failed closeout. No runtime
+repair has been implemented or authorized by this review record; no unchanged/doc-only rerun.
+- [ ] Investigate FX expired stewardship Done safe-snapshot timeout before any tap.
+- [ ] Investigate pseudo-long Settings income field geometry outside the safe lane.
+- [ ] Investigate Wishlist budget Save not reaching Dashboard before the missing-tab failure.
+- [ ] After separately authorized corrective work, obtain complete validation and independent
+  review under its scoped gates; do not substitute old greens or weaken retry/allowance limits.
+
+Documentation locally corrects #119's mislabeled hosted durations and adds method-bound negatives,
+the third failure ledger anchor, and the investigation file's required current pointer. This
+does not clear runtime blockers, change D's four obligations, or authorize a new phase.
+
 ## 2026-09-07 — Separate UI / synchronization test reliability scope
 
 Status: **Corrective delivery reviewed and merged in PR #119; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
@@ -33,7 +50,7 @@ pass only. Original causes remain open; accepted later repair evidence does not 
 or complete D. See `FX_01D_CLOSEOUT.md` for review attribution and the exact merge chain.
 
 See `FX_UI_RELIABILITY_INVESTIGATION.md`. No D completion checkbox is earned here. The
-documentation closeout must retain both `34097606992` and `34108994597`; it is not rerun
+documentation closeout must retain `34097606992`, `34108994597` and `34218693463`; it is not rerun
 merely to obtain another result on unchanged source.
 
 Status values: Todo, In Progress, Blocked, Done.

@@ -6,11 +6,17 @@ The owner authorized this separate documentation closeout after PR #117 merged. 
 canonical record; other current-state documents point here rather than copying the evidence
 table. Author evidence checking is not a second independent source review. This documentation
 PR's diff against accepted main changes no product Swift, UI helper, threshold or retry policy
-and authorizes no model request or CloudKit activation. Its own hosted tests failed twice below.
+and authorizes no model request or CloudKit activation. Its own hosted tests failed three times below.
 The owner now resumes #118 after the separately reviewed #119 repair merged into main. Main is
 merged into this branch without reimplementing its repair; the remaining diff is documentation
 and fail-closed evidence gates only. New exact-head evidence and independent rereview remain
 required before any merge. #119's green is not this closeout's own green.
+
+Current acceptance: **blocked by `98345d3` / `34218693463` attempt 1 failure**. Ordinary, FX and
+join all failed. The identical product tree's accepted #119 run does not override this result
+or establish a documentation-induced source regression. No same-head rerun or documentation-only
+replacement run is authorized as a cure. Record/correct documentation locally; investigate the
+three new runtime failure paths under a separately authorized repair scope before resuming CI.
 
 ## Accepted corrective repair provenance
 
@@ -41,7 +47,7 @@ now preserves it in the repository without pretending that the frozen documents 
 | Exact-head complete local validator | Local Xcode 27 beta 6 / iOS 26.5; ordinary 633 methods = 616 Passed / 17 Skipped / 0 Failed, 625 concrete Passed, 13 argument executions; no Repetition/extra attempt. Coverage >=85% per selected core file, 23 C6-02 and 49 FX unit bindings each once. Author native audits and original log retained. |
 | Local isolated FX | Three methods each Passed once; native details bound to fresh non-cloned `9788331F-61FB-48C4-BAE5-647F8F4F7934`; stewardship/create-zh/create-en 51.753 / 78.525 / 54.359s. Three Invalid frame warnings and diagnostic archive missing-simctl exit 72 retained; no complete diagnostic archive claimed. |
 | Hosted metadata | Xcode 26.6 / iOS 26.5 run above; ordinary `101924294267`, FX `101924294076`, join `101932209214` all success. Direct API verification, not a test re-execution. |
-| Hosted native audit | Attributed to the owner's supplied independent review: 616 Passed / 17 Skipped methods, 625 concrete executions, 49 unit bindings each once, no Repetition/extra attempt. FX three once, bound to fresh non-cloned `FE74F87B-0125-4F7B-94A2-F53DD05BB01E`; create-en/create-zh/stewardship 81.518 / 153.332 / 87.676s. Reviewer used local Xcode 27 beta 6 to read hosted artifacts, not rerun hosted 26.6. |
+| Hosted native audit | Attributed to the owner's supplied independent review: 616 Passed / 17 Skipped methods, 625 concrete executions, 49 unit bindings each once, no Repetition/extra attempt. FX three once, bound to fresh non-cloned `FE74F87B-0125-4F7B-94A2-F53DD05BB01E`; exact method/duration mapping is in the table below. Reviewer used local Xcode 27 beta 6 to read hosted artifacts, not rerun hosted 26.6. |
 
 Full-local log SHA-256: `d428f94f79a3e94126882dd17e33a12ce399124ab80a1001fd1ec1c31899704d`.
 Local FX provenance SHA-256: `f5c004b2f664f3ee49a2b96c517cff7362c216808646572b1c62e3037f50f4a7`.
@@ -49,19 +55,54 @@ Retained local artifact prefix: `fx119-70fc7c1-full-1`, with separate benchmark/
 bundles. This is not a new full-local run on #118. New #118 head/run/native results will be
 identified in its PR execution checkpoint after source freeze; no result is pre-approved here.
 
+## Accepted repair hosted FX duration mapping
+
+This table belongs only to hosted `34182518433`, not local execution or #118's failed run.
+The earlier `98345d3` paragraph mislabeled 81.518s as English create and 87.676s as stewardship.
+Direct original job-log inspection confirms the corrected identities below. The three local
+durations above were correct and are unchanged. Exact row anchors and negative swaps guard
+against matching an unlabeled sequence of numbers with the wrong methods.
+
+| Hosted FX method | Seconds | Result |
+| --- | ---: | --- |
+| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 81.518 | Passed once |
+| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 153.332 | Passed once |
+| `testManualForeignCurrencyEnglishProCreateAndDetail` | 87.676 | Passed once |
+
 ## Retained closeout non-pass ledger
 
 Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.
 Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.
-Neither closeout failure is transient, waived, or relabelled by the accepted #119 repair.
+Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.
+None of the three closeout failures is transient, waived, or relabelled by the accepted #119 repair.
+
+Third-run jobs: ordinary `102036452111`, FX `102036451825`, join `102050557510`; original
+artifacts ordinary `10054527101` and FX `10053466531`. GitHub metadata and original job logs
+were checked directly. Detailed native counts/device binding below are attributed to the
+owner's independent review, not a new author all-method artifact audit. Zero test-level retry.
+
+| Third-run failure | Observed boundary, not a causal claim |
+| --- | --- |
+| FX `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 109.762s Failed. `fx.active` was present; after rate editing, Done did not enter safe snapshot geometry in 3s. Error at UI-test line 222 explicitly says no tap sent. This is not an FX Enable-button activation failure. |
+| Ordinary `testPseudoLongTextKeepsOnboardingAndPrimaryNavigationReachable` | `settings.budget.monthlyIncome` failed the safe-lane condition; target `(196,734.3333,174,65)` has bottom 799.3333 while lane ends at 794. No keyboard in that snapshot. Missing whole-row focus is a known difference, not established as the cause of offscreen geometry. |
+| Ordinary `testWishlistAndCoolingOffFlow` | Save was followed by no `dashboard.view` within 5s; the budget form remained, then `tab.wishlist` was missing. Do not relabel the later missing-tab error as the originating cause. |
+
+Ordinary: 633 methods = 614 Passed / 2 Failed / 17 Skipped; 623 concrete Passed, 13 parameter
+executions, all 49 FX unit bindings once. FX: three methods once, two Passed / one Failed,
+bound to non-cloned `E8F27099-0F64-49FF-9330-721849471677`. Chinese create 195.580s and English
+create 114.074s Passed; three Invalid frame diagnostics remain. `--verify-ui-bundle` rejects
+the non-Passed stewardship method, as required. Its passing peers do not admit the bundle.
+Earlier Chinese legend/CloudSync count/Chinese FX activation failures did not recur; AX5
+ExtraLarge 181.534s, both legends and both new budget-label regressions Passed. Those observations
+do not clear the three new failures. Keyboard Done geometry/original event causes remain UNPROVEN.
 
 The second run's jobs are ordinary `101700573464`, FX `101700573721`, join `101711782743`;
 head/attempt/conclusions were checked directly. Original artifacts are ordinary `10014896092`
 and FX `10014180442`. The prior investigation's native audit records ordinary
 `retryRunsOneTransportPassAndPausedAccountChangeRunsNone()` line 87: synchronize count 2 vs 1,
 not another budget-field failure; FX Chinese AX5 create remained off after one off-track tap.
-Each ordinary bundle has 609 Passed / 1 Failed / 17 Skipped methods, 618 concrete Passed;
-each FX bundle is 2 Passed / 1 Failed. The fresh non-cloned FX UUIDs were respectively
+For the first two failed runs, each ordinary bundle has 609 Passed / 1 Failed / 17 Skipped
+methods, 618 concrete Passed; each FX bundle is 2 Passed / 1 Failed. Their fresh non-cloned FX UUIDs were respectively
 `FE266090-65CD-4ADC-9D71-08A5712AC89F` and `D3932B37-3B3C-4A3B-85BC-D97E2B62B201`.
 The original ambient notification sender is unobserved. Detailed original inspection is
 retained in `FX_UI_RELIABILITY_INVESTIGATION.md`; no new failed-bundle audit is claimed here.
@@ -202,8 +243,9 @@ Retain the existing maintenance debts: last observed absence of main required-ch
 callers outside the repaired path, fx.mode/fx.accounting.format copy, duplicate reminder Close,
 and the dead isFinite branch. The old 0.75 switch point is retired by #119's explicit FX
 buttons, not certified as reliable. Settings budget rows lack BudgetSetup's whole-row focus.
-The accepted repair's hosted Chinese FX create used 153.332s / 240s and retained three Invalid
-frame warnings. Failure-only public snapshots remain. Original event causes are UNPROVEN;
+The accepted repair's hosted Chinese FX create used 153.332s / 240s; failed #118 run
+`34218693463` increased it to 195.580s / 240s. Three Invalid frame warnings remain.
+Failure-only public snapshots remain. Original event causes are UNPROVEN;
 no second click or longer press is authorized. Earlier C and D non-passes are untouched.
 
 D remains In Progress; its four checkboxes remain unchecked.

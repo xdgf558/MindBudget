@@ -2,6 +2,58 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-08 — Third #118 failure and duration-attribution correction (local; no push)
+
+Owner supplied independent no-P1/two-P2 review: #118 remains unmergeable. Direct GitHub checks
+confirm `34218693463` attempt 1 failure on `98345d3`, jobs ordinary `102036452111`, FX
+`102036451825`, join `102050557510`; artifacts `10054527101` / `10053466531` were unexpired.
+Original job logs confirm FX expired-edit failed before any Done tap (safe snapshot absent),
+pseudo-long Settings income bottom 799.3333 beyond lane end 794, and Wishlist's Dashboard wait
+then missing tab. Native counts/UUID are attributed to the supplied independent review, not a
+new all-method author audit. No rerun, product diagnosis or current-head pass is claimed.
+
+Direct original #119 log inspection confirms the author's hosted duration labels were wrong:
+stewardship 81.518s, Chinese create 153.332s, English create 87.676s. Corrected the canonical
+packet, replaced positional values with exact method rows, added scoped method/duration and
+negative-swap checks, retained the third failure row and added the investigation pointer as a
+ninth mandatory current surface. Updated current memory/tasks/plan/evidence without altering
+historical acceptance or D's four unchecked obligations. Validation is pending at this checkpoint.
+
+All edits remain local, including earlier post-publication receipts. No commit/push, PR-body
+publication, CI rerun, helper/product change, undraft, merge, D Done or FX-01E entry. Separate
+runtime investigation/repair needs owner authority; do not fold it into documentation closeout.
+
+Local preparation checks passed: all five static gates, iCloud contract and diff whitespace.
+FX gate executed 1128 copied-CLI mutations (18 additional ledger/timing/pointer negatives),
+with the existing 165 privacy injections and runtime/no-retry contracts intact. This is not
+runtime acceptance. Read-only source inspection also confirms Wishlist uses its own direct
+field/Save taps rather than the shared safe Save helper; Settings' failed reveal is inside
+read-only persisted-value verification before any focus/type. These are source facts, not
+proof of the original event cause or authority to apply an untested replacement.
+
+## 2026-09-08 — Explicitly authorized #118 public body synchronization (local receipt)
+
+The owner explicitly answered “公开到 PR #118 正文” to the disclosure question for the linked
+summary's test results, artifact identifiers, hashes and historical provenance. Published that
+prepared body to #118. Readback confirms exact head `98345d3c935355cc3217ff010e6e629f2358161b`,
+OPEN/Draft, the new run `34218693463` and both retained failed runs in the body. Immediately
+before publication the exact-head attempt 1 was still in progress: ordinary `102036452111`
+and FX `102036451825`; native audit remains pending. No CI success, corrective rereview,
+undraft, merge, D completion or E entry is inferred. This receipt is local and uncommitted,
+not a new reviewed head. The preceding publication blocker is resolved by this explicit consent.
+
+## 2026-09-08 — Resumed #118 published; PR-body disclosure blocked (local receipt)
+
+Published normal merge commit `98345d3c935355cc3217ff010e6e629f2358161b` to existing #118.
+GitHub initially returned stale PR metadata immediately after push; a subsequent read confirmed
+exact head 98345d3, base b364444, OPEN/Draft and new hosted `34218693463` in progress. The earlier
+two failures remain completed/failure. No rerun, undraft or phase advancement was requested.
+The updated machine-path-free PR body is prepared locally as `pr118-98345d3-review.md`, but
+publication was rejected by safety review as requiring explicit authorization for this exact
+public test/artifact/provenance payload. No alternate API/comment/browser route or retry was
+used. PR body remains stale until owner approval; this local receipt is not in frozen 98345d3.
+Hosted/native and independent review remain pending. D's four items are still open; E unentered.
+
 ## 2026-09-08 — Resume Draft #118 after accepted #119 integration
 
 Owner requested resuming D documentation closeout. Verified #119 MERGED at

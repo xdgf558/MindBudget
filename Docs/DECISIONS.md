@@ -2,6 +2,20 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-08 — Preserve third closeout failure and bind durations to method identity
+
+The independent review rejects `98345d3` / `34218693463`; all three jobs failed despite the
+unchanged product tree's earlier #119 success. Preserve it as a third non-pass without transient
+classification, a changed-source regression claim, or another unchanged/doc-only rerun.
+The three new runtime paths require separately scoped investigation; this record changes no UI.
+
+The review also found the #119 hosted English/stewardship duration labels reversed. Original
+job logs confirm stewardship 81.518s, Chinese create 153.332s, English create 87.676s. Replace
+the ambiguous list with full method-name rows, pin each row in its own scoped table and exercise
+duration-swap negatives. Preserve local durations unchanged. Add the third run's exact failed
+head/outcome anchor and require the investigation file as the ninth current-pointer surface.
+No runtime binding, benchmark, deadline, retry, privacy or phase contract changes. D stays open.
+
 ## 2026-09-08 — Resume D closeout on independently accepted repair, not another unchanged rerun
 
 Context: #118's two exact-head runs failed; the owner required a separate repair scope. #119
