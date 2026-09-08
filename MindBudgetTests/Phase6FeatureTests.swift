@@ -510,7 +510,8 @@ struct Phase6FeatureTests {
         let cloudSyncService = CloudSyncService(
             dataActor: controller.dataActor,
             adapterFactory: { _ in cloudSyncProbe.makeAdapter() },
-            retentionStore: retention
+            retentionStore: retention,
+            notificationCenter: NotificationCenter()
         )
         let settings = testSettings()
         settings.firstLaunchCompleted = true
@@ -560,6 +561,7 @@ struct Phase6FeatureTests {
         #expect(session.cloudSyncSnapshot.isEnabled)
         #expect(session.cloudSyncSnapshot.cloudCopyMayExist)
         #expect(cloudSyncProbe.creationCount == 1)
+        await cloudSyncService.stop()
     }
 
     @Test

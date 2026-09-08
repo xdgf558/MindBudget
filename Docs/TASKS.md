@@ -1,5 +1,37 @@
 # TASKS
 
+## 2026-09-07 — Separate UI / synchronization test reliability scope
+
+Status: **Investigation In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
+
+- [x] Separate the investigation branch from #118 and inspect both original failed runs.
+- [ ] Resolve the Chinese AX5 FX activation failure with evidence, without retap/long press.
+  Owner authorized explicit Enable/Cancel buttons on 2026-09-08. Final-source focused local
+  checks passed (17 ordinary/unit plus three isolated FX methods once, with native audits).
+  Complete-local/hosted/independent acceptance is pending; original switch cause remains
+  UNPROVEN, not relabelled as fixed/transient.
+- [ ] Resolve the visible-500 versus budget AX readback discrepancy without weakening validation.
+  The keyboard-Done candidate was withdrawn after violating the existing one-commit UI contract.
+  Current test-only candidate: one Save, no second focus tap, exact independently loaded Settings
+  budget readback. Historical cause/full-validation acceptance remain open.
+- [x] Implement a private notification-source fixture and pass its three focused checks; original sender and full-suite acceptance remain unproven.
+- [x] Extend private sources to all ten explicit synthetic service construction sites; 40 focused checks passed, four physical CloudKit checks skipped and left on their real notification path.
+- [x] Correct TASKS / planning current state to merged #117, separate from Draft #118.
+- [ ] Complete exact-head full local / hosted / native validation and independent review.
+  `2c61da2` hosted `34169377668` failed ordinary AX1→AX5 budget keyboard focus and join,
+  despite FX passing; that failure must be corrected before any acceptance recommendation.
+  New candidate explicitly focuses the budget row's editor from one simultaneous tap;
+  bilingual AX5 outside-editor tests supplement, not replace, the original AX1→AX5 path.
+  Treat the before/after control proof separately from the UNPROVEN original event cause.
+
+`e83017f` hosted `34116397624` passed with author native audit; its default full local run
+failed all three FX methods plus a runner error. The 496.448167 ms benchmark was a partial
+pass only. UI causes remain open; no new full-local acceptance or D completion is claimed.
+
+See `FX_UI_RELIABILITY_INVESTIGATION.md`. No D completion checkbox is earned here. The
+documentation closeout must retain both `34097606992` and `34108994597`; it is not rerun
+merely to obtain another result on unchanged source.
+
 Status values: Todo, In Progress, Blocked, Done.
 A phase may only be marked Done after both `xcodebuild build` and `xcodebuild test` pass.
 
@@ -241,12 +273,14 @@ of the failed event. C's fourth item was held for explicit final phase acceptanc
 not missing simulator coverage or a new physical VoiceOver requirement. PR #116 subsequently
 passed independent review and exact-head hosted/native checks and merged. The owner now explicitly
 accepts C Done and enters D; the current entry below records this authority without erasing the
-original failure's unproven cause. D's CSV/consumer and optional-sync/privacy candidate is now
-implemented in Draft PR #117. Observer-free `8e57283` completed default full-local validation
-exit 0 (217.09825 ms under the unchanged 500 ms ceiling, zero retry, isolated FX host included)
-and hosted `34080624727` success. Evidence synchronization and independent rereview remain
-outstanding before undraft; the original benchmark failure and both hosted non-passes remain
-retained, not relabelled. D's four items remain open. See `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+original failure's unproven cause. D's CSV/consumer and optional-sync/privacy implementation
+merged in PR #117 as `d19c640`, with reviewed head `7e901f2` and hosted `34090503092`.
+That implementation acceptance does not close D. Documentation closeout PR #118 remains
+Draft after `34097606992` and `34108994597` failed; separate investigation PR #119 must
+resolve its own open UI and validation blockers. The earlier `8e57283` local/hosted results
+are historical implementation evidence, not a substitute for closeout's exact-head checks.
+All historical non-passes remain retained. D's four items remain open. See
+`FX_01D_IMPLEMENTATION_EVIDENCE.md` and `FX_UI_RELIABILITY_INVESTIGATION.md`.
 
 Owner-supplied off-platform independent rereview accepted `4554d0e`; hosted run `33823593637`
 passed on that head, and PR #110 merged it as `9322e3b` with that head as second parent.

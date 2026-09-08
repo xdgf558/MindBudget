@@ -322,10 +322,14 @@ Record each of the three hosted FX durations against its unchanged 240-second al
 
 Status: **In Progress — owner entered consumers, CSV, optional sync, and privacy only.**
 
-The CSV/consumer and separate thirteenth-fact sync/privacy source candidate, regression fixtures
-and retained probe outcomes are tracked in `FX_01D_IMPLEMENTATION_EVIDENCE.md`. The interim
-FX/sync guard is replaced by the atomic companion protocol in this unmerged candidate; it is
-not an accepted D completion. Full local/hosted/native validation and independent review remain.
+The CSV/consumer and separate thirteenth-fact sync/privacy implementation merged in PR #117
+as `d19c640`, with reviewed head `7e901f2` and hosted `34090503092`. The merged implementation
+replaces the interim FX/sync guard with the atomic companion protocol; this is not D completion.
+Implementation fixtures and retained outcomes are in `FX_01D_IMPLEMENTATION_EVIDENCE.md`.
+Documentation closeout PR #118 remains Draft after hosted `34097606992` and `34108994597`
+failed. Separate investigation PR #119 has unresolved UI mechanisms and complete-local
+validation failures; see `FX_UI_RELIABILITY_INVESTIGATION.md`. Accepted corrective evidence,
+exact-head validation and independent review are still required before D closeout.
 
 - [ ] Prove budget, reminder, insight, Ask, Dashboard, Log aggregation, category totals, and report
   results are byte-for-byte driven by the locked accounting amount and never revalue history.
