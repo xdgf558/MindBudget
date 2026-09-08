@@ -16,7 +16,20 @@ including the queued Insights income tile and share card. Follow the skill's con
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
 
-Current investigation: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
+Current work: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
+acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
+PR #118 remains Draft after three exact-head non-passes: `34097606992`, `34108994597`,
+`34218693463`. Owner now authorized separate branch `codex/fx-ui-readiness-repair` from
+merged main for Done observation, the Settings final pan and Wishlist single Save. See
+`Docs/FX_UI_READINESS_REPAIR.md`. Candidate/focused checks are not full or hosted acceptance.
+D remains In Progress with four open items; E and Insights income/sharing remain unentered.
+
+### Historical #119 investigation/source-freeze checkpoints (superseded by b364444 acceptance)
+
+The following paragraphs preserve the evidence available before that accepted merge; their
+pending/Draft wording is not the current #119 status. Original causes remain UNPROVEN.
+
+At that checkpoint: PR #117 merged as `d19c640`. Documentation closeout PR #118 remains
 Draft after `34097606992` and `34108994597` failed. Owner authorized the separate
 `codex/fx-ui-reliability` UI / synchronization test investigation from that merged base,
 not helper changes inside #118 or another doc-only rerun. See

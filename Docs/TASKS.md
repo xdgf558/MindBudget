@@ -1,6 +1,26 @@
 # TASKS
 
-## 2026-09-07 — Separate UI / synchronization test reliability scope
+## 2026-09-08 — Separate UI readiness repair after #118's third non-pass
+
+Status: **In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
+
+PR #119 merged as `b364444` after review and full-local/hosted acceptance of `70fc7c1`.
+Its earlier freeze checklist below is historical, not the current validation status.
+Owner authorized `codex/fx-ui-readiness-repair` from that merged main, not edits to #118's
+test helpers. Retain #118 non-passes `34097606992`, `34108994597`, `34218693463`.
+See `FX_UI_READINESS_REPAIR.md` for the original-method evidence and causal limits.
+
+- [x] Inspect the three original failed-method attachments/activity paths separately.
+- [x] Focused validation of final-pan observation with the unchanged twelve-pan cap and strict lane.
+- [x] Focused validation of immediate FX snapshot observation within unchanged three-second deadlines.
+- [x] Focused validation of Wishlist through one safe Save and independent exact saved-value readback.
+- [ ] Freeze the repair head; pass default full local / exact-head hosted / native audit and independent review.
+
+No D completion box is earned here; #118 remains Draft, E/sharing remain unentered.
+The three checked items mean candidate-focused checks only; full-local, hosted and independent
+acceptance are still pending at source freeze, as detailed in `FX_UI_READINESS_REPAIR.md`.
+
+## Historical 2026-09-07/#119 source-freeze checklist — superseded by accepted merge b364444
 
 Status: **Investigation In Progress; FX-01D In Progress; PR #118 Draft; FX-01E unentered.**
 
@@ -276,8 +296,9 @@ accepts C Done and enters D; the current entry below records this authority with
 original failure's unproven cause. D's CSV/consumer and optional-sync/privacy implementation
 merged in PR #117 as `d19c640`, with reviewed head `7e901f2` and hosted `34090503092`.
 That implementation acceptance does not close D. Documentation closeout PR #118 remains
-Draft after `34097606992` and `34108994597` failed; separate investigation PR #119 must
-resolve its own open UI and validation blockers. The earlier `8e57283` local/hosted results
+Draft after `34097606992`, `34108994597` and `34218693463` failed. PR #119 merged its reviewed
+correction as `b364444`, but does not cover #118's third failure. The new separate readiness
+repair is tracked above and in `FX_UI_READINESS_REPAIR.md`. The earlier `8e57283` local/hosted results
 are historical implementation evidence, not a substitute for closeout's exact-head checks.
 All historical non-passes remain retained. D's four items remain open. See
 `FX_01D_IMPLEMENTATION_EVIDENCE.md` and `FX_UI_RELIABILITY_INVESTIGATION.md`.

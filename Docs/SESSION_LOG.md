@@ -1,5 +1,48 @@
 # SESSION_LOG
 
+## 2026-09-08 — Owner starts a separate UI readiness repair from accepted main
+
+Created `codex/fx-ui-readiness-repair` at `b364444` after the owner approved a separate repair
+of #118's third hosted failure, not another documentation-only rerun. #118 stays Draft and
+its uncommitted ledger corrections remain in its own worktree. No D checkbox/Done, E or
+sharing entry. Current status pointers now distinguish accepted #119 from its frozen older
+pending notes; the old evidence remains historical, not erased or rewritten as a pass.
+
+Read the original failed-method attachments/activities from retained `34218693463` ordinary
+and FX bundles. Settings performs twelve pans but omits the last post-pan sample; the final
+original video frame visibly shows the income editor in the unobscured area. FX's one logged
+snapshot satisfies existing Done geometry but no activation follows; the actual waiter result
+and predicate completion were not logged, so its scheduling cause remains UNPROVEN. A bounded
+macOS XCTest probe demonstrates first-callback budget consumption, not the exact hosted cause.
+Wishlist bypasses the shared safe setup; its planned event is not receipt/recognizer evidence.
+Details, reviewer-attributed all-method counts and source-artifact hashes are in
+`FX_UI_READINESS_REPAIR.md`.
+
+Candidate changes only UI-test controls: final observation after at most twelve pans,
+immediate FX observation with strict three-second capture-inclusive deadlines, and Wishlist
+using one safe Save/independent exact readback. New deterministic negative tests keep absent,
+late, invalid and unsafe states failing. Existing product UI, money/date rules, zero retry,
+500 ms benchmark and 240 s FX allowance are unchanged. No Product Design action is needed
+for this test-only repair; no product visuals were redesigned.
+
+Six focused ordinary regressions passed once on a newly created owned iOS 26.5 simulator
+with local Xcode 27 beta 6. Native audit confirms six Passed, no Repetition/extra attempt or
+warning. The isolated FX runner then passed all three methods once (61.229/79.834/58.119 s),
+each bound to its new non-cloned UUID. Native audit retains all three Invalid-frame warnings;
+the runner ownership-checked and removed only that FX simulator. Source remained unchanged.
+Five static gates and `git diff --check` passed. The FX gate retained its existing 1021 copied
+CLI mutations, runtime/identity negatives and 165 privacy-sink mutations. The immediate-poll
+macOS counterpart accepts a 2.1 s sample but rejects a 3.1 s sample under the same 3 s budget.
+Hashes/identities and the causal limits are recorded in the packet.
+
+Freeze this candidate before one default full `Scripts/validate.sh`; record later execution
+against the resulting exact head, without editing source during the run. No full-local,
+hosted 26.6 proof, independent corrective acceptance or phase completion is claimed here.
+Inspection tool failures retained: obsolete app
+dependency alias unavailable; bundled Python has no imageio_ffmpeg. Video extraction used
+public AVFoundation instead, with requested/actual times and its deprecated-API warning
+recorded; original media was untouched. No temporary observer/swizzle was put in the App.
+
 ## 2026-09-08 — Budget-row corrective candidate frozen before full validation
 
 The owner permitted the sanitized #119 evidence update and requested repair before push.

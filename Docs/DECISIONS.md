@@ -1,5 +1,22 @@
 # DECISIONS
 
+## 2026-09-08 — Separate bounded readiness controls after the third #118 failure
+
+Owner authorized a repair branch from merged main, separate from documentation-only #118.
+Use `FX_UI_READINESS_REPAIR.md` for original evidence, precise causal limits and acceptance.
+Correct Settings' omitted observation after its final allowed pan, without increasing twelve
+gestures or relaxing the lane. Replace FX's timer-delayed predicate with immediate snapshot
+observation under the same monotonic three-second deadline, counting capture/classification
+and rejecting late or invalid data. Activate once; only observation may repeat. Reuse the
+accepted single safe Save plus independent saved-budget readback for the Wishlist setup.
+No product UI redesign, extra commit action, retap, long press, wider geometry, larger test
+allowance, retry or new test-only product behavior is authorized. Original FX waiter and
+Wishlist dispatch causes are not retrospectively proven. Keep errors and unknowns visible.
+
+The deterministic observation tests and focused UI checks do not replace default full local
+validation (unchanged 500 ms and isolated FX), exact-head hosted/native and independent review.
+PR #119 acceptance remains scoped to its merged head; #118 remains Draft, D open, E unentered.
+
 ## 2026-09-08 — Candidate explicit budget-row focus, pending corrective acceptance
 
 The owner requested repair before another push to PR #119. Original run `34169377668`
