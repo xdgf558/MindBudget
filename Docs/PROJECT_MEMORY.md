@@ -1,6 +1,11 @@
 # PROJECT_MEMORY
 
-Current investigative scope: Chinese AX5 FX creation duration after #118's fourth non-pass
+Current authorized scope: test-only currency-menu and `revealFX` query repair on separate
+`codex/fx-query-snapshot-repair`; see `FX_QUERY_SNAPSHOT_REPAIR.md`. Four deterministic and three
+isolated FX methods passed locally; complete validation/hosted/review remain pending, not
+corrective acceptance. #118 stays Draft, D's four items open, E/share unentered.
+
+Completed investigative checkpoint: Chinese AX5 FX creation duration after #118's fourth non-pass
 `2ab850a` / `34250759552`. See `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Artifact-only timeline
 locates a 46.953s currency-query interval versus 5.319s in accepted #120; its cause remains
 UNPROVEN. No repair or runtime rerun. #120 was accepted and merged as `10e5b13`; pending

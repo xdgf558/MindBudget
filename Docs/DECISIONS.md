@@ -1,5 +1,15 @@
 # DECISIONS
 
+## 2026-09-09 — Owner authorizes menu/reveal query repair, not a wider allowance
+
+Use one immutable public AX snapshot per menu/viewport observation, unique scoped identifiers,
+and fresh observations after each pan. Retain native currency selection and final interactive
+`isHittable` checks; snapshots alone cannot prove hittability. Preserve ten/fourteen gesture caps,
+strict unobscured geometry and every real FX assertion. Observe the final pan without adding
+another gesture. No timeout/retap/retry/product changes. `FX_QUERY_SNAPSHOT_REPAIR.md` records
+the controls, limitations and complete acceptance gates. Original platform-delay cause stays
+UNPROVEN; #118 remains Draft and D/E/share boundaries do not move.
+
 ## 2026-09-09 — Artifact-only duration investigation before any new repair
 
 Owner authorized separate investigation of #118's fourth failure, not changes to the 240s

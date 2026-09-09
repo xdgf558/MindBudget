@@ -1,5 +1,57 @@
 # SESSION_LOG
 
+## 2026-09-09 — Freeze query-repair candidate after focused acceptance only
+
+Corrected source SHA-256 `e601fd7c1a25d005edb8226ad0484689ccafc10ce6ba63f97e9f6c53cbf7076d`:
+four deterministic methods Passed once (native 4/4, no Repetition); isolated FX three methods
+Passed once on non-cloned `28CE4B3F-9C5F-4CCB-BBA6-4BCE2806EA14`. Stewardship 25.929s, Chinese
+create 55.291s, English 42.272s. Runner exit 0, three binding verification and author native
+audit passed. Three Invalid-frame diagnostics remain. Only local Xcode 27 beta 6 evidence.
+First candidate's three failures remain in `focused-FX` artifacts; corrected run is `focused-FX-2`.
+No historical hosted non-pass is reclassified. No source change after these focused runs.
+
+Money/network/commercialization/StoreKit/full FX static-contract battery and diff checks passed
+earlier in this session. Default complete validation will rerun its full prescribed gates on
+the frozen head, including unchanged 500 ms and fresh FX host, with benchmark-skip/retry/CI
+environment overrides explicitly unset. Current checkbox completion is focused-only, not full.
+No product/script/workflow/project change, push, new PR, #118 modification or phase advancement.
+
+## 2026-09-09 — Begin authorized FX query repair on a separate branch
+
+Owner explicitly authorized currency-menu and `revealFX` repeated-query repair. Preserved the
+previous five investigation documents as local commit `26781e7`, then created
+`codex/fx-query-snapshot-repair`; no push or #118 change. Read current memory/task/decision/session
+and existing FX snapshot/keyboard/viewport contracts. Only UI-test code and documentation change.
+Candidate scopes EUR lookup to the menu snapshot and derives viewport geometry/exclusions from
+one tree per observation; preserves native selection, final hittability, assertions and gesture
+caps. Added missing/ambiguous/unsafe/freshness/cap tests. No performance or acceptance claim yet.
+
+First sandboxed simulator inventory was denied service access (no test ran); reran read-only
+inventory with the proper simulator permission. Four focused deterministic tests are compiling
+on local Xcode 27 beta 6 / iOS 26.5, task-owned source simulator `3D6221D5-39DF-4CD4-ADEE-472B4139F47B`.
+Evidence directory: `/private/tmp/fx-query-repair-evidence.QLBvjN`. Other booted simulators are
+untouched. Default full validation, hosted and independent acceptance remain outstanding.
+
+Focused deterministic result: four selected methods Passed once, exit 0. Native audit independently
+checked one configuration/device `3D6221D5-39DF-4CD4-ADEE-472B4139F47B`, four concrete executions,
+no Repetition. UI-test source SHA-256 `a063993cb70417415d3d5608db9a2e3008194fbbae1823843e2b07b75e45e4cb`.
+The real three-method FX run is now using fresh non-cloned simulator
+`7FFB3B79-F875-4321-B0F3-9321B0012744` through the unchanged runner; no runtime result yet.
+
+First focused FX candidate is retained non-pass: runner exit 1, xcodebuild exit 65, three
+methods Failed once (stewardship 12.681s, Chinese create 23.049s, English 36.764s). The added
+mandatory footer check rejected edit sheets: `FXUITestRoot` places the footer in its presenting
+NavigationStack, while ExpenseDetail opens editing in a sheet. Creation reached the real menu;
+Chinese EUR had an in-window AX frame before live hittability and was incorrectly treated as
+a fatal condition instead of continuing the original bounded pan loop. These are candidate
+regressions, not causes of the old hosted timeout. Original logs/bundle/provenance remain.
+
+Corrected the optional presenting-footer contract (mandatory foreground form/Save remain),
+and only query present menu candidates; if not hittable, keep bounded scrolling with no tap.
+Added deterministic absent-footer and geometry-without-hittability regressions, richer bounded
+frame/lane traces and retained failure screenshots. Next focused run uses changed source,
+not a rerun of the failed candidate; no allowance/gesture-cap or product-code changes.
+
 ## 2026-09-09 — Chinese AX5 creation duration investigation (no repair)
 
 Owner accepted the proposed separate investigation. Created `codex/fx-ax5-create-duration-investigation`

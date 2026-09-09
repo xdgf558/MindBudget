@@ -1,5 +1,18 @@
 # TASKS
 
+## 2026-09-09 — Owner-authorized FX query snapshot repair
+
+Status: **Focused local passed; full-local/hosted/review pending; #118 Draft; D open; E/share unentered.**
+
+- [x] Receive explicit authorization for menu lookup and repeated `revealFX` queries only.
+- [x] Implement scoped snapshots and deterministic fail-closed regression tests.
+- [x] Preserve real three-method FX assertions and pass focused isolated runtime validation.
+- [ ] Freeze a head and pass default full validation (500 ms, 240 seconds, zero retry).
+- [ ] Obtain exact-head hosted/native and independent review before any merge.
+
+`FX_QUERY_SNAPSHOT_REPAIR.md` owns this scope. The completed investigation below is historical;
+its original query-delay cause remains UNPROVEN, and all four #118 failures remain non-pass.
+
 ## 2026-09-09 — Separate FX Chinese AX5 duration investigation
 
 Status: **Artifact investigation complete; original query-delay cause UNPROVEN; no repair acceptance.**
@@ -8,7 +21,7 @@ Status: **Artifact investigation complete; original query-delay cause UNPROVEN; 
 - [x] Derive comparable milestone intervals without double-counting nested activities.
 - [x] Separate the currency-query stall, later viewport work, 240s deadline and failed cleanup.
 - [x] Retain native/log duration discrepancies and timing limits in `FX_AX5_CREATE_DURATION_INVESTIGATION.md`.
-- [ ] Obtain separate authorization before implementing any corrective helper.
+- [x] Obtain separate authorization before implementing any corrective helper (subsequent query-repair scope above).
 
 No fresh test/device, source change, CI rerun, push or phase entry. #120's former pending
 checklists below are historical and were superseded by its accepted merge `10e5b13`.
