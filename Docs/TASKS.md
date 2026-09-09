@@ -4,6 +4,28 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 
 ## 2026-09-09 — Resume independent D closeout after PR #121
 
+The following is the frozen #118 delivery checklist. It was superseded for that delivery by
+owner-authorized merge `237759f` after exact-head `34306711254` and supplied independent review.
+D's original completion obligations were not accepted by that merge.
+
+### Current follow-up — local compatibility supplement
+
+Owner authorized `FX_01D_COMPATIBILITY_TESTS.md` on branch `codex/fx01d-compatibility-tests`.
+
+PR #122 review: `cd373cd` local exit 1 and hosted `34325479518` ordinary/join failure remain
+non-pass. Owner authorized the missing nested-check classification only; new-head complete
+local/hosted/native and independent rereview are required. No product Swift or D/E change.
+
+- [x] Preserve a hash-reversible pre-D codec in the unit-test target only.
+- [x] Add old-format edit/delete and calendar/time-zone positive/negative assertions.
+- [x] Run seven focused tests and inspect native outcomes; do not claim old-binary convergence.
+- [ ] Pass static gates and default complete local validation with existing limits.
+- [ ] Obtain new-head hosted/native evidence and independent review before merge.
+
+No real CloudKit, phase-completion checkbox, E or share entry. The original D four items remain open.
+
+### Historical closeout preparation checkpoint
+
 Status: **Closeout preparation In Progress; PR #118 Draft; D's four items open; E unentered.**
 
 - [x] Accept the separately reviewed #120 readiness/performance repair: exact `705d2a7`,

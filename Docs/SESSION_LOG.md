@@ -2,6 +2,92 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Owner authorizes PR #122 nested-check classification correction
+
+Independent review reports no P1 and one P2: the new compatibility checker was not classified
+in C6's closed repository inventory. Owner explicitly authorizes only that registration,
+complete local validation and push to existing Draft #122, followed by new-head hosted/native
+and independent rereview. Register it as an FX-owned nested check and pin its existing wrapper
+self-test command; do not add work to a completed C6 row or change product/test Swift.
+
+Readback confirms `34325479518` attempt 1 on exact cd373cd completed/failure: ordinary
+102381626168 failed, FX 102381626434 passed, join 102387441459 failed. Preserve that failure
+and local exit 1 (07:39:07–07:41:07 UTC), before Xcode/500 ms/ordinary/isolated FX in the local
+run. The publication receipt below remains historical; its then-in-progress observation and
+local-only wording describe that checkpoint, not today's acceptance. Include it unchanged
+with this correction so the failure has durable provenance, without relabelling any result.
+
+Classification/self-test, frozen new-head default full validation, hosted/native evidence and
+independent review are pending at this checkpoint. No other code, new account/device action,
+undraft/merge, D completion or E/share entry is authorized. Canonical evidence and limits stay
+in FX_01D_COMPATIBILITY_TESTS.md; all historical #118 non-passes remain unchanged.
+
+Preparation checks passed: `c6_release_matrix.py --self-test`, fixture provenance/isolation
+self-test and git diff --check. A read-only patched-read negative probe also confirmed that
+removing or commenting out the nested FX command is rejected, without modifying repository
+files. Product/test Swift, project, existing runtime bindings and full/UI runners are byte-equal
+to cd373cd. Freeze this correction for default complete validation and its own hosted run;
+neither outcome has passed yet at this checkpoint.
+
+## 2026-09-09 — PR #122 publication receipt (post-freeze, local only)
+
+Owner explicitly requested opening the PR. Exact clean source `cd373cd3efde656a26afa9133a3799614de852e6`
+completed default local validation with exit 1, 07:39:07–07:41:07 UTC, at the check-script
+inventory: `Scripts/check_fx_compatibility_fixture.py` is unclassified. This retained non-pass
+occurred before this invocation's Xcode build/test, 500 ms benchmark, ordinary and isolated FX
+host. The prior seven-method focused/native pass is not complete validation. Do not weaken the
+classification gate or retry the unchanged head to seek green. Fix/verification remains open.
+
+Pushed the frozen head without source changes and created OPEN/Draft PR #122. The public body
+prominently records the blocker, exact head/timing, bounded focused evidence and all unexecuted
+compatibility limits without private machine paths. Readback confirms cd373cd and isDraft=true.
+Hosted `34325479518` attempt 1 is in progress on that exact head; no hosted/native acceptance
+is claimed. Initial un-escalated GitHub query was sandbox-network denied; authorized query and
+publication succeeded. This log entry remains local/uncommitted to preserve the reviewed SHA.
+D's four completion boxes remain open; no D Done, E/share, account operation, undraft or merge.
+
+## 2026-09-09 — Owner enters local FX-01D compatibility supplement
+
+Created separate worktree/branch `codex/fx01d-compatibility-tests` from fetched main `237759f`;
+verified #118 merge parents `039ecdf` and reviewed `3edffa3`. Existing post-merge local notes in
+other worktrees are untouched. The owner supplied no-P1/P2 review and exact `34306711254`
+ordinary/FX/join/native acceptance for #118; this is not a fresh audit or D completion.
+
+Read current durable scope, D plan/closeout, privacy/sync contract and actual codecs/actors/tests.
+Added a hash-reversible frozen pre-D codec, six test methods and exact-once runtime bindings,
+test-target provenance gate and bounded calendar matrix. No product Swift, synchronization
+rule, schema, UI, money arithmetic, model/provider, account setting or workflow changed.
+Actual imports retain process Calendar.current; explicit 16-calendar boundary checks are not
+16 configured receiver processes. Old-format contradictory edits remaining pending are safety,
+not convergence. Frozen codec execution is not a physical old/new app pair.
+
+Preparation retained errors: one lookup used nonexistent Docs/ICLOUD_SYNC_CONTRACT.md; the
+actual contract under Docs/Commercialization was located and read. Fixture self-test initially
+found a wrong-build-phase escape in its own Sources-only checker; scan expanded to all phases
+and the same mutation is now rejected. Focused simulator build/test started with original log
+and result bundle retained; outcome pending. Full local/hosted/native/review not yet earned.
+Canonical supplement: `FX_01D_COMPATIBILITY_TESTS.md`. D stays In Progress/four boxes open;
+E/share unentered. No live account/device/delete operation or automatic PR/merge authorization.
+
+Preparation results: initial six focused methods Passed once; added the positive old-codec
+note-only edit control so blanket blocking cannot masquerade as compatibility, then seven
+methods Passed once on final test source `52a7943c...cb73e`. Native tree/detail audits confirm
+seven Passed, no skipped/failed/extra attempts. These are local Xcode 27 beta 6/iOS 26.5;
+no hosted or independent approval. The 96 current-actor imports and 1,536 explicit calendar
+comparisons passed; no product calendar defect was reproduced or claimed repaired.
+
+First FX static pass rejected displaced current-closeout pointers in this log and DECISIONS;
+restored header placement, then FX/commercialization/StoreKit gates passed. No gate weakening.
+The last added seventh binding remains subject to the default complete validator. Initial
+xcresult read hit the sandbox's derived TestReport-cache restriction; escalated read succeeded
+without rerunning tests. Read-only ps was also sandbox-denied; escalated process inspection
+confirmed no stale static run. A preparation receipt patch had stale context and was rejected
+without edits; corrected its context. Raw logs and artifact/hash attribution are in the supplement.
+
+Freeze this local test-only candidate, then run default complete validation with 500 ms,
+zero retry and isolated FX host. Results remain pending at freeze; no push/PR/merge or D/E
+transition is claimed. The other worktrees' dirty post-merge notes are preserved unchanged.
+
 ## 2026-09-09 — Resume #118 after explicitly accepted and merged #121
 
 Owner authorizes returning to independent documentation closeout, not D Done or E/share.

@@ -41,6 +41,13 @@ FIXED_COMMERCE_FIXTURE = """enum FXUIFixtureAccess {
 }
 """
 UNIT_BINDINGS = (
+    "ForeignCurrencyCompatibilityTests/frozenTwelveTypeCodecAcceptsUnchangedParentAndRejectsCompanion",
+    "ForeignCurrencyCompatibilityTests/oldCodecAuthoredOrdinaryEditImportsWithoutInventingFX",
+    "ForeignCurrencyCompatibilityTests/oldCodecContradictoryEditStaysPendingAcrossReopenWithoutRevaluation",
+    "ForeignCurrencyCompatibilityTests/oldCodecParentTombstoneDeletesBothFactsAndReplayCannotResurrectThem",
+    "ForeignCurrencyCompatibilityTests/oldCodecCompatibleNoteEditAppliesWithoutDroppingRetainedFX",
+    "ForeignCurrencyCompatibilityTests/savedDayHasExactCrossCalendarBoundariesWithoutAssumingFixedDayLength",
+    "ForeignCurrencyCompatibilityTests/everySenderCalendarRoundTripsThroughActualCurrentReaderAndCorruptDateQuarantines",
     "ForeignCurrencyMigrationTests/v1ThroughV6PreserveEverySeededFieldAcrossMigrationAndRestartWithoutInventingFX",
     "ForeignCurrencyMigrationTests/v7ForeignTupleSurvivesDiskReopenAndDeleteAll",
     "ForeignCurrencyMigrationTests/knownLegacyJournalsRestoreBeforeV7AndUnknownTargetsRemainClosed",
