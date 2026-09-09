@@ -327,10 +327,11 @@ Status: **In Progress — owner entered consumers, CSV, optional sync, and priva
 PR #117 merged the CSV/consumer and separate thirteenth-fact protocol after independent
 implementation approval of `7e901f2`, hosted `34090503092` success and merge `d19c640`.
 The owner resumes separate documentation closeout after accepted repairs #119 (`70fc7c1`,
-hosted `34182518433`, merge `b364444`) and #120 (`705d2a7`, hosted `34241669738`, merge `10e5b13`).
-#118's `34097606992`, `34108994597` and `34218693463` remain non-pass. Import the accepted
+hosted `34182518433`, merge `b364444`), #120 (`705d2a7`, hosted `34241669738`, merge `10e5b13`),
+and #121 (`689b932`, hosted `34302080136`, merge `039ecdf`). #118's `34097606992`,
+`34108994597`, `34218693463` and `34250759552` remain non-pass. Import the accepted
 changed runtime baseline; this closeout still requires its own exact-head CI/native review,
-not another unchanged rerun or reuse of #120 green. This is not E or D Done. `FX_01D_CLOSEOUT.md`
+not another unchanged rerun or reuse of #121 green. This is not E or D Done. `FX_01D_CLOSEOUT.md`
 maps each unchanged obligation below to concrete evidence and limits, including legacy-peer
 and cross-calendar sufficiency still needing independent assessment. All four boxes stay open
 until explicit final acceptance; this does not turn synthetic fixtures into real CloudKit proof.

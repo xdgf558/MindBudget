@@ -48,6 +48,8 @@ D_CLOSEOUT_CONTEXT = (
     "Docs/FX_UI_RELIABILITY_INVESTIGATION.md",
     "Docs/FX_UI_READINESS_REPAIR.md", "Docs/DASHBOARD_FIRST_LOAD_REPAIR.md",
     "Docs/DASHBOARD_FIRST_LOAD_INVESTIGATION.md",
+    "Docs/FX_AX5_CREATE_DURATION_INVESTIGATION.md", "Docs/FX_QUERY_SNAPSHOT_REPAIR.md",
+    "Docs/WORKER_DEPENDENCY_AUDIT_REPAIR.md",
 )
 D_CLOSEOUT_ANCHORS = (
     "Reviewed head: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
@@ -82,7 +84,8 @@ D_CLOSEOUT_NON_PASS_ANCHORS = (
     "Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.",
     "Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.",
     "Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.",
-    "None of the three closeout failures is transient, waived, or relabelled by the accepted #119 or #120 repairs.",
+    "Closeout retained non-pass: `34250759552` / `2ab850a5dcd77d90b7d088856b97b003fc9619d3`; attempt 1; ordinary succeeded; FX and join failed.",
+    "None of the four closeout failures is transient, waived, or relabelled by the accepted #119, #120 or #121 repairs.",
 )
 D_CLOSEOUT_REPAIR_TIMINGS = (
     "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 81.518 | Passed once |",
@@ -105,10 +108,27 @@ D_CLOSEOUT_SECOND_REPAIR_ANCHORS = (
     *D_CLOSEOUT_SECOND_REPAIR_TIMINGS,
 )
 D_CLOSEOUT_CURRENT_ANCHORS = (
-    "Current acceptance: **RESUMED_AFTER_PR120_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.",
+    "Current acceptance: **RESUMED_AFTER_PR121_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.",
+)
+D_CLOSEOUT_THIRD_REPAIR_TIMINGS = (
+    "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 83.923 | Passed once |",
+    "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 107.546 | Passed once |",
+    "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 65.284 | Passed once |",
+)
+D_CLOSEOUT_THIRD_REPAIR_ANCHORS = (
+    "Third repair reviewed head: `689b932011ff48e4bd952c41558eaa9182bef5d5`.",
+    "Third repair hosted run: `34302080136`; attempt 1; ordinary, FX and join succeeded.",
+    "Third repair merge commit: `039ecdfaa48c6cfac407aa375498024681afed32`.",
+    "Third repair merge second parent: `689b932011ff48e4bd952c41558eaa9182bef5d5`.",
+    "Third repair full-local runtime head: `689b932011ff48e4bd952c41558eaa9182bef5d5`; default validate exit 0.",
+    "Third repair strict benchmark: 180.427333 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Third repair does not relabel the fourth #118 failure or prove the original 46.953s query cause.",
+    "Third repair retained non-pass: `34298810822` / `4086c59b7ab2a2554ccc1911ecee8e69482d35e3`; attempt 1; ordinary and join failed; FX passed.",
+    *D_CLOSEOUT_THIRD_REPAIR_TIMINGS,
 )
 D_CLOSEOUT_SECTIONS = (
     ("# FX-01D independent post-merge closeout", D_CLOSEOUT_CURRENT_ANCHORS),
+    ("## Accepted third corrective repair provenance", D_CLOSEOUT_THIRD_REPAIR_ANCHORS),
     ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_ANCHORS),
     ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
     ("## Accepted corrective repair provenance", D_CLOSEOUT_REPAIR_ANCHORS),
@@ -1092,6 +1112,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 reject_section_change(D_CLOSEOUT_FILE, heading, anchor, anchor + "\n" + anchor)
                 if anchors in (D_CLOSEOUT_REPAIR_ANCHORS, D_CLOSEOUT_NON_PASS_ANCHORS,
                                D_CLOSEOUT_REPAIR_TIMINGS, D_CLOSEOUT_SECOND_REPAIR_ANCHORS,
+                               D_CLOSEOUT_THIRD_REPAIR_ANCHORS,
                                D_CLOSEOUT_CURRENT_ANCHORS):
                     reject_section_change(
                         D_CLOSEOUT_FILE, heading, anchor,
@@ -1100,6 +1121,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         for heading, timings in (
             ("## Accepted repair hosted FX duration mapping", D_CLOSEOUT_REPAIR_TIMINGS),
             ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_TIMINGS),
+            ("## Accepted third corrective repair provenance", D_CLOSEOUT_THIRD_REPAIR_TIMINGS),
         ):
             for index, row in enumerate(timings):
                 duration = row.split("|")[2].strip()

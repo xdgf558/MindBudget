@@ -6,17 +6,72 @@ The owner authorized this separate documentation closeout after PR #117 merged. 
 canonical record; other current-state documents point here rather than copying the evidence
 table. Author evidence checking is not a second independent source review. This documentation
 PR's diff against accepted main changes no product Swift, UI helper, threshold or retry policy
-and authorizes no model request or CloudKit activation. Its own hosted tests failed three times below.
-The owner now resumes #118 after the separately reviewed #119 and #120 repairs merged into main. Main is
+and authorizes no model request or CloudKit activation. Its own hosted tests failed four times below.
+The owner now resumes #118 after the separately reviewed #119, #120 and #121 repairs merged into main. Main is
 merged into this branch without reimplementing its repair; the remaining diff is documentation
 and fail-closed evidence gates only. New exact-head evidence and independent rereview remain
-required before any merge. Neither repair's green is this closeout's own green.
+required before any merge. None of those repairs' greens is this closeout's own green.
 
-Current acceptance: **RESUMED_AFTER_PR120_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.
-The three failed closeout heads remain non-pass. The independently accepted #120 correction
+Current acceptance: **RESUMED_AFTER_PR121_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.
+The four failed closeout heads remain non-pass. The independently accepted #121 correction
 now supplies a changed runtime baseline; importing that merged baseline is not an unchanged
 head rerun or a new helper fix inside this documentation PR. This resumed head still needs
 its own ordinary/FX/join green, native audit and independent review. D is not Done.
+
+## Accepted third corrective repair provenance
+
+Third repair reviewed head: `689b932011ff48e4bd952c41558eaa9182bef5d5`.
+Third repair hosted run: `34302080136`; attempt 1; ordinary, FX and join succeeded.
+Third repair merge commit: `039ecdfaa48c6cfac407aa375498024681afed32`.
+Third repair merge second parent: `689b932011ff48e4bd952c41558eaa9182bef5d5`.
+Third repair full-local runtime head: `689b932011ff48e4bd952c41558eaa9182bef5d5`; default validate exit 0.
+Third repair strict benchmark: 180.427333 ms; unchanged ceiling 500 ms; zero retry; FX host included.
+Third repair does not relabel the fourth #118 failure or prove the original 46.953s query cause.
+
+[PR #121](https://github.com/xdgf558/MindBudget/pull/121) merged at 2026-09-09T03:03:52Z
+after owner-supplied independent no-P1/P2 review and explicit ready/merge authorization.
+Direct API checks verified run/head/attempt/conclusion and merge parents: first parent `10e5b13`,
+second parent above. Independent native findings here are attributed to that supplied review,
+not an invented GitHub approval event or a new author audit of every old artifact.
+
+Accepted query controls use scoped currency-menu snapshots and one immutable `revealFX`
+geometry observation per iteration, then retain native selection/final hittability checks.
+Ten/fourteen pan caps, single activation, actual input/save/detail assertions and 240s remain.
+They reduce redundant queries, not prove or guarantee platform latency. The accepted separate
+dependency commit scopes Miniflare's sharp override to 0.35.4 in both Workers and patches
+PublicConfiguration Vitest to 4.1.11; no audit threshold/runtime/Worker source change.
+Keep that temporary override until a compatible upstream chain uses patched sharp and passes
+the unchanged checks without it. No new helper or dependency edit is made inside #118.
+
+| Evidence on 689b932 only | Result and attribution |
+| --- | --- |
+| Complete local | Default validate exit 0, 2026-09-09 02:09:33–02:35:12 UTC; local Xcode 27 beta 6 / iOS 26.5. Strict benchmark 180.427333ms / 500ms, ordinary 625 Passed / 17 Skipped; lockfile hashes match the runtime head. User-supplied independent review; original receipt/log/provenance rechecked here. Not a new local run on this closeout head. |
+| Local FX | Three methods Passed once on fresh non-cloned `CA5D9B29-41A7-42F0-A395-FD3141CD7113`; stewardship/create-zh/create-en 27.814 / 56.039 / 42.367s. |
+| Hosted metadata | Xcode 26.6 / iOS 26.5; ordinary `102310924915`, FX `102310924614`, join `102319725282` success; artifacts ordinary `10086307270`, FX `10085644601`. Both Worker `npm audit --audit-level=high` and `npm run check` passed before Xcode. |
+| Hosted native | Supplied independent audit: ordinary 625 Passed / 17 Skipped, no Repetition, 49 FX unit bindings once and 23 C6 bindings. All three new deterministic tests Passed; isolated FX methods correctly skipped in ordinary. Ordinary UUID `89E13B97-6725-4686-9B76-3AFE61050F38`. FX three Passed once on non-cloned `C416519E-8F2C-4AEB-AE2E-2630E59D8A8C`, repository verifier device-bound. Reader used local Xcode 27 beta 6 for hosted 26.6 artifacts, not a hosted rerun. |
+
+| Hosted FX method | Seconds | Result |
+| --- | ---: | --- |
+| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 83.923 | Passed once |
+| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 107.546 | Passed once |
+| `testManualForeignCurrencyEnglishProCreateAndDetail` | 65.284 | Passed once |
+
+Three Invalid-frame warnings remain. 107.546s is an observation on this accepted head,
+not a rewriting of #118's 240s timeout or a forecast for the new closeout head.
+Local full-log SHA-256: `a3830e33461894acaca7fbefa7a69c8b7eb9105cd084417636bf3341b75f5e82`.
+Local FX provenance SHA-256: `71c412aa4edc46055e264aa040865eac8526aa29a9f925c8577a29dc521e4ba8`.
+Raw local prefix is `/private/tmp/worker-audit-repair.ZIgNda`; hashes are not remotely accessible artifacts.
+Both local audit JSON reports show zero vulnerabilities (13 PublicConfiguration tests,
+35 Telemetry tests plus 8 evidence checks); full `validate.sh` itself does not run npm audit.
+
+Retain the intermediate #121 non-pass separately from #118's four-run ledger:
+Third repair retained non-pass: `34298810822` / `4086c59b7ab2a2554ccc1911ecee8e69482d35e3`; attempt 1; ordinary and join failed; FX passed.
+Ordinary failed at the high-severity Worker audit before Xcode, not an ordinary test failure;
+no ordinary xcresult exists, upload failed and Telemetry audit was skipped. Old FX UUID
+`4460E94D-7A79-40F0-A0D4-06778C13061B` and 121.980/100.849/73.399s cannot substitute for 689b932.
+Source-freeze pending #121 checklists are historical; this accepted chain supersedes their
+current status but never changes their old execution head. The first local prototype non-pass
+and all earlier packets remain intact. This third repair is not #118 acceptance or D Done.
 
 ## Accepted second corrective repair provenance
 
@@ -127,7 +182,22 @@ against matching an unlabeled sequence of numbers with the wrong methods.
 Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.
 Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.
 Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.
-None of the three closeout failures is transient, waived, or relabelled by the accepted #119 or #120 repairs.
+Closeout retained non-pass: `34250759552` / `2ab850a5dcd77d90b7d088856b97b003fc9619d3`; attempt 1; ordinary succeeded; FX and join failed.
+None of the four closeout failures is transient, waived, or relabelled by the accepted #119, #120 or #121 repairs.
+
+Fourth-run jobs: ordinary `102144301398` success, FX `102144301907` and join `102160721420`
+failure; artifacts ordinary `10067720558`, FX `10066839243`. Exact head/outcome checked
+directly; the native findings are attributed to the supplied independent review.
+Chinese AX5 create/detail exceeded the unchanged 240s allowance, total method duration
+316.533s (`Test exceeded execution time allowance of 4 minutes`). At about 239s it still
+queried fx.preview / expense.save; deferred termination also failed at line 51. Cleanup
+failure is not established as the originating cause. Stewardship 101.004s and English
+140.238s Passed. Three methods each once, non-cloned `34650A96-F547-49BC-BC3B-60EFE0244DEF`,
+three Invalid-frame diagnostics; the UI bundle verifier correctly rejects the failed method.
+Ordinary 622 Passed / 17 Skipped / 0 Failed, 631 concrete Passed, 49 FX bindings once;
+pseudo-long 120.557s, Wishlist 58.593s, AX5 ExtraLarge 203.032s passed without admitting FX/join.
+The separate investigation found a 46.953s query interval; original cause remains UNPROVEN.
+No documentation-jitter label, allowance increase, retry or unchanged-head acceptance rerun.
 
 Third-run jobs: ordinary `102036452111`, FX `102036451825`, join `102050557510`; original
 artifacts ordinary `10054527101` and FX `10053466531`. GitHub metadata and original job logs
@@ -297,7 +367,8 @@ callers outside the repaired path, fx.mode/fx.accounting.format copy, duplicate 
 and the dead isFinite branch. The old 0.75 switch point is retired by #119's explicit FX
 buttons, not certified as reliable. Settings budget rows lack BudgetSetup's whole-row focus.
 The #119 repair's hosted Chinese FX create used 153.332s / 240s; failed #118 run
-`34218693463` used 195.580s / 240s; #120 used 183.322s / 240s (56.678s margin).
+`34218693463` used 195.580s / 240s; #120 used 183.322s / 240s (56.678s margin),
+the fourth #118 run exceeded 240s, and accepted #121 used 107.546s / 240s.
 These observations do not guarantee future runner latency. Three Invalid frame warnings remain.
 `makeBudgetSaveReady` still uses `0..<12` without a final post-pan observation; #120 corrected
 only `revealBudgetField`. Keep this maintenance debt; no additional helper change in #118.

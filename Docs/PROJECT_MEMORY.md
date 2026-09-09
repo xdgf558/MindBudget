@@ -2,6 +2,30 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+Current authorized scope: resume #118 documentation closeout after reviewed #121 merged as
+`039ecdf` with `689b932` as second parent, full local exit 0 (180.427333ms / 500ms) and hosted
+`34302080136` attempt 1/native/independent acceptance. `FX_01D_CLOSEOUT.md` owns the chain.
+Keep all four #118 failures. This head needs its own CI/native audit and review; D's four
+items stay open, E/share unentered. No product/test/runtime edit relative to accepted main.
+
+## Historical #121 source-freeze checkpoint — superseded by accepted merge 039ecdf
+
+At that checkpoint, authorized scope was to repair both Worker dependency audits in a separate commit on
+PR #121 (`codex/fx-query-snapshot-repair`), without changing the FX query helper. See
+`WORKER_DEPENDENCY_AUDIT_REPAIR.md`. Hosted `34298810822` on `4086c59` failed ordinary before
+Xcode and failed join; FX passed. Retain that non-pass. The old complete local pass
+(190.020375 ms / 500 ms, ordinary 625/17, isolated FX 3/3) does not cover the new dependency head.
+Both Worker audit/check commands now pass locally; new-head full local, hosted/native and review
+remain required, not corrective acceptance.
+#118 stays Draft, D's four items open, E/share unentered.
+
+Completed investigative checkpoint: Chinese AX5 FX creation duration after #118's fourth non-pass
+`2ab850a` / `34250759552`. See `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Artifact-only timeline
+locates a 46.953s currency-query interval versus 5.319s in accepted #120; its cause remains
+UNPROVEN. No repair or runtime rerun. #120 was accepted and merged as `10e5b13`; pending
+Dashboard/readiness text below is retained source-freeze history, not current acceptance.
+#118 stays Draft, all four non-passes retained; D's four items open, E/share unentered.
+
 ## Product
 
 MindBudget V1 is an iPhone-only, local-first budgeting coach. Its core purpose is to
@@ -13,7 +37,7 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
-Current authorized work: resume independent documentation closeout #118 after accepted #120
+Historical closeout checkpoint before the fourth non-pass: resume #118 after accepted #120
 merged reviewed `705d2a7` as `10e5b13` (second parent verified), with complete local exit 0
 (194.901083ms / unchanged 500ms), hosted `34241669738` attempt 1 success and independent
 native/no-P1/P2 acceptance. `FX_01D_CLOSEOUT.md` owns the exact evidence and remaining limits.
@@ -21,9 +45,14 @@ Import accepted main without new product/test changes; obtain this closeout head
 native audit and independent review. Keep all three #118 failures and original UNPROVEN causes.
 D's four items stay unchecked, D In Progress; E and Insights income/sharing remain unentered.
 
+Historical scope (accepted in #120 / `10e5b13`): owner entered the Dashboard storage-projection performance repair.
+`DASHBOARD_FIRST_LOAD_REPAIR.md` supersedes the investigation-only scope for implementation,
+not its UNPROVEN historical cause or retained 883.249166 ms non-pass. Keep full data, validation,
+500 ms and all full-local/hosted/review gates. #118 remains Draft; D/E are unchanged.
+
 ### Prior investigative checkpoint (before repair authorization)
 
-Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
+Historical investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
 separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
 at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
 `DASHBOARD_FIRST_LOAD_INVESTIGATION.md` owns diagnosis only; no product optimization, waiver,
@@ -42,7 +71,7 @@ does not authorize parallel phase implementation or deployment.
 
 ### Historical main-side checkpoints (before #120 acceptance)
 
-Current work: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
+Historical readiness checkpoint, superseded by #120 and the current scope above: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
 acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
 PR #118 remains Draft after three exact-head non-passes: `34097606992`, `34108994597`,
 `34218693463`. Owner now authorized separate branch `codex/fx-ui-readiness-repair` from

@@ -2,6 +2,17 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Resume #118 on accepted #121 without changing the D completion boundary
+
+Owner authorized independent documentation closeout after #121's explicit merge `039ecdf`.
+Import that accepted main tree; do not reimplement query/dependency repairs inside #118.
+Preserve four failed closeout heads plus #121's intermediate Worker audit non-pass, and bind
+the third repair's exact head/run/second-parent/benchmark/method timings to its own canonical
+section. Exercise omission, duplication, historical displacement and method-timing swaps using
+the existing copied-CLI gate. Add current pointers to all three #121 packets.
+This closeout still needs its own CI/native review. No D checkbox/Done, E entry, waiver of
+mixed-version/cross-calendar/real CloudKit evidence, deployment or automatic merge is authorized.
+
 ## 2026-09-09 — Resume #118 only on the independently accepted #120 baseline
 
 Owner authorized returning to independent D documentation closeout after PR #120 merged
@@ -47,6 +58,37 @@ displacement negatives. No runtime binding, retry, 500ms ceiling, 240s allowance
 sink gate or phase JSON change. The resumed #118 needs its own exact-head hosted/native audit
 and independent review; neither #117 nor #119 green can substitute. Unexecuted mixed-version
 CloudKit/cross-calendar requirements are neither waived nor silently moved into E.
+
+## 2026-09-09 — Narrow Worker dependency security repair, no audit waiver
+
+Owner authorizes fixing both Worker audit chains and pushing a separate commit to #121.
+As checked on npm, latest Miniflare `5.20260908.0-alpha` still pins sharp `0.35.2`;
+do not downgrade Wrangler/test adapters as `npm audit fix --force` suggests. Use the root
+`overrides.miniflare.sharp = "0.35.4"` in both projects and regenerate npm lockfiles.
+PublicConfiguration Vitest moves from 4.1.10 to 4.1.11 (including matching sibling packages)
+to remove the moderate mocker advisory as well. Keep Wrangler/Miniflare/workerd and Worker
+source/configuration unchanged. Retire the override only after an upstream compatible chain
+pins patched sharp and both audits/checks pass without it. See `WORKER_DEPENDENCY_AUDIT_REPAIR.md`
+for exact versions, primary advisories, retained failure and new-head acceptance obligations.
+
+## 2026-09-09 — Owner authorizes menu/reveal query repair, not a wider allowance
+
+Use one immutable public AX snapshot per menu/viewport observation, unique scoped identifiers,
+and fresh observations after each pan. Retain native currency selection and final interactive
+`isHittable` checks; snapshots alone cannot prove hittability. Preserve ten/fourteen gesture caps,
+strict unobscured geometry and every real FX assertion. Observe the final pan without adding
+another gesture. No timeout/retap/retry/product changes. `FX_QUERY_SNAPSHOT_REPAIR.md` records
+the controls, limitations and complete acceptance gates. Original platform-delay cause stays
+UNPROVEN; #118 remains Draft and D/E/share boundaries do not move.
+
+## 2026-09-09 — Artifact-only duration investigation before any new repair
+
+Owner authorized separate investigation of #118's fourth failure, not changes to the 240s
+allowance, retries, UI helpers or product. Compare exact original Chinese create method on
+`34250759552` with accepted `34241669738`; distinguish activity marker intervals from API
+CPU time and cleanup/native duration fields. Read existing artifacts without a runtime rerun.
+The report identifies delay location but leaves the query's original cause UNPROVEN. A future
+snapshot/query correction needs separate authorization and complete acceptance gates.
 
 ## 2026-09-08 — Owner enters complete-projection performance repair
 

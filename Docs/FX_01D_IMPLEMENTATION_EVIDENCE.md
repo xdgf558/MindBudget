@@ -5,9 +5,10 @@ Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In 
 Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
 
 Current closeout checkpoint: #118 resumes after separately accepted #119 (`70fc7c1` /
-`34182518433` / `b364444`) and #120 (`705d2a7` / `34241669738` / `10e5b13`). Both have
+`34182518433` / `b364444`), #120 (`705d2a7` / `34241669738` / `10e5b13`) and #121
+(`689b932` / `34302080136` / `039ecdf`). All have
 exact-head complete-local, hosted/native and independent corrective acceptance. #118 failed
-runs `34097606992`, `34108994597` and `34218693463` remain non-pass. #120 changes the runtime
+runs `34097606992`, `34108994597`, `34218693463` and `34250759552` remain non-pass. #121 changes the runtime
 baseline; its inherited controls are not a helper repair inside this documentation PR.
 Original causes remain UNPROVEN. This closeout's own evidence is still pending.
 See `FX_01D_CLOSEOUT.md` for provenance and sufficiency limits. #118 needs its own new exact-head
