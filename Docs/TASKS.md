@@ -2,13 +2,28 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## Current follow-up — Dashboard read/map Draft review candidate
+
+Owner authorized controlled optimization, then requested its own Draft PR. See
+DASHBOARD_READ_MAP_OPTIMIZATION.md. The main-based delivery excludes #123 probe/signing changes.
+
+- [x] Preserve the 701.230625 ms non-pass and both investigative observations; original cause UNPROVEN.
+- [x] Retain one candidate after controlled preliminary/path-verified ABBA; withdraw all probes.
+- [x] Preserve 88 focused/native checks and six static gates as experiment-tree evidence only.
+- [x] Owner authorized independent Draft publication of the unchanged two-file patch and evidence.
+- [ ] Pass default complete local validate.sh on the new frozen head: unchanged 500 ms, zero retry,
+  ordinary plus isolated FX UI; obtain that head's hosted ordinary/FX/join and native audit.
+- [ ] Obtain independent review and explicit later ready/merge authorization.
+
+Publication is not acceptance, #123 integration/undraft, D checkbox/Done, E/share or phone/cloud authorization.
+
 ## 2026-09-09 — Resume independent D closeout after PR #121
 
 The following is the frozen #118 delivery checklist. It was superseded for that delivery by
 owner-authorized merge `237759f` after exact-head `34306711254` and supplied independent review.
 D's original completion obligations were not accepted by that merge.
 
-### Current follow-up — local compatibility supplement
+### Historical #122 source-freeze follow-up — local compatibility supplement
 
 Owner authorized `FX_01D_COMPATIBILITY_TESTS.md` on branch `codex/fx01d-compatibility-tests`.
 

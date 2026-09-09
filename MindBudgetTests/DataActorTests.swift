@@ -699,6 +699,41 @@ struct DataActorTests {
 
 struct ExpenseSummaryIdentityTests {
     @Test
+    func dirtyLargeProjectionKeepsPendingChangesAndReturnsToCleanEnumeration() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let fixtures = try (0..<5_002).map { try projectionFixture(index: $0) }
+        try await ExpenseProjectionSeeder(modelContainer: controller.container).seed(fixtures)
+        let actor = controller.dataActor
+        let draft = try projectionFixture(index: 5_002)
+        let edited = try projectionFixture(index: 5_002, id: draft.id, amountMinorUnits: 9_876)
+        let saved = fixtures.reversed().map(projectionExpectation)
+        let phases = try await actor.exerciseUnsavedProjection(draft, editedAmount: edited.amount.minorUnits)
+        #expect(phases == [[projectionExpectation(draft)] + saved,
+                           [projectionExpectation(edited)] + saved, saved])
+        #expect(try await actor.fetchExpenseSummaries() == saved)
+    }
+
+    @Test
+    func batchedProjectionPreservesEveryFieldAndSortAcrossBatchBoundary() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let fixtures = try (0..<5_002).map { try projectionFixture(index: $0) }
+        try await ExpenseProjectionSeeder(modelContainer: controller.container).seed(fixtures)
+        #expect(try await controller.dataActor.fetchExpenseSummaries() == fixtures.reversed().map(projectionExpectation))
+    }
+
+    @Test
+    func batchedProjectionThrowsExactErrorBeyondFirstBatch() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let fixtures = try (1...5_000).map { try projectionFixture(index: $0) }
+        let bad = try projectionFixture(index: 0)
+        let seeder = ExpenseProjectionSeeder(modelContainer: controller.container)
+        try await seeder.seed(fixtures)
+        try await seeder.seed([bad], corruptedFields: ["currencyCode", "sourceRaw"])
+        let expected = PersistedModelError.unsupportedCurrency(entity: "Expense", id: bad.id, currencyCode: "invalid")
+        await #expect(throws: expected) { _ = try await controller.dataActor.fetchExpenseSummaries() }
+    }
+
+    @Test
     func everySummaryFieldAndDetailSurviveDiskReopen() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("SummaryIdentity-\(UUID().uuidString)", isDirectory: true)
