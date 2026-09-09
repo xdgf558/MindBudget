@@ -2,6 +2,40 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Owner requests independent Dashboard read/map Draft PR
+
+Prior controlled work was isolated from #123 on a bedac7f-based experiment branch. Preliminary
+ABBA was 223.308750 / 179.797500 / 259.511875 / 284.593625 ms; then a written addendum added
+actual-path readback to both branches before one more fixed ABBA. Verified A/B/B/A paths were
+baseline/enumerate5000/enumerate5000/baseline, durations 591.891584 / 309.220667 / 489.055542 /
+584.168708 ms (32.123% mean gain). First round remains preliminary; no best-run selection.
+Native one Passed per comparison means equivalence/path assertions, not the 500 ms gate.
+All selectors/path records/duplicate baseline/comparison methods were withdrawn afterward.
+Uninstrumented experiment tree: 88 focused methods each Passed once (24 DataActor, 7 identity,
+one original 10,000-row projection, 56 FX unit), no Repetition/extra attempt; existing unit
+verifier and six static gates passed. Two dirty-state teardown diagnostics remain recorded.
+Default full local, isolated FX UI and hosted were not run for this optimization candidate.
+
+Owner now authorizes publication, not ready/merge. Remote main is ba14647; #123 is still Draft
+at bedac7f. Their original product/test/project sources are byte-identical. Created separate
+codex/dashboard-read-map-optimization from main and applied only the two-file retained patch
+and evidence documents. Do not carry #123's 20-file CloudKit probe/signing changes into this PR.
+Initial unified-hunk conversion was rejected without changes; corrected the patch format.
+Final DataActor/DataActorTests SHA-256 match the experiment receipt exactly. Both original
+worktrees and their local changes are preserved. Public notes contain no local evidence paths,
+credentials, profiles, personal device identifiers or signed artifacts.
+
+This source-freeze publication record does not preapprove CI or default complete validation.
+New head requires its own full local (500 ms, zero retry, ordinary and isolated FX), hosted
+ordinary/FX/join, native audit and independent review. Keep the original 701.230625 ms exit 65,
+both slower diagnostic observations and UNPROVEN original cause. No #123 mutation, merge,
+phone/CloudKit operation, D checkbox/Done or E/share entry. Watchdog/collector and separate
+signed-package approval remain prerequisites for the separate live probe, not granted here.
+
+Publication preflight on the main-based tree passed all six existing static entry points
+(money, network, commercialization, StoreKit, C6, complete FX wrapper) and git diff --check.
+This does not include default full local or exact-head hosted/runtime acceptance.
+
 ## 2026-09-09 — Owner authorizes PR #122 nested-check classification correction
 
 Independent review reports no P1 and one P2: the new compatibility checker was not classified

@@ -2,6 +2,22 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Publish controlled enumeration candidate independently of #123
+
+Owner authorized read/map optimization with a control, then requested a Draft PR. Retain public
+ModelContext.enumerate(batchSize: 5000) only for a clean context; original fetch/map handles
+pending changes. Same descriptor, all fields, throwing mapper and validation order; no cache,
+forced save/rollback, record limit, schema/money/network/UI change or batch-size search.
+DASHBOARD_READ_MAP_OPTIMIZATION.md records the ABBA protocol/addendum, measured benefit and
+limits. Removing the intermediate all-model array is the candidate, not proof of the original
+701 ms event's cause or a guarantee of the 500 ms ceiling. Comparison probes are withdrawn.
+
+The experiment inherited #123 bedac7f. Create the independent delivery from accepted main
+ba14647, whose product/test/project sources equal that baseline, transferring only the verified
+two-file patch and documentation. Do not include #123 probe code or adjust its Draft state.
+Preserve prior results as experiment-tree evidence. This delivery requires new-head complete
+local/hosted/native acceptance and independent review; no merge, D Done or live authorization.
+
 ## 2026-09-09 — FX-01D bounded compatibility test supplement
 
 Owner authorized local compatibility tests after D sufficiency inspection, not a product-rule

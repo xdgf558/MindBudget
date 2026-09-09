@@ -2,7 +2,14 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: local FX-01D compatibility supplement on accepted main `237759f`.
+Current authorized scope: independent Draft review of the controlled Dashboard read/map candidate.
+See DASHBOARD_READ_MAP_OPTIMIZATION.md and DASHBOARD_701MS_INVESTIGATION.md. Publish only the
+two-file optimization/test patch plus evidence from main ba14647; do not include or change #123.
+Experiment-tree 88 focused methods/native and six static gates passed, with path-verified ABBA
+mean gain 32.123%; no exact-publication-head complete local/hosted acceptance is claimed.
+The original 701.230625 ms non-pass/cause UNPROVEN remain. D four boxes stay open; E/share unentered.
+
+Historical #122 source-freeze scope (merged as ba14647): local FX-01D compatibility supplement on accepted main `237759f`.
 See `FX_01D_COMPATIBILITY_TESTS.md`: frozen pre-D codec, current-actor interoperability and
 calendar/time-zone matrix only. #118's documentation delivery is merged, not D completion.
 No product-rule change, real CloudKit/account operation, D checkbox/Done, E or Insights/share.
