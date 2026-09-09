@@ -1,5 +1,72 @@
 # SESSION_LOG
 
+## 2026-09-09 — Authorized Worker audit repair after #121 hosted failure
+
+Retain `4086c59` / hosted `34298810822` attempt 1 as non-pass: ordinary `102301138897`
+failed the PublicConfiguration high-severity npm audit before Xcode; join `102304082720`
+failed and no ordinary artifact exists. Telemetry audit was skipped remotely but reproduced
+4 high locally; PublicConfiguration reproduced 4 high / 2 moderate. FX-only green remains
+scoped to the old head, with user-supplied independent audit in the new repair packet.
+
+Owner authorized both Worker fixes and a separate commit/push to #121. Read Cloudflare and
+Wrangler skills and primary advisory/npm metadata. Latest parent still pins vulnerable sharp;
+use nested Miniflare sharp 0.35.4 overrides, plus PublicConfiguration Vitest 4.1.11 and its
+generated transitive subtree. No forced downgrade, changed audit threshold, runtime/Worker
+source/config/FX helper or deployment. Both clean installs, zero-vulnerability audits and
+full Worker checks passed locally; see `WORKER_DEPENDENCY_AUDIT_REPAIR.md` for versions/tests.
+
+Integrate the four previously uncommitted 4086c59 post-runtime documentation receipts as
+historical evidence, not new-head validation. Correct later Dashboard current-scope language
+to historical. Initial sandbox-denied simulator inventory launched no tests. New dependency
+head requires fresh full-local + hosted/native + independent review; do not reuse the old pass.
+No ready/merge, #118 edits, D completion or E/Insights entry.
+
+## 2026-09-09 — Owner-requested Draft PR #121 published without a replacement head
+
+Owner requested a PR for independent review. Reverified remote main remains accepted `10e5b13`,
+no existing PR for the branch, and full-run receipt reproduces byte-for-byte. Product/test/script/
+workflow/project files still match `4086c59`; four post-runtime working documentation annotations
+remain uncommitted and were not pushed. Preserved all other worktrees and #118 unchanged.
+
+Pushed `codex/fx-query-snapshot-repair` and created Draft PR #121:
+https://github.com/xdgf558/MindBudget/pull/121
+Verified OPEN / isDraft=true / head `4086c59b7ab2a2554ccc1911ecee8e69482d35e3`, base main,
+two commits (`26781e7`, `4086c59`). Public body records the full-local evidence, native counts,
+exact UUIDs/hashes, prototype and four #118 non-passes, and source-freeze documentation timing,
+without publishing machine-local paths in that summary. Raw local artifacts were not uploaded.
+
+Automatic hosted CI `34298810822` has started on that exact head (pull_request event): ordinary
+job `102301138897` and FX job `102301139000` both IN_PROGRESS at this publication check. No hosted
+pass/native audit/independent approval or merge is claimed. Body links the current run. No
+manual rerun, ready/merge, #118 mutation, D checkbox/Done or E/Insights entry. Code remains frozen.
+
+## 2026-09-09 — Complete local query-repair validation on frozen 4086c59
+
+Default `Scripts/validate.sh` exited 0 on exact head
+`4086c59b7ab2a2554ccc1911ecee8e69482d35e3`, with skip-benchmark/retry/CI overrides unset.
+Start and finish worktree status were empty; recorded source hashes still match both HEAD
+and working files. This post-runtime documentation annotation is not another source head
+or another runtime execution. Do not turn a documentation update into a same-source rerun.
+
+Local Xcode 27 beta 6 / iOS 26.5: benchmark 190.020375 ms < unchanged 500 ms, one native Passed
+execution; ordinary 625 Passed / 17 Skipped, 634 concrete Passed executions, 23 C6 bindings and
+49 FX unit bindings each once. Full-run isolated FX device `6C2EE5CA-341A-4D0B-8656-92FB123221AD`
+is non-cloned and matches every method detail/provenance: stewardship 26.994s, Chinese create
+53.569s, English 42.496s, each Passed once. All three native audits have no Repetition/extra
+execution. Three Invalid-frame diagnostics remain. Runner removed only its owned simulator.
+
+Original full log/bundles, focused prototype failures, corrected focused passes and native
+audits remain in `/private/tmp/fx-query-repair-evidence.QLBvjN`. Explicit-comparison receipt
+verifies exact head/hash, clean execution, full entry, benchmark, method counts and UUIDs;
+normal/optimized Python outputs match. `full-receipt.json` SHA-256:
+`59f487a190e7d99a06870a0b7054749c5aebcdb078f4de3c2b4ad78d5774d93c`.
+
+No remote push/PR/merge, no #118 change. Full local pass is not hosted 26.6 or independent
+acceptance. All four #118 non-passes and original UNPROVEN query-delay cause remain; D's four
+boxes stay open, D In Progress, E/Insights-share unentered. Keep code frozen at 4086c59 for
+the next explicitly requested PR/hosted/review step; these working documentation receipts
+are not a request for a replacement documentation-only execution head.
+
 ## 2026-09-09 — Freeze query-repair candidate after focused acceptance only
 
 Corrected source SHA-256 `e601fd7c1a25d005edb8226ad0484689ccafc10ce6ba63f97e9f6c53cbf7076d`:

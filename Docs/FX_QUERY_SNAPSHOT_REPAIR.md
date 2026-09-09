@@ -1,6 +1,20 @@
 # FX menu and viewport query repair
 
-Status: **FOCUSED_LOCAL_PASSED; FULL_LOCAL_HOSTED_REVIEW_PENDING; NOT_ACCEPTED.**
+Status: **WORKER_AUDIT_REPAIR_PENDING_NEW_HEAD_VALIDATION; NOT_ACCEPTED.**
+
+Hosted `34298810822` attempt 1 on `4086c59` failed ordinary at the Worker high-severity
+audit before Xcode; join failed, although FX passed. This is retained non-pass, not a flake.
+Owner authorized the separate dependency commit described in `WORKER_DEPENDENCY_AUDIT_REPAIR.md`.
+New-head default full local and hosted ordinary/FX/join/native verification are required;
+the earlier complete local and FX green below are historical evidence only.
+
+Post-runtime working annotation: frozen `4086c59` predates this receipt. Default complete
+validation exit 0, benchmark 190.020375 ms / 500 ms, ordinary native 625 Passed / 17 Skipped,
+634 concrete Passed executions, 49 FX unit bindings once. Full FX native 3/3 Passed once,
+no Repetition, non-cloned `6C2EE5CA-341A-4D0B-8656-92FB123221AD`: stewardship 26.994s,
+Chinese create 53.569s, English 42.496s. Source remained exact throughout that run. Its
+freeze was subsequently superseded only by the authorized dependency repair. See SESSION_LOG and local
+`full-receipt.json` for the full author audit. Hosted and independent acceptance remain open.
 
 Owner explicitly authorized currency-menu lookup and `revealFX` repeated-query repair after
 the artifact-only report `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Local investigation commit
@@ -47,7 +61,8 @@ strict edges, keyboard occupancy, missing/ambiguous chrome, unsafe pan origins a
 post-pan observations with exact caps. Existing polling tests cover late/error observations.
 
 - [x] Focused deterministic tests and three real isolated FX methods, zero retry.
-- [ ] Frozen-head default full local `Scripts/validate.sh`, unchanged 500 ms and FX host.
+- [x] Frozen-head default full local `Scripts/validate.sh`, unchanged 500 ms and FX host (4086c59).
+- [ ] Repeat default full local validation on the separately authorized dependency-repair head.
 - [ ] New exact-head hosted ordinary + FX + join success and native artifact audit.
 - [ ] Independent review and explicit merge authorization.
 

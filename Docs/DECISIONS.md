@@ -1,5 +1,17 @@
 # DECISIONS
 
+## 2026-09-09 — Narrow Worker dependency security repair, no audit waiver
+
+Owner authorizes fixing both Worker audit chains and pushing a separate commit to #121.
+As checked on npm, latest Miniflare `5.20260908.0-alpha` still pins sharp `0.35.2`;
+do not downgrade Wrangler/test adapters as `npm audit fix --force` suggests. Use the root
+`overrides.miniflare.sharp = "0.35.4"` in both projects and regenerate npm lockfiles.
+PublicConfiguration Vitest moves from 4.1.10 to 4.1.11 (including matching sibling packages)
+to remove the moderate mocker advisory as well. Keep Wrangler/Miniflare/workerd and Worker
+source/configuration unchanged. Retire the override only after an upstream compatible chain
+pins patched sharp and both audits/checks pass without it. See `WORKER_DEPENDENCY_AUDIT_REPAIR.md`
+for exact versions, primary advisories, retained failure and new-head acceptance obligations.
+
 ## 2026-09-09 — Owner authorizes menu/reveal query repair, not a wider allowance
 
 Use one immutable public AX snapshot per menu/viewport observation, unique scoped identifiers,

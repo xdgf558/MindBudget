@@ -1,9 +1,13 @@
 # PROJECT_MEMORY
 
-Current authorized scope: test-only currency-menu and `revealFX` query repair on separate
-`codex/fx-query-snapshot-repair`; see `FX_QUERY_SNAPSHOT_REPAIR.md`. Four deterministic and three
-isolated FX methods passed locally; complete validation/hosted/review remain pending, not
-corrective acceptance. #118 stays Draft, D's four items open, E/share unentered.
+Current authorized scope: repair both Worker dependency audits in a separate commit on
+PR #121 (`codex/fx-query-snapshot-repair`), without changing the FX query helper. See
+`WORKER_DEPENDENCY_AUDIT_REPAIR.md`. Hosted `34298810822` on `4086c59` failed ordinary before
+Xcode and failed join; FX passed. Retain that non-pass. The old complete local pass
+(190.020375 ms / 500 ms, ordinary 625/17, isolated FX 3/3) does not cover the new dependency head.
+Both Worker audit/check commands now pass locally; new-head full local, hosted/native and review
+remain required, not corrective acceptance.
+#118 stays Draft, D's four items open, E/share unentered.
 
 Completed investigative checkpoint: Chinese AX5 FX creation duration after #118's fourth non-pass
 `2ab850a` / `34250759552`. See `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Artifact-only timeline
@@ -23,14 +27,14 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
-Current authorized work: owner entered the Dashboard storage-projection performance repair.
+Historical scope (accepted in #120 / `10e5b13`): owner entered the Dashboard storage-projection performance repair.
 `DASHBOARD_FIRST_LOAD_REPAIR.md` supersedes the investigation-only scope for implementation,
 not its UNPROVEN historical cause or retained 883.249166 ms non-pass. Keep full data, validation,
 500 ms and all full-local/hosted/review gates. #118 remains Draft; D/E are unchanged.
 
 ### Prior investigative checkpoint (before repair authorization)
 
-Current investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
+Historical investigative scope (2026-09-08 owner authorization): Dashboard first-load performance,
 separate from the frozen UI candidate and Draft #118. The default full run on `b9cebd1` failed
 at 883.249166 ms > unchanged 500 ms, so no subsequent ordinary/FX validation was reached.
 `DASHBOARD_FIRST_LOAD_INVESTIGATION.md` owns diagnosis only; no product optimization, waiver,
@@ -47,7 +51,7 @@ including the queued Insights income tile and share card. Follow the skill's con
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
 
-Current work: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
+Historical readiness checkpoint, superseded by #120 and the current scope above: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
 acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
 PR #118 remains Draft after three exact-head non-passes: `34097606992`, `34108994597`,
 `34218693463`. Owner now authorized separate branch `codex/fx-ui-readiness-repair` from
