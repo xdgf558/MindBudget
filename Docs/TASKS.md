@@ -2,6 +2,31 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## Current follow-up — isolated CloudKit lifecycle preparation
+
+Owner authorized a dedicated host after test App ID/container registration and exact CloudKit/
+push capability approval. #122 merged as `ba14647`, reviewed `161d7f8` second parent, accepted
+full local and hosted `34342739899` plus supplied independent review. Historical pending entries
+below describe that source-freeze checkpoint; D's original four requirements remain open.
+
+- [x] Register dedicated `com.xdgf558.MindBudgetFXCloudProbe` and corresponding iCloud container;
+  save/read back only that container association, leaving everyday MindBudget unchanged.
+- [x] Add standalone inert Debug host and offline signed-entitlement/profile checker.
+- [x] Compile the unsigned iPhoneOS scaffold; explicitly reject it as signed evidence.
+- [x] Owner selected one iPhone Air only; other paired devices are not authorized.
+- [x] Generate the owner-confirmed dedicated development profile, verify only the selected
+  phone, then build/audit the signed inert host locally (not installation or runtime evidence).
+- [ ] Independently review the scaffold/gate changes and required complete validation before merge.
+- [x] Implement the separately authorized six-stage synthetic lifecycle candidate, exact source
+  inventory and non-network protocol tests. This checkbox is implementation only, not runtime proof.
+- [x] Compile/sign the revised candidate locally and pass offline signed-isolation, protocol,
+  FX/commercialization/C6/StoreKit gates. This is not full validate, hosted or live acceptance.
+- [ ] Review actual DataActor/CloudKit execution, external watchdog/evidence collection and the
+  explicit later-revision fresh-store bootstrap gap before requesting installation/live approval.
+
+No phone installation, cloud record access/deletion, schema deployment or D/E/Insights entry.
+`Tools/FXCloudProbe/README.md` records protocol scope; no live synchronization test has run.
+
 ## 2026-09-09 — Resume independent D closeout after PR #121
 
 The following is the frozen #118 delivery checklist. It was superseded for that delivery by

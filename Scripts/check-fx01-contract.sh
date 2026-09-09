@@ -9,6 +9,8 @@ python3 -B Scripts/fx01_contract.py --self-test
 python3 -B Scripts/fx01_contract.py
 python3 -B Scripts/check_fx01_privacy.py --self-test
 python3 -B Scripts/check_fx_compatibility_fixture.py --self-test
+python3 -B Tools/FXCloudProbe/audit.py --self-test
+python3 -B Tools/FXCloudProbe/audit.py --protocol-tests
 
 # These existing whole-app gates are part of the FX-01A boundary: a future FX source cannot gain
 # floating-point money or a third app-owned network path merely by satisfying the JSON contract.

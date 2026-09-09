@@ -2,6 +2,172 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Owner requests Draft PR for isolated probe review
+
+Prepare the current isolated-host branch for public Draft review at the owner's request.
+This is a preparation candidate, not a merge-ready or live-runtime acceptance claim. Remove
+local evidence-directory paths and personal device/certificate display names from these new
+public notes; retain the original artifacts privately. No credentials, provisioning profile,
+device UDID, certificate bytes or signed app are included in the source delivery.
+Full default validation, exact-head hosted/native evidence and independent review remain pending.
+The external hard watchdog/collector is not implemented; no installation, launch, CloudKit
+request or cleanup is authorized by publication. D's four requirements remain open; E/Insights
+remain unentered. The implementation checkpoint below predates this PR publication request.
+Publication preflight reran audit.py --self-test, audit.py --protocol-tests and the
+commercialization documentation gate successfully, plus git diff --check. These remain bounded
+local checks; full validation and new-head hosted/native results are not pre-approved.
+
+## 2026-09-09 — Owner enters isolated lifecycle implementation; no phone/cloud execution
+
+Continued in codex/fx-cloud-isolated-host, preserving the earlier uncommitted signing scaffold
+and the separate old compatibility worktree. Added request/preflight, exclusive installation-
+lifetime run reservation, six-stage driver, executable-bound receipt and local protocol doubles.
+No production Swift, ordinary project, existing tests or CI job/runtime thresholds changed.
+The standalone project references 32 existing production model/data/sync/pure-dependency files.
+Six support declarations are compared byte-for-byte to their original APIs; no AppEnvironment,
+AppIntents runtime, notification scheduler, telemetry or purchase lifecycle is instantiated.
+
+Two initial unsigned builds failed from incomplete isolated source dependencies (first missing
+IntentExpenseWriteResult, cooling DTOs, InsightDraft/RuleEvidence and SampleDataBundle; second
+missing CoolingNotificationIdentifier). Retain build-1.log/build-2.log in the private lifecycle
+evidence directory. The first standalone protocol-test compile also rejected
+two tuple-for-in expressions; replaced with arrays. These preparation failures are not runtime
+failures and are not rewritten as passes. A patch attempt that combined Delete/Add for one
+project path was rejected without changing it; reapplied as a normal update.
+
+Corrected unsigned build-3 succeeded. Foundation-only protocol executable passed inert-launch,
+13 invalid request/identity/device-class cases, two reuse refusals, six injected step failures,
+journal failure and two between-stage deadline checks. Added cancellation coverage subsequently.
+Source inventory self-test covers 32 sources/six exact declarations/nine negative mutations;
+signed entitlement audit retains three positive/33 negative cases. No test executable in these
+protocol checks links CloudKit/SwiftData or touches a phone.
+
+Self-inspection identified the accepted production nextRevision/acceptedDigest requirement. The
+first candidate's third empty-store post-edit check would assume unsupported later-revision
+bootstrap. Corrected the TEST protocol to reopen the original writer's accepted lineage after
+the initial genuinely fresh reader stage. This was discovered before any live run. Keep that
+fresh-store-later-revision compatibility gap explicit; no product guard change, seeded metadata,
+fake runtime pass or D waiver. This is source evidence only.
+
+The first signed candidate compiled and passed offline signed-container/environment audit; later
+test-protocol/receipt changes require their own final build/audit. Full validate, hosted/native,
+independent review and a reviewed external hard watchdog/evidence collector remain pending.
+No install, launch, remote zone query, synthetic upload, account switch or cleanup occurred.
+Do not turn this code preparation into D completion or E/Insights entry.
+
+Final local receipt: signed-accepted-build.log exit 0 on Xcode 27 beta 6 / iPhoneOS 27 SDK;
+signed-final-audit.log exit 0 on the newly compiled artifact. Executable SHA-256 is
+722ff931c31f03d60d18128d4e36bd9a97f92606608bcba4231dbd4f698b48a0. Directory naming is local only,
+not independent acceptance. Reused intermediates caused stale-output-path warnings for the
+previous output directory; those artifacts were retained, not overwritten/deleted as a fix.
+AppIntents metadata extraction was skipped because the standalone app has no AppIntents framework.
+No compiler error or signing-audit failure in this final invocation. Earlier failed builds stay.
+
+The final FX wrapper exits 0 (including source inventory 9 negatives, signed-audit 3/33 cases,
+protocol cancellation case and existing privacy/compatibility/money/network gates). Commercialization
+gate, C6 matrix self-test, 13 StoreKit catalog tests and git diff --check pass. Current product Swift,
+ordinary project/tests and CI tree are unchanged from this worktree base. Logs: fx-contract.log,
+commercialization.log, c6.log and storekit.log in the same private evidence directory.
+Read only devicectl help for future console/timeout/copy options; no device command was executed.
+External watchdog/collector remains unimplemented and is a hard prerequisite to any live request.
+No full Scripts/validate.sh, hosted run, independent review, commit, push or PR is claimed here.
+
+## 2026-09-09 — Owner-confirmed dedicated profile generated; inert host signed locally
+
+Owner confirmed Generate. Created/downloaded Development profile
+`MindBudget FX Cloud Probe Development 20260909` for the exact dedicated App ID. Local metadata
+verification confirms team 2AM5S7BM2N, only the owner-selected iPhone Air, only the test cloud
+container, and the existing developer certificate selected in the portal. Profile expires
+2027-09-09. Device UDID, certificate bytes and profile are kept outside the repository. Added
+only this new profile UUID to the local Xcode profile cache, without overwriting existing files.
+No new certificate/private key, private-key export or change to the everyday app/profile.
+
+First sandbox CMS read failed with a certificate-import error; its pipe consumer also incorrectly
+used plistlib.load on a non-seekable stream. Corrected to subprocess capture/plistlib.loads with
+read-only escalated CMS access. This is tooling failure, not accepted profile/runtime evidence.
+Manual signed build succeeded using the verified existing certificate and exact profile UUID:
+Xcode 27 beta 6 / iPhoneOS 27 SDK, arm64, Debug. No automatic provisioning updates or device action.
+Evidence remains in the private scaffold evidence directory (signed-build.log and Signed app).
+
+Initial signed audit exited 1 at public certificate extraction: optional codesign prefix must
+be attached as --extract-certificates=PREFIX. Retain signed-audit-initial.log. Also corrected
+the pre-runtime verifier's profile representation assumption after inspecting Apple's actual
+icloud-services wildcard grant; signed app access remains exact CloudKit/Development/test-container.
+Self-test now passes 3 positives / 33 negatives. The corrected audit exits 0 on the same signed
+artifact (signed-audit-final.log), including strict signature, signer membership, profile expiry
+and exact signed isolation. This is author-run offline inspection, not independent review.
+
+Post-change FX contract wrapper (including 165 privacy negatives, compatibility fixture and
+3/33 probe audit cases) and commercialization documentation gate both exit 0; git diff --check
+passes. Logs: fx-contract-signed.log and commercialization-signed.log in the same evidence folder.
+Signed executable SHA-256: 56157902f51e4ff9137e2bd64f358cc3a05875fd32beec0d597f5f0eb43c9b8e.
+This local artifact uses the inert source only; it is not an on-device test result.
+
+No install, launch, CloudKit account/record request, synthetic upload or cleanup took place.
+The inert scaffold still has no lifecycle implementation. Full validate, hosted CI and independent
+review remain pending; D four boxes stay open and E/Insights remain unentered. Previous failures
+are not relabelled. The earlier prepared/not-generated entry below is a historical checkpoint.
+
+## 2026-09-09 — Dedicated development profile prepared, not yet generated
+
+After owner login, the Apple Developer Profiles page was accessible. Prepared an iOS App
+Development profile for exact `com.xdgf558.MindBudgetFXCloudProbe` in team `2AM5S7BM2N`,
+selected the sole existing development certificate, and selected
+only the owner-confirmed iPhone Air. The other phone and Include Mac Devices were unchecked.
+Review page shows Development, exact test App ID, one certificate and one device. Entered name
+`MindBudget FX Cloud Probe Development 20260909` and paused before Generate for action-time
+confirmation of signing/device access. No profile was generated/downloaded, no credential
+created/exported, no signed build/install/launch or cloud data operation occurred.
+
+## 2026-09-09 — Isolated host implementation starts from merged #122
+
+Owner explicitly authorized continuing local test-host/signing work after approving and verifying
+the new test identity's CloudKit/push capabilities. Fetched main `ba14647` and created separate
+isolated worktree, branch `codex/fx-cloud-isolated-host`.
+Preserved all uncommitted post-merge/setup receipts in the previous compatibility worktree.
+Copied the isolation proposal into this branch and recorded current portal acceptance here;
+no GitHub PR, push, merge or runtime entry is implied.
+
+Dedicated App ID `com.xdgf558.MindBudgetFXCloudProbe` and container
+`iCloud.com.xdgf558.MindBudgetFXCloudProbe` exist. Owner-authorized portal save/reopen verified
+iCloud/CloudKit and Push Notifications on, exact test container selected, everyday container
+unselected, App Groups/extended sharing/Broadcast off. No profile had been created in that flow.
+
+Added a standalone one-source Debug project, inert SwiftUI entry, Development entitlements and
+offline codesign/profile verifier. No app bootstrap, network construction, local store, automatic
+provisioning, CloudKit request, device installation or lifecycle test. This is expressly only
+the build/signing scaffold; actual synthetic upload/fresh-store fetch remains unimplemented.
+No product UI redesign or product Swift change. Verification self-test passes 2 synthetic
+positive / 27 negative cases, including ordinary-container/Production/shared-access rejection.
+
+Initial unsigned build exited 65 before compiling because the sandbox/default module-cache path
+could not write Session.modulevalidation; keep unsigned-build.log as setup non-pass. Second build
+uses an explicit isolated module cache and escalated local build access: Xcode 27 beta 6 / iPhoneOS
+27 SDK arm64 build succeeded, with no signing. The verifier rejects the unsigned .app (expected
+negative), not a signed pass. Artifacts remain in the private scaffold evidence directory.
+
+Sandbox code-signing identity listing returned zero; escalated read-only listing found existing
+Apple Development identities. No private key was exported or created. Local profile metadata
+inspection found no exact profile for the new Bundle ID. Read-only devicectl lists more than one
+paired physical phone; asked owner which device to bind instead of assuming from availability.
+No account fingerprint, phone content or live CloudKit query was read.
+
+Initial commercialization gate rejected the new entitlement owner. Corrected via one exact path/
+four-value exception with dedicated-container-only semantics and five new negative cases (wrong
+environment, everyday container, extra container, shared group, renamed entitlement file).
+The ordinary app entitlement inventory remains unchanged. The corrected iCloud self-test and
+commercialization gate pass; C6 matrix and StoreKit catalog gates pass. FX wrapper additionally
+runs the probe audit self-test. Full local validate/hosted/native/runtime acceptance is not claimed.
+Signed build remains blocked on confirmed device and dedicated provisioning; D four boxes/E/share
+stay unchanged. All original #118/#122 failures remain retained, not relabelled by this scaffold.
+
+Owner then confirmed the selected phone is the iPhone Air; no other paired
+device is authorized for the profile. The FX contract wrapper completed successfully (including
+the new audit self-test, existing privacy/compatibility, integer-money and network gates).
+Opened Profiles in Chrome to prepare the narrow development profile, but Apple redirected to
+sign-in again. Paused for owner login without entering credentials or generating any profile.
+Signed build/audit remain pending; the unsigned successful build is not substituted for them.
+
 ## 2026-09-09 — Owner authorizes PR #122 nested-check classification correction
 
 Independent review reports no P1 and one P2: the new compatibility checker was not classified

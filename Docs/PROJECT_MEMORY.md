@@ -2,7 +2,18 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: local FX-01D compatibility supplement on accepted main `237759f`.
+Current authorized scope: isolated FX CloudKit lifecycle candidate from accepted main `ba14647`.
+See `Tools/FXCloudProbe/README.md` and `FX_01D_SINGLE_DEVICE_ISOLATION_PLAN.md`. Dedicated test
+App ID/container registered and CloudKit/push association verified in the portal with owner
+approval. Ordinary launch is inert; explicit-request lifecycle code now covers initial fresh-store
+readback and edit propagation into the original writer's accepted ancestry. It has not run on a
+phone. Empty-store bootstrap of later revisions is NOT claimed: the existing lineage gate remains.
+Device-specific provisioning and the changed candidate's local signed build/audit passed on
+2026-09-09 (Xcode 27 beta 6, not hosted 26.6). Installation/cloud operations need separate approval and a
+reviewed external watchdog/collector. Full validation and independent review remain pending.
+No D completion or E/Insights entry. The ordinary product project and startup remain unchanged.
+
+Historical #122 source-freeze scope: local FX-01D compatibility supplement on main `237759f`.
 See `FX_01D_COMPATIBILITY_TESTS.md`: frozen pre-D codec, current-actor interoperability and
 calendar/time-zone matrix only. #118's documentation delivery is merged, not D completion.
 No product-rule change, real CloudKit/account operation, D checkbox/Done, E or Insights/share.
