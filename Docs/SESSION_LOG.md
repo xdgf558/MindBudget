@@ -1,5 +1,155 @@
 # SESSION_LOG
 
+## 2026-09-09 — Authorized Worker audit repair after #121 hosted failure
+
+Retain `4086c59` / hosted `34298810822` attempt 1 as non-pass: ordinary `102301138897`
+failed the PublicConfiguration high-severity npm audit before Xcode; join `102304082720`
+failed and no ordinary artifact exists. Telemetry audit was skipped remotely but reproduced
+4 high locally; PublicConfiguration reproduced 4 high / 2 moderate. FX-only green remains
+scoped to the old head, with user-supplied independent audit in the new repair packet.
+
+Owner authorized both Worker fixes and a separate commit/push to #121. Read Cloudflare and
+Wrangler skills and primary advisory/npm metadata. Latest parent still pins vulnerable sharp;
+use nested Miniflare sharp 0.35.4 overrides, plus PublicConfiguration Vitest 4.1.11 and its
+generated transitive subtree. No forced downgrade, changed audit threshold, runtime/Worker
+source/config/FX helper or deployment. Both clean installs, zero-vulnerability audits and
+full Worker checks passed locally; see `WORKER_DEPENDENCY_AUDIT_REPAIR.md` for versions/tests.
+
+Integrate the four previously uncommitted 4086c59 post-runtime documentation receipts as
+historical evidence, not new-head validation. Correct later Dashboard current-scope language
+to historical. Initial sandbox-denied simulator inventory launched no tests. New dependency
+head requires fresh full-local + hosted/native + independent review; do not reuse the old pass.
+No ready/merge, #118 edits, D completion or E/Insights entry.
+
+## 2026-09-09 — Owner-requested Draft PR #121 published without a replacement head
+
+Owner requested a PR for independent review. Reverified remote main remains accepted `10e5b13`,
+no existing PR for the branch, and full-run receipt reproduces byte-for-byte. Product/test/script/
+workflow/project files still match `4086c59`; four post-runtime working documentation annotations
+remain uncommitted and were not pushed. Preserved all other worktrees and #118 unchanged.
+
+Pushed `codex/fx-query-snapshot-repair` and created Draft PR #121:
+https://github.com/xdgf558/MindBudget/pull/121
+Verified OPEN / isDraft=true / head `4086c59b7ab2a2554ccc1911ecee8e69482d35e3`, base main,
+two commits (`26781e7`, `4086c59`). Public body records the full-local evidence, native counts,
+exact UUIDs/hashes, prototype and four #118 non-passes, and source-freeze documentation timing,
+without publishing machine-local paths in that summary. Raw local artifacts were not uploaded.
+
+Automatic hosted CI `34298810822` has started on that exact head (pull_request event): ordinary
+job `102301138897` and FX job `102301139000` both IN_PROGRESS at this publication check. No hosted
+pass/native audit/independent approval or merge is claimed. Body links the current run. No
+manual rerun, ready/merge, #118 mutation, D checkbox/Done or E/Insights entry. Code remains frozen.
+
+## 2026-09-09 — Complete local query-repair validation on frozen 4086c59
+
+Default `Scripts/validate.sh` exited 0 on exact head
+`4086c59b7ab2a2554ccc1911ecee8e69482d35e3`, with skip-benchmark/retry/CI overrides unset.
+Start and finish worktree status were empty; recorded source hashes still match both HEAD
+and working files. This post-runtime documentation annotation is not another source head
+or another runtime execution. Do not turn a documentation update into a same-source rerun.
+
+Local Xcode 27 beta 6 / iOS 26.5: benchmark 190.020375 ms < unchanged 500 ms, one native Passed
+execution; ordinary 625 Passed / 17 Skipped, 634 concrete Passed executions, 23 C6 bindings and
+49 FX unit bindings each once. Full-run isolated FX device `6C2EE5CA-341A-4D0B-8656-92FB123221AD`
+is non-cloned and matches every method detail/provenance: stewardship 26.994s, Chinese create
+53.569s, English 42.496s, each Passed once. All three native audits have no Repetition/extra
+execution. Three Invalid-frame diagnostics remain. Runner removed only its owned simulator.
+
+Original full log/bundles, focused prototype failures, corrected focused passes and native
+audits remain in `/private/tmp/fx-query-repair-evidence.QLBvjN`. Explicit-comparison receipt
+verifies exact head/hash, clean execution, full entry, benchmark, method counts and UUIDs;
+normal/optimized Python outputs match. `full-receipt.json` SHA-256:
+`59f487a190e7d99a06870a0b7054749c5aebcdb078f4de3c2b4ad78d5774d93c`.
+
+No remote push/PR/merge, no #118 change. Full local pass is not hosted 26.6 or independent
+acceptance. All four #118 non-passes and original UNPROVEN query-delay cause remain; D's four
+boxes stay open, D In Progress, E/Insights-share unentered. Keep code frozen at 4086c59 for
+the next explicitly requested PR/hosted/review step; these working documentation receipts
+are not a request for a replacement documentation-only execution head.
+
+## 2026-09-09 — Freeze query-repair candidate after focused acceptance only
+
+Corrected source SHA-256 `e601fd7c1a25d005edb8226ad0484689ccafc10ce6ba63f97e9f6c53cbf7076d`:
+four deterministic methods Passed once (native 4/4, no Repetition); isolated FX three methods
+Passed once on non-cloned `28CE4B3F-9C5F-4CCB-BBA6-4BCE2806EA14`. Stewardship 25.929s, Chinese
+create 55.291s, English 42.272s. Runner exit 0, three binding verification and author native
+audit passed. Three Invalid-frame diagnostics remain. Only local Xcode 27 beta 6 evidence.
+First candidate's three failures remain in `focused-FX` artifacts; corrected run is `focused-FX-2`.
+No historical hosted non-pass is reclassified. No source change after these focused runs.
+
+Money/network/commercialization/StoreKit/full FX static-contract battery and diff checks passed
+earlier in this session. Default complete validation will rerun its full prescribed gates on
+the frozen head, including unchanged 500 ms and fresh FX host, with benchmark-skip/retry/CI
+environment overrides explicitly unset. Current checkbox completion is focused-only, not full.
+No product/script/workflow/project change, push, new PR, #118 modification or phase advancement.
+
+## 2026-09-09 — Begin authorized FX query repair on a separate branch
+
+Owner explicitly authorized currency-menu and `revealFX` repeated-query repair. Preserved the
+previous five investigation documents as local commit `26781e7`, then created
+`codex/fx-query-snapshot-repair`; no push or #118 change. Read current memory/task/decision/session
+and existing FX snapshot/keyboard/viewport contracts. Only UI-test code and documentation change.
+Candidate scopes EUR lookup to the menu snapshot and derives viewport geometry/exclusions from
+one tree per observation; preserves native selection, final hittability, assertions and gesture
+caps. Added missing/ambiguous/unsafe/freshness/cap tests. No performance or acceptance claim yet.
+
+First sandboxed simulator inventory was denied service access (no test ran); reran read-only
+inventory with the proper simulator permission. Four focused deterministic tests are compiling
+on local Xcode 27 beta 6 / iOS 26.5, task-owned source simulator `3D6221D5-39DF-4CD4-ADEE-472B4139F47B`.
+Evidence directory: `/private/tmp/fx-query-repair-evidence.QLBvjN`. Other booted simulators are
+untouched. Default full validation, hosted and independent acceptance remain outstanding.
+
+Focused deterministic result: four selected methods Passed once, exit 0. Native audit independently
+checked one configuration/device `3D6221D5-39DF-4CD4-ADEE-472B4139F47B`, four concrete executions,
+no Repetition. UI-test source SHA-256 `a063993cb70417415d3d5608db9a2e3008194fbbae1823843e2b07b75e45e4cb`.
+The real three-method FX run is now using fresh non-cloned simulator
+`7FFB3B79-F875-4321-B0F3-9321B0012744` through the unchanged runner; no runtime result yet.
+
+First focused FX candidate is retained non-pass: runner exit 1, xcodebuild exit 65, three
+methods Failed once (stewardship 12.681s, Chinese create 23.049s, English 36.764s). The added
+mandatory footer check rejected edit sheets: `FXUITestRoot` places the footer in its presenting
+NavigationStack, while ExpenseDetail opens editing in a sheet. Creation reached the real menu;
+Chinese EUR had an in-window AX frame before live hittability and was incorrectly treated as
+a fatal condition instead of continuing the original bounded pan loop. These are candidate
+regressions, not causes of the old hosted timeout. Original logs/bundle/provenance remain.
+
+Corrected the optional presenting-footer contract (mandatory foreground form/Save remain),
+and only query present menu candidates; if not hittable, keep bounded scrolling with no tap.
+Added deterministic absent-footer and geometry-without-hittability regressions, richer bounded
+frame/lane traces and retained failure screenshots. Next focused run uses changed source,
+not a rerun of the failed candidate; no allowance/gesture-cap or product-code changes.
+
+## 2026-09-09 — Chinese AX5 creation duration investigation (no repair)
+
+Owner accepted the proposed separate investigation. Created `codex/fx-ax5-create-duration-investigation`
+from accepted main `10e5b13`; left #118 and all other dirty worktrees untouched. Read current
+project memory/tasks/decisions/session and prior readiness contracts; #120 acceptance supersedes
+their frozen pending wording. Existing local #118/#120 original bundles/logs were available;
+verified their remote artifact inventories read-only. No download/retest/CI mutation needed.
+
+Exported only the compared Chinese method's native activities/details and existing automatic
+timeout spindump using local Xcode 27 beta 6 (no schema pin), not a hosted 26.6 rerun. Verified
+single-run result/device/provenance and full product/test/workflow/runtime source equality
+between failed `2ab850a` and accepted main. Derived root-marker intervals without summing nested
+activity time. Normal/optimized Python summary bytes match; original input copies untouched.
+
+Largest isolated excess: first EUR query through next collection wait 46.953s versus 5.319s,
+41.634s extra; lag at preview 64.959s. Native query activity says `(retry 1)`, not a second test
+execution. Both runs have seven FX viewport pans; failed run has fewer currency pans (4 vs 5).
+Log records Save only at 246.49s, after 240s deadline, and cleanup starting 253.61s then failing.
+Native duration fields 240/326.601s differ from log 316.533s; preserve rather than normalize them.
+Post-deadline spindump shows live resolution in revealFX but does not cover the earlier query stall.
+Report and hashes: `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Cause UNPROVEN, no corrective acceptance.
+
+No Swift/helper/runner changes, instruments/swizzles, App launch, physical/cloud execution,
+new test, allowance/retry change, push/PR or #118 mutation. D's four boxes stay open; E/share
+unentered. Further corrective implementation needs separate owner authorization.
+
+Post-report checks passed: money, network, commercialization documents, StoreKit catalog,
+normal FX static contract, whitespace and zero diff in product/tests/scripts/project/workflow.
+No complete validator or FX mutation/runtime suite was run for this artifact-only report.
+Five documentation files remain local/uncommitted; no new head or remote change.
+
 ## Dashboard repair: retain identity-only candidate, withdraw comparison probes
 
 Comparison 2 isolated one id read per mapped Expense; the original fetch stayed exact.

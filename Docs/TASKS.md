@@ -1,5 +1,48 @@
 # TASKS
 
+## 2026-09-09 — Owner-authorized Worker dependency audit repair in #121
+
+Status: **Worker checks passed locally; new-head full local/hosted/native/review pending.**
+
+- [x] Retain `4086c59` / `34298810822` ordinary audit failure and join failure, with FX-only pass.
+- [x] Patch both Miniflare sharp trees and PublicConfiguration Vitest without changing audit level.
+- [x] Both `npm ci`, `npm audit --audit-level=high` and `npm run check` pass locally.
+- [ ] Freeze/push a separate repair commit and run default full local validation on that exact head.
+- [ ] Obtain that head's hosted ordinary + FX + join and native audits, then independent review.
+
+`WORKER_DEPENDENCY_AUDIT_REPAIR.md` owns this narrow follow-up. No deployment, FX helper change,
+undraft/merge, #118 mutation, D checkbox/Done or E/Insights entry is authorized.
+
+## 2026-09-09 — Owner-authorized FX query snapshot repair
+
+Status: **Historical 4086c59 full local passed; hosted ordinary/join failed; dependency follow-up above.**
+
+- [x] Receive explicit authorization for menu lookup and repeated `revealFX` queries only.
+- [x] Implement scoped snapshots and deterministic fail-closed regression tests.
+- [x] Preserve real three-method FX assertions and pass focused isolated runtime validation.
+- [x] Freeze a head and pass default full validation (4086c59; 500 ms, 240 seconds, zero retry).
+- [ ] Obtain exact-head hosted/native and independent review before any merge.
+
+`FX_QUERY_SNAPSHOT_REPAIR.md` owns this scope. The completed investigation below is historical;
+its original query-delay cause remains UNPROVEN, and all four #118 failures remain non-pass.
+This full-local status is a post-runtime working receipt, not a new execution head or remote
+acceptance. The original freeze was superseded by the separately authorized dependency repair,
+not a documentation-only rerun; new-head validation cannot reuse this old pass.
+
+## 2026-09-09 — Separate FX Chinese AX5 duration investigation
+
+Status: **Artifact investigation complete; original query-delay cause UNPROVEN; no repair acceptance.**
+
+- [x] Preserve fourth #118 failure and inspect original method/log/provenance against #120.
+- [x] Derive comparable milestone intervals without double-counting nested activities.
+- [x] Separate the currency-query stall, later viewport work, 240s deadline and failed cleanup.
+- [x] Retain native/log duration discrepancies and timing limits in `FX_AX5_CREATE_DURATION_INVESTIGATION.md`.
+- [x] Obtain separate authorization before implementing any corrective helper (subsequent query-repair scope above).
+
+No fresh test/device, source change, CI rerun, push or phase entry. #120's former pending
+checklists below are historical and were superseded by its accepted merge `10e5b13`.
+#118 remains Draft with four non-passes, not reopened for unchanged reruns; D is not Done.
+
 ## 2026-09-08 — Owner-authorized Dashboard first-load repair
 
 Status: **In Progress; candidate only; D open, #118 Draft, E unentered.**
