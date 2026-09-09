@@ -2,7 +2,12 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: resume #118 documentation closeout after reviewed #121 merged as
+Current authorized scope: local FX-01D compatibility supplement on accepted main `237759f`.
+See `FX_01D_COMPATIBILITY_TESTS.md`: frozen pre-D codec, current-actor interoperability and
+calendar/time-zone matrix only. #118's documentation delivery is merged, not D completion.
+No product-rule change, real CloudKit/account operation, D checkbox/Done, E or Insights/share.
+
+Historical #118 source-freeze scope: resume #118 documentation closeout after reviewed #121 merged as
 `039ecdf` with `689b932` as second parent, full local exit 0 (180.427333ms / 500ms) and hosted
 `34302080136` attempt 1/native/independent acceptance. `FX_01D_CLOSEOUT.md` owns the chain.
 Keep all four #118 failures. This head needs its own CI/native audit and review; D's four

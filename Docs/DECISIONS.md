@@ -2,6 +2,16 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — FX-01D bounded compatibility test supplement
+
+Owner authorized local compatibility tests after D sufficiency inspection, not a product-rule
+change or live CloudKit run. Preserve the pre-D domain with reversible symbol-only renaming
+and exact original SHA, compiling it only into the unit-test target. Tests distinguish frozen
+codec interoperability from old-binary scheduling, pending-edit safety from convergence, and
+explicit calendar boundary comparisons from actual receiver-process calendar configuration.
+`FX_01D_COMPATIBILITY_TESTS.md` owns scope/results/limits. Existing runtime limits and all four
+D obligations remain; no D Done, E/share entry or implicit waiver follows from a green matrix.
+
 ## 2026-09-09 — Resume #118 on accepted #121 without changing the D completion boundary
 
 Owner authorized independent documentation closeout after #121's explicit merge `039ecdf`.

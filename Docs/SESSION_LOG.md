@@ -2,6 +2,48 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Owner enters local FX-01D compatibility supplement
+
+Created separate worktree/branch `codex/fx01d-compatibility-tests` from fetched main `237759f`;
+verified #118 merge parents `039ecdf` and reviewed `3edffa3`. Existing post-merge local notes in
+other worktrees are untouched. The owner supplied no-P1/P2 review and exact `34306711254`
+ordinary/FX/join/native acceptance for #118; this is not a fresh audit or D completion.
+
+Read current durable scope, D plan/closeout, privacy/sync contract and actual codecs/actors/tests.
+Added a hash-reversible frozen pre-D codec, six test methods and exact-once runtime bindings,
+test-target provenance gate and bounded calendar matrix. No product Swift, synchronization
+rule, schema, UI, money arithmetic, model/provider, account setting or workflow changed.
+Actual imports retain process Calendar.current; explicit 16-calendar boundary checks are not
+16 configured receiver processes. Old-format contradictory edits remaining pending are safety,
+not convergence. Frozen codec execution is not a physical old/new app pair.
+
+Preparation retained errors: one lookup used nonexistent Docs/ICLOUD_SYNC_CONTRACT.md; the
+actual contract under Docs/Commercialization was located and read. Fixture self-test initially
+found a wrong-build-phase escape in its own Sources-only checker; scan expanded to all phases
+and the same mutation is now rejected. Focused simulator build/test started with original log
+and result bundle retained; outcome pending. Full local/hosted/native/review not yet earned.
+Canonical supplement: `FX_01D_COMPATIBILITY_TESTS.md`. D stays In Progress/four boxes open;
+E/share unentered. No live account/device/delete operation or automatic PR/merge authorization.
+
+Preparation results: initial six focused methods Passed once; added the positive old-codec
+note-only edit control so blanket blocking cannot masquerade as compatibility, then seven
+methods Passed once on final test source `52a7943c...cb73e`. Native tree/detail audits confirm
+seven Passed, no skipped/failed/extra attempts. These are local Xcode 27 beta 6/iOS 26.5;
+no hosted or independent approval. The 96 current-actor imports and 1,536 explicit calendar
+comparisons passed; no product calendar defect was reproduced or claimed repaired.
+
+First FX static pass rejected displaced current-closeout pointers in this log and DECISIONS;
+restored header placement, then FX/commercialization/StoreKit gates passed. No gate weakening.
+The last added seventh binding remains subject to the default complete validator. Initial
+xcresult read hit the sandbox's derived TestReport-cache restriction; escalated read succeeded
+without rerunning tests. Read-only ps was also sandbox-denied; escalated process inspection
+confirmed no stale static run. A preparation receipt patch had stale context and was rejected
+without edits; corrected its context. Raw logs and artifact/hash attribution are in the supplement.
+
+Freeze this local test-only candidate, then run default complete validation with 500 ms,
+zero retry and isolated FX host. Results remain pending at freeze; no push/PR/merge or D/E
+transition is claimed. The other worktrees' dirty post-merge notes are preserved unchanged.
+
 ## 2026-09-09 — Resume #118 after explicitly accepted and merged #121
 
 Owner authorizes returning to independent documentation closeout, not D Done or E/share.
