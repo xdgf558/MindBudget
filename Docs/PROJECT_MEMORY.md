@@ -1,5 +1,12 @@
 # PROJECT_MEMORY
 
+Current investigative scope: Chinese AX5 FX creation duration after #118's fourth non-pass
+`2ab850a` / `34250759552`. See `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Artifact-only timeline
+locates a 46.953s currency-query interval versus 5.319s in accepted #120; its cause remains
+UNPROVEN. No repair or runtime rerun. #120 was accepted and merged as `10e5b13`; pending
+Dashboard/readiness text below is retained source-freeze history, not current acceptance.
+#118 stays Draft, all four non-passes retained; D's four items open, E/share unentered.
+
 ## Product
 
 MindBudget V1 is an iPhone-only, local-first budgeting coach. Its core purpose is to

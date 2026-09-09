@@ -1,5 +1,36 @@
 # SESSION_LOG
 
+## 2026-09-09 — Chinese AX5 creation duration investigation (no repair)
+
+Owner accepted the proposed separate investigation. Created `codex/fx-ax5-create-duration-investigation`
+from accepted main `10e5b13`; left #118 and all other dirty worktrees untouched. Read current
+project memory/tasks/decisions/session and prior readiness contracts; #120 acceptance supersedes
+their frozen pending wording. Existing local #118/#120 original bundles/logs were available;
+verified their remote artifact inventories read-only. No download/retest/CI mutation needed.
+
+Exported only the compared Chinese method's native activities/details and existing automatic
+timeout spindump using local Xcode 27 beta 6 (no schema pin), not a hosted 26.6 rerun. Verified
+single-run result/device/provenance and full product/test/workflow/runtime source equality
+between failed `2ab850a` and accepted main. Derived root-marker intervals without summing nested
+activity time. Normal/optimized Python summary bytes match; original input copies untouched.
+
+Largest isolated excess: first EUR query through next collection wait 46.953s versus 5.319s,
+41.634s extra; lag at preview 64.959s. Native query activity says `(retry 1)`, not a second test
+execution. Both runs have seven FX viewport pans; failed run has fewer currency pans (4 vs 5).
+Log records Save only at 246.49s, after 240s deadline, and cleanup starting 253.61s then failing.
+Native duration fields 240/326.601s differ from log 316.533s; preserve rather than normalize them.
+Post-deadline spindump shows live resolution in revealFX but does not cover the earlier query stall.
+Report and hashes: `FX_AX5_CREATE_DURATION_INVESTIGATION.md`. Cause UNPROVEN, no corrective acceptance.
+
+No Swift/helper/runner changes, instruments/swizzles, App launch, physical/cloud execution,
+new test, allowance/retry change, push/PR or #118 mutation. D's four boxes stay open; E/share
+unentered. Further corrective implementation needs separate owner authorization.
+
+Post-report checks passed: money, network, commercialization documents, StoreKit catalog,
+normal FX static contract, whitespace and zero diff in product/tests/scripts/project/workflow.
+No complete validator or FX mutation/runtime suite was run for this artifact-only report.
+Five documentation files remain local/uncommitted; no new head or remote change.
+
 ## Dashboard repair: retain identity-only candidate, withdraw comparison probes
 
 Comparison 2 isolated one id read per mapped Expense; the original fetch stayed exact.

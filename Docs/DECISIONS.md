@@ -1,5 +1,14 @@
 # DECISIONS
 
+## 2026-09-09 — Artifact-only duration investigation before any new repair
+
+Owner authorized separate investigation of #118's fourth failure, not changes to the 240s
+allowance, retries, UI helpers or product. Compare exact original Chinese create method on
+`34250759552` with accepted `34241669738`; distinguish activity marker intervals from API
+CPU time and cleanup/native duration fields. Read existing artifacts without a runtime rerun.
+The report identifies delay location but leaves the query's original cause UNPROVEN. A future
+snapshot/query correction needs separate authorization and complete acceptance gates.
+
 ## 2026-09-08 — Owner enters complete-projection performance repair
 
 After the scoped investigation, owner authorizes optimization of expense fetch/mapping.
