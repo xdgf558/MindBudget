@@ -11,6 +11,11 @@ D's original completion obligations were not accepted by that merge.
 ### Current follow-up — local compatibility supplement
 
 Owner authorized `FX_01D_COMPATIBILITY_TESTS.md` on branch `codex/fx01d-compatibility-tests`.
+
+PR #122 review: `cd373cd` local exit 1 and hosted `34325479518` ordinary/join failure remain
+non-pass. Owner authorized the missing nested-check classification only; new-head complete
+local/hosted/native and independent rereview are required. No product Swift or D/E change.
+
 - [x] Preserve a hash-reversible pre-D codec in the unit-test target only.
 - [x] Add old-format edit/delete and calendar/time-zone positive/negative assertions.
 - [x] Run seven focused tests and inspect native outcomes; do not claim old-binary convergence.

@@ -55,6 +55,25 @@ to its fixed dates/zones/toolchain; it does not prove every historical calendar/
 
 ## Verification and acceptance
 
+### PR #122 classification correction — validation pending on the new head
+
+Owner authorized only the missing nested-check registration after independent review found
+no P1 and one P2. `cd373cd` default complete local validation exited 1 on 2026-09-09
+07:39:07–07:41:07 UTC: `check_fx_compatibility_fixture.py` was unclassified. Hosted
+`34325479518` attempt 1 on the same head failed ordinary (`102381626168`) and join
+(`102387441459`); FX (`102381626434`) succeeded, not whole-run acceptance. Ordinary failed
+before Xcode; no ordinary native artifact or full local/500 ms evidence is earned. These
+remain retained non-passes, not flakes or failures of the compatibility runtime assertions.
+
+Register the exact script as `fx-01d-nested-compatibility`, alongside nested FX privacy, and
+require its exact `--self-test` invocation through the existing FX wrapper. Do not add it to
+a completed C6 matrix row or relax closed discovery. No product/test Swift, fixture, binding,
+threshold, retry, dependency, runtime runner or workflow changes in this correction.
+New-head default full validation and hosted ordinary/FX/join/native plus independent rereview
+remain mandatory. Do not reuse cd373cd's FX-only pass or earlier focused/closeout evidence.
+
+### Unchanged acceptance requirements
+
 Seven additional exact-once unit bindings are mandatory (existing 49 retained: total 56).
 The fixture gate runs in the existing FX static entry; negative mutations cover changed old
 inventory, altered provenance/import, wrong target and redirected source. No runtime skip,
