@@ -2,6 +2,50 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-09 — Fourth #118 non-pass (post-freeze, local receipt)
+
+Owner independent review rejects exact `2ab850a5dcd77d90b7d088856b97b003fc9619d3` hosted
+`34250759552` attempt 1. Direct GitHub metadata confirms completed/failure: ordinary
+`102144301398` success, FX `102144301907` and join `102160721420` failure. #118 remains
+OPEN/Draft on that unchanged head. This is the fourth retained closeout non-pass, alongside
+`34097606992`, `34108994597`, `34218693463`; neither #120 green nor ordinary alone overrides it.
+
+Native findings below are attributed to the supplied independent review, not a newly performed
+author artifact audit. Artifacts ordinary `10067720558`, FX `10066839243`; zero test-level retry.
+Chinese AX5 create/detail exceeded the unchanged 240s allowance (native message: Test exceeded
+execution time allowance of 4 minutes), total method duration 316.533s. Around 239s the test
+was still locating fx.preview / expense.save on the create page; deferred app termination also
+failed at line 51. Do not mistake cleanup failure for an established originating cause.
+Stewardship 101.004s and English create 140.238s Passed. All three methods ran once, bound to
+fresh non-cloned `34650A96-F547-49BC-BC3B-60EFE0244DEF`; three Invalid-frame diagnostics remain.
+The repository bundle verifier rejected non-Passed Chinese create as required.
+
+Ordinary 622 Passed / 17 Skipped / 0 Failed methods, 631 concrete Passed, 49 FX bindings once.
+Pseudo-long 120.557s, Wishlist 58.593s and AX5 ExtraLarge 203.032s Passed; none admits FX/join.
+The same product tree's prior 183.322s Chinese create in #120 does not explain this timeout.
+Cause remains UNPROVEN; no transient/document-jitter label, larger allowance or retry.
+
+Synchronize the existing public PR body from IN PROGRESS to this failure and add the fourth
+ledger row. Keep this receipt local/uncommitted: the frozen canonical packet's three-run ledger
+predates this outcome, not a pre-approval. No new head/push, rerun, helper change, undraft/merge,
+D checkbox/Done or E entry. A further runtime investigation/repair requires separate scope;
+the physical CloudKit/mixed-version/cross-calendar limits and maintenance debts remain open.
+
+## 2026-09-09 — Resumed #118 publication receipt (post-freeze, local)
+
+Froze clean documentation/gate merge head `2ab850a5dcd77d90b7d088856b97b003fc9619d3` after
+static/self-test checks; diff versus accepted main `10e5b13` is 16 files, 981 insertions /
+53 deletions, Docs plus the two document-gate scripts. Product/tests/workflow/runtime scripts
+remain byte-identical. Pushed to existing #118 without force/rebase, retaining failed history.
+Updated its authorized public body with the exact current head, evidence attribution and all
+three historical non-passes; public body contains no private machine paths or raw logs.
+
+Readback confirms OPEN/Draft on `2ab850a`; hosted `34250759552` attempt 1 started on exactly
+that head and is IN PROGRESS. Native audit and independent rereview remain pending; no accepted
+closeout CI or merge is claimed. This receipt remains local/uncommitted to preserve the frozen
+head. No new runtime/full-local invocation in this Docs-only preparation; no D boxes, D Done,
+E or sharing entry. Do not substitute #120's accepted run or retry unchanged source to seek green.
+
 ## 2026-09-09 — Resume #118 after owner-authorized PR #120 merge
 
 Owner requested independent closeout, not D Done or sharing. Verified #120 MERGED, reviewed
