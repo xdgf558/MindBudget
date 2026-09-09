@@ -1,5 +1,64 @@
 # DECISIONS
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+## 2026-09-09 — Resume #118 on accepted #121 without changing the D completion boundary
+
+Owner authorized independent documentation closeout after #121's explicit merge `039ecdf`.
+Import that accepted main tree; do not reimplement query/dependency repairs inside #118.
+Preserve four failed closeout heads plus #121's intermediate Worker audit non-pass, and bind
+the third repair's exact head/run/second-parent/benchmark/method timings to its own canonical
+section. Exercise omission, duplication, historical displacement and method-timing swaps using
+the existing copied-CLI gate. Add current pointers to all three #121 packets.
+This closeout still needs its own CI/native review. No D checkbox/Done, E entry, waiver of
+mixed-version/cross-calendar/real CloudKit evidence, deployment or automatic merge is authorized.
+
+## 2026-09-09 — Resume #118 only on the independently accepted #120 baseline
+
+Owner authorized returning to independent D documentation closeout after PR #120 merged
+reviewed `705d2a7` as `10e5b13`. Its complete-local, hosted `34241669738` and independent/native
+acceptance close the corrective delivery scope, not the historical causes or D obligations.
+Import accepted main through an ordinary merge, preserve all failed heads and both sides'
+historical records, and change no product/test/helper source relative to main. Canonical
+`FX_01D_CLOSEOUT.md` binds the new repair chain, exact method timings and evidence attribution.
+Extend scoped omission/duplication/displacement/timing negatives without weakening runtime gates.
+This resumed closeout needs its own exact-head CI/native audit and independent review. Original
+cross-calendar, real CloudKit and mixed-version limits are neither waived nor silently moved to E.
+No D checkbox/Done, phase entry, release or automatic merge is authorized by this decision.
+
+## 2026-09-08 — Preserve third closeout failure and bind durations to method identity
+
+The independent review rejects `98345d3` / `34218693463`; all three jobs failed despite the
+unchanged product tree's earlier #119 success. Preserve it as a third non-pass without transient
+classification, a changed-source regression claim, or another unchanged/doc-only rerun.
+The three new runtime paths require separately scoped investigation; this record changes no UI.
+
+The review also found the #119 hosted English/stewardship duration labels reversed. Original
+job logs confirm stewardship 81.518s, Chinese create 153.332s, English create 87.676s. Replace
+the ambiguous list with full method-name rows, pin each row in its own scoped table and exercise
+duration-swap negatives. Preserve local durations unchanged. Add the third run's exact failed
+head/outcome anchor and require the investigation file as the ninth current-pointer surface.
+No runtime binding, benchmark, deadline, retry, privacy or phase contract changes. D stays open.
+
+## 2026-09-08 — Resume D closeout on independently accepted repair, not another unchanged rerun
+
+Context: #118's two exact-head runs failed; the owner required a separate repair scope. #119
+has now completed independent no-P1/P2 review, exact `70fc7c1` full-local/hosted/native checks,
+and explicit owner-authorized merge `b364444`. The owner requests resuming #118, not D Done.
+
+Decision: merge accepted main into the existing Draft branch without changing product/test
+source relative to main. Preserve both failed runs in the canonical closeout, add the repair
+review/head/CI/merge chain and later full-local execution receipt, and update stale current
+investigation states. Historical decisions and experiments remain history. Repair acceptance
+does not convert UNPROVEN original causes into causal proof or clear D's four obligations.
+
+Strengthen the existing scoped document gate: canonical repair and both non-pass ledger rows
+must each appear once in their own sections, with copied-CLI deletion, duplication and historical
+displacement negatives. No runtime binding, retry, 500ms ceiling, 240s allowance, source/private
+sink gate or phase JSON change. The resumed #118 needs its own exact-head hosted/native audit
+and independent review; neither #117 nor #119 green can substitute. Unexecuted mixed-version
+CloudKit/cross-calendar requirements are neither waived nor silently moved into E.
+
 ## 2026-09-09 — Narrow Worker dependency security repair, no audit waiver
 
 Owner authorizes fixing both Worker audit chains and pushing a separate commit to #121.
@@ -4688,3 +4747,22 @@ observers before final-head validation and reject direct native dispatch replace
 host source gate. Record `34072691064` and `34077058451` as non-pass, retain the original 814.6ms
 complete-local failure, and require complete local/hosted/native evidence plus independent
 rereview. This decision changes only the UI-test interaction, not the FX product or phase status.
+
+## 2026-09-07 — FX-01D independent post-merge documentation closeout
+
+The owner authorizes a separate D closeout after implementation PR #117 merged; no sharing or
+FX-01E entry is inferred. Keep the original four D obligation texts and unchecked states.
+Use `FX_01D_CLOSEOUT.md` as one canonical provenance/checklist/limits record with short current
+pointers, rather than copying its entire evidence block across state files. The existing FX
+gate pins the scoped canonical provenance, non-pass/phase boundaries and each pointer, with
+copied-file negative tests for omission, duplication and displacement into historical sections.
+No JSON phase transition, new runtime binding, Swift, UI helper or acceptance threshold changes.
+
+The merged implementation has independent approval, exact `7e901f2` hosted success and merge
+`d19c640` with that second parent. New read-only native audits verify the original ordinary/FX
+artifacts without rerunning tests; complete local evidence belongs to `8e57283`, not this new
+closeout head. The canonical assessment distinguishes fixture/source proof from unexecuted old
+client, mixed-version CloudKit and cross-calendar behavior. Do not silently waive or move an
+unmet D requirement into E. Independent review must decide sufficiency before final acceptance;
+author documentation and green CI alone cannot complete D. This record itself needs review,
+its own hosted/native evidence and merge; no automatic phase completion or next-task entry.

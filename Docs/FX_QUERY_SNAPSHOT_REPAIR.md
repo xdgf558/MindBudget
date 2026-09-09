@@ -1,6 +1,17 @@
 # FX menu and viewport query repair
 
-Status: **WORKER_AUDIT_REPAIR_PENDING_NEW_HEAD_VALIDATION; NOT_ACCEPTED.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **REVIEWED_AND_MERGED_IN_PR121; NOT_D_CLOSEOUT_ACCEPTANCE.**
+
+Accepted `689b932` passed default full local (180.427333ms / 500ms), hosted `34302080136`
+and supplied independent native/no-P1/P2 review, then merged as `039ecdf` with reviewed head
+as second parent. Exact counts, UUIDs, method timings and attribution are in the canonical
+closeout above. No original cause is reclassified. #118 still requires its own CI/review.
+
+## Historical source-freeze checkpoint — superseded by 689b932 acceptance
+
+Historical status: **WORKER_AUDIT_REPAIR_PENDING_NEW_HEAD_VALIDATION; NOT_ACCEPTED.**
 
 Hosted `34298810822` attempt 1 on `4086c59` failed ordinary at the Worker high-severity
 audit before Xcode; join failed, although FX passed. This is retained non-pass, not a flake.

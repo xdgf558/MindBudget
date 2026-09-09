@@ -1,6 +1,15 @@
 # Worker dependency security repair for PR #121
 
-Status: **LOCAL_WORKER_CHECKS_PASSED; NEW_HEAD_FULL_AND_HOSTED_PENDING; NOT_ACCEPTED.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **REVIEWED_AND_MERGED_IN_PR121; NOT_D_CLOSEOUT_ACCEPTANCE.**
+
+Exact `689b932` completed full local exit 0 (180.427333ms / unchanged 500ms) and hosted
+`34302080136` ordinary/FX/join, including both Worker audit/check gates. Supplied independent
+native/no-P1/P2 review accepted that head; owner authorized merge `039ecdf` with it as second
+parent. See the canonical closeout above for exact device/method evidence. This supersedes
+the pre-execution pending checkpoint below, not the retained 4086c59 failure or D obligations.
+The sharp override remains required until its documented safe-removal conditions are met.
 
 ## Authorization and retained non-pass
 
@@ -49,7 +58,7 @@ These are disclosed transitive changes, not Worker runtime or TypeScript upgrade
 Telemetry Vitest remains 4.1.11. Wrangler stays 4.123.0 / 4.127.0, respectively;
 Miniflare stays 5.20260811.1-alpha / 5.20260826.0-alpha and workerd stays unchanged.
 
-## Local Worker evidence and remaining acceptance
+## Historical local Worker evidence and then-pending acceptance
 
 Node 24.15.0 / npm 11.12.1; clean `npm ci` then the same `npm audit --audit-level=high`
 gate and `npm run check` pass in BOTH projects. Both audit JSON reports contain zero

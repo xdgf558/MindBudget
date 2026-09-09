@@ -1,6 +1,16 @@
 # Dashboard first-load repair candidate
 
-Status: **In Progress — owner authorized implementation; acceptance pending.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **CORRECTIVE_DELIVERY_REVIEWED_AND_MERGED_IN_PR120; original cause UNPROVEN.**
+
+Current acceptance: reviewed `705d2a7` passed default complete local validation (194.901083ms /
+500ms), hosted `34241669738` and native audit; owner authorized merge `10e5b13`. Full provenance
+and post-freeze evidence are in `FX_01D_CLOSEOUT.md`, under Accepted second corrective repair
+provenance. This is not #118 acceptance or D Done. The following candidate/freeze text is retained
+as historical protocol and evidence available before that accepted execution, not a current blocker.
+
+## Historical candidate protocol and pre-execution evidence
 
 The owner authorized corrective work after the separately recorded investigation. Historical
 first-load **883.249166 ms > 500 ms** on `b9cebd1` remains non-pass; its exact event cause is

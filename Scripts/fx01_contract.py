@@ -35,6 +35,107 @@ ROOT_KEYS = frozenset(
         "syncCompanionContract",
     }
 )
+D_CLOSEOUT_FILE = "Docs/FX_01D_CLOSEOUT.md"
+D_CLOSEOUT_STATUS = "PENDING_INDEPENDENT_REVIEW_AND_MERGE; D In Progress; FX-01E unentered."
+D_CLOSEOUT_POINTER = (
+    "Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` "
+    "(implementation merged; D In Progress; E unentered)."
+)
+D_CLOSEOUT_CONTEXT = (
+    "Docs/PROJECT_MEMORY.md", "Docs/TASKS.md", "Docs/DECISIONS.md", "Docs/SESSION_LOG.md",
+    "Docs/FX_01_MANUAL_CURRENCY_PLAN.md", "Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md",
+    "Docs/PRIVACY_AND_REVIEW_NOTES.md", "Docs/FX_01D_SWITCH_DIAGNOSTIC.md",
+    "Docs/FX_UI_RELIABILITY_INVESTIGATION.md",
+    "Docs/FX_UI_READINESS_REPAIR.md", "Docs/DASHBOARD_FIRST_LOAD_REPAIR.md",
+    "Docs/DASHBOARD_FIRST_LOAD_INVESTIGATION.md",
+    "Docs/FX_AX5_CREATE_DURATION_INVESTIGATION.md", "Docs/FX_QUERY_SNAPSHOT_REPAIR.md",
+    "Docs/WORKER_DEPENDENCY_AUDIT_REPAIR.md",
+)
+D_CLOSEOUT_ANCHORS = (
+    "Reviewed head: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
+    "Hosted run: `34090503092`; attempt 1; ordinary, FX and join succeeded.",
+    "Merge commit: `d19c6401bc14d2b43365b0936a37fe270e39c481`.",
+    "Merge second parent: `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`.",
+    "Reviewed and merged tree: `0337e7b6ffa6267285b5b7a904e711d62c7f6535`.",
+    "Review scope: owner-supplied independent implementation approval; not D Done.",
+    "Full-local runtime head: `8e572832073f84be6513b7da4f3d7bbf5e67941b`; default validate exit 0.",
+    "Strict benchmark: 217.09825 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Retained non-passes: `34072691064`, `34077058451`, original 814.581125 ms / exit 65.",
+    "Original benchmark and gesture causes remain unproven.",
+)
+D_CLOSEOUT_BOUNDARIES = (
+    "D remains In Progress; its four checkboxes remain unchecked.",
+    "FX-01E, FX-02, COM-C12 and Insights/share implementation remain unentered here.",
+    "No Archive, upload, tester assignment, distribution, release or automatic merge is authorized.",
+    "Cross-calendar companion reconstruction remains unverified:",
+    "this record does not silently move an unmet D requirement into E or waive it.",
+)
+D_CLOSEOUT_REPAIR_ANCHORS = (
+    "Repair reviewed head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.",
+    "Repair hosted run: `34182518433`; attempt 1; ordinary, FX and join succeeded.",
+    "Repair merge commit: `b3644444d2a56b6b1d42e564c57a1e1784809975`.",
+    "Repair merge second parent: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`.",
+    "Repair full-local runtime head: `70fc7c13e361268c44b3cdf3a467eed2aa0fab17`; default validate exit 0.",
+    "Repair strict benchmark: 216.419208 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Repair acceptance is corrective, not proof of the original switch, AX-readback or ambient-sender cause.",
+    "This closeout requires its own exact-head ordinary/FX/join success and native audit; repair evidence is not a substitute.",
+)
+D_CLOSEOUT_NON_PASS_ANCHORS = (
+    "Closeout retained non-pass: `34097606992` / `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`; attempt 1; ordinary, FX and join failed.",
+    "Closeout retained non-pass: `34108994597` / `9c3c6b1d905c4e4f0c9f1cf903bc924f572ce19d`; attempt 1; ordinary, FX and join failed.",
+    "Closeout retained non-pass: `34218693463` / `98345d3c935355cc3217ff010e6e629f2358161b`; attempt 1; ordinary, FX and join failed.",
+    "Closeout retained non-pass: `34250759552` / `2ab850a5dcd77d90b7d088856b97b003fc9619d3`; attempt 1; ordinary succeeded; FX and join failed.",
+    "None of the four closeout failures is transient, waived, or relabelled by the accepted #119, #120 or #121 repairs.",
+)
+D_CLOSEOUT_REPAIR_TIMINGS = (
+    "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 81.518 | Passed once |",
+    "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 153.332 | Passed once |",
+    "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 87.676 | Passed once |",
+)
+D_CLOSEOUT_SECOND_REPAIR_TIMINGS = (
+    "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 93.742 | Passed once |",
+    "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 183.322 | Passed once |",
+    "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 113.153 | Passed once |",
+)
+D_CLOSEOUT_SECOND_REPAIR_ANCHORS = (
+    "Second repair reviewed head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.",
+    "Second repair hosted run: `34241669738`; attempt 1; ordinary, FX and join succeeded.",
+    "Second repair merge commit: `10e5b13937fb4960d85acbb6f30ede0a44e39dfd`.",
+    "Second repair merge second parent: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`.",
+    "Second repair full-local runtime head: `705d2a776c56f6722beb73ec00fc093b9ca3ed16`; default validate exit 0.",
+    "Second repair strict benchmark: 194.901083 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Second repair does not relabel any #118 failure or prove the original 883.249166 ms event cause.",
+    *D_CLOSEOUT_SECOND_REPAIR_TIMINGS,
+)
+D_CLOSEOUT_CURRENT_ANCHORS = (
+    "Current acceptance: **RESUMED_AFTER_PR121_MERGE_PENDING_EXACT_HEAD_CI_AND_REVIEW**.",
+)
+D_CLOSEOUT_THIRD_REPAIR_TIMINGS = (
+    "| `testManualForeignCurrencyChineseAX5ExpiredStewardshipEdit` | 83.923 | Passed once |",
+    "| `testManualForeignCurrencyChineseAX5ProCreateAndDetail` | 107.546 | Passed once |",
+    "| `testManualForeignCurrencyEnglishProCreateAndDetail` | 65.284 | Passed once |",
+)
+D_CLOSEOUT_THIRD_REPAIR_ANCHORS = (
+    "Third repair reviewed head: `689b932011ff48e4bd952c41558eaa9182bef5d5`.",
+    "Third repair hosted run: `34302080136`; attempt 1; ordinary, FX and join succeeded.",
+    "Third repair merge commit: `039ecdfaa48c6cfac407aa375498024681afed32`.",
+    "Third repair merge second parent: `689b932011ff48e4bd952c41558eaa9182bef5d5`.",
+    "Third repair full-local runtime head: `689b932011ff48e4bd952c41558eaa9182bef5d5`; default validate exit 0.",
+    "Third repair strict benchmark: 180.427333 ms; unchanged ceiling 500 ms; zero retry; FX host included.",
+    "Third repair does not relabel the fourth #118 failure or prove the original 46.953s query cause.",
+    "Third repair retained non-pass: `34298810822` / `4086c59b7ab2a2554ccc1911ecee8e69482d35e3`; attempt 1; ordinary and join failed; FX passed.",
+    *D_CLOSEOUT_THIRD_REPAIR_TIMINGS,
+)
+D_CLOSEOUT_SECTIONS = (
+    ("# FX-01D independent post-merge closeout", D_CLOSEOUT_CURRENT_ANCHORS),
+    ("## Accepted third corrective repair provenance", D_CLOSEOUT_THIRD_REPAIR_ANCHORS),
+    ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_ANCHORS),
+    ("## Accepted implementation provenance", D_CLOSEOUT_ANCHORS),
+    ("## Accepted corrective repair provenance", D_CLOSEOUT_REPAIR_ANCHORS),
+    ("## Accepted repair hosted FX duration mapping", D_CLOSEOUT_REPAIR_TIMINGS),
+    ("## Retained closeout non-pass ledger", D_CLOSEOUT_NON_PASS_ANCHORS),
+    ("## Open obligations and acceptance boundary", D_CLOSEOUT_BOUNDARIES),
+)
 PHASE_KEYS = frozenset(
     {
         "id",
@@ -604,6 +705,28 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
     if errors:
         return errors
 
+    # One canonical body plus scoped pointers: another document/historical paragraph cannot
+    # satisfy a missing current statement. This pins provenance, not runtime correctness.
+    packet_path = project_root / D_CLOSEOUT_FILE
+    if not packet_path.is_file():
+        errors.append("missing canonical D closeout record")
+    else:
+        packet = packet_path.read_text(encoding="utf-8")
+        if _status_after_heading(packet, "# FX-01D independent post-merge closeout", bold=True) != D_CLOSEOUT_STATUS:
+            errors.append("D closeout must retain its unique pending Status")
+        for heading, anchors in D_CLOSEOUT_SECTIONS:
+            section = _section(packet, heading, "## ")
+            normalized = _normalize_space(section or "")
+            for anchor in anchors:
+                if normalized.count(_normalize_space(anchor)) != 1:
+                    errors.append(f"D closeout missing/duplicate scoped anchor: {heading}:{anchor}")
+    for relative in D_CLOSEOUT_CONTEXT:
+        path = project_root / relative
+        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        introductory_section = text.split("\n## ", 1)[0]
+        if introductory_section.count(D_CLOSEOUT_POINTER) != 1 or text.count(D_CLOSEOUT_POINTER) != 1:
+            errors.append(f"missing/duplicate current D closeout pointer: {relative}")
+
     from validation_order_self_test import workflow_jobs
     try:
         workflow_jobs((project_root / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
@@ -866,6 +989,8 @@ def fail_if_invalid(data: Any, project_root: Path) -> None:
 
 def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
     required = (
+        D_CLOSEOUT_FILE,
+        *D_CLOSEOUT_CONTEXT,
         *B_CLOSEOUT_DOCUMENTS,
         *C_CLOSEOUT_DOCUMENTS,
         "Scripts/fx01_contract.py",
@@ -981,6 +1106,37 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
                 path.write_text(original, encoding="utf-8")
 
         # Another file or an older historical section must not satisfy a removed anchor.
+        for heading, anchors in D_CLOSEOUT_SECTIONS:
+            for anchor in anchors:
+                reject_section_change(D_CLOSEOUT_FILE, heading, anchor, "removed D closeout anchor")
+                reject_section_change(D_CLOSEOUT_FILE, heading, anchor, anchor + "\n" + anchor)
+                if anchors in (D_CLOSEOUT_REPAIR_ANCHORS, D_CLOSEOUT_NON_PASS_ANCHORS,
+                               D_CLOSEOUT_REPAIR_TIMINGS, D_CLOSEOUT_SECOND_REPAIR_ANCHORS,
+                               D_CLOSEOUT_THIRD_REPAIR_ANCHORS,
+                               D_CLOSEOUT_CURRENT_ANCHORS):
+                    reject_section_change(
+                        D_CLOSEOUT_FILE, heading, anchor,
+                        "\n## Misplaced historical repair evidence\n" + anchor,
+                    )
+        for heading, timings in (
+            ("## Accepted repair hosted FX duration mapping", D_CLOSEOUT_REPAIR_TIMINGS),
+            ("## Accepted second corrective repair provenance", D_CLOSEOUT_SECOND_REPAIR_TIMINGS),
+            ("## Accepted third corrective repair provenance", D_CLOSEOUT_THIRD_REPAIR_TIMINGS),
+        ):
+            for index, row in enumerate(timings):
+                duration = row.split("|")[2].strip()
+                wrong_duration = timings[(index + 1) % 3].split("|")[2].strip()
+                reject_section_change(D_CLOSEOUT_FILE, heading, row, row.replace(duration, wrong_duration))
+        for replacement in ("DONE", D_CLOSEOUT_STATUS + "**\n\nStatus: **" + D_CLOSEOUT_STATUS):
+            reject_section_change(D_CLOSEOUT_FILE, "# FX-01D independent post-merge closeout",
+                                  D_CLOSEOUT_STATUS, replacement)
+        for relative in D_CLOSEOUT_CONTEXT:
+            title = (project_root / relative).read_text(encoding="utf-8").splitlines()[0]
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER, "removed current pointer")
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER,
+                                  D_CLOSEOUT_POINTER + "\n" + D_CLOSEOUT_POINTER)
+            reject_section_change(relative, title, D_CLOSEOUT_POINTER,
+                                  "\n## Misplaced historical pointer\n" + D_CLOSEOUT_POINTER)
         for relative in C_CLOSEOUT_DOCUMENTS:
             for anchor in D_ENTRY_ANCHORS:
                 reject_section_change(relative, D_ENTRY_HEADING, anchor, "removed D entry anchor")

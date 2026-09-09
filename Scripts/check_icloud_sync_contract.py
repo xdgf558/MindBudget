@@ -160,7 +160,7 @@ FX_CONTRACT_ANCHORS = (
     "Frozen parent: `.expense` payload keys, field types, semantic digest algorithm and envelope version 1 remain unchanged.",
     "Closed fields: `expenseID`, `originalAmountMinorUnits`, `originalCurrencyCode`, `rateNumerator`, `rateDenominator`, `rateDate`, `rateTimeZoneIdentifier`, `rateSourceRaw`.",
     "Atomic cohort:", "Pending parent:", "Quarantine:", "Conflict choice:", "Deletion:",
-    "Local continuity:", "Sync remains default off;", "not reviewed/merged runtime acceptance",
+    "Local continuity:", "Sync remains default off;", "implementation merged; D closeout pending",
 )
 
 
@@ -184,7 +184,7 @@ def validate_fx_companion_contract(domain: str, actor: str, contract: str) -> li
         projection = ""
     if hashlib.sha256(re.sub(r"\s+", "", projection).encode()).hexdigest() != FX_PARENT_PROJECTION_SHA256:
         errors.append("FX cannot change the frozen pre-D expense field projection")
-    current = contract.split("### FX-01D companion transport — current source candidate", 1)
+    current = contract.split("### FX-01D companion transport — merged implementation, closeout pending", 1)
     section = current[1].split("\n### ", 1)[0] if len(current) == 2 else ""
     for anchor in FX_CONTRACT_ANCHORS:
         if anchor not in section:

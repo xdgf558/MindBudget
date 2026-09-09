@@ -1,5 +1,11 @@
 # FX Chinese AX5 create duration investigation
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Historical investigation; corrective query/dependency delivery was later accepted in #121
+(`689b932` / `34302080136` / `039ecdf`). Original query cause stays UNPROVEN. The historical
+status and artifact-only scope below are not pending #121 acceptance or permission to rerun #118.
+
 Status: **ARTIFACT_TIMELINE_COMPLETE; QUERY_DELAY_CAUSE_UNPROVEN; NO_CORRECTIVE_ACCEPTANCE.**
 
 Owner authorized a separate duration investigation after #118's fourth non-pass, not a repair,

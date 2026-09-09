@@ -1,5 +1,22 @@
 # FX-01D implementation evidence
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **In Progress — PR #117 implementation merged as d19c640; independent D closeout pending; FX-01E unentered.**
+
+Current closeout checkpoint: #118 resumes after separately accepted #119 (`70fc7c1` /
+`34182518433` / `b364444`), #120 (`705d2a7` / `34241669738` / `10e5b13`) and #121
+(`689b932` / `34302080136` / `039ecdf`). All have
+exact-head complete-local, hosted/native and independent corrective acceptance. #118 failed
+runs `34097606992`, `34108994597`, `34218693463` and `34250759552` remain non-pass. #121 changes the runtime
+baseline; its inherited controls are not a helper repair inside this documentation PR.
+Original causes remain UNPROVEN. This closeout's own evidence is still pending.
+See `FX_01D_CLOSEOUT.md` for provenance and sufficiency limits. #118 needs its own new exact-head
+CI/native audit and rereview; earlier green implementation/repair evidence is not a substitute.
+No helper change relative to accepted main, D checkbox, D Done or E entry is authorized here.
+
+### Historical main-side source-freeze checkpoint (superseded by #120 acceptance)
+
 Status: **D In Progress — #117 implementation merged d19c640; #118 closeout remains Draft.**
 
 Current pointer: accepted #119 merge `b364444` does not replace the three failed #118 runs
@@ -8,16 +25,22 @@ and its unresolved acceptance are in `FX_UI_READINESS_REPAIR.md`. Four D boxes s
 E is unentered. Everything in the 8e57283 validation sections below is a historical
 implementation checkpoint, not the current #117 PR state or #118 closeout evidence.
 
+### Continuing implementation history and obligations
+
 Owner entry and C completion are recorded in `FX_01_MANUAL_CURRENCY_PLAN.md`, using PR #116's
 reviewed `f7b0bff`, hosted `34038682330` attempt 1 and merge `7e9d693`. Those accepted C facts do
-not validate this D candidate. Original head `f3538f9` and diagnostic head `c1f0db2` retain their
+not validate this D candidate. PR #117 subsequently received independent approval and merged
+reviewed `7e901f2` after hosted `34090503092` passed. Its exact merge and fresh original-artifact
+audit are in `FX_01D_CLOSEOUT.md`; D's four items remain unchecked pending independent closeout.
+The following pre-merge evidence checkpoints are retained history, not current Draft status.
+Original head `f3538f9` and diagnostic head `c1f0db2` retain their
 non-passes below. Observer-free head `8e572832073f84be6513b7da4f3d7bbf5e67941b` now has
 completed full-local evidence and hosted `34080624727` success. The owner's latest supplied
 review accepts the hosted/native switch evidence but requires this complete-local result to be
 recorded and rereviewed. This update supplies that evidence; it is not independent approval or
 permission to undraft/merge. D's four plan checkboxes stay open; E is unentered.
 
-## Current observer-free validation evidence — 2026-09-07
+## Historical observer-free implementation validation — 2026-09-07
 
 The already-started, single full invocation on exact clean head
 `8e572832073f84be6513b7da4f3d7bbf5e67941b` completed **exit 0**. No source was edited during

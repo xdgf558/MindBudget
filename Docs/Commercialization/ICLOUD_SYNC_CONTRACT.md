@@ -67,9 +67,12 @@ Legacy parent-only upserts also reject this coexistence; parent tombstones delet
 This interim isolation adds no UI or network activation. FX-01D must update this contract and
 the exact thirteen-type inventory together before removing these protections.
 
-### FX-01D companion transport — current source candidate
+### FX-01D companion transport — merged implementation, closeout pending
 
-Status: FX-01D In Progress; source candidate only, not reviewed/merged runtime acceptance.
+Status: FX-01D In Progress; implementation merged; D closeout pending.
+PR #117 reviewed `7e901f2`, hosted `34090503092` and merge `d19c640` establish implementation
+provenance, not real mixed-version CloudKit or cross-calendar acceptance. See
+`../FX_01D_CLOSEOUT.md`; the original D checklist and unexecuted boundaries remain unchanged.
 Sync remains default off; this compatibility work does not enable a channel, deploy a schema,
 request an account, or authorize a real CloudKit run. Existing enabled paths alone are in scope.
 
@@ -142,7 +145,7 @@ metadata models: `CloudSyncControl`, `CloudSyncRecordMetadata`, `CloudSyncOutbox
 business or financial authority. The V6 `ModelCounts` inventory covered **16** business tables
 (not 15): the prior C4A 15-table audit predates the V5 companion. FX-01B's Schema V7 adds
 `ExpenseForeignCurrencyMetadata`, bringing the local business/companion count to **17**.
-FX-01D's current source candidate adds its separate thirteenth sync type; the twelve legacy
+FX-01D's merged implementation adds its separate thirteenth sync type; the twelve legacy
 types retain their payload contracts. UUIDs below are current
 unique business IDs; `BudgetPlanSemantics.planID` and `MerchantAccountingContext.merchantID` are
 stable companion keys.
@@ -150,7 +153,7 @@ stable companion keys.
 | V6 business owner | Identity / relationship | C4B treatment |
 |---|---|---|
 | Expense | `id`; scalar recurrence/merchant provenance | Sync authoritative envelope |
-| ExpenseForeignCurrencyMetadata (V7) | unique `expenseID`, expense parent required | D candidate: separate encrypted companion, never added to the Expense payload |
+| ExpenseForeignCurrencyMetadata (V7) | unique `expenseID`, expense parent required | Merged D implementation: separate encrypted companion, never added to the Expense payload; phase closeout pending |
 | Income | `id` | Sync authoritative envelope |
 | IncomeAllocation | `id`, unique `incomeID`, optional `budgetPlanID` | Sync; missing parent queues, never guesses |
 | SavingsGoal | `id` | Sync authoritative envelope |

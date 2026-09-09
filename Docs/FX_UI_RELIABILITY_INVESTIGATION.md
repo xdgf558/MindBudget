@@ -1,5 +1,48 @@
 # Separate UI / synchronization test investigation
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **CORRECTIVE_DELIVERY_REVIEWED_AND_MERGED; original causes UNPROVEN; PR #118 remains Draft.**
+
+## Current resumed closeout after separately accepted PR #120
+
+The owner resumes #118 after #120 merged `705d2a7` as `10e5b13`, with default full-local
+exit 0, hosted `34241669738` and independent/native acceptance. The separate readiness and
+Dashboard packets are now accepted corrective history. `FX_01D_CLOSEOUT.md` owns the new
+receipt and pending exact-head closeout gates; D's four items stay unchecked and E unentered.
+
+## Historical resumed-closeout blocker — 34218693463 (before PR #120)
+
+The accepted #119 delivery is retained history, not proof of current closeout success. #118
+`98345d3` hosted `34218693463` attempt 1 failed ordinary/FX/join, its third retained non-pass.
+See the canonical closeout for exact run/head/jobs/artifacts and independently reported counts.
+New failures are FX expired-edit Done never entering safe geometry before any tap, pseudo-long
+Settings income field extending beyond the safe lane, and Wishlist setup Save not reaching
+Dashboard. None is proven to have the old activation/AX-readback cause. Do not blame a changed
+product tree: the product/tests match accepted main. No same-head or document-only rerun to
+obtain green. Separate runtime investigation/repair authorization is required; no helper or
+product modification is made here. D's four boxes remain open and FX-01E stays unentered.
+
+## Current accepted correction and resumed D closeout — 2026-09-08
+
+Independent rereview accepted exact `70fc7c1` with no P1/P2 after default full-local exit 0,
+216.419208ms under unchanged 500ms, hosted `34182518433` attempt 1 success and native audits.
+Owner explicitly authorized merge; #119 merged as `b364444`, with reviewed head as second parent.
+The full-local evidence was produced after the source-freeze checkpoint and synchronized to the
+authorized PR body before final review. `FX_01D_CLOSEOUT.md` now preserves that exact evidence
+and its attribution. This accepts corrective controls, not a forensic explanation of the
+switch, historical AX-readback or ambient-sender event. Failure-only public snapshots remain
+accepted diagnostics; temporary observers/probes are removed. Settings budget whole-row focus,
+three Invalid frame warnings, timing/boot capacity and required checks remain maintenance debt.
+
+The owner resumed #118 against the accepted main repair; that run subsequently failed as
+recorded above. All three #118 non-passes stay retained. Its own accepted corrective evidence
+and exact-head CI/native/rereview are still required. D's four items remain
+unchecked; no D Done or E/share entry. All following investigation checkpoints describe their
+then-current state, not an outstanding requirement to re-prove the accepted #119 correction.
+
+### Historical main-side source-freeze checkpoint (superseded by #120 acceptance)
+
 Status: **Historical #119 source-freeze record; accepted merge b364444; PR #118 remains Draft.**
 
 Current pointer: #119 subsequently passed default full local and hosted `34182518433` on
@@ -8,6 +51,8 @@ is preserved as a historical checkpoint, not current #119 status or a reversal o
 The third #118 non-pass `34218693463` requires the owner-authorized separate repair in
 `FX_UI_READINESS_REPAIR.md`; neither #119 acceptance nor this pointer completes D or enters E.
 
+### Continuing implementation history and obligations
+
 The owner authorized a separate investigation/repair after the second PR #118 review.
 Branch `codex/fx-ui-reliability` starts at merged PR #117, `d19c6401bc14d2b43365b0936a37fe270e39c481`.
 It does not add test changes to the documentation-only closeout branch, rerun that branch,
@@ -15,7 +60,7 @@ check D's four completion items, mark D Done, or enter E. Sharing remains queued
 Zero retries, single activation, the 240-second FX allowance and the default local 500 ms
 benchmark are unchanged. A diagnostic success is not a repair or acceptance.
 
-## Current budget-row focus candidate (2026-09-08; not accepted)
+## Historical budget-row source-freeze checkpoint (2026-09-08; before acceptance)
 
 Owner requested the actual repair before pushing to #119 and allowed the sanitized evidence
 summary to be published there. Product Design context/brief reused the existing budget Form
@@ -421,7 +466,7 @@ The result is `/private/tmp/fx-reliability-label-probe-1.xcresult`, with adjacen
 the UI file was verified byte-identical to the merged base before adding failure-only traces.
 Do not interpret this as a failed hosted retest or as proof of a UIKit recognizer mechanism.
 
-## Current corrective / diagnostic work
+## Historical corrective / diagnostic work
 
 Review follow-up: all ten explicit synthetic `CloudSyncService` construction sites now inject
 a fixture-owned center (nine in `CloudSyncTests`, one in `Phase6FeatureTests`). The offline
@@ -559,7 +604,7 @@ closeout. No new full-local/UI run is claimed, and no unchanged-source rerun is 
 the open UI mechanisms. Main required-check protection and physical CloudKit / mixed-peer /
 cross-calendar evidence remain open.
 
-## Completion boundary (still open)
+## Historical completion boundary at 604caa9 (then open)
 
 Owner-supplied independent rereview of `604caa9`: previous P2 documentation-state and
 synthetic-isolation findings are closed, but the incomplete-investigation P2 remains open.

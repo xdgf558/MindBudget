@@ -1,6 +1,16 @@
 # PROJECT_MEMORY
 
-Current authorized scope: repair both Worker dependency audits in a separate commit on
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Current authorized scope: resume #118 documentation closeout after reviewed #121 merged as
+`039ecdf` with `689b932` as second parent, full local exit 0 (180.427333ms / 500ms) and hosted
+`34302080136` attempt 1/native/independent acceptance. `FX_01D_CLOSEOUT.md` owns the chain.
+Keep all four #118 failures. This head needs its own CI/native audit and review; D's four
+items stay open, E/share unentered. No product/test/runtime edit relative to accepted main.
+
+## Historical #121 source-freeze checkpoint — superseded by accepted merge 039ecdf
+
+At that checkpoint, authorized scope was to repair both Worker dependency audits in a separate commit on
 PR #121 (`codex/fx-query-snapshot-repair`), without changing the FX query helper. See
 `WORKER_DEPENDENCY_AUDIT_REPAIR.md`. Hosted `34298810822` on `4086c59` failed ordinary before
 Xcode and failed join; FX passed. Retain that non-pass. The old complete local pass
@@ -27,6 +37,14 @@ line is `温和的预算与消费复盘工具`.
 
 ## Core user value
 
+Historical closeout checkpoint before the fourth non-pass: resume #118 after accepted #120
+merged reviewed `705d2a7` as `10e5b13` (second parent verified), with complete local exit 0
+(194.901083ms / unchanged 500ms), hosted `34241669738` attempt 1 success and independent
+native/no-P1/P2 acceptance. `FX_01D_CLOSEOUT.md` owns the exact evidence and remaining limits.
+Import accepted main without new product/test changes; obtain this closeout head's own CI,
+native audit and independent review. Keep all three #118 failures and original UNPROVEN causes.
+D's four items stay unchecked, D In Progress; E and Insights income/sharing remain unentered.
+
 Historical scope (accepted in #120 / `10e5b13`): owner entered the Dashboard storage-projection performance repair.
 `DASHBOARD_FIRST_LOAD_REPAIR.md` supersedes the investigation-only scope for implementation,
 not its UNPROVEN historical cause or retained 883.249166 ms non-pass. Keep full data, validation,
@@ -50,6 +68,8 @@ Owner workflow preference (2026-09-06): use the Product Design skill for UI-desi
 including the queued Insights income tile and share card. Follow the skill's context/visual
 selection/verification workflow and preserve this app's existing design system. This preference
 does not authorize parallel phase implementation or deployment.
+
+### Historical main-side checkpoints (before #120 acceptance)
 
 Historical readiness checkpoint, superseded by #120 and the current scope above: PR #117 merged as `d19c640`; PR #119 merged as `b364444` after independent
 acceptance of `70fc7c1`, full local exit 0 (216.419208 ms < 500 ms) and hosted `34182518433`.
@@ -130,25 +150,49 @@ hosted evidence and independent review remain open. #118/#119 stay Draft; no D/E
 Historical PR #117 pre-merge checkpoint (superseded by merge `d19c640`): CSV/locked-accounting
 consumers and the separate thirteenth optional-iCloud companion protocol were implemented
 while PR #117 was Draft. The old `.expense` payload is
+frozen. These paragraphs are retained checkpoints, not the current closeout status.
+
+### Closeout-side checkpoint before #120 integration
+
+Current D work: CSV/locked-accounting consumers and the separate thirteenth optional-iCloud
+companion protocol were merged in PR #117. The old `.expense` payload is
 frozen; valid pairs apply atomically, missing matches wait, malformed/conflicting data stays
 isolated, and deletion is scoped. Privacy regression uses synthetic records and local doubles,
-not real models/accounts. Observer-free repair head `8e57283` completed
+not real models/accounts. PR #117 merged reviewed `7e901f2` as `d19c640`, after hosted
+`34090503092` attempt 1 succeeded. Independent D closeout is now in progress; its canonical
+checklist assessment and original hosted artifact audit are in `FX_01D_CLOSEOUT.md`.
+Closeout PR #118 resumes as Draft after the separate corrective PR #119 merged reviewed
+`70fc7c1` as `b364444`, following hosted `34182518433` attempt 1 success, complete local exit 0
+(216.419208ms / unchanged 500ms), native audit and independent no-P1/P2 rereview. Accepted
+controls replace FX activation with explicit buttons, verify independently loaded saved-budget
+values, focus BudgetSetup rows explicitly and isolate synthetic notification sources. Original
+switch/AX-readback/sender causes remain UNPROVEN; acceptance is corrective, not forensic.
+The canonical closeout records that exact chain and the frozen-source/PR-evidence timing.
+#118 now retains three non-passes: `34097606992`, `34108994597`, and `98345d3` /
+`34218693463`. The third failed FX expired-edit Done geometry, pseudo-long Settings income
+safe-lane geometry, and Wishlist budget Save-to-Dashboard. Neither #117 nor #119 green
+substitutes for the closeout gate; no changed product tree or proven original cause is inferred.
+Keep Draft without another unchanged/document-only rerun. A separate runtime repair scope is
+needed before continuing acceptance. The #119 hosted duration label error is corrected in the
+canonical packet by exact method: stewardship 81.518s, create-zh 153.332s, create-en 87.676s.
+The diff against accepted main changes no product/test source. D's four items remain open.
+Observer-free repair head `8e57283` completed
 default full `Scripts/validate.sh` exit 0, zero retry, including the unchanged 500 ms benchmark
 (217.09825 ms), ordinary suite/coverage, 49 FX unit bindings and all three isolated FX UI methods.
 Local Xcode 27 beta 6 / iOS 26.5 native audits found no Repetition or extra attempt; FX method
 details matched the fresh provenance UUID. Hosted Xcode 26.6 run `34080624727` attempt 1 also
 succeeded on exact `8e57283`; the owner's supplied review accepts its hosted/native switch proof.
-At that checkpoint, evidence synchronization and independent rereview were still required
-before undraft; #117 later completed its implementation merge, not D closeout. Subsequent
-Docs-only updates are not the head used by those runtime results.
+The subsequent implementation review approved merging, not D Done. The Docs-only `7e901f2`
+update is not the head used by that local run. D's four items stay unchecked; real mixed-version
+CloudKit and cross-calendar behavior are not silently certified by synthetic fixtures.
 
 Retain the original 814.581125 ms complete-local failure and both hosted non-passes:
 `34072691064` on `f3538f9` (English switch) and `34077058451` on diagnostic `c1f0db2` (Chinese
 AX5 switch). Neither original cause is proven or relabelled as transient. Readable failed touch
-records show the centre tap reached the thumb without a control action. The repair uses one
-native off-track tap in the current LTR fixtures; local trace confirms a changed path/action,
-not universal gesture-cause proof. The observer is removed, the host matches `f3538f9`, and a
-source gate rejects dispatch replacement. See `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md` for
+records show the centre tap reached the thumb without a control action. The historical #117
+repair used one native off-track tap in LTR fixtures; #118 subsequently failed again, and #119
+replaced that interaction with explicit buttons. Its earlier local trace was not universal
+gesture-cause proof. Temporary dispatch observers remain removed. See `Docs/FX_01D_IMPLEMENTATION_EVIDENCE.md` for
 exact local/hosted provenance, retained warnings, historical non-passes and review boundaries.
 No D Done or E entry is claimed.
 

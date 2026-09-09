@@ -1,5 +1,7 @@
 # PRIVACY_AND_REVIEW_NOTES
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
 This file is the living source for App Store privacy answers and review notes.
 Statements about future features must be revalidated against the shipped binary.
 
@@ -35,7 +37,8 @@ CSV punctuation/newlines are escaped. The export is transferred from memory, so 
 does not retain a second CSV file in its container. It is a ledger export, not a
 full internal-database backup.
 
-FX-01D's in-progress CSV implementation appends the original amount/minor units/currency,
+FX-01D's implementation merged in PR #117; independent phase closeout remains pending.
+Its CSV implementation appends the original amount/minor units/currency,
 exact saved rate numerator/denominator, UTC ISO-8601 rate date (fractional seconds), original
 IANA rate time zone and manual source. Existing accounting columns retain the saved home
 amount and currency. Income and ordinary-expense rows leave all eight appended fields blank.

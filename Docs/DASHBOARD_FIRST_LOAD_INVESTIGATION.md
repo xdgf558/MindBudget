@@ -1,6 +1,12 @@
 # Dashboard first-load performance investigation
 
-Status: **HOTSPOT_IDENTIFIED_ORIGINAL_CAUSE_UNPROVEN — original non-pass open; no corrective acceptance.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **HISTORICAL_INVESTIGATION; original cause UNPROVEN; subsequent correction accepted in PR #120.**
+
+The original 883.249166ms result remains non-pass. Separate corrective acceptance belongs to
+`705d2a7` / `34241669738` / merge `10e5b13`, recorded in `FX_01D_CLOSEOUT.md`; it does not
+retroactively explain this event. The investigation-only protocol below is preserved history.
 
 The owner separately authorized this investigation on 2026-09-08 after the default full
 validator on clean `b9cebd158098207049f31f42184dbece2ccbd365` exited 65: the first-load

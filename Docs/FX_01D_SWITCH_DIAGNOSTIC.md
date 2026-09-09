@@ -1,6 +1,8 @@
 # PR #117 switch dispatch investigation
 
-Status: **Historical diagnostic evidence; observer-free 8e57283 has hosted success and full-local exit 0; PR #117 remains Draft pending evidence rereview.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **Historical diagnostic evidence; PR #117 implementation merged; independent D closeout pending; FX-01E unentered.**
 
 The investigation checkpoints below are retained history, not the current validation status.
 Hosted `34080624727` passed on observer-free `8e57283`; the owner's supplied independent review

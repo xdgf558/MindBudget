@@ -1,5 +1,215 @@
 # SESSION_LOG
 
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+## 2026-09-09 — Resume #118 after explicitly accepted and merged #121
+
+Owner authorizes returning to independent documentation closeout, not D Done or E/share.
+Verified #121 merge `039ecdfaa48c6cfac407aa375498024681afed32` has first parent `10e5b13`
+and reviewed `689b932011ff48e4bd952c41558eaa9182bef5d5` as second parent; hosted
+`34302080136` attempt 1 succeeded on that reviewed head. Supplied independent review reports
+no P1/P2 and native acceptance. Rechecked local full exit/head/timestamps, original 180.427333ms
+measurement and log/provenance hashes. New canonical evidence is scoped to #121 only.
+
+Preserved the existing fourth-failure/publication receipts as `fc80fd0`, then merged accepted
+main without rebase/force. Only four documentation conflicts occurred; retained both sides'
+historical records, removed a duplicated partial sentence/heading, and placed current acceptance
+above explicit historical checkpoints. An oversized generated conflict patch was rejected
+without edits; per-file patches then preserved both sides. No runtime test failure occurred.
+
+Added the fourth exact-head non-pass to the scoped ledger and third repair's method-bound
+timings, including #121's intermediate Worker audit non-pass. Extended existing copied-CLI
+omission/duplication/displacement/timing negatives and current pointers to its three packets.
+No new product/test/Worker dependency/runtime gate/phase JSON/workflow change versus main.
+Original 46.953s cause, four #118 failures, all earlier non-passes and D evidence gaps remain.
+
+Preparation static/self-tests, this resumed exact-head hosted/native results and independent
+review remain pending at this writing. No full local runtime is claimed for this Docs/gate-only
+head. Keep Draft; all four D checkboxes open, E/share unentered, no live channel or release.
+
+Preparation result: money, network, commercialization docs, StoreKit, iCloud contract/self-test
+and complete FX gate passed. FX closeout rejected 1221 copied-CLI mutations (48 more than the
+prior #118 preparation), preserving native/no-retry boundaries and 165 private-sink injections.
+An initial command used a nonexistent shell wrapper for iCloud after four gates had passed;
+used the existing Python checker/self-test (also called by the commercialization gate) instead.
+Two ad-hoc checklist comparisons assumed TASKS had the plan's D subsection title and stopped
+with Missing D; corrected each comparison to its actual section. Both now verify unchanged
+checkbox texts/states, including all four D plan items. These are preparation-tool errors,
+not runtime test retries or gate waivers. `git diff --check` passed, and product/test/Worker/
+workflow/project/phase JSON/runtime gate/runner files equal accepted main `039ecdf` exactly.
+Freeze this Docs/document-gate-only merge and push existing #118; its own hosted/native results
+and independent review remain pending, with no D completion or automatic merge authority.
+
+## 2026-09-09 — Fourth #118 non-pass (post-freeze, local receipt)
+
+Owner independent review rejects exact `2ab850a5dcd77d90b7d088856b97b003fc9619d3` hosted
+`34250759552` attempt 1. Direct GitHub metadata confirms completed/failure: ordinary
+`102144301398` success, FX `102144301907` and join `102160721420` failure. #118 remains
+OPEN/Draft on that unchanged head. This is the fourth retained closeout non-pass, alongside
+`34097606992`, `34108994597`, `34218693463`; neither #120 green nor ordinary alone overrides it.
+
+Native findings below are attributed to the supplied independent review, not a newly performed
+author artifact audit. Artifacts ordinary `10067720558`, FX `10066839243`; zero test-level retry.
+Chinese AX5 create/detail exceeded the unchanged 240s allowance (native message: Test exceeded
+execution time allowance of 4 minutes), total method duration 316.533s. Around 239s the test
+was still locating fx.preview / expense.save on the create page; deferred app termination also
+failed at line 51. Do not mistake cleanup failure for an established originating cause.
+Stewardship 101.004s and English create 140.238s Passed. All three methods ran once, bound to
+fresh non-cloned `34650A96-F547-49BC-BC3B-60EFE0244DEF`; three Invalid-frame diagnostics remain.
+The repository bundle verifier rejected non-Passed Chinese create as required.
+
+Ordinary 622 Passed / 17 Skipped / 0 Failed methods, 631 concrete Passed, 49 FX bindings once.
+Pseudo-long 120.557s, Wishlist 58.593s and AX5 ExtraLarge 203.032s Passed; none admits FX/join.
+The same product tree's prior 183.322s Chinese create in #120 does not explain this timeout.
+Cause remains UNPROVEN; no transient/document-jitter label, larger allowance or retry.
+
+Synchronize the existing public PR body from IN PROGRESS to this failure and add the fourth
+ledger row. Keep this receipt local/uncommitted: the frozen canonical packet's three-run ledger
+predates this outcome, not a pre-approval. No new head/push, rerun, helper change, undraft/merge,
+D checkbox/Done or E entry. A further runtime investigation/repair requires separate scope;
+the physical CloudKit/mixed-version/cross-calendar limits and maintenance debts remain open.
+
+## 2026-09-09 — Resumed #118 publication receipt (post-freeze, local)
+
+Froze clean documentation/gate merge head `2ab850a5dcd77d90b7d088856b97b003fc9619d3` after
+static/self-test checks; diff versus accepted main `10e5b13` is 16 files, 981 insertions /
+53 deletions, Docs plus the two document-gate scripts. Product/tests/workflow/runtime scripts
+remain byte-identical. Pushed to existing #118 without force/rebase, retaining failed history.
+Updated its authorized public body with the exact current head, evidence attribution and all
+three historical non-passes; public body contains no private machine paths or raw logs.
+
+Readback confirms OPEN/Draft on `2ab850a`; hosted `34250759552` attempt 1 started on exactly
+that head and is IN PROGRESS. Native audit and independent rereview remain pending; no accepted
+closeout CI or merge is claimed. This receipt remains local/uncommitted to preserve the frozen
+head. No new runtime/full-local invocation in this Docs-only preparation; no D boxes, D Done,
+E or sharing entry. Do not substitute #120's accepted run or retry unchanged source to seek green.
+
+## 2026-09-09 — Resume #118 after owner-authorized PR #120 merge
+
+Owner requested independent closeout, not D Done or sharing. Verified #120 MERGED, reviewed
+head `705d2a776c56f6722beb73ec00fc093b9ca3ed16`, hosted `34241669738` attempt 1 all three jobs
+success; merge `10e5b13937fb4960d85acbb6f30ede0a44e39dfd` has that reviewed head as second parent.
+Independent native review and full-local acceptance were supplied by the owner; no new runtime
+execution or GitHub review event is claimed. #118 started OPEN/Draft at `98345d3`.
+
+Preserved the nine existing local #118 ledger/timing/pointer corrections as local commit
+`71bfbe6`, then began merging accepted main without rewriting failed heads. Conflicts were
+documentation-only. Preserved both sides' historical decisions/session/checkpoint records and
+made their source-freeze timing explicit; latest current pointers now refer to the canonical
+second-repair receipt. A proposed memory conflict resolution was rejected for dropping one
+side's historical text; used a lossless two-sided historical merge instead. An oversized log
+read was refused by the local output guard; subsequent conflict inspection used bounded sections.
+
+Recorded #120 local 194.901083ms / unchanged 500ms, ordinary 622/17 and 631 concrete, FX UUIDs
+and exact timing attribution, review/native provenance, and retained original 883.249166ms
+failure and rejected partial-fetch comparison. All three #118 non-passes stay in their scoped
+ledger. Corrective acceptance is not original-cause proof. Post-run source-freeze pending items
+are historical, not a new requirement to rerun #120 or an implicit D completion.
+
+Static/self-test validation and this resumed head's hosted/native audit are pending at this
+preparation checkpoint. No full-local runtime is newly claimed for Docs/gate-only preparation.
+Keep Draft; D's four checkboxes open, D In Progress, E/Insights sharing unentered. No external
+channel, physical CloudKit, mixed-version or cross-calendar test, release or branch-rule change.
+
+Preparation validation passed: money, network, commercialization documents, StoreKit catalog,
+iCloud contract and complete FX self-tests, including 1173 copied-CLI mutations (45 new versus
+the preserved prior correction), 165 private-sink mutations and all existing native/no-retry
+contracts. Initial preparation failed closed because a historical subheading accidentally ended
+the parsed D section before its checklist; nested that subheading correctly, preserving all four
+texts/unchecked states, then passed the complete FX gate. No runtime test failure or rerun.
+`git diff --check` and product/test/workflow/validator/runner equality against accepted main
+`10e5b13` passed. Recomputed the #120 local receipt/log/provenance hashes from retained files;
+they match the canonical record. Their pre-hosted review fields remain historical, not rewritten.
+Freeze this Docs/gate-only merge for existing #118; its own exact-head hosted/native remains
+pending and must be recorded separately. No older green pre-approves it.
+
+## 2026-09-08 — Third #118 failure and duration-attribution correction (local; no push)
+
+Owner supplied independent no-P1/two-P2 review: #118 remains unmergeable. Direct GitHub checks
+confirm `34218693463` attempt 1 failure on `98345d3`, jobs ordinary `102036452111`, FX
+`102036451825`, join `102050557510`; artifacts `10054527101` / `10053466531` were unexpired.
+Original job logs confirm FX expired-edit failed before any Done tap (safe snapshot absent),
+pseudo-long Settings income bottom 799.3333 beyond lane end 794, and Wishlist's Dashboard wait
+then missing tab. Native counts/UUID are attributed to the supplied independent review, not a
+new all-method author audit. No rerun, product diagnosis or current-head pass is claimed.
+
+Direct original #119 log inspection confirms the author's hosted duration labels were wrong:
+stewardship 81.518s, Chinese create 153.332s, English create 87.676s. Corrected the canonical
+packet, replaced positional values with exact method rows, added scoped method/duration and
+negative-swap checks, retained the third failure row and added the investigation pointer as a
+ninth mandatory current surface. Updated current memory/tasks/plan/evidence without altering
+historical acceptance or D's four unchecked obligations. Validation is pending at this checkpoint.
+
+All edits remain local, including earlier post-publication receipts. No commit/push, PR-body
+publication, CI rerun, helper/product change, undraft, merge, D Done or FX-01E entry. Separate
+runtime investigation/repair needs owner authority; do not fold it into documentation closeout.
+
+Local preparation checks passed: all five static gates, iCloud contract and diff whitespace.
+FX gate executed 1128 copied-CLI mutations (18 additional ledger/timing/pointer negatives),
+with the existing 165 privacy injections and runtime/no-retry contracts intact. This is not
+runtime acceptance. Read-only source inspection also confirms Wishlist uses its own direct
+field/Save taps rather than the shared safe Save helper; Settings' failed reveal is inside
+read-only persisted-value verification before any focus/type. These are source facts, not
+proof of the original event cause or authority to apply an untested replacement.
+
+## 2026-09-08 — Explicitly authorized #118 public body synchronization (local receipt)
+
+The owner explicitly answered “公开到 PR #118 正文” to the disclosure question for the linked
+summary's test results, artifact identifiers, hashes and historical provenance. Published that
+prepared body to #118. Readback confirms exact head `98345d3c935355cc3217ff010e6e629f2358161b`,
+OPEN/Draft, the new run `34218693463` and both retained failed runs in the body. Immediately
+before publication the exact-head attempt 1 was still in progress: ordinary `102036452111`
+and FX `102036451825`; native audit remains pending. No CI success, corrective rereview,
+undraft, merge, D completion or E entry is inferred. This receipt is local and uncommitted,
+not a new reviewed head. The preceding publication blocker is resolved by this explicit consent.
+
+## 2026-09-08 — Resumed #118 published; PR-body disclosure blocked (local receipt)
+
+Published normal merge commit `98345d3c935355cc3217ff010e6e629f2358161b` to existing #118.
+GitHub initially returned stale PR metadata immediately after push; a subsequent read confirmed
+exact head 98345d3, base b364444, OPEN/Draft and new hosted `34218693463` in progress. The earlier
+two failures remain completed/failure. No rerun, undraft or phase advancement was requested.
+The updated machine-path-free PR body is prepared locally as `pr118-98345d3-review.md`, but
+publication was rejected by safety review as requiring explicit authorization for this exact
+public test/artifact/provenance payload. No alternate API/comment/browser route or retry was
+used. PR body remains stale until owner approval; this local receipt is not in frozen 98345d3.
+Hosted/native and independent review remain pending. D's four items are still open; E unentered.
+
+## 2026-09-08 — Resume Draft #118 after accepted #119 integration
+
+Owner requested resuming D documentation closeout. Verified #119 MERGED at
+2026-09-08T08:41:21Z: `b3644444d2a56b6b1d42e564c57a1e1784809975` has second parent
+`70fc7c13e361268c44b3cdf3a467eed2aa0fab17`. Its hosted `34182518433` attempt 1 is success
+in ordinary/FX/join. Independent no-P1/P2 rereview and explicit merge authorization were
+supplied by the owner off-platform. Full default local exit 0 and native audits on that
+frozen head preceded final review; its 216.419208ms benchmark and isolated FX remain bounded
+evidence, not original gesture-cause proof. Synchronized the record into the canonical closeout.
+
+Fetched accepted main and merged it into existing #118 without rebasing or rewriting history.
+Conflicts were documentation-only; preserved the earlier decisions/session history and current
+closeout pointers, and updated obsolete current-state wording. Product/test source is inherited
+from accepted main, not a new UI repair in this PR. The investigation checklist now distinguishes
+accepted corrective delivery from unproven original causes; D's four boxes remain untouched.
+
+Verified #118's second run `34108994597` on `9c3c6b1` failed all three jobs; retained it with
+`34097606992` in the canonical ledger. Added scoped exact repair/non-pass anchors and copied-CLI
+omission/duplication/historical-displacement negatives. No runtime gate or privacy boundary was
+weakened. A first documentation patch had a mismatched context and failed without edits; corrected
+the context. A whole historical log read was truncated, so conflict resolution used bounded
+sections instead; it did not truncate the file. Validation and this resumed head's hosted/native
+checks are pending at preparation. No new complete local runtime or independent acceptance claim.
+
+Keep #118 Draft; no D Done, E, sharing, physical device/CloudKit activation or release action.
+
+Preparation validation: all five static gates exited 0, including 1110 copied-CLI closeout
+mutations (33 additional repair/ledger negatives), 165 private-sink injections and unchanged
+49 unit / three FX UI runtime binding contracts. The iCloud contract and `git diff --check`
+also passed. Diff against accepted `b364444` is Docs plus document-gate scripts only; product,
+test, project, workflow, FX JSON, validator, runner and privacy checker are unchanged.
+No new full local/runtime run is claimed for this documentation/gate-only head. Freeze and
+publish it to existing Draft #118, record its own new run in the PR body, and await native
+artifact audit plus independent review. Neither accepted historical green substitutes.
+
 ## 2026-09-09 — Authorized Worker audit repair after #121 hosted failure
 
 Retain `4086c59` / hosted `34298810822` attempt 1 as non-pass: ordinary `102301138897`
@@ -10316,3 +10526,95 @@ FX contract including negative/self-tests) passed after the evidence synchroniza
 or runtime binding was weakened. `git diff --check` passed and non-Docs diff against `8e57283`
 is empty. Publish only this evidence update to the existing Draft PR and identify its new
 documentation head/CI separately in the PR body; independent rereview is still pending.
+
+## 2026-09-07 — Owner-authorized PR #117 implementation merge (local handoff note)
+
+The owner supplied independent approval to merge the D implementation candidate, then explicitly
+instructed “合并吧”. Verified exact reviewed head `7e901f2e3b521e2185bf7c4c00b6e77e21b8d80c`,
+Draft/open/mergeable state and hosted `34090503092` attempt 1 success: ordinary `101642813577`,
+FX `101642813753` and join `101652174130` all succeeded. No new test invocation or native-audit
+claim was made during this merge operation; retain the previously recorded audit attribution.
+
+Removed Draft and used a merge commit with an exact-head match, without admin bypass or branch
+deletion. GitHub confirms PR #117 MERGED at `2026-09-07T07:28:23Z`, merge
+`d19c6401bc14d2b43365b0936a37fe270e39c481`. The API confirms first parent
+`7e9d69389d88dabb5bfcc5e77709b282801d3df0` and second parent equal to the reviewed `7e901f2`.
+
+This local post-merge note is not part of the merged commit and is not an independent D closeout.
+D's four checkboxes remain untouched, D remains In Progress, and FX-01E remains unentered.
+No new closeout PR, product change, Insights/share implementation or release action was started.
+
+## 2026-09-07 — Owner enters independent FX-01D documentation closeout
+
+The owner now explicitly requests the separate D closeout. Created
+`codex/fx01d-implementation-closeout` at verified merge `d19c640`, carrying forward only the
+local merge-session note. No product implementation, real-account run or phase transition.
+New canonical `FX_01D_CLOSEOUT.md` records the unchanged four-item assessment, exact review/
+hosted/merge chain, local versus hosted toolchains, original non-passes and remaining limits.
+Current memory/tasks/plan/evidence/privacy/sync statements now say implementation merged and
+closeout pending rather than incorrectly describing #117 as Draft or unmerged. The eight state
+documents have short scoped pointers; the FX gate and copied-CLI negatives reject missing,
+duplicate or historically displaced pointers and changed canonical boundaries/provenance.
+
+Downloaded accepted `34090503092` artifacts `10007720280` / `10007144902`. Native read-only
+audits used local Xcode 27 beta 6 to inspect hosted Xcode 26.6 results: ordinary 627 methods,
+610 Passed / 17 Skipped, 619 concrete Passed; FX three Passed once, three retained warnings.
+Every method detail has zero Repetition/extra attempt and matching tree/detail structure.
+FX provenance/detail UUID is `1D772EA9-44AC-44FA-8AD7-9DEE828F1CB7`; durations are
+108.765 / 171.399 / 96.387 s (Chinese stewardship/create, English create). Separate repository
+verifiers accepted all 49 unit bindings and three device-bound UI bindings. Hashes and paths
+are in the canonical packet. No new test execution occurred to produce these audit results.
+
+Retained audit setup failures: the first repository verifier omitted DEVELOPER_DIR and could
+not find xcresulttool; after explicit selection it rejected the ordinary extracted directory
+without an .xcresult suffix. Renaming that directory without content changes resolved the
+input convention and verification passed. These are read-only audit failures, not hidden
+test retries or relabelled hosted results. The original 814.581125 ms / exit 65 and both failed
+hosted runs remain non-pass, with original causes unproven.
+
+Legacy-shaped parent fixtures/frozen payload checks are not an executed pre-D client. The
+Calendar.current companion reconstruction has no cross-calendar evidence. Keep the original
+D requirement open to independent sufficiency review, without creating a waiver or implying
+real CloudKit success. D stays In Progress with four unchecked items; E and sharing remain
+unentered. Prepare the separate Draft closeout for owner review after static validation;
+this preparation is not approval, D completion, a release action or automatic merge.
+
+Preparation validation passed: integer-money, network, commercialization-document, StoreKit
+catalog and FX contract gates; FX closeout copied-CLI mutations increased from 1021 to 1077
+(56 new canonical/pointer negatives). Existing 49 runtime bindings, 165 privacy injections,
+payload/order checks and no-retry controls are unchanged. `git diff --check` passed; no diff in
+MindBudget, MindBudgetTests, MindBudgetUITests, project, workflow or FX JSON. No new complete
+local/runtime validation is claimed for this Docs/gate-only head. Publish a separate Draft PR;
+its exact head and own hosted run must be recorded in its body, never replaced with #117's run.
+
+## 2026-09-07 — PR #118 review: stale Draft wording and its own hosted non-pass
+
+The review found that Current D work still said "implemented in Draft PR #117" despite the
+next sentence correctly recording merge d19c640. The previous session's claim of completely
+synchronized current wording was too broad. Correct that missed sentence to "were merged in
+PR #117"; retain this correction rather than rewriting the prior session as if it had succeeded.
+
+Verified GitHub metadata: exact head `52008165d1faf4a03a92d282cdb036b2bcaf3c8c`, run
+`34097606992` attempt 1 failure, ordinary `101664622832`, FX `101664623020` and join
+`101673689351` all failed. Preserve original artifacts FX `10009729091` and ordinary
+`10010259290`. The owner's independent artifact review reports Chinese AX5 create failed
+29.8 s after offTrackTap (352.25,194.67), native child (305,180.67,63,28), row height 125.33,
+rowValue=0/childValue=0 on a fresh non-cloned device (reported UUID prefix FE266090-).
+Chinese stewardship/English create Passed 163.3/101.5 s, not FX admission. Ordinary Chinese
+category-legend test failed at UI line 1682: budget.savingGoal did not become "500" within 5 s;
+the English counterpart's 106 s pass does not close it. These detail observations are
+reviewer-supplied, not a fresh author native audit of the failed artifacts.
+
+Update canonical closeout evidence, implementation evidence, current memory/tasks and PR body.
+Keep 34097606992 as non-pass alongside 814.581125 ms / exit 65, 34072691064 and 34077058451.
+Neither new failure mechanism is inferred; 0.75 off-track single-tap success is not stable-hosted
+proof. This is a documentation-only correction, not a switch/filling fix. No Swift, UI helper,
+threshold, allowance, retry, workflow, gate or JSON changes. A new head must receive its own
+ordinary/FX/join success and native audit/rereview; do not reuse #117's run or retry until green.
+P2-2 stays open pending that evidence. Keep Draft, all four D boxes unchecked, D In Progress,
+E and sharing unentered; no undraft or merge authorized by this repair preparation.
+
+Documentation correction checks passed: all five unchanged static gates, including 1077 FX
+closeout CLI mutations, and git diff --check. Non-Docs diff from 5200816 is empty. Publish this
+five-document correction on the existing Draft PR and record its new exact head/run in the
+body; no new hosted/native acceptance is claimed before that run completes and is audited.

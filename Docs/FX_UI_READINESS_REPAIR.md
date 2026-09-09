@@ -1,6 +1,17 @@
 # Separate UI readiness repair
 
-Status: **In Progress — source-freeze checkpoint; focused checks passed; full-local/hosted/review pending; PR #118 Draft.**
+Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
+
+Status: **CORRECTIVE_DELIVERY_REVIEWED_AND_MERGED_IN_PR120; PR #118 Draft; D In Progress.**
+
+Current acceptance: reviewed `705d2a7` passed default complete local, hosted `34241669738`
+and native checks, then merged as `10e5b13` with owner approval. The original pseudo-long,
+Wishlist and stewardship paths passed 110.227 / 60.379 / 93.742s on that hosted repair head.
+See `FX_01D_CLOSEOUT.md`, Accepted second corrective repair provenance, for exact identities
+and review attribution. It does not replace #118's own CI or prove original unknown causes.
+The following source-freeze protocol and pending statements are retained historical checkpoints.
+
+## Historical source-freeze protocol and evidence
 
 The owner authorized this separate repair after the third #118 non-pass. Branch
 `codex/fx-ui-readiness-repair` starts from main merge `b364444` (PR #119; second parent
