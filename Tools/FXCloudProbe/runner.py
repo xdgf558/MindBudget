@@ -24,6 +24,10 @@ import audit
 
 BUNDLE = audit.BUNDLE
 EXECUTABLE = "MindBudgetFXCloudProbe"
+# devicectl's executable is a native NSURL and its field resolver rejects executable.path.
+# Its documented plain-text search handles displayable values. Require an exact decoded
+# path below as a second boundary; never request an unfiltered list or retry with a fallback.
+PROCESS_SEARCH = "/MindBudgetFXCloudProbe.app/MindBudgetFXCloudProbe"
 STEPS = ["remoteAbsence", "upload", "freshRead", "editUpload", "originalWriterRead", "repeatedRead"]
 FILES = ["used-run.txt", "receipt.json", "initial-fixture.json", "edited-fixture.json"]
 BUDGET = 180
@@ -174,10 +178,11 @@ class Device:
         return native_result(read_json(destination))
 
     def processes(self):
-        value = self.command(["info", "processes", "--filter",
-                              "executable CONTAINS 'MindBudgetFXCloudProbe.app/'"], 5)
+        value = self.command(["info", "processes", "--search", PROCESS_SEARCH], 5)
         require(isinstance(value.get("runningProcesses"), list), "unknown native process-list schema")
         pairs = [process_identity(p) for p in value["runningProcesses"]]
+        require(all(path.startswith("/") and is_probe(path) for _, path in pairs),
+                "native process filter returned an unexpected executable")
         require(len({p for p, _ in pairs}) == len(pairs), "duplicate native PID")
         return dict(pairs)
 

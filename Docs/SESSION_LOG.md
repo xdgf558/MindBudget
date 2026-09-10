@@ -2,6 +2,45 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Native selector repair preparation on merged #123
+
+#123 independently reviewed with no P1/P2, then owner-authorized ready/merge at 02:45:59 UTC.
+Merge 2365526d404182c64d74aafdc33fd8dd91b44f5a has first parent cfee88b and reviewed second
+parent 890fce80e8961049de53a77ca42229ea88eea9db. Complete local exit 0 measured 222.490542 ms
+/ unchanged 500 ms, ordinary 635/17 and 644 concrete; 56 FX unit / 23 C6 and isolated FX 3/3.
+Own hosted 34424729493 attempt 1 ordinary/FX/join and native audit passed. Off-platform review
+is not a GitHub review event. The old worktree's post-merge journals remain preserved unchanged.
+
+Owner then approved exact package 617c2ae9e781bbaa6d336a686b4f2026c797e1d5dfe8307f81d23e4bad1608a4
+and the selected iPhone Air. Signed Development isolation and sole-device/profile match passed;
+phone wired/paired, developer mode enabled, iOS 26.6.1. Exact Bundle-ID query returned zero Apps.
+Original native CONTAINS query failed before installation: NSURL is not a string/collection
+(CoreDeviceError -1). No runner --run/reservation, launch/resume/account/zone/upload/delete occurred.
+Owner next authorized this bounded repair, not a bypass or unreviewed live run.
+
+Created codex/fx-probe-native-filter from fetched main 2365526, preserving all old dirty worktrees.
+First candidate executable.path predicate passed real local Foundation/NSURL tests but failed
+one native query because devicectl rejected that key (28001). Retain this non-pass, not a flake.
+Corrected to documented fixed --search text; enforce exact absolute App/executable path and
+unique positive PID after JSON decode. No unfiltered inventory, fallback, retry or limit change.
+One corrected native empty query passed with the original five-second command bound. This is
+only an empty-list compatibility observation; nonempty launch/exit and installed hash remain open.
+Private native JSON/logs and both failures retained; sanitized hashes/limitations in probe README.
+
+Local controller tests pass: actual Foundation reproduces old URL rejection, 15 .path fixtures
+explicitly do not imply CLI acceptance, two positive/14 negative command-boundary fixtures,
+existing 40+ approval/evidence negatives, 11 controller paths and actual hung-child deadline.
+No product Swift, signed App, profile, payload, limits, workflow or phase gates changed. New
+controller identity invalidates the old binding; independent review and new live confirmation
+remain necessary. Default full local/hosted/native follow source freeze, not yet accepted here.
+No D checkbox/Done, E/Insights entry or cleanup; preserve prior #118/#123 non-passes and P3 debt.
+
+Repair preflight passed the full FX wrapper (including protocol/signature/source/URL/command
+regressions), integer-money, network, commercialization, StoreKit and C6 matrix gates plus
+git diff --check. Product/app/test/project/workflow/Scripts and all signed-probe Swift/entitlement
+inputs have zero diff against main 2365526. Freeze before complete validation; do not change
+the review SHA merely to append later runtime receipts.
+
 ## 2026-09-10 — #123 consolidated preparation implementation checkpoint
 
 Added runner.py/runner_tests.py, four-key executable/full-package-bound probe request, version-2

@@ -2,6 +2,18 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Fixed native process search with fail-closed result identity
+
+Owner authorized a controller compatibility repair after real preflight rejected CONTAINS on
+native NSURL. Foundation supports executable.path, but devicectl rejected that field; preserve
+both observations. Use its documented fixed text search for the exact test App/executable suffix,
+then require every returned PID/path to match the dedicated process. CLI substring/case-insensitive
+false positives must reject the query, not be silently discarded or controlled. No unfiltered
+fallback, retry, timeout increase, install or production-code change. Actual Foundation tests
+and command-boundary negatives complement one real empty-list pass, not live lifecycle evidence.
+The controller hash changes; old exact-controller approval cannot cover it. Full validation and
+independent review precede renewed live confirmation. D/E/share and cloud-cleanup boundaries stand.
+
 ## 2026-09-10 — One reviewed preparation delivery for #123
 
 Owner asked to consolidate remaining work instead of opening recursive documentation PRs.
