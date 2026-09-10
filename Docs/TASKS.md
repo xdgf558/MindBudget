@@ -2,18 +2,33 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — isolated controller native-selector repair
+## Current follow-up — launch argument-order repair after retained live NON_PASS
 
 Owner authorized repairing the native query refusal after #123 merged as `2365526` (reviewed
 second parent `890fce8`). `Tools/FXCloudProbe/README.md` owns scope and retained evidence.
+That selector repair was accepted and owner-authorized merged in #125 as `93218fb`, second parent
+`902875d`. A new exact-bound attempt installed the dedicated App, but its single controller
+invocation stopped before resume because devicectl common flags followed the launch Bundle ID.
 
 - [x] Preserve original NSURL/CONTAINS failure and intermediate CLI key-path refusal.
 - [x] Use fixed scoped search, validate exact returned paths/PIDs and keep five-second bound.
 - [x] Add real Foundation type regression and command-boundary negatives; one selected-phone
   empty query passed. No installation, launch or CloudKit operation occurred.
-- [ ] Freeze repair and pass default complete local validation (unchanged 500 ms/zero retry/
+- [x] Freeze selector repair, pass default complete local/hosted/native validation, obtain
+  independent acceptance and merge #125 with explicit owner authorization.
+- [x] Retain run c251f030-e1da-4de2-bde1-734097ee7123 as NON_PASS: installation succeeded;
+  suspended launch parsing failed before resume; post-failure scoped process query was empty.
+- [x] Implement the separately authorized controller-only ordering repair: devicectl device,
+  timeout and JSON-output options precede the sole Bundle ID positional; pin the exact command
+  and unchanged environment/15-second bound with an offline regression and no fallback/retry.
+- [x] Retain the repair head's 532.129334 ms benchmark NON_PASS; reject count/reserve and
+  10,000-batch product candidates after fixed A-B-B-A comparisons; correct only the benchmark's
+  pre-seed reader lifecycle so it represents opening an already populated store.
+- [ ] Freeze this repair and pass default complete local validation (unchanged 500 ms/zero retry/
   ordinary plus isolated FX), followed by exact-head hosted/native acceptance.
-- [ ] Obtain independent repair review before new exact-controller-bound live confirmation.
+- [ ] Obtain independent repair review and explicit owner ready/merge authorization.
+- [ ] Define and separately authorize any future exact-controller-bound live attempt without
+  bypassing or deleting the retained host reservation; installed App cleanup is also separate.
 
 No D checkbox/Done, E/Insights entry, cleanup, automatic retry or unreviewed live execution.
 

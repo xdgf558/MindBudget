@@ -2,6 +2,83 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Resolve the launch-order repair's strict Dashboard validation blocker
+
+The frozen controller-only head `81d0c0977ddd78486125e9258eaa78e337f6bd09` passed hosted
+`34475140431` attempt 1 (ordinary `102863999655`, FX `102863999305`, join `102880215640`)
+and both native artifact checks. Its one default complete local invocation nevertheless stopped
+exit 65 at 532.129334 ms / unchanged 500 ms before ordinary and isolated-FX runtime suites.
+Retain that result as NON_PASS; the controller/docs change did not touch Dashboard product code.
+
+Owner authorized the single blocker repair in the existing #126 branch. One fixed A-B-B-A first
+compared current 5,000-row enumeration against exact count/reserve plus 10,000-row enumeration:
+158.429042 / 164.619041 / 310.963916 / 189.677500 ms. A final decomposition without the count
+measured 188.759875 / 187.230875 / 226.056792 / 176.493459 ms. Both product candidates failed the
+both-orders criterion and were removed. A subsequent incremental Xcode 27 beta 6 build emitted
+the retained compiler diagnostic “command failed with exit code 0 but produced no further output”;
+the same source then compiled with one build job. No test retry occurred.
+
+Inspection identified a fixture lifecycle mismatch: DataController created its read actor before
+another context seeded 10,000 rows. A real first launch creates the actor after opening an existing
+store. A diagnostic pre-seed/fresh-reader A-B-B-A measured 172.939750 / 151.627667 / 162.100667 /
+152.745208 ms. Because the reverse pair was not faster, this is not a performance-win claim.
+The retained correction creates a fresh DataActor from the seeded container immediately before
+the unchanged timer and real DashboardViewModel load. Rows, projection, validation, sort, money,
+calendar, 500 ms and zero retry stay exact. All temporary product selectors/comparison tests were
+removed; production DataActor is byte-equal to `81d0c09`.
+
+Final-source quiet test builds then produced the same Xcode 27 beta false-failure diagnostic twice,
+once from the incremental cache and once from a fresh DerivedData: several unchanged SwiftCompile
+commands reported exit code 0 but no further output. No test ran in either attempt. Reissuing the
+fresh-cache build once with full output and one build job succeeded. The resulting Phase 10 bundle
+ran the deterministic 10,000-row projection and strict benchmark once each, both Passed with no
+Repetition; the measured interval was 182.722375 ms / unchanged 500 ms. This is focused pre-freeze
+evidence, not the required complete validator.
+
+All six static entry points passed afterward: integer money, network egress, commercialization,
+StoreKit, C6 and the complete FX wrapper, including the launch-order regression. `git diff --check`
+also passed. Freeze next; default complete local validation must execute once on that commit, and
+any result remains distinct from these focused diagnostics.
+
+No phone command, reservation change, uninstall, CloudKit operation, D checkbox, E entry or
+Insights sharing work occurred. Freeze/static/default-local/hosted/native/review remain pending
+for the corrected head; later receipts belong in #126 body without a documentation-only SHA.
+
+## 2026-09-10 — Retain launch parser NON_PASS; prepare controller-only ordering repair
+
+#125's fixed native selector was independently accepted with no P1/P2, then explicitly
+owner-authorized ready/merged. It landed as merge `93218fb4b45d2f6f8a7e35dafdb11655b07d7c30`
+with reviewed second parent `902875db8f94312dc203ab6661872d8a8007d2a6`; merge tree matched the
+reviewed source. Accepted complete local result was 292.231417 ms / unchanged 500 ms with
+635 Passed / 17 Skipped and all isolated FX methods once. Hosted `34433497968` attempt 1 and
+ordinary/FX native audits passed. This record does not reclassify earlier native failures.
+
+The owner subsequently selected the same sole-profile iPhone Air and separately authorized exact
+signed package/controller/run c251f030-e1da-4de2-bde1-734097ee7123. Offline binding passed and one
+dedicated App installation succeeded. The unchanged controller created its immutable host
+reservation, observed zero matching probe processes, and attempted one suspended launch. At
+2026-09-10T11:43:41Z devicectl refused parsing as missing --device and emitted no launch JSON.
+Controller result remains NON_PASS / SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT with resumed=false,
+collectionAttempted=false and its original conservative processStopped=false. One separate scoped
+read-only process observation at 11:45:31Z returned empty; it does not rewrite that result.
+
+No App test code, resume, termination, receipt collection, account/zone query, upload, cloud delete,
+reservation reset or uninstall occurred. The dedicated App and host reservation remain. Retained
+SHA-256: launch error `311ff532686c6b1185cb457107314f43f6e23f2b854dbfbe530b5c1bcc46b15c`;
+post-failure process JSON `4c9da579d62d8a15f50442b414e41f0c18c6bf7b193310c50682a80496fd6611`;
+original controller result `d6efe01192d6539e2e4b205885132c869b6ed77667cc1eae3415c0b92b280976`.
+Raw identifiers and approval/device files remain private.
+
+Root cause is command grammar: launch treats every token after the Bundle ID positional as an App
+argument, while the controller appended common --device/--timeout/--json-output flags afterwards.
+Owner authorized the bounded repair. `Device.command` now takes an explicit positional tail and
+emits common options first; launch supplies the Bundle ID as the sole final positional. Offline
+self-test pins complete argv, environment and unchanged 15-second deadline, and refuses malformed
+argument collections. It adds no fallback/retry, timeout change, phone command, product/signing or
+CloudKit behavior. Full exact-head validation/hosted/native review remain pending. A future live
+attempt and any reservation/installation cleanup require separate approval. D four boxes stay
+open; no D Done, FX-01E or Insights-sharing entry.
+
 ## 2026-09-10 — Native selector repair preparation on merged #123
 
 #123 independently reviewed with no P1/P2, then owner-authorized ready/merge at 02:45:59 UTC.

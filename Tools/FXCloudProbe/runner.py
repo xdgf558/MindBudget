@@ -167,13 +167,22 @@ class Device:
         self.env = {k: v for k, v in os.environ.items()
                     if not k.startswith(("DEVICECTL_CHILD_", "MINDBUDGET_"))}
 
-    def command(self, args, seconds):
+    def command(self, args, seconds, positional_tail=()):
         self.count += 1
         stem = self.out / f"native-{self.count:02d}"
         destination = stem.with_suffix(".json")
         require(not destination.exists(), "native output path already used")
+        require(isinstance(args, (list, tuple)) and all(isinstance(value, str) for value in args),
+                "invalid native option arguments")
+        require(isinstance(positional_tail, (list, tuple)) and
+                all(isinstance(value, str) for value in positional_tail),
+                "invalid native positional arguments")
+        # `device process launch` treats every token after its Bundle ID positional as an
+        # application argument. Keep devicectl's common options ahead of all positional tail
+        # values so --device/--timeout/--json-output cannot be swallowed by the launched app.
         command = ["/usr/bin/xcrun", "devicectl", "device", *args, "--device", self.device,
-                   "--timeout", str(max(1, math.ceil(seconds))), "--json-output", str(destination)]
+                   "--timeout", str(max(1, math.ceil(seconds))), "--json-output", str(destination),
+                   *positional_tail]
         capture(command, stem.with_suffix(".log"), seconds, self.env)
         return native_result(read_json(destination))
 
@@ -192,7 +201,7 @@ class Device:
                "MINDBUDGET_FX_PROBE_EXECUTABLE_SHA256": approval["executableSHA256"],
                "MINDBUDGET_FX_PROBE_ARTIFACT_SHA256": approval["artifactSHA256"]}
         value = self.command(["process", "launch", "--start-stopped", "--environment-variables",
-                              json.dumps(env), BUNDLE], 15)
+                              json.dumps(env)], 15, [BUNDLE])
         pid, path = process_identity(value.get("process"))
         require(is_probe(path), "launch returned wrong executable")
         return pid, path

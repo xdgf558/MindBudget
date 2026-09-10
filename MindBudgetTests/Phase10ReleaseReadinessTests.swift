@@ -46,11 +46,14 @@ struct Phase10ReleaseReadinessTests {
             timeZoneIdentifier: calendar.timeZone.identifier
         )
         let viewModel = DashboardViewModel()
+        // Match a real first launch: the read actor is created after the existing store
+        // has been populated, not before an unrelated fixture context writes 10,000 rows.
+        let dataActor = DataActor(modelContainer: controller.container)
         let clock = ContinuousClock()
         let start = clock.now
 
         await viewModel.load(
-            dataActor: controller.dataActor,
+            dataActor: dataActor,
             currencyCode: "USD",
             cycleStartDay: 1,
             calendar: calendar,
