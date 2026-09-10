@@ -84,6 +84,18 @@ def self_test():
     objects = json.loads(result.stdout)["objects"]
     sources = json.loads((directory / "production-sources.json").read_text())
     support = (directory / "ProbeSupport.swift").read_text()
+    ordinary = [root / "MindBudget.xcodeproj/project.pbxproj"]
+    ordinary += list((root / "MindBudget.xcodeproj").rglob("*.xcscheme"))
+    ordinary += list((root / "MindBudget").rglob("*.swift"))
+    ordinary += list((root / "Config").rglob("*.xcconfig"))
+    ordinary_text = [path.read_text() for path in ordinary]
+    check_ordinary(ordinary_text)
+    try:
+        check_ordinary(ordinary_text + ["SWIFT_ACTIVE_COMPILATION_CONDITIONS = MINDBUDGET_FX_CLOUD_PROBE"])
+    except ValueError:
+        pass
+    else:
+        raise ValueError("ordinary probe compile-flag mutation escaped")
     validate(objects, sources, support, root)
     mutations = []
     for replacement in ("../../MindBudget/App/MindBudgetApp.swift", "ProtocolTests.swift"):
@@ -108,6 +120,12 @@ def self_test():
         except ValueError: continue
         raise ValueError(f"source inventory negative {index} escaped")
     print(f"PASS: explicit {len(sources)} production sources / 6 exact support declarations / 9 negatives.")
+    print("PASS: ordinary project/schemes/product/config files cannot enable the physical probe flag.")
+
+
+def check_ordinary(texts):
+    require(not any("MINDBUDGET_FX_CLOUD_PROBE" in text for text in texts),
+            "ordinary app must not enable isolated physical probe")
 
 
 if __name__ == "__main__":

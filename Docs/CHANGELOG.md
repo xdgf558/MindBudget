@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased batched-read performance candidate — pending complete validation and review
+
+- Read complete expense summaries in batches when the data context has no pending edits.
+  Keep pending-edit behavior, validation, sorting and all recorded amounts/fields unchanged.
+  Controlled local measurements improved; no fixed launch-time guarantee or release acceptance.
+
 ## Unreleased Dashboard performance candidate — pending full validation and review
 
 - Reduced repeated SwiftData identity reads while loading complete expense summaries.

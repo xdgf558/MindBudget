@@ -415,7 +415,16 @@ actor DataActor {
 
     func fetchExpenseSummaries() throws -> [ExpenseSummary] {
         let descriptor = FetchDescriptor<Expense>(sortBy: [SortDescriptor(\Expense.spentAt, order: .reverse)])
-        return try modelContext.fetch(descriptor).map { try expenseSummary($0) }
+        // Enumeration requires a clean context. Preserve the original pending-change
+        // semantics without saving, rolling back, or caching any summary.
+        if modelContext.hasChanges {
+            return try modelContext.fetch(descriptor).map { try expenseSummary($0) }
+        }
+        var summaries: [ExpenseSummary] = []
+        try modelContext.enumerate(descriptor, batchSize: 5_000) { expense in
+            summaries.append(try expenseSummary(expense))
+        }
+        return summaries
     }
 
     func fetchExpenseDetail(id: UUID) throws -> ExpenseDetail? {

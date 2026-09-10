@@ -7,6 +7,7 @@ import plistlib
 from pathlib import Path
 import subprocess
 import tempfile
+import hashlib
 
 BUNDLE = "com.xdgf558.MindBudgetFXCloudProbe"
 TEAM = "2AM5S7BM2N"
@@ -91,6 +92,7 @@ def audit(app):
              certificate, dt.datetime.now(dt.timezone.utc).replace(tzinfo=None))
     print("PASS: signed dedicated iPhoneOS probe; Development; exact test container; no shared access.")
     print("Not installation permission, device eligibility, live CloudKit evidence or D completion.")
+    return profile
 
 
 def self_test():
@@ -172,6 +174,26 @@ def protocol_tests():
         ], check=True, capture_output=True, timeout=120)
         result = subprocess.run([executable], check=True, capture_output=True, timeout=30)
         print(result.stdout.decode(), end="")
+        blocked = subprocess.run([executable, "--blocked-main-watchdog-child"],
+                                 capture_output=True, timeout=5)
+        require(blocked.returncode == 124, "independent watchdog failed to exit blocked-main child")
+        print("PASS: actual local child blocked main thread; independent hard timer exited 124.")
+        fixture = Path(directory) / "package"
+        fixture.mkdir()
+        (fixture / "nested").mkdir()
+        (fixture / "z.txt").write_bytes(b"synthetic signature")
+        (fixture / "nested/a.txt").write_bytes(b"synthetic profile")
+        inventory = {str(p.relative_to(fixture)): hashlib.sha256(p.read_bytes()).hexdigest()
+                     for p in fixture.rglob("*") if p.is_file()}
+        expected = hashlib.sha256("".join(n + "\0" + inventory[n] + "\n"
+                                          for n in sorted(inventory)).encode()).hexdigest()
+        actual = subprocess.run([executable, "--artifact-hash", str(fixture)], check=True,
+                                capture_output=True, timeout=5).stdout.decode().strip()
+        require(actual == expected, "Swift/controller package hash mismatch")
+        (fixture / "link").symlink_to(fixture / "z.txt")
+        bad = subprocess.run([executable, "--artifact-hash", str(fixture)], capture_output=True, timeout=5)
+        require(bad.returncode == 2, "linked package file accepted")
+        print("PASS: Swift/controller package inventory hashes agree; linked file refused.")
 
 
 if __name__ == "__main__":

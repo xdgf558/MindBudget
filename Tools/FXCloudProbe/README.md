@@ -57,7 +57,7 @@ It does not prove future runtime injection is correct: the network-capable host 
 bind its CKContainer explicitly and pass preflight before constructing any cloud service.
 Unsigned/missing-profile artifacts are expected to fail. Do not weaken checks to admit them.
 
-## Before implementing/running the live probe
+## Prepared controller — separate live approval still required
 
 The lifecycle uses explicit CKContainer injection into the unchanged production adapter. It does
 not exercise CloudSyncService/Settings opt-in or the UserDefaults retention marker. Each test
@@ -65,8 +65,9 @@ store owns its persistent sync state. Its once-only reservation and retained fil
 unconfirmed second run; there is no reset switch. No default CloudKit container is constructed
 by probe code and the source entitlement remains test-container-only.
 
-Run request: exactly two MINDBUDGET_FX_PROBE_ environment keys, ACTION with the documented
-OWNER_APPROVED_SYNTHETIC_ROUND_TRIP value and RUN with a canonical lower-case UUID. These are
+Run request: exactly four MINDBUDGET_FX_PROBE_ environment keys: ACTION with the documented
+OWNER_APPROVED_SYNTHETIC_ROUND_TRIP value, RUN with a canonical lower-case UUID,
+EXECUTABLE_SHA256 and ARTIFACT_SHA256 with lowercase SHA-256 digests. These are
 accidental-use guards, not a security credential or owner approval. Wrong bundle, simulator,
 partial/extra keys, reused app installation or local evidence write failures stop execution.
 The signed artifact must be externally audited and the owner must explicitly authorize its
@@ -92,20 +93,86 @@ NOT a third fresh-store bootstrap of revision > 1. That remains an explicit comp
 not a runtime finding or silently bypassed guard. The first empty-reader check covers initial
 genesis only. Do not seed accepted metadata to manufacture a fresh-store pass.
 
-The journal binds a run UUID and executable SHA-256, completed stages, planned count and
+The version-2 journal binds a run UUID, executable and signed-package SHA-256, completed stages, planned count and
 liveDeletionTested=false. RUNNING/interrupted/missing receipts are not passes. Public console
 output contains only closed outcomes; retain raw store/profile/device artifacts locally.
 No delete, zone reset, automatic recovery or application-level retry loop is provided. The
 unchanged CKSyncEngine still owns its normal automatic scheduling/internal transport behavior;
-this is not a claim of exactly one underlying network request. The 180-second budget is checked
-before/after each awaited stage, not a hard cancellation of hung CloudKit calls. A separately
-reviewed external watchdog/evidence collector is REQUIRED before live-run approval.
+this is not a claim of exactly one underlying network request. The cooperative between-stage
+180-second checks are now supplemented by the two independent controls described below.
 
 Run local-only `python3 -B Tools/FXCloudProbe/audit.py --protocol-tests` for the Foundation-only
 executable (no CloudKit/SwiftData source): invalid requests, wrong identity/device class, reuse,
 step failures, journal failure, deadline checks and cancellation. This and signed compilation
 do not execute the DataActor/CloudKit lifecycle or substitute for complete validation/review.
 Installation, synthetic writes and later exact-target cleanup remain separate approvals.
+
+### Controller and hard deadline
+
+`runner.py --prepare --app <signed-app> --device-udid <selected-UDID> --out <new-private-file>`
+is **offline only**. It repeats the signed audit, requires the profile's device list to equal
+the selected UDID alone, hashes all regular package files (including embedded profile/signature),
+and writes a PENDING request expiring in 24 hours. No approval is inferred or generated. The
+controller's own code/audit hash is bound too. Raw request/profile/device paths must stay private.
+
+Only after independent review AND explicit owner approval of that exact package/phone/operation,
+an operator may use `runner.py --run --app <same-app> --approval <approved-private-file>
+--state-root <persistent-private-reservations> --out <new-private-evidence-directory>`.
+The file must record `APPROVED_FOR_THIS_ONE_RUN` and a review reference. These strings do not
+authorize an agent to execute it; the human authorization boundary still applies. Installation
+is separate and intentionally absent from this tool. Do not run it during preparation/review.
+
+The controller reserves one attempt for this device/bundle, refuses an already running probe,
+and launches only this bundle **suspended**. It validates a new PID and exact executable path
+before resume. There is no terminate-existing, launch retry, second tap, account switch,
+zone/store reset, installation or deletion command. Keep the selected phone and probe exclusive
+to this controller during an approved run; do not concurrently launch it or use another debugger.
+Process queries are filtered to the dedicated executable, not a phone-wide application inventory.
+
+From resume, the host permits at most 180 seconds of active execution. Each native command has
+both a native timeout and an external process-group watchdog. On uncertainty it makes one
+bounded termination attempt on its owned PID/path, then verifies disappearance. It never kills
+an existing or mismatched process. Unknown launch JSON cannot trigger resume. If termination
+cannot be verified, status is STOP_UNCONFIRMED, never PASS. A suspended launch with missing
+identity is retained as unconfirmed, not silently replaced or resumed.
+
+The Debug app independently arms a Dispatch timer **before hashing/filesystem/CloudKit work**;
+after 180 seconds its non-MainActor queue calls `_exit(124)`. Tests block the main thread in a
+real local child process to prove the timer is not another between-await check. Normal complete
+and failed runs exit after saving their receipt; a timeout leaves RUNNING/missing evidence.
+Neither process termination nor USB disconnection can recall writes already submitted to the
+server. OS scheduling is not a real-time guarantee; a disconnected/suspended device is not
+accepted as stopped without external evidence. No automatic cloud cleanup follows a timeout.
+
+After confirmed termination, collect exactly four files from the dedicated app container:
+used-run.txt, receipt.json, initial-fixture.json and edited-fixture.json. Each copy has a five-
+second external bound; partial failure evidence is retained, not retried. No database, account
+fingerprint, unrelated app container or crash-log domain is copied. Active-execution deadline
+and bounded post-stop collection/termination are separate clocks; a receipt cannot override a
+timeout/native failure. Receipt and four parent/companion pairs, changed digests, exact ordered
+stages and artifact/run binding are checked before a bounded PASS. Such a PASS is still not D Done.
+
+Native devicectl process JSON (including the explicit terminationResult.exitCode adapter
+contract) and filtered-list behavior are **fixture-tested, not yet observed
+on the selected phone**. Unknown/missing fields fail closed. The install-time full-package hash
+must also match the offline signed package; installation differences are a refusal, not a reason
+to weaken binding. Verify these boundaries under separately authorized preflight/live work;
+local doubles and a signed build do not establish native device or CloudKit success.
+
+Run `python3 -B Tools/FXCloudProbe/runner.py --self-test` for approval/receipt negatives, owned
+process/connection/collection/deadline scenarios and a real hung local subprocess. It invokes
+no devicectl, CloudKit or physical-device command. All three probe check entries are pinned in
+the C6 wrapper inventory; ordinary project/scheme/config sources cannot enable the probe flag.
+
+### Delivery and remaining limits
+
+This #123 package imports accepted #124 (`cfee88b`, reviewed c478912) unchanged and consolidates
+implementation, evidence synchronization and preparation review. That optimization's local
+469.826917 ms and hosted 34371706895 do not preapprove this new head. Old #123 local 701.230625 ms
+exit 65 and old hosted 34357148406 remain separate results. Full new-head local (500 ms, zero
+retry, ordinary plus isolated FX), hosted/native and independent review remain required.
+Historical source-freeze checklists are not another requirement to publish a documentation-only
+head after every run; frozen-head results belong in the existing PR body and retained artifacts.
 
 One phone cannot demonstrate simultaneous two-peer delivery. A frozen old codec is not an old
 binary; explicit calendar calculations are not an actually configured receiver. D stays In Progress,

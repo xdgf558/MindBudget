@@ -2,7 +2,24 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — isolated CloudKit lifecycle preparation
+## Current follow-up — consolidated #123 preparation delivery
+
+Owner approved one complete delivery: integrate accepted #124 (`cfee88b`, reviewed second parent
+`c478912`), implement the external watchdog/collector with local fail-closed tests, synchronize
+evidence here, then complete exact-head validation and update existing Draft #123 for review.
+
+- [x] Integrate accepted main without discarding earlier uncommitted local journals.
+- [x] Implement hard deadline, process ownership and bounded evidence collection; local fixture/
+  actual local child-process tests pass. Native phone/CloudKit behavior is not claimed.
+- [ ] Verify new signed artifact offline and run unchanged default complete local validation
+  (500 ms, zero retry, ordinary plus isolated FX); own-head hosted/native audit required.
+- [ ] Independent review, followed by separate owner ready/merge authorization.
+
+No install, physical-device query, launch, CloudKit access or deletion. Live approval remains
+separate and exact-package-bound. D four boxes/E/Insights remain unchanged. Prior UNPROVEN causes
+and non-passes remain recorded, not an instruction to reopen every historical investigation.
+
+## Historical #123 source-freeze checklist — updated preparation above supersedes pending wording
 
 Owner authorized a dedicated host after test App ID/container registration and exact CloudKit/
 push capability approval. #122 merged as `ba14647`, reviewed `161d7f8` second parent, accepted
@@ -26,6 +43,23 @@ below describe that source-freeze checkpoint; D's original four requirements rem
 
 No phone installation, cloud record access/deletion, schema deployment or D/E/Insights entry.
 `Tools/FXCloudProbe/README.md` records protocol scope; no live synchronization test has run.
+## Historical #124 source-freeze checklist — accepted as cfee88b
+
+The pending boxes below describe its frozen source, not current acceptance. Independent review
+accepted c478912 full local exit 0 (469.826917 ms), hosted 34371706895/native; owner then merged.
+
+Owner authorized controlled optimization, then requested its own Draft PR. See
+DASHBOARD_READ_MAP_OPTIMIZATION.md. The main-based delivery excludes #123 probe/signing changes.
+
+- [x] Preserve the 701.230625 ms non-pass and both investigative observations; original cause UNPROVEN.
+- [x] Retain one candidate after controlled preliminary/path-verified ABBA; withdraw all probes.
+- [x] Preserve 88 focused/native checks and six static gates as experiment-tree evidence only.
+- [x] Owner authorized independent Draft publication of the unchanged two-file patch and evidence.
+- [ ] Pass default complete local validate.sh on the new frozen head: unchanged 500 ms, zero retry,
+  ordinary plus isolated FX UI; obtain that head's hosted ordinary/FX/join and native audit.
+- [ ] Obtain independent review and explicit later ready/merge authorization.
+
+Publication is not acceptance, #123 integration/undraft, D checkbox/Done, E/share or phone/cloud authorization.
 
 ## 2026-09-09 — Resume independent D closeout after PR #121
 
@@ -33,7 +67,7 @@ The following is the frozen #118 delivery checklist. It was superseded for that 
 owner-authorized merge `237759f` after exact-head `34306711254` and supplied independent review.
 D's original completion obligations were not accepted by that merge.
 
-### Current follow-up — local compatibility supplement
+### Historical #122 source-freeze follow-up — local compatibility supplement
 
 Owner authorized `FX_01D_COMPATIBILITY_TESTS.md` on branch `codex/fx01d-compatibility-tests`.
 

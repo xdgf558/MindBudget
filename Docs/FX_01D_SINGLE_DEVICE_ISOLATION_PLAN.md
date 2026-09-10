@@ -1,6 +1,6 @@
 # FX-01D single-device CloudKit isolation proposal
 
-Status: LIFECYCLE CANDIDATE — local preparation only; independent review/full validation and live-run watchdog pending; no installation or live evidence.
+Status: CONSOLIDATED PREPARATION CANDIDATE — watchdog/collector implemented; new-head full validation and independent review pending; no installation or live evidence.
 
 ## Scope and observed constraints
 
@@ -11,7 +11,8 @@ The proposal now accompanies the separate local implementation branch, not a clo
 `Tools/FXCloudProbe/README.md` describes the new explicit-request lifecycle candidate. It must
 not be represented as actual server-round-trip evidence. Ordinary launch remains inert.
 
-Inspected source is reviewed #122 head `161d7f8`, accepted as merge `ba14647`. Existing local
+Initial inspected source was reviewed #122 head `161d7f8`, accepted as merge `ba14647`. Current
+preparation integrates accepted #124 `c478912` through main merge `cfee88b`. Existing local
 post-merge receipts are preserved. Implementation must start from fetched merged main, not silently
 extend the merged feature branch or discard those receipts.
 
@@ -74,9 +75,11 @@ The implementation uses the original writer store for post-edit propagation, not
 store. Inspection of CloudSyncRemoteApply's nextRevision/acceptedDigest gate shows the latter
 cannot be assumed to bootstrap later revisions. Keep that compatibility/sufficiency question open;
 do not seed lineage or change product conflict rules inside this test-host scope. Direct adapter
-injection is not CloudSyncService/Settings/retention-marker coverage. A reviewed external hard
-watchdog and evidence collector remain prerequisites; internal between-stage deadline checks
-do not bound a hung CloudKit await. No live run is requested by the implementation checkbox.
+injection is not CloudSyncService/Settings/retention-marker coverage. The external bounded process
+controller/collector and independent device timer are implemented in the consolidated preparation
+package (see README), not independently accepted yet. Their local tests do not establish native
+devicectl schema/install-time identity or live CloudKit behavior. A reviewed signed-package-bound
+controller remains prerequisite to live approval. No live run follows from implementation.
 
 Do not auto-delete the zone before or after this first pass. If unexpected preexisting records
 are seen, stop without altering them. Failed or interrupted runs retain artifacts and state;

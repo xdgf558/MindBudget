@@ -5,12 +5,24 @@ import Foundation
 struct ProtocolTests {
     @MainActor
     static func main() async throws {
+        if CommandLine.arguments.count == 3 && CommandLine.arguments[1] == "--artifact-hash" {
+            do { print(try ProbeArtifact.digest(URL(fileURLWithPath: CommandLine.arguments[2]))) }
+            catch { exit(2) }
+            return
+        }
+        if CommandLine.arguments == [CommandLine.arguments[0], "--blocked-main-watchdog-child"] {
+            let watchdog = ProbeHardDeadline(after: 0.15)
+            withExtendedLifetime(watchdog) { while true { Thread.sleep(forTimeInterval: 1) } }
+            return
+        }
         func require(_ value: Bool, _ message: String) throws {
             if !value { throw NSError(domain: "ProbeProtocolTests", code: 1,
                                      userInfo: [NSLocalizedDescriptionKey: message]) }
         }
         let valid = [ProbeRequest.actionKey: ProbeRequest.action,
-                     ProbeRequest.runKey: "cc556499-258d-4c26-9364-0224a16458a3"]
+                     ProbeRequest.runKey: "cc556499-258d-4c26-9364-0224a16458a3",
+                     ProbeRequest.executableKey: String(repeating: "a", count: 64),
+                     ProbeRequest.artifactKey: String(repeating: "b", count: 64)]
         try require(try ProbeRequest.parse(environment: [:], bundle: nil, physical: false) == nil,
                     "normal launch not inert")
         let request = try ProbeRequest.parse(environment: valid, bundle: ProbeRequest.bundle, physical: true)
@@ -27,6 +39,11 @@ struct ProtocolTests {
         }
         var extra = valid; extra["MINDBUDGET_FX_PROBE_CONTAINER"] = "other"
         badEnvironments.append(extra)
+        for hash in ["", String(repeating: "a", count: 63), String(repeating: "A", count: 64),
+                     String(repeating: "g", count: 64)] {
+            var bad = valid; bad[ProbeRequest.executableKey] = hash; badEnvironments.append(bad)
+            bad = valid; bad[ProbeRequest.artifactKey] = hash; badEnvironments.append(bad)
+        }
         for value in badEnvironments {
             do {
                 _ = try ProbeRequest.parse(environment: value, bundle: ProbeRequest.bundle, physical: true)
@@ -105,7 +122,7 @@ struct ProtocolTests {
         } catch is CancellationError {}
         try require(cancelled.calls.isEmpty && cancelled.stops == 1, "cancelled run continued")
         print("PASS: inert launch, exact request/identity/device class, exclusive run marker, six-step order;")
-        print("PASS: 13 invalid request/identity cases, 2 reuse refusals, 6 step failures, journal failure, 2 deadlines, cancellation.")
+        print("PASS: executable-bound request negatives, 2 reuse refusals, 6 step failures, journal failure, 2 deadlines, cancellation.")
         print("Local protocol doubles only; no CloudKit, device installation or live runtime acceptance.")
     }
 }

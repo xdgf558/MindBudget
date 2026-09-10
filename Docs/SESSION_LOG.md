@@ -2,6 +2,75 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — #123 consolidated preparation implementation checkpoint
+
+Added runner.py/runner_tests.py, four-key executable/full-package-bound probe request, version-2
+receipt, non-MainActor 180-second process exit and explicit normal/failure exit. The external
+controller owns one suspended launch, verifies identity before resume, imposes an independent
+command process-group deadline, and permits only bounded targeted termination/receipt collection.
+No install/delete/reset API. Missing native JSON, unconfirmed termination, native nonzero exit,
+timeout, repeated reservation and incomplete/mismatched evidence remain non-pass. Pending approval
+files cannot start a run and are not a substitute for separate owner authorization.
+
+Local fixtures passed 40+ approval/evidence negatives and 11 controller paths. A real local child
+ignoring TERM is killed by the external timeout. A separately compiled Foundation/CryptoKit
+executable blocks its main thread and still exits 124 via the independent timer. Six-stage
+failure/cancellation/reuse cases passed. These tests contain no CloudKit/device execution.
+Cross-language signed-package inventory test initially failed: absolute-path slicing did not
+produce the expected relative inventory in the temporary fixture. Replaced it with explicit
+recursive relative path components; the same Swift/Python digest check now passes, including
+linked-file refusal. Initial ad-hoc Swift inspection also hit sandbox module-cache denial;
+explicit temporary cache resolved that tooling issue. Neither is hidden or a runtime cloud test.
+
+Final signed iPhoneOS build and offline audit passed on Xcode 27 beta 6, using the existing exact
+development profile/certificate without automatic provisioning. Final executable SHA-256:
+dfca5e75ea19d7b7006acd30d462b9911348d01ab344b53d6d4640454b92ea8f.
+Earlier signed output/build logs remain separate; no installation or execution occurred.
+The complete FX wrapper, C6 self-test and commercialization gate passed locally during preparation.
+C6 now pins all three probe wrapper entries; the source gate rejects probe enablement in ordinary
+project/scheme/product/config files. Product Swift/tests/project are byte-identical to accepted
+main cfee88b, including the #124 read/map optimization; no unrelated UI or performance rework.
+
+Native launch/process-list/termination JSON and installation-time package equality are still
+unverified on the selected phone. Their strict adapter contract must be validated under separate
+authorization, not described as a live pass. One device, genesis-only fresh receiver, no deletion,
+no old binary/receiver calendar/CloudSyncService Settings coverage remain stated limits.
+Default complete local validation and this head's hosted/native evidence follow source freeze;
+record their receipts in existing PR #123, not an extra document-only commit to churn SHA.
+Independent review/ready/merge and all live permissions remain pending. D four boxes/E/share unchanged.
+
+## 2026-09-10 — Consolidated #123 delivery starts on accepted #124
+
+Owner requested fewer fragmented tasks/PRs and authorized the complete preparation package.
+Created a separate worktree from #123 bedac7f and integrated main cfee88b, preserving the original
+dirty #123/#124 worktrees and experimental files. Resolved four append-only documentation merge
+conflicts; accepted DataActor/test changes import unchanged. No new feature phase is entered.
+
+#124 c478912 was independently accepted and merged with owner authorization on 2026-09-09
+23:44:28 UTC as cfee88bc03f80eba4e426dcac6c74f7b1dab6e1c; second parent c478912332f9c3487dacfb2aae79df20419a1ed9.
+Complete local (Xcode 27 beta 6) 22:28:59–23:02:05 UTC exit 0: 469.826917 ms / 500 ms,
+635 Passed / 17 Skipped, 644 concrete Passed, 56 FX unit / 23 C6 once; isolated FX 3/3 once.
+Local FX stewardship/create-zh/create-en: 50.447246 / 87.186257 / 59.010905 s, non-cloned device.
+Receipt SHA-256 a1d78f9ac4335495d49b2fce95b06d80c4c5d04a0eadb7f4cd7cdef6a37f6398;
+log a6ce739e847b63ab422ff20e19e29de0b22efdcfc5ad8f1467102c46c0bd3b9d;
+native verdict c2b9496e89d3a391a67262076972a10230908e1fc342b6d057d983b94a5c8dea.
+Host run 34371706895 attempt 1 passed (ordinary 102534289865, FX 102534290215, join
+102552359477); hosted native acceptance is reviewer-supplied, not a new author execution here.
+Two dirty-context teardown / three Invalid-frame diagnostics and reviewer-noted post-FX simctl
+error 72 remain observations. Native parsing initially hit sandbox cache access, then succeeded;
+that was artifact reading, not a test retry. One 6% benchmark margin does not prove stability.
+
+Preserve #123 bedac7f complete local 2026-09-09 14:25:48–14:35:38 UTC exit 65:
+701.230625 ms > 500 ms, ordinary/isolated FX not reached. Receipt SHA-256
+96b8353d05488ac581536292f8cd2f61909a01711364e797c368c0bf740f6a14;
+log eff286aa4c91387aaeeb6a1d5decb7894afd40c4897b0b531f8165a91d5e240f.
+Old #123 hosted 34357148406 success does not override it. Original 701/883 ms causes UNPROVEN.
+Keep #118 34097606992 / 34108994597 / 34218693463 / 34250759552 as non-passes.
+
+Read local devicectl help only for suspended launch, process controls and scoped file copying.
+No device listing/content query, installation, launch, cloud request or cleanup was executed.
+This package adds the missing watchdog/collector; no acceptance is claimed before tests run.
+
 ## 2026-09-09 — Owner requests Draft PR for isolated probe review
 
 Prepare the current isolated-host branch for public Draft review at the owner's request.
@@ -167,6 +236,40 @@ the new audit self-test, existing privacy/compatibility, integer-money and netwo
 Opened Profiles in Chrome to prepare the narrow development profile, but Apple redirected to
 sign-in again. Paused for owner login without entering credentials or generating any profile.
 Signed build/audit remain pending; the unsigned successful build is not substituted for them.
+
+## 2026-09-09 — Owner requests independent Dashboard read/map Draft PR
+
+Prior controlled work was isolated from #123 on a bedac7f-based experiment branch. Preliminary
+ABBA was 223.308750 / 179.797500 / 259.511875 / 284.593625 ms; then a written addendum added
+actual-path readback to both branches before one more fixed ABBA. Verified A/B/B/A paths were
+baseline/enumerate5000/enumerate5000/baseline, durations 591.891584 / 309.220667 / 489.055542 /
+584.168708 ms (32.123% mean gain). First round remains preliminary; no best-run selection.
+Native one Passed per comparison means equivalence/path assertions, not the 500 ms gate.
+All selectors/path records/duplicate baseline/comparison methods were withdrawn afterward.
+Uninstrumented experiment tree: 88 focused methods each Passed once (24 DataActor, 7 identity,
+one original 10,000-row projection, 56 FX unit), no Repetition/extra attempt; existing unit
+verifier and six static gates passed. Two dirty-state teardown diagnostics remain recorded.
+Default full local, isolated FX UI and hosted were not run for this optimization candidate.
+
+Owner now authorizes publication, not ready/merge. Remote main is ba14647; #123 is still Draft
+at bedac7f. Their original product/test/project sources are byte-identical. Created separate
+codex/dashboard-read-map-optimization from main and applied only the two-file retained patch
+and evidence documents. Do not carry #123's 20-file CloudKit probe/signing changes into this PR.
+Initial unified-hunk conversion was rejected without changes; corrected the patch format.
+Final DataActor/DataActorTests SHA-256 match the experiment receipt exactly. Both original
+worktrees and their local changes are preserved. Public notes contain no local evidence paths,
+credentials, profiles, personal device identifiers or signed artifacts.
+
+This source-freeze publication record does not preapprove CI or default complete validation.
+New head requires its own full local (500 ms, zero retry, ordinary and isolated FX), hosted
+ordinary/FX/join, native audit and independent review. Keep the original 701.230625 ms exit 65,
+both slower diagnostic observations and UNPROVEN original cause. No #123 mutation, merge,
+phone/CloudKit operation, D checkbox/Done or E/share entry. Watchdog/collector and separate
+signed-package approval remain prerequisites for the separate live probe, not granted here.
+
+Publication preflight on the main-based tree passed all six existing static entry points
+(money, network, commercialization, StoreKit, C6, complete FX wrapper) and git diff --check.
+This does not include default full local or exact-head hosted/runtime acceptance.
 
 ## 2026-09-09 — Owner authorizes PR #122 nested-check classification correction
 

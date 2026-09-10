@@ -2,6 +2,22 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — One reviewed preparation delivery for #123
+
+Owner asked to consolidate remaining work instead of opening recursive documentation PRs.
+Integrate accepted #124, add the isolated probe's hard deadline and evidence collector, and
+record implementation/validation in the existing #123 delivery. Freeze the review head before
+complete validation; publish later results in its PR body without changing SHA merely to record
+a run. Keep historical non-passes and bounded P3 debt once, without treating an unproved original
+cause as a perpetual blocker when corrective acceptance has been independently established.
+
+The probe gains both a host-side bounded process controller and a device-side non-actor hard
+deadline. They may terminate only the dedicated test process; they never install, reset, delete,
+change accounts or access the everyday app. Local fixtures test failure/timeout handling only.
+Live use still requires independent review and separate approval of the exact signed package,
+one selected phone and synthetic operation. An approval file/env marker is not permission.
+D's four requirements remain open; no E/Insights entry or production behavior change.
+
 ## 2026-09-09 — Opt-in isolated FX lifecycle candidate, no live authorization
 
 Owner entered the next implementation step after local signing isolation passed. The test host
@@ -54,6 +70,22 @@ future latter must use the existing explicit adapter/container injection and fre
 no old destructive physical tests, account switch or automatic cleanup. One device cannot prove
 simultaneous peers. Device/profile selection, installation, cloud writes and deletion retain
 their stated approval boundaries; D four boxes remain open and E/Insights unentered.
+
+## 2026-09-09 — Publish controlled enumeration candidate independently of #123
+
+Owner authorized read/map optimization with a control, then requested a Draft PR. Retain public
+ModelContext.enumerate(batchSize: 5000) only for a clean context; original fetch/map handles
+pending changes. Same descriptor, all fields, throwing mapper and validation order; no cache,
+forced save/rollback, record limit, schema/money/network/UI change or batch-size search.
+DASHBOARD_READ_MAP_OPTIMIZATION.md records the ABBA protocol/addendum, measured benefit and
+limits. Removing the intermediate all-model array is the candidate, not proof of the original
+701 ms event's cause or a guarantee of the 500 ms ceiling. Comparison probes are withdrawn.
+
+The experiment inherited #123 bedac7f. Create the independent delivery from accepted main
+ba14647, whose product/test/project sources equal that baseline, transferring only the verified
+two-file patch and documentation. Do not include #123 probe code or adjust its Draft state.
+Preserve prior results as experiment-tree evidence. This delivery requires new-head complete
+local/hosted/native acceptance and independent review; no merge, D Done or live authorization.
 
 ## 2026-09-09 — FX-01D bounded compatibility test supplement
 
