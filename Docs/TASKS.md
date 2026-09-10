@@ -2,7 +2,51 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — Dashboard read/map Draft review candidate
+## Current follow-up — consolidated #123 preparation delivery
+
+Owner approved one complete delivery: integrate accepted #124 (`cfee88b`, reviewed second parent
+`c478912`), implement the external watchdog/collector with local fail-closed tests, synchronize
+evidence here, then complete exact-head validation and update existing Draft #123 for review.
+
+- [x] Integrate accepted main without discarding earlier uncommitted local journals.
+- [x] Implement hard deadline, process ownership and bounded evidence collection; local fixture/
+  actual local child-process tests pass. Native phone/CloudKit behavior is not claimed.
+- [ ] Verify new signed artifact offline and run unchanged default complete local validation
+  (500 ms, zero retry, ordinary plus isolated FX); own-head hosted/native audit required.
+- [ ] Independent review, followed by separate owner ready/merge authorization.
+
+No install, physical-device query, launch, CloudKit access or deletion. Live approval remains
+separate and exact-package-bound. D four boxes/E/Insights remain unchanged. Prior UNPROVEN causes
+and non-passes remain recorded, not an instruction to reopen every historical investigation.
+
+## Historical #123 source-freeze checklist — updated preparation above supersedes pending wording
+
+Owner authorized a dedicated host after test App ID/container registration and exact CloudKit/
+push capability approval. #122 merged as `ba14647`, reviewed `161d7f8` second parent, accepted
+full local and hosted `34342739899` plus supplied independent review. Historical pending entries
+below describe that source-freeze checkpoint; D's original four requirements remain open.
+
+- [x] Register dedicated `com.xdgf558.MindBudgetFXCloudProbe` and corresponding iCloud container;
+  save/read back only that container association, leaving everyday MindBudget unchanged.
+- [x] Add standalone inert Debug host and offline signed-entitlement/profile checker.
+- [x] Compile the unsigned iPhoneOS scaffold; explicitly reject it as signed evidence.
+- [x] Owner selected one iPhone Air only; other paired devices are not authorized.
+- [x] Generate the owner-confirmed dedicated development profile, verify only the selected
+  phone, then build/audit the signed inert host locally (not installation or runtime evidence).
+- [ ] Independently review the scaffold/gate changes and required complete validation before merge.
+- [x] Implement the separately authorized six-stage synthetic lifecycle candidate, exact source
+  inventory and non-network protocol tests. This checkbox is implementation only, not runtime proof.
+- [x] Compile/sign the revised candidate locally and pass offline signed-isolation, protocol,
+  FX/commercialization/C6/StoreKit gates. This is not full validate, hosted or live acceptance.
+- [ ] Review actual DataActor/CloudKit execution, external watchdog/evidence collection and the
+  explicit later-revision fresh-store bootstrap gap before requesting installation/live approval.
+
+No phone installation, cloud record access/deletion, schema deployment or D/E/Insights entry.
+`Tools/FXCloudProbe/README.md` records protocol scope; no live synchronization test has run.
+## Historical #124 source-freeze checklist — accepted as cfee88b
+
+The pending boxes below describe its frozen source, not current acceptance. Independent review
+accepted c478912 full local exit 0 (469.826917 ms), hosted 34371706895/native; owner then merged.
 
 Owner authorized controlled optimization, then requested its own Draft PR. See
 DASHBOARD_READ_MAP_OPTIMIZATION.md. The main-based delivery excludes #123 probe/signing changes.

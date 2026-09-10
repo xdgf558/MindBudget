@@ -2,6 +2,75 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — One reviewed preparation delivery for #123
+
+Owner asked to consolidate remaining work instead of opening recursive documentation PRs.
+Integrate accepted #124, add the isolated probe's hard deadline and evidence collector, and
+record implementation/validation in the existing #123 delivery. Freeze the review head before
+complete validation; publish later results in its PR body without changing SHA merely to record
+a run. Keep historical non-passes and bounded P3 debt once, without treating an unproved original
+cause as a perpetual blocker when corrective acceptance has been independently established.
+
+The probe gains both a host-side bounded process controller and a device-side non-actor hard
+deadline. They may terminate only the dedicated test process; they never install, reset, delete,
+change accounts or access the everyday app. Local fixtures test failure/timeout handling only.
+Live use still requires independent review and separate approval of the exact signed package,
+one selected phone and synthetic operation. An approval file/env marker is not permission.
+D's four requirements remain open; no E/Insights entry or production behavior change.
+
+## 2026-09-09 — Opt-in isolated FX lifecycle candidate, no live authorization
+
+Owner entered the next implementation step after local signing isolation passed. The test host
+now has an explicit request parser and once-only local reservation before any CloudKit object.
+Normal launch is inert. No install, live record/account access or deletion follows from this
+implementation authorization. Only the dedicated container is injected into the unchanged real
+CKSyncEngineAdapter; no production default/environment hook is changed.
+
+Compile 32 explicit unchanged production files plus six gate-compared declaration-only supports
+for unreachable DataActor APIs, rather than linking AppIntents/notification/application lifecycles.
+Use two distinct explicit SwiftData stores with .none automatic CloudKit integration, real actor
+writes and encrypted parent/FX companion transport. The source gate checks the actual PBX source
+phase, rejects build hooks/extra sources and verifies support declarations exactly.
+
+The first receiver is fresh for genesis records. Following the bounded note/rate-source edit,
+reopen the original writer and its accepted ancestry for propagation/replay checks. Source
+inspection found the unchanged nextRevision/acceptedDigest guard rejects an unsupported jump
+from no ancestry to a later revision; do not manufacture a third-empty-store success or change
+product lineage rules here. Empty-store later-revision bootstrap remains a named compatibility
+gap for separate sufficiency/engineering review, not a proven runtime failure or an accepted waiver.
+
+The probe records only synthetic IDs/envelope digests and an executable-bound stage receipt.
+No automatic cleanup/recovery/application retry; interrupted RUNNING is non-pass. Apple's normal
+engine scheduling still applies. Between-stage 180-second checks are not hard cancellation of
+CloudKit; an independently reviewed external watchdog/collector is required before live approval.
+Protocol doubles, compilation and signing are not actual synchronization evidence. D remains
+In Progress, its four boxes open; E/Insights unentered. No UI design/product behavior is changed.
+
+## 2026-09-09 — Dedicated inert physical CloudKit signing scaffold
+
+Append-only signing clarification: the generated Apple profile grants `icloud-services = "*"`
+and both cloud environments. Treat profile grants as authorization bounds, not the app's
+effective access. The verifier accepts this observed provider representation only while requiring
+the actual signature to contain exactly CloudKit, Development and the dedicated container;
+ordinary containers, wildcard signed services and additional signed capabilities remain rejected.
+Separate metadata verification pins the sole approved physical device without committing its UDID.
+
+Owner has one personal-account phone and approved a separate test App ID/container plus exact
+CloudKit/push access, then authorized local host/signing work. Use a standalone Xcode project,
+not a configuration of the everyday app or the simulator-only FX UI host. Current entry creates
+no store, AppEnvironment or cloud service. No product Swift/default container is changed.
+Manual signing, dedicated Bundle ID and Development entitlements are checked against the actual
+signed artifact/profile; unsigned build success and portal setup are not signed/runtime proof.
+Cloud entitlement inventory recognizes only the exact Tools/FXCloudProbe/Probe.entitlements path
+with the exact separate container; wrong environment/container, extra access or a renamed owner
+still fail. No broadened entitlement wildcard or ordinary-C6 completion claim.
+
+This deliberately separates a build/signing scaffold from live lifecycle implementation. The
+future latter must use the existing explicit adapter/container injection and fresh local stores;
+no old destructive physical tests, account switch or automatic cleanup. One device cannot prove
+simultaneous peers. Device/profile selection, installation, cloud writes and deletion retain
+their stated approval boundaries; D four boxes remain open and E/Insights unentered.
+
 ## 2026-09-09 — Publish controlled enumeration candidate independently of #123
 
 Owner authorized read/map optimization with a control, then requested a Draft PR. Retain public

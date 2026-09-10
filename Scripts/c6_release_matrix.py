@@ -160,6 +160,8 @@ def validate_manifest_data(
         errors.append("FX-01D nested privacy check must execute through the FX wrapper")
     if not fx_wrapper.is_file() or "python3 -B Scripts/check_fx_compatibility_fixture.py --self-test" not in fx_wrapper.read_text(encoding="utf-8").splitlines():
         errors.append("FX-01D nested compatibility check must execute through the FX wrapper")
+    if not fx_wrapper.is_file() or not probe_wrapper_is_closed(fx_wrapper.read_text(encoding="utf-8")):
+        errors.append("isolated probe audit/protocol/controller local checks must execute exactly once through FX wrapper")
 
     worker_checks = data["workerChecks"]
     observed_worker_checks: list[tuple[str, str]] = []
@@ -377,8 +379,24 @@ def _self_test_result_data(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+PROBE_CHECK_LINES = (
+    "python3 -B Tools/FXCloudProbe/audit.py --self-test",
+    "python3 -B Tools/FXCloudProbe/audit.py --protocol-tests",
+    "python3 -B Tools/FXCloudProbe/runner.py --self-test",
+)
+
+
+def probe_wrapper_is_closed(text: str) -> bool:
+    return all(text.splitlines().count(line) == 1 for line in PROBE_CHECK_LINES)
+
+
 def run_self_test(data: Any, project_root: Path) -> None:
     fail_if_invalid(data, project_root)
+    wrapper = (project_root / "Scripts/check-fx01-contract.sh").read_text(encoding="utf-8")
+    for line in PROBE_CHECK_LINES:
+        for mutation in (wrapper.replace(line, "# " + line), wrapper + "\n" + line + "\n"):
+            if probe_wrapper_is_closed(mutation):
+                raise AssertionError("probe wrapper omitted/duplicate command escaped")
 
     mutations: list[tuple[str, Any]] = []
 

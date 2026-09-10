@@ -895,6 +895,24 @@ def validate_cloudkit_entitlements(project_root: Path) -> list[str]:
     for path in project_root.rglob("*.entitlements"):
         if path in expected_paths:
             continue
+        # Owner-approved standalone signing scaffold. This is not an extra entitlement
+        # owner in the everyday app, nor permission to select its container.
+        if path == project_root / "Tools/FXCloudProbe/Probe.entitlements":
+            try:
+                values = plistlib.loads(path.read_bytes())
+            except (OSError, plistlib.InvalidFileException) as error:
+                errors.append(f"{path}: invalid isolated probe entitlements: {error}")
+                continue
+            if values != {
+                "aps-environment": "development",
+                "com.apple.developer.icloud-container-environment": "Development",
+                "com.apple.developer.icloud-container-identifiers": [
+                    "iCloud.com.xdgf558.MindBudgetFXCloudProbe"
+                ],
+                "com.apple.developer.icloud-services": ["CloudKit"],
+            }:
+                errors.append(f"{path}: isolated probe must use its exact Development-only container")
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except OSError as error:
@@ -1005,6 +1023,37 @@ def self_test() -> None:
             )
         if validate_cloudkit_entitlements(root):
             raise AssertionError("exact environment-separated entitlement fixture rejected")
+        probe = root / "Tools/FXCloudProbe/Probe.entitlements"
+        probe.parent.mkdir(parents=True)
+        probe_values = {
+            "aps-environment": "development",
+            "com.apple.developer.icloud-container-environment": "Development",
+            "com.apple.developer.icloud-container-identifiers": [
+                "iCloud.com.xdgf558.MindBudgetFXCloudProbe"
+            ],
+            "com.apple.developer.icloud-services": ["CloudKit"],
+        }
+        probe.write_bytes(plistlib.dumps(probe_values))
+        if validate_cloudkit_entitlements(root):
+            raise AssertionError("isolated exact probe entitlement fixture rejected")
+        for key, bad in (
+            ("com.apple.developer.icloud-container-environment", "Production"),
+            ("com.apple.developer.icloud-container-identifiers", [EXPECTED_CLOUDKIT_CONTAINER]),
+            ("com.apple.developer.icloud-container-identifiers", [
+                "iCloud.com.xdgf558.MindBudgetFXCloudProbe", EXPECTED_CLOUDKIT_CONTAINER]),
+            ("com.apple.security.application-groups", ["group.shared"]),
+        ):
+            mutated = dict(probe_values)
+            mutated[key] = bad
+            probe.write_bytes(plistlib.dumps(mutated))
+            if not validate_cloudkit_entitlements(root):
+                raise AssertionError(f"unsafe probe entitlement accepted: {key}")
+        probe.write_bytes(plistlib.dumps(probe_values))
+        moved = probe.with_name("Other.entitlements")
+        probe.rename(moved)
+        if not validate_cloudkit_entitlements(root):
+            raise AssertionError("unapproved probe owner accepted")
+        moved.unlink()
         release_path = root / "MindBudget/MindBudgetRelease.entitlements"
         release_values = plistlib.loads(release_path.read_bytes())
         release_values["com.apple.developer.icloud-container-environment"] = "Development"
