@@ -1,6 +1,11 @@
 # FX-01D single-device CloudKit isolation proposal
 
-Status: CONSOLIDATED PREPARATION CANDIDATE — watchdog/collector implemented; new-head full validation and independent review pending; no installation or live evidence.
+Status: PREPARATION MERGED; NATIVE SELECTOR REPAIR CANDIDATE — #123 accepted as 2365526; installation stopped at native query refusal; repair validation/review pending; no installation or live evidence.
+
+The historical preparation/pending-review wording below predates accepted #123. The current
+selector repair and original/intermediate native failures are recorded in
+`Tools/FXCloudProbe/README.md`; one fixed-search empty result is not a lifecycle pass. No
+installation/launch/cloud/cleanup follows from that observation or this repair authorization.
 
 ## Scope and observed constraints
 

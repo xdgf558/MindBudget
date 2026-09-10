@@ -94,6 +94,60 @@ class FakeDevice:
             (destination / "receipt.json").write_text("{}")
 
 
+def process_filter_tests(root, request):
+    exact = "/MindBudgetFXCloudProbe.app/MindBudgetFXCloudProbe"
+    r.require(r.PROCESS_SEARCH == exact, "native search broadened")
+    path = "/private/synthetic/MindBudgetFXCloudProbe.app/MindBudgetFXCloudProbe"
+
+    class CommandDevice(r.Device):
+        def __init__(self, payload):
+            self.payload, self.calls = payload, []
+
+        def command(self, args, seconds):
+            self.calls.append((args, seconds))
+            r.require(args == ["info", "processes", "--search", exact] and seconds == 5,
+                      "unfiltered/widened process query or changed timeout")
+            if isinstance(self.payload, Exception):
+                raise self.payload
+            return self.payload
+
+    valid = {"processIdentifier": 77, "executable": "file://" + path}
+    for payload, expected in [({"runningProcesses": []}, {}),
+                              ({"runningProcesses": [valid]}, {77: path})]:
+        device = CommandDevice(payload)
+        r.require(device.processes() == expected and len(device.calls) == 1, "filtered process decoding")
+    negatives = [
+        {}, {"runningProcesses": None}, {"runningProcesses": {}},
+        {"runningProcesses": [valid, valid]}, {"runningProcesses": [{}]},
+        {"runningProcesses": [{**valid, "processIdentifier": True}]},
+        {"runningProcesses": [{**valid, "executable": {"path": path}}]},
+        {"runningProcesses": [{**valid, "executable": "relative/MindBudgetFXCloudProbe.app/MindBudgetFXCloudProbe"}]},
+        {"runningProcesses": [{**valid, "executable": "file:///private/MindBudget.app/MindBudget"}]},
+        {"runningProcesses": [{**valid, "executable": "file://" + path + "Helper"}]},
+        {"runningProcesses": [{**valid, "executable": "file://remote" + path}]},
+        {"runningProcesses": [{**valid, "executable": "https://remote" + path}]},
+        {"runningProcesses": [valid, {"processIdentifier": 78, "executable": "/private/other"}]},
+        ValueError("synthetic native URL predicate failure"),
+    ]
+    for index, payload in enumerate(negatives):
+        device = CommandDevice(payload)
+        out = root / ("native-refusal-" + str(index)); out.mkdir()
+        result = r.supervise(device, request, out)
+        r.require(result["status"] == "NON_PASS" and not result["resumed"] and
+                  not result["collectionAttempted"] and len(device.calls) == 1,
+                  "invalid native query resumed/retried or lost failure")
+
+    # Exercise real NSPredicate/NSURL, not a JSON string standing in for the native URL.
+    executable = root / "predicate-tests"
+    subprocess.run(["xcrun", "clang", "-fobjc-arc", "-Wall", "-Wextra", "-Werror",
+                    "-framework", "Foundation", str(Path(__file__).with_name("ProcessPredicateTests.m")),
+                    "-o", str(executable)], check=True, capture_output=True, timeout=60)
+    result = subprocess.run([str(executable)],
+                            check=True, capture_output=True, timeout=10)
+    print(result.stdout.decode(), end="")
+    print(f"PASS: two native process-list positives / {len(negatives)} fail-closed refusals; no fallback/retry.")
+
+
 def self_test():
     request = approval()
     now = dt.datetime.now(dt.timezone.utc)
@@ -116,6 +170,7 @@ def self_test():
         negative_count += 1
     with tempfile.TemporaryDirectory(prefix="fx-probe-local-controller-tests-") as directory:
         root = Path(directory)
+        process_filter_tests(root, request)
         good = root / "good"
         collection(good, request)
         r.verify_collection(good, request)

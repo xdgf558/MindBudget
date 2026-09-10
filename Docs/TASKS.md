@@ -2,7 +2,22 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — consolidated #123 preparation delivery
+## Current follow-up — isolated controller native-selector repair
+
+Owner authorized repairing the native query refusal after #123 merged as `2365526` (reviewed
+second parent `890fce8`). `Tools/FXCloudProbe/README.md` owns scope and retained evidence.
+
+- [x] Preserve original NSURL/CONTAINS failure and intermediate CLI key-path refusal.
+- [x] Use fixed scoped search, validate exact returned paths/PIDs and keep five-second bound.
+- [x] Add real Foundation type regression and command-boundary negatives; one selected-phone
+  empty query passed. No installation, launch or CloudKit operation occurred.
+- [ ] Freeze repair and pass default complete local validation (unchanged 500 ms/zero retry/
+  ordinary plus isolated FX), followed by exact-head hosted/native acceptance.
+- [ ] Obtain independent repair review before new exact-controller-bound live confirmation.
+
+No D checkbox/Done, E/Insights entry, cleanup, automatic retry or unreviewed live execution.
+
+## Historical #123 preparation delivery — accepted in merge 2365526
 
 Owner approved one complete delivery: integrate accepted #124 (`cfee88b`, reviewed second parent
 `c478912`), implement the external watchdog/collector with local fail-closed tests, synchronize

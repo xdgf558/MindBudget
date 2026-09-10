@@ -1,4 +1,50 @@
-# Isolated FX CloudKit probe — lifecycle candidate, not live acceptance
+# Isolated FX CloudKit probe — native selector repair candidate, not live acceptance
+
+## Current native selector repair (2026-09-10)
+
+#123 preparation was independently accepted and owner-authorized merged as `2365526`, second
+parent `890fce8`. Complete local exit 0 (222.490542 ms / 500 ms) and exact-head hosted
+`34424729493` attempt 1/native audit passed. Owner then approved the exact signed package,
+selected single phone and one bounded synthetic run. Installation never began: the exact
+Bundle-ID app query returned zero matches, then native process filtering failed. Owner authorized
+this controller-only repair; it does not authorize an unreviewed live run or cloud cleanup.
+
+Observed mechanism, local Xcode 27 beta 6 / selected phone iOS 26.6.1:
+
+- Original `executable CONTAINS 'MindBudgetFXCloudProbe.app/'` failed (CoreDeviceError -1):
+  native `executable` is NSURL, not the string later serialized into JSON. Original private
+  result SHA-256 `4c0aa231ce340263cc5ca31a4264e76975ab3e119e3acb1e953ae606158e1674`.
+- Intermediate `executable.path ENDSWITH ...` passed actual Foundation/NSURL fixtures, but
+  devicectl rejected the key path before evaluation (CoreDeviceError 28001). Retained private
+  result SHA-256 `f3e2b304392ddd97b7beee0cfb3a08826f38a7dec7d3eb85a59b4722a375b89f`.
+  Foundation predicate success alone is therefore not native CLI compatibility evidence.
+- The corrected command uses the documented fixed `--search` text
+  `/MindBudgetFXCloudProbe.app/MindBudgetFXCloudProbe`. Returned JSON must still decode to
+  unique positive PIDs and absolute paths with exactly that App/executable pair. Any unrelated,
+  malformed or duplicate result rejects the whole query; it is not silently ignored.
+  Search is case-insensitive/substring matching at the CLI layer, so broader matches are
+  fail-closed refusals, never authority to control another process. No unfiltered list or
+  alternate query is attempted on failure. Existing five-second command bound is unchanged.
+- This corrected command ran once on the selected phone and returned an empty runningProcesses
+  array, `outcome=success`. Private result SHA-256
+  `625a362db48d736ce22cc26ceff4909b349a32b81d8e47d6fd79f9d6b560455e`.
+  This proves only the empty filtered query. No app was installed/launched; no process was
+  resumed/killed, no account/zone queried and no CloudKit upload/delete occurred.
+
+`runner.py --self-test` includes a Foundation-only Objective-C executable that reproduces the
+original URL exception and contrasts 15 local `.path` fixtures with the CLI's actual rejection.
+Python command-boundary tests pin the fixed search and five-second bound, accept empty/one-match
+fixtures, and reject 14 malformed/unrelated/error cases before launch, resume or collection,
+without retry. The existing 40+ approval/receipt negatives, 11 controller paths and actual local
+hung-child watchdog remain. The new `.m` fixture is not part of any app target or source inventory.
+
+Full new-head local validation, own hosted/native evidence and independent repair review remain
+pending at source freeze. The signed App bytes are unchanged, but the controller hash changes;
+the earlier exact-controller approval cannot be reused or silently renewed. Nonempty native
+process/launch/exit JSON and install-time package binding remain unverified. Resolve those only
+under reviewed, exact-package/controller-bound preflight/live authorization. D four boxes remain
+open; no E/Insights entry. #118's four non-passes and #123's original 701 ms remain historical
+non-passes; no unrelated P3 investigation or product repair is part of this change.
 
 This is not the production app, not the simulator FX UI host and not a completed CloudKit test.
 Ordinary launch remains network/store-inert. A separately authorized explicit run request can
@@ -152,9 +198,10 @@ and bounded post-stop collection/termination are separate clocks; a receipt cann
 timeout/native failure. Receipt and four parent/companion pairs, changed digests, exact ordered
 stages and artifact/run binding are checked before a bounded PASS. Such a PASS is still not D Done.
 
-Native devicectl process JSON (including the explicit terminationResult.exitCode adapter
-contract) and filtered-list behavior are **fixture-tested, not yet observed
-on the selected phone**. Unknown/missing fields fail closed. The install-time full-package hash
+Native devicectl **nonempty** process JSON (including the explicit terminationResult.exitCode
+adapter contract) remains fixture-tested, not observed on the selected phone. The fixed-search
+empty-list observation and two retained selector failures are detailed above; they do not prove
+nonempty process identity or exit handling. Unknown/missing fields fail closed. The install-time full-package hash
 must also match the offline signed package; installation differences are a refusal, not a reason
 to weaken binding. Verify these boundaries under separately authorized preflight/live work;
 local doubles and a signed build do not establish native device or CloudKit success.
@@ -164,7 +211,10 @@ process/connection/collection/deadline scenarios and a real hung local subproces
 no devicectl, CloudKit or physical-device command. All three probe check entries are pinned in
 the C6 wrapper inventory; ordinary project/scheme/config sources cannot enable the probe flag.
 
-### Delivery and remaining limits
+### Historical #123 source-freeze delivery and remaining limits
+
+The pending validation wording in this subsection records #123 before its accepted merge above,
+not the current #123 status and not preapproval of the native-selector repair.
 
 This #123 package imports accepted #124 (`cfee88b`, reviewed c478912) unchanged and consolidates
 implementation, evidence synchronization and preparation review. That optimization's local

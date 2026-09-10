@@ -2,10 +2,14 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: complete #123 preparation delivery on accepted main `cfee88b`.
-Combine the hard watchdog/collector, isolation checks and evidence synchronization in this PR;
-then freeze and run complete local/hosted validation before review. No installation, phone query,
-CloudKit operation or cleanup is authorized. D's four boxes remain open; E/Insights unentered.
+Current authorized scope: isolated controller native-selector repair on accepted main `2365526`.
+#123 merged reviewed `890fce8` after full local/hosted/native/independent acceptance. The owner's
+subsequent exact-package live authorization stopped before installation at an NSURL predicate
+failure. Repair uses a fixed native text search plus exact returned-path checks; one empty
+selected-phone query passed, not launch/exit/CloudKit. Both original and intermediate key-path
+query failures remain retained. New-head full validation/review and new controller binding are
+required before live can resume. No product/signing/cloud/deletion change or automatic retry.
+D's four boxes remain open; E/Insights unentered.
 `Tools/FXCloudProbe/README.md` owns the preparation contract and runtime limitations.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
