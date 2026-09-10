@@ -1,11 +1,12 @@
 # FX-01D single-device CloudKit isolation proposal
 
-Status: PREPARATION MERGED; NATIVE SELECTOR REPAIR CANDIDATE — #123 accepted as 2365526; installation stopped at native query refusal; repair validation/review pending; no installation or live evidence.
+Status: PREPARATION AND SELECTOR REPAIR MERGED; LAUNCH ARGUMENT-ORDER REPAIR CANDIDATE — #125 accepted as 93218fb; dedicated App installed under a new authorization; suspended launch parsing failed before resume; no App/CloudKit execution; repair validation/review pending.
 
-The historical preparation/pending-review wording below predates accepted #123. The current
-selector repair and original/intermediate native failures are recorded in
-`Tools/FXCloudProbe/README.md`; one fixed-search empty result is not a lifecycle pass. No
-installation/launch/cloud/cleanup follows from that observation or this repair authorization.
+The historical preparation/pending-review wording below predates accepted #123. The accepted
+selector repair, original/intermediate selector failures and retained launch parser failure are
+recorded in `Tools/FXCloudProbe/README.md`. The installed dedicated App and an empty post-failure
+process result are not a lifecycle pass. No repeat launch, reservation reset, cloud operation or
+cleanup follows from the controller-only repair authorization.
 
 ## Scope and observed constraints
 

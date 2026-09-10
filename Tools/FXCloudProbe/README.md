@@ -1,13 +1,45 @@
-# Isolated FX CloudKit probe — native selector repair candidate, not live acceptance
+# Isolated FX CloudKit probe — launch argument-order repair candidate, not live acceptance
 
-## Current native selector repair (2026-09-10)
+## Current launch argument-order repair (2026-09-10)
+
+#125's selector repair was independently accepted and owner-authorized merged as `93218fb`,
+second parent `902875d`, after exact-head complete local and hosted/native acceptance. The owner
+then separately approved a new exact signed package/controller/selected-phone bounded run. One
+dedicated App installation succeeded. The unchanged controller reserved that attempt, observed
+no probe process, and issued one suspended-launch command. devicectl rejected the command as
+missing --device before it produced launch JSON or the controller sent resume.
+
+Observed launch mechanism, local Xcode 27 beta 6 / selected phone iOS 26.6.1:
+
+- `device process launch` treats the Bundle ID as positional and all following tokens as App
+  command-line arguments. The controller appended common `--device`, `--timeout` and
+  `--json-output` options after the Bundle ID, so they were not parsed as devicectl options.
+- Run c251f030-e1da-4de2-bde1-734097ee7123 remains NON_PASS. The original result conservatively
+  records processStopped=false; a separate later fixed-search process observation was empty.
+  No resume/termination/collection followed, and no probe code, account/zone query, upload or
+  deletion ran. The dedicated App and immutable host reservation remain; neither is reset here.
+- The repair separates native option/subcommand arguments from a positional tail, places the
+  unchanged device/15-second timeout/JSON-output options before the sole final Bundle ID, and
+  pins the complete argv plus environment binding in an offline test. It adds no App arguments,
+  fallback, retry or broader operation. It does not touch the phone.
+- Launch-error log SHA-256 is
+  `311ff532686c6b1185cb457107314f43f6e23f2b854dbfbe530b5c1bcc46b15c`; separate post-failure
+  process JSON is `4c9da579d62d8a15f50442b414e41f0c18c6bf7b193310c50682a80496fd6611`;
+  original controller result is `d6efe01192d6539e2e4b205885132c869b6ed77667cc1eae3415c0b92b280976`.
+  Raw device/profile/approval data remain private.
+
+Full new-head local validation, hosted/native evidence and independent repair review are required
+before merge. The controller hash changes. The consumed reservation cannot be silently bypassed,
+and this repair is not authority for a second live attempt or cleanup. D four boxes remain open;
+no E/Insights entry.
+
+## Accepted native selector context (2026-09-10)
 
 #123 preparation was independently accepted and owner-authorized merged as `2365526`, second
 parent `890fce8`. Complete local exit 0 (222.490542 ms / 500 ms) and exact-head hosted
-`34424729493` attempt 1/native audit passed. Owner then approved the exact signed package,
-selected single phone and one bounded synthetic run. Installation never began: the exact
-Bundle-ID app query returned zero matches, then native process filtering failed. Owner authorized
-this controller-only repair; it does not authorize an unreviewed live run or cloud cleanup.
+`34424729493` attempt 1/native audit passed. The owner's first exact-package authorization stopped
+before installation at native process filtering. #125 later repaired that selector and merged as
+described above.
 
 Observed mechanism, local Xcode 27 beta 6 / selected phone iOS 26.6.1:
 
@@ -38,18 +70,18 @@ fixtures, and reject 14 malformed/unrelated/error cases before launch, resume or
 without retry. The existing 40+ approval/receipt negatives, 11 controller paths and actual local
 hung-child watchdog remain. The new `.m` fixture is not part of any app target or source inventory.
 
-Full new-head local validation, own hosted/native evidence and independent repair review remain
-pending at source freeze. The signed App bytes are unchanged, but the controller hash changes;
-the earlier exact-controller approval cannot be reused or silently renewed. Nonempty native
-process/launch/exit JSON and install-time package binding remain unverified. Resolve those only
-under reviewed, exact-package/controller-bound preflight/live authorization. D four boxes remain
-open; no E/Insights entry. #118's four non-passes and #123's original 701 ms remain historical
-non-passes; no unrelated P3 investigation or product repair is part of this change.
+#125's validation/review and merge are complete. Nonempty native process/launch/exit JSON remains
+unverified because the later authorized command failed at argument parsing before JSON output.
+Resolve it only after this new controller repair is reviewed and a future attempt is separately
+planned/authorized without bypassing retained state. D four boxes remain open; no E/Insights
+entry. #118's four non-passes and #123's original 701 ms remain historical non-passes; no unrelated
+P3 investigation or product repair is part of this change.
 
 This is not the production app, not the simulator FX UI host and not a completed CloudKit test.
 Ordinary launch remains network/store-inert. A separately authorized explicit run request can
-enter the new six-stage lifecycle. The transparent noninteractive window is a test harness,
-not a product UI redesign. No phone installation or CloudKit execution has occurred.
+enter the six-stage lifecycle. The transparent noninteractive window is a test harness, not a
+product UI redesign. One dedicated test App installation has occurred; no probe code or CloudKit
+operation has executed.
 
 The standalone target now compiles 32 explicit unchanged production sources (models, real
 DataActor/FX codec/remote apply/CKSyncEngineAdapter and their pure dependencies). It does not

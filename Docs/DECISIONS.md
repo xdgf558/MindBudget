@@ -2,6 +2,23 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Put devicectl common options before the launch positional
+
+The first separately authorized post-#125 controller invocation reached one suspended-launch
+command but devicectl rejected it as missing --device. Its launch grammar treats the Bundle ID
+as positional and every following token as an application argument; the controller had appended
+--device, --timeout and --json-output after that positional. Retain the run as NON_PASS with no
+resume/App/CloudKit execution. One later scoped process observation was empty, but does not
+rewrite the launch result or permit another attempt.
+
+Make the controller's native command API separate option/subcommand arguments from a positional
+tail. Emit the unchanged common device, timeout and JSON-output options first, and pass the probe
+Bundle ID as the sole final launch positional. Add an offline test of the complete argv,
+environment binding and 15-second deadline, including malformed positional refusals. Do not add
+launch retry, fallback syntax, timeout expansion, reservation reset, install/uninstall, product
+code or cloud behavior. The changed controller requires exact-head validation and independent
+review; repair authorization is not a new phone/live authorization. D/E/share boundaries stand.
+
 ## 2026-09-10 — Fixed native process search with fail-closed result identity
 
 Owner authorized a controller compatibility repair after real preflight rejected CONTAINS on

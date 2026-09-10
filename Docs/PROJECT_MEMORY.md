@@ -2,14 +2,16 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: isolated controller native-selector repair on accepted main `2365526`.
-#123 merged reviewed `890fce8` after full local/hosted/native/independent acceptance. The owner's
-subsequent exact-package live authorization stopped before installation at an NSURL predicate
-failure. Repair uses a fixed native text search plus exact returned-path checks; one empty
-selected-phone query passed, not launch/exit/CloudKit. Both original and intermediate key-path
-query failures remain retained. New-head full validation/review and new controller binding are
-required before live can resume. No product/signing/cloud/deletion change or automatic retry.
-D's four boxes remain open; E/Insights unentered.
+Current authorized scope: controller-only launch argument-order repair after #125 merged as
+`93218fb` (reviewed second parent `902875d`). A newly authorized exact-bound attempt installed
+the dedicated probe App, then stopped before resume because devicectl parsed common flags placed
+after the Bundle ID as App arguments and reported missing --device. Run
+c251f030-e1da-4de2-bde1-734097ee7123 is retained NON_PASS; no probe App code or CloudKit operation
+ran, and one separate scoped post-failure process query was empty. The App and immutable host
+reservation remain. This repair moves common flags before the positional Bundle ID and adds an
+offline exact-command regression; it does not authorize a second run, reservation bypass,
+cleanup or phone access. New-head full validation/review and a new exact controller/live plan
+remain required. D's four boxes remain open; E/Insights unentered.
 `Tools/FXCloudProbe/README.md` owns the preparation contract and runtime limitations.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent

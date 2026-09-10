@@ -2,6 +2,41 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Retain launch parser NON_PASS; prepare controller-only ordering repair
+
+#125's fixed native selector was independently accepted with no P1/P2, then explicitly
+owner-authorized ready/merged. It landed as merge `93218fb4b45d2f6f8a7e35dafdb11655b07d7c30`
+with reviewed second parent `902875db8f94312dc203ab6661872d8a8007d2a6`; merge tree matched the
+reviewed source. Accepted complete local result was 292.231417 ms / unchanged 500 ms with
+635 Passed / 17 Skipped and all isolated FX methods once. Hosted `34433497968` attempt 1 and
+ordinary/FX native audits passed. This record does not reclassify earlier native failures.
+
+The owner subsequently selected the same sole-profile iPhone Air and separately authorized exact
+signed package/controller/run c251f030-e1da-4de2-bde1-734097ee7123. Offline binding passed and one
+dedicated App installation succeeded. The unchanged controller created its immutable host
+reservation, observed zero matching probe processes, and attempted one suspended launch. At
+2026-09-10T11:43:41Z devicectl refused parsing as missing --device and emitted no launch JSON.
+Controller result remains NON_PASS / SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT with resumed=false,
+collectionAttempted=false and its original conservative processStopped=false. One separate scoped
+read-only process observation at 11:45:31Z returned empty; it does not rewrite that result.
+
+No App test code, resume, termination, receipt collection, account/zone query, upload, cloud delete,
+reservation reset or uninstall occurred. The dedicated App and host reservation remain. Retained
+SHA-256: launch error `311ff532686c6b1185cb457107314f43f6e23f2b854dbfbe530b5c1bcc46b15c`;
+post-failure process JSON `4c9da579d62d8a15f50442b414e41f0c18c6bf7b193310c50682a80496fd6611`;
+original controller result `d6efe01192d6539e2e4b205885132c869b6ed77667cc1eae3415c0b92b280976`.
+Raw identifiers and approval/device files remain private.
+
+Root cause is command grammar: launch treats every token after the Bundle ID positional as an App
+argument, while the controller appended common --device/--timeout/--json-output flags afterwards.
+Owner authorized the bounded repair. `Device.command` now takes an explicit positional tail and
+emits common options first; launch supplies the Bundle ID as the sole final positional. Offline
+self-test pins complete argv, environment and unchanged 15-second deadline, and refuses malformed
+argument collections. It adds no fallback/retry, timeout change, phone command, product/signing or
+CloudKit behavior. Full exact-head validation/hosted/native review remain pending. A future live
+attempt and any reservation/installation cleanup require separate approval. D four boxes stay
+open; no D Done, FX-01E or Insights-sharing entry.
+
 ## 2026-09-10 — Native selector repair preparation on merged #123
 
 #123 independently reviewed with no P1/P2, then owner-authorized ready/merge at 02:45:59 UTC.

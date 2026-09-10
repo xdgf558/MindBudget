@@ -148,6 +148,58 @@ def process_filter_tests(root, request):
     print(f"PASS: two native process-list positives / {len(negatives)} fail-closed refusals; no fallback/retry.")
 
 
+def launch_argument_order_tests(root, request):
+    captured = []
+    original_capture = r.capture
+
+    def fake_capture(argv, log, seconds, env):
+        captured.append((argv, log, seconds, env))
+        output = Path(argv[argv.index("--json-output") + 1])
+        r.save_new(output, {"info": {"outcome": "success"}, "result": {
+            "process": {"processIdentifier": 77,
+                        "executable": "file:///private/synthetic/" + r.EXECUTABLE +
+                                      ".app/" + r.EXECUTABLE}}})
+
+    try:
+        r.capture = fake_capture
+        device = r.Device(request["deviceUDID"], root)
+        pid, path = device.launch_stopped(request)
+    finally:
+        r.capture = original_capture
+
+    r.require(pid == 77 and r.is_probe(path) and len(captured) == 1,
+              "launch command fixture did not return the dedicated process")
+    argv, log, seconds, env = captured[0]
+    bundle_index = argv.index(r.BUNDLE)
+    r.require(argv[:5] == ["/usr/bin/xcrun", "devicectl", "device", "process", "launch"] and
+              argv[bundle_index:] == [r.BUNDLE],
+              "launch positional tail broadened or bundle is not last")
+    for flag in ("--start-stopped", "--environment-variables", "--device", "--timeout",
+                 "--json-output"):
+        r.require(argv.index(flag) < bundle_index, "devicectl option followed launch Bundle ID")
+    r.require(argv[argv.index("--device") + 1] == request["deviceUDID"] and
+              argv[argv.index("--timeout") + 1] == "15" and seconds == 15,
+              "launch binding or timeout changed")
+    launch_env = json.loads(argv[argv.index("--environment-variables") + 1])
+    r.require(launch_env == {
+        "MINDBUDGET_FX_PROBE_ACTION": "OWNER_APPROVED_SYNTHETIC_ROUND_TRIP",
+        "MINDBUDGET_FX_PROBE_RUN": request["run"],
+        "MINDBUDGET_FX_PROBE_EXECUTABLE_SHA256": request["executableSHA256"],
+        "MINDBUDGET_FX_PROBE_ARTIFACT_SHA256": request["artifactSHA256"],
+    } and log.name == "native-01.log" and not any(key.startswith("MINDBUDGET_") for key in env),
+              "launch environment boundary changed")
+
+    invalid_root = root / "invalid-command-arguments"
+    invalid_root.mkdir()
+    invalid = r.Device(request["deviceUDID"], invalid_root)
+    for args, tail in [(["process", None], ()), (["process"], r.BUNDLE),
+                       (["process"], [r.BUNDLE, None])]:
+        expect_failure(lambda args=args, tail=tail: invalid.command(args, 1, tail))
+    r.require(invalid.count == 3 and not any(invalid_root.glob("native-*.json")),
+              "invalid command arguments escaped before native execution")
+    print("PASS: launch common options precede the sole Bundle ID positional; no app arguments/retry.")
+
+
 def self_test():
     request = approval()
     now = dt.datetime.now(dt.timezone.utc)
@@ -171,6 +223,7 @@ def self_test():
     with tempfile.TemporaryDirectory(prefix="fx-probe-local-controller-tests-") as directory:
         root = Path(directory)
         process_filter_tests(root, request)
+        launch_argument_order_tests(root, request)
         good = root / "good"
         collection(good, request)
         r.verify_collection(good, request)
