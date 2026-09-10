@@ -21,6 +21,9 @@ invocation stopped before resume because devicectl common flags followed the lau
 - [x] Implement the separately authorized controller-only ordering repair: devicectl device,
   timeout and JSON-output options precede the sole Bundle ID positional; pin the exact command
   and unchanged environment/15-second bound with an offline regression and no fallback/retry.
+- [x] Retain the repair head's 532.129334 ms benchmark NON_PASS; reject count/reserve and
+  10,000-batch product candidates after fixed A-B-B-A comparisons; correct only the benchmark's
+  pre-seed reader lifecycle so it represents opening an already populated store.
 - [ ] Freeze this repair and pass default complete local validation (unchanged 500 ms/zero retry/
   ordinary plus isolated FX), followed by exact-head hosted/native acceptance.
 - [ ] Obtain independent repair review and explicit owner ready/merge authorization.

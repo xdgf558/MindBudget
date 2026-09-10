@@ -2,7 +2,8 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: controller-only launch argument-order repair after #125 merged as
+Current authorized scope: launch argument-order repair plus the owner-authorized resolution of
+its exact-head strict Dashboard benchmark blocker after #125 merged as
 `93218fb` (reviewed second parent `902875d`). A newly authorized exact-bound attempt installed
 the dedicated probe App, then stopped before resume because devicectl parsed common flags placed
 after the Bundle ID as App arguments and reported missing --device. Run
@@ -10,8 +11,12 @@ c251f030-e1da-4de2-bde1-734097ee7123 is retained NON_PASS; no probe App code or 
 ran, and one separate scoped post-failure process query was empty. The App and immutable host
 reservation remain. This repair moves common flags before the positional Bundle ID and adds an
 offline exact-command regression; it does not authorize a second run, reservation bypass,
-cleanup or phone access. New-head full validation/review and a new exact controller/live plan
-remain required. D's four boxes remain open; E/Insights unentered.
+cleanup or phone access. The original repair head's complete local run is retained NON_PASS at
+532.129334 ms / unchanged 500 ms. Controlled count/reserve and 10,000-batch product candidates
+were rejected; production DataActor remains unchanged. The strict fixture now creates its read
+actor after the separate seeder has populated the store, matching an existing-store first launch
+without changing rows, Dashboard path or the ceiling. New-head full validation/review and a new
+exact controller/live plan remain required. D's four boxes remain open; E/Insights unentered.
 `Tools/FXCloudProbe/README.md` owns the preparation contract and runtime limitations.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent

@@ -2,6 +2,27 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-10 — Align the strict Dashboard fixture with an existing-store first launch
+
+The exact launch-order repair head retained a 532.129334 ms / unchanged 500 ms local benchmark
+NON_PASS. Do not rerun that SHA for a replacement result or attribute the event to controller
+code. Two bounded product-read experiments were rejected: adding an exact count plus 10,000-row
+enumeration measured 158.429042 / 164.619041 / 310.963916 / 189.677500 ms in A-B-B-A order;
+removing the count and changing only 5,000 to 10,000 rows measured 188.759875 / 187.230875 /
+226.056792 / 176.493459 ms. Neither candidate improved both chronological pairs, so the clean
+5,000-row production enumeration remains unchanged.
+
+Correct only the benchmark lifecycle mismatch. The fixture previously constructed DataController
+and its read actor before a separate context seeded 10,000 rows, while a real first launch creates
+its actor after opening an already populated store. Create a fresh DataActor from the same seeded
+container before the timer, retaining the exact rows, DashboardViewModel path, validation, sort,
+calendar, money, 500 ms ceiling and zero-retry policy. A diagnostic lifecycle A-B-B-A measured
+172.939750 / 151.627667 / 162.100667 / 152.745208 ms; this small, order-dependent difference is
+fixture-fidelity evidence, not a claimed performance win or explanation of 532/701/883 ms.
+Withdraw all temporary selectors and comparison tests before freeze. The new head still requires
+one complete local validation, hosted/native evidence and independent review. No phone, CloudKit,
+D/E or Insights authorization follows.
+
 ## 2026-09-10 — Put devicectl common options before the launch positional
 
 The first separately authorized post-#125 controller invocation reached one suspended-launch
