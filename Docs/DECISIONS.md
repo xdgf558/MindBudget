@@ -2,6 +2,28 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Resolve the explicit native toolchain before consuming live authority
+
+PR #127 merged the reviewed same-run continuation as `d47e893`. Its post-merge version-3 request
+was independently accepted and explicitly owner-authorized for the selected iPhone Air. The single
+controller call failed locally before any device command because the process inherited
+`/Library/Developer/CommandLineTools`; `/usr/bin/xcrun` therefore could not find `devicectl`.
+Retain the resulting NON_PASS and continuation claim. Do not delete, rewrite or bypass them, and do
+not reuse the approval. No phone or CloudKit result exists from that invocation.
+
+Before either a fresh marker or continuation claim is created, require an explicit absolute
+`DEVELOPER_DIR`, reject a linked/missing directory, and run one five-second local
+`/usr/bin/xcrun --find devicectl` lookup in the same sanitized environment later supplied to native
+commands. Accept only one absolute executable whose resolved parent is exactly
+`<DEVELOPER_DIR>/usr/bin`; missing, ambiguous, linked or foreign tools fail without creating an
+output directory or device adapter. After this preflight, retain the existing atomic
+claim-before-device order. Tests must prove both sides of that boundary at `run()` level.
+
+This controller repair is not another live authorization. It changes the controller hash, so it
+requires exact-head complete local/hosted/native validation, independent review, merge, a new exact
+version-3 file and a new explicit owner approval before another phone invocation. D remains In
+Progress; no cleanup, D Done, E or Insights sharing follows.
+
 ## 2026-09-11 — Continue only the same reserved pre-resume run
 
 PR #126 repaired launch argument ordering and merged as `002e3cf` after independent acceptance,

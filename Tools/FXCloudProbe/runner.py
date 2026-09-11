@@ -39,6 +39,7 @@ CONTINUATION_KEYS = {"mode", "priorApprovalSHA256", "priorControllerResultSHA256
 PRIOR_RESULT_KEYS = {"status", "reason", "processStopped", "run", "resumed",
                      "liveDeletionTested", "failureType", "privateFailure", "collectionAttempted"}
 CONTINUATION_MODE = "SAME_RUN_AFTER_PRE_RESUME_LAUNCH_PARSER_NON_PASS"
+XCRUN = "/usr/bin/xcrun"
 
 
 def require(value, message):
@@ -237,6 +238,34 @@ def capture(argv, log, seconds, env):
     require(code == 0, "native command non-pass")
 
 
+def native_toolchain_preflight(environment=None, run_command=subprocess.run):
+    """Resolve one explicit devicectl before consuming any run/continuation reservation."""
+    source = os.environ if environment is None else environment
+    env = {k: v for k, v in source.items()
+           if not k.startswith(("DEVICECTL_CHILD_", "MINDBUDGET_"))}
+    raw_developer_dir = env.get("DEVELOPER_DIR")
+    require(isinstance(raw_developer_dir, str) and raw_developer_dir.startswith("/"),
+            "explicit absolute DEVELOPER_DIR required before reservation")
+    developer_dir = Path(raw_developer_dir)
+    require(developer_dir.is_dir() and not developer_dir.is_symlink(),
+            "DEVELOPER_DIR is missing, linked or not a directory")
+    completed = run_command([XCRUN, "--find", "devicectl"], capture_output=True,
+                            text=True, timeout=5, env=env, check=False)
+    require(completed.returncode == 0 and not completed.stderr.strip(),
+            "devicectl lookup failed before reservation")
+    lines = completed.stdout.splitlines()
+    require(len(lines) == 1 and lines[0].startswith("/"),
+            "devicectl lookup returned an ambiguous path")
+    tool = Path(lines[0])
+    resolved_developer_dir = developer_dir.resolve(strict=True)
+    resolved_tool = tool.resolve(strict=True)
+    require(not tool.is_symlink() and resolved_tool.name == "devicectl" and
+            resolved_tool.parent == resolved_developer_dir / "usr" / "bin" and
+            resolved_tool.is_file() and os.access(resolved_tool, os.X_OK),
+            "devicectl is not the executable from the explicit DEVELOPER_DIR")
+    return env
+
+
 def native_result(value):
     require(isinstance(value, dict) and value.get("info", {}).get("outcome") == "success" and
             isinstance(value.get("result"), dict), "native result not success/unknown schema")
@@ -273,9 +302,10 @@ class Device:
     Native JSON contracts are local fixture-tested, NOT physically verified yet.
     Raw command output stays in the private evidence directory, never public notes.
     """
-    def __init__(self, device, out):
+    def __init__(self, device, out, native_env=None):
         self.device, self.out, self.count = device, out, 0
-        self.env = {k: v for k, v in os.environ.items()
+        source = os.environ if native_env is None else native_env
+        self.env = {k: v for k, v in source.items()
                     if not k.startswith(("DEVICECTL_CHILD_", "MINDBUDGET_"))}
 
     def command(self, args, seconds, positional_tail=()):
@@ -291,7 +321,7 @@ class Device:
         # `device process launch` treats every token after its Bundle ID positional as an
         # application argument. Keep devicectl's common options ahead of all positional tail
         # values so --device/--timeout/--json-output cannot be swallowed by the launched app.
-        command = ["/usr/bin/xcrun", "devicectl", "device", *args, "--device", self.device,
+        command = [XCRUN, "devicectl", "device", *args, "--device", self.device,
                    "--timeout", str(max(1, math.ceil(seconds))), "--json-output", str(destination),
                    *positional_tail]
         capture(command, stem.with_suffix(".log"), seconds, self.env)
@@ -457,6 +487,9 @@ def run(app, approval_path, out, state_root, prior_path=None, result_path=None):
     else:
         require(prior_path is None and result_path is None,
                 "fresh run cannot accept continuation evidence")
+    # This local-only lookup is not a device command. Resolve the exact xcrun/devicectl pair
+    # before consuming the once-only marker/claim so a missing Xcode cannot burn live authority.
+    native_env = native_toolchain_preflight()
     # A fresh run creates the once-only marker. A reviewed v3 continuation can only reuse the
     # exact unchanged marker for the same UUID and the one accepted pre-resume parser NON_PASS.
     # Never remove these markers or change state roots to obtain another attempt.
@@ -464,7 +497,7 @@ def run(app, approval_path, out, state_root, prior_path=None, result_path=None):
     reserve_run(state_root, approval)
     out.mkdir(mode=0o700)  # MUST be new; retained failures are never overwritten
     save_new(out / "approval.json", approval)
-    result = supervise(Device(approval["deviceUDID"], out), approval, out)
+    result = supervise(Device(approval["deviceUDID"], out, native_env), approval, out)
     print(result["status"] + "; raw evidence retained privately; no cleanup performed.")
     return 0 if result["status"] == "PASS_BOUNDED_SINGLE_DEVICE_ONLY" else 1
 

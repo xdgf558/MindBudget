@@ -297,6 +297,100 @@ def launch_argument_order_tests(root, request):
     print("PASS: launch common options precede the sole Bundle ID positional; no app arguments/retry.")
 
 
+def toolchain_preflight_and_run_order_tests(root, fresh):
+    developer = root / "Xcode.app" / "Contents" / "Developer"
+    tool = developer / "usr" / "bin" / "devicectl"
+    tool.parent.mkdir(parents=True)
+    tool.write_text("synthetic executable")
+    tool.chmod(0o700)
+    environment = {"DEVELOPER_DIR": str(developer), "MINDBUDGET_FORBIDDEN": "1",
+                   "DEVICECTL_CHILD_FORBIDDEN": "1", "PATH": "/usr/bin"}
+    lookups = []
+
+    def lookup(argv, **kwargs):
+        lookups.append((argv, kwargs))
+        return subprocess.CompletedProcess(argv, 0, str(tool) + "\n", "")
+
+    native_env = r.native_toolchain_preflight(environment, lookup)
+    r.require(len(lookups) == 1 and lookups[0][0] == [r.XCRUN, "--find", "devicectl"] and
+              lookups[0][1]["timeout"] == 5 and
+              native_env["DEVELOPER_DIR"] == str(developer) and
+              not any(key.startswith(("MINDBUDGET_", "DEVICECTL_CHILD_")) for key in native_env),
+              "toolchain lookup was not explicit, bounded and sanitized")
+    for bad_env, completed in [
+        ({}, subprocess.CompletedProcess([], 0, str(tool) + "\n", "")),
+        ({"DEVELOPER_DIR": "relative"}, subprocess.CompletedProcess([], 0, str(tool) + "\n", "")),
+        (environment, subprocess.CompletedProcess([], 72, "", "missing")),
+        (environment, subprocess.CompletedProcess([], 0, str(tool) + "\nextra\n", "")),
+        (environment, subprocess.CompletedProcess([], 0, "/usr/bin/devicectl\n", "")),
+    ]:
+        expect_failure(lambda bad_env=bad_env, completed=completed:
+                       r.native_toolchain_preflight(
+                           bad_env, lambda *args, completed=completed, **kwargs: completed))
+
+    prior = copy.deepcopy(fresh)
+    prior["controllerSHA256"] = "c" * 64
+    prior_path = root / "run-order-prior-approval.json"
+    result_path = root / "run-order-prior-result.json"
+    r.save_new(prior_path, prior)
+    r.save_new(result_path, dict(
+        status="NON_PASS", reason="SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT",
+        processStopped=False, run=prior["run"], resumed=False, liveDeletionTested=False,
+        failureType="ValueError", privateFailure="synthetic parser refusal",
+        collectionAttempted=False))
+    state = root / "run-order-state"
+    state.mkdir()
+    retained = r.reservation_path(state, prior["deviceUDID"])
+    r.save_new(retained, {"run": prior["run"], "status": "RESERVED"})
+    observed_prior, metadata = r.continuation_metadata(
+        prior_path, result_path, state, "a" * 64, "b" * 64, prior["deviceUDID"])
+    request = {**observed_prior, "version": 3, "controllerSHA256": r.controller_hash(),
+               "continuation": metadata}
+    approval_path = root / "run-order-approval.json"
+    r.save_new(approval_path, request)
+    app = root / "synthetic.app"
+    app.mkdir()
+    claim = r.continuation_claim_path(state, request)
+    events = []
+    originals = r.artifact, r.native_toolchain_preflight, r.Device, r.supervise
+
+    class GuardDevice:
+        def __init__(self, device, out, supplied_env):
+            r.require(claim.exists(), "device constructed before continuation claim")
+            r.require(supplied_env == {"DEVELOPER_DIR": "/synthetic/Developer"},
+                      "preflight environment not passed to device")
+            events.append("device")
+
+    try:
+        r.artifact = lambda app, device: ("a" * 64, "b" * 64)
+        r.Device = GuardDevice
+        r.supervise = lambda device, approval, out: {"status": "NON_PASS"}
+
+        def reject_preflight():
+            events.append("preflight-rejected")
+            raise ValueError("synthetic missing devicectl")
+
+        r.native_toolchain_preflight = reject_preflight
+        rejected_out = root / "run-order-rejected-out"
+        expect_failure(lambda: r.run(app, approval_path, rejected_out, state,
+                                     prior_path, result_path))
+        r.require(events == ["preflight-rejected"] and not claim.exists() and
+                  not rejected_out.exists(),
+                  "toolchain failure consumed claim/output or constructed a device")
+
+        r.native_toolchain_preflight = lambda: (
+            events.append("preflight-accepted") or {"DEVELOPER_DIR": "/synthetic/Developer"})
+        accepted_out = root / "run-order-accepted-out"
+        r.require(r.run(app, approval_path, accepted_out, state,
+                        prior_path, result_path) == 1 and
+                  events[-2:] == ["preflight-accepted", "device"] and claim.exists() and
+                  (accepted_out / "approval.json").is_file(),
+                  "claim did not precede device construction after accepted preflight")
+    finally:
+        r.artifact, r.native_toolchain_preflight, r.Device, r.supervise = originals
+    print("PASS: explicit devicectl preflight precedes claim; rejection consumes no run/device authority.")
+
+
 def self_test():
     request = approval()
     now = dt.datetime.now(dt.timezone.utc)
@@ -322,6 +416,7 @@ def self_test():
         negative_count += continuation_tests(root, request)
         process_filter_tests(root, request)
         launch_argument_order_tests(root, request)
+        toolchain_preflight_and_run_order_tests(root, request)
         good = root / "good"
         collection(good, request)
         r.verify_collection(good, request)
