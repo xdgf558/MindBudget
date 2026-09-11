@@ -2,7 +2,38 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — preflight native tools before consuming a continuation claim
+## Current follow-up — bind the installed probe before one final same-run continuation
+
+PR #128 reviewed head `716874a` passed complete local/hosted/native acceptance and merged as
+`16635b5`. Its new exact version-3 request was independently reviewed and owner-approved for the
+unchanged signed package and selected iPhone Air. The only invocation found no probe process, then
+CoreDevice refused the single suspended launch because the dedicated App was not installed. It
+returned NON_PASS before PID/resume/App/CloudKit/deletion and consumed its append-only claim.
+
+The owner separately authorized installation without launch. A first local wrapper preflight
+stopped before a device command because it lacked explicit `DEVELOPER_DIR`; its record remains.
+The corrected explicit-Xcode invocation installed the exact package. Read-only post-install checks
+found exactly one matching bundle and no process. No App or CloudKit operation ran.
+
+- [x] Retain the version-3 approval, claim, process result, not-installed launch result and
+  controller NON_PASS without reset, reuse, deletion or reclassification.
+- [x] Retain the first local installation-wrapper preflight failure; install the exact package
+  once after explicit authorization, then prove one matching App and no running probe.
+- [x] Add a version-4 request that binds the exact version-3 failure/claim, native installation,
+  post-install App/process results, unchanged reservation and prior controller.
+- [x] Make the first device command after the new claim require exactly one matching installed
+  App; retain the existing process ownership, suspended launch, deadline and collection controls.
+- [ ] Freeze the controller and pass offline/static gates, default complete local validation,
+  exact-head hosted/native acceptance and independent review.
+- [ ] Merge only after explicit owner authorization. Then prepare and review a new exact
+  post-merge version-4 file before requesting one new live authorization.
+- [ ] If that later live run reaches CloudKit, retain its result before separately deciding
+  synthetic data/App cleanup; process termination cannot recall submitted writes.
+
+No current approval authorizes another device command, launch, CloudKit operation, cleanup,
+reservation/claim deletion, D Done, E or Insights entry.
+
+## Historical follow-up — preflight native tools before consuming a continuation claim
 
 PR #127 reviewed head `3937c6a` completed local/hosted/native acceptance and merged as `d47e893`.
 Its exact version-3 request was then independently accepted and owner-authorized for the selected
@@ -16,9 +47,9 @@ same approval cannot be reused.
   that exact Xcode's executable `devicectl` before marker/claim/output/device construction.
 - [x] Add run-level order tests: failed preflight leaves no claim/output/device object; successful
   preflight retains claim-before-device order and passes the sanitized environment to the adapter.
-- [ ] Freeze the repaired controller and pass offline/static gates, default complete local
+- [x] Freeze the repaired controller and pass offline/static gates, default complete local
   validation, exact-head hosted/native acceptance and independent review.
-- [ ] Merge only after explicit owner authorization; then prepare a new exact version-3 request and
+- [x] Merge only after explicit owner authorization; then prepare a new exact version-3 request and
   obtain separate owner authorization before another selected-phone invocation.
 - [ ] If a later live run reaches CloudKit, retain its result before separately deciding synthetic
   data/App cleanup; process termination cannot recall submitted writes.
