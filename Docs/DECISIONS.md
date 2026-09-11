@@ -2,7 +2,7 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## 2026-09-11 — Reserve the complete Dashboard projection before batched mapping
+## 2026-09-11 — Skip pending-change merging only after proving the context clean
 
 The first default complete-local run of the version-4 installed-continuation candidate, exact
 source freeze `0a37b88`, stopped at the unchanged Dashboard release gate with
@@ -11,14 +11,21 @@ green sample, waive the ceiling or attribute the result to the probe work. The c
 did not participate in the measured path.
 
 Keep this repair inside the same bounded delivery instead of creating another performance phase.
-For the clean-context `fetchExpenseSummaries()` path, use SwiftData's exact `fetchCount` to reserve
-the complete value-result array before the already accepted 5,000-row enumeration. This removes
-repeated array growth/copying without changing the descriptor, sort, mapper, error order, result
-population or dirty-context fallback. Do not cache, omit fields, cap rows, change the 500 ms gate or
-introduce a second timed product path. The first valid focused candidate measurement was
-`275.606083 ms`; it is directional evidence only. Acceptance still requires one new frozen head's
-default complete-local run, hosted jobs and native audit. The earlier sandbox-only simulator
-preflight that found no usable runtime remains an execution-environment NON_PASS, not a product
+An exact-count reservation before the already accepted 5,000-row enumeration passed one focused
+measurement at `275.606083 ms`, but its frozen head `f5c5992` then failed complete-local at
+`567.900125 ms > 500 ms`; reserve-only is therefore not accepted as the corrective mechanism.
+
+The measured bottleneck remains the complete SwiftData enumeration and validated mapping. Preserve
+the existing dirty-context fetch/map path. Only after `modelContext.hasChanges == false`, copy the
+same descriptor with `includePendingChanges=false`, reserve its exact count and enumerate the same
+full result. That avoids unnecessary pending-change reconciliation while keeping descriptor, sort,
+mapper, error order and dirty-state visibility unchanged. Fixed diagnostic batches of 5,000,
+1,000, 10,000 and 500 produced `448.585250`, `423.274167`, `535.081500` and `538.090041 ms` for
+enumeration plus mapping; the batch experiments are observations, not acceptance, and the accepted
+5,000 size stays unchanged. The first focused clean-descriptor result was `371.188792 ms / 500 ms`.
+Do not cache, omit fields, cap rows, change the gate or introduce a second timed product path.
+Acceptance still requires one new frozen head's default complete-local run, hosted jobs and native
+audit. The earlier sandbox-only simulator preflight remains an environment NON_PASS, not a product
 measurement.
 
 ## 2026-09-11 — Bind exact installation evidence into one version-4 continuation

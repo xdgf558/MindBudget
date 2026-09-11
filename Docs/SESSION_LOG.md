@@ -2,7 +2,7 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## 2026-09-11 — Retain `0a37b88` performance NON_PASS; narrow projection allocation
+## 2026-09-11 — Retain two performance NON_PASS results; narrow clean projection work
 
 The version-4 installed-continuation source was frozen as
 `0a37b88e71c0652ac33e814303503b8d50c7b0a6`. Its first and only default complete-local
@@ -23,10 +23,28 @@ field omission, alternate benchmark or threshold change was added.
 
 The first focused attempt stopped before testing because sandboxed Xcode could not connect to
 CoreSimulator and found no matching runtime; it is retained as an environment preflight NON_PASS.
-The one valid focused run under normal Simulator permissions passed at `275.606083 ms / 500 ms`.
-This is only candidate direction, not release acceptance. Freeze the combined controller/allocation
-source once, then run one new default complete-local validation followed by exact-head hosted/native
-acceptance and independent review. No phone command, launch, CloudKit operation or cleanup occurred.
+The one valid reserve-only focused run under normal Simulator permissions passed at
+`275.606083 ms / 500 ms`. Source freeze `f5c5992` then ran default complete-local once and failed the
+same unchanged gate at `567.900125 ms`; its xcresult is retained privately as
+`f5c5992-benchmark-nonpass.xcresult`. It stopped before ordinary/isolated FX, is not called transient
+and will not be rerun. Exact-count reservation alone is not accepted as the fix.
+
+One temporary buffered diagnostic, selected through the deterministic 10,000-row projection method
+rather than another acceptance run, measured count query plus 5,000-row enumeration/map at
+`0.245292 + 448.585250 ms`. Fixed follow-ups changed only the temporary batch size: 10,000 rows
+measured `0.228375 + 535.081500 ms`, 1,000 measured `0.207875 + 423.274167 ms`, and 500 measured
+`0.287792 + 538.090041 ms`. All returned the complete 10,000-row projection. Variability is material;
+the existing reviewed 5,000 size is restored and none of these diagnostic runs is release evidence.
+All temporary prints were removed.
+
+The next narrow candidate preserves the original dirty-context branch and, only after
+`modelContext.hasChanges == false`, sets the copied descriptor's `includePendingChanges=false` for
+both count and the unchanged 5,000-row enumeration. It avoids merging changes that provably do not
+exist without changing sort, mapping, validation/error order, full result population or Int64
+money. Its first focused benchmark passed at `371.188792 ms / 500 ms`. Freeze the combined
+controller/allocation source once, then run one new default complete-local validation followed by
+exact-head hosted/native acceptance and independent review. No phone command, launch, CloudKit
+operation or cleanup occurred.
 
 ## 2026-09-11 — Retain not-installed NON_PASS; implement installed version-4 continuation
 

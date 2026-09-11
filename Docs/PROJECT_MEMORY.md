@@ -30,14 +30,14 @@ authorization. The installed App and working PENDING file are not permission. D 
 Progress; no D completion, E entry or Insights sharing is authorized. `Tools/FXCloudProbe/README.md`
 owns the detailed contract.
 
-The first exact source freeze `0a37b88` reached the unchanged complete-local Dashboard wall-clock
-gate and returned NON_PASS at `533.066167 ms > 500 ms`; no ordinary/FX acceptance bundle followed.
-That result is retained and cannot be replaced by another run of the same head. A narrow follow-up
-now reserves the exact clean-context ExpenseSummary result count before the existing batched
-enumeration. It does not alter the version-4 controller, the benchmark, the full projection, dirty
-state behavior or the 500 ms ceiling. One valid focused run measured `275.606083 ms`; a sandboxed
-preflight before it found no simulator and measured no product code. A new frozen head must still
-pass the complete local/hosted/native gates before review. No phone access is authorized.
+Exact source freezes `0a37b88` and `f5c5992` are retained Dashboard-gate NON_PASS results at
+`533.066167` and `567.900125 ms > 500 ms`; neither produced ordinary/FX acceptance bundles and
+neither may be rerun to select a green sample. Exact result reservation alone did not stabilize the
+path. The current narrow candidate additionally sets `includePendingChanges=false` only after the
+context reports no changes, then performs the same full 5,000-row batched mapping. Dirty contexts
+still use the original fetch/map path; benchmark, result population and ceiling are unchanged. One
+focused result measured `371.188792 ms`. A new frozen head must still pass complete
+local/hosted/native gates before review. No phone access is authorized.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,
