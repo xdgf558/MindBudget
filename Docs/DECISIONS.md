@@ -2,6 +2,25 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Reserve the complete Dashboard projection before batched mapping
+
+The first default complete-local run of the version-4 installed-continuation candidate, exact
+source freeze `0a37b88`, stopped at the unchanged Dashboard release gate with
+`533.066167 ms > 500 ms`. Retain that result as a NON_PASS; do not rerun the same head to select a
+green sample, waive the ceiling or attribute the result to the probe work. The controller itself
+did not participate in the measured path.
+
+Keep this repair inside the same bounded delivery instead of creating another performance phase.
+For the clean-context `fetchExpenseSummaries()` path, use SwiftData's exact `fetchCount` to reserve
+the complete value-result array before the already accepted 5,000-row enumeration. This removes
+repeated array growth/copying without changing the descriptor, sort, mapper, error order, result
+population or dirty-context fallback. Do not cache, omit fields, cap rows, change the 500 ms gate or
+introduce a second timed product path. The first valid focused candidate measurement was
+`275.606083 ms`; it is directional evidence only. Acceptance still requires one new frozen head's
+default complete-local run, hosted jobs and native audit. The earlier sandbox-only simulator
+preflight that found no usable runtime remains an execution-environment NON_PASS, not a product
+measurement.
+
 ## 2026-09-11 — Bind exact installation evidence into one version-4 continuation
 
 PR #128 merged its reviewed toolchain-preflight controller as `16635b5`. A new exact version-3

@@ -30,6 +30,15 @@ authorization. The installed App and working PENDING file are not permission. D 
 Progress; no D completion, E entry or Insights sharing is authorized. `Tools/FXCloudProbe/README.md`
 owns the detailed contract.
 
+The first exact source freeze `0a37b88` reached the unchanged complete-local Dashboard wall-clock
+gate and returned NON_PASS at `533.066167 ms > 500 ms`; no ordinary/FX acceptance bundle followed.
+That result is retained and cannot be replaced by another run of the same head. A narrow follow-up
+now reserves the exact clean-context ExpenseSummary result count before the existing batched
+enumeration. It does not alter the version-4 controller, the benchmark, the full projection, dirty
+state behavior or the 500 ms ceiling. One valid focused run measured `275.606083 ms`; a sandboxed
+preflight before it found no simulator and measured no product code. A new frozen head must still
+pass the complete local/hosted/native gates before review. No phone access is authorized.
+
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,
 approximately 6% margin); hosted `34371706895` attempt 1 and reviewer-supplied native audit passed.

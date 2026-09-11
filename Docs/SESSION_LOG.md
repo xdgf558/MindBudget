@@ -2,6 +2,32 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Retain `0a37b88` performance NON_PASS; narrow projection allocation
+
+The version-4 installed-continuation source was frozen as
+`0a37b88e71c0652ac33e814303503b8d50c7b0a6`. Its first and only default complete-local
+`Scripts/validate.sh` invocation used the normal 500 ms ceiling, zero retry, no hosted skip and
+Xcode 27 beta 6 / iOS 26.5 simulator. Static/release checks and the Release test build passed, but
+the first Dashboard benchmark measured `533.066167 ms` and failed the unchanged ceiling. The run
+therefore exited 65 before ordinary/isolated-FX acceptance bundles. Its xcresult is retained
+privately as `0a37b88-benchmark-nonpass.xcresult`. This is not reclassified as transient and the
+same source freeze will not be rerun to choose a different timing sample.
+
+Inspection confirmed that the probe controller is outside the timed path. The current accepted
+Dashboard implementation already maps every Expense through the unchanged validated projection in
+5,000-row SwiftData enumeration batches, but grows the output array from zero. The narrow candidate
+adds one exact `fetchCount` reservation on the clean-context path before enumeration. The existing
+dirty-context fetch/map fallback remains byte-for-byte unchanged; descriptor, sort, mapper,
+validation/error order, Int64 money and full result population are unchanged. No cache, result cap,
+field omission, alternate benchmark or threshold change was added.
+
+The first focused attempt stopped before testing because sandboxed Xcode could not connect to
+CoreSimulator and found no matching runtime; it is retained as an environment preflight NON_PASS.
+The one valid focused run under normal Simulator permissions passed at `275.606083 ms / 500 ms`.
+This is only candidate direction, not release acceptance. Freeze the combined controller/allocation
+source once, then run one new default complete-local validation followed by exact-head hosted/native
+acceptance and independent review. No phone command, launch, CloudKit operation or cleanup occurred.
+
 ## 2026-09-11 — Retain not-installed NON_PASS; implement installed version-4 continuation
 
 PR #128 reviewed head `716874a98928ff47a3fc6c1ed07819abeabc11de` passed its exact-head
