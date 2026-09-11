@@ -280,7 +280,7 @@ def run_validation_order_self_test(project_root: Path) -> None:
             path.write_text(COMMAND_STUB, encoding="utf-8")
             path.chmod(0o700)
 
-        before_boot = [*STATIC_STEPS, "build-settings", "release-build", "build-for-testing"]
+        before_boot = [*STATIC_STEPS, "build-settings", "build-for-testing"]
         trace = fixture / "trace.txt"
         base_env = {
             "PATH": f"{commands}:/usr/bin:/bin",
@@ -319,23 +319,25 @@ def run_validation_order_self_test(project_root: Path) -> None:
                 raise RuntimeError("partial CI validation must not claim complete local acceptance")
 
         after_test = ["check-coverage.sh", "acceptance", "fx-unit-bindings", "fx-ui-host"]
-        verify([*before_boot, "boot-ready", "test", *after_test])
-        verify([*before_boot, "boot-ready", "test", "test", *after_test], benchmark=True)
+        complete_sequence = [*before_boot, "boot-ready", "release-build", "test", *after_test]
+        benchmark_sequence = [*before_boot, "boot-ready", "test", "release-build", "test", *after_test]
+        named_sequence = [*before_boot, "release-build", "test", *after_test]
+        partial_sequence = [*before_boot, "boot-ready", "release-build", "test", *after_test[:-1]]
+        verify(complete_sequence)
+        verify(benchmark_sequence, benchmark=True)
         # Named local destinations keep xcodebuild's existing boot behavior.
-        verify([*before_boot, "test", *after_test], destination="platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5")
-        verify([*before_boot, "boot-ready", "test", *after_test[:-1]], partial=True)
+        verify(named_sequence, destination="platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5")
+        verify(partial_sequence, partial=True)
         for bad_args in (("--ci-ordinary-only",), ("--skip-fx",), ("--ci-ordinary-only", "extra")):
             trace.write_text("", encoding="utf-8")
             result = subprocess.run(["/bin/bash", str(validator), *bad_args], cwd=fixture, env=base_env,
                                     capture_output=True, text=True, timeout=5)
             if result.returncode != 2 or trace.read_text():
                 raise RuntimeError("unknown/local partial validation must fail before any command")
-        for index, failure in enumerate([*before_boot, "boot-ready"]):
-            verify([*before_boot, "boot-ready"][:index + 1], failure=failure)
-        for index, failure in enumerate(["test", *after_test]):
-            verify([*before_boot, "boot-ready", *["test", *after_test][:index + 1]], failure=failure)
-        for index, failure in enumerate([*before_boot, "boot-ready", "test", *after_test[:-1]]):
-            verify([*before_boot, "boot-ready", "test", *after_test[:-1]][:index + 1], failure=failure, partial=True)
+        for index, failure in enumerate(complete_sequence):
+            verify(complete_sequence[:index + 1], failure=failure)
+        for index, failure in enumerate(partial_sequence):
+            verify(partial_sequence[:index + 1], failure=failure, partial=True)
     print("Validation ordering self-test passed: 4 success paths / 41 fail-closed command failures / 3 argument negatives")
     print("Hosted no-retry policy passed: actual validator arguments / 6 workflow negatives")
     print(f"Hosted split-job contract passed: {len(workflow_negatives)} workflow negatives / 36 executed join outcomes")

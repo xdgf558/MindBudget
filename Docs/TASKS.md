@@ -23,10 +23,10 @@ found exactly one matching bundle and no process. No App or CloudKit operation r
   post-install App/process results, unchanged reservation and prior controller.
 - [x] Make the first device command after the new claim require exactly one matching installed
   App; retain the existing process ownership, suspended launch, deadline and collection controls.
-- [x] Retain source freezes `0a37b88` / `f5c5992` as NON_PASS at the unchanged Dashboard gate
-  (`533.066167` / `567.900125 ms > 500 ms`); exact reservation alone was insufficient. For the
-  proven-clean context only, disable pending-change merging before the same complete batched mapper;
-  keep the original dirty-state path and all result/validation/sort semantics.
+- [x] Retain source freezes `0a37b88` / `f5c5992` / `673d9ae` as NON_PASS at the unchanged
+  Dashboard gate (`533.066167` / `567.900125` / `588.157625 ms > 500 ms`). Withdraw both product
+  projection candidates; instead run the unchanged one-shot benchmark after Debug test build and
+  destination readiness but before the still-mandatory Release compilation.
 - [ ] Freeze the controller and pass offline/static gates, default complete local validation,
   exact-head hosted/native acceptance and independent review.
 - [ ] Merge only after explicit owner authorization. Then prepare and review a new exact

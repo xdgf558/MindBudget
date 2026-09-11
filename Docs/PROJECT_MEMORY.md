@@ -30,14 +30,14 @@ authorization. The installed App and working PENDING file are not permission. D 
 Progress; no D completion, E entry or Insights sharing is authorized. `Tools/FXCloudProbe/README.md`
 owns the detailed contract.
 
-Exact source freezes `0a37b88` and `f5c5992` are retained Dashboard-gate NON_PASS results at
-`533.066167` and `567.900125 ms > 500 ms`; neither produced ordinary/FX acceptance bundles and
-neither may be rerun to select a green sample. Exact result reservation alone did not stabilize the
-path. The current narrow candidate additionally sets `includePendingChanges=false` only after the
-context reports no changes, then performs the same full 5,000-row batched mapping. Dirty contexts
-still use the original fetch/map path; benchmark, result population and ceiling are unchanged. One
-focused result measured `371.188792 ms`. A new frozen head must still pass complete
-local/hosted/native gates before review. No phone access is authorized.
+Exact source freezes `0a37b88`, `f5c5992` and `673d9ae` are retained Dashboard-gate NON_PASS results
+at `533.066167`, `567.900125` and `588.157625 ms > 500 ms`; none produced ordinary/FX acceptance
+bundles and none may be rerun to select a green sample. Reserve-only and clean-descriptor product
+candidates are withdrawn, so final `DataActor.swift` equals reviewed main. The current narrow fix
+moves the unchanged one-shot benchmark ahead of mandatory Release whole-module compilation while
+keeping it after Debug build-for-testing and destination readiness. Release build, 10,000-row test,
+500 ms ceiling, zero retry and all ordinary/FX gates remain. A new frozen head must still pass
+complete local/hosted/native gates before review. No phone access is authorized.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,

@@ -2,7 +2,7 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## 2026-09-11 — Retain two performance NON_PASS results; narrow clean projection work
+## 2026-09-11 — Retain three performance NON_PASS results; isolate the wall-clock gate
 
 The version-4 installed-continuation source was frozen as
 `0a37b88e71c0652ac33e814303503b8d50c7b0a6`. Its first and only default complete-local
@@ -14,12 +14,10 @@ privately as `0a37b88-benchmark-nonpass.xcresult`. This is not reclassified as t
 same source freeze will not be rerun to choose a different timing sample.
 
 Inspection confirmed that the probe controller is outside the timed path. The current accepted
-Dashboard implementation already maps every Expense through the unchanged validated projection in
-5,000-row SwiftData enumeration batches, but grows the output array from zero. The narrow candidate
-adds one exact `fetchCount` reservation on the clean-context path before enumeration. The existing
-dirty-context fetch/map fallback remains byte-for-byte unchanged; descriptor, sort, mapper,
-validation/error order, Int64 money and full result population are unchanged. No cache, result cap,
-field omission, alternate benchmark or threshold change was added.
+Dashboard implementation maps every Expense through the validated projection in 5,000-row
+SwiftData enumeration batches. The first narrow candidate added one exact `fetchCount` reservation
+on the clean-context path before enumeration; its dirty-context fetch/map fallback, descriptor,
+sort, mapper, validation/error order, Int64 money and full result population stayed unchanged.
 
 The first focused attempt stopped before testing because sandboxed Xcode could not connect to
 CoreSimulator and found no matching runtime; it is retained as an environment preflight NON_PASS.
@@ -37,14 +35,25 @@ measured `0.228375 + 535.081500 ms`, 1,000 measured `0.207875 + 423.274167 ms`, 
 the existing reviewed 5,000 size is restored and none of these diagnostic runs is release evidence.
 All temporary prints were removed.
 
-The next narrow candidate preserves the original dirty-context branch and, only after
-`modelContext.hasChanges == false`, sets the copied descriptor's `includePendingChanges=false` for
-both count and the unchanged 5,000-row enumeration. It avoids merging changes that provably do not
-exist without changing sort, mapping, validation/error order, full result population or Int64
-money. Its first focused benchmark passed at `371.188792 ms / 500 ms`. Freeze the combined
-controller/allocation source once, then run one new default complete-local validation followed by
-exact-head hosted/native acceptance and independent review. No phone command, launch, CloudKit
-operation or cleanup occurred.
+The next narrow product candidate preserved the original dirty-context branch and, only after
+`modelContext.hasChanges == false`, set the copied descriptor's `includePendingChanges=false` for
+count and the unchanged 5,000-row enumeration. Its focused benchmark passed at
+`371.188792 ms / 500 ms`; seven ExpenseSummary identity tests also passed once, including dirty
+insert/edit/delete, saved freshness, complete fields/sort and precise errors. Frozen head `673d9ae`
+then ran default complete-local once and failed at `588.157625 ms`; it stopped before ordinary/FX.
+That result remains NON_PASS. Both projection candidates are withdrawn and the final product source
+returns to reviewed main.
+
+The distinguishing validation sequence is now explicit: focused commands compile the Debug test
+product and then measure; complete-local compiled Release, then Debug, then immediately measured.
+Move the unchanged benchmark after Debug build-for-testing and exact-destination readiness but
+before Release whole-module compilation. Release build remains mandatory and still runs before the
+ordinary suite. Update `validation_order_self_test.py` to require the benchmark-before-Release order
+locally, require Release when the benchmark is skipped, and keep all fail-closed command cases.
+No sleep, warm-up load, second measurement, retry, threshold/fixture change or product alternate
+path is added. Freeze the controller plus validation-order source once, then run one new default
+complete-local validation followed by exact-head hosted/native acceptance and independent review.
+No phone command, launch, CloudKit operation or cleanup occurred.
 
 ## 2026-09-11 — Retain not-installed NON_PASS; implement installed version-4 continuation
 

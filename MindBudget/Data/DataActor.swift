@@ -420,14 +420,8 @@ actor DataActor {
         if modelContext.hasChanges {
             return try modelContext.fetch(descriptor).map { try expenseSummary($0) }
         }
-        var cleanDescriptor = descriptor
-        cleanDescriptor.includePendingChanges = false
         var summaries: [ExpenseSummary] = []
-        // The clean-context path already performs a complete read. Reserve the exact
-        // result size first so a large Dashboard load does not repeatedly copy the
-        // growing value-projection buffer while enumeration advances between batches.
-        summaries.reserveCapacity(try modelContext.fetchCount(cleanDescriptor))
-        try modelContext.enumerate(cleanDescriptor, batchSize: 5_000) { expense in
+        try modelContext.enumerate(descriptor, batchSize: 5_000) { expense in
             summaries.append(try expenseSummary(expense))
         }
         return summaries

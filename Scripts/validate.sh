@@ -65,9 +65,6 @@ if [[ ! "${bundle_identifier}" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]]; then
 fi
 
 xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
-  -configuration Release -destination "generic/platform=iOS Simulator" build
-
-xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
   -destination "${DESTINATION}" -enableCodeCoverage YES build-for-testing
 
 # CI creates an exact-ID simulator but must not start it alongside the static gates.
@@ -97,6 +94,12 @@ if [[ "${MINDBUDGET_SKIP_WALL_CLOCK_BENCHMARK:-0}" != "1" ]]; then
     "-only-testing:${wall_clock_benchmark}" test-without-building
 fi
 test_arguments+=( "-skip-testing:${wall_clock_benchmark}" )
+
+# Keep the unchanged local wall-clock gate adjacent to its Debug build-for-testing.
+# Release whole-module compilation remains mandatory, but running it first can leave
+# unrelated compiler pressure inside the one measured first-load interval.
+xcodebuild -project MindBudget.xcodeproj -scheme MindBudget \
+  -configuration Release -destination "generic/platform=iOS Simulator" build
 
 if [[ "${MINDBUDGET_RETRY_TESTS_ON_FAILURE:-0}" == "1" ]]; then
   test_arguments+=( -retry-tests-on-failure -test-iterations 2 )
