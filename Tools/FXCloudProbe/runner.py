@@ -34,6 +34,11 @@ BUDGET = 180
 APPROVAL_KEYS = {"version", "ownerApproval", "independentReview", "run", "deviceUDID",
                  "bundle", "container", "executableSHA256", "artifactSHA256", "controllerSHA256",
                  "expiresAt", "operation", "deletionAllowed"}
+CONTINUATION_KEYS = {"mode", "priorApprovalSHA256", "priorControllerResultSHA256",
+                     "priorControllerSHA256", "retainedReservationSHA256"}
+PRIOR_RESULT_KEYS = {"status", "reason", "processStopped", "run", "resumed",
+                     "liveDeletionTested", "failureType", "privateFailure", "collectionAttempted"}
+CONTINUATION_MODE = "SAME_RUN_AFTER_PRE_RESUME_LAUNCH_PARSER_NON_PASS"
 
 
 def require(value, message):
@@ -91,9 +96,106 @@ def prepare(app, device, out):
     print("Prepared local approval request. NOT approved; no device command executed.")
 
 
+def reservation_path(state_root, device):
+    key = sha((device + ":" + BUNDLE).encode())
+    return state_root / (key + ".json")
+
+
+def validate_state_root(state_root, must_exist):
+    require(state_root.is_absolute() and not state_root.is_symlink(),
+            "reservation root must be an absolute real directory")
+    if must_exist:
+        require(state_root.is_dir(), "retained reservation root missing")
+    elif state_root.exists():
+        require(state_root.is_dir(), "reservation root is not a directory")
+
+
+def continuation_claim_path(state_root, approval):
+    key = sha((approval["deviceUDID"] + ":" + BUNDLE + ":" + approval["run"] + ":" +
+               approval["controllerSHA256"]).encode())
+    return state_root / (key + ".continuation.json")
+
+
+def validate_prior_continuation(prior, result, reservation, exe, package, device):
+    require(isinstance(prior, dict) and set(prior) == APPROVAL_KEYS and
+            type(prior.get("version")) is int and prior["version"] == 2,
+            "prior approval schema mismatch")
+    require(prior["ownerApproval"] == "APPROVED_FOR_THIS_ONE_RUN" and
+            isinstance(prior["independentReview"], str) and
+            prior["independentReview"].strip() not in ("", "PENDING"),
+            "prior run was not explicitly approved/reviewed")
+    require(prior["run"] == str(uuid.UUID(prior["run"])) and
+            prior["deviceUDID"] == device and prior["bundle"] == BUNDLE and
+            prior["container"] == audit.CONTAINER,
+            "prior approval identity mismatch")
+    require(prior["executableSHA256"] == exe and prior["artifactSHA256"] == package,
+            "prior approval used a different signed package")
+    require(isinstance(prior["controllerSHA256"], str) and
+            re.fullmatch(r"[a-f0-9]{64}", prior["controllerSHA256"]) and
+            prior["controllerSHA256"] != controller_hash(),
+            "prior controller is invalid or was not replaced")
+    require(prior["deletionAllowed"] is False and
+            prior["operation"] == "SIX_STAGE_SYNTHETIC_ROUND_TRIP",
+            "prior operation mismatch")
+    prior_expiry = dt.datetime.fromisoformat(prior["expiresAt"])
+    require(prior_expiry.tzinfo is not None, "prior approval expiry is invalid")
+
+    require(isinstance(result, dict) and set(result) == PRIOR_RESULT_KEYS,
+            "prior controller result schema mismatch")
+    require(result["status"] == "NON_PASS" and
+            result["reason"] == "SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT" and
+            result["run"] == prior["run"] and result["resumed"] is False and
+            result["processStopped"] is False and result["collectionAttempted"] is False and
+            result["liveDeletionTested"] is False and result["failureType"] == "ValueError" and
+            isinstance(result["privateFailure"], str) and result["privateFailure"],
+            "prior result is not the single accepted pre-resume parser failure")
+
+    require(isinstance(reservation, dict) and set(reservation) == {"run", "status"} and
+            reservation == {"run": prior["run"], "status": "RESERVED"},
+            "retained reservation does not match the prior run")
+
+
+def continuation_metadata(prior_path, result_path, state_root, exe, package, device):
+    validate_state_root(state_root, must_exist=True)
+    prior = read_json(prior_path)
+    result = read_json(result_path)
+    retained = reservation_path(state_root, device)
+    reservation = read_json(retained)
+    validate_prior_continuation(prior, result, reservation, exe, package, device)
+    return prior, {
+        "mode": CONTINUATION_MODE,
+        "priorApprovalSHA256": sha(prior_path.read_bytes()),
+        "priorControllerResultSHA256": sha(result_path.read_bytes()),
+        "priorControllerSHA256": prior["controllerSHA256"],
+        "retainedReservationSHA256": sha(retained.read_bytes()),
+    }
+
+
+def bind_continuation(approval, prior, metadata):
+    require(approval["version"] == 3 and prior["run"] == approval["run"] and
+            metadata == approval["continuation"], "continuation evidence drift")
+
+
+def prepare_continuation(app, device, prior_path, result_path, state_root, out):
+    exe, package = artifact(app, device)
+    prior, continuation = continuation_metadata(
+        prior_path, result_path, state_root, exe, package, device)
+    save_new(out, dict(version=3, ownerApproval="PENDING", independentReview="PENDING",
+                       run=prior["run"], deviceUDID=device, bundle=BUNDLE,
+                       container=audit.CONTAINER, executableSHA256=exe,
+                       artifactSHA256=package, controllerSHA256=controller_hash(),
+                       expiresAt=(dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=24)).isoformat(),
+                       operation="SIX_STAGE_SYNTHETIC_ROUND_TRIP", deletionAllowed=False,
+                       continuation=continuation))
+    print("Prepared same-run continuation request. NOT approved; no device command executed.")
+
+
 def validate_approval(value, exe, package, now):
-    require(isinstance(value, dict) and set(value) == APPROVAL_KEYS, "approval schema mismatch")
-    require(type(value["version"]) is int and value["version"] == 2, "wrong protocol")
+    require(isinstance(value, dict), "approval schema mismatch")
+    version = value.get("version")
+    expected_keys = APPROVAL_KEYS if version == 2 else APPROVAL_KEYS | {"continuation"}
+    require(type(version) is int and version in (2, 3) and set(value) == expected_keys,
+            "approval schema mismatch/wrong protocol")
     require(value["ownerApproval"] == "APPROVED_FOR_THIS_ONE_RUN", "separate owner approval required")
     require(isinstance(value["independentReview"], str) and
             value["independentReview"].strip() not in ("", "PENDING"), "independent review required")
@@ -103,6 +205,15 @@ def validate_approval(value, exe, package, now):
             value["controllerSHA256"] == controller_hash(), "approval artifact/controller drift")
     require(value["deletionAllowed"] is False and value["operation"] == "SIX_STAGE_SYNTHETIC_ROUND_TRIP",
             "unapproved operation")
+    if version == 3:
+        continuation = value["continuation"]
+        require(isinstance(continuation, dict) and set(continuation) == CONTINUATION_KEYS and
+                continuation["mode"] == CONTINUATION_MODE,
+                "continuation schema/mode mismatch")
+        for key in CONTINUATION_KEYS - {"mode"}:
+            require(isinstance(continuation[key], str) and
+                    re.fullmatch(r"[a-f0-9]{64}", continuation[key]),
+                    "invalid continuation digest")
     expiry = dt.datetime.fromisoformat(value["expiresAt"])
     require(expiry.tzinfo is not None and dt.timedelta(0) < expiry - now <= dt.timedelta(hours=24),
             "expired/unbounded approval")
@@ -313,15 +424,44 @@ def supervise(device, approval, out, clock=time.monotonic):
     return result
 
 
-def run(app, approval_path, out, state_root):
+def reserve_run(state_root, approval):
+    destination = reservation_path(state_root, approval["deviceUDID"])
+    if approval["version"] == 2:
+        save_new(destination, {"run": approval["run"], "status": "RESERVED"})
+        return
+    retained = read_json(destination)
+    require(retained == {"run": approval["run"], "status": "RESERVED"} and
+            sha(destination.read_bytes()) == approval["continuation"]["retainedReservationSHA256"],
+            "same-run retained reservation changed; continuation refused")
+    save_new(continuation_claim_path(state_root, approval), {
+        "run": approval["run"],
+        "status": "CONTINUATION_RESERVED",
+        "controllerSHA256": approval["controllerSHA256"],
+        "priorApprovalSHA256": approval["continuation"]["priorApprovalSHA256"],
+        "priorControllerResultSHA256": approval["continuation"]["priorControllerResultSHA256"],
+        "retainedReservationSHA256": approval["continuation"]["retainedReservationSHA256"],
+    })
+
+
+def run(app, approval_path, out, state_root, prior_path=None, result_path=None):
     approval = read_json(approval_path)
     exe, package = artifact(app, approval.get("deviceUDID", ""))
     validate_approval(approval, exe, package, dt.datetime.now(dt.timezone.utc))
-    # Persistent host reservation also prevents a different run UUID bypassing app-lifetime use.
-    # Never remove these markers to obtain a green rerun. Changing state root is not permission.
+    validate_state_root(state_root, must_exist=approval["version"] == 3)
+    if approval["version"] == 3:
+        require(prior_path is not None and result_path is not None,
+                "continuation requires retained prior approval/result")
+        prior, continuation = continuation_metadata(
+            prior_path, result_path, state_root, exe, package, approval["deviceUDID"])
+        bind_continuation(approval, prior, continuation)
+    else:
+        require(prior_path is None and result_path is None,
+                "fresh run cannot accept continuation evidence")
+    # A fresh run creates the once-only marker. A reviewed v3 continuation can only reuse the
+    # exact unchanged marker for the same UUID and the one accepted pre-resume parser NON_PASS.
+    # Never remove these markers or change state roots to obtain another attempt.
     state_root.mkdir(parents=True, exist_ok=True, mode=0o700)
-    key = sha((approval["deviceUDID"] + ":" + BUNDLE).encode())
-    save_new(state_root / (key + ".json"), {"run": approval["run"], "status": "RESERVED"})
+    reserve_run(state_root, approval)
     out.mkdir(mode=0o700)  # MUST be new; retained failures are never overwritten
     save_new(out / "approval.json", approval)
     result = supervise(Device(approval["deviceUDID"], out), approval, out)
@@ -338,6 +478,8 @@ def main():
     parser.add_argument("--app", type=Path)
     parser.add_argument("--device-udid")
     parser.add_argument("--approval", type=Path)
+    parser.add_argument("--prior-approval", type=Path)
+    parser.add_argument("--prior-controller-result", type=Path)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--state-root", type=Path)
     args = parser.parse_args()
@@ -351,10 +493,32 @@ def main():
             "private approval/evidence output must be absolute and outside the repository")
     if args.prepare:
         require(args.device_udid is not None, "selected device required")
-        prepare(args.app.resolve(strict=True), args.device_udid, args.out)
+        continuation_inputs = (args.prior_approval, args.prior_controller_result, args.state_root)
+        if any(value is not None for value in continuation_inputs):
+            require(all(value is not None for value in continuation_inputs),
+                    "continuation preparation requires prior approval/result and persistent state")
+            private_paths = [args.prior_approval, args.prior_controller_result, args.state_root]
+            require(all(path.is_absolute() and not path.resolve().is_relative_to(repository)
+                        for path in private_paths),
+                    "private continuation inputs/state must be absolute and outside repository")
+            prepare_continuation(args.app.resolve(strict=True), args.device_udid,
+                                 args.prior_approval.resolve(strict=True),
+                                 args.prior_controller_result.resolve(strict=True),
+                                 args.state_root.resolve(strict=True), args.out)
+        else:
+            prepare(args.app.resolve(strict=True), args.device_udid, args.out)
         return 0
     require(args.approval is not None and args.state_root is not None, "approval and persistent state required")
-    return run(args.app.resolve(strict=True), args.approval, args.out, args.state_root)
+    private_paths = [args.approval, args.state_root]
+    private_paths += [value for value in (args.prior_approval, args.prior_controller_result)
+                      if value is not None]
+    require(all(path.is_absolute() and not path.resolve().is_relative_to(repository)
+                for path in private_paths), "private inputs/state must be absolute and outside repository")
+    return run(args.app.resolve(strict=True), args.approval.resolve(strict=True), args.out,
+               args.state_root.resolve(),
+               args.prior_approval.resolve(strict=True) if args.prior_approval else None,
+               args.prior_controller_result.resolve(strict=True)
+               if args.prior_controller_result else None)
 
 
 if __name__ == "__main__":
