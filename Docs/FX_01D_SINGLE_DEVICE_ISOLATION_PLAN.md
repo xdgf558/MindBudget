@@ -1,12 +1,16 @@
 # FX-01D single-device CloudKit isolation proposal
 
-Status: PREPARATION AND SELECTOR REPAIR MERGED; LAUNCH ARGUMENT-ORDER REPAIR CANDIDATE — #125 accepted as 93218fb; dedicated App installed under a new authorization; suspended launch parsing failed before resume; no App/CloudKit execution; repair validation/review pending.
+Status: VERSION-4 INSTALLED CONTINUATION CANDIDATE — #128 merged as `16635b5`; its exact
+version-3 invocation stopped before resume because the dedicated App was not installed. The exact
+App is now installed under separate authorization and confirmed not running. Version-4 binding,
+validation and review are pending; no App/CloudKit execution has occurred.
 
 The historical preparation/pending-review wording below predates accepted #123. The accepted
-selector repair, original/intermediate selector failures and retained launch parser failure are
-recorded in `Tools/FXCloudProbe/README.md`. The installed dedicated App and an empty post-failure
-process result are not a lifecycle pass. No repeat launch, reservation reset, cloud operation or
-cleanup follows from the controller-only repair authorization.
+selector/launch/toolchain repairs, original/intermediate failures, #128 not-installed NON_PASS and
+separately authorized installation are recorded in `Tools/FXCloudProbe/README.md`. The installed
+dedicated App and empty post-install process result are not a lifecycle pass. No repeat launch,
+reservation reset, cloud operation or cleanup follows until the new controller passes all gates,
+merges, receives a fresh exact approval and the owner separately authorizes live execution.
 
 ## Scope and observed constraints
 

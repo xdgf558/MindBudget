@@ -2,6 +2,64 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Measure the Dashboard wall-clock gate before Release compilation
+
+The first default complete-local run of the version-4 installed-continuation candidate, exact
+source freeze `0a37b88`, stopped at the unchanged Dashboard release gate with
+`533.066167 ms > 500 ms`. Retain that result as a NON_PASS; do not rerun the same head to select a
+green sample, waive the ceiling or attribute the result to the probe work. The controller itself
+did not participate in the measured path.
+
+Keep this repair inside the same bounded delivery instead of creating another performance phase.
+An exact-count reservation passed one focused measurement at `275.606083 ms`, but frozen head
+`f5c5992` failed complete-local at `567.900125 ms`. A further clean-descriptor candidate passed one
+focused measurement at `371.188792 ms`, but frozen head `673d9ae` failed at `588.157625 ms`. Both
+product candidates are withdrawn; final `DataActor.swift` must equal the reviewed main behavior.
+
+The controlled runs show that focused Debug build-and-test reaches the unchanged method well under
+500 ms, while every complete-local failure runs Release whole-module compilation immediately before
+the same wall-clock measurement. Change validation order, not the performance contract: keep all
+static gates first, create the Debug test product, boot the exact destination, execute the one serial
+500 ms benchmark, then perform the same mandatory Release build before the ordinary suite. Hosted
+CI continues skipping only this local wall-clock signal and still performs the Release build. Keep
+the 10,000-row fixture, method, threshold, zero-retry policy, ordinary/FX tests and release artifacts
+unchanged. Extend the validation-order self-test so any missing/reordered benchmark or Release build
+fails closed. This removes compiler work from the measured interval; it is not a delay, warm-up,
+retry or selected sample. Acceptance still requires one new frozen head's default complete-local
+run, hosted jobs and native audit.
+
+## 2026-09-11 — Bind exact installation evidence into one version-4 continuation
+
+PR #128 merged its reviewed toolchain-preflight controller as `16635b5`. A new exact version-3
+request was independently reviewed and owner-approved for the unchanged signed package, same run,
+selected iPhone Air and non-deleting six-stage operation. Its single invocation made one filtered
+process query, found no probe, and issued one suspended launch. CoreDevice rejected the launch
+because the dedicated App was not installed. Retain that NON_PASS, approval, native results and
+controller-specific claim; do not rerun, reset, delete or reclassify them. No PID, resume, App
+execution, CloudKit operation or deletion occurred.
+
+The owner separately authorized installation of that exact signed package without launch. Retain
+the first local wrapper preflight failure that occurred before any device command when
+`DEVELOPER_DIR` was absent. With the explicit accepted Xcode toolchain, install once and require the
+native result to identify exactly one dedicated bundle. Then use bounded read-only queries to
+require one installed App and zero running probe processes. Installation does not authorize launch
+or CloudKit.
+
+Permit implementation of one stronger version-4 continuation. It must keep the same run UUID,
+package, device, bundle/container, operation and `deletionAllowed=false`, and SHA-bind the approved
+version-3 request, its exact not-installed controller result, its immutable claim, native failed
+launch, native installation result, post-install App/process results, original reservation and
+prior controller. Before any new device command, revalidate every retained input, resolve the exact
+toolchain and atomically append a new current-controller claim. Its first device command must
+return exactly one matching installed App; only then may the unchanged process ownership,
+suspended-launch, identity, resume, 180-second deadline and collection sequence continue. Do not
+add installation, retry, state reset or deletion to the controller.
+
+This implementation and any working PENDING file are not live authority. Require complete
+exact-head local/hosted/native validation, independent review, merge, a new post-merge exact
+version-4 request, independent review and explicit owner authorization before another phone
+invocation. D stays In Progress; E and Insights sharing remain unentered.
+
 ## 2026-09-11 — Resolve the explicit native toolchain before consuming live authority
 
 PR #127 merged the reviewed same-run continuation as `d47e893`. Its post-merge version-3 request

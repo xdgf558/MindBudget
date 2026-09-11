@@ -1,6 +1,54 @@
-# Isolated FX CloudKit probe — toolchain-preflight repair, not live acceptance
+# Isolated FX CloudKit probe — installed-continuation candidate, not live acceptance
 
-## Current host-toolchain preflight repair (2026-09-11)
+## Current installed same-run continuation (2026-09-11)
+
+PR #128 reviewed head `716874a` passed complete local validation, hosted `34563823026` attempt 1
+and native audit, then merged with owner authorization as `16635b5`. Its post-merge version-3
+request bound the unchanged signed package, selected iPhone Air, original reservation and current
+controller. PENDING SHA-256 `5e106be8...d5e4dd` became separately owner-approved SHA-256
+`88e032ca...e5062` after the accepted #128 independent review was recorded.
+
+The one authorized controller invocation performed one exact filtered process query, observed no
+probe process, and attempted one suspended launch. CoreDevice refused it because the dedicated App
+was not installed. Result remains NON_PASS with `resumed=false`, `processStopped=false`,
+`collectionAttempted=false` and `liveDeletionTested=false`; there was no PID, App execution,
+CloudKit operation or deletion. The version-3 claim and all raw results are immutable. The owner
+then separately authorized installation of the exact signed package without launch. One local
+wrapper preflight first stopped before `devicectl` because `DEVELOPER_DIR` was absent; that record
+is retained. The corrected explicit-Xcode invocation installed one dedicated bundle. Two bounded
+read-only post-install queries confirmed exactly one matching App and no running probe. No launch
+or CloudKit operation followed.
+
+The candidate version-4 protocol continues only this exact same run after that exact sequence. It
+binds the approved version-3 request, its exact NON_PASS result, its existing continuation claim,
+the native not-installed launch result, the native installation result, the post-install one-App
+result, the post-install empty-process result, the unchanged original reservation, and the prior
+controller. All hashes, run/package/device/bundle/container and `deletionAllowed=false` must match.
+Missing, altered, expired-current, resumed, collected, deleting, differently installed, running or
+wrong-device evidence fails before a new phone command.
+
+`--prepare` and `--run` require the existing `--prior-approval`,
+`--prior-controller-result` and `--state-root` arguments plus all four new private paths:
+
+- `--prior-native-launch-result`
+- `--installation-result`
+- `--postinstall-apps-result`
+- `--postinstall-processes-result`
+
+After the existing local toolchain preflight, an accepted version-4 run appends one new
+controller-specific O_EXCL claim without changing the original reservation or prior claim. Only
+then is its first device command allowed: an exact bundle-filtered App query must return exactly
+one dedicated probe. The existing empty-process, suspended-launch, identity, resume, deadline and
+collection controls follow unchanged. No install, retry, state reset or deletion was added to the
+controller.
+
+Local fixtures and the real retained evidence currently pass offline preparation. This changed
+controller still requires static/default-local/hosted/native validation, independent review,
+merge, a new exact post-merge version-4 request, and a new explicit owner live authorization.
+Neither the completed installation nor a PENDING file authorizes another phone invocation. D
+remains In Progress; no cleanup, D completion, E entry or Insights sharing is authorized.
+
+## Historical host-toolchain preflight repair (2026-09-11)
 
 PR #127's reviewed same-run continuation merged as `d47e893`. Its post-merge version-3 request was
 independently accepted and owner-authorized once for the selected iPhone Air. That invocation

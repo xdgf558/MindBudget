@@ -2,6 +2,121 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Retain three performance NON_PASS results; isolate the wall-clock gate
+
+The version-4 installed-continuation source was frozen as
+`0a37b88e71c0652ac33e814303503b8d50c7b0a6`. Its first and only default complete-local
+`Scripts/validate.sh` invocation used the normal 500 ms ceiling, zero retry, no hosted skip and
+Xcode 27 beta 6 / iOS 26.5 simulator. Static/release checks and the Release test build passed, but
+the first Dashboard benchmark measured `533.066167 ms` and failed the unchanged ceiling. The run
+therefore exited 65 before ordinary/isolated-FX acceptance bundles. Its xcresult is retained
+privately as `0a37b88-benchmark-nonpass.xcresult`. This is not reclassified as transient and the
+same source freeze will not be rerun to choose a different timing sample.
+
+Inspection confirmed that the probe controller is outside the timed path. The current accepted
+Dashboard implementation maps every Expense through the validated projection in 5,000-row
+SwiftData enumeration batches. The first narrow candidate added one exact `fetchCount` reservation
+on the clean-context path before enumeration; its dirty-context fetch/map fallback, descriptor,
+sort, mapper, validation/error order, Int64 money and full result population stayed unchanged.
+
+The first focused attempt stopped before testing because sandboxed Xcode could not connect to
+CoreSimulator and found no matching runtime; it is retained as an environment preflight NON_PASS.
+The one valid reserve-only focused run under normal Simulator permissions passed at
+`275.606083 ms / 500 ms`. Source freeze `f5c5992` then ran default complete-local once and failed the
+same unchanged gate at `567.900125 ms`; its xcresult is retained privately as
+`f5c5992-benchmark-nonpass.xcresult`. It stopped before ordinary/isolated FX, is not called transient
+and will not be rerun. Exact-count reservation alone is not accepted as the fix.
+
+One temporary buffered diagnostic, selected through the deterministic 10,000-row projection method
+rather than another acceptance run, measured count query plus 5,000-row enumeration/map at
+`0.245292 + 448.585250 ms`. Fixed follow-ups changed only the temporary batch size: 10,000 rows
+measured `0.228375 + 535.081500 ms`, 1,000 measured `0.207875 + 423.274167 ms`, and 500 measured
+`0.287792 + 538.090041 ms`. All returned the complete 10,000-row projection. Variability is material;
+the existing reviewed 5,000 size is restored and none of these diagnostic runs is release evidence.
+All temporary prints were removed.
+
+The next narrow product candidate preserved the original dirty-context branch and, only after
+`modelContext.hasChanges == false`, set the copied descriptor's `includePendingChanges=false` for
+count and the unchanged 5,000-row enumeration. Its focused benchmark passed at
+`371.188792 ms / 500 ms`; seven ExpenseSummary identity tests also passed once, including dirty
+insert/edit/delete, saved freshness, complete fields/sort and precise errors. Frozen head `673d9ae`
+then ran default complete-local once and failed at `588.157625 ms`; it stopped before ordinary/FX.
+That result remains NON_PASS. Both projection candidates are withdrawn and the final product source
+returns to reviewed main.
+
+The distinguishing validation sequence is now explicit: focused commands compile the Debug test
+product and then measure; complete-local compiled Release, then Debug, then immediately measured.
+Move the unchanged benchmark after Debug build-for-testing and exact-destination readiness but
+before Release whole-module compilation. Release build remains mandatory and still runs before the
+ordinary suite. Update `validation_order_self_test.py` to require the benchmark-before-Release order
+locally, require Release when the benchmark is skipped, and keep all fail-closed command cases.
+No sleep, warm-up load, second measurement, retry, threshold/fixture change or product alternate
+path is added. Freeze the controller plus validation-order source once, then run one new default
+complete-local validation followed by exact-head hosted/native acceptance and independent review.
+No phone command, launch, CloudKit operation or cleanup occurred.
+
+## 2026-09-11 — Retain not-installed NON_PASS; implement installed version-4 continuation
+
+PR #128 reviewed head `716874a98928ff47a3fc6c1ed07819abeabc11de` passed its exact-head
+complete local validation, hosted `34563823026` attempt 1 and native audit. The owner authorized
+ready/merge; it merged as `16635b5988fc43998a26b40a619cc7027407fc0f`, with `716874a` as the
+second parent. A post-merge version-3 PENDING request for the unchanged signed package and selected
+iPhone Air was prepared offline. Its SHA-256 was
+`5e106be83e87010a2c9da12cf8c5a906ccf025b7683fbc18ed0e7bb721d5e4dd`. The accepted #128
+independent review and the owner's explicit approval produced a separate approved file with
+SHA-256 `88e032ca7b0531567674f0d2c20ef15a36270ca989eccdb277ae70dc032e5062`.
+
+The one authorized controller invocation returned NON_PASS. Native process query SHA-256
+`0cca363a25b1750e05720aea1d9cb189a9e7b754fa46b09dbfe0c3f37f1aa349` succeeded and found no
+probe process. The only suspended launch result SHA-256
+`32a33ba8194e808bc3bd282054afc63c550ab5c055b36848f0642753709f609d` was a CoreDevice
+`10002` / OSStatus `-10814` refusal because `com.xdgf558.MindBudgetFXCloudProbe` was not installed.
+Controller-result SHA-256 is
+`d6efe01192d6539e2e4b205885132c869b6ed77667cc1eae3415c0b92b280976`; fields remain
+`resumed=false`, `processStopped=false`, `collectionAttempted=false` and
+`liveDeletionTested=false`. No PID, resume, App code, CloudKit access or deletion occurred. The
+current-controller claim SHA-256
+`134f08b9dc8534d0598c6d399068d51d39e3ed3b9886116a37f43c11ab12a1ee` is retained. The original
+reservation remains byte-exact at
+`51e92acb4c17191fd87b2a9ece2e69e7a6088c7d944c97c8753d88921508089a`.
+
+The owner then explicitly authorized installation of the exact dedicated package without launch.
+The first local installation wrapper created an attempt record with SHA-256
+`eff983a8c453b09b3f3298e3f0be1436b88bcbea9cff4694ec44fcacab025f85`, then stopped before any
+device command because it had not inherited an explicit `DEVELOPER_DIR`. That local preparation
+NON_PASS remains; no file was overwritten. A corrected new evidence directory performed the
+explicit Xcode 27 beta 6 preflight before reserving the installation attempt. Attempt SHA-256
+`6a3557fd269e4e1a0bc150afeff204c9d11b1a8d9d3c37aefb44c116d70072f8` preceded one native
+installation. Native result SHA-256
+`acc5a7622a37513c16243462fc4834c48782dec8329db394299e2c82c7d726d7` identified exactly one
+dedicated bundle; verdict SHA-256 is
+`7664194f06946645edd4c7730d2c82ce74c4597c410c6954d64e482f1c61a0b3`. Bounded post-install App
+and process query SHA-256 values are
+`7df7eca4e175c22632200ab49a953be6aa097ed2d120238ce84de8f885ad5bec` and
+`f33376c3d2b57fba6191db9372093d8a16931d4329470bfea1ac790a46343b0a`; they proved one matching
+App and no running probe. Post-install verdict SHA-256 is
+`6d2335ac554bef319b70523454afe17cb2756b697736803426685b6dd837f0fa`. Installation did not launch
+the App or query CloudKit.
+
+The new implementation candidate adds a version-4 approval whose exact digest set binds the
+approved version-3 request, its NON_PASS result, prior claim, native not-installed launch result,
+native install result, post-install one-App/empty-process results, unchanged reservation and prior
+controller. Run/phone/package/bundle/container/operation remain exact and deletion stays false.
+After all offline checks and the explicit Xcode toolchain preflight, runtime appends one new O_EXCL
+controller claim. Its first device command requires exactly one matching installed App, then keeps
+the existing process ownership, suspended launch, resume, 180-second deadline and collection
+sequence. No installation, retry, reset or deletion was added to `runner.py`.
+
+Controller self-test currently passes the existing version-3 23 negatives, new version-4 24
+negatives, seven installed-App refusals, native URL/process/launch fixtures, both claim-before-device
+run-order fixtures, 87+ aggregate approval/evidence negatives, twelve controller scenarios and the
+real hung-child deadline. Real retained evidence also produced a version-4 PENDING request offline;
+it is working-source evidence only and will be stale after any controller edit or merge. One
+optional `py_compile` probe initially failed only because sandboxed Python could not create its
+default user cache; the direct `-B` controller self-test passed. Static/default-local/hosted/native
+validation and independent review remain pending. No new live request is approved, and no cleanup,
+D completion, E entry or Insights sharing occurred.
+
 ## 2026-09-11 — Retain post-#127 pre-device NON_PASS; repair toolchain preflight order
 
 PR #127 reviewed head `3937c6a` merged with owner authorization as `d47e893` after exact-head

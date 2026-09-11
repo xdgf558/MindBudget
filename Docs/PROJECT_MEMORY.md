@@ -2,24 +2,42 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: repair the isolated probe controller's host-toolchain preflight after a
-retained pre-device NON_PASS. PR #127's reviewed head `3937c6a` passed exact-head complete local,
-hosted `34552602758` and native acceptance, then merged with owner authorization as `d47e893`.
-The resulting exact version-3 continuation was independently accepted and owner-authorized for the
-selected iPhone Air, but its one invocation stopped locally because the process inherited Command
-Line Tools and `/usr/bin/xcrun` could not locate `devicectl`. No device command, process query,
-launch/resume, App execution or CloudKit operation occurred. Its controller-specific continuation
-claim and NON_PASS evidence are immutable; neither may be reset, deleted or reclassified.
+Current authorized scope: retain the post-#128 not-installed NON_PASS and implement one strict
+installed-package continuation. PR #128 reviewed head `716874a` passed complete local validation,
+hosted `34563823026` attempt 1 and native audit, then merged as `16635b5`. Its post-merge exact
+version-3 request was independently reviewed and owner-approved for the unchanged signed package
+and selected iPhone Air. The only invocation found no existing probe process, then CoreDevice
+refused its suspended launch because the dedicated App was not installed. There was no PID,
+resume, App execution, CloudKit operation or deletion. Its approval and controller-specific claim
+are consumed and immutable.
 
-The repair requires an explicit absolute `DEVELOPER_DIR`, resolves exactly that Xcode's executable
-`usr/bin/devicectl` under a five-second local-only preflight, and does so before creating any fresh
-run marker, continuation claim, output directory or device adapter. Invalid or ambiguous toolchains
-fail without consuming live authority. Once accepted, the existing claim-before-device order and
-all version-3 evidence bindings remain unchanged. This controller change still needs exact-head
-complete local/hosted/native validation, independent review, merge and a newly prepared exact
-approval plus explicit owner live authorization. The prior approval cannot authorize the changed
-controller. No new phone access, cleanup, D completion or E entry is authorized by this repair.
-`Tools/FXCloudProbe/README.md` owns the detailed contract.
+After separate owner authorization, a local installation wrapper first stopped before device
+access because it lacked explicit `DEVELOPER_DIR`; that preparation record is retained. A corrected
+explicit-Xcode invocation installed the exact package without launch. Two bounded read-only checks
+confirmed exactly one matching bundle and no probe process. No CloudKit operation followed.
+
+The current implementation candidate adds version 4. It binds the exact approved version-3 file,
+its NON_PASS result and prior claim; the exact native not-installed, installation, one-App and
+empty-process results; the unchanged original reservation; and the prior controller. It preserves
+the same run/package/device/operation, forbids deletion and appends a new controller-specific claim
+only after local evidence and toolchain validation. Its first later device command must find exactly
+one matching installed App before the existing process/launch/resume/deadline/collection sequence.
+No install, retry, reset or cleanup was added to the controller.
+
+The changed controller still requires exact-head complete local/hosted/native validation,
+independent review, merge, a new exact post-merge version-4 file and a new explicit owner live
+authorization. The installed App and working PENDING file are not permission. D remains In
+Progress; no D completion, E entry or Insights sharing is authorized. `Tools/FXCloudProbe/README.md`
+owns the detailed contract.
+
+Exact source freezes `0a37b88`, `f5c5992` and `673d9ae` are retained Dashboard-gate NON_PASS results
+at `533.066167`, `567.900125` and `588.157625 ms > 500 ms`; none produced ordinary/FX acceptance
+bundles and none may be rerun to select a green sample. Reserve-only and clean-descriptor product
+candidates are withdrawn, so final `DataActor.swift` equals reviewed main. The current narrow fix
+moves the unchanged one-shot benchmark ahead of mandatory Release whole-module compilation while
+keeping it after Debug build-for-testing and destination readiness. Release build, 10,000-row test,
+500 ms ceiling, zero retry and all ordinary/FX gates remain. A new frozen head must still pass
+complete local/hosted/native gates before review. No phone access is authorized.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,
