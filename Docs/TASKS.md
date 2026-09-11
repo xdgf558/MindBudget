@@ -2,7 +2,28 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — launch argument-order repair after retained live NON_PASS
+## Current follow-up — preserve reservation and continue the same failed run
+
+PR #126 reviewed head `f886b12` passed complete local/hosted/native acceptance and merged as
+`002e3cf`. The original run remains NON_PASS and its reservation remains. On 2026-09-11 the owner
+authorized implementing a same-run continuation control, not a reservation reset or live run.
+
+- [x] Preserve the original approval, controller result and reservation as immutable private
+  inputs; keep run `c251f030-e1da-4de2-bde1-734097ee7123` and its NON_PASS classification.
+- [x] Add a strict version-3 continuation approval binding the prior approval/result/controller/
+  reservation hashes, same package/device/run and `deletionAllowed=false`.
+- [x] Reuse only the exact existing marker and create a separate append-only continuation claim;
+  reject a second invocation, new UUID, changed marker, different package or non-pre-resume result.
+- [ ] Freeze the continuation controller and pass offline negatives, default complete local
+  validation, exact-head hosted/native acceptance and independent review.
+- [ ] Merge only after explicit owner authorization, then prepare a fresh exact signed-package/
+  controller request for the selected iPhone Air and obtain separate live authorization.
+- [ ] If a live run occurs, retain its result before separately deciding test-data/App cleanup;
+  neither process termination nor cleanup may be presented as recalling submitted CloudKit writes.
+
+No device launch, CloudKit operation, reservation deletion/bypass, D Done, E or Insights entry.
+
+## Historical follow-up — launch argument-order repair after retained live NON_PASS
 
 Owner authorized repairing the native query refusal after #123 merged as `2365526` (reviewed
 second parent `890fce8`). `Tools/FXCloudProbe/README.md` owns scope and retained evidence.
@@ -24,9 +45,10 @@ invocation stopped before resume because devicectl common flags followed the lau
 - [x] Retain the repair head's 532.129334 ms benchmark NON_PASS; reject count/reserve and
   10,000-batch product candidates after fixed A-B-B-A comparisons; correct only the benchmark's
   pre-seed reader lifecycle so it represents opening an already populated store.
-- [ ] Freeze this repair and pass default complete local validation (unchanged 500 ms/zero retry/
+- [x] Freeze this repair and pass default complete local validation (unchanged 500 ms/zero retry/
   ordinary plus isolated FX), followed by exact-head hosted/native acceptance.
-- [ ] Obtain independent repair review and explicit owner ready/merge authorization.
+- [x] Obtain independent repair review and explicit owner ready/merge authorization; PR #126
+  reviewed head `f886b12` merged as `002e3cf` after hosted `34490729945`.
 - [ ] Define and separately authorize any future exact-controller-bound live attempt without
   bypassing or deleting the retained host reservation; installed App cleanup is also separate.
 

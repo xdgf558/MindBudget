@@ -43,6 +43,103 @@ def collection(root, request):
     r.save_new(root / "edited-fixture.json", {next(iter(initial)): "2" * 64})
 
 
+def continuation_tests(root, fresh):
+    prior = copy.deepcopy(fresh)
+    prior["controllerSHA256"] = "c" * 64
+    prior_path = root / "prior-approval.json"
+    r.save_new(prior_path, prior)
+    result = dict(status="NON_PASS", reason="SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT",
+                  processStopped=False, run=prior["run"], resumed=False,
+                  liveDeletionTested=False, failureType="ValueError",
+                  privateFailure="synthetic launch parser refusal", collectionAttempted=False)
+    result_path = root / "prior-controller-result.json"
+    r.save_new(result_path, result)
+    state = root / "reservations"
+    state.mkdir()
+    retained = r.reservation_path(state, prior["deviceUDID"])
+    r.save_new(retained, {"run": prior["run"], "status": "RESERVED"})
+
+    observed_prior, metadata = r.continuation_metadata(
+        prior_path, result_path, state, "a" * 64, "b" * 64, prior["deviceUDID"])
+    r.require(observed_prior == prior and metadata == {
+        "mode": r.CONTINUATION_MODE,
+        "priorApprovalSHA256": r.sha(prior_path.read_bytes()),
+        "priorControllerResultSHA256": r.sha(result_path.read_bytes()),
+        "priorControllerSHA256": "c" * 64,
+        "retainedReservationSHA256": r.sha(retained.read_bytes()),
+    }, "continuation evidence binding mismatch")
+    request = {**prior, "version": 3, "controllerSHA256": r.controller_hash(),
+               "continuation": metadata}
+    r.validate_approval(request, "a" * 64, "b" * 64, dt.datetime.now(dt.timezone.utc))
+
+    negative_count = 0
+    for key in metadata:
+        bad = copy.deepcopy(request)
+        del bad["continuation"][key]
+        expect_failure(lambda bad=bad: r.validate_approval(
+            bad, "a" * 64, "b" * 64, dt.datetime.now(dt.timezone.utc)))
+        negative_count += 1
+    for key, value in [("mode", "RETRY"), ("priorControllerResultSHA256", True),
+                       ("priorControllerSHA256", "short"),
+                       ("retainedReservationSHA256", "A" * 64)]:
+        bad = copy.deepcopy(request); bad["continuation"][key] = value
+        expect_failure(lambda bad=bad: r.validate_approval(
+            bad, "a" * 64, "b" * 64, dt.datetime.now(dt.timezone.utc)))
+        negative_count += 1
+    for key in r.CONTINUATION_KEYS - {"mode"}:
+        bad = copy.deepcopy(request); bad["continuation"][key] = "0" * 64
+        expect_failure(lambda bad=bad: r.bind_continuation(bad, prior, metadata))
+        negative_count += 1
+
+    before = retained.read_bytes()
+    r.reserve_run(state, request)
+    r.require(retained.read_bytes() == before, "continuation rewrote retained reservation")
+    claim = r.continuation_claim_path(state, request)
+    r.require(r.read_json(claim) == {
+        "run": request["run"], "status": "CONTINUATION_RESERVED",
+        "controllerSHA256": request["controllerSHA256"],
+        "priorApprovalSHA256": metadata["priorApprovalSHA256"],
+        "priorControllerResultSHA256": metadata["priorControllerResultSHA256"],
+        "retainedReservationSHA256": metadata["retainedReservationSHA256"],
+    }, "continuation claim was not exact")
+    expect_failure(lambda: r.reserve_run(state, request))
+    negative_count += 1
+    for transform in (
+        lambda p, q, s: ({**p, "run": str(uuid.uuid4())}, q, s),
+        lambda p, q, s: ({**p, "controllerSHA256": r.controller_hash()}, q, s),
+        lambda p, q, s: (p, {**q, "reason": "controllerOrEvidenceNonPass"}, s),
+        lambda p, q, s: (p, {**q, "resumed": True}, s),
+        lambda p, q, s: (p, q, {"run": p["run"], "status": "COMPLETE"}),
+    ):
+        bad_prior, bad_result, bad_reservation = transform(
+            copy.deepcopy(prior), copy.deepcopy(result), {"run": prior["run"], "status": "RESERVED"})
+        expect_failure(lambda p=bad_prior, q=bad_result, s=bad_reservation:
+                       r.validate_prior_continuation(
+                           p, q, s, "a" * 64, "b" * 64, prior["deviceUDID"]))
+        negative_count += 1
+    expect_failure(lambda: r.validate_prior_continuation(
+        prior, result, {"run": prior["run"], "status": "RESERVED"},
+        "0" * 64, "b" * 64, prior["deviceUDID"]))
+    negative_count += 1
+
+    bad = copy.deepcopy(request); bad["run"] = str(uuid.uuid4())
+    expect_failure(lambda: r.reserve_run(state, bad))
+    bad = copy.deepcopy(request); bad["continuation"]["retainedReservationSHA256"] = "0" * 64
+    expect_failure(lambda: r.reserve_run(state, bad))
+    negative_count += 2
+
+    fresh_state = root / "fresh-reservations"; fresh_state.mkdir()
+    r.reserve_run(fresh_state, fresh)
+    fresh_marker = r.reservation_path(fresh_state, fresh["deviceUDID"])
+    r.require(r.read_json(fresh_marker) == {"run": fresh["run"], "status": "RESERVED"},
+              "fresh reservation was not created")
+    expect_failure(lambda: r.reserve_run(fresh_state, fresh))
+    negative_count += 1
+    print(f"PASS: same-run continuation preserves one exact reservation and adds one claim; "
+          f"{negative_count} negatives.")
+    return negative_count
+
+
 class FakeDevice:
     path = "/private/synthetic/" + r.EXECUTABLE + ".app/" + r.EXECUTABLE
 
@@ -222,6 +319,7 @@ def self_test():
         negative_count += 1
     with tempfile.TemporaryDirectory(prefix="fx-probe-local-controller-tests-") as directory:
         root = Path(directory)
+        negative_count += continuation_tests(root, request)
         process_filter_tests(root, request)
         launch_argument_order_tests(root, request)
         good = root / "good"

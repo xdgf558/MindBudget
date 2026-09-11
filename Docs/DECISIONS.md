@@ -2,6 +2,28 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Continue only the same reserved pre-resume run
+
+PR #126 repaired launch argument ordering and merged as `002e3cf` after independent acceptance,
+complete local validation and hosted/native success. Its source correction does not erase the
+earlier run: `c251f030-e1da-4de2-bde1-734097ee7123` remains NON_PASS, its dedicated App remains
+installed and its host reservation remains immutable. Creating a new UUID or state root would
+bypass that control; deleting or rewriting the marker would destroy evidence.
+
+The owner authorizes an implementation-only continuation path. Keep the same run UUID and signed
+package. Require the exact prior version-2 approval, exact
+`SUSPENDED_LAUNCH_UNCONFIRMED_NO_RESUME_SENT` result with `resumed=false`, and exact retained
+reservation. Bind all three files plus the prior controller SHA into a strict version-3 approval.
+Before any device command, atomically create a separate continuation claim keyed by device,
+bundle, run and current controller; never alter the old marker. This permits at most one invocation
+of the reviewed continuation controller and refuses another call even while the old marker remains.
+All mismatches fail before phone access. No deletion, new UUID, fallback launch, retry, timeout
+increase or ordinary App change is allowed.
+
+Implementation and a PENDING file are not live authorization. Exact-head local/hosted/native
+validation, independent review, merge and a newly explicit approval of the final controller/package/
+phone are still required. D remains In Progress; E and Insights sharing remain unentered.
+
 ## 2026-09-10 — Align the strict Dashboard fixture with an existing-store first launch
 
 The exact launch-order repair head retained a 532.129334 ms / unchanged 500 ms local benchmark

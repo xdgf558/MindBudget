@@ -2,6 +2,48 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Same-run reservation-preserving continuation implementation
+
+Owner asked to begin the next physical step with the selected iPhone Air connected. Fetched main
+and verified PR #126 merged as `002e3cf` with reviewed second parent `f886b12`; its hosted run
+`34490729945` ordinary/FX/join succeeded. A read-only devicectl inventory using local Xcode 27
+beta 6 confirmed `拉沙的iPhone`, iPhone Air, iOS 26.6.1, wired/tunnel connected. No app query,
+install, launch, process control or CloudKit command followed.
+
+The existing signed probe package's 32 production sources and probe sources are unchanged since
+accepted #123. Local strict signature verification initially stopped with CSSMERR_TP_NOT_TRUSTED
+because this Mac lacked the public WWDR G3 intermediate in its keychain search path. Downloaded
+Apple's public G3 certificate, verified SHA-256
+`dcf21878c77f4198e4b4614f03d696d89c66c66008d4244e1b99161aac91601f`, used it only in a
+temporary keychain, passed the repository's offline signed audit, restored the original keychain
+list and deleted the temporary keychain. No private identity was imported/exported. A preliminary
+PENDING request from the pre-continuation controller is retained privately but is not approved and
+will fail controller-hash binding after this change.
+
+Inspection then found the intentional blocker: the prior controller already wrote the persistent
+reservation for run `c251f030-e1da-4de2-bde1-734097ee7123`. The owner explicitly authorized a
+reservation-preserving same-run implementation. Added a version-3 approval that binds the exact
+old approved request, exact pre-resume parser NON_PASS, prior controller and byte-exact marker.
+The same UUID/package/device/operation and `deletionAllowed=false` remain mandatory. Runtime reads
+but never rewrites that marker, then uses O_EXCL to add a controller-specific continuation claim
+before any device command. A repeated invocation cannot reuse that claim.
+
+Local controller self-test currently passes the existing native URL/filter and launch-order
+fixtures plus 63+ approval/evidence negatives, 11 controller scenarios, a real hung-child deadline
+and 23 continuation negatives. These are local fixtures only, not a signed final request or live
+CloudKit evidence. Documentation/static/full validation, source freeze, hosted/native review and
+merge remain. No D checkbox/Done or E/share entry.
+
+The real retained private inputs then passed the new offline preparation path. The generated file
+remains ownerApproval/independentReview PENDING, retains the original run UUID, and binds controller
+SHA-256 `51b0c52729505aba3faf66471ba06521000b28fd42c3384ec5edda9e105187a9`,
+executable `dfca5e75ea19d7b7006acd30d462b9911348d01ab344b53d6d4640454b92ea8f` and
+package `617c2ae9e781bbaa6d336a686b4f2026c797e1d5dfe8307f81d23e4bad1608a4`.
+Its continuation binds prior approval `f8ea75de...16ece`, prior result `d6efe011...0976`,
+prior controller `aaee6d1c...010a` and retained marker `51e92acb...089a`. The marker SHA was
+identical before/after preparation; no continuation claim is created until an approved run.
+This 24-hour PENDING request is preparation evidence only and must be regenerated after merge.
+
 ## 2026-09-10 — Resolve the launch-order repair's strict Dashboard validation blocker
 
 The frozen controller-only head `81d0c0977ddd78486125e9258eaa78e337f6bd09` passed hosted

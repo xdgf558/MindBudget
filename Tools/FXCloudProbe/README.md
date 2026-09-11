@@ -1,6 +1,41 @@
-# Isolated FX CloudKit probe — launch argument-order repair candidate, not live acceptance
+# Isolated FX CloudKit probe — reservation-preserving continuation candidate, not live acceptance
 
-## Current launch argument-order repair (2026-09-10)
+## Current same-run continuation (2026-09-11)
+
+PR #126 reviewed head `f886b12` passed complete local validation, hosted `34490729945` and
+native audit, then merged with owner authorization as `002e3cf`. That repair does not reclassify
+run `c251f030-e1da-4de2-bde1-734097ee7123`: it remains NON_PASS before resume/App/CloudKit
+execution, and its original host reservation remains immutable.
+
+The owner authorized implementation of one continuation of that same run, not deletion, a new
+UUID or a changed state root. `--prepare` with all of `--prior-approval`,
+`--prior-controller-result` and `--state-root` produces a version-3 PENDING request only when:
+
+- the old approved request binds the same package, device, run, bundle/container and non-deleting
+  six-stage operation;
+- the old result is exactly the pre-resume parser NON_PASS with no resume, collection or deletion;
+- the retained reservation is the exact same-run `RESERVED` file; and
+- the prior controller is a different valid SHA-256.
+
+The new request binds SHA-256 for those three retained files and the prior controller. `--run`
+requires the same prior inputs again. Before any device command it verifies the old reservation
+without modifying it and creates one new append-only continuation claim with O_EXCL. A repeated
+controller call therefore stops before phone access. Missing/changed evidence, another run UUID,
+package/device drift, an already-resumed result, deletion permission or an existing continuation
+claim all fail closed. Fresh version-2 runs keep the original once-only behavior.
+
+This implementation still needs full exact-head validation, independent review and merge. After
+merge, prepare a new exact request and obtain separate owner approval before live execution. No
+current PENDING file, environment variable or implementation authorization permits phone launch,
+CloudKit access, cleanup, D completion or E entry.
+
+Offline working-source preparation against the retained private evidence passed with controller
+SHA-256 `51b0c52729505aba3faf66471ba06521000b28fd42c3384ec5edda9e105187a9` and the unchanged
+signed-package SHA-256 `617c2ae9e781bbaa6d336a686b4f2026c797e1d5dfe8307f81d23e4bad1608a4`.
+The old reservation SHA remained `51e92acb4c17191fd87b2a9ece2e69e7a6088c7d944c97c8753d88921508089a`
+before and after. That generated request is PENDING, expires, and is not the post-merge approval.
+
+## Historical launch argument-order repair (2026-09-10)
 
 #125's selector repair was independently accepted and owner-authorized merged as `93218fb`,
 second parent `902875d`, after exact-head complete local and hosted/native acceptance. The owner
