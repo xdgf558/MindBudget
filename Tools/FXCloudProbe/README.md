@@ -1,4 +1,27 @@
-# Isolated FX CloudKit probe — reservation-preserving continuation candidate, not live acceptance
+# Isolated FX CloudKit probe — toolchain-preflight repair, not live acceptance
+
+## Current host-toolchain preflight repair (2026-09-11)
+
+PR #127's reviewed same-run continuation merged as `d47e893`. Its post-merge version-3 request was
+independently accepted and owner-authorized once for the selected iPhone Air. That invocation
+retained a NON_PASS before any phone access because the process inherited Command Line Tools and
+`/usr/bin/xcrun` could not find `devicectl`. The approved file is consumed; its new continuation
+claim and result remain immutable. No process query, install, launch/resume, App execution,
+CloudKit access or deletion occurred.
+
+The controller now performs a local-only toolchain preflight before it creates a fresh marker,
+continuation claim, evidence directory or `Device` adapter. The caller must set an explicit
+absolute `DEVELOPER_DIR`. One five-second `/usr/bin/xcrun --find devicectl` lookup must return a
+single executable at the resolved `<DEVELOPER_DIR>/usr/bin/devicectl`; missing, relative, linked,
+ambiguous or foreign paths fail without consuming live authority. The same sanitized environment
+is then supplied to native commands. After preflight succeeds, all existing version-3 checks and
+the atomic claim-before-device order remain unchanged.
+
+Local run-level fixtures exercise both ordering boundaries. They are not device/CloudKit evidence.
+This changed controller still requires full exact-head validation, independent review and merge.
+After merge, prepare a new exact version-3 file and obtain a new explicit owner authorization; no
+prior file or connected-phone statement applies to the changed controller. No state reset,
+cleanup, D completion or E entry is authorized here.
 
 ## Current same-run continuation (2026-09-11)
 

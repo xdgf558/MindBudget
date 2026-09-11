@@ -2,26 +2,29 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — preserve reservation and continue the same failed run
+## Current follow-up — preflight native tools before consuming a continuation claim
 
-PR #126 reviewed head `f886b12` passed complete local/hosted/native acceptance and merged as
-`002e3cf`. The original run remains NON_PASS and its reservation remains. On 2026-09-11 the owner
-authorized implementing a same-run continuation control, not a reservation reset or live run.
+PR #127 reviewed head `3937c6a` completed local/hosted/native acceptance and merged as `d47e893`.
+Its exact version-3 request was then independently accepted and owner-authorized for the selected
+iPhone Air. The one controller invocation retained a NON_PASS before phone access: the inherited
+Command Line Tools could not resolve `devicectl`. The new continuation claim is immutable and the
+same approval cannot be reused.
 
-- [x] Preserve the original approval, controller result and reservation as immutable private
-  inputs; keep run `c251f030-e1da-4de2-bde1-734097ee7123` and its NON_PASS classification.
-- [x] Add a strict version-3 continuation approval binding the prior approval/result/controller/
-  reservation hashes, same package/device/run and `deletionAllowed=false`.
-- [x] Reuse only the exact existing marker and create a separate append-only continuation claim;
-  reject a second invocation, new UUID, changed marker, different package or non-pre-resume result.
-- [ ] Freeze the continuation controller and pass offline negatives, default complete local
+- [x] Preserve the original reservation, the #127 continuation claim and the new NON_PASS evidence;
+  do not reset state, replace the UUID, reuse the approval or describe the failure as a phone run.
+- [x] Add a bounded local preflight requiring an explicit absolute `DEVELOPER_DIR` and resolving
+  that exact Xcode's executable `devicectl` before marker/claim/output/device construction.
+- [x] Add run-level order tests: failed preflight leaves no claim/output/device object; successful
+  preflight retains claim-before-device order and passes the sanitized environment to the adapter.
+- [ ] Freeze the repaired controller and pass offline/static gates, default complete local
   validation, exact-head hosted/native acceptance and independent review.
-- [ ] Merge only after explicit owner authorization, then prepare a fresh exact signed-package/
-  controller request for the selected iPhone Air and obtain separate live authorization.
-- [ ] If a live run occurs, retain its result before separately deciding test-data/App cleanup;
-  neither process termination nor cleanup may be presented as recalling submitted CloudKit writes.
+- [ ] Merge only after explicit owner authorization; then prepare a new exact version-3 request and
+  obtain separate owner authorization before another selected-phone invocation.
+- [ ] If a later live run reaches CloudKit, retain its result before separately deciding synthetic
+  data/App cleanup; process termination cannot recall submitted writes.
 
-No device launch, CloudKit operation, reservation deletion/bypass, D Done, E or Insights entry.
+No current approval authorizes another device command, CloudKit operation, reservation/claim
+deletion or bypass, D Done, E or Insights entry.
 
 ## Historical follow-up — launch argument-order repair after retained live NON_PASS
 

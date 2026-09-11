@@ -2,24 +2,24 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: preserve the failed probe's host reservation while preparing one
-reviewed continuation of the same run UUID. PR #126's reviewed head `f886b12` passed default
-complete local validation (413.112708 ms / unchanged 500 ms), hosted run `34490729945` and
-native audit, then merged with owner authorization as `002e3cf`. Run
-`c251f030-e1da-4de2-bde1-734097ee7123` remains NON_PASS: the dedicated App was installed, but
-launch argument parsing failed before a PID was accepted or resume/App/CloudKit execution.
-Its original reservation remains byte-for-byte intact.
+Current authorized scope: repair the isolated probe controller's host-toolchain preflight after a
+retained pre-device NON_PASS. PR #127's reviewed head `3937c6a` passed exact-head complete local,
+hosted `34552602758` and native acceptance, then merged with owner authorization as `d47e893`.
+The resulting exact version-3 continuation was independently accepted and owner-authorized for the
+selected iPhone Air, but its one invocation stopped locally because the process inherited Command
+Line Tools and `/usr/bin/xcrun` could not locate `devicectl`. No device command, process query,
+launch/resume, App execution or CloudKit operation occurred. Its controller-specific continuation
+claim and NON_PASS evidence are immutable; neither may be reset, deleted or reclassified.
 
-The owner authorized a fail-closed same-run continuation rather than deleting the marker or
-changing state roots. The candidate accepts only that version-2 approved operation plus its exact
-pre-resume parser-NON_PASS and exact reservation. A version-3 approval keeps the old UUID and binds
-SHA-256 for the prior approval, prior controller result, prior controller and reservation. Runtime
-creates a separate append-only continuation claim before any device command; an identical second
-invocation therefore fails. Different UUID/package/device/controller evidence, missing or changed
-files, a resumed prior result, or any deletion permission is rejected. This source still needs
+The repair requires an explicit absolute `DEVELOPER_DIR`, resolves exactly that Xcode's executable
+`usr/bin/devicectl` under a five-second local-only preflight, and does so before creating any fresh
+run marker, continuation claim, output directory or device adapter. Invalid or ambiguous toolchains
+fail without consuming live authority. Once accepted, the existing claim-before-device order and
+all version-3 evidence bindings remain unchanged. This controller change still needs exact-head
 complete local/hosted/native validation, independent review, merge and a newly prepared exact
-approval before live execution. No phone launch, CloudKit access, cleanup, D completion or E entry
-is authorized by implementation. `Tools/FXCloudProbe/README.md` owns the detailed contract.
+approval plus explicit owner live authorization. The prior approval cannot authorize the changed
+controller. No new phone access, cleanup, D completion or E entry is authorized by this repair.
+`Tools/FXCloudProbe/README.md` owns the detailed contract.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,

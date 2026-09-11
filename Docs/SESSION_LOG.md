@@ -2,6 +2,37 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-11 — Retain post-#127 pre-device NON_PASS; repair toolchain preflight order
+
+PR #127 reviewed head `3937c6a` merged with owner authorization as `d47e893` after exact-head
+complete local, hosted `34552602758` attempt 1 and native acceptance. A new post-merge version-3
+PENDING request was prepared for the unchanged signed package and same reserved run. It bound
+controller `51b0c52729505aba3faf66471ba06521000b28fd42c3384ec5edda9e105187a9`;
+its PENDING SHA-256 was `73824858ee70e081993cb6613e4cecaa2c77d19b563d90f8c44c08067eb968c0`.
+The independent review text and the owner's explicit approval were written to a separate private
+approved file with SHA-256 `30fb2d32122ff58b98e5a39665dea7851bfbf23b0b12f178c93e6b3e3117bb12`.
+
+The one authorized controller invocation returned NON_PASS before phone access. The process had
+no explicit `DEVELOPER_DIR`; system `xcode-select` resolved Command Line Tools, so native command 1
+logged that `devicectl` was unavailable. Controller-result SHA-256 is
+`e8c8583f528ec5a8bc7b7e55a4ea4cd6b1a8e4a90ce0ab25f9b18c4e2e7ab212`; the local native log is
+`6d38a6861a3fae1c8ff7d16ca3bd1e570f51be37bd5a7084860d3b9f36dfa2a1`. Result fields remain
+`resumed=false`, `processStopped=false`, `collectionAttempted=false` and
+`liveDeletionTested=false`. No device inventory/process query, install, launch, resume, App code,
+account/zone access, upload or deletion occurred. The controller-specific claim SHA-256
+`80e87f2523fe8b395f960e7f17a22664cae17338c0f142a4bd2be7647444511b` is retained unchanged; the
+approval is consumed and cannot be rerun.
+
+Root cause is a host-controller omission, not a CloudKit or phone finding: the controller verified
+the tool only when its first native command ran, after consuming the claim. The repair now requires
+an explicit absolute Xcode `DEVELOPER_DIR` and resolves its exact executable `devicectl` with a
+five-second local-only lookup before marker/claim/output/device construction. Environment filtering
+is shared with the device adapter. New run-level fixtures prove a rejected lookup creates none of
+those state objects and an accepted lookup still creates the atomic claim before constructing a
+device. Controller self-test passes. Static/default-local/hosted/native review and merge remain;
+because the controller hash changes, a future phone attempt needs a new exact file and owner
+authorization. No cleanup, D checkbox/Done or E/share entry occurred.
+
 ## 2026-09-11 — Same-run reservation-preserving continuation implementation
 
 Owner asked to begin the next physical step with the selected iPhone Air connected. Fetched main
