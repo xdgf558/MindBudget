@@ -7,6 +7,35 @@ Status: **FX-01 In Progress; FX-01A through FX-01C Done; FX-01D In Progress; FX-
 Owner authorization: 2026-09-03. This is a product phase outside the commercialization track. It
 does not enter COM-C12, reopen G1, enable Luna, create a network route, or authorize distribution.
 
+## 2026-09-22 — Owner scope amendment: local delivery first, cloud work deferred
+
+The owner confirmed prioritizing local foreign-currency recording and deferring foreign-currency
+iCloud delivery, with no repeated physical-probe/v4 preparation for now. This is a scope decision,
+not a waiver converting missing device, CloudKit, deletion, mixed-version or calendar evidence
+into passes. D remains In Progress; its original four checkboxes stay unchanged. E and the queued
+Insights income/share work are not entered by this confirmation.
+
+Keep manual/offline rate entry, canonical integer math, locked saved accounting amounts, local-Pro
+access with existing-record stewardship, detail and dual-amount CSV. The owner subsequently approved
+ledger-level exclusion: creating/converting to FX requires explicitly disabling ordinary iCloud;
+any local FX or retained companion transport history prevents ordinary enable/recovery. Existing
+coexistence pauses the entire ledger transport with explanatory copy, preserving its opt-in,
+account ancestry, local records and pending/quarantined bytes. Do not upload a known FX parent by
+omitting its companion, silently disable sync, delete data or resume automatically after edits.
+No-FX sync remains unchanged. Separately confirmed cloud erasure preserves local CRUD, but never
+admits ordinary inbox application or conflict resolution during deletion. Group contract, code,
+tests and evidence into one reviewed delivery rather than restarting the device-preparation loop.
+
+Default-mode tests cover the product boundary. Retained paired-protocol tests explicitly opt into
+Debug/in-memory-only execution; Release cannot opt in and native CloudKit refuses such an actor.
+The frozen parent cannot identify FX before a legacy remote companion arrives. A previously applied
+parent is not retroactively deleted or revalued when that later companion triggers the pause.
+This limitation remains part of deferred real-cloud/mixed-peer work, not compatibility acceptance.
+
+The existing thirteen-type transport remains merged code, not an enabled local-only release
+guarantee. Preserve its historical tests and non-passes. Live probe work, backup recovery and
+approval refresh are deferred until explicit owner re-entry; no uninstall, cleanup or reset follows.
+
 Planning-delivery evidence: independent rereview accepted exact remediation head
 `0619d5ec59ab3dbea3e87412b16872b92c07d129` with no P1/P2 and one retained P3 summary-wording
 observation; GitHub Actions run `33758966855` succeeded on that head; and PR #108 merged it as
@@ -105,8 +134,9 @@ must never revalue history.
   calculate, schedule, extend, or repair the 30-day trial clock; those remain owned by the existing
   Commerce lifecycle.
 - When trial/Pro access ends, existing foreign-currency records remain viewable, editable,
-  deletable, searchable, synchronizable through an already enabled optional iCloud path, and
-  exportable. Only creating a new foreign-currency record, converting an ordinary record into a
+  deletable, searchable and exportable locally. FX iCloud delivery is owner-deferred, including
+  stewardship changes; the current ledger-level exclusion applies regardless of Pro status.
+  Only creating a new foreign-currency record, converting an ordinary record into a
   foreign-currency record, or duplicating one as a new foreign-currency record is denied.
 - Editing an existing foreign-currency record remains allowed after access ends, including
   correcting its original amount, currency, rate, rate date, or locked accounting amount. This is
@@ -221,8 +251,9 @@ silently overwrite the saved fraction.
 
 ## Existing-channel compatibility
 
-- Optional iCloud remains Free, default-off, and is not enabled by FX-01. If it is already enabled,
-  FX-01 adds `expenseForeignCurrencyMetadata` as the thirteenth closed `CloudSyncEntityType`,
+- Optional iCloud remains Free, default-off, and is not enabled by FX-01. The current temporary
+  local-only boundary above supersedes FX delivery on already-enabled paths. The retained protocol
+  uses `expenseForeignCurrencyMetadata` as the thirteenth closed `CloudSyncEntityType`,
   ordered immediately after its parent `.expense`. It uses a separate record name/encrypted
   envelope with exactly the complete companion fields; the existing `.expense` payload, key set,
   digest meaning, and envelope version must not change. `ICLOUD_SYNC_CONTRACT.md`, the allow-list,

@@ -1,6 +1,15 @@
 # Isolated FX CloudKit probe — installed-continuation candidate, not live acceptance
 
-## Current installed same-run continuation (2026-09-11)
+## Owner-deferred workflow (2026-09-22)
+
+Do not resume evidence recovery, request generation/refresh or phone operations as routine next
+steps. The owner prioritizes local FX delivery and has deferred foreign-currency iCloud and this
+physical workflow. See `Docs/FX_01_MANUAL_CURRENCY_PLAN.md` and the 2026-09-22 decision. PR #129
+implementation is accepted and merged as `2cf0e214`; the source-freeze text below is historical,
+not an instruction to repeat its preparation. No cleanup, uninstall or reservation/claim reset
+is authorized. A future explicit re-entry must still meet all original exact-input/approval checks.
+
+## Historical installed same-run continuation (2026-09-11)
 
 PR #128 reviewed head `716874a` passed complete local validation, hosted `34563823026` attempt 1
 and native audit, then merged with owner authorization as `16635b5`. Its post-merge version-3

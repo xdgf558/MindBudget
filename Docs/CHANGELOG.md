@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## Unreleased local FX / iCloud exclusion candidate — pending validation and review
+
+- Refresh iCloud Settings policy after local FX deletion without turning on sync. Enable returns
+  only for a ledger without local FX or retained companion history.
+- Separately confirmed cloud deletion no longer depends on decoding old outbox contents. Preserve
+  local records and transport history through failure; clear transport only after zone absence.
+- Foreign-currency entry now explains that ordinary iCloud sync must be explicitly disabled first.
+  Existing FX records or retained companion history prevent enabling sync; legacy coexistence
+  pauses transport without deleting data or silently changing the person's opt-in.
+- Existing FX stays available for local viewing, edits, deletion and CSV after Pro expires.
+  No-FX ordinary sync and separately confirmed cloud deletion retain their existing paths.
+  Earlier companion-delivery entries below describe retained implementation, not current release
+  permission. Physical-probe work is deferred; no new network, live test or release is claimed.
+
 ## Unreleased batched-read performance candidate — pending complete validation and review
 
 - Read complete expense summaries in batches when the data context has no pending edits.

@@ -89,6 +89,11 @@ extension DataActor {
     /// inbox transition shares one ModelContext save; a failure leaves the prior local authority
     /// intact. Missing parents stay pending, while malformed or divergent facts are quarantined.
     func applyPendingCloudSyncInbox(at date: Date = Date()) throws {
+        guard try fetchCloudSyncControl()?.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return }
+        if try foreignCurrencyBlocksOrdinarySync() {
+            try reconcileForeignCurrencySyncPause()
+            return
+        }
         let pending = try modelContext.fetch(
             FetchDescriptor<CloudSyncInboxItem>(
                 predicate: #Predicate { $0.statusRaw == "pending" },
@@ -178,6 +183,7 @@ extension DataActor {
                 }
             } catch CloudSyncApplicationError.missingParent {
                 modelContext.rollback()
+                foreignCurrencyTransportFootprint = nil
                 for member in cohort {
                     member.item.reasonRaw = CloudSyncReasonCode.missingParent.rawValue
                     member.item.updatedAt = date
@@ -185,6 +191,7 @@ extension DataActor {
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
+                foreignCurrencyTransportFootprint = nil
                 for member in cohort {
                     member.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
                     member.item.reasonRaw = cloudSyncReason(for: error).rawValue
@@ -402,6 +409,8 @@ extension DataActor {
     }
 
     func cloudSyncConflictSummaries() throws -> [CloudSyncConflictSummary] {
+        let blockedByLocalFX = try foreignCurrencyBlocksOrdinarySync()
+            || fetchCloudSyncControl()?.statusRaw == CloudSyncStatus.deletingCloudData.rawValue
         let quarantined = try modelContext.fetch(
             FetchDescriptor<CloudSyncInboxItem>(
                 predicate: #Predicate { $0.statusRaw == "quarantined" },
@@ -426,7 +435,7 @@ extension DataActor {
                 ?? localEnvelope?.entityType
                 ?? item.recordName.split(separator: "/", maxSplits: 1).first
                     .flatMap { CloudSyncEntityType(rawValue: String($0)) }
-            let canResolve = reason == .divergentConflict
+            let canResolve = !blockedByLocalFX && reason == .divergentConflict
                 && localEnvelope?.recordName == item.recordName
                 && cloudEnvelope?.recordName == item.recordName
                 && item.encodedSystemFields != nil
@@ -452,6 +461,10 @@ extension DataActor {
         resolution: CloudSyncConflictResolution,
         at date: Date = Date()
     ) throws {
+        guard try !foreignCurrencyBlocksOrdinarySync(),
+              try fetchCloudSyncControl()?.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else {
+            throw ForeignCurrencyError.syncRequiresCompanionProtocol
+        }
         guard recordName.hasPrefix("expense/") || recordName.hasPrefix("expenseForeignCurrencyMetadata/") else {
             try resolveCloudSyncConflictSingle(recordName: recordName, resolution: resolution, at: date)
             return
@@ -513,6 +526,7 @@ extension DataActor {
             CloudSyncRemoteApplicationSignal.post()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -633,6 +647,7 @@ extension DataActor {
             }
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }

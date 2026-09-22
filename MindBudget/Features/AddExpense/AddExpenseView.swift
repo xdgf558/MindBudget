@@ -186,7 +186,8 @@ final class ExpenseFormViewModel: ObservableObject {
 
     func setForeignCurrencyEnabled(
         _ enabled: Bool, access: ExistingPremiumEntryAccess,
-        accountingCurrency: String, locale: Locale, calendar: Calendar
+        accountingCurrency: String, locale: Locale, calendar: Calendar,
+        cloudSyncSnapshot: CloudSyncSnapshot = .disabled
     ) {
         if enabled {
             guard foreignCurrencyForm == nil else { return }
@@ -196,6 +197,11 @@ final class ExpenseFormViewModel: ObservableObject {
             }
             guard access.permitsNewForeignCurrency else {
                 error = .foreignCurrency(.requiresProAccess)
+                return
+            }
+            // Cloud deletion is a separate privacy operation and keeps local recording available.
+            guard !cloudSyncSnapshot.isEnabled || cloudSyncSnapshot.status == .deletingCloudData else {
+                error = .foreignCurrency(.syncRequiresCompanionProtocol)
                 return
             }
             ordinaryAmountBeforeForeignCurrency = amountText

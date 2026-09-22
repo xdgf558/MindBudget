@@ -280,6 +280,26 @@ actor DataActor {
     /// Remote application reuses the same validation and save boundary but must never echo a
     /// fetched CloudKit record back into the durable outbox.
     var isApplyingCloudSyncMutation = false
+    /// Transport facts have one production writer (this actor). nil requires a complete scan;
+    /// validated ordinary writes preserve absence, while companions latch presence until a full
+    /// transport clear or rollback. Local FX metadata is checked separately on every admission.
+    var foreignCurrencyTransportFootprint: Bool?
+    #if DEBUG
+    var foreignCurrencyTransportScanCount = 0
+    var foreignCurrencyFootprintEnvelopeDecodeCount = 0
+    #endif
+    #if DEBUG
+    private(set) var foreignCurrencyProtocolFixturesEnabled = false
+
+    /// Synthetic codec tests only. Never a product preference or transport admission.
+    func enableForeignCurrencyProtocolFixtures() throws {
+        guard !modelContext.container.configurations.isEmpty,
+              modelContext.container.configurations.allSatisfy({ $0.isStoredInMemoryOnly }) else {
+            throw ForeignCurrencyError.syncRequiresCompanionProtocol
+        }
+        foreignCurrencyProtocolFixturesEnabled = true
+    }
+    #endif
 
     func createExpense(
         _ draft: ExpenseDraft,
@@ -1683,6 +1703,7 @@ actor DataActor {
             CloudSyncLocalChangeSignal.post()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -1698,11 +1719,13 @@ actor DataActor {
             return result
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
 
     private func deleteAllLocalModels() throws {
+        foreignCurrencyTransportFootprint = nil
         for model in try modelContext.fetch(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>()) { modelContext.delete(model) }
         for model in try modelContext.fetch(FetchDescriptor<CloudSyncOutboxItem>()) { modelContext.delete(model) }

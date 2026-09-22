@@ -6,6 +6,12 @@ import Testing
 struct ForeignCurrencyFormTests {
     private let locale = Locale(identifier: "en_US")
     private let pro = FeatureAccessService(entitlements: .proSubscription)
+    private var enabledSync: CloudSyncSnapshot {
+        CloudSyncSnapshot(
+            isEnabled: true, status: .ready, reason: nil,
+            pendingCount: 0, quarantinedCount: 0, cloudCopyMayExist: true
+        )
+    }
     private var calendar: Calendar {
         var value = Calendar(identifier: .gregorian)
         value.timeZone = TimeZone(identifier: "America/New_York")!
@@ -248,6 +254,149 @@ struct ForeignCurrencyFormTests {
                                         accountingCurrency: "USD", locale: locale, calendar: calendar)
         #expect(value.foreignCurrencyForm?.originalAmountText == "")
         #expect(value.foreignCurrencyForm?.originalCurrencyCode == nil)
+    }
+
+    @Test func enabledSyncBlocksNewForeignModeWithoutDiscardingOrdinaryInput() {
+        let value = ExpenseFormViewModel(existingExpense: nil, now: date)
+        value.prepareInput(locale: locale, calendar: calendar)
+        value.updateAmountTextFromUser("12.34")
+        value.note = "Retained note"
+
+        value.setForeignCurrencyEnabled(
+            true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: enabledSync
+        )
+
+        #expect(value.error == .foreignCurrency(.syncRequiresCompanionProtocol))
+        #expect(value.foreignCurrencyForm == nil)
+        #expect(value.amountText == "12.34")
+        #expect(value.note == "Retained note")
+
+        // The form never changes sync itself; a later explicit off snapshot allows entry.
+        value.setForeignCurrencyEnabled(
+            true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: .disabled
+        )
+        #expect(value.foreignCurrencyForm != nil)
+        #expect(value.error == nil)
+        value.setForeignCurrencyEnabled(
+            false, access: ExistingPremiumEntryAccess(featureAccess: pro),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: enabledSync
+        )
+        #expect(value.amountText == "12.34")
+    }
+
+    @Test func enabledSyncBlocksOrdinaryConversionButNotSavedForeignStewardship() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        let ordinary = try await actor.createExpense(draft())
+        let ordinaryDetail = try #require(try await actor.fetchExpenseDetail(id: ordinary.id))
+        let ordinaryEditor = ExpenseFormViewModel(existingExpense: ordinaryDetail, now: date)
+        ordinaryEditor.prepareInput(locale: locale, calendar: calendar)
+        ordinaryEditor.setForeignCurrencyEnabled(
+            true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: enabledSync
+        )
+        #expect(ordinaryEditor.error == .foreignCurrency(.syncRequiresCompanionProtocol))
+        #expect(ordinaryEditor.foreignCurrencyForm == nil)
+        #expect(ordinaryEditor.amountText == "6")
+
+        let stored = try await actor.createExpense(draft(foreign: state().resolve().foreign), featureAccess: pro)
+        let foreignDetail = try #require(try await actor.fetchExpenseDetail(id: stored.id))
+        let foreignEditor = ExpenseFormViewModel(existingExpense: foreignDetail, now: date)
+        foreignEditor.prepareInput(locale: locale, calendar: calendar)
+        foreignEditor.updateForeignCurrency({ $0.setAccountingAmount("1") }, locale: locale)
+        foreignEditor.setForeignCurrencyEnabled(
+            true, access: ExistingPremiumEntryAccess(),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: enabledSync
+        )
+        #expect(foreignEditor.error == nil)
+        #expect(foreignEditor.foreignCurrencyForm?.originalAmountText == "3")
+        #expect(foreignEditor.foreignCurrencyForm?.accountingAmountText == "1")
+        #expect(try foreignEditor.foreignCurrencyForm?.resolve().accounting.minorUnits == 100)
+    }
+
+    @Test func privacyDeletionIsNotOrdinarySyncAndKeepsNewLocalForeignEntryAvailable() {
+        let deletion = CloudSyncSnapshot(
+            isEnabled: true, status: .deletingCloudData, reason: .networkUnavailable,
+            pendingCount: 1, quarantinedCount: 0, cloudCopyMayExist: true
+        )
+        let value = ExpenseFormViewModel(existingExpense: nil, now: date)
+        value.prepareInput(locale: locale, calendar: calendar)
+        value.setForeignCurrencyEnabled(
+            true, access: ExistingPremiumEntryAccess(featureAccess: pro),
+            accountingCurrency: "USD", locale: locale, calendar: calendar,
+            cloudSyncSnapshot: deletion
+        )
+        #expect(value.foreignCurrencyForm != nil)
+        #expect(value.error == nil)
+        #expect(CloudSyncSettingsPresentation.showsRetryAction(deletion))
+        #expect(!CloudSyncSettingsPresentation.showsEnableAction(deletion))
+        #expect(!CloudSyncSettingsPresentation.showsDisableAction(deletion))
+        #expect(!CloudSyncSettingsPresentation.showsTrustRecoveryAction(deletion))
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(for: deletion) == .network)
+    }
+
+    @Test func foreignFootprintExplainsAndBlocksRecoveryWithoutReplacingTrustPause() {
+        for status in [CloudSyncStatus.pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted] {
+            let snapshot = CloudSyncSnapshot(isEnabled: true, status: status, reason: .accountChanged,
+                pendingCount: 1, quarantinedCount: 1, cloudCopyMayExist: true,
+                blocksOrdinarySyncForForeignCurrency: true)
+            #expect(CloudSyncSettingsPresentation.isForeignCurrencyPaused(snapshot))
+            #expect(!CloudSyncSettingsPresentation.showsTrustRecoveryAction(snapshot))
+            #expect(!CloudSyncSettingsPresentation.showsRetryAction(snapshot))
+            #expect(!CloudSyncSettingsPresentation.showsEnableAction(snapshot))
+            #expect(CloudSyncSettingsPresentation.showsDisableAction(snapshot))
+            #expect(CloudSyncSettingsPresentation.showsCloudDeletionAction(snapshot))
+            #expect(snapshot.status == status)
+        }
+    }
+
+    @Test func enabledForeignPauseKeepsOnlyExplicitDisableAndPrivacyActions() {
+        assertForeignPauseActions(isEnabled: true)
+    }
+
+    @Test func disabledForeignPauseKeepsOnlyExplicitDisableAndPrivacyActions() {
+        assertForeignPauseActions(isEnabled: false)
+    }
+
+    private func assertForeignPauseActions(isEnabled: Bool) {
+        let snapshot = CloudSyncSnapshot(
+            isEnabled: isEnabled, status: .pausedForeignCurrency, reason: .foreignCurrencyLocalOnly,
+            pendingCount: 2, quarantinedCount: 1, cloudCopyMayExist: true
+        )
+        #expect(CloudSyncSettingsPresentation.isForeignCurrencyPaused(snapshot))
+        #expect(!CloudSyncSettingsPresentation.showsEnableAction(snapshot))
+        #expect(!CloudSyncSettingsPresentation.showsRetryAction(snapshot))
+        #expect(!CloudSyncSettingsPresentation.showsTrustRecoveryAction(snapshot))
+        #expect(CloudSyncSettingsPresentation.showsDisableAction(snapshot))
+        #expect(CloudSyncSettingsPresentation.showsCloudDeletionAction(snapshot))
+        #expect(CloudSyncSettingsPresentation.cloudDeletionGuidance(for: snapshot) == nil)
+    }
+
+    @Test func ordinarySyncSettingsActionsRemainAvailableWithoutForeignCurrencyPause() {
+        let enabled = CloudSyncSnapshot(
+            isEnabled: true, status: .ready, reason: nil,
+            pendingCount: 0, quarantinedCount: 0, cloudCopyMayExist: true
+        )
+        #expect(CloudSyncSettingsPresentation.showsRetryAction(enabled))
+        #expect(CloudSyncSettingsPresentation.showsDisableAction(enabled))
+        #expect(!CloudSyncSettingsPresentation.showsEnableAction(enabled))
+        #expect(!CloudSyncSettingsPresentation.isForeignCurrencyPaused(enabled))
+        #expect(CloudSyncSettingsPresentation.showsEnableAction(.disabled))
+        #expect(!CloudSyncSettingsPresentation.showsDisableAction(.disabled))
+        #expect(!CloudSyncSettingsPresentation.showsCloudDeletionAction(.disabled))
+
+        let accountChanged = CloudSyncSnapshot(
+            isEnabled: false, status: .pausedAccountChanged, reason: .accountChanged,
+            pendingCount: 0, quarantinedCount: 0, cloudCopyMayExist: true
+        )
+        #expect(CloudSyncSettingsPresentation.showsTrustRecoveryAction(accountChanged))
+        #expect(!CloudSyncSettingsPresentation.showsEnableAction(accountChanged))
     }
 
     @Test func recurringAndWishlistCannotEnterForeignModeAndForgedRecurringFailsSave() async throws {

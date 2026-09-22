@@ -2,7 +2,46 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-## Current follow-up — bind the installed probe before one final same-run continuation
+## Current follow-up — local FX delivery; foreign-currency iCloud and physical probe deferred
+
+Owner confirmed on 2026-09-22: prioritize the local foreign-currency feature and stop repeated
+physical-device preparation. The decision and implementation boundary are in
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md` and `Docs/DECISIONS.md` (2026-09-22).
+
+- [x] Owner approved the ledger-level local-only contract and enforcement plan: existing sync opt-in, new/edited
+  FX rows, pending/outgoing/incoming facts, recovery and retained records must not lose their
+  original tuple or expose a misleading parent-only copy. Preserve ordinary iCloud behavior;
+  explicitly disable ordinary sync before new FX; block enable/recovery when local or retained FX
+  exists; pause legacy coexistence without changing opt-in or removing data. No-FX sync is unchanged.
+- [ ] Deliver that boundary, necessary disclosure and regression coverage as one cohesive batch,
+  then validate and independently review the final candidate. Keep local-Pro access, expired
+  stewardship, locked Int64 accounting and dual-amount CSV unchanged; no new network or live test.
+  Actor/UI/transport implementation and regression tests are in progress; no final validation or
+  independent approval is preclaimed. Retained companion protocol tests are synthetic, not admission.
+  PR #130 review repair adds snapshot-only Settings entry and corrupt-queue-independent confirmed
+  whole-zone intent; its focused tests do not substitute for repaired-head acceptance. See
+  `Docs/FX_01_LOCAL_ONLY_DELIVERY.md` for retained failures, corrected fixtures and evidence limits.
+- [ ] Close out the revised local scope only on its own evidence and explicit acceptance. Do not
+  mark the original unexecuted cloud obligations Passed or automatically enter E/Insights/share.
+
+Do not search for private probe backups, prepare/refresh v4 requests or ask to connect a phone
+as routine follow-up. Those tasks are deferred until explicit owner re-entry, not an immediate
+blocker requiring repeated prompts. No probe/controller code, installation or cloud state is
+deleted by this decision; an installed App is not automatically removed.
+
+## Deferred follow-up — recover exact inputs for post-merge version-4 preparation
+
+PR #129 reviewed head `b9553fe` was independently accepted and owner-authorized merged as
+`2cf0e214` on 2026-09-11. Complete-local/native acceptance belongs to that reviewed head;
+hosted `34580440549` attempt 1 passed ordinary, FX and join. The current offline preparation
+does not repeat those runs or claim a new native audit.
+
+On 2026-09-22 the old temporary worktree directories are absent and scoped searches have not
+located the original signed App and eight bound private evidence files. A backup may still exist;
+if explicitly resumed, restore and hash-check original bytes rather than recreate consumed approval/reservation/claim
+state or replace the package. New request generation and independent request review are blocked
+until those inputs are available. This workflow is now owner-deferred. No new phone command or
+v4 PENDING file has been produced.
 
 PR #128 reviewed head `716874a` passed complete local/hosted/native acceptance and merged as
 `16635b5`. Its new exact version-3 request was independently reviewed and owner-approved for the
@@ -27,10 +66,13 @@ found exactly one matching bundle and no process. No App or CloudKit operation r
   Dashboard gate (`533.066167` / `567.900125` / `588.157625 ms > 500 ms`). Withdraw both product
   projection candidates; instead run the unchanged one-shot benchmark after Debug test build and
   destination readiness but before the still-mandatory Release compilation.
-- [ ] Freeze the controller and pass offline/static gates, default complete local validation,
-  exact-head hosted/native acceptance and independent review.
-- [ ] Merge only after explicit owner authorization. Then prepare and review a new exact
-  post-merge version-4 file before requesting one new live authorization.
+- [x] Freeze the controller and pass offline/static gates, default complete local validation,
+  exact-head hosted/native acceptance and independent review: accepted #129 head `b9553fe`.
+- [x] Merge only after explicit owner authorization: #129 merged as `2cf0e214`.
+- [ ] Locate and verify the original signed App, approved v3 request, controller NON_PASS,
+  retained reservation/claim and native launch/install/post-install App/process evidence.
+- [ ] Prepare and independently review a new exact post-merge version-4 PENDING file before
+  requesting one new live authorization. No replacement run or state root is authorized.
 - [ ] If that later live run reaches CloudKit, retain its result before separately deciding
   synthetic data/App cleanup; process termination cannot recall submitted writes.
 

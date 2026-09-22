@@ -10,6 +10,18 @@ struct ForeignCurrencyCompatibilityTests {
     private let stamp = Date(timeIntervalSinceReferenceDate: 810_000_000)
     private let access = FeatureAccessService(entitlements: .proSubscription)
 
+    /// Retained codec fixtures are not permission to transport FX through a real adapter.
+    private func protocolActor(in controller: DataController? = nil) async throws -> DataActor {
+        let actor: DataActor
+        if let controller {
+            actor = controller.dataActor
+        } else {
+            actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        }
+        try await actor.enableForeignCurrencyProtocolFixtures()
+        return actor
+    }
+
     private func draft(id: UUID, foreign: ExpenseForeignCurrency? = nil) -> ExpenseDraft {
         ExpenseDraft(id: id, amount: Money(minorUnits: 600, currencyCode: "USD"), category: .food,
             bucket: .discretionary, merchantName: nil, note: "synthetic compatibility fixture",
@@ -36,7 +48,7 @@ struct ForeignCurrencyCompatibilityTests {
     }
 
     private func pair(id: UUID, value: ExpenseForeignCurrency) async throws -> [CloudSyncRemoteRecord] {
-        let source = try DataController(isStoredInMemoryOnly: true).dataActor
+        let source = try await protocolActor()
         _ = try await source.setCloudSyncEnabled(true)
         _ = try await source.createExpense(draft(id: id, foreign: value), featureAccess: access)
         let result = try await records(source)
@@ -119,24 +131,71 @@ struct ForeignCurrencyCompatibilityTests {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("store.sqlite")
+        let editBytes = try PreDFrozenCloudSyncCodec.encodeEnvelope(edit)
         do {
             let controller = try DataController(storeURL: url)
-            let actor = controller.dataActor
+            _ = try await controller.dataActor.createExpense(draft(id: id, foreign: value), featureAccess: access)
+            let context = ModelContext(controller.container)
+            context.insert(CloudSyncControl(id: "primary", isEnabled: true,
+                statusRaw: CloudSyncStatus.ready.rawValue, accountIdentifierHash: "synthetic-retained-account",
+                consentVersion: 1, lastReasonRaw: nil, updatedAt: stamp))
+            try context.save()
+            let actor = DataActor(modelContainer: controller.container)
+            // A real persistent container cannot opt into the retained protocol test seam.
+            await #expect(throws: ForeignCurrencyError.syncRequiresCompanionProtocol) {
+                try await actor.enableForeignCurrencyProtocolFixtures()
+            }
+            try await actor.ingestCloudSyncRecords([remote(edit)])
+            #expect(try await actor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
+            #expect(try await actor.cloudSyncSnapshot().status == .pausedForeignCurrency)
+        }
+        let reopened = try DataController(storeURL: url)
+        try await reopened.dataActor.applyPendingCloudSyncInbox(at: stamp)
+        #expect(try await reopened.dataActor.fetchExpenseDetail(id: id)?.summary.amount.minorUnits == 600)
+        #expect(try await reopened.dataActor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
+        let snapshot = try await reopened.dataActor.cloudSyncSnapshot()
+        #expect(snapshot.isEnabled && snapshot.status == .pausedForeignCurrency)
+        #expect(snapshot.reason == .foreignCurrencyLocalOnly)
+        #expect(try await !reopened.dataActor.permitsOrdinaryCloudTransport())
+        let inbox = try ModelContext(reopened.container).fetch(FetchDescriptor<CloudSyncInboxItem>())
+        let retained = try #require(inbox.first { $0.envelopeData == editBytes })
+        #expect(retained.statusRaw == "pending")
+        #expect(inbox.count == 1)
+    }
+
+    @Test func oldCodecContradictoryEditProtocolFixtureStaysPendingAcrossActorReopen() async throws {
+        let id = UUID()
+        let value = try foreign()
+        let rows = try await pair(id: id, value: value)
+        let old = try oldParent(rows)
+        let payload = try #require(old.payload)
+        var fields = payload.fields
+        fields["amount"] = .integer(900)
+        let edit = try PreDFrozenCloudSyncCodec.makeEnvelope(
+            payload: .init(entityType: .expense, identity: payload.identity, fields: fields),
+            entityType: .expense, identity: payload.identity, operation: .upsert,
+            revision: 2, parentSemanticDigest: old.semanticDigest, modifiedAt: stamp)
+        // The legacy protocol is available only in a synthetic in-memory container. Reopening
+        // the actor still checks the saved transaction boundary, not on-disk/app compatibility.
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        do {
+            let actor = try await protocolActor(in: controller)
             _ = try await actor.setCloudSyncEnabled(true)
             try await actor.ingestCloudSyncRecords(rows)
             try await actor.ingestCloudSyncRecords([remote(edit)])
             #expect(try await actor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
             #expect(try await actor.fetchExpenseDetail(id: id)?.summary.amount.minorUnits == 600)
         }
-        let reopened = try DataController(storeURL: url)
-        try await reopened.dataActor.applyPendingCloudSyncInbox(at: stamp)
-        #expect(try await reopened.dataActor.fetchExpenseDetail(id: id)?.summary.amount.minorUnits == 600)
-        #expect(try await reopened.dataActor.fetchExpenseDetail(id: id)?.foreignCurrency == value)
-        let inbox = try ModelContext(reopened.container).fetch(FetchDescriptor<CloudSyncInboxItem>())
+        let reopened = DataActor(modelContainer: controller.container)
+        try await reopened.enableForeignCurrencyProtocolFixtures()
+        try await reopened.applyPendingCloudSyncInbox(at: stamp)
+        #expect(try await reopened.fetchExpenseDetail(id: id)?.summary.amount.minorUnits == 600)
+        #expect(try await reopened.fetchExpenseDetail(id: id)?.foreignCurrency == value)
+        let inbox = try ModelContext(controller.container).fetch(FetchDescriptor<CloudSyncInboxItem>())
         let editBytes = try PreDFrozenCloudSyncCodec.encodeEnvelope(edit)
         let retained = try #require(inbox.first { $0.envelopeData == editBytes })
         #expect(retained.statusRaw == "pending" && retained.reasonRaw == "missingParent")
-        #expect(try await reopened.dataActor.cloudSyncSnapshot().quarantinedCount == 0)
+        #expect(try await reopened.cloudSyncSnapshot().quarantinedCount == 0)
         // Safety only: a pre-D client cannot author the absent companion. Do not call this convergence.
     }
 
@@ -147,7 +206,7 @@ struct ForeignCurrencyCompatibilityTests {
         let tombstone = try PreDFrozenCloudSyncCodec.makeEnvelope(payload: nil, entityType: .expense,
             identity: try #require(old.payload?.identity), operation: .tombstone,
             revision: 2, parentSemanticDigest: old.semanticDigest, modifiedAt: stamp)
-        let receiver = try DataController(isStoredInMemoryOnly: true).dataActor
+        let receiver = try await protocolActor()
         _ = try await receiver.setCloudSyncEnabled(true)
         try await receiver.ingestCloudSyncRecords(rows)
         let deletion = try remote(tombstone)
@@ -171,7 +230,7 @@ struct ForeignCurrencyCompatibilityTests {
             payload: .init(entityType: .expense, identity: payload.identity, fields: fields),
             entityType: .expense, identity: payload.identity, operation: .upsert,
             revision: 2, parentSemanticDigest: old.semanticDigest, modifiedAt: stamp)
-        let receiver = try DataController(isStoredInMemoryOnly: true).dataActor
+        let receiver = try await protocolActor()
         _ = try await receiver.setCloudSyncEnabled(true)
         try await receiver.ingestCloudSyncRecords(rows)
         try await receiver.ingestCloudSyncRecords([remote(edit)])
@@ -234,7 +293,7 @@ struct ForeignCurrencyCompatibilityTests {
                 let value = try foreign(calendar: calendar, date: #require(parser.date(from: day.selected)))
                 let id = UUID()
                 let rows = try await pair(id: id, value: value)
-                let receiver = try DataController(isStoredInMemoryOnly: true).dataActor
+                let receiver = try await protocolActor()
                 _ = try await receiver.setCloudSyncEnabled(true)
                 try await receiver.ingestCloudSyncRecords(rows.reversed())
                 let detail = try #require(try await receiver.fetchExpenseDetail(id: id))
@@ -255,7 +314,7 @@ struct ForeignCurrencyCompatibilityTests {
             payload: .init(entityType: envelope.entityType, identity: payload.identity, fields: fields),
             entityType: envelope.entityType, identity: payload.identity, operation: .upsert,
             revision: 1, parentSemanticDigest: nil, modifiedAt: stamp)
-        let receiver = try DataController(isStoredInMemoryOnly: true).dataActor
+        let receiver = try await protocolActor()
         _ = try await receiver.setCloudSyncEnabled(true)
         let parent = try #require(rows.first { $0.recordName.hasPrefix("expense/") })
         try await receiver.ingestCloudSyncRecords([parent, .init(recordName: child.recordName,

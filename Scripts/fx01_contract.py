@@ -33,6 +33,7 @@ ROOT_KEYS = frozenset(
         "evidenceBoundary",
         "decimalRateContract",
         "syncCompanionContract",
+        "localOnlySyncContract",
     }
 )
 D_CLOSEOUT_FILE = "Docs/FX_01D_CLOSEOUT.md"
@@ -333,8 +334,69 @@ EXPECTED_SYNC_COMPANION = {
     "futureEntityCount": 13,
     "positionAfter": "expense",
     "expensePayloadUnchanged": True,
+    "foreignCurrencyDeliveryAdmission": "syntheticProtocolOnly",
     "coordinatedContract": "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md",
 }
+EXPECTED_LOCAL_ONLY_SYNC = {
+    "scope": "ledgerLevelMutualExclusion",
+    "enabledOrdinarySyncAllowsNewOrConvertedFX": False,
+    "existingFXAllowsEnableOrRecovery": False,
+    "pauseStatus": "pausedForeignCurrency",
+    "pauseReason": "foreignCurrencyLocalOnly",
+    "pauseRetainsOptInAndFinancialData": True,
+    "pauseRetainsQueueAndEngineAncestry": True,
+    "pausePreservesOtherStickyCauses": True,
+    "independentSnapshotFlag": "blocksOrdinarySyncForForeignCurrency",
+    "settingsEntryRefresh": "snapshotOnlyWithoutStartingTransportOrResumingDeletion",
+    "companionFootprint": ["localMetadata", "acceptedMetadata", "outbox", "inbox"],
+    "transportFootprintCache": {
+        "owner": "singleDataActor",
+        "initialState": "unknown",
+        "localCompanionCheck": "uncachedFetchLimitOne",
+        "cachedValueAfter": "successfulCompleteTransportScan",
+        "presenceLatch": "incomingOrStagedCompanionBeforeSave",
+        "invalidatedBy": ["rollback", "wholeTransportClear", "localDeleteAll"],
+        "ordinaryValidatedWriteOrAcknowledgement": "preserveAbsentCache",
+    },
+    "incomingCompanionBatch": "retainEntireBatchBeforeFinancialApplication",
+    "legacyParentFirstArrival": "unmarkedFrozenParentMayApplyBeforeCompanionThenPause",
+    "ordinaryLedgerWithoutFX": "unchanged",
+    "explicitCloudDeletion": "independentConfirmedPrivacyOperation",
+    "cloudDeletionIntent": "durableControlWithoutDecodingOrRestagingTransport",
+    "cloudDeletionCompletion": "acceptedAccountZoneAbsentThenClearTransportOnly",
+    "protocolFixtureCompileGuard": "DEBUG",
+    "protocolFixtureStoreBoundary": "allConfigurationsInMemoryOnly",
+    "protocolFixtureCallers": "unitTestsOnly",
+    "protocolFixtureNativeTransportAllowed": False,
+    "localProAndExpiredStewardship": "unchanged",
+    "physicalProbe": "deferredWithoutNewAuthorization",
+}
+LOCAL_ONLY_SOURCE_FILES = (
+    "MindBudget/Data/ForeignCurrencyDataActor.swift",
+    "MindBudget/Data/CloudSyncDataActor.swift",
+    "MindBudget/Data/CloudSyncRemoteApply.swift",
+    "MindBudget/Services/CloudSyncDomain.swift",
+    "MindBudget/Services/CloudSyncRuntime.swift",
+    "MindBudget/App/AppRouter.swift",
+    "MindBudget/Features/Settings/SettingsView.swift",
+    "MindBudgetTests/ForeignCurrencyTests.swift",
+    "MindBudgetTests/ForeignCurrencyFormTests.swift",
+    "MindBudgetTests/CloudSyncTests.swift",
+    "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md",
+)
+LOCAL_ONLY_DOC_HEADING = "### Current FX-01D local-only boundary — owner-approved 2026-09-22"
+LOCAL_ONLY_DOC_ANCHORS = (
+    "The current delivery is ledger-level mutual exclusion between local FX and ordinary iCloud.",
+    "An incoming batch containing a companion is durably retained in full before any financial application.",
+    "Explicit cloud deletion remains an independent confirmed privacy operation.",
+    "Settings entry refreshes the policy snapshot without starting transport or resuming deletion.",
+    "Whole-zone intent is persisted without decoding or restaging the existing transport queues.",
+    "Exactly thirteen wire types remain for synthetic protocol regression only, not FX delivery admission.",
+    "Fixture-enabled actors are always denied native ordinary transport",
+    "Frozen-parent compatibility limit:",
+    "Transport-footprint caching belongs to one DataActor, never to global state or persisted consent.",
+    "Foreign-currency cloud delivery and the probe remain deferred.",
+)
 
 EXPECTED_PLAN_STATUS = (
     "FX-01 In Progress; FX-01A through FX-01C Done; FX-01D In Progress; FX-01E unentered."
@@ -625,6 +687,464 @@ def _function_region(text: str, declaration: str) -> str | None:
     return text[start:end]
 
 
+def _swift_code(text: str) -> str:
+    """Ignore comments while retaining reviewed literals; comments cannot satisfy a guard."""
+    tokens = re.compile(r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|//[^\n]*|/\*[\s\S]*?\*/')
+    return tokens.sub(lambda match: match[0] if match[0].startswith('"') else " ", text)
+
+
+def _compact(text: str) -> str:
+    return re.sub(r"\s+", "", _swift_code(text))
+
+
+def _swift_function(text: str, name: str) -> str | None:
+    code = _swift_code(text)
+    declarations = list(re.finditer(r"\bfunc\s+" + re.escape(name) + r"(?:<[^>]+>)?\s*\(", code))
+    if len(declarations) != 1:
+        return None
+    start = declarations[0].start()
+    opening = code.find("{", declarations[0].end())
+    depth = 0
+    for token in re.finditer(r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|[{}]', code[opening:]):
+        if token[0] == "{":
+            depth += 1
+        elif token[0] == "}":
+            depth -= 1
+            if depth == 0:
+                return code[start:opening + token.end()]
+    return None
+
+
+# Each ordered group is inside one executable function, not an unscoped word search. Native
+# provider counts intentionally bind the gate both before batch selection and after actor awaits.
+LOCAL_ONLY_FUNCTION_RULES = (
+    ("foreign", "requireForeignCurrencyCreationAccess", (
+        "guard value != nil else { return }", "if !usesForeignCurrencyProtocolFixtures,",
+        "control.isEnabled", "control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue",
+        "throw ForeignCurrencyError.syncRequiresCompanionProtocol")),
+    ("foreign", "hasForeignCurrencySyncFootprint", (
+        "var local = FetchDescriptor<ExpenseForeignCurrencyMetadata>()", "local.fetchLimit = 1",
+        "if try !modelContext.fetch(local).isEmpty { return true }",
+        "if let known = foreignCurrencyTransportFootprint { return known }",
+        "let found = try scanForeignCurrencyTransportFootprint()",
+        "foreignCurrencyTransportFootprint = found", "return found")),
+    ("foreign", "scanForeignCurrencyTransportFootprint", (
+        "let kind = CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue",
+        "if name.hasPrefix(kind + \"/\") { return true }", "guard let data else { return false }",
+        "return (try? CloudSyncCodec.decodeEnvelope(data))?.entityType == .expenseForeignCurrencyMetadata",
+        "FetchDescriptor<CloudSyncRecordMetadata>()",
+        "$0.entityTypeRaw == kind || isCompanion($0.recordName)",
+        "FetchDescriptor<CloudSyncOutboxItem>()", "$0.entityTypeRaw == kind || isCompanion($0.recordName, $0.envelopeData)",
+        "FetchDescriptor<CloudSyncInboxItem>()", "isCompanion($0.recordName, $0.envelopeData)")),
+    ("foreign", "foreignCurrencyBlocksOrdinarySync", (
+        "guard !usesForeignCurrencyProtocolFixtures else { return false }",
+        "if control?.statusRaw == CloudSyncStatus.deletingCloudData.rawValue { return false }",
+        "return try control?.statusRaw == CloudSyncStatus.pausedForeignCurrency.rawValue || hasForeignCurrencySyncFootprint()")),
+    ("foreign", "reconcileForeignCurrencySyncPause", (
+        "guard try foreignCurrencyBlocksOrdinarySync(),", "control.isEnabled else { return false }",
+        "guard !status.isStickyPause else { return false }",
+        "control.statusRaw = CloudSyncStatus.pausedForeignCurrency.rawValue",
+        "control.lastReasonRaw = CloudSyncReasonCode.foreignCurrencyLocalOnly.rawValue")),
+    ("foreign", "permitsOrdinaryCloudTransport", (
+        "guard !usesForeignCurrencyProtocolFixtures else { return false }",
+        "try reconcileForeignCurrencySyncPause()",
+        "control.isEnabled", "!(CloudSyncStatus(rawValue: control.statusRaw) ?? .failed).isStickyPause",
+        "control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }",
+        "return try !hasForeignCurrencySyncFootprint()")),
+    ("actor", "cloudSyncSnapshot", ("try reconcileForeignCurrencySyncPause()", "let control = try fetchCloudSyncControl()",
+        "let blockedByLocalFX = try foreignCurrencyBlocksOrdinarySync()",
+        "blocksOrdinarySyncForForeignCurrency: blockedByLocalFX",
+        "blocksOrdinarySyncForForeignCurrency: blockedByLocalFX")),
+    ("actor", "setCloudSyncEnabled", (
+        "if isDeletingCloudData { return try cloudSyncSnapshot() }",
+        "if enabled, try foreignCurrencyBlocksOrdinarySync()", "if !status.isStickyPause",
+        "control.statusRaw = CloudSyncStatus.pausedForeignCurrency.rawValue",
+        "if !enabled, try foreignCurrencyBlocksOrdinarySync()", "control.isEnabled = false",
+        "if !previousStatus.isStickyPause || previousStatus == .pausedForeignCurrency",
+        "control.isEnabled = enabled")),
+    ("actor", "recoverCloudSyncFromLocalAuthority", (
+        "if try foreignCurrencyBlocksOrdinarySync() { try reconcileForeignCurrencySyncPause() return try cloudSyncSnapshot() }",
+        "try deleteCloudSyncAccountScopedState()")),
+    ("actor", "beginCloudDeletion", (
+        "let existingControl = try fetchCloudSyncControl()",
+        "control.statusRaw = CloudSyncStatus.deletingCloudData.rawValue",
+        "try modelContext.save()", "return try cloudSyncSnapshot()")),
+    ("actor", "completeCloudDeletion", (
+        "control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue else { return }",
+        "try deleteCloudSyncAccountScopedState()", "control.isEnabled = false",
+        "control.accountIdentifierHash = nil", "try modelContext.save()")),
+    ("actor", "bindCloudSyncAccount", (
+        "if try foreignCurrencyBlocksOrdinarySync() { try reconcileForeignCurrencySyncPause() return false }",
+        "control.accountIdentifierHash = identifierHash")),
+    ("actor", "updateCloudSyncStatus", (
+        "if try foreignCurrencyBlocksOrdinarySync() { try reconcileForeignCurrencySyncPause() return }",
+        "if currentStatus.isStickyPause { return }", "control.statusRaw = status.rawValue")),
+    ("actor", "completeCloudSyncPass", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { try reconcileForeignCurrencySyncPause() return }",
+        "control.statusRaw = CloudSyncStatus.ready.rawValue")),
+    ("actor", "blockCloudSyncRecordAfterServerConflict", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { return }", "outbox.statusRaw =")),
+    ("actor", "saveCloudSyncEngineState", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { return }", "state.serializationData = data")),
+    ("actor", "pendingCloudSyncRecordNames", (
+        "if try foreignCurrencyBlocksOrdinarySync() { try reconcileForeignCurrencySyncPause() return [] }",
+        "return try modelContext.fetch(")),
+    ("actor", "pendingCloudSyncRecord", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { return nil }", "fetchCloudSyncOutbox(recordName: recordName)")),
+    ("actor", "acknowledgeCloudSyncRecord", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { return }", "modelContext.delete(outbox)")),
+    ("actor", "ingestCloudSyncRecords", (
+        "control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return }",
+        "let companionArrived = records.contains", "let preserveOnly = try !usesForeignCurrencyProtocolFixtures",
+        "&& (companionArrived || foreignCurrencyBlocksOrdinarySync())",
+        "for record in records", "if record.wasPhysicallyDeleted && !preserveOnly",
+        "if companionArrived { foreignCurrencyTransportFootprint = true }",
+        "try reconcileForeignCurrencySyncPause(persist: false)", "try modelContext.save()",
+        "try applyPendingCloudSyncInbox(at: receivedAt)")),
+    ("actor", "stageCloudSyncProjection", (
+        "if projection.entityType == .expenseForeignCurrencyMetadata { foreignCurrencyTransportFootprint = true }",
+        "let recordName = try projection.recordName")),
+    ("actor", "deleteCloudSyncAccountScopedState", (
+        "foreignCurrencyTransportFootprint = nil", "FetchDescriptor<CloudSyncInboxItem>()")),
+    ("storage", "deleteAllLocalModels", (
+        "foreignCurrencyTransportFootprint = nil", "FetchDescriptor<ExpenseForeignCurrencyMetadata>()")),
+    ("storage", "commit", (
+        "let result = try changes()", "modelContext.rollback()", "foreignCurrencyTransportFootprint = nil", "throw error")),
+    ("actor", "stageCloudSyncChangesFromCurrentContext", (
+        "guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }",
+        "if try foreignCurrencyBlocksOrdinarySync() { return try reconcileForeignCurrencySyncPause(persist: false) }",
+        "var changesByRecordName:")),
+    ("actor", "stageAllCurrentFacts", (
+        "guard try !foreignCurrencyBlocksOrdinarySync() else { return false }", "let models = try allCloudSyncBusinessModels()")),
+    ("remote", "applyPendingCloudSyncInbox", (
+        "guard try fetchCloudSyncControl()?.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return }",
+        "if try foreignCurrencyBlocksOrdinarySync() { try reconcileForeignCurrencySyncPause() return }",
+        "let pending = try modelContext.fetch(")),
+    ("remote", "resolveCloudSyncConflict", (
+        "guard try !foreignCurrencyBlocksOrdinarySync(),",
+        "try fetchCloudSyncControl()?.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else",
+        "throw ForeignCurrencyError.syncRequiresCompanionProtocol",
+        "resolveCloudSyncConflictSingle(")),
+    ("service", "reloadSnapshot", (
+        "let persisted = try await dataActor.cloudSyncSnapshot()",
+        "if !snapshot.permitsCloudTransport { await stopAdapter() }", "publishSnapshot()")),
+    ("service", "refreshPolicySnapshot", ("await reloadSnapshot()",)),
+    ("session", "refreshCloudSyncPolicySnapshot", ("await cloudSyncService?.refreshPolicySnapshot()",)),
+    ("service", "snapshotWithRetention", ("blocksOrdinarySyncForForeignCurrency: value.blocksOrdinarySyncForForeignCurrency",)),
+    ("service", "synchronizeAdapterIfPermitted", (
+        "if snapshot.status == .deletingCloudData", "await continueCloudDeletion()",
+        "guard (try? await self.dataActor.permitsOrdinaryCloudTransport()) == true else",
+        "let created = self.adapterFactory(self.dataActor)")),
+    ("native", "start", ("guard await permitsOrdinaryTransport() else { return }", "guard await establishAccountAuthority() else { return }")),
+    ("native", "synchronize", ("guard await permitsOrdinaryTransport() else { return }", "guard await establishAccountAuthority() else")),
+    ("native", "deleteCloudData", (
+        "guard Self.permitsCloudDeletion(isProtocolFixture: await dataActor.usesForeignCurrencyProtocolFixtures) else",
+        "return .failed(.foreignCurrencyLocalOnly)", "deletionAccountFailure()",
+        "container.privateCloudDatabase.deleteRecordZone(withID: zoneID)", "dataActor.completeCloudDeletion()")),
+    ("native", "permitsCloudDeletion", ("!isProtocolFixture",)),
+    ("native", "establishAccountAuthority", (
+        "guard await permitsOrdinaryTransport() else { return false }", "container.accountStatus()",
+        "guard await permitsOrdinaryTransport() else { return false }", "container.userRecordID()",
+        "guard await permitsOrdinaryTransport() else { return false }")),
+    ("native", "handleEvent", ("guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return }", "switch event")),
+    ("native", "nextRecordZoneChangeBatch", (
+        "guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return nil }",
+        "let pending = syncEngine.state.pendingRecordZoneChanges",
+        "guard await permitsOrdinaryTransport(delegateEngine: syncEngine),",
+        "dataActor.pendingCloudSyncRecord(named: recordID.recordName)",
+        "guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return nil }",
+        "record.encryptedValues[Self.encryptedEnvelopeKey]")),
+    ("native", "nextFetchChangesOptions", (
+        "guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else",
+        "options.scope = .zoneIDs([])", "return options", "options.scope = .zoneIDs([zoneID])")),
+    ("native", "permitsOrdinaryTransport", (
+        "let persistedPermission = (try? await dataActor.permitsOrdinaryCloudTransport()) == true",
+        "if !Task.isCancelled, persistedPermission { return true }",
+        "cancelEngineAfterDelegateCallback(delegateEngine)", "return false")),
+)
+LOCAL_ONLY_SCOPE_FILES = {
+    "storage": "MindBudget/Data/DataActor.swift",
+    "foreign": "MindBudget/Data/ForeignCurrencyDataActor.swift",
+    "actor": "MindBudget/Data/CloudSyncDataActor.swift",
+    "remote": "MindBudget/Data/CloudSyncRemoteApply.swift",
+    "service": "MindBudget/Services/CloudSyncRuntime.swift",
+    "native": "MindBudget/Services/CloudSyncRuntime.swift",
+    "session": "MindBudget/App/AppRouter.swift",
+}
+FROZEN_EXPENSE_PROJECTION = """func expenseFields(_ value: Expense) -> [String: CloudSyncValue] {
+    var fields: [String: CloudSyncValue] = [
+        "id": commonID(value.id), "amount": .integer(value.amountMinorUnits),
+        "currency": .string(value.currencyCode), "category": .string(value.categoryRaw),
+        "bucket": .string(value.bucketRaw), "spentAt": .unsigned(value.spentAt.cloudSyncBits),
+        "spentTimeZone": .string(value.spentTimeZoneIdentifier),
+        "createdAt": .unsigned(value.createdAt.cloudSyncBits), "updatedAt": .unsigned(value.updatedAt.cloudSyncBits),
+        "isPlanned": .boolean(value.isPlanned), "isRecurring": .boolean(value.isRecurring),
+        "source": .string(value.sourceRaw), "allowMerchantIndexing": .boolean(value.allowMerchantIndexing)
+    ]
+    optionalString(value.merchantName, key: "merchantName", into: &fields)
+    optionalString(value.note, key: "note", into: &fields)
+    optionalString(value.paymentMethodRaw, key: "paymentMethod", into: &fields)
+    optionalString(value.emotionTagRaw, key: "emotionTag", into: &fields)
+    optionalString(value.purchaseReasonRaw, key: "purchaseReason", into: &fields)
+    return fields
+}"""
+
+
+def _local_only_scopes(source: dict[str, str]) -> dict[str, str]:
+    runtime = source["MindBudget/Services/CloudSyncRuntime.swift"]
+    service, _, native = runtime.partition("final class CKSyncEngineAdapter:")
+    service = service.partition("final class CloudSyncService:")[2]
+    return {key: service if key == "service" else native if key == "native" else source[path]
+            for key, path in LOCAL_ONLY_SCOPE_FILES.items()}
+
+
+EXPECTED_FOOTPRINT_CACHE_QUERY = """func hasForeignCurrencySyncFootprint() throws -> Bool {
+    var local = FetchDescriptor<ExpenseForeignCurrencyMetadata>()
+    local.fetchLimit = 1
+    if try !modelContext.fetch(local).isEmpty { return true }
+    if let known = foreignCurrencyTransportFootprint { return known }
+    let found = try scanForeignCurrencyTransportFootprint()
+    foreignCurrencyTransportFootprint = found
+    return found
+}"""
+
+EXPECTED_CLOUD_DELETION_INTENT = """func beginCloudDeletion(at date: Date = Date()) throws -> CloudSyncSnapshot {
+    do {
+        let existingControl = try fetchCloudSyncControl()
+        let control = existingControl ?? CloudSyncControl(
+            id: Self.cloudSyncControlID, isEnabled: true,
+            statusRaw: CloudSyncStatus.deletingCloudData.rawValue,
+            accountIdentifierHash: nil, consentVersion: Self.cloudSyncConsentVersion,
+            lastReasonRaw: nil, updatedAt: date
+        )
+        if existingControl == nil { modelContext.insert(control) }
+        control.isEnabled = true
+        control.statusRaw = CloudSyncStatus.deletingCloudData.rawValue
+        control.lastReasonRaw = nil
+        control.updatedAt = date
+        try modelContext.save()
+        CloudSyncLocalChangeSignal.post()
+        return try cloudSyncSnapshot()
+    } catch {
+        modelContext.rollback()
+        foreignCurrencyTransportFootprint = nil
+        throw error
+    }
+}"""
+
+
+def local_only_sync_errors(root: Path) -> list[str]:
+    errors: list[str] = []
+    inputs = ("MindBudget/Data/DataActor.swift", *LOCAL_ONLY_SOURCE_FILES)
+    if missing := [name for name in inputs if not (root / name).is_file()]:
+        return [f"missing local-only FX boundary input: {name}" for name in missing]
+    source = {name: (root / name).read_text() for name in inputs}
+    fixture = source["MindBudget/Data/DataActor.swift"]
+    expected_fixture = """private(set) var foreignCurrencyProtocolFixturesEnabled = false
+        func enableForeignCurrencyProtocolFixtures() throws {
+            guard !modelContext.container.configurations.isEmpty,
+                  modelContext.container.configurations.allSatisfy({ $0.isStoredInMemoryOnly }) else {
+                throw ForeignCurrencyError.syncRequiresCompanionProtocol
+            }
+            foreignCurrencyProtocolFixturesEnabled = true
+        }"""
+    debug_blocks = re.findall(r"#if DEBUG\s*\n(.*?)#endif", _swift_code(fixture), re.S)
+    if sum(_compact(block) == _compact(expected_fixture) for block in debug_blocks) != 1:
+        errors.append("protocol fixture must be one exact DEBUG-only, nonempty/all-in-memory authority")
+    for path in root.rglob("*.swift"):
+        if ".git" in path.parts:
+            continue
+        relative = path.relative_to(root).as_posix()
+        code = _swift_code(path.read_text())
+        if "enableForeignCurrencyProtocolFixtures" in code:
+            if relative == "MindBudget/Data/DataActor.swift":
+                if len(re.findall(r"\benableForeignCurrencyProtocolFixtures\b", code)) != 1:
+                    errors.append("product DataActor may declare, never call, the synthetic fixture")
+            elif not relative.startswith("MindBudgetTests/"):
+                errors.append(f"synthetic protocol fixture caller is not a unit test: {relative}")
+        if "foreignCurrencyProtocolFixturesEnabled" in code and relative not in {
+            "MindBudget/Data/DataActor.swift", "MindBudget/Data/ForeignCurrencyDataActor.swift"
+        }:
+            errors.append(f"unexpected synthetic fixture authority consumer: {relative}")
+    foreign = source["MindBudget/Data/ForeignCurrencyDataActor.swift"]
+    if _compact("var usesForeignCurrencyProtocolFixtures: Bool { #if DEBUG foreignCurrencyProtocolFixturesEnabled #else false #endif }") not in _compact(foreign):
+        errors.append("protocol fixture accessor must return false outside DEBUG")
+    runtime = source["MindBudget/Services/CloudSyncRuntime.swift"]
+    service, separator, native = runtime.partition("final class CKSyncEngineAdapter:")
+    if not separator:
+        errors.append("native CloudKit adapter boundary missing")
+    scopes = _local_only_scopes(source)
+    exact_recovery_functions = (
+        ("actor", "beginCloudDeletion", EXPECTED_CLOUD_DELETION_INTENT),
+        ("service", "refreshPolicySnapshot", "func refreshPolicySnapshot() async { await reloadSnapshot() }"),
+        ("session", "refreshCloudSyncPolicySnapshot",
+         "func refreshCloudSyncPolicySnapshot() async { await cloudSyncService?.refreshPolicySnapshot() }"),
+    )
+    for scope, name, expected in exact_recovery_functions:
+        if _compact(_swift_function(scopes[scope], name) or "") != _compact(expected):
+            errors.append(f"policy refresh/deletion intent must not initiate transfer or mutate retained queues: {scope}.{name}")
+    settings = _swift_code(source["MindBudget/Features/Settings/SettingsView.swift"])
+    settings = settings.partition("struct CloudSyncSettingsView: View {")[2].split("\nprivate struct ", 1)[0]
+    if _compact(settings).count(_compact(".task { await session.refreshCloudSyncPolicySnapshot() }")) != 1:
+        errors.append("iCloud Settings entry must call the snapshot-only refresh exactly once")
+    if not re.search(r"^\s*var foreignCurrencyTransportFootprint: Bool\?\s*$", fixture, re.M):
+        errors.append("one-actor transport footprint cache must start unknown, never literal absence")
+    if _compact(_swift_function(foreign, "hasForeignCurrencySyncFootprint") or "") != _compact(EXPECTED_FOOTPRINT_CACHE_QUERY):
+        errors.append("local companion check must precede cache and only a successful transport scan may assign it")
+    for scope in ("storage", "actor", "remote"):
+        code = _compact(scopes[scope])
+        if code.count("modelContext.rollback()") != code.count("modelContext.rollback()foreignCurrencyTransportFootprint=nil"):
+            errors.append(f"every {scope} rollback must invalidate transport footprint knowledge")
+    for name in ("acknowledgeCloudSyncRecord", "pendingCloudSyncRecord", "pendingCloudSyncRecordNames", "saveCloudSyncEngineState"):
+        if "foreignCurrencyTransportFootprint" in (_swift_function(scopes["actor"], name) or ""):
+            errors.append(f"ordinary provider/ack must not rescan or invalidate the transport cache: {name}")
+    if _compact(_swift_function(scopes["actor"], "expenseFields") or "") != _compact(FROZEN_EXPENSE_PROJECTION):
+        errors.append("frozen Expense wire projection must not acquire an FX field or change accounting payload")
+    for scope, name, anchors in LOCAL_ONLY_FUNCTION_RULES:
+        body = _swift_function(scopes[scope], name)
+        cursor = 0
+        compact = _compact(body or "")
+        for anchor in anchors:
+            position = compact.find(_compact(anchor), cursor)
+            if position < 0:
+                errors.append(f"local-only executable gate missing/reordered: {scope}.{name}:{anchor}")
+                break
+            cursor = position + len(_compact(anchor))
+    for name in ("deleteCloudData", "deletionAccountFailure"):
+        if "permitsOrdinaryTransport" in (_swift_function(native, name) or ""):
+            errors.append("explicit privacy deletion must not depend on ordinary transport admission")
+    for scope, name in (("foreign", "permitsOrdinaryCloudTransport"),
+                        ("foreign", "foreignCurrencyBlocksOrdinarySync"),
+                        ("foreign", "requireForeignCurrencyCreationAccess"),
+                        ("native", "deleteCloudData"),
+                        ("native", "permitsOrdinaryTransport")):
+        body = _swift_function(scopes[scope], name) or ""
+        first_anchor = next(anchors[0] for group, function, anchors in LOCAL_ONLY_FUNCTION_RULES
+                            if (scope, name) == (group, function))
+        if not _compact(body).split("{", 1)[-1].startswith(_compact(first_anchor)):
+            errors.append(f"local-only authority cannot have an early bypass: {scope}.{name}")
+    if _compact(_swift_function(native, "permitsCloudDeletion") or "") != _compact(
+            "func permitsCloudDeletion(isProtocolFixture: Bool) -> Bool { !isProtocolFixture }"):
+        errors.append("native cloud deletion must reject every synthetic protocol fixture")
+    pause = _swift_function(foreign, "reconcileForeignCurrencySyncPause") or ""
+    if re.search(r"control\.isEnabled\s*=|modelContext\.delete\s*\(", pause):
+        errors.append("FX pause must preserve opt-in and retained data")
+    domain = source["MindBudget/Services/CloudSyncDomain.swift"]
+    entity_section = domain.split("enum CloudSyncEntityType:", 1)[-1].split("enum CloudSyncOperation:", 1)[0]
+    entity_types = re.findall(r"^    case (\w+)\s*$", entity_section, re.M)
+    if entity_types != ["expense", "expenseForeignCurrencyMetadata", "income", "incomeAllocation",
+                        "savingsGoal", "recurringRule", "recurringOccurrence", "budgetPlan",
+                        "budgetPlanSemantics", "categoryBudget", "wishItem", "coolingOffPlan", "reflectionLog"]:
+        errors.append("retained synthetic wire inventory must keep 13 types and the frozen companion position")
+    sticky = domain.split("var isStickyPause: Bool", 1)[-1].split("enum CloudSyncRecordState:", 1)[0]
+    if not re.search(r"case\s+\.pausedAccountChanged,\s*\.pausedEncryptedDataReset,\s*\.pausedRemoteZoneDeleted,\s*\.pausedForeignCurrency:\s*true", _swift_code(sticky)):
+        errors.append("foreign-currency status must remain a sticky pause alongside existing causes")
+    bindings_source = (root / "Scripts/fx01_ui_contract.py").read_text()
+    if (len(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS) != 29
+            or len(set(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS)) != 29
+            or "UNIT_BINDINGS = RETAINED_UNIT_BINDINGS + LOCAL_ONLY_UNIT_BINDINGS" not in bindings_source):
+        errors.append("all 29 separate local-only bindings must join, not replace, retained native evidence")
+    for binding in fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS:
+        suite, method = binding.split("/")
+        filename = "ForeignCurrencyTests.swift" if suite == "ForeignCurrencyPersistenceTests" else suite + ".swift"
+        text = source.get("MindBudgetTests/" + filename, "")
+        if not re.search(r"@Test\s+(?:@MainActor\s+)?func\s+" + re.escape(method) + r"\s*\(\s*\)", text):
+            errors.append(f"local-only runtime binding requires its exact unparameterized @Test: {binding}")
+    doc = _section(source["Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md"], LOCAL_ONLY_DOC_HEADING, "### ") or ""
+    for anchor in LOCAL_ONLY_DOC_ANCHORS:
+        if _normalize_space(doc).count(_normalize_space(anchor)) != 1:
+            errors.append(f"current local-only iCloud contract lost scoped declaration: {anchor}")
+    return errors
+
+
+def run_local_only_self_test(data: Any, root: Path) -> None:
+    """Mutate copied executable gates; never run an actor, engine, account query or device."""
+    count = 0
+    with tempfile.TemporaryDirectory(prefix="mindbudget-fx-local-only-") as directory:
+        fixture = Path(directory)
+        _write_fixture(fixture, root, data)
+        if errors := local_only_sync_errors(fixture):
+            raise RuntimeError("invalid copied local-only baseline: " + "; ".join(errors))
+        originals = {path: (fixture / path).read_text() for path in LOCAL_ONLY_SCOPE_FILES.values()}
+        for scope, name, anchors in LOCAL_ONLY_FUNCTION_RULES:
+            relative = LOCAL_ONLY_SCOPE_FILES[scope]
+            text = _swift_code(originals[relative])
+            source = {**originals, relative: text}
+            body = _swift_function(_local_only_scopes(source)[scope], name)
+            if body is None or text.count(body) != 1:
+                raise RuntimeError(f"ambiguous local-only mutation target: {scope}.{name}")
+            for anchor in anchors:
+                damaged = _compact(body).replace(_compact(anchor), " ", 1)
+                path = fixture / relative
+                path.write_text(text.replace(body, damaged, 1))
+                try:
+                    if not local_only_sync_errors(fixture):
+                        raise RuntimeError(f"local-only gate failed open: {scope}.{name}:{anchor}")
+                    count += 1
+                finally:
+                    path.write_text(originals[relative])
+        replacements = (
+            ("MindBudget/Services/CloudSyncRuntime.swift", "func refreshPolicySnapshot() async {\n        await reloadSnapshot()",
+             "func refreshPolicySnapshot() async {\n        await synchronizeAdapterIfPermitted()\n        await reloadSnapshot()"),
+            ("MindBudget/Features/Settings/SettingsView.swift", ".task { await session.refreshCloudSyncPolicySnapshot() }", ".task { await session.retryCloudSync() }"),
+            ("MindBudget/Data/CloudSyncDataActor.swift", "control.lastReasonRaw = nil\n            control.updatedAt = date\n            try modelContext.save()\n            CloudSyncLocalChangeSignal.post()",
+             "control.lastReasonRaw = nil\n            control.updatedAt = date\n            try deleteCloudSyncAccountScopedState()\n            try modelContext.save()\n            CloudSyncLocalChangeSignal.post()"),
+            ("MindBudget/Data/DataActor.swift", "var foreignCurrencyTransportFootprint: Bool?", "var foreignCurrencyTransportFootprint: Bool? = false"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "foreignCurrencyTransportFootprint = found", "foreignCurrencyTransportFootprint = false"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "local.fetchLimit = 1", "local.fetchLimit = 0"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "let found = try scanForeignCurrencyTransportFootprint()", "let found = (try? scanForeignCurrencyTransportFootprint()) ?? false"),
+            ("MindBudget/Data/CloudSyncDataActor.swift", "if companionArrived { foreignCurrencyTransportFootprint = true }", "if companionArrived { foreignCurrencyTransportFootprint = false }"),
+            ("MindBudget/Data/CloudSyncDataActor.swift", "foreignCurrencyTransportFootprint = true\n        }\n        let recordName", "foreignCurrencyTransportFootprint = false\n        }\n        let recordName"),
+            ("MindBudget/Data/DataActor.swift", "#if DEBUG\n    private(set) var foreignCurrencyProtocolFixturesEnabled", "#if DEBUG || RELEASE\n    private(set) var foreignCurrencyProtocolFixturesEnabled"),
+            ("MindBudget/Data/DataActor.swift", "guard !modelContext.container.configurations.isEmpty,", "guard true,"),
+            ("MindBudget/Data/DataActor.swift", "modelContext.container.configurations.allSatisfy({ $0.isStoredInMemoryOnly })", "modelContext.container.configurations.contains(where: { $0.isStoredInMemoryOnly })"),
+            ("MindBudget/Data/DataActor.swift", "foreignCurrencyProtocolFixturesEnabled = false", "foreignCurrencyProtocolFixturesEnabled = true"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "#else\n        false", "#else\n        true"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "return try !hasForeignCurrencySyncFootprint()", "return true"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "func permitsOrdinaryCloudTransport() throws -> Bool {", "func permitsOrdinaryCloudTransport() throws -> Bool { return true"),
+            ("MindBudget/Services/CloudSyncRuntime.swift", "if !Task.isCancelled, persistedPermission { return true }", "if !Task.isCancelled { return true }"),
+            ("MindBudget/Services/CloudSyncRuntime.swift", "-> Bool {\n        !isProtocolFixture", "-> Bool {\n        true"),
+            ("MindBudget/Services/CloudSyncRuntime.swift", "private func deletionAccountFailure() async -> CloudSyncReasonCode? {", "private func deletionAccountFailure() async -> CloudSyncReasonCode? { guard await permitsOrdinaryTransport() else { return .foreignCurrencyLocalOnly }"),
+            ("MindBudget/Services/CloudSyncDomain.swift", "    case expenseForeignCurrencyMetadata\n", ""),
+            ("MindBudget/Data/CloudSyncDataActor.swift", '"amount": .integer(value.amountMinorUnits)', '"amount": .integer(value.amountMinorUnits), "foreign": .boolean(true)'),
+            ("MindBudget/Services/CloudSyncDomain.swift", ".pausedForeignCurrency:\n            true", ".pausedForeignCurrency:\n            false"),
+            ("Scripts/fx01_ui_contract.py", "UNIT_BINDINGS = RETAINED_UNIT_BINDINGS + LOCAL_ONLY_UNIT_BINDINGS", "UNIT_BINDINGS = RETAINED_UNIT_BINDINGS"),
+        )
+        for relative, old, new in replacements:
+            path = fixture / relative
+            text = path.read_text()
+            if old not in text:
+                raise RuntimeError(f"local-only mutation lost source: {relative}:{old}")
+            path.write_text(text.replace(old, new, 1))
+            try:
+                if not local_only_sync_errors(fixture):
+                    raise RuntimeError(f"local-only gate failed open: {relative}:{old}")
+                count += 1
+            finally:
+                path.write_text(text)
+        # Invalidate every rollback independently; a valid sibling cannot mask one missing site.
+        for relative in ("MindBudget/Data/DataActor.swift", "MindBudget/Data/CloudSyncDataActor.swift", "MindBudget/Data/CloudSyncRemoteApply.swift"):
+            path = fixture / relative
+            text = _swift_code(path.read_text())
+            for match in re.finditer(r"modelContext\.rollback\(\)\s*foreignCurrencyTransportFootprint = nil", text):
+                path.write_text(text[:match.start()] + "modelContext.rollback()" + text[match.end():])
+                try:
+                    if not local_only_sync_errors(fixture):
+                        raise RuntimeError(f"transport cache rollback mutation failed open: {relative}")
+                    count += 1
+                finally:
+                    path.write_text(originals[relative])
+        for relative in ("MindBudget/App/ForbiddenFixture.swift", "Tools/ForbiddenFixture.swift"):
+            path = fixture / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("func bypass(_ actor: DataActor) async throws { try await actor.enableForeignCurrencyProtocolFixtures() }")
+            if not local_only_sync_errors(fixture):
+                raise RuntimeError(f"local-only gate admitted a non-test fixture caller: {relative}")
+            count += 1
+            path.unlink()
+    print(f"FX local-only source self-test rejected {count} executable/fixture mutations")
+
+
 def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -684,14 +1204,15 @@ def validate_contract_data(data: Any) -> list[str]:
         ("evidenceBoundary", EVIDENCE_KEYS, EXPECTED_EVIDENCE_BOUNDARY),
         ("decimalRateContract", frozenset(EXPECTED_DECIMAL_RATE), EXPECTED_DECIMAL_RATE),
         ("syncCompanionContract", frozenset(EXPECTED_SYNC_COMPANION), EXPECTED_SYNC_COMPANION),
+        ("localOnlySyncContract", frozenset(EXPECTED_LOCAL_ONLY_SYNC), EXPECTED_LOCAL_ONLY_SYNC),
         ("implementationEvidence", frozenset(EXPECTED_IMPLEMENTATION_EVIDENCE), EXPECTED_IMPLEMENTATION_EVIDENCE),
         ("priorCloseoutEvidence", frozenset(EXPECTED_PRIOR_CLOSEOUT), EXPECTED_PRIOR_CLOSEOUT),
         ("cDeliveryEvidence", frozenset(EXPECTED_C_DELIVERY), EXPECTED_C_DELIVERY),
         ("cHarnessEvidence", frozenset(EXPECTED_C_HARNESS), EXPECTED_C_HARNESS),
         ("cFinalEvidence", frozenset(EXPECTED_C_FINAL), EXPECTED_C_FINAL),
     )
-    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 8:
-        errors.append("schemaVersion must be exactly 8")
+    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 9:
+        errors.append("schemaVersion must be exactly 9")
     for key, expected_keys, expected_value in nested_contracts:
         if not _exact_keys(data[key], expected_keys):
             errors.append(f"{key} must contain exactly the reviewed keys")
@@ -978,6 +1499,7 @@ def validate_project(data: Any, project_root: Path) -> list[str]:
             relative = configuration_path.relative_to(project_root).as_posix()
             errors.append(f"location configuration is forbidden by the FX-01 contract: {relative}")
     errors.extend(fx01_ui_contract.isolation_errors(project_root))
+    errors.extend(local_only_sync_errors(project_root))
     return errors
 
 
@@ -1001,6 +1523,7 @@ def _write_fixture(project_root: Path, source_root: Path, data: Any) -> None:
         *fx01_ui_contract.FIXTURE_FILES,
         "MindBudget/Models/Expense.swift",
         "MindBudget/Data/DataActor.swift",
+        *LOCAL_ONLY_SOURCE_FILES,
     )
     for relative in required:
         destination = project_root / relative
@@ -1255,13 +1778,13 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
         contract_path = fixture / "Docs/FX_01_CONTRACT.json"
         raw_contract = json.dumps(data)
         for old, new in (
-            ('"schemaVersion": 8', '"schemaVersion": 999, "schemaVersion": 8'),
+            ('"schemaVersion": 9', '"schemaVersion": 999, "schemaVersion": 9'),
             ('"casePassed": 575', '"casePassed": 999, "casePassed": 575'),
             ('"casePassed": 575', '"casePassed": 575, "casePassed": 575'),
             ('"casePassed": 575', '"case\\u0050assed": 999, "casePassed": 575'),
             ('"nextSubphaseEntered": false', '"nextSubphaseEntered": true, "nextSubphaseEntered": false'),
-            ('"schemaVersion": 8', '"schemaVersion": NaN'),
-            ('"schemaVersion": 8', '"schemaVersion": Infinity'),
+            ('"schemaVersion": 9', '"schemaVersion": NaN'),
+            ('"schemaVersion": 9', '"schemaVersion": Infinity'),
         ):
             if raw_contract.count(old) != 1:
                 raise RuntimeError(f"ambiguous raw JSON self-test target: {old}")
@@ -1283,7 +1806,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
             contract_path.write_text(json.dumps(mutation), encoding="utf-8")
             _require_fixture_cli(fixture, valid=False, description=f"{section}:{key}")
             mutation_count += 1
-        for section in ("decimalRateContract", "syncCompanionContract", "implementationEvidence", "priorCloseoutEvidence", "cDeliveryEvidence", "cHarnessEvidence", "cFinalEvidence"):
+        for section in ("decimalRateContract", "syncCompanionContract", "localOnlySyncContract", "implementationEvidence", "priorCloseoutEvidence", "cDeliveryEvidence", "cHarnessEvidence", "cFinalEvidence"):
             for key in data[section]:
                 mutation = copy.deepcopy(data)
                 mutation[section].pop(key)
@@ -1301,6 +1824,7 @@ def run_closeout_self_test(data: Any, project_root: Path) -> None:
 
 def run_self_test(data: Any, project_root: Path) -> None:
     fail_if_invalid(data, project_root)
+    run_local_only_self_test(data, project_root)
     run_cli_failure_self_test(project_root)
     run_closeout_self_test(data, project_root)
     from validation_order_self_test import run_validation_order_self_test

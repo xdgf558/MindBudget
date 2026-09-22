@@ -106,6 +106,41 @@ struct LocalizationTests {
     }
 
     @Test
+    func foreignCurrencyLocalOnlyCopyExplainsExplicitOffAndPreservedStewardship() throws {
+        let english = try localizedStrings(language: "en")
+        let chinese = try localizedStrings(language: "zh-Hans")
+
+        #expect(english["fx.help.sync"] ==
+            "Foreign-currency records stay on this device. To add one, first turn off iCloud sync in Settings.")
+        #expect(chinese["fx.help.sync"] == "外币记录仅保留在本机。新增前，请先在设置中主动关闭 iCloud 同步。")
+        #expect(english["fx.help.offline"]?.contains(
+            "These records stay on this device and cannot be used with iCloud sync."
+        ) == true)
+        #expect(chinese["fx.help.offline"]?.contains(
+            "这些记录仅保留在本机，暂不可与 iCloud 同步同时使用。"
+        ) == true)
+        #expect(english["fx.error.sync"] ==
+            "To add a foreign-currency record or convert an ordinary expense, first turn off iCloud sync in Settings. Your input has been kept. Existing foreign-currency records remain editable.")
+        #expect(chinese["fx.error.sync"] ==
+            "新增外币记录或将普通支出转为外币前，请先在设置中主动关闭 iCloud 同步。已保留您的输入；已有外币记录仍可编辑。")
+        #expect(english["settings.icloudSync.status.foreignCurrency"] ==
+            "Paused — foreign-currency records are local only")
+        #expect(chinese["settings.icloudSync.status.foreignCurrency"] == "已暂停：外币记录仅限本机")
+        #expect(english["settings.icloudSync.foreignCurrency.localOnly"]?.contains(
+            "existing foreign-currency records remain editable and exportable without Pro"
+        ) == true)
+        #expect(chinese["settings.icloudSync.foreignCurrency.localOnly"]?.contains(
+            "无需 Pro 也可继续编辑和导出已有外币记录"
+        ) == true)
+        #expect(english["settings.icloudSync.disclosure"]?.contains(
+            "Foreign-currency recording is currently local only and cannot be used with iCloud sync."
+        ) == true)
+        #expect(chinese["settings.icloudSync.disclosure"]?.contains(
+            "外币记账目前仅限本机，暂不可与 iCloud 同步同时使用。"
+        ) == true)
+    }
+
+    @Test
     func simplifiedChineseCopyUsesOnlyTheChineseProductName() throws {
         let chinese = try localizedStrings(language: "zh-Hans")
 
